@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
   if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
-   * user's right hand side function in y'=f(t,y), the inital time T0, and
+   * user's right hand side function in y'=f(t,y), the initial time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
   if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
   }
 
   /* Set the sparsity pattern to be fixed so that the row pointers
-   * and column indicies are not zeroed out by SUNMatZero */
+   * and column indices are not zeroed out by SUNMatZero */
   retval = SUNMatrix_cuSparse_SetFixedPattern(A, 1);
 
   /* Initialiize the Jacobian with its fixed sparsity pattern */
@@ -309,7 +309,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   return (0);
 }
 
-/* Right hand side function evalutation kernel. */
+/* Right hand side function evaluation kernel. */
 __global__ static void f_kernel(sunrealtype t, sunrealtype* ydata,
                                 sunrealtype* ydotdata, int neq, int ngroups)
 {

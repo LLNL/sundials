@@ -1893,7 +1893,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
     if (step_mem->MRIC->W || !(step_mem->MRIC->G))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "Invalid coupling table fro an implicit problem!");
+                      "Invalid coupling table for an implicit problem!");
       return (ARK_ILL_INPUT);
     }
   }

@@ -64,7 +64,7 @@
   ENTRY(SUN_ERR_UNREACHABLE,                                                   \
         "Reached code that should be unreachable: open an issue at: "          \
         "https://github.com/LLNL/sundials")                                    \
-  ENTRY(SUN_ERR_UNKNOWN, "Unknown error occured: open an issue at "            \
+  ENTRY(SUN_ERR_UNKNOWN, "Unknown error occurred: open an issue at "           \
                          "https://github.com/LLNL/sundials")
 
 /* Expand SUN_ERR_CODE_LIST to enum */

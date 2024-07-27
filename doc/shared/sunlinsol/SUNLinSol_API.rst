@@ -900,7 +900,7 @@ SUNLinSol implementations. As SUNDIALS packages utilize generic
 SUNLinSol modules they may naturally leverage user-supplied
 ``SUNLinearSolver`` implementations, thus there exist a wide range of
 possible linear solver combinations. Some intended use cases for both the
-SUNDIALS-provided and user-supplied SUNLinSol modules are discussd in the
+SUNDIALS-provided and user-supplied SUNLinSol modules are discussed in the
 sections below.
 
 
@@ -949,7 +949,7 @@ Matrix-based iterative linear solvers (reusing :math:`A`)
 
 Matrix-based iterative linear solver modules require a matrix and compute an
 inexact solution to the linear system *defined by the matrix*.  This
-matrix will be updated infrequently and resued across multiple solves
+matrix will be updated infrequently and reused across multiple solves
 to amortize the cost of matrix construction. As in the direct linear
 solver case, only thin SUNMATRIX and SUNLinSol wrappers for the underlying
 matrix and linear solver structures need to be created to utilize

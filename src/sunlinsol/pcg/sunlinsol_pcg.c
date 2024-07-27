@@ -280,7 +280,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
   int* nli;
   int status;
 
-  /* Make local shorcuts to solver variables. */
+  /* Make local shortcuts to solver variables. */
   l_max     = PCG_CONTENT(S)->maxl;
   r         = PCG_CONTENT(S)->r;
   p         = PCG_CONTENT(S)->p;

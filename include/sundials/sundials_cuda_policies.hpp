@@ -135,7 +135,7 @@ private:
 };
 
 /*
- * A kernel execution policy for performing a reduction across indvidual thread
+ * A kernel execution policy for performing a reduction across individual thread
  * blocks. The number of threads per block (blockSize) can be set to any valid
  * multiple of the CUDA warp size. The number of blocks (gridSize) can be set to
  * any value greater or equal to 0. If it is set to 0, then the grid size will

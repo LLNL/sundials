@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-/* BandPrec inititialization function */
+/* BandPrec initialization function */
 
 SUNDIALS_EXPORT int ARKBandPrecInit(void* arkode_mem, sunindextype N,
                                     sunindextype mu, sunindextype ml);

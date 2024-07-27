@@ -294,7 +294,7 @@ if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUPERLU_DIST_LIBRARIES="${BLAS_LIBRARIES};${PARMETIS_LIBRARIES};${METIS_LIBRARIES};${SUPERLU_DIST_ROOT}/lib/libsuperlu_dist.a"
     export SUPERLU_DIST_OPENMP=OFF
 
-    # if BLAS wasnt found, then dont build SuperLU_DIST
+    # if BLAS wasn't found, then dont build SuperLU_DIST
     if [ -z "$BLAS_LIBRARIES" ]; then
         export SUNDIALS_SUPERLU_DIST=OFF
     else

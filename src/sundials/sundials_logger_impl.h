@@ -38,7 +38,7 @@ struct SUNLogger_
   SUNComm comm;
   int output_rank;
 
-  /* Ouput files */
+  /* Output files */
   FILE* debug_fp;
   FILE* warning_fp;
   FILE* info_fp;

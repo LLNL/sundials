@@ -13,14 +13,10 @@
 # ---------------------------------------------------------------
 
 # Create library
-sundials_add_library(sundials_sunmemsycl
-  SOURCES
-    sundials_sycl_memory.cpp
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_sycl.h
-  INCLUDE_SUBDIR
-    sunmemory
-  LINK_LIBRARIES
-    PUBLIC sundials_core
-  OBJECT_LIB_ONLY
-)
+sundials_add_library(
+  sundials_sunmemsycl
+  SOURCES sundials_sycl_memory.cpp
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunmemory/sunmemory_sycl.h
+  INCLUDE_SUBDIR sunmemory
+  LINK_LIBRARIES PUBLIC sundials_core
+  OBJECT_LIB_ONLY)

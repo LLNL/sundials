@@ -18,15 +18,15 @@
 !
 ! where A = V * D * Vi
 !
-!      [ lamda/4 - 23/40 | lamda/4 - 3/40 | lamda/4 + 13/40 ]
-!  A = [ lamda/4 + 21/40 | lamda/4 + 1/40 | lamda/4 - 11/40 ]
-!      [ lamda/2 + 1/20  | lamda/2 + 1/20 | lamda/2 - 1/20  ]
+!      [ lambda/4 - 23/40 | lambda/4 - 3/40 | lambda/4 + 13/40 ]
+!  A = [ lambda/4 + 21/40 | lambda/4 + 1/40 | lambda/4 - 11/40 ]
+!      [ lambda/2 + 1/20  | lambda/2 + 1/20 | lambda/2 - 1/20  ]
 !
-!      [  1 -1 1 ]     [ -1/2   0     0   ]      [ 5/4 1/4 -3/4 ]
-!  V = [ -1  2 1 ] D = [   0  -1/10   0   ] Vi = [ 1/2 1/2 -1/2 ]
-!      [  0 -1 2 ]     [   0    0   lamda ]      [ 1/4 1/4  1/4 ]
+!      [  1 -1 1 ]     [ -1/2   0     0    ]      [ 5/4 1/4 -3/4 ]
+!  V = [ -1  2 1 ] D = [   0  -1/10   0    ] Vi = [ 1/2 1/2 -1/2 ]
+!      [  0 -1 2 ]     [   0    0   lambda ]      [ 1/4 1/4  1/4 ]
 !
-! and lamda is a large negative number. The analytical solution to
+! and lambda is a large negative number. The analytical solution to
 ! this problem is
 !
 !   y(t) = V * exp(D * t) * Vi * y0
@@ -35,11 +35,11 @@
 ! y(0) = [1,1,1]'.
 !
 ! The stiffness of the problem is directly proportional to the value
-! of lamda. The value of lamda should be negative to result in a
+! of lambda. The value of lambda should be negative to result in a
 ! well-posed ODE; for values with magnitude larger than 100 the
 ! problem becomes quite stiff.
 !
-! In this example, we choose lamda = -100.
+! In this example, we choose lambda = -100.
 !
 ! Output is printed every 1.0 units of time (10 total).
 ! Run statistics (optional outputs) are printed at the end.
@@ -58,7 +58,7 @@ module ode_mod
   integer(c_int64_t), parameter :: neq = 3
 
   ! ODE parameters
-  double precision, parameter :: lamda = -100.0d0
+  double precision, parameter :: lambda = -100.0d0
 
 contains
 
@@ -100,9 +100,9 @@ contains
 
     ! fill A matrix (column major ordering)
     Amat = reshape([ &
-                   lamda/4.d0 - 23.d0/40.d0, lamda/4.d0 + 21.d0/40, lamda/2.d0 + 1.d0/20.d0, &
-                   lamda/4.d0 - 3.d0/40.d0, lamda/4.d0 + 1.d0/40, lamda/2.d0 + 1.d0/20.d0, &
-                   lamda/4.d0 + 13.d0/40.d0, lamda/4.d0 - 11.d0/40, lamda/2.d0 - 1.d0/20.d0], &
+                   lambda/4.d0 - 23.d0/40.d0, lambda/4.d0 + 21.d0/40, lambda/2.d0 + 1.d0/20.d0, &
+                   lambda/4.d0 - 3.d0/40.d0, lambda/4.d0 + 1.d0/40, lambda/2.d0 + 1.d0/20.d0, &
+                   lambda/4.d0 + 13.d0/40.d0, lambda/4.d0 - 11.d0/40, lambda/2.d0 - 1.d0/20.d0], &
                    [3, 3])
 
     ! fill RHS vector f(t,y) = A*y
@@ -158,9 +158,9 @@ contains
 
     ! fill J matrix (column major ordering)
     Jmat = &
-      [lamda/4.d0 - 23.d0/40.d0, lamda/4.d0 + 21.d0/40, lamda/2.d0 + 1.d0/20.d0, &
-       lamda/4.d0 - 3.d0/40.d0, lamda/4.d0 + 1.d0/40, lamda/2.d0 + 1.d0/20.d0, &
-       lamda/4.d0 + 13.d0/40.d0, lamda/4.d0 - 11.d0/40, lamda/2.d0 - 1.d0/20.d0]
+      [lambda/4.d0 - 23.d0/40.d0, lambda/4.d0 + 21.d0/40, lambda/2.d0 + 1.d0/20.d0, &
+       lambda/4.d0 - 3.d0/40.d0, lambda/4.d0 + 1.d0/40, lambda/2.d0 + 1.d0/20.d0, &
+       lambda/4.d0 + 13.d0/40.d0, lambda/4.d0 - 11.d0/40, lambda/2.d0 - 1.d0/20.d0]
 
     Jidxptr = [0, 3, 6, 9]
     Jidxval = [0, 1, 2, 0, 1, 2, 0, 1, 2]

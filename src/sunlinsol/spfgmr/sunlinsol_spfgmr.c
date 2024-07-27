@@ -386,7 +386,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   /* Initialize some variables */
   krydim = 0;
 
-  /* Make local shorcuts to solver variables. */
+  /* Make local shortcuts to solver variables. */
   l_max        = SPFGMR_CONTENT(S)->maxl;
   max_restarts = SPFGMR_CONTENT(S)->max_restarts;
   gstype       = SPFGMR_CONTENT(S)->gstype;

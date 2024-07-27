@@ -319,7 +319,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   sunrealtype cv[3];
   N_Vector Xv[3];
 
-  /* Make local shorcuts to solver variables. */
+  /* Make local shortcuts to solver variables. */
   l_max     = SPBCGS_CONTENT(S)->maxl;
   r_star    = SPBCGS_CONTENT(S)->r_star;
   r         = SPBCGS_CONTENT(S)->r;
@@ -687,7 +687,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
     SUNCheckCall(N_VLinearCombination(3, cv, Xv, p));
 
-    /* udpate beta_denom for next iteration */
+    /* update beta_denom for next iteration */
     beta_denom = beta_num;
   }
 

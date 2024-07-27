@@ -372,7 +372,7 @@ int IDASetLSNormFactor(void* ida_mem, sunrealtype nrmfac)
   }
   else
   {
-    /* compute default factor for WRMS norm from vector legnth */
+    /* compute default factor for WRMS norm from vector length */
     idals_mem->nrmfac = SUNRsqrt(N_VGetLength(idals_mem->ytemp));
   }
 
@@ -970,7 +970,7 @@ int idaLsDenseDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
   /* access matrix dimension */
   N = SUNDenseMatrix_Columns(Jac);
 
-  /* Rename work vectors for readibility */
+  /* Rename work vectors for readability */
   rtemp = tmp1;
 
   /* Create an empty vector for matrix column calculations */
@@ -1223,7 +1223,7 @@ int idaLsDQJtimes(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   }
   else { sig = idals_mem->dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt); }
 
-  /* Rename work1 and work2 for readibility */
+  /* Rename work1 and work2 for readability */
   y_tmp  = work1;
   yp_tmp = work2;
 

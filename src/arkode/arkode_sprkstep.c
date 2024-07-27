@@ -670,7 +670,7 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     N_VLinearSum(ONE, delta_Yi, ark_mem->h * ai, step_mem->sdata, delta_Yi);
 
     /* if user-supplied stage postprocessing function, we error out since it
-     * wont work with the increment form */
+     * won't work with the increment form */
     if (ark_mem->ProcessStage != NULL)
     {
       arkProcessError(ark_mem, ARK_POSTPROCESS_STAGE_FAIL, __LINE__, __func__,

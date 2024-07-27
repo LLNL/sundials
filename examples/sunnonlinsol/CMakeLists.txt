@@ -24,5 +24,5 @@ add_subdirectory(newton)
 add_subdirectory(fixedpoint)
 
 if(BUILD_SUNNONLINSOL_PETSCSNES)
-    add_subdirectory(petsc)
+  add_subdirectory(petsc)
 endif()

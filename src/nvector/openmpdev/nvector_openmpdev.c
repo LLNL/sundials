@@ -932,7 +932,7 @@ sunrealtype N_VWSqrSumMaskLocal_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
 }
 
 /* ----------------------------------------------------------------------------
- * Finds the minimun component of a vector
+ * Finds the minimum component of a vector
  */
 
 sunrealtype N_VMin_OpenMPDEV(N_Vector x)
@@ -2574,7 +2574,7 @@ static int VScaleDiffVectorArray_OpenMPDEV(int nvec, sunrealtype c, N_Vector* X,
   /* get default device identifier */
   dev = omp_get_default_device();
 
-  /* Allocate and store dev ointer to copy to device */
+  /* Allocate and store dev pointer to copy to device */
   xd_dev_ptrs = (sunrealtype**)malloc(nvec * sizeof(sunrealtype*));
   yd_dev_ptrs = (sunrealtype**)malloc(nvec * sizeof(sunrealtype*));
   zd_dev_ptrs = (sunrealtype**)malloc(nvec * sizeof(sunrealtype*));

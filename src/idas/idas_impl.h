@@ -316,7 +316,7 @@ typedef struct IDAMemRec
   sunrealtype ida_ss; /* scalar used in Newton iteration convergence test  */
   sunrealtype ida_oldnrm; /* norm of previous nonlinear solver update          */
   sunrealtype ida_epsNewt; /* test constant in Newton convergence test          */
-  sunrealtype ida_epcon; /* coeficient of the Newton covergence test          */
+  sunrealtype ida_epcon; /* coefficient of the Newton convergence test          */
   sunrealtype ida_toldel; /* tolerance in direct test on Newton corrections    */
 
   sunrealtype ida_ssS; /* scalar ss for staggered sensitivities             */
@@ -325,7 +325,7 @@ typedef struct IDAMemRec
     Limits
     ------*/
 
-  int ida_maxncf; /* max numer of convergence failures                 */
+  int ida_maxncf; /* max number of convergence failures                 */
   int ida_maxnef; /* max number of error test failures                 */
 
   int ida_maxord;       /* max value of method order k:                      */
@@ -738,7 +738,7 @@ struct IDABMemRec
  * Type : struct IDAadjMemRec
  * -----------------------------------------------------------------
  * The type IDAadjMem is type pointer to struct IDAadjMemRec.
- * This structure contins fields to store all information
+ * This structure contains fields to store all information
  * necessary for adjoint sensitivity analysis.
  * -----------------------------------------------------------------
  */
@@ -825,7 +825,7 @@ struct IDAadjMemRec
   sunbooleantype ia_storeSensi;  /* store sensitivities?           */
   sunbooleantype ia_interpSensi; /* interpolate sensitivities?     */
 
-  sunbooleantype ia_noInterp; /* interpolations are temporarly  */
+  sunbooleantype ia_noInterp; /* interpolations are temporarily */
                               /* disabled ( IDACalcICB )        */
 
   /* Workspace for polynomial interpolation */
@@ -1217,7 +1217,7 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
 #define MSGAM_BAD_TBOUT                                                  \
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
-#define MSGAM_BACK_ERROR  "Error occured while integrating backward problem # %d"
+#define MSGAM_BACK_ERROR  "Error occurred while integrating backward problem # %d"
 #define MSGAM_BAD_TINTERP "Bad t = " SUN_FORMAT_G " for interpolation."
 #define MSGAM_BAD_T       "Bad t for interpolation."
 #define MSGAM_WRONG_INTERP \

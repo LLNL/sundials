@@ -465,7 +465,7 @@ int CVodeSetLSNormFactor(void* cvode_mem, sunrealtype nrmfac)
   }
   else
   {
-    /* compute default factor for WRMS norm from vector legnth */
+    /* compute default factor for WRMS norm from vector length */
     cvls_mem->nrmfac = SUNRsqrt(N_VGetLength(cvls_mem->ytemp));
   }
 
@@ -1141,7 +1141,7 @@ int cvLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   /* access matrix dimension */
   N = SUNDenseMatrix_Columns(Jac);
 
-  /* Rename work vector for readibility */
+  /* Rename work vector for readability */
   ftemp = tmp1;
 
   /* Create an empty vector for matrix column calculations */

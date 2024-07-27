@@ -525,7 +525,7 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
 {
   int i, j, k;
 
-  /* check for vaild coupling structure */
+  /* check for valid coupling structure */
   if (!MRIC) { return; }
   if (!(MRIC->W) && !(MRIC->G)) { return; }
   if (!(MRIC->c)) { return; }

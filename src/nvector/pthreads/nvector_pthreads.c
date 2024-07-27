@@ -1662,7 +1662,7 @@ static void* nvWSqrSumMaskPt(void* thread_data)
 }
 
 /* ----------------------------------------------------------------------------
- * Finds the minimun component of a vector
+ * Finds the minimum component of a vector
  */
 
 sunrealtype N_VMin_Pthreads(N_Vector x)

@@ -216,7 +216,7 @@ int main(void)
   for (i = 0; i < N; i++) { data[IDX(i, 2)] = ONE; }
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
-     specify the right-hand side function in y'=f(t,y), the inital time
+     specify the right-hand side function in y'=f(t,y), the initial time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);

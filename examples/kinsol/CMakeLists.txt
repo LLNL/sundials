@@ -19,7 +19,8 @@
 if(EXAMPLES_ENABLE_C)
   add_subdirectory(serial)
   if(ENABLE_OPENMP AND OPENMP_FOUND)
-    # the only example here need special handling from testrunner (not yet implemented)
+    # the only example here need special handling from testrunner (not yet
+    # implemented)
     add_subdirectory(C_openmp)
   endif()
   if(ENABLE_MPI AND MPI_C_FOUND)
@@ -32,7 +33,10 @@ if(EXAMPLES_ENABLE_CXX)
   if(ENABLE_MPI AND MPI_CXX_FOUND)
     add_subdirectory(CXX_parallel)
   endif()
-  if(ENABLE_MPI AND MPI_CXX_FOUND AND ENABLE_HYPRE AND HYPRE_FOUND)
+  if(ENABLE_MPI
+     AND MPI_CXX_FOUND
+     AND ENABLE_HYPRE
+     AND HYPRE_FOUND)
     add_subdirectory(CXX_parhyp)
   endif()
 endif()

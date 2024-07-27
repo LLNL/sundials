@@ -730,7 +730,7 @@ int ARKodeSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   }
   else
   {
-    /* compute default factor for WRMS norm from vector legnth */
+    /* compute default factor for WRMS norm from vector length */
     arkls_mem->nrmfac = SUNRsqrt(N_VGetLength(ark_mem->tempv1));
   }
 
@@ -1682,7 +1682,7 @@ int ARKodeSetMassLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   }
   else
   {
-    /* compute default factor for WRMS norm from vector legnth */
+    /* compute default factor for WRMS norm from vector length */
     arkls_mem->nrmfac = SUNRsqrt(N_VGetLength(ark_mem->tempv1));
   }
 
@@ -2634,7 +2634,7 @@ int arkLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   /* access matrix dimension */
   N = SUNDenseMatrix_Columns(Jac);
 
-  /* Rename work vector for readibility */
+  /* Rename work vector for readability */
   ftemp = tmp1;
 
   /* Create an empty vector for matrix column calculations */

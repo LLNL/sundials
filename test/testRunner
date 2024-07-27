@@ -188,7 +188,7 @@ def main():
             else:
                 answerFileName = testName
 
-        # if user supplies filename overide default choices
+        # if user supplies filename override default choices
         if(args.answerFile):
             answerFileName = args.answerFile
 
@@ -205,7 +205,7 @@ def main():
             os.environ['CALI_ENV_EXTRA'] = 'TEST_NAME'
             os.environ['CALI_CONFIG'] = 'spot(output=%s)' % profilePath
 
-        # if user supplies precision info overide the default choices
+        # if user supplies precision info override the default choices
         if(args.floatPrecision >= 0):
             testInfo.floatPrecision=args.floatPrecision
 
@@ -409,7 +409,7 @@ def getInfo(testName, testDir):
 
     if len(testInfos) == 0:
         # Note: If no info is found in the testInfo file then run the test
-        # without arguments and use the default comparisions values
+        # without arguments and use the default comparisons values
         testInfos.append(TestInfo(4,10,""))
     return testInfos
 

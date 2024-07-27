@@ -314,7 +314,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   N_Vector Xv[3];
   int status = SUN_SUCCESS;
 
-  /* Make local shorcuts to solver variables. */
+  /* Make local shortcuts to solver variables. */
   l_max     = SPTFQMR_CONTENT(S)->maxl;
   r_star    = SPTFQMR_CONTENT(S)->r_star;
   q         = SPTFQMR_CONTENT(S)->q;

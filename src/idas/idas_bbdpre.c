@@ -741,7 +741,7 @@ int IDABBDPrecInitB(void* ida_mem, int which, sunindextype NlocalB,
   void* ida_memB;
   int flag;
 
-  /* Check if ida_mem is allright. */
+  /* Check if ida_mem is all right. */
   if (ida_mem == NULL)
   {
     IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
@@ -815,7 +815,7 @@ int IDABBDPrecReInitB(void* ida_mem, int which, sunindextype mudqB,
   void* ida_memB;
   int flag;
 
-  /* Check if ida_mem is allright. */
+  /* Check if ida_mem is all right. */
   if (ida_mem == NULL)
   {
     IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,

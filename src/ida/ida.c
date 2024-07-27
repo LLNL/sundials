@@ -552,7 +552,7 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
  * IDAReInit
  *
  * IDAReInit re-initializes IDA's memory for a problem, assuming
- * it has already beeen allocated in a prior IDAInit call.
+ * it has already been allocated in a prior IDAInit call.
  * All problem specification inputs are checked for errors.
  * The problem size Neq is assumed to be unchanged since the call
  * to IDAInit, and the maximum order maxord must not be larger.
@@ -1561,7 +1561,7 @@ int IDAGetDky(void* ida_mem, sunrealtype t, int k, N_Vector dky)
 
   for (i = 0; i <= k; i++)
   {
-    /* The below reccurence is used to compute the k-th derivative of the solution:
+    /* The below recurrence is used to compute the k-th derivative of the solution:
        c_j^(k) = ( k * c_{j-1}^(k-1) + c_{j-1}^{k} (Delta+psi_{j-1}) ) / psi_j
 
        Translated in indexes notation:
@@ -2106,7 +2106,7 @@ int IDAEwtSet(N_Vector ycur, N_Vector weight, void* data)
 /*
  * IDAEwtSetSS
  *
- * This routine sets ewt as decribed above in the case itol=IDA_SS.
+ * This routine sets ewt as described above in the case itol=IDA_SS.
  * If the absolute tolerance is zero, it tests for non-positive components
  * before inverting. IDAEwtSetSS returns 0 if ewt is successfully set to a
  * positive vector and -1 otherwise. In the latter case, ewt is considered
@@ -2129,7 +2129,7 @@ static int IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
 /*
  * IDAEwtSetSV
  *
- * This routine sets ewt as decribed above in the case itol=IDA_SV.
+ * This routine sets ewt as described above in the case itol=IDA_SV.
  * If the absolute tolerance is zero, it tests for non-positive components
  * before inverting. IDAEwtSetSV returns 0 if ewt is successfully set to a
  * positive vector and -1 otherwise. In the latter case, ewt is considered
@@ -3195,7 +3195,7 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
      stepsize and order are set by the usual local error algorithm.
 
      Note that, after the first step, the order is not increased, as not all
-     of the neccessary information is available yet. */
+     of the necessary information is available yet. */
 
   if (IDA_mem->ida_phase == 0)
   {
