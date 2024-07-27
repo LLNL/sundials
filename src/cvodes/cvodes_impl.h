@@ -297,7 +297,7 @@ typedef struct CVodeMemRec
     Quadrature Sensitivity Related Data
     -----------------------------------*/
 
-  sunbooleantype cv_quadr_sensi; /* SUNTRUE if computing sensitivties of quadrs. */
+  sunbooleantype cv_quadr_sensi; /* SUNTRUE if computing sensitivities of quadrs. */
 
   CVQuadSensRhsFn cv_fQS;  /* fQS = (dfQ/dy)*yS + (dfQ/dp)                 */
   void* cv_fQS_data;       /* data pointer passed to fQS                   */
@@ -422,7 +422,7 @@ typedef struct CVodeMemRec
   sunrealtype cv_acnrmS;       /* | acorS |                                   */
   sunbooleantype cv_acnrmScur; /* is | acorS | current?                       */
   sunrealtype cv_acnrmQS;      /* | acorQS |                                  */
-  sunrealtype cv_nlscoef;      /* coeficient in nonlinear convergence test    */
+  sunrealtype cv_nlscoef;      /* coefficient in nonlinear convergence test   */
   int* cv_ncfS1;               /* Array of Ns local counters for conv.
                                 * failures (used in CVStep for STAGGERED1)    */
 
@@ -873,7 +873,7 @@ struct CVodeBMemRec
  * Type : struct CVadjMemRec
  * -----------------------------------------------------------------
  * The type CVadjMem is type pointer to struct CVadjMemRec.
- * This structure contins fields to store all information
+ * This structure contains fields to store all information
  * necessary for adjoint sensitivity analysis.
  * -----------------------------------------------------------------
  */
@@ -1180,13 +1180,13 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
  * =================================================================
  */
 
-#define MSG_TIME   "t = " SUN_REAL_FORMAT_G
-#define MSG_TIME_H "t = " SUN_REAL_FORMAT_G " and h = " SUN_REAL_FORMAT_G
-#define MSG_TIME_INT                                                          \
-  "t = " SUN_REAL_FORMAT_G " is not between tcur - hold = " SUN_REAL_FORMAT_G \
-  " and tcur = " SUN_REAL_FORMAT_G
-#define MSG_TIME_TOUT  "tout = " SUN_REAL_FORMAT_G
-#define MSG_TIME_TSTOP "tstop = " SUN_REAL_FORMAT_G
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
+#define MSG_TIME_INT                                                \
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* Initialization and I/O error messages */
 
@@ -1420,8 +1420,8 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
 #define MSGCV_BAD_TBOUT                                                  \
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
-#define MSGCV_BACK_ERROR  "Error occured while integrating backward problem # %d"
-#define MSGCV_BAD_TINTERP "Bad t = " SUN_REAL_FORMAT_G " for interpolation."
+#define MSGCV_BACK_ERROR  "Error occurred while integrating backward problem # %d"
+#define MSGCV_BAD_TINTERP "Bad t = " SUN_FORMAT_G " for interpolation."
 #define MSGCV_WRONG_INTERP \
   "This function cannot be called for the specified interp type."
 

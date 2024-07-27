@@ -368,7 +368,7 @@ int main(int argc, char* argv[])
    * Solve the problem, printing output at the desired points in time
    */
 
-  /* Print output heading (on processor 0 only) and intial solution  */
+  /* Print output heading (on processor 0 only) and initial solution  */
   if (thispe == 0) { PrintHeader(Neq, rtol, atol); }
   PrintOutput(thispe, ida_mem, t0, uu, snes);
 
@@ -600,7 +600,7 @@ int jacHeat(SNES snes, Vec x, Mat Jpre, Mat J, void* user_data)
  * PsetupHeat: setup for diagonal preconditioner for heatsk.
  *
  * The optional user-supplied functions PsetupHeat and
- * PsolveHeat together must define the left preconditoner
+ * PsolveHeat together must define the left preconditioner
  * matrix P approximating the system Jacobian matrix
  *                   J = dF/du + cj*dF/du'
  * (where the DAE system is F(t,u,u') = 0), and solve the linear

@@ -314,7 +314,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   N_Vector Xv[3];
   int status = SUN_SUCCESS;
 
-  /* Make local shorcuts to solver variables. */
+  /* Make local shortcuts to solver variables. */
   l_max     = SPTFQMR_CONTENT(S)->maxl;
   r_star    = SPTFQMR_CONTENT(S)->r_star;
   q         = SPTFQMR_CONTENT(S)->q;
@@ -428,7 +428,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "SUNLinSolSolve_SPFTQMR", "initial-residual",
-                     "nli = %li, resnorm = " SUN_REAL_FORMAT_G, (long int)0,
+                     "nli = %li, resnorm = " SUN_FORMAT_G, (long int)0,
                      *res_norm);
 #endif
 
@@ -658,7 +658,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFOs
       SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
                          "SUNLinSolSolve_SPTFQMR", "iterate-residual",
-                         "nli = %li, resnorm = " SUN_REAL_FORMAT_G, (long int)0,
+                         "nli = %li, resnorm = " SUN_FORMAT_G, (long int)0,
                          *res_norm);
 #endif
 

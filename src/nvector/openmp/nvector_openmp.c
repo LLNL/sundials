@@ -265,8 +265,7 @@ void N_VPrintFile_OpenMP(N_Vector x, FILE* outfile)
   N  = NV_LENGTH_OMP(x);
   xd = NV_DATA_OMP(x);
 
-  for (i = 0; i < N; i++) { fprintf(outfile, SUN_REAL_FORMAT_E "\n", xd[i]); }
-  fprintf(outfile, "\n");
+  for (i = 0; i < N; i++) { fprintf(outfile, SUN_FORMAT_E "\n", xd[i]); }
 
   return;
 }

@@ -2861,11 +2861,11 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   fprintf(fp, "ARKODE solver parameters:\n");
   if (ark_mem->hmin != ZERO)
   {
-    fprintf(fp, "  Minimum step size = " SUN_REAL_FORMAT_G "\n", ark_mem->hmin);
+    fprintf(fp, "  Minimum step size = " SUN_FORMAT_G "\n", ark_mem->hmin);
   }
   if (ark_mem->hmax_inv != ZERO)
   {
-    fprintf(fp, "  Maximum step size = " SUN_REAL_FORMAT_G "\n",
+    fprintf(fp, "  Maximum step size = " SUN_FORMAT_G "\n",
             ONE / ark_mem->hmax_inv);
   }
   if (ark_mem->fixedstep) { fprintf(fp, "  Fixed time-stepping enabled\n"); }
@@ -2875,11 +2875,11 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   }
   else
   {
-    fprintf(fp, "  Solver relative tolerance = " SUN_REAL_FORMAT_G "\n",
+    fprintf(fp, "  Solver relative tolerance = " SUN_FORMAT_G "\n",
             ark_mem->reltol);
     if (ark_mem->itol == ARK_SS)
     {
-      fprintf(fp, "  Solver absolute tolerance = " SUN_REAL_FORMAT_G "\n",
+      fprintf(fp, "  Solver absolute tolerance = " SUN_FORMAT_G "\n",
               ark_mem->Sabstol);
     }
     else { fprintf(fp, "  Vector-valued solver absolute tolerance\n"); }
@@ -2894,7 +2894,7 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
     {
       if (ark_mem->ritol == ARK_SS)
       {
-        fprintf(fp, "  Absolute residual tolerance = " SUN_REAL_FORMAT_G "\n",
+        fprintf(fp, "  Absolute residual tolerance = " SUN_FORMAT_G "\n",
                 ark_mem->SRabstol);
       }
       else { fprintf(fp, "  Vector-valued residual absolute tolerance\n"); }
@@ -2902,28 +2902,27 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   }
   if (ark_mem->hin != ZERO)
   {
-    fprintf(fp, "  Initial step size = " SUN_REAL_FORMAT_G "\n", ark_mem->hin);
+    fprintf(fp, "  Initial step size = " SUN_FORMAT_G "\n", ark_mem->hin);
   }
   fprintf(fp, "\n");
-  fprintf(fp, "  Maximum step increase (first step) = " SUN_REAL_FORMAT_G "\n",
+  fprintf(fp, "  Maximum step increase (first step) = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->etamx1);
   fprintf(fp,
-          "  Step reduction factor on multiple error fails = " SUN_REAL_FORMAT_G
-          "\n",
+          "  Step reduction factor on multiple error fails = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->etamxf);
   fprintf(fp, "  Minimum error fails before above factor is used = %i\n",
           ark_mem->hadapt_mem->small_nef);
-  fprintf(fp, "  Step reduction factor on nonlinear convergence failure = " SUN_REAL_FORMAT_G "\n",
+  fprintf(fp, "  Step reduction factor on nonlinear convergence failure = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->etacf);
-  fprintf(fp, "  Explicit safety factor = " SUN_REAL_FORMAT_G "\n",
+  fprintf(fp, "  Explicit safety factor = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->cfl);
-  fprintf(fp, "  Safety factor = " SUN_REAL_FORMAT_G "\n",
+  fprintf(fp, "  Safety factor = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->safety);
-  fprintf(fp, "  Growth factor = " SUN_REAL_FORMAT_G "\n",
+  fprintf(fp, "  Growth factor = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->growth);
-  fprintf(fp, "  Step growth lower bound = " SUN_REAL_FORMAT_G "\n",
+  fprintf(fp, "  Step growth lower bound = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->lbound);
-  fprintf(fp, "  Step growth upper bound = " SUN_REAL_FORMAT_G "\n",
+  fprintf(fp, "  Step growth upper bound = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->ubound);
   if (ark_mem->hadapt_mem->expstab == arkExpStab)
   {
@@ -2974,7 +2973,7 @@ int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass)
 /*---------------------------------------------------------------
   arkGetLastKFlag:
 
-  The last kflag value retured by the temporal error test.
+  The last kflag value returned by the temporal error test.
   ---------------------------------------------------------------*/
 int arkGetLastKFlag(void* arkode_mem, int* last_kflag)
 {

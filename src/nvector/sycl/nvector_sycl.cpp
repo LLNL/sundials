@@ -709,7 +709,7 @@ void N_VPrintFile_Sycl(N_Vector X, FILE* outfile)
 
   for (i = 0; i < NVEC_SYCL_CONTENT(X)->length; i++)
   {
-    fprintf(outfile, SUN_REAL_FORMAT_E "\n", NVEC_SYCL_HDATAp(X)[i]);
+    fprintf(outfile, SUN_FORMAT_E "\n", NVEC_SYCL_HDATAp(X)[i]);
   }
 
   return;
@@ -863,7 +863,7 @@ void N_VDestroy_Sycl(N_Vector v)
   return;
 }
 
-void N_VSpace_Sycl(N_Vector X, long int* lrw, long int* liw)
+void N_VSpace_Sycl(N_Vector X, sunindextype* lrw, sunindextype* liw)
 {
   *lrw = NVEC_SYCL_CONTENT(X)->length;
   *liw = 2;

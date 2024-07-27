@@ -176,7 +176,7 @@ int CVodeAdjInit(void* cvode_mem, long int steps, int interp)
 
   ca_mem->ca_nsteps = steps;
 
-  /* Last index used in CVAfindIndex, initailize to invalid value */
+  /* Last index used in CVAfindIndex, initialize to invalid value */
   ca_mem->ca_ilast = -1;
 
   /* Allocate space for the array of Data Point structures */
@@ -608,7 +608,7 @@ int CVodeF(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
       ca_mem->ca_IMstore(cv_mem, dt_mem[cv_mem->cv_nst % ca_mem->ca_nsteps]);
     }
 
-    /* Set t1 field of the current ckeck point structure
+    /* Set t1 field of the current check point structure
        for the case in which there will be no future
        check points */
     ca_mem->ck_mem->ck_t1 = cv_mem->cv_tn;
@@ -1613,7 +1613,7 @@ int CVodeB(void* cvode_mem, sunrealtype tBout, int itaskB)
 
     if (itaskB == CV_ONE_STEP) { break; }
 
-    /* If all backward problems have succesfully reached tBout, return now */
+    /* If all backward problems have successfully reached tBout, return now */
 
     reachedTBout = SUNTRUE;
 
@@ -2537,7 +2537,7 @@ static int CVAckpntGet(CVodeMem cv_mem, CVckpntMem ck_mem)
 /*
  * CVAfindIndex
  *
- * Finds the index in the array of data point strctures such that
+ * Finds the index in the array of data point structures such that
  *     dt_mem[indx-1].t <= t < dt_mem[indx].t
  * If indx is changed from the previous invocation, then newpoint = SUNTRUE
  *
@@ -3193,7 +3193,7 @@ static sunbooleantype CVApolynomialMalloc(CVodeMem cv_mem)
 /*
  * CVApolynomialFree
  *
- * This routine frees the memeory allocated for data storage.
+ * This routine frees the memory allocated for data storage.
  */
 
 static void CVApolynomialFree(CVodeMem cv_mem)

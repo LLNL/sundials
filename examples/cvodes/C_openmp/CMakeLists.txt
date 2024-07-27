@@ -14,13 +14,11 @@
 # CMakeLists.txt file for CVODES OpenMP examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(CVODES_examples_OMP
-  "cvsAdvDiff_bnd_omp\;4\;develop"
-  )
+set(CVODES_examples_OMP "cvsAdvDiff_bnd_omp\;4\;develop")
 
 # Specify libraries to link against
 set(CVODES_LIB sundials_cvodes)
@@ -37,8 +35,8 @@ foreach(example_tuple ${CVODES_examples_OMP})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.c)
@@ -51,7 +49,8 @@ foreach(example_tuple ${CVODES_examples_OMP})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${example} ${example}
+  sundials_add_test(
+    ${example} ${example}
     TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
@@ -60,13 +59,12 @@ foreach(example_tuple ${CVODES_examples_OMP})
   # install example source and .out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp)
   endif()
 
 endforeach(example_tuple ${CVODES_examples_OMP})
 
-
-# create Makfile and CMakeLists.txt for examples
+# create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -74,7 +72,8 @@ if(EXAMPLES_INSTALL)
 
   # Install the extra files
   foreach(extrafile ${CVODES_extras_OMP})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp)
+    install(FILES ${extrafile}
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp)
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -84,39 +83,32 @@ if(EXAMPLES_INSTALL)
   examples2string(CVODES_examples_OMP EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvodes/C_openmp/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/cvodes/C_openmp/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvodes/C_openmp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/cvodes/C_openmp/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmp_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvodes/C_openmp/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/cvodes/C_openmp/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/cvodes/C_openmp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

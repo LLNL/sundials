@@ -93,7 +93,7 @@ typedef struct IDALsMemRec
   int (*pfree)(IDAMem IDA_mem);
   void* pdata;
 
-  /* Jacobian times vector compuation
+  /* Jacobian times vector computation
      (a) jtimes function provided by the user:
          - jt_data == user_data
          - jtimesDQ == SUNFALSE
@@ -141,7 +141,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
 int idaLsPerf(IDAMem IDA_mem, int perftask);
 int idaLsFree(IDAMem IDA_mem);
 
-/* Auxilliary functions */
+/* Auxiliary functions */
 int idaLsInitializeCounters(IDALsMem idals_mem);
 int idaLs_AccessLMem(void* ida_mem, const char* fname, IDAMem* IDA_mem,
                      IDALsMem* idals_mem);
@@ -150,8 +150,8 @@ int idaLs_AccessLMem(void* ida_mem, const char* fname, IDAMem* IDA_mem,
   Error and Warning Messages
   ---------------------------------------------------------------*/
 
-#define MSG_LS_TIME "at t = " SUN_REAL_FORMAT_G ", "
-#define MSG_LS_FRMT SUN_REAL_FORMAT_G "."
+#define MSG_LS_TIME "at t = " SUN_FORMAT_G ", "
+#define MSG_LS_FRMT SUN_FORMAT_G "."
 
 /* Error Messages */
 #define MSG_LS_IDAMEM_NULL "Integrator memory is NULL."

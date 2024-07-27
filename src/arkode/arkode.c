@@ -135,7 +135,7 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
     }
   }
 
-  /* Determing change in vector sizes */
+  /* Determining change in vector sizes */
   lrw1 = liw1 = 0;
   if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
   lrw_diff      = lrw1 - ark_mem->lrw1;
@@ -877,8 +877,8 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::ARKodeEvolve",
                          "start-step",
-                         "step = %li, attempt = %i, h = " SUN_REAL_FORMAT_G
-                         ", tcur = " SUN_REAL_FORMAT_G,
+                         "step = %li, attempt = %i, h = " SUN_FORMAT_G
+                         ", tcur = " SUN_FORMAT_G,
                          ark_mem->nst, attempts, ark_mem->h, ark_mem->tcur);
 #endif
 
@@ -1259,17 +1259,17 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "user_efun = %i\n", ark_mem->user_efun);
   fprintf(outfile, "tstopset = %i\n", ark_mem->tstopset);
   fprintf(outfile, "tstopinterp = %i\n", ark_mem->tstopinterp);
-  fprintf(outfile, "tstop = " SUN_REAL_FORMAT_G "\n", ark_mem->tstop);
+  fprintf(outfile, "tstop = " SUN_FORMAT_G "\n", ark_mem->tstop);
   fprintf(outfile, "VabstolMallocDone = %i\n", ark_mem->VabstolMallocDone);
   fprintf(outfile, "MallocDone = %i\n", ark_mem->MallocDone);
   fprintf(outfile, "initsetup = %i\n", ark_mem->initsetup);
   fprintf(outfile, "init_type = %i\n", ark_mem->init_type);
   fprintf(outfile, "firststage = %i\n", ark_mem->firststage);
-  fprintf(outfile, "uround = " SUN_REAL_FORMAT_G "\n", ark_mem->uround);
-  fprintf(outfile, "reltol = " SUN_REAL_FORMAT_G "\n", ark_mem->reltol);
-  fprintf(outfile, "Sabstol = " SUN_REAL_FORMAT_G "\n", ark_mem->Sabstol);
+  fprintf(outfile, "uround = " SUN_FORMAT_G "\n", ark_mem->uround);
+  fprintf(outfile, "reltol = " SUN_FORMAT_G "\n", ark_mem->reltol);
+  fprintf(outfile, "Sabstol = " SUN_FORMAT_G "\n", ark_mem->Sabstol);
   fprintf(outfile, "fixedstep = %i\n", ark_mem->fixedstep);
-  fprintf(outfile, "tolsf = " SUN_REAL_FORMAT_G "\n", ark_mem->tolsf);
+  fprintf(outfile, "tolsf = " SUN_FORMAT_G "\n", ark_mem->tolsf);
   fprintf(outfile, "call_fullrhs = %i\n", ark_mem->call_fullrhs);
 
   /* output counters */
@@ -1280,18 +1280,18 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "netf = %li\n", ark_mem->netf);
 
   /* output time-stepping values */
-  fprintf(outfile, "hin = " SUN_REAL_FORMAT_G "\n", ark_mem->hin);
-  fprintf(outfile, "h = " SUN_REAL_FORMAT_G "\n", ark_mem->h);
-  fprintf(outfile, "hprime = " SUN_REAL_FORMAT_G "\n", ark_mem->hprime);
-  fprintf(outfile, "next_h = " SUN_REAL_FORMAT_G "\n", ark_mem->next_h);
-  fprintf(outfile, "eta = " SUN_REAL_FORMAT_G "\n", ark_mem->eta);
-  fprintf(outfile, "tcur = " SUN_REAL_FORMAT_G "\n", ark_mem->tcur);
-  fprintf(outfile, "tretlast = " SUN_REAL_FORMAT_G "\n", ark_mem->tretlast);
-  fprintf(outfile, "hmin = " SUN_REAL_FORMAT_G "\n", ark_mem->hmin);
-  fprintf(outfile, "hmax_inv = " SUN_REAL_FORMAT_G "\n", ark_mem->hmax_inv);
-  fprintf(outfile, "h0u = " SUN_REAL_FORMAT_G "\n", ark_mem->h0u);
-  fprintf(outfile, "tn = " SUN_REAL_FORMAT_G "\n", ark_mem->tn);
-  fprintf(outfile, "hold = " SUN_REAL_FORMAT_G "\n", ark_mem->hold);
+  fprintf(outfile, "hin = " SUN_FORMAT_G "\n", ark_mem->hin);
+  fprintf(outfile, "h = " SUN_FORMAT_G "\n", ark_mem->h);
+  fprintf(outfile, "hprime = " SUN_FORMAT_G "\n", ark_mem->hprime);
+  fprintf(outfile, "next_h = " SUN_FORMAT_G "\n", ark_mem->next_h);
+  fprintf(outfile, "eta = " SUN_FORMAT_G "\n", ark_mem->eta);
+  fprintf(outfile, "tcur = " SUN_FORMAT_G "\n", ark_mem->tcur);
+  fprintf(outfile, "tretlast = " SUN_FORMAT_G "\n", ark_mem->tretlast);
+  fprintf(outfile, "hmin = " SUN_FORMAT_G "\n", ark_mem->hmin);
+  fprintf(outfile, "hmax_inv = " SUN_FORMAT_G "\n", ark_mem->hmax_inv);
+  fprintf(outfile, "h0u = " SUN_FORMAT_G "\n", ark_mem->h0u);
+  fprintf(outfile, "tn = " SUN_FORMAT_G "\n", ark_mem->tn);
+  fprintf(outfile, "hold = " SUN_FORMAT_G "\n", ark_mem->hold);
   fprintf(outfile, "maxnef = %i\n", ark_mem->maxnef);
   fprintf(outfile, "maxncf = %i\n", ark_mem->maxncf);
 
@@ -2518,8 +2518,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkCompleteStep",
                      "end-step",
-                     "step = %li, h = " SUN_REAL_FORMAT_G
-                     ", tcur = " SUN_REAL_FORMAT_G,
+                     "step = %li, h = " SUN_FORMAT_G ", tcur = " SUN_FORMAT_G,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
@@ -2628,7 +2627,7 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_NLS_SETUP_FAIL:
     arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = " SUN_REAL_FORMAT_G
+                    "At t = " SUN_FORMAT_G
                     " the nonlinear solver setup failed unrecoverably",
                     ark_mem->tcur);
     break;
@@ -2658,7 +2657,7 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_INTERP_FAIL:
     arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = " SUN_REAL_FORMAT_G
+                    "At t = " SUN_FORMAT_G
                     " the interpolation module failed unrecoverably",
                     ark_mem->tcur);
     break;
@@ -2668,7 +2667,7 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_RELAX_FAIL:
     arkProcessError(ark_mem, ARK_RELAX_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = " SUN_REAL_FORMAT_G " the relaxation module failed",
+                    "At t = " SUN_FORMAT_G " the relaxation module failed",
                     ark_mem->tcur);
     break;
   case ARK_RELAX_MEM_NULL:
@@ -2771,7 +2770,7 @@ int arkEwtSetSmallReal(SUNDIALS_MAYBE_UNUSED N_Vector ycur, N_Vector weight,
 /*---------------------------------------------------------------
   arkRwtSetSS
 
-  This routine sets rwt as decribed above in the case tol_type = ARK_SS.
+  This routine sets rwt as described above in the case tol_type = ARK_SS.
   When the absolute tolerance is zero, it tests for non-positive
   components before inverting. arkRwtSetSS returns 0 if rwt is
   successfully set to a positive vector and -1 otherwise. In the
@@ -2793,7 +2792,7 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 /*---------------------------------------------------------------
   arkRwtSetSV
 
-  This routine sets rwt as decribed above in the case tol_type = ARK_SV.
+  This routine sets rwt as described above in the case tol_type = ARK_SV.
   When any absolute tolerance is zero, it tests for non-positive
   components before inverting. arkRwtSetSV returns 0 if rwt is
   successfully set to a positive vector and -1 otherwise. In the
@@ -3187,7 +3186,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 
   SUNTRUE is returned if the allocation is successful (or if the
   target vector or vector array already exists) otherwise SUNFALSE
-  is retured.
+  is returned.
   ---------------------------------------------------------------*/
 sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v)
 {
@@ -3268,7 +3267,7 @@ void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
   integer work spaces.
 
   SUNTRUE is returned if the resize is successful otherwise
-  SUNFALSE is retured.
+  SUNFALSE is returned.
   ---------------------------------------------------------------*/
 sunbooleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
                             void* resize_data, sunindextype lrw_diff,

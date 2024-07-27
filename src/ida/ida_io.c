@@ -1414,138 +1414,70 @@ int IDAPrintAllStats(void* ida_mem, FILE* outfile, SUNOutputFormat fmt)
 
   IDA_mem = (IDAMem)ida_mem;
 
-  switch (fmt)
+  if (fmt != SUN_OUTPUTFORMAT_TABLE && fmt != SUN_OUTPUTFORMAT_CSV)
   {
-  case SUN_OUTPUTFORMAT_TABLE:
-    /* step and method stats */
-    fprintf(outfile, "Current time                 = " SUN_REAL_FORMAT_G "\n",
-            IDA_mem->ida_tn);
-    fprintf(outfile, "Steps                        = %ld\n", IDA_mem->ida_nst);
-    fprintf(outfile, "Error test fails             = %ld\n", IDA_mem->ida_netf);
-    fprintf(outfile, "NLS step fails               = %ld\n", IDA_mem->ida_ncfn);
-    fprintf(outfile, "Initial step size            = " SUN_REAL_FORMAT_G "\n",
-            IDA_mem->ida_h0u);
-    fprintf(outfile, "Last step size               = " SUN_REAL_FORMAT_G "\n",
-            IDA_mem->ida_hused);
-    fprintf(outfile, "Current step size            = " SUN_REAL_FORMAT_G "\n",
-            IDA_mem->ida_hh);
-    fprintf(outfile, "Last method order            = %d\n", IDA_mem->ida_kused);
-    fprintf(outfile, "Current method order         = %d\n", IDA_mem->ida_kk);
-
-    /* function evaluations */
-    fprintf(outfile, "Residual fn evals            = %ld\n", IDA_mem->ida_nre);
-
-    /* IC calculation stats */
-    fprintf(outfile, "IC linesearch backtrack ops  = %d\n", IDA_mem->ida_nbacktr);
-
-    /* nonlinear solver stats */
-    fprintf(outfile, "NLS iters                    = %ld\n", IDA_mem->ida_nni);
-    fprintf(outfile, "NLS fails                    = %ld\n", IDA_mem->ida_nnf);
-    if (IDA_mem->ida_nst > 0)
-    {
-      fprintf(outfile, "NLS iters per step           = " SUN_REAL_FORMAT_G "\n",
-              (sunrealtype)IDA_mem->ida_nre / (sunrealtype)IDA_mem->ida_nst);
-    }
-
-    /* linear solver stats */
-    fprintf(outfile, "LS setups                    = %ld\n",
-            IDA_mem->ida_nsetups);
-    if (IDA_mem->ida_lmem)
-    {
-      idals_mem = (IDALsMem)(IDA_mem->ida_lmem);
-      fprintf(outfile, "Jac fn evals                 = %ld\n", idals_mem->nje);
-      fprintf(outfile, "LS residual fn evals         = %ld\n", idals_mem->nreDQ);
-      fprintf(outfile, "Prec setup evals             = %ld\n", idals_mem->npe);
-      fprintf(outfile, "Prec solves                  = %ld\n", idals_mem->nps);
-      fprintf(outfile, "LS iters                     = %ld\n", idals_mem->nli);
-      fprintf(outfile, "LS fails                     = %ld\n", idals_mem->ncfl);
-      fprintf(outfile, "Jac-times setups             = %ld\n",
-              idals_mem->njtsetup);
-      fprintf(outfile, "Jac-times evals              = %ld\n",
-              idals_mem->njtimes);
-      if (IDA_mem->ida_nni > 0)
-      {
-        fprintf(outfile, "LS iters per NLS iter        = " SUN_REAL_FORMAT_G "\n",
-                (sunrealtype)idals_mem->nli / (sunrealtype)IDA_mem->ida_nni);
-        fprintf(outfile, "Jac evals per NLS iter       = " SUN_REAL_FORMAT_G "\n",
-                (sunrealtype)idals_mem->nje / (sunrealtype)IDA_mem->ida_nni);
-        fprintf(outfile, "Prec evals per NLS iter      = " SUN_REAL_FORMAT_G "\n",
-                (sunrealtype)idals_mem->npe / (sunrealtype)IDA_mem->ida_nni);
-      }
-    }
-
-    /* rootfinding stats */
-    fprintf(outfile, "Root fn evals                = %ld\n", IDA_mem->ida_nge);
-    break;
-
-  case SUN_OUTPUTFORMAT_CSV:
-    /* step and method stats */
-    fprintf(outfile, "Time," SUN_REAL_FORMAT_G, IDA_mem->ida_tn);
-    fprintf(outfile, ",Steps,%ld", IDA_mem->ida_nst);
-    fprintf(outfile, ",Error test fails,%ld", IDA_mem->ida_netf);
-    fprintf(outfile, ",NLS step fails,%ld", IDA_mem->ida_ncfn);
-    fprintf(outfile, ",Initial step size," SUN_REAL_FORMAT_G, IDA_mem->ida_h0u);
-    fprintf(outfile, ",Last step size," SUN_REAL_FORMAT_G, IDA_mem->ida_hused);
-    fprintf(outfile, ",Current step size," SUN_REAL_FORMAT_G, IDA_mem->ida_hh);
-    fprintf(outfile, ",Last method order,%d", IDA_mem->ida_kused);
-    fprintf(outfile, ",Current method order,%d", IDA_mem->ida_kk);
-
-    /* function evaluations */
-    fprintf(outfile, ",Residual fn evals,%ld", IDA_mem->ida_nre);
-
-    /* IC calculation stats */
-    fprintf(outfile, ",IC linesearch backtrack ops,%d", IDA_mem->ida_nbacktr);
-
-    /* nonlinear solver stats */
-    fprintf(outfile, ",NLS iters,%ld", IDA_mem->ida_nni);
-    fprintf(outfile, ",NLS fails,%ld", IDA_mem->ida_nnf);
-    if (IDA_mem->ida_nst > 0)
-    {
-      fprintf(outfile, ",NLS iters per step," SUN_REAL_FORMAT_G,
-              (sunrealtype)IDA_mem->ida_nre / (sunrealtype)IDA_mem->ida_nst);
-    }
-    else { fprintf(outfile, ",NLS iters per step,0"); }
-
-    /* linear solver stats */
-    fprintf(outfile, ",LS setups,%ld", IDA_mem->ida_nsetups);
-    if (IDA_mem->ida_lmem)
-    {
-      idals_mem = (IDALsMem)(IDA_mem->ida_lmem);
-      fprintf(outfile, ",Jac fn evals,%ld", idals_mem->nje);
-      fprintf(outfile, ",LS residual evals,%ld", idals_mem->nreDQ);
-      fprintf(outfile, ",Prec setup evals,%ld", idals_mem->npe);
-      fprintf(outfile, ",Prec solves,%ld", idals_mem->nps);
-      fprintf(outfile, ",LS iters,%ld", idals_mem->nli);
-      fprintf(outfile, ",LS fails,%ld", idals_mem->ncfl);
-      fprintf(outfile, ",Jac-times setups,%ld", idals_mem->njtsetup);
-      fprintf(outfile, ",Jac-times evals,%ld", idals_mem->njtimes);
-      if (IDA_mem->ida_nni > 0)
-      {
-        fprintf(outfile, ",LS iters per NLS iter," SUN_REAL_FORMAT_G,
-                (sunrealtype)idals_mem->nli / (sunrealtype)IDA_mem->ida_nni);
-        fprintf(outfile, ",Jac evals per NLS iter," SUN_REAL_FORMAT_G,
-                (sunrealtype)idals_mem->nje / (sunrealtype)IDA_mem->ida_nni);
-        fprintf(outfile, ",Prec evals per NLS iter," SUN_REAL_FORMAT_G,
-                (sunrealtype)idals_mem->npe / (sunrealtype)IDA_mem->ida_nni);
-      }
-      else
-      {
-        fprintf(outfile, ",LS iters per NLS iter,0");
-        fprintf(outfile, ",Jac evals per NLS iter,0");
-        fprintf(outfile, ",Prec evals per NLS iter,0");
-      }
-    }
-
-    /* rootfinding stats */
-    fprintf(outfile, ",Root fn evals,%ld", IDA_mem->ida_nge);
-    fprintf(outfile, "\n");
-    break;
-
-  default:
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid formatting option.");
     return (IDA_ILL_INPUT);
   }
+
+  sunfprintf_real(outfile, fmt, SUNTRUE, "Current time", IDA_mem->ida_tn);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Steps", IDA_mem->ida_nst);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Error test fails", IDA_mem->ida_netf);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS step fails", IDA_mem->ida_ncfn);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size", IDA_mem->ida_h0u);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size", IDA_mem->ida_hused);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size", IDA_mem->ida_hh);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Last method order",
+                  IDA_mem->ida_kused);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Current method order",
+                  IDA_mem->ida_kk);
+
+  /* function evaluations */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Residual fn evals", IDA_mem->ida_nre);
+
+  /* IC calculation stats */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "IC linesearch backtrack ops",
+                  IDA_mem->ida_nbacktr);
+
+  /* nonlinear solver stats */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS iters", IDA_mem->ida_nni);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS fails", IDA_mem->ida_nnf);
+  if (IDA_mem->ida_nst > 0)
+  {
+    sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step",
+                    (sunrealtype)IDA_mem->ida_nre / (sunrealtype)IDA_mem->ida_nst);
+  }
+
+  /* linear solver stats */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "LS setups", IDA_mem->ida_nsetups);
+  if (IDA_mem->ida_lmem)
+  {
+    idals_mem = (IDALsMem)(IDA_mem->ida_lmem);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac fn evals", idals_mem->nje);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS residual fn evals",
+                    idals_mem->nreDQ);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec setup evals", idals_mem->npe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec solves", idals_mem->nps);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS iters", idals_mem->nli);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS fails", idals_mem->ncfl);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times setups",
+                    idals_mem->njtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals",
+                    idals_mem->njtimes);
+    if (IDA_mem->ida_nni > 0)
+    {
+      sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter",
+                      (sunrealtype)idals_mem->nli / (sunrealtype)IDA_mem->ida_nni);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Jac evals per NLS iter",
+                      (sunrealtype)idals_mem->nje / (sunrealtype)IDA_mem->ida_nni);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Prec evals per NLS iter",
+                      (sunrealtype)idals_mem->npe / (sunrealtype)IDA_mem->ida_nni);
+    }
+  }
+
+  /* rootfinding stats */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Root fn evals", IDA_mem->ida_nge);
 
   return (IDA_SUCCESS);
 }

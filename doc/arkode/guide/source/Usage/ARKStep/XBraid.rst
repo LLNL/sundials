@@ -79,9 +79,9 @@ operations (e.g., computing vector sums or norms) as well as functions to
 initialize the problem state, access the current solution, and take a time step.
 
 The ARKBraid interface, built on the SUNBraidApp and SUNBraidVector structures,
-provides all the functionaly needed combine ARKODE and XBraid for
+provides all the functionality needed combine ARKODE and XBraid for
 parallel-in-time integration. As such, only a minimal number of changes are
-necessary to update an exsting code that uses ARKODE to also use XBraid.
+necessary to update an existing code that uses ARKODE to also use XBraid.
 
 
 
@@ -123,7 +123,7 @@ Here, the SUNBraidOps structure is defined as
    typedef struct _SUNBraidOps *SUNBraidOps;
 
 The generic SUNBraidApp defines and implements the generic operations acting on
-a SUNBraidApp obejct. These generic functions are nothing but wrappers to access
+a SUNBraidApp object. These generic functions are nothing but wrappers to access
 the specific implementation through the object's operations structure. To
 illustrate this point we show below the implementation of the
 :c:func:`SUNBraidApp_GetVecTmpl()` function:
@@ -876,7 +876,7 @@ A skeleton of the user's main program with XBraid
 
 In addition to the header files required for the integration of the ODE problem
 (see the section :numref:`ARKODE.Usage.Headers`), to use the ARKBraid
-interace, the user's program must include the header file
+interface, the user's program must include the header file
 ``arkode/arkode_xbraid.h`` which declares the needed function prototypes.
 
 The following is a skeleton of the user's main program (or calling program) for
@@ -965,7 +965,7 @@ Advanced ARKBraid Utility Functions
 This section describes utility functions utilized in the ARKODE + XBraid
 interfacing. These functions are used internally by the above ARKBraid interface
 functions but are exposed to the user to assist in advanced usage of
-ARKODE and XBraid that requries defining a custom SUNBraidApp implementation.
+ARKODE and XBraid that requires defining a custom SUNBraidApp implementation.
 
 
 

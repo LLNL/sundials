@@ -204,7 +204,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   /* looping point for attempts at solution of the nonlinear system:
        Evaluate the nonlinear residual function (store in delta)
        Setup the linear solver if necessary
-       Preform Newton iteraion */
+       Perform Newton iteration */
   for (;;)
   {
     /* initialize current iteration counter for this solve attempt */
@@ -258,7 +258,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(NLS->sunctx->logger, SUN_LOGLEVEL_INFO, __func__,
                          "end-iterate",
-                         "iter = %ld, nni = %ld, wrmsnorm = " SUN_REAL_FORMAT_G,
+                         "iter = %ld, nni = %ld, wrmsnorm = " SUN_FORMAT_G,
                          NEWTON_CONTENT(NLS)->curiter,
                          NEWTON_CONTENT(NLS)->niters - 1, N_VWrmsNorm(delta, w));
 #endif

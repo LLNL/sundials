@@ -15,15 +15,15 @@
 !
 ! The following is a simple example problem with analytical
 ! solution,
-!    dy/dt = lamda*y + 1/(1+t^2) - lamda*atan(t)
+!    dy/dt = lambda*y + 1/(1+t^2) - lambda*atan(t)
 !
 ! The stiffness of the problem is directly proportional to the
-! value of "lamda", which is specified through an input file.  The
-! real part of lamda should be negative to result in a well-posed
+! value of "lambda", which is specified through an input file.  The
+! real part of lambda should be negative to result in a well-posed
 ! ODE; for lambdas with magnitude larger than 100 the problem
 ! becomes quite stiff.
 !
-! Here we choose lamda = -0.1 + 10 i.
+! Here we choose lambda = -0.1 + 10 i.
 !
 ! This program solves the problem with the ERK method and
 ! a user-supplied complex vector module.

@@ -561,7 +561,7 @@ contains
     type(N_Vector)        :: sunvec_y     ! solution N_Vector
     type(N_Vector)        :: sunvec_ydot  ! rhs N_Vector
     integer(c_int), value :: jok          ! flag to signal for Jacobian update
-    integer(c_int)        :: jcurPtr      ! flag to singal Jacobian is current
+    integer(c_int)        :: jcurPtr      ! flag to signal Jacobian is current
     real(c_double), value :: gamma        ! current gamma value
     type(c_ptr), value :: user_data    ! user-defined data
 

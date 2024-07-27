@@ -132,7 +132,7 @@ checkpoints can be obtained by calling \id{CVodeGetAdjCheckPointsInfo} and the
 checkpoint information printed).
 
 The next segment of code deals with the setup of the backward problem. 
-First, a serial vector \id{yB} of length \id{NEQ} is allocated and initalized with the
+First, a serial vector \id{yB} of length \id{NEQ} is allocated and initialized with the
 value of $\lambda (= 0.0)$ at the final time (\id{TB1} = 4.0E7).  A second
 serial vector \id{qB} of dimension \id{NP} is created and initialized to $0.0$.
 This vector corresponds to the quadrature variables $\xi$ whose values at $t_0$
@@ -415,7 +415,7 @@ the 4 (6 in 3-D) neighboring processes. This is implemented in the function
 \id{f\_comm}, called in \id{f} and \id{fB} before evaluation of the local residual 
 components. Since there is no additional communication required for the {\cvbbdpre}
 preconditioner, a \id{NULL} pointer is passed for \id{gloc} and \id{glocB} in the
-calls to \id{CVBBDPrecInit} and \id{CVBBDPrecInitB}, respectivley.
+calls to \id{CVBBDPrecInit} and \id{CVBBDPrecInitB}, respectively.
 
 For the sake of clarity, the \id{cvsAtmDisp\_ASAi\_kry\_bbd\_p} example does not use
 the most memory-efficient implementation possible, as the local segment of the 

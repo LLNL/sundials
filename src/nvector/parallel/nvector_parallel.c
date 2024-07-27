@@ -288,8 +288,7 @@ void N_VPrintFile_Parallel(N_Vector x, FILE* outfile)
   N  = NV_LOCLENGTH_P(x);
   xd = NV_DATA_P(x);
 
-  for (i = 0; i < N; i++) { fprintf(outfile, SUN_REAL_FORMAT_E "\n", xd[i]); }
-  fprintf(outfile, "\n");
+  for (i = 0; i < N; i++) { fprintf(outfile, SUN_FORMAT_E "\n", xd[i]); }
 
   return;
 }

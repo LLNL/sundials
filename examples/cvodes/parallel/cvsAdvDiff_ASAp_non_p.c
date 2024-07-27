@@ -91,7 +91,7 @@ typedef struct
   sunrealtype *z1, *z2; /* work space                               */
 }* UserData;
 
-/* Prototypes of user-supplied funcitons */
+/* Prototypes of user-supplied functions */
 
 static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data);
 static int fB(sunrealtype t, N_Vector u, N_Vector uB, N_Vector uBdot,
@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
   nrem   = NEQ - npes * nperpe;
   if (my_pe < npes)
   {
-    /* PDE vars. distributed to this proccess */
+    /* PDE vars. distributed to this process */
     local_N = (my_pe < nrem) ? nperpe + 1 : nperpe;
     my_base = (my_pe < nrem) ? my_pe * local_N : my_pe * nperpe + nrem;
   }

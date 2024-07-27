@@ -339,7 +339,7 @@ void N_VPrintFile_Pthreads(N_Vector x, FILE* outfile)
   N  = NV_LENGTH_PT(x);
   xd = NV_DATA_PT(x);
 
-  for (i = 0; i < N; i++) { fprintf(outfile, SUN_REAL_FORMAT_E "\n", xd[i]); }
+  for (i = 0; i < N; i++) { fprintf(outfile, SUN_FORMAT_E "\n", xd[i]); }
   fprintf(outfile, "\n");
 
   return;
@@ -1662,7 +1662,7 @@ static void* nvWSqrSumMaskPt(void* thread_data)
 }
 
 /* ----------------------------------------------------------------------------
- * Finds the minimun component of a vector
+ * Finds the minimum component of a vector
  */
 
 sunrealtype N_VMin_Pthreads(N_Vector x)

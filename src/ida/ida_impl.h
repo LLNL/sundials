@@ -194,14 +194,14 @@ typedef struct IDAMemRec
   sunrealtype ida_ss; /* scalar used in Newton iteration convergence test  */
   sunrealtype ida_oldnrm; /* norm of previous nonlinear solver update          */
   sunrealtype ida_epsNewt; /* test constant in Newton convergence test          */
-  sunrealtype ida_epcon; /* coeficient of the Newton covergence test          */
+  sunrealtype ida_epcon; /* coefficient of the Newton convergence test          */
   sunrealtype ida_toldel; /* tolerance in direct test on Newton corrections    */
 
   /*------
     Limits
     ------*/
 
-  int ida_maxncf; /* max numer of convergence failures                 */
+  int ida_maxncf; /* max number of convergence failures                 */
   int ida_maxnef; /* max number of error test failures                 */
 
   int ida_maxord;       /* max value of method order k:                      */
@@ -452,13 +452,13 @@ int idaNlsInit(IDAMem IDA_mem);
  * =================================================================
  */
 
-#define MSG_TIME   "t = " SUN_REAL_FORMAT_G
-#define MSG_TIME_H "t = " SUN_REAL_FORMAT_G " and h = " SUN_REAL_FORMAT_G
-#define MSG_TIME_INT                                                          \
-  "t = " SUN_REAL_FORMAT_G " is not between tcur - hold = " SUN_REAL_FORMAT_G \
-  " and tcur = " SUN_REAL_FORMAT_G
-#define MSG_TIME_TOUT  "tout = " SUN_REAL_FORMAT_G
-#define MSG_TIME_TSTOP "tstop = " SUN_REAL_FORMAT_G
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
+#define MSG_TIME_INT                                                \
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* General errors */
 

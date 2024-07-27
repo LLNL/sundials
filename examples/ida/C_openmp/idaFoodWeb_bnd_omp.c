@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
   num_threads = 1; /* default value */
 #ifdef _OPENMP
   num_threads =
-    omp_get_max_threads(); /* overwrite with OMP_NUM_THREADS enviroment variable */
+    omp_get_max_threads(); /* overwrite with OMP_NUM_THREADS environment variable */
 #endif
   if (argc > 1)
   { /* overwrite with command line value, if supplied */

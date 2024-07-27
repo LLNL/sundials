@@ -280,7 +280,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
   int* nli;
   int status;
 
-  /* Make local shorcuts to solver variables. */
+  /* Make local shortcuts to solver variables. */
   l_max     = PCG_CONTENT(S)->maxl;
   r         = PCG_CONTENT(S)->r;
   p         = PCG_CONTENT(S)->p;
@@ -348,9 +348,8 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO, "SUNLinSolSolve_PCG",
-                     "initial-residual",
-                     "nli = %li, resnorm = " SUN_REAL_FORMAT_G, (long int)0,
-                     *res_norm);
+                     "initial-residual", "nli = %li, resnorm = " SUN_FORMAT_G,
+                     (long int)0, *res_norm);
 #endif
 
   if (rho <= delta)
@@ -439,10 +438,9 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
     *res_norm = rho = SUNRsqrt(rho);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
-                       "SUNLinSolSolve_PCG", "iterate-residual",
-                       "nli = %li, resnorm = " SUN_REAL_FORMAT_G, (long int)0,
-                       *res_norm);
+    SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO, "SUNLinSolSolve_PCG",
+                       "iterate-residual", "nli = %li, resnorm = " SUN_FORMAT_G,
+                       (long int)0, *res_norm);
 #endif
 
     if (rho <= delta)

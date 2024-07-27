@@ -95,12 +95,12 @@ static inline void sunfprintf_real(FILE* fp, SUNOutputFormat fmt,
 {
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
-    fprintf(fp, "%-*s = " SUN_REAL_FORMAT_G "\n", SUN_TABLE_WIDTH, name, value);
+    fprintf(fp, "%-*s = " SUN_FORMAT_G "\n", SUN_TABLE_WIDTH, name, value);
   }
   else
   {
     if (!start) { fprintf(fp, ","); }
-    fprintf(fp, "%s," SUN_REAL_FORMAT_E, name, value);
+    fprintf(fp, "%s," SUN_FORMAT_E, name, value);
   }
 }
 
@@ -127,7 +127,7 @@ static inline void sunfprintf_long_array(FILE* fp, SUNOutputFormat fmt,
 
   if (fmt == SUN_OUTPUTFORMAT_TABLE)
   {
-    fprintf(fp, "%-*s = %ld\n", SUN_TABLE_WIDTH, name, value[0]);
+    fprintf(fp, "%-*s = %ld", SUN_TABLE_WIDTH, name, value[0]);
     for (size_t i = 1; i < count; i++) { fprintf(fp, ", %ld", value[i]); }
     fprintf(fp, "\n");
   }

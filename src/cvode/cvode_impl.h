@@ -288,7 +288,7 @@ typedef struct CVodeMemRec
   sunrealtype cv_delp;        /* norm of previous nonlinear solver update    */
   sunrealtype cv_acnrm;       /* | acor |                                    */
   sunbooleantype cv_acnrmcur; /* is | acor | current?                        */
-  sunrealtype cv_nlscoef;     /* coeficient in nonlinear convergence test    */
+  sunrealtype cv_nlscoef;     /* coefficient in nonlinear convergence test    */
 
   /*------
     Limits
@@ -661,13 +661,13 @@ int cvDiagSolve_updateM(const sunrealtype r, N_Vector M);
  * =================================================================
  */
 
-#define MSG_TIME   "t = " SUN_REAL_FORMAT_G
-#define MSG_TIME_H "t = " SUN_REAL_FORMAT_G " and h = " SUN_REAL_FORMAT_G
-#define MSG_TIME_INT                                                          \
-  "t = " SUN_REAL_FORMAT_G " is not between tcur - hold = " SUN_REAL_FORMAT_G \
-  " and tcur = " SUN_REAL_FORMAT_G
-#define MSG_TIME_TOUT  "tout = " SUN_REAL_FORMAT_G
-#define MSG_TIME_TSTOP "tstop = " SUN_REAL_FORMAT_G
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
+#define MSG_TIME_INT                                                \
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* Initialization and I/O error messages */
 

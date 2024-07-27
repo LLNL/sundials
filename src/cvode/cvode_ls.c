@@ -389,7 +389,7 @@ int CVodeSetLSNormFactor(void* cvode_mem, sunrealtype nrmfac)
   }
   else
   {
-    /* compute default factor for WRMS norm from vector legnth */
+    /* compute default factor for WRMS norm from vector length */
     cvls_mem->nrmfac = SUNRsqrt(N_VGetLength(cvls_mem->ytemp));
   }
 
@@ -1063,7 +1063,7 @@ int cvLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   /* access matrix dimension */
   N = SUNDenseMatrix_Columns(Jac);
 
-  /* Rename work vector for readibility */
+  /* Rename work vector for readability */
   ftemp = tmp1;
 
   /* Create an empty vector for matrix column calculations */
@@ -1783,8 +1783,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODE::cvLsSolve",
                      "ls-stats",
-                     "bnorm = " SUN_REAL_FORMAT_G
-                     ", resnorm = " SUN_REAL_FORMAT_G
+                     "bnorm = " SUN_FORMAT_G ", resnorm = " SUN_FORMAT_G
                      ", ls_iters = %i, prec_solves = %i",
                      bnorm, resnorm, nli_inc, (int)(cvls_mem->nps - nps_inc));
 #endif

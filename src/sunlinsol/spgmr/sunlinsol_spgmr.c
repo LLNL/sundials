@@ -370,7 +370,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   l_plus_1 = 0;
   krydim   = 0;
 
-  /* Make local shorcuts to solver variables. */
+  /* Make local shortcuts to solver variables. */
   l_max        = SPGMR_CONTENT(S)->maxl;
   max_restarts = SPGMR_CONTENT(S)->max_restarts;
   gstype       = SPGMR_CONTENT(S)->gstype;
@@ -468,10 +468,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   *res_norm = r_norm = beta = SUNRsqrt(r_norm);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
-                     "SUNLinSolSolve_SPGMR", "initial-residual",
-                     "nli = %li, resnorm = " SUN_REAL_FORMAT_G, (long int)0,
-                     *res_norm);
+  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO, "SUNLinSolSolve_SPGMR",
+                     "initial-residual", "nli = %li, resnorm = " SUN_FORMAT_G,
+                     (long int)0, *res_norm);
 #endif
 
   if (r_norm <= delta)
@@ -603,8 +602,8 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
       SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
                          "SUNLinSolSolve_SPGMR", "iterate-residual",
-                         "nli = %li, resnorm = " SUN_REAL_FORMAT_G,
-                         (long int)*nli, *res_norm);
+                         "nli = %li, resnorm = " SUN_FORMAT_G, (long int)*nli,
+                         *res_norm);
 #endif
 
       if (rho <= delta)

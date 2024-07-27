@@ -763,16 +763,15 @@ int mriStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   if (step_mem->implicit_rhs)
   {
     fprintf(fp, "  Implicit predictor method = %i\n", step_mem->predictor);
-    fprintf(fp,
-            "  Implicit solver tolerance coefficient = " SUN_REAL_FORMAT_G "\n",
+    fprintf(fp, "  Implicit solver tolerance coefficient = " SUN_FORMAT_G "\n",
             step_mem->nlscoef);
     fprintf(fp, "  Maximum number of nonlinear corrections = %i\n",
             step_mem->maxcor);
-    fprintf(fp, "  Nonlinear convergence rate constant = " SUN_REAL_FORMAT_G "\n",
+    fprintf(fp, "  Nonlinear convergence rate constant = " SUN_FORMAT_G "\n",
             step_mem->crdown);
-    fprintf(fp, "  Nonlinear divergence tolerance = " SUN_REAL_FORMAT_G "\n",
+    fprintf(fp, "  Nonlinear divergence tolerance = " SUN_FORMAT_G "\n",
             step_mem->rdiv);
-    fprintf(fp, "  Gamma factor LSetup tolerance = " SUN_REAL_FORMAT_G "\n",
+    fprintf(fp, "  Gamma factor LSetup tolerance = " SUN_FORMAT_G "\n",
             step_mem->dgmax);
     fprintf(fp, "  Number of steps between LSetup calls = %i\n", step_mem->msbp);
   }

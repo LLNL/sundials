@@ -86,7 +86,7 @@ typedef struct KINLsMemRec
   int (*pfree)(KINMem kin_mem);
   void* pdata;
 
-  /* Jacobian times vector compuation
+  /* Jacobian times vector computation
      (a) jtimes function provided by the user:
          - jt_data == user_data
          - jtimesDQ == SUNFALSE
@@ -130,7 +130,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector x, N_Vector b, sunrealtype* sJpnorm,
                sunrealtype* sFdotJp);
 int kinLsFree(KINMem kin_mem);
 
-/* Auxilliary functions */
+/* Auxiliary functions */
 int kinLsInitializeCounters(KINLsMem kinls_mem);
 int kinLs_AccessLMem(void* kinmem, const char* fname, KINMem* kin_mem,
                      KINLsMem* kinls_mem);
@@ -163,8 +163,7 @@ int kinLs_AccessLMem(void* kinmem, const char* fname, KINMem* kin_mem,
   ------------------------------------------------------------------*/
 
 #define INFO_NLI "nli_inc = %d"
-#define INFO_EPS \
-  "residual norm = " SUN_REAL_FORMAT_G "  eps = " SUN_REAL_FORMAT_G
+#define INFO_EPS "residual norm = " SUN_FORMAT_G "  eps = " SUN_FORMAT_G
 
 #ifdef __cplusplus
 }

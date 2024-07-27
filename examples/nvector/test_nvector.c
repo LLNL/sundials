@@ -361,7 +361,7 @@ int Test_N_VClone(N_Vector W, sunindextype local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VGetArrayPointer Test
  *
- * For now commenting this out to surpress warning messages (pointer set,
+ * For now commenting this out to suppress warning messages (pointer set,
  * but not used). Do we really need to time access to the vector
  * data pointer?
  *
@@ -386,7 +386,7 @@ int Test_N_VGetArrayPointer(N_Vector W, sunindextype local_length, int myid)
   start_time = get_time();
   Wdata      = N_VGetArrayPointer(W);
   stop_time  = get_time();
-  Wdata[0]   = ONE; /* Do something with pointer to surpress warning */
+  Wdata[0]   = ONE; /* Do something with pointer to suppress warning */
 
   /* check vector data */
   if (!has_data(W))

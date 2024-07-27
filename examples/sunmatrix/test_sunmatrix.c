@@ -240,7 +240,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
   sunrealtype tol = 10 * SUN_UNIT_ROUNDOFF;
 
   /*
-   * Case 1: same sparsity/bandwith pattern
+   * Case 1: same sparsity/bandwidth pattern
    */
 
   /* protect A */

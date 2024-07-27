@@ -37,7 +37,9 @@ endif()
 # -----------------------------------------------------------------------------
 
 if(SUNDIALS_PRECISION MATCHES "extended")
-  print_error("SUNDIALS MAGMA interface is not compatible with extended precision")
+  message(
+    FATAL_ERROR
+      "SUNDIALS MAGMA interface is not compatible with extended precision")
 endif()
 
 # -----------------------------------------------------------------------------
@@ -57,13 +59,21 @@ message(STATUS "SUNDIALS_MAGMA_BACKENDS: ${SUNDIALS_MAGMA_BACKENDS}")
 
 if(MAGMA_FOUND AND (NOT MAGMA_WORKS))
   if(SUNDIALS_MAGMA_BACKENDS MATCHES "CUDA" AND NOT ENABLE_CUDA)
-    print_error("SUNDIALS_MAGMA_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend.")
+    message(
+      FATAL_ERROR
+        "SUNDIALS_MAGMA_BACKENDS includes CUDA but CUDA is not enabled. Set ENABLE_CUDA=ON or change the backend."
+    )
   endif()
   if(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP" AND NOT ENABLE_HIP)
-    print_error("SUNDIALS_MAGMA_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend.")
+    message(
+      FATAL_ERROR
+        "SUNDIALS_MAGMA_BACKENDS includes HIP but HIP is not enabled. Set ENABLE_HIP=ON or change the backend."
+    )
   endif()
 
-  set(MAGMA_WORKS TRUE CACHE BOOL "MAGMA works with SUNDIALS as configured" FORCE)
+  set(MAGMA_WORKS
+      TRUE
+      CACHE BOOL "MAGMA works with SUNDIALS as configured" FORCE)
 elseif(MAGMA_FOUND AND MAGMA_WORKS)
   message(STATUS "Skipped MAGMA tests, assuming MAGMA works with SUNDIALS.")
 endif()

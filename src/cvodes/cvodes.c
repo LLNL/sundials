@@ -1193,7 +1193,7 @@ int CVodeQuadInit(void* cvode_mem, CVQuadRhsFn fQ, N_Vector yQ0)
   cv_mem->cv_quadr          = SUNTRUE;
   cv_mem->cv_QuadMallocDone = SUNTRUE;
 
-  /* Quadrature initialization was successfull */
+  /* Quadrature initialization was successful */
   return (CV_SUCCESS);
 }
 
@@ -1224,7 +1224,7 @@ int CVodeQuadReInit(void* cvode_mem, N_Vector yQ0)
   }
   cv_mem = (CVodeMem)cvode_mem;
 
-  /* Ckeck if quadrature was initialized? */
+  /* Check if quadrature was initialized? */
   if (cv_mem->cv_QuadMallocDone == SUNFALSE)
   {
     cvProcessError(cv_mem, CV_NO_QUAD, __LINE__, __func__, __FILE__,
@@ -1242,7 +1242,7 @@ int CVodeQuadReInit(void* cvode_mem, N_Vector yQ0)
   /* Quadrature integration turned ON */
   cv_mem->cv_quadr = SUNTRUE;
 
-  /* Quadrature re-initialization was successfull */
+  /* Quadrature re-initialization was successful */
   return (CV_SUCCESS);
 }
 
@@ -1275,7 +1275,7 @@ int CVodeQuadSStolerances(void* cvode_mem, sunrealtype reltolQ,
   }
   cv_mem = (CVodeMem)cvode_mem;
 
-  /* Ckeck if quadrature was initialized? */
+  /* Check if quadrature was initialized? */
 
   if (cv_mem->cv_QuadMallocDone == SUNFALSE)
   {
@@ -1323,7 +1323,7 @@ int CVodeQuadSVtolerances(void* cvode_mem, sunrealtype reltolQ, N_Vector abstolQ
   }
   cv_mem = (CVodeMem)cvode_mem;
 
-  /* Ckeck if quadrature was initialized? */
+  /* Check if quadrature was initialized? */
 
   if (cv_mem->cv_QuadMallocDone == SUNFALSE)
   {
@@ -1588,7 +1588,7 @@ int CVodeSensInit(void* cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector* yS
   if (ism == CV_SIMULTANEOUS) { cv_mem->ownNLSsim = SUNTRUE; }
   else { cv_mem->ownNLSstg = SUNTRUE; }
 
-  /* Sensitivity initialization was successfull */
+  /* Sensitivity initialization was successful */
   return (CV_SUCCESS);
 }
 
@@ -1844,7 +1844,7 @@ int CVodeSensInit1(void* cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1,
   else if (ism == CV_STAGGERED) { cv_mem->ownNLSstg = SUNTRUE; }
   else { cv_mem->ownNLSstg1 = SUNTRUE; }
 
-  /* Sensitivity initialization was successfull */
+  /* Sensitivity initialization was successful */
   return (CV_SUCCESS);
 }
 
@@ -2039,7 +2039,7 @@ int CVodeSensReInit(void* cvode_mem, int ism, N_Vector* yS0)
     }
   }
 
-  /* Sensitivity re-initialization was successfull */
+  /* Sensitivity re-initialization was successful */
   return (CV_SUCCESS);
 }
 
@@ -2329,7 +2329,7 @@ int CVodeQuadSensInit(void* cvode_mem, CVQuadSensRhsFn fQS, N_Vector* yQS0)
   cv_mem->cv_quadr_sensi        = SUNTRUE;
   cv_mem->cv_QuadSensMallocDone = SUNTRUE;
 
-  /* Sensitivity initialization was successfull */
+  /* Sensitivity initialization was successful */
   return (CV_SUCCESS);
 }
 
@@ -2439,7 +2439,7 @@ int CVodeQuadSensSStolerances(void* cvode_mem, sunrealtype reltolQS,
     return (CV_NO_SENS);
   }
 
-  /* Ckeck if quadrature sensitivity was initialized? */
+  /* Check if quadrature sensitivity was initialized? */
 
   if (cv_mem->cv_QuadSensMallocDone == SUNFALSE)
   {
@@ -2523,7 +2523,7 @@ int CVodeQuadSensSVtolerances(void* cvode_mem, sunrealtype reltolQS,
     return (CV_NO_SENS);
   }
 
-  /* Ckeck if quadrature sensitivity was initialized? */
+  /* Check if quadrature sensitivity was initialized? */
 
   if (cv_mem->cv_QuadSensMallocDone == SUNFALSE)
   {
@@ -2617,7 +2617,7 @@ int CVodeQuadSensEEtolerances(void* cvode_mem)
     return (CV_NO_SENS);
   }
 
-  /* Ckeck if quadrature sensitivity was initialized? */
+  /* Check if quadrature sensitivity was initialized? */
 
   if (cv_mem->cv_QuadSensMallocDone == SUNFALSE)
   {
@@ -2967,7 +2967,7 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
   {
     cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
 
-    /* Check inputs for corectness */
+    /* Check inputs for correctness */
 
     ier = cvInitialSetup(cv_mem);
     if (ier != CV_SUCCESS)
@@ -5860,8 +5860,8 @@ static int cvStep(CVodeMem cv_mem)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvStep",
                        "enter-step-attempt-loop",
-                       "step = %li, h = " SUN_REAL_FORMAT_G
-                       ", q = %d, t_n = " SUN_REAL_FORMAT_G,
+                       "step = %li, h = " SUN_FORMAT_G
+                       ", q = %d, t_n = " SUN_FORMAT_G,
                        cv_mem->cv_nst, cv_mem->cv_next_h, cv_mem->cv_next_q,
                        cv_mem->cv_tn);
 #endif
@@ -7472,8 +7472,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvDoErrorTest",
                      "error-test",
-                     "step = %li, h = " SUN_REAL_FORMAT_G
-                     ", dsm = " SUN_REAL_FORMAT_G,
+                     "step = %li, h = " SUN_FORMAT_G ", dsm = " SUN_FORMAT_G,
                      cv_mem->cv_nst, cv_mem->cv_h, dsm);
 #endif
 
@@ -7513,8 +7512,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvDoErrorTest",
-                       "new-step-eta", "eta = " SUN_REAL_FORMAT_G,
-                       cv_mem->cv_eta);
+                       "new-step-eta", "eta = " SUN_FORMAT_G, cv_mem->cv_eta);
 #endif
 
     return (TRY_AGAIN);
@@ -7532,7 +7530,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
     cvRescale(cv_mem);
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvDoErrorTest",
-                       "new-step-eta-mxnef1", "eta = " SUN_REAL_FORMAT_G,
+                       "new-step-eta-mxnef1", "eta = " SUN_FORMAT_G,
                        cv_mem->cv_eta);
 #endif
     return (TRY_AGAIN);
@@ -7558,7 +7556,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvDoErrorTest",
-                     "new-step-eta-mxnef1-q1", "eta = " SUN_REAL_FORMAT_G "",
+                     "new-step-eta-mxnef1-q1", "eta = " SUN_FORMAT_G "",
                      cv_mem->cv_eta);
 #endif
 
@@ -7788,7 +7786,7 @@ static void cvPrepareNextStep(CVodeMem cv_mem, sunrealtype dsm)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPrepareNextStep",
                      "return",
-                     "eta = " SUN_REAL_FORMAT_G ", hprime = " SUN_REAL_FORMAT_G
+                     "eta = " SUN_FORMAT_G ", hprime = " SUN_FORMAT_G
                      ", qprime = %d, qwait = %d\n",
                      cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_qprime,
                      cv_mem->cv_qwait);
@@ -9115,7 +9113,7 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void* data)
 /*
  * cvEwtSetSS
  *
- * This routine sets ewt as decribed above in the case tol_type = CV_SS.
+ * This routine sets ewt as described above in the case tol_type = CV_SS.
  * If the absolute tolerance is zero, it tests for non-positive components
  * before inverting. cvEwtSetSS returns 0 if ewt is successfully set to a
  * positive vector and -1 otherwise. In the latter case, ewt is considered
@@ -9138,7 +9136,7 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 /*
  * cvEwtSetSV
  *
- * This routine sets ewt as decribed above in the case tol_type = CV_SV.
+ * This routine sets ewt as described above in the case tol_type = CV_SV.
  * If any absolute tolerance is zero, it tests for non-positive components
  * before inverting. cvEwtSetSV returns 0 if ewt is successfully set to a
  * positive vector and -1 otherwise. In the latter case, ewt is considered
@@ -9590,7 +9588,7 @@ int cvSensRhs1Wrapper(CVodeMem cv_mem, sunrealtype time, N_Vector ycur,
  * -----------------------------------------------------------------
  */
 
-/* Undefine Readibility Constants */
+/* Undefine Readability Constants */
 
 #undef y
 

@@ -138,11 +138,10 @@ void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile)
     for (j = 0; j < start; j++) { fprintf(outfile, "%12s  ", ""); }
     for (j = start; j <= finish; j++)
     {
-      fprintf(outfile, SUN_REAL_FORMAT_E "  ", SM_ELEMENT_B(A, i, j));
+      fprintf(outfile, SUN_FORMAT_E "  ", SM_ELEMENT_B(A, i, j));
     }
     fprintf(outfile, "\n");
   }
-  fprintf(outfile, "\n");
   return;
 }
 

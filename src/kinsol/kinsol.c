@@ -482,7 +482,7 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
   int ret, sflag;
   sunbooleantype maxStepTaken;
 
-  /* intialize to avoid compiler warning messages */
+  /* initialize to avoid compiler warning messages */
 
   maxStepTaken = SUNFALSE;
   f1normp = fnormp = -ONE;
@@ -1839,7 +1839,7 @@ static int KINFullNewton(KINMem kin_mem, sunrealtype* fnormp,
  * If the system function fails unrecoverably at any time, KINLineSearch
  * returns KIN_SYSFUNC_FAIL which will halt the solver.
  *
- * We attempt to corect recoverable system function failures only before
+ * We attempt to correct recoverable system function failures only before
  * the alpha-condition loop; i.e. when the solution is updated with the
  * full Newton step (possibly reduced due to constraint violations).
  * Once we find a feasible pp, we assume that any update up to pp is
@@ -2623,7 +2623,7 @@ void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
  * KINPicardAA
  *
  * This routine is the main driver for the Picard iteration with
- * acclerated fixed point.
+ * accelerated fixed point.
  */
 
 static int KINPicardAA(KINMem kin_mem)
@@ -3063,7 +3063,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       s    = b / temp;
       R[(i + 1) * kin_mem->kin_m_aa + i]     = temp;
       R[(i + 1) * kin_mem->kin_m_aa + i + 1] = ZERO;
-      /* OK to re-use temp */
+      /* OK to reuse temp */
       if (i < kin_mem->kin_m_aa - 1)
       {
         for (j = i + 2; j < kin_mem->kin_m_aa; j++)

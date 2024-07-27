@@ -329,7 +329,7 @@ int main(int argc, char* argv[])
     sunrealtype dTout = udata.tf / uout.nout;
     sunrealtype tout  = dTout;
 
-    // Inital output
+    // Initial output
     flag = uout.open(&udata);
     if (check_flag(&flag, "UserOutput::open", 1)) { return 1; }
 
@@ -524,7 +524,7 @@ void UserOptions::help()
   cout << endl;
   cout << "Integrator command line options:" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --nonlinear             : disable linearly implicit flag" << endl;
   cout << "  --order <ord>           : method order" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;

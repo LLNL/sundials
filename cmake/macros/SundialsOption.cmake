@@ -11,11 +11,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------------------
-# Provides the macro:
-#
-#   SUNDIALS_OPTION(<variable> <type> <docstring> <default value>
-#                   [DEPENDS_ON dependencies]
-#                   [DEPNDS_ON_THROW_ERROR])
+
+# ~~~
+# sundials_option(<variable> <type> <docstring> <default value>
+#                 [DEPENDS_ON dependencies]
+#                 [DEPNDS_ON_THROW_ERROR])
+# ~~~
 #
 # Within CMake creates a cache variable <variable> and sets it to the value
 # <default value> if <variable> is not yet defined and, if provided, all of its
@@ -32,7 +33,6 @@
 # The OPTIONS option can be used to provide a list of valid <variable> values.
 #
 # The ADVANCED option can be used to make <variable> an advanced CMake option.
-# ---------------------------------------------------------------------------
 
 macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
@@ -42,7 +42,7 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
 
   # parse inputs and create variables sundials_option_<keyword>
   cmake_parse_arguments(sundials_option "${options}" "${oneValueArgs}"
-    "${multiValueArgs}" ${ARGN} )
+                        "${multiValueArgs}" ${ARGN})
 
   # check if dependencies for this option have been met
   set(all_depends_on_dependencies_met TRUE)
@@ -58,9 +58,13 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
   if(all_depends_on_dependencies_met)
 
     if(NOT DEFINED ${NAME})
-      set(${NAME} "${DEFAULT_VALUE}" CACHE ${TYPE} ${DOCSTR})
+      set(${NAME}
+          "${DEFAULT_VALUE}"
+          CACHE ${TYPE} ${DOCSTR})
     else()
-      set(${NAME} "${${NAME}}" CACHE ${TYPE} ${DOCSTR})
+      set(${NAME}
+          "${${NAME}}"
+          CACHE ${TYPE} ${DOCSTR})
     endif()
 
     # make the option advanced if necessary
@@ -73,16 +77,17 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
     # if necessary, remove the CACHE variable i.e., all the variable
     # dependencies were previously met but are no longer satisfied
     if(DEFINED ${NAME})
-      string(CONCAT _warn_msg_string
-        "The variable ${NAME} was set to ${${NAME}} "
-        "but not all of its dependencies "
-        "(${depends_on_dependencies_not_met}) evaluate to TRUE."
-        )
+      string(
+        CONCAT
+          _warn_msg_string
+          "The variable ${NAME} was set to ${${NAME}} but not all of its "
+          "dependencies (${depends_on_dependencies_not_met}) evaluate to TRUE. "
+          "Unsetting ${NAME}.")
       unset(${NAME} CACHE)
       if(sundials_option_DEPENDS_ON_THROW_ERROR)
-        print_error("${_warn_msg_string}" "Unsetting ${NAME}")
+        message(FATAL_ERROR "${_warn_msg_string}")
       else()
-        print_warning("${_warn_msg_string}" "Unsetting ${NAME}")
+        message(WARNING "${_warn_msg_string}")
       endif()
     endif()
 
@@ -93,10 +98,13 @@ macro(sundials_option NAME TYPE DOCSTR DEFAULT_VALUE)
     foreach(_option ${${NAME}})
       if(NOT (${_option} IN_LIST sundials_option_OPTIONS))
         list(JOIN sundials_option_OPTIONS ", " _options_msg)
-        print_error("Value of ${NAME} must be one of ${_options_msg}")
+        message(FATAL_ERROR "Value of ${NAME} must be one of ${_options_msg}")
       endif()
     endforeach()
-    get_property(is_in_cache CACHE ${NAME} PROPERTY TYPE)
+    get_property(
+      is_in_cache
+      CACHE ${NAME}
+      PROPERTY TYPE)
     if(is_in_cache)
       set_property(CACHE ${NAME} PROPERTY STRINGS ${sundials_option_OPTIONS})
     endif()

@@ -14,37 +14,30 @@
 # CMakeLists.txt file for parallel MPIPlusX nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
+# develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS MPI nvector
 set(nvector_mpiplusx_examples
-  "test_nvector_mpiplusx\;1000 9\;1\;4\;"  # run parallel on 4 procs
-  )
+    "test_nvector_mpiplusx\;1000 9\;1\;4\;" # run parallel on 4 procs
+)
 
 # Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
-  test_mpinvector
-  )
+set(nvector_examples_dependencies test_nvector test_mpinvector)
 
 # If building F2003 tests
-if (BUILD_FORTRAN_MODULE_INTERFACE)
-  set(nvector_mpiplusx_fortran_examples
-    "test_fnvector_mpiplusx_mod\;\;1\;1\;"
-    "test_fnvector_mpiplusx_mod\;\;1\;4\;")
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  set(nvector_mpiplusx_fortran_examples "test_fnvector_mpiplusx_mod\;\;1\;1\;"
+                                        "test_fnvector_mpiplusx_mod\;\;1\;4\;")
 endif()
 
 # Add source directory to include directories
 include_directories(. ..)
 
 # Specify libraries to link against
-set(NVECS_LIB sundials_nvecmpiplusx
-              sundials_nvecparallel
-              sundials_nvecserial)
-if (BUILD_FORTRAN_MODULE_INTERFACE)
-  list(APPEND NVECS_LIB sundials_fnvecmpiplusx_mod
-                        sundials_fnvecserial_mod)
+set(NVECS_LIB sundials_nvecmpiplusx sundials_nvecparallel sundials_nvecserial)
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  list(APPEND NVECS_LIB sundials_fnvecmpiplusx_mod sundials_fnvecserial_mod)
 endif()
 
 # Set-up linker flags and link libraries
@@ -58,7 +51,7 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-if (BUILD_FORTRAN_MODULE_INTERFACE)
+if(BUILD_FORTRAN_MODULE_INTERFACE)
   if(MPI_Fortran_COMPILER)
     # use MPI wrapper as the compiler
     set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
@@ -78,14 +71,15 @@ foreach(example_tuple ${nvector_mpiplusx_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.c)
 
-    # link vector test utilties
-    target_link_libraries(${example} PRIVATE test_nvector_obj test_nvectormpi_obj)
+    # link vector test utilities
+    target_link_libraries(${example} PRIVATE test_nvector_obj
+                                             test_nvectormpi_obj)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -109,12 +103,14 @@ foreach(example_tuple ${nvector_mpiplusx_examples})
     if("${number_of_tasks}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+      string(REGEX REPLACE " " "_" test_name
+                           ${example}_${number_of_tasks}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(
+    ${test_name} ${example}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
@@ -122,11 +118,9 @@ foreach(example_tuple ${nvector_mpiplusx_examples})
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_nvector.c
-      ../test_mpinvector.c
-      ../test_nvector.h
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiplusx)
+    install(FILES ${example}.c ../test_nvector.c ../test_mpinvector.c
+                  ../test_nvector.h
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiplusx)
   endif()
 
 endforeach(example_tuple ${nvector_mpiplusx_examples})
@@ -141,14 +135,17 @@ foreach(example_tuple ${nvector_mpiplusx_fortran_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # build fortran modules into a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(CMAKE_Fortran_MODULE_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    add_executable(${example} ${example}.f90
+    add_executable(
+      ${example}
+      ${example}.f90
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.f90)
 
@@ -174,12 +171,14 @@ foreach(example_tuple ${nvector_mpiplusx_fortran_examples})
     if("${number_of_tasks}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+      string(REGEX REPLACE " " "_" test_name
+                           ${example}_${number_of_tasks}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(
+    ${test_name} ${example}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
@@ -199,39 +198,32 @@ if(EXAMPLES_INSTALL)
   examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiplusx
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiplusx)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpiplusx/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiplusx
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

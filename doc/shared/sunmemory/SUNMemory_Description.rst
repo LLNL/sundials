@@ -70,7 +70,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
    .. c:enumerator:: SUNMEMTYPE_PINNED
 
-      Page-locked memory accesible on the host
+      Page-locked memory accessible on the host
 
    .. c:enumerator:: SUNMEMTYPE_DEVICE
 
