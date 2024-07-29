@@ -125,7 +125,7 @@ int main(void)
   N_VConst(0.0, y); /* Set initial conditions */
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
-     right-hand side function in y'=f(t,y), the inital time T0, and
+     right-hand side function in y'=f(t,y), the initial time T0, and
      the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);

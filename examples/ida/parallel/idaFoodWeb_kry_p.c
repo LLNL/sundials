@@ -80,7 +80,7 @@
  *
  * The DAE system is solved by IDA using the SUNLinSol_SPGMR linear
  * solver, which uses the preconditioned GMRES iterative method to
- * solve linear systems. The precondtioner supplied to SUNLinSol_SPGMR is
+ * solve linear systems. The preconditioner supplied to SUNLinSol_SPGMR is
  * the block-diagonal part of the Jacobian with ns by ns blocks
  * arising from the reaction terms only. Output is printed at
  * t = 0, .001, .01, .1, .4, .7, 1.
@@ -1240,7 +1240,7 @@ static sunrealtype dotprod(int size, sunrealtype* x1, sunrealtype* x2)
 /*
  * Preconbd: Preconditioner setup routine.
  * This routine generates and preprocesses the block-diagonal
- * preconditoner PP.  At each spatial point, a block of PP is computed
+ * preconditioner PP.  At each spatial point, a block of PP is computed
  * by way of difference quotients on the reaction rates R.
  * The base value of R are taken from webdata->rates, as set by webres.
  * Each block is LU-factored, for later solution of the linear systems.

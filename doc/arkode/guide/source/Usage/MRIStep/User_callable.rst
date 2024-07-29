@@ -303,7 +303,7 @@ Rootfinding initialization function
    *nrtfn = 0*.
 
    Rootfinding is only supported for the slow (outer) integrator and should not
-   be actived for the fast (inner) integrator.
+   be activated for the fast (inner) integrator.
 
    .. deprecated:: 6.1.0
 
@@ -676,7 +676,7 @@ Optional inputs for MRIStep
       The default is that no stop time is imposed.
 
       Once the integrator returns at a stop time, any future testing for
-      ``tstop`` is disabled (and can be reenabled only though a new call to
+      ``tstop`` is disabled (and can be re-enabled only though a new call to
       :c:func:`MRIStepSetStopTime`).
 
       A stop time not reached before a call to :c:func:`MRIStepReInit` or
@@ -723,7 +723,7 @@ Optional inputs for MRIStep
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
    **Notes:**
-      The stop time can be reenabled though a new call to
+      The stop time can be re-enabled though a new call to
       :c:func:`MRIStepSetStopTime`.
 
    .. versionadded:: 5.5.1

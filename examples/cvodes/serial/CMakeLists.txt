@@ -15,76 +15,69 @@
 # CMakeLists.txt file for CVODES serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-  "cvsAdvDiff_ASAi_bnd\;\;develop"
-  "cvsAdvDiff_FSA_non\;-sensi sim t\;exclude-single"
-  "cvsAdvDiff_FSA_non\;-sensi stg t\;exclude-single"
-  "cvsAdvDiff_bnd\;\;develop"
-  "cvsAnalytic_mels\;\;develop"
-  "cvsDirectDemo_ls\;\;develop"
-  "cvsDiurnal_FSA_kry\;-sensi sim t\;exclude-single"
-  "cvsDiurnal_FSA_kry\;-sensi stg t\;exclude-single"
-  "cvsDiurnal_kry\;\;develop"
-  "cvsDiurnal_kry_bp\;\;develop"
-  "cvsFoodWeb_ASAi_kry\;\;develop"
-  "cvsFoodWeb_ASAp_kry\;\;develop"
-  "cvsHessian_ASA_FSA\;\;exclude-single"
-  "cvsKrylovDemo_ls\;\;develop"
-  "cvsKrylovDemo_ls\;1\;develop"
-  "cvsKrylovDemo_ls\;2\;develop"
-  "cvsKrylovDemo_prec\;\;develop"
-  "cvsParticle_dns\;\;develop"
-  "cvsPendulum_dns\;\;exclude-single"
-  "cvsRoberts_ASAi_dns\;\;exclude-single"
-  "cvsRoberts_ASAi_dns_constraints\;\;develop"
-  "cvsRoberts_FSA_dns\;-sensi sim t\;exclude-single"
-  "cvsRoberts_FSA_dns\;-sensi stg1 t\;exclude-single"
-  "cvsRoberts_FSA_dns_Switch\;\;exclude-single"
-  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;exclude-single"
-  "cvsRoberts_dns\;\;"
-  "cvsRoberts_dns_constraints\;\;develop"
-  "cvsRoberts_dns_uw\;\;develop"
-  )
+    "cvsAdvDiff_ASAi_bnd\;\;develop"
+    "cvsAdvDiff_FSA_non\;-sensi sim t\;exclude-single"
+    "cvsAdvDiff_FSA_non\;-sensi stg t\;exclude-single"
+    "cvsAdvDiff_bnd\;\;develop"
+    "cvsAnalytic_mels\;\;develop"
+    "cvsDirectDemo_ls\;\;develop"
+    "cvsDiurnal_FSA_kry\;-sensi sim t\;exclude-single"
+    "cvsDiurnal_FSA_kry\;-sensi stg t\;exclude-single"
+    "cvsDiurnal_kry\;\;develop"
+    "cvsDiurnal_kry_bp\;\;develop"
+    "cvsFoodWeb_ASAi_kry\;\;develop"
+    "cvsFoodWeb_ASAp_kry\;\;develop"
+    "cvsHessian_ASA_FSA\;\;exclude-single"
+    "cvsKrylovDemo_ls\;\;develop"
+    "cvsKrylovDemo_ls\;1\;develop"
+    "cvsKrylovDemo_ls\;2\;develop"
+    "cvsKrylovDemo_prec\;\;develop"
+    "cvsParticle_dns\;\;develop"
+    "cvsPendulum_dns\;\;exclude-single"
+    "cvsRoberts_ASAi_dns\;\;exclude-single"
+    "cvsRoberts_ASAi_dns_constraints\;\;develop"
+    "cvsRoberts_FSA_dns\;-sensi sim t\;exclude-single"
+    "cvsRoberts_FSA_dns\;-sensi stg1 t\;exclude-single"
+    "cvsRoberts_FSA_dns_Switch\;\;exclude-single"
+    "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;exclude-single"
+    "cvsRoberts_dns\;\;"
+    "cvsRoberts_dns_constraints\;\;develop"
+    "cvsRoberts_dns_uw\;\;develop")
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
   list(APPEND CVODE_examples "cvsKrylovDemo_ls\;0 1\;develop")
 endif()
 
 # Examples using LAPACK linear solvers
-set(CVODES_examples_BL
-  "cvsAdvDiff_bndL\;\;exclude-single"
-  "cvsRoberts_dnsL\;\;exclude-single"
-  )
+set(CVODES_examples_BL "cvsAdvDiff_bndL\;\;exclude-single"
+                       "cvsRoberts_dnsL\;\;exclude-single")
 
 # Examples using KLU linear solver
 set(CVODES_examples_KLU
-  "cvsRoberts_ASAi_klu\;\;develop"
-  "cvsRoberts_FSA_klu\;-sensi stg1 t\;develop"
-  "cvsRoberts_klu\;\;develop"
-  )
+    "cvsRoberts_ASAi_klu\;\;develop"
+    "cvsRoberts_FSA_klu\;-sensi stg1 t\;develop" "cvsRoberts_klu\;\;develop")
 
 # Examples using SuperLU_MT linear solver
 set(CVODES_examples_SUPERLUMT
-  "cvsRoberts_ASAi_sps\;\;exclude-single"
-  "cvsRoberts_FSA_sps\;-sensi stg1 t\;exclude-single"
-  "cvsRoberts_sps\;\;develop"
-  )
+    "cvsRoberts_ASAi_sps\;\;exclude-single"
+    "cvsRoberts_FSA_sps\;-sensi stg1 t\;exclude-single"
+    "cvsRoberts_sps\;\;develop")
 
 # Auxiliary files to install
 set(CVODES_extras
-  plot_cvsParticle.py
-  plot_cvsPendulum.py
-  cvsRoberts_ASAi_dns_bkw1_stats.csv
-  cvsRoberts_ASAi_dns_bkw2_stats.csv
-  cvsRoberts_ASAi_dns_fwd_stats.csv
-  cvsRoberts_dns_stats.csv
-  cvsRoberts_FSA_dns_stats_-sensi_sim_t.csv
-  cvsRoberts_FSA_dns_stats_-sensi_stg1_t.csv
-  )
+    plot_cvsParticle.py
+    plot_cvsPendulum.py
+    cvsRoberts_ASAi_dns_bkw1_stats.csv
+    cvsRoberts_ASAi_dns_bkw2_stats.csv
+    cvsRoberts_ASAi_dns_fwd_stats.csv
+    cvsRoberts_dns_stats.csv
+    cvsRoberts_FSA_dns_stats_-sensi_sim_t.csv
+    cvsRoberts_FSA_dns_stats_-sensi_stg1_t.csv)
 
 # Specify libraries to link against
 set(CVODES_LIB sundials_cvodes)
@@ -101,8 +94,8 @@ foreach(example_tuple ${CVODES_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.c)
@@ -122,7 +115,8 @@ foreach(example_tuple ${CVODES_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(
+    ${test_name} ${example}
     TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
@@ -134,19 +128,17 @@ foreach(example_tuple ${CVODES_examples})
   # install example source and .out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
   endif()
 
 endforeach(example_tuple ${CVODES_examples})
-
 
 # Add the build and install targets for each LAPACK example (if needed)
 if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
 
   # Sundials LAPACK linear solver modules
-  set(SUNLINSOLLAPACK_LIBS
-    sundials_sunlinsollapackband
-    sundials_sunlinsollapackdense)
+  set(SUNLINSOLLAPACK_LIBS sundials_sunlinsollapackband
+                           sundials_sunlinsollapackdense)
 
   # LAPACK libraries
   list(APPEND SUNLINSOLLAPACK_LIBS ${LAPACK_LIBRARIES})
@@ -158,8 +150,8 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     list(GET example_tuple 1 example_args)
     list(GET example_tuple 2 example_type)
 
-    # check if this example has already been added, only need to add
-    # example source files once for testing with different inputs
+    # check if this example has already been added, only need to add example
+    # source files once for testing with different inputs
     if(NOT TARGET ${example})
       # example source files
       add_executable(${example} ${example}.c)
@@ -179,7 +171,8 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example}
+    sundials_add_test(
+      ${test_name} ${example}
       TEST_ARGS ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${test_name}.out
@@ -191,13 +184,12 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     # install example source and .out files
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
     endif()
 
   endforeach(example_tuple ${CVODES_examples_BL})
 
 endif()
-
 
 # Add the build and install targets for each KLU example (if needed)
 if(BUILD_SUNLINSOL_KLU)
@@ -215,8 +207,8 @@ if(BUILD_SUNLINSOL_KLU)
     list(GET example_tuple 1 example_args)
     list(GET example_tuple 2 example_type)
 
-    # check if this example has already been added, only need to add
-    # example source files once for testing with different inputs
+    # check if this example has already been added, only need to add example
+    # source files once for testing with different inputs
     if(NOT TARGET ${example})
       # add example source files
       add_executable(${example} ${example}.c)
@@ -236,7 +228,8 @@ if(BUILD_SUNLINSOL_KLU)
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example}
+    sundials_add_test(
+      ${test_name} ${example}
       TEST_ARGS ${example_args}
       ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
       ANSWER_FILE ${test_name}.out
@@ -248,13 +241,12 @@ if(BUILD_SUNLINSOL_KLU)
     # install example source and .out files
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
     endif()
 
   endforeach(example_tuple ${CVODES_examples_KLU})
 
 endif()
-
 
 # Add the build and install targets for each SuperLU_MT example (if needed)
 if(BUILD_SUNLINSOL_SUPERLUMT)
@@ -272,8 +264,8 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     list(GET example_tuple 1 example_args)
     list(GET example_tuple 2 example_type)
 
-    # check if this example has already been added, only need to add
-    # example source files once for testing with different inputs
+    # check if this example has already been added, only need to add example
+    # source files once for testing with different inputs
     if(NOT TARGET ${example})
       # add example source files
       add_executable(${example} ${example}.c)
@@ -292,13 +284,14 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     endif()
 
-    # Do not include SuperLUMT examples in testing when the indextype is int32_t.
-    # Answer files were generated with int64_t and minor differences in output
-    # occur causing a false positive when testing. These tests can be re-enabled
-    # when type specific answer files are added.
+    # Do not include SuperLUMT examples in testing when the indextype is
+    # int32_t. Answer files were generated with int64_t and minor differences in
+    # output occur causing a false positive when testing. These tests can be
+    # re-enabled when type specific answer files are added.
     if(SUNDIALS_INDEX_SIZE MATCHES "64")
       # add example to regression tests
-      sundials_add_test(${test_name} ${example}
+      sundials_add_test(
+        ${test_name} ${example}
         TEST_ARGS ${example_args}
         ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
         ANSWER_FILE ${test_name}.out
@@ -311,15 +304,14 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # install example source and .out files
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.c ${example_out}
-        DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
     endif()
 
   endforeach(example_tuple ${CVODES_examples_SUPERLUMT})
 
 endif()
 
-
-# create Makfile and CMakeLists.txt for examples
+# create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -327,7 +319,8 @@ if(EXAMPLES_INSTALL)
 
   # Install the extra files
   foreach(extrafile ${CVODES_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
+    install(FILES ${extrafile}
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -350,7 +343,7 @@ if(EXAMPLES_INSTALL)
 
   if(BUILD_SUNLINSOL_SUPERLUMT)
     examples2string(CVODES_examples_SUPERLUMT EXAMPLES_SLUMT)
-    if (SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+    if(SUNDIALS_SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
       set(THREAD_LIBRARY_SLUMT ${CMAKE_THREAD_LIBS_INIT})
     else()
       set(THREAD_LIBRARY_SLUMT "")
@@ -361,39 +354,32 @@ if(EXAMPLES_INSTALL)
   endif()
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/cvodes/serial/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/cvodes/serial/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/cvodes/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/cvodes/serial/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvodes/serial/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/cvodes/serial/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/cvodes/serial/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

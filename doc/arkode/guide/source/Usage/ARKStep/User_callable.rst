@@ -841,7 +841,7 @@ Optional inputs for ARKStep
       The default is that no stop time is imposed.
 
       Once the integrator returns at a stop time, any future testing for
-      ``tstop`` is disabled (and can be reenabled only though a new call to
+      ``tstop`` is disabled (and can be re-enabled only though a new call to
       :c:func:`ARKStepSetStopTime`).
 
       A stop time not reached before a call to :c:func:`ARKStepReInit` or
@@ -886,7 +886,7 @@ Optional inputs for ARKStep
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
 
    **Notes:**
-      The stop time can be reenabled though a new call to
+      The stop time can be re-enabled though a new call to
       :c:func:`ARKStepSetStopTime`.
 
    .. versionadded:: 5.5.1

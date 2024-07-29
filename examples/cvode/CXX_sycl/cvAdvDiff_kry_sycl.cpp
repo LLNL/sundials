@@ -180,7 +180,7 @@ int main(int argc, char** argv)
   SUNLinearSolver LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 0, sunctx);
   if (check_retval(&retval, "SUNLinSol_SPGMR", 1)) { return 1; }
 
-  // Attach the linear sovler to CVODE
+  // Attach the linear solver to CVODE
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
   if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 

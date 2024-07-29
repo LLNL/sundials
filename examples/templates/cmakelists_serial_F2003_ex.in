@@ -77,7 +77,7 @@ find_library(SUNDIALS_SOLVER_FLIB
 if("${NVEC_LIB}" STREQUAL "")
   # No additional NVECTOR library necessary
 else()
-  # Find the additonal NVECTOR library
+  # Find the additional NVECTOR library
   find_library(SUNDIALS_NVEC_LIB
     @NVEC_LIB@ ${SUNDIALS_LIBRARY_DIR}
     DOC "NVECTOR library")
@@ -185,7 +185,7 @@ if(KLU_LIBRARIES AND examples_klu)
     # directories to include
     target_include_directories(${example} PRIVATE ${SUNDIALS_INCLUDE_DIR})
 
-    # libraries to link agaisnt
+    # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBRARIES})
     target_link_libraries(${example} ${KLU_LIBRARIES})
 

@@ -15,7 +15,7 @@
 # This script plots the output from test_nector_performance_* and assumes:
 #   1. vector lengths are powers of two starting from 0, and
 #   2. output files are named: output_nelem_nvec_nsum_ntest_timing.txt
-# where nelem is the number of elements in the vector, nvec is the nuber of
+# where nelem is the number of elements in the vector, nvec is the number of
 # vectors, nsum is the number of sums, ntest is the number of tests, and timing
 # indicates if timing was enabled.
 # -----------------------------------------------------------------------------

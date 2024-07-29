@@ -283,11 +283,11 @@ int main(int argc, char* argv[])
     void* kin_mem = KINCreate(sunctx);
     if (check_retval((void*)kin_mem, "KINCreate", 0)) { return 1; }
 
-    // Set number of prior residuals used in Anderson Accleration
+    // Set number of prior residuals used in Anderson Acceleration
     retval = KINSetMAA(kin_mem, udata->maa);
     if (check_retval(&retval, "KINSetMAA", 0)) { return 1; }
 
-    // Set orthogonlization routine used in Anderson Accleration
+    // Set orthogonlization routine used in Anderson Acceleration
     retval = KINSetOrthAA(kin_mem, udata->orthaa);
     if (check_retval(&retval, "KINSetOrthAA", 0)) { return 1; }
 
@@ -329,7 +329,7 @@ int main(int argc, char* argv[])
 
     // Call main solver
     retval = KINSol(kin_mem, // KINSol memory block
-                    u,       // inital guess on input; solution vector
+                    u,       // initial guess on input; solution vector
                     KIN_FP,  // global strategy choice
                     scale,   // scaling vector, for the variable u
                     scale);  // scaling vector for function values fval

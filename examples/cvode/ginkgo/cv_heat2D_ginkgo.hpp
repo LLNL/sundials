@@ -86,7 +86,7 @@ struct UserData
   int liniters       = 20;   // number of linear iterations
   sunrealtype epslin = ZERO; // linear solver tolerance factor
 
-  // Ouput variables
+  // Output variables
   bool output = false; // write solution to disk
   int nout    = 20;    // number of output times
   std::ofstream uout;  // output file stream
@@ -232,7 +232,7 @@ static void InputHelp()
             << "  --kx <ky>          : y diffusion coefficient\n"
             << "  --tf <time>        : final time\n"
             << "  --rtol <rtol>      : relative tolerance\n"
-            << "  --atol <atol>      : absoltue tolerance\n"
+            << "  --atol <atol>      : absolute tolerance\n"
             << "  --liniters <iters> : max number of iterations\n"
             << "  --epslin <factor>  : linear tolerance factor\n"
             << "  --msbp <steps>     : max steps between prec setups\n"

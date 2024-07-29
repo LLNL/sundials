@@ -419,7 +419,7 @@ struct ARKodeMemRec
   sunbooleantype step_supports_relaxation;
   ARKTimestepSetRelaxFn step_setrelaxfn;
 
-  /* Time stepper module -- implcit solvers */
+  /* Time stepper module -- implicit solvers */
   sunbooleantype step_supports_implicit;
   ARKTimestepAttachLinsolFn step_attachlinsol;
   ARKTimestepDisableLSetup step_disablelsetup;
@@ -1189,7 +1189,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   ARKTimestepGetEstLocalErrors
 
   This routine requests the stepper to copy its internal
-  estimate of the local trunction error to the output (called by
+  estimate of the local truncation error to the output (called by
   ARKodeGetEstLocalErrors).
 
   ===============================================================

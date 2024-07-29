@@ -625,7 +625,7 @@ Optional inputs for ERKStep
       The default is that no stop time is imposed.
 
       Once the integrator returns at a stop time, any future testing for
-      ``tstop`` is disabled (and can be reenabled only though a new call to
+      ``tstop`` is disabled (and can be re-enabled only though a new call to
       :c:func:`ERKStepSetStopTime`).
 
       A stop time not reached before a call to :c:func:`ERKStepReInit` or
@@ -672,7 +672,7 @@ Optional inputs for ERKStep
       * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
 
    **Notes:**
-      The stop time can be reenabled though a new call to
+      The stop time can be re-enabled though a new call to
       :c:func:`ERKStepSetStopTime`.
 
    .. versionadded:: 5.5.1

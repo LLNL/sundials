@@ -64,7 +64,7 @@ data partitioning (achievable with the NVECTOR_MANYVECTOR, see
    programming environments they support, and what class of memory they support
    (unmanaged or UVM).  Users may also supply their own GPU-enabled
    :c:type:`N_Vector`, :c:type:`SUNMatrix`, or :c:type:`SUNLinearSolver`
-   implementation, and the capabilties will be leveraged since SUNDIALS operates
+   implementation, and the capabilities will be leveraged since SUNDIALS operates
    on data through these APIs.
 
 .. ifconfig:: package_name != 'kinsol'
@@ -77,7 +77,7 @@ data partitioning (achievable with the NVECTOR_MANYVECTOR, see
    programming environments they support, and what class of memory they support
    (unmanaged or UVM).  Users may also supply their own GPU-enabled
    :c:type:`N_Vector`, :c:type:`SUNMatrix`, :c:type:`SUNLinearSolver`, or
-   :c:type:`SUNNonlinearSolver` implementation, and the capabilties will be
+   :c:type:`SUNNonlinearSolver` implementation, and the capabilities will be
    leveraged since SUNDIALS operates on data through these APIs.
 
 In addition, SUNDIALS provides a memory management helper module
@@ -174,7 +174,7 @@ accelerated SUNDIALS are:
 #. Write user-supplied functions so that they use data only in the device memory
    space (again, unless an atypical data partitioning is used). A few examples
    of these functions are the right-hand side evaluation function, the Jacobian
-   evalution function, or the preconditioner evaulation function. In the context
+   evaluation function, or the preconditioner evaluation function. In the context
    of CUDA and the right-hand side function, one way a user might ensure data is
    accessed on the device is, for example, calling a CUDA kernel, which does all
    of the computation, from a CPU function which simply extracts the underlying

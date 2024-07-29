@@ -32,18 +32,13 @@ else()
   include_directories(${MPI_INCLUDE_PATH})
 endif()
 
-sundials_add_f2003_library(sundials_fnvecparallel_mod
-  SOURCES
-    fnvector_parallel_mod.f90 fnvector_parallel_mod.c
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+sundials_add_f2003_library(
+  sundials_fnvecparallel_mod
+  SOURCES fnvector_parallel_mod.f90 fnvector_parallel_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-  OUTPUT_NAME
-    sundials_fnvecparallel_mod
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
-)
+  OUTPUT_NAME sundials_fnvecparallel_mod
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_PARALLEL F2003 interface")

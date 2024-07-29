@@ -850,7 +850,7 @@ the solution of the combined ODE and sensitivity system for the vector
    matrix of the above linear system is based on exactly the same information as
    the matrix :math:`M` in :eq:`CVODES_Newtonmat`, it must be
    updated and factored at every step of the integration, in contrast to an
-   evalutaion of :math:`M` which is updated only occasionally. For problems with
+   evaluation of :math:`M` which is updated only occasionally. For problems with
    many parameters (relative to the problem size), the staggered direct method
    can outperform the methods described below :cite:p:`LPZ:99`. However, the
    computational cost associated with matrix updates and factorizations makes
@@ -1132,7 +1132,7 @@ the gradient of :math:`G` with respect to :math:`p` is nothing but
    :label: CVODES_dgdp_1
 
 The gradient of :math:`g(T,y,p)` with respect to :math:`p` can be then obtained
-by using the Leibnitz differentiation rule. Indeed, from :eq:`CVODES_G`,
+by using the Leibniz differentiation rule. Indeed, from :eq:`CVODES_G`,
 
 .. math:: \frac{\mathrm dg}{\mathrm dp}(T) = \frac{\mathrm d}{\mathrm dT}\frac{\mathrm dG}{\mathrm dp}
 

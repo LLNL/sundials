@@ -1115,7 +1115,7 @@ setting increments for the finite-difference approximation, via a call to
    increments used in the difference quotient approximations to matrix-vector
    products for the backward problem.  This routine can be used in both the
    cases where the backward problem  does and does not depend on the forward
-   sensitvities.
+   sensitivities.
 
    **Arguments:**
      * ``ida_mem`` -- pointer to the IDAS memory block.
@@ -1245,7 +1245,7 @@ These may be accomplished through calling the following functions:
    Krylov linear solver's convergence test constant is reduced  from the
    nonlinear iteration test constant. (See :numref:`IDAS.Mathematics.ivp_sol`).
    This routine can be used in both the cases wherethe backward problem does
-   and does not depend on the forward sensitvities.
+   and does not depend on the forward sensitivities.
 
    **Arguments:**
      * ``ida_mem`` -- pointer to the IDAS memory block.
@@ -1275,7 +1275,7 @@ These may be accomplished through calling the following functions:
    converting from the integrator tolerance (WRMS norm) to the linear solver
    tolerance (L2 norm) for Newton linear system solves e.g.,  ``tol_L2 = fac *
    tol_WRMS``.  This routine can be used in both the cases wherethe backward
-   problem  does and does not depend on the forward sensitvities.
+   problem  does and does not depend on the forward sensitivities.
 
    **Arguments:**
      * ``ida_mem`` -- pointer to the IDAS memory block.
@@ -1746,7 +1746,7 @@ The user must provide an ``fQB`` function of type ``IDAQuadRhsFnB`` defined by
       data consistently (including the use of the  correct accessor macros from
       each ``N_Vector`` implementation). For the sake of  computational
       efficiency, the vector functions in the two ``N_Vector`` implementations
-      provided with IDAS do not perform any consistency checks with repsect to
+      provided with IDAS do not perform any consistency checks with respect to
       their  ``N_Vector`` arguments (see :numref:`NVectors`).  The ``user_dataB``
       pointer is passed to the user's ``fQB`` function every time  it is called
       and can be the same as the ``user_data`` pointer used for the forward

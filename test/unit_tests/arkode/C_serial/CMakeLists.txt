@@ -43,8 +43,8 @@ foreach(test_tuple ${ARKODE_unit_tests})
   list(GET test_tuple 0 test)
   list(GET test_tuple 1 test_args)
 
-  # check if this test has already been added, only need to add
-  # test source files once for testing with different inputs
+  # check if this test has already been added, only need to add test source
+  # files once for testing with different inputs
   if(NOT TARGET ${test})
 
     # test source files
@@ -53,15 +53,15 @@ foreach(test_tuple ${ARKODE_unit_tests})
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
     # include location of public and private header files
-    target_include_directories(${test} PRIVATE
-      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-      ${CMAKE_SOURCE_DIR}/include
-      ${CMAKE_SOURCE_DIR}/src)
+    target_include_directories(
+      ${test} PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+                      ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
     # We explicitly choose which object libraries to link to and link in the
     # arkode objects so that we have access to private functions w/o changing
     # their visibility in the installed libraries.
-    target_link_libraries(${test}
+    target_link_libraries(
+      ${test}
       $<TARGET_OBJECTS:sundials_arkode_obj>
       sundials_sunmemsys_obj
       sundials_nvecserial_obj

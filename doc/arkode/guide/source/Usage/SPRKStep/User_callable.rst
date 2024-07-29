@@ -336,7 +336,7 @@ Optional inputs for SPRKStep
    The default is that no stop time is imposed.
 
    Once the integrator returns at a stop time, any future testing for
-   ``tstop`` is disabled (and can be reenabled only though a new call to
+   ``tstop`` is disabled (and can be re-enabled only though a new call to
    :c:func:`SPRKStepSetStopTime`).
 
    A stop time not reached before a call to :c:func:`SPRKStepReInit` or
@@ -359,7 +359,7 @@ Optional inputs for SPRKStep
 
    Disables the stop time set with :c:func:`SPRKStepSetStopTime`.
 
-   The stop time can be reenabled though a new call to
+   The stop time can be re-enabled though a new call to
    :c:func:`SPRKStepSetStopTime`.
 
    :param arkode_mem: pointer to the SPRKStep memory block.
@@ -486,7 +486,7 @@ Optional inputs for IVP method selection
 
    This increases the computational cost by 2 extra vector operations per stage
    and an additional 5 per time step. It also requires one extra vector to be
-   stored. However, it is signficantly more robust to roundoff error
+   stored. However, it is significantly more robust to roundoff error
    accumulation.
 
    :param arkode_mem: pointer to the SPRKStep memory block.

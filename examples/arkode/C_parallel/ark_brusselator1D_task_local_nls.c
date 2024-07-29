@@ -22,7 +22,7 @@
  *    w_t = -c * w_x + (B - w) / ep - w * u
  *
  * for t in [0, 10], x in [0, xmax] with periodic boundary conditions. The
- * initial condition is a Gaussian pertubation of the steady state
+ * initial condition is a Gaussian perturbation of the steady state
  * solution without advection
  *
  *    u(0,x) = k1 * A / k4 + p(x)
@@ -141,7 +141,7 @@ typedef struct
   N_Vector vmask;
   N_Vector wmask;
 
-  /* problem paramaters */
+  /* problem parameters */
   long long nvar; /* number of species            */
   long long nx;   /* number of intervals globally */
   long long nxl;  /* number of intervals locally  */
@@ -175,7 +175,7 @@ typedef struct
   SUNNonlinearSolver local_nls;
 }* TaskLocalNewton_Content;
 
-/* Content accessor macors */
+/* Content accessor macros */
 #define GET_NLS_CONTENT(NLS) ((TaskLocalNewton_Content)(NLS->content))
 #define LOCAL_NLS(NLS)       (GET_NLS_CONTENT(NLS)->local_nls)
 
@@ -1817,7 +1817,7 @@ void InputError(char* name)
  * opt == 0  means the function allocates memory and returns a
  *           pointer so check if a NULL pointer was returned
  * opt == 1  means the function returns an integer where a
- *           value < 0 indicates an error occured
+ *           value < 0 indicates an error occurred
  * --------------------------------------------------------------*/
 int check_retval(void* returnvalue, const char* funcname, int opt)
 {

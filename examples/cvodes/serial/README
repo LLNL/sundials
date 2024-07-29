@@ -18,7 +18,7 @@ List of serial CVODES examples
 
 (2) Forward sensitivity
 
-  cvsAdvDiff_FSA_non             : 1-D advection difusion PDE -
+  cvsAdvDiff_FSA_non             : 1-D advection diffusion PDE -
                                    Adams with Functional iteration
   cvsDiurnal_FSA_kry             : 2-D 2-species diurnal advection-diffusion PDE -
                                    BDF with Newton GMRES

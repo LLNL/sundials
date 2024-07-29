@@ -317,7 +317,7 @@ int ARKBandPrecGetNumRhsEvals(void* arkode_mem, long int* nfevalsBP)
 
  gamma   is the scalar appearing in the Newton matrix.
 
- bp_data is a pointer to preconditoner data (set by ARKBandPrecInit)
+ bp_data is a pointer to preconditioner data (set by ARKBandPrecInit)
 
  The value to be returned by the ARKBandPrecSetup function is
    0  if successful, or
@@ -405,7 +405,7 @@ static int ARKBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
 
  r is the right-hand side vector of the linear system.
 
- bp_data is a pointer to preconditoner data (set by ARKBandPrecInit)
+ bp_data is a pointer to preconditioner data (set by ARKBandPrecInit)
 
  z is the output vector computed by ARKBandPrecSolve.
 

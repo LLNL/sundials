@@ -370,7 +370,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   l_plus_1 = 0;
   krydim   = 0;
 
-  /* Make local shorcuts to solver variables. */
+  /* Make local shortcuts to solver variables. */
   l_max        = SPGMR_CONTENT(S)->maxl;
   max_restarts = SPGMR_CONTENT(S)->max_restarts;
   gstype       = SPGMR_CONTENT(S)->gstype;
