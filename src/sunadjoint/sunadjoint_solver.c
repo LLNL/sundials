@@ -19,8 +19,9 @@
 #include "sundials/sundials_stepper.h"
 #include "sundials/sundials_types.h"
 
-SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper, sunindextype num_cost_fns,
-                                   N_Vector sf, sunrealtype tf,
+SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper, int64_t final_step_idx,
+                                   sunindextype num_cost_fns, N_Vector sf,
+                                   sunrealtype tf,
                                    SUNAdjointCheckpointScheme checkpoint_scheme,
                                    SUNContext sunctx,
                                    SUNAdjointSolver* adj_solver_ptr)
@@ -40,6 +41,7 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper, sunindextype num_cost_fns
   adj_solver->tf                = tf;
   adj_solver->user_data         = NULL;
   adj_solver->sunctx            = sunctx;
+  adj_solver->step_idx          = final_step_idx;
 
   *adj_solver_ptr = adj_solver;
 
@@ -59,9 +61,7 @@ SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tout,
   *stop_reason       = 0;
   while (t > tout)
   {
-    SUNCheckCall(
-      SUNStepper_Advance(stepper, adj_solver->tf, tout, sens, &t, stop_reason));
-    // SUNCheckCall(SUNStepper_Step(stepper, adj_solver->tf, tout, sens, &t, stop_reason));
+    SUNCheckCall(SUNAdjointSolver_Step(adj_solver, tout, sens, tret, stop_reason));
     if (*stop_reason < 0)
     {
       retcode = SUN_ERR_ADJOINT_STEPPERFAILED;
@@ -74,10 +74,13 @@ SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tout,
       // 2==ROOT_RETURN
       fprintf(stderr, ">>>> HERE, stop_reason = %d\n", *stop_reason);
     }
-    else { break; }
+    else
+    {
+      t = *tret;
+      break;
+    }
   }
 
-  *tret = t;
   return retcode;
 }
 
@@ -102,6 +105,7 @@ SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver, sunrealtype tout,
     // 2==ROOT_RETURN
     fprintf(stderr, ">>>> HERE, stop_reason = %d\n", *stop_reason);
   }
+  adj_solver->step_idx--;
   *tret = t;
 
   return retcode;

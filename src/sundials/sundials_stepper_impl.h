@@ -29,6 +29,7 @@ struct SUNStepper_Ops_
   SUNStepperTryStepFn trystep;
   SUNStepperFullRhsFn fullrhs;
   SUNStepperResetFn reset;
+  SUNErrCode (*getnumsteps)(SUNStepper, int64_t* nst);
 };
 
 struct SUNStepper_

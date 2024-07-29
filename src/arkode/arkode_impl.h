@@ -510,10 +510,11 @@ struct ARKodeMemRec
   /* Counters */
   long int nst_attempts; /* number of attempted steps                  */
   long int nst;          /* number of internal steps taken             */
-  int nhnil;             /* number of messages issued to the user that
+  long int adj_stage_idx; /* current stage index (only valid in adjoint context)*/
+  int nhnil;              /* number of messages issued to the user that
                              t+h == t for the next iternal step         */
-  long int ncfn;         /* num corrector convergence failures         */
-  long int netf;         /* num error test failures                    */
+  long int ncfn;          /* num corrector convergence failures         */
+  long int netf;          /* num error test failures                    */
   long int nconstrfails; /* number of constraint failures              */
 
   /* Space requirements for ARKODE */

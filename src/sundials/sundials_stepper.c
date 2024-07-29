@@ -31,11 +31,12 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
   stepper->ops = malloc(sizeof(*(stepper->ops)));
   SUNAssert(stepper->ops, SUN_ERR_MALLOC_FAIL);
 
-  stepper->ops->advance = NULL;
-  stepper->ops->onestep = NULL;
-  stepper->ops->trystep = NULL;
-  stepper->ops->fullrhs = NULL;
-  stepper->ops->reset   = NULL;
+  stepper->ops->advance     = NULL;
+  stepper->ops->onestep     = NULL;
+  stepper->ops->trystep     = NULL;
+  stepper->ops->fullrhs     = NULL;
+  stepper->ops->reset       = NULL;
+  stepper->ops->getnumsteps = NULL;
 
   *stepper_ptr = stepper;
 
@@ -117,6 +118,12 @@ SUNErrCode SUNStepper_GetContent(SUNStepper stepper, void** content)
   SUNFunctionBegin(stepper->sunctx);
   *content = stepper->content;
   return SUN_SUCCESS;
+}
+
+SUNErrCode SUNStepper_GetNumSteps(SUNStepper stepper, int64_t* num_steps)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  return stepper->ops->getnumsteps(stepper, num_steps);
 }
 
 SUNErrCode SUNStepper_SetAdvanceFn(SUNStepper stepper, SUNStepperAdvanceFn fn)

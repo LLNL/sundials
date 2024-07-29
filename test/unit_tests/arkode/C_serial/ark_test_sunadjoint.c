@@ -319,7 +319,7 @@ int main(int argc, char* argv[])
 
   // Test if the initial condition can be loaded
   N_Vector loaded_vec = N_VClone(u);
-  SUNAdjointCheckpointScheme_LoadVector(checkpoint_scheme, 0, 0, &loaded_vec);
+  SUNAdjointCheckpointScheme_LoadVector(checkpoint_scheme, -1, 4, &loaded_vec);
   printf("Initial condition loaded from checkpoint:\n");
   N_VPrint(loaded_vec);
 
@@ -329,17 +329,17 @@ int main(int argc, char* argv[])
 
   adjoint_solution(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
 
-  //
-  // Now compute the adjoint solution using Jvp
-  //
-  // TODO(CJB): make sure this reinitializes arkode correctly (probably need SUNAdjointSolver_Reset function)
-  adjoint_solution_jvp(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
+  // //
+  // // Now compute the adjoint solution using Jvp
+  // //
+  // // TODO(CJB): make sure this reinitializes arkode correctly (probably need SUNAdjointSolver_Reset function)
+  // adjoint_solution_jvp(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
 
-  //
-  // Now compute the adjoint solution using vJp
-  //
-  // TODO(CJB): make sure this reinitializes arkode correctly
-  adjoint_solution_vjp(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
+  // //
+  // // Now compute the adjoint solution using vJp
+  // //
+  // // TODO(CJB): make sure this reinitializes arkode correctly
+  // adjoint_solution_vjp(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
 
   //
   // Cleanup

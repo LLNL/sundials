@@ -29,6 +29,7 @@ struct SUNAdjointSolver_
   SUNJacTimesFn Jvp, JPvp, vJp, vJPp;
   SUNAdjointCheckpointScheme checkpoint_scheme;
   sunrealtype tf;
+  int64_t step_idx;
   void* user_data;
   SUNContext sunctx;
 };
@@ -42,8 +43,9 @@ extern "C" {
 // TODO(CJB): I think this should be a private function that is only used
 // within the package CreateAdjointSolver routines.
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper, sunindextype num_cost_fns,
-                                   N_Vector sf, sunrealtype tf,
+SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper, int64_t final_step_idx,
+                                   sunindextype num_cost_fns, N_Vector sf,
+                                   sunrealtype tf,
                                    SUNAdjointCheckpointScheme checkpoint_scheme,
                                    SUNContext sunctx,
                                    SUNAdjointSolver* adj_solver);

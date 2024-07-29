@@ -190,7 +190,7 @@ int arkStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
 int arkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
-                               int* nflagPtr);
+                                 int* nflagPtr);
 int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int arkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int arkStep_SetDefaults(ARKodeMem ark_mem);
@@ -283,6 +283,7 @@ int arkStep_SUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
 int arkStep_SUNStepperFullRhs(SUNStepper stepper, sunrealtype t, N_Vector y,
                               N_Vector f, int mode);
 int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR);
+SUNErrCode arkStep_SUNStepperGetNumSteps(SUNStepper stepper, int64_t* nst);
 
 /* private functions for interfacing with MRIStep */
 int arkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,

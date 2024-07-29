@@ -31,6 +31,9 @@
 #include "sunadjoint/sunadjoint_checkpointscheme.h"
 #include "sunadjoint/sunadjoint_solver.h"
 
+#include "sundials/sundials_errors.h"
+#include "sundials/sundials_nvector.h"
+#include "sundials/sundials_stepper.h"
 #include "sundials_macros.h"
 
 #define FIXED_LIN_TOL
@@ -1149,6 +1152,14 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
     }
   }
 
+  /* Save initial condition as first checkpoint */
+  if (ark_mem->checkpoint_scheme)
+  {
+    SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme, -1,
+                                            step_mem->Be->stages, ark_mem->tcur,
+                                            ark_mem->ycur);
+  }
+
   /* set appropriate TakeStep routine based on problem configuration */
   if (ark_mem->do_adjoint) { ark_mem->step = arkStep_TakeStep_ERK_Adjoint; }
   else { ark_mem->step = arkStep_TakeStep_Z; }
@@ -2059,13 +2070,13 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     sunbooleantype do_save;
     SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
-                                            ark_mem->nst, -1, ark_mem->tcur,
-                                            &do_save);
+                                            ark_mem->nst, step_mem->Be->stages,
+                                            ark_mem->tcur, &do_save);
     if (do_save)
     {
       SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
-                                              ark_mem->nst, -1, ark_mem->tcur,
-                                              ark_mem->ycur);
+                                              ark_mem->nst, step_mem->Be->stages,
+                                              ark_mem->tcur, ark_mem->ycur);
     }
   }
 
@@ -2134,8 +2145,9 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   /* Loop over stages */
   for (int is = step_mem->stages - 1; is >= 0; --is)
   {
-    /* Set current stage time(s) */
-    ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is] * ark_mem->h;
+    /* Set current stage time(s) and index */
+    ark_mem->adj_stage_idx = is + 1;
+    ark_mem->tcur          = ark_mem->tn + step_mem->Be->c[is] * ark_mem->h;
 
     /*
      * Compute partial current stage value \Lambda
@@ -2180,6 +2192,8 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                           ark_mem->user_data);
     step_mem->nfe++; // TODO(CJB): fe calls the Jacobian functions, so should we track those too? (they will be equal to nfe)
   }
+
+  ark_mem->adj_stage_idx--;
 
   /* Now compute the time step solution. We cannot use arkStep_ComputeSolutions because the
      adjoint calculation for the time step solution is different than the forward case. */
@@ -3300,11 +3314,19 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   retval = SUNStepper_SetAdvanceFn(*stepper, arkStep_SUNStepperAdvance);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  retval = SUNStepper_SetOneStepFn(*stepper, arkStep_SUNStepperOneStep);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = SUNStepper_SetTryStepFn(*stepper, arkStep_SUNStepperTryStep);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
   retval = SUNStepper_SetFullRhsFn(*stepper, arkStep_SUNStepperFullRhs);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   retval = SUNStepper_SetResetFn(*stepper, arkStep_SUNStepperReset);
   if (retval != ARK_SUCCESS) { return (retval); }
+
+  (*stepper)->ops->getnumsteps = arkStep_SUNStepperGetNumSteps;
 
   return (ARK_SUCCESS);
 }
@@ -3469,6 +3491,20 @@ int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
   return (ARKodeReset(arkode_mem, tR, yR));
 }
 
+SUNErrCode arkStep_SUNStepperGetNumSteps(SUNStepper stepper, int64_t* nst)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if (ARKodeGetNumSteps(arkode_mem, nst)) { return SUN_ERR_GENERIC; }
+
+  return SUN_SUCCESS;
+}
+
 /*---------------------------------------------------------------
   Utility routines for interfacing with SUNAdjointSolver
   ---------------------------------------------------------------*/
@@ -3479,18 +3515,21 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens, N_Vector sensDot, void* content
 
   SUNAdjointSolver adj_solver = (SUNAdjointSolver)content;
   void* user_data             = adj_solver->user_data;
+  ARKodeMem ark_mem           = (ARKodeMem)adj_solver->stepper->content;
 
   N_Vector lambda    = N_VGetSubvector_ManyVector(sens, 0);
   N_Vector mu        = N_VGetSubvector_ManyVector(sens, 1);
   N_Vector lambdaDot = N_VGetSubvector_ManyVector(sensDot, 0);
   N_Vector muDot     = N_VGetSubvector_ManyVector(sensDot, 1);
 
-  N_Vector fake_checkpoint = N_VClone(lambda);
-  N_VConst(ONE, fake_checkpoint);
+  N_Vector checkpoint = N_VClone(lambda);
+  SUNAdjointCheckpointScheme_LoadVector(adj_solver->checkpoint_scheme,
+                                        adj_solver->step_idx,
+                                        ark_mem->adj_stage_idx, &checkpoint);
 
   if (adj_solver->JacFn)
   {
-    adj_solver->JacFn(t, fake_checkpoint, NULL, adj_solver->JacP,
+    adj_solver->JacFn(t, checkpoint, NULL, adj_solver->JacP,
                       adj_solver->user_data, NULL, NULL, NULL);
     if (SUNMatMatvecTranspose(adj_solver->Jac, lambda, lambdaDot))
     {
@@ -3499,31 +3538,31 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens, N_Vector sensDot, void* content
   }
   else if (adj_solver->Jvp)
   {
-    adj_solver->Jvp(lambda, lambdaDot, t, fake_checkpoint, NULL,
+    adj_solver->Jvp(lambda, lambdaDot, t, checkpoint, NULL,
                     adj_solver->user_data, NULL);
   }
   else if (adj_solver->vJp)
   {
-    adj_solver->vJp(lambda, lambdaDot, t, fake_checkpoint, NULL,
+    adj_solver->vJp(lambda, lambdaDot, t, checkpoint, NULL,
                     adj_solver->user_data, NULL);
   }
 
   if (adj_solver->JacPFn)
   {
-    adj_solver->JacPFn(t, fake_checkpoint, NULL, adj_solver->JacP,
+    adj_solver->JacPFn(t, checkpoint, NULL, adj_solver->JacP,
                        adj_solver->user_data, NULL, NULL, NULL);
     if (SUNMatMatvecTranspose(adj_solver->JacP, mu, muDot)) { return -1; }
   }
   else if (adj_solver->JPvp)
   {
-    adj_solver->JPvp(mu, muDot, t, fake_checkpoint, NULL, adj_solver->user_data,
-                     NULL);
+    adj_solver->JPvp(mu, muDot, t, checkpoint, NULL, adj_solver->user_data, NULL);
   }
   else if (adj_solver->vJPp)
   {
-    adj_solver->vJPp(mu, muDot, t, fake_checkpoint, NULL, adj_solver->user_data,
-                     NULL);
+    adj_solver->vJPp(mu, muDot, t, checkpoint, NULL, adj_solver->user_data, NULL);
   }
+
+  N_VDestroy(checkpoint);
 
   return 0;
 }
@@ -3591,6 +3630,9 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
     return ARK_ILL_INPUT;
   }
 
+  long nst = 0;
+  ARKodeGetNumSteps(arkode_mem, &nst);
+
   // TODO(CJB): should we reinit or should we creater a new instance of ARKStep altogether?
   // If we do not a user wont be able to reuse the original ARKStep for another forward
   // integration easily.
@@ -3613,7 +3655,7 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
   // SUNAdjointSolver will own the SUNStepper and destroy it
   SUNStepper stepper;
   ARKStepCreateSUNStepper(arkode_mem, &stepper);
-  SUNAdjointSolver_Create(stepper, num_cost, sf, ark_mem->tretlast,
+  SUNAdjointSolver_Create(stepper, nst - 1, num_cost, sf, ark_mem->tretlast,
                           ark_mem->checkpoint_scheme, ark_mem->sunctx,
                           adj_solver_ptr);
 

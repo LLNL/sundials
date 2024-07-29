@@ -33,9 +33,9 @@ struct SUNAdjointCheckpointScheme_Basic_Content_
   sunbooleantype keep;
   SUNDataIOMode io_mode;
   SUNDataNode root_node;
-  uint64_t stepnum_of_current_insert;
+  int64_t stepnum_of_current_insert;
   SUNDataNode current_insert_step_node;
-  uint64_t stepnum_of_current_load;
+  int64_t stepnum_of_current_load;
   SUNDataNode current_load_step_node;
 };
 
@@ -71,9 +71,9 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
   content->keep                      = keep;
   content->root_node                 = NULL;
   content->current_insert_step_node  = NULL;
-  content->stepnum_of_current_insert = -1;
+  content->stepnum_of_current_insert = -2;
   content->current_load_step_node    = NULL;
-  content->stepnum_of_current_load   = -1;
+  content->stepnum_of_current_load   = -2;
   content->io_mode                   = io_mode;
 
   SUNCheckCall(
@@ -120,7 +120,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
     PROPERTY(self, stepnum_of_current_insert) = step_num;
 
     /* Store the step node in the root node object. */
-    char* key = sunUnsignedToString(step_num);
+    char* key = sunSignedToString(step_num);
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
                        "insert-new-step", "step_num = %d, key = %s", step_num,
@@ -161,7 +161,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   SUNDataNode step_data_node = NULL;
   if (step_num != PROPERTY(self, stepnum_of_current_load))
   {
-    char* key = sunUnsignedToString(step_num);
+    char* key = sunSignedToString(step_num);
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
                        "load-new-step", "step_num = %d, key = %s", step_num, key);
@@ -179,13 +179,22 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   SUNDataNode solution_node = NULL;
   if (PROPERTY(self, keep))
   {
-    SUNCheckCall(
-      SUNDataNode_GetChild(step_data_node, stage_num + 1, &solution_node));
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
+                       "load-stage", "keep = 1, step_num = %d, stage = %d",
+                       step_num, stage_num);
+#endif
+    SUNCheckCall(SUNDataNode_GetChild(step_data_node, stage_num, &solution_node));
   }
   else
   {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
+                       "load-stage", "keep = 0, step_num = %d, stage = %d",
+                       step_num, stage_num);
+#endif
     SUNCheckCall(
-      SUNDataNode_RemoveChild(step_data_node, stage_num + 1, &solution_node));
+      SUNDataNode_RemoveChild(step_data_node, stage_num, &solution_node));
   }
 
   if (!solution_node) { return SUN_ERR_CHECKPOINT_NOT_FOUND; }

@@ -33,6 +33,15 @@ static inline char* sunUnsignedToString(uint64_t uint)
   return str;
 }
 
+static inline char* sunSignedToString(int64_t val)
+{
+  char* str     = NULL;
+  size_t length = snprintf(NULL, 0, "%lld", val);
+  str           = (char*)malloc(sizeof(*str) * (length + 1));
+  snprintf(str, length + 1, "%lld", val);
+  return str;
+}
+
 static inline char* sunCombineFileAndLine(int line, const char* file)
 {
   size_t total_str_len = strlen(file) + 6;

@@ -60,6 +60,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNStepper_GetContent(SUNStepper stepper, void** content);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNStepper_GetNumSteps(SUNStepper stepper, int64_t* num_steps);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetAdvanceFn(SUNStepper stepper, SUNStepperAdvanceFn fn);
 
 SUNDIALS_EXPORT
