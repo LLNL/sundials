@@ -1142,7 +1142,7 @@ potentially non-differentiable factor.
    Krylov linear solver's convergence test constant is reduced  from the
    nonlinear iteration test constant.  This routine can be used in both the
    cases where the backward problem  does and does not depend on the forward
-   sensitvities.
+   sensitivities.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1171,7 +1171,7 @@ potentially non-differentiable factor.
    converting from the integrator tolerance (WRMS norm) to the linear solver
    tolerance (L2 norm) for Newton linear system solves e.g.,  ``tol_L2 = fac *
    tol_WRMS``.  This routine can be used in both the cases wherethe backward
-   problem  does and does not depend on the forward sensitvities.
+   problem  does and does not depend on the forward sensitivities.
 
    **Arguments:**
      * ``cvode_mem`` -- pointer to the CVODES memory block.
@@ -1527,7 +1527,7 @@ provide a ``rhsBS`` function of type :c:type:`CVRhsFnBS` defined as follows:
    **Arguments:**
      * ``t`` -- is the current value of the independent variable.
      * ``y`` -- is the current value of the forward solution vector.
-     * ``yS`` -- a pointer to an array of ``Ns`` vectors containing the sensitvities of the forward solution.
+     * ``yS`` -- a pointer to an array of ``Ns`` vectors containing the sensitivities of the forward solution.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``yBdot`` -- is the output vector containing the right-hand side.
      * ``user_dataB`` -- is a pointer to user data, same as passed to ``CVodeSetUserDataB``.
@@ -1596,7 +1596,7 @@ by
       of the  correct accessor macros from each ``N_Vector`` implementation).
       For the sake of  computational efficiency, the vector functions in the two
       ``N_Vector`` implementations  provided with CVODES do not perform any
-      consistency checks with repsect to their  ``N_Vector`` arguments
+      consistency checks with respect to their  ``N_Vector`` arguments
       (see :numref:`NVectors`).  The ``user_dataB`` pointer is passed to the user's
       ``fQB`` function every time  it is called and can be the same as the
       ``user_data`` pointer used for the forward problem.
@@ -1626,7 +1626,7 @@ defined by
    **Arguments:**
      * ``t`` -- is the current value of the independent variable.
      * ``y`` -- is the current value of the forward solution vector.
-     * ``yS`` -- a pointer to an array of ``Ns`` vectors continaing the sensitvities of the forward solution.
+     * ``yS`` -- a pointer to an array of ``Ns`` vectors containing the sensitivities of the forward solution.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``qBdot`` -- is the output vector containing the right-hand side ``fQBS`` of the backward quadrature equations.
      * ``user_dataB`` -- is a pointer to user data, same as passed to ``CVodeSetUserDataB``.
@@ -1645,7 +1645,7 @@ defined by
       data consistently (including the use of the  correct accessor macros from
       each ``N_Vector`` implementation). For the sake of  computational
       efficiency, the vector functions in the two ``N_Vector`` implementations
-      provided with CVODES do not perform any consistency checks with repsect to
+      provided with CVODES do not perform any consistency checks with respect to
       their  ``N_Vector`` arguments (see :numref:`NVectors`).  The
       ``user_dataB`` pointer is passed to the user's ``fQBS`` function every
       time  it is called and can be the same as the ``user_data`` pointer used
@@ -1729,7 +1729,7 @@ non-``NULL`` ``SUNMatrix`` object was supplied to
    **Arguments:**
      * ``t`` -- is the current value of the independent variable.
      * ``y`` -- is the current value of the forward solution vector.
-     * ``yS`` -- a pointer to an array of ``Ns`` vectors containing the sensitvities of the forward solution.
+     * ``yS`` -- a pointer to an array of ``Ns`` vectors containing the sensitivities of the forward solution.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the backward right-hand side function :math:`f_B`.
      * ``JacB`` -- is the output approximate Jacobian matrix.
@@ -1795,7 +1795,7 @@ J_B` (or an approximation of it) for the backward problem.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the backward right-hand side function :math:`f_B`.
      * ``AB`` -- is the output approximate linear system matrix.
-     * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or informtion saved from a previous information can be safely used (``jokB = SUNTRUE``).
+     * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or information saved from a previous information can be safely used (``jokB = SUNTRUE``).
      * ``jcurB`` -- is an output flag which must be set to ``SUNTRUE`` if Jacobian-related data was recomputed or ``SUNFALSE`` otherwise.
      * ``gammaB`` -- is the scalar appearing in the matrix :math:`M_B = I - \gamma_B J_B`.
      * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
@@ -1838,7 +1838,7 @@ J_B` (or an approximation of it) for the backward problem.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the backward right-hand side function :math:`f_B`.
      * ``AB`` -- is the output approximate linear system matrix.
-     * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or informtion saved from a previous information can be safely used (``jokB = SUNTRUE``).
+     * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or information saved from a previous information can be safely used (``jokB = SUNTRUE``).
      * ``jcurB`` -- is an output flag which must be set to ``SUNTRUE`` if Jacobian-related data was recomputed or ``SUNFALSE`` otherwise.
      * ``gammaB`` -- is the scalar appearing in the matrix
      * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
@@ -2010,7 +2010,7 @@ function of type :c:type:`CVLsJacTimesSetupFnB` or
    **Arguments:**
      * ``t`` -- is the current value of the independent variable.
      * ``y`` -- is the current value of the dependent variable vector, :math:`y(t)`.
-     * ``yS`` -- a pointer to an array of ``Ns`` vectors containing the sensitvities of the forward solution.
+     * ``yS`` -- a pointer to an array of ``Ns`` vectors containing the sensitivities of the forward solution.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the right-hand-side function for the backward problem.
      * ``user_dataB`` -- is a pointer to the same user data provided to ``CVodeSetUserDataB``.
@@ -2128,7 +2128,7 @@ function of one of the following two types:
      * ``y`` -- is the current value of the forward solution vector.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the backward right-hand side function :math:`f_B`.
-     * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or information saved from a previous invokation can be safely used (``jokB = SUNTRUE``).
+     * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or information saved from a previous invocation can be safely used (``jokB = SUNTRUE``).
      * ``jcurPtr`` -- is an output flag which must be set to ``SUNTRUE`` if Jacobian-related data was recomputed or ``SUNFALSE`` otherwise.
      * ``gammaB`` -- is the scalar appearing in the matrix :math:`M_B = I - \gamma_B J_B`.
      * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.
@@ -2156,7 +2156,7 @@ function of one of the following two types:
      * ``yS`` -- is a pointer to an array containing the forward sensitivity vectors.
      * ``yB`` -- is the current value of the backward dependent variable vector.
      * ``fyB`` -- is the current value of the backward right-hand side function :math:`f_B`.
-     * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or information saved from a previous invokation can be safely used (``jokB = SUNTRUE``).
+     * ``jokB`` -- is an input flag indicating whether Jacobian-related data needs to be recomputed (``jokB = SUNFALSE``) or information saved from a previous invocation can be safely used (``jokB = SUNTRUE``).
      * ``jcurPtr`` -- is an output flag which must be set to ``SUNTRUE`` if Jacobian-related data was recomputed or ``SUNFALSE`` otherwise.
      * ``gammaB`` -- is the scalar appearing in the matrix :math:`M_B = I - \gamma_B J_B`.
      * ``user_dataB`` -- is a pointer to the same user data passed to ``CVodeSetUserDataB``.

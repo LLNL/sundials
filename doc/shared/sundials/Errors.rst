@@ -18,7 +18,7 @@ Error Checking
 .. versionadded:: 7.0.0
 
 Until version 7.0.0, error reporting and handling was inconsistent throughout SUNDIALS. Starting with version 7.0.0 all of SUNDIALS (the core, implementations of core modules, and
-packages) reports error mesages through the :c:type:`SUNLogger` API. Furthermore, functions in the
+packages) reports error messages through the :c:type:`SUNLogger` API. Furthermore, functions in the
 SUNDIALS core API (i.e., ``SUN`` or ``N_V`` functions only) either return a :c:type:`SUNErrCode`, or
 (if they don't return a :c:type:`SUNErrCode`) they internally record an error code (if an error
 occurs) within the :c:type:`SUNContext` for the execution stream. This "last error" is accessible
@@ -45,17 +45,17 @@ Thus, in user code, SUNDIALS core API functions can be checked for errors in one
   length = 2;
   v = N_VNew_Serial(length, sunctx);
   sunerr = SUNContext_GetLastError(sunctx);
-  if (sunerr) {  /* an error occured, do something */ }
+  if (sunerr) {  /* an error occurred, do something */ }
 
   // If the function returns a SUNErrCode, we can check it directly
   sunerr = N_VLinearCombination(...);
-  if (sunerr) {  /* an error occured, do something */ }
+  if (sunerr) {  /* an error occurred, do something */ }
 
   // Another function that does not return a SUNErrCode.
   dotprod = N_VDotProd(...);
   SUNContext_GetLastError(sunctx);
   if (sunerr) {
-   /* an error occured, do something */
+   /* an error occurred, do something */
   } else {
     print("dotprod = %.2f\n", dotprod);
   }
@@ -114,11 +114,11 @@ The error handlers provided in SUNDIALS are:
   Logs the error that occurred using the :c:type:`SUNLogger` from ``sunctx``.
   This is the default error handler.
 
-  :param line: the line number at which the error occured
-  :param func: the function in which the error occured
-  :param file: the file in which the error occured
+  :param line: the line number at which the error occurred
+  :param func: the function in which the error occurred
+  :param file: the file in which the error occurred
   :param msg: the message to log, if this is ``NULL`` then the default error message for the error code will be used
-  :param err_code: the error code for the error that occured
+  :param err_code: the error code for the error that occurred
   :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
   :param sunctx: pointer to a valid :c:type:`SUNContext` object
 
@@ -128,13 +128,13 @@ The error handlers provided in SUNDIALS are:
                                           const char* msg, SUNErrCode err_code, \
                                           void* err_user_data, SUNContext sunctx)
 
-  Logs the error and aborts the program if an error occured.
+  Logs the error and aborts the program if an error occurred.
 
-  :param line: the line number at which the error occured
-  :param func: the function in which the error occured
-  :param file: the file in which the error occured
+  :param line: the line number at which the error occurred
+  :param func: the function in which the error occurred
+  :param file: the file in which the error occurred
   :param msg: this parameter is ignored
-  :param err_code: the error code for the error that occured
+  :param err_code: the error code for the error that occurred
   :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
   :param sunctx: pointer to a valid :c:type:`SUNContext` object
 
@@ -145,13 +145,13 @@ The error handlers provided in SUNDIALS are:
                                              const char* msg, SUNErrCode err_code, \
                                              void* err_user_data, SUNContext sunctx)
 
-  Logs the error and calls ``MPI_Abort`` if an error occured.
+  Logs the error and calls ``MPI_Abort`` if an error occurred.
 
-  :param line: the line number at which the error occured
-  :param func: the function in which the error occured
-  :param file: the file in which the error occured
+  :param line: the line number at which the error occurred
+  :param func: the function in which the error occurred
+  :param file: the file in which the error occurred
   :param msg: this parameter is ignored
-  :param err_code: the error code for the error that occured
+  :param err_code: the error code for the error that occurred
   :param err_user_data: the user pointer provided to :c:func:`SUNContext_PushErrHandler`
   :param sunctx: pointer to a valid :c:type:`SUNContext` object
 

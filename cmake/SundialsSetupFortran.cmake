@@ -39,7 +39,8 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
     file(MAKE_DIRECTORY ${F2003Test_DIR})
 
     # Create a CMakeLists.txt file
-    file(WRITE ${F2003Test_DIR}/CMakeLists.txt
+    file(
+      WRITE ${F2003Test_DIR}/CMakeLists.txt
       "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
       "PROJECT(ftest Fortran)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
@@ -54,29 +55,42 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
 
     # Create a Fortran source file which tries to use iso_c_binding
     file(WRITE ${F2003Test_DIR}/ftest.f90
-      "program main\n"
-      "use, intrinsic :: iso_c_binding\n"
-      "end program main\n")
+         "program main\n" "use, intrinsic :: iso_c_binding\n"
+         "end program main\n")
 
     # Attempt compile the executable
-    try_compile(FTEST_OK ${F2003Test_DIR} ${F2003Test_DIR}
-      ftest OUTPUT_VARIABLE COMPILE_OUTPUT)
+    try_compile(
+      FTEST_OK ${F2003Test_DIR}
+      ${F2003Test_DIR} ftest
+      OUTPUT_VARIABLE COMPILE_OUTPUT)
 
-    # To ensure we do not use stuff from the previous attempts,
-    # we must remove the CMakeFiles directory.
+    # To ensure we do not use stuff from the previous attempts, we must remove
+    # the CMakeFiles directory.
     file(REMOVE_RECURSE ${F2003Test_DIR}/CMakeFiles)
 
     if(FTEST_OK)
-      message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports F2003 -- yes")
-      set(F2003_FOUND TRUE CACHE BOOL "${CMAKE_Fortran_COMPILER} supports F2003" FORCE)
+      message(
+        STATUS
+          "Checking whether ${CMAKE_Fortran_COMPILER} supports F2003 -- yes")
+      set(F2003_FOUND
+          TRUE
+          CACHE BOOL "${CMAKE_Fortran_COMPILER} supports F2003" FORCE)
     else()
-      message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports F2003 -- no")
+      message(
+        STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports F2003 -- no"
+      )
       message(STATUS "Check output:")
       message("${COMPILE_OUTPUT}")
-      message(FATAL_ERROR "BUILD_FORTRAN_MODULE_INTERFACE is set to ON, but the CMAKE_Fortran_COMPILER does not support F2003")
+      message(
+        FATAL_ERROR
+          "BUILD_FORTRAN_MODULE_INTERFACE is set to ON, but the CMAKE_Fortran_COMPILER does not support F2003"
+      )
     endif()
   else()
-    message(STATUS "Skipped F2003 tests, assuming ${CMAKE_Fortran_COMPILER} supports the f2003 standard. To rerun the F2003 tests, set F2003_FOUND to FALSE.")
+    message(
+      STATUS
+        "Skipped F2003 tests, assuming ${CMAKE_Fortran_COMPILER} supports the f2003 standard. To rerun the F2003 tests, set F2003_FOUND to FALSE."
+    )
   endif()
 endif()
 

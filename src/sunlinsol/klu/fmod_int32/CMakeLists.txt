@@ -14,20 +14,14 @@
 # CMakeLists.txt file for the F2003 KLU SUNLinearSolver object library
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunlinsolklu_mod
-  SOURCES
-    fsunlinsol_klu_mod.f90 fsunlinsol_klu_mod.c
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+sundials_add_f2003_library(
+  sundials_fsunlinsolklu_mod
+  SOURCES fsunlinsol_klu_mod.f90 fsunlinsol_klu_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC sundials_fsunmatrixsparse_mod
-  OUTPUT_NAME
-    sundials_fsunlinsolklu_mod
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-    ${sunlinsollib_SOVERSION}
-)
+  LINK_LIBRARIES PUBLIC sundials_fsunmatrixsparse_mod
+  OUTPUT_NAME sundials_fsunlinsolklu_mod
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_KLU F2003 interface")

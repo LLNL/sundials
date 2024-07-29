@@ -15,7 +15,7 @@
  *
  * This runs the same test problem as in
  * examples/arkode/C_serial/ark_analytic.c:
- *    dy/dt = lamda*y + 1/(1+t^2) - lambda*atan(t)
+ *    dy/dt = lambda*y + 1/(1+t^2) - lambda*atan(t)
  * for t in various time intervals, with the initial condition
  * y(0)=0, and having analytical solution y(t) = atan(t).
  *
@@ -97,7 +97,7 @@ int main(void)
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
-  /* Initialize vector, matrix, and linaer solver data structures */
+  /* Initialize vector, matrix, and linear solver data structures */
   y = N_VNew_Serial(1, ctx);
   if (check_retval((void*)y, "N_VNew_Serial", 0)) { return 1; }
   A = SUNDenseMatrix(1, 1, ctx);

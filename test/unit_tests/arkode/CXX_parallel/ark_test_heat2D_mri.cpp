@@ -294,13 +294,13 @@ int main(int argc, char* argv[])
   flag = ARKodeSetLinearSolver(arkstep_mem, LSa, NULL); // Attach linear solver
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
   flag = ARKodeSetPreconditioner(arkstep_mem, PSet,
-                                 PSol); // Specify the Preconditoner
+                                 PSol); // Specify the Preconditioner
   if (check_flag(&flag, "ARKodeSetPreconditioner", 1)) { return 1; }
 
   flag = ARKodeSetLinearSolver(mristep_mem, LSm, NULL); // Attach linear solver
   if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
   flag = ARKodeSetPreconditioner(mristep_mem, PSet,
-                                 PSol); // Specify the Preconditoner
+                                 PSol); // Specify the Preconditioner
   if (check_flag(&flag, "ARKodeSetPreconditioner", 1)) { return 1; }
 
   // Optionally specify linearly implicit RHS, with non-time-dependent preconditioner

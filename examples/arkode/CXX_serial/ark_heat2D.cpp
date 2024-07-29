@@ -122,7 +122,7 @@ struct UserData
   // Inverse of Jacobian diagonal for preconditioner
   N_Vector d;
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   int nout;      // number of output times
   ofstream uout; // output file stream
@@ -394,7 +394,7 @@ int main(int argc, char* argv[])
   sunrealtype dTout = udata->tf / udata->nout;
   sunrealtype tout  = dTout;
 
-  // Inital output
+  // Initial output
   flag = OpenOutput(udata);
   if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 
@@ -881,7 +881,7 @@ static void InputHelp()
   cout << "  --noforcing             : disable forcing term" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --nonlinear             : disable linearly implicit flag" << endl;
   cout << "  --order <ord>           : method order" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;

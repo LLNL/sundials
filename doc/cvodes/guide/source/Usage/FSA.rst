@@ -320,7 +320,7 @@ one, respectively. The form of the call to each of these routines is as follows:
       Passing ``fS1 = NULL`` indicates using the default internal difference
       quotient sensitivity right-hand side routine.  If an error occurred,
       :c:func:`CVodeSensInit1` also sends an error message to the  error handler
-      funciton.
+      function.
 
 
 In terms of the problem size :math:`N`, number of sensitivity vectors
@@ -1317,7 +1317,7 @@ steps are in bold.
 
 #. :silver:`Create sensitivity nonlinear solver object`
 
-#. :silver:`Attach the sensitvity nonlinear solver module`
+#. :silver:`Attach the sensitivity nonlinear solver module`
 
 #. :silver:`Set sensitivity nonlinear solver optional inputs`
 
@@ -1394,7 +1394,7 @@ of the call to this function is as follows:
    **Notes:**
       .. warning::
           Before calling :c:func:`CVodeQuadSensInit`, the user must enable the
-          sensitivites  by calling :c:func:`CVodeSensInit` or :c:func:`CVodeSensInit1`.  If
+          sensitivities  by calling :c:func:`CVodeSensInit` or :c:func:`CVodeSensInit1`.  If
           an error occurred, :c:func:`CVodeQuadSensInit` also sends an error
           message to the  error handler function.
 

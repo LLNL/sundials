@@ -45,7 +45,7 @@ if the vector owns the execution policies and memory helper objects (i.e., it is
 in change of freeing the objects), :c:type:`SUNMemory` objects for the vector data on
 the host and device, pointers to execution policies that control how streaming
 and reduction kernels are launched, a :c:type:`SUNMemoryHelper` for performing memory
-operations, and a private data structure which holds additonal members that
+operations, and a private data structure which holds additional members that
 should not be accessed directly.
 
 When instantiated with :c:func:`N_VNew_Cuda`, the underlying data will be
@@ -84,7 +84,7 @@ accessor functions:
 
 .. c:function:: sunbooleantype N_VIsManagedMemory_Cuda(N_Vector v)
 
-   This function returns a boolean flag indiciating if the vector
+   This function returns a boolean flag indicating if the vector
    data array is in managed memory or not.
 
 
@@ -272,7 +272,7 @@ options as the vector they are cloned from while vectors created with
 **Notes**
 
 * When there is a need to access components of an ``N_Vector_Cuda``, ``v``,
-  it is recommeded to use functions :c:func:`N_VGetDeviceArrayPointer_Cuda()` or
+  it is recommended to use functions :c:func:`N_VGetDeviceArrayPointer_Cuda()` or
   :c:func:`N_VGetHostArrayPointer_Cuda()`. However, when using managed memory,
   the function :c:func:`N_VGetArrayPointer` may also be used.
 
@@ -375,7 +375,7 @@ In total, SUNDIALS provides 3 execution policies:
 
    .. cpp:function:: SUNCudaBlockReduceExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
 
-      Is for kernels performing a reduction across indvidual thread blocks. The
+      Is for kernels performing a reduction across individual thread blocks. The
       number of threads per block (blockDim) can be set to any valid multiple of
       the CUDA warp size. The grid size (gridDim) can be set to any value
       greater than 0. If it is set to 0, then the grid size will be chosen so
@@ -384,7 +384,7 @@ In total, SUNDIALS provides 3 execution policies:
 
    .. cpp:function:: SUNCudaBlockReduceAtomicExecPolicy(const size_t blockDim, const cudaStream_t stream = 0)
 
-      Is for kernels performing a reduction across indvidual thread blocks using
+      Is for kernels performing a reduction across individual thread blocks using
       atomic operations. The number of threads per block (blockDim) can be set
       to any valid multiple of the CUDA warp size. The grid size (gridDim) can be
       set to any value greater than 0. If it is set to 0, then the grid size

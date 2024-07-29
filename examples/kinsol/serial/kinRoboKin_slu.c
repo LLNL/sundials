@@ -131,7 +131,7 @@ int main(void)
   if (check_retval((void*)J, "SUNSparseMatrix", 0)) { return (1); }
 
   /* Create SuperLUMT solver object */
-  num_threads = 2; /* number fo threads to use */
+  num_threads = 2; /* number of threads to use */
   LS          = SUNLinSol_SuperLUMT(y, J, num_threads, sunctx);
   if (check_retval((void*)LS, "SUNLinSol_SuperLUMT", 0)) { return (1); }
 

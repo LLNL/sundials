@@ -17,11 +17,10 @@
 set(ida_SOURCES fida_mod.f90 fida_mod.c)
 
 # Create the library
-sundials_add_f2003_library(sundials_fida_mod
-  SOURCES
-    ${ida_SOURCES}
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+sundials_add_f2003_library(
+  sundials_fida_mod
+  SOURCES ${ida_SOURCES}
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
     sundials_fnvecserial_mod_obj
     sundials_fsunmatrixband_mod_obj
@@ -36,12 +35,8 @@ sundials_add_f2003_library(sundials_fida_mod
     sundials_fsunlinsolpcg_mod_obj
     sundials_fsunnonlinsolnewton_mod_obj
     sundials_fsunnonlinsolfixedpoint_mod_obj
-  OUTPUT_NAME
-    sundials_fida_mod
-  VERSION
-    ${idalib_VERSION}
-  SOVERSION
-    ${idalib_SOVERSION}
-)
+  OUTPUT_NAME sundials_fida_mod
+  VERSION ${idalib_VERSION}
+  SOVERSION ${idalib_SOVERSION})
 
 message(STATUS "Added IDA F2003 interface")

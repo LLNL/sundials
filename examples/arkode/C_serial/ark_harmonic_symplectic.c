@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
     if (args.use_tstop) { ARKodeSetStopTime(arkode_mem, tout); }
     retval = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
 
-    /* Compute the anaytical solution */
+    /* Compute the analytical solution */
     Solution(tret, y, solution, &udata);
 
     /* Compute L2 error */

@@ -915,7 +915,7 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_VERNER_8_5_6"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the default 6th order explicit method (from :cite:p:`Ver:78`).
+This is the default 6th order explicit method (from :cite:p:`HEJ:76`).
 
 .. math::
 

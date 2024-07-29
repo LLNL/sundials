@@ -22,7 +22,7 @@
  *    w_t = -c * w_x + (B - w) / ep - w * u
  *
  * for t in [0, 10], x in [0, xmax] with periodic boundary conditions. The
- * initial condition is a Gaussian pertubation of the steady state
+ * initial condition is a Gaussian perturbation of the steady state
  * solution without advection
  *
  *    u(0,x) = k1 * A / k4 + p(x)
@@ -1730,7 +1730,7 @@ void InputError(char* name)
  * opt == 0  means the function allocates memory and returns a
  *           pointer so check if a NULL pointer was returned
  * opt == 1  means the function returns an integer where a
- *           value < 0 indicates an error occured
+ *           value < 0 indicates an error occurred
  * --------------------------------------------------------------*/
 int check_retval(void* returnvalue, const char* funcname, int opt)
 {

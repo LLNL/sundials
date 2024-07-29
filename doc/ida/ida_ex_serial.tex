@@ -61,7 +61,7 @@ user-callable functions.
 After various declarations, the \id{main} program begins by
 allocating memory for the \id{yy}, \id{yp}, and \id{avtol} vectors using
 \id{N\_VNew\_Serial} with a length argument of \id{NEQ} ($= 3$). The
-lines following that load the initial values of the dependendent
+lines following that load the initial values of the dependent
 variable vectors into \id{yy} and \id{yp}, and set the relative tolerance 
 \id{rtol} and absolute tolerance vector \id{avtol}. Serial \id{N\_Vector} 
 values are set by first accessing the pointer to their underlying data using
@@ -389,7 +389,7 @@ conditions of (\ref{e:idaHeat2D_PDE})) and with the spatial discretization
 of the PDE (using central differences) in the rest of the domain.
 
 The user-supplied functions \id{PsetupHeat} and \id{PsolveHeat} together define the 
-left preconditoner matrix $P$ approximating the system Jacobian matrix
+left preconditioner matrix $P$ approximating the system Jacobian matrix
 $J = \partial F/ \partial u + \alpha \partial F/ \partial u'$ (where the DAE
 system is $F(t,u,u') = 0$), and solve the linear systems $P z = r$.   
 Preconditioning  is done in this case by keeping only the diagonal elements of 
