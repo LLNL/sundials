@@ -28,3 +28,5 @@ are specific to LSRKStep.
    :maxdepth: 1
 
    User_callable
+   User_supplied
+   

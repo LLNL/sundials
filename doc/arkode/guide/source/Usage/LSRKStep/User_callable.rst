@@ -57,10 +57,11 @@ LSRKStep initialization functions
 
    **Return value:**
       If successful, a pointer to initialized problem memory
-      of type ``void*``, to be passed to all user-facing ERKStep routines
+      of type ``void*``, to be passed to all user-facing LSRKStep routines
       listed below.  If unsuccessful, a ``NULL`` pointer will be
       returned, and an error message will be printed to ``stderr``.
 
+   .. warning: LSRK module cannot support implicit treatment yet. fi function is there as a space holder for future releases.
 
 .. _ARKODE.Usage.LSRKStep.OptionalInputs:
 
@@ -74,13 +75,21 @@ Optional input functions
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *method* -- Type of the method: ``ARKODE_LSRK_RKC`` or ``ARKODE_LSRK_RKL``
+      * *method* -- Type of the method.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. typo in the method type).
 
 
+Allowable Method Families
+
+.. c:enum:: ARKODE_LSRKMethodType
+
+   * ``ARKODE_LSRK_RKC`` -- Runge--Kutta--Chebyshev
+   * ``ARKODE_LSRK_RKL`` -- Runge--Kutta--Legendre
+   * ``ARKODE_LSRK_RKG`` -- Runge--Kutta--Gegenbauer
+   
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig);
 
    Specifies the Dominant Eigenvalue approximation routine to
@@ -266,7 +275,7 @@ vector.
    LSRKStep time-stepper module.
 
    **Arguments:**
-      * *arkode_mem* -- pointer to the ERKStep memory block.
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
       * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the explicit right-hand side function in :math:`\dot{y} = f^E(t,y)`.
       * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)

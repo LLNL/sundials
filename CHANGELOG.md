@@ -6,6 +6,8 @@
 
 ### New Features and Enhancements
 
+Added low storage Runge--Kutta module, LSRKStep, to ARKODE.
+
 ### Bug Fixes
 
 Fixed the loading of ARKStep's default first order explicit method.

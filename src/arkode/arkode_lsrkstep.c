@@ -602,6 +602,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if ((step_mem->newdomeig))
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
+    if (retval != ARK_SUCCESS) { return (retval); }
     step_mem->ndomeigupdates++;
   }
 
@@ -794,6 +795,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if ((step_mem->newdomeig))
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
+    if (retval != ARK_SUCCESS) { return (retval); }
     step_mem->ndomeigupdates++;
   }
 
@@ -1001,6 +1003,13 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   if ((step_mem->isextDomEig))
   {
     retval = step_mem->extDomEig(ark_mem->tn, &step_mem->lambdaR, &step_mem->lambdaI, ark_mem->user_data);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                     "Unable to estimate the dominant eigenvalue");
+      return (ARK_DOMEIG_FAIL);
+    }
+
     if(step_mem->lambdaR*ark_mem->h > ZERO)
     {
       printf("\nlambdaR*h must be nonpositive\n");
