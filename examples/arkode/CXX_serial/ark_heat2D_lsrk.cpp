@@ -142,7 +142,7 @@ struct UserData
 static int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data);
 
 // Spectral radius estimation routine
-static int eig(sunrealtype t, sunrealtype* lambdaR,
+static int eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
                sunrealtype* lambdaI, void* user_data);
 
 // -----------------------------------------------------------------------------
@@ -522,7 +522,7 @@ static int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data)
 
 
 // Spectral radius estimation routine
-static int eig(sunrealtype t, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data)
+static int eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data)
 {
   // Access problem data
   UserData* udata = (UserData*)user_data;
@@ -549,8 +549,8 @@ static int eig(sunrealtype t, sunrealtype* lambdaR, sunrealtype* lambdaI, void* 
 static int InitUserData(UserData* udata)
 {
   // Diffusion coefficient
-  udata->kx = ONE*1000.0;
-  udata->ky = ONE*1000.0;
+  udata->kx = ONE*10.0;
+  udata->ky = ONE*10.0;
 
   // Enable forcing
   udata->forcing = true;

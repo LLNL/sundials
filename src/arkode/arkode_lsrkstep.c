@@ -1002,13 +1002,14 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
   if ((step_mem->isextDomEig))
   {
-    retval = step_mem->extDomEig(ark_mem->tn, &step_mem->lambdaR, &step_mem->lambdaI, ark_mem->user_data);
+    retval = step_mem->extDomEig(ark_mem->tn, ark_mem->ycur, &step_mem->lambdaR, &step_mem->lambdaI, ark_mem->user_data);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                      "Unable to estimate the dominant eigenvalue");
       return (ARK_DOMEIG_FAIL);
     }
+
 
     if(step_mem->lambdaR*ark_mem->h > ZERO)
     {

@@ -659,8 +659,8 @@ static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
 static int InitUserData(UserData* udata)
 {
   // Diffusion coefficient
-  udata->kx = ONE*1000.0;
-  udata->ky = ONE*1000.0;
+  udata->kx = ONE*10.0;
+  udata->ky = ONE*10.0;
 
   // Enable forcing
   udata->forcing = true;
