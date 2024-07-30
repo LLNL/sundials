@@ -22,6 +22,8 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
+#include <sundials/priv/sundials_errors_impl.h>
+
 sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 {
   int i, expt;
@@ -36,7 +38,9 @@ sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 
 sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 {
-  if (base <= SUN_RCONST(0.0)) { return (SUN_RCONST(0.0)); }
+  // TODO(SBR): cleanup this and header
+  // if (base <= SUN_RCONST(0.0)) { return (SUN_RCONST(0.0)); }
+  SUNAssert(base >= 0.0, "Base should be positive");
 
 #if defined(SUNDIALS_DOUBLE_PRECISION)
   return (pow(base, exponent));
