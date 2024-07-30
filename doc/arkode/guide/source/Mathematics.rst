@@ -973,8 +973,10 @@ size :math:`h^S` has order :math:`p`, i.e.,
 .. math::
    LTE_n = c(t_n) (h^S)^p,
 
-to predict candidate values :math:`h^S_{n+1}`.  We may therefore repurpose an existing single-scale controller to predict candidate values :math:`\text{reltol}^f_{n+1}` by
-supplying an "order" :math:`p=1` and a "control parameter" :math:`h^S_n=\left(\text{reltol}_n^f\right) \left(t_{F,i}-t_{0,i}\right)`, and scaling
+to predict candidate values :math:`h^S_{n+1}`.  We may therefore repurpose an existing
+single-scale controller to predict candidate values :math:`\text{reltol}^f_{n+1}` by
+supplying an "order" :math:`p=1` and a "control parameter"
+:math:`h^S_n=\left(\text{reltol}_n^f\right) \left(t_{F,i}-t_{0,i}\right)`, and scaling
 the output by the subinterval width.
 
 Thus to construct an :math:`h^S-Tol` controller, we require three separate single-rate
@@ -983,11 +985,17 @@ adaptivity controllers:
 * scontrol-H -- this is a single-rate controller that adapts :math:`h^S_n` within the
   slow integrator to achieve user-requested solution tolerances.
 
-* scontrol-Tol -- this is a single-rate controller that adapts :math:`\text{reltol}^f_n` using the strategy described above.
+* scontrol-Tol -- this is a single-rate controller that adapts :math:`\text{reltol}^f_n`
+  using the strategy described above.
 
-* fcontrol -- this adapts time steps :math:`h^F` within the fast integrator to achieve the current tolerance, :math:`\text{reltol}^f_n`.
+* fcontrol -- this adapts time steps :math:`h^F` within the fast integrator to achieve
+  the current tolerance, :math:`\text{reltol}^f_n`.
 
-We note that of the three classes of controllers considered here, the :math:`h^S-h^F` controllers are only amenable to problems with two time scales.  On the other hand, both the decoupled and :math:`h^S-Tol` controllers may be used in multirate calculations with an arbitrary number of time scales, since these focus on only one scale at a time, or on how a given time scale relates to the next-faster scale.
+We note that of the three classes of controllers considered here, the :math:`h^S-h^F`
+controllers are only amenable to problems with two time scales.  On the other hand, both
+the decoupled and :math:`h^S-Tol` controllers may be used in multirate calculations with
+an arbitrary number of time scales, since these focus on only one scale at a time, or on
+how a given time scale relates to the next-faster scale.
 
 
 .. _ARKODE.Mathematics.MultirateInitialSteps:
@@ -1005,7 +1013,8 @@ while also progressing toward the eventual solution.
 In MRI methods, initial time step selection is complicated by the fact that not only must
 an initial slow step size, :math:`h_0^S`, be chosen, but a smaller initial step,
 :math:`h_0^F`, must also be selected.  Additionally, it is typically assumed that within
-MRI methods, evaluation of :math:`f^S` is significantly more costly than evaluation of :math:`f^f`, and thus we wish to construct these initial steps accordingly.
+MRI methods, evaluation of :math:`f^S` is significantly more costly than evaluation of
+:math:`f^f`, and thus we wish to construct these initial steps accordingly.
 
 Before examining MRI initial time step estimation, we first summarize two common
 approaches to initial step size selection.  To this end, consider a simple
