@@ -114,10 +114,10 @@ then
     # then
     #     python3 .gitlab/uberenv/uberenv.py --spec="${spec}" --prefix="${upstream}"
     # else
-        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}"
+        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" --mirror="${buildcache}" "${prefix_opt}"
         if [[ -d $buildcache ]]
         then
-            ${prefix_opt}/spack/bin/spack buildcache push $buildcache ${spec}
+            ${prefix_opt}/spack/bin/spack buildcache push ${buildcache} ${spec}
         fi
     # fi
 
