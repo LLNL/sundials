@@ -40,7 +40,7 @@ sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 {
   // TODO(SBR): cleanup this and header
   // if (base <= SUN_RCONST(0.0)) { return (SUN_RCONST(0.0)); }
-  SUNAssert(base >= 0.0, "Base should be positive");
+  SUNAssert(base > 0.0, "Base should be positive");
 
 #if defined(SUNDIALS_DOUBLE_PRECISION)
   return (pow(base, exponent));
