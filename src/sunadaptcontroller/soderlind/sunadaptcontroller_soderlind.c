@@ -339,8 +339,11 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
             SUNRpowerR(hrat, k4) * SUNRpowerR(hrat2, k5);
   }
 
-  if (isnan(*hnew)) {
-    *hnew = INFINITY;
+  if (isnan(*hnew))
+  {
+    /* hnew can be NAN if multiple e's are 0. In that case, make hnew inf with
+     * the same sign as h */
+    *hnew = h / SUN_RCONST(0.0);
   }
 
   /* return with success */

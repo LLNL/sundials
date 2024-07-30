@@ -153,8 +153,11 @@ SUNErrCode SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C,
                        SUNRpowerR(e1, k1e) * SUNRpowerR(e2, k2e));
   }
 
-  if (isnan(*hnew)) {
-    *hnew = INFINITY;
+  if (isnan(*hnew))
+  {
+    /* hnew can be NAN if multiple e's are 0. In that case, make hnew inf with
+     * the same sign as h */
+    *hnew = h / SUN_RCONST(0.0);
   }
 
   /* return with success */
