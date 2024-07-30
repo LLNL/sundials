@@ -171,22 +171,25 @@ protected:
   SUNContext sunctx;
 };
 
-static void firstHandler(int line, const char* func, const char* file, const char* msg,
-                  SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
+static void firstHandler(int line, const char* func, const char* file,
+                         const char* msg, SUNErrCode err_code,
+                         void* err_user_data, SUNContext sunctx)
 {
   std::vector<int>* order = static_cast<std::vector<int>*>(err_user_data);
   order->push_back(0);
 }
 
-static void secondHandler(int line, const char* func, const char* file, const char* msg,
-                   SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
+static void secondHandler(int line, const char* func, const char* file,
+                          const char* msg, SUNErrCode err_code,
+                          void* err_user_data, SUNContext sunctx)
 {
   std::vector<int>* order = static_cast<std::vector<int>*>(err_user_data);
   order->push_back(1);
 }
 
-static void thirdHandler(int line, const char* func, const char* file, const char* msg,
-                  SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
+static void thirdHandler(int line, const char* func, const char* file,
+                         const char* msg, SUNErrCode err_code,
+                         void* err_user_data, SUNContext sunctx)
 {
   std::vector<int>* order = static_cast<std::vector<int>*>(err_user_data);
   order->push_back(2);
