@@ -31,11 +31,11 @@
 ########################
 
 # Builds with HIP
-corona_rocmcc_550:
+tioga_rocmcc_550:
   parallel:
     matrix:
       - COMPILER_SPEC: rocmcc@5.5.0
         AMDGPU_TARGET: [gfx908]
   variables:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} scheduler=flux +rocm+mpi"
-  extends: [.job_on_corona]
+  extends: [.job_on_tioga]
