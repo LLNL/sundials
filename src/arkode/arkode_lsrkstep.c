@@ -471,7 +471,6 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 {
   int retval;
   ARKodeLSRKStepMem step_mem;
-  sunbooleantype recomputeRHS;
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -501,34 +500,8 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     break;
 
   case ARK_FULLRHS_END:
-
-    /* determine if RHS function needs to be recomputed */
-    if (!(ark_mem->fn_is_current))
-    {
-      /* First Same As Last methods are not FSAL when relaxation is enabled */
-      if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
-
-      /* base RHS calls on recomputeRHS argument */
-      if (recomputeRHS)
-      {
-        /* call f */
-        retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
-        step_mem->nfe++;
-        if (retval != 0)
-        {
-          arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
-                          __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
-          return (ARK_RHSFUNC_FAIL);
-        }
-      }
-      else
-      {
-        N_VScale(ONE, step_mem->Fe[step_mem->reqstages - 1], step_mem->Fe[0]);
-      }
-    }
-
-    /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->Fe[0], f);
+    /* No further action is needed since the currently 
+    available methods evaluate the RHS at the end of each time step*/
 
     break;
 
@@ -623,7 +596,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current))
+  if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -816,7 +789,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current))
+  if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);

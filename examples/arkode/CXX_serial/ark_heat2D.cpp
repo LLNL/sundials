@@ -386,24 +386,6 @@ int main(int argc, char* argv[])
   flag = ARKodeSetStopTime(arkode_mem, udata->tf);
   if (check_flag(&flag, "ARKodeSetStopTime", 1)) { return 1; }
 
-  // // Set Optimal Parameters
-  // flag = ARKodeSetSafetyFactor(arkode_mem, 0.99);
-  // if (check_flag(&flag, "ARKodeSetSafetyFactor", 1)) { return 1; }
-
-  // flag = ARKodeSetMaxGrowth(arkode_mem, 25.0);
-  // if (check_flag(&flag, "ARKodeSetMaxGrowth", 1)) { return 1; } 
-
-  // flag = ARKodeSetMaxEFailGrowth(arkode_mem, 0.3);
-  // if (check_flag(&flag, "ARKodeSetMaxEFailGrowth", 1)) { return 1; }
-
-  // flag = ARKodeSetErrorBias(arkode_mem, 1.2);
-  // if (check_flag(&flag, "ARKodeSetErrorBias", 1)) { return 1; }
-
-  // flag = ARKodeSetAdaptivityAdjustment(arkode_mem, 1);
-  // if (check_flag(&flag, "ARKodeSetAdaptivityAdjustment", 1)) { return 1; }
-    
-  // flag = ARKodeSetMaxNumSteps(arkode_mem, 20000);
-  // if (check_flag(&flag, "ARKodeSetAdaptivityAdjustment", 1)) { return 1; }
   // -----------------------
   // Loop over output times
   // -----------------------
@@ -659,8 +641,8 @@ static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
 static int InitUserData(UserData* udata)
 {
   // Diffusion coefficient
-  udata->kx = ONE*10.0;
-  udata->ky = ONE*10.0;
+  udata->kx = ONE;
+  udata->ky = ONE;
 
   // Enable forcing
   udata->forcing = true;
@@ -673,8 +655,8 @@ static int InitUserData(UserData* udata)
   udata->yu = ONE;
 
   // Number of nodes in the x and y directions
-  udata->nx    = 64;
-  udata->ny    = 64;
+  udata->nx    = 32;
+  udata->ny    = 32;
   udata->nodes = udata->nx * udata->ny;
 
   // Mesh spacing in the x and y directions
@@ -686,7 +668,7 @@ static int InitUserData(UserData* udata)
   udata->atol        = SUN_RCONST(1.e-10); // absolute tolerance
   udata->hfixed      = ZERO;               // using adaptive step sizes
   udata->order       = 3;                  // method order
-  udata->controller  = 1;                  // PID controller
+  udata->controller  = 0;                  // PID controller
   udata->maxsteps    = 0;                  // use default
   udata->linear      = true;               // linearly implicit problem
   udata->diagnostics = false;              // output diagnostics
@@ -1101,71 +1083,69 @@ static int CloseOutput(UserData* udata)
 // Print integrator statistics
 static int OutputStats(void* arkode_mem, UserData* udata)
 {
-  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  int flag;
 
-  // int flag;
+  // Get integrator and solver stats
+  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
+  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
+  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  if (check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1)) { return -1; }
+  flag = ARKodeGetNumLinIters(arkode_mem, &nli);
+  if (check_flag(&flag, "ARKodeGetNumLinIters", 1)) { return -1; }
+  flag = ARKodeGetNumLinConvFails(arkode_mem, &nlcf);
+  if (check_flag(&flag, "ARKodeGetNumLinConvFails", 1)) { return -1; }
+  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+  if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) { return -1; }
+  flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfi_ls);
+  if (check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumJtimesEvals(arkode_mem, &nJv);
+  if (check_flag(&flag, "ARKodeGetNumJtimesEvals", 1)) { return -1; }
 
-  // // Get integrator and solver stats
-  // long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
-  // flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  // if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
-  // flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  // if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
-  // flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  // if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  // flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  // if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
-  // flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  // if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
-  // flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  // if (check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1)) { return -1; }
-  // flag = ARKodeGetNumLinIters(arkode_mem, &nli);
-  // if (check_flag(&flag, "ARKodeGetNumLinIters", 1)) { return -1; }
-  // flag = ARKodeGetNumLinConvFails(arkode_mem, &nlcf);
-  // if (check_flag(&flag, "ARKodeGetNumLinConvFails", 1)) { return -1; }
-  // flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  // if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) { return -1; }
-  // flag = ARKodeGetNumLinRhsEvals(arkode_mem, &nfi_ls);
-  // if (check_flag(&flag, "ARKodeGetNumLinRhsEvals", 1)) { return -1; }
-  // flag = ARKodeGetNumJtimesEvals(arkode_mem, &nJv);
-  // if (check_flag(&flag, "ARKodeGetNumJtimesEvals", 1)) { return -1; }
+  cout << fixed;
+  cout << setprecision(6);
 
-  // cout << fixed;
-  // cout << setprecision(6);
+  cout << "  Steps            = " << nst << endl;
+  cout << "  Step attempts    = " << nst_a << endl;
+  cout << "  Error test fails = " << netf << endl;
+  cout << "  RHS evals        = " << nfi << endl;
+  cout << "  NLS iters        = " << nni << endl;
+  cout << "  NLS fails        = " << ncfn << endl;
+  cout << "  LS iters         = " << nli << endl;
+  cout << "  LS fails         = " << nlcf << endl;
+  cout << "  LS setups        = " << nsetups << endl;
+  cout << "  LS RHS evals     = " << nfi_ls << endl;
+  cout << "  Jv products      = " << nJv << endl;
+  cout << endl;
 
-  // cout << "  Steps            = " << nst << endl;
-  // cout << "  Step attempts    = " << nst_a << endl;
-  // cout << "  Error test fails = " << netf << endl;
-  // cout << "  RHS evals        = " << nfi << endl;
-  // cout << "  NLS iters        = " << nni << endl;
-  // cout << "  NLS fails        = " << ncfn << endl;
-  // cout << "  LS iters         = " << nli << endl;
-  // cout << "  LS fails         = " << nlcf << endl;
-  // cout << "  LS setups        = " << nsetups << endl;
-  // cout << "  LS RHS evals     = " << nfi_ls << endl;
-  // cout << "  Jv products      = " << nJv << endl;
-  // cout << endl;
+  // Compute average nls iters per step attempt and ls iters per nls iter
+  sunrealtype avgnli = (sunrealtype)nni / (sunrealtype)nst_a;
+  sunrealtype avgli  = (sunrealtype)nli / (sunrealtype)nni;
+  cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
+  cout << "  Avg LS iters per NLS iter      = " << avgli << endl;
+  cout << endl;
 
-  // // Compute average nls iters per step attempt and ls iters per nls iter
-  // sunrealtype avgnli = (sunrealtype)nni / (sunrealtype)nst_a;
-  // sunrealtype avgli  = (sunrealtype)nli / (sunrealtype)nni;
-  // cout << "  Avg NLS iters per step attempt = " << avgnli << endl;
-  // cout << "  Avg LS iters per NLS iter      = " << avgli << endl;
-  // cout << endl;
+  // Get preconditioner stats
+  if (udata->prec)
+  {
+    long int npe, nps;
+    flag = ARKodeGetNumPrecEvals(arkode_mem, &npe);
+    if (check_flag(&flag, "ARKodeGetNumPrecEvals", 1)) { return -1; }
+    flag = ARKodeGetNumPrecSolves(arkode_mem, &nps);
+    if (check_flag(&flag, "ARKodeGetNumPrecSolves", 1)) { return -1; }
 
-  // // Get preconditioner stats
-  // if (udata->prec)
-  // {
-  //   long int npe, nps;
-  //   flag = ARKodeGetNumPrecEvals(arkode_mem, &npe);
-  //   if (check_flag(&flag, "ARKodeGetNumPrecEvals", 1)) { return -1; }
-  //   flag = ARKodeGetNumPrecSolves(arkode_mem, &nps);
-  //   if (check_flag(&flag, "ARKodeGetNumPrecSolves", 1)) { return -1; }
-
-  //   cout << "  Preconditioner setups = " << npe << endl;
-  //   cout << "  Preconditioner solves = " << nps << endl;
-  //   cout << endl;
-  // }
+    cout << "  Preconditioner setups = " << npe << endl;
+    cout << "  Preconditioner solves = " << nps << endl;
+    cout << endl;
+  }
 
   return 0;
 }
