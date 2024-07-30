@@ -156,7 +156,7 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
 #endif
 
   /* increment the relevant step counter, set desired step */
-  if (SUNRabs(h_acc) < SUNRabs(h_cfl)) { hadapt_mem->nst_acc++; }
+  if (SUNRabs(h_acc) <= SUNRabs(h_cfl)) { hadapt_mem->nst_acc++; }
   else { hadapt_mem->nst_exp++; }
   h_acc = int_dir * SUNMIN(SUNRabs(h_acc), SUNRabs(h_cfl));
 

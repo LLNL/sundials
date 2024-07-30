@@ -62,7 +62,6 @@
 #define DEFAULT_IMPGUS_K1 SUN_RCONST(0.98) /* Implicit Gustafsson parameters */
 #define DEFAULT_IMPGUS_K2 SUN_RCONST(0.95)
 #define DEFAULT_BIAS      SUN_RCONST(1.5)
-#define TINY              SUN_RCONST(1.0e-10)
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -322,9 +321,9 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
   const sunrealtype k3    = -SODERLIND_K3(C) / ord;
   const sunrealtype k4    = SODERLIND_K4(C);
   const sunrealtype k5    = SODERLIND_K5(C);
-  const sunrealtype e1    = SUNMAX(SODERLIND_BIAS(C) * dsm, TINY);
-  const sunrealtype e2    = SUNMAX(SODERLIND_EP(C), TINY);
-  const sunrealtype e3    = SUNMAX(SODERLIND_EPP(C), TINY);
+  const sunrealtype e1    = SODERLIND_BIAS(C) * dsm;
+  const sunrealtype e2    = SODERLIND_EP(C);
+  const sunrealtype e3    = SODERLIND_EPP(C);
   const sunrealtype hrat  = h / SODERLIND_HP(C);
   const sunrealtype hrat2 = SODERLIND_HP(C) / SODERLIND_HPP(C);
 
@@ -338,6 +337,10 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
   {
     *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(e3, k3) *
             SUNRpowerR(hrat, k4) * SUNRpowerR(hrat2, k5);
+  }
+
+  if (isnan(*hnew)) {
+    *hnew = INFINITY;
   }
 
   /* return with success */
