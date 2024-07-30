@@ -1,30 +1,120 @@
 ##############################################################################
-# Copyright (c) 2022-24, Lawrence Livermore National Security, LLC and RADIUSS
+# Copyright (c) 2022-23, Lawrence Livermore National Security, LLC and RADIUSS
 # project contributors. See the COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (MIT)
 ##############################################################################
-# ------------------------------------------------------------------------------
-# SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
-# and Southern Methodist University.
-# All rights reserved.
-#
-# See the top-level LICENSE and NOTICE files for details.
-#
-# SPDX-License-Identifier: BSD-3-Clause
-# SUNDIALS Copyright End
-# ------------------------------------------------------------------------------
 
-##########################################
-# Overridden shared radiuss-shared-ci jobs
-##########################################
+# Sets ID tokens for every job using `default:`
+include:
+  - project: 'lc-templates/id_tokens'
+    file: 'id_tokens.yml'
 
-# We duplicate the shared jobs description and add necessary changes for this
-# project. We keep ${PROJECT_<MACHINE>_VARIANTS} and ${PROJECT_<MACHINE>_DEPS}
-# So that the comparison with the original job is easier.
+stages:
+  - is-machine-up
+  - allocate-resources
+  - jobs-stage-1
+  - jobs-stage-2
+  - jobs-stage-3
+  - release-resources
 
-# No overridden jobs so far.
+##############################################################################
+# UTILITIES
+.on_dane:
+  tags:
+    - shell
+    - dane
+  rules:
+    # Runs except if we explicitly deactivate dane by variable.
+    - if: '$ON_dane == "OFF"'
+      when: never
+    # Advanced jobs can only run on master, develop or if ALL_TARGETS is ON.
+    # Set ADVANCED_JOB to ON in the job definition to make it an advanced job.
+    - if: '$ADVANCED_JOB == "ON" && $CI_COMMIT_BRANCH != "main" && $CI_COMMIT_BRANCH != "develop" && $ALL_TARGETS != "ON"'
+      when: never
+    # We should always release resources allocated in the pipeline.
+    - if: '$CI_JOB_NAME =~ /release_resources/'
+      when: always
+    # A true statement is expected to allow jobs to run. Here is the default.
+    - when: on_success
+
+.dane_reproducer_init:
+  script:
+    - |
+      echo -e "\e[7;32m### CI job ${CI_JOB_ID} reproducer on dane (${SYS_TYPE}) \e[0m"
+      if [[ -n "${LLNL_SERVICE_USER}" ]]; then echo -e "xsu ${LLNL_SERVICE_USER}"; fi
+      echo -e "
+      # Repository setup \n
+      working_dir=\"/usr/workspace/\${USER}/${GITHUB_PROJECT_NAME}/${CI_JOB_ID}-\$(date +%s)\" \n
+      mkdir -p \${working_dir} && cd \${working_dir} \n
+      git clone https://github.com/${GITHUB_PROJECT_ORG}/${GITHUB_PROJECT_NAME}.git --single-branch --depth=1 \n
+      cd ${GITHUB_PROJECT_NAME} \n
+      git fetch origin --depth=1 ${CI_COMMIT_SHA} \n
+      git checkout ${CI_COMMIT_SHA} \n
+      git submodule update --init --recursive \n"
+
+# We require project to define their job command using a variable (JOB_CMD).
+# In customization/gitlab-ci.yml, we encourage to define this variable as
+# non-expandable, so that project can use nested variables to configure the job
+# command. The caveat is that the reproducer here cannot capture the
+# definition of these variables in a generic fashion. By overriding the
+# following section, projects can specify the variables to define in the
+# reproducer to exactly reproduce the CI build.
+.dane_reproducer_vars:
+  script:
+    - |
+      echo -e "# Define project specific variables here if any."
+      #echo -e "export <CUSTOM_VAR>=\"${<CUSTOM_VAR>}\""
+
+.dane_reproducer_job:
+  script:
+    - |
+      echo -e "srun ${dane_JOB_ALLOC} ${JOB_CMD}"
+      echo -e "\e[7;32m### End of reproducer\e[0m"
+
+.dane_job_command:
+  script:
+    - srun $( [[ -n "${JOBID}" ]] && echo "--jobid=${JOBID}" ) ${dane_JOB_ALLOC} ${JOB_CMD}
+
+.job_on_dane:
+  extends: [.custom_job, .on_dane]
+  stage: jobs-stage-1
+  script:
+    # Allocation information
+    - echo -e "### Allocation name is ${ALLOC_NAME}"
+    - export JOBID=$(squeue -h --name=${ALLOC_NAME} --format=%A)
+    - echo -e "### Job ID is ${JOBID}"
+    # Print a reproducer
+    - !reference [.dane_reproducer_init, script]
+    - !reference [.dane_reproducer_vars, script]
+    - !reference [.dane_reproducer_job, script]
+    # The actual launch command
+    - !reference [.dane_job_command, script]
+
+##############################################################################
+# JOBS
+
+# In pre-build phase, allocate a node for builds.
+# TODO: make the resource configurable, not all projects will want the same.
+allocate_resources:
+  variables:
+    GIT_STRATEGY: none
+  extends: .on_dane
+  stage: allocate-resources
+  script:
+    - salloc ${dane_SHARED_ALLOC} --no-shell --job-name=${ALLOC_NAME}
+
+# In post-build phase, deallocate resources.
+# Note : we make sure this is run even on build phase failure using a specific
+# rule in the template ".on_dane".
+release_resources:
+  variables:
+    GIT_STRATEGY: none
+  extends: .on_dane
+  stage: release-resources
+  script:
+    - export JOBID=$(squeue -h --name=${ALLOC_NAME} --format=%A)
+    - ([[ -n "${JOBID}" ]] && scancel ${JOBID} || exit 0)
 
 ########################
 # Extra jobs
