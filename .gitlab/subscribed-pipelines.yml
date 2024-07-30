@@ -29,17 +29,17 @@
 # Comment the jobs for machines you don’t need.
 ###
 
-# DANE
-dane-up-check:
-  variables:
-    CI_MACHINE: "dane"
-  extends: [.machine-check]
+# # DANE
+# dane-up-check:
+#   variables:
+#     CI_MACHINE: "dane"
+#   extends: [.machine-check]
 
-dane-build-and-test:
-  variables:
-    CI_MACHINE: "dane"
-  needs: [dane-up-check]
-  extends: [.build-and-test]
+# dane-build-and-test:
+#   variables:
+#     CI_MACHINE: "dane"
+#   needs: [dane-up-check]
+#   extends: [.build-and-test]
 
 # CORONA
 corona-up-check:
