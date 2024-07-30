@@ -97,17 +97,6 @@ stages:
     forward:
       pipeline_variables: true
 
-#######  CJB: custom job templates from old .gitlab-ci.yml
-# These are also templates (.name) that define project specific build commands.
-# If an allocation exist with the name defined in this pipeline, the job will
-# use it (slurm specific).
-.build_toss_3_x86_64_ib_script:
-  script:
-    - echo ${ALLOC_NAME}
-    - srun -p pdebug -N 1 -n ${NCPUS} --interactive -t ${DEFAULT_TIME}
-      --job-name=${ALLOC_NAME} .gitlab/build_and_test.sh
-#######  CJB: end custom job templates from old .gitlab-ci.yml
-
 include:
   # Sets ID tokens for every job using `default:`
   - project: 'lc-templates/id_tokens'

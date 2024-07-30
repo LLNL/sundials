@@ -97,29 +97,21 @@ then
         mkdir -p ${spack_user_cache}
     fi
 
-    buildcache="/usr/workspace/sundials/spackcache"
+    mirror_opt=""
+
     if [[ -d /usr/workspace/sundials ]]
     then
-        # upstream="/usr/workspace/sundials/spack_installs/${spack_prefix}/${hostname}"
-        # mkdir -p "${upstream}"
-        # upstream_opt="--upstream=${upstream}"
+        buildcache="/usr/workspace/sundials/spackcache"
         mkdir -p $buildcache || true
         chmod g+rwx -R $buildcache
+        mirror_opt="--mirror=${buildcache}"
     fi
 
-    # if [[ "${shared_spack}" == "UPSTREAM" ]]
-    # then
-    #     python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}" "${upstream_opt}"
-    # elif [[ "${shared_spack}" == "ON" ]]
-    # then
-    #     python3 .gitlab/uberenv/uberenv.py --spec="${spec}" --prefix="${upstream}"
-    # else
-        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" --mirror="${buildcache}" "${prefix_opt}"
-        if [[ -d $buildcache ]]
-        then
-            ${prefix_opt}/spack/bin/spack buildcache push ${buildcache} ${spec}
-        fi
-    # fi
+    python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${mirror_opt}" "${prefix_opt}"
+    if [[ -d $buildcache ]]
+    then
+        ${prefix_opt}/spack/bin/spack buildcache push ${buildcache} ${spec}
+    fi
 
     # Ensure correct CUDA module is loaded, only works for module naming
     # convention on Lassen. Only needed for CUDA 11 (unclear why).

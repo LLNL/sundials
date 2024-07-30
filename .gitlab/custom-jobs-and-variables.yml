@@ -14,22 +14,22 @@ variables:
 
 # Corona
 # Arguments for top level allocation
-  CORONA_SHARED_ALLOC: "--exclusive --time-limit=30m --nodes=1"
+  CORONA_SHARED_ALLOC: "--exclusive --time-limit=60m --nodes=1"
 # Arguments for job level allocation
-  CORONA_JOB_ALLOC: "--time-limit=30m --nodes=1"
+  CORONA_JOB_ALLOC: "--time-limit=60m --nodes=1"
 # Add variables that should apply to all the jobs on a machine:
 #  CORONA_MY_VAR: "..."
 
 # Lassen
 # Lassen uses a different job scheduler (spectrum lsf) that does not allow
 # pre-allocation the same way slurm does. Arguments for job level allocation
-  LASSEN_JOB_ALLOC: "1 -W 30"
+  LASSEN_JOB_ALLOC: "1 -W 60"
 # Add variables that should apply to all the jobs on a machine:
 #  LASSEN_MY_VAR: "..."
 
 # Dane
 # Arguments for top level allocation
-  DANE_SHARED_ALLOC: "--exclusive --partition=pdebug --time=10 --nodes=1"
+  DANE_SHARED_ALLOC: "--exclusive --partition=pdebug --time=60 --nodes=1"
 # Arguments for job level allocation
   DANE_JOB_ALLOC: "--nodes=1"
 # Add variables that should apply to all the jobs on a machine:
@@ -37,14 +37,11 @@ variables:
 
 # Tioga
 # Arguments for top level allocation
-  TIOGA_SHARED_ALLOC: "--exclusive --time-limit=30m --nodes=1"
+  TIOGA_SHARED_ALLOC: "--exclusive --time-limit=60m --nodes=1"
 # Arguments for job level allocation
-  TIOGA_JOB_ALLOC: "--time-limit=30m --nodes=1"
+  TIOGA_JOB_ALLOC: "--time-limit=60m --nodes=1"
 # Add variables that should apply to all the jobs on a machine:
 #  TIOGA_MY_VAR: "..."
-
-# Default time to let the jobs run will be 30 minutes.
-  DEFAULT_TIME: 30
 
 # Number of threads to use for builds.
   BUILD_JOBS: 32
@@ -67,8 +64,8 @@ variables:
 # Should the Lassen pipeline run? Set to "ON" or "OFF" to enable/disable.
   ON_LASSEN: "ON"
 
-# Should the Quartz pipeline run? Set to  "ON" or "OFF" to enable/disable.
-  ON_QUARTZ: "ON"
+# Should the Lassen pipeline run? Set to "ON" or "OFF" to enable/disable.
+  ON_TIOGA: "ON"
 
 # The prefix used for shared spack installation
 # Usually this a spack version number that matches the version set in the uberenv_config.json file.
@@ -78,7 +75,7 @@ variables:
 # If "ON", then a shared spack install that has been pre-configured is utilized.
 # If "OFF", then a new spack instance is created for every build (meaning all TPLs have to be installed).
 # If "UPSTREAM" (the default), then the shared spack is used as an upstream for a build specific spack.
-  SHARED_SPACK: "UPSTREAM"
+  SHARED_SPACK: "OFF"
 
 # If "ON", then the SUNDIALS benchmark problems are run and generate profiles.
   BENCHMARK: "OFF"
