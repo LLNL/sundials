@@ -43,7 +43,7 @@ lassen_gcc_cuda_tpls:
   parallel:
     matrix:
       - COMPILER_SPEC: gcc@8.3.1
-        CUDA_SPEC: [cuda@11.8.0]
+        CUDA_SPEC: [cuda@12.0.0]
   variables:
       SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda+raja+magma+superlu-dist+petsc+hypre+ginkgo cuda_arch=70 ^ginkgo+cuda cuda_arch=70 ^hypre~cuda ^petsc~cuda ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^${CUDA_SPEC}+allow-unsupported-compilers"
   extends: [.job_on_lassen]
@@ -53,7 +53,7 @@ lassen_gcc_cuda_tpls:
 #   parallel:
 #     matrix:
 #       - COMPILER_SPEC: gcc@8.3.1
-#         CUDA_SPEC: [cuda@11.8.0]
+#         CUDA_SPEC: [cuda@12.0.0]
 #         CALIPER_DIR: /usr/workspace/sundials/califiles
 #   variables:
 #     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 build_type=Release precision=double scheduler=lsf caliper-dir=${CALIPER_DIR} ~int64 +benchmarks+profiling+caliper+adiak+mpi+openmp+cuda+raja cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^caliper+adiak+cuda cuda_arch=70 ^${CUDA_SPEC}+allow-unsupported-compilers"
