@@ -98,14 +98,15 @@ then
     fi
 
     mirror_opt=""
+    buildcache="/usr/workspace/sundials/spackcache"
 
-    if [[ -d /usr/workspace/sundials ]]
+    if [[ -d "${buildcache}" ]]
     then
-        buildcache="/usr/workspace/sundials/spackcache"
-        mkdir -p $buildcache || true
         chmod g+rwx -R $buildcache
         mirror_opt="--mirror-autopush --mirror=${buildcache}"
     fi
+
+    echo ">>>> ${mirror_opt}"
 
     python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${mirror_opt}" "${prefix_opt}"
     if [[ -d $buildcache ]]
