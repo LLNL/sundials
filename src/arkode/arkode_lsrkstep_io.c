@@ -52,15 +52,12 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   {
   case ARKODE_LSRK_RKC:
     ark_mem->step = lsrkStep_TakeStepRKC;
-    printf("\nSolving with RKC method\n\n");
     break;
   case ARKODE_LSRK_RKL:
     ark_mem->step = lsrkStep_TakeStepRKL;
-    printf("\nSolving with RKL method\n\n");
     break;
   case ARKODE_LSRK_RKG:
     ark_mem->step = lsrkStep_TakeStepRKG;
-    printf("\nSolving with RKG method\n\n");
     break;
 
   default:
@@ -106,9 +103,9 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetDomEigFrequency sets DomEig computation frequency - 
+  LSRKStepSetDomEigFrequency sets DomEig computation frequency -
   Dominated Eigenvalue is recomputed after "nsteps" successful steps.
-    
+
     nsteps = 0 refers to Constant Jacobian
   ---------------------------------------------------------------*/
 int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
