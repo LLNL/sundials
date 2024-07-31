@@ -108,7 +108,7 @@ then
 
     echo ">>>> ${mirror_opt}"
 
-    python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${mirror_opt}" "${prefix_opt}"
+    python3 .gitlab/uberenv/uberenv.py --mirror-autopush --spec="${spec}" "${mirror_opt}" "${prefix_opt}"
     # This wont work because we stop at the initconfig phase so sundials@develop is never installed
     # if [[ -d $buildcache ]]
     # then
