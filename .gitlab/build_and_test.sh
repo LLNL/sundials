@@ -103,16 +103,17 @@ then
     if [[ -d "${buildcache}" ]]
     then
         chmod g+rwx -R $buildcache
-        mirror_opt="--mirror-autopush --mirror=${buildcache}"
+        mirror_opt="--mirror=${buildcache}"
     fi
 
     echo ">>>> ${mirror_opt}"
 
     python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${mirror_opt}" "${prefix_opt}"
-    if [[ -d $buildcache ]]
-    then
-        ${prefix}/spack/bin/spack buildcache push ${buildcache} "sundials@develop ${spec}"
-    fi
+    # This wont work because we stop at the initconfig phase so sundials@develop is never installed
+    # if [[ -d $buildcache ]]
+    # then
+    #     ${prefix}/spack/bin/spack buildcache push ${buildcache} "sundials@develop ${spec}"
+    # fi
 
     # Ensure correct CUDA module is loaded, only works for module naming
     # convention on Lassen. Only needed for CUDA 11 (unclear why).
