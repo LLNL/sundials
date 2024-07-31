@@ -7,5 +7,5 @@
   "spack_commit": "d66dce2d668a6234504594661506cdd1eaca4adc",
   "spack_activate": {},
   "spack_configs_path": ".gitlab/radiuss-spack-configs",
-  "spack_packages_path": ".gitlab/spack_packages"
+  "spack_packages_path": ".gitlab/packages"
 }
