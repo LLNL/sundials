@@ -61,8 +61,6 @@
 #include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
 #include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 #include "nvector/nvector_serial.h"    // access to the serial N_Vector
-#include "sunlinsol/sunlinsol_pcg.h"   // access to PCG SUNLinearSolver
-#include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
 
 // Macros for problem constants
 #define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
@@ -121,7 +119,7 @@ struct UserData
   int stagemaxlimit;      // maximum number of stages per step
   sunrealtype eigsafety;  // dominant eigenvalue safety factor
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   int nout;      // number of output times
   ofstream uout; // output file stream
@@ -179,9 +177,6 @@ static int OpenOutput(UserData* udata);
 static int WriteOutput(sunrealtype t, N_Vector u, UserData* udata);
 static int CloseOutput(UserData* udata);
 
-// Print integration statistics
-static int OutputStats(void* arkode_mem, UserData* udata);
-
 // Print integration timing
 static int OutputTiming(UserData* udata);
 
@@ -238,7 +233,7 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) { return 1; }
 
     flag = SUNLogger_SetDebugFilename(logger, "diagnostics.txt");
-    if (check_flag(&flag, "SUNLogger_SetInfoFilename", 1)) { return 1; }
+    if (check_flag(&flag, "SUNLogger_SetDebugFilename", 1)) { return 1; }
   }
 
   // ----------------------
@@ -371,8 +366,8 @@ int main(int argc, char* argv[])
   if (udata->output > 0)
   {
     cout << "Final integrator statistics:" << endl;
-    flag = OutputStats(arkode_mem, udata);
-    if (check_flag(&flag, "OutputStats", 1)) { return 1; }
+    flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+    if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
   }
 
   if (udata->forcing)
@@ -530,8 +525,8 @@ static int eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lam
 static int InitUserData(UserData* udata)
 {
   // Diffusion coefficient
-  udata->kx = ONE*10.0;
-  udata->ky = ONE*10.0;
+  udata->kx = SUN_RCONST(10.0);
+  udata->ky = SUN_RCONST(10.0);
 
   // Enable forcing
   udata->forcing = true;
@@ -743,11 +738,11 @@ static void InputHelp()
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
   cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
+  cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
   cout << "  --method <mth>          : LSRK method choice" << endl;
   cout << "  --eigfrequency <nst>    : dominant eigenvalue update frequency" << endl;
   cout << "  --stagemaxlimit <smax>  : maximum number of stages per step" << endl;
   cout << "  --eigsafety <safety>    : dominant eigenvalue safety factor" << endl;
-  cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
   cout << "  --diagnostics           : output diagnostics" << endl;
   cout << "  --output <level>        : output level" << endl;
   cout << "  --nout <nout>           : number of outputs" << endl;
@@ -928,36 +923,6 @@ static int CloseOutput(UserData* udata)
     udata->uout.close();
     if (udata->forcing) { udata->eout.close(); }
   }
-
-  return 0;
-}
-
-// Print integrator statistics
-static int OutputStats(void* arkode_mem, UserData* udata)
-{
-  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-
-  // int flag;
-
-  // // Get integrator and solver stats
-  // long int nst, nst_a, netf, nfe, nfi;
-  // flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  // if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
-  // flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  // if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
-  // flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  // if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  // flag = LSRKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  // if (check_flag(&flag, "LSRKStepGetNumRhsEvals", 1)) { return -1; }
-
-  // cout << fixed;
-  // cout << setprecision(6);
-
-  // cout << "  Steps            = " << nst << endl;
-  // cout << "  Step attempts    = " << nst_a << endl;
-  // cout << "  Error test fails = " << netf << endl;
-  // cout << "  RHS evals        = " << nfe << endl;
-  // cout << endl;
 
   return 0;
 }
