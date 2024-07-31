@@ -104,7 +104,7 @@ then
         buildcache="/usr/workspace/sundials/spackcache"
         mkdir -p $buildcache || true
         chmod g+rwx -R $buildcache
-        mirror_opt="--mirror=${buildcache} --mirror-autopush"
+        mirror_opt="--mirror-autopush --mirror=${buildcache}"
     fi
 
     python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${mirror_opt}" "${prefix_opt}"
