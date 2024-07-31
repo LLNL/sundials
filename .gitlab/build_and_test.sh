@@ -110,7 +110,7 @@ then
     python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${mirror_opt}" "${prefix_opt}"
     if [[ -d $buildcache ]]
     then
-        ${prefix}/spack/bin/spack buildcache push ${buildcache} ${spec}
+        ${prefix}/spack/bin/spack buildcache push ${buildcache} "sundials@develop ${spec}"
     fi
 
     # Ensure correct CUDA module is loaded, only works for module naming
