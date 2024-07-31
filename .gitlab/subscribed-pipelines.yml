@@ -29,29 +29,29 @@
 # Comment the jobs for machines you don’t need.
 ###
 
-# DANE
-dane-up-check:
-  variables:
-    CI_MACHINE: "dane"
-  extends: [.machine-check]
+# # DANE
+# dane-up-check:
+#   variables:
+#     CI_MACHINE: "dane"
+#   extends: [.machine-check]
 
-dane-build-and-test:
-  variables:
-    CI_MACHINE: "dane"
-  needs: [dane-up-check]
-  extends: [.build-and-test]
+# dane-build-and-test:
+#   variables:
+#     CI_MACHINE: "dane"
+#   needs: [dane-up-check]
+#   extends: [.build-and-test]
 
-# CORONA
-corona-up-check:
-  variables:
-    CI_MACHINE: "corona"
-  extends: [.machine-check]
+# # CORONA
+# corona-up-check:
+#   variables:
+#     CI_MACHINE: "corona"
+#   extends: [.machine-check]
 
-corona-build-and-test:
-  variables:
-    CI_MACHINE: "corona"
-  needs: [corona-up-check]
-  extends: [.build-and-test]
+# corona-build-and-test:
+#   variables:
+#     CI_MACHINE: "corona"
+#   needs: [corona-up-check]
+#   extends: [.build-and-test]
 
 # TIOGA
 tioga-up-check:
