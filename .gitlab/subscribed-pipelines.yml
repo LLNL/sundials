@@ -53,17 +53,17 @@
 #   needs: [corona-up-check]
 #   extends: [.build-and-test]
 
-# TIOGA
-tioga-up-check:
-  variables:
-    CI_MACHINE: "tioga"
-  extends: [.machine-check]
+# # TIOGA
+# tioga-up-check:
+#   variables:
+#     CI_MACHINE: "tioga"
+#   extends: [.machine-check]
 
-tioga-build-and-test:
-  variables:
-    CI_MACHINE: "tioga"
-  needs: [tioga-up-check]
-  extends: [.build-and-test]
+# tioga-build-and-test:
+#   variables:
+#     CI_MACHINE: "tioga"
+#   needs: [tioga-up-check]
+#   extends: [.build-and-test]
 
 # LASSEN
 lassen-up-check:
