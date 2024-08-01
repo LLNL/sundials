@@ -133,12 +133,13 @@ SUNErrCode SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C,
   const int ord = p + 1;
 
   /* compute estimated time step size, modifying the first step formula */
-  if (SACIMEXGUS_FIRSTSTEP(C)) {
+  if (SACIMEXGUS_FIRSTSTEP(C))
+  {
     // TODO: could this case be handled by setting e1 = e2?
     /* set usable time-step adaptivity parameters -- first step */
     const sunrealtype k = -SUN_RCONST(1.0) / ord;
     const sunrealtype e = SACIMEXGUS_BIAS(C) * dsm;
-    *hnew = h * SUNRpowerR(e, k);
+    *hnew               = h * SUNRpowerR(e, k);
   }
   else
   {
