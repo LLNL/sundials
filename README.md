@@ -15,29 +15,36 @@ equation (ODE) systems, differential-algebraic equation (DAE) systems, and
 nonlinear algebraic systems:
 
 * ARKODE - for integrating stiff, nonstiff, and multirate ODEs of the form
+
   $$M(t) \\, y' = f_1(t,y) + f_2(t,y), \quad y(t_0) = y_0$$
 
 * CVODE - for integrating stiff and nonstiff ODEs of the form
+
   $$y' = f(t,y), \quad y(t_0) = y_0$$
 
 * CVODES - for integrating and sensitivity analysis (forward and adjoint) of
   ODEs of the form
+
   $$y' = f(t,y,p), \quad y(t_0) = y_0(p)$$
 
 * IDA - for integrating DAEs of the form
+
   $$F(t,y,y') = 0, \quad y(t_0) = y_0, \quad y'(t_0) = y_0'$$
 
 * IDAS - for integrating and sensitivity analysis (forward and adjoint) of DAEs
   of the form
+
   $$F(t,y,y',p) = 0, \quad y(t_0) = y_0(p), \quad y'(t_0) = y_0'(p)$$
 
 * KINSOL - for solving nonlinear algebraic systems of the form
+
   $$F(u) = 0 \quad \text{or} \quad G(u) = u$$
 
 ## Installation ##
 
-For installation directions see the [online install guide](https://sundials.readthedocs.io/en/latest/Install_link.html),
-the installation chapter in any of the package user guides, or INSTALL_GUIDE.pdf.
+For installation directions see the [online install guide](https://sundials.readthedocs.io/en/latest/Install_link.html).
+Directions are also available in the [released package tarballs](https://github.com/LLNL/sundials/releases)
+in INSTALL_GUIDE.pdf and the installation chapter of the user guides.
 
 Warning to users who receive more than one of the individual packages at
 different times: Mixing old and new versions of SUNDIALS may fail. To avoid
@@ -46,8 +53,9 @@ such failures, obtain all desired package at the same time.
 ## Support ##
 
 Full user guides for all of the SUNDIALS packages are available [online](https://sundials.readthedocs.io)
-and in the [doc](./doc) directory. Additionally, the [doc](./doc) directory
-contains documentation for the package example programs.
+and in the [doc](./doc) directory of the [released package tarballs](https://github.com/LLNL/sundials/releases).
+Additionally, the [doc](./doc) directory contains documentation for the package
+example programs.
 
 For information on recent changes to SUNDIALS see the [CHANGELOG](./CHANGELOG.md)
 or the introduction chapter of any package user guide.
@@ -58,7 +66,8 @@ For dealing with systems with unphysical solutions or discontinuities see the
 SUNDIALS [usage notes](https://computing.llnl.gov/projects/sundials/usage-notes).
 
 If you have a question not covered in the FAQ or usage notes, please submit
-your question to the SUNDIALS [mailing list](https://computing.llnl.gov/projects/sundials/mailing-list).
+your question as a [GitHub issue](https://github.com/LLNL/sundials/issues) or to
+the SUNDIALS [mailing list](https://computing.llnl.gov/projects/sundials/mailing-list).
 
 ## Contributing ##
 
@@ -76,14 +85,15 @@ any publications reporting work done using SUNDIALS packages.
 
 The SUNDIALS library has been developed over many years by a number of
 contributors. The current SUNDIALS team consists of Cody J. Balos,
-David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and Carol S. Woodward.
-We thank Radu Serban for significant and critical past contributions.
+David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, Steven B. Roberts, and
+Carol S. Woodward. We thank Radu Serban for significant and critical past
+contributions.
 
 Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
 Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
 Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
-Yu Pan, Slaven Peles, Cosmin Petra, Steven B. Roberts, H. Hunter Schwartz,
-Jean M. Sexton, Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
+Yu Pan, Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
+Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
 Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
 
 ## License ##
