@@ -20,25 +20,28 @@
 #include "arkode/arkode_erkstep.h"
 #include "nvector/nvector_serial.h"
 
-static void err_fn(int line, const char* func, const char* file, const char* msg,
-                   SUNErrCode err_code, void* err_user_data, SUNContext sunctx)
+static void err_fn(const int line, const char* const func, const char* const file,
+                   const char* const msg, const SUNErrCode err_code,
+                   void* const err_user_data, const SUNContext sunctx)
 {
   fprintf(stderr, "Error at line %i of %s in %s: %s\n", line, func, file, msg);
   exit(err_code);
 }
 
-static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
+// RHS for the simple ODE y' = 0
+static int f(const sunrealtype t, const N_Vector y, const N_Vector ydot,
+             void* const user_data)
 {
   N_VConst(SUN_RCONST(0.0), ydot);
   return 0;
 }
 
-static int check_step(void* arkode_mem, N_Vector y, sunrealtype h_expected)
+static int check_step(void* const arkode_mem, const N_Vector y,
+                      const sunrealtype h_expected, const int step)
 {
-  static int step = 0;
-  step++;
-
   sunrealtype tret;
+  /* The ERK method should be able to take the maximum possible timestep for the
+     simple ODE y' = 0 without any rejected steps or local error */
   ARKodeEvolve(arkode_mem, SUN_RCONST(1.0), y, &tret, ARK_ONE_STEP);
 
   long int local_err_fails;
@@ -51,7 +54,7 @@ static int check_step(void* arkode_mem, N_Vector y, sunrealtype h_expected)
 
   const N_Vector err = N_VClone(y);
   ARKodeGetEstLocalErrors(arkode_mem, err);
-  sunrealtype err_norm = N_VMaxNorm(err);
+  const sunrealtype err_norm = N_VMaxNorm(err);
   N_VDestroy(err);
 
   if (err_norm != 0)
@@ -104,10 +107,12 @@ int main()
   ARKodeSetMaxGrowth(arkode_mem, growth);
 
   sunrealtype h_expect = first_growth * h0;
-
-  for (int i = 0; i < 4; i++)
+  /* Take several steps to see the special behavior at step one then to allow
+     the adaptivity controller history fill up */
+  const int num_steps = 5;
+  for (int step = 1; step <= num_steps; step++)
   {
-    retval = check_step(arkode_mem, y, h_expect);
+    retval = check_step(arkode_mem, y, h_expect, step);
     if (retval != 0) { return retval; }
     h_expect *= growth;
   }
