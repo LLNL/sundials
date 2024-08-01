@@ -74,11 +74,7 @@ SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tout,
       // 2==ROOT_RETURN
       fprintf(stderr, ">>>> HERE, stop_reason = %d\n", *stop_reason);
     }
-    else
-    {
-      t = *tret;
-      break;
-    }
+    else { t = *tret; }
   }
 
   return retcode;

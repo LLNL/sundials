@@ -199,16 +199,14 @@ SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode self,
 {
   SUNFunctionBegin(self->sunctx);
 
-  SUNStlVector_SUNDataNode children = IMPL_PROP(self, anon_children);
   sunbooleantype has_children;
   SUNCheckCall(SUNDataNode_HasChildren_InMem(self, &has_children));
 
-  *child_node = NULL;
-  if (has_children)
-  {
-    *child_node = *SUNStlVector_SUNDataNode_At(children, index);
-  }
+  if (!has_children) { return SUN_SUCCESS; }
 
+  SUNDataNode* child_node_ptr =
+    SUNStlVector_SUNDataNode_At(IMPL_PROP(self, anon_children), index);
+  if (child_node_ptr) { *child_node = *child_node_ptr; }
   return SUN_SUCCESS;
 }
 

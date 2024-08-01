@@ -123,8 +123,8 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
     char* key = sunSignedToString(step_num);
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                       "insert-new-step", "step_num = %d, key = %s", step_num,
-                       key);
+                       "insert-new-step", "step_num = %d", step_num);
+
 #endif
     SUNCheckCall(SUNDataNode_AddNamedChild(PROPERTY(self, root_node), key,
                                            step_data_node));
@@ -143,6 +143,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
   SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
                      "insert-stage", "step_num = %d, stage_num = %d", step_num,
                      stage_num);
+  N_VPrint(state);
 #endif
   SUNCheckCall(SUNDataNode_AddChild(step_data_node, solution_node));
 
@@ -181,7 +182,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                       "load-stage", "keep = 1, step_num = %d, stage = %d",
+                       "load-stage", "keep = 1, step_num = %d, stage_num = %d",
                        step_num, stage_num);
 #endif
     SUNCheckCall(SUNDataNode_GetChild(step_data_node, stage_num, &solution_node));
@@ -190,7 +191,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                       "load-stage", "keep = 0, step_num = %d, stage = %d",
+                       "load-stage", "keep = 0, step_num = %d, stage_num = %d",
                        step_num, stage_num);
 #endif
     SUNCheckCall(
@@ -200,6 +201,9 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   if (!solution_node) { return SUN_ERR_CHECKPOINT_NOT_FOUND; }
 
   SUNCheckCall(SUNDataNode_GetDataNvector(solution_node, *loaded_state));
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
+  N_VPrint(*loaded_state);
+#endif
 
   /* Cleanup the checkpoint memory if need be */
   if (!PROPERTY(self, keep))

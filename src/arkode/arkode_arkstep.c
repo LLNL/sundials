@@ -1152,12 +1152,11 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
     }
   }
 
-  /* Save initial condition as first checkpoint */
-  if (ark_mem->checkpoint_scheme)
+  /* Save initial condition as first checkpoint if this is not an adjoint integration */
+  if (!ark_mem->do_adjoint && ark_mem->checkpoint_scheme)
   {
-    SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme, -1,
-                                            step_mem->Be->stages, ark_mem->tcur,
-                                            ark_mem->ycur);
+    SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme, 0, 0,
+                                            ark_mem->tcur, ark_mem->ycur);
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
@@ -1700,10 +1699,24 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* explicit first stage -- store stage if necessary for relaxation */
-  if (is_start == 1 && save_stages)
+  /* explicit first stage -- store stage if necessary for relaxation or checkpointing */
+  if (is_start == 1)
   {
-    N_VScale(ONE, ark_mem->yn, step_mem->z[0]);
+    if (save_stages) { N_VScale(ONE, ark_mem->yn, step_mem->z[0]); }
+
+    if (ark_mem->checkpoint_scheme)
+    {
+      sunbooleantype do_save;
+      SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
+                                              ark_mem->nst + 1, 0,
+                                              ark_mem->tcur, &do_save);
+      if (do_save)
+      {
+        SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
+                                                ark_mem->nst + 1, 0,
+                                                ark_mem->tcur, ark_mem->ycur);
+      }
+    }
   }
 
   /* check if the method is Stiffly Accurate (SA) */
@@ -1972,6 +1985,21 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /*    store stage (if necessary for relaxation) */
     if (save_stages) { N_VScale(ONE, ark_mem->ycur, step_mem->z[is]); }
 
+    /*    checkpoint stage for adjoint (if necessary) */
+    if (ark_mem->checkpoint_scheme)
+    {
+      sunbooleantype do_save;
+      SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
+                                              ark_mem->nst + 1, is,
+                                              ark_mem->tcur, &do_save);
+      if (do_save)
+      {
+        SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
+                                                ark_mem->nst + 1, is,
+                                                ark_mem->tcur, ark_mem->ycur);
+      }
+    }
+
     /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
     if (step_mem->implicit)
     {
@@ -2070,12 +2098,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     sunbooleantype do_save;
     SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
-                                            ark_mem->nst, step_mem->Be->stages,
-                                            ark_mem->tcur, &do_save);
+                                            ark_mem->nst + 1,
+                                            step_mem->Be->stages, ark_mem->tcur,
+                                            &do_save);
     if (do_save)
     {
       SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
-                                              ark_mem->nst, step_mem->Be->stages,
+                                              ark_mem->nst + 1,
+                                              step_mem->Be->stages,
                                               ark_mem->tcur, ark_mem->ycur);
     }
   }
@@ -2145,9 +2175,11 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   /* Loop over stages */
   for (int is = step_mem->stages - 1; is >= 0; --is)
   {
-    /* Set current stage time(s) and index */
+    /* which stage is being processed -- needed to load checkpoints */
     ark_mem->adj_stage_idx = is + 1;
-    ark_mem->tcur          = ark_mem->tn + step_mem->Be->c[is] * ark_mem->h;
+
+    /* Set current stage time(s) and index */
+    ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is] * ark_mem->h;
 
     /*
      * Compute partial current stage value \Lambda

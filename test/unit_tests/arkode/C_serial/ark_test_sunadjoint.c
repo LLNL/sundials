@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
   SUNMemoryHelper mem_helper = SUNMemoryHelper_Sys(sunctx);
   SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper, 1,
                                           ((tf - t0) / dt + 1) * 6, SUNTRUE,
-                                          SUNFALSE, sunctx, &checkpoint_scheme);
+                                          SUNTRUE, sunctx, &checkpoint_scheme);
 
   ARKodeSetCheckpointScheme(arkode_mem, checkpoint_scheme);
 
@@ -319,7 +319,7 @@ int main(int argc, char* argv[])
 
   // Test if the initial condition can be loaded
   N_Vector loaded_vec = N_VClone(u);
-  SUNAdjointCheckpointScheme_LoadVector(checkpoint_scheme, -1, 4, &loaded_vec);
+  SUNAdjointCheckpointScheme_LoadVector(checkpoint_scheme, 0, 0, &loaded_vec);
   printf("Initial condition loaded from checkpoint:\n");
   N_VPrint(loaded_vec);
 
