@@ -322,14 +322,9 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
   const sunrealtype e[] = {SODERLIND_BIAS(C) * dsm, SODERLIND_EP(C), SODERLIND_EPP(C)};
   const sunrealtype hrat[] = {h / SODERLIND_HP(C), SODERLIND_HP(C) / SODERLIND_HPP(C)};
 
-  // This assumes ke[0] is nonzero. Otherwise we could have pow(0, 0) which is undefined behavior in C
   *hnew = h * SUNRpowerR(e[0], ke[0]);
   for (int i = 0; i < SUNMIN(2, SODERLIND_FIRSTSTEPS(C)); i++) {
-    *hnew *= SUNRpowerR(hrat[i], kh[i]);
-    if (ke[i + 1] != 0) {
-      // This check avoids pow(0, 0)
-      *hnew *= SUNRpowerR(e[i + 1], ke[i + 1]);
-    }
+    *hnew *= SUNRpowerR(hrat[i], kh[i]) * SUNRpowerR(e[i + 1], ke[i + 1]);
   }
 
   if (!isfinite(*hnew))
