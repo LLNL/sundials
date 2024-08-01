@@ -316,33 +316,26 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
   const int ord = p + 1;
 
   /* set usable time-step adaptivity parameters */
-  const sunrealtype k1    = -SODERLIND_K1(C) / ord;
-  const sunrealtype k2    = -SODERLIND_K2(C) / ord;
-  const sunrealtype k3    = -SODERLIND_K3(C) / ord;
-  const sunrealtype k4    = SODERLIND_K4(C);
-  const sunrealtype k5    = SODERLIND_K5(C);
-  const sunrealtype e1    = SODERLIND_BIAS(C) * dsm;
-  const sunrealtype e2    = SODERLIND_EP(C);
-  const sunrealtype e3    = SODERLIND_EPP(C);
-  const sunrealtype hrat  = h / SODERLIND_HP(C);
-  const sunrealtype hrat2 = SODERLIND_HP(C) / SODERLIND_HPP(C);
+  const sunrealtype ke[] = {-SODERLIND_K1(C) / ord, -SODERLIND_K2(C) / ord, -SODERLIND_K3(C) / ord};
+  const sunrealtype kh[] = {SODERLIND_K4(C), SODERLIND_K5(C)};
+  // TODO: Should e2 and e3 be set to e1 when we don't have enough history yet?
+  const sunrealtype e[] = {SODERLIND_BIAS(C) * dsm, SODERLIND_EP(C), SODERLIND_EPP(C)};
+  const sunrealtype hrat[] = {h / SODERLIND_HP(C), SODERLIND_HP(C) / SODERLIND_HPP(C)};
 
-  /* compute estimated optimal time step size */
-  if (SODERLIND_FIRSTSTEPS(C) < 1) { *hnew = h * SUNRpowerR(e1, k1); }
-  else if (SODERLIND_FIRSTSTEPS(C) < 2)
-  {
-    *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(hrat, k4);
-  }
-  else
-  {
-    *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(e3, k3) *
-            SUNRpowerR(hrat, k4) * SUNRpowerR(hrat2, k5);
+  // This assumes ke[0] is nonzero. Otherwise we could have pow(0, 0) which is undefined behavior in C
+  *hnew = h * SUNRpowerR(e[0], ke[0]);
+  for (int i = 0; i < SUNMIN(2, SODERLIND_FIRSTSTEPS(C)); i++) {
+    *hnew *= SUNRpowerR(hrat[i], kh[i]);
+    if (ke[i + 1] != 0) {
+      // This check avoids pow(0, 0)
+      *hnew *= SUNRpowerR(e[i + 1], ke[i + 1]);
+    }
   }
 
-  if (isnan(*hnew))
+  if (!isfinite(*hnew))
   {
-    /* hnew can be NAN if multiple e's are 0. In that case, make hnew inf with
-     * the same sign as h */
+    /* hnew can be INFINITY or NAN if multiple e's are 0 or there are overflows.
+     * In that case, make hnew INFINITY with the same sign as h */
     *hnew = h / SUN_RCONST(0.0);
   }
 
