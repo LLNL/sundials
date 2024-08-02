@@ -42,29 +42,35 @@ nonlinear algebraic systems:
 
 ## Installation ##
 
-For installation directions, see the [getting started](https://sundials.readthedocs.io/en/latest/sundials/index.html#getting-started) section in the online documentation.
-In the [released tarballs](https://github.com/LLNL/sundials/releases), installation directions are also available in `INSTALL_GUIDE.pdf` and the installation chapter of the user guides in the `doc` directory.
+For installation directions, see the [getting started](https://sundials.readthedocs.io/en/latest/sundials/index.html#getting-started)
+section in the online documentation. In the [released tarballs](https://github.com/LLNL/sundials/releases),
+installation directions are also available in `INSTALL_GUIDE.pdf` and the
+installation chapter of the user guides in the `doc` directory.
 
 Warning to users who receive more than one of the individual packages at
-different times: Mixing old and new versions of SUNDIALS may fail. To avoid
-such failures, obtain all desired package at the same time.
+different times: Mixing old and new versions of SUNDIALS may fail. To avoid such
+failures, obtain all desired package at the same time.
 
 ## Support ##
 
 Full user guides for all of the SUNDIALS packages are available [online](https://sundials.readthedocs.io).
-In the [released tarballs](https://github.com/LLNL/sundials/releases), the `doc` directory includes PDFs of the user guides and documentation for the example programs. The example program documentation PDFs are also available on the [releases page](https://github.com/LLNL/sundials/releases).
+In the [released tarballs](https://github.com/LLNL/sundials/releases), the `doc`
+directory includes PDFs of the user guides and documentation for the example
+programs. The example program documentation PDFs are also available on the
+[releases page](https://github.com/LLNL/sundials/releases).
 
 For information on recent changes to SUNDIALS see the [CHANGELOG](./CHANGELOG.md)
 or the introduction chapter of any package user guide.
 
 A list of Frequently Asked Questions on build and installation procedures as
-well as common usage issues is available on the SUNDIALS [FAQ](https://computing.llnl.gov/projects/sundials/faq).
-For dealing with systems with unphysical solutions or discontinuities see the
-SUNDIALS [usage notes](https://computing.llnl.gov/projects/sundials/usage-notes).
+well as common usage issues is available on the SUNDIALS
+[FAQ](https://computing.llnl.gov/projects/sundials/faq). For dealing with
+systems with nonphysical solutions or discontinuities see the SUNDIALS
+[usage notes](https://computing.llnl.gov/projects/sundials/usage-notes).
 
-If you have a question not covered in the FAQ or usage notes, please submit
-your question as a [GitHub issue](https://github.com/LLNL/sundials/issues) or to
-the SUNDIALS [mailing list](https://computing.llnl.gov/projects/sundials/mailing-list).
+If you have a question not covered in the FAQ or usage notes, please submit your
+question as a [GitHub issue](https://github.com/LLNL/sundials/issues) or to the
+SUNDIALS [mailing list](https://computing.llnl.gov/projects/sundials/mailing-list).
 
 ## Contributing ##
 
@@ -100,7 +106,7 @@ and [NOTICE](./NOTICE) files for details. All new contributions must be made
 under the BSD 3-clause license.
 
 **Please Note** If you are using SUNDIALS with any third party libraries linked
-in (e.g., LAPACK, KLU, SuperLU_MT, PETSc, or *hypre*), be sure to review the
+in (e.g., LAPACK, KLU, SuperLU_MT, PETSc, *hypre*, etc.), be sure to review the
 respective license of the package as that license may have more restrictive
 terms than the SUNDIALS license.
 
