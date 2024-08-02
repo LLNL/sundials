@@ -42,9 +42,8 @@ nonlinear algebraic systems:
 
 ## Installation ##
 
-For installation directions, see the [online install guide](https://sundials.readthedocs.io/en/latest/Install_link.html).
-Directions are also available in the [released package tarballs](https://github.com/LLNL/sundials/releases)
-in INSTALL_GUIDE.pdf and the installation chapter of the user guides.
+For installation directions, see the [getting started](https://sundials.readthedocs.io/en/latest/sundials/index.html#getting-started) section in the online documentation.
+In the [released tarballs](https://github.com/LLNL/sundials/releases), installation directions are also available in `INSTALL_GUIDE.pdf` and the installation chapter of the user guides in the `doc` directory.
 
 Warning to users who receive more than one of the individual packages at
 different times: Mixing old and new versions of SUNDIALS may fail. To avoid
@@ -52,10 +51,8 @@ such failures, obtain all desired package at the same time.
 
 ## Support ##
 
-Full user guides for all of the SUNDIALS packages are available [online](https://sundials.readthedocs.io)
-and in the [doc](./doc) directory of the [released package tarballs](https://github.com/LLNL/sundials/releases).
-Additionally, the [doc](./doc) directory contains documentation for the package
-example programs.
+Full user guides for all of the SUNDIALS packages are available [online](https://sundials.readthedocs.io).
+In the [released tarballs](https://github.com/LLNL/sundials/releases), the `doc` directory includes PDFs of the user guides and documentation for the example programs. The example program documentation PDFs are also available on the [releases page](https://github.com/LLNL/sundials/releases).
 
 For information on recent changes to SUNDIALS see the [CHANGELOG](./CHANGELOG.md)
 or the introduction chapter of any package user guide.
