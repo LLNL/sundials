@@ -67,13 +67,6 @@ SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tout,
       retcode = SUN_ERR_ADJOINT_STEPPERFAILED;
       break;
     }
-    else if (*stop_reason > 1)
-    {
-      // TODO(CJB): what reasons could this happen, and are they valid?
-      // 1==TSTOP_RETURN
-      // 2==ROOT_RETURN
-      fprintf(stderr, ">>>> HERE, stop_reason = %d\n", *stop_reason);
-    }
     else { t = *tret; }
   }
 

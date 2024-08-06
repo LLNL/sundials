@@ -9,8 +9,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Program to test the SUNAdjoint capability with ARKODE. The test uses the 
- * Lotka-Volterra problem with four parameters as the test case. 
+ * Program to test the SUNAdjoint capability with ARKODE. The test uses the
+ * Lotka-Volterra problem with four parameters as the test case.
  * ---------------------------------------------------------------------------*/
 
 #include <arkode/arkode.h>
@@ -28,6 +28,7 @@
 
 #include "sundials/sundials_context.h"
 #include "sundials/sundials_datanode.h"
+#include "sundials/sundials_errors.h"
 #include "sundials/sundials_nvector.h"
 #include "sunmemory/sunmemory_system.h"
 
@@ -53,9 +54,9 @@ int jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac,
   sunrealtype* J = SUNDenseMatrix_Data(Jac);
 
   J[0] = p[0] - p[1] * u[1];
-  J[1] = p[3] * u[1];
   J[2] = -p[1] * u[0];
-  J[3] = -p[2] * p[3] * u[0];
+  J[1] = p[3] * u[1];
+  J[3] = p[3] * u[0] - p[2];
 
   return 0;
 }
@@ -173,6 +174,7 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   // Set the terminal condition for the adjoint system, which
   // should be the the gradient of our cost function at tf.
   dgdu(u, sensu0, params, tf);
+  // dgdp()
   N_VConst(0.0, sensp);
 
   fprintf(stdout, "Adjoint terminal condition:\n");
@@ -190,6 +192,12 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   int stop_reason = 0;
   sunrealtype t   = tf;
   retval = SUNAdjointSolver_Solve(adj_solver, tout, sf, &t, &stop_reason);
+  if (stop_reason < 0 || stop_reason > 2)
+  {
+    fprintf(stderr, "SUNAdjointSolver_Solve stopped with reason %d\n",
+            stop_reason);
+    return -1;
+  }
 
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
@@ -292,10 +300,13 @@ int main(int argc, char* argv[])
   // Create the ARKODE stepper that will be used for both the forward solution and adjoint solution.
   //
 
-  const sunrealtype dt = 1e-1;
+  const sunrealtype dt = 1e-4;
   sunrealtype t0       = 0.0;
-  sunrealtype tf       = 10.0;
+  sunrealtype tf       = 1.0;
   void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
+
+  // Use Forward Euler for debugging
+  ARKodeSetOrder(arkode_mem, 1);
 
   // Enable checkpointing during the forward solution
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
@@ -316,12 +327,6 @@ int main(int argc, char* argv[])
 
   sunrealtype t = t0;
   forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
-
-  // Test if the initial condition can be loaded
-  N_Vector loaded_vec = N_VClone(u);
-  SUNAdjointCheckpointScheme_LoadVector(checkpoint_scheme, 0, 0, &loaded_vec);
-  printf("Initial condition loaded from checkpoint:\n");
-  N_VPrint(loaded_vec);
 
   //
   // Now compute the adjoint solution

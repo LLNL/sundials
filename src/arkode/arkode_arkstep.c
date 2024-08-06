@@ -2161,15 +2161,15 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   N_Vector* Xvecs    = step_mem->Xvecs;
 
   /* local shortcuts for readability */
-  N_Vector sens_np1         = ark_mem->yn;
-  N_Vector sens_n           = ark_mem->ycur;
-  N_Vector Sens_i           = step_mem->sdata;
-  N_Vector lambda_np1       = N_VGetSubvector_ManyVector(sens_np1, 0);
-  N_Vector mu_np1           = N_VGetSubvector_ManyVector(sens_np1, 1);
-  N_Vector Lambda_i         = N_VGetSubvector_ManyVector(Sens_i, 0);
-  N_Vector nu_i             = N_VGetSubvector_ManyVector(Sens_i, 1);
-  N_Vector lambda_n         = N_VGetSubvector_ManyVector(sens_n, 0);
-  N_Vector mu_n             = N_VGetSubvector_ManyVector(sens_n, 1);
+  N_Vector sens_np1   = ark_mem->yn;
+  N_Vector sens_n     = ark_mem->ycur;
+  N_Vector Sens_i     = step_mem->sdata;
+  N_Vector lambda_np1 = N_VGetSubvector_ManyVector(sens_np1, 0);
+  N_Vector mu_np1     = N_VGetSubvector_ManyVector(sens_np1, 1);
+  N_Vector Lambda_i   = N_VGetSubvector_ManyVector(Sens_i, 0);
+  N_Vector nu_i       = N_VGetSubvector_ManyVector(Sens_i, 1);
+  // N_Vector lambda_n         = N_VGetSubvector_ManyVector(sens_n, 0);
+  // N_Vector mu_n             = N_VGetSubvector_ManyVector(sens_n, 1);
   N_Vector* stage_solutions = step_mem->Fe;
 
   /* Loop over stages */
@@ -2184,7 +2184,6 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     /*
      * Compute partial current stage value \Lambda
      */
-
     int nvec = 0;
     for (int js = is; js < step_mem->stages; ++js)
     {
@@ -3561,7 +3560,7 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens, N_Vector sensDot, void* content
 
   if (adj_solver->JacFn)
   {
-    adj_solver->JacFn(t, checkpoint, NULL, adj_solver->JacP,
+    adj_solver->JacFn(t, checkpoint, NULL, adj_solver->Jac,
                       adj_solver->user_data, NULL, NULL, NULL);
     if (SUNMatMatvecTranspose(adj_solver->Jac, lambda, lambdaDot))
     {

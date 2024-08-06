@@ -143,7 +143,6 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
   SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
                      "insert-stage", "step_num = %d, stage_num = %d", step_num,
                      stage_num);
-  N_VPrint(state);
 #endif
   SUNCheckCall(SUNDataNode_AddChild(step_data_node, solution_node));
 
@@ -201,9 +200,6 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   if (!solution_node) { return SUN_ERR_CHECKPOINT_NOT_FOUND; }
 
   SUNCheckCall(SUNDataNode_GetDataNvector(solution_node, *loaded_state));
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
-  N_VPrint(*loaded_state);
-#endif
 
   /* Cleanup the checkpoint memory if need be */
   if (!PROPERTY(self, keep))
