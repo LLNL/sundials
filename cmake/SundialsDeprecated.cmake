@@ -180,8 +180,8 @@ endif()
 #
 
 if(DEFINED CUDA_ARCH)
-  print_warning("The CMake option CUDA_ARCH is deprecated. "
-                "Use CMAKE_CUDA_ARCHITECTURES instead.")
+  message(DEPRECATION "The CMake option CUDA_ARCH is deprecated. "
+                      "Use CMAKE_CUDA_ARCHITECTURES instead.")
   # convert sm_** to just **
   string(REGEX MATCH "[0-9]+" arch_name "${CUDA_ARCH}")
   set(CMAKE_CUDA_ARCHITECTURES
