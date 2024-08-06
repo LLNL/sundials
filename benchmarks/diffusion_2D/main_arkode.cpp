@@ -15,6 +15,9 @@
  * ---------------------------------------------------------------------------*/
 
 #include "arkode/arkode_arkstep.h"
+#include "arkode/arkode_lsrkstep.h"
+#include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
+#include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 #include "diffusion_2D.hpp"
 
 struct UserOptions
@@ -28,6 +31,8 @@ struct UserOptions
   int maxsteps       = 0;                   // max steps between outputs
   int onestep        = 0;                   // one step mode, number of steps
   bool linear        = true;                // linearly implicit RHS
+  bool implicit      = true;                // implicit (ARKStep) vs explicit (LSRKStep)
+  ARKODE_LSRKMethodType lsrkmethod = ARKODE_LSRK_RKC;  // LSRK method type
 
   // Linear solver and preconditioner settings
   std::string ls       = "cg";  // linear solver to use
@@ -42,6 +47,13 @@ struct UserOptions
   void help();
   void print();
 };
+
+// -----------------------------------------------------------------------------
+// LSRKStep-specific dominant eigenvalue function prototype
+// -----------------------------------------------------------------------------
+
+static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
+                  sunrealtype* lambdaI, void* user_data);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -152,97 +164,111 @@ int main(int argc, char* argv[])
       if (check_flag((void*)(uout.error), "N_VClone", 0)) { return 1; }
     }
 
-    // ---------------------
-    // Create linear solver
-    // ---------------------
+    // Set up implicit solver, if applicable
+    SUNLinearSolver LS = nullptr;
+    SUNMatrix A = nullptr;
+    if (uopts.implicit)
+    {
 
-    // Create linear solver
-    SUNLinearSolver LS = NULL;
-    SUNMatrix A        = nullptr;
+      // ---------------------
+      // Create linear solver
+      // ---------------------
+
+      // Create linear solver
 #if defined(USE_SUPERLU_DIST)
-    // SuperLU-DIST objects
-    SuperMatrix A_super;
-    gridinfo_t grid;
-    dLUstruct_t A_lu;
-    dScalePermstruct_t A_scaleperm;
-    dSOLVEstruct_t A_solve;
-    SuperLUStat_t A_stat;
-    superlu_dist_options_t A_opts;
-    sunrealtype* A_data      = nullptr;
-    sunindextype* A_col_idxs = nullptr;
-    sunindextype* A_row_ptrs = nullptr;
+      // SuperLU-DIST objects
+      SuperMatrix A_super;
+      gridinfo_t grid;
+      dLUstruct_t A_lu;
+      dScalePermstruct_t A_scaleperm;
+      dSOLVEstruct_t A_solve;
+      SuperLUStat_t A_stat;
+      superlu_dist_options_t A_opts;
+      sunrealtype* A_data      = nullptr;
+      sunindextype* A_col_idxs = nullptr;
+      sunindextype* A_row_ptrs = nullptr;
 #endif
 
-    int prectype = (uopts.preconditioning) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
+      int prectype = (uopts.preconditioning) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
-    if (uopts.ls == "cg")
-    {
-      LS = SUNLinSol_PCG(u, prectype, uopts.liniters, ctx);
-      if (check_flag((void*)LS, "SUNLinSol_PCG", 0)) { return 1; }
+      if (uopts.ls == "cg")
+      {
+        LS = SUNLinSol_PCG(u, prectype, uopts.liniters, ctx);
+        if (check_flag((void*)LS, "SUNLinSol_PCG", 0)) { return 1; }
+      }
+      else if (uopts.ls == "gmres")
+      {
+        LS = SUNLinSol_SPGMR(u, prectype, uopts.liniters, ctx);
+        if (check_flag((void*)LS, "SUNLinSol_SPGMR", 0)) { return 1; }
+      }
+      else
+      {
+#if defined(USE_SUPERLU_DIST)
+        // Initialize SuperLU-DIST grid
+        superlu_gridinit(udata.comm_c, udata.npx, udata.npy, &grid);
+
+        // Create arrays for CSR matrix: data, column indices, and row pointers
+        sunindextype nnz_loc = 5 * udata.nodes_loc;
+
+        A_data = (sunrealtype*)malloc(nnz_loc * sizeof(sunrealtype));
+        if (check_flag((void*)A_data, "malloc Adata", 0)) return 1;
+
+        A_col_idxs = (sunindextype*)malloc(nnz_loc * sizeof(sunindextype));
+        if (check_flag((void*)A_col_idxs, "malloc Acolind", 0)) return 1;
+
+        A_row_ptrs =
+          (sunindextype*)malloc((udata.nodes_loc + 1) * sizeof(sunindextype));
+        if (check_flag((void*)A_row_ptrs, "malloc Arowptr", 0)) return 1;
+
+        // Create and initialize SuperLU_DIST structures
+        dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes, nnz_loc,
+                                       udata.nodes_loc, 0, A_data, A_col_idxs,
+                                       A_row_ptrs, SLU_NR_loc, SLU_D, SLU_GE);
+        dScalePermstructInit(udata.nodes, udata.nodes, &A_scaleperm);
+        dLUstructInit(udata.nodes, &A_lu);
+        PStatInit(&A_stat);
+        set_default_options_dist(&A_opts);
+        A_opts.PrintStat = NO;
+
+        // SUNDIALS structures
+        A = SUNMatrix_SLUNRloc(&A_super, &grid, ctx);
+        if (check_flag((void*)A, "SUNMatrix_SLUNRloc", 0)) return 1;
+
+        LS = SUNLinSol_SuperLUDIST(u, A, &grid, &A_lu, &A_scaleperm, &A_solve,
+                                   &A_stat, &A_opts, ctx);
+        if (check_flag((void*)LS, "SUNLinSol_SuperLUDIST", 0)) return 1;
+
+        uopts.preconditioning = false;
+#else
+        std::cerr << "ERROR: Benchmark was not built with SuperLU_DIST enabled\n";
+        return 1;
+#endif
+      }
+
+      // Allocate preconditioner workspace
+      if (uopts.preconditioning)
+      {
+        udata.diag = N_VClone(u);
+        if (check_flag((void*)(udata.diag), "N_VClone", 0)) { return 1; }
+      }
     }
-    else if (uopts.ls == "gmres")
+
+    // ----------------------
+    // Setup ARKStep/LSRKStep
+    // ----------------------
+
+    // Create integrator
+    void* arkode_mem = NULL;
+    if (uopts.implicit)
     {
-      LS = SUNLinSol_SPGMR(u, prectype, uopts.liniters, ctx);
-      if (check_flag((void*)LS, "SUNLinSol_SPGMR", 0)) { return 1; }
+      arkode_mem = ARKStepCreate(NULL, diffusion, ZERO, u, ctx);
+      if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
     }
     else
     {
-#if defined(USE_SUPERLU_DIST)
-      // Initialize SuperLU-DIST grid
-      superlu_gridinit(udata.comm_c, udata.npx, udata.npy, &grid);
-
-      // Create arrays for CSR matrix: data, column indices, and row pointers
-      sunindextype nnz_loc = 5 * udata.nodes_loc;
-
-      A_data = (sunrealtype*)malloc(nnz_loc * sizeof(sunrealtype));
-      if (check_flag((void*)A_data, "malloc Adata", 0)) return 1;
-
-      A_col_idxs = (sunindextype*)malloc(nnz_loc * sizeof(sunindextype));
-      if (check_flag((void*)A_col_idxs, "malloc Acolind", 0)) return 1;
-
-      A_row_ptrs =
-        (sunindextype*)malloc((udata.nodes_loc + 1) * sizeof(sunindextype));
-      if (check_flag((void*)A_row_ptrs, "malloc Arowptr", 0)) return 1;
-
-      // Create and initialize SuperLU_DIST structures
-      dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes, nnz_loc,
-                                     udata.nodes_loc, 0, A_data, A_col_idxs,
-                                     A_row_ptrs, SLU_NR_loc, SLU_D, SLU_GE);
-      dScalePermstructInit(udata.nodes, udata.nodes, &A_scaleperm);
-      dLUstructInit(udata.nodes, &A_lu);
-      PStatInit(&A_stat);
-      set_default_options_dist(&A_opts);
-      A_opts.PrintStat = NO;
-
-      // SUNDIALS structures
-      A = SUNMatrix_SLUNRloc(&A_super, &grid, ctx);
-      if (check_flag((void*)A, "SUNMatrix_SLUNRloc", 0)) return 1;
-
-      LS = SUNLinSol_SuperLUDIST(u, A, &grid, &A_lu, &A_scaleperm, &A_solve,
-                                 &A_stat, &A_opts, ctx);
-      if (check_flag((void*)LS, "SUNLinSol_SuperLUDIST", 0)) return 1;
-
-      uopts.preconditioning = false;
-#else
-      std::cerr << "ERROR: Benchmark was not built with SuperLU_DIST enabled\n";
-      return 1;
-#endif
+      arkode_mem = LSRKStepCreate(diffusion, NULL, ZERO, u, ctx);
+      if (check_flag((void*)arkode_mem, "LSRKStepCreate", 0)) { return 1; }
     }
-
-    // Allocate preconditioner workspace
-    if (uopts.preconditioning)
-    {
-      udata.diag = N_VClone(u);
-      if (check_flag((void*)(udata.diag), "N_VClone", 0)) { return 1; }
-    }
-
-    // --------------
-    // Setup ARKStep
-    // --------------
-
-    // Create integrator
-    void* arkode_mem = ARKStepCreate(NULL, diffusion, ZERO, u, ctx);
-    if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
     // Specify tolerances
     flag = ARKodeSStolerances(arkode_mem, uopts.rtol, uopts.atol);
@@ -252,38 +278,64 @@ int main(int argc, char* argv[])
     flag = ARKodeSetUserData(arkode_mem, (void*)&udata);
     if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
-    // Attach linear solver
-    flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
-    if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
+    // Configure implicit solver
+    if (uopts.implicit)
+    {
+
+      // Attach linear solver
+      flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+      if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
 
 #if defined(USE_SUPERLU_DIST)
-    if (uopts.ls == "sludist")
-    {
-      ARKodeSetJacFn(arkode_mem, diffusion_jac);
-      if (check_flag(&flag, "ARKodeSetJacFn", 1)) return 1;
-    }
+      if (uopts.ls == "sludist")
+      {
+        ARKodeSetJacFn(arkode_mem, diffusion_jac);
+        if (check_flag(&flag, "ARKodeSetJacFn", 1)) return 1;
+      }
 #endif
 
-    if (uopts.preconditioning)
-    {
-      // Attach preconditioner
-      flag = ARKodeSetPreconditioner(arkode_mem, PSetup, PSolve);
-      if (check_flag(&flag, "ARKodeSetPreconditioner", 1)) { return 1; }
+      if (uopts.preconditioning)
+      {
+        // Attach preconditioner
+        flag = ARKodeSetPreconditioner(arkode_mem, PSetup, PSolve);
+        if (check_flag(&flag, "ARKodeSetPreconditioner", 1)) { return 1; }
 
-      // Set linear solver setup frequency (update preconditioner)
-      flag = ARKodeSetLSetupFrequency(arkode_mem, uopts.msbp);
-      if (check_flag(&flag, "ARKodeSetLSetupFrequency", 1)) { return 1; }
+        // Set linear solver setup frequency (update preconditioner)
+        flag = ARKodeSetLSetupFrequency(arkode_mem, uopts.msbp);
+        if (check_flag(&flag, "ARKodeSetLSetupFrequency", 1)) { return 1; }
+      }
+
+      // Set linear solver tolerance factor
+      flag = ARKodeSetEpsLin(arkode_mem, uopts.epslin);
+      if (check_flag(&flag, "ARKodeSetEpsLin", 1)) { return 1; }
+
+      // Select method order
+      flag = ARKodeSetOrder(arkode_mem, uopts.order);
+      if (check_flag(&flag, "ARKodeSetOrder", 1)) { return 1; }
+
+      // Specify linearly implicit non-time-dependent RHS
+      if (uopts.linear)
+      {
+        flag = ARKodeSetLinear(arkode_mem, 0);
+        if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
+      }
+
+    }
+    else    // Configure explicit solver
+    {
+
+      // Select LSRK method
+      flag = LSRKStepSetMethod(arkode_mem, uopts.lsrkmethod);
+      if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
+
+      // Provide dominant eigenvalue function
+      flag = LSRKStepSetDomEigFn(arkode_mem, DomEig);
+      if (check_flag(&flag, "LSRKStepSetDomEigFn", 1)) { return 1; }
+
     }
 
-    // Set linear solver tolerance factor
-    flag = ARKodeSetEpsLin(arkode_mem, uopts.epslin);
-    if (check_flag(&flag, "ARKodeSetEpsLin", 1)) { return 1; }
-
-    // Select method order
-    flag = ARKodeSetOrder(arkode_mem, uopts.order);
-    if (check_flag(&flag, "ARKodeSetOrder", 1)) { return 1; }
-
     // Set fixed step size or adaptivity method
+    SUNAdaptController C = NULL;
     if (uopts.hfixed > ZERO)
     {
       flag = ARKodeSetFixedStep(arkode_mem, uopts.hfixed);
@@ -291,16 +343,17 @@ int main(int argc, char* argv[])
     }
     else
     {
-      flag = ARKStepSetAdaptivityMethod(arkode_mem, uopts.controller, SUNTRUE,
-                                        SUNFALSE, NULL);
-      if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) { return 1; }
-    }
-
-    // Specify linearly implicit non-time-dependent RHS
-    if (uopts.linear)
-    {
-      flag = ARKodeSetLinear(arkode_mem, 0);
-      if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
+      switch (uopts.controller)
+      {
+      case (ARK_ADAPT_PID): C = SUNAdaptController_PID(ctx); break;
+      case (ARK_ADAPT_PI): C = SUNAdaptController_PI(ctx); break;
+      case (ARK_ADAPT_I): C = SUNAdaptController_I(ctx); break;
+      case (ARK_ADAPT_EXP_GUS): C = SUNAdaptController_ExpGus(ctx); break;
+      case (ARK_ADAPT_IMP_GUS): C = SUNAdaptController_ImpGus(ctx); break;
+      case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
+      }
+      flag = ARKodeSetAdaptController(arkode_mem, C);
+      if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }
     }
 
     // Set max steps between outputs
@@ -377,22 +430,26 @@ int main(int argc, char* argv[])
 
     // Free MPI Cartesian communicator
     MPI_Comm_free(&(udata.comm_c));
+    (void)SUNAdaptController_Destroy(C); // Free timestep adaptivity controller
 
     ARKodeFree(&arkode_mem);
-    SUNLinSolFree(LS);
-
-    // Free the SuperLU_DIST structures (also frees user allocated arrays
-    // A_data, A_col_idxs, and A_row_ptrs)
-#if defined(USE_SUPERLU_DIST)
-    if (uopts.ls == "sludist")
+    if (uopts.implicit)
     {
-      PStatFree(&A_stat);
-      dScalePermstructFree(&A_scaleperm);
-      dLUstructFree(&A_lu);
-      Destroy_CompRowLoc_Matrix_dist(&A_super);
-      superlu_gridexit(&grid);
-    }
+      SUNLinSolFree(LS);
+
+      // Free the SuperLU_DIST structures (also frees user allocated arrays
+      // A_data, A_col_idxs, and A_row_ptrs)
+#if defined(USE_SUPERLU_DIST)
+      if (uopts.ls == "sludist")
+      {
+        PStatFree(&A_stat);
+        dScalePermstructFree(&A_scaleperm);
+        dLUstructFree(&A_lu);
+        Destroy_CompRowLoc_Matrix_dist(&A_super);
+        superlu_gridexit(&grid);
+      }
 #endif
+    }
 
     // Free vectors
 #if defined(USE_HIP) || defined(USE_CUDA)
@@ -406,6 +463,28 @@ int main(int argc, char* argv[])
 
   // Finalize MPI
   flag = MPI_Finalize();
+  return 0;
+}
+
+// -----------------------------------------------------------------------------
+// Dominant eigenvalue estimation function
+// -----------------------------------------------------------------------------
+
+static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data)
+{
+  // Access problem data
+  UserData* udata = (UserData*)user_data;
+
+  // Shortcuts to number of nodes
+  sunindextype nx = udata->nx;
+  sunindextype ny = udata->ny;
+
+  // Fill in spectral radius value
+  *lambdaR = -SUN_RCONST(8.0)*SUNMAX(udata->kx/udata->dx/udata->dx,
+                                     udata->ky/udata->dy/udata->dy);
+  *lambdaI = SUN_RCONST(0.0);
+
+  // return with success
   return 0;
 }
 
@@ -445,10 +524,24 @@ int UserOptions::parse_args(vector<string>& args, bool outproc)
     args.erase(it, it + 2);
   }
 
+  it = find(args.begin(), args.end(), "--explicit");
+  if (it != args.end())
+  {
+    implicit = false;
+    args.erase(it);
+  }
+
   it = find(args.begin(), args.end(), "--order");
   if (it != args.end())
   {
     order = stoi(*(it + 1));
+    args.erase(it, it + 2);
+  }
+
+  it = find(args.begin(), args.end(), "--lsrkmethod");
+  if (it != args.end())
+  {
+    lsrkmethod = (ARKODE_LSRKMethodType) stoi(*(it + 1));
     args.erase(it, it + 2);
   }
 
@@ -525,16 +618,22 @@ void UserOptions::help()
   cout << "Integrator command line options:" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
   cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
+  cout << "  --fixedstep <step>      : used fixed step size" << endl;
+  cout << "  --explicit              : use LSRKStep (instead of ARKStep)" << endl;
+  cout << endl;
+  cout << "Implicit (ARKStep) solver command line options:" << endl;
   cout << "  --nonlinear             : disable linearly implicit flag" << endl;
   cout << "  --order <ord>           : method order" << endl;
-  cout << "  --fixedstep <step>      : used fixed step size" << endl;
-  cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
   cout << "  --ls <cg|gmres|sludist> : linear solver" << endl;
   cout << "  --lsinfo                : output residual history" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
   cout << "  --noprec                : disable preconditioner" << endl;
   cout << "  --msbp <steps>          : max steps between prec setups" << endl;
+  cout << endl;
+  cout << "Explicit (LSRKStep) solver command line options:" << endl;
+  cout << "  --lsrkmethod            : LSRK method choice" << endl;
 }
 
 // Print user options
@@ -545,39 +644,57 @@ void UserOptions::print()
   cout << " --------------------------------- " << endl;
   cout << " rtol        = " << rtol << endl;
   cout << " atol        = " << atol << endl;
-  cout << " hfixed      = " << hfixed << endl;
-  cout << " order       = " << order << endl;
   cout << " controller  = " << controller << endl;
-  cout << " max steps   = " << maxsteps << endl;
-  cout << " linear RHS  = " << linear << endl;
+  cout << " hfixed      = " << hfixed << endl;
   cout << " --------------------------------- " << endl;
-
   cout << endl;
-  if (ls == "sludist")
+  if (implicit)
   {
-    cout << " Linear solver options:" << endl;
+    cout << " ARKStep options:" << endl;
     cout << " --------------------------------- " << endl;
+    cout << " order       = " << order << endl;
+    cout << " max steps   = " << maxsteps << endl;
+    cout << " linear RHS  = " << linear << endl;
+    cout << " --------------------------------- " << endl;
+    cout << endl;
+    if (ls == "sludist")
+    {
+      cout << " Linear solver options:" << endl;
+      cout << " --------------------------------- " << endl;
 #if defined(HAVE_HIP)
-    cout << " LS       = SuperLU_DIST (HIP enabled)" << endl;
+      cout << " LS       = SuperLU_DIST (HIP enabled)" << endl;
 #elif defined(HAVE_CUDA)
-    cout << " LS       = SuperLU_DIST (CUDA enabled)" << endl;
+      cout << " LS       = SuperLU_DIST (CUDA enabled)" << endl;
 #else
-    cout << " LS       = SuperLU_DIST" << endl;
+      cout << " LS       = SuperLU_DIST" << endl;
 #endif
-    cout << " LS info  = " << lsinfo << endl;
-    cout << " msbp     = " << msbp << endl;
-    cout << " --------------------------------- " << endl;
+      cout << " LS info  = " << lsinfo << endl;
+      cout << " msbp     = " << msbp << endl;
+      cout << " --------------------------------- " << endl;
+    }
+    else
+    {
+      cout << " Linear solver options:" << endl;
+      cout << " --------------------------------- " << endl;
+      cout << " LS       = " << ls << endl;
+      cout << " precond  = " << preconditioning << endl;
+      cout << " LS info  = " << lsinfo << endl;
+      cout << " LS iters = " << liniters << endl;
+      cout << " msbp     = " << msbp << endl;
+      cout << " epslin   = " << epslin << endl;
+      cout << " --------------------------------- " << endl;
+    }
   }
   else
   {
-    cout << " Linear solver options:" << endl;
+    cout << " LSRKStep options:" << endl;
     cout << " --------------------------------- " << endl;
-    cout << " LS       = " << ls << endl;
-    cout << " precond  = " << preconditioning << endl;
-    cout << " LS info  = " << lsinfo << endl;
-    cout << " LS iters = " << liniters << endl;
-    cout << " msbp     = " << msbp << endl;
-    cout << " epslin   = " << epslin << endl;
+    switch (lsrkmethod)
+    {
+    case (ARKODE_LSRK_RKC): cout << " method = RKC " << endl; break;
+    case (ARKODE_LSRK_RKL): cout << " method = RKL " << endl; break;
+    case (ARKODE_LSRK_RKG): cout << " method = RKG " << endl; break;
+    }
     cout << " --------------------------------- " << endl;
   }
 }
