@@ -1583,15 +1583,14 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                                ark_mem->user_data);
         step_mem->nfse++;
 
+        SUNLogExtraDebugVec(ARK_LOGGER, __func__, "slow explicit RHS",
+                            "Fse_%i(:) =", step_mem->Fse[step_mem->stage_map[is]],
+                            is);
         SUNLogInfoIf(retval != 0, ARK_LOGGER, __func__, "end-stage",
                      "status = failed explicit rhs eval, retval = %i", retval);
 
         if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
         if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
-
-        SUNLogExtraDebugVec(ARK_LOGGER, __func__, "slow explicit RHS",
-                            "Fse_%i(:) =", step_mem->Fse[step_mem->stage_map[is]],
-                            is);
       }
 
       /* store implicit slow rhs  */
@@ -1612,15 +1611,14 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                        step_mem->Fsi[step_mem->stage_map[is]]);
         }
 
+        SUNLogExtraDebugVec(ARK_LOGGER, __func__, "slow implicit RHS",
+                            "Fsi_%i(:) =", step_mem->Fsi[step_mem->stage_map[is]],
+                            is);
         SUNLogInfoIf(retval != 0, ARK_LOGGER, __func__, "end-stage",
                      "status = failed implicit rhs eval, retval = %i", retval);
 
         if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
         if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
-
-        SUNLogExtraDebugVec(ARK_LOGGER, __func__, "slow implicit RHS",
-                            "Fsi_%i(:) =", step_mem->Fsi[step_mem->stage_map[is]],
-                            is);
       }
 
     } /* compute slow RHS */

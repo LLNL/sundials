@@ -698,14 +698,13 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                          ark_mem->user_data);
     step_mem->nfe++;
 
+    SUNLogExtraDebugVec(ARK_LOGGER, __func__, "stage RHS",
+                        "F_%i(:) =", step_mem->F[is], is);
     SUNLogInfoIf(retval != 0, ARK_LOGGER, __func__, "end-stage",
                  "status = failed rhs eval, retval = %i", retval);
 
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
-
-    SUNLogExtraDebugVec(ARK_LOGGER, __func__, "stage RHS",
-                        "F_%i(:) =", step_mem->F[is], is);
 
     SUNLogInfo(ARK_LOGGER, __func__, "end-stage", "status = success", "");
 
