@@ -1998,7 +1998,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       {
         if (step_mem->mass_type == MASS_FIXED)
         {
-          retval = step_mem->mmult((void*)ark_mem, step_mem->zcor, ark_mem->tempv1);
+          retval = step_mem->mmult((void*)ark_mem, step_mem->zcor,
+                                   ark_mem->tempv1);
           if (retval != ARK_SUCCESS)
           {
             SUNLogInfo(ARK_LOGGER, __func__, "end-stage",
