@@ -19,7 +19,8 @@
 
 # Examples using SUNDIALS linear solvers
 if(BUILD_SUNNONLINSOL_PETSCSNES)
-  set(ARKODE_examples "ark_petsc_ex25\;1\;1\;develop")
+  set(ARKODE_examples "ark_petsc_ex25\;1\;1\;develop"
+    "petsc_lv_adj\;1\;1\;")
 endif()
 
 if(MPI_C_COMPILER)
@@ -61,6 +62,7 @@ foreach(example_tuple ${ARKODE_examples})
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
+
 
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBS})

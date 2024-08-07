@@ -29,7 +29,9 @@
 #include "sundials/sundials_context.h"
 #include "sundials/sundials_datanode.h"
 #include "sundials/sundials_errors.h"
+#include "sundials/sundials_math.h"
 #include "sundials/sundials_nvector.h"
+#include "sundials/sundials_types.h"
 #include "sunmemory/sunmemory_system.h"
 
 static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
@@ -120,7 +122,11 @@ int parameter_jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
 
 sunrealtype g(N_Vector u, const sunrealtype* p, sunrealtype t)
 {
-  return N_VDotProd(u, u) / SUN_RCONST(2.0);
+  /* (sum(u) .^ 2) ./ 2 */
+  sunrealtype* uarr = N_VGetArrayPointer(u);
+  sunrealtype sum   = SUN_RCONST(0.0);
+  for (sunindextype i = 0; i < N_VGetLength(u); i++) { sum += uarr[i]; }
+  return (sum * sum) / SUN_RCONST(2.0);
 }
 
 void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)

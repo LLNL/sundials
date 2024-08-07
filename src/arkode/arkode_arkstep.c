@@ -2175,23 +2175,30 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   /* Loop over stages */
   for (int is = step_mem->stages - 1; is >= 0; --is)
   {
-    /* which stage is being processed -- needed to load checkpoints */
+    // if (FSAL && is == step_mem->stages - 1) {
+    //   N_VConst(SUN_RCONST(0.0), stage_solutions[is]);
+    //   continue;
+    // }
+
+    /* which stage is being processed -- needed for loading checkpoints */
     ark_mem->adj_stage_idx = is + 1;
 
     /* Set current stage time(s) and index */
-    ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is] * ark_mem->h;
+    ark_mem->tcur = ark_mem->tn +
+                    ark_mem->h * (SUN_RCONST(1.0) - step_mem->Be->c[is]);
 
     /*
      * Compute partial current stage value \Lambda
      */
     int nvec = 0;
-    for (int js = is; js < step_mem->stages; ++js)
+    for (int js = is + 1; js < step_mem->stages; ++js)
     {
-      cvals[nvec] = ark_mem->h * step_mem->Be->A[js][is];
+      /* h sum_{j=i}^{s} A_{ji} \Lambda_{j} */
+      cvals[nvec] = -ark_mem->h * step_mem->Be->A[js][is];
       Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_solutions[js], 0);
       nvec++;
     }
-    cvals[nvec] = ark_mem->h * step_mem->Be->b[is];
+    cvals[nvec] = -ark_mem->h * step_mem->Be->b[is];
     Xvecs[nvec] = lambda_np1;
     nvec++;
 
@@ -2204,7 +2211,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
      */
 
     nvec = 0;
-    for (int js = is; js < step_mem->stages; ++js)
+    for (int js = is + 1; js < step_mem->stages; ++js)
     {
       cvals[nvec] = ark_mem->h * step_mem->Be->A[js][is];
       Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_solutions[js], 1);
