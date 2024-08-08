@@ -25,14 +25,8 @@
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 #include <sunmatrix/sunmatrix_dense.h>
-
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_datanode.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_math.h"
-#include "sundials/sundials_nvector.h"
+#include <sunmemory/sunmemory_system.h>
 #include "sundials/sundials_types.h"
-#include "sunmemory/sunmemory_system.h"
 
 static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 
@@ -302,6 +296,8 @@ int main(int argc, char* argv[])
   // Since this a unit test, we want to abort immediately on any internal error
   SUNContext_PushErrHandler(sunctx, SUNAbortErrHandlerFn, NULL);
 
+  // TODO(CJB): parse command line args which change various parameters to cover more test cases
+
   //
   // Create the initial conditions vector
   //
@@ -314,21 +310,26 @@ int main(int argc, char* argv[])
   // Create the ARKODE stepper that will be used for both the forward solution and adjoint solution.
   //
 
-  const sunrealtype dt = 1e-4;
+  const sunrealtype dt = 1e-2;
   sunrealtype t0       = 0.0;
   sunrealtype tf       = 1.0;
+  const int nsteps     = ((tf - t0) / dt + 1);
+  const int order      = 2;
   void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
 
-  // Use Forward Euler for debugging
-  // ARKodeSetOrder(arkode_mem, 1);
+  ARKodeSetOrder(arkode_mem, order);
 
   // Enable checkpointing during the forward solution
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
 
-  SUNMemoryHelper mem_helper = SUNMemoryHelper_Sys(sunctx);
-  SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper, 1,
-                                          ((tf - t0) / dt + 1) * 6, SUNTRUE,
-                                          SUNTRUE, sunctx, &checkpoint_scheme);
+  SUNMemoryHelper mem_helper       = SUNMemoryHelper_Sys(sunctx);
+  const int check_interval         = 1;
+  const int ncheck                 = (nsteps * (order + 1)) / check_interval;
+  const sunbooleantype save_stages = SUNTRUE;
+  const sunbooleantype keep_check  = SUNFALSE;
+  SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
+                                          check_interval, ncheck, save_stages,
+                                          keep_check, sunctx, &checkpoint_scheme);
 
   ARKodeSetCheckpointScheme(arkode_mem, checkpoint_scheme);
 
