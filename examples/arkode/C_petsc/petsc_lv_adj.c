@@ -10,17 +10,14 @@ static const PetscReal p[4] = {1.5, 1.0, 3.0, 1.0};
 
 struct _n_User
 {
-  PetscReal mu;
   PetscReal next_output;
   PetscBool imex;
   /* Sensitivity analysis support */
   PetscInt steps;
   PetscReal ftime;
-  Mat A;                    /* IJacobian matrix */
   Mat B;                    /* RHSJacobian matrix */
-  Mat Jacp;                 /* IJacobianP matrix */
   Mat Jacprhs;              /* RHSJacobianP matrix */
-  Vec U, lambda[2], mup[2]; /* adjoint variables */
+  Vec U, lambda[1], mup[1]; /* adjoint variables */
 };
 
 /* ----------------------- Explicit form of the ODE  -------------------- */
@@ -45,7 +42,6 @@ static PetscErrorCode RHSJacobian(TS ts, PetscReal t, Vec U, Mat A, Mat B,
                                   void* ctx)
 {
   User user         = (User)ctx;
-  PetscReal mu      = user->mu;
   PetscInt rowcol[] = {0, 1};
   PetscScalar J[2][2];
   const PetscScalar* u;
@@ -73,13 +69,19 @@ static PetscErrorCode RHSJacobianP(TS ts, PetscReal t, Vec U, Mat A, void* ctx)
   User user = (User)ctx;
 
   PetscFunctionBeginUser;
-  PetscInt row[] = {0, 1}, col[] = {0};
-  PetscScalar J[2][1];
+  PetscInt row[] = {0, 1}, col[] = {0, 1, 2, 3};
+  PetscScalar J[2][4];
   const PetscScalar* u;
   PetscCall(VecGetArrayRead(U, &u));
-  J[0][0] = 0;
-  J[1][0] = (1. - u[0] * u[0]) * u[1] - u[0];
-  PetscCall(MatSetValues(A, 2, row, 1, col, &J[0][0], INSERT_VALUES));
+  J[0][0] = u[0];
+  J[0][1] = -u[0] * u[1];
+  J[0][2] = 0.0;
+  J[0][3] = 0.0;
+  J[1][0] = 0.0;
+  J[1][1] = 0.0;
+  J[1][2] = -u[1];
+  J[1][3] = u[0] * u[1];
+  PetscCall(MatSetValues(A, 2, row, 4, col, &J[0][0], INSERT_VALUES));
   PetscCall(MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY));
   PetscCall(MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY));
   PetscCall(VecRestoreArrayRead(U, &u));
@@ -107,6 +109,20 @@ static void dgdu(Vec uvec, Vec dgvec, const PetscReal* p, PetscReal t)
   VecGetArrayWrite(dgvec, &dg);
   dg[0] = u[0] + u[1];
   dg[1] = u[0] + u[1];
+  VecRestoreArrayRead(uvec, &u);
+  VecRestoreArrayWrite(dgvec, &dg);
+}
+
+static void dgdp(Vec uvec, Vec dgvec, const PetscReal* p, PetscReal t)
+{
+  const PetscScalar* u;
+  PetscScalar* dg;
+  VecGetArrayRead(uvec, &u);
+  VecGetArrayWrite(dgvec, &dg);
+  dg[0] = 0.0;
+  dg[1] = 0.0;
+  dg[2] = 0.0;
+  dg[3] = 0.0;
   VecRestoreArrayRead(uvec, &u);
   VecRestoreArrayWrite(dgvec, &dg);
 }
@@ -161,27 +177,23 @@ int main(int argc, char** argv)
     Set runtime options
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
   user.next_output = 0.0;
-  user.mu          = 1.0e3;
   user.steps       = 0;
   user.ftime       = 1.0;
   user.imex        = PETSC_FALSE;
   PetscCall(PetscOptionsGetBool(NULL, NULL, "-monitor", &monitor, NULL));
-  PetscCall(PetscOptionsGetReal(NULL, NULL, "-mu", &user.mu, NULL));
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     Create necessary matrix and vectors, solve same ODE on every process
     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-  PetscCall(MatCreate(PETSC_COMM_WORLD, &user.A));
-  PetscCall(MatSetSizes(user.A, PETSC_DECIDE, PETSC_DECIDE, 2, 2));
-  PetscCall(MatSetFromOptions(user.A));
-  PetscCall(MatSetUp(user.A));
-  PetscCall(MatCreateVecs(user.A, &user.U, NULL));
-  PetscCall(MatDuplicate(user.A, MAT_DO_NOT_COPY_VALUES, &user.B));
-  PetscCall(MatCreate(PETSC_COMM_WORLD, &user.Jacp));
-  PetscCall(MatSetSizes(user.Jacp, PETSC_DECIDE, PETSC_DECIDE, 2, 1));
-  PetscCall(MatSetFromOptions(user.Jacp));
-  PetscCall(MatSetUp(user.Jacp));
-  PetscCall(MatDuplicate(user.Jacp, MAT_DO_NOT_COPY_VALUES, &user.Jacprhs));
+  PetscCall(MatCreate(PETSC_COMM_WORLD, &user.B));
+  PetscCall(MatSetSizes(user.B, PETSC_DECIDE, PETSC_DECIDE, 2, 2));
+  PetscCall(MatSetFromOptions(user.B));
+  PetscCall(MatSetUp(user.B));
+  PetscCall(MatCreateVecs(user.B, &user.U, NULL));
+  PetscCall(MatCreate(PETSC_COMM_WORLD, &user.Jacprhs));
+  PetscCall(MatSetSizes(user.Jacprhs, PETSC_DECIDE, PETSC_DECIDE, 2, 4));
+  PetscCall(MatSetFromOptions(user.Jacprhs));
+  PetscCall(MatSetUp(user.Jacprhs));
   PetscCall(MatZeroEntries(user.Jacprhs));
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -191,8 +203,8 @@ int main(int argc, char** argv)
   PetscCall(
     TSSetEquationType(ts, TS_EQ_ODE_EXPLICIT)); /* less Jacobian evaluations when adjoint BEuler is used, otherwise no effect */
   PetscCall(TSSetRHSFunction(ts, NULL, RHSFunction, &user));
-  PetscCall(TSSetRHSJacobian(ts, user.A, user.A, RHSJacobian, &user));
-  PetscCall(TSSetRHSJacobianP(ts, user.Jacp, RHSJacobianP, &user));
+  PetscCall(TSSetRHSJacobian(ts, user.B, user.B, RHSJacobian, &user));
+  PetscCall(TSSetRHSJacobianP(ts, user.Jacprhs, RHSJacobianP, &user));
   PetscCall(TSSetType(ts, TSRK));
   PetscCall(TSSetMaxTime(ts, user.ftime));
   PetscCall(TSSetTimeStep(ts, 0.001));
@@ -227,13 +239,11 @@ int main(int argc, char** argv)
 
   /* Set initial conditions for the adjoint integration */
 
-  PetscCall(MatCreateVecs(user.A, &user.lambda[0], NULL));
+  PetscCall(MatCreateVecs(user.B, &user.lambda[0], NULL));
   dgdu(user.U, user.lambda[0], p, user.ftime);
 
-  PetscCall(MatCreateVecs(user.Jacp, &user.mup[0], NULL));
-  PetscCall(VecGetArray(user.mup[0], &x_ptr));
-  x_ptr[0] = 0.0;
-  PetscCall(VecRestoreArray(user.mup[0], &x_ptr));
+  PetscCall(MatCreateVecs(user.Jacprhs, &user.mup[0], NULL));
+  dgdp(user.U, user.mup[0], p, user.ftime);
 
   PetscCall(TSSetCostGradients(ts, 1, user.lambda, user.mup));
 
@@ -245,30 +255,19 @@ int main(int argc, char** argv)
                         "d[y(tf)]/d[y0]  d[y(tf)]/d[z0]\n"));
   PetscCall(VecView(user.lambda[0], PETSC_VIEWER_STDOUT_WORLD));
 
-  // PetscCall(VecGetArray(user.mup[0], &x_ptr));
-  // PetscCall(VecGetArray(user.lambda[0], &y_ptr));
-  // derp = y_ptr[1] * (-10.0 / (81.0 * user.mu * user.mu) +
-  //                    2.0 * 292.0 / (2187.0 * user.mu * user.mu * user.mu)) +
-  //        x_ptr[0];
-  // PetscCall(VecRestoreArray(user.mup[0], &x_ptr));
-  // PetscCall(VecRestoreArray(user.lambda[0], &y_ptr));
-  // PetscCall(PetscPrintf(PETSC_COMM_WORLD,
-  //                       "\n sensitivity wrt parameters: d[y(tf)]/d[mu]\n%g\n",
-  //                       (double)PetscRealPart(derp)));
+  PetscCall(PetscPrintf(PETSC_COMM_WORLD,
+                        "\n sensitivity wrt parameters: d[y(tf)]/dp\n"));
+  PetscCall(VecView(user.mup[0], PETSC_VIEWER_STDOUT_WORLD));
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      Free work space.  All PETSc objects should be destroyed when they
      are no longer needed.
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-  PetscCall(MatDestroy(&user.A));
   PetscCall(MatDestroy(&user.B));
-  PetscCall(MatDestroy(&user.Jacp));
   PetscCall(MatDestroy(&user.Jacprhs));
   PetscCall(VecDestroy(&user.U));
   PetscCall(VecDestroy(&user.lambda[0]));
-  PetscCall(VecDestroy(&user.lambda[1]));
   PetscCall(VecDestroy(&user.mup[0]));
-  PetscCall(VecDestroy(&user.mup[1]));
   PetscCall(TSDestroy(&ts));
 
   PetscCall(PetscFinalize());

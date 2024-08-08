@@ -34,6 +34,7 @@
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_nvector.h"
 #include "sundials/sundials_stepper.h"
+#include "sundials/sundials_types.h"
 #include "sundials_macros.h"
 
 #define FIXED_LIN_TOL
@@ -2161,27 +2162,25 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   N_Vector* Xvecs    = step_mem->Xvecs;
 
   /* local shortcuts for readability */
-  N_Vector sens_np1   = ark_mem->yn;
-  N_Vector sens_n     = ark_mem->ycur;
-  N_Vector Sens_i     = step_mem->sdata;
-  N_Vector lambda_np1 = N_VGetSubvector_ManyVector(sens_np1, 0);
-  N_Vector mu_np1     = N_VGetSubvector_ManyVector(sens_np1, 1);
-  N_Vector Lambda_i   = N_VGetSubvector_ManyVector(Sens_i, 0);
-  N_Vector nu_i       = N_VGetSubvector_ManyVector(Sens_i, 1);
-  // N_Vector lambda_n         = N_VGetSubvector_ManyVector(sens_n, 0);
-  // N_Vector mu_n             = N_VGetSubvector_ManyVector(sens_n, 1);
-  N_Vector* stage_solutions = step_mem->Fe;
+  N_Vector sens_np1      = ark_mem->yn;
+  N_Vector sens_n        = ark_mem->ycur;
+  N_Vector sens_tmp      = step_mem->sdata;
+  N_Vector Lambda_tmp    = N_VGetSubvector_ManyVector(sens_tmp, 0);
+  N_Vector nu_tmp        = N_VGetSubvector_ManyVector(sens_tmp, 1);
+  N_Vector lambda_np1    = N_VGetSubvector_ManyVector(sens_np1, 0);
+  N_Vector mu_np1        = N_VGetSubvector_ManyVector(sens_np1, 1);
+  N_Vector* stage_values = step_mem->Fe;
 
   /* Loop over stages */
   for (int is = step_mem->stages - 1; is >= 0; --is)
   {
     // if (FSAL && is == step_mem->stages - 1) {
-    //   N_VConst(SUN_RCONST(0.0), stage_solutions[is]);
+    //   N_VConst(SUN_RCONST(0.0), stage_values[is]);
     //   continue;
     // }
 
     /* which stage is being processed -- needed for loading checkpoints */
-    ark_mem->adj_stage_idx = is + 1;
+    ark_mem->adj_stage_idx = is;
 
     /* Set current stage time(s) and index */
     ark_mem->tcur = ark_mem->tn +
@@ -2193,9 +2192,13 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     int nvec = 0;
     for (int js = is + 1; js < step_mem->stages; ++js)
     {
-      /* h sum_{j=i}^{s} A_{ji} \Lambda_{j} */
-      cvals[nvec] = -ark_mem->h * step_mem->Be->A[js][is];
-      Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_solutions[js], 0);
+      /* h sum_{j=i}^{s} A_{ji}/b_i \Lambda_{j} */
+      if (step_mem->Be->b[is] > SUN_UNIT_ROUNDOFF)
+      {
+        cvals[nvec] = -ark_mem->h * step_mem->Be->A[js][is] / step_mem->Be->b[is];
+      }
+      else { cvals[nvec] = -ark_mem->h * step_mem->Be->A[js][is]; }
+      Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_values[js], 0);
       nvec++;
     }
     cvals[nvec] = -ark_mem->h * step_mem->Be->b[is];
@@ -2203,35 +2206,15 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     nvec++;
 
     /* h b_i \lambda_{n+1} + h sum_{j=i}^{s} A_{ji} \Lambda_{j} */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, Lambda_i);
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, Lambda_tmp);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-    /*
-     * Compute partial current stage value for \nu
-     */
-
-    nvec = 0;
-    for (int js = is + 1; js < step_mem->stages; ++js)
-    {
-      cvals[nvec] = ark_mem->h * step_mem->Be->A[js][is];
-      Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_solutions[js], 1);
-      nvec++;
-    }
-    cvals[nvec] = ark_mem->h * step_mem->Be->b[is];
-    Xvecs[nvec] = mu_np1;
-    nvec++;
-
-    /* h b_i \mu_{n+1} + h sum_{j=i}^{s} A_{ji} \nu_{j} */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, nu_i);
-    if (retval != 0) { return (ARK_VECTOROP_ERR); }
-
-    /* Compute stage solutions \Lambda_i, \nu_i by applying f_{y,p}^T (which is what fe does in this case)  */
-    retval = step_mem->fe(ark_mem->tcur, Sens_i, stage_solutions[is],
+    /* Compute stage values \Lambda_i, \nu_i by applying f_{y,p}^T (which is what fe does in this case)  */
+    retval = step_mem->fe(ark_mem->tcur, sens_tmp, stage_values[is],
                           ark_mem->user_data);
-    step_mem->nfe++; // TODO(CJB): fe calls the Jacobian functions, so should we track those too? (they will be equal to nfe)
+    // TODO(CJB): fe calls the Jacobian functions, so should we track those and report them separately (they will be equal to nfe)?
+    step_mem->nfe++;
   }
-
-  ark_mem->adj_stage_idx--;
 
   /* Now compute the time step solution. We cannot use arkStep_ComputeSolutions because the
      adjoint calculation for the time step solution is different than the forward case. */
@@ -2242,7 +2225,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   {
     cvals[nvec] = ONE;
     Xvecs[nvec] =
-      stage_solutions[j]; // this needs to be the stage values [Lambda_i, nu_i]
+      stage_values[j]; // this needs to be the stage values [Lambda_i, nu_i]
     nvec++;
   }
   cvals[nvec] = ONE;
@@ -3547,41 +3530,43 @@ SUNErrCode arkStep_SUNStepperGetNumSteps(SUNStepper stepper, int64_t* nst)
   Utility routines for interfacing with SUNAdjointSolver
   ---------------------------------------------------------------*/
 
-int arkStep_fe_Adj(sunrealtype t, N_Vector sens, N_Vector sensDot, void* content)
+int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
+                   N_Vector sens_complete_stage, void* content)
 {
   SUNErrCode errcode = SUN_SUCCESS;
 
   SUNAdjointSolver adj_solver = (SUNAdjointSolver)content;
   void* user_data             = adj_solver->user_data;
   ARKodeMem ark_mem           = (ARKodeMem)adj_solver->stepper->content;
+  ARKodeARKStepMem step_mem   = (ARKodeARKStepMem)ark_mem->step_mem;
+  int is                      = ark_mem->adj_stage_idx;
 
-  N_Vector lambda    = N_VGetSubvector_ManyVector(sens, 0);
-  N_Vector mu        = N_VGetSubvector_ManyVector(sens, 1);
-  N_Vector lambdaDot = N_VGetSubvector_ManyVector(sensDot, 0);
-  N_Vector muDot     = N_VGetSubvector_ManyVector(sensDot, 1);
+  N_Vector Lambda_part = N_VGetSubvector_ManyVector(sens_partial_stage, 0);
+  N_Vector Lambda      = N_VGetSubvector_ManyVector(sens_complete_stage, 0);
+  N_Vector nu          = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
 
-  N_Vector checkpoint = N_VClone(lambda);
+  N_Vector checkpoint = N_VClone(Lambda_part);
   SUNAdjointCheckpointScheme_LoadVector(adj_solver->checkpoint_scheme,
                                         adj_solver->step_idx,
-                                        ark_mem->adj_stage_idx, &checkpoint);
+                                        ark_mem->adj_stage_idx + 1, &checkpoint);
 
   if (adj_solver->JacFn)
   {
     adj_solver->JacFn(t, checkpoint, NULL, adj_solver->Jac,
                       adj_solver->user_data, NULL, NULL, NULL);
-    if (SUNMatMatvecTranspose(adj_solver->Jac, lambda, lambdaDot))
+    if (SUNMatMatvecTranspose(adj_solver->Jac, Lambda_part, Lambda))
     {
       return -1;
     };
   }
   else if (adj_solver->Jvp)
   {
-    adj_solver->Jvp(lambda, lambdaDot, t, checkpoint, NULL,
+    adj_solver->Jvp(Lambda_part, Lambda, t, checkpoint, NULL,
                     adj_solver->user_data, NULL);
   }
   else if (adj_solver->vJp)
   {
-    adj_solver->vJp(lambda, lambdaDot, t, checkpoint, NULL,
+    adj_solver->vJp(Lambda_part, Lambda, t, checkpoint, NULL,
                     adj_solver->user_data, NULL);
   }
 
@@ -3589,15 +3574,17 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens, N_Vector sensDot, void* content
   {
     adj_solver->JacPFn(t, checkpoint, NULL, adj_solver->JacP,
                        adj_solver->user_data, NULL, NULL, NULL);
-    if (SUNMatMatvecTranspose(adj_solver->JacP, mu, muDot)) { return -1; }
+    if (SUNMatMatvecTranspose(adj_solver->JacP, Lambda_part, nu)) { return -1; }
   }
   else if (adj_solver->JPvp)
   {
-    adj_solver->JPvp(mu, muDot, t, checkpoint, NULL, adj_solver->user_data, NULL);
+    adj_solver->JPvp(Lambda_part, nu, t, checkpoint, NULL,
+                     adj_solver->user_data, NULL);
   }
   else if (adj_solver->vJPp)
   {
-    adj_solver->vJPp(mu, muDot, t, checkpoint, NULL, adj_solver->user_data, NULL);
+    adj_solver->vJPp(Lambda_part, nu, t, checkpoint, NULL,
+                     adj_solver->user_data, NULL);
   }
 
   N_VDestroy(checkpoint);

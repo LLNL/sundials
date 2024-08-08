@@ -87,7 +87,6 @@ int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec,
   sunrealtype* u = N_VGetArrayPointer(uvec);
   sunrealtype* J = SUNDenseMatrix_Data(Jac);
 
-  // TODO(CJB): this isnt right - matrix is 4x4
   J[0] = u[0];
   J[1] = 0.0;
   J[2] = -u[0] * u[1];
@@ -96,7 +95,6 @@ int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec,
   J[5] = -u[1];
   J[6] = 0.0;
   J[7] = u[0] * u[1];
-  J[8] = 0.0;
 
   return 0;
 }
@@ -136,6 +134,17 @@ void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
 
   dg[0] = u[0] + u[1];
   dg[1] = u[0] + u[1];
+}
+
+void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
+{
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* dg = N_VGetArrayPointer(dgvec);
+
+  dg[0] = SUN_RCONST(0.0);
+  dg[1] = SUN_RCONST(0.0);
+  dg[2] = SUN_RCONST(0.0);
+  dg[3] = SUN_RCONST(0.0);
 }
 
 int forward_solution(SUNContext sunctx, void* arkode_mem,
@@ -180,8 +189,7 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   // Set the terminal condition for the adjoint system, which
   // should be the the gradient of our cost function at tf.
   dgdu(u, sensu0, params, tf);
-  // dgdp()
-  N_VConst(0.0, sensp);
+  dgdp(u, sensp, params, tf);
 
   fprintf(stdout, "Adjoint terminal condition:\n");
   N_VPrint(sf);
@@ -190,7 +198,7 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   retval = ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
 
   SUNMatrix J  = SUNDenseMatrix(neq, neq, sunctx);
-  SUNMatrix Jp = SUNDenseMatrix(num_params, num_params, sunctx);
+  SUNMatrix Jp = SUNDenseMatrix(neq, num_params, sunctx);
 
   retval = SUNAdjointSolver_SetJacFn(adj_solver, jacobian, J,
                                      parameter_jacobian, Jp);
@@ -312,7 +320,7 @@ int main(int argc, char* argv[])
   void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
 
   // Use Forward Euler for debugging
-  ARKodeSetOrder(arkode_mem, 1);
+  // ARKodeSetOrder(arkode_mem, 1);
 
   // Enable checkpointing during the forward solution
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;

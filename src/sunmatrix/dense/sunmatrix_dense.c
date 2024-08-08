@@ -61,13 +61,13 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx)
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  A->ops->getid     = SUNMatGetID_Dense;
-  A->ops->clone     = SUNMatClone_Dense;
-  A->ops->destroy   = SUNMatDestroy_Dense;
-  A->ops->zero      = SUNMatZero_Dense;
-  A->ops->copy      = SUNMatCopy_Dense;
-  A->ops->scaleadd  = SUNMatScaleAdd_Dense;
-  A->ops->scaleaddi = SUNMatScaleAddI_Dense;
+  A->ops->getid           = SUNMatGetID_Dense;
+  A->ops->clone           = SUNMatClone_Dense;
+  A->ops->destroy         = SUNMatDestroy_Dense;
+  A->ops->zero            = SUNMatZero_Dense;
+  A->ops->copy            = SUNMatCopy_Dense;
+  A->ops->scaleadd        = SUNMatScaleAdd_Dense;
+  A->ops->scaleaddi       = SUNMatScaleAddI_Dense;
   A->ops->matvec          = SUNMatMatvec_Dense;
   A->ops->matvectranspose = SUNMatMatvecTranspose_Dense;
   A->ops->space           = SUNMatSpace_Dense;
@@ -329,7 +329,10 @@ SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   for (sunindextype j = 0; j < SM_COLUMNS_D(A); j++)
   {
     sunrealtype* col_j = SM_COLUMN_D(A, j);
-    for (sunindextype i = 0; i < SM_ROWS_D(A); i++) { yd[i] += col_j[i] * xd[j]; }
+    for (sunindextype i = 0; i < SM_ROWS_D(A); i++)
+    {
+      yd[i] += col_j[i] * xd[j];
+    }
   }
   return SUN_SUCCESS;
 }
@@ -357,7 +360,10 @@ SUNErrCode SUNMatMatvecTranspose_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   for (sunindextype i = 0; i < SM_COLUMNS_D(A); i++)
   {
     sunrealtype* row_i = SM_COLUMN_D(A, i);
-    for (sunindextype j = 0; j < SM_ROWS_D(A); j++) { yd[i] += row_i[j] * xd[j]; }
+    for (sunindextype j = 0; j < SM_ROWS_D(A); j++)
+    {
+      yd[i] += row_i[j] * xd[j];
+    }
   }
   return SUN_SUCCESS;
 }
