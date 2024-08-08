@@ -19,8 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 if(BUILD_SUNNONLINSOL_PETSCSNES)
-  set(ARKODE_examples "ark_petsc_ex25\;1\;1\;develop"
-    "petsc_lv_adj\;1\;1\;")
+  set(ARKODE_examples "ark_petsc_ex25\;1\;1\;develop")
 endif()
 
 if(MPI_C_COMPILER)
