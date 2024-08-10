@@ -7,8 +7,10 @@
 ### New Features and Enhancements
 
 The default value of `CMAKE_CUDA_ARCHITECTURES` is no longer set to `70` and is
-now determined automatically by CMake. Users are encouraged to override the
-default value as it varies across compilers and compiler versions.
+now determined automatically by CMake. The previous default was only valid for
+Volta GPUs while the automatically selected value will vary across compilers and
+compiler versions. As such, users are encouraged to override this value with the
+architecture for their system.
 
 ### Bug Fixes
 
