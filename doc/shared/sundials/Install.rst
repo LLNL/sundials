@@ -530,7 +530,12 @@ illustration only.
    section of the CUDA documentation for more information.
 
    Default: Determined automatically by CMake. Users are encouraged to override
-   this value as it varies across compilers and compiler versions.
+   this value with the architecture for their system as the default varies
+   across compilers and compiler versions.
+
+   .. versionchanged:: x.y.z
+
+      In prior versions ``CMAKE_CUDA_ARCHITECTURES`` defaulted to ``70``.
 
 .. cmakeoption:: EXAMPLES_ENABLE_C
 
