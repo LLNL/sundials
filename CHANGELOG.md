@@ -6,6 +6,10 @@
 
 ### New Features and Enhancements
 
+The default value of `CMAKE_CUDA_ARCHITECTURES` is no longer set to `70` and is
+now determined automatically by CMake. Users are encouraged to override the
+default value as it varies across compilers and compiler versions.
+
 ### Bug Fixes
 
 Fixed the loading of ARKStep's default first order explicit method.

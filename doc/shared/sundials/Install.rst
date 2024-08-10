@@ -523,9 +523,11 @@ illustration only.
 
 .. cmakeoption:: CMAKE_CUDA_ARCHITECTURES
 
-   Specifies the CUDA architecture to compile for.
+   Specifies the CUDA architecture to compile for i.e., ``60`` for Pascal,
+   ``70`` Volta, ``80`` for Ampere, ``90`` for Hopper, etc.
 
-   Default: ``sm_30``
+   Default: Determined automatically by CMake. Users are encouraged to override
+   this value as it varies across compilers and compiler versions.
 
 .. cmakeoption:: EXAMPLES_ENABLE_C
 
