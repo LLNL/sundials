@@ -2561,8 +2561,10 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   /* update interpolation structure
 
      NOTE: This must be called before updating yn with ycur as the interpolation
-     module may need to save tn, yn from the start of this step */
-  if (ark_mem->interp != NULL)
+     module may need to save tn, yn from the start of this step 
+     
+     NOTE: When doing adjoint integration interpolation is disabled, so we skip this */
+  if (ark_mem->interp != NULL && !ark_mem->do_adjoint)
   {
     retval = arkInterpUpdate(ark_mem, ark_mem->interp, ark_mem->tcur);
     if (retval != ARK_SUCCESS) { return (retval); }

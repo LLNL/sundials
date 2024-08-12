@@ -26,6 +26,8 @@
 #include <sundials/sundials_core.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmemory/sunmemory_system.h>
+#include "arkode/arkode_butcher.h"
+#include "arkode/arkode_butcher_erk.h"
 #include "sundials/sundials_types.h"
 
 static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
@@ -65,8 +67,22 @@ int jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
   sunrealtype* v  = N_VGetArrayPointer(vvec);
   sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
 
-  Jv[0] = (p[0] - p[1] * u[1]) * v[0] + (-p[1] * u[0]) * v[1];
-  Jv[1] = (p[3] * u[1]) * v[0] + (-p[2] * p[3] * u[0]) * v[1];
+  Jv[0] = (p[0] - p[1] * u[1]) * v[0] + p[3] * u[1] * v[1];
+  Jv[1] = -p[1] * u[0] * v[0] + (-p[2] + p[3] * u[0]) * v[1];
+
+  return 0;
+}
+
+int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
+        N_Vector udotvec, void* user_data, N_Vector tmp)
+{
+  sunrealtype* p  = (sunrealtype*)user_data;
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* v  = N_VGetArrayPointer(vvec);
+  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
+
+  Jv[0] = (p[0] - p[1] * u[1]) * v[0] + p[3] * u[1] * v[1];
+  Jv[1] = -p[1] * u[0] * v[0] + (-p[2] + p[3] * u[0]) * v[1];
 
   return 0;
 }
@@ -103,11 +119,28 @@ int parameter_jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
   sunrealtype* v  = N_VGetArrayPointer(vvec);
   sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
 
-  // TODO(CJB): this isnt right
-  Jv[0] = v[0] * u[0];
-  Jv[1] = 0.0;
-  Jv[2] = 0.0;
-  Jv[3] = 0.0;
+  Jv[0] = u[0] * v[0];
+  Jv[1] = -u[0] * u[1] * v[0];
+  Jv[2] = -u[1] * v[1];
+  Jv[3] = u[0] * u[1] * v[1];
+
+  return 0;
+}
+
+int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
+                  N_Vector udotvec, void* user_data, N_Vector tmp)
+{
+  if (user_data != params) { return -1; }
+
+  sunrealtype* p  = (sunrealtype*)user_data;
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* v  = N_VGetArrayPointer(vvec);
+  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
+
+  Jv[0] = u[0] * v[0];
+  Jv[1] = -u[0] * u[1] * v[0];
+  Jv[2] = -u[1] * v[1];
+  Jv[3] = u[0] * u[1] * v[1];
 
   return 0;
 }
@@ -145,23 +178,29 @@ int forward_solution(SUNContext sunctx, void* arkode_mem,
                      SUNAdjointCheckpointScheme checkpoint_scheme,
                      sunrealtype t0, sunrealtype tf, sunrealtype dt, N_Vector u)
 {
-  ARKodeSetUserData(arkode_mem, (void*)params);
-  ARKodeSetFixedStep(arkode_mem, dt);
-  ARKodeSetMaxNumSteps(arkode_mem, (tf - t0) / dt + 1);
+  int retval = 0;
+
+  retval = ARKodeSetUserData(arkode_mem, (void*)params);
+  retval = ARKodeSetFixedStep(arkode_mem, dt);
+  retval = ARKodeSetMaxNumSteps(arkode_mem, (tf - t0) / dt + 1);
 
   sunrealtype t = t0;
   while (t < tf)
   {
-    int flag = ARKodeEvolve(arkode_mem, tf, u, &t, ARK_NORMAL);
-    if (flag < 0)
+    retval = ARKodeEvolve(arkode_mem, tf, u, &t, ARK_NORMAL);
+    if (retval < 0)
     {
-      fprintf(stderr, ">>> ERROR: ARKodeEvolve returned %d\n", flag);
+      fprintf(stderr, ">>> ERROR: ARKodeEvolve returned %d\n", retval);
       return -1;
     }
   }
 
   fprintf(stdout, "Forward Solution:\n");
   N_VPrint(u);
+
+  fprintf(stdout, "ARKODE Stats for Forward Solution:\n");
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  fprintf(stdout, "\n");
 
   return 0;
 }
@@ -210,6 +249,10 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
 
+  fprintf(stdout, "ARKODE Stats for Adjoint Solution:\n");
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  fprintf(stdout, "\n");
+
   N_VDestroy(sf);
   SUNMatDestroy(J);
   SUNMatDestroy(Jp);
@@ -232,8 +275,13 @@ int adjoint_solution_jvp(SUNContext sunctx, void* arkode_mem,
   N_Vector sens[2]        = {sensu0, sensp};
   N_Vector sf             = N_VNew_ManyVector(2, sens, sunctx);
 
-  // TODO(CJB): Load sf with the sensitivity terminal conditions
-  N_VConst(0.0, sf);
+  // Set the terminal condition for the adjoint system, which
+  // should be the the gradient of our cost function at tf.
+  dgdu(u, sensu0, params, tf);
+  dgdp(u, sensp, params, tf);
+
+  fprintf(stdout, "Adjoint terminal condition:\n");
+  N_VPrint(sf);
 
   SUNAdjointSolver adj_solver;
   retval = ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
@@ -246,6 +294,10 @@ int adjoint_solution_jvp(SUNContext sunctx, void* arkode_mem,
 
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
+
+  fprintf(stdout, "ARKODE Stats for Adjoint Solution (jvp):\n");
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  fprintf(stdout, "\n");
 
   N_VDestroy(sf);
   SUNAdjointSolver_Destroy(&adj_solver);
@@ -267,13 +319,15 @@ int adjoint_solution_vjp(SUNContext sunctx, void* arkode_mem,
   N_Vector sens[2]        = {sensu0, sensp};
   N_Vector sf             = N_VNew_ManyVector(2, sens, sunctx);
 
-  // TODO(CJB): Load sf with the sensitivity terminal conditions
-  N_VConst(0.0, sf);
+  // Set the terminal condition for the adjoint system, which
+  // should be the the gradient of our cost function at tf.
+  dgdu(u, sensu0, params, tf);
+  dgdp(u, sensp, params, tf);
 
   SUNAdjointSolver adj_solver;
   retval = ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
 
-  retval = SUNAdjointSolver_SetVecTimesJacFn(adj_solver, jvp, parameter_jvp);
+  retval = SUNAdjointSolver_SetVecTimesJacFn(adj_solver, vjp, parameter_vjp);
 
   int stop_reason = 0;
   sunrealtype t   = tf;
@@ -281,6 +335,10 @@ int adjoint_solution_vjp(SUNContext sunctx, void* arkode_mem,
 
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
+
+  fprintf(stdout, "ARKODE Stats for Adjoint Solution (vjp):\n");
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  fprintf(stdout, "\n");
 
   N_VDestroy(sf);
   SUNAdjointSolver_Destroy(&adj_solver);
@@ -349,10 +407,10 @@ int main(int argc, char* argv[])
 
   adjoint_solution(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
 
-  // //
-  // // Now compute the adjoint solution using Jvp
-  // //
-  // // TODO(CJB): make sure this reinitializes arkode correctly (probably need SUNAdjointSolver_Reset function)
+  //
+  // Now compute the adjoint solution using Jvp
+  //
+  // TODO(CJB): make sure this reinitializes arkode correctly (probably need SUNAdjointSolver_Reset function)
   // adjoint_solution_jvp(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
 
   // //

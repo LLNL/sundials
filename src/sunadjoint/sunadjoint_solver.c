@@ -34,7 +34,10 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper, int64_t final_step_idx,
   adj_solver->stepper           = stepper;
   adj_solver->Jac               = NULL;
   adj_solver->JacP              = NULL;
+  adj_solver->JacFn             = NULL;
+  adj_solver->JacPFn            = NULL;
   adj_solver->Jvp               = NULL;
+  adj_solver->JPvp              = NULL;
   adj_solver->vJp               = NULL;
   adj_solver->vJPp              = NULL;
   adj_solver->checkpoint_scheme = checkpoint_scheme;

@@ -2171,13 +2171,18 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   N_Vector mu_np1        = N_VGetSubvector_ManyVector(sens_np1, 1);
   N_Vector* stage_values = step_mem->Fe;
 
+  /* determine if method has fsal property */
+  sunbooleantype fsal = (SUNRabs(step_mem->Be->A[0][0]) == ZERO) &&
+                        ARKodeButcherTable_IsStifflyAccurate(step_mem->Be);
+
   /* Loop over stages */
   for (int is = step_mem->stages - 1; is >= 0; --is)
   {
-    // if (FSAL && is == step_mem->stages - 1) {
-    //   N_VConst(SUN_RCONST(0.0), stage_values[is]);
-    //   continue;
-    // }
+    if (fsal && is == step_mem->stages - 1)
+    {
+      N_VConst(SUN_RCONST(0.0), stage_values[is]);
+      continue;
+    }
 
     /* which stage is being processed -- needed for loading checkpoints */
     ark_mem->adj_stage_idx = is;
@@ -2222,7 +2227,6 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   /* Now compute the time step solution. We cannot use arkStep_ComputeSolutions because the
      adjoint calculation for the time step solution is different than the forward case. */
-  // TODO(CJB): consider what would happen with stiffly accurate methods
 
   int nvec = 0;
   for (int j = 0; j < step_mem->stages; j++)
