@@ -2214,6 +2214,10 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                           ark_mem->user_data);
     // TODO(CJB): fe calls the Jacobian functions, so should we track those and report them separately (they will be equal to nfe)?
     step_mem->nfe++;
+
+    // TODO(CJB): The checkpoint was not found, so we need to recompute this step forward in time
+    if (retval > 0) {}
+    else if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   }
 
   /* Now compute the time step solution. We cannot use arkStep_ComputeSolutions because the
@@ -3546,9 +3550,13 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   N_Vector nu          = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
 
   N_Vector checkpoint = N_VClone(Lambda_part);
-  SUNAdjointCheckpointScheme_LoadVector(adj_solver->checkpoint_scheme,
-                                        adj_solver->step_idx,
-                                        ark_mem->adj_stage_idx + 1, &checkpoint);
+  errcode = SUNAdjointCheckpointScheme_LoadVector(adj_solver->checkpoint_scheme,
+                                                  adj_solver->step_idx,
+                                                  ark_mem->adj_stage_idx + 1,
+                                                  &checkpoint);
+
+  // Checkpoint was not found, recompute the missing step
+  if (errcode == SUN_ERR_CHECKPOINT_NOT_FOUND) { return +1; }
 
   if (adj_solver->JacFn)
   {

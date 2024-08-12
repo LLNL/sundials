@@ -155,6 +155,8 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
 {
   SUNFunctionBegin(self->sunctx);
 
+  SUNErrCode errcode = SUN_SUCCESS;
+
   /* If we are trying to load the step solution, we need to load the list which holds
      the step and stage solutions. We keep a pointer to the list node until
      this step is over for fast access when loading stages. */
@@ -166,11 +168,19 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
                        "load-new-step", "step_num = %d, key = %s", step_num, key);
 #endif
-    SUNCheckCall(SUNDataNode_GetNamedChild(PROPERTY(self, root_node), key,
-                                           &step_data_node));
-    free(key);
-    PROPERTY(self, current_load_step_node)  = step_data_node;
-    PROPERTY(self, stepnum_of_current_load) = step_num;
+    errcode = SUNDataNode_GetNamedChild(PROPERTY(self, root_node), key,
+                                        &step_data_node);
+    if (errcode == SUN_SUCCESS)
+    {
+      free(key);
+      PROPERTY(self, current_load_step_node)  = step_data_node;
+      PROPERTY(self, stepnum_of_current_load) = step_num;
+    }
+    else if (errcode == SUN_ERR_DATANODE_NODENOTFOUND)
+    {
+      step_data_node = NULL;
+    }
+    else { SUNCheckCall(errcode); }
   }
   else { step_data_node = PROPERTY(self, current_load_step_node); }
 
@@ -184,7 +194,9 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
                        "load-stage", "keep = 1, step_num = %d, stage_num = %d",
                        step_num, stage_num);
 #endif
-    SUNCheckCall(SUNDataNode_GetChild(step_data_node, stage_num, &solution_node));
+    errcode = SUNDataNode_GetChild(step_data_node, stage_num, &solution_node);
+    if (errcode == SUN_ERR_DATANODE_NODENOTFOUND) { solution_node = NULL; }
+    else { SUNCheckCall(errcode); }
   }
   else
   {
@@ -193,8 +205,9 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
                        "load-stage", "keep = 0, step_num = %d, stage_num = %d",
                        step_num, stage_num);
 #endif
-    SUNCheckCall(
-      SUNDataNode_RemoveChild(step_data_node, stage_num, &solution_node));
+    errcode = SUNDataNode_RemoveChild(step_data_node, stage_num, &solution_node);
+    if (errcode == SUN_ERR_DATANODE_NODENOTFOUND) { solution_node = NULL; }
+    else { SUNCheckCall(errcode); }
   }
 
   if (!solution_node) { return SUN_ERR_CHECKPOINT_NOT_FOUND; }
