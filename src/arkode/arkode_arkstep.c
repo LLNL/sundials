@@ -3571,15 +3571,15 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
       return -1;
     };
   }
-  else if (adj_solver->Jvp)
+  else if (adj_solver->JvpFn)
   {
-    adj_solver->Jvp(Lambda_part, Lambda, t, checkpoint, NULL,
-                    adj_solver->user_data, NULL);
+    adj_solver->JvpFn(Lambda_part, Lambda, t, checkpoint, NULL,
+                      adj_solver->user_data, NULL);
   }
-  else if (adj_solver->vJp)
+  else if (adj_solver->vJpFn)
   {
-    adj_solver->vJp(Lambda_part, Lambda, t, checkpoint, NULL,
-                    adj_solver->user_data, NULL);
+    adj_solver->vJpFn(Lambda_part, Lambda, t, checkpoint, NULL,
+                      adj_solver->user_data, NULL);
   }
 
   if (adj_solver->JacPFn)
@@ -3588,15 +3588,15 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
                        adj_solver->user_data, NULL, NULL, NULL);
     if (SUNMatMatvecTranspose(adj_solver->JacP, Lambda_part, nu)) { return -1; }
   }
-  else if (adj_solver->JPvp)
+  else if (adj_solver->JPvpFn)
   {
-    adj_solver->JPvp(Lambda_part, nu, t, checkpoint, NULL,
-                     adj_solver->user_data, NULL);
+    adj_solver->JPvpFn(Lambda_part, nu, t, checkpoint, NULL,
+                       adj_solver->user_data, NULL);
   }
-  else if (adj_solver->vJPp)
+  else if (adj_solver->vJPpFn)
   {
-    adj_solver->vJPp(Lambda_part, nu, t, checkpoint, NULL,
-                     adj_solver->user_data, NULL);
+    adj_solver->vJPpFn(Lambda_part, nu, t, checkpoint, NULL,
+                       adj_solver->user_data, NULL);
   }
 
   N_VDestroy(checkpoint);

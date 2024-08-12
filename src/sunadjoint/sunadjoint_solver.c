@@ -35,10 +35,10 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper, int64_t final_step_idx,
   adj_solver->JacP              = NULL;
   adj_solver->JacFn             = NULL;
   adj_solver->JacPFn            = NULL;
-  adj_solver->Jvp               = NULL;
-  adj_solver->JPvp              = NULL;
-  adj_solver->vJp               = NULL;
-  adj_solver->vJPp              = NULL;
+  adj_solver->JvpFn             = NULL;
+  adj_solver->JPvpFn            = NULL;
+  adj_solver->vJpFn             = NULL;
+  adj_solver->vJPpFn            = NULL;
   adj_solver->checkpoint_scheme = checkpoint_scheme;
   adj_solver->tf                = tf;
   adj_solver->user_data         = NULL;
@@ -138,8 +138,8 @@ SUNErrCode SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver adj_solver,
   SUNAssert(Jvp, SUN_ERR_ARG_CORRUPT);
   SUNAssert(!JPvp || (JPvp && Jvp), SUN_ERR_ARG_CORRUPT);
 
-  adj_solver->Jvp  = Jvp;
-  adj_solver->JPvp = JPvp;
+  adj_solver->JvpFn  = Jvp;
+  adj_solver->JPvpFn = JPvp;
 
   return SUN_SUCCESS;
 }
@@ -153,8 +153,8 @@ SUNErrCode SUNAdjointSolver_SetVecTimesJacFn(SUNAdjointSolver adj_solver,
   SUNAssert(vJp, SUN_ERR_ARG_CORRUPT);
   SUNAssert(!vJPp || (vJp && vJPp), SUN_ERR_ARG_CORRUPT);
 
-  adj_solver->vJp  = vJp;
-  adj_solver->vJPp = vJPp;
+  adj_solver->vJpFn  = vJp;
+  adj_solver->vJPpFn = vJPp;
 
   return SUN_SUCCESS;
 }
