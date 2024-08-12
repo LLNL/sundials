@@ -38,6 +38,9 @@ set(arkode_SOURCES
     arkode_mristep.c
     arkode_relaxation.c
     arkode_root.c
+    arkode_splitting_coefficients.c
+    arkode_splittingstep_executionpolicy.c
+    arkode_splittingstep.c
     arkode_sprkstep_io.c
     arkode_sprkstep.c
     arkode_sprk.c
@@ -56,6 +59,7 @@ set(arkode_HEADERS
     arkode_erkstep.h
     arkode_ls.h
     arkode_mristep.h
+    arkode_splittingstep.h
     arkode_sprk.h
     arkode_sprkstep.h)
 
