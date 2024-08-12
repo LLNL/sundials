@@ -408,8 +408,8 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
 
 /* Adjoint solver functions */
 SUNDIALS_EXPORT
-int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
-                               N_Vector sf, SUNAdjointSolver* adj_solver_ptr);
+int ARKStepCreateAdjointSolver(void* arkode_mem, N_Vector sf,
+                               SUNAdjointSolver* adj_solver_ptr);
 
 /* Relaxation functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxFn instead")

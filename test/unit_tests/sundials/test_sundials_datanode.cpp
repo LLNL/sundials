@@ -477,21 +477,3 @@ TEST_F(SUNDataNodeTest, SetAndGetDataNvectorWhenLeaf)
   N_VDestroy(v);
   N_VDestroy(vec_we_got);
 }
-
-// TODO(CJB): this will fail when SUNAssert is compiled out because we use SUNAssert for the type check
-// TEST_F(SUNDataNodeTest, SetDataFailsWhenList)
-// {
-//   SUNErrCode err;
-//   SUNDataNode root_node;
-//   unsigned int num_elem = 5;
-
-//   err = SUNDataNode_CreateList(SUNDATAIOMODE_INMEM, mem_helper, num_elem, sunctx, &root_node);
-//   EXPECT_EQ(err, SUN_SUCCESS);
-
-//   void* raw_value;
-//   err = SUNDataNode_SetData(root_node, &raw_value, 0, 0);
-//   EXPECT_EQ(err, SUN_ERR_ARG_WRONGTYPE);
-
-//   err = SUNDataNode_Destroy(&root_node);
-//   EXPECT_EQ(err, SUN_SUCCESS);
-// }

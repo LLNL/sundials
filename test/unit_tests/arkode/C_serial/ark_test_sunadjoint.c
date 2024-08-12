@@ -26,8 +26,6 @@
 #include <sundials/sundials_core.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmemory/sunmemory_system.h>
-#include "arkode/arkode_butcher.h"
-#include "arkode/arkode_butcher_erk.h"
 #include "sundials/sundials_types.h"
 
 static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
@@ -212,7 +210,6 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   int retval = 0;
 
   sunindextype neq        = N_VGetLength(u);
-  sunindextype num_cost   = 1;
   sunindextype num_params = 4;
   N_Vector sensu0         = N_VClone(u);
   N_Vector sensp          = N_VNew_Serial(num_params, sunctx);
@@ -228,7 +225,7 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   N_VPrint(sf);
 
   SUNAdjointSolver adj_solver;
-  retval = ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
+  retval = ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_solver);
 
   SUNMatrix J  = SUNDenseMatrix(neq, neq, sunctx);
   SUNMatrix Jp = SUNDenseMatrix(neq, num_params, sunctx);
@@ -268,7 +265,6 @@ int adjoint_solution_jvp(SUNContext sunctx, void* arkode_mem,
   int retval = 0;
 
   sunindextype neq        = N_VGetLength(u);
-  sunindextype num_cost   = 1;
   sunindextype num_params = 4;
   N_Vector sensu0         = N_VClone(u);
   N_Vector sensp          = N_VNew_Serial(num_params, sunctx);
@@ -284,7 +280,7 @@ int adjoint_solution_jvp(SUNContext sunctx, void* arkode_mem,
   N_VPrint(sf);
 
   SUNAdjointSolver adj_solver;
-  retval = ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
+  retval = ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_solver);
 
   retval = SUNAdjointSolver_SetJacTimesVecFn(adj_solver, jvp, parameter_jvp);
 
@@ -312,7 +308,6 @@ int adjoint_solution_vjp(SUNContext sunctx, void* arkode_mem,
   int retval = 0;
 
   sunindextype neq        = N_VGetLength(u);
-  sunindextype num_cost   = 1;
   sunindextype num_params = 4;
   N_Vector sensu0         = N_VClone(u);
   N_Vector sensp          = N_VNew_Serial(num_params, sunctx);
@@ -325,7 +320,7 @@ int adjoint_solution_vjp(SUNContext sunctx, void* arkode_mem,
   dgdp(u, sensp, params, tf);
 
   SUNAdjointSolver adj_solver;
-  retval = ARKStepCreateAdjointSolver(arkode_mem, num_cost, sf, &adj_solver);
+  retval = ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_solver);
 
   retval = SUNAdjointSolver_SetVecTimesJacFn(adj_solver, vjp, parameter_vjp);
 

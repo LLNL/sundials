@@ -3646,8 +3646,8 @@ int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
   return ARK_SUCCESS;
 }
 
-int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
-                               N_Vector sf, SUNAdjointSolver* adj_solver_ptr)
+int ARKStepCreateAdjointSolver(void* arkode_mem, N_Vector sf,
+                               SUNAdjointSolver* adj_solver_ptr)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -3692,7 +3692,7 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, sunindextype num_cost,
   // SUNAdjointSolver will own the SUNStepper and destroy it
   SUNStepper stepper;
   ARKStepCreateSUNStepper(arkode_mem, &stepper);
-  SUNAdjointSolver_Create(stepper, nst - 1, num_cost, sf, ark_mem->tretlast,
+  SUNAdjointSolver_Create(stepper, nst - 1, sf, ark_mem->tretlast,
                           ark_mem->checkpoint_scheme, ark_mem->sunctx,
                           adj_solver_ptr);
 

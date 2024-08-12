@@ -44,8 +44,7 @@ extern "C" {
 // within the package CreateAdjointSolver routines.
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper, int64_t final_step_idx,
-                                   sunindextype num_cost_fns, N_Vector sf,
-                                   sunrealtype tf,
+                                   N_Vector sf, sunrealtype tf,
                                    SUNAdjointCheckpointScheme checkpoint_scheme,
                                    SUNContext sunctx,
                                    SUNAdjointSolver* adj_solver);
