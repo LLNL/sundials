@@ -23,7 +23,8 @@
 
 struct SUNAdjointSolver_
 {
-  SUNStepper stepper;
+  SUNStepper adj_stepper;
+  SUNStepper fwd_stepper;
   SUNJacFn JacFn, JacPFn;
   SUNMatrix Jac, JacP;
   SUNJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
@@ -41,7 +42,7 @@ extern "C" {
 #endif
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointSolver_Create(SUNStepper stepper, int64_t final_step_idx,
+SUNErrCode SUNAdjointSolver_Create(SUNStepper fwd_stepper, int64_t final_step_idx,
                                    N_Vector sf, sunrealtype tf,
                                    SUNAdjointCheckpointScheme checkpoint_scheme,
                                    SUNContext sunctx,

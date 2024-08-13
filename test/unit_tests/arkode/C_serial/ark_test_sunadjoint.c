@@ -376,10 +376,10 @@ int main(int argc, char* argv[])
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
 
   SUNMemoryHelper mem_helper       = SUNMemoryHelper_Sys(sunctx);
-  const int check_interval         = 1;
+  const int check_interval         = 5;
   const int ncheck                 = (nsteps * (order + 1)) / check_interval;
   const sunbooleantype save_stages = SUNTRUE;
-  const sunbooleantype keep_check  = SUNFALSE;
+  const sunbooleantype keep_check  = SUNTRUE;
   SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
                                           check_interval, ncheck, save_stages,
                                           keep_check, sunctx, &checkpoint_scheme);

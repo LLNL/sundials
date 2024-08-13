@@ -2220,8 +2220,36 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     // TODO(CJB): fe calls the Jacobian functions, so should we track those and report them separately (they will be equal to nfe)?
     step_mem->nfe++;
 
-    // TODO(CJB): The checkpoint was not found, so we need to recompute this step forward in time
-    if (retval > 0) {}
+    // TODO(CJB): The checkpoint was not found, so we need to recompute at least this step forward in time
+    if (retval > 0)
+    {
+      SUNAdjointSolver adj_solver = (SUNAdjointSolver)ark_mem->user_data;
+
+      /* determine how many steps we need to recompute */
+      N_Vector checkpoint = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
+      SUNErrCode errcode  = SUN_ERR_CHECKPOINT_NOT_FOUND;
+      for (int64_t i = 0; i < adj_solver->step_idx; ++i)
+      {
+        // TODO(CJB): replace this with a routine that just checks for the checkpoint and doesn't load it?
+        // loading could take a long time, so we do not want to do it unecessarily, but we will need to load
+        // the last checkpoint that is available so we can restore it for the recomputation
+        errcode =
+          SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
+                                                adj_solver->step_idx - i,
+                                                ark_mem->adj_stage_idx + 1,
+                                                &checkpoint);
+        if (errcode == SUN_SUCCESS)
+        {
+          fprintf(stderr, ">>> last checkpoint was at step %ld\n",
+                  adj_solver->step_idx - i);
+          fprintf(stderr, ">>> need to recompute from step %ld to %ld\n",
+                  adj_solver->step_idx - i, adj_solver->step_idx);
+          return (ARK_RHSFUNC_FAIL);
+          break;
+        }
+      }
+      if (errcode != SUN_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+    }
     else if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   }
 
@@ -3545,7 +3573,7 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   SUNAdjointSolver adj_solver = (SUNAdjointSolver)content;
   void* user_data             = adj_solver->user_data;
-  ARKodeMem ark_mem           = (ARKodeMem)adj_solver->stepper->content;
+  ARKodeMem ark_mem           = (ARKodeMem)adj_solver->adj_stepper->content;
   ARKodeARKStepMem step_mem   = (ARKodeARKStepMem)ark_mem->step_mem;
   int is                      = ark_mem->adj_stage_idx;
 
