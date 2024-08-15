@@ -523,9 +523,19 @@ illustration only.
 
 .. cmakeoption:: CMAKE_CUDA_ARCHITECTURES
 
-   Specifies the CUDA architecture to compile for.
+   Specifies the CUDA architecture to compile for i.e., ``60`` for Pascal,
+   ``70`` Volta, ``80`` for Ampere, ``90`` for Hopper, etc. See the `GPU compute
+   capability tables <https://developer.nvidia.com/cuda-gpus>`_ on the NVIDIA
+   webpage and the `GPU Compilation <https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-compilation>`_
+   section of the CUDA documentation for more information.
 
-   Default: ``sm_30``
+   Default: Determined automatically by CMake. Users are encouraged to override
+   this value with the architecture for their system as the default varies
+   across compilers and compiler versions.
+
+   .. versionchanged:: x.y.z
+
+      In prior versions ``CMAKE_CUDA_ARCHITECTURES`` defaulted to ``70``.
 
 .. cmakeoption:: EXAMPLES_ENABLE_C
 
