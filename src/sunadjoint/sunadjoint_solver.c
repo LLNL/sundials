@@ -19,8 +19,9 @@
 #include "sundials/sundials_stepper.h"
 #include "sundials/sundials_types.h"
 
-SUNErrCode SUNAdjointSolver_Create(SUNStepper adj_stepper, int64_t final_step_idx,
-                                   N_Vector sf, sunrealtype tf,
+SUNErrCode SUNAdjointSolver_Create(SUNStepper fwd_stepper, SUNStepper adj_stepper,
+                                   int64_t final_step_idx, N_Vector sf,
+                                   sunrealtype tf,
                                    SUNAdjointCheckpointScheme checkpoint_scheme,
                                    SUNContext sunctx,
                                    SUNAdjointSolver* adj_solver_ptr)
@@ -30,7 +31,7 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper adj_stepper, int64_t final_step_id
   SUNAdjointSolver adj_solver = malloc(sizeof(struct SUNAdjointSolver_));
   SUNAssert(adj_solver, SUN_ERR_MALLOC_FAIL);
 
-  adj_solver->fwd_stepper       = NULL;
+  adj_solver->fwd_stepper       = fwd_stepper;
   adj_solver->adj_stepper       = adj_stepper;
   adj_solver->Jac               = NULL;
   adj_solver->JacP              = NULL;
@@ -90,21 +91,52 @@ SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver, sunrealtype tout,
   SUNCheckCall(
     SUNStepper_Step(adj_stepper, adj_solver->tf, tout, sens, &t, stop_reason));
   if (*stop_reason < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
-  // else if (*stop_reason == SUN_ERR_ADJOINT_STEPPERRECOMPUTE)
-  // {
-  //   SUNStepper_Reset(adj_solver->fwd_stepper, sunrealtype tR, N_Vector yR);
-  // }
-  // else
-  // {
-  //   // TODO(CJB): what reasons could this happen, and are they valid?
-  //   // 1==TSTOP_RETURN
-  //   // 2==ROOT_RETURN
-  //   fprintf(stderr, ">>>> HERE, stop_reason = %d\n", *stop_reason);
-  // }
+  else
+  {
+    // TODO(CJB): what reasons could this happen, and are they valid?
+    // 1==TSTOP_RETURN
+    // 2==ROOT_RETURN
+    fprintf(stderr, ">>>> HERE, stop_reason = %d\n", *stop_reason);
+  }
   adj_solver->step_idx--;
   *tret = t;
 
   return retcode;
+}
+
+SUNErrCode SUNAdjointSolver_SetRecompute(SUNAdjointSolver adj_solver,
+                                         int64_t start_idx, int64_t stop_idx,
+                                         sunrealtype t0, sunrealtype tf,
+                                         N_Vector y0)
+{
+  SUNFunctionBegin(adj_solver->sunctx);
+  SUNStepper adj_stepper = adj_solver->adj_stepper;
+
+  adj_solver->recompute_start_step = start_idx;
+  adj_solver->recompute_end_step   = stop_idx;
+  adj_solver->recompute_t0         = t0;
+  adj_solver->recompute_tf         = tf;
+  adj_solver->recompute_y0         = y0;
+  adj_solver->recompute_flag       = SUNTRUE;
+
+  fprintf(stderr, ">>> here\n");
+  int fwd_stop_reason = 0;
+  sunrealtype fwd_t   = adj_solver->recompute_t0;
+  SUNCheckCall(SUNStepper_Reset(adj_solver->fwd_stepper, adj_solver->recompute_t0,
+                                adj_solver->recompute_y0));
+
+  // TODO(CJB): need to get interval first then restore it after advance
+  SUNCheckCall(
+    SUNAdjointCheckpointScheme_SetInterval(adj_solver->checkpoint_scheme, 1));
+
+  SUNCheckCall(
+    SUNStepper_Advance(adj_solver->fwd_stepper, adj_solver->recompute_t0,
+                       adj_solver->recompute_tf, adj_solver->recompute_y0,
+                       &fwd_t, &fwd_stop_reason));
+
+  adj_solver->recompute_flag = SUNFALSE;
+
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNAdjointSolver_Destroy(SUNAdjointSolver* adj_solver_ptr)

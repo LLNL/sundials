@@ -200,6 +200,18 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(
   SUNAdjointCheckpointScheme* check_scheme_ptr);
 
+/**
+  This function sets the checkpointing interval (in steps).
+
+  :param check_scheme: the SUNAdjointCheckpointScheme object
+  :param interval: the interval to checkpoint in steps
+
+  :returns a :c:type:`SUNErrCode` indicating success or failure
+ */
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_SetInterval_Basic(
+  SUNAdjointCheckpointScheme check_scheme, uint64_t interval);
+
 #ifdef __cplusplus
 }
 #endif

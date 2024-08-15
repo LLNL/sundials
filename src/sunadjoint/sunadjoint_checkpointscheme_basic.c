@@ -57,8 +57,9 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
 
   check_scheme->ops->shouldWeSave = SUNAdjointCheckpointScheme_ShouldWeSave_Basic;
   check_scheme->ops->insertVector = SUNAdjointCheckpointScheme_InsertVector_Basic;
-  check_scheme->ops->loadVector = SUNAdjointCheckpointScheme_LoadVector_Basic;
-  check_scheme->ops->destroy    = SUNAdjointCheckpointScheme_Destroy_Basic;
+  check_scheme->ops->loadVector  = SUNAdjointCheckpointScheme_LoadVector_Basic;
+  check_scheme->ops->setInterval = SUNAdjointCheckpointScheme_SetInterval_Basic;
+  check_scheme->ops->destroy     = SUNAdjointCheckpointScheme_Destroy_Basic;
 
   SUNAdjointCheckpointScheme_Basic_Content content = NULL;
 
@@ -237,6 +238,16 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(
   free(self);
 
   *check_scheme_ptr = NULL;
+
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNAdjointCheckpointScheme_SetInterval_Basic(
+  SUNAdjointCheckpointScheme check_scheme, uint64_t interval)
+{
+  SUNFunctionBegin(check_scheme->sunctx);
+
+  PROPERTY(check_scheme, interval) = interval;
 
   return SUN_SUCCESS;
 }

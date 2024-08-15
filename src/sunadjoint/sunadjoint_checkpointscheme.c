@@ -12,6 +12,7 @@
  * SUNAdjointCheckpointScheme class definition.
  * ----------------------------------------------------------------*/
 
+#include <stdint.h>
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
 #include <sundials/sundials_core.h>
 
@@ -41,6 +42,7 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
   ops->loadVector     = NULL;
   ops->removeVector   = NULL;
   ops->removeRange    = NULL;
+  ops->setInterval    = NULL;
   ops->destroy        = NULL;
 
   check_scheme->ops = ops;
@@ -120,6 +122,17 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy(
   if ((*check_scheme_ptr)->ops->destroy)
   {
     return (*check_scheme_ptr)->ops->destroy(check_scheme_ptr);
+  }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNAdjointCheckpointScheme_SetInterval(
+  SUNAdjointCheckpointScheme check_scheme, uint64_t interval)
+{
+  SUNFunctionBegin(check_scheme->sunctx);
+  if (check_scheme->ops->setInterval)
+  {
+    return check_scheme->ops->setInterval(check_scheme, interval);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }

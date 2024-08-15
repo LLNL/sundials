@@ -15,6 +15,7 @@
  * module.
  *--------------------------------------------------------------*/
 
+#include "arkode/arkode_arkstep.h"
 #include <nvector/nvector_manyvector.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -2230,9 +2231,6 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
       SUNErrCode errcode  = SUN_ERR_CHECKPOINT_NOT_FOUND;
       for (int64_t i = 0; i < adj_solver->step_idx; ++i)
       {
-        // TODO(CJB): replace this with a routine that just checks for the checkpoint and doesn't load it?
-        // loading could take a long time, so we do not want to do it unecessarily, but we will need to load
-        // the last checkpoint that is available so we can restore it for the recomputation
         errcode =
           SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
                                                 adj_solver->step_idx - i,
@@ -2240,11 +2238,21 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                                 &checkpoint);
         if (errcode == SUN_SUCCESS)
         {
-          fprintf(stderr, ">>> last checkpoint was at step %ld\n",
-                  adj_solver->step_idx - i);
-          fprintf(stderr, ">>> need to recompute from step %ld to %ld\n",
-                  adj_solver->step_idx - i, adj_solver->step_idx);
-          return (ARK_RHSFUNC_FAIL);
+          sunrealtype t0 = (adj_solver->step_idx - i) * (-ark_mem->h);
+          sunrealtype tf = (adj_solver->step_idx) * (-ark_mem->h);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                             "ARKODE::arkStep_TakeStep_ERK_Adjoint", "recompute",
+                             "start_step = %li, stop_step = %li, t0 = %" RSYM
+                             ", tf = %" RSYM "",
+                             adj_solver->step_idx - i, adj_solver->step_idx, t0,
+                             tf);
+#endif
+          SUNAdjointSolver_SetRecompute(adj_solver, adj_solver->step_idx - i,
+                                        adj_solver->step_idx, t0, tf, checkpoint);
+          *dsmPtr   = ZERO;
+          *nflagPtr = 0;
+          return (ARK_ADJ_RECOMPUTE_RETURN);
           break;
         }
       }
@@ -3545,7 +3553,15 @@ int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
   retval = SUNStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  return (ARKodeReset(arkode_mem, tR, yR));
+  retval = ARKodeReset(arkode_mem, tR, yR);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  // TODO(CJB): need a way to reset the step number so that the recomputation
+  // puts the checkpoints into the right places
+  ARKodeMem ark_mem = (ARKodeMem)arkode_mem;
+  ark_mem->nst      = 95;
+
+  return retval;
 }
 
 SUNErrCode arkStep_SUNStepperGetNumSteps(SUNStepper stepper, int64_t* nst)
@@ -3695,40 +3711,36 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, N_Vector sf,
     return ARK_ILL_INPUT;
   }
 
+  // Create and configure the ARKStep stepper for the adjoint system
   long nst = 0;
   ARKodeGetNumSteps(arkode_mem, &nst);
+  void* arkode_mem_adj  = ARKStepCreate(arkStep_fe_Adj, NULL, ark_mem->tretlast,
+                                        sf, ark_mem->sunctx);
+  ARKodeMem ark_mem_adj = (ARKodeMem)arkode_mem_adj;
 
-  // TODO(CJB): should we reinit or should we creater a new instance of ARKStep altogether?
-  // If we do not a user wont be able to reuse the original ARKStep for another forward
-  // integration easily.
+  ark_mem_adj->do_adjoint = SUNTRUE;
+  ARKodeSetFixedStep(arkode_mem_adj, -ark_mem->h);
+  ARKStepSetTables(arkode_mem_adj, step_mem->Be->q, step_mem->Be->p,
+                   step_mem->Bi, step_mem->Be);
+  ARKodeSetMaxNumSteps(arkode_mem_adj, nst);
+  ARKodeSetCheckpointScheme(arkode_mem_adj, ark_mem->checkpoint_scheme);
 
-  ARKodeResize(arkode_mem, sf, -ONE, ark_mem->tretlast, NULL, NULL);
-  if (step_mem->fi)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "ARKStep does not support SUNAdjointSolver when fi is defined");
-    return ARK_ILL_INPUT;
-  }
+  // SUNAdjointSolver will own the SUNSteppers and destroy them
+  SUNStepper fwd_stepper;
+  retval = ARKStepCreateSUNStepper(arkode_mem, &fwd_stepper);
 
-  ark_mem->do_adjoint = SUNTRUE;
-  ARKodeSetFixedStep(arkode_mem, -ark_mem->h);
+  SUNStepper adj_stepper;
+  retval = ARKStepCreateSUNStepper(arkode_mem_adj, &adj_stepper);
 
-  // TODO(CJB): should we reinit to tretlast or tcur? tcur could be past the time the
-  // user asked for in the forward integration if they do not use tstop mode.
-  ARKStepReInit(arkode_mem, arkStep_fe_Adj, NULL, ark_mem->tretlast, sf);
+  retval = SUNAdjointSolver_Create(fwd_stepper, adj_stepper, nst - 1, sf,
+                                   ark_mem->tretlast, ark_mem->checkpoint_scheme,
+                                   ark_mem->sunctx, adj_solver_ptr);
 
-  // SUNAdjointSolver will own the SUNStepper and destroy it
-  SUNStepper stepper;
-  ARKStepCreateSUNStepper(arkode_mem, &stepper);
-  SUNAdjointSolver_Create(stepper, nst - 1, sf, ark_mem->tretlast,
-                          ark_mem->checkpoint_scheme, ark_mem->sunctx,
-                          adj_solver_ptr);
-
-  SUNAdjointSolver_SetUserData(*adj_solver_ptr, ark_mem->user_data);
+  retval = SUNAdjointSolver_SetUserData(*adj_solver_ptr, ark_mem->user_data);
 
   // We need access to the adjoint solver to access the parameter Jacobian inside of ARKStep's
   // backwards integration of the the adjoint problem.
-  ARKodeSetUserData(arkode_mem, *adj_solver_ptr);
+  retval = ARKodeSetUserData(arkode_mem_adj, *adj_solver_ptr);
 
   return ARK_SUCCESS;
 }

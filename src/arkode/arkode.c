@@ -893,7 +893,11 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
 
       /* handle solver convergence failures */
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
-      if (kflag < 0) { break; }
+      if (kflag < 0)
+      {
+        fprintf(stderr, ">>> convergence fail\n");
+        break;
+      }
 
       /* Perform relaxation:
            - computes relaxation parameter
@@ -918,7 +922,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (ark_mem->fixedstep)
       {
         ark_mem->eta = ONE;
-        break;
+        if (!ark_mem->do_adjoint) { break; }
       }
 
       /* check temporal error (if checks above passed) */
@@ -2561,8 +2565,8 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   /* update interpolation structure
 
      NOTE: This must be called before updating yn with ycur as the interpolation
-     module may need to save tn, yn from the start of this step 
-     
+     module may need to save tn, yn from the start of this step
+
      NOTE: When doing adjoint integration interpolation is disabled, so we skip this */
   if (ark_mem->interp != NULL && !ark_mem->do_adjoint)
   {
@@ -3032,7 +3036,11 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
   ark_mem->ncfn++;
 
   /* If fixed time stepping, then return with convergence failure */
-  if (ark_mem->fixedstep) { return (ARK_CONV_FAILURE); }
+  if (ark_mem->fixedstep)
+  {
+    fprintf(stderr, ">>> fixed step conv fail\n");
+    return (ARK_CONV_FAILURE);
+  }
 
   /* Otherwise, access adaptivity structure */
   if (ark_mem->hadapt_mem == NULL)
