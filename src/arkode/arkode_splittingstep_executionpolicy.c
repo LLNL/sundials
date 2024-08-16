@@ -65,8 +65,13 @@ ARKodeSplittingExecutionPolicy ARKodeSplittingExecutionPolicy_Serial()
   return policy;
 }
 
-void ARKodeSplittingExecutionPolicyFree(ARKodeSplittingExecutionPolicy* policy)
-{}
+void ARKodeSplittingExecutionPolicy_Free(ARKodeSplittingExecutionPolicy* policy)
+{
+  // TODO: should argument be a pointer?
+  if (policy != NULL) {
+    free(*policy);
+  }
+}
 
 // #include <mpi.h>
 

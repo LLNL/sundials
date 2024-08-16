@@ -80,15 +80,16 @@ int main(int argc, char* argv[])
   ARKStepCreateMRIStepInnerStepper(arkode_mem2, &steppers[1]);
 
   void *split_mem = SplittingStepCreate(steppers, 2, 0, y, sunctx);
-  ARKodeSplittingCoefficients coeffs = ARKodeSplittingCoefficients_LieTrotter(2);
+  ARKodeSplittingCoefficients coeffs = ARKodeSplittingCoefficients_SuzukiFractal(3, 6);
+  ARKodeSplittingCoefficients_Write(coeffs, stdout);
   SplittingStep_SetCoefficients(split_mem, coeffs);
   ARKodeSplittingCoefficients_Free(coeffs);
-  ARKodeSetFixedStep(split_mem, DT_1); // TODO: fix valgrind error is this is not called
+  ARKodeSetFixedStep(split_mem, DT_1); // TODO: fix valgrind error if this is not called
   sunrealtype tret;
   ARKodeEvolve(split_mem, 1, y, &tret, ARK_NORMAL);
   printf("%e %e\n", T_END, NV_Ith_S(y, 0));
 
-  N_VPrint(y); // TODO: why is valgrind showing errors for these prints?
+  N_VPrint(y);
   printf("Error: %e\n", sol - NV_Ith_S(y, 0));
 
   ARKodeFree(&split_mem);

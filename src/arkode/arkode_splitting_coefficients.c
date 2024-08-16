@@ -48,6 +48,7 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
      i index requires allocating an array of pointers into that matrix. */
 
   /* Array of pointers for index i */
+
   coefficients->beta =
     (sunrealtype***)malloc(sequential_methods * sizeof(*coefficients->beta));
   if (coefficients->beta == NULL)
@@ -57,8 +58,8 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
   }
 
   /* Matrix of pointers for index j */
-  sunrealtype** beta_cols =
-    (sunrealtype**)malloc(sequential_methods * (stages + 1) * sizeof(*beta_cols));
+  sunrealtype** beta_cols = (sunrealtype**)malloc(
+    sequential_methods * (stages + 1) * sizeof(*beta_cols));
   if (beta_cols == NULL)
   {
     ARKodeSplittingCoefficients_Free(coefficients);
@@ -75,9 +76,10 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
     return NULL;
   }
 
+  /* Set pointers into the beta tensor */
   for (int i = 0; i < sequential_methods; i++)
   {
-    coefficients->beta[i] = &beta_cols[i];
+    coefficients->beta[i] = &beta_cols[i * (stages + 1)];
     for (int j = 0; j <= stages; j++)
     {
       coefficients->beta[i][j] = &beta_mem[(i * (stages + 1) + j) * partitions];
@@ -87,9 +89,9 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
   return coefficients;
 }
 
-// TODO: should argument be a pointer?
-void ARKodeSplittingCoefficients_Free(ARKodeSplittingCoefficients coefficients)
+void ARKodeSplittingCoefficients_Free(const ARKodeSplittingCoefficients coefficients)
 {
+  // TODO: should argument be a pointer?
   if (coefficients != NULL)
   {
     free(coefficients->alpha);
@@ -102,37 +104,6 @@ void ARKodeSplittingCoefficients_Free(ARKodeSplittingCoefficients coefficients)
   }
 
   free(coefficients);
-}
-
-void ARKodeSplittingCoefficients_Space(ARKodeSplittingCoefficients coefficients,
-                                       sunindextype* liw, sunindextype* lrw)
-{
-  /* initialize outputs and return if coefficients is not allocated */
-  *liw = 0;
-  *lrw = 0;
-  if (coefficients == NULL) { return; }
-
-  /* ints for # of sequential methods, stages, partitions, and order */
-  *liw = 4;
-
-  if (coefficients->beta)
-  {
-    /* pointers for index i of beta[i][j][k] */
-    *liw += coefficients->sequential_methods;
-  }
-
-  if (coefficients->beta[0])
-  {
-    /* pointers for index j of beta[i][j][k] */
-    *liw += coefficients->sequential_methods * (coefficients->stages + 1);
-  }
-
-  if (coefficients->alpha) { *lrw += coefficients->sequential_methods; }
-  if (coefficients->beta[0][0])
-  {
-    *lrw += coefficients->sequential_methods * (coefficients->stages + 1) *
-            coefficients->partitions;
-  }
 }
 
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Copy(
@@ -160,7 +131,7 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Copy(
 }
 
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficients(
-  ARKODE_SplittingCoefficientsID method)
+  const ARKODE_SplittingCoefficientsID method)
 {
   switch (method)
   {
@@ -177,7 +148,7 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficients(
 }
 
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficientsByName(
-  const char* method)
+  const char* const method)
 {
 #define ARK_SPLITTING_COEFFICIENTS(name, coeff) \
   if (strcmp(#name, method) == 0) coeff
@@ -221,10 +192,8 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Parallel(const int parti
 
   for (int i = 0; i < partitions; i++)
   {
-    coefficients->alpha[i]      = SUN_RCONST(1.0);
-    for (int j = i; j < partitions; j++) {
-      coefficients->beta[i][1][j] = SUN_RCONST(1.0);
-    }
+    coefficients->alpha[i] = SUN_RCONST(1.0);
+    coefficients->beta[i][1][i] = SUN_RCONST(1.0);
   }
 
   coefficients->alpha[partitions] = 1 - partitions;
@@ -246,49 +215,59 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_SymmetricParallel(
 
   for (int i = 0; i < partitions; i++)
   {
-    coefficients->beta[0][1][i]                  = SUN_RCONST(1.0);
-    coefficients->beta[1][i + 1][partitions - i - 1] = SUN_RCONST(1.0);
+    coefficients->beta[0][partitions][i] = SUN_RCONST(1.0);
+    for (int j = partitions - i - 1; j < partitions; j++) {
+      coefficients->beta[1][i + 1][j] = SUN_RCONST(1.0);
+    }
   }
 
   return coefficients;
 }
 
-static sunrealtype** arkodeSplittingCoefficients_TripleJump(
-  const int partitions, const int order, sunrealtype** beta,
-  const sunrealtype parent_length)
+static sunrealtype* const* arkodeSplittingCoefficients_ComposeStrangHelper(
+  const int partitions, const int order, const int composition_stages,
+  const sunrealtype start, const sunrealtype end, sunrealtype* const* const beta)
 {
-  // The base case is an order 2 Strang splitting
+  const sunrealtype diff = end - start;
   if (order == 2)
   {
-    for (int i = 0; i < partitions; i++)
+    /* The base case is an order 2 Strang splitting */
+    const sunrealtype mid = start + diff / SUN_RCONST(2.0);
+    for (int j = 1; j <= partitions; j++)
     {
-      // Use += here because the first integration may combine with the last
-      // integration of the previous stage
-      beta[1][i] += SUN_RCONST(0.5) * parent_length;
-      beta[i][partitions - i - 1] += SUN_RCONST(0.5) * parent_length;
+      for (int k = 0; k < partitions; k++)
+      {
+        beta[j][k] = (partitions - j > k) ? mid : end;
+      }
     }
 
-    // Advance the beta pointer to the last stage of this Strang splitting
     return &beta[partitions - 1];
   }
 
-  // Length of jump 1 and 3
-  sunrealtype z1 = SUN_RCONST(1.0) /
-                   (SUN_RCONST(2.0) -
-                    SUNRpowerR(SUN_RCONST(2.0), SUN_RCONST(1.0) / (order - 1)));
-  // Length of jump 2
-  sunrealtype z0 = SUN_RCONST(1.0) - SUN_RCONST(2.0) * z1;
+  sunrealtype* const* beta_cur = beta;
+  sunrealtype start_cur  = start;
+  /* This is essentially the gamma coefficient from Geometric Numerical
+   * Integration (https://doi.org/10.1007/3-540-30666-8) pg 44-45 scaled by the
+   * current interval */
+  const sunrealtype gamma = diff / (composition_stages - 1 - SUNRpowerR(composition_stages - 1, SUN_RCONST(1.0) / (order - 1)));
+  for (int i = 1; i <= composition_stages; i++)
+  {
+    /* To avoid roundoff issues, this ensures end_cur=1 for the last value of i*/
+    const sunrealtype end_cur = 2 * i < composition_stages ? (start + i * gamma) : (end + (i - composition_stages) * gamma);
+    /* Recursively generate coefficients and shift beta_cur */
+    beta_cur =
+      arkodeSplittingCoefficients_ComposeStrangHelper(partitions, order - 2,
+                                                      composition_stages,
+                                                      start_cur, end_cur,
+                                                      beta_cur);
+    start_cur = end_cur;
+  }
 
-  // Perform the triple jump
-  beta = arkodeSplittingCoefficients_TripleJump(partitions, order - 2, beta, z1);
-  beta = arkodeSplittingCoefficients_TripleJump(partitions, order - 2, beta, z0);
-  beta = arkodeSplittingCoefficients_TripleJump(partitions, order - 2, beta, z1);
-
-  return beta;
+  return beta_cur;
 }
 
-ARKodeSplittingCoefficients ARKodeSplittingCoefficients_TripleJump(
-  const int partitions, const int order)
+static ARKodeSplittingCoefficients arkodeSplittingCoefficients_ComposeStrang(
+  const int partitions, const int order, const int composition_stages)
 {
   if (partitions < 1 || order < 2 || order % 2 != 0)
   {
@@ -296,24 +275,40 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_TripleJump(
     return NULL;
   }
 
-  const int stages = 1 + (partitions - 1) * SUNRpowerI(3, order / 2 - 1);
+  const int stages = 1 + (partitions - 1) *
+                           SUNRpowerI(composition_stages, order / 2 - 1);
   const ARKodeSplittingCoefficients coefficients =
     ARKodeSplittingCoefficients_Alloc(1, stages, partitions, order);
   if (coefficients == NULL) { return NULL; }
 
-  coefficients->alpha[0] = SUN_RCONST(1.0);
-  arkodeSplittingCoefficients_TripleJump(partitions, order,
-                                         coefficients->beta[0], SUN_RCONST(1.0));
+  arkodeSplittingCoefficients_ComposeStrangHelper(partitions, order,
+                                                  composition_stages,
+                                                  SUN_RCONST(0.0),
+                                                  SUN_RCONST(1.0),
+                                                  coefficients->beta[0]);
 
   return coefficients;
 }
 
+ARKodeSplittingCoefficients ARKodeSplittingCoefficients_TripleJump(
+  const int partitions, const int order)
+{
+  return arkodeSplittingCoefficients_ComposeStrang(partitions, order, 3);
+}
+
+ARKodeSplittingCoefficients ARKodeSplittingCoefficients_SuzukiFractal(
+  const int partitions, const int order)
+{
+  return arkodeSplittingCoefficients_ComposeStrang(partitions, order, 5);
+}
+
 /*---------------------------------------------------------------
-  Routine to print a Butcher table structure
+  Routine to print a splitting coefficients structure
   ---------------------------------------------------------------*/
 void ARKodeSplittingCoefficients_Write(ARKodeSplittingCoefficients coefficients,
                                        FILE* outfile)
 {
+  // TODO: update when https://github.com/LLNL/sundials/pull/517 merged
   if (coefficients == NULL || coefficients->alpha == NULL ||
       coefficients->beta == NULL || coefficients->beta[0] == NULL ||
       coefficients->beta[0][0] == NULL)
@@ -326,22 +321,22 @@ void ARKodeSplittingCoefficients_Write(ARKodeSplittingCoefficients coefficients,
   fprintf(outfile, "  stages = %i\n", coefficients->stages);
   fprintf(outfile, "  partitions = %i\n", coefficients->partitions);
   fprintf(outfile, "  order = %i\n", coefficients->order);
-  fprintf(outfile, "  alpha = \n");
+  fprintf(outfile, "  alpha = ");
   for (int i = 0; i < coefficients->sequential_methods; i++)
   {
     fprintf(outfile, "%" RSYM "  ", coefficients->alpha[i]);
   }
-  // TODO: fix formatting
+  fprintf(outfile, "\n");
 
   for (int i = 0; i < coefficients->sequential_methods; i++)
   {
     fprintf(outfile, "  beta[%i] = \n", i);
-    for (int j = 0; j < coefficients->stages; j++)
+    for (int j = 0; j <= coefficients->stages; j++)
     {
       fprintf(outfile, "      ");
       for (int k = 0; k < coefficients->partitions; k++)
       {
-        fprintf(outfile, "%" RSYMW "  ", coefficients->beta[i][j][k]);
+        fprintf(outfile, "%" RSYM "  ", coefficients->beta[i][j][k]);
       }
       fprintf(outfile, "\n");
     }

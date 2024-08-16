@@ -58,8 +58,6 @@ typedef MRIStepInnerStepper SUNStepper;
 SUNDIALS_EXPORT ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
   int sequential_methods, int stages, int partitions, int order);
 SUNDIALS_EXPORT void ARKodeSplittingCoefficients_Free(ARKodeSplittingCoefficients B);
-SUNDIALS_EXPORT void ARKodeSplittingCoefficients_Space(
-  ARKodeSplittingCoefficients B, sunindextype* liw, sunindextype* lrw);
 SUNDIALS_EXPORT ARKodeSplittingCoefficients
 ARKodeSplittingCoefficients_Copy(ARKodeSplittingCoefficients B);
 
@@ -74,6 +72,8 @@ SUNDIALS_EXPORT ARKodeSplittingCoefficients
 ARKodeSplittingCoefficients_SymmetricParallel(int partitions);
 SUNDIALS_EXPORT ARKodeSplittingCoefficients
 ARKodeSplittingCoefficients_TripleJump(int partitions, int order);
+SUNDIALS_EXPORT ARKodeSplittingCoefficients
+ARKodeSplittingCoefficients_SuzukiFractal(int partitions, int order);
 
 /* Other coefficient functions */
 SUNDIALS_EXPORT void ARKodeSplittingCoefficients_Write(
@@ -94,7 +94,7 @@ struct ARKodeSplittingExecutionPolicyMem
 
   int (*execute)(ARKodeSplittingExecutionPolicy policy, ARKParallelExecuteFn fn,
                  N_Vector yn, N_Vector ycur, N_Vector tmp, sunrealtype* alpha,
-                 const int sequential_methods, void* user_data);
+                 int sequential_methods, void* user_data);
 
   void (*free)(ARKodeSplittingExecutionPolicy policy);
 
@@ -104,7 +104,8 @@ struct ARKodeSplittingExecutionPolicyMem
 SUNDIALS_EXPORT ARKodeSplittingExecutionPolicy
 ARKodeSplittingExecutionPolicy_Serial();
 
-SUNDIALS_EXPORT void ARKodeSplittingExecutionPolicyFree(
+// TODO: Return error code?
+SUNDIALS_EXPORT void ARKodeSplittingExecutionPolicy_Free(
   ARKodeSplittingExecutionPolicy* policy);
 
 /* ARKODE functions */
