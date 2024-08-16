@@ -45,6 +45,12 @@ static uint64_t fnv1a_hash(const char* str)
   return hash;
 }
 
+static inline uint64_t sunHashMapIdxFromKey(SUNHashMap map, const char* key)
+{
+  /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
+  return (size_t)(fnv1a_hash(key) % (SUNHashMap_Capacity(map) - 1));
+}
+
 /*
   This function creates a new SUNHashMap object allocated to hold
   up to 'capacity' entries.
@@ -188,31 +194,37 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
 
   if (map == NULL || key == NULL || value == NULL) { return (-1); }
 
-  /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
-  idx = (size_t)(fnv1a_hash(key) % SUNHashMap_Capacity(map));
+  idx = sunHashMapIdxFromKey(map, key);
 
   /* Check if the bucket is already filled (i.e., we might have had a collision) */
   kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
   if (kvp != NULL)
   {
     /* Determine if key is actually a duplicate (not allowed) */
-    if (!strcmp(key, kvp->key)) { return (-2); }
+    if (!strcmp(key, kvp->key))
+    {
+      fprintf(stderr, ">>> key=%s is a duplicate\n", key);
+      return (-2);
+    }
 
     /* OK, it was a real collision, so find the next open spot */
     retval = SUNHashMap_Iterate(map, idx, sunHashMapLinearProbeInsert, NULL);
     if (retval < 0) { return (-1); /* error occurred */ }
     if (retval >= SUNHashMap_Capacity(map))
     {
-      /* There are no open spaces, so resize the hashmap and then try to insert again. */
-      size_t old_capacity = SUNHashMap_Capacity(map);
-      SUNStlVector_SUNHashMapKeyValue_Grow(map->buckets);
-      /* Set all of the new possible elements in the StlVector to NULL
-         because we always want to have the list capacity == list size. */
-      for (size_t i = old_capacity; i < SUNHashMap_Capacity(map); i++)
-      {
-        SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
-      }
-      return SUNHashMap_Insert(map, key, value);
+      fprintf(stderr, ">>> trying to resize map\n");
+      // /* There are no open spaces, so resize the hashmap and then try to insert again. */
+      // // TODO(CJB): resizing requires rehashing since idx involves the capacity
+      // size_t old_capacity = SUNHashMap_Capacity(map);
+      // SUNStlVector_SUNHashMapKeyValue_Grow(map->buckets);
+      // /* Set all of the new possible elements in the StlVector to NULL
+      //    because we always want to have the list capacity == list size. */
+      // for (size_t i = old_capacity; i < SUNHashMap_Capacity(map); i++)
+      // {
+      //   SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
+      // }
+      // return SUNHashMap_Insert(map, key, value);
+      return (-1);
     }
 
     idx = retval;
@@ -270,10 +282,11 @@ int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
 
   if (map == NULL || key == NULL || value == NULL) { return (-1); }
 
-  /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
-  idx = (int)(fnv1a_hash(key) % SUNHashMap_Capacity(map));
+  idx = sunHashMapIdxFromKey(map, key);
 
   SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
+
+  fprintf(stdout, ">>> looking for key=%s, yields idx=%ld\n", key, idx);
 
   /* Check if the key exists */
   if (kvp == NULL) { return (-2); }
@@ -315,8 +328,7 @@ int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
 
   if (map == NULL || key == NULL) { return (-1); }
 
-  /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
-  idx = (int)(fnv1a_hash(key) % SUNHashMap_Capacity(map));
+  idx = sunHashMapIdxFromKey(map, key);
 
   SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
 
@@ -420,11 +432,13 @@ SUNErrCode SUNHashMap_PrintKeys(SUNHashMap map, FILE* file)
   if (!map) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Print keys into a new array */
+  fprintf(file, "[");
   for (i = 0; i < SUNHashMap_Capacity(map); i++)
   {
     SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i);
-    if (kvp) { fprintf(file, "%s\n", kvp->key); }
+    if (kvp) { fprintf(file, "%s, ", kvp->key); }
   }
+  fprintf(file, "]\n");
 
   return SUN_SUCCESS;
 }

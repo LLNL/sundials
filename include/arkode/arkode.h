@@ -285,6 +285,8 @@ SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
 SUNDIALS_EXPORT
 int ARKodeSetCheckpointScheme(void* arkode_mem,
                               SUNAdjointCheckpointScheme checkpoint_scheme);
+SUNDIALS_EXPORT
+int ARKodeSetCheckpointIndex(void* arkode_mem, long int step_index);
 
 /* Integrate the ODE over an interval in t */
 SUNDIALS_EXPORT int ARKodeEvolve(void* arkode_mem, sunrealtype tout,

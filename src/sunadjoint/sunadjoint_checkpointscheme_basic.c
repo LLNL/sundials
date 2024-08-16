@@ -109,9 +109,10 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
 {
   SUNFunctionBegin(self->sunctx);
 
-  /* If this is the step solution, then we need to create a list node first to
-     store the step and stage solutions in. We keep a pointer to the list node
-     until this step is over for fast access when inserting stages. */
+  /* If this is the first state for a step, then we need to create a
+     list node first to store the step and all stage solutions in.
+     We keep a pointer to the list node until this step is over for
+     fast access when inserting stages. */
   SUNDataNode step_data_node = NULL;
   if (step_num != PROPERTY(self, stepnum_of_current_insert))
   {
@@ -133,7 +134,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
   }
   else { step_data_node = PROPERTY(self, current_insert_step_node); }
 
-  /* Add the solution data as a node in the step list. */
+  /* Add the state data as a leaf node in the step node's list of children. */
   SUNDataNode solution_node = NULL;
   SUNCheckCall(SUNDataNode_CreateLeaf(PROPERTY(self, io_mode),
                                       PROPERTY(self, mem_helper), SUNCTX_,
@@ -167,13 +168,13 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
     char* key = sunSignedToString(step_num);
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                       "load-new-step", "step_num = %d, key = %s", step_num, key);
+                       "load-new-step", "step_num = %d, stage_num = %d",
+                       step_num, stage_num);
 #endif
     errcode = SUNDataNode_GetNamedChild(PROPERTY(self, root_node), key,
                                         &step_data_node);
     if (errcode == SUN_SUCCESS)
     {
-      free(key);
       PROPERTY(self, current_load_step_node)  = step_data_node;
       PROPERTY(self, stepnum_of_current_load) = step_num;
     }
@@ -182,10 +183,19 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
       step_data_node = NULL;
     }
     else { SUNCheckCall(errcode); }
+    free(key);
   }
   else { step_data_node = PROPERTY(self, current_load_step_node); }
 
-  if (!step_data_node) { return SUN_ERR_CHECKPOINT_NOT_FOUND; }
+  if (!step_data_node)
+  {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
+                       "step-not-found", "step_num = %d, stage_num = %d",
+                       step_num, stage_num);
+#endif
+    return SUN_ERR_CHECKPOINT_NOT_FOUND;
+  }
 
   SUNDataNode solution_node = NULL;
   if (PROPERTY(self, keep))
@@ -211,7 +221,15 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
     else { SUNCheckCall(errcode); }
   }
 
-  if (!solution_node) { return SUN_ERR_CHECKPOINT_NOT_FOUND; }
+  if (!solution_node)
+  {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
+                       "stage-not-found", "step_num = %d, stage_num = %d",
+                       step_num, stage_num);
+#endif
+    return SUN_ERR_CHECKPOINT_NOT_FOUND;
+  }
 
   SUNCheckCall(SUNDataNode_GetDataNvector(solution_node, *loaded_state));
 

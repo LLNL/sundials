@@ -510,11 +510,10 @@ struct ARKodeMemRec
   /* Counters */
   long int nst_attempts; /* number of attempted steps                  */
   long int nst;          /* number of internal steps taken             */
-  long int adj_stage_idx; /* current stage index (only valid in adjoint context)*/
-  int nhnil;              /* number of messages issued to the user that
+  int nhnil;             /* number of messages issued to the user that
                              t+h == t for the next iternal step         */
-  long int ncfn;          /* num corrector convergence failures         */
-  long int netf;          /* num error test failures                    */
+  long int ncfn;         /* num corrector convergence failures         */
+  long int netf;         /* num error test failures                    */
   long int nconstrfails; /* number of constraint failures              */
 
   /* Space requirements for ARKODE */
@@ -557,6 +556,8 @@ struct ARKodeMemRec
   /* Adjoint solver data */
   SUNAdjointCheckpointScheme checkpoint_scheme;
   sunbooleantype do_adjoint;
+  long int adj_stage_idx; /* current stage index (only valid in adjoint context)*/
+  long int checkpoint_step_idx; /* the step number for checkpointing */
 
   /* XBraid interface variables */
   sunbooleantype force_pass; /* when true the step attempt loop will ignore the

@@ -367,7 +367,7 @@ int main(int argc, char* argv[])
   sunrealtype t0       = 0.0;
   sunrealtype tf       = 1.0;
   const int nsteps     = ((tf - t0) / dt + 1);
-  const int order      = 2;
+  const int order      = 3;
   void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
 
   ARKodeSetOrder(arkode_mem, order);
@@ -377,7 +377,7 @@ int main(int argc, char* argv[])
 
   SUNMemoryHelper mem_helper       = SUNMemoryHelper_Sys(sunctx);
   const int check_interval         = 5;
-  const int ncheck                 = (nsteps * (order + 1)) / check_interval;
+  const int ncheck                 = (nsteps * (order + 1));
   const sunbooleantype save_stages = SUNTRUE;
   const sunbooleantype keep_check  = SUNTRUE;
   SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,

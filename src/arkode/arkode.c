@@ -2590,6 +2590,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
 
   /* update scalar quantities */
   ark_mem->nst++;
+  ark_mem->checkpoint_step_idx++;
   ark_mem->hold   = ark_mem->h;
   ark_mem->tn     = ark_mem->tcur;
   ark_mem->hprime = ark_mem->h * ark_mem->eta;

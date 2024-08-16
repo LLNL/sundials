@@ -91,7 +91,7 @@ SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver, sunrealtype tout,
   SUNCheckCall(
     SUNStepper_Step(adj_stepper, adj_solver->tf, tout, sens, &t, stop_reason));
   if (*stop_reason < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
-  else
+  else if (*stop_reason > 0)
   {
     // TODO(CJB): what reasons could this happen, and are they valid?
     // 1==TSTOP_RETURN
@@ -119,7 +119,6 @@ SUNErrCode SUNAdjointSolver_SetRecompute(SUNAdjointSolver adj_solver,
   adj_solver->recompute_y0         = y0;
   adj_solver->recompute_flag       = SUNTRUE;
 
-  fprintf(stderr, ">>> here\n");
   int fwd_stop_reason = 0;
   sunrealtype fwd_t   = adj_solver->recompute_t0;
   SUNCheckCall(SUNStepper_Reset(adj_solver->fwd_stepper, adj_solver->recompute_t0,
