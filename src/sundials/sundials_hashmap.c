@@ -286,8 +286,6 @@ int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
 
   SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
 
-  fprintf(stdout, ">>> looking for key=%s, yields idx=%ld\n", key, idx);
-
   /* Check if the key exists */
   if (kvp == NULL) { return (-2); }
 

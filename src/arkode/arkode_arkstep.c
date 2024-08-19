@@ -1159,6 +1159,8 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
   {
     SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme, 0, 0,
                                             ark_mem->tcur, ark_mem->ycur);
+    SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme, 0, 1,
+                                            ark_mem->tcur, ark_mem->ycur);
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
@@ -2229,7 +2231,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     step_mem->nfe++;
 
     /* The checkpoint was not found, so we need to recompute at least
-       this step forward in time */
+       this step forward in time. We first seek the last checkpointed step. */
     if (retval > 0)
     {
       SUNAdjointSolver adj_solver = (SUNAdjointSolver)ark_mem->user_data;
@@ -2250,9 +2252,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 #endif
         errcode =
           SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
-                                                start_step,
-                                                ark_mem->adj_stage_idx - 1,
-                                                &checkpoint);
+                                                start_step, 0, &checkpoint);
         if (errcode == SUN_SUCCESS)
         {
           /* OK, now we have the last checkpoint and can figure out what
@@ -2271,7 +2271,10 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                              ", tf = %" RSYM "",
                              start_step, stop_step, t0, tf);
 #endif
-          ARKodeSetCheckpointIndex(adj_solver->fwd_stepper->content, start_step);
+          retval = ARKodeSetCheckpointIndex(adj_solver->fwd_stepper->content,
+                                            start_step);
+          if (retval) { return (ARK_RHSFUNC_FAIL); }
+
           if (SUNAdjointSolver_SetRecompute(adj_solver, start_step, stop_step,
                                             t0, tf, checkpoint))
           {
@@ -2295,7 +2298,11 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
           return arkStep_TakeStep_ERK_Adjoint(ark_mem, dsmPtr, nflagPtr);
         }
       }
-      if (errcode != SUN_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+      if (errcode != SUN_SUCCESS)
+      {
+        fprintf(stderr, ">>> errcode = %d, %s\n", errcode, SUNGetErrMsg(errcode));
+        return (ARK_RHSFUNC_FAIL);
+      }
     }
     else if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   }
@@ -3503,10 +3510,6 @@ int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
   retval = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, nforcing);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* set the stop time */
-  retval = ARKodeSetStopTime(arkode_mem, tout);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
   /* evolve inner ODE */
   *stop_reason = ARKodeEvolve(arkode_mem, tout, y, tret, ARK_ONE_STEP);
   if (*stop_reason < 0) { return (*stop_reason); }
@@ -3539,10 +3542,6 @@ int arkStep_SUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
 
   /* set the inner forcing data */
   retval = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, nforcing);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* set the stop time */
-  retval = ARKodeSetStopTime(arkode_mem, tout);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* try to evolve inner ODE */

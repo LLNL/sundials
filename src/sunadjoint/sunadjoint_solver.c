@@ -88,8 +88,8 @@ SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver, sunrealtype tout,
   SUNErrCode retcode = SUN_SUCCESS;
   sunrealtype t      = adj_solver->tf;
   *stop_reason       = 0;
-  SUNCheckCall(
-    SUNStepper_Step(adj_stepper, adj_solver->tf, tout, sens, &t, stop_reason));
+  SUNCheckCall(SUNStepper_OneStep(adj_stepper, adj_solver->tf, tout, sens, &t,
+                                  stop_reason));
   if (*stop_reason < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
   else if (*stop_reason > 0)
   {

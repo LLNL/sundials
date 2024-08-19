@@ -91,8 +91,9 @@ SUNErrCode SUNStepper_Advance(SUNStepper stepper, sunrealtype t0,
                               int* stop_reason);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Step(SUNStepper stepper, sunrealtype t0, sunrealtype tout,
-                           N_Vector y, sunrealtype* tret, int* stop_reason);
+SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,

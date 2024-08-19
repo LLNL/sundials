@@ -76,8 +76,9 @@ SUNErrCode SUNStepper_Advance(SUNStepper stepper, sunrealtype t0,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNStepper_Step(SUNStepper stepper, sunrealtype t0, sunrealtype tout,
-                           N_Vector y, sunrealtype* tret, int* stop_reason)
+SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->onestep)
