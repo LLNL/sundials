@@ -19,6 +19,7 @@
 #include <nvector/nvector_serial.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
 #include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
 #include <sunadjoint/sunadjoint_solver.h>
@@ -27,6 +28,16 @@
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmemory/sunmemory_system.h>
 #include "sundials/sundials_types.h"
+
+typedef struct
+{
+  sunrealtype tf;
+  sunrealtype dt;
+  int order;
+  int check_freq;
+  sunbooleantype save_stages;
+  sunbooleantype keep_checks;
+} ProgramArgs;
 
 static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 
@@ -180,7 +191,6 @@ int forward_solution(SUNContext sunctx, void* arkode_mem,
 
   retval = ARKodeSetUserData(arkode_mem, (void*)params);
   retval = ARKodeSetFixedStep(arkode_mem, dt);
-  retval = ARKodeSetMaxNumSteps(arkode_mem, (tf - t0) / dt + 1);
 
   sunrealtype t = t0;
   while (t < tf)
@@ -342,6 +352,44 @@ int adjoint_solution_vjp(SUNContext sunctx, void* arkode_mem,
   return 0;
 }
 
+void print_help(int argc, char* argv[], int exit_code)
+{
+  if (exit_code)
+  {
+    fprintf(stderr, "./ark_test_sunadjoint: option not recognized\n");
+  }
+  else { fprintf(stderr, "./ark_test_sunadjoint "); }
+  fprintf(stderr, "options:\n");
+  fprintf(stderr, "--tf <real>         the final simulation time\n");
+  fprintf(stderr, "--dt <real>         the timestep size\n");
+  fprintf(stderr, "--order <int>       the order of the RK method\n");
+  fprintf(stderr, "--check-freq <int>  how often to checkpoint (in steps)\n");
+  fprintf(stderr, "--no-stages         don't checkpoint stages\n");
+  fprintf(stderr,
+          "--keep-checks       keep checkpoints around after loading\n");
+  fprintf(stderr, "--help              print these options\n");
+  exit(exit_code);
+}
+
+void parse_args(int argc, char* argv[], ProgramArgs* args)
+{
+  for (int argi = 1; argi < argc; ++argi)
+  {
+    const char* arg = argv[argi];
+    if (!strcmp(arg, "--tf")) { args->tf = atof(argv[++argi]); }
+    else if (!strcmp(arg, "--dt")) { args->dt = atof(argv[++argi]); }
+    else if (!strcmp(arg, "--order")) { args->order = atoi(argv[++argi]); }
+    else if (!strcmp(arg, "--check-freq"))
+    {
+      args->check_freq = atoi(argv[++argi]);
+    }
+    else if (!strcmp(arg, "--no-stages")) { args->save_stages = SUNFALSE; }
+    else if (!strcmp(arg, "--keep-checks")) { args->keep_checks = SUNTRUE; }
+    else if (!strcmp(arg, "--help")) { print_help(argc, argv, 0); }
+    else { print_help(argc, argv, 1); }
+  }
+}
+
 int main(int argc, char* argv[])
 {
   SUNContext sunctx = NULL;
@@ -350,7 +398,14 @@ int main(int argc, char* argv[])
   // Since this a unit test, we want to abort immediately on any internal error
   SUNContext_PushErrHandler(sunctx, SUNAbortErrHandlerFn, NULL);
 
-  // TODO(CJB): parse command line args which change various parameters to cover more test cases
+  ProgramArgs args;
+  args.tf          = 10.0;
+  args.dt          = 1e-2;
+  args.order       = 4;
+  args.save_stages = SUNTRUE;
+  args.keep_checks = SUNTRUE;
+  args.check_freq  = 2;
+  parse_args(argc, argv, &args);
 
   //
   // Create the initial conditions vector
@@ -364,23 +419,24 @@ int main(int argc, char* argv[])
   // Create the ARKODE stepper that will be used for both the forward solution and adjoint solution.
   //
 
-  const sunrealtype dt = 1e-2;
+  const sunrealtype dt = args.dt;
   sunrealtype t0       = 0.0;
-  sunrealtype tf       = 10.0;
+  sunrealtype tf       = args.tf;
   const int nsteps     = ((tf - t0) / dt + 1);
-  const int order      = 4;
+  const int order      = args.order;
   void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
 
   ARKodeSetOrder(arkode_mem, order);
+  ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
 
   // Enable checkpointing during the forward solution
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
 
   SUNMemoryHelper mem_helper       = SUNMemoryHelper_Sys(sunctx);
-  const int check_interval         = 2;
+  const int check_interval         = args.check_freq;
   const int ncheck                 = (nsteps * (order + 1));
-  const sunbooleantype save_stages = SUNTRUE;
-  const sunbooleantype keep_check  = SUNTRUE;
+  const sunbooleantype save_stages = args.save_stages;
+  const sunbooleantype keep_check  = args.keep_checks;
   SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
                                           check_interval, ncheck, save_stages,
                                           keep_check, sunctx, &checkpoint_scheme);
