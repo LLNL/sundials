@@ -49,6 +49,7 @@
  * - set initial adaptive step size as hs/hf above:  set_h0 [default 0]
  * - relative solution tolerance:  rtol [default = 1e-4]
  * - absolute solution tolerance:  atol [default = 1e-11]
+ * - slow stepsize safety factor:  safety [default = 0.96]
  * - relative solution tolerance for fast integrator:  fast_rtol [default = 1e-4]
  * - use p (0) vs q (1) for slow adaptivity:  slow_pq [default = 0]
  * - use p (0) vs q (1) for fast adaptivity:  fast_pq [default = 0]
@@ -173,6 +174,7 @@ struct Options
   sunrealtype htol_relch  = SUN_RCONST(-1.0);
   sunrealtype htol_minfac = SUN_RCONST(-1.0);
   sunrealtype htol_maxfac = SUN_RCONST(-1.0);
+  sunrealtype slow_safety = SUN_RCONST(-1.0);
 };
 
 // User-supplied functions called by the solver
@@ -685,7 +687,12 @@ int main(int argc, char* argv[])
       retval = ARKodeSetAdaptivityAdjustment(arkode_mem, 0);
       if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
     }
-  }
+    if (opts.slow_safety > -1)
+    {
+      retval = ARKodeSetSafetyFactor(arkode_mem, opts.slow_safety);
+     if (check_flag(retval, "ARKodeSetSafetyFactor")) return 1;
+    }
+}
   else
   {
     retval = ARKodeSetFixedStep(arkode_mem, opts.hs);
@@ -1046,6 +1053,7 @@ void InputHelp()
   std::cout << "  --k1s, --k2s, ..., -k6s : slow controller parameters\n";
   std::cout << "  --k1f, --k2f, -k3f : fast controller parameters\n";
   std::cout << "  --bias : slow and fast controller bias factors\n";
+  std::cout << "  --safety : slow time step safety factor\n";
   std::cout
     << "  --htol_relch : HTol controller maximum relative tolerance change\n";
   std::cout
@@ -1088,6 +1096,7 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
   find_arg(args, "--k2f", opts.k2f);
   find_arg(args, "--k3f", opts.k3f);
   find_arg(args, "--bias", opts.bias);
+  find_arg(args, "--safety", opts.slow_safety);
   find_arg(args, "--htol_relch", opts.htol_relch);
   find_arg(args, "--htol_minfac", opts.htol_minfac);
   find_arg(args, "--htol_maxfac", opts.htol_maxfac);
@@ -1382,6 +1391,10 @@ static void PrintSlowAdaptivity(Options opts)
   if (opts.bias > -1)
   {
     std::cout << "    controller bias factor: " << opts.bias << "\n";
+  }
+  if (opts.slow_safety > -1)
+  {
+    std::cout << "    slow step safety factor: " << opts.slow_safety << "\n";
   }
 }
 
