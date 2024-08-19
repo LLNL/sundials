@@ -554,9 +554,11 @@ struct ARKodeMemRec
   sunbooleantype use_compensated_sums;
 
   /* Adjoint solver data */
-  SUNAdjointCheckpointScheme checkpoint_scheme;
   sunbooleantype do_adjoint;
   long int adj_stage_idx; /* current stage index (only valid in adjoint context)*/
+
+  /* Checkpointing data */
+  SUNAdjointCheckpointScheme checkpoint_scheme;
   long int checkpoint_step_idx; /* the step number for checkpointing */
 
   /* XBraid interface variables */

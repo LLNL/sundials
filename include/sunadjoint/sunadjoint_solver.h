@@ -25,16 +25,24 @@ struct SUNAdjointSolver_
 {
   SUNStepper adj_stepper;
   SUNStepper fwd_stepper;
+  SUNAdjointCheckpointScheme checkpoint_scheme;
+
   SUNMatrix Jac, JacP;
+
   SUNJacFn JacFn, JacPFn;
   SUNJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
-  SUNAdjointCheckpointScheme checkpoint_scheme;
+
   sunrealtype tf;
   int64_t step_idx;
+
   sunrealtype recompute_t0, recompute_tf;
   N_Vector recompute_y0;
   int64_t recompute_start_step, recompute_end_step;
   sunbooleantype recompute_flag;
+
+  /* counters */
+  uint64_t njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp, nrecompute;
+
   void* user_data;
   SUNContext sunctx;
 };
@@ -106,6 +114,10 @@ SUNErrCode SUNAdjointSolver_SetVecTimesJacFn(SUNAdjointSolver, SUNJacTimesFn vJp
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_SetUserData(SUNAdjointSolver, void* user_data);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointSolver_PrintAllStats(SUNAdjointSolver adj_solver,
+                                          FILE* outfile, SUNOutputFormat fmt);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointSolver_Destroy(SUNAdjointSolver*);

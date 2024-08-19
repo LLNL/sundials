@@ -256,9 +256,8 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
 
-  // TODO(CJB): need to print out the stats from the adjoint stepper instead
-  fprintf(stdout, "ARKODE Stats for Adjoint Solution:\n");
-  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  fprintf(stdout, "\nSUNAdjointSolver Stats:\n");
+  SUNAdjointSolver_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
   fprintf(stdout, "\n");
 
   N_VDestroy(sf);
@@ -302,8 +301,8 @@ int adjoint_solution_jvp(SUNContext sunctx, void* arkode_mem,
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
 
-  fprintf(stdout, "ARKODE Stats for Adjoint Solution (jvp):\n");
-  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  fprintf(stdout, "\nSUNAdjointSolver Stats:\n");
+  SUNAdjointSolver_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
   fprintf(stdout, "\n");
 
   N_VDestroy(sf);
@@ -342,8 +341,8 @@ int adjoint_solution_vjp(SUNContext sunctx, void* arkode_mem,
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
 
-  fprintf(stdout, "ARKODE Stats for Adjoint Solution (vjp):\n");
-  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  fprintf(stdout, "\nSUNAdjointSolver Stats:\n");
+  SUNAdjointSolver_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
   fprintf(stdout, "\n");
 
   N_VDestroy(sf);

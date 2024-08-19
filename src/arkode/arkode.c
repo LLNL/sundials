@@ -1441,6 +1441,7 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "fixedstep = %i\n", ark_mem->fixedstep);
   fprintf(outfile, "tolsf = %" RSYM "\n", ark_mem->tolsf);
   fprintf(outfile, "call_fullrhs = %i\n", ark_mem->call_fullrhs);
+  fprintf(outfile, "do_adjoint = %i\n", ark_mem->do_adjoint);
 
   /* output counters */
   fprintf(outfile, "nhnil = %i\n", ark_mem->nhnil);
