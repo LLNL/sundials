@@ -246,6 +246,7 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
 
+  // TODO(CJB): need to print out the stats from the adjoint stepper instead
   fprintf(stdout, "ARKODE Stats for Adjoint Solution:\n");
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
   fprintf(stdout, "\n");
@@ -365,9 +366,9 @@ int main(int argc, char* argv[])
 
   const sunrealtype dt = 1e-2;
   sunrealtype t0       = 0.0;
-  sunrealtype tf       = 1.0;
+  sunrealtype tf       = 10.0;
   const int nsteps     = ((tf - t0) / dt + 1);
-  const int order      = 3;
+  const int order      = 4;
   void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
 
   ARKodeSetOrder(arkode_mem, order);
@@ -376,7 +377,7 @@ int main(int argc, char* argv[])
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
 
   SUNMemoryHelper mem_helper       = SUNMemoryHelper_Sys(sunctx);
-  const int check_interval         = 5;
+  const int check_interval         = 2;
   const int ncheck                 = (nsteps * (order + 1));
   const sunbooleantype save_stages = SUNTRUE;
   const sunbooleantype keep_check  = SUNTRUE;
