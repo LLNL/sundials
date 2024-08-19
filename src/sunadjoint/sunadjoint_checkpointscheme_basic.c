@@ -28,6 +28,7 @@
 struct SUNAdjointCheckpointScheme_Basic_Content_
 {
   SUNMemoryHelper mem_helper;
+  uint64_t backup_interval;
   uint64_t interval;
   sunbooleantype save_stages;
   sunbooleantype keep;
@@ -58,7 +59,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
   check_scheme->ops->shouldWeSave = SUNAdjointCheckpointScheme_ShouldWeSave_Basic;
   check_scheme->ops->insertVector = SUNAdjointCheckpointScheme_InsertVector_Basic;
   check_scheme->ops->loadVector  = SUNAdjointCheckpointScheme_LoadVector_Basic;
-  check_scheme->ops->setInterval = SUNAdjointCheckpointScheme_SetInterval_Basic;
+  check_scheme->ops->enableDense = SUNAdjointCheckpointScheme_EnableDense_Basic;
   check_scheme->ops->destroy     = SUNAdjointCheckpointScheme_Destroy_Basic;
 
   SUNAdjointCheckpointScheme_Basic_Content content = NULL;
@@ -260,12 +261,20 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_SetInterval_Basic(
-  SUNAdjointCheckpointScheme check_scheme, uint64_t interval)
+SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Basic(
+  SUNAdjointCheckpointScheme check_scheme, sunbooleantype on_or_off)
 {
   SUNFunctionBegin(check_scheme->sunctx);
 
-  PROPERTY(check_scheme, interval) = interval;
+  if (on_or_off)
+  {
+    PROPERTY(check_scheme, backup_interval) = PROPERTY(check_scheme, interval);
+    PROPERTY(check_scheme, interval)        = 1;
+  }
+  else
+  {
+    PROPERTY(check_scheme, interval) = PROPERTY(check_scheme, backup_interval);
+  }
 
   return SUN_SUCCESS;
 }

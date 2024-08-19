@@ -21,6 +21,7 @@
 
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
+#include "sundials/sundials_export.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -201,16 +202,17 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(
   SUNAdjointCheckpointScheme* check_scheme_ptr);
 
 /**
-  This function sets the checkpointing interval (in steps).
+  This function enables dense checkpointing, that is it saves
+  all steps. 
 
   :param check_scheme: the SUNAdjointCheckpointScheme object
-  :param interval: the interval to checkpoint in steps
+  :param on_or_off: turn dense checkpoints on or off
 
   :returns a :c:type:`SUNErrCode` indicating success or failure
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_SetInterval_Basic(
-  SUNAdjointCheckpointScheme check_scheme, uint64_t interval);
+SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Basic(
+  SUNAdjointCheckpointScheme check_scheme, sunbooleantype on_or_off);
 
 #ifdef __cplusplus
 }

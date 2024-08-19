@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_datanode.h>
+#include "sundials/sundials_types.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -53,7 +54,7 @@ struct SUNAdjointCheckpointScheme_Ops_
 
   SUNErrCode (*destroy)(SUNAdjointCheckpointScheme*);
 
-  SUNErrCode (*setInterval)(SUNAdjointCheckpointScheme, uint64_t interval);
+  SUNErrCode (*enableDense)(SUNAdjointCheckpointScheme, sunbooleantype on_or_off);
 };
 
 struct SUNAdjointCheckpointScheme_
@@ -108,8 +109,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Destroy(SUNAdjointCheckpointScheme*);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_SetInterval(SUNAdjointCheckpointScheme,
-                                                  uint64_t interval);
+SUNErrCode SUNAdjointCheckpointScheme_EnableDense(SUNAdjointCheckpointScheme,
+                                                  sunbooleantype on_or_off);
 
 #ifdef __cplusplus
 }

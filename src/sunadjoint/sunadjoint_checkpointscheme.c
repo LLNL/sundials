@@ -18,6 +18,7 @@
 
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 
 SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
   SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
@@ -42,7 +43,7 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
   ops->loadVector     = NULL;
   ops->removeVector   = NULL;
   ops->removeRange    = NULL;
-  ops->setInterval    = NULL;
+  ops->enableDense    = NULL;
   ops->destroy        = NULL;
 
   check_scheme->ops = ops;
@@ -126,13 +127,13 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy(
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_SetInterval(
-  SUNAdjointCheckpointScheme check_scheme, uint64_t interval)
+SUNErrCode SUNAdjointCheckpointScheme_EnableDense(
+  SUNAdjointCheckpointScheme check_scheme, sunbooleantype on_or_off)
 {
   SUNFunctionBegin(check_scheme->sunctx);
-  if (check_scheme->ops->setInterval)
+  if (check_scheme->ops->enableDense)
   {
-    return check_scheme->ops->setInterval(check_scheme, interval);
+    return check_scheme->ops->enableDense(check_scheme, on_or_off);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }

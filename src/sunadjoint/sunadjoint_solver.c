@@ -135,16 +135,17 @@ SUNErrCode SUNAdjointSolver_SetRecompute(SUNAdjointSolver adj_solver,
   SUNCheckCall(SUNStepper_Reset(adj_solver->fwd_stepper, adj_solver->recompute_t0,
                                 adj_solver->recompute_y0));
 
-  // TODO(CJB): need to get interval first then restore it after advance
   SUNCheckCall(
-    SUNAdjointCheckpointScheme_SetInterval(adj_solver->checkpoint_scheme, 1));
+    SUNAdjointCheckpointScheme_EnableDense(adj_solver->checkpoint_scheme, 1));
 
   SUNCheckCall(
     SUNStepper_Advance(adj_solver->fwd_stepper, adj_solver->recompute_t0,
                        adj_solver->recompute_tf, adj_solver->recompute_y0,
                        &fwd_t, &fwd_stop_reason));
-
   adj_solver->nrecompute++;
+
+  SUNCheckCall(
+    SUNAdjointCheckpointScheme_EnableDense(adj_solver->checkpoint_scheme, 0));
 
   adj_solver->recompute_flag = SUNFALSE;
 
