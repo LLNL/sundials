@@ -11,18 +11,20 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * TODO
+ * This is the implementation file for splitting coefficients
  *--------------------------------------------------------------*/
 
-#include <arkode/arkode_splittingstep.h>
-#include <stdio.h>
+#include <arkode/arkode_splitting_coefficients.h>
 #include <stdlib.h>
 
 #include "arkode_impl.h"
 
+/*---------------------------------------------------------------
+  Routine to allocate splitting coefficients with zero values for
+  alpha and beta
+  ---------------------------------------------------------------*/
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
-  const int sequential_methods, const int stages, const int partitions,
-  const int order)
+  const int sequential_methods, const int stages, const int partitions)
 {
   if (sequential_methods < 1 || stages < 1 || partitions < 1) { return NULL; }
 
@@ -33,7 +35,7 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
   coefficients->sequential_methods = sequential_methods;
   coefficients->stages             = stages;
   coefficients->partitions         = partitions;
-  coefficients->order              = order;
+  coefficients->order              = 0;
 
   coefficients->alpha = (sunrealtype*)calloc(sequential_methods,
                                              sizeof(*coefficients->alpha));
@@ -89,6 +91,31 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
   return coefficients;
 }
 
+/*---------------------------------------------------------------
+  Routine to create splitting coefficients which performs a copy
+  of the alpha and beta parameters
+  ---------------------------------------------------------------*/
+ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Create(
+  const int sequential_methods, const int stages, const int partitions,
+  const int order, sunrealtype* const alpha, sunrealtype* const beta)
+{
+  if (alpha == NULL || beta == NULL) { return NULL; }
+
+  ARKodeSplittingCoefficients coefficients =
+    ARKodeSplittingCoefficients_Alloc(sequential_methods, stages, partitions);
+  if (coefficients == NULL) { return NULL; }
+
+  coefficients->order = order;
+  memcpy(coefficients->alpha, alpha, sequential_methods * sizeof(*alpha));
+  memcpy(coefficients->beta[0][0], beta,
+         sequential_methods * (stages + 1) * partitions * sizeof(*beta));
+
+  return coefficients;
+}
+
+/*---------------------------------------------------------------
+  Routine to free splitting coefficients
+  ---------------------------------------------------------------*/
 void ARKodeSplittingCoefficients_Free(const ARKodeSplittingCoefficients coefficients)
 {
   // TODO: should argument be a pointer?
@@ -106,6 +133,9 @@ void ARKodeSplittingCoefficients_Free(const ARKodeSplittingCoefficients coeffici
   free(coefficients);
 }
 
+/*---------------------------------------------------------------
+  Routine to create a copy of splitting coefficients
+  ---------------------------------------------------------------*/
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Copy(
   ARKodeSplittingCoefficients coefficients)
 {
@@ -114,10 +144,10 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Copy(
   ARKodeSplittingCoefficients coefficientsCopy =
     ARKodeSplittingCoefficients_Alloc(coefficients->sequential_methods,
                                       coefficients->stages,
-                                      coefficients->partitions,
-                                      coefficients->order);
+                                      coefficients->partitions);
   if (coefficientsCopy == NULL) { return NULL; }
 
+  coefficientsCopy->order = coefficients->order;
   memcpy(coefficientsCopy->alpha, coefficients->alpha,
          coefficients->sequential_methods * sizeof(*coefficients->alpha));
 
@@ -130,6 +160,9 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Copy(
   return coefficientsCopy;
 }
 
+/*---------------------------------------------------------------
+  Routine to load coefficients from an ID
+  ---------------------------------------------------------------*/
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficients(
   const ARKODE_SplittingCoefficientsID method)
 {
@@ -147,6 +180,10 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficients(
   }
 }
 
+/*---------------------------------------------------------------
+  Routine to load coefficients using a string representation of
+  an enum entry in ARKODE_SplittingCoefficientsID
+  ---------------------------------------------------------------*/
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficientsByName(
   const char* const method)
 {
@@ -161,13 +198,39 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LoadCoefficientsByName(
   return NULL;
 }
 
+/*---------------------------------------------------------------
+  Routine to convert a coefficient enum value to its string
+  representation
+  ---------------------------------------------------------------*/
+const char* ARKodeSplittingCoefficients_IDToName(
+  const ARKODE_SplittingCoefficientsID id)
+{
+  /* Use X-macro to test each coefficient name */
+  switch (id)
+  {
+#define ARK_SPLITTING_COEFFICIENTS(name, coeff) \
+  case name: return #name;
+#include "arkode_splitting_coefficients.def"
+#undef ARK_SPLITTING_COEFFICIENTS
+
+  default:
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Unknown splitting coefficients");
+    return NULL;
+  }
+}
+
+/*---------------------------------------------------------------
+  Routine to construct the standard Lie-Trotter splitting
+  ---------------------------------------------------------------*/
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LieTrotter(const int partitions)
 {
   if (partitions < 1) { return NULL; }
   const ARKodeSplittingCoefficients coefficients =
-    ARKodeSplittingCoefficients_Alloc(1, 1, partitions, 1);
+    ARKodeSplittingCoefficients_Alloc(1, 1, partitions);
   if (coefficients == NULL) { return NULL; }
 
+  coefficients->order = 1;
   coefficients->alpha[0] = SUN_RCONST(1.0);
   for (int i = 0; i < partitions; i++)
   {
@@ -177,22 +240,31 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_LieTrotter(const int par
   return coefficients;
 }
 
+/*---------------------------------------------------------------
+  Routine to construct the standard Stang splitting
+  ---------------------------------------------------------------*/
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Strang(const int partitions)
 {
   return ARKodeSplittingCoefficients_TripleJump(partitions, 2);
 }
 
+/*---------------------------------------------------------------
+  Routine to construct a parallel splitting method
+  Phi_1(h) + Phi_2(h) + ... + Phi_p(h) - (p - 1) * y_n
+  where Phi_i is the flow of partition i and p = partitions.
+  ---------------------------------------------------------------*/
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Parallel(const int partitions)
 {
   if (partitions < 1) { return NULL; }
 
   const ARKodeSplittingCoefficients coefficients =
-    ARKodeSplittingCoefficients_Alloc(partitions + 1, 1, partitions, 1);
+    ARKodeSplittingCoefficients_Alloc(partitions + 1, 1, partitions);
   if (coefficients == NULL) { return NULL; }
 
+  coefficients->order = 1;
   for (int i = 0; i < partitions; i++)
   {
-    coefficients->alpha[i] = SUN_RCONST(1.0);
+    coefficients->alpha[i]      = SUN_RCONST(1.0);
     coefficients->beta[i][1][i] = SUN_RCONST(1.0);
   }
 
@@ -201,22 +273,28 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Parallel(const int parti
   return coefficients;
 }
 
+/*---------------------------------------------------------------
+  Routine to construct a symmetric parallel splitting which is
+  the average of the Lie-Trotter method and its adjoint
+  ---------------------------------------------------------------*/
 ARKodeSplittingCoefficients ARKodeSplittingCoefficients_SymmetricParallel(
   const int partitions)
 {
   if (partitions < 1) { return NULL; }
 
   const ARKodeSplittingCoefficients coefficients =
-    ARKodeSplittingCoefficients_Alloc(2, partitions, partitions, 2);
+    ARKodeSplittingCoefficients_Alloc(2, partitions, partitions);
   if (coefficients == NULL) { return NULL; }
 
+  coefficients->order = 2;
   coefficients->alpha[0] = SUN_RCONST(0.5);
   coefficients->alpha[1] = SUN_RCONST(0.5);
 
   for (int i = 0; i < partitions; i++)
   {
     coefficients->beta[0][partitions][i] = SUN_RCONST(1.0);
-    for (int j = partitions - i - 1; j < partitions; j++) {
+    for (int j = partitions - i - 1; j < partitions; j++)
+    {
       coefficients->beta[1][i + 1][j] = SUN_RCONST(1.0);
     }
   }
@@ -224,6 +302,13 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_SymmetricParallel(
   return coefficients;
 }
 
+/*---------------------------------------------------------------
+  Routine to construct a composition method of the form
+  S(gamma_0 h)^c * S(gamma_1 h) * S(gamma_0)^c
+  where S is a lower order splitting (with Stang as the base case),
+  * and ^ denote composition, and c = composition_stages. This
+  covers both the triple jump (c=1) and Suzuki fractal (c=2).
+  ---------------------------------------------------------------*/
 static sunrealtype* const* arkodeSplittingCoefficients_ComposeStrangHelper(
   const int partitions, const int order, const int composition_stages,
   const sunrealtype start, const sunrealtype end, sunrealtype* const* const beta)
@@ -245,15 +330,19 @@ static sunrealtype* const* arkodeSplittingCoefficients_ComposeStrangHelper(
   }
 
   sunrealtype* const* beta_cur = beta;
-  sunrealtype start_cur  = start;
+  sunrealtype start_cur        = start;
   /* This is essentially the gamma coefficient from Geometric Numerical
    * Integration (https://doi.org/10.1007/3-540-30666-8) pg 44-45 scaled by the
    * current interval */
-  const sunrealtype gamma = diff / (composition_stages - 1 - SUNRpowerR(composition_stages - 1, SUN_RCONST(1.0) / (order - 1)));
+  const sunrealtype gamma =
+    diff / (composition_stages - 1 -
+            SUNRpowerR(composition_stages - 1, SUN_RCONST(1.0) / (order - 1)));
   for (int i = 1; i <= composition_stages; i++)
   {
     /* To avoid roundoff issues, this ensures end_cur=1 for the last value of i*/
-    const sunrealtype end_cur = 2 * i < composition_stages ? (start + i * gamma) : (end + (i - composition_stages) * gamma);
+    const sunrealtype end_cur = 2 * i < composition_stages
+                                  ? (start + i * gamma)
+                                  : (end + (i - composition_stages) * gamma);
     /* Recursively generate coefficients and shift beta_cur */
     beta_cur =
       arkodeSplittingCoefficients_ComposeStrangHelper(partitions, order - 2,
@@ -266,6 +355,11 @@ static sunrealtype* const* arkodeSplittingCoefficients_ComposeStrangHelper(
   return beta_cur;
 }
 
+/*---------------------------------------------------------------
+  Routine which does validation and setup before calling
+  arkodeSplittingCoefficients_ComposeStrangHelper to fill in the
+  beta coefficients
+  ---------------------------------------------------------------*/
 static ARKodeSplittingCoefficients arkodeSplittingCoefficients_ComposeStrang(
   const int partitions, const int order, const int composition_stages)
 {
@@ -278,8 +372,11 @@ static ARKodeSplittingCoefficients arkodeSplittingCoefficients_ComposeStrang(
   const int stages = 1 + (partitions - 1) *
                            SUNRpowerI(composition_stages, order / 2 - 1);
   const ARKodeSplittingCoefficients coefficients =
-    ARKodeSplittingCoefficients_Alloc(1, stages, partitions, order);
+    ARKodeSplittingCoefficients_Alloc(1, stages, partitions);
   if (coefficients == NULL) { return NULL; }
+
+  coefficients->order = order;
+  coefficients->alpha[0] = SUN_RCONST(1.0);
 
   arkodeSplittingCoefficients_ComposeStrangHelper(partitions, order,
                                                   composition_stages,
@@ -303,10 +400,10 @@ ARKodeSplittingCoefficients ARKodeSplittingCoefficients_SuzukiFractal(
 }
 
 /*---------------------------------------------------------------
-  Routine to print a splitting coefficients structure
+  Routine to print a splitting coefficient structure
   ---------------------------------------------------------------*/
-void ARKodeSplittingCoefficients_Write(ARKodeSplittingCoefficients coefficients,
-                                       FILE* outfile)
+void ARKodeSplittingCoefficients_Write(
+  const ARKodeSplittingCoefficients coefficients, FILE* const outfile)
 {
   // TODO: update when https://github.com/LLNL/sundials/pull/517 merged
   if (coefficients == NULL || coefficients->alpha == NULL ||

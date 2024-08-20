@@ -16,23 +16,21 @@
 
 /*
   When adding a new method, enter the coefficients below and add
-  a new enum entry to include/arkode/arkode_splitting_coeffs.h
-
-  Method names and properties are listed in the table
-  below. The 'QP' column denotes whether the coefficients of the
-  method are known precisely enough for use in quad precision
-  (128-bit) calculations.
-
-     imeth                              QP
-    --------------------------------------
-     
-    --------------------------------------
+  a new enum entry to include/arkode/arkode_splitting_coefficients.h
 */
 
 ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_NONE, {
     return NULL;
   })
 
-ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_LIE_TROTTER, {
-    return NULL;
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_LIE_TROTTER_2_1, {
+    return ARKodeSplittingCoefficients_LieTrotter(2);
+ })
+
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_STRANG_2_2, {
+    return ARKodeSplittingCoefficients_Strang(2);
+ })
+
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_YOSHIDA_2_4, {
+    return ARKodeSplittingCoefficients_TripleJump(2, 4);
  })
