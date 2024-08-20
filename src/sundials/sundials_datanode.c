@@ -15,6 +15,7 @@
 #include <sundials/sundials_datanode.h>
 
 #include "sundatanode/sundatanode_inmem.h"
+#include "sundials/sundials_memory.h"
 
 SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
 {
@@ -210,14 +211,16 @@ SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector v)
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_SetData(SUNDataNode self, void* data, size_t data_stride,
-                               size_t data_bytes)
+SUNErrCode SUNDataNode_SetData(SUNDataNode self, SUNMemoryType src_mem_type,
+                               SUNMemoryType node_mem_type, void* data,
+                               size_t data_stride, size_t data_bytes)
 {
   SUNFunctionBegin(self->sunctx);
 
   if (self->setData)
   {
-    return self->setData(self, data, data_stride, data_bytes);
+    return self->setData(self, src_mem_type, node_mem_type, data, data_stride,
+                         data_bytes);
   }
 
   return SUN_ERR_NOT_IMPLEMENTED;

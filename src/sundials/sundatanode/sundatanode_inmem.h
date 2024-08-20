@@ -96,7 +96,8 @@ SUNErrCode SUNDataNode_GetData_InMem(const SUNDataNode self, void** data,
 
 SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v);
 
-SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode self, void* data,
+SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode self, SUNMemoryType src_mem_type,
+                                     SUNMemoryType node_mem_type, void* data,
                                      size_t data_stride, size_t data_bytes);
 
 SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v);

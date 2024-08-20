@@ -63,8 +63,9 @@ struct SUNDataNode_
   SUNErrCode (*getData)(const SUNDataNode, void** data, size_t* data_stride,
                         size_t* data_bytes);
   SUNErrCode (*getDataNvector)(const SUNDataNode, N_Vector v);
-  SUNErrCode (*setData)(SUNDataNode, void* data, size_t data_stride,
-                        size_t data_bytes);
+  SUNErrCode (*setData)(SUNDataNode, SUNMemoryType src_mem_type,
+                        SUNMemoryType node_mem_type, void* data,
+                        size_t data_stride, size_t data_bytes);
   SUNErrCode (*setDataNvector)(SUNDataNode, N_Vector v);
   SUNErrCode (*destroy)(SUNDataNode*);
 
@@ -132,8 +133,9 @@ SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_GetDataNvector(const SUNDataNode self, N_Vector v);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDataNode_SetData(SUNDataNode self, void* data, size_t data_stride,
-                               size_t data_bytes);
+SUNErrCode SUNDataNode_SetData(SUNDataNode self, SUNMemoryType src_mem_type,
+                               SUNMemoryType node_mem_type, void* data,
+                               size_t data_stride, size_t data_bytes);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_SetDataNvector(SUNDataNode self, N_Vector v);

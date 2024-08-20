@@ -345,7 +345,8 @@ SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode self, void* data,
+SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode self, SUNMemoryType src_mem_type,
+                                     SUNMemoryType node_mem_type, void* data,
                                      size_t data_stride, size_t data_bytes)
 {
   SUNFunctionBegin(self->sunctx);
@@ -354,15 +355,14 @@ SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode self, void* data,
 
   SUNAssert(BASE_PROP(self, dtype) == SUNDATANODE_LEAF, SUN_ERR_ARG_WRONGTYPE);
 
-  // TODO(CJB): add an argument to allow for the memory location to be chosen
   SUNMemory data_mem_src = SUNMemoryHelper_Wrap(IMPL_PROP(self, mem_helper),
-                                                data, SUNMEMTYPE_HOST);
+                                                data, src_mem_type);
   SUNCheckLastErr();
 
   SUNMemory data_mem_dst = NULL;
   SUNCheckCall(SUNMemoryHelper_AllocStrided(IMPL_PROP(self, mem_helper),
                                             &data_mem_dst, data_bytes,
-                                            data_stride, SUNMEMTYPE_HOST, queue));
+                                            data_stride, node_mem_type, queue));
 
   SUNCheckCall(SUNMemoryHelper_Copy(IMPL_PROP(self, mem_helper), data_mem_dst,
                                     data_mem_src, data_bytes, queue));
