@@ -40,7 +40,8 @@ SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
   mem = (SUNMemory)malloc(sizeof(struct SUNMemory_));
   SUNAssertNull(mem, SUN_ERR_MALLOC_FAIL);
 
-  mem->bytes = 0;
+  mem->bytes  = 0;
+  mem->stride = 1;
 
   return (mem);
 }
@@ -142,6 +143,20 @@ SUNErrCode SUNMemoryHelper_Alloc(SUNMemoryHelper helper, SUNMemory* memptr,
   SUNAssert(helper->ops->alloc, SUN_ERR_NOT_IMPLEMENTED);
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
   ier = helper->ops->alloc(helper, memptr, mem_size, mem_type, queue);
+  SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
+  return ier;
+}
+
+SUNErrCode SUNMemoryHelper_AllocStrided(SUNMemoryHelper helper, SUNMemory* memptr,
+                                        size_t mem_size, size_t stride,
+                                        SUNMemoryType mem_type, void* queue)
+{
+  SUNErrCode ier = SUN_SUCCESS;
+  SUNFunctionBegin(helper->sunctx);
+  SUNAssert(helper->ops->allocstrided, SUN_ERR_NOT_IMPLEMENTED);
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(helper));
+  ier = helper->ops->allocstrided(helper, memptr, mem_size, stride, mem_type,
+                                  queue);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(helper));
   return ier;
 }

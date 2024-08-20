@@ -47,6 +47,7 @@ struct SUNMemory_
   SUNMemoryType type;
   sunbooleantype own;
   size_t bytes;
+  size_t stride;
 };
 
 /* Creates a new SUNMemory object with a NULL ptr */
@@ -77,6 +78,8 @@ struct SUNMemoryHelper_Ops_
                      size_t mem_size, void* queue);
 
   /* operations that provide default implementations */
+  SUNErrCode (*allocstrided)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size,
+                             size_t stride, SUNMemoryType mem_type, void* queue);
   SUNErrCode (*copyasync)(SUNMemoryHelper, SUNMemory dst, SUNMemory src,
                           size_t mem_size, void* queue);
   SUNErrCode (*getallocstats)(SUNMemoryHelper, SUNMemoryType mem_type,
@@ -114,6 +117,11 @@ SUNDIALS_EXPORT
 SUNErrCode SUNMemoryHelper_Alloc(SUNMemoryHelper, SUNMemory* memptr,
                                  size_t mem_size, SUNMemoryType mem_type,
                                  void* queue);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNMemoryHelper_AllocStrided(SUNMemoryHelper, SUNMemory* memptr,
+                                        size_t mem_size, size_t stride,
+                                        SUNMemoryType mem_type, void* queue);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNMemoryHelper_Dealloc(SUNMemoryHelper, SUNMemory mem, void* queue);
