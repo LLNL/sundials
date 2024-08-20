@@ -64,45 +64,49 @@ SUNErrCode SUNStepper_Destroy(SUNStepper* stepper_ptr)
 }
 
 SUNErrCode SUNStepper_Advance(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret,
-                              int* stop_reason)
+                              sunrealtype tout, N_Vector y, N_Vector yp,
+                              sunrealtype* tret, int* stop_reason)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->advance)
   {
-    return stepper->ops->advance(stepper, t0, tout, y, tret, stop_reason);
+    return stepper->ops->advance(stepper, t0, tout, y, yp, tret, stop_reason);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
 SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret,
-                              int* stop_reason)
+                              sunrealtype tout, N_Vector y, N_Vector yp,
+                              sunrealtype* tret, int* stop_reason)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->onestep)
   {
-    return stepper->ops->onestep(stepper, t0, tout, y, tret, stop_reason);
+    return stepper->ops->onestep(stepper, t0, tout, y, yp, tret, stop_reason);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
 SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret,
-                              int* stop_reason)
+                              sunrealtype tout, N_Vector y, N_Vector yp,
+                              sunrealtype* tret, int* stop_reason)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->trystep)
   {
-    return stepper->ops->trystep(stepper, t0, tout, y, tret, stop_reason);
+    return stepper->ops->trystep(stepper, t0, tout, y, yp, tret, stop_reason);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
+SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
+                            N_Vector ypR)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->advance) { return stepper->ops->reset(stepper, tR, yR); }
+  if (stepper->ops->advance)
+  {
+    return stepper->ops->reset(stepper, tR, yR, ypR);
+  }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
