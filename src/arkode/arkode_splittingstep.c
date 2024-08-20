@@ -240,7 +240,7 @@ static int splittingStep_Resize(SUNDIALS_MAYBE_UNUSED const ARKodeMem ark_mem,
                                 SUNDIALS_MAYBE_UNUSED const ARKVecResizeFn resize,
                                 SUNDIALS_MAYBE_UNUSED void* const resize_data)
 {
-  // TODO: explain why resizing needs to be done on the inner methods
+  // TODO: explain why resizing needs to be done on the inner methods by users and not here
   return ARK_SUCCESS;
 }
 
