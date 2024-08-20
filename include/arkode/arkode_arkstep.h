@@ -23,6 +23,7 @@
 #include <arkode/arkode_ls.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -99,6 +100,10 @@ SUNDIALS_EXPORT int ARKStepGetTimestepperStats(
 /* MRIStep interface functions */
 SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void* arkode_mem,
                                                      MRIStepInnerStepper* stepper);
+
+/* SUNStepper interface functions */
+SUNDIALS_EXPORT int ARKStepCreateSUNStepper(void* arkode_mem,
+                                            SUNStepper* stepper);
 
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines

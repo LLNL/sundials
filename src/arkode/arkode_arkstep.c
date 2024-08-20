@@ -21,10 +21,12 @@
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
+#include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_types.h"
 
 #define FIXED_LIN_TOL
 
@@ -337,47 +339,6 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   step_mem->nfi     = 0;
   step_mem->nsetups = 0;
   step_mem->nstlp   = 0;
-
-  return (ARK_SUCCESS);
-}
-
-/*------------------------------------------------------------------------------
-  ARKStepCreateMRIStepInnerStepper
-
-  Wraps an ARKStep memory structure as an MRIStep inner stepper.
-  ----------------------------------------------------------------------------*/
-int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
-                                     MRIStepInnerStepper* stepper)
-{
-  int retval;
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-
-  retval = arkStep_AccessARKODEStepMem(inner_arkode_mem,
-                                       "ARKStepCreateMRIStepInnerStepper",
-                                       &ark_mem, &step_mem);
-  if (retval)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The ARKStep memory pointer is NULL");
-    return ARK_ILL_INPUT;
-  }
-
-  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
-                                            arkStep_MRIStepInnerFullRhs);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
-  if (retval != ARK_SUCCESS) { return (retval); }
 
   return (ARK_SUCCESS);
 }
@@ -3158,9 +3119,269 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   return (ARK_SUCCESS);
 }
 
-/*===============================================================
-  Internal utility routines for interacting with MRIStep
-  ===============================================================*/
+/*---------------------------------------------------------------
+  Utility routines for interfacing with SUNStepper
+  ---------------------------------------------------------------*/
+
+int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
+{
+  int retval;
+  ARKodeMem ark_mem = (ARKodeMem)inner_arkode_mem;
+  ARKodeARKStepMem step_mem;
+
+  retval = arkStep_AccessStepMem(inner_arkode_mem, "ARKStepCreateSUNStepper",
+                                 &step_mem);
+  if (retval)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The ARKStep memory pointer is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  retval = SUNStepper_Create(ark_mem->sunctx, stepper);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = SUNStepper_SetContent(*stepper, inner_arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = SUNStepper_SetEvolveFn(*stepper, arkStep_SUNStepperEvolve);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = SUNStepper_SetOneStepFn(*stepper, arkStep_SUNStepperOneStep);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = SUNStepper_SetTryStepFn(*stepper, arkStep_SUNStepperTryStep);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = SUNStepper_SetFullRhsFn(*stepper, arkStep_SUNStepperFullRhs);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = SUNStepper_SetResetFn(*stepper, arkStep_SUNStepperReset);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = SUNStepper_SetStopTimeFn(*stepper, arkStep_SUNStepperSetStopTime);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_SUNStepperEvolve
+
+  Implementation of SUNStepperAdvanceFn to advance the inner (fast)
+  ODE IVP.
+  ----------------------------------------------------------------------------*/
+
+int arkStep_SUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
+                             sunrealtype tout, N_Vector y, N_Vector yp,
+                             sunrealtype* tret, int* stop_reason)
+{
+  void* arkode_mem;           /* arkode memory             */
+  sunrealtype tshift, tscale; /* time normalization values */
+  N_Vector* forcing;          /* forcing vectors           */
+  int nforcing;               /* number of forcing vectors */
+  int retval;                 /* return value              */
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* get the forcing data */
+  retval = SUNStepper_GetForcingData(stepper, &tshift, &tscale, &forcing,
+                                     &nforcing);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* set the inner forcing data */
+  retval = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, nforcing);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* evolve inner ODE */
+  *stop_reason = ARKodeEvolve(arkode_mem, tout, y, tret, ARK_NORMAL);
+  if (*stop_reason < 0) { return (*stop_reason); }
+
+  /* disable inner forcing */
+  retval = arkStep_SetInnerForcing(arkode_mem, ZERO, ONE, NULL, 0);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
+
+int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
+                              sunrealtype tout, N_Vector y, N_Vector yp,
+                              sunrealtype* tret, int* stop_reason)
+{
+  void* arkode_mem;           /* arkode memory             */
+  sunrealtype tshift, tscale; /* time normalization values */
+  N_Vector* forcing;          /* forcing vectors           */
+  int nforcing;               /* number of forcing vectors */
+  int retval;                 /* return value              */
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* get the forcing data */
+  retval = SUNStepper_GetForcingData(stepper, &tshift, &tscale, &forcing,
+                                     &nforcing);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* set the inner forcing data */
+  retval = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, nforcing);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* evolve inner ODE */
+  *stop_reason = ARKodeEvolve(arkode_mem, tout, y, tret, ARK_ONE_STEP);
+  if (*stop_reason < 0) { return (*stop_reason); }
+
+  /* disable inner forcing */
+  retval = arkStep_SetInnerForcing(arkode_mem, ZERO, ONE, NULL, 0);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
+
+int arkStep_SUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
+                              sunrealtype tout, N_Vector y, N_Vector yp,
+                              sunrealtype* tret, int* stop_reason)
+{
+  void* arkode_mem;           /* arkode memory             */
+  sunrealtype tshift, tscale; /* time normalization values */
+  N_Vector* forcing;          /* forcing vectors           */
+  int nforcing;               /* number of forcing vectors */
+  int retval;                 /* return value              */
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* get the forcing data */
+  retval = SUNStepper_GetForcingData(stepper, &tshift, &tscale, &forcing,
+                                     &nforcing);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* set the inner forcing data */
+  retval = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, nforcing);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* try to evolve inner ODE */
+  retval = arkStep_TryStep(arkode_mem, t0, tout, y, tret, stop_reason);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* disable inner forcing */
+  retval = arkStep_SetInnerForcing(arkode_mem, ZERO, ONE, NULL, 0);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return ARK_SUCCESS;
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_SUNStepperFullRhs
+
+  Implementation of SUNStepperFullRhsFn to compute the full inner
+  (fast) ODE IVP RHS.
+  ----------------------------------------------------------------------------*/
+
+int arkStep_SUNStepperFullRhs(SUNStepper stepper, sunrealtype t, N_Vector y,
+                              N_Vector f, int mode)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (arkStep_FullRHS(arkode_mem, t, y, f, mode));
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_SUNStepperReset
+
+  Implementation of SUNStepperResetFn to reset the inner (fast) stepper
+  state.
+  ----------------------------------------------------------------------------*/
+
+int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
+                            N_Vector ypR)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = ARKodeReset(arkode_mem, tR, yR);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return retval;
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_SUNStepperSetStopTime
+
+  Implementation of SUNStepperStopTimeFn to set the tstop time
+  ----------------------------------------------------------------------------*/
+
+int arkStep_SUNStepperSetStopTime(SUNStepper stepper, sunrealtype tstop)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = ARKodeSetStopTime(arkode_mem, tstop);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return retval;
+}
+
+/*---------------------------------------------------------------
+  Utility routines for interfacing with MRIStep
+  ---------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+  ARKStepCreateMRIStepInnerStepper
+
+  Wraps an ARKStep memory structure as an MRIStep inner stepper.
+  ----------------------------------------------------------------------------*/
+
+int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
+                                     MRIStepInnerStepper* stepper)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+
+  retval = arkStep_AccessStepMem(inner_arkode_mem,
+                                 "ARKStepCreateMRIStepInnerStepper", &step_mem);
+  if (retval)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The ARKStep memory pointer is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
+                                            arkStep_MRIStepInnerFullRhs);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
 
 /*------------------------------------------------------------------------------
   arkStep_MRIStepInnerEvolve
@@ -3552,6 +3773,63 @@ int arkStep_GetOrder(ARKodeMem ark_mem)
 {
   ARKodeARKStepMem step_mem = (ARKodeARKStepMem)(ark_mem->step_mem);
   return step_mem->q;
+}
+
+/* -----------------------------------------------------------------------------
+ * arkStep_TryStep
+ *
+ * Attempts one internal time step using ARKStepEvolve
+ * ---------------------------------------------------------------------------*/
+
+int arkStep_TryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
+                    N_Vector y, sunrealtype* tret, int* ark_flag)
+{
+  int flag;     /* generic return flag      */
+  int tmp_flag; /* evolve return flag       */
+
+  /* Check inputs */
+  if (arkode_mem == NULL) { return ARK_MEM_NULL; }
+  if (y == NULL) { return ARK_ILL_INPUT; }
+
+  /* Reset ARKStep state */
+  flag = ARKodeReset(arkode_mem, tstart, y);
+  if (flag != ARK_SUCCESS) { return flag; }
+
+  /* Set the time step size */
+  flag = ARKodeSetInitStep(arkode_mem, tstop - tstart);
+  if (flag != ARK_SUCCESS) { return flag; }
+
+  /* Ignore temporal error test result and force step to pass */
+  flag = arkSetForcePass(arkode_mem, SUNTRUE);
+  if (flag != ARK_SUCCESS) { return flag; }
+
+  /* Take step, check flag below */
+  tmp_flag = ARKodeEvolve(arkode_mem, tstop, y, tret, ARK_ONE_STEP);
+
+  /* Re-enable temporal error test check */
+  flag = arkSetForcePass(arkode_mem, SUNFALSE);
+  if (flag != ARK_SUCCESS) { return flag; }
+
+  /* Check if evolve call failed */
+  if (tmp_flag < 0)
+  {
+    *ark_flag = SUNSTEPPER_TRYSTEP_FAILED;
+    return ARK_SUCCESS;
+  }
+
+  /* Check if temporal error test failed */
+  flag = arkGetLastKFlag(arkode_mem, &tmp_flag);
+  if (flag != ARK_SUCCESS) { return flag; }
+
+  if (tmp_flag > 0)
+  {
+    *ark_flag = SUNSTEPPER_TRYSTEP_ADAPT;
+    return ARK_SUCCESS;
+  }
+
+  /* Step was successful and passed the error test */
+  *ark_flag = SUNSTEPPER_TRYSTEP_SUCCESS;
+  return ARK_SUCCESS;
 }
 
 /*===============================================================

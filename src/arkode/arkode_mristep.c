@@ -16,12 +16,15 @@
  * This is the implementation file for ARKODE's MRI time stepper module.
  * ---------------------------------------------------------------------------*/
 
+#include "arkode/arkode_mristep.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
+#include "arkode/arkode.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 #include "arkode_mristep_impl.h"
@@ -2590,9 +2593,9 @@ int mriStep_StageSetup(ARKodeMem ark_mem)
   return (ARK_SUCCESS);
 }
 
-/*===============================================================
+/*---------------------------------------------------------------
   User-callable functions for a custom inner integrator
-  ===============================================================*/
+  ---------------------------------------------------------------*/
 
 int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper* stepper)
 {
@@ -2622,6 +2625,18 @@ int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper* stepper)
   (*stepper)->last_flag = ARK_SUCCESS;
   (*stepper)->sunctx    = sunctx;
 
+  return (ARK_SUCCESS);
+}
+
+int MRIStepInnerStepper_CreateFromSUNStepper(SUNStepper sunstepper,
+                                             MRIStepInnerStepper* stepper)
+{
+  MRIStepInnerStepper_Create(sunstepper->sunctx, stepper);
+  MRIStepInnerStepper_SetContent(*stepper, sunstepper);
+  MRIStepInnerStepper_SetEvolveFn(*stepper, mriStepInnerStepper_EvolveSUNStepper);
+  MRIStepInnerStepper_SetFullRhsFn(*stepper,
+                                   mriStepInnerStepper_FullRhsSUNStepper);
+  MRIStepInnerStepper_SetResetFn(*stepper, mriStepInnerStepper_ResetSUNStepper);
   return (ARK_SUCCESS);
 }
 
@@ -2786,9 +2801,9 @@ int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper,
   return ARK_SUCCESS;
 }
 
-/*===============================================================
-  Private inner integrator functions
-  ===============================================================*/
+/*---------------------------------------------------------------
+  Internal inner integrator functions
+  ---------------------------------------------------------------*/
 
 /* Check for required operations */
 int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper)
@@ -2825,6 +2840,19 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
   return stepper->last_flag;
 }
 
+int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
+                                         sunrealtype t0, sunrealtype tout,
+                                         N_Vector y)
+{
+  SUNStepper sunstepper = (SUNStepper)stepper->content;
+  sunrealtype tret;
+  int stop_reason;
+  sunstepper->ops->setstoptime(sunstepper, tout);
+  stepper->last_flag = sunstepper->ops->evolve(sunstepper, t0, tout, y, NULL,
+                                               &tret, &stop_reason);
+  return stepper->last_flag;
+}
+
 /* Compute the full RHS for inner (fast) time scale TODO(DJG): This function can
    be made optional when fullrhs is not called unconditionally by the ARKODE
    infrastructure e.g., in arkInitialSetup, arkYddNorm, and arkCompleteStep. */
@@ -2836,6 +2864,15 @@ int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
   if (stepper->ops->fullrhs == NULL) { return ARK_ILL_INPUT; }
 
   stepper->last_flag = stepper->ops->fullrhs(stepper, t, y, f, mode);
+  return stepper->last_flag;
+}
+
+int mriStepInnerStepper_FullRhsSUNStepper(MRIStepInnerStepper stepper,
+                                          sunrealtype t, N_Vector y, N_Vector f,
+                                          int mode)
+{
+  SUNStepper sunstepper = (SUNStepper)stepper->content;
+  stepper->last_flag    = sunstepper->ops->fullrhs(sunstepper, t, y, f, mode);
   return stepper->last_flag;
 }
 
@@ -2862,6 +2899,14 @@ int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
     /* assume stepper uses input state and does not need to be reset */
     return ARK_SUCCESS;
   }
+}
+
+int mriStepInnerStepper_ResetSUNStepper(MRIStepInnerStepper stepper,
+                                        sunrealtype tR, N_Vector yR)
+{
+  SUNStepper sunstepper = (SUNStepper)stepper->content;
+  stepper->last_flag    = sunstepper->ops->reset(sunstepper, tR, yR, NULL);
+  return stepper->last_flag;
 }
 
 /* Allocate MRI forcing and fused op workspace vectors if necessary */
@@ -2906,7 +2951,7 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
   /* Allocate fused operation workspace arrays */
   if (stepper->vecs == NULL)
   {
-    stepper->vecs = (N_Vector*)calloc(count + 1, sizeof(*stepper->vecs));
+    stepper->vecs = (N_Vector*)calloc(count + 1, sizeof(N_Vector));
     if (stepper->vecs == NULL)
     {
       mriStepInnerStepper_FreeVecs(stepper);
@@ -2916,7 +2961,7 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
 
   if (stepper->vals == NULL)
   {
-    stepper->vals = (sunrealtype*)calloc(count + 1, sizeof(*stepper->vals));
+    stepper->vals = (sunrealtype*)calloc(count + 1, sizeof(sunrealtype));
     if (stepper->vals == NULL)
     {
       mriStepInnerStepper_FreeVecs(stepper);
