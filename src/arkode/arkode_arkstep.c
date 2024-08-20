@@ -40,11 +40,6 @@
 
 #define FIXED_LIN_TOL
 
-/* TryStep step result flags */
-#define TRYSTEP_FAILED  -1
-#define TRYSTEP_SUCCESS +0
-#define TRYSTEP_ADAPT   +1
-
 /*===============================================================
   Exported functions
   ===============================================================*/
@@ -3419,7 +3414,7 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   retval = SUNStepper_SetContent(*stepper, inner_arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = SUNStepper_SetAdvanceFn(*stepper, arkStep_SUNStepperAdvance);
+  retval = SUNStepper_SetEvolveFn(*stepper, arkStep_SUNStepperEvolve);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   retval = SUNStepper_SetOneStepFn(*stepper, arkStep_SUNStepperOneStep);
@@ -3434,19 +3429,22 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   retval = SUNStepper_SetResetFn(*stepper, arkStep_SUNStepperReset);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  retval = SUNStepper_SetStopTimeFn(*stepper, arkStep_SUNStepperSetStopTime);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
   return (ARK_SUCCESS);
 }
 
 /*------------------------------------------------------------------------------
-  arkStep_SUNStepperAdvance
+  arkStep_SUNStepperEvolve
 
   Implementation of SUNStepperAdvanceFn to advance the inner (fast)
   ODE IVP.
   ----------------------------------------------------------------------------*/
 
-int arkStep_SUNStepperAdvance(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret,
-                              int* stop_reason)
+int arkStep_SUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
+                             sunrealtype tout, N_Vector y, N_Vector yp,
+                             sunrealtype* tret, int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
   sunrealtype tshift, tscale; /* time normalization values */
@@ -3467,10 +3465,6 @@ int arkStep_SUNStepperAdvance(SUNStepper stepper, sunrealtype t0,
   retval = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, nforcing);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* set the stop time */
-  retval = ARKodeSetStopTime(arkode_mem, tout);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
   /* evolve inner ODE */
   *stop_reason = ARKodeEvolve(arkode_mem, tout, y, tret, ARK_NORMAL);
   if (*stop_reason < 0) { return (*stop_reason); }
@@ -3483,8 +3477,8 @@ int arkStep_SUNStepperAdvance(SUNStepper stepper, sunrealtype t0,
 }
 
 int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret,
-                              int* stop_reason)
+                              sunrealtype tout, N_Vector y, N_Vector yp,
+                              sunrealtype* tret, int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
   sunrealtype tshift, tscale; /* time normalization values */
@@ -3517,8 +3511,8 @@ int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
 }
 
 int arkStep_SUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret,
-                              int* stop_reason)
+                              sunrealtype tout, N_Vector y, N_Vector yp,
+                              sunrealtype* tret, int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
   sunrealtype tshift, tscale; /* time normalization values */
@@ -3577,7 +3571,8 @@ int arkStep_SUNStepperFullRhs(SUNStepper stepper, sunrealtype t, N_Vector y,
   state.
   ----------------------------------------------------------------------------*/
 
-int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
+int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
+                            N_Vector ypR)
 {
   void* arkode_mem;
   int retval;
@@ -3587,6 +3582,27 @@ int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   retval = ARKodeReset(arkode_mem, tR, yR);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return retval;
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_SUNStepperSetStopTime
+
+  Implementation of SUNStepperStopTimeFn to set the tstop time
+  ----------------------------------------------------------------------------*/
+
+int arkStep_SUNStepperSetStopTime(SUNStepper stepper, sunrealtype tstop)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = ARKodeSetStopTime(arkode_mem, tstop);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return retval;
@@ -4297,7 +4313,7 @@ int arkStep_TryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
   /* Check if evolve call failed */
   if (tmp_flag < 0)
   {
-    *ark_flag = TRYSTEP_FAILED;
+    *ark_flag = SUNSTEPPER_TRYSTEP_FAILED;
     return ARK_SUCCESS;
   }
 
@@ -4307,12 +4323,12 @@ int arkStep_TryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
 
   if (tmp_flag > 0)
   {
-    *ark_flag = TRYSTEP_ADAPT;
+    *ark_flag = SUNSTEPPER_TRYSTEP_ADAPT;
     return ARK_SUCCESS;
   }
 
   /* Step was successful and passed the error test */
-  *ark_flag = TRYSTEP_SUCCESS;
+  *ark_flag = SUNSTEPPER_TRYSTEP_SUCCESS;
   return ARK_SUCCESS;
 }
 

@@ -24,12 +24,12 @@ typedef struct SUNStepper_Ops_* SUNStepper_Ops;
 
 struct SUNStepper_Ops_
 {
-  SUNStepperAdvanceFn advance;
+  SUNStepperEvolveFn evolve;
   SUNStepperOneStepFn onestep;
   SUNStepperTryStepFn trystep;
   SUNStepperFullRhsFn fullrhs;
   SUNStepperResetFn reset;
-  SUNErrCode (*getnumsteps)(SUNStepper, int64_t* nst);
+  SUNStepperSetStopTimeFn setstoptime;
 };
 
 struct SUNStepper_
