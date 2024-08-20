@@ -431,9 +431,11 @@ int main(int argc, char* argv[])
   // Enable checkpointing during the forward solution
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
 
-  SUNMemoryHelper mem_helper       = SUNMemoryHelper_Sys(sunctx);
-  const int check_interval         = args.check_freq;
-  const int ncheck                 = (nsteps * (order + 1));
+  SUNMemoryHelper mem_helper = SUNMemoryHelper_Sys(sunctx);
+  const int check_interval   = args.check_freq;
+  // ncheck will be more than nsteps, but for testing purposes we try setting it
+  // to nsteps and allow things to be resized automatically
+  const int ncheck                 = nsteps;
   const sunbooleantype save_stages = args.save_stages;
   const sunbooleantype keep_check  = args.keep_checks;
   SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,

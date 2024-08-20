@@ -383,7 +383,7 @@ SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v)
   SUNMemoryType leaf_mem_type = SUNMEMTYPE_HOST;
   SUNMemoryType buffer_mem_type = N_VGetDeviceArrayPointer(v) ? SUNMEMTYPE_DEVICE
                                                               : SUNMEMTYPE_HOST;
-  // TODO(CJB): implement this N_VBufMemType function instead of relying on N_VGetDeviceArrayPointer
+  // TODO(CJB): implement a N_VBufMemType function instead of relying on N_VGetDeviceArrayPointer
   // which wont work for ManyVector and also requires the strong assumption that the device memory
   // is the "up to date" data.
   // SUNCheckCall(N_VBufMemType(v, &buffer_mem_type));

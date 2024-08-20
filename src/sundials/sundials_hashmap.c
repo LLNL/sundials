@@ -96,6 +96,15 @@ SUNErrCode SUNHashMap_New(size_t capacity,
   return SUN_SUCCESS;
 }
 
+/*
+  This function returns the capacity of the hashmap.
+
+  **Arguments:**
+    * ``map`` -- the SUNHashMap object
+
+  **Returns:**
+    * The capacity of the hashmap
+ */
 size_t SUNHashMap_Capacity(SUNHashMap map)
 {
   return SUNStlVector_SUNHashMapKeyValue_Capacity(map->buckets);
@@ -172,6 +181,31 @@ static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv,
   return (-1); /* keep looking */
 }
 
+static void sunHashMapResize(SUNHashMap map)
+{
+  size_t old_capacity = SUNHashMap_Capacity(map);
+  size_t new_capacity = old_capacity * 2;
+
+  SUNStlVector_SUNHashMapKeyValue old_buckets = map->buckets;
+  map->buckets = SUNStlVector_SUNHashMapKeyValue_New(new_capacity,
+                                                     map->destroyKeyValue);
+
+  /* Set all buckets to NULL */
+  for (size_t i = 0; i < new_capacity; i++)
+  {
+    SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
+  }
+
+  /* Rehash and reinsert */
+  for (size_t i = 0; i < old_capacity; i++)
+  {
+    SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(old_buckets, i);
+    if (kvp) { SUNHashMap_Insert(map, kvp->key, kvp->value); }
+  }
+
+  SUNStlVector_SUNHashMapKeyValue_Destroy(&old_buckets);
+}
+
 /*
   This function creates a key-value pair and attempts to insert it into the map.
   Will use linear probing if there is a collision.
@@ -201,30 +235,16 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   if (kvp != NULL)
   {
     /* Determine if key is actually a duplicate (not allowed) */
-    if (!strcmp(key, kvp->key))
-    {
-      fprintf(stderr, ">>> key=%s is a duplicate\n", key);
-      return (-2);
-    }
+    if (!strcmp(key, kvp->key)) { return (-2); }
 
     /* OK, it was a real collision, so find the next open spot */
     retval = SUNHashMap_Iterate(map, idx, sunHashMapLinearProbeInsert, NULL);
     if (retval < 0) { return (-1); /* error occurred */ }
     if (retval >= SUNHashMap_Capacity(map))
     {
-      fprintf(stderr, ">>> trying to resize map\n");
-      // /* There are no open spaces, so resize the hashmap and then try to insert again. */
-      // // TODO(CJB): resizing requires rehashing since idx involves the capacity
-      // size_t old_capacity = SUNHashMap_Capacity(map);
-      // SUNStlVector_SUNHashMapKeyValue_Grow(map->buckets);
-      // /* Set all of the new possible elements in the StlVector to NULL
-      //    because we always want to have the list capacity == list size. */
-      // for (size_t i = old_capacity; i < SUNHashMap_Capacity(map); i++)
-      // {
-      //   SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
-      // }
-      // return SUNHashMap_Insert(map, key, value);
-      return (-1);
+      sunHashMapResize(map);
+      return SUNHashMap_Insert(map, key, value);
+      // return (-1);
     }
 
     idx = retval;
