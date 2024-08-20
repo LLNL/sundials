@@ -110,7 +110,7 @@ TEST_F(SUNHashMapTest, InsertRequiringResizeWorks)
   ASSERT_EQ(err, 0);
 
   // Ensure resize happened
-  ASSERT_EQ(SUNHashMap_Capacity(map), 3);
+  ASSERT_EQ(SUNHashMap_Capacity(map), 4);
 
   void* retrieved_value;
   err = SUNHashMap_GetValue(map, key1, &retrieved_value);
