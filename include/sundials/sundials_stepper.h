@@ -35,22 +35,23 @@ typedef int (*SUNJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
 
 typedef _SUNDIALS_STRUCT_ SUNStepper_* SUNStepper;
 
-typedef int (*SUNStepperAdvanceFn)(SUNStepper stepper, sunrealtype t0,
-                                   sunrealtype tout, N_Vector y,
-                                   sunrealtype* tret, int* stop_reason);
+typedef SUNErrCode (*SUNStepperAdvanceFn)(SUNStepper stepper, sunrealtype t0,
+                                          sunrealtype tout, N_Vector y,
+                                          sunrealtype* tret, int* stop_reason);
 
-typedef int (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0,
-                                   sunrealtype tout, N_Vector y,
-                                   sunrealtype* tret, int* stop_reason);
+typedef SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0,
+                                          sunrealtype tout, N_Vector y,
+                                          sunrealtype* tret, int* stop_reason);
 
-typedef int (*SUNStepperTryStepFn)(SUNStepper stepper, sunrealtype t0,
-                                   sunrealtype tout, N_Vector y,
-                                   sunrealtype* tret, int* stop_reason);
+typedef SUNErrCode (*SUNStepperTryStepFn)(SUNStepper stepper, sunrealtype t0,
+                                          sunrealtype tout, N_Vector y,
+                                          sunrealtype* tret, int* stop_reason);
 
-typedef int (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
-                                   N_Vector y, N_Vector f, int mode);
+typedef SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
+                                          N_Vector y, N_Vector f, int mode);
 
-typedef int (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR, N_Vector yR);
+typedef SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR,
+                                        N_Vector yR);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper);

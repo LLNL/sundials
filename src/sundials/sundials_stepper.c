@@ -221,9 +221,6 @@ SUNErrCode SUNStepper_GetForcingData(SUNStepper stepper, sunrealtype* tshift,
                                      sunrealtype* tscale, N_Vector** forcing,
                                      int* nforcing)
 {
-  sunrealtype tau, taui;
-  int i;
-
   *tshift   = stepper->tshift;
   *tscale   = stepper->tscale;
   *forcing  = stepper->forcing;
