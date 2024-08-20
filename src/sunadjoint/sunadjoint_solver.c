@@ -102,13 +102,7 @@ SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver, sunrealtype tout,
   SUNCheckCall(SUNStepper_OneStep(adj_stepper, adj_solver->tf, tout, sens, &t,
                                   stop_reason));
   if (*stop_reason < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
-  else if (*stop_reason > 0)
-  {
-    // TODO(CJB): what reasons could this happen, and are they valid?
-    // 1==TSTOP_RETURN
-    // 2==ROOT_RETURN
-    fprintf(stderr, ">>>> HERE, stop_reason = %d\n", *stop_reason);
-  }
+  else if (*stop_reason > 0) { retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP; }
   adj_solver->step_idx--;
   *tret = t;
 
@@ -226,57 +220,57 @@ SUNErrCode SUNAdjointSolver_PrintAllStats(SUNAdjointSolver adj_solver,
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Recomputed steps   = %ld\n", adj_solver->nrecompute);
+    fprintf(outfile, "Recomputed steps   = %llu\n", adj_solver->nrecompute);
     if (adj_solver->JacFn)
     {
-      fprintf(outfile, "Jac fn evals       = %ld\n", adj_solver->njeval);
+      fprintf(outfile, "Jac fn evals       = %llu\n", adj_solver->njeval);
     }
     if (adj_solver->JacPFn)
     {
-      fprintf(outfile, "JacP fn evals      = %ld\n", adj_solver->njpeval);
+      fprintf(outfile, "JacP fn evals      = %llu\n", adj_solver->njpeval);
     }
     if (adj_solver->JvpFn)
     {
-      fprintf(outfile, "Jac-times-v evals  = %ld\n", adj_solver->njtimesv);
+      fprintf(outfile, "Jac-times-v evals  = %llu\n", adj_solver->njtimesv);
     }
     if (adj_solver->JPvpFn)
     {
-      fprintf(outfile, "JacP-times-v evals = %ld\n", adj_solver->njptimesv);
+      fprintf(outfile, "JacP-times-v evals = %llu\n", adj_solver->njptimesv);
     }
     if (adj_solver->vJpFn)
     {
-      fprintf(outfile, "v-times-Jac evals  = %ld\n", adj_solver->nvtimesj);
+      fprintf(outfile, "v-times-Jac evals  = %llu\n", adj_solver->nvtimesj);
     }
     if (adj_solver->vJPpFn)
     {
-      fprintf(outfile, "v-times-Jacp evals = %ld\n", adj_solver->nvtimesjp);
+      fprintf(outfile, "v-times-Jacp evals = %llu\n", adj_solver->nvtimesjp);
     }
     break;
   case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, "Recomputed steps,%ld", adj_solver->nrecompute);
+    fprintf(outfile, "Recomputed steps,%llu", adj_solver->nrecompute);
     if (adj_solver->JacFn)
     {
-      fprintf(outfile, ",Jac fn evals,%ld", adj_solver->njeval);
+      fprintf(outfile, ",Jac fn evals,%llu", adj_solver->njeval);
     }
     if (adj_solver->JacPFn)
     {
-      fprintf(outfile, ",JacP fn evals,%ld", adj_solver->njpeval);
+      fprintf(outfile, ",JacP fn evals,%llu", adj_solver->njpeval);
     }
     if (adj_solver->JvpFn)
     {
-      fprintf(outfile, ",Jac-times-v evals,%ld", adj_solver->njtimesv);
+      fprintf(outfile, ",Jac-times-v evals,%llu", adj_solver->njtimesv);
     }
     if (adj_solver->JPvpFn)
     {
-      fprintf(outfile, ",JacP-times-v evals,%ld", adj_solver->njptimesv);
+      fprintf(outfile, ",JacP-times-v evals,%llu", adj_solver->njptimesv);
     }
     if (adj_solver->vJpFn)
     {
-      fprintf(outfile, ",v-times-Jac evals,%ld", adj_solver->nvtimesj);
+      fprintf(outfile, ",v-times-Jac evals,%llu", adj_solver->nvtimesj);
     }
     if (adj_solver->vJPpFn)
     {
-      fprintf(outfile, ",v-times-Jacp evals,%ld", adj_solver->nvtimesjp);
+      fprintf(outfile, ",v-times-Jacp evals,%llu", adj_solver->nvtimesjp);
     }
 
     break;

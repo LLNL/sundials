@@ -2239,7 +2239,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
       N_Vector checkpoint = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
       int64_t start_step  = adj_solver->step_idx;
       int64_t stop_step   = adj_solver->step_idx + 1;
-      /* since the initial condition is stored in (0,0), step 0 has one 
+      /* since the initial condition is stored in (0,0), step 0 has one
          more chekpoint then number of stages */
       int64_t last_stage = start_step == 0 ? step_mem->stages + 1
                                            : step_mem->stages;
@@ -2259,7 +2259,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                                         &checkpoint);
         if (errcode == SUN_SUCCESS)
         {
-          /* OK, now we have the last checkpoint that stored as (start_step, last_stage). 
+          /* OK, now we have the last checkpoint that stored as (start_step, last_stage).
              This represents the last step solution that was checkpointed. As such, we
              want to recompute from start_step+1 to stop_step. */
 
@@ -2292,13 +2292,6 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                              ", tf = %" RSYM "",
                              start_step, stop_step, t0, tf);
 #endif
-          // TODO(CJB): This approach doesnt work atm because the step counter
-          // is increased. This needs nst to stay the same, but increment 'attempts'.
-          // The recursion approach works but it circumvents the normal 'failed' step logic.
-          // *dsmPtr   = ZERO;
-          // *nflagPtr = 0;
-          // return (ARK_ADJ_RECOMPUTE_RETURN);
-          // ark_mem->nst_attempts++;
           return arkStep_TakeStep_ERK_Adjoint(ark_mem, dsmPtr, nflagPtr);
         }
       }

@@ -62,7 +62,10 @@
                                                                                \
   ENTRY(SUN_ERR_ADJOINT_STEPPERFAILED,                                         \
         "SUNStepper stopped without successfully reaching the requested "      \
-        "output time")                                                         \
+        "output time when solving the adjoint system")                         \
+  ENTRY(SUN_ERR_ADJOINT_STEPPERINVALIDSTOP,                                    \
+        "SUNStepper stopped with a stop_reason not supported by adjoint "      \
+        "solver")                                                              \
   ENTRY(SUN_ERR_ADJOINT_STEPPERRECOMPUTE,                                      \
         "Adjoint solver needs forward step(s) recomputed to continue")         \
   ENTRY(SUN_ERR_CHECKPOINT_NOT_FOUND,                                          \
