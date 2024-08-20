@@ -30,6 +30,8 @@ extern "C" {
 typedef MRIStepInnerStepper SUNStepper;
 
 /* ARKODE functions */
+/* TODO: can we use `const SUNStepper* steppers` since we don't make copies? */
+/* TODO: would (t0, y0, steppers, partitions, sunctx) be a better arg order? Seems slightly more consistent with MRIStepCreate */
 SUNDIALS_EXPORT void* SplittingStepCreate(SUNStepper* steppers, int partitions,
                                           sunrealtype t0, N_Vector y0,
                                           SUNContext sunctx);
