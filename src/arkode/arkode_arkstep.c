@@ -30,11 +30,6 @@
 
 #define FIXED_LIN_TOL
 
-/* TryStep step result flags */
-#define TRYSTEP_FAILED  -1
-#define TRYSTEP_SUCCESS +0
-#define TRYSTEP_ADAPT   +1
-
 /*===============================================================
   Exported functions
   ===============================================================*/
@@ -3797,7 +3792,7 @@ int arkStep_TryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
   /* Check if evolve call failed */
   if (tmp_flag < 0)
   {
-    *ark_flag = TRYSTEP_FAILED;
+    *ark_flag = SUNSTEPPER_TRYSTEP_FAILED;
     return ARK_SUCCESS;
   }
 
@@ -3807,12 +3802,12 @@ int arkStep_TryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
 
   if (tmp_flag > 0)
   {
-    *ark_flag = TRYSTEP_ADAPT;
+    *ark_flag = SUNSTEPPER_TRYSTEP_ADAPT;
     return ARK_SUCCESS;
   }
 
   /* Step was successful and passed the error test */
-  *ark_flag = TRYSTEP_SUCCESS;
+  *ark_flag = SUNSTEPPER_TRYSTEP_SUCCESS;
   return ARK_SUCCESS;
 }
 

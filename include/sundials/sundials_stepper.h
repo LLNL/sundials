@@ -21,6 +21,11 @@
 extern "C" {
 #endif
 
+/* TryStep step result flags */
+#define SUNSTEPPER_TRYSTEP_FAILED  -1
+#define SUNSTEPPER_TRYSTEP_SUCCESS +0
+#define SUNSTEPPER_TRYSTEP_ADAPT   +1
+
 typedef int (*SUNJacFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                         void* user_data, N_Vector tmp1, N_Vector tmp2,
                         N_Vector tmp3);
