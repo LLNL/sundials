@@ -38,8 +38,6 @@ struct SUNDataNode_InMemImpl_
   // Properties for Leaf nodes (nodes that store data)
   SUNMemoryHelper mem_helper;
   SUNMemory leaf_data;
-  // TODO(CJB): can we put this inside of SUNMemory w/o breaking backwards compatibility?
-  size_t data_stride;
 
   // Properties for Object nodes (nodes that are a collection of named nodes)
   const char* name;
