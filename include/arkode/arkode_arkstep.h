@@ -23,7 +23,7 @@
 #include <arkode/arkode_ls.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
-#include <sunadjoint/sunadjoint_solver.h>
+#include <sunadjoint/sunadjoint_stepper.h>
 #include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
@@ -409,7 +409,7 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
 /* Adjoint solver functions */
 SUNDIALS_EXPORT
 int ARKStepCreateAdjointSolver(void* arkode_mem, N_Vector sf,
-                               SUNAdjointSolver* adj_solver_ptr);
+                               SUNAdjointStepper* adj_solver_ptr);
 
 /* Relaxation functions */
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRelaxFn instead")

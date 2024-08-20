@@ -30,7 +30,7 @@
 #include "arkode_interp_impl.h"
 #include "arkode_types_impl.h"
 #include "sunadjoint/sunadjoint_checkpointscheme.h"
-#include "sunadjoint/sunadjoint_solver.h"
+#include "sunadjoint/sunadjoint_stepper.h"
 
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_nvector.h"
@@ -2234,7 +2234,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
        solution, then recompute from there. */
     if (retval > 0)
     {
-      SUNAdjointSolver adj_solver = (SUNAdjointSolver)ark_mem->user_data;
+      SUNAdjointStepper adj_solver = (SUNAdjointStepper)ark_mem->user_data;
 
       N_Vector checkpoint = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
       int64_t start_step  = adj_solver->step_idx;
@@ -2279,8 +2279,8 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                             start_step);
           if (retval) { return (ARK_RHSFUNC_FAIL); }
 
-          if (SUNAdjointSolver_SetRecompute(adj_solver, start_step, stop_step,
-                                            t0, tf, checkpoint))
+          if (SUNAdjointStepper_SetRecompute(adj_solver, start_step, stop_step,
+                                             t0, tf, checkpoint))
           {
             return (ARK_RHSFUNC_FAIL);
           }
@@ -3434,8 +3434,6 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   retval = SUNStepper_SetResetFn(*stepper, arkStep_SUNStepperReset);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  (*stepper)->ops->getnumsteps = arkStep_SUNStepperGetNumSteps;
-
   return (ARK_SUCCESS);
 }
 
@@ -3594,22 +3592,8 @@ int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
   return retval;
 }
 
-SUNErrCode arkStep_SUNStepperGetNumSteps(SUNStepper stepper, int64_t* nst)
-{
-  void* arkode_mem;
-  int retval;
-
-  /* extract the ARKODE memory struct */
-  retval = SUNStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  if (ARKodeGetNumSteps(arkode_mem, nst)) { return SUN_ERR_GENERIC; }
-
-  return SUN_SUCCESS;
-}
-
 /*---------------------------------------------------------------
-  Utility routines for interfacing with SUNAdjointSolver
+  Utility routines for interfacing with SUNAdjointStepper
   ---------------------------------------------------------------*/
 
 int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
@@ -3617,10 +3601,10 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 {
   SUNErrCode errcode = SUN_SUCCESS;
 
-  SUNAdjointSolver adj_solver = (SUNAdjointSolver)content;
-  void* user_data             = adj_solver->user_data;
-  ARKodeMem ark_mem           = (ARKodeMem)adj_solver->adj_stepper->content;
-  ARKodeARKStepMem step_mem   = (ARKodeARKStepMem)ark_mem->step_mem;
+  SUNAdjointStepper adj_solver = (SUNAdjointStepper)content;
+  void* user_data              = adj_solver->user_data;
+  ARKodeMem ark_mem            = (ARKodeMem)adj_solver->adj_stepper->content;
+  ARKodeARKStepMem step_mem    = (ARKodeARKStepMem)ark_mem->step_mem;
 
   N_Vector Lambda_part = N_VGetSubvector_ManyVector(sens_partial_stage, 0);
   N_Vector Lambda      = N_VGetSubvector_ManyVector(sens_complete_stage, 0);
@@ -3691,35 +3675,35 @@ int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
   if (!ark_mem->fixedstep)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
-                    filename, "ARKStep must be using a fixed step to work with SUNAdjointSolver");
+                    filename, "ARKStep must be using a fixed step to work with SUNAdjointStepper");
     return ARK_ILL_INPUT;
   }
 
   if (step_mem->fi)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
-                    filename, "SUNAdjointSolver requires fi = NULL (it only supports explicit RK methods)");
+                    filename, "SUNAdjointStepper requires fi = NULL (it only supports explicit RK methods)");
     return ARK_ILL_INPUT;
   }
 
   if (!step_mem->fe)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
-                    filename, "fe must have been provided to ARKStepCreate to create a SUNAdjointSolver");
+                    filename, "fe must have been provided to ARKStepCreate to create a SUNAdjointStepper");
     return ARK_ILL_INPUT;
   }
 
   if (ark_mem->relax_enabled)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname, filename,
-                    "SUNAdjointSolver is not compatible with relaxation");
+                    "SUNAdjointStepper is not compatible with relaxation");
     return ARK_ILL_INPUT;
   }
 
   if (step_mem->mass_type != MASS_IDENTITY)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname,
-                    filename, "SUNAdjointSolver is not compatible with non-identity mass matrices");
+                    filename, "SUNAdjointStepper is not compatible with non-identity mass matrices");
     return ARK_ILL_INPUT;
   }
 
@@ -3727,7 +3711,7 @@ int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
 }
 
 int ARKStepCreateAdjointSolver(void* arkode_mem, N_Vector sf,
-                               SUNAdjointSolver* adj_solver_ptr)
+                               SUNAdjointStepper* adj_solver_ptr)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -3798,7 +3782,7 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, N_Vector sf,
     return retval;
   }
 
-  /* SUNAdjointSolver will own the SUNSteppers and destroy them */
+  /* SUNAdjointStepper will own the SUNSteppers and destroy them */
   SUNStepper fwd_stepper;
   retval = ARKStepCreateSUNStepper(arkode_mem, &fwd_stepper);
   if (retval)
@@ -3818,11 +3802,12 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, N_Vector sf,
   }
 
   SUNErrCode errcode = SUN_SUCCESS;
-  errcode = SUNAdjointSolver_Create(fwd_stepper, adj_stepper, nst - 1, sf,
-                                    ark_mem->tretlast, ark_mem->checkpoint_scheme,
-                                    ark_mem->sunctx, adj_solver_ptr);
+  errcode = SUNAdjointStepper_Create(fwd_stepper, adj_stepper, nst - 1, sf,
+                                     ark_mem->tretlast,
+                                     ark_mem->checkpoint_scheme,
+                                     ark_mem->sunctx, adj_solver_ptr);
 
-  errcode = SUNAdjointSolver_SetUserData(*adj_solver_ptr, ark_mem->user_data);
+  errcode = SUNAdjointStepper_SetUserData(*adj_solver_ptr, ark_mem->user_data);
 
   /* We need access to the adjoint solver to access the parameter Jacobian inside of ARKStep's
      backwards integration of the the adjoint problem. */

@@ -10,7 +10,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include <sunadjoint/sunadjoint_solver.h>
+#include <sunadjoint/sunadjoint_stepper.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 
@@ -19,16 +19,14 @@
 #include "sundials/sundials_stepper.h"
 #include "sundials/sundials_types.h"
 
-SUNErrCode SUNAdjointSolver_Create(SUNStepper fwd_stepper, SUNStepper adj_stepper,
-                                   int64_t final_step_idx, N_Vector sf,
-                                   sunrealtype tf,
-                                   SUNAdjointCheckpointScheme checkpoint_scheme,
-                                   SUNContext sunctx,
-                                   SUNAdjointSolver* adj_solver_ptr)
+SUNErrCode SUNAdjointStepper_Create(
+  SUNStepper fwd_stepper, SUNStepper adj_stepper, int64_t final_step_idx,
+  N_Vector sf, sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme,
+  SUNContext sunctx, SUNAdjointStepper* adj_solver_ptr)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdjointSolver adj_solver = malloc(sizeof(struct SUNAdjointSolver_));
+  SUNAdjointStepper adj_solver = malloc(sizeof(struct SUNAdjointStepper_));
   SUNAssert(adj_solver, SUN_ERR_MALLOC_FAIL);
 
   adj_solver->fwd_stepper       = fwd_stepper;
@@ -63,9 +61,9 @@ SUNErrCode SUNAdjointSolver_Create(SUNStepper fwd_stepper, SUNStepper adj_steppe
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tout,
-                                  N_Vector sens, sunrealtype* tret,
-                                  int* stop_reason)
+SUNErrCode SUNAdjointStepper_Solve(SUNAdjointStepper adj_solver,
+                                   sunrealtype tout, N_Vector sens,
+                                   sunrealtype* tret, int* stop_reason)
 
 {
   SUNFunctionBegin(adj_solver->sunctx);
@@ -76,7 +74,8 @@ SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tout,
   *stop_reason       = 0;
   while (t > tout)
   {
-    SUNCheckCall(SUNAdjointSolver_Step(adj_solver, tout, sens, tret, stop_reason));
+    SUNCheckCall(
+      SUNAdjointStepper_Step(adj_solver, tout, sens, tret, stop_reason));
     if (*stop_reason < 0)
     {
       retcode = SUN_ERR_ADJOINT_STEPPERFAILED;
@@ -88,9 +87,9 @@ SUNErrCode SUNAdjointSolver_Solve(SUNAdjointSolver adj_solver, sunrealtype tout,
   return retcode;
 }
 
-SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver, sunrealtype tout,
-                                 N_Vector sens, sunrealtype* tret,
-                                 int* stop_reason)
+SUNErrCode SUNAdjointStepper_Step(SUNAdjointStepper adj_solver,
+                                  sunrealtype tout, N_Vector sens,
+                                  sunrealtype* tret, int* stop_reason)
 
 {
   SUNFunctionBegin(adj_solver->sunctx);
@@ -109,10 +108,10 @@ SUNErrCode SUNAdjointSolver_Step(SUNAdjointSolver adj_solver, sunrealtype tout,
   return retcode;
 }
 
-SUNErrCode SUNAdjointSolver_SetRecompute(SUNAdjointSolver adj_solver,
-                                         int64_t start_idx, int64_t stop_idx,
-                                         sunrealtype t0, sunrealtype tf,
-                                         N_Vector y0)
+SUNErrCode SUNAdjointStepper_SetRecompute(SUNAdjointStepper adj_solver,
+                                          int64_t start_idx, int64_t stop_idx,
+                                          sunrealtype t0, sunrealtype tf,
+                                          N_Vector y0)
 {
   SUNFunctionBegin(adj_solver->sunctx);
   SUNStepper adj_stepper = adj_solver->adj_stepper;
@@ -146,9 +145,9 @@ SUNErrCode SUNAdjointSolver_SetRecompute(SUNAdjointSolver adj_solver,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointSolver_Destroy(SUNAdjointSolver* adj_solver_ptr)
+SUNErrCode SUNAdjointStepper_Destroy(SUNAdjointStepper* adj_solver_ptr)
 {
-  SUNAdjointSolver adj_solver = *adj_solver_ptr;
+  SUNAdjointStepper adj_solver = *adj_solver_ptr;
   // SUNAdjointCheckpointScheme_Destroy(adj_solver->checkpoint_scheme);
   SUNStepper_Destroy(&adj_solver->fwd_stepper);
   SUNStepper_Destroy(&adj_solver->adj_stepper);
@@ -157,9 +156,9 @@ SUNErrCode SUNAdjointSolver_Destroy(SUNAdjointSolver* adj_solver_ptr)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointSolver_SetJacFn(SUNAdjointSolver adj_solver,
-                                     SUNJacFn JacFn, SUNMatrix Jac,
-                                     SUNJacFn JacPFn, SUNMatrix JacP)
+SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_solver,
+                                      SUNJacFn JacFn, SUNMatrix Jac,
+                                      SUNJacFn JacPFn, SUNMatrix JacP)
 {
   SUNFunctionBegin(adj_solver->sunctx);
 
@@ -174,9 +173,9 @@ SUNErrCode SUNAdjointSolver_SetJacFn(SUNAdjointSolver adj_solver,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver adj_solver,
-                                             SUNJacTimesFn Jvp,
-                                             SUNJacTimesFn JPvp)
+SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper adj_solver,
+                                              SUNJacTimesFn Jvp,
+                                              SUNJacTimesFn JPvp)
 {
   SUNFunctionBegin(adj_solver->sunctx);
 
@@ -189,9 +188,9 @@ SUNErrCode SUNAdjointSolver_SetJacTimesVecFn(SUNAdjointSolver adj_solver,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointSolver_SetVecTimesJacFn(SUNAdjointSolver adj_solver,
-                                             SUNJacTimesFn vJp,
-                                             SUNJacTimesFn vJPp)
+SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper adj_solver,
+                                              SUNJacTimesFn vJp,
+                                              SUNJacTimesFn vJPp)
 {
   SUNFunctionBegin(adj_solver->sunctx);
 
@@ -204,8 +203,8 @@ SUNErrCode SUNAdjointSolver_SetVecTimesJacFn(SUNAdjointSolver adj_solver,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointSolver_SetUserData(SUNAdjointSolver adj_solver,
-                                        void* user_data)
+SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper adj_solver,
+                                         void* user_data)
 {
   SUNFunctionBegin(adj_solver->sunctx);
 
@@ -214,8 +213,8 @@ SUNErrCode SUNAdjointSolver_SetUserData(SUNAdjointSolver adj_solver,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointSolver_PrintAllStats(SUNAdjointSolver adj_solver,
-                                          FILE* outfile, SUNOutputFormat fmt)
+SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper adj_solver,
+                                           FILE* outfile, SUNOutputFormat fmt)
 {
   switch (fmt)
   {

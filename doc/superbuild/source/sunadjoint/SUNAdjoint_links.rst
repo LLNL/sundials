@@ -11,4 +11,4 @@
    ----------------------------------------------------------------
 
 .. include:: ../../../shared/sunadjoint/SUNAdjointCheckpointScheme.rst
-.. include:: ../../../shared/sunadjoint/SUNAdjointSolver.rst
+.. include:: ../../../shared/sunadjoint/SUNAdjointStepper.rst

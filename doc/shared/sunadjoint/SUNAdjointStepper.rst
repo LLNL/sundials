@@ -13,5 +13,5 @@
 
 .. _SUNAdjoint.Solver:
 
-The SUNAdjointSolver API
+The SUNAdjointStepper API
 ========================

@@ -30,7 +30,7 @@
 
 #include <arkode/arkode_butcher.h>
 #include <stdio.h>
-#include <sunadjoint/sunadjoint_solver.h>
+#include <sunadjoint/sunadjoint_stepper.h>
 #include <sundials/sundials_core.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

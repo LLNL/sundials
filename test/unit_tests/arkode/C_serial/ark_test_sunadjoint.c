@@ -22,7 +22,7 @@
 #include <string.h>
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
 #include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
-#include <sunadjoint/sunadjoint_solver.h>
+#include <sunadjoint/sunadjoint_stepper.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 #include <sunmatrix/sunmatrix_dense.h>
@@ -234,21 +234,21 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   fprintf(stdout, "Adjoint terminal condition:\n");
   N_VPrint(sf);
 
-  SUNAdjointSolver adj_solver;
+  SUNAdjointStepper adj_solver;
   retval = ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_solver);
 
   SUNMatrix J  = SUNDenseMatrix(neq, neq, sunctx);
   SUNMatrix Jp = SUNDenseMatrix(neq, num_params, sunctx);
 
-  retval = SUNAdjointSolver_SetJacFn(adj_solver, jacobian, J,
-                                     parameter_jacobian, Jp);
+  retval = SUNAdjointStepper_SetJacFn(adj_solver, jacobian, J,
+                                      parameter_jacobian, Jp);
 
   int stop_reason = 0;
   sunrealtype t   = tf;
-  retval = SUNAdjointSolver_Solve(adj_solver, tout, sf, &t, &stop_reason);
+  retval = SUNAdjointStepper_Solve(adj_solver, tout, sf, &t, &stop_reason);
   if (stop_reason < 0 || stop_reason > 2)
   {
-    fprintf(stderr, "SUNAdjointSolver_Solve stopped with reason %d\n",
+    fprintf(stderr, "SUNAdjointStepper_Solve stopped with reason %d\n",
             stop_reason);
     return -1;
   }
@@ -256,14 +256,14 @@ int adjoint_solution(SUNContext sunctx, void* arkode_mem,
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
 
-  fprintf(stdout, "\nSUNAdjointSolver Stats:\n");
-  SUNAdjointSolver_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
+  fprintf(stdout, "\nSUNAdjointStepper Stats:\n");
+  SUNAdjointStepper_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
   fprintf(stdout, "\n");
 
   N_VDestroy(sf);
   SUNMatDestroy(J);
   SUNMatDestroy(Jp);
-  SUNAdjointSolver_Destroy(&adj_solver);
+  SUNAdjointStepper_Destroy(&adj_solver);
 
   return 0;
 }
@@ -289,24 +289,24 @@ int adjoint_solution_jvp(SUNContext sunctx, void* arkode_mem,
   fprintf(stdout, "Adjoint terminal condition:\n");
   N_VPrint(sf);
 
-  SUNAdjointSolver adj_solver;
+  SUNAdjointStepper adj_solver;
   retval = ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_solver);
 
-  retval = SUNAdjointSolver_SetJacTimesVecFn(adj_solver, jvp, parameter_jvp);
+  retval = SUNAdjointStepper_SetJacTimesVecFn(adj_solver, jvp, parameter_jvp);
 
   int stop_reason = 0;
   sunrealtype t   = tf;
-  retval = SUNAdjointSolver_Solve(adj_solver, tout, sf, &t, &stop_reason);
+  retval = SUNAdjointStepper_Solve(adj_solver, tout, sf, &t, &stop_reason);
 
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
 
-  fprintf(stdout, "\nSUNAdjointSolver Stats:\n");
-  SUNAdjointSolver_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
+  fprintf(stdout, "\nSUNAdjointStepper Stats:\n");
+  SUNAdjointStepper_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
   fprintf(stdout, "\n");
 
   N_VDestroy(sf);
-  SUNAdjointSolver_Destroy(&adj_solver);
+  SUNAdjointStepper_Destroy(&adj_solver);
 
   return 0;
 }
@@ -329,24 +329,24 @@ int adjoint_solution_vjp(SUNContext sunctx, void* arkode_mem,
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
 
-  SUNAdjointSolver adj_solver;
+  SUNAdjointStepper adj_solver;
   retval = ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_solver);
 
-  retval = SUNAdjointSolver_SetVecTimesJacFn(adj_solver, vjp, parameter_vjp);
+  retval = SUNAdjointStepper_SetVecTimesJacFn(adj_solver, vjp, parameter_vjp);
 
   int stop_reason = 0;
   sunrealtype t   = tf;
-  retval = SUNAdjointSolver_Solve(adj_solver, tout, sf, &t, &stop_reason);
+  retval = SUNAdjointStepper_Solve(adj_solver, tout, sf, &t, &stop_reason);
 
   fprintf(stdout, "Adjoint Solution:\n");
   N_VPrint(sf);
 
-  fprintf(stdout, "\nSUNAdjointSolver Stats:\n");
-  SUNAdjointSolver_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
+  fprintf(stdout, "\nSUNAdjointStepper Stats:\n");
+  SUNAdjointStepper_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
   fprintf(stdout, "\n");
 
   N_VDestroy(sf);
-  SUNAdjointSolver_Destroy(&adj_solver);
+  SUNAdjointStepper_Destroy(&adj_solver);
 
   return 0;
 }
@@ -463,7 +463,7 @@ int main(int argc, char* argv[])
   //
   // Now compute the adjoint solution using Jvp
   //
-  // TODO(CJB): make sure this reinitializes arkode correctly (probably need SUNAdjointSolver_Reset function)
+  // TODO(CJB): make sure this reinitializes arkode correctly (probably need SUNAdjointStepper_Reset function)
   // adjoint_solution_jvp(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
 
   // //

@@ -25,7 +25,7 @@
 #include <arkode/arkode_butcher_erk.h>
 #include <stdarg.h>
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
-#include <sunadjoint/sunadjoint_solver.h>
+#include <sunadjoint/sunadjoint_stepper.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
