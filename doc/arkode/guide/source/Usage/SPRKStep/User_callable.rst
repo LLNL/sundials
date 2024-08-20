@@ -20,7 +20,7 @@ by the user to setup and then solve an IVP using the SPRKStep time-stepping
 module. The large majority of these routines merely wrap :ref:`underlying
 ARKODE functions <ARKODE.Usage.UserCallable>`, and are now deprecated
 -- each of these are clearly marked.  However, some
-of these user-callable functions are specific to ERKStep, as explained
+of these user-callable functions are specific to SPRKStep, as explained
 below.
 
 As discussed in the main :ref:`ARKODE user-callable function introduction
