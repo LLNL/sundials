@@ -269,9 +269,9 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         sunrealtype tol, N_Vector ewt, void* arkode_mem);
 
 /* private functions for interfacing with SUNStepper */
-int arkStep_SUNStepperAdvance(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, N_Vector yp,
-                              sunrealtype* tret, int* stop_reason);
+int arkStep_SUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
+                             sunrealtype tout, N_Vector y, N_Vector yp,
+                             sunrealtype* tret, int* stop_reason);
 int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
                               sunrealtype tout, N_Vector y, N_Vector yp,
                               sunrealtype* tret, int* stop_reason);
@@ -282,6 +282,7 @@ int arkStep_SUNStepperFullRhs(SUNStepper stepper, sunrealtype t, N_Vector y,
                               N_Vector f, int mode);
 int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
                             N_Vector ypR);
+int arkStep_SUNStepperSetStopTime(SUNStepper stepper, sunrealtype tstop);
 
 /* private functions for interfacing with MRIStep */
 int arkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,

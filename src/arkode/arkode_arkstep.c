@@ -3144,7 +3144,7 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   retval = SUNStepper_SetContent(*stepper, inner_arkode_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = SUNStepper_SetAdvanceFn(*stepper, arkStep_SUNStepperAdvance);
+  retval = SUNStepper_SetEvolveFn(*stepper, arkStep_SUNStepperEvolve);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   retval = SUNStepper_SetOneStepFn(*stepper, arkStep_SUNStepperOneStep);
@@ -3159,19 +3159,22 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   retval = SUNStepper_SetResetFn(*stepper, arkStep_SUNStepperReset);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  retval = SUNStepper_SetStopTimeFn(*stepper, arkStep_SUNStepperSetStopTime);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
   return (ARK_SUCCESS);
 }
 
 /*------------------------------------------------------------------------------
-  arkStep_SUNStepperAdvance
+  arkStep_SUNStepperEvolve
 
   Implementation of SUNStepperAdvanceFn to advance the inner (fast)
   ODE IVP.
   ----------------------------------------------------------------------------*/
 
-int arkStep_SUNStepperAdvance(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, N_Vector yp,
-                              sunrealtype* tret, int* stop_reason)
+int arkStep_SUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
+                             sunrealtype tout, N_Vector y, N_Vector yp,
+                             sunrealtype* tret, int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
   sunrealtype tshift, tscale; /* time normalization values */
@@ -3190,10 +3193,6 @@ int arkStep_SUNStepperAdvance(SUNStepper stepper, sunrealtype t0,
 
   /* set the inner forcing data */
   retval = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, nforcing);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* set the stop time */
-  retval = ARKodeSetStopTime(arkode_mem, tout);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* evolve inner ODE */
@@ -3313,6 +3312,27 @@ int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   retval = ARKodeReset(arkode_mem, tR, yR);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return retval;
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_SUNStepperSetStopTime
+
+  Implementation of SUNStepperStopTimeFn to set the tstop time
+  ----------------------------------------------------------------------------*/
+
+int arkStep_SUNStepperSetStopTime(SUNStepper stepper, sunrealtype tstop)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = ARKodeSetStopTime(arkode_mem, tstop);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return retval;

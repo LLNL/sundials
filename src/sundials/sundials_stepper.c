@@ -31,11 +31,12 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
   stepper->ops = malloc(sizeof(*(stepper->ops)));
   SUNAssert(stepper->ops, SUN_ERR_MALLOC_FAIL);
 
-  stepper->ops->advance = NULL;
-  stepper->ops->onestep = NULL;
-  stepper->ops->trystep = NULL;
-  stepper->ops->fullrhs = NULL;
-  stepper->ops->reset   = NULL;
+  stepper->ops->evolve      = NULL;
+  stepper->ops->onestep     = NULL;
+  stepper->ops->trystep     = NULL;
+  stepper->ops->fullrhs     = NULL;
+  stepper->ops->reset       = NULL;
+  stepper->ops->setstoptime = NULL;
 
   *stepper_ptr = stepper;
 
@@ -63,14 +64,14 @@ SUNErrCode SUNStepper_Destroy(SUNStepper* stepper_ptr)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNStepper_Advance(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, N_Vector yp,
-                              sunrealtype* tret, int* stop_reason)
+SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,
+                             sunrealtype tout, N_Vector y, N_Vector yp,
+                             sunrealtype* tret, int* stop_reason)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->advance)
+  if (stepper->ops->evolve)
   {
-    return stepper->ops->advance(stepper, t0, tout, y, yp, tret, stop_reason);
+    return stepper->ops->evolve(stepper, t0, tout, y, yp, tret, stop_reason);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
@@ -103,7 +104,7 @@ SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
                             N_Vector ypR)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->advance)
+  if (stepper->ops->evolve)
   {
     return stepper->ops->reset(stepper, tR, yR, ypR);
   }
@@ -124,10 +125,10 @@ SUNErrCode SUNStepper_GetContent(SUNStepper stepper, void** content)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNStepper_SetAdvanceFn(SUNStepper stepper, SUNStepperAdvanceFn fn)
+SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
-  stepper->ops->advance = fn;
+  stepper->ops->evolve = fn;
   return SUN_SUCCESS;
 }
 
@@ -156,6 +157,13 @@ SUNErrCode SUNStepper_SetResetFn(SUNStepper stepper, SUNStepperResetFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
   stepper->ops->reset = fn;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper, SUNStepperSetStopTimeFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->setstoptime = fn;
   return SUN_SUCCESS;
 }
 
