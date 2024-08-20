@@ -572,6 +572,76 @@ using a fixed time-step size.
 .. The `ark_kepler.c` example demonstrates an implementation of such controller.
 
 
+
+.. _ARKODE.Mathematics.SplittingStep:
+
+SplittingStep -- Operator splitting methods
+================================================
+
+The SplittingStep time-stepping module in ARKODE is designed for IVPs of the
+form
+
+.. TODO: SPRK uses subscript for function number. Make consistent
+.. math::
+   \dot{y} = f^1(t,y) + f^2(t,y) + \dots + f^P(t,y), \qquad y(t_0) = y_0,
+   :label: ARKODE_IVP_partitioned
+
+with :math:`P > 1` additive partitions. Operator splitting methods, such as
+those implemented in SplittingStep, allow each partition to be integrated
+separately, possibly with different numerical integrators or exact solution
+procedures. Coupling is only performed though initial conditions which are
+passed from the flow of one partition to the next.
+
+The following algorithmic procedure is used in the Splitting-Step module:
+
+#. For :math:`i = 1, \dots, r` do:
+
+   #. Set :math:`y_{n, i} = y_{n - 1}`.
+
+   #. For :math:`j = 0, \dots, s` do:
+
+      #. For :math:`k = 1, \dots, P` do:
+
+         #. Let :math:`t_{\text{start}} = t_{n-1} + \beta_{i,j-1,k} h_n` and
+            :math:`t_{\text{end}} = t_{n-1} + \beta_{i,j,k} h_n`.
+
+         #. Let :math:`v(t_{\text{start}}) = y_{n,i}`.
+
+         #. For :math:`t \in [t_{\text{start}}, t_{\text{end}}]` solve
+            :math:`\dot{v} = f^{k}(t, v)`.
+
+         #. Set :math:`y_{n, i} = v(t_{\text{end}})`.
+
+#. Set :math:`y_n = \sum_{i=1}^r \alpha_i y_{n,i}`
+
+Here, :math:`s` denotes the number of stages, while :math:`r` denotes the number
+of sequential methods within the overall operator splitting scheme. Each of the
+sequential methods are independent can can be run in parallel. The real
+coefficients :math:`\alpha_i` and :math:`\beta_{i,j,k}` determine the particular
+scheme and properties such as the order.
+
+An alternative representation of the SplittingStep solution is
+
+.. math::
+   y_n = \sum_{i=1}^P \alpha_i \left( \phi^1_{\gamma_{i,1,1} h} \circ
+   \phi^2_{\gamma_{i,1,2} h} \circ \dots \circ \phi^P_{\gamma_{i,1,P} h} \circ
+   \phi^1_{\gamma_{i,2,1} h} \circ \dots \circ \phi^1_{\gamma_{i,s,1} h} \circ
+   \dots \circ \phi^P_{\gamma_{i,s,P} h} \right)
+   (y_{n-1})
+
+where :math:`\gamma_{i,j,k} = \beta_{i,j,k} - \beta_{i,j-1,k}` and
+:math:`\phi^j_{h}` is the flow map for partition :math:`j`.
+
+SplittingStep provides standard operator splitting methods such as Lie--Trotter
+and Strang splitting, as well as schemes of arbitrarily high order.
+Alternatively, users may construct their own coefficients (see TODO). Generally,
+methods of order three and higher with real coefficients require backward
+integration, i.e., there exist negative :math:`\gamma_{i,j,k}` coefficients.
+Currently, a fixed time step must be specified for SplittingStep, but
+sub-integrations are free to use adaptive time steps. See TODO for
+additional details.
+
+
 .. _ARKODE.Mathematics.MRIStep:
 
 MRIStep -- Multirate infinitesimal step methods
