@@ -88,7 +88,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertSingleStageWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  const sunrealtype t               = 0.0;
+  const sunrealtype t               = 1.0;
   uint64_t interval                 = 1;
   uint64_t estimate                 = 10;
   sunbooleantype save_stages        = SUNTRUE;
@@ -107,8 +107,11 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertSingleStageWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  sunrealtype tout = 0.0;
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   step++;
@@ -119,8 +122,10 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertSingleStageWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
@@ -131,7 +136,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStageWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  const sunrealtype t               = 0.0;
+  const sunrealtype t               = 1.0;
   uint64_t interval                 = 1;
   uint64_t estimate                 = 100;
   sunbooleantype save_stages        = SUNTRUE;
@@ -150,8 +155,11 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStageWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  sunrealtype tout = 0.0;
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   step++;
@@ -162,8 +170,10 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStageWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   stage++;
@@ -174,7 +184,9 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStageWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
+  EXPECT_EQ(t, tout);
   EXPECT_EQ(err, SUN_SUCCESS);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
@@ -205,8 +217,11 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStepsWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  sunrealtype tout = 0.0;
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   step++;
@@ -217,8 +232,10 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStepsWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   stage++;
@@ -229,8 +246,10 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStepsWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   step++;
@@ -242,8 +261,10 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStepsWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   stage++;
@@ -254,8 +275,10 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, InsertTwoStepsWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
@@ -285,12 +308,17 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, AreDeletedWhenNotKeeping)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  sunrealtype tout = 0.0;
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   // Try to load it again, it should be deleted
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
+  EXPECT_EQ(t, tout);
   EXPECT_EQ(err, SUN_ERR_CHECKPOINT_NOT_FOUND);
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
@@ -327,12 +355,17 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, CanStillInsertAfterDeleting)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  sunrealtype tout = 0.0;
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   // Try to load it again, it should be deleted
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
+  EXPECT_EQ(t, tout);
   EXPECT_EQ(err, SUN_ERR_CHECKPOINT_NOT_FOUND);
 
   // Insert the second step solution
@@ -344,8 +377,10 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, CanStillInsertAfterDeleting)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Try to load it
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(t, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);

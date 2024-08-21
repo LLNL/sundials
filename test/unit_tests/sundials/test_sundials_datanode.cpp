@@ -473,12 +473,15 @@ TEST_F(SUNDataNodeTest, SetAndGetDataNvectorWhenLeaf)
                                &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  err = SUNDataNode_SetDataNvector(root_node, v);
+  sunrealtype t = 1.0;
+  err           = SUNDataNode_SetDataNvector(root_node, v, t);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  err = SUNDataNode_GetDataNvector(root_node, vec_we_got);
+  sunrealtype tout = 0.0;
+  err              = SUNDataNode_GetDataNvector(root_node, vec_we_got, &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
 
+  EXPECT_EQ(t, tout);
   EXPECT_EQ(N_VGetArrayPointer(v)[0], N_VGetArrayPointer(vec_we_got)[0]);
   EXPECT_EQ(N_VGetArrayPointer(v)[1], N_VGetArrayPointer(vec_we_got)[1]);
 

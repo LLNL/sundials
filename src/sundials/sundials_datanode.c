@@ -202,11 +202,11 @@ SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector v)
+SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector v, sunrealtype* t)
 {
   SUNFunctionBegin(self->sunctx);
 
-  if (self->getDataNvector) { return self->getDataNvector(self, v); }
+  if (self->getDataNvector) { return self->getDataNvector(self, v, t); }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
@@ -226,11 +226,11 @@ SUNErrCode SUNDataNode_SetData(SUNDataNode self, SUNMemoryType src_mem_type,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_SetDataNvector(SUNDataNode self, N_Vector v)
+SUNErrCode SUNDataNode_SetDataNvector(SUNDataNode self, N_Vector v, sunrealtype t)
 {
   SUNFunctionBegin(self->sunctx);
 
-  if (self->setDataNvector) { return self->setDataNvector(self, v); }
+  if (self->setDataNvector) { return self->setDataNvector(self, v, t); }
 
   return SUN_ERR_NOT_IMPLEMENTED;
 }

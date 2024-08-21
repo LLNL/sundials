@@ -183,9 +183,9 @@ SUNErrCode SUNDataNode_AddNamedChild_InMem(SUNDataNode self, const char* name,
   IMPL_PROP(child_node, name) = name;
   if (SUNHashMap_Insert(IMPL_PROP(self, named_children), name, child_node))
   {
-    //   fprintf(stdout, "node with name=%s could not be inserted, current named children:\n",
-    //           name);
-    //   SUNHashMap_PrintKeys(IMPL_PROP(self, named_children), stdout);
+    // fprintf(stdout, "node with name=%s could not be inserted, current named children:\n",
+    //         name);
+    // SUNHashMap_PrintKeys(IMPL_PROP(self, named_children), stdout);
     return SUN_ERR_OP_FAIL;
   }
 
@@ -303,7 +303,8 @@ SUNErrCode SUNDataNode_GetData_InMem(const SUNDataNode self, void** data,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v)
+SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v,
+                                            sunrealtype* t)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -321,11 +322,14 @@ SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v)
 
   sunindextype buffer_size = 0;
   SUNCheckCall(N_VBufSize(v, &buffer_size));
-  SUNAssert(buffer_size == leaf_data->bytes, SUN_ERR_ARG_INCOMPATIBLE);
+  SUNAssert((buffer_size + sizeof(sunrealtype)) == leaf_data->bytes,
+            SUN_ERR_ARG_INCOMPATIBLE);
 
   if (leaf_mem_type == buffer_mem_type)
   {
-    SUNCheckCall(N_VBufUnpack(v, leaf_data->ptr));
+    sunrealtype* data_ptr = leaf_data->ptr;
+    *t                    = data_ptr[0];
+    SUNCheckCall(N_VBufUnpack(v, &data_ptr[1]));
   }
   else
   {
@@ -336,7 +340,11 @@ SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v)
     SUNCheckCall(SUNMemoryHelper_Copy(IMPL_PROP(self, mem_helper), buffer_data,
                                       leaf_data, buffer_size, queue));
 
-    SUNCheckCall(N_VBufUnpack(v, buffer_data->ptr));
+    sunrealtype* data_ptr = leaf_data->ptr;
+    *t                    = data_ptr[0];
+    data_ptr              = buffer_data->ptr;
+
+    SUNCheckCall(N_VBufUnpack(v, &data_ptr[1]));
 
     SUNCheckCall(
       SUNMemoryHelper_Dealloc(IMPL_PROP(self, mem_helper), buffer_data, queue));
@@ -374,7 +382,8 @@ SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode self, SUNMemoryType src_mem_typ
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v)
+SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v,
+                                            sunrealtype t)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -391,27 +400,37 @@ SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v)
   sunindextype buffer_size = 0;
   SUNCheckCall(N_VBufSize(v, &buffer_size));
 
+  /* We allocate 1 extra sunrealtype for storing t */
   SUNMemory leaf_data = NULL;
-  SUNCheckCall(SUNMemoryHelper_AllocStrided(IMPL_PROP(self, mem_helper),
-                                            &leaf_data, buffer_size,
-                                            sizeof(sunrealtype), leaf_mem_type,
-                                            queue));
+  SUNCheckCall(
+    SUNMemoryHelper_AllocStrided(IMPL_PROP(self, mem_helper), &leaf_data,
+                                 buffer_size + sizeof(sunrealtype),
+                                 sizeof(sunrealtype), leaf_mem_type, queue));
 
   if (leaf_mem_type == buffer_mem_type)
   {
-    SUNCheckCall(N_VBufPack(v, leaf_data->ptr));
+    sunrealtype* data_ptr = leaf_data->ptr;
+    data_ptr[0]           = t;
+    SUNCheckCall(N_VBufPack(v, &data_ptr[1]));
   }
   else
   {
+    /* If the node memory type is not the same as the N_Vector's memory type,
+       then we will first need to create a buffer of the same type as the N_Vector's
+       and then copy it to the node data. */
     SUNMemory buffer_data = NULL;
-    SUNCheckCall(SUNMemoryHelper_AllocStrided(IMPL_PROP(self, mem_helper),
-                                              &buffer_data, buffer_size,
-                                              sizeof(sunrealtype),
-                                              buffer_mem_type, queue));
-    SUNCheckCall(N_VBufPack(v, buffer_data->ptr));
+    SUNCheckCall(
+      SUNMemoryHelper_AllocStrided(IMPL_PROP(self, mem_helper), &buffer_data,
+                                   buffer_size + sizeof(sunrealtype),
+                                   sizeof(sunrealtype), buffer_mem_type, queue));
+
+    sunrealtype* data_ptr = buffer_data->ptr;
+    data_ptr[0]           = t;
+    SUNCheckCall(N_VBufPack(v, &data_ptr[1]));
 
     SUNCheckCall(SUNMemoryHelper_Copy(IMPL_PROP(self, mem_helper), leaf_data,
-                                      buffer_data, buffer_size, queue));
+                                      buffer_data,
+                                      buffer_size + sizeof(sunrealtype), queue));
 
     SUNCheckCall(
       SUNMemoryHelper_Dealloc(IMPL_PROP(self, mem_helper), buffer_data, queue));

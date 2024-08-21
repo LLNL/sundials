@@ -140,12 +140,12 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
   SUNCheckCall(SUNDataNode_CreateLeaf(PROPERTY(self, io_mode),
                                       PROPERTY(self, mem_helper), SUNCTX_,
                                       &solution_node));
-  SUNCheckCall(SUNDataNode_SetDataNvector(solution_node, state));
+  SUNCheckCall(SUNDataNode_SetDataNvector(solution_node, state, t));
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                     "insert-stage", "step_num = %d, stage_num = %d", step_num,
-                     stage_num);
+                     "insert-stage", "step_num = %d, stage_num = %d, t = %g",
+                     step_num, stage_num, t);
 #endif
   SUNCheckCall(SUNDataNode_AddChild(step_data_node, solution_node));
 
@@ -154,7 +154,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
 
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   SUNAdjointCheckpointScheme self, sunindextype step_num,
-  sunindextype stage_num, N_Vector* loaded_state)
+  sunindextype stage_num, N_Vector* loaded_state, sunrealtype* t)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -169,7 +169,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
     char* key = sunSignedToString(step_num);
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                       "load-new-step", "step_num = %d, stage_num = %d",
+                       "try-load-new-step", "step_num = %d, stage_num = %d",
                        step_num, stage_num);
 #endif
     errcode = SUNDataNode_GetNamedChild(PROPERTY(self, root_node), key,
@@ -198,13 +198,19 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
     return SUN_ERR_CHECKPOINT_NOT_FOUND;
   }
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__, "step-loaded",
+                     "step_num = %d, stage_num = %d", step_num, stage_num);
+#endif
+
   SUNDataNode solution_node = NULL;
   if (PROPERTY(self, keep))
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                       "load-stage", "keep = 1, step_num = %d, stage_num = %d",
-                       step_num, stage_num);
+                       "try-load-stage",
+                       "keep = 1, step_num = %d, stage_num = %d", step_num,
+                       stage_num);
 #endif
     errcode = SUNDataNode_GetChild(step_data_node, stage_num, &solution_node);
     if (errcode == SUN_ERR_DATANODE_NODENOTFOUND) { solution_node = NULL; }
@@ -214,8 +220,9 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                       "load-stage", "keep = 0, step_num = %d, stage_num = %d",
-                       step_num, stage_num);
+                       "try-load-stage",
+                       "keep = 0, step_num = %d, stage_num = %d", step_num,
+                       stage_num);
 #endif
     errcode = SUNDataNode_RemoveChild(step_data_node, stage_num, &solution_node);
     if (errcode == SUN_ERR_DATANODE_NODENOTFOUND) { solution_node = NULL; }
@@ -232,7 +239,12 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
     return SUN_ERR_CHECKPOINT_NOT_FOUND;
   }
 
-  SUNCheckCall(SUNDataNode_GetDataNvector(solution_node, *loaded_state));
+  SUNCheckCall(SUNDataNode_GetDataNvector(solution_node, *loaded_state, t));
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
+                     "stage-loaded", "step_num = %d, stage_num = %d, t = %g",
+                     step_num, stage_num, *t);
+#endif
 
   /* Cleanup the checkpoint memory if need be */
   if (!PROPERTY(self, keep))

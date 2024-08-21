@@ -41,7 +41,8 @@ struct SUNAdjointCheckpointScheme_Ops_
                              N_Vector state);
 
   SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme, sunindextype step_num,
-                           sunindextype stage_num, N_Vector* out);
+                           sunindextype stage_num, N_Vector* out,
+                           sunrealtype* tout);
 
   SUNErrCode (*removeVector)(SUNAdjointCheckpointScheme, sunindextype step_num,
                              sunindextype stage_num, N_Vector* out);
@@ -91,7 +92,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme,
                                                  sunindextype step_num,
                                                  sunindextype stage_num,
-                                                 N_Vector* out);
+                                                 N_Vector* out,
+                                                 sunrealtype* tout);
 
 SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme,
                                                    sunindextype step_num,

@@ -188,7 +188,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Load_Basic(
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, N_Vector* out);
+  sunindextype stage_num, N_Vector* out, sunrealtype* tout);
 
 /**
   This function destroys and frees the memory for the SUNAdjointCheckpointScheme object.
@@ -203,7 +203,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(
 
 /**
   This function enables dense checkpointing, that is it saves
-  all steps. 
+  all steps.
 
   :param check_scheme: the SUNAdjointCheckpointScheme object
   :param on_or_off: turn dense checkpoints on or off
