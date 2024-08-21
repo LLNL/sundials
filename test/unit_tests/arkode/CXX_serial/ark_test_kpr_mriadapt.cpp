@@ -1,6 +1,5 @@
 /* ----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
- *                Rujeko Chinomona @ SMU
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2024, Lawrence Livermore National Security
@@ -23,6 +22,8 @@
  *
  * This problem has analytical solution given by
  *    u(t) = sqrt(2+r(t)),  v(t) = sqrt(2+s(t)).
+ * However, we use a reference solver here to assess performance
+ * of the local multirate adaptivity controller.
  *
  * This program allows a number of parameters:
  *   e: fast/slow coupling strength [default = 0.5]
@@ -192,8 +193,6 @@ static int ReadInputs(std::vector<std::string>& args, Options& opts,
                       SUNContext ctx);
 static void PrintSlowAdaptivity(Options opts);
 static void PrintFastAdaptivity(Options opts);
-
-// Private function to check function return values
 static sunrealtype r(sunrealtype t, Options* opts);
 static sunrealtype s(sunrealtype t, Options* opts);
 static sunrealtype rdot(sunrealtype t, Options* opts);
@@ -217,9 +216,8 @@ int main(int argc, char* argv[])
   // General problem parameters
   sunrealtype T0    = SUN_RCONST(0.0);       // initial time
   sunrealtype Tf    = SUN_RCONST(5.0);       // final time
-  sunrealtype dTout = SUN_RCONST(0.25);      // time between outputs
   sunindextype NEQ  = 2;                     // number of dependent vars.
-  int Nt            = (int)ceil(Tf / dTout); // number of output times
+  int Nt            = 20;                    // number of output times
 
   // Initial problem output
   //    While traversing these, set various function pointers, table constants, and method orders.
@@ -266,12 +264,28 @@ int main(int argc, char* argv[])
   else { std::cout << "\n  Fast order " << opts.fast_order << std::endl; }
   PrintFastAdaptivity(opts);
 
-  // Create and initialize serial vector for the solution
-  N_Vector y = NULL;
-  y          = N_VNew_Serial(NEQ, sunctx);
+  // Create and initialize serial vectors for the solution and reference
+  N_Vector y = N_VNew_Serial(NEQ, sunctx);
   if (check_ptr((void*)y, "N_VNew_Serial")) return 1;
+  N_Vector yref = N_VClone(y);
+  if (check_ptr((void*)yref, "N_VClone")) return 1;
+
+  // Set initial conditions
   retval = Ytrue(T0, y, &opts);
   if (check_flag(retval, "Ytrue")) return 1;
+  N_VScale(ONE, y, yref);
+
+  // Create and configure reference solver object
+  void* arkode_ref = ERKStepCreate(fn, T0, yref, sunctx);
+  if (check_ptr((void*)arkode_ref, "ERKStepCreate")) return 1;
+  retval = ARKodeSetUserData(arkode_ref, (void*)&opts);
+  if (check_flag(retval, "ARKodeSetUserData")) return 1;
+  retval = ARKodeSetOrder(arkode_ref, 5);
+  if (check_flag(retval, "ARKodeSetOrder")) return 1;
+  retval = ARKodeSStolerances(arkode_ref, SUN_RCONST(1.e-10), SUN_RCONST(1.e-12));
+  if (check_flag(retval, "ARKodeSStolerances")) return 1;
+  retval = ARKodeSetMaxNumSteps(arkode_ref, 10000000);
+  if (check_flag(retval, "ARKodeSetMaxNumSteps")) return (1);
 
   // Create and configure fast controller object
   SUNAdaptController fcontrol = NULL;
@@ -691,53 +705,66 @@ int main(int argc, char* argv[])
   // Main time-stepping loop: calls ARKodeEvolve to perform the
   // integration, then prints results. Stops when the final time
   // has been reached
-  sunrealtype t, tout;
-  sunrealtype uerr, verr, uerrtot, verrtot, errtot, accuracy;
-  t        = T0;
-  tout     = T0 + dTout;
-  uerr     = ZERO;
-  verr     = ZERO;
-  uerrtot  = ZERO;
-  verrtot  = ZERO;
-  errtot   = ZERO;
-  accuracy = ZERO;
+  sunrealtype t = T0;
+  sunrealtype t2 = T0;
+  sunrealtype dTout = (Tf-T0)/Nt;
+  sunrealtype tout = T0+dTout;
+  sunrealtype u, v, uerr, verr, uerrtot, verrtot, errtot, accuracy;
+  uerr = verr = uerrtot = verrtot = errtot = accuracy = ZERO;
   printf("        t           u           v       uerr      verr\n");
   printf("   ------------------------------------------------------\n");
   printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM "  %.2" ESYM
          "\n",
          t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), uerr, verr);
-
-  for (int iout = 0; iout < Nt; iout++)
+  int Nout = 0;
+  while (Tf - t > 1.0e-8)
   {
-    // set stop time to ensure that solutions are reported to full accuracy
+
+    // reset reference solver so that it begins with identical state
+    retval = ARKodeReset(arkode_ref, t, y);
+
+    // evolve solution in one-step mode
     retval = ARKodeSetStopTime(arkode_mem, tout);
     if (check_flag(retval, "ARKodeSetStopTime")) return 1;
-
-    // call integrator
-    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_ONE_STEP);
     if (retval < 0)
     {
       printf("ARKodeEvolve error (%i)\n", retval);
       return 1;
     }
 
+    // evolve reference solver to same time in "normal" mode
+    retval = ARKodeSetStopTime(arkode_ref, t);
+    if (check_flag(retval, "ARKodeSetStopTime")) return 1;
+    retval = ARKodeEvolve(arkode_ref, t, yref, &t2, ARK_NORMAL);
+    if (retval < 0)
+    {
+      printf("ARKodeEvolve reference solution error (%i)\n", retval);
+      return 1;
+    }
+
     // access/print solution and error
-    uerr = SUNRabs(NV_Ith_S(y, 0) - utrue(t, &opts));
-    verr = SUNRabs(NV_Ith_S(y, 1) - vtrue(t, &opts));
-    printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM
-           "  %.2" ESYM "\n",
-           t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), uerr, verr);
+    u = NV_Ith_S(y,0);
+    v = NV_Ith_S(y,1);
+    uerr = SUNRabs(NV_Ith_S(yref, 0) - u);
+    verr = SUNRabs(NV_Ith_S(yref, 1) - v);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     errtot += uerr * uerr + verr * verr;
-    accuracy = std::max(accuracy,
-                        uerr / SUNRabs(opts.atol + opts.rtol * utrue(t, &opts)));
-    accuracy = std::max(accuracy,
-                        verr / SUNRabs(opts.atol + opts.rtol * vtrue(t, &opts)));
+    accuracy = std::max(accuracy, uerr / SUNRabs(opts.atol +
+                                                 opts.rtol * NV_Ith_S(yref, 0)));
+    accuracy = std::max(accuracy, verr / SUNRabs(opts.atol +
+                                                 opts.rtol * NV_Ith_S(yref, 1)));
+    Nout++;
 
-    // successful solve: update time
-    tout += dTout;
-    tout = (tout > Tf) ? Tf : tout;
+    // Periodically output current results to screen
+    if (t >= tout)
+    {
+      tout += dTout;
+      tout = (tout > Tf) ? Tf : tout;
+      printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM
+             "  %.2" ESYM "\n", t, u, v, uerr, verr);
+    }
   }
   uerrtot = SUNRsqrt(uerrtot / Nt);
   verrtot = SUNRsqrt(verrtot / Nt);
@@ -807,6 +834,7 @@ int main(int argc, char* argv[])
   ARKodeFree(&inner_arkode_mem);            // Free fast integrator memory
   MRIStepInnerStepper_Free(&inner_stepper); // Free inner stepper structure
   ARKodeFree(&arkode_mem);                  // Free slow integrator memory
+  ARKodeFree(&arkode_ref);                  // Free reference solver memory
 
   return 0;
 }

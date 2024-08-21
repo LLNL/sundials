@@ -211,9 +211,8 @@ int main(int argc, char* argv[])
   // General problem parameters
   sunrealtype T0    = SUN_RCONST(0.0);       // initial time
   sunrealtype Tf    = SUN_RCONST(10.0);      // final time
-  sunrealtype dTout = SUN_RCONST(0.5);       // time between outputs
   sunindextype NEQ  = 3;                     // number of dependent vars.
-  int Nt            = (int)ceil(Tf / dTout); // number of output times
+  int Nt            = 20;                    // number of output times
 
   // Initial problem output
   //    While traversing these, set various function pointers, table constants, and method orders.
@@ -359,11 +358,8 @@ int main(int argc, char* argv[])
       retval = ARKodeSetInitStep(inner_arkode_mem, opts.hf);
       if (check_flag(retval, "ARKodeSetInitStep")) return 1;
     }
-    if (opts.fast_pq == 1)
-    {
-      retval = ARKodeSetAdaptivityAdjustment(inner_arkode_mem, 0);
-      if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
-    }
+    retval = ARKodeSetAdaptivityAdjustment(inner_arkode_mem, opts.fast_pq-1);
+    if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
   }
   else
   {
@@ -680,11 +676,8 @@ int main(int argc, char* argv[])
       retval = ARKodeSetInitStep(arkode_mem, opts.hs);
       if (check_flag(retval, "ARKodeSetInitStep")) return 1;
     }
-    if (opts.slow_pq == 1)
-    {
-      retval = ARKodeSetAdaptivityAdjustment(arkode_mem, 0);
-      if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
-    }
+    retval = ARKodeSetAdaptivityAdjustment(arkode_mem, opts.slow_pq-1);
+    if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
   }
   else
   {
@@ -699,19 +692,13 @@ int main(int argc, char* argv[])
   // Main time-stepping loop: calls ARKodeEvolve to perform the
   // integration, then prints results. Stops when the final time
   // has been reached
-  sunrealtype t, tout;
-  sunrealtype uerr, verr, werr, uerrtot, verrtot, werrtot, errtot;
+  sunrealtype t = T0;
+  sunrealtype t2 = T0;
+  sunrealtype dTout = (Tf-T0)/Nt;
+  sunrealtype tout = T0+dTout;
+  sunrealtype u, v, w, uerr, verr, werr, uerrtot, verrtot, werrtot, errtot;
   sunrealtype accuracy;
-  t        = T0;
-  tout     = T0 + dTout;
-  uerr     = ZERO;
-  verr     = ZERO;
-  werr     = ZERO;
-  uerrtot  = ZERO;
-  verrtot  = ZERO;
-  werrtot  = ZERO;
-  errtot   = ZERO;
-  accuracy = ZERO;
+  uerr = verr = werr = uerrtot = verrtot = werrtot = errtot = accuracy = ZERO;
   printf("        t          u          v          w       uerr      verr      "
          "werr\n");
   printf("   "
@@ -720,36 +707,40 @@ int main(int argc, char* argv[])
   printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.1" ESYM
          "   %.1" ESYM "   %.1" ESYM "\n",
          t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2), uerr, verr, werr);
-
-  for (int iout = 0; iout < Nt; iout++)
+  int Nout = 0;
+  while (Tf - t > 1.0e-8)
   {
-    // call reference solver
-    retval = ARKodeSetStopTime(arkode_ref, tout);
-    if (check_flag(retval, "ARKodeSetStopTime")) return 1;
-    retval = ARKodeEvolve(arkode_ref, tout, yref, &t, ARK_NORMAL);
-    if (retval < 0)
-    {
-      printf("ARKodeEvolve reference solution error (%i)\n", retval);
-      return 1;
-    }
 
-    // call integrator
+    // reset reference solver so that it begins with identical state
+    retval = ARKodeReset(arkode_ref, t, y);
+
+    // evolve solution in one-step mode
     retval = ARKodeSetStopTime(arkode_mem, tout);
     if (check_flag(retval, "ARKodeSetStopTime")) return 1;
-    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_ONE_STEP);
     if (retval < 0)
     {
       printf("ARKodeEvolve error (%i)\n", retval);
       return 1;
     }
 
+    // evolve reference solver to same time in "normal" mode
+    retval = ARKodeSetStopTime(arkode_ref, t);
+    if (check_flag(retval, "ARKodeSetStopTime")) return 1;
+    retval = ARKodeEvolve(arkode_ref, t, yref, &t2, ARK_NORMAL);
+    if (retval < 0)
+    {
+      printf("ARKodeEvolve reference solution error (%i)\n", retval);
+      return 1;
+    }
+
     // access/print solution and error
-    uerr = SUNRabs(NV_Ith_S(y, 0) - NV_Ith_S(yref, 0));
-    verr = SUNRabs(NV_Ith_S(y, 1) - NV_Ith_S(yref, 1));
-    werr = SUNRabs(NV_Ith_S(y, 2) - NV_Ith_S(yref, 2));
-    printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM
-           "   %.1" ESYM "   %.1" ESYM "   %.1" ESYM "\n",
-           t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2), uerr, verr, werr);
+    u = NV_Ith_S(y,0);
+    v = NV_Ith_S(y,1);
+    w = NV_Ith_S(y,2);
+    uerr = SUNRabs(NV_Ith_S(yref, 0) - u);
+    verr = SUNRabs(NV_Ith_S(yref, 1) - v);
+    werr = SUNRabs(NV_Ith_S(yref, 2) - w);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     werrtot += werr * werr;
@@ -760,10 +751,17 @@ int main(int argc, char* argv[])
                                                  opts.rtol * NV_Ith_S(yref, 1)));
     accuracy = std::max(accuracy, werr / SUNRabs(opts.atol +
                                                  opts.rtol * NV_Ith_S(yref, 2)));
+    Nout++;
 
-    // successful solve: update time
-    tout += dTout;
-    tout = (tout > Tf) ? Tf : tout;
+    // Periodically output current results to screen
+    if (t >= tout)
+    {
+      tout += dTout;
+      tout = (tout > Tf) ? Tf : tout;
+      printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM
+             "   %.1" ESYM "   %.1" ESYM "   %.1" ESYM "\n",
+             t, u, v, w, uerr, verr, werr);
+    }
   }
   uerrtot = SUNRsqrt(uerrtot / Nt);
   verrtot = SUNRsqrt(verrtot / Nt);
