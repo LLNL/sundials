@@ -162,4 +162,4 @@ also provides the following additional user-callable routines:
 
    .. code-block:: c
 
-      retval = SUNAdaptController_SetParams_MRIHTol(C, 20.0, 1e-4, 1.0);
+      retval = SUNAdaptController_SetParams_MRIHTol(C, 20.0, 1e-5, 1.0);
