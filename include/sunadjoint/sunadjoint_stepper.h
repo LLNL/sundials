@@ -12,8 +12,8 @@
  * SUNAdjointStepper class definition.
  * ----------------------------------------------------------------*/
 
-#ifndef _sunadjoint_stepper_H
-#define _sunadjoint_stepper_H
+#ifndef _SUNADJOINT_STEPPER_H
+#define _SUNADJOINT_STEPPER_H
 
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
 #include <sundials/sundials_core.h>
@@ -27,16 +27,17 @@ struct SUNAdjointStepper_
   SUNStepper fwd_sunstepper;
   SUNAdjointCheckpointScheme checkpoint_scheme;
 
-  SUNMatrix Jac, JacP;
+  sunrealtype tf;
+  int64_t step_idx, final_step_idx;
 
+  /* Jacobian-related data */
+  SUNMatrix Jac, JacP;
   SUNJacFn JacFn, JacPFn;
   SUNJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
 
-  sunrealtype tf;
-  int64_t step_idx, final_step_idx, nst;
-
   /* counters */
-  uint64_t njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp, nrecompute;
+  uint64_t nst, njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp,
+    nrecompute;
 
   void* user_data;
   SUNContext sunctx;
@@ -133,4 +134,4 @@ SUNErrCode SUNAdjointStepper_Destroy(SUNAdjointStepper*);
 #ifdef __cplusplus
 }
 #endif
-#endif /* _sunadjoint_stepper_H */
+#endif /* _SUNADJOINT_STEPPER_H */
