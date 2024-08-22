@@ -24,13 +24,13 @@ ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_NONE, {
   })
 
 ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_LIE_TROTTER_2_1, {
-    return ARKodeSplittingCoefficients_LieTrotter(2);
+    return SplittingStepCoefficients_LieTrotter(2);
  })
 
 ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_STRANG_2_2, {
-    return ARKodeSplittingCoefficients_Strang(2);
+    return SplittingStepCoefficients_Strang(2);
  })
 
 ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_YOSHIDA_2_4, {
-    return ARKodeSplittingCoefficients_TripleJump(2, 4);
+    return SplittingStepCoefficients_TripleJump(2, 4);
  })

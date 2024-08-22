@@ -28,7 +28,7 @@
 #define GAMMA (SUN_RCONST(1.0) / (SUN_RCONST(4.0) - SUNRpowerR(SUN_RCONST(4.0), SUN_RCONST(1.0) /  SUN_RCONST(3.0))))
 
 static int check_coefficients(const char* const name,
-                              const ARKodeSplittingCoefficients coefficients,
+                              const SplittingStepCoefficients coefficients,
                               const int expected_sequential_methods,
                               const int expected_stages,
                               const int expected_partitions,
@@ -100,7 +100,7 @@ static int check_coefficients(const char* const name,
   }
 
   if (retval > 0) {
-    ARKodeSplittingCoefficients_Write(coefficients, stderr);
+    SplittingStepCoefficients_Write(coefficients, stderr);
   }
 
   return retval;
@@ -113,8 +113,8 @@ int main(int argc, char* argv[])
 
   printf("Testing Splitting Coefficients\n");
 
-  ARKodeSplittingCoefficients coefficients =
-    ARKodeSplittingCoefficients_Create(1, 2, 2, 1, NULL, NULL);
+  SplittingStepCoefficients coefficients =
+    SplittingStepCoefficients_Create(1, 2, 2, 1, NULL, NULL);
   if (coefficients != NULL)
   {
     fprintf(stderr, "Coefficients created with NULL coefficients\n");
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
   sunrealtype alpha_lie_trotter[] = {ONE};
   sunrealtype beta_lie_trotter[]  = {ZERO, ZERO, ONE, ONE};
 
-  coefficients = ARKodeSplittingCoefficients_Create(0, 0, 0, 1, alpha_lie_trotter,
+  coefficients = SplittingStepCoefficients_Create(0, 0, 0, 1, alpha_lie_trotter,
                                                     beta_lie_trotter);
   if (coefficients != NULL)
   {
@@ -132,50 +132,50 @@ int main(int argc, char* argv[])
     retval++;
   }
 
-  coefficients = ARKodeSplittingCoefficients_Create(1, 1, 2, 1, alpha_lie_trotter,
+  coefficients = SplittingStepCoefficients_Create(1, 1, 2, 1, alpha_lie_trotter,
                                                     beta_lie_trotter);
   retval += check_coefficients("Lie-Trotter (manually created)", coefficients,
                                1, 1, 2, 1, alpha_lie_trotter, beta_lie_trotter);
 
-  ARKodeSplittingCoefficients coefficients_copy =
-    ARKodeSplittingCoefficients_Copy(coefficients);
+  SplittingStepCoefficients coefficients_copy =
+    SplittingStepCoefficients_Copy(coefficients);
   retval += check_coefficients("Lie-Trotter (copy)", coefficients_copy, 1, 1, 2,
                                1, alpha_lie_trotter, beta_lie_trotter);
-  ARKodeSplittingCoefficients_Free(coefficients);
-  ARKodeSplittingCoefficients_Free(coefficients_copy);
+  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Free(coefficients_copy);
 
-  coefficients = ARKodeSplittingCoefficients_LoadCoefficients(ARKODE_SPLITTING_LIE_TROTTER_2_1);
+  coefficients = SplittingStepCoefficients_LoadCoefficients(ARKODE_SPLITTING_LIE_TROTTER_2_1);
   retval += check_coefficients("Lie-Trotter (load by enum)", coefficients, 1, 1, 2, 1,
                                alpha_lie_trotter, beta_lie_trotter);
-  ARKodeSplittingCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Free(coefficients);
 
-  coefficients = ARKodeSplittingCoefficients_LoadCoefficientsByName("ARKODE_SPLITTING_LIE_TROTTER_2_1");
+  coefficients = SplittingStepCoefficients_LoadCoefficientsByName("ARKODE_SPLITTING_LIE_TROTTER_2_1");
   retval += check_coefficients("Lie-Trotter (load by name)", coefficients, 1, 1, 2, 1,
                                alpha_lie_trotter, beta_lie_trotter);
-  ARKodeSplittingCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Free(coefficients);
 
-  coefficients = ARKodeSplittingCoefficients_LieTrotter(2);
+  coefficients = SplittingStepCoefficients_LieTrotter(2);
   retval += check_coefficients("Lie-Trotter (constructor)", coefficients, 1, 1, 2, 1,
                                alpha_lie_trotter, beta_lie_trotter);
-  ARKodeSplittingCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Free(coefficients);
 
   sunrealtype alpha_strang[] = {ONE};
   sunrealtype beta_strang[]  = {ZERO, ZERO, ZERO, HALF, HALF, ONE,
                                 HALF, ONE,  ONE,  ONE,  ONE,  ONE};
 
-  coefficients = ARKodeSplittingCoefficients_Strang(3);
+  coefficients = SplittingStepCoefficients_Strang(3);
   retval += check_coefficients("Strang", coefficients, 1, 3, 3, 2, alpha_strang,
                                beta_strang);
-  ARKodeSplittingCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Free(coefficients);
 
   sunrealtype alpha_parallel[] = {ONE, ONE, -ONE};
   sunrealtype beta_parallel[]  = {ZERO, ZERO, ONE,  ZERO, ZERO, ZERO,
                                   ZERO, ONE,  ZERO, ZERO, ZERO, ZERO};
 
-  coefficients = ARKodeSplittingCoefficients_Parallel(2);
+  coefficients = SplittingStepCoefficients_Parallel(2);
   retval += check_coefficients("Parallel", coefficients, 3, 1, 2, 1,
                                alpha_parallel, beta_parallel);
-  ARKodeSplittingCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Free(coefficients);
 
   sunrealtype alpha_symmetric_parallel[] = {HALF, HALF, -ONE};
   sunrealtype beta_symmetric_parallel[]  = {ZERO, ZERO, ZERO, ZERO, ZERO, ZERO,
@@ -183,10 +183,10 @@ int main(int argc, char* argv[])
                                             ZERO, ZERO, ZERO, ZERO, ZERO, ONE,
                                             ZERO, ONE,  ONE,  ONE,  ONE,  ONE};
 
-  coefficients = ARKodeSplittingCoefficients_SymmetricParallel(3);
+  coefficients = SplittingStepCoefficients_SymmetricParallel(3);
   retval += check_coefficients("Symmetric Parallel", coefficients, 2, 3, 3, 2,
                                alpha_symmetric_parallel, beta_symmetric_parallel);
-  ARKodeSplittingCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Free(coefficients);
 
   sunrealtype alpha_suzuki_fractal[] = {ONE};
   sunrealtype beta_suzuki_fractal[]  = {ZERO, ZERO,
@@ -197,10 +197,10 @@ int main(int argc, char* argv[])
   ONE - HALF * GAMMA, ONE,
   ONE, ONE};
 
-  coefficients = ARKodeSplittingCoefficients_SuzukiFractal(2, 4);
+  coefficients = SplittingStepCoefficients_SuzukiFractal(2, 4);
   retval += check_coefficients("Suzuki Fractal", coefficients, 1, 6, 2, 4, alpha_suzuki_fractal,
                                beta_suzuki_fractal);
-  ARKodeSplittingCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Free(coefficients);
 
   printf("%d test failures\n", retval);
 

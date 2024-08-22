@@ -12,13 +12,13 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _ARKODE.Usage.SplittingStep.ARKodeSplittingCoefficients:
+.. _ARKODE.Usage.SplittingStep.SplittingStepCoefficients:
 
 =========================================
 Operator Splitting Coefficients Structure
 =========================================
 
 To store the coefficients representing an operator splitting method, ARKODE
-provides the :c:type:`ARKodeSplittingCoefficients` type and several related
+provides the :c:type:`SplittingStepCoefficients` type and several related
 utility routines. We use the following notation
 

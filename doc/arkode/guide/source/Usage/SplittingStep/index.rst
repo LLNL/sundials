@@ -28,4 +28,4 @@ are specific to ERKStep.
    :maxdepth: 1
 
    User_callable
-   ARKodeSplittingCoefficients
+   SplittingStepCoefficients

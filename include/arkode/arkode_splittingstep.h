@@ -17,6 +17,7 @@
 #ifndef ARKODE_SPLITTINGSTEP_H_
 #define ARKODE_SPLITTINGSTEP_H_
 
+#include <sundials/sundials_stepper.h>
 #include <arkode/arkode_execution_policy.h>
 #include <arkode/arkode_splitting_coefficients.h>
 #include <sundials/sundials_nvector.h>
@@ -26,10 +27,6 @@
 extern "C" {
 #endif
 
-/* TODO: remove once SUNStepper is ready */
-typedef MRIStepInnerStepper SUNStepper;
-
-/* ARKODE functions */
 /* TODO: can we use `const SUNStepper* steppers` since we don't make copies? */
 /* TODO: would (t0, y0, steppers, partitions, sunctx) be a better arg order? Seems slightly more consistent with MRIStepCreate */
 SUNDIALS_EXPORT void* SplittingStepCreate(SUNStepper* steppers, int partitions,
@@ -37,7 +34,7 @@ SUNDIALS_EXPORT void* SplittingStepCreate(SUNStepper* steppers, int partitions,
                                           SUNContext sunctx);
 
 SUNDIALS_EXPORT int SplittingStep_SetCoefficients(
-  void* arkode_mem, ARKodeSplittingCoefficients coefficients);
+  void* arkode_mem, SplittingStepCoefficients coefficients);
 
 SUNDIALS_EXPORT int SplittingStep_SetExecutionPolicy(
   void* arkode_mem, ARKodeSplittingExecutionPolicy policy);

@@ -34,20 +34,20 @@ static int execute_serial(ARKodeSplittingExecutionPolicy policy,
                           const int sequential_methods, void* user_data)
 {
   N_VScale(1, yn, ycur);
-  fn(0, ycur, user_data);
+  int retval = fn(0, ycur, user_data);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  // For many methods alpha[0] == 1, so this is redundant. TODO: add check or
-  // hope compiler optimized this out
-  // N_VScale(alpha[0], ycur, ycur);
+  if (alpha[0] != SUN_RCONST(1.0)) {
+    N_VScale(alpha[0], ycur, ycur);
+  }
 
-  // for (int i = 1; i < sequential_methods; i++)
-  // {
-  //   N_VScale(1, yn, tmp);
-  //   int retval = fn(i, tmp, user_data);
-  //   if (retval != ARK_SUCCESS)
-  //   // TODO: error handling of fn
-  //   N_VLinearSum(1, ycur, alpha[i], tmp, yn);
-  // }
+  for (int i = 1; i < sequential_methods; i++)
+  {
+    N_VScale(SUN_RCONST(1.0), yn, tmp);
+    retval = fn(i, tmp, user_data);
+    if (retval != ARK_SUCCESS) { return retval; }
+    N_VLinearSum(SUN_RCONST(1.0), ycur, alpha[i], tmp, ycur);
+  }
 
   return ARK_SUCCESS;
 }
@@ -72,6 +72,7 @@ void ARKodeSplittingExecutionPolicy_Free(ARKodeSplittingExecutionPolicy* policy)
 {
   if (policy != NULL)
   {
+    (*policy)->free(*policy);
     free(*policy);
     *policy = NULL;
   }

@@ -1,4 +1,4 @@
-// TODO: should filename be arkode_splittingcoefficients.h instead?
+/* TODO: merge this header into arkode_splittingstep.h? MRI uses one header, but ARK uses two */
 
 /* -----------------------------------------------------------------------------
  * Programmer(s): Steven B. Roberts @ LLNL
@@ -16,8 +16,8 @@
 * This is the header file for ARKode splitting coefficient structures.
  * ---------------------------------------------------------------------------*/
 
-#ifndef ARKODE_SPLITTING_COEFFICIENTS_H_
-#define ARKODE_SPLITTING_COEFFICIENTS_H_
+#ifndef ARKODE_SPLITTING_STEP_COEFFICIENTS_H_
+#define ARKODE_SPLITTING_STEP_COEFFICIENTS_H_
 
 #include <stdio.h>
 #include <sundials/sundials_types.h>
@@ -27,9 +27,9 @@ extern "C" {
 #endif
 
 /*---------------------------------------------------------------
-  Types : struct ARKodeSplittingCoefficientsMem, ARKodeSplittingCoefficients
+  Types : struct SplittingStepCoefficientsMem, SplittingStepCoefficients
   ---------------------------------------------------------------*/
-struct ARKodeSplittingCoefficientsMem
+struct SplittingStepCoefficientsMem
 {
   sunrealtype* alpha;  /* weights for sum over sequential splitting methods */
   sunrealtype*** beta; /* subintegration nodes, indexed by the sequential method, stage, and partition */
@@ -39,7 +39,7 @@ struct ARKodeSplittingCoefficientsMem
   int order;      /* order of convergence */
 };
 
-typedef _SUNDIALS_STRUCT_ ARKodeSplittingCoefficientsMem* ARKodeSplittingCoefficients;
+typedef _SUNDIALS_STRUCT_ SplittingStepCoefficientsMem* SplittingStepCoefficients;
 
 /* Splitting names use the convention ARKODE_SPLITTING_<name>_<partitions>_<order> */
 typedef enum
@@ -53,40 +53,40 @@ typedef enum
 } ARKODE_SplittingCoefficientsID;
 
 /* Coefficient memory management */
-SUNDIALS_EXPORT ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Alloc(
+SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Alloc(
   int sequential_methods, int stages, int partitions);
 /* TODO: Ideally, alpha and beta would be const, but that would be inconsistent
  * with other ARKODE function which accept arrays */
-SUNDIALS_EXPORT ARKodeSplittingCoefficients ARKodeSplittingCoefficients_Create(
+SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Create(
   int sequential_methods, int stages, int partitions, int order,
   sunrealtype* alpha, sunrealtype* beta);
-SUNDIALS_EXPORT void ARKodeSplittingCoefficients_Free(ARKodeSplittingCoefficients B);
-SUNDIALS_EXPORT ARKodeSplittingCoefficients
-ARKodeSplittingCoefficients_Copy(ARKodeSplittingCoefficients B);
-SUNDIALS_EXPORT void ARKodeSplittingCoefficients_Write(
-  ARKodeSplittingCoefficients coefficients, FILE* outfile);
+SUNDIALS_EXPORT void SplittingStepCoefficients_Free(SplittingStepCoefficients B);
+SUNDIALS_EXPORT SplittingStepCoefficients
+SplittingStepCoefficients_Copy(SplittingStepCoefficients B);
+SUNDIALS_EXPORT void SplittingStepCoefficients_Write(
+  SplittingStepCoefficients coefficients, FILE* outfile);
 
 /* Load splitting coefficients */
-SUNDIALS_EXPORT ARKodeSplittingCoefficients
-ARKodeSplittingCoefficients_LoadCoefficients(ARKODE_SplittingCoefficientsID id);
-SUNDIALS_EXPORT ARKodeSplittingCoefficients
-ARKodeSplittingCoefficients_LoadCoefficientsByName(const char* name);
-SUNDIALS_EXPORT const char* ARKodeSplittingCoefficients_IDToName(
+SUNDIALS_EXPORT SplittingStepCoefficients
+SplittingStepCoefficients_LoadCoefficients(ARKODE_SplittingCoefficientsID id);
+SUNDIALS_EXPORT SplittingStepCoefficients
+SplittingStepCoefficients_LoadCoefficientsByName(const char* name);
+SUNDIALS_EXPORT const char* SplittingStepCoefficients_IDToName(
   ARKODE_SplittingCoefficientsID id);
 
 /* Constructors for splitting coefficients */
-SUNDIALS_EXPORT ARKodeSplittingCoefficients
-ARKodeSplittingCoefficients_LieTrotter(int partitions);
-SUNDIALS_EXPORT ARKodeSplittingCoefficients
-ARKodeSplittingCoefficients_Strang(int partitions);
-SUNDIALS_EXPORT ARKodeSplittingCoefficients
-ARKodeSplittingCoefficients_Parallel(int partitions);
-SUNDIALS_EXPORT ARKodeSplittingCoefficients
-ARKodeSplittingCoefficients_SymmetricParallel(int partitions);
-SUNDIALS_EXPORT ARKodeSplittingCoefficients
-ARKodeSplittingCoefficients_TripleJump(int partitions, int order);
-SUNDIALS_EXPORT ARKodeSplittingCoefficients
-ARKodeSplittingCoefficients_SuzukiFractal(int partitions, int order);
+SUNDIALS_EXPORT SplittingStepCoefficients
+SplittingStepCoefficients_LieTrotter(int partitions);
+SUNDIALS_EXPORT SplittingStepCoefficients
+SplittingStepCoefficients_Strang(int partitions);
+SUNDIALS_EXPORT SplittingStepCoefficients
+SplittingStepCoefficients_Parallel(int partitions);
+SUNDIALS_EXPORT SplittingStepCoefficients
+SplittingStepCoefficients_SymmetricParallel(int partitions);
+SUNDIALS_EXPORT SplittingStepCoefficients
+SplittingStepCoefficients_TripleJump(int partitions, int order);
+SUNDIALS_EXPORT SplittingStepCoefficients
+SplittingStepCoefficients_SuzukiFractal(int partitions, int order);
 
 #ifdef __cplusplus
 }
