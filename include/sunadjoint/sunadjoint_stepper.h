@@ -54,6 +54,15 @@ SUNErrCode SUNAdjointStepper_Create(
   N_Vector sf, sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme,
   SUNContext sunctx, SUNAdjointStepper* adj_stepper);
 
+/*
+  Reinitializes the adjoint stepper to solve a new problem of the same size.
+
+  :param adj_stepper: The adjoint solver object.
+  :param tf: The time to start integrating the adjoint system from.
+  :param sf: The terminal condition vector of sensitivity solutions dg/dy0 and dg/dp.
+
+  :returns: A SUNErrCode indicating failure or success.
+ */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
                                     sunrealtype tf);
