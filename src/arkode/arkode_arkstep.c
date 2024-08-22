@@ -3620,10 +3620,11 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 {
   SUNErrCode errcode = SUN_SUCCESS;
 
-  SUNAdjointStepper adj_solver = (SUNAdjointStepper)content;
-  void* user_data              = adj_solver->user_data;
-  ARKodeMem ark_mem            = (ARKodeMem)adj_solver->adj_stepper->content;
-  ARKodeARKStepMem step_mem    = (ARKodeARKStepMem)ark_mem->step_mem;
+  SUNAdjointStepper adj_solver            = (SUNAdjointStepper)content;
+  SUNAdjointCheckpointScheme check_scheme = adj_solver->checkpoint_scheme;
+  ARKodeMem ark_mem         = (ARKodeMem)adj_solver->adj_stepper->content;
+  ARKodeARKStepMem step_mem = (ARKodeARKStepMem)ark_mem->step_mem;
+  void* user_data           = adj_solver->user_data;
 
   N_Vector Lambda_part     = N_VGetSubvector_ManyVector(sens_partial_stage, 0);
   N_Vector Lambda          = N_VGetSubvector_ManyVector(sens_complete_stage, 0);
@@ -3631,7 +3632,7 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   N_Vector checkpoint      = N_VClone(Lambda_part);
   sunrealtype checkpoint_t = SUN_RCONST(0.0);
 
-  errcode = SUNAdjointCheckpointScheme_LoadVector(adj_solver->checkpoint_scheme,
+  errcode = SUNAdjointCheckpointScheme_LoadVector(check_scheme,
                                                   adj_solver->step_idx,
                                                   ark_mem->adj_stage_idx + 1,
                                                   &checkpoint, &checkpoint_t);
@@ -3641,8 +3642,8 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   if (adj_solver->JacFn)
   {
-    adj_solver->JacFn(t, checkpoint, NULL, adj_solver->Jac,
-                      adj_solver->user_data, NULL, NULL, NULL);
+    adj_solver->JacFn(t, checkpoint, NULL, adj_solver->Jac, user_data, NULL,
+                      NULL, NULL);
     adj_solver->njeval++;
     if (SUNMatMatvecTranspose(adj_solver->Jac, Lambda_part, Lambda))
     {
@@ -3651,35 +3652,31 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   }
   else if (adj_solver->JvpFn)
   {
-    adj_solver->JvpFn(Lambda_part, Lambda, t, checkpoint, NULL,
-                      adj_solver->user_data, NULL);
+    adj_solver->JvpFn(Lambda_part, Lambda, t, checkpoint, NULL, user_data, NULL);
 
     adj_solver->njtimesv++;
   }
   else if (adj_solver->vJpFn)
   {
-    adj_solver->vJpFn(Lambda_part, Lambda, t, checkpoint, NULL,
-                      adj_solver->user_data, NULL);
+    adj_solver->vJpFn(Lambda_part, Lambda, t, checkpoint, NULL, user_data, NULL);
     adj_solver->nvtimesj++;
   }
 
   if (adj_solver->JacPFn)
   {
-    adj_solver->JacPFn(t, checkpoint, NULL, adj_solver->JacP,
-                       adj_solver->user_data, NULL, NULL, NULL);
+    adj_solver->JacPFn(t, checkpoint, NULL, adj_solver->JacP, user_data, NULL,
+                       NULL, NULL);
     adj_solver->njpeval++;
     if (SUNMatMatvecTranspose(adj_solver->JacP, Lambda_part, nu)) { return -1; }
   }
   else if (adj_solver->JPvpFn)
   {
-    adj_solver->JPvpFn(Lambda_part, nu, t, checkpoint, NULL,
-                       adj_solver->user_data, NULL);
+    adj_solver->JPvpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
     adj_solver->njptimesv++;
   }
   else if (adj_solver->vJPpFn)
   {
-    adj_solver->vJPpFn(Lambda_part, nu, t, checkpoint, NULL,
-                       adj_solver->user_data, NULL);
+    adj_solver->vJPpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
     adj_solver->nvtimesjp++;
   }
 

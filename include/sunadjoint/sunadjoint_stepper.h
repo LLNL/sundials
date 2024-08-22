@@ -33,7 +33,7 @@ struct SUNAdjointStepper_
   SUNJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
 
   sunrealtype tf;
-  int64_t step_idx;
+  int64_t step_idx, final_step_idx, nst;
 
   sunrealtype recompute_t0, recompute_tf;
   N_Vector recompute_y0;
@@ -59,8 +59,12 @@ SUNErrCode SUNAdjointStepper_Create(
   N_Vector sf, sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme,
   SUNContext sunctx, SUNAdjointStepper* adj_solver);
 
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
+                                    sunrealtype tf);
+
 /*
-  Solves the adjoint system.
+  Integrates the adjoint system.
 
   :param adj_solver: The adjoint solver object.
   :param tout: The time at which the adjoint solution is desired.

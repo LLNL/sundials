@@ -42,8 +42,10 @@ SUNErrCode SUNAdjointStepper_Create(
   adj_solver->vJpFn  = NULL;
   adj_solver->vJPpFn = NULL;
 
-  adj_solver->tf       = tf;
-  adj_solver->step_idx = final_step_idx;
+  adj_solver->tf             = tf;
+  adj_solver->step_idx       = final_step_idx;
+  adj_solver->final_step_idx = final_step_idx;
+  adj_solver->nst            = 0;
 
   adj_solver->njeval     = 0;
   adj_solver->njpeval    = 0;
@@ -58,6 +60,23 @@ SUNErrCode SUNAdjointStepper_Create(
 
   *adj_solver_ptr = adj_solver;
 
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
+                                    sunrealtype tf)
+{
+  SUNFunctionBegin(adj->sunctx);
+  adj->tf         = tf;
+  adj->step_idx   = adj->final_step_idx;
+  adj->njeval     = 0;
+  adj->njpeval    = 0;
+  adj->njtimesv   = 0;
+  adj->njptimesv  = 0;
+  adj->nvtimesj   = 0;
+  adj->nvtimesjp  = 0;
+  adj->nrecompute = 0;
+  SUNStepper_Reset(adj->adj_stepper, tf, sf, NULL);
   return SUN_SUCCESS;
 }
 
@@ -103,6 +122,7 @@ SUNErrCode SUNAdjointStepper_Step(SUNAdjointStepper adj_solver,
   if (*stop_reason < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
   else if (*stop_reason > 0) { retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP; }
   adj_solver->step_idx--;
+  adj_solver->nst++;
   *tret = t;
 
   return retcode;
@@ -165,9 +185,6 @@ SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_solver,
 {
   SUNFunctionBegin(adj_solver->sunctx);
 
-  SUNAssert(JacFn && Jac, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(!JacPFn || (JacPFn && JacP), SUN_ERR_ARG_CORRUPT);
-
   adj_solver->JacFn  = JacFn;
   adj_solver->Jac    = Jac;
   adj_solver->JacPFn = JacPFn;
@@ -182,9 +199,6 @@ SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper adj_solver,
 {
   SUNFunctionBegin(adj_solver->sunctx);
 
-  SUNAssert(Jvp, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(!JPvp || (JPvp && Jvp), SUN_ERR_ARG_CORRUPT);
-
   adj_solver->JvpFn  = Jvp;
   adj_solver->JPvpFn = JPvp;
 
@@ -196,9 +210,6 @@ SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper adj_solver,
                                               SUNJacTimesFn vJPp)
 {
   SUNFunctionBegin(adj_solver->sunctx);
-
-  SUNAssert(vJp, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(!vJPp || (vJp && vJPp), SUN_ERR_ARG_CORRUPT);
 
   adj_solver->vJpFn  = vJp;
   adj_solver->vJPpFn = vJPp;

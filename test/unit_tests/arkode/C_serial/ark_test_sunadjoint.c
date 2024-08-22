@@ -13,21 +13,21 @@
  * Lotka-Volterra problem with four parameters as the test case.
  * ---------------------------------------------------------------------------*/
 
-#include <arkode/arkode.h>
-#include <arkode/arkode_arkstep.h>
-#include <nvector/nvector_manyvector.h>
-#include <nvector/nvector_serial.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sunadjoint/sunadjoint_checkpointscheme.h>
+
+#include <sundials/sundials_core.h>
+
+#include <nvector/nvector_manyvector.h>
+#include <nvector/nvector_serial.h>
 #include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
 #include <sunadjoint/sunadjoint_stepper.h>
-#include <sundials/priv/sundials_errors_impl.h>
-#include <sundials/sundials_core.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmemory/sunmemory_system.h>
-#include "sundials/sundials_types.h"
+
+#include <arkode/arkode.h>
+#include <arkode/arkode_arkstep.h>
 
 typedef struct
 {
@@ -203,150 +203,31 @@ int forward_solution(SUNContext sunctx, void* arkode_mem,
     }
   }
 
-  fprintf(stdout, "Forward Solution:\n");
+  printf("Forward Solution:\n");
   N_VPrint(u);
 
-  fprintf(stdout, "ARKODE Stats for Forward Solution:\n");
+  printf("ARKODE Stats for Forward Solution:\n");
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-  fprintf(stdout, "\n");
+  printf("\n");
 
   return 0;
 }
 
-int adjoint_solution(SUNContext sunctx, void* arkode_mem,
+int adjoint_solution(SUNContext sunctx, SUNAdjointStepper adj_stepper,
                      SUNAdjointCheckpointScheme checkpoint_scheme,
-                     sunrealtype tf, sunrealtype tout, N_Vector u)
+                     sunrealtype tf, sunrealtype tout, N_Vector sf)
 {
-  int retval = 0;
-
-  sunindextype neq        = N_VGetLength(u);
-  sunindextype num_params = 4;
-  N_Vector sensu0         = N_VClone(u);
-  N_Vector sensp          = N_VNew_Serial(num_params, sunctx);
-  N_Vector sens[2]        = {sensu0, sensp};
-  N_Vector sf             = N_VNew_ManyVector(2, sens, sunctx);
-
-  // Set the terminal condition for the adjoint system, which
-  // should be the the gradient of our cost function at tf.
-  dgdu(u, sensu0, params, tf);
-  dgdp(u, sensp, params, tf);
-
-  fprintf(stdout, "Adjoint terminal condition:\n");
-  N_VPrint(sf);
-
-  SUNAdjointStepper adj_solver;
-  retval = ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_solver);
-
-  SUNMatrix J  = SUNDenseMatrix(neq, neq, sunctx);
-  SUNMatrix Jp = SUNDenseMatrix(neq, num_params, sunctx);
-
-  retval = SUNAdjointStepper_SetJacFn(adj_solver, jacobian, J,
-                                      parameter_jacobian, Jp);
-
+  int retval      = 0;
   int stop_reason = 0;
   sunrealtype t   = tf;
-  retval = SUNAdjointStepper_Solve(adj_solver, tout, sf, &t, &stop_reason);
-  if (stop_reason < 0 || stop_reason > 2)
-  {
-    fprintf(stderr, "SUNAdjointStepper_Solve stopped with reason %d\n",
-            stop_reason);
-    return -1;
-  }
+  retval = SUNAdjointStepper_Solve(adj_stepper, tout, sf, &t, &stop_reason);
 
-  fprintf(stdout, "Adjoint Solution:\n");
+  printf("Adjoint Solution:\n");
   N_VPrint(sf);
 
-  fprintf(stdout, "\nSUNAdjointStepper Stats:\n");
-  SUNAdjointStepper_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
-  fprintf(stdout, "\n");
-
-  N_VDestroy(sf);
-  SUNMatDestroy(J);
-  SUNMatDestroy(Jp);
-  SUNAdjointStepper_Destroy(&adj_solver);
-
-  return 0;
-}
-
-int adjoint_solution_jvp(SUNContext sunctx, void* arkode_mem,
-                         SUNAdjointCheckpointScheme checkpoint_scheme,
-                         sunrealtype tf, sunrealtype tout, N_Vector u)
-{
-  int retval = 0;
-
-  sunindextype neq        = N_VGetLength(u);
-  sunindextype num_params = 4;
-  N_Vector sensu0         = N_VClone(u);
-  N_Vector sensp          = N_VNew_Serial(num_params, sunctx);
-  N_Vector sens[2]        = {sensu0, sensp};
-  N_Vector sf             = N_VNew_ManyVector(2, sens, sunctx);
-
-  // Set the terminal condition for the adjoint system, which
-  // should be the the gradient of our cost function at tf.
-  dgdu(u, sensu0, params, tf);
-  dgdp(u, sensp, params, tf);
-
-  fprintf(stdout, "Adjoint terminal condition:\n");
-  N_VPrint(sf);
-
-  SUNAdjointStepper adj_solver;
-  retval = ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_solver);
-
-  retval = SUNAdjointStepper_SetJacTimesVecFn(adj_solver, jvp, parameter_jvp);
-
-  int stop_reason = 0;
-  sunrealtype t   = tf;
-  retval = SUNAdjointStepper_Solve(adj_solver, tout, sf, &t, &stop_reason);
-
-  fprintf(stdout, "Adjoint Solution:\n");
-  N_VPrint(sf);
-
-  fprintf(stdout, "\nSUNAdjointStepper Stats:\n");
-  SUNAdjointStepper_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
-  fprintf(stdout, "\n");
-
-  N_VDestroy(sf);
-  SUNAdjointStepper_Destroy(&adj_solver);
-
-  return 0;
-}
-
-int adjoint_solution_vjp(SUNContext sunctx, void* arkode_mem,
-                         SUNAdjointCheckpointScheme checkpoint_scheme,
-                         sunrealtype tf, sunrealtype tout, N_Vector u)
-{
-  int retval = 0;
-
-  sunindextype neq        = N_VGetLength(u);
-  sunindextype num_params = 4;
-  N_Vector sensu0         = N_VClone(u);
-  N_Vector sensp          = N_VNew_Serial(num_params, sunctx);
-  N_Vector sens[2]        = {sensu0, sensp};
-  N_Vector sf             = N_VNew_ManyVector(2, sens, sunctx);
-
-  // Set the terminal condition for the adjoint system, which
-  // should be the the gradient of our cost function at tf.
-  dgdu(u, sensu0, params, tf);
-  dgdp(u, sensp, params, tf);
-
-  SUNAdjointStepper adj_solver;
-  retval = ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_solver);
-
-  retval = SUNAdjointStepper_SetVecTimesJacFn(adj_solver, vjp, parameter_vjp);
-
-  int stop_reason = 0;
-  sunrealtype t   = tf;
-  retval = SUNAdjointStepper_Solve(adj_solver, tout, sf, &t, &stop_reason);
-
-  fprintf(stdout, "Adjoint Solution:\n");
-  N_VPrint(sf);
-
-  fprintf(stdout, "\nSUNAdjointStepper Stats:\n");
-  SUNAdjointStepper_PrintAllStats(adj_solver, stdout, SUN_OUTPUTFORMAT_TABLE);
-  fprintf(stdout, "\n");
-
-  N_VDestroy(sf);
-  SUNAdjointStepper_Destroy(&adj_solver);
+  printf("\nSUNAdjointStepper Stats:\n");
+  SUNAdjointStepper_PrintAllStats(adj_stepper, stdout, SUN_OUTPUTFORMAT_TABLE);
+  printf("\n");
 
   return 0;
 }
@@ -415,7 +296,7 @@ int main(int argc, char* argv[])
   N_VConst(1.0, u);
 
   //
-  // Create the ARKODE stepper that will be used for both the forward solution and adjoint solution.
+  // Create the ARKODE stepper that will be used for the forward evolution.
   //
 
   const sunrealtype dt = args.dt;
@@ -428,20 +309,18 @@ int main(int argc, char* argv[])
   ARKodeSetOrder(arkode_mem, order);
   ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
 
-  // Enable checkpointing during the forward solution
-  SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
-
-  SUNMemoryHelper mem_helper = SUNMemoryHelper_Sys(sunctx);
-  const int check_interval   = args.check_freq;
+  // Enable checkpointing during the forward solution.
   // ncheck will be more than nsteps, but for testing purposes we try setting it
-  // to nsteps and allow things to be resized automatically
-  const int ncheck                 = nsteps;
-  const sunbooleantype save_stages = args.save_stages;
-  const sunbooleantype keep_check  = args.keep_checks;
+  // to nsteps and allow things to be resized automatically.
+  const int check_interval                     = args.check_freq;
+  const int ncheck                             = nsteps;
+  const sunbooleantype save_stages             = args.save_stages;
+  const sunbooleantype keep_check              = args.keep_checks;
+  SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
+  SUNMemoryHelper mem_helper                   = SUNMemoryHelper_Sys(sunctx);
   SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
                                           check_interval, ncheck, save_stages,
                                           keep_check, sunctx, &checkpoint_scheme);
-
   ARKodeSetCheckpointScheme(arkode_mem, checkpoint_scheme);
 
   //
@@ -455,28 +334,72 @@ int main(int argc, char* argv[])
   forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
 
   //
+  // Create the adjoint stepper
+  //
+
+  sunindextype num_params = 4;
+  N_Vector sensu0         = N_VClone(u);
+  N_Vector sensp          = N_VNew_Serial(num_params, sunctx);
+  N_Vector sens[2]        = {sensu0, sensp};
+  N_Vector sf             = N_VNew_ManyVector(2, sens, sunctx);
+
+  // Set the terminal condition for the adjoint system, which
+  // should be the the gradient of our cost function at tf.
+  dgdu(u, sensu0, params, tf);
+  dgdp(u, sensp, params, tf);
+
+  printf("Adjoint terminal condition:\n");
+  N_VPrint(sf);
+
+  SUNAdjointStepper adj_stepper;
+  ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_stepper);
+
+  //
   // Now compute the adjoint solution
   //
 
-  adjoint_solution(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
+  SUNMatrix jac  = SUNDenseMatrix(neq, neq, sunctx);
+  SUNMatrix jacp = SUNDenseMatrix(neq, num_params, sunctx);
+
+  SUNAdjointStepper_SetJacFn(adj_stepper, jacobian, jac, parameter_jacobian,
+                             jacp);
+  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+
+  SUNMatDestroy(jac);
+  SUNMatDestroy(jacp);
 
   //
   // Now compute the adjoint solution using Jvp
   //
-  // TODO(CJB): make sure this reinitializes arkode correctly (probably need SUNAdjointStepper_Reset function)
-  // adjoint_solution_jvp(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
 
-  // //
-  // // Now compute the adjoint solution using vJp
-  // //
-  // // TODO(CJB): make sure this reinitializes arkode correctly
-  // adjoint_solution_vjp(sunctx, arkode_mem, checkpoint_scheme, tf, t0, u);
+  printf("\n-- Redo adjoint problem using JVP --\n\n");
+  dgdu(u, sensu0, params, tf);
+  dgdp(u, sensp, params, tf);
+  SUNAdjointStepper_ReInit(adj_stepper, sf, tf);
+  SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
+  SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, jvp, parameter_jvp);
+  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+
+  //
+  // Now compute the adjoint solution using vJp
+  //
+
+  printf("\n-- Redo adjoint problem using VJP --\n\n");
+  dgdu(u, sensu0, params, tf);
+  dgdp(u, sensp, params, tf);
+  SUNAdjointStepper_ReInit(adj_stepper, sf, tf);
+  SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, NULL, NULL);
+  SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, vjp, parameter_vjp);
+  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
 
   //
   // Cleanup
   //
 
   N_VDestroy(u);
+  N_VDestroy(sf);
+  SUNAdjointCheckpointScheme_Destroy(&checkpoint_scheme);
+  SUNAdjointStepper_Destroy(&adj_stepper);
   ARKodeFree(&arkode_mem);
 
   return 0;
