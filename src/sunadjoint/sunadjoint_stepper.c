@@ -158,7 +158,6 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
 SUNErrCode SUNAdjointStepper_Destroy(SUNAdjointStepper* adj_stepper_ptr)
 {
   SUNAdjointStepper adj_stepper = *adj_stepper_ptr;
-  // SUNAdjointCheckpointScheme_Destroy(adj_stepper->checkpoint_scheme);
   SUNStepper_Destroy(&adj_stepper->fwd_sunstepper);
   SUNStepper_Destroy(&adj_stepper->adj_sunstepper);
   free(adj_stepper);
