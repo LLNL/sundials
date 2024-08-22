@@ -105,7 +105,7 @@ SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
                             N_Vector ypR)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->evolve)
+  if (stepper->ops->reset)
   {
     return stepper->ops->reset(stepper, tR, yR, ypR);
   }
