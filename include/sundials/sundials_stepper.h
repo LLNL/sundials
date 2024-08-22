@@ -97,9 +97,12 @@ SUNErrCode SUNStepper_GetForcingData(SUNStepper stepper, sunrealtype* tshift,
                                      int* nforcing);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, int count, N_Vector tmpl);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, N_Vector yp,
-                              sunrealtype* tret, int* stop_reason);
+                             sunrealtype tout, N_Vector y, N_Vector yp,
+                             sunrealtype* tret, int* stop_reason);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,

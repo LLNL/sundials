@@ -7,6 +7,7 @@
 
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_nvector.h"
+#include "sundials/sundials_types.h"
 #include "sundials_stepper_impl.h"
 
 SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
@@ -104,7 +105,7 @@ SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
                             N_Vector ypR)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->evolve)
+  if (stepper->ops->reset)
   {
     return stepper->ops->reset(stepper, tR, yR, ypR);
   }
@@ -239,4 +240,14 @@ SUNErrCode SUNStepper_GetForcingData(SUNStepper stepper, sunrealtype* tshift,
   *nforcing = stepper->nforcing;
 
   return SUN_SUCCESS;
+}
+
+SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->setstoptime)
+  {
+    return stepper->ops->setstoptime(stepper, tstop);
+  }
+  else { return SUN_ERR_NOT_IMPLEMENTED; }
 }
