@@ -35,11 +35,6 @@ struct SUNAdjointStepper_
   sunrealtype tf;
   int64_t step_idx, final_step_idx, nst;
 
-  sunrealtype recompute_t0, recompute_tf;
-  N_Vector recompute_y0;
-  int64_t recompute_start_step, recompute_end_step;
-  sunbooleantype recompute_flag;
-
   /* counters */
   uint64_t njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp, nrecompute;
 
@@ -75,9 +70,9 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
   :returns: A SUNErrCode indicating failure or success.
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_Solve(SUNAdjointStepper adj_stepper,
-                                   sunrealtype tout, N_Vector sens,
-                                   sunrealtype* tret, int* stop_reason);
+SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper adj_stepper,
+                                    sunrealtype tout, N_Vector sens,
+                                    sunrealtype* tret, int* stop_reason);
 
 /*
   Evolves the adjoint system backwards one step.
@@ -91,12 +86,12 @@ SUNErrCode SUNAdjointStepper_Solve(SUNAdjointStepper adj_stepper,
   :returns: A SUNErrCode indicating failure or success.
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_Step(SUNAdjointStepper adj_stepper,
-                                  sunrealtype tout, N_Vector sens,
-                                  sunrealtype* tret, int* stop_reason);
+SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
+                                     sunrealtype tout, N_Vector sens,
+                                     sunrealtype* tret, int* stop_reason);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_SetRecompute(SUNAdjointStepper adj_stepper,
+SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
                                           int64_t start_idx, int64_t stop_idx,
                                           sunrealtype t0, sunrealtype tf,
                                           N_Vector y0);

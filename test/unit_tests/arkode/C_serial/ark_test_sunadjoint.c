@@ -220,7 +220,7 @@ int adjoint_solution(SUNContext sunctx, SUNAdjointStepper adj_stepper,
   int retval      = 0;
   int stop_reason = 0;
   sunrealtype t   = tf;
-  retval = SUNAdjointStepper_Solve(adj_stepper, tout, sf, &t, &stop_reason);
+  retval = SUNAdjointStepper_Evolve(adj_stepper, tout, sf, &t, &stop_reason);
 
   printf("Adjoint Solution:\n");
   N_VPrint(sf);

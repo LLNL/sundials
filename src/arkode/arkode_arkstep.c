@@ -2277,7 +2277,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                             start_step);
           if (retval) { return (ARK_RHSFUNC_FAIL); }
 
-          if (SUNAdjointStepper_SetRecompute(adj_stepper, start_step, stop_step,
+          if (SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, stop_step,
                                              t0, tf, checkpoint))
           {
             return (ARK_RHSFUNC_FAIL);
