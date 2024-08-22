@@ -20,45 +20,45 @@
 #include "sundials/sundials_types.h"
 
 SUNErrCode SUNAdjointStepper_Create(
-  SUNStepper fwd_stepper, SUNStepper adj_stepper, int64_t final_step_idx,
+  SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper, int64_t final_step_idx,
   N_Vector sf, sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme,
-  SUNContext sunctx, SUNAdjointStepper* adj_solver_ptr)
+  SUNContext sunctx, SUNAdjointStepper* adj_stepper_ptr)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdjointStepper adj_solver = malloc(sizeof(struct SUNAdjointStepper_));
-  SUNAssert(adj_solver, SUN_ERR_MALLOC_FAIL);
+  SUNAdjointStepper adj_stepper = malloc(sizeof(struct SUNAdjointStepper_));
+  SUNAssert(adj_stepper, SUN_ERR_MALLOC_FAIL);
 
-  adj_solver->fwd_stepper       = fwd_stepper;
-  adj_solver->adj_stepper       = adj_stepper;
-  adj_solver->checkpoint_scheme = checkpoint_scheme;
-  adj_solver->Jac               = NULL;
-  adj_solver->JacP              = NULL;
+  adj_stepper->fwd_sunstepper    = fwd_sunstepper;
+  adj_stepper->adj_sunstepper    = adj_sunstepper;
+  adj_stepper->checkpoint_scheme = checkpoint_scheme;
+  adj_stepper->Jac               = NULL;
+  adj_stepper->JacP              = NULL;
 
-  adj_solver->JacFn  = NULL;
-  adj_solver->JacPFn = NULL;
-  adj_solver->JvpFn  = NULL;
-  adj_solver->JPvpFn = NULL;
-  adj_solver->vJpFn  = NULL;
-  adj_solver->vJPpFn = NULL;
+  adj_stepper->JacFn  = NULL;
+  adj_stepper->JacPFn = NULL;
+  adj_stepper->JvpFn  = NULL;
+  adj_stepper->JPvpFn = NULL;
+  adj_stepper->vJpFn  = NULL;
+  adj_stepper->vJPpFn = NULL;
 
-  adj_solver->tf             = tf;
-  adj_solver->step_idx       = final_step_idx;
-  adj_solver->final_step_idx = final_step_idx;
-  adj_solver->nst            = 0;
+  adj_stepper->tf             = tf;
+  adj_stepper->step_idx       = final_step_idx;
+  adj_stepper->final_step_idx = final_step_idx;
+  adj_stepper->nst            = 0;
 
-  adj_solver->njeval     = 0;
-  adj_solver->njpeval    = 0;
-  adj_solver->njtimesv   = 0;
-  adj_solver->njptimesv  = 0;
-  adj_solver->nvtimesj   = 0;
-  adj_solver->nvtimesjp  = 0;
-  adj_solver->nrecompute = 0;
+  adj_stepper->njeval     = 0;
+  adj_stepper->njpeval    = 0;
+  adj_stepper->njtimesv   = 0;
+  adj_stepper->njptimesv  = 0;
+  adj_stepper->nvtimesj   = 0;
+  adj_stepper->nvtimesjp  = 0;
+  adj_stepper->nrecompute = 0;
 
-  adj_solver->user_data = NULL;
-  adj_solver->sunctx    = sunctx;
+  adj_stepper->user_data = NULL;
+  adj_stepper->sunctx    = sunctx;
 
-  *adj_solver_ptr = adj_solver;
+  *adj_stepper_ptr = adj_stepper;
 
   return SUN_SUCCESS;
 }
@@ -76,25 +76,25 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
   adj->nvtimesj   = 0;
   adj->nvtimesjp  = 0;
   adj->nrecompute = 0;
-  SUNStepper_Reset(adj->adj_stepper, tf, sf, NULL);
+  SUNStepper_Reset(adj->adj_sunstepper, tf, sf, NULL);
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_Solve(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_Solve(SUNAdjointStepper adj_stepper,
                                    sunrealtype tout, N_Vector sens,
                                    sunrealtype* tret, int* stop_reason)
 
 {
-  SUNFunctionBegin(adj_solver->sunctx);
-  SUNStepper adj_stepper = adj_solver->adj_stepper;
+  SUNFunctionBegin(adj_stepper->sunctx);
+  SUNStepper adj_sunstepper = adj_stepper->adj_sunstepper;
 
   SUNErrCode retcode = SUN_SUCCESS;
-  sunrealtype t      = adj_solver->tf;
+  sunrealtype t      = adj_stepper->tf;
   *stop_reason       = 0;
   while (t > tout)
   {
     SUNCheckCall(
-      SUNAdjointStepper_Step(adj_solver, tout, sens, tret, stop_reason));
+      SUNAdjointStepper_Step(adj_stepper, tout, sens, tret, stop_reason));
     if (*stop_reason < 0)
     {
       retcode = SUN_ERR_ADJOINT_STEPPERFAILED;
@@ -106,184 +106,185 @@ SUNErrCode SUNAdjointStepper_Solve(SUNAdjointStepper adj_solver,
   return retcode;
 }
 
-SUNErrCode SUNAdjointStepper_Step(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_Step(SUNAdjointStepper adj_stepper,
                                   sunrealtype tout, N_Vector sens,
                                   sunrealtype* tret, int* stop_reason)
 
 {
-  SUNFunctionBegin(adj_solver->sunctx);
-  SUNStepper adj_stepper = adj_solver->adj_stepper;
+  SUNFunctionBegin(adj_stepper->sunctx);
+  SUNStepper adj_sunstepper = adj_stepper->adj_sunstepper;
 
   SUNErrCode retcode = SUN_SUCCESS;
-  sunrealtype t      = adj_solver->tf;
+  sunrealtype t      = adj_stepper->tf;
   *stop_reason       = 0;
-  SUNCheckCall(SUNStepper_OneStep(adj_stepper, adj_solver->tf, tout, sens, NULL,
-                                  &t, stop_reason));
+  SUNCheckCall(SUNStepper_OneStep(adj_sunstepper, adj_stepper->tf, tout, sens,
+                                  NULL, &t, stop_reason));
   if (*stop_reason < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
   else if (*stop_reason > 0) { retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP; }
-  adj_solver->step_idx--;
-  adj_solver->nst++;
+  adj_stepper->step_idx--;
+  adj_stepper->nst++;
   *tret = t;
 
   return retcode;
 }
 
-SUNErrCode SUNAdjointStepper_SetRecompute(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_SetRecompute(SUNAdjointStepper adj_stepper,
                                           int64_t start_idx, int64_t stop_idx,
                                           sunrealtype t0, sunrealtype tf,
                                           N_Vector y0)
 {
-  SUNFunctionBegin(adj_solver->sunctx);
-  SUNStepper adj_stepper = adj_solver->adj_stepper;
+  SUNFunctionBegin(adj_stepper->sunctx);
+  SUNStepper adj_sunstepper = adj_stepper->adj_sunstepper;
 
-  adj_solver->recompute_start_step = start_idx;
-  adj_solver->recompute_end_step   = stop_idx;
-  adj_solver->recompute_t0         = t0;
-  adj_solver->recompute_tf         = tf;
-  adj_solver->recompute_y0         = y0;
-  adj_solver->recompute_flag       = SUNTRUE;
+  adj_stepper->recompute_start_step = start_idx;
+  adj_stepper->recompute_end_step   = stop_idx;
+  adj_stepper->recompute_t0         = t0;
+  adj_stepper->recompute_tf         = tf;
+  adj_stepper->recompute_y0         = y0;
+  adj_stepper->recompute_flag       = SUNTRUE;
 
   int fwd_stop_reason = 0;
-  sunrealtype fwd_t   = adj_solver->recompute_t0;
-  SUNCheckCall(SUNStepper_Reset(adj_solver->fwd_stepper, adj_solver->recompute_t0,
-                                adj_solver->recompute_y0, NULL));
+  sunrealtype fwd_t   = adj_stepper->recompute_t0;
+  SUNCheckCall(SUNStepper_Reset(adj_stepper->fwd_sunstepper,
+                                adj_stepper->recompute_t0,
+                                adj_stepper->recompute_y0, NULL));
 
   SUNCheckCall(
-    SUNAdjointCheckpointScheme_EnableDense(adj_solver->checkpoint_scheme, 1));
+    SUNAdjointCheckpointScheme_EnableDense(adj_stepper->checkpoint_scheme, 1));
+
+  SUNCheckCall(SUNStepper_SetStopTime(adj_stepper->fwd_sunstepper,
+                                      adj_stepper->recompute_tf));
 
   SUNCheckCall(
-    SUNStepper_SetStopTime(adj_solver->fwd_stepper, adj_solver->recompute_tf));
+    SUNStepper_Evolve(adj_stepper->fwd_sunstepper, adj_stepper->recompute_t0,
+                      adj_stepper->recompute_tf, adj_stepper->recompute_y0,
+                      NULL, &fwd_t, &fwd_stop_reason));
+  adj_stepper->nrecompute++;
 
   SUNCheckCall(
-    SUNStepper_Evolve(adj_solver->fwd_stepper, adj_solver->recompute_t0,
-                      adj_solver->recompute_tf, adj_solver->recompute_y0, NULL,
-                      &fwd_t, &fwd_stop_reason));
-  adj_solver->nrecompute++;
+    SUNAdjointCheckpointScheme_EnableDense(adj_stepper->checkpoint_scheme, 0));
 
-  SUNCheckCall(
-    SUNAdjointCheckpointScheme_EnableDense(adj_solver->checkpoint_scheme, 0));
-
-  adj_solver->recompute_flag = SUNFALSE;
+  adj_stepper->recompute_flag = SUNFALSE;
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_Destroy(SUNAdjointStepper* adj_solver_ptr)
+SUNErrCode SUNAdjointStepper_Destroy(SUNAdjointStepper* adj_stepper_ptr)
 {
-  SUNAdjointStepper adj_solver = *adj_solver_ptr;
-  // SUNAdjointCheckpointScheme_Destroy(adj_solver->checkpoint_scheme);
-  SUNStepper_Destroy(&adj_solver->fwd_stepper);
-  SUNStepper_Destroy(&adj_solver->adj_stepper);
-  free(adj_solver);
-  *adj_solver_ptr = NULL;
+  SUNAdjointStepper adj_stepper = *adj_stepper_ptr;
+  // SUNAdjointCheckpointScheme_Destroy(adj_stepper->checkpoint_scheme);
+  SUNStepper_Destroy(&adj_stepper->fwd_sunstepper);
+  SUNStepper_Destroy(&adj_stepper->adj_sunstepper);
+  free(adj_stepper);
+  *adj_stepper_ptr = NULL;
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_stepper,
                                       SUNJacFn JacFn, SUNMatrix Jac,
                                       SUNJacFn JacPFn, SUNMatrix JacP)
 {
-  SUNFunctionBegin(adj_solver->sunctx);
+  SUNFunctionBegin(adj_stepper->sunctx);
 
-  adj_solver->JacFn  = JacFn;
-  adj_solver->Jac    = Jac;
-  adj_solver->JacPFn = JacPFn;
-  adj_solver->JacP   = JacP;
+  adj_stepper->JacFn  = JacFn;
+  adj_stepper->Jac    = Jac;
+  adj_stepper->JacPFn = JacPFn;
+  adj_stepper->JacP   = JacP;
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper adj_stepper,
                                               SUNJacTimesFn Jvp,
                                               SUNJacTimesFn JPvp)
 {
-  SUNFunctionBegin(adj_solver->sunctx);
+  SUNFunctionBegin(adj_stepper->sunctx);
 
-  adj_solver->JvpFn  = Jvp;
-  adj_solver->JPvpFn = JPvp;
+  adj_stepper->JvpFn  = Jvp;
+  adj_stepper->JPvpFn = JPvp;
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper adj_stepper,
                                               SUNJacTimesFn vJp,
                                               SUNJacTimesFn vJPp)
 {
-  SUNFunctionBegin(adj_solver->sunctx);
+  SUNFunctionBegin(adj_stepper->sunctx);
 
-  adj_solver->vJpFn  = vJp;
-  adj_solver->vJPpFn = vJPp;
+  adj_stepper->vJpFn  = vJp;
+  adj_stepper->vJPpFn = vJPp;
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper adj_stepper,
                                          void* user_data)
 {
-  SUNFunctionBegin(adj_solver->sunctx);
+  SUNFunctionBegin(adj_stepper->sunctx);
 
-  adj_solver->user_data = user_data;
+  adj_stepper->user_data = user_data;
 
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper adj_stepper,
                                            FILE* outfile, SUNOutputFormat fmt)
 {
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Recomputed steps   = %llu\n", adj_solver->nrecompute);
-    if (adj_solver->JacFn)
+    fprintf(outfile, "Recomputed steps   = %llu\n", adj_stepper->nrecompute);
+    if (adj_stepper->JacFn)
     {
-      fprintf(outfile, "Jac fn evals       = %llu\n", adj_solver->njeval);
+      fprintf(outfile, "Jac fn evals       = %llu\n", adj_stepper->njeval);
     }
-    if (adj_solver->JacPFn)
+    if (adj_stepper->JacPFn)
     {
-      fprintf(outfile, "JacP fn evals      = %llu\n", adj_solver->njpeval);
+      fprintf(outfile, "JacP fn evals      = %llu\n", adj_stepper->njpeval);
     }
-    if (adj_solver->JvpFn)
+    if (adj_stepper->JvpFn)
     {
-      fprintf(outfile, "Jac-times-v evals  = %llu\n", adj_solver->njtimesv);
+      fprintf(outfile, "Jac-times-v evals  = %llu\n", adj_stepper->njtimesv);
     }
-    if (adj_solver->JPvpFn)
+    if (adj_stepper->JPvpFn)
     {
-      fprintf(outfile, "JacP-times-v evals = %llu\n", adj_solver->njptimesv);
+      fprintf(outfile, "JacP-times-v evals = %llu\n", adj_stepper->njptimesv);
     }
-    if (adj_solver->vJpFn)
+    if (adj_stepper->vJpFn)
     {
-      fprintf(outfile, "v-times-Jac evals  = %llu\n", adj_solver->nvtimesj);
+      fprintf(outfile, "v-times-Jac evals  = %llu\n", adj_stepper->nvtimesj);
     }
-    if (adj_solver->vJPpFn)
+    if (adj_stepper->vJPpFn)
     {
-      fprintf(outfile, "v-times-Jacp evals = %llu\n", adj_solver->nvtimesjp);
+      fprintf(outfile, "v-times-Jacp evals = %llu\n", adj_stepper->nvtimesjp);
     }
     break;
   case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, "Recomputed steps,%llu", adj_solver->nrecompute);
-    if (adj_solver->JacFn)
+    fprintf(outfile, "Recomputed steps,%llu", adj_stepper->nrecompute);
+    if (adj_stepper->JacFn)
     {
-      fprintf(outfile, ",Jac fn evals,%llu", adj_solver->njeval);
+      fprintf(outfile, ",Jac fn evals,%llu", adj_stepper->njeval);
     }
-    if (adj_solver->JacPFn)
+    if (adj_stepper->JacPFn)
     {
-      fprintf(outfile, ",JacP fn evals,%llu", adj_solver->njpeval);
+      fprintf(outfile, ",JacP fn evals,%llu", adj_stepper->njpeval);
     }
-    if (adj_solver->JvpFn)
+    if (adj_stepper->JvpFn)
     {
-      fprintf(outfile, ",Jac-times-v evals,%llu", adj_solver->njtimesv);
+      fprintf(outfile, ",Jac-times-v evals,%llu", adj_stepper->njtimesv);
     }
-    if (adj_solver->JPvpFn)
+    if (adj_stepper->JPvpFn)
     {
-      fprintf(outfile, ",JacP-times-v evals,%llu", adj_solver->njptimesv);
+      fprintf(outfile, ",JacP-times-v evals,%llu", adj_stepper->njptimesv);
     }
-    if (adj_solver->vJpFn)
+    if (adj_stepper->vJpFn)
     {
-      fprintf(outfile, ",v-times-Jac evals,%llu", adj_solver->nvtimesj);
+      fprintf(outfile, ",v-times-Jac evals,%llu", adj_stepper->nvtimesj);
     }
-    if (adj_solver->vJPpFn)
+    if (adj_stepper->vJPpFn)
     {
-      fprintf(outfile, ",v-times-Jacp evals,%llu", adj_solver->nvtimesjp);
+      fprintf(outfile, ",v-times-Jacp evals,%llu", adj_stepper->nvtimesjp);
     }
 
     break;

@@ -2230,14 +2230,14 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
        solution, then recompute from there. */
     if (retval > 0)
     {
-      SUNAdjointStepper adj_solver = (SUNAdjointStepper)ark_mem->user_data;
+      SUNAdjointStepper adj_stepper = (SUNAdjointStepper)ark_mem->user_data;
 
       N_Vector checkpoint = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
-      int64_t start_step  = adj_solver->step_idx;
-      int64_t stop_step   = adj_solver->step_idx + 1;
+      int64_t start_step  = adj_stepper->step_idx;
+      int64_t stop_step   = adj_stepper->step_idx + 1;
 
       SUNErrCode errcode = SUN_ERR_CHECKPOINT_NOT_FOUND;
-      for (int64_t i = 0; i <= adj_solver->step_idx; ++i, --start_step)
+      for (int64_t i = 0; i <= adj_stepper->step_idx; ++i, --start_step)
       {
         /* since the initial condition is stored in (0,0), step 0 has one
          more chekpoint then number of stages */
@@ -2273,11 +2273,11 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                              ", tf = %" RSYM "",
                              start_step, stop_step, t0, tf);
 #endif
-          retval = ARKodeSetCheckpointIndex(adj_solver->fwd_stepper->content,
+          retval = ARKodeSetCheckpointIndex(adj_stepper->fwd_sunstepper->content,
                                             start_step);
           if (retval) { return (ARK_RHSFUNC_FAIL); }
 
-          if (SUNAdjointStepper_SetRecompute(adj_solver, start_step, stop_step,
+          if (SUNAdjointStepper_SetRecompute(adj_stepper, start_step, stop_step,
                                              t0, tf, checkpoint))
           {
             return (ARK_RHSFUNC_FAIL);
@@ -3620,11 +3620,11 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 {
   SUNErrCode errcode = SUN_SUCCESS;
 
-  SUNAdjointStepper adj_solver            = (SUNAdjointStepper)content;
-  SUNAdjointCheckpointScheme check_scheme = adj_solver->checkpoint_scheme;
-  ARKodeMem ark_mem         = (ARKodeMem)adj_solver->adj_stepper->content;
+  SUNAdjointStepper adj_stepper           = (SUNAdjointStepper)content;
+  SUNAdjointCheckpointScheme check_scheme = adj_stepper->checkpoint_scheme;
+  ARKodeMem ark_mem         = (ARKodeMem)adj_stepper->adj_sunstepper->content;
   ARKodeARKStepMem step_mem = (ARKodeARKStepMem)ark_mem->step_mem;
-  void* user_data           = adj_solver->user_data;
+  void* user_data           = adj_stepper->user_data;
 
   N_Vector Lambda_part     = N_VGetSubvector_ManyVector(sens_partial_stage, 0);
   N_Vector Lambda          = N_VGetSubvector_ManyVector(sens_complete_stage, 0);
@@ -3633,51 +3633,54 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   sunrealtype checkpoint_t = SUN_RCONST(0.0);
 
   errcode = SUNAdjointCheckpointScheme_LoadVector(check_scheme,
-                                                  adj_solver->step_idx,
+                                                  adj_stepper->step_idx,
                                                   ark_mem->adj_stage_idx + 1,
                                                   &checkpoint, &checkpoint_t);
 
   // Checkpoint was not found, recompute the missing step
   if (errcode == SUN_ERR_CHECKPOINT_NOT_FOUND) { return +1; }
 
-  if (adj_solver->JacFn)
+  if (adj_stepper->JacFn)
   {
-    adj_solver->JacFn(t, checkpoint, NULL, adj_solver->Jac, user_data, NULL,
-                      NULL, NULL);
-    adj_solver->njeval++;
-    if (SUNMatMatvecTranspose(adj_solver->Jac, Lambda_part, Lambda))
+    adj_stepper->JacFn(t, checkpoint, NULL, adj_stepper->Jac, user_data, NULL,
+                       NULL, NULL);
+    adj_stepper->njeval++;
+    if (SUNMatMatvecTranspose(adj_stepper->Jac, Lambda_part, Lambda))
     {
       return -1;
     };
   }
-  else if (adj_solver->JvpFn)
+  else if (adj_stepper->JvpFn)
   {
-    adj_solver->JvpFn(Lambda_part, Lambda, t, checkpoint, NULL, user_data, NULL);
+    adj_stepper->JvpFn(Lambda_part, Lambda, t, checkpoint, NULL, user_data, NULL);
 
-    adj_solver->njtimesv++;
+    adj_stepper->njtimesv++;
   }
-  else if (adj_solver->vJpFn)
+  else if (adj_stepper->vJpFn)
   {
-    adj_solver->vJpFn(Lambda_part, Lambda, t, checkpoint, NULL, user_data, NULL);
-    adj_solver->nvtimesj++;
+    adj_stepper->vJpFn(Lambda_part, Lambda, t, checkpoint, NULL, user_data, NULL);
+    adj_stepper->nvtimesj++;
   }
 
-  if (adj_solver->JacPFn)
+  if (adj_stepper->JacPFn)
   {
-    adj_solver->JacPFn(t, checkpoint, NULL, adj_solver->JacP, user_data, NULL,
-                       NULL, NULL);
-    adj_solver->njpeval++;
-    if (SUNMatMatvecTranspose(adj_solver->JacP, Lambda_part, nu)) { return -1; }
+    adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP, user_data, NULL,
+                        NULL, NULL);
+    adj_stepper->njpeval++;
+    if (SUNMatMatvecTranspose(adj_stepper->JacP, Lambda_part, nu))
+    {
+      return -1;
+    }
   }
-  else if (adj_solver->JPvpFn)
+  else if (adj_stepper->JPvpFn)
   {
-    adj_solver->JPvpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
-    adj_solver->njptimesv++;
+    adj_stepper->JPvpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
+    adj_stepper->njptimesv++;
   }
-  else if (adj_solver->vJPpFn)
+  else if (adj_stepper->vJPpFn)
   {
-    adj_solver->vJPpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
-    adj_solver->nvtimesjp++;
+    adj_stepper->vJPpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
+    adj_stepper->nvtimesjp++;
   }
 
   N_VDestroy(checkpoint);
@@ -3728,7 +3731,7 @@ int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
 }
 
 int ARKStepCreateAdjointSolver(void* arkode_mem, N_Vector sf,
-                               SUNAdjointStepper* adj_solver_ptr)
+                               SUNAdjointStepper* adj_stepper_ptr)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -3822,13 +3825,13 @@ int ARKStepCreateAdjointSolver(void* arkode_mem, N_Vector sf,
   errcode = SUNAdjointStepper_Create(fwd_stepper, adj_stepper, nst - 1, sf,
                                      ark_mem->tretlast,
                                      ark_mem->checkpoint_scheme,
-                                     ark_mem->sunctx, adj_solver_ptr);
+                                     ark_mem->sunctx, adj_stepper_ptr);
 
-  errcode = SUNAdjointStepper_SetUserData(*adj_solver_ptr, ark_mem->user_data);
+  errcode = SUNAdjointStepper_SetUserData(*adj_stepper_ptr, ark_mem->user_data);
 
   /* We need access to the adjoint solver to access the parameter Jacobian inside of ARKStep's
      backwards integration of the the adjoint problem. */
-  retval = ARKodeSetUserData(arkode_mem_adj, *adj_solver_ptr);
+  retval = ARKodeSetUserData(arkode_mem_adj, *adj_stepper_ptr);
   if (retval)
   {
     arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,

@@ -23,8 +23,8 @@
 
 struct SUNAdjointStepper_
 {
-  SUNStepper adj_stepper;
-  SUNStepper fwd_stepper;
+  SUNStepper adj_sunstepper;
+  SUNStepper fwd_sunstepper;
   SUNAdjointCheckpointScheme checkpoint_scheme;
 
   SUNMatrix Jac, JacP;
@@ -55,9 +55,9 @@ extern "C" {
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_Create(
-  SUNStepper fwd_stepper, SUNStepper adj_stepper, int64_t final_step_idx,
+  SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper, int64_t final_step_idx,
   N_Vector sf, sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme,
-  SUNContext sunctx, SUNAdjointStepper* adj_solver);
+  SUNContext sunctx, SUNAdjointStepper* adj_stepper);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
@@ -66,7 +66,7 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
 /*
   Integrates the adjoint system.
 
-  :param adj_solver: The adjoint solver object.
+  :param adj_stepper: The adjoint solver object.
   :param tout: The time at which the adjoint solution is desired.
   :param sens: The vector of sensitivity solutions dg/dy0 and dg/dp.
   :param tret: On return, the time reached by the adjoint solver.
@@ -75,14 +75,14 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
   :returns: A SUNErrCode indicating failure or success.
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_Solve(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_Solve(SUNAdjointStepper adj_stepper,
                                    sunrealtype tout, N_Vector sens,
                                    sunrealtype* tret, int* stop_reason);
 
 /*
   Evolves the adjoint system backwards one step.
 
-  :param adj_solver: The adjoint solver object.
+  :param adj_stepper: The adjoint solver object.
   :param tout: The time at which the adjoint solution is desired.
   :param sens: The vector of sensitivity solutions dg/dy0 and dg/dp.
   :param tret: On return, the time reached by the adjoint solver.
@@ -91,12 +91,12 @@ SUNErrCode SUNAdjointStepper_Solve(SUNAdjointStepper adj_solver,
   :returns: A SUNErrCode indicating failure or success.
  */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_Step(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_Step(SUNAdjointStepper adj_stepper,
                                   sunrealtype tout, N_Vector sens,
                                   sunrealtype* tret, int* stop_reason);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_SetRecompute(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_SetRecompute(SUNAdjointStepper adj_stepper,
                                           int64_t start_idx, int64_t stop_idx,
                                           sunrealtype t0, sunrealtype tf,
                                           N_Vector y0);
@@ -120,7 +120,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper, void* user_data);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper adj_solver,
+SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper adj_stepper,
                                            FILE* outfile, SUNOutputFormat fmt);
 
 SUNDIALS_EXPORT
