@@ -59,6 +59,7 @@ with section("parse"):
                                        'EXTRA_ARGS': '+',
                                        'FLOAT_PRECISION': 1,
                                        'INTEGER_PRECISION': 1,
+                                       'LABELS': '+',
                                        'MPI_NPROCS': 1,
                                        'TEST_ARGS': '+'},
                            'pargs': {'flags': ['NODIFF'], 'nargs': '2+'}},
