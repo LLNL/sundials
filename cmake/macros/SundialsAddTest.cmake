@@ -95,6 +95,21 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   cmake_parse_arguments(SUNDIALS_ADD_TEST "${options}" "${oneValueArgs}"
                         "${multiValueArgs}" ${ARGN})
 
+  # check if any options for setting command line args have been provided by
+  # comparing them against an empty string -- this is needed to avoid missing
+  # single args that are a false constant in CMake e.g., 0, FALSE, OFF, etc.
+  if ("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL "")
+    set(_have_test_args FALSE)
+  else()
+    set(_have_test_args TRUE)
+  endif()
+
+  if ("${SUNDIALS_ADD_TEST_EXTRA_ARGS}" STREQUAL "")
+    set(_have_extra_test_args FALSE)
+  else()
+    set(_have_extra_test_args TRUE)
+  endif()
+
   # check that the test is not excluded
   string(TOLOWER "exclude-${SUNDIALS_PRECISION}" _exclude_precision)
   if(("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude")
@@ -192,17 +207,17 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       endif()
 
       # set the test input args
-      if(SUNDIALS_ADD_TEST_TEST_ARGS)
+      if(_have_test_args)
         string(REPLACE ";" " " _user_args "${SUNDIALS_ADD_TEST_TEST_ARGS}")
         set(_run_args "${_user_args}")
         unset(_user_args)
       endif()
-      if(SUNDIALS_ADD_TEST_EXTRA_ARGS)
+      if(_have_extra_test_args)
         string(REPLACE ";" " " _extra_args "${SUNDIALS_ADD_TEST_EXTRA_ARGS}")
         set(_run_args "${_run_args} ${_extra_args}")
         unset(_extra_args)
       endif()
-      if(_run_args)
+      if(_have_test_args OR _have_extra_test_args)
         string(STRIP "${_run_args}" _run_args)
         list(APPEND TEST_ARGS "--runargs=\"${_run_args}\"")
         unset(_run_args)
@@ -220,7 +235,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       # pass/fail
 
       # convert string to list
-      if(SUNDIALS_ADD_TEST_TEST_ARGS)
+      if(_have_test_args)
         string(REPLACE " " ";" TEST_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
       endif()
 
