@@ -57,7 +57,10 @@ inline sunrealtype kpr_rdot(sunrealtype t) { return -HALF * std::sin(t); }
 inline sunrealtype kpr_s(sunrealtype t) { return cos(TWENTY * t); }
 
 // Compute the derivative of s(t)
-inline sunrealtype krp_sdot(sunrealtype t) { return -TWENTY * std::sin(TWENTY * t); }
+inline sunrealtype krp_sdot(sunrealtype t)
+{
+  return -TWENTY * std::sin(TWENTY * t);
+}
 
 // Compute the true solution
 inline int kpr_true_sol(sunrealtype t, sunrealtype* u, sunrealtype* v)

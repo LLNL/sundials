@@ -15,31 +15,21 @@
 # List of test tuples of the form "name\;args"
 set(unit_tests)
 
-# if(BUILD_ARKODE)
-#   list(APPEND unit_tests "test_logging_arkode.cpp\;")
-# endif()
+# if(BUILD_ARKODE) list(APPEND unit_tests "test_logging_arkode.cpp\;") endif()
 
 if(BUILD_CVODE)
   list(APPEND unit_tests "test_logging_cvode.cpp\;1 1") # Newton + Dense
   list(APPEND unit_tests "test_logging_cvode.cpp\;1 0") # Newton + GMRES
-  list(APPEND unit_tests "test_logging_cvode.cpp\;0")   # Fixed-point
+  list(APPEND unit_tests "test_logging_cvode.cpp\;0") # Fixed-point
 endif()
 
-# if(BUILD_CVODES)
-#   list(APPEND unit_tests "test_logging_cvodes.cpp\;")
-# endif()
+# if(BUILD_CVODES) list(APPEND unit_tests "test_logging_cvodes.cpp\;") endif()
 
-# if(BUILD_IDA)
-#   list(APPEND unit_tests "test_logging_ida.cpp\;")
-# endif()
+# if(BUILD_IDA) list(APPEND unit_tests "test_logging_ida.cpp\;") endif()
 
-# if(BUILD_IDAS)
-#   list(APPEND unit_tests "test_logging_idas.cpp\;")
-# endif()
+# if(BUILD_IDAS) list(APPEND unit_tests "test_logging_idas.cpp\;") endif()
 
-# if(BUILD_KINSOL)
-#   list(APPEND unit_tests "test_logging_kinsol.cpp\;")
-# endif()
+# if(BUILD_KINSOL) list(APPEND unit_tests "test_logging_kinsol.cpp\;") endif()
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -64,13 +54,12 @@ foreach(test_tuple ${unit_tests})
 
     # include location of public and private header files
     target_include_directories(
-      ${test_target} PRIVATE
-      ${CMAKE_SOURCE_DIR}/include
-      ${CMAKE_SOURCE_DIR}/test/unit_tests)
+      ${test_target} PRIVATE ${CMAKE_SOURCE_DIR}/include
+                             ${CMAKE_SOURCE_DIR}/test/unit_tests)
 
     # libraries to link against
     target_link_libraries(${test_target} sundials_${_pkg} sundials_nvecserial
-      ${EXE_EXTRA_LINK_LIBS})
+                          ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
@@ -103,8 +92,7 @@ foreach(test_tuple ${unit_tests})
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
     EXAMPLE_TYPE "develop"
-    LABELS "UnitTest" "Logging"
-    ${diff_output})
+    LABELS "UnitTest" "Logging" ${diff_output})
 
 endforeach()
 

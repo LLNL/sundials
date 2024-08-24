@@ -29,8 +29,8 @@
 #include "sundials/sundials_matrix.h"
 #include "sundials/sundials_nonlinearsolver.h"
 #include "sunlinsol/sunlinsol_dense.h"
-#include "sunmatrix/sunmatrix_dense.h"
 #include "sunlinsol/sunlinsol_spgmr.h"
+#include "sunmatrix/sunmatrix_dense.h"
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 #include "problems/kpr.hpp"
@@ -104,10 +104,7 @@ int main(int argc, char* argv[])
     flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
     if (check_flag(flag, "CVodeSetLinearSolver")) { return 1; }
   }
-  else
-  {
-    cout << "Using Newton nonlinear solver" << endl;
-  }
+  else { cout << "Using Newton nonlinear solver" << endl; }
 
   SUNMatrix A        = nullptr;
   SUNLinearSolver LS = nullptr;
