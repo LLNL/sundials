@@ -272,7 +272,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       # set any labels (must quote SUNDIALS_ADD_TEST_LABELS)
       if(SUNDIALS_ADD_TEST_LABELS)
         set_tests_properties(${NAME} PROPERTIES LABELS
-          "${SUNDIALS_ADD_TEST_LABELS}")
+                                                "${SUNDIALS_ADD_TEST_LABELS}")
       endif()
     endif()
 
