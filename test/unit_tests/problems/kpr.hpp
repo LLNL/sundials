@@ -57,7 +57,7 @@ inline sunrealtype kpr_rdot(sunrealtype t) { return -HALF * std::sin(t); }
 inline sunrealtype kpr_s(sunrealtype t) { return cos(TWENTY * t); }
 
 // Compute the derivative of s(t)
-inline sunrealtype krp_sdot(sunrealtype t)
+inline sunrealtype kpr_sdot(sunrealtype t)
 {
   return -TWENTY * std::sin(TWENTY * t);
 }
@@ -94,7 +94,7 @@ inline int kpr_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   const sunrealtype tmp2 = (-TWO + v * v - kpr_s(t)) / (TWO * v);
 
   fdata[0] = a * tmp1 + b * tmp2 + kpr_rdot(t) / (TWO * u);
-  fdata[1] = c * tmp1 + d * tmp2 + krp_sdot(t) / (TWO * v);
+  fdata[1] = c * tmp1 + d * tmp2 + kpr_sdot(t) / (TWO * v);
 
   return 0;
 }
@@ -123,9 +123,11 @@ inline int kpr_rhs_jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   Jdata[0] = a / TWO + (a * (ONE + kpr_r(t)) - kpr_rdot(t)) / (TWO * u * u);
   Jdata[1] = c / TWO + c * (ONE + kpr_r(t)) / (TWO * u * u);
   Jdata[2] = b / TWO + b * (TWO + kpr_s(t)) / (TWO * v * v);
-  Jdata[3] = d / TWO + (d * (TWO + kpr_s(t)) - krp_sdot(t)) / (TWO * v * v);
+  Jdata[3] = d / TWO + (d * (TWO + kpr_s(t)) - kpr_sdot(t)) / (TWO * v * v);
 
   return 0;
 }
+
+
 
 #endif // KPR_
