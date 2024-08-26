@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Test logging output in CVODE
+ * Test logging output in CVODES
  * ---------------------------------------------------------------------------*/
 
 #include <cmath>
@@ -21,7 +21,7 @@
 #include <limits>
 
 // Include desired integrators, vectors, linear solvers, and nonlinear solvers
-#include "cvode/cvode.h"
+#include "cvodes/cvodes.h"
 #include "nvector/nvector_serial.h"
 #include "sundials/sundials_context.hpp"
 #include "sundials/sundials_iterative.h"
@@ -40,7 +40,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-  cout << "Start CVODE Logging test" << endl;
+  cout << "Start CVODES Logging test" << endl;
 
   // SUNDIALS context object for this simulation
   sundials::Context sunctx;
@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
   SUNNonlinSolFree(NLS);
   CVodeFree(&cvode_mem);
 
-  cout << "End CVODE Logging test" << endl;
+  cout << "End CVODES Logging test" << endl;
 
   return 0;
 }
