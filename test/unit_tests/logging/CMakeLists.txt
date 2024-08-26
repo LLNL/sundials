@@ -50,8 +50,6 @@ foreach(test_tuple ${unit_tests})
   # here matters i.e., match cvodes before cvode and idas before ida
   string(REGEX MATCH "arkode|cvodes|cvode|idas|ida|kinsol" _pkg ${test_target})
 
-  message(STATUS "${test_target} ${_pkg}")
-
   # check if this test has already been added, only need to add test source
   # files once for testing with different inputs
   if(NOT TARGET ${test_target})
