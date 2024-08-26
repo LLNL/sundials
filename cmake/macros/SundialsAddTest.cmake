@@ -92,13 +92,13 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # check if any options for setting command line args have been provided by
   # comparing them against an empty string -- this is needed to avoid missing
   # single args that are a false constant in CMake e.g., 0, FALSE, OFF, etc.
-  if ("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL "")
+  if("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL "")
     set(_have_test_args FALSE)
   else()
     set(_have_test_args TRUE)
   endif()
 
-  if ("${SUNDIALS_ADD_TEST_EXTRA_ARGS}" STREQUAL "")
+  if("${SUNDIALS_ADD_TEST_EXTRA_ARGS}" STREQUAL "")
     set(_have_extra_test_args FALSE)
   else()
     set(_have_extra_test_args TRUE)
