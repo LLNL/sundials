@@ -110,7 +110,7 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Specify the LSRK method */
-  flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSPs_3);
+  flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP10_4);
   if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
