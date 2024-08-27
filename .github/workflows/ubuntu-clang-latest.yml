@@ -44,16 +44,23 @@ jobs:
         -D SUNDIALS_LOGGING_LEVEL=${{matrix.logging_level}} \
         -D ENABLE_ALL_WARNINGS=ON \
         -D ENABLE_WARNINGS_AS_ERRORS=ON \
+        -D SUNDIALS_TEST_DEVTESTS=ON \
         -D SUNDIALS_TEST_UNITTESTS=ON \
-        -D SUNDIALS_TEST_ENABLE_GTEST=OFF
+        -D SUNDIALS_TEST_ENABLE_GTEST=OFF \
+        -D SUNDIALS_TEST_FLOAT_PRECISION=4 \
+        -D SUNDIALS_TEST_INTEGER_PRECISION=10
 
     - name: Build
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
-      # Run logging tests (runs test but does not diff the outputs)
-      run: ctest --test-dir ${{github.workspace}}/build --label-regex Logging
+      # Run logging tests
+      run: |
+        ctest \
+        --test-dir ${{github.workspace}}/build \
+        --label-regex Logging \
+        --verbose
 
   build_cycle_profiling:
     runs-on: ubuntu-latest
