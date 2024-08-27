@@ -218,15 +218,37 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   }
   else
   {
+    sunbooleantype has_children = SUNFALSE;
+    SUNCheckCall(SUNDataNode_HasChildren(step_data_node, &has_children));
+
+    if (has_children)
+    {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
-                       "try-load-stage",
-                       "keep = 0, step_num = %d, stage_num = %d", step_num,
-                       stage_num);
+      SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
+                         "try-load-stage",
+                         "keep = 0, step_num = %d, stage_num = %d", step_num,
+                         stage_num);
 #endif
-    errcode = SUNDataNode_RemoveChild(step_data_node, stage_num, &solution_node);
-    if (errcode == SUN_ERR_DATANODE_NODENOTFOUND) { solution_node = NULL; }
-    else { SUNCheckCall(errcode); }
+      errcode = SUNDataNode_RemoveChild(step_data_node, stage_num,
+                                        &solution_node);
+      if (errcode == SUN_ERR_DATANODE_NODENOTFOUND) { solution_node = NULL; }
+      else { SUNCheckCall(errcode); }
+    }
+
+    SUNCheckCall(SUNDataNode_HasChildren(step_data_node, &has_children));
+    if (!has_children)
+    {
+      char* key = sunSignedToString(step_num);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
+      SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
+                         "remove-step", "step_num = %d", step_num);
+#endif
+      errcode = SUNDataNode_RemoveNamedChild(PROPERTY(self, root_node), key,
+                                             &solution_node);
+      if (errcode == SUN_ERR_DATANODE_NODENOTFOUND) { solution_node = NULL; }
+      else { SUNCheckCall(errcode); }
+      free(key);
+    }
   }
 
   if (!solution_node)

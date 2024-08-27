@@ -185,7 +185,8 @@ void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
 
 int forward_solution(SUNContext sunctx, void* arkode_mem,
                      SUNAdjointCheckpointScheme checkpoint_scheme,
-                     sunrealtype t0, sunrealtype tf, sunrealtype dt, N_Vector u)
+                     const sunrealtype t0, const sunrealtype tf,
+                     const sunrealtype dt, N_Vector u)
 {
   int retval = 0;
 
@@ -215,7 +216,7 @@ int forward_solution(SUNContext sunctx, void* arkode_mem,
 
 int adjoint_solution(SUNContext sunctx, SUNAdjointStepper adj_stepper,
                      SUNAdjointCheckpointScheme checkpoint_scheme,
-                     sunrealtype tf, sunrealtype tout, N_Vector sf)
+                     const sunrealtype tf, const sunrealtype tout, N_Vector sf)
 {
   int retval      = 0;
   int stop_reason = 0;
@@ -330,7 +331,6 @@ int main(int argc, char* argv[])
   printf("Initial condition:\n");
   N_VPrint(u);
 
-  sunrealtype t = t0;
   forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
 
   //
@@ -376,6 +376,7 @@ int main(int argc, char* argv[])
   if (!keep_check)
   {
     N_VConst(1.0, u);
+    N_VPrint(u);
     forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
   }
   dgdu(u, sensu0, params, tf);
@@ -385,22 +386,22 @@ int main(int argc, char* argv[])
   SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, jvp, parameter_jvp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
 
-  //
-  // Now compute the adjoint solution using vJp
-  //
+  // //
+  // // Now compute the adjoint solution using vJp
+  // //
 
-  printf("\n-- Redo adjoint problem using VJP --\n\n");
-  if (!keep_check)
-  {
-    N_VConst(1.0, u);
-    forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
-  }
-  dgdu(u, sensu0, params, tf);
-  dgdp(u, sensp, params, tf);
-  SUNAdjointStepper_ReInit(adj_stepper, sf, tf);
-  SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, NULL, NULL);
-  SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, vjp, parameter_vjp);
-  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+  // printf("\n-- Redo adjoint problem using VJP --\n\n");
+  // if (!keep_check)
+  // {
+  //   N_VConst(1.0, u);
+  //   forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+  // }
+  // dgdu(u, sensu0, params, tf);
+  // dgdp(u, sensp, params, tf);
+  // SUNAdjointStepper_ReInit(adj_stepper, sf, tf);
+  // SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, NULL, NULL);
+  // SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, vjp, parameter_vjp);
+  // adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
 
   //
   // Cleanup
