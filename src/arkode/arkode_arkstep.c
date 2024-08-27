@@ -2254,7 +2254,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
         sunrealtype checkpoint_t;
         errcode =
           SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
-                                                start_step, last_stage,
+                                                start_step, last_stage, 1,
                                                 &checkpoint, &checkpoint_t);
         if (errcode == SUN_SUCCESS)
         {
@@ -3634,7 +3634,7 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   errcode = SUNAdjointCheckpointScheme_LoadVector(check_scheme,
                                                   adj_stepper->step_idx,
-                                                  ark_mem->adj_stage_idx + 1,
+                                                  ark_mem->adj_stage_idx + 1, 0,
                                                   &checkpoint, &checkpoint_t);
 
   // Checkpoint was not found, recompute the missing step

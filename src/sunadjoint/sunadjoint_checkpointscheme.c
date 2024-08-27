@@ -93,13 +93,13 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector(
 
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
   SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, N_Vector* out, sunrealtype* tout)
+  sunindextype stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
 {
   SUNFunctionBegin(check_scheme->sunctx);
   if (check_scheme->ops->loadVector)
   {
-    return check_scheme->ops->loadVector(check_scheme, step_num, stage_num, out,
-                                         tout);
+    return check_scheme->ops->loadVector(check_scheme, step_num, stage_num,
+                                         peek, out, tout);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }

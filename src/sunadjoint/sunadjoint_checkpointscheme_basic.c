@@ -153,8 +153,8 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
-  SUNAdjointCheckpointScheme self, sunindextype step_num,
-  sunindextype stage_num, N_Vector* loaded_state, sunrealtype* t)
+  SUNAdjointCheckpointScheme self, sunindextype step_num, sunindextype stage_num,
+  sunbooleantype peek, N_Vector* loaded_state, sunrealtype* t)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -204,7 +204,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
 #endif
 
   SUNDataNode solution_node = NULL;
-  if (PROPERTY(self, keep))
+  if (PROPERTY(self, keep) || peek)
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
@@ -247,7 +247,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
 #endif
 
   /* Cleanup the checkpoint memory if need be */
-  if (!PROPERTY(self, keep))
+  if (!(PROPERTY(self, keep) || peek))
   {
     SUNCheckCall(SUNDataNode_Destroy(&solution_node));
   }

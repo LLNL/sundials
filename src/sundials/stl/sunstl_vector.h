@@ -122,8 +122,10 @@ static inline void MAKE_NAME(SUNStlVectorTtype, Set)(SUNStlVectorTtype self,
 
 static inline void MAKE_NAME(SUNStlVectorTtype, PopBack)(SUNStlVectorTtype self)
 {
+  static TTYPE nullish;
   if (self->size == 0) return;
   self->size--;
+  MAKE_NAME(SUNStlVectorTtype, Set)(self, self->size, nullish);
 }
 
 static inline void MAKE_NAME(SUNStlVectorTtype, Erase)(SUNStlVectorTtype self,

@@ -246,7 +246,7 @@ void print_help(int argc, char* argv[], int exit_code)
   fprintf(stderr, "--check-freq <int>  how often to checkpoint (in steps)\n");
   fprintf(stderr, "--no-stages         don't checkpoint stages\n");
   fprintf(stderr,
-          "--keep-checks       keep checkpoints around after loading\n");
+          "--dont-keep         don't keep checkpoints around after loading\n");
   fprintf(stderr, "--help              print these options\n");
   exit(exit_code);
 }
@@ -264,7 +264,7 @@ void parse_args(int argc, char* argv[], ProgramArgs* args)
       args->check_freq = atoi(argv[++argi]);
     }
     else if (!strcmp(arg, "--no-stages")) { args->save_stages = SUNFALSE; }
-    else if (!strcmp(arg, "--keep-checks")) { args->keep_checks = SUNTRUE; }
+    else if (!strcmp(arg, "--dont-keep")) { args->keep_checks = SUNFALSE; }
     else if (!strcmp(arg, "--help")) { print_help(argc, argv, 0); }
     else { print_help(argc, argv, 1); }
   }
@@ -373,6 +373,11 @@ int main(int argc, char* argv[])
   //
 
   printf("\n-- Redo adjoint problem using JVP --\n\n");
+  if (!keep_check)
+  {
+    N_VConst(1.0, u);
+    forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+  }
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
   SUNAdjointStepper_ReInit(adj_stepper, sf, tf);
@@ -385,6 +390,11 @@ int main(int argc, char* argv[])
   //
 
   printf("\n-- Redo adjoint problem using VJP --\n\n");
+  if (!keep_check)
+  {
+    N_VConst(1.0, u);
+    forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+  }
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
   SUNAdjointStepper_ReInit(adj_stepper, sf, tf);

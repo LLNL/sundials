@@ -183,9 +183,9 @@ SUNErrCode SUNDataNode_AddNamedChild_InMem(SUNDataNode self, const char* name,
   IMPL_PROP(child_node, name) = name;
   if (SUNHashMap_Insert(IMPL_PROP(self, named_children), name, child_node))
   {
-    // fprintf(stdout, "node with name=%s could not be inserted, current named children:\n",
-    //         name);
-    // SUNHashMap_PrintKeys(IMPL_PROP(self, named_children), stdout);
+    fprintf(stdout, "node with name=%s could not be inserted, current named children:\n",
+            name);
+    SUNHashMap_PrintKeys(IMPL_PROP(self, named_children), stdout);
     return SUN_ERR_OP_FAIL;
   }
 
@@ -257,6 +257,7 @@ SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex_t index,
     if (*child_node)
     {
       IMPL_PROP(*child_node, parent) = NULL;
+      // SUNStlVector_SUNDataNode_Set(IMPL_PROP(self, anon_children), index, NULL);
       SUNStlVector_SUNDataNode_Erase(IMPL_PROP(self, anon_children), index);
     }
   }

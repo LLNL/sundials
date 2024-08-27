@@ -22,6 +22,7 @@
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_export.h"
+#include "sundials/sundials_types.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -180,6 +181,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Load_Basic(
   :param check_scheme: the SUNAdjointCheckpointScheme object
   :param step_num: the current time step number
   :param stage_num: the current stage number (only nonzero for multistage methods)
+  :param peek: load the checkpointed vector without removing it regardless of the "keep" setting
   :param t: the current time
   :param state: a :c:type:`N_Vector` object that holds loaded state
 
@@ -188,7 +190,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Load_Basic(
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, N_Vector* out, sunrealtype* tout);
+  sunindextype stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout);
 
 /**
   This function destroys and frees the memory for the SUNAdjointCheckpointScheme object.
