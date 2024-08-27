@@ -43,7 +43,9 @@ jobs:
         -D CMAKE_CXX_COMPILER=$(which clang++) \
         -D SUNDIALS_LOGGING_LEVEL=${{matrix.logging_level}} \
         -D ENABLE_ALL_WARNINGS=ON \
-        -D ENABLE_WARNINGS_AS_ERRORS=ON
+        -D ENABLE_WARNINGS_AS_ERRORS=ON \
+        -D SUNDIALS_TEST_UNITTESTS=ON \
+        -D SUNDIALS_TEST_ENABLE_GTEST=OFF
 
     - name: Build
       # Build your program with the given configuration
