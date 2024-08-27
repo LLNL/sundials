@@ -49,6 +49,10 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+    - name: Test
+      # Run logging tests
+      run: ctest --test-dir ${{github.workspace}}/build --label-regex Logging
+
   build_cycle_profiling:
     runs-on: ubuntu-latest
 
