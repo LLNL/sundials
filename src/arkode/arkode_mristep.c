@@ -2907,7 +2907,7 @@ int mriStepInnerStepper_ResetSUNStepper(MRIStepInnerStepper stepper,
                                         sunrealtype tR, N_Vector yR)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
-  stepper->last_flag    = sunstepper->ops->reset(sunstepper, tR, yR, NULL);
+  stepper->last_flag    = sunstepper->ops->reset(sunstepper, tR, yR, NULL, 0);
   return stepper->last_flag;
 }
 

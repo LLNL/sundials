@@ -102,12 +102,12 @@ SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
 }
 
 SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
-                            N_Vector ypR)
+                            N_Vector ypR, int64_t ckptIdxR)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->reset)
   {
-    return stepper->ops->reset(stepper, tR, yR, ypR);
+    return stepper->ops->reset(stepper, tR, yR, ypR, ckptIdxR);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }

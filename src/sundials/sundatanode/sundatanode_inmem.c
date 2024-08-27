@@ -159,11 +159,6 @@ SUNErrCode SUNDataNode_HasChildren_InMem(const SUNDataNode self,
     (IMPL_PROP(self, anon_children) &&
      SUNStlVector_SUNDataNode_Size(IMPL_PROP(self, anon_children)) != 0) ||
     IMPL_PROP(self, num_named_children) != 0;
-  if (IMPL_PROP(self, anon_children))
-  {
-    fprintf(stdout, ">>>>>>>> anon_children size = %ld\n",
-            SUNStlVector_SUNDataNode_Size(IMPL_PROP(self, anon_children)));
-  }
   return SUN_SUCCESS;
 }
 
@@ -174,11 +169,6 @@ SUNErrCode SUNDataNode_AddChild_InMem(SUNDataNode self, SUNDataNode child_node)
   SUNAssert(BASE_PROP(self, dtype) == SUNDATANODE_LIST, SUN_ERR_ARG_WRONGTYPE);
   SUNStlVector_SUNDataNode_PushBack(IMPL_PROP(self, anon_children), child_node);
   IMPL_PROP(child_node, parent) = self;
-  if (IMPL_PROP(self, anon_children))
-  {
-    fprintf(stdout, ">>>>>>>> anon_children size = %ld\n",
-            SUNStlVector_SUNDataNode_Size(IMPL_PROP(self, anon_children)));
-  }
   return SUN_SUCCESS;
 }
 
@@ -192,20 +182,14 @@ SUNErrCode SUNDataNode_AddNamedChild_InMem(SUNDataNode self, const char* name,
   IMPL_PROP(child_node, name) = name;
   if (SUNHashMap_Insert(IMPL_PROP(self, named_children), name, child_node))
   {
-    fprintf(stdout, "node with name=%s could not be inserted, current named children:\n",
-            name);
-    SUNHashMap_PrintKeys(IMPL_PROP(self, named_children), stdout);
+    // fprintf(stdout, "node with name=%s could not be inserted, current named children:\n",
+    //         name);
+    // SUNHashMap_PrintKeys(IMPL_PROP(self, named_children), stdout);
     return SUN_ERR_OP_FAIL;
   }
 
   IMPL_PROP(child_node, parent) = self;
   IMPL_PROP(self, num_named_children)++;
-
-  if (IMPL_PROP(self, anon_children))
-  {
-    fprintf(stdout, ">>>>>>>> anon_children size = %ld\n",
-            SUNStlVector_SUNDataNode_Size(IMPL_PROP(self, anon_children)));
-  }
 
   return SUN_SUCCESS;
 }
@@ -249,7 +233,6 @@ SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode self,
       return SUN_ERR_DATANODE_NODENOTFOUND;
     }
   }
-  else { return SUN_ERR_ARG_INCOMPATIBLE; }
 
   return SUN_SUCCESS;
 }
@@ -272,9 +255,7 @@ SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex_t index,
     if (*child_node)
     {
       IMPL_PROP(*child_node, parent) = NULL;
-      // SUNStlVector_SUNDataNode_Set(IMPL_PROP(self, anon_children), index, NULL);
       SUNStlVector_SUNDataNode_Erase(IMPL_PROP(self, anon_children), index);
-      fprintf(stdout, ">>>>>>> removing %lld\n", index);
     }
   }
 
@@ -332,10 +313,6 @@ SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v,
   SUNMemoryType leaf_mem_type = leaf_data->type;
   SUNMemoryType buffer_mem_type = N_VGetDeviceArrayPointer(v) ? SUNMEMTYPE_DEVICE
                                                               : SUNMEMTYPE_HOST;
-  // TODO(CJB): implement this N_VBufMemType function instead of relying on N_VGetDeviceArrayPointer
-  // which wont work for ManyVector and also requires the strong assumption that the device memory
-  // is the "up to date" data.
-  // SUNCheckCall(N_VBufMemType(v, &buffer_mem_type));
 
   sunindextype buffer_size = 0;
   SUNCheckCall(N_VBufSize(v, &buffer_size));
@@ -409,10 +386,6 @@ SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v,
   SUNMemoryType leaf_mem_type = SUNMEMTYPE_HOST;
   SUNMemoryType buffer_mem_type = N_VGetDeviceArrayPointer(v) ? SUNMEMTYPE_DEVICE
                                                               : SUNMEMTYPE_HOST;
-  // TODO(CJB): implement a N_VBufMemType function instead of relying on N_VGetDeviceArrayPointer
-  // which wont work for ManyVector and also requires the strong assumption that the device memory
-  // is the "up to date" data.
-  // SUNCheckCall(N_VBufMemType(v, &buffer_mem_type));
 
   sunindextype buffer_size = 0;
   SUNCheckCall(N_VBufSize(v, &buffer_size));

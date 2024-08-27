@@ -1152,7 +1152,7 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
   // /* Save initial condition as first checkpoint if this is not an adjoint integration */
   // if (!ark_mem->do_adjoint && ark_mem->checkpoint_scheme)
   // {
-  //   SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme, 0, 0,
+  //   SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme, -1, 0,
   //                                           ark_mem->tcur, ark_mem->ycur);
   // }
 
@@ -2187,7 +2187,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     // }
 
     /* which stage is being processed -- needed for loading checkpoints */
-    ark_mem->adj_stage_idx = is + 1;
+    ark_mem->adj_stage_idx = is;
 
     /* Set current stage time(s) and index */
     ark_mem->tcur = ark_mem->tn +
@@ -2247,10 +2247,9 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                                 &checkpoint, &checkpoint_t);
         if (errcode == SUN_SUCCESS)
         {
-          /* OK, now we have the last checkpoint that stored as (start_step, last_stage).
+          /* OK, now we have the last checkpoint that stored as (start_step, stages).
              This represents the last step solution that was checkpointed. As such, we
              want to recompute from start_step+1 to stop_step. */
-
           start_step++;
           sunrealtype t0 = checkpoint_t;
           sunrealtype tf = ark_mem->tn;
@@ -2262,10 +2261,6 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                              ", tf = %" RSYM "",
                              start_step, stop_step, t0, tf);
 #endif
-          retval = ARKodeSetCheckpointIndex(adj_stepper->fwd_sunstepper->content,
-                                            start_step);
-          if (retval) { return (ARK_RHSFUNC_FAIL); }
-
           if (SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, stop_step,
                                              t0, tf, checkpoint))
           {
@@ -2290,6 +2285,13 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     }
     else if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   }
+
+  // TODO(CJB): need a better way to throw away step solution checkpoint
+  sunrealtype checkpoint_t = 0.0;
+  N_Vector checkpoint      = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
+  SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
+                                        adj_stepper->step_idx, 0, 0,
+                                        &checkpoint, &checkpoint_t);
 
   /* Now compute the time step solution. We cannot use arkStep_ComputeSolutions because the
      adjoint calculation for the time step solution is different than the forward case. */
@@ -3564,7 +3566,7 @@ int arkStep_SUNStepperFullRhs(SUNStepper stepper, sunrealtype t, N_Vector y,
   ----------------------------------------------------------------------------*/
 
 int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
-                            N_Vector ypR)
+                            N_Vector ypR, int64_t ckptIdxR)
 {
   void* arkode_mem;
   int retval;
@@ -3575,6 +3577,8 @@ int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
 
   retval = ARKodeReset(arkode_mem, tR, yR);
   if (retval != ARK_SUCCESS) { return (retval); }
+
+  ((ARKodeMem)arkode_mem)->checkpoint_step_idx = ckptIdxR;
 
   return retval;
 }

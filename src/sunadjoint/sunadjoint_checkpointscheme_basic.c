@@ -243,11 +243,10 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
       SUNLogger_QueueMsg(SUNCTX_->logger, SUN_LOGLEVEL_DEBUG, __func__,
                          "remove-step", "step_num = %d", step_num);
 #endif
-      errcode = SUNDataNode_RemoveNamedChild(PROPERTY(self, root_node), key,
-                                             &solution_node);
-      if (errcode == SUN_ERR_DATANODE_NODENOTFOUND) { solution_node = NULL; }
-      else { SUNCheckCall(errcode); }
+      SUNCheckCall(SUNDataNode_RemoveNamedChild(PROPERTY(self, root_node), key,
+                                                &step_data_node));
       free(key);
+      SUNCheckCall(SUNDataNode_Destroy(&step_data_node));
     }
   }
 

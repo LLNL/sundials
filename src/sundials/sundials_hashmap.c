@@ -45,10 +45,11 @@ static uint64_t fnv1a_hash(const char* str)
   return hash;
 }
 
-static inline uint64_t sunHashMapIdxFromKey(SUNHashMap map, const char* key)
+static inline size_t sunHashMapIdxFromKey(SUNHashMap map, const char* key)
 {
   /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
-  return (size_t)(fnv1a_hash(key) % (SUNHashMap_Capacity(map) - 1));
+  size_t idx = (size_t)(fnv1a_hash(key) % (SUNHashMap_Capacity(map) - 1));
+  return idx;
 }
 
 /*
@@ -238,13 +239,12 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
     if (!strcmp(key, kvp->key)) { return (-2); }
 
     /* OK, it was a real collision, so find the next open spot */
-    retval = SUNHashMap_Iterate(map, idx, sunHashMapLinearProbeInsert, NULL);
+    retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeInsert, NULL);
     if (retval < 0) { return (-1); /* error occurred */ }
     if (retval >= SUNHashMap_Capacity(map))
     {
       sunHashMapResize(map);
       return SUNHashMap_Insert(map, key, value);
-      // return (-1);
     }
 
     idx = retval;
@@ -299,6 +299,7 @@ int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
 {
   size_t idx;
   size_t retval;
+  sunbooleantype maybe_collision = SUNFALSE;
 
   if (map == NULL || key == NULL || value == NULL) { return (-1); }
 
@@ -307,10 +308,19 @@ int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
   SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
 
   /* Check if the key exists */
-  if (kvp == NULL) { return (-2); }
+  if (kvp == NULL)
+  {
+    /* Could be that this is a collision */
+    maybe_collision = SUNTRUE;
+  }
+  else
+  {
+    /* Definitely a collision */
+    maybe_collision = strcmp(kvp->key, key);
+  }
 
-  /* Check to see if this is a collision */
-  if (strcmp(kvp->key, key))
+  /* Resolve a collision */
+  if (maybe_collision)
   {
     /* Keys did not match, so we have a collision and need to probe */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet, key);
@@ -343,6 +353,7 @@ int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
 {
   size_t idx;
   size_t retval;
+  sunbooleantype maybe_collision = SUNFALSE;
 
   if (map == NULL || key == NULL) { return (-1); }
 
@@ -351,10 +362,19 @@ int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
   SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
 
   /* Check if the key exists */
-  if (kvp == NULL) { return (-2); }
+  if (kvp == NULL)
+  {
+    /* Could be that this is a collision */
+    maybe_collision = SUNTRUE;
+  }
+  else
+  {
+    /* Definitely a collision */
+    maybe_collision = strcmp(kvp->key, key);
+  }
 
   /* Check to see if this is a collision */
-  if (strcmp(kvp->key, key))
+  if (maybe_collision)
   {
     /* Keys did not match, so we have a collision and need to probe */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet,

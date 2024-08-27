@@ -893,11 +893,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
 
       /* handle solver convergence failures */
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
-      if (kflag < 0)
-      {
-        fprintf(stderr, ">>> convergence fail\n");
-        break;
-      }
+      if (kflag < 0) { break; }
 
       /* Perform relaxation:
            - computes relaxation parameter
@@ -1344,6 +1340,9 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
 
   /* Clear any previous 'tstop' */
   ark_mem->tstopset = SUNFALSE;
+
+  /* Clear previous checkpoint index */
+  ark_mem->checkpoint_step_idx = 0;
 
   /* Initializations on (re-)initialization call, skip on reset */
   if (init_type == FIRST_INIT)
@@ -3038,11 +3037,7 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
   ark_mem->ncfn++;
 
   /* If fixed time stepping, then return with convergence failure */
-  if (ark_mem->fixedstep)
-  {
-    fprintf(stderr, ">>> fixed step conv fail\n");
-    return (ARK_CONV_FAILURE);
-  }
+  if (ark_mem->fixedstep) { return (ARK_CONV_FAILURE); }
 
   /* Otherwise, access adaptivity structure */
   if (ark_mem->hadapt_mem == NULL)

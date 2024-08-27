@@ -283,7 +283,7 @@ int arkStep_SUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
 int arkStep_SUNStepperFullRhs(SUNStepper stepper, sunrealtype t, N_Vector y,
                               N_Vector f, int mode);
 int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
-                            N_Vector ypR);
+                            N_Vector ypR, int64_t ckptIdxR);
 int arkStep_SUNStepperSetStopTime(SUNStepper stepper, sunrealtype tstop);
 
 /* private functions for interfacing with MRIStep */
