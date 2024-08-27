@@ -2144,6 +2144,7 @@ With the adjoint method we solve the adjoint ODEs for :math:`\lambda(t) \in \mat
 .. math::
    \lambda'(t) &= -f_y^T(t, y, p) \lambda,\quad \lambda(t_F) = g_y^T(y(t_f), p) \\
    \mu'(t) &= -f_p^T(t, y, p) \mu,\quad \mu(t_F) = g_p^T(y(t_f), p), \quad t_f \geq t \geq t_0. \\
+   :label: ARKODE_ADJOINT_ODE
 
 (For a detailed derivation see :cite:p:`hager2000runge,sanduDiscrete2006`). Here :math:`f_y \equiv
 \partial f/\partial y` is the Jacobian with respect to the dependent variable and :math:`f_p \equiv
@@ -2159,14 +2160,16 @@ to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1
    \nu_i     &= h_n f_p^T(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{ji} \Lambda_j \right) \\
    \lambda_n &= \lambda_{n+1} + \sum_{j=1}^{s} \Lambda_j \\
    \mu_n     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
-   :label: ARKODE_ERK_Adjoint
+   :label: ARKODE_ERK_ADJOINT
 
 After completing integration from :math:`t_n` all the way to :math:`t_0` using the discrete adjoint
-formulation, the results are given by
+formulation, the gradients are
 
 .. math::
    \frac{\partial g}{\partial y_{(t_0)}} = \lambda_0, \quad
    \frac{\partial g}{\partial p} = \mu_0 + \lambda_0 \left(\frac{\partial y(t_0)}{\partial p} \right).
+
+For more information on performing discrete adjoint sensitivity analysis see, :numref:`ARKODE.Usage.ARKStep.ASA`.
 
 
 Discrete vs. Continuous Adjoint Method
