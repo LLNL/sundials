@@ -352,7 +352,7 @@ int main(int argc, char* argv[])
   N_VPrint(sf);
 
   SUNAdjointStepper adj_stepper;
-  ARKStepCreateAdjointSolver(arkode_mem, sf, &adj_stepper);
+  ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
 
   //
   // Now compute the adjoint solution

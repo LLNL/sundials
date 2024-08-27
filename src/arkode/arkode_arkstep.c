@@ -3723,13 +3723,13 @@ int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
   return ARK_SUCCESS;
 }
 
-int ARKStepCreateAdjointSolver(void* arkode_mem, N_Vector sf,
-                               SUNAdjointStepper* adj_stepper_ptr)
+int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
+                                SUNAdjointStepper* adj_stepper_ptr)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval = arkStep_AccessARKODEStepMem(arkode_mem,
-                                           "ARKStepCreateAdjointSolver",
+                                           "ARKStepCreateAdjointStepper",
                                            &ark_mem, &step_mem);
   if (retval)
   {
