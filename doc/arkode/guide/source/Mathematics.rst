@@ -2156,17 +2156,17 @@ to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1
 .. math::
    \Lambda_i &= h_n f_y^T(t_{n,i}, z_i) \left(b_i \lambda_{n+1} + \sum_{j=i+1}^s a_{j,i}
    \Lambda_j \right), \quad \quad i = s, \dots, 1,\\
-   \nu_i     &= h_n f_p^T(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{ji} \nu_j \right) \\
+   \nu_i     &= h_n f_p^T(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{ji} \Lambda_j \right) \\
    \lambda_n &= \lambda_{n+1} + \sum_{j=1}^{s} \Lambda_j \\
-   \mu_i     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
+   \mu_n     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
    :label: ARKODE_ERK_Adjoint
 
-The result of intergating the adjoint equations with the discrete adjoint of the ARKStep method is
-then
+After completing integration from :math:`t_n` all the way to :math:`t_0` using the discrete adjoint
+formulation, the results are given by
 
 .. math::
-   \frac{\partial g}{\partial y_{(t_0)}} = \lambda_i, \quad
-   \frac{\partial g}{\partial p} = \mu_i + \lambda_i \left(\frac{\partial y(t_0)}{\partial p} \right).
+   \frac{\partial g}{\partial y_{(t_0)}} = \lambda_0, \quad
+   \frac{\partial g}{\partial p} = \mu_0 + \lambda_0 \left(\frac{\partial y(t_0)}{\partial p} \right).
 
 
 Discrete vs. Continuous Adjoint Method
