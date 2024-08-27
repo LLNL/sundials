@@ -119,6 +119,7 @@
 #include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_dense.h> // dense linear solver
 #include <sunmatrix/sunmatrix_dense.h> // dense matrix type, fcts., macros
+#include <sundials/sundials_logger.h>
 #include <test_utilities.hpp>          // common utility functions
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -206,8 +207,9 @@ static int Ytrue(sunrealtype t, N_Vector y, Options* opts);
 // Main Program
 int main(int argc, char* argv[])
 {
-  // SUNDIALS context object for this simulation
-  sundials::Context sunctx;
+  // SUNDIALS context objects
+  sundials::Context sunctx;  // main solver
+  sundials::Context refctx;  // reference solver
 
   // Read input options
   Options opts;
@@ -266,11 +268,20 @@ int main(int argc, char* argv[])
   else { std::cout << "\n  Fast order " << opts.fast_order << std::endl; }
   PrintFastAdaptivity(opts);
 
+  // If SUNLogger is enabled, manually disable it for the reference solver
+  SUNLogger logger = NULL;
+  retval = SUNLogger_Create(SUN_COMM_NULL, 0, &logger);
+  retval = SUNContext_SetLogger(refctx, logger);
+  retval = SUNLogger_SetErrorFilename(logger, "/dev/null");
+  retval = SUNLogger_SetWarningFilename(logger, "/dev/null");
+  retval = SUNLogger_SetInfoFilename(logger, "/dev/null");
+  retval = SUNLogger_SetDebugFilename(logger, "/dev/null");
+
   // Create and initialize serial vectors for the solution and reference
   N_Vector y = N_VNew_Serial(NEQ, sunctx);
   if (check_ptr((void*)y, "N_VNew_Serial")) return 1;
-  N_Vector yref = N_VClone(y);
-  if (check_ptr((void*)yref, "N_VClone")) return 1;
+  N_Vector yref = N_VNew_Serial(NEQ, refctx);
+  if (check_ptr((void*)yref, "N_VNew_Serial")) return 1;
 
   // Set initial conditions
   retval = Ytrue(T0, y, &opts);
@@ -278,7 +289,7 @@ int main(int argc, char* argv[])
   N_VScale(ONE, y, yref);
 
   // Create and configure reference solver object
-  void* arkode_ref = ERKStepCreate(fn, T0, yref, sunctx);
+  void* arkode_ref = ERKStepCreate(fn, T0, yref, refctx);
   if (check_ptr((void*)arkode_ref, "ERKStepCreate")) return 1;
   retval = ARKodeSetUserData(arkode_ref, (void*)&opts);
   if (check_flag(retval, "ARKodeSetUserData")) return 1;
@@ -842,6 +853,7 @@ int main(int argc, char* argv[])
   MRIStepInnerStepper_Free(&inner_stepper); // Free inner stepper structure
   ARKodeFree(&arkode_mem);                  // Free slow integrator memory
   ARKodeFree(&arkode_ref);                  // Free reference solver memory
+  SUNLogger_Destroy(&logger);               // Free logger
 
   return 0;
 }
