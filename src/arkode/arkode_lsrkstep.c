@@ -892,6 +892,26 @@ int lsrkStep_TakeStepRKG(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_ILL_INPUT);
 }
 
+/*---------------------------------------------------------------
+  lsrkStep_TakeStepSSPs2:
+
+  This routine serves the primary purpose of the LSRKStepSSPs2 module:
+  it performs a single SSPs2 step (with embedding).
+
+  The output variable dsmPtr should contain estimate of the
+  weighted local error if an embedding is present; otherwise it
+  should be 0.
+
+  The input/output variable nflagPtr is used to gauge convergence
+  of any algebraic solvers within the step.  As this routine
+  involves no algebraic solve, it is set to 0 (success).
+
+  The return value from this routine is:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure;
+                 reduce step and retry (if possible)
+           <0 => step encountered unrecoverable failure
+  ---------------------------------------------------------------*/
 int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
@@ -917,19 +937,20 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
      (FSAL methods) RHS evaluations from the end of the last step. */
 
 
+  if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
+  {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
+    step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  }
 
   /* A tentative solution at t+h is returned in
      y and its slope is evaluated in temp1.  */
 
-  N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
-  N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
-
-  N_VLinearSum(ONE, ark_mem->ycur, sm1inv*ark_mem->h, ark_mem->fn, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->tempv1, (rs + ONE)/(rs*rs)*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
+  N_VLinearSum(ONE, ark_mem->yn, sm1inv*ark_mem->h, ark_mem->fn, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->yn, (rs + ONE)/(rs*rs)*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
 
   /* Evaluate stages j = 2,...,step_mem->reqstages */
   for (int j = 2; j < step_mem->reqstages; j++)
@@ -975,15 +996,55 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   return (ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  lsrkStep_TakeStepSSPs3:
+
+  This routine serves the primary purpose of the LSRKStepSSPs3 module:
+  it performs a single SSPs3 step (with embedding).
+
+  The output variable dsmPtr should contain estimate of the
+  weighted local error if an embedding is present; otherwise it
+  should be 0.
+
+  The input/output variable nflagPtr is used to gauge convergence
+  of any algebraic solvers within the step.  As this routine
+  involves no algebraic solve, it is set to 0 (success).
+
+  The return value from this routine is:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure;
+                 reduce step and retry (if possible)
+           <0 => step encountered unrecoverable failure
+  ---------------------------------------------------------------*/
 int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
-  printf("\nRKG is not supported yet! Try RKC or RKL instead.\n");
+  printf("\nSSPs3 is not supported yet! Try SSPs2 instead.\n");
   return (ARK_ILL_INPUT);
 }
 
+/*---------------------------------------------------------------
+  lsrkStep_TakeStepSSP104:
+
+  This routine serves the primary purpose of the LSRKStepSSP104 module:
+  it performs a single SSP104 step (with embedding).
+
+  The output variable dsmPtr should contain estimate of the
+  weighted local error if an embedding is present; otherwise it
+  should be 0.
+
+  The input/output variable nflagPtr is used to gauge convergence
+  of any algebraic solvers within the step.  As this routine
+  involves no algebraic solve, it is set to 0 (success).
+
+  The return value from this routine is:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure;
+                 reduce step and retry (if possible)
+           <0 => step encountered unrecoverable failure
+  ---------------------------------------------------------------*/
 int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
-  printf("\nRKG is not supported yet! Try RKC or RKL instead.\n");
+  printf("\nSSP104 is not supported yet! Try SSPs2 instead.\n");
   return (ARK_ILL_INPUT);
 }
 

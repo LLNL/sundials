@@ -69,7 +69,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     break;
   case ARKODE_LSRK_SSP10_4:
     ark_mem->step = lsrkStep_TakeStepSSP104;
-    step_mem->reqstages = 25;
+    step_mem->reqstages = 10;
     break;
         
   default:
