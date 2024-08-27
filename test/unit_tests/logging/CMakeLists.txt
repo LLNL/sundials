@@ -26,7 +26,7 @@ endif()
 if(BUILD_CVODES)
   list(APPEND unit_tests "test_logging_cvodes.cpp\;1 1") # Newton + Dense
   list(APPEND unit_tests "test_logging_cvodes.cpp\;1 0") # Newton + GMRES
-  list(APPEND unit_tests "test_logging_cvodes.cpp\;0")   # Fixed-point
+  list(APPEND unit_tests "test_logging_cvodes.cpp\;0") # Fixed-point
 endif()
 
 if(BUILD_IDA)
@@ -52,8 +52,8 @@ foreach(test_tuple ${unit_tests})
   get_filename_component(test_target ${test_src} NAME_WE)
 
   # The CMake regular expression support is somewhat limited (see this issue
-  # https://gitlab.kitware.com/cmake/cmake/-/issues/17686) so the ordering
-  # here matters i.e., match cvodes before cvode and idas before ida
+  # https://gitlab.kitware.com/cmake/cmake/-/issues/17686) so the ordering here
+  # matters i.e., match cvodes before cvode and idas before ida
   string(REGEX MATCH "arkode|cvodes|cvode|idas|ida|kinsol" _pkg ${test_target})
 
   # check if this test has already been added, only need to add test source

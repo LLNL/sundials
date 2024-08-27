@@ -80,7 +80,6 @@ inline int kpr_true_sol_p(sunrealtype t, sunrealtype* up, sunrealtype* vp)
   return 0;
 }
 
-
 /* -----------------------------------------------------------------------------
  * ODE RHS function:
  *   [a  b] * [ (-1 + u^2 - r(t)) / (2*u) ] + [ r'(t) / (2u) ]
@@ -192,10 +191,12 @@ inline int kpr_res_jac(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp,
   const sunrealtype u = ydata[0];
   const sunrealtype v = ydata[1];
 
-  Jdata[0] = (a / TWO + (a * (ONE + kpr_r(t)) - kpr_rdot(t)) / (TWO * u * u)) - cj;
+  Jdata[0] = (a / TWO + (a * (ONE + kpr_r(t)) - kpr_rdot(t)) / (TWO * u * u)) -
+             cj;
   Jdata[1] = c / TWO + c * (ONE + kpr_r(t)) / (TWO * u * u);
   Jdata[2] = b / TWO + b * (TWO + kpr_s(t)) / (TWO * v * v);
-  Jdata[3] = (d / TWO + (d * (TWO + kpr_s(t)) - kpr_sdot(t)) / (TWO * v * v)) - cj;
+  Jdata[3] = (d / TWO + (d * (TWO + kpr_s(t)) - kpr_sdot(t)) / (TWO * v * v)) -
+             cj;
 
   return 0;
 }
