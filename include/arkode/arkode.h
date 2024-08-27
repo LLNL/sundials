@@ -71,10 +71,9 @@ extern "C" {
 
 /* return values */
 
-#define ARK_SUCCESS              0
-#define ARK_TSTOP_RETURN         1
-#define ARK_ROOT_RETURN          2
-#define ARK_ADJ_RECOMPUTE_RETURN 3
+#define ARK_SUCCESS      0
+#define ARK_TSTOP_RETURN 1
+#define ARK_ROOT_RETURN  2
 
 #define ARK_WARNING 99
 
@@ -141,8 +140,6 @@ extern "C" {
 #define ARK_CONTROLLER_ERR -47
 
 #define ARK_STEPPER_UNSUPPORTED -48
-
-#define ARK_CHECKPOINT_SEEK_ERR -49
 
 #define ARK_UNRECOGNIZED_ERROR -99
 
