@@ -34,7 +34,10 @@ if(BUILD_IDA)
   list(APPEND unit_tests "test_logging_ida.cpp\;0") # Newton + GMRES
 endif()
 
-# if(BUILD_IDAS) list(APPEND unit_tests "test_logging_idas.cpp\;") endif()
+if(BUILD_IDAS)
+  list(APPEND unit_tests "test_logging_idas.cpp\;1") # Newton + Dense
+  list(APPEND unit_tests "test_logging_idas.cpp\;0") # Newton + GMRES
+endif()
 
 # if(BUILD_KINSOL) list(APPEND unit_tests "test_logging_kinsol.cpp\;") endif()
 
