@@ -33,7 +33,10 @@ typedef enum
 {
   ARKODE_LSRK_RKC         = 1, /* ensure enum is int */
   ARKODE_LSRK_RKL         = 2,
-  ARKODE_LSRK_RKG         = 3
+  ARKODE_LSRK_RKG         = 3,
+  ARKODE_LSRK_SSPs_2      = 4,
+  ARKODE_LSRK_SSPs_3      = 5,
+  ARKODE_LSRK_SSP10_4     = 6
 } ARKODE_LSRKMethodType;
 
 /* -------------------

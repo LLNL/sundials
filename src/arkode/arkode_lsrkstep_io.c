@@ -59,7 +59,19 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   case ARKODE_LSRK_RKG:
     ark_mem->step = lsrkStep_TakeStepRKG;
     break;
-
+  case ARKODE_LSRK_SSPs_2:
+    ark_mem->step = lsrkStep_TakeStepSSPs2;
+    step_mem->reqstages = 25;
+    break;    
+  case ARKODE_LSRK_SSPs_3:
+    ark_mem->step = lsrkStep_TakeStepSSPs3;
+    step_mem->reqstages = 25;
+    break;
+  case ARKODE_LSRK_SSP10_4:
+    ark_mem->step = lsrkStep_TakeStepSSP104;
+    step_mem->reqstages = 25;
+    break;
+        
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid method option.");

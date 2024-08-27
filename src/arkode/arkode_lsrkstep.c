@@ -892,6 +892,102 @@ int lsrkStep_TakeStepRKG(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_ILL_INPUT);
 }
 
+int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
+{
+  int retval;
+
+  ARKodeLSRKStepMem step_mem;
+
+  /* initialize algebraic solver convergence flag to success,
+     temporal error estimate to zero */
+  *nflagPtr = ARK_SUCCESS;
+  *dsmPtr   = ZERO;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  sunrealtype rs = (sunrealtype)step_mem->reqstages;
+  sunrealtype sm1inv = ONE/(rs - ONE);
+
+  /* Call the full RHS if needed. If this is the first step then we may need to
+     evaluate or copy the RHS values from an  earlier evaluation (e.g., to
+     compute h0). For subsequent steps treat this RHS evaluation as an
+     evaluation at the end of the just completed step to potentially reuse
+     (FSAL methods) RHS evaluations from the end of the last step. */
+
+
+    retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                          ark_mem->user_data);
+    ark_mem->fn_is_current = SUNTRUE;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+
+  /* A tentative solution at t+h is returned in
+     y and its slope is evaluated in temp1.  */
+
+  N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
+  N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
+
+  N_VLinearSum(ONE, ark_mem->ycur, sm1inv*ark_mem->h, ark_mem->fn, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->tempv1, (rs + ONE)/(rs*rs)*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
+
+  /* Evaluate stages j = 2,...,step_mem->reqstages */
+  for (int j = 2; j < step_mem->reqstages; j++)
+  {
+    retval = step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE)*sm1inv*ark_mem->h, ark_mem->ycur,
+                          ark_mem->fn, ark_mem->user_data);
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+    
+    N_VLinearSum(ONE, ark_mem->ycur, sm1inv*ark_mem->h, ark_mem->fn, ark_mem->ycur);
+    N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h/rs, ark_mem->fn, ark_mem->tempv1);
+
+  }
+  
+  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                        ark_mem->fn, ark_mem->user_data);
+  if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+
+  N_VLinearSum(ONE/rs, ark_mem->yn, ONE/(sm1inv*rs), ark_mem->ycur, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h/rs, ark_mem->fn, ark_mem->ycur);
+
+  N_VLinearSum(ONE, ark_mem->tempv1, (rs - ONE)/(rs*rs)*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
+  
+  step_mem->nfe += step_mem->reqstages;
+
+  /* Compute yerr (if step adaptivity enabled) */
+  if (!ark_mem->fixedstep)
+  {
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                          ark_mem->tempv2, ark_mem->user_data);
+    step_mem->nfe++;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+
+    N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->tempv1, ark_mem->tempv1);
+
+    *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
+  }
+  if (*dsmPtr <= ONE || ark_mem->fixedstep)
+  {
+    N_VScale(ONE, ark_mem->tempv2, ark_mem->fn);
+    ark_mem->fn_is_current = SUNTRUE;
+  }
+
+  return (ARK_SUCCESS);
+}
+
+int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
+{
+  printf("\nRKG is not supported yet! Try RKC or RKL instead.\n");
+  return (ARK_ILL_INPUT);
+}
+
+int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
+{
+  printf("\nRKG is not supported yet! Try RKC or RKL instead.\n");
+  return (ARK_ILL_INPUT);
+}
+
+
 /*===============================================================
   Internal utility routines
   ===============================================================*/
