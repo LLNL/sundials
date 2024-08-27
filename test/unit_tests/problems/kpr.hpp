@@ -71,6 +71,16 @@ inline int kpr_true_sol(sunrealtype t, sunrealtype* u, sunrealtype* v)
   return 0;
 }
 
+// Compute the true solution derivative
+inline int kpr_true_sol_p(sunrealtype t, sunrealtype* up, sunrealtype* vp)
+{
+  *up = kpr_rdot(t) / (TWO * std::sqrt(ONE + kpr_r(t)));
+  *vp = kpr_sdot(t) / (TWO * std::sqrt(TWO + kpr_s(t)));
+
+  return 0;
+}
+
+
 /* -----------------------------------------------------------------------------
  * ODE RHS function:
  *   [a  b] * [ (-1 + u^2 - r(t)) / (2*u) ] + [ r'(t) / (2u) ]
@@ -128,6 +138,66 @@ inline int kpr_rhs_jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   return 0;
 }
 
+/* -----------------------------------------------------------------------------
+ * DAE residual function:
+ *   ru = [a  b] * [ (-1 + u^2 - r(t)) / (2*u) ] + [ r'(t) / (2u) ] - [u']
+ *   rv = [c  d]   [ (-2 + v^2 - s(t)) / (2*v) ]   [ s'(t) / (2v) ] - [v']
+ * ---------------------------------------------------------------------------*/
+inline int kpr_res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector rr,
+                   void* user_data)
+{
+  sunrealtype* udata  = (sunrealtype*)user_data;
+  const sunrealtype a = udata[0];
+  const sunrealtype b = udata[1];
+  const sunrealtype c = udata[2];
+  const sunrealtype d = udata[3];
 
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* ypdata = N_VGetArrayPointer(yp);
+  sunrealtype* rdata  = N_VGetArrayPointer(rr);
+
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
+
+  const sunrealtype up = ypdata[0];
+  const sunrealtype vp = ypdata[1];
+
+  const sunrealtype tmp1 = (-ONE + u * u - kpr_r(t)) / (TWO * u);
+  const sunrealtype tmp2 = (-TWO + v * v - kpr_s(t)) / (TWO * v);
+
+  rdata[0] = (a * tmp1 + b * tmp2 + kpr_rdot(t) / (TWO * u)) - up;
+  rdata[1] = (c * tmp1 + d * tmp2 + kpr_sdot(t) / (TWO * v)) - vp;
+
+  return 0;
+}
+
+/* -----------------------------------------------------------------------------
+ * DAE RHS Jacobin:
+ *   [a/2 + (a(1+r(t))-r'(t))/(2u^2) - cj  b/2 + b*(2+s(t))/(2*v^2)            ]
+ *   [c/2 + c(1+r(t))/(2u^2)               d/2 + (d(2+s(t))-s'(t))/(2u^2) - cj ]
+ * ---------------------------------------------------------------------------*/
+inline int kpr_res_jac(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp,
+                       N_Vector rr, SUNMatrix J, void* user_data,
+                       N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
+{
+  sunrealtype* udata  = (sunrealtype*)user_data;
+  const sunrealtype a = udata[0];
+  const sunrealtype b = udata[1];
+  const sunrealtype c = udata[2];
+  const sunrealtype d = udata[3];
+
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* Jdata = SUNDenseMatrix_Data(J);
+
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
+
+  Jdata[0] = (a / TWO + (a * (ONE + kpr_r(t)) - kpr_rdot(t)) / (TWO * u * u)) - cj;
+  Jdata[1] = c / TWO + c * (ONE + kpr_r(t)) / (TWO * u * u);
+  Jdata[2] = b / TWO + b * (TWO + kpr_s(t)) / (TWO * v * v);
+  Jdata[3] = (d / TWO + (d * (TWO + kpr_s(t)) - kpr_sdot(t)) / (TWO * v * v)) - cj;
+
+  return 0;
+}
 
 #endif // KPR_

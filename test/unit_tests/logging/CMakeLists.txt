@@ -29,7 +29,10 @@ if(BUILD_CVODES)
   list(APPEND unit_tests "test_logging_cvodes.cpp\;0")   # Fixed-point
 endif()
 
-# if(BUILD_IDA) list(APPEND unit_tests "test_logging_ida.cpp\;") endif()
+if(BUILD_IDA)
+  list(APPEND unit_tests "test_logging_ida.cpp\;1") # Newton + Dense
+  list(APPEND unit_tests "test_logging_ida.cpp\;0") # Newton + GMRES
+endif()
 
 # if(BUILD_IDAS) list(APPEND unit_tests "test_logging_idas.cpp\;") endif()
 
