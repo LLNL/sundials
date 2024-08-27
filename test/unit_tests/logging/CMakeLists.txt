@@ -90,9 +90,9 @@ foreach(test_tuple ${unit_tests})
     string(REPLACE " " ";" test_args "${test_args}")
   endif()
 
-  # For now, only diff results with double precision
+  # For now, only diff when dev test are enabled
   # TODO(DJG): Update Jenkins diff handling for testing single/extended
-  if(SUNDIALS_PRECISION MATCHES "DOUBLE")
+  if(SUNDIALS_TEST_DEVTESTS)
     set(diff_output "")
   else()
     set(diff_output "NODIFF")
@@ -104,7 +104,6 @@ foreach(test_tuple ${unit_tests})
     TEST_ARGS ${test_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE "develop"
     LABELS "UnitTest" "Logging" ${diff_output})
 
 endforeach()
