@@ -36,6 +36,9 @@
     ARKODE_LSRK_RKC
     ARKODE_LSRK_RKL
     ARKODE_LSRK_RKG
+    ARKODE_LSRK_SSPs_2
+    ARKODE_LSRK_SSPs_3
+    ARKODE_LSRK_SSP10_4
   ---------------------------------------------------------------*/
 int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
 {
@@ -215,12 +218,13 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
 /*---------------------------------------------------------------
   LSRKStepSetSSPStageNum sets the number of stages in the following 
   SSP methods:
-      ARKODE_LSRK_SSPs_2
-        numofstages must be greater than or equal to 2
-      ARKODE_LSRK_SSPs_3
-        numofstages must be a full-square greater than 3
 
-  This set routine must be called after calling LSRKStepSetMethod
+      ARKODE_LSRK_SSPs_2  -- numofstages must be greater than or equal to 2
+      ARKODE_LSRK_SSPs_3  -- numofstages must be a full-square greater than 3
+      ARKODE_LSRK_SSP10_4 -- numofstages is prefixed and equal to 10
+      ARKODE_LSRK_SSP10_4 -- no need to call this function if ARKODE_LSRK_SSP10_4
+
+  This set routine must be called after calling LSRKStepSetMethod with an SSP method
   ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
 {
@@ -258,9 +262,14 @@ SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
     break;
       
   case ARKODE_LSRK_SSP10_4:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "SSP10_4 method has a prefixed numofstages = 10");
-      return (ARK_ILL_INPUT);
+      if (numofstages != 10)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "SSP10_4 method has a prefixed numofstages = 10");
+        return (ARK_ILL_INPUT);
+      }
+      else {step_mem->reqstages = numofstages;}
+
     break;
 
   default:
