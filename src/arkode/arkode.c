@@ -1364,7 +1364,6 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
 ARKodeMem arkCreate(SUNContext sunctx)
 {
   int iret;
-  long int lenrw, leniw;
   ARKodeMem ark_mem;
 
   if (!sunctx)
