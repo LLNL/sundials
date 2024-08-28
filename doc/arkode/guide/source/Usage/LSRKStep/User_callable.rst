@@ -89,6 +89,9 @@ Allowable Method Families
    * ``ARKODE_LSRK_RKC`` -- Runge--Kutta--Chebyshev
    * ``ARKODE_LSRK_RKL`` -- Runge--Kutta--Legendre
    * ``ARKODE_LSRK_RKG`` -- Runge--Kutta--Gegenbauer
+   * ``ARKODE_LSRK_SSPs_2`` -- SSP(s,2) -- 2nd order, s-stage
+   * ``ARKODE_LSRK_SSPs_3`` -- SSP(s,3) -- 3rd order, s-stage
+   * ``ARKODE_LSRK_SSP10_4`` -- SSP(10,4) -- 4th order, 10-stage
    
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig);
 
@@ -146,6 +149,25 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``domeigsfty < 1``)
+
+
+.. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages);
+
+   Sets the number of stages, ``s`` in ``SSP(s, p)`` methods.
+      
+      * ``ARKODE_LSRK_SSPs_2``  -- ``numofstages`` must be greater than or equal to 2
+      * ``ARKODE_LSRK_SSPs_3``  -- ``numofstages`` must be a full-square greater than or equal to 4
+      * ``ARKODE_LSRK_SSP10_4`` -- ``numofstages`` is prefixed and equal to 10
+      * ``ARKODE_LSRK_SSP10_4`` -- do not call this function if ``ARKODE_LSRK_SSP10_4``
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *numofstages* -- number of stages :math:`(>1)` for ``SSP(s,2)`` and :math:`(n^2 = s \geq 4)` for ``SSP(s,3)``.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``numofstages < 2``)      
 
 
 .. _ARKODE.Usage.LSRKStep.OptionalOutputs:

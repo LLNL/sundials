@@ -739,7 +739,7 @@ LSRKStep -- Low-Storage Runge--Kutta methods
 The LSRKStep time-stepping module in ARKODE supports a variety of so-called
 "low-storage" Runge--Kutta methods, including traditional explicit low-storage
 RK methods, adaptive and mixed implicit-explicit low-storage RK methods, and a
-variety of "super-time-stepping" methods.
+variety of "super-time-stepping (STS)" and "strong-stability-preserving (SSP)" methods.
 
 The LSRK time-stepping module in ARKODE is designed for IVP
 of the form :eq:`ARKODE_IVP_simple_explicit`, i.e., unlike the more general problem form :eq:`ARKODE_IMEX_IVP`, LSRKStep
@@ -761,13 +761,27 @@ The RKC and RKL methods in ARKODE have the form
 
 The corresponding coefficients can be found in :cite:p:`VSH:04, MBA:14`, respectively.
 
-LSRK methods are designed to be memory-efficient for stiff problems characterized by 
+LSRK methods of STS type are designed to be memory-efficient for stiff problems characterized by 
 large real eigenvalues and small imaginary parts. These methods use more stages than 
 conventional Runge-Kutta (RK) methods to extend the stability region along the negative 
 real axis. The extent of this stability region is proportional to the square of the number 
 of stages used. This quadratic expansion of the stability region enables the effective 
 use of explicit methods for finding solutions efficiently.
 
+The SSP methods in ARKODE uses the following Shu and Osher representation of explicit RK methods:
+
+.. math::
+   z_1 &= y_n,\\
+   z_i &= \sum_{j = 1}^{i-1} \left(\alpha_{i,j}y_j + \beta_{i,j}h f(t_n + c_jh, z_j)\right),\\
+   y_{n+1} &= z_s.
+   :label: ARKODE_SSP
+
+In particular, the methods SSP(s,2), SSP(s,3), and SSP(10,4) implemented herein and presented in :cite:p:K:08 have "almost" all 
+non-zero coefficients appearing in :math:`\alpha_{i,i-1}` and :math:`\beta_{i,i-1}`. This feature facilitates their implementation 
+in an LSRK manner. The corresponding coefficients and embedding weights can be found in :cite:p:`K:08` and :cite:p:`FCS:22`, 
+respectively.
+
+LSRK methods of the SSP type are designed to preserve the so-called "strong-stability" properties of advection-type equations. For details, see :cite:p:`K:08`.
 
 .. _ARKODE.Mathematics.Error.Norm:
 

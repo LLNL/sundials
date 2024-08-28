@@ -226,7 +226,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
 
   This set routine must be called after calling LSRKStepSetMethod with an SSP method
   ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
+int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
