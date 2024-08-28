@@ -69,21 +69,24 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step = lsrkStep_TakeStepSSPs2;
     step_mem->LSRKmethod = ARKODE_LSRK_SSPs_2;
     step_mem->isSSP = SUNTRUE;
+    ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages = 10;
     break;
   case ARKODE_LSRK_SSPs_3:
     ark_mem->step = lsrkStep_TakeStepSSPs3;
     step_mem->LSRKmethod = ARKODE_LSRK_SSPs_3;
     step_mem->isSSP = SUNTRUE;
+    ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages = 9;
     break;
   case ARKODE_LSRK_SSP10_4:
     ark_mem->step = lsrkStep_TakeStepSSP104;
     step_mem->LSRKmethod = ARKODE_LSRK_SSP10_4;
     step_mem->isSSP = SUNTRUE;
+    ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages = 10;
     break;
-        
+    
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid method option.");
@@ -410,6 +413,14 @@ int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   *sprmax         = step_mem->sprmax;
   *sprmin         = step_mem->sprmin;
 
+  if(step_mem->isSSP)
+  {
+    *sprmax = NAN;
+    *sprmin = NAN;
+    *ndomeigupdates = NAN;
+    *stagemax = step_mem->reqstages;
+  }
+
   return (ARK_SUCCESS);
 }
 
@@ -564,6 +575,41 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
 
     fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->sprmax);
     fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->sprmin);
+    fprintf(outfile, "\n");
+    break;
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid formatting option.");
+    return (ARK_ILL_INPUT);
+  }
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  lsrkSSPStep_PrintAllStats:
+
+  Prints integrator statistics
+  ---------------------------------------------------------------*/
+int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
+{
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  switch (fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
+    fprintf(outfile, "Stages taken                 = %d\n",  step_mem->reqstages);
+    break;
+  case SUN_OUTPUTFORMAT_CSV:
+    fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
+    fprintf(outfile, ",Stages taken,%d", step_mem->reqstages);
+
     fprintf(outfile, "\n");
     break;
   default:
