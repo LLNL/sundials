@@ -52,23 +52,32 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   {
   case ARKODE_LSRK_RKC:
     ark_mem->step = lsrkStep_TakeStepRKC;
+    step_mem->LSRKmethod = ARKODE_LSRK_RKC;
     break;
   case ARKODE_LSRK_RKL:
     ark_mem->step = lsrkStep_TakeStepRKL;
+    step_mem->LSRKmethod = ARKODE_LSRK_RKL;
     break;
   case ARKODE_LSRK_RKG:
     ark_mem->step = lsrkStep_TakeStepRKG;
+    step_mem->LSRKmethod = ARKODE_LSRK_RKG;    
     break;
   case ARKODE_LSRK_SSPs_2:
     ark_mem->step = lsrkStep_TakeStepSSPs2;
-    step_mem->reqstages = 25;
-    break;    
+    step_mem->LSRKmethod = ARKODE_LSRK_SSPs_2;
+    step_mem->isSSP = SUNTRUE;
+    step_mem->reqstages = 10;
+    break;
   case ARKODE_LSRK_SSPs_3:
     ark_mem->step = lsrkStep_TakeStepSSPs3;
-    step_mem->reqstages = 25;
+    step_mem->LSRKmethod = ARKODE_LSRK_SSPs_3;
+    step_mem->isSSP = SUNTRUE;
+    step_mem->reqstages = 9;
     break;
   case ARKODE_LSRK_SSP10_4:
     ark_mem->step = lsrkStep_TakeStepSSP104;
+    step_mem->LSRKmethod = ARKODE_LSRK_SSP10_4;
+    step_mem->isSSP = SUNTRUE;
     step_mem->reqstages = 10;
     break;
         
@@ -199,6 +208,67 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
   }
 
   step_mem->domeigsfty = domeigsfty;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  LSRKStepSetSSPStageNum sets the number of stages in the following 
+  SSP methods:
+      ARKODE_LSRK_SSPs_2
+        numofstages must be greater than or equal to 2
+      ARKODE_LSRK_SSPs_3
+        numofstages must be a full-square greater than 3
+
+  This set routine must be called after calling LSRKStepSetMethod
+  ---------------------------------------------------------------*/
+SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+
+  switch (step_mem->LSRKmethod)
+  {
+  case ARKODE_LSRK_SSPs_2:
+      if (numofstages < 2)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "numofstages must be greater than or equal to 2");
+        return (ARK_ILL_INPUT);
+      }
+      step_mem->reqstages = numofstages;
+    break;
+  
+  case ARKODE_LSRK_SSPs_3:
+      if (numofstages < 4 || (ceil(SUNRsqrt(numofstages))!= floor(SUNRsqrt(numofstages))))
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "numofstages must be a full-square greater than or equal to 4");             
+        return (ARK_ILL_INPUT);
+      }
+      else {step_mem->reqstages = numofstages;}
+      
+    break;
+      
+  case ARKODE_LSRK_SSP10_4:
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "SSP10_4 method has a prefixed numofstages = 10");
+      return (ARK_ILL_INPUT);
+    break;
+
+  default:
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Call LSRKStepSetMethod to declare SSP method type first!");
+      return (ARK_ILL_INPUT);
+    break;
+  }
 
   return (ARK_SUCCESS);
 }
@@ -417,6 +487,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->newdomeig   = SUNTRUE;
   step_mem->constJac    = SUNFALSE;
   step_mem->jacatt      = SUNFALSE;
+  step_mem->isSSP       = SUNFALSE;
 
   ark_mem->hadapt_mem->adjust = 0;               /* set default adjustment */
   ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */

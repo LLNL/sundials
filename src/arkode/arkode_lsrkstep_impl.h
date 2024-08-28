@@ -55,6 +55,8 @@ typedef struct ARKodeLSRKStepMemRec
 
   int reqstages; /* number of requested stages   */
 
+  ARKODE_LSRKMethodType LSRKmethod;
+
   /* Counters and stats*/
   long int nfe;           /* num fe calls       */
   long int nfi;           /* num fi calls       */
@@ -78,6 +80,8 @@ typedef struct ARKodeLSRKStepMemRec
   sunbooleantype newdomeig;   /* flag indicating new domeig is needed */
   sunbooleantype constJac; /* flag indicating Jacobian is constant */
   sunbooleantype jacatt;   /* an internal flag*/
+  sunbooleantype isSSP;    /* flag indicating SSP method*/
+
 
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;
