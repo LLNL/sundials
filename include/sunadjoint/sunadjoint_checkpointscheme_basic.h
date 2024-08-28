@@ -147,19 +147,6 @@ SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Basic(
   sunindextype stage_num, N_Vector* out);
 
 /**
-  This function removes multiple checkpoints.
-
-  :param check_scheme: the SUNAdjointCheckpointScheme object
-
-  :returns: a :c:type:`SUNErrCode` indicating success or failure
- */
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_RemoveRange_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num_start,
-  sunindextype step_num_end, sunindextype stage_num_start,
-  sunindextype stage_num_end);
-
-/**
   This function loads a checkpoint state (represented as a N_Vector).
 
   :param check_scheme: the SUNAdjointCheckpointScheme object

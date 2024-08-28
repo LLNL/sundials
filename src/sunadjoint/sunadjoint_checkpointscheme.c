@@ -42,7 +42,6 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
   ops->insertVector   = NULL;
   ops->loadVector     = NULL;
   ops->removeVector   = NULL;
-  ops->removeRange    = NULL;
   ops->enableDense    = NULL;
   ops->destroy        = NULL;
 

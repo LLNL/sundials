@@ -40,6 +40,7 @@ struct SUNAdjointStepper_
     nrecompute;
 
   void* user_data;
+  void* content;
   SUNContext sunctx;
 };
 
@@ -58,11 +59,11 @@ SUNErrCode SUNAdjointStepper_Create(
 /*
   Reinitializes the adjoint stepper to solve a new problem of the same size.
 
-  :param adj_stepper: The adjoint solver object.
+  :param adj_stepper: The SUNAdjointStepper object.
   :param tf: The time to start integrating the adjoint system from.
   :param sf: The terminal condition vector of sensitivity solutions dg/dy0 and dg/dp.
 
-  :returns: A SUNErrCode indicating failure or success.
+  :return: A SUNErrCode indicating failure or success.
  */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
@@ -71,13 +72,13 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
 /*
   Integrates the adjoint system.
 
-  :param adj_stepper: The adjoint solver object.
+  :param adj_stepper: The SUNAdjointStepper object.
   :param tout: The time at which the adjoint solution is desired.
   :param sens: The vector of sensitivity solutions dg/dy0 and dg/dp.
   :param tret: On return, the time reached by the adjoint solver.
   :param stop_reason: On return, an integer code that indicates why the adjoint solver stopped.
 
-  :returns: A SUNErrCode indicating failure or success.
+  :return: A SUNErrCode indicating failure or success.
  */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper adj_stepper,
@@ -87,19 +88,31 @@ SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper adj_stepper,
 /*
   Evolves the adjoint system backwards one step.
 
-  :param adj_stepper: The adjoint solver object.
+  :param adj_stepper: The SUNAdjointStepper object.
   :param tout: The time at which the adjoint solution is desired.
   :param sens: The vector of sensitivity solutions dg/dy0 and dg/dp.
   :param tret: On return, the time reached by the adjoint solver.
   :param stop_reason: On return, an integer code that indicates why the adjoint solver stopped.
 
-  :returns: A SUNErrCode indicating failure or success.
+  :return: A SUNErrCode indicating failure or success.
  */
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
                                      sunrealtype tout, N_Vector sens,
                                      sunrealtype* tret, int* stop_reason);
 
+/*
+  Evolves the forward system in time from start_idx/t0 to stop_idx/tf with dense checkpointing.
+
+  :param adj_stepper: The SUNAdjointStepper object.
+  :param start_idx: the index of the step, w.r.t. the original forward integration, to begin forward integration from.
+  :param stop_idx: the index of the step, w.r.t. the original forward integration, to end forward integration.
+  :param t0: the initial time, w.r.t. the original forward integration, to start forward integration from.
+  :param tf: the final time, w.r.t. the original forward integration, to stop forward integration.
+  :param y0: the initial state, w.r.t. the original forward integration, to start forward integration.
+
+  :return: A SUNErrCode indicating failure or success.
+*/
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
                                           int64_t start_idx, int64_t stop_idx,

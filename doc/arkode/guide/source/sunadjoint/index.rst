@@ -11,7 +11,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNAdaptController:
+.. _SUNAdjoint:
 
 ###########################
 Adjoint Sensitivty Analysis
@@ -24,6 +24,7 @@ sensitivity analysis (ASA). The API itself does not implement ASA, but it provid
 interface for ASA capabilties implemented in the SUNDIALS packages. Right now it supports :ref:`the
 ASA capabilties in ARKODE <ARKODE.Mathematics.ASA>`, while the ASA capabilities in :ref:`CVODES
 <CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` must be used directly.
+*Users should read the package specific sections on ASA capabiltiies before this section.*
 
 .. toctree::
    :maxdepth: 1

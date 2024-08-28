@@ -47,12 +47,6 @@ struct SUNAdjointCheckpointScheme_Ops_
   SUNErrCode (*removeVector)(SUNAdjointCheckpointScheme, sunindextype step_num,
                              sunindextype stage_num, N_Vector* out);
 
-  SUNErrCode (*removeRange)(SUNAdjointCheckpointScheme,
-                            sunindextype step_num_start,
-                            sunindextype step_num_end,
-                            sunindextype stage_num_start,
-                            sunindextype stage_num_end);
-
   SUNErrCode (*destroy)(SUNAdjointCheckpointScheme*);
 
   SUNErrCode (*enableDense)(SUNAdjointCheckpointScheme, sunbooleantype on_or_off);
@@ -97,13 +91,6 @@ SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme,
                                                    sunindextype step_num,
                                                    sunindextype stage_num,
                                                    N_Vector* out);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_RemoveRange(SUNAdjointCheckpointScheme,
-                                                  sunindextype step_num_start,
-                                                  sunindextype step_num_end,
-                                                  sunindextype stage_num_start,
-                                                  sunindextype stage_num_end);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Destroy(SUNAdjointCheckpointScheme*);

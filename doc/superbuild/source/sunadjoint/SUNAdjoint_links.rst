@@ -10,5 +10,4 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. include:: ../../../shared/sunadjoint/SUNAdjointCheckpointScheme.rst
-.. include:: ../../../shared/sunadjoint/SUNAdjointStepper.rst
+.. include:: ../../../shared/sunadjoint/SUNAdjoint_Description.rst
