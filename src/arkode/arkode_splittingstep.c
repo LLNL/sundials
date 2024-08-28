@@ -209,7 +209,7 @@ static int splittingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outf
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Stepper evolves = %ld\n", step_mem->n_stepper_evolves);
+    fprintf(outfile, "Stepper evolves              = %ld\n", step_mem->n_stepper_evolves);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, "Stepper evolves,%ld\n", step_mem->n_stepper_evolves);

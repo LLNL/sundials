@@ -23,6 +23,7 @@ set(ARKODE_examples
     # tests that are always run
     "ark_analytic\;\;"
     # develop tests
+    "ark_advection_diffusion_reaction_splitting\;\;develop"
     "ark_analytic_mels\;\;develop"
     "ark_analytic_nonlin\;\;develop"
     "ark_brusselator_1D_mri\;\;develop"
