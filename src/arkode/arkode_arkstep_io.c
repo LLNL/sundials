@@ -653,6 +653,7 @@ int arkStep_SetUserData(ARKodeMem ark_mem, void* user_data)
 int arkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeARKStepMem step_mem;
+  sunindextype Blrw, Bliw;
   long int lenrw, leniw;
   int retval;
 
@@ -685,17 +686,17 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   /* Remove pre-existing Butcher tables */
   if (step_mem->Be)
   {
-    ARKodeButcherTable_Space(step_mem->Be, &leniw, &lenrw);
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
+    ARKodeButcherTable_Space(step_mem->Be, &Bliw, &Blrw);
+    ark_mem->liw -= Bliw;
+    ark_mem->lrw -= Blrw;
     ARKodeButcherTable_Free(step_mem->Be);
   }
   step_mem->Be = NULL;
   if (step_mem->Bi)
   {
-    ARKodeButcherTable_Space(step_mem->Bi, &leniw, &lenrw);
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
+    ARKodeButcherTable_Space(step_mem->Bi, &Bliw, &Blrw);
+    ark_mem->liw -= Bliw;
+    ark_mem->lrw -= Blrw;
     ARKodeButcherTable_Free(step_mem->Bi);
   }
   step_mem->Bi = NULL;

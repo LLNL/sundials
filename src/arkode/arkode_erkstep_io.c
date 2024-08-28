@@ -259,6 +259,7 @@ int erkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
 int erkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeERKStepMem step_mem;
+  sunindextype Blrw, Bliw;
   long int lenrw, leniw;
   int retval;
 
@@ -277,9 +278,9 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
   /* Remove pre-existing Butcher table */
   if (step_mem->B)
   {
-    ARKodeButcherTable_Space(step_mem->B, &leniw, &lenrw);
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
+    ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+    ark_mem->liw -= Bliw;
+    ark_mem->lrw -= Blrw;
     ARKodeButcherTable_Free(step_mem->B);
   }
   step_mem->B = NULL;
