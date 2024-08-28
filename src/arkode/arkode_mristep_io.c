@@ -231,7 +231,7 @@ int mriStep_SetUserData(ARKodeMem ark_mem, void* user_data)
 int mriStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeMRIStepMem step_mem;
-  long int lenrw, leniw;
+  sunindextype lenrw, leniw;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
