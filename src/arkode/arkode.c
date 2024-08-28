@@ -1696,8 +1696,8 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
       retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
       if (retval != SUN_SUCCESS)
       {
-        arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
-                        "Unable to reset error controller object");
+        arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
+                        __FILE__, "Unable to reset error controller object");
         return (ARK_CONTROLLER_ERR);
       }
     }

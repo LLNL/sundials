@@ -267,10 +267,10 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Set default values for integrator optional inputs */
-  step_mem->q      = Q_DEFAULT;                   /* method order */
-  step_mem->p      = 0;                           /* embedding order */
-  step_mem->stages = 0;                           /* no stages */
-  ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3);  /* max change on error-failed step */
+  step_mem->q      = Q_DEFAULT;                  /* method order */
+  step_mem->p      = 0;                          /* embedding order */
+  step_mem->stages = 0;                          /* no stages */
+  ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
   ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
   ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
 

@@ -672,15 +672,15 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->deduce_rhs     = SUNFALSE;  /* deduce fi on result of NLS */
   step_mem->maxcor         = MAXCOR;    /* max nonlinear iters/stage */
   step_mem->nlscoef        = NLSCOEF;   /* nonlinear tolerance coefficient */
-  step_mem->crdown         = CRDOWN;    /* nonlinear convergence estimate coeff. */
-  step_mem->rdiv           = RDIV;      /* nonlinear divergence tolerance */
-  step_mem->dgmax          = DGMAX;     /* max step change before recomputing J or P */
-  step_mem->msbp           = MSBP;      /* max steps between updates to J or P */
-  step_mem->stages         = 0;         /* no stages */
-  step_mem->istage         = 0;         /* current stage */
-  step_mem->jcur           = SUNFALSE;
-  step_mem->convfail       = ARK_NO_FAILURES;
-  step_mem->stage_predict = NULL;       /* no user-supplied stage predictor */
+  step_mem->crdown         = CRDOWN; /* nonlinear convergence estimate coeff. */
+  step_mem->rdiv           = RDIV;   /* nonlinear divergence tolerance */
+  step_mem->dgmax    = DGMAX; /* max step change before recomputing J or P */
+  step_mem->msbp     = MSBP;  /* max steps between updates to J or P */
+  step_mem->stages   = 0;     /* no stages */
+  step_mem->istage   = 0;     /* current stage */
+  step_mem->jcur     = SUNFALSE;
+  step_mem->convfail = ARK_NO_FAILURES;
+  step_mem->stage_predict = NULL; /* no user-supplied stage predictor */
 
   /* Remove pre-existing Butcher tables */
   if (step_mem->Be)
@@ -701,8 +701,7 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->Bi = NULL;
 
   /* Remove pre-existing nonlinear solver object */
-  if (step_mem->NLS && step_mem->ownNLS)
-  { SUNNonlinSolFree(step_mem->NLS); }
+  if (step_mem->NLS && step_mem->ownNLS) { SUNNonlinSolFree(step_mem->NLS); }
   step_mem->NLS = NULL;
 
   /* Remove pre-existing SUNAdaptController object, and replace with "PID" */

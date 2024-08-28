@@ -247,19 +247,18 @@ int mriStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->deduce_rhs     = SUNFALSE; /* deduce fi on result of NLS */
   step_mem->maxcor         = MAXCOR;   /* max nonlinear iters/stage */
   step_mem->nlscoef        = NLSCOEF;  /* nonlinear tolerance coefficient */
-  step_mem->crdown         = CRDOWN;   /* nonlinear convergence estimate coeff. */
-  step_mem->rdiv           = RDIV;     /* nonlinear divergence tolerance */
-  step_mem->dgmax          = DGMAX;    /* max gamma change to recompute J or P */
-  step_mem->msbp           = MSBP;     /* max steps between updateing J or P */
-  step_mem->stages         = 0;        /* no stages */
-  step_mem->istage         = 0;        /* current stage index */
+  step_mem->crdown         = CRDOWN; /* nonlinear convergence estimate coeff. */
+  step_mem->rdiv           = RDIV;   /* nonlinear divergence tolerance */
+  step_mem->dgmax          = DGMAX;  /* max gamma change to recompute J or P */
+  step_mem->msbp           = MSBP;   /* max steps between updateing J or P */
+  step_mem->stages         = 0;      /* no stages */
+  step_mem->istage         = 0;      /* current stage index */
   step_mem->jcur           = SUNFALSE;
   step_mem->convfail       = ARK_NO_FAILURES;
   step_mem->stage_predict  = NULL; /* no user-supplied stage predictor */
 
   /* Remove pre-existing nonlinear solver object */
-  if (step_mem->NLS && step_mem->ownNLS)
-  { SUNNonlinSolFree(step_mem->NLS); }
+  if (step_mem->NLS && step_mem->ownNLS) { SUNNonlinSolFree(step_mem->NLS); }
   step_mem->NLS = NULL;
 
   /* Remove pre-existing coupling table */
