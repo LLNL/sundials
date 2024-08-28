@@ -3787,11 +3787,11 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
     return retval;
   }
 
-  retval = ARKodeSetCheckpointScheme(arkode_mem_adj, ark_mem->checkpoint_scheme);
+  retval = ARKodeSetAdjointCheckpointScheme(arkode_mem_adj, ark_mem->checkpoint_scheme);
   if (retval)
   {
     arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,
-                    "ARKodeSetCheckpointScheme failed");
+                    "ARKodeSetAdjointCheckpointScheme failed");
     return retval;
   }
 

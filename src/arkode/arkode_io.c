@@ -1981,8 +1981,8 @@ int ARKodeSetMaxConvFails(void* arkode_mem, int maxncf)
   return (ARK_SUCCESS);
 }
 
-int ARKodeSetCheckpointScheme(void* arkode_mem,
-                              SUNAdjointCheckpointScheme checkpoint_scheme)
+int ARKodeSetAdjointCheckpointScheme(void* arkode_mem,
+                                     SUNAdjointCheckpointScheme checkpoint_scheme)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
@@ -1998,7 +1998,7 @@ int ARKodeSetCheckpointScheme(void* arkode_mem,
   return (ARK_SUCCESS);
 }
 
-int ARKodeSetCheckpointIndex(void* arkode_mem, long int step_index)
+int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, long int step_index)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)

@@ -888,8 +888,8 @@ Supply a pointer for user data                     :c:func:`ARKodeSetUserData`  
 Maximum no. of ARKODE error test failures          :c:func:`ARKodeSetMaxErrTestFails`       7
 Set inequality constraints on solution             :c:func:`ARKodeSetConstraints`           ``NULL``
 Set max number of constraint failures              :c:func:`ARKodeSetMaxNumConstrFails`     10
-Set the checkpointing scheme to use (for adjoint)  :c:func:`ARKodeSetCheckpointScheme`      ``NULL``
-Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetCheckpointIndex        0
+Set the checkpointing scheme to use (for adjoint)  :c:func:`ARKodeSetAdjointCheckpointScheme`      ``NULL``
+Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointCheckpointIndex        0
 =================================================  =======================================  =======================
 
 
@@ -1398,7 +1398,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetCheckpointI
    .. versionadded:: 6.1.0
 
 
-.. c:function:: int ARKodeSetCheckpointScheme(void* arkode_mem, SUNAdjointCheckpointScheme checkpoint_scheme)
+.. c:function:: int ARKodeSetAdjointCheckpointScheme(void* arkode_mem, SUNAdjointCheckpointScheme checkpoint_scheme)
 
    Specifies the :c:type:`SUNAdjointCheckpointScheme` to use for saving states
    during the forward integration, and loading states during backward integration
@@ -1412,7 +1412,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetCheckpointI
 
    .. versionadded:: x.x.x
 
-.. c:function:: int ARKodeSetCheckpointIndex(void* arkode_mem, long int step_index)
+.. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, long int step_index)
 
    Specifies the step index (that is step number) to insert the next checkpoint at.
    This is incremented along with the step count, but it is useful to be able to reset

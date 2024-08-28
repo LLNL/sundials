@@ -322,7 +322,7 @@ int main(int argc, char* argv[])
   SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
                                           check_interval, ncheck, save_stages,
                                           keep_check, sunctx, &checkpoint_scheme);
-  ARKodeSetCheckpointScheme(arkode_mem, checkpoint_scheme);
+  ARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme);
 
   //
   // Compute the forward solution
