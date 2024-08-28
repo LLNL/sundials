@@ -653,6 +653,7 @@ int arkStep_SetUserData(ARKodeMem ark_mem, void* user_data)
 int arkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeARKStepMem step_mem;
+  long int lenrw, leniw;
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -671,18 +672,74 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->deduce_rhs     = SUNFALSE;  /* deduce fi on result of NLS */
   step_mem->maxcor         = MAXCOR;    /* max nonlinear iters/stage */
   step_mem->nlscoef        = NLSCOEF;   /* nonlinear tolerance coefficient */
-  step_mem->crdown         = CRDOWN; /* nonlinear convergence estimate coeff. */
-  step_mem->rdiv           = RDIV;   /* nonlinear divergence tolerance */
-  step_mem->dgmax    = DGMAX; /* max step change before recomputing J or P */
-  step_mem->msbp     = MSBP;  /* max steps between updates to J or P */
-  step_mem->stages   = 0;     /* no stages */
-  step_mem->istage   = 0;     /* current stage */
-  step_mem->Be       = NULL;  /* no Butcher tables */
-  step_mem->Bi       = NULL;
-  step_mem->NLS      = NULL; /* no nonlinear solver object */
-  step_mem->jcur     = SUNFALSE;
-  step_mem->convfail = ARK_NO_FAILURES;
-  step_mem->stage_predict = NULL; /* no user-supplied stage predictor */
+  step_mem->crdown         = CRDOWN;    /* nonlinear convergence estimate coeff. */
+  step_mem->rdiv           = RDIV;      /* nonlinear divergence tolerance */
+  step_mem->dgmax          = DGMAX;     /* max step change before recomputing J or P */
+  step_mem->msbp           = MSBP;      /* max steps between updates to J or P */
+  step_mem->stages         = 0;         /* no stages */
+  step_mem->istage         = 0;         /* current stage */
+  step_mem->jcur           = SUNFALSE;
+  step_mem->convfail       = ARK_NO_FAILURES;
+  step_mem->stage_predict = NULL;       /* no user-supplied stage predictor */
+
+  /* Remove pre-existing Butcher tables */
+  if (step_mem->Be)
+  {
+    ARKodeButcherTable_Space(step_mem->Be, &leniw, &lenrw);
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
+    ARKodeButcherTable_Free(step_mem->Be);
+  }
+  step_mem->Be = NULL;
+  if (step_mem->Bi)
+  {
+    ARKodeButcherTable_Space(step_mem->Bi, &leniw, &lenrw);
+    ark_mem->liw -= leniw;
+    ark_mem->lrw -= lenrw;
+    ARKodeButcherTable_Free(step_mem->Bi);
+  }
+  step_mem->Bi = NULL;
+
+  /* Remove pre-existing nonlinear solver object */
+  if (step_mem->NLS && step_mem->ownNLS)
+  { SUNNonlinSolFree(step_mem->NLS); }
+  step_mem->NLS = NULL;
+
+  /* Remove pre-existing SUNAdaptController object, and replace with "PID" */
+  if (ark_mem->hadapt_mem->owncontroller)
+  {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
+    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "SUNAdaptController_Destroy failure");
+      return (ARK_MEM_FAIL);
+    }
+  }
+  ark_mem->hadapt_mem->hcontroller = NULL;
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
+  if (ark_mem->hadapt_mem->hcontroller == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "SUNAdaptControllerPID allocation failure");
+    return (ARK_MEM_FAIL);
+  }
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                    &leniw);
+  if (retval == SUN_SUCCESS)
+  {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
   return (ARK_SUCCESS);
 }
 

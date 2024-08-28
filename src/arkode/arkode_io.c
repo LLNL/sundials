@@ -55,13 +55,6 @@ int ARKodeSetDefaults(void* arkode_mem)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  /* Set stepper defaults (if provided) */
-  if (ark_mem->step_setdefaults)
-  {
-    retval = ark_mem->step_setdefaults(arkode_mem);
-    if (retval != ARK_SUCCESS) { return retval; }
-  }
-
   /* Set default values for integrator optional inputs */
   ark_mem->use_compensated_sums = SUNFALSE;
   ark_mem->fixedstep            = SUNFALSE; /* default to use adaptive steps */
@@ -106,6 +99,14 @@ int ARKodeSetDefaults(void* arkode_mem)
   ark_mem->hadapt_mem->p          = 0;       /* no default embedding order */
   ark_mem->hadapt_mem->q          = 0;       /* no default method order */
   ark_mem->hadapt_mem->adjust     = ADJUST;  /* controller order adjustment */
+
+  /* Set stepper defaults (if provided) */
+  if (ark_mem->step_setdefaults)
+  {
+    retval = ark_mem->step_setdefaults(arkode_mem);
+    if (retval != ARK_SUCCESS) { return retval; }
+  }
+
   return (ARK_SUCCESS);
 }
 
