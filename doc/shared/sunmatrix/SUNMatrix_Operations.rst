@@ -170,3 +170,20 @@ below.
    .. code-block:: c
 
       retval = SUNMatMatvec(A, x, y);
+
+
+.. c:function:: SUNErrCode SUNMatMatvecTranspose(SUNMatrix A, N_Vector x, N_Vector y)
+
+   Performs the matrix-vector product *y \gets A^Tx*.  It should
+   only be called with vectors *x* and *y* that are compatible with
+   the matrix *A^T* -- both in storage type and dimensions.  The return
+   value denotes the success/failure of the operation:
+
+   .. math::
+      y_i = \sum_{j=1}^n A_{j,i} x_j, \quad i=1,\ldots,m.
+
+   Usage:
+
+   .. code-block:: c
+
+      retval = SUNMatMatvecTranspose(A, x, y);
