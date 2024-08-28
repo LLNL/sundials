@@ -19,6 +19,9 @@ Fixed the loading of ARKStep's default first order explicit method.
 Fixed a CMake bug regarding usage of missing "print_warning" macro
 that was only triggered when the deprecated `CUDA_ARCH` option was used.
 
+Fixed a memory leak that could occur if if ARKodeSetDefaults is called
+repeatedly.
+
 ### Deprecation Notices
 
 ## Changes to SUNDIALS in release 7.1.1
