@@ -170,6 +170,7 @@ module farkode_mristep_mod
  public :: FMRIStepInnerStepper_SetRTolFn
  public :: FMRIStepInnerStepper_AddForcing
  public :: FMRIStepInnerStepper_GetForcingData
+ public :: FMRIStepCreateMRIStepInnerStepper
  public :: FMRIStepResize
  public :: FMRIStepReset
  public :: FMRIStepSStolerances
@@ -746,6 +747,15 @@ type(C_PTR), value :: farg2
 type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepCreateMRIStepInnerStepper(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepCreateMRIStepInnerStepper") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2389,6 +2399,22 @@ farg3 = c_loc(tscale(1))
 farg4 = c_loc(forcing)
 farg5 = c_loc(nforcing(1))
 fresult = swigc_FMRIStepInnerStepper_GetForcingData(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FMRIStepCreateMRIStepInnerStepper(arkode_mem, stepper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: stepper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(stepper)
+fresult = swigc_FMRIStepCreateMRIStepInnerStepper(farg1, farg2)
 swig_result = fresult
 end function
 

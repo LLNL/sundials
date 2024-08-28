@@ -226,6 +226,12 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   step_mem->pre_inner_evolve  = NULL;
   step_mem->post_inner_evolve = NULL;
 
+  /* Initialize external polynomial forcing data */
+  step_mem->expforcing = SUNFALSE;
+  step_mem->impforcing = SUNFALSE;
+  step_mem->forcing    = NULL;
+  step_mem->nforcing   = 0;
+
   /* Initialize main ARKODE infrastructure (allocates vectors) */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
   if (retval != ARK_SUCCESS)
@@ -1048,9 +1054,9 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
       free(step_mem->Xvecs);
       ark_mem->liw -= step_mem->nfusedopvecs;
     }
-    step_mem->nfusedopvecs = 2 * step_mem->MRIC->stages + 2;
-    step_mem->cvals        = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                                  sizeof(*step_mem->cvals));
+    step_mem->nfusedopvecs = 2 * step_mem->MRIC->stages + 2 + step_mem->nforcing;
+    step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
+                                           sizeof(*step_mem->cvals));
     if (step_mem->cvals == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -1403,7 +1409,7 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
   ARKodeMRIStepMem step_mem;
-  int i, sa_stage, retval;
+  int i, sa_stage, nvec, retval;
 
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -1451,23 +1457,49 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
         }
       }
 
-      /* compute the fast component (force new RHS computation) */
-      retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
-                                           ARK_FULLRHS_OTHER);
-      if (retval != ARK_SUCCESS)
+      /* Add external forcing to Fse[0] or Fsi[0], if applicable */
+      if (step_mem->expforcing)
       {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RHSFUNC_FAILED, t);
-        return (ARK_RHSFUNC_FAIL);
+        step_mem->cvals[0] = ONE;
+        step_mem->Xvecs[0] = step_mem->Fse[0];
+        nvec               = 1;
+        mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
+        N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                             step_mem->Fse[0]);
       }
+      if (step_mem->impforcing)
+      {
+        step_mem->cvals[0] = ONE;
+        step_mem->Xvecs[0] = step_mem->Fsi[0];
+        nvec               = 1;
+        mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
+        N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                             step_mem->Fsi[0]);
+      }
+    }
+
+    /* compute the fast component (force new RHS computation) */
+    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
+                                         ARK_FULLRHS_OTHER);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_RHSFUNC_FAILED, t);
+      return (ARK_RHSFUNC_FAIL);
     }
 
     /* combine RHS vectors into output */
     if (step_mem->explicit_rhs && step_mem->implicit_rhs)
     {
       /* ImEx */
-      N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
-      N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
+      step_mem->cvals[0] = ONE;
+      step_mem->Xvecs[0] = f;
+      step_mem->cvals[1] = ONE;
+      step_mem->Xvecs[1] = step_mem->Fse[0];
+      step_mem->cvals[2] = ONE;
+      step_mem->Xvecs[2] = step_mem->Fsi[0];
+      nvec               = 3;
+      N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs, f);
     }
     else if (step_mem->implicit_rhs)
     {
@@ -1538,17 +1570,37 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
             return (ARK_RHSFUNC_FAIL);
           }
         }
-      }
 
-      /* compute the fast component (force new RHS computation) */
-      retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
-                                           ARK_FULLRHS_OTHER);
-      if (retval != ARK_SUCCESS)
-      {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RHSFUNC_FAILED, t);
-        return (ARK_RHSFUNC_FAIL);
+        /* Add external forcing to Fse[0] or Fsi[0], as appropriate */
+        if (step_mem->expforcing)
+        {
+          step_mem->cvals[0] = ONE;
+          step_mem->Xvecs[0] = step_mem->Fse[0];
+          nvec               = 1;
+          mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
+          N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                               step_mem->Fse[0]);
+        }
+        if (step_mem->impforcing)
+        {
+          step_mem->cvals[0] = ONE;
+          step_mem->Xvecs[0] = step_mem->Fsi[0];
+          nvec               = 1;
+          mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
+          N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                               step_mem->Fsi[0]);
+        }
       }
+    }
+
+    /* compute the fast component (force new RHS computation) */
+    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
+                                         ARK_FULLRHS_OTHER);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_RHSFUNC_FAILED, t);
+      return (ARK_RHSFUNC_FAIL);
     }
 
     /* combine RHS vectors into output */
@@ -1573,6 +1625,20 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 
   case ARK_FULLRHS_OTHER:
 
+    /* compute the fast component (force new RHS computation) */
+    nvec   = 0;
+    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
+                                         ARK_FULLRHS_OTHER);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_RHSFUNC_FAILED, t);
+      return (ARK_RHSFUNC_FAIL);
+    }
+    step_mem->cvals[nvec] = ONE;
+    step_mem->Xvecs[nvec] = f;
+    nvec++;
+
     /* compute the explicit component and store in ark_tempv2 */
     if (step_mem->explicit_rhs)
     {
@@ -1584,6 +1650,9 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                         MSG_ARK_RHSFUNC_FAILED, t);
         return (ARK_RHSFUNC_FAIL);
       }
+      step_mem->cvals[nvec] = ONE;
+      step_mem->Xvecs[nvec] = ark_mem->tempv2;
+      nvec++;
     }
 
     /* compute the implicit component and store in sdata */
@@ -1597,35 +1666,19 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                         MSG_ARK_RHSFUNC_FAILED, t);
         return (ARK_RHSFUNC_FAIL);
       }
+      step_mem->cvals[nvec] = ONE;
+      step_mem->Xvecs[nvec] = step_mem->sdata;
+      nvec++;
     }
 
-    /* compute the fast component (force new RHS computation) */
-    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
-                                         ARK_FULLRHS_OTHER);
-    if (retval != ARK_SUCCESS)
+    /* Add external forcing components to linear combination */
+    if (step_mem->expforcing || step_mem->impforcing)
     {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_RHSFUNC_FAILED, t);
-      return (ARK_RHSFUNC_FAIL);
+      mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
     }
 
     /* combine RHS vectors into output */
-    if (step_mem->explicit_rhs && step_mem->implicit_rhs)
-    {
-      /* ImEx */
-      N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
-      N_VLinearSum(ONE, step_mem->sdata, ONE, f, f);
-    }
-    else if (step_mem->implicit_rhs)
-    {
-      /* implicit */
-      N_VLinearSum(ONE, step_mem->sdata, ONE, f, f);
-    }
-    else
-    {
-      /* explicit */
-      N_VLinearSum(ONE, ark_mem->tempv2, ONE, f, f);
-    }
+    N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs, f);
 
     break;
 
@@ -1688,6 +1741,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   sunbooleantype calc_fslow;
   sunbooleantype need_inner_dsm;
   sunbooleantype do_embedding;
+  int nvec;
 
   /* access the MRIStep mem structure */
   retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -1707,12 +1761,12 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
   /* if MRI adaptivity is enabled: reset fast accumulated error,
      and send appropriate control parameter to the fast integrator */
-  adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
+  adapt_type     = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   need_inner_dsm = SUNFALSE;
   if ((adapt_type == SUN_ADAPTCONTROLLER_MRI_H) ||
       (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL))
   {
-    need_inner_dsm = SUNTRUE;
+    need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
     retval              = mriStepInnerStepper_ResetError(step_mem->stepper);
     if (retval != ARK_SUCCESS)
@@ -1775,7 +1829,6 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
      function here (unlike ERKStep and ARKStep) since it does not need to check
      for FSAL or SA methods and thus avoids potentially unnecessary evaluations
      of the inner (fast) RHS function */
-
   if (!(ark_mem->fn_is_current))
   {
     /* compute the explicit component */
@@ -1794,6 +1847,26 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                              ark_mem->user_data);
       step_mem->nfsi++;
       if (retval) { return ARK_RHSFUNC_FAIL; }
+    }
+
+    /* Add external forcing to Fse[0] or Fsi[0], if appropriate */
+    if (step_mem->expforcing)
+    {
+      step_mem->cvals[0] = ONE;
+      step_mem->Xvecs[0] = step_mem->Fse[0];
+      nvec               = 1;
+      mriStep_ApplyForcing(step_mem, t0, ONE, &nvec);
+      N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                           step_mem->Fse[0]);
+    }
+    if (step_mem->impforcing)
+    {
+      step_mem->cvals[0] = ONE;
+      step_mem->Xvecs[0] = step_mem->Fsi[0];
+      nvec               = 1;
+      mriStep_ApplyForcing(step_mem, t0, ONE, &nvec);
+      N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                           step_mem->Fsi[0]);
     }
 
     ark_mem->fn_is_current = SUNTRUE;
@@ -1932,6 +2005,17 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
         if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
         if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
 
+        /* Add external forcing to Fse, if applicable */
+        if (step_mem->expforcing)
+        {
+          step_mem->cvals[0] = ONE;
+          step_mem->Xvecs[0] = step_mem->Fse[step_mem->stage_map[is]];
+          nvec               = 1;
+          mriStep_ApplyForcing(step_mem, tf, ONE, &nvec);
+          N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                               step_mem->Fse[step_mem->stage_map[is]]);
+        }
+
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                            "ARKODE::mriStep_TakeStepMRIGARK",
@@ -1951,6 +2035,17 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                                  step_mem->Fsi[step_mem->stage_map[is]],
                                  ark_mem->user_data);
           step_mem->nfsi++;
+
+          /* Add external forcing to Fsi, if applicable */
+          if (step_mem->impforcing)
+          {
+            step_mem->cvals[0] = ONE;
+            step_mem->Xvecs[0] = step_mem->Fsi[step_mem->stage_map[is]];
+            nvec               = 1;
+            mriStep_ApplyForcing(step_mem, tf, ONE, &nvec);
+            N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                                 step_mem->Fsi[step_mem->stage_map[is]]);
+          }
         }
         else
         {
@@ -2128,8 +2223,9 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype impl_corr;           /* is slow correct. implicit? */
   sunbooleantype store_imprhs;        /* temporary storage          */
   sunbooleantype store_exprhs;
-  sunrealtype cstage;                 /* current stage abscissa     */
+  sunrealtype cstage; /* current stage abscissa     */
   sunbooleantype need_inner_dsm;
+  int nvec;
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   /* access the MRIStep mem structure */
@@ -2147,12 +2243,12 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   /* if MRI adaptivity is enabled: reset fast accumulated error,
      and send appropriate control parameter to the fast integrator */
-  adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
+  adapt_type     = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   need_inner_dsm = SUNFALSE;
   if ((adapt_type == SUN_ADAPTCONTROLLER_MRI_H) ||
       (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL))
   {
-    need_inner_dsm = SUNTRUE;
+    need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
     retval              = mriStepInnerStepper_ResetError(step_mem->stepper);
     if (retval != ARK_SUCCESS)
@@ -2222,6 +2318,26 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                              ark_mem->user_data);
       step_mem->nfsi++;
       if (retval) { return ARK_RHSFUNC_FAIL; }
+    }
+
+    /* Add external forcing to Fse[0] or Fse[0], if applicable */
+    if (step_mem->expforcing)
+    {
+      step_mem->cvals[0] = ONE;
+      step_mem->Xvecs[0] = step_mem->Fse[0];
+      nvec               = 1;
+      mriStep_ApplyForcing(step_mem, ark_mem->tn, ONE, &nvec);
+      N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                           step_mem->Fse[0]);
+    }
+    if (step_mem->impforcing)
+    {
+      step_mem->cvals[0] = ONE;
+      step_mem->Xvecs[0] = step_mem->Fsi[0];
+      nvec               = 1;
+      mriStep_ApplyForcing(step_mem, ark_mem->tn, ONE, &nvec);
+      N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                           step_mem->Fsi[0]);
     }
 
     /* combine both RHS into Fse for ImEx problems */
@@ -2441,6 +2557,17 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
         if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
 
+        /* Add external forcing to Fse[stage], if applicable */
+        if (step_mem->expforcing)
+        {
+          step_mem->cvals[0] = ONE;
+          step_mem->Xvecs[0] = step_mem->Fse[stage];
+          nvec               = 1;
+          mriStep_ApplyForcing(step_mem, ark_mem->tcur, ONE, &nvec);
+          N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                               step_mem->Fse[stage]);
+        }
+
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                            "ARKODE::mriStep_TakeStepMRISR", "slow explicit RHS",
@@ -2457,6 +2584,17 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
           retval = step_mem->fsi(ark_mem->tcur, ark_mem->ycur,
                                  step_mem->Fsi[stage], ark_mem->user_data);
           step_mem->nfsi++;
+
+          /* Add external forcing to Fsi[stage], if applicable */
+          if (step_mem->impforcing)
+          {
+            step_mem->cvals[0] = ONE;
+            step_mem->Xvecs[0] = step_mem->Fsi[stage];
+            nvec               = 1;
+            mriStep_ApplyForcing(step_mem, ark_mem->tcur, ONE, &nvec);
+            N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                                 step_mem->Fsi[stage]);
+          }
         }
         else
         {
@@ -2569,6 +2707,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype solution;            /*   or solution stages       */
   sunrealtype cstage;                 /* current stage abscissa     */
   sunbooleantype need_inner_dsm;
+  int nvec;
 
   /* access the MRIStep mem structure */
   retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -2588,12 +2727,12 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   /* if MRI adaptivity is enabled: reset fast accumulated error,
      and send appropriate control parameter to the fast integrator */
-  adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
+  adapt_type     = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   need_inner_dsm = SUNFALSE;
   if ((adapt_type == SUN_ADAPTCONTROLLER_MRI_H) ||
       (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL))
   {
-    need_inner_dsm = SUNTRUE;
+    need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
     retval              = mriStepInnerStepper_ResetError(step_mem->stepper);
     if (retval != ARK_SUCCESS)
@@ -2650,6 +2789,17 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->nfse++;
     if (retval) { return ARK_RHSFUNC_FAIL; }
     ark_mem->fn_is_current = SUNTRUE;
+
+    /* Add external forcing to Fse[0], if applicable */
+    if (step_mem->expforcing)
+    {
+      step_mem->cvals[0] = ONE;
+      step_mem->Xvecs[0] = step_mem->Fse[0];
+      nvec               = 1;
+      mriStep_ApplyForcing(step_mem, t0, ONE, &nvec);
+      N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                           step_mem->Fse[0]);
+    }
   }
 
 #ifdef SUNDIALS_DEBUG
@@ -2779,6 +2929,17 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         step_mem->nfse++;
         if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
         if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
+
+        /* Add external forcing to Fse[stage], if applicable */
+        if (step_mem->expforcing)
+        {
+          step_mem->cvals[0] = ONE;
+          step_mem->Xvecs[0] = step_mem->Fse[stage];
+          nvec               = 1;
+          mriStep_ApplyForcing(step_mem, ark_mem->tcur, ONE, &nvec);
+          N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                               step_mem->Fse[stage]);
+        }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -3990,7 +4151,7 @@ int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
   ARKodeMRIStepMem step_mem;
-  int retval;
+  int nvec, retval;
 
   /* access ARKodeMRIStepMem structure */
   retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -4020,6 +4181,26 @@ int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                       MSG_ARK_RHSFUNC_FAILED, t);
       return (ARK_RHSFUNC_FAIL);
     }
+  }
+
+  /* Add external forcing to Fse[0] or Fsi[0], if applicable */
+  if (step_mem->expforcing)
+  {
+    step_mem->cvals[0] = ONE;
+    step_mem->Xvecs[0] = step_mem->Fse[0];
+    nvec               = 1;
+    mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
+    N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                         step_mem->Fse[0]);
+  }
+  if (step_mem->impforcing)
+  {
+    step_mem->cvals[0] = ONE;
+    step_mem->Xvecs[0] = step_mem->Fsi[0];
+    nvec               = 1;
+    mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
+    N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
+                         step_mem->Fsi[0]);
   }
 
   /* combine RHS vectors into output */
@@ -4691,6 +4872,374 @@ void mriStepInnerStepper_PrintMem(MRIStepInnerStepper stepper, FILE* outfile)
 #endif
 
   return;
+}
+
+/*---------------------------------------------------------------
+  Utility routines for MRIStep to serve as an MRIStepInnerStepper
+  ---------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+  MRiStepCreateMRIStepInnerStepper
+
+  Wraps an MRIStep memory structure as an MRIStep inner stepper.
+  ----------------------------------------------------------------------------*/
+
+int MRIStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
+                                     MRIStepInnerStepper* stepper)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+
+  retval = mriStep_AccessARKODEStepMem(inner_arkode_mem, __func__, &ark_mem,
+                                       &step_mem);
+  if (retval)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The MRIStep memory pointer is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, mriStep_MRIStepInnerEvolve);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
+                                            mriStep_MRIStepInnerFullRhs);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetResetFn(*stepper, mriStep_MRIStepInnerReset);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval =
+    MRIStepInnerStepper_SetAccumulatedErrorGetFn(*stepper,
+                                                 mriStep_MRIStepInnerGetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval =
+    MRIStepInnerStepper_SetAccumulatedErrorResetFn(*stepper,
+                                                   mriStep_MRIStepInnerResetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFixedStepFn(*stepper,
+                                              mriStep_MRIStepInnerSetFixedStep);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetRTolFn(*stepper, mriStep_MRIStepInnerSetRTol);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
+
+/*------------------------------------------------------------------------------
+  mriStep_MRIStepInnerEvolve
+
+  Implementation of MRIStepInnerStepperEvolveFn to advance the inner (fast)
+  ODE IVP.
+  ----------------------------------------------------------------------------*/
+
+int mriStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
+                               sunrealtype tout, N_Vector y)
+{
+  void* arkode_mem;           /* arkode memory             */
+  sunrealtype tret;           /* return time               */
+  sunrealtype tshift, tscale; /* time normalization values */
+  N_Vector* forcing;          /* forcing vectors           */
+  int nforcing;               /* number of forcing vectors */
+  int retval;                 /* return value              */
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* get the forcing data */
+  retval = MRIStepInnerStepper_GetForcingData(stepper, &tshift, &tscale,
+                                              &forcing, &nforcing);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* set the inner forcing data */
+  retval = mriStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, nforcing);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* set the stop time */
+  retval = ARKodeSetStopTime(arkode_mem, tout);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* evolve inner ODE */
+  retval = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+  if (retval < 0) { return (retval); }
+
+  /* disable inner forcing */
+  retval = mriStep_SetInnerForcing(arkode_mem, ZERO, ONE, NULL, 0);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
+
+/*------------------------------------------------------------------------------
+  mriStep_MRIStepInnerFullRhs
+
+  Implementation of MRIStepInnerStepperFullRhsFn to compute the full inner
+  (fast) ODE IVP RHS.
+  ----------------------------------------------------------------------------*/
+
+int mriStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                                N_Vector y, N_Vector f, int mode)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (mriStep_FullRHS(arkode_mem, t, y, f, mode));
+}
+
+/*------------------------------------------------------------------------------
+  mriStep_MRIStepInnerReset
+
+  Implementation of MRIStepInnerStepperResetFn to reset the inner (fast) stepper
+  state.
+  ----------------------------------------------------------------------------*/
+
+int mriStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
+                              N_Vector yR)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARKodeReset(arkode_mem, tR, yR));
+}
+
+/*------------------------------------------------------------------------------
+  mriStep_MRIStepInnerGetAccumulatedError
+
+  Implementation of MRIStepInnerGetAccumulatedError to retrieve the accumulated
+  temporal error estimate from the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int mriStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                            sunrealtype* accum_error)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARKodeGetAccumulatedError(arkode_mem, accum_error));
+}
+
+/*------------------------------------------------------------------------------
+  mriStep_MRIStepInnerResetAccumulatedError
+
+  Implementation of MRIStepInnerResetAccumulatedError to reset the accumulated
+  temporal error estimator in the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int mriStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARKodeResetAccumulatedError(arkode_mem));
+}
+
+/*------------------------------------------------------------------------------
+  mriStep_MRIStepInnerSetFixedStep
+
+  Implementation of MRIStepInnerSetFixedStep to set a fixed step size for
+  the upcoming evolution using the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int mriStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARKodeSetFixedStep(arkode_mem, h));
+}
+
+/*------------------------------------------------------------------------------
+  mriStep_MRIStepInnerSetRTol
+
+  Implementation of MRIStepInnerSetRTol to set a relative tolerance for the
+  upcoming evolution using the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int mriStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
+{
+  void* arkode_mem;
+  ARKodeMem ark_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_MRISTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  if (rtol > ZERO)
+  {
+    ark_mem->reltol = rtol;
+    return (ARK_SUCCESS);
+  }
+  else { return (ARK_ILL_INPUT); }
+}
+
+/*------------------------------------------------------------------------------
+  mriStep_ApplyForcing
+
+  Determines the linear combination coefficients and vectors to apply forcing
+  at a given value of the independent variable (t).  This occurs through
+  appending coefficients and N_Vector pointers to the underlying cvals and Xvecs
+  arrays in the step_mem structure.  The dereferenced input *nvec should indicate
+  the next available entry in the cvals/Xvecs arrays.  The input 's' is a
+  scaling factor that should be applied to each of these coefficients.
+  ----------------------------------------------------------------------------*/
+
+void mriStep_ApplyForcing(ARKodeMRIStepMem step_mem, sunrealtype t,
+                          sunrealtype s, int* nvec)
+{
+  sunrealtype tau, taui;
+  int i;
+
+  /* always append the constant forcing term */
+  step_mem->cvals[*nvec] = s;
+  step_mem->Xvecs[*nvec] = step_mem->forcing[0];
+  (*nvec) += 1;
+
+  /* compute normalized time tau and initialize tau^i */
+  tau  = (t - step_mem->tshift) / (step_mem->tscale);
+  taui = tau;
+  for (i = 1; i < step_mem->nforcing; i++)
+  {
+    step_mem->cvals[*nvec] = s * taui;
+    step_mem->Xvecs[*nvec] = step_mem->forcing[i];
+    taui *= tau;
+    (*nvec) += 1;
+  }
+}
+
+/*------------------------------------------------------------------------------
+  mriStep_SetInnerForcing
+
+  Sets an array of coefficient vectors for a time-dependent external polynomial
+  forcing term in the ODE RHS i.e., y' = f(t,y) + p(t). This function is
+  primarily intended for using MRIStep as an inner integrator within another
+  [outer] instance of MRIStep, where this instance is is used to solve a
+  modified ODE at a fast time scale. The polynomial is of the form
+
+  p(t) = sum_{i = 0}^{nvecs - 1} forcing[i] * ((t - tshift) / (tscale))^i
+
+  where tshift and tscale are used to normalize the time t (e.g., with MRIGARK
+  methods).
+  ----------------------------------------------------------------------------*/
+
+int mriStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
+                            sunrealtype tscale, N_Vector* forcing, int nvecs)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if (nvecs > 0)
+  {
+    /* enable forcing */
+    if (step_mem->explicit_rhs)
+    {
+      step_mem->expforcing = SUNTRUE;
+      step_mem->impforcing = SUNFALSE;
+    }
+    else
+    {
+      step_mem->expforcing = SUNFALSE;
+      step_mem->impforcing = SUNTRUE;
+    }
+    step_mem->tshift   = tshift;
+    step_mem->tscale   = tscale;
+    step_mem->forcing  = forcing;
+    step_mem->nforcing = nvecs;
+
+    /* If cvals and Xvecs are not allocated then mriStep_Init has not been
+       called and the number of stages has not been set yet. These arrays will
+       be allocated in mriStep_Init and take into account the value of nforcing.
+       On subsequent calls will check if enough space has allocated in case
+       nforcing has increased since the original allocation. */
+    if (step_mem->cvals != NULL && step_mem->Xvecs != NULL)
+    {
+      /* check if there are enough reusable arrays for fused operations */
+      if ((step_mem->nfusedopvecs - nvecs) < (2 * step_mem->MRIC->stages + 2))
+      {
+        /* free current work space */
+        if (step_mem->cvals != NULL)
+        {
+          free(step_mem->cvals);
+          ark_mem->lrw -= step_mem->nfusedopvecs;
+        }
+        if (step_mem->Xvecs != NULL)
+        {
+          free(step_mem->Xvecs);
+          ark_mem->liw -= step_mem->nfusedopvecs;
+        }
+
+        /* allocate reusable arrays for fused vector operations */
+        step_mem->nfusedopvecs = 2 * step_mem->MRIC->stages + 2 + nvecs;
+
+        step_mem->cvals = NULL;
+        step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
+                                               sizeof(sunrealtype));
+        if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
+        ark_mem->lrw += step_mem->nfusedopvecs;
+
+        step_mem->Xvecs = NULL;
+        step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
+                                            sizeof(N_Vector));
+        if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
+        ark_mem->liw += step_mem->nfusedopvecs;
+      }
+    }
+  }
+  else
+  {
+    /* disable forcing */
+    step_mem->expforcing = SUNFALSE;
+    step_mem->impforcing = SUNFALSE;
+    step_mem->tshift     = ZERO;
+    step_mem->tscale     = ONE;
+    step_mem->forcing    = NULL;
+    step_mem->nforcing   = 0;
+  }
+
+  return (ARK_SUCCESS);
 }
 
 /*===============================================================

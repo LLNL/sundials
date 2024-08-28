@@ -450,10 +450,7 @@ int run_tests(ARKODE_MRIType type, ProblemOptions& prob_opts,
     }
 
     sunrealtype pow = prob_data.lambda_f;
-    if (type != MRISTEP_IMPLICIT)
-    {
-      pow += prob_data.lambda_e;
-    }
+    if (type != MRISTEP_IMPLICIT) { pow += prob_data.lambda_e; }
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX || type == MRISTEP_MRISR)
     {
       pow += prob_data.lambda_i;
@@ -490,10 +487,7 @@ int run_tests(ARKODE_MRIType type, ProblemOptions& prob_opts,
     int nstages_evaluated = nstages_stored;
     if (stiffly_accurate) nstages_evaluated--;
     long int fe_evals = 0;
-    if (type != MRISTEP_IMPLICIT)
-    {
-      fe_evals = mri_nst * nstages_evaluated;
-    }
+    if (type != MRISTEP_IMPLICIT) { fe_evals = mri_nst * nstages_evaluated; }
 
     if (mri_nfse != fe_evals)
     {

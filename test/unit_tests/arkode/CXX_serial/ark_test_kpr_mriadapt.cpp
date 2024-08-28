@@ -216,10 +216,10 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "ReadInputs")) return 1;
 
   // General problem parameters
-  sunrealtype T0    = SUN_RCONST(0.0);       // initial time
-  sunrealtype Tf    = SUN_RCONST(5.0);       // final time
-  sunindextype NEQ  = 2;                     // number of dependent vars.
-  int Nt            = 20;                    // number of output times
+  sunrealtype T0   = SUN_RCONST(0.0); // initial time
+  sunrealtype Tf   = SUN_RCONST(5.0); // final time
+  sunindextype NEQ = 2;               // number of dependent vars.
+  int Nt           = 20;              // number of output times
 
   // Initial problem output
   //    While traversing these, set various function pointers, table constants, and method orders.
@@ -696,7 +696,7 @@ int main(int argc, char* argv[])
     if (opts.slow_safety > -1)
     {
       retval = ARKodeSetSafetyFactor(arkode_mem, opts.slow_safety);
-     if (check_flag(retval, "ARKodeSetSafetyFactor")) return 1;
+      if (check_flag(retval, "ARKodeSetSafetyFactor")) return 1;
     }
   }
   else
@@ -712,10 +712,10 @@ int main(int argc, char* argv[])
   // Main time-stepping loop: calls ARKodeEvolve to perform the
   // integration, then prints results. Stops when the final time
   // has been reached
-  sunrealtype t = T0;
-  sunrealtype t2 = T0;
-  sunrealtype dTout = (Tf-T0)/Nt;
-  sunrealtype tout = T0+dTout;
+  sunrealtype t     = T0;
+  sunrealtype t2    = T0;
+  sunrealtype dTout = (Tf - T0) / Nt;
+  sunrealtype tout  = T0 + dTout;
   sunrealtype u, v, uerr, verr, uerrtot, verrtot, errtot, accuracy;
   uerr = verr = uerrtot = verrtot = errtot = accuracy = ZERO;
   printf("        t           u           v       uerr      verr\n");
@@ -726,7 +726,6 @@ int main(int argc, char* argv[])
   int Nout = 0;
   while (Tf - t > 1.0e-8)
   {
-
     // reset reference solver so that it begins with identical state
     retval = ARKodeReset(arkode_ref, t, y);
 
@@ -751,8 +750,8 @@ int main(int argc, char* argv[])
     }
 
     // access/print solution and error
-    u = NV_Ith_S(y,0);
-    v = NV_Ith_S(y,1);
+    u    = NV_Ith_S(y, 0);
+    v    = NV_Ith_S(y, 1);
     uerr = SUNRabs(NV_Ith_S(yref, 0) - u);
     verr = SUNRabs(NV_Ith_S(yref, 1) - v);
     uerrtot += uerr * uerr;
@@ -770,7 +769,8 @@ int main(int argc, char* argv[])
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
       printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM
-             "  %.2" ESYM "\n", t, u, v, uerr, verr);
+             "  %.2" ESYM "\n",
+             t, u, v, uerr, verr);
     }
   }
   uerrtot = SUNRsqrt(uerrtot / Nt);

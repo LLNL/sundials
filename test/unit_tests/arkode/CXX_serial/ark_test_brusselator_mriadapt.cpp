@@ -211,10 +211,10 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "ReadInputs")) return 1;
 
   // General problem parameters
-  sunrealtype T0    = SUN_RCONST(0.0);       // initial time
-  sunrealtype Tf    = SUN_RCONST(10.0);      // final time
-  sunindextype NEQ  = 3;                     // number of dependent vars.
-  int Nt            = 20;                    // number of output times
+  sunrealtype T0   = SUN_RCONST(0.0);  // initial time
+  sunrealtype Tf   = SUN_RCONST(10.0); // final time
+  sunindextype NEQ = 3;                // number of dependent vars.
+  int Nt           = 20;               // number of output times
 
   // Initial problem output
   //    While traversing these, set various function pointers, table constants, and method orders.
@@ -360,7 +360,7 @@ int main(int argc, char* argv[])
       retval = ARKodeSetInitStep(inner_arkode_mem, opts.hf);
       if (check_flag(retval, "ARKodeSetInitStep")) return 1;
     }
-    retval = ARKodeSetAdaptivityAdjustment(inner_arkode_mem, opts.fast_pq-1);
+    retval = ARKodeSetAdaptivityAdjustment(inner_arkode_mem, opts.fast_pq - 1);
     if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
   }
   else
@@ -686,7 +686,7 @@ int main(int argc, char* argv[])
     if (opts.slow_safety > -1)
     {
       retval = ARKodeSetSafetyFactor(arkode_mem, opts.slow_safety);
-     if (check_flag(retval, "ARKodeSetSafetyFactor")) return 1;
+      if (check_flag(retval, "ARKodeSetSafetyFactor")) return 1;
     }
   }
   else
@@ -702,10 +702,10 @@ int main(int argc, char* argv[])
   // Main time-stepping loop: calls ARKodeEvolve to perform the
   // integration, then prints results. Stops when the final time
   // has been reached
-  sunrealtype t = T0;
-  sunrealtype t2 = T0;
-  sunrealtype dTout = (Tf-T0)/Nt;
-  sunrealtype tout = T0+dTout;
+  sunrealtype t     = T0;
+  sunrealtype t2    = T0;
+  sunrealtype dTout = (Tf - T0) / Nt;
+  sunrealtype tout  = T0 + dTout;
   sunrealtype u, v, w, uerr, verr, werr, uerrtot, verrtot, werrtot, errtot;
   sunrealtype accuracy;
   uerr = verr = werr = uerrtot = verrtot = werrtot = errtot = accuracy = ZERO;
@@ -720,7 +720,6 @@ int main(int argc, char* argv[])
   int Nout = 0;
   while (Tf - t > 1.0e-8)
   {
-
     // reset reference solver so that it begins with identical state
     retval = ARKodeReset(arkode_ref, t, y);
 
@@ -745,9 +744,9 @@ int main(int argc, char* argv[])
     }
 
     // access/print solution and error
-    u = NV_Ith_S(y,0);
-    v = NV_Ith_S(y,1);
-    w = NV_Ith_S(y,2);
+    u    = NV_Ith_S(y, 0);
+    v    = NV_Ith_S(y, 1);
+    w    = NV_Ith_S(y, 2);
     uerr = SUNRabs(NV_Ith_S(yref, 0) - u);
     verr = SUNRabs(NV_Ith_S(yref, 1) - v);
     werr = SUNRabs(NV_Ith_S(yref, 2) - w);
