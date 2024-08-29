@@ -867,30 +867,30 @@ Optional inputs for ARKODE
 
 .. cssclass:: table-bordered
 
-=================================================  =======================================  =======================
-Optional input                                     Function name                            Default
-=================================================  =======================================  =======================
-Return ARKODE parameters to their defaults         :c:func:`ARKodeSetDefaults`              internal
-Set integrator method order                        :c:func:`ARKodeSetOrder`                 4
-Set dense output interpolation type (SPRKStep)     :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_LAGRANGE``
-Set dense output interpolation type (others)       :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_HERMITE``
-Set dense output polynomial degree                 :c:func:`ARKodeSetInterpolantDegree`     5
-Disable time step adaptivity (fixed-step mode)     :c:func:`ARKodeSetFixedStep`             disabled
-Supply an initial step size to attempt             :c:func:`ARKodeSetInitStep`              estimated
-Maximum no. of warnings for :math:`t_n+h = t_n`    :c:func:`ARKodeSetMaxHnilWarns`          10
-Maximum no. of internal steps before *tout*        :c:func:`ARKodeSetMaxNumSteps`           500
-Maximum absolute step size                         :c:func:`ARKodeSetMaxStep`               :math:`\infty`
-Minimum absolute step size                         :c:func:`ARKodeSetMinStep`               0.0
-Set a value for :math:`t_{stop}`                   :c:func:`ARKodeSetStopTime`              undefined
-Interpolate at :math:`t_{stop}`                    :c:func:`ARKodeSetInterpolateStopTime`   ``SUNFALSE``
-Disable the stop time                              :c:func:`ARKodeClearStopTime`            N/A
-Supply a pointer for user data                     :c:func:`ARKodeSetUserData`              ``NULL``
-Maximum no. of ARKODE error test failures          :c:func:`ARKodeSetMaxErrTestFails`       7
-Set inequality constraints on solution             :c:func:`ARKodeSetConstraints`           ``NULL``
-Set max number of constraint failures              :c:func:`ARKodeSetMaxNumConstrFails`     10
-Set the checkpointing scheme to use (for adjoint)  :c:func:`ARKodeSetAdjointCheckpointScheme`      ``NULL``
-Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointCheckpointIndex        0
-=================================================  =======================================  =======================
+=================================================  ==========================================  =======================
+Optional input                                     Function name                               Default
+=================================================  ==========================================  =======================
+Return ARKODE parameters to their defaults         :c:func:`ARKodeSetDefaults`                 internal
+Set integrator method order                        :c:func:`ARKodeSetOrder`                    4
+Set dense output interpolation type (SPRKStep)     :c:func:`ARKodeSetInterpolantType`          ``ARK_INTERP_LAGRANGE``
+Set dense output interpolation type (others)       :c:func:`ARKodeSetInterpolantType`          ``ARK_INTERP_HERMITE``
+Set dense output polynomial degree                 :c:func:`ARKodeSetInterpolantDegree`        5
+Disable time step adaptivity (fixed-step mode)     :c:func:`ARKodeSetFixedStep`                disabled
+Supply an initial step size to attempt             :c:func:`ARKodeSetInitStep`                 estimated
+Maximum no. of warnings for :math:`t_n+h = t_n`    :c:func:`ARKodeSetMaxHnilWarns`             10
+Maximum no. of internal steps before *tout*        :c:func:`ARKodeSetMaxNumSteps`              500
+Maximum absolute step size                         :c:func:`ARKodeSetMaxStep`                  :math:`\infty`
+Minimum absolute step size                         :c:func:`ARKodeSetMinStep`                  0.0
+Set a value for :math:`t_{stop}`                   :c:func:`ARKodeSetStopTime`                 undefined
+Interpolate at :math:`t_{stop}`                    :c:func:`ARKodeSetInterpolateStopTime`      ``SUNFALSE``
+Disable the stop time                              :c:func:`ARKodeClearStopTime`               N/A
+Supply a pointer for user data                     :c:func:`ARKodeSetUserData`                 ``NULL``
+Maximum no. of ARKODE error test failures          :c:func:`ARKodeSetMaxErrTestFails`          7
+Set inequality constraints on solution             :c:func:`ARKodeSetConstraints`              ``NULL``
+Set max number of constraint failures              :c:func:`ARKodeSetMaxNumConstrFails`        10
+Set the checkpointing scheme to use (for adjoint)  :c:func:`ARKodeSetAdjointCheckpointScheme`  ``NULL``
+Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointCheckpointIndex`   0
+=================================================  ==========================================  =======================
 
 
 

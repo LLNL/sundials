@@ -13,12 +13,12 @@
 
 .. _SUNAdjointStepper:
 
-The SUNAdjointStepper class
-===========================
+The SUNAdjointStepper API and Module
+====================================
 
-The :c:type:`SUNAdjointStepper` class provides a package-agnostic
-interface to SUNDIALS ASA capabilties. It currently only supports the discrete
-ASA capabilties in the ARKODE package, but in the future this support may be expanded.
+The :c:type:`SUNAdjointStepper` API and module provides a package-agnostic
+interface to SUNDIALS ASA capabilities. It currently only supports the discrete
+ASA capabilities in the ARKODE package, but in the future this support may be expanded.
 
 A :c:type:`SUNAdjointStepper` is a pointer to the
 :c:struct:`SUNAdjointStepper_` structure:
@@ -247,127 +247,3 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
-
-.. _SUNAdjointCheckpointScheme:
-
-The SUNAdjointCheckpointScheme Class
-====================================
-
-The :c:type:`SUNAdjointCheckpointScheme` base class provides an inteface for checkpointing
-states during forward integration and accessing them as needed during the backwards integration
-of the adjoint model.
-
-A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
-:c:struct:`SUNAdjointCheckpointScheme_` structure:
-
-.. c:type:: struct SUNAdjointCheckpointScheme_ *SUNAdjointCheckpointScheme
-
-.. c:struct:: SUNAdjointCheckpointScheme_
-
-   .. c:member:: SUNAdjointCheckpointScheme_Ops ops
-
-      The ops structure holds the vtable of function pointers for the base class.
-
-   .. c:member:: void* content
-
-      Pointer to derived class specific member data.
-
-   .. c:member:: SUNContext sunctx
-
-      The SUNDIALS simulation context.
-
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(SUNContext sunctx, \
-   SUNAdjointCheckpointScheme* cs_ptr)
-
-   Allocates a new object but without any content.
-
-   :param sunctx: The SUNDIALS simulation context
-   :param cs_ptr: on output, the pointer to the new :c:type:`SUNAdjointCheckpointScheme` object
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(SUNAdjointCheckpointScheme cs, \
-   sunindextype step_num, sunindextype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
-
-   Determines if the (step_num, stage_num) should be checkpointed or not.
-
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
-   :param step_num: the step number of the checkpoint
-   :param stage_num: the stage number of the checkpoint
-   :param t: the time of the checkpoint
-   :param yes_or_no: boolean indicating if the checkpoint should be saved or not
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(SUNAdjointCheckpointScheme cs, \
-   sunindextype step_num, sunindextype stage_num, sunbooleantype* yes_or_no)
-
-   Determines if the (step_num, stage_num) checkpoint should be deleted or not.
-
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
-   :param step_num: the step number of the checkpoint
-   :param stage_num: the stage number of the checkpoint
-   :param t: the time of the checkpoint
-   :param yes_or_no: boolean indicating if the checkpoint should be deleted or not
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme cs, \
-   sunindextype step_num, sunindextype stage_num, sunrealtype t, N_Vector state)
-
-   Inserts the vector as the checkpoint for (step_num, stage_num).
-
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
-   :param step_num: the step number of the checkpoint
-   :param stage_num: the stage number of the checkpoint
-   :param t: the time of the checkpoint
-   :param state: the state vector to checkpoint
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme cs, \
-   sunindextype step_num, sunindextype stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
-
-   Loads the checkpointed vector for (step_num, stage_num).
-
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
-   :param step_num: the step number of the checkpoint
-   :param stage_num: the stage number of the checkpoint
-   :param peek: if true, then the checkpoint will be loaded but not deleted regardless
-      of other implementation-specific settings. If false, then the checkpoint may be
-      deleted depending on the implementation.
-   :param out: the loaded state vector
-   :param tout: on output, the time of the checkpoint
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme cs, \
-   sunindextype step_num, sunindextype stage_num, N_Vector* out)
-
-   Removes the checkpointed vector for (step_num, stage_num).
-
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
-   :param step_num: the step number of the checkpoint
-   :param stage_num: the stage number of the checkpoint
-   :param out: the loaded state vector
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_EnableDense(SUNAdjointCheckpointScheme cs, \
-   sunbooleantype on_or_off)
-
-   Enables or disables dense checkpointing (checkpointing every step/stage).
-
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
-   :param on_or_off: if true, dense checkpointing will be turned on, ifalse it will be turned off.
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Destroy(SUNAdjointCheckpointScheme* cs_ptr)
-
-   Destroys (deallocates) the SUNAdjointCheckpointScheme object.
-
-   :param cs_ptr: pointer to a :c:type:`SUNAdjointCheckpointScheme` object
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.

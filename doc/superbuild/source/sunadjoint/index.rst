@@ -13,9 +13,9 @@
 
 .. _SUNAdaptController:
 
-###########################
-Adjoint Sensitivty Analysis
-###########################
+############################
+Adjoint Sensitivity Analysis
+############################
 
 .. versionadded:: x.x.x
 
