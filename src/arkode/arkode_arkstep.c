@@ -3172,9 +3172,10 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   ODE IVP.
   ----------------------------------------------------------------------------*/
 
-int arkStep_SUNStepperEvolve(SUNStepper stepper, SUNDIALS_MAYBE_UNUSED sunrealtype t0,
-                             sunrealtype tout, N_Vector y,
-                             sunrealtype* tret, int* stop_reason)
+int arkStep_SUNStepperEvolve(SUNStepper stepper,
+                             SUNDIALS_MAYBE_UNUSED sunrealtype t0,
+                             sunrealtype tout, N_Vector y, sunrealtype* tret,
+                             int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
   sunrealtype tshift, tscale; /* time normalization values */
@@ -3206,9 +3207,10 @@ int arkStep_SUNStepperEvolve(SUNStepper stepper, SUNDIALS_MAYBE_UNUSED sunrealty
   return (ARK_SUCCESS);
 }
 
-int arkStep_SUNStepperOneStep(SUNStepper stepper, SUNDIALS_MAYBE_UNUSED sunrealtype t0,
-                              sunrealtype tout, N_Vector y,
-                              sunrealtype* tret, int* stop_reason)
+int arkStep_SUNStepperOneStep(SUNStepper stepper,
+                              SUNDIALS_MAYBE_UNUSED sunrealtype t0,
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
   sunrealtype tshift, tscale; /* time normalization values */
@@ -3241,8 +3243,8 @@ int arkStep_SUNStepperOneStep(SUNStepper stepper, SUNDIALS_MAYBE_UNUSED sunrealt
 }
 
 int arkStep_SUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y,
-                              sunrealtype* tret, int* stop_reason)
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
   sunrealtype tshift, tscale; /* time normalization values */
@@ -3351,7 +3353,7 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
                                      MRIStepInnerStepper* stepper)
 {
   int retval;
-  ARKodeMem ark_mem = NULL;
+  ARKodeMem ark_mem         = NULL;
   ARKodeARKStepMem step_mem = NULL;
 
   retval = arkStep_AccessStepMem(inner_arkode_mem,

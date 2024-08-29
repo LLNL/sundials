@@ -65,9 +65,8 @@ SUNErrCode SUNStepper_Destroy(SUNStepper* stepper_ptr)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,
-                             sunrealtype tout, N_Vector y,
-                             sunrealtype* tret, int* stop_reason)
+SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0, sunrealtype tout,
+                             N_Vector y, sunrealtype* tret, int* stop_reason)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->evolve)
@@ -78,8 +77,8 @@ SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,
 }
 
 SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y,
-                              sunrealtype* tret, int* stop_reason)
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->onestep)
@@ -90,8 +89,8 @@ SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
 }
 
 SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y,
-                              sunrealtype* tret, int* stop_reason)
+                              sunrealtype tout, N_Vector y, sunrealtype* tret,
+                              int* stop_reason)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->trystep)
@@ -104,10 +103,7 @@ SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
 SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->reset)
-  {
-    return stepper->ops->reset(stepper, tR, yR);
-  }
+  if (stepper->ops->reset) { return stepper->ops->reset(stepper, tR, yR); }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
