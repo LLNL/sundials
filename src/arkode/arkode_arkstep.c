@@ -3172,7 +3172,7 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   ODE IVP.
   ----------------------------------------------------------------------------*/
 
-int arkStep_SUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
+int arkStep_SUNStepperEvolve(SUNStepper stepper, SUNDIALS_MAYBE_UNUSED sunrealtype t0,
                              sunrealtype tout, N_Vector y,
                              sunrealtype* tret, int* stop_reason)
 {
@@ -3206,7 +3206,7 @@ int arkStep_SUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
   return (ARK_SUCCESS);
 }
 
-int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
+int arkStep_SUNStepperOneStep(SUNStepper stepper, SUNDIALS_MAYBE_UNUSED sunrealtype t0,
                               sunrealtype tout, N_Vector y,
                               sunrealtype* tret, int* stop_reason)
 {
@@ -3351,8 +3351,8 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
                                      MRIStepInnerStepper* stepper)
 {
   int retval;
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
+  ARKodeMem ark_mem = NULL;
+  ARKodeARKStepMem step_mem = NULL;
 
   retval = arkStep_AccessStepMem(inner_arkode_mem,
                                  "ARKStepCreateMRIStepInnerStepper", &step_mem);
