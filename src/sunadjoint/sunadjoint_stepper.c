@@ -77,7 +77,7 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
   adj->nvtimesjp  = 0;
   adj->nrecompute = 0;
   adj->nst        = 0;
-  SUNStepper_Reset(adj->adj_sunstepper, tf, sf, NULL, 0);
+  SUNStepper_Reset(adj->adj_sunstepper, tf, sf, 0);
   return SUN_SUCCESS;
 }
 
@@ -119,7 +119,7 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
   sunrealtype t      = adj_stepper->tf;
   *stop_reason       = 0;
   SUNCheckCall(SUNStepper_OneStep(adj_sunstepper, adj_stepper->tf, tout, sens,
-                                  NULL, &t, stop_reason));
+                                  &t, stop_reason));
   if (*stop_reason < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
   else if (*stop_reason > 0) { retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP; }
   adj_stepper->step_idx--;
@@ -139,15 +139,14 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
 
   int fwd_stop_reason = 0;
   sunrealtype fwd_t   = t0;
-  SUNCheckCall(
-    SUNStepper_Reset(adj_stepper->fwd_sunstepper, t0, y0, NULL, start_idx));
+  SUNCheckCall(SUNStepper_Reset(adj_stepper->fwd_sunstepper, t0, y0, start_idx));
 
   SUNCheckCall(
     SUNAdjointCheckpointScheme_EnableDense(adj_stepper->checkpoint_scheme, 1));
 
   SUNCheckCall(SUNStepper_SetStopTime(adj_stepper->fwd_sunstepper, tf));
 
-  SUNCheckCall(SUNStepper_Evolve(adj_stepper->fwd_sunstepper, t0, tf, y0, NULL,
+  SUNCheckCall(SUNStepper_Evolve(adj_stepper->fwd_sunstepper, t0, tf, y0,
                                  &fwd_t, &fwd_stop_reason));
   adj_stepper->nrecompute++;
 
