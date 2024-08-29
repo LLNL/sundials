@@ -1,0 +1,323 @@
+/* -----------------------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------------------
+ * This example solves the Lotka-Volterra ODE with four parameters,
+ *
+ *     u = [dx/dt] = [ p_0*x - p_1*x*y  ] 
+ *         [dy/dt]   [ -p_2*y + p_3*x*y ].
+ *
+ * The initial condition is u(t_0) = 1.0 and we use the parameters 
+ *  p  = [1.5, 1.0, 3.0, 1.0]. The integration interval can be controlled via
+ * the --tf command line argument, but by default it is t \in [0, 10.]. 
+ * An explicit Runge--Kutta method is employed via the ARKStep time stepper
+ * provided by ARKODE. After solving the forward problem, adjoint sensitivity
+ * analysis (ASA) is performed using the discrete adjoint method available with
+ * with ARKStep in order to obtain the gradient of the cost function,
+ *
+ *    g(u,p,t) = (sum(u)^2) / 2,
+ *
+ * with respect to the initial condition and the parameters.
+ *
+ * ./ark_lotka_volterra_adj options:
+ * --tf <real>         the final simulation time
+ * --dt <real>         the timestep size
+ * --order <int>       the order of the RK method
+ * --check-freq <int>  how often to checkpoint (in steps)
+ * --no-stages         don't checkpoint stages
+ * --dont-keep         don't keep checkpoints around after loading
+ * --help              print these options
+ * ---------------------------------------------------------------------------*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <sundials/sundials_core.h>
+
+#include <nvector/nvector_manyvector.h>
+#include <nvector/nvector_serial.h>
+#include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
+#include <sunadjoint/sunadjoint_stepper.h>
+#include <sunmatrix/sunmatrix_dense.h>
+#include <sunmemory/sunmemory_system.h>
+
+#include <arkode/arkode.h>
+#include <arkode/arkode_arkstep.h>
+
+typedef struct
+{
+  sunrealtype tf;
+  sunrealtype dt;
+  int order;
+  int check_freq;
+  sunbooleantype save_stages;
+  sunbooleantype keep_checks;
+} ProgramArgs;
+
+static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
+static void parse_args(int argc, char* argv[], ProgramArgs* args);
+static void print_help(int argc, char* argv[], int exit_code);
+
+int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
+{
+  sunrealtype* p    = (sunrealtype*)user_data;
+  sunrealtype* u    = N_VGetArrayPointer(uvec);
+  sunrealtype* udot = N_VGetArrayPointer(udotvec);
+
+  udot[0] = p[0] * u[0] - p[1] * u[0] * u[1];
+  udot[1] = -p[2] * u[1] + p[3] * u[0] * u[1];
+
+  return 0;
+}
+
+int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
+        N_Vector udotvec, void* user_data, N_Vector tmp)
+{
+  sunrealtype* p  = (sunrealtype*)user_data;
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* v  = N_VGetArrayPointer(vvec);
+  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
+
+  Jv[0] = (p[0] - p[1] * u[1]) * v[0] + p[3] * u[1] * v[1];
+  Jv[1] = -p[1] * u[0] * v[0] + (-p[2] + p[3] * u[0]) * v[1];
+
+  return 0;
+}
+
+int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
+                  N_Vector udotvec, void* user_data, N_Vector tmp)
+{
+  if (user_data != params) { return -1; }
+
+  sunrealtype* p  = (sunrealtype*)user_data;
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* v  = N_VGetArrayPointer(vvec);
+  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
+
+  Jv[0] = u[0] * v[0];
+  Jv[1] = -u[0] * u[1] * v[0];
+  Jv[2] = -u[1] * v[1];
+  Jv[3] = u[0] * u[1] * v[1];
+
+  return 0;
+}
+
+sunrealtype g(N_Vector u, const sunrealtype* p, sunrealtype t)
+{
+  /* (sum(u) .^ 2) ./ 2 */
+  sunrealtype* uarr = N_VGetArrayPointer(u);
+  sunrealtype sum   = SUN_RCONST(0.0);
+  for (sunindextype i = 0; i < N_VGetLength(u); i++) { sum += uarr[i]; }
+  return (sum * sum) / SUN_RCONST(2.0);
+}
+
+void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
+{
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* dg = N_VGetArrayPointer(dgvec);
+
+  dg[0] = u[0] + u[1];
+  dg[1] = u[0] + u[1];
+}
+
+void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
+{
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* dg = N_VGetArrayPointer(dgvec);
+
+  dg[0] = SUN_RCONST(0.0);
+  dg[1] = SUN_RCONST(0.0);
+  dg[2] = SUN_RCONST(0.0);
+  dg[3] = SUN_RCONST(0.0);
+}
+
+int forward_solution(SUNContext sunctx, void* arkode_mem,
+                     SUNAdjointCheckpointScheme checkpoint_scheme,
+                     const sunrealtype t0, const sunrealtype tf,
+                     const sunrealtype dt, N_Vector u)
+{
+  int retval = 0;
+
+  retval = ARKodeSetUserData(arkode_mem, (void*)params);
+  retval = ARKodeSetFixedStep(arkode_mem, dt);
+
+  sunrealtype t = t0;
+  while (t < tf)
+  {
+    retval = ARKodeEvolve(arkode_mem, tf, u, &t, ARK_NORMAL);
+    if (retval < 0)
+    {
+      fprintf(stderr, ">>> ERROR: ARKodeEvolve returned %d\n", retval);
+      return -1;
+    }
+  }
+
+  printf("Forward Solution:\n");
+  N_VPrint(u);
+
+  printf("ARKODE Stats for Forward Solution:\n");
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  printf("\n");
+
+  return 0;
+}
+
+int adjoint_solution(SUNContext sunctx, SUNAdjointStepper adj_stepper,
+                     SUNAdjointCheckpointScheme checkpoint_scheme,
+                     const sunrealtype tf, const sunrealtype tout, N_Vector sf)
+{
+  int retval      = 0;
+  int stop_reason = 0;
+  sunrealtype t   = tf;
+  retval = SUNAdjointStepper_Evolve(adj_stepper, tout, sf, &t, &stop_reason);
+
+  printf("Adjoint Solution:\n");
+  N_VPrint(sf);
+
+  printf("\nSUNAdjointStepper Stats:\n");
+  SUNAdjointStepper_PrintAllStats(adj_stepper, stdout, SUN_OUTPUTFORMAT_TABLE);
+  printf("\n");
+
+  return 0;
+}
+
+int main(int argc, char* argv[])
+{
+  SUNContext sunctx = NULL;
+  SUNContext_Create(SUN_COMM_NULL, &sunctx);
+
+  ProgramArgs args;
+  args.tf          = 10.0;
+  args.dt          = 1e-2;
+  args.order       = 4;
+  args.save_stages = SUNTRUE;
+  args.keep_checks = SUNTRUE;
+  args.check_freq  = 2;
+  parse_args(argc, argv, &args);
+
+  //
+  // Create the initial conditions vector
+  //
+
+  sunindextype neq = 2;
+  N_Vector u       = N_VNew_Serial(neq, sunctx);
+  N_VConst(1.0, u);
+
+  //
+  // Create the ARKODE stepper that will be used for the forward evolution.
+  //
+
+  const sunrealtype dt = args.dt;
+  sunrealtype t0       = 0.0;
+  sunrealtype tf       = args.tf;
+  const int nsteps     = ((tf - t0) / dt + 1);
+  const int order      = args.order;
+  void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
+
+  ARKodeSetOrder(arkode_mem, order);
+  ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
+
+  // Enable checkpointing during the forward solution.
+  const int check_interval                     = args.check_freq;
+  const int ncheck                             = nsteps * order;
+  const sunbooleantype save_stages             = args.save_stages;
+  const sunbooleantype keep_check              = args.keep_checks;
+  SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
+  SUNMemoryHelper mem_helper                   = SUNMemoryHelper_Sys(sunctx);
+  SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
+                                          check_interval, ncheck, save_stages,
+                                          keep_check, sunctx, &checkpoint_scheme);
+  ARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme);
+
+  //
+  // Compute the forward solution
+  //
+
+  printf("Initial condition:\n");
+  N_VPrint(u);
+
+  forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+
+  //
+  // Create the adjoint stepper
+  //
+
+  sunindextype num_params = 4;
+  N_Vector sensu0         = N_VClone(u);
+  N_Vector sensp          = N_VNew_Serial(num_params, sunctx);
+  N_Vector sens[2]        = {sensu0, sensp};
+  N_Vector sf             = N_VNew_ManyVector(2, sens, sunctx);
+
+  // Set the terminal condition for the adjoint system, which
+  // should be the the gradient of our cost function at tf.
+  dgdu(u, sensu0, params, tf);
+  dgdp(u, sensp, params, tf);
+
+  printf("Adjoint terminal condition:\n");
+  N_VPrint(sf);
+
+  SUNAdjointStepper adj_stepper;
+  ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
+
+  //
+  // Now compute the adjoint solution
+  //
+
+  SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, vjp, parameter_vjp);
+  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+
+  //
+  // Cleanup
+  //
+
+  N_VDestroy(u);
+  N_VDestroy(sf);
+  SUNAdjointCheckpointScheme_Destroy(&checkpoint_scheme);
+  SUNAdjointStepper_Destroy(&adj_stepper);
+  ARKodeFree(&arkode_mem);
+
+  return 0;
+}
+
+void print_help(int argc, char* argv[], int exit_code)
+{
+  if (exit_code) { fprintf(stderr, "%s: option not recognized\n", argv[0]); }
+  else { fprintf(stderr, "%s ", argv[0]); }
+  fprintf(stderr, "options:\n");
+  fprintf(stderr, "--tf <real>         the final simulation time\n");
+  fprintf(stderr, "--dt <real>         the timestep size\n");
+  fprintf(stderr, "--order <int>       the order of the RK method\n");
+  fprintf(stderr, "--check-freq <int>  how often to checkpoint (in steps)\n");
+  fprintf(stderr, "--no-stages         don't checkpoint stages\n");
+  fprintf(stderr,
+          "--dont-keep         don't keep checkpoints around after loading\n");
+  fprintf(stderr, "--help              print these options\n");
+  exit(exit_code);
+}
+
+void parse_args(int argc, char* argv[], ProgramArgs* args)
+{
+  for (int argi = 1; argi < argc; ++argi)
+  {
+    const char* arg = argv[argi];
+    if (!strcmp(arg, "--tf")) { args->tf = atof(argv[++argi]); }
+    else if (!strcmp(arg, "--dt")) { args->dt = atof(argv[++argi]); }
+    else if (!strcmp(arg, "--order")) { args->order = atoi(argv[++argi]); }
+    else if (!strcmp(arg, "--check-freq"))
+    {
+      args->check_freq = atoi(argv[++argi]);
+    }
+    else if (!strcmp(arg, "--no-stages")) { args->save_stages = SUNFALSE; }
+    else if (!strcmp(arg, "--dont-keep")) { args->keep_checks = SUNFALSE; }
+    else if (!strcmp(arg, "--help")) { print_help(argc, argv, 0); }
+    else { print_help(argc, argv, 1); }
+  }
+}

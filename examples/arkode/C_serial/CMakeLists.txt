@@ -76,6 +76,7 @@ set(ARKODE_examples
     "ark_KrylovDemo_prec\;\;exclude-single"
     "ark_KrylovDemo_prec\;1\;exclude-single"
     "ark_KrylovDemo_prec\;2\;exclude-single"
+    "ark_lotka_volterra_adj\;\;develop"
     "ark_onewaycouple_mri\;\;develop"
     "ark_reaction_diffusion_mri\;\;develop"
     "ark_robertson_constraints\;\;exclude-single"
