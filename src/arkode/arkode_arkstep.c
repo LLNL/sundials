@@ -3173,7 +3173,7 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   ----------------------------------------------------------------------------*/
 
 int arkStep_SUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
-                             sunrealtype tout, N_Vector y, N_Vector yp,
+                             sunrealtype tout, N_Vector y,
                              sunrealtype* tret, int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
@@ -3207,7 +3207,7 @@ int arkStep_SUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
 }
 
 int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, N_Vector yp,
+                              sunrealtype tout, N_Vector y,
                               sunrealtype* tret, int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
@@ -3241,7 +3241,7 @@ int arkStep_SUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
 }
 
 int arkStep_SUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, N_Vector yp,
+                              sunrealtype tout, N_Vector y,
                               sunrealtype* tret, int* stop_reason)
 {
   void* arkode_mem;           /* arkode memory             */
@@ -3301,8 +3301,7 @@ int arkStep_SUNStepperFullRhs(SUNStepper stepper, sunrealtype t, N_Vector y,
   state.
   ----------------------------------------------------------------------------*/
 
-int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
-                            N_Vector ypR)
+int arkStep_SUNStepperReset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
 {
   void* arkode_mem;
   int retval;
