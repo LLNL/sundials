@@ -952,7 +952,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   N_VLinearSum(ONE, ark_mem->yn, sm1inv*ark_mem->h, ark_mem->fn, ark_mem->ycur);
   N_VLinearSum(ONE, ark_mem->yn, (rs + ONE)/(rs*rs)*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
 
-  /* Evaluate stages j = 2,...,step_mem->reqstages */
+  /* Evaluate stages j = 2,...,step_mem->reqstages - 1 */
   for (int j = 2; j < step_mem->reqstages; j++)
   {
     retval = step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE)*sm1inv*ark_mem->h, ark_mem->ycur,
@@ -963,7 +963,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h/rs, ark_mem->fn, ark_mem->tempv1);
 
   }
-  
+  /* Evaluate the last stage for j = step_mem->reqstages */
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                         ark_mem->fn, ark_mem->user_data);
   if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
@@ -978,19 +978,17 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
   {
-    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                          ark_mem->tempv2, ark_mem->user_data);
-    step_mem->nfe++;
-    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
-
     N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->tempv1, ark_mem->tempv1);
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
   if (*dsmPtr <= ONE || ark_mem->fixedstep)
   {
-    N_VScale(ONE, ark_mem->tempv2, ark_mem->fn);
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                          ark_mem->fn, ark_mem->user_data);
     ark_mem->fn_is_current = SUNTRUE;
+    step_mem->nfe++;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
   }
 
   return (ARK_SUCCESS);
@@ -1101,19 +1099,17 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
   {
-    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                          ark_mem->tempv2, ark_mem->user_data);
-    step_mem->nfe++;
-    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
-
     N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->tempv1, ark_mem->tempv1);
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
   if (*dsmPtr <= ONE || ark_mem->fixedstep)
   {
-    N_VScale(ONE, ark_mem->tempv2, ark_mem->fn);
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                          ark_mem->fn, ark_mem->user_data);
+    step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
   }
 
   return (ARK_SUCCESS);
@@ -1219,19 +1215,17 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
   {
-    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                          ark_mem->tempv2, ark_mem->user_data);
-    step_mem->nfe++;
-    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
-
     N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->tempv1, ark_mem->tempv1);
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
   if (*dsmPtr <= ONE || ark_mem->fixedstep)
   {
-    N_VScale(ONE, ark_mem->tempv2, ark_mem->fn);
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                          ark_mem->fn, ark_mem->user_data);
+    step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
   }
 
   return (ARK_SUCCESS);

@@ -157,8 +157,7 @@ Allowable Method Families
       
       * ``ARKODE_LSRK_SSPs_2``  -- ``numofstages`` must be greater than or equal to 2
       * ``ARKODE_LSRK_SSPs_3``  -- ``numofstages`` must be a full-square greater than or equal to 4
-      * ``ARKODE_LSRK_SSP10_4`` -- ``numofstages`` is prefixed and equal to 10
-      * ``ARKODE_LSRK_SSP10_4`` -- do not call this function if ``ARKODE_LSRK_SSP10_4``
+      * ``ARKODE_LSRK_SSP10_4`` -- ``numofstages`` must be equal to 10 -- no need to call this function at all!
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.

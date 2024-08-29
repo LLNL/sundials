@@ -224,8 +224,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
 
       ARKODE_LSRK_SSPs_2  -- numofstages must be greater than or equal to 2
       ARKODE_LSRK_SSPs_3  -- numofstages must be a full-square greater than 3
-      ARKODE_LSRK_SSP10_4 -- numofstages is prefixed and equal to 10
-      ARKODE_LSRK_SSP10_4 -- no need to call this function if ARKODE_LSRK_SSP10_4
+      ARKODE_LSRK_SSP10_4 -- numofstages must be equal to 10 - no need to call!
 
   This set routine must be called after calling LSRKStepSetMethod with an SSP method
   ---------------------------------------------------------------*/
@@ -257,7 +256,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
       if (numofstages < 4 || (ceil(SUNRsqrt(numofstages))!= floor(SUNRsqrt(numofstages))))
       {
         arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                        "numofstages must be a full-square greater than or equal to 4");             
+                        "numofstages must be a full-square greater than or equal to 4");
         return (ARK_ILL_INPUT);
       }
       else {step_mem->reqstages = numofstages;}
@@ -604,11 +603,11 @@ int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat 
   {
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-    fprintf(outfile, "Stages taken                 = %d\n",  step_mem->reqstages);
+    fprintf(outfile, "Current stages taken         = %d\n",  step_mem->reqstages);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, ",Stages taken,%d", step_mem->reqstages);
+    fprintf(outfile, ",Current stages taken,%d", step_mem->reqstages);
 
     fprintf(outfile, "\n");
     break;
