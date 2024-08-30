@@ -98,14 +98,14 @@ umask 002
 
 # spack load cmake@3.18.6
 
-# # add CUDA
-# if [[ ":${PATH}:" != *":/usr/local/cuda-11.5/bin:"* ]]; then
-#     export PATH="/usr/local/cuda-11.5/bin${PATH:+:${PATH}}"
-# fi
+# add CUDA
+if [[ ":${PATH}:" != *":/usr/local/cuda/bin:"* ]]; then
+    export PATH="/usr/local/cuda/bin${PATH:+:${PATH}}"
+fi
 
-# if [[ ":${LD_LIBRARY_PATH}:" != *":/usr/local/cuda-11.5/lib64:"* ]]; then
-#     export LD_LIBRARY_PATH="/usr/local/cuda-11.5/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-# fi
+if [[ ":${LD_LIBRARY_PATH}:" != *":/usr/local/cuda/lib64:"* ]]; then
+    export LD_LIBRARY_PATH="/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+fi
 
 # ------------------------------------------------------------------------------
 # Compilers and flags
@@ -202,14 +202,13 @@ export SUNDIALS_OPENMP_OFFLOAD=OFF
 # CUDA
 # ----
 
-# if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-#     export SUNDIALS_CUDA=ON
-#     export CUDAARCHS=60
-#     export SUNDIALS_FUSED_KERNELS=ON
-# else
-#     export SUNDIALS_CUDA=OFF
-#     export SUNDIALS_FUSED_KERNELS=OFF
-# fi
+if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+    export SUNDIALS_CUDA=ON
+    export SUNDIALS_FUSED_KERNELS=ON
+else
+    export SUNDIALS_CUDA=OFF
+    export SUNDIALS_FUSED_KERNELS=OFF
+fi
 
 # ---
 # MPI
