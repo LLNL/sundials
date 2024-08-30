@@ -3257,6 +3257,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
 {
   int retval;                         /* reusable return flag */
   SUNAdaptController_Type adapt_type; /* timestep adaptivity type */
+  sunrealtype inner_error_factor;
 
 #ifdef SUNDIALS_DEBUG
   printf("    MRIStep ERK fast stage\n");
@@ -3371,10 +3372,13 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
         /* compute solution difference */
         N_VLinearSum(ONE, ytemp, -ONE, ycur, ytemp);
 
-        /* accumulate fast error estimate */
+        /* accumulate fast error estimate -- this assumes that the inner
+           integrator has the same asymptotic order of accuracy as the MRI method */
+        inner_error_factor = ark_mem->reltol /
+          SUNRabs(ONE - SUNRpowerI(step_mem->inner_hfactor, step_mem->q));
         step_mem->inner_dsm =
           SUNMAX(step_mem->inner_dsm,
-                 ark_mem->reltol * N_VWrmsNorm(ytemp, ark_mem->ewt));
+                 inner_error_factor * N_VWrmsNorm(ytemp, ark_mem->ewt));
 
         /* reset fast integrator to the main evolution result */
         retval = mriStepInnerStepper_Reset(step_mem->stepper, tf, ycur);
