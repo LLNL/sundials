@@ -410,9 +410,9 @@ fi
 if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
     export SUNDIALS_TRILINOS=ON
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=int ~cuda)"
+        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=int +cuda)"
     else
-        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=long_long ~cuda)"
+        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=long_long +cuda)"
     fi
     export TRILINOS_ROOT
 else
