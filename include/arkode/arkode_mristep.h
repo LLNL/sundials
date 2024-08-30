@@ -128,13 +128,13 @@ typedef int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol
 struct MRIStepCouplingMem
 {
   ARKODE_MRIType type; /* flag to encode the MRI method type          */
-  int nmat;         /* number of MRI coupling matrices                     */
-  int stages;       /* size of coupling matrices ((stages+1) * stages)     */
-  int q;            /* method order of accuracy                            */
-  int p;            /* embedding order of accuracy                         */
-  sunrealtype* c;   /* stage abscissae                                     */
-  sunrealtype*** W; /* explicit coupling matrices [nmat][stages+1][stages] */
-  sunrealtype*** G; /* implicit coupling matrices [nmat][stages+1][stages] */
+  int nmat;            /* number of MRI coupling matrices                     */
+  int stages;          /* size of coupling matrices ((stages+1) * stages)     */
+  int q;               /* method order of accuracy                            */
+  int p;               /* embedding order of accuracy                         */
+  sunrealtype* c;      /* stage abscissae                                     */
+  sunrealtype*** W;    /* explicit coupling matrices [nmat][stages+1][stages] */
+  sunrealtype*** G;    /* implicit coupling matrices [nmat][stages+1][stages] */
 
   int ngroup;  /* number of stage groups (MERK-specific)              */
   int** group; /* stages to integrate together (MERK-specific)        */
@@ -229,6 +229,10 @@ SUNDIALS_EXPORT int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper,
 SUNDIALS_EXPORT int MRIStepInnerStepper_GetForcingData(
   MRIStepInnerStepper stepper, sunrealtype* tshift, sunrealtype* tscale,
   N_Vector** forcing, int* nforcing);
+
+/* Utility to wrap ERKStep as an MRIStepInnerStepper */
+SUNDIALS_EXPORT int MRIStepCreateMRIStepInnerStepper(void* arkode_mem,
+                                                     MRIStepInnerStepper* stepper);
 
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines

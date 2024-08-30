@@ -1502,8 +1502,7 @@ int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
   int retval;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessARKODEStepMem(arkode_mem, "erkStep_SetInnerForcing",
-                                       &ark_mem, &step_mem);
+  retval = erkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (nvecs > 0)

@@ -149,6 +149,14 @@ typedef struct ARKodeMRIStepMemRec
   long int nls_fails; /* num nonlinear solver fails       */
   int nfusedopvecs;   /* length of cvals and Xvecs arrays */
 
+  /* Data for using ERKStep with external polynomial forcing */
+  sunbooleantype expforcing; /* add forcing to explicit RHS */
+  sunbooleantype impforcing; /* add forcing to implicit RHS */
+  sunrealtype tshift;        /* time normalization shift    */
+  sunrealtype tscale;        /* time normalization scaling  */
+  N_Vector* forcing;         /* array of forcing vectors    */
+  int nforcing;              /* number of forcing vectors   */
+
   /* Reusable arrays for fused vector operations */
   sunrealtype* cvals;
   N_Vector* Xvecs;
@@ -285,6 +293,8 @@ int mriStep_FastRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 int mriStep_Hin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
                 N_Vector ycur, N_Vector fcur, N_Vector ytmp, N_Vector temp1,
                 N_Vector temp2, ARKTimestepFullRHSFn rhs, sunrealtype* h);
+void mriStep_ApplyForcing(ARKodeMRIStepMem step_mem, sunrealtype t,
+                          sunrealtype s, int* nvec);
 
 /* private functions passed to nonlinear solver */
 int mriStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
@@ -327,6 +337,21 @@ int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 /* Return effective RK coefficients (nofast stage) */
 int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int* stage_map,
                      sunrealtype* Ae_row, sunrealtype* Ai_row);
+
+/* private functions for serving as an MRIStepInnerStepper */
+int mriStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
+                            sunrealtype tscale, N_Vector* f, int nvecs);
+int mriStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
+                               sunrealtype tout, N_Vector y);
+int mriStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                                N_Vector y, N_Vector f, int mode);
+int mriStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
+                              N_Vector yR);
+int mriStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                            sunrealtype* accum_error);
+int mriStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
+int mriStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h);
+int mriStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
 /*===============================================================
   MRIStep SUNAdaptController wrapper module -- this is used to
