@@ -138,7 +138,7 @@ export CMAKE_VERBOSE_MAKEFILE=OFF
 export CMAKE_BUILD_TYPE=Debug
 
 # Number of build and test jobs
-export SUNDIALS_BUILD_JOBS=6
+export SUNDIALS_BUILD_JOBS=1
 export SUNDIALS_TEST_JOBS=1
 
 # Sundials packages
