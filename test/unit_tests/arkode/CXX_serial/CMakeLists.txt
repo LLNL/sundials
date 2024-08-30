@@ -49,6 +49,7 @@ set(unit_tests
     "ark_test_getjac.cpp\;"
     "ark_test_getjac_mri.cpp\;"
     "ark_test_kpr_mriadapt.cpp\;--hs 0.002 --rtol 0.000004 --scontrol 0"
+    "ark_test_kpr_nestedmri.cpp\;"
     "ark_test_brusselator_mriadapt.cpp\;--rtol 0.000004 --scontrol 0"
     "ark_test_slowerror_brusselator.cpp\;"
     "ark_test_slowerror_kpr.cpp\;"
