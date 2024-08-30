@@ -31,7 +31,7 @@ sundials_add_library(
   INCLUDE_SUBDIR nvector
   LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES PUBLIC SUNDIALS::TRILINOS
+  LINK_LIBRARIES PUBLIC Tpetra::all_libs
   OUTPUT_NAME sundials_nvectrilinos
   VERSION ${nveclib_VERSION}
   SOVERSION ${nveclib_SOVERSION})
