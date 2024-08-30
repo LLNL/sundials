@@ -78,25 +78,19 @@ esac
 # set file permissions (rwxrwxr-x)
 umask 002
 
-# # path to shared installs
-# APPROOT=/usr/casc/sundials/share
+# path to shared installs
+APPROOT=/usr/local/suntest
 
-# # setup the python environment
+# setup the python environment
 # source ${APPROOT}/python-venv/sundocs/bin/activate
 
-# # setup spack
-# export SPACK_ROOT=${APPROOT}/sundials-tpls-spack-v0.18.1/spack
+# setup spack
+export SPACK_ROOT=${APPROOT}/spack
 
-# # shellcheck disable=SC1090
-# source ${SPACK_ROOT}/share/spack/setup-env.sh
+# shellcheck disable=SC1090
+source ${SPACK_ROOT}/share/spack/setup-env.sh
 
-# # load compiler
-# spack load "${compiler}"
-
-# # make sure spack knows about the compiler
-# spack compiler find
-
-# spack load cmake@3.18.6
+spack load cmake@3.18.6
 
 # add CUDA
 if [[ ":${PATH}:" != *":/usr/local/cuda/bin:"* ]]; then
@@ -217,240 +211,237 @@ fi
 # MPI
 # ---
 
-# MPI_ROOT="$(spack location -i openmpi@4.1.3 % "$compiler")"
+MPI_ROOT="$(spack location -i openmpi@5.0.5)"
 
-# export SUNDIALS_MPI=ON
-# export MPICC="${MPI_ROOT}/bin/mpicc"
-# export MPICXX="${MPI_ROOT}/bin/mpicxx"
-# export MPIFC="${MPI_ROOT}/bin/mpifort"
-# export MPIEXEC="${MPI_ROOT}/bin/mpirun"
+export SUNDIALS_MPI=ON
+export MPICC="${MPI_ROOT}/bin/mpicc"
+export MPICXX="${MPI_ROOT}/bin/mpicxx"
+export MPIFC="${MPI_ROOT}/bin/mpifort"
+export MPIEXEC="${MPI_ROOT}/bin/mpirun"
 
 # -------------
 # LAPACK / BLAS
 # -------------
 
-# if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-#     export SUNDIALS_LAPACK=ON
-#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#         LAPACK_ROOT="$(spack location -i openblas@0.3.20 ~ilp64 %"$compiler")"
-#     else
-#         LAPACK_ROOT="$(spack location -i openblas@0.3.20 +ilp64 %"$compiler")"
-#     fi
-#     export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
-# else
-#     export SUNDIALS_LAPACK=OFF
-#     unset LAPACK_LIBRARIES
-# fi
+if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+    export SUNDIALS_LAPACK=ON
+    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+        LAPACK_ROOT="$(spack location -i openblas@0.3.27 ~ilp64)"
+    else
+        LAPACK_ROOT="$(spack location -i openblas@0.3.27 +ilp64)"
+    fi
+    export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
+else
+    export SUNDIALS_LAPACK=OFF
+    unset LAPACK_LIBRARIES
+fi
 
 # ---
 # KLU
 # ---
 
-# if [ "$SUNDIALS_PRECISION" == "double" ]; then
-#     export SUNDIALS_KLU=ON
-#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#         SUITE_SPARSE_ROOT="$(spack location -i suite-sparse@5.10.1 ^openblas ~ilp64 %"$compiler")"
-#     else
-#         SUITE_SPARSE_ROOT="$(spack location -i suite-sparse@5.10.1 ^openblas +ilp64 %"$compiler")"
-#     fi
-#     export SUITE_SPARSE_INCLUDE_DIR="${SUITE_SPARSE_ROOT}/include"
-#     export SUITE_SPARSE_LIBRARY_DIR="${SUITE_SPARSE_ROOT}/lib"
-# else
-#     export SUNDIALS_KLU=OFF
-#     unset SUITE_SPARSE_ROOT
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_KLU=ON
+    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+        SUITE_SPARSE_ROOT="$(spack location -i suite-sparse@7.7.0 ^openblas ~ilp64)"
+    else
+        SUITE_SPARSE_ROOT="$(spack location -i suite-sparse@7.7.0 ^openblas +ilp64)"
+    fi
+    export SUITE_SPARSE_INCLUDE_DIR="${SUITE_SPARSE_ROOT}/include"
+    export SUITE_SPARSE_LIBRARY_DIR="${SUITE_SPARSE_ROOT}/lib"
+else
+    export SUNDIALS_KLU=OFF
+    unset SUITE_SPARSE_ROOT
+fi
 
 # ------
 # Ginkgo
 # ------
 
-# if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-#     # @develop install is GitHub hash 4c3320c9c4e116a2d5aedf9d042b36d1f327a217
-#     if [ "$SUNDIALS_CUDA" == "ON" ]; then
-#         if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#             export SUNDIALS_GINKGO=ON
-#             export GINKGO_ROOT="$(spack location -i ginkgo@develop +cuda %"$compiler")"
-#             export GINKGO_BACKENDS="REF;OMP;CUDA"
-#         else
-#             export SUNDIALS_GINKGO=OFF
-#             unset GINKGO_ROOT
-#             unset GINKGO_BACKENDS
-#         fi
-#     else
-#         export SUNDIALS_GINKGO=ON
-#         export GINKGO_ROOT="$(spack location -i ginkgo@develop ~cuda %"$compiler")"
-#         export GINKGO_BACKENDS="REF;OMP"
-#     fi
-# else
-#     export SUNDIALS_GINKGO=OFF
-#     unset GINKGO_ROOT
-#     unset GINKGO_BACKENDS
-# fi
+if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+    if [ "$SUNDIALS_CUDA" == "ON" ]; then
+        if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+            export SUNDIALS_GINKGO=ON
+            export GINKGO_ROOT="$(spack location -i ginkgo@1.8.0 +cuda)"
+            export GINKGO_BACKENDS="REF;OMP;CUDA"
+        else
+            export SUNDIALS_GINKGO=OFF
+            unset GINKGO_ROOT
+            unset GINKGO_BACKENDS
+        fi
+    else
+        export SUNDIALS_GINKGO=ON
+        export GINKGO_ROOT="$(spack location -i ginkgo@1.8.0 ~cuda)"
+        export GINKGO_BACKENDS="REF;OMP"
+    fi
+else
+    export SUNDIALS_GINKGO=OFF
+    unset GINKGO_ROOT
+    unset GINKGO_BACKENDS
+fi
 
 # ------
 # Kokkos
 # ------
 
-# @master install is 3.7.00 = 61d7db55fceac3318c987a291f77b844fd94c165
-# if [ "$SUNDIALS_PRECISION" == "double" ]; then
-#     export SUNDIALS_KOKKOS=ON
-#     export KOKKOS_ROOT="$(spack location -i kokkos@master %"$compiler")"
-# else
-#     export SUNDIALS_KOKKOS=OFF
-#     unset KOKKOS_ROOT
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_KOKKOS=ON
+    export KOKKOS_ROOT="$(spack location -i kokkos@4.3.01)"
+else
+    export SUNDIALS_KOKKOS=OFF
+    unset KOKKOS_ROOT
+fi
 
 # --------------
 # Kokkos-Kernels
 # --------------
 
-# @master install is 3.7.00 = 04821ac3bb916b19fad6b3dabc1f4b9e1049aa0e
-# if [ "$SUNDIALS_PRECISION" == "double" ]; then
-#     export SUNDIALS_KOKKOS_KERNELS=ON
-#     export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@master %"$compiler")"
-# else
-#     export SUNDIALS_KOKKOS_KERNELS=OFF
-#     unset KOKKOS_KERNELS_ROOT
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_KOKKOS_KERNELS=ON
+    export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@4.3.01)"
+else
+    export SUNDIALS_KOKKOS_KERNELS=OFF
+    unset KOKKOS_KERNELS_ROOT
+fi
 
 # -----
 # MAGMA
 # -----
 
-# if [ "$SUNDIALS_PRECISION" != "extended" ] && \
-#     [ "$SUNDIALS_INDEX_SIZE" == "32" ] && \
-#     [ "$SUNDIALS_CUDA" == "ON" ]; then
-#     export SUNDIALS_MAGMA=ON
-#     # Bug in magma@2.6.2 causes tests to fail with certain system sizes
-#     #export MAGMA_ROOT="$(spack location -i magma@2.6.2 +cuda %"$compiler")"
-#     export MAGMA_ROOT="$(spack location -i magma@2.6.1 +cuda %"$compiler")"
-#     export MAGMA_BACKENDS="CUDA"
-# else
-#     export SUNDIALS_MAGMA=OFF
-#     unset MAGMA_ROOT
-#     unset MAGMA_BACKENDS
-# fi
+if [ "$SUNDIALS_PRECISION" != "extended" ] && \
+    [ "$SUNDIALS_INDEX_SIZE" == "32" ] && \
+    [ "$SUNDIALS_CUDA" == "ON" ]; then
+    export SUNDIALS_MAGMA=ON
+    # Bug in magma@2.6.2 causes tests to fail with certain system sizes
+    #export MAGMA_ROOT="$(spack location -i magma@2.6.2 +cuda)"
+    export MAGMA_ROOT="$(spack location -i magma@2.8.0 +cuda)"
+    export MAGMA_BACKENDS="CUDA"
+else
+    export SUNDIALS_MAGMA=OFF
+    unset MAGMA_ROOT
+    unset MAGMA_BACKENDS
+fi
 
 # ----------
 # SuperLU_MT
 # ----------
 
-# if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-#     export SUNDIALS_SUPERLU_MT=ON
-#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#         SUPERLU_MT_ROOT="$(spack location -i superlu-mt@3.1 ~int64 %"$compiler")"
-#     else
-#         SUPERLU_MT_ROOT="$(spack location -i superlu-mt@3.1 +int64 %"$compiler")"
-#     fi
-#     export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
-#     export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
-#     export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a"
-#     export SUPERLU_MT_THREAD_TYPE="PTHREAD"
-# else
-#     export SUNDIALS_SUPERLU_MT=OFF
-#     unset SUPERLU_MT_ROOT
-#     unset SUPERLU_MT_INCLUDE_DIR
-#     unset SUPERLU_MT_LIBRARY_DIR
-#     unset SUPERLU_MT_LIBRARIES
-#     unset SUPERLU_MT_THREAD_TYPE
-# fi
+if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+    export SUNDIALS_SUPERLU_MT=ON
+    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+        SUPERLU_MT_ROOT="$(spack location -i superlu-mt@master ~int64)"
+    else
+        SUPERLU_MT_ROOT="$(spack location -i superlu-mt@master +int64)"
+    fi
+    export SUPERLU_MT_INCLUDE_DIR="${SUPERLU_MT_ROOT}/include"
+    export SUPERLU_MT_LIBRARY_DIR="${SUPERLU_MT_ROOT}/lib"
+    export SUPERLU_MT_LIBRARIES="${SUPERLU_MT_ROOT}/lib/libblas_PTHREAD.a"
+    export SUPERLU_MT_THREAD_TYPE="PTHREAD"
+else
+    export SUNDIALS_SUPERLU_MT=OFF
+    unset SUPERLU_MT_ROOT
+    unset SUPERLU_MT_INCLUDE_DIR
+    unset SUPERLU_MT_LIBRARY_DIR
+    unset SUPERLU_MT_LIBRARIES
+    unset SUPERLU_MT_THREAD_TYPE
+fi
 
 # ------------
 # SuperLU_DIST
 # ------------
 
-# if [ "$SUNDIALS_PRECISION" == "double" ]; then
-#     export SUNDIALS_SUPERLU_DIST=ON
-#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#         export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@7.2.0 ~int64 ~cuda %"$compiler")"
-#     else
-#         export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@7.2.0 +int64 ~cuda ^parmetis+int64 ^metis+int64 ^openblas~ilp64 %"$compiler")"
-#     fi
-#     export SUPERLU_DIST_OPENMP=OFF
-# else
-#     export SUNDIALS_SUPERLU_DIST=OFF
-#     unset SUPERLU_DIST_ROOT
-#     unset SUPERLU_DIST_OPENMP
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_SUPERLU_DIST=ON
+    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+        export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@8.2.1 ~int64 ~cuda)"
+    else
+        export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@8.2.1 +int64 ~cuda ^parmetis+int64 ^metis+int64 ^openblas~ilp64)"
+    fi
+    export SUPERLU_DIST_OPENMP=OFF
+else
+    export SUNDIALS_SUPERLU_DIST=OFF
+    unset SUPERLU_DIST_ROOT
+    unset SUPERLU_DIST_OPENMP
+fi
 
 # -----
 # hypre
 # -----
 
-# if [ "$SUNDIALS_PRECISION" == "double" ]; then
-#     export SUNDIALS_HYPRE=ON
-#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#         HYPRE_ROOT="$(spack location -i hypre@2.24.0 ~int64 ~cuda %"$compiler")"
-#     else
-#         HYPRE_ROOT="$(spack location -i hypre@2.24.0 +int64 ~cuda %"$compiler")"
-#     fi
-#     export HYPRE_INCLUDE_DIR="${HYPRE_ROOT}/include"
-#     export HYPRE_LIBRARY_DIR="${HYPRE_ROOT}/lib"
-# else
-#     export SUNDIALS_HYPRE=OFF
-#     unset HYPRE_INCLUDE_DIR
-#     unset HYPRE_LIBRARY_DIR
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_HYPRE=ON
+    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+        HYPRE_ROOT="$(spack location -i hypre@2.31.0 ~int64 ~cuda)"
+    else
+        HYPRE_ROOT="$(spack location -i hypre@2.31.0 +int64 ~cuda)"
+    fi
+    export HYPRE_INCLUDE_DIR="${HYPRE_ROOT}/include"
+    export HYPRE_LIBRARY_DIR="${HYPRE_ROOT}/lib"
+else
+    export SUNDIALS_HYPRE=OFF
+    unset HYPRE_INCLUDE_DIR
+    unset HYPRE_LIBRARY_DIR
+fi
 
 # -----
 # petsc
 # -----
 
-# if [ "$SUNDIALS_PRECISION" == "double" ]; then
-#     export SUNDIALS_PETSC=ON
-#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#         PETSC_ROOT="$(spack location -i petsc@3.17.1 +double ~int64 ~cuda %"$compiler")"
-#     else
-#         PETSC_ROOT="$(spack location -i petsc@3.17.1 +double +int64 ~cuda %"$compiler")"
-#     fi
-#     export PETSC_ROOT
-# else
-#     export SUNDIALS_PETSC=OFF
-#     unset PETSC_ROOT
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_PETSC=ON
+    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+        PETSC_ROOT="$(spack location -i petsc@3.21.4 +double ~int64 ~cuda)"
+    else
+        PETSC_ROOT="$(spack location -i petsc@3.21.4 +double +int64 ~cuda)"
+    fi
+    export PETSC_ROOT
+else
+    export SUNDIALS_PETSC=OFF
+    unset PETSC_ROOT
+fi
 
 # --------
 # trilinos
 # --------
 
-# if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#     export SUNDIALS_TRILINOS=ON
-#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#         TRILINOS_ROOT="$(spack location -i trilinos@13.0.1 gotype=int ~cuda %"$compiler")"
-#     else
-#         TRILINOS_ROOT="$(spack location -i trilinos@13.0.1 gotype=long_long ~cuda %"$compiler")"
-#     fi
-#     export TRILINOS_ROOT
-# else
-#     export SUNDIALS_TRILINOS=OFF
-#     unset TRILINOS_ROOT
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+    export SUNDIALS_TRILINOS=ON
+    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=int ~cuda)"
+    else
+        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=long_long ~cuda)"
+    fi
+    export TRILINOS_ROOT
+else
+    export SUNDIALS_TRILINOS=OFF
+    unset TRILINOS_ROOT
+fi
 
 # ----
 # raja
 # ----
 
-# if [ "$SUNDIALS_PRECISION" == "double" ]; then
-#     export SUNDIALS_RAJA=ON
-#     export RAJA_ROOT="$(spack location -i raja@2022.03.1 ~openmp +cuda %"$compiler")"
-#     export RAJA_BACKENDS="CUDA"
-#     # RAJA does not find camp on its own?
-#     export camp_ROOT="$(spack location -i camp@2022.03.2 +cuda %"$compiler")"
-# else
-#     export SUNDIALS_RAJA=OFF
-#     unset RAJA_ROOT
-#     unset RAJA_BACKENDS
-#     unset camp_ROOT
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ]; then
+    export SUNDIALS_RAJA=ON
+    export RAJA_ROOT="$(spack location -i raja@2024.02.2 +cuda)"
+    export RAJA_BACKENDS="CUDA"
+    # RAJA does not find camp on its own?
+    export camp_ROOT="$(spack location -i camp@2024.02.1 +cuda)"
+else
+    export SUNDIALS_RAJA=OFF
+    unset RAJA_ROOT
+    unset RAJA_BACKENDS
+    unset camp_ROOT
+fi
 
 # ------
 # xbraid
 # ------
 
-# if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#     export SUNDIALS_XBRAID=ON
-#     export XBRAID_ROOT="$(spack location -i xbraid@3.0.0 %"$compiler")"
-# else
-#     export SUNDIALS_XBRAID=OFF
-#     unset XBRAID_ROOT
-# fi
+if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+    export SUNDIALS_XBRAID=ON
+    export XBRAID_ROOT="$(spack location -i xbraid@3.1.0)"
+else
+    export SUNDIALS_XBRAID=OFF
+    unset XBRAID_ROOT
+fi
