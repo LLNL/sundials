@@ -24,6 +24,9 @@
 #                       opt : optimized build
 # ------------------------------------------------------------------------------
 
+set -o errexit
+set -o pipefail
+
 echo "./default.sh $*" | tee -a setup_env.log
 
 # set defaults for optional inputs
@@ -286,7 +289,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_KOKKOS=ON
-    export KOKKOS_ROOT="$(spack location -i kokkos@4.3.01)"
+    export KOKKOS_ROOT="$(spack location -i kokkos@4.3.01+cuda)"
 else
     export SUNDIALS_KOKKOS=OFF
     unset KOKKOS_ROOT
@@ -298,7 +301,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_KOKKOS_KERNELS=ON
-    export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@4.3.01)"
+    export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@4.3.01+cuda)"
 else
     export SUNDIALS_KOKKOS_KERNELS=OFF
     unset KOKKOS_KERNELS_ROOT
@@ -355,7 +358,7 @@ if [ "$SUNDIALS_PRECISION" == "double" ]; then
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
         export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@8.2.1 ~int64 ~cuda)"
     else
-        export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@8.2.1 +int64 ~cuda ^parmetis+int64 ^metis+int64 ^openblas~ilp64)"
+        export SUPERLU_DIST_ROOT="$(spack location -i superlu-dist@8.2.1 +int64 ~cuda)"
     fi
     export SUPERLU_DIST_OPENMP=OFF
 else
