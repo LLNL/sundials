@@ -443,7 +443,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
     export SUNDIALS_XBRAID=ON
-    export XBRAID_ROOT="$(spack location -i xbraid@3.1.0)"
+    export XBRAID_ROOT="$(spack location -i xbraid@3.0.0)"
 else
     export SUNDIALS_XBRAID=OFF
     unset XBRAID_ROOT
