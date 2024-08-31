@@ -1,40 +1,40 @@
 /* -----------------------------------------------------------------------------
- * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
- * and Southern Methodist University.
- * All rights reserved.
- *
- * See the top-level LICENSE and NOTICE files for details.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- * SUNDIALS Copyright End
- * -----------------------------------------------------------------------------
- * This example solves the Lotka-Volterra ODE with four parameters,
- *
- *     u = [dx/dt] = [ p_0*x - p_1*x*y  ] 
- *         [dy/dt]   [ -p_2*y + p_3*x*y ].
- *
- * The initial condition is u(t_0) = 1.0 and we use the parameters 
- *  p  = [1.5, 1.0, 3.0, 1.0]. The integration interval can be controlled via
- * the --tf command line argument, but by default it is t \in [0, 10.]. 
- * An explicit Runge--Kutta method is employed via the ARKStep time stepper
- * provided by ARKODE. After solving the forward problem, adjoint sensitivity
- * analysis (ASA) is performed using the discrete adjoint method available with
- * with ARKStep in order to obtain the gradient of the cost function,
- *
- *    g(u,p,t) = (sum(u)^2) / 2,
- *
- * with respect to the initial condition and the parameters.
- *
- * ./ark_lotka_volterra_adj options:
- * --tf <real>         the final simulation time
- * --dt <real>         the timestep size
- * --order <int>       the order of the RK method
- * --check-freq <int>  how often to checkpoint (in steps)
- * --no-stages         don't checkpoint stages
- * --dont-keep         don't keep checkpoints around after loading
- * --help              print these options
- * ---------------------------------------------------------------------------*/
+  * SUNDIALS Copyright Start
+  * Copyright (c) 2002-2024, Lawrence Livermore National Security
+  * and Southern Methodist University.
+  * All rights reserved.
+  *
+  * See the top-level LICENSE and NOTICE files for details.
+  *
+  * SPDX-License-Identifier: BSD-3-Clause
+  * SUNDIALS Copyright End
+  * -----------------------------------------------------------------------------
+  * This example solves the Lotka-Volterra ODE with four parameters,
+  *
+  *     u = [dx/dt] = [ p_0*x - p_1*x*y  ] 
+  *         [dy/dt]   [ -p_2*y + p_3*x*y ].
+  *
+  * The initial condition is u(t_0) = 1.0 and we use the parameters 
+  *  p  = [1.5, 1.0, 3.0, 1.0]. The integration interval can be controlled via
+  * the --tf command line argument, but by default it is t \in [0, 10.]. 
+  * An explicit Runge--Kutta method is employed via the ARKStep time stepper
+  * provided by ARKODE. After solving the forward problem, adjoint sensitivity
+  * analysis (ASA) is performed using the discrete adjoint method available with
+  * with ARKStep in order to obtain the gradient of the scalar cost function,
+  *
+  *    g(u,p,t) = (sum(u)^2) / 2,
+  *
+  * with respect to the initial condition and the parameters.
+  *
+  * ./ark_lotka_volterra_adj options:
+  * --tf <real>         the final simulation time
+  * --dt <real>         the timestep size
+  * --order <int>       the order of the RK method
+  * --check-freq <int>  how often to checkpoint (in steps)
+  * --no-stages         don't checkpoint stages
+  * --dont-keep         don't keep checkpoints around after loading
+  * --help              print these options
+  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,6 +51,7 @@
 
 #include <arkode/arkode.h>
 #include <arkode/arkode_arkstep.h>
+#include "sundials/sundials_nvector.h"
 
 typedef struct
 {
@@ -65,6 +66,7 @@ typedef struct
 static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 static void parse_args(int argc, char* argv[], ProgramArgs* args);
 static void print_help(int argc, char* argv[], int exit_code);
+static int check_retval(void* retval_ptr, const char* funcname, int opt);
 
 int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
 {
@@ -110,7 +112,7 @@ int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
   return 0;
 }
 
-sunrealtype g(N_Vector u, const sunrealtype* p, sunrealtype t)
+sunrealtype g(N_Vector u, const sunrealtype* p)
 {
   /* (sum(u) .^ 2) ./ 2 */
   sunrealtype* uarr = N_VGetArrayPointer(u);
@@ -119,7 +121,7 @@ sunrealtype g(N_Vector u, const sunrealtype* p, sunrealtype t)
   return (sum * sum) / SUN_RCONST(2.0);
 }
 
-void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
+void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p)
 {
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* dg = N_VGetArrayPointer(dgvec);
@@ -128,7 +130,7 @@ void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
   dg[1] = u[0] + u[1];
 }
 
-void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
+void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p)
 {
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* dg = N_VGetArrayPointer(dgvec);
@@ -139,58 +141,9 @@ void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
   dg[3] = SUN_RCONST(0.0);
 }
 
-int forward_solution(SUNContext sunctx, void* arkode_mem,
-                     SUNAdjointCheckpointScheme checkpoint_scheme,
-                     const sunrealtype t0, const sunrealtype tf,
-                     const sunrealtype dt, N_Vector u)
-{
-  int retval = 0;
-
-  retval = ARKodeSetUserData(arkode_mem, (void*)params);
-  retval = ARKodeSetFixedStep(arkode_mem, dt);
-
-  sunrealtype t = t0;
-  while (t < tf)
-  {
-    retval = ARKodeEvolve(arkode_mem, tf, u, &t, ARK_NORMAL);
-    if (retval < 0)
-    {
-      fprintf(stderr, ">>> ERROR: ARKodeEvolve returned %d\n", retval);
-      return -1;
-    }
-  }
-
-  printf("Forward Solution:\n");
-  N_VPrint(u);
-
-  printf("ARKODE Stats for Forward Solution:\n");
-  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-  printf("\n");
-
-  return 0;
-}
-
-int adjoint_solution(SUNContext sunctx, SUNAdjointStepper adj_stepper,
-                     SUNAdjointCheckpointScheme checkpoint_scheme,
-                     const sunrealtype tf, const sunrealtype tout, N_Vector sf)
-{
-  int retval      = 0;
-  int stop_reason = 0;
-  sunrealtype t   = tf;
-  retval = SUNAdjointStepper_Evolve(adj_stepper, tout, sf, &t, &stop_reason);
-
-  printf("Adjoint Solution:\n");
-  N_VPrint(sf);
-
-  printf("\nSUNAdjointStepper Stats:\n");
-  SUNAdjointStepper_PrintAllStats(adj_stepper, stdout, SUN_OUTPUTFORMAT_TABLE);
-  printf("\n");
-
-  return 0;
-}
-
 int main(int argc, char* argv[])
 {
+  int retval        = 0;
   SUNContext sunctx = NULL;
   SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
@@ -209,6 +162,8 @@ int main(int argc, char* argv[])
 
   sunindextype neq = 2;
   N_Vector u       = N_VNew_Serial(neq, sunctx);
+  N_Vector u0      = N_VClone(u);
+  N_VConst(1.0, u0);
   N_VConst(1.0, u);
 
   //
@@ -222,8 +177,11 @@ int main(int argc, char* argv[])
   const int order      = args.order;
   void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
 
-  ARKodeSetOrder(arkode_mem, order);
-  ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
+  retval = ARKodeSetOrder(arkode_mem, order);
+  if (check_retval(&retval, "ARKodeSetOrder", 1)) { return 1; }
+
+  retval = ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
+  if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   // Enable checkpointing during the forward solution.
   const int check_interval                     = args.check_freq;
@@ -232,10 +190,22 @@ int main(int argc, char* argv[])
   const sunbooleantype keep_check              = args.keep_checks;
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
   SUNMemoryHelper mem_helper                   = SUNMemoryHelper_Sys(sunctx);
-  SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM, mem_helper,
-                                          check_interval, ncheck, save_stages,
-                                          keep_check, sunctx, &checkpoint_scheme);
-  ARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme);
+
+  retval = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM,
+                                                   mem_helper, check_interval,
+                                                   ncheck, save_stages,
+                                                   keep_check, sunctx,
+                                                   &checkpoint_scheme);
+  if (check_retval(&retval, "SUNAdjointCheckpointScheme_Create_Basic", 1))
+  {
+    return 1;
+  }
+
+  retval = ARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme);
+  if (check_retval(&retval, "ARKodeSetAdjointCheckpointScheme", 1))
+  {
+    return 1;
+  }
 
   //
   // Compute the forward solution
@@ -244,7 +214,30 @@ int main(int argc, char* argv[])
   printf("Initial condition:\n");
   N_VPrint(u);
 
-  forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+  retval = ARKodeSetUserData(arkode_mem, (void*)params);
+  if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
+
+  retval = ARKodeSetFixedStep(arkode_mem, dt);
+  if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
+
+  sunrealtype tret = t0;
+  while (tret < tf)
+  {
+    retval = ARKodeEvolve(arkode_mem, tf, u, &tret, ARK_NORMAL);
+    if (retval < 0)
+    {
+      fprintf(stderr, ">>> ERROR: ARKodeEvolve returned %d\n", retval);
+      return -1;
+    }
+  }
+
+  printf("Forward Solution:\n");
+  N_VPrint(u);
+
+  printf("ARKODE Stats for Forward Solution:\n");
+  retval = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  if (check_retval(&retval, "ARKodePrintAllStats", 1)) { return 1; }
+  printf("\n");
 
   //
   // Create the adjoint stepper
@@ -258,21 +251,44 @@ int main(int argc, char* argv[])
 
   // Set the terminal condition for the adjoint system, which
   // should be the the gradient of our cost function at tf.
-  dgdu(u, sensu0, params, tf);
-  dgdp(u, sensp, params, tf);
+  dgdu(u, sensu0, params);
+  dgdp(u, sensp, params);
 
   printf("Adjoint terminal condition:\n");
   N_VPrint(sf);
 
   SUNAdjointStepper adj_stepper;
-  ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
+  retval = ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
+  if (check_retval(&retval, "ARKStepCreateAdjointStepper", 1)) { return 1; }
+
+  retval = SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, vjp, parameter_vjp);
+  if (check_retval(&retval, "SUNAdjointStepper_SetVecTimesJacFn", 1))
+  {
+    return 1;
+  }
 
   //
   // Now compute the adjoint solution
   //
 
-  SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, vjp, parameter_vjp);
-  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+  int stop_reason = 0;
+  retval = SUNAdjointStepper_Evolve(adj_stepper, t0, sf, &tret, &stop_reason);
+  if (check_retval(&retval, "SUNAdjointStepper_Evolve", 1)) { return 1; }
+
+  // Compute gradient w.r.t. parameters:
+  N_Vector tmp = N_VClone(sensp);
+  parameter_vjp(sensp, tmp, tret, u0, NULL, (void*)params, NULL);
+  N_VLinearSum(1.0, sensp, 1.0, tmp, sensp);
+  N_VDestroy(tmp);
+
+  printf("Adjoint Solution:\n");
+  N_VPrint(sf);
+
+  printf("\nSUNAdjointStepper Stats:\n");
+  retval = SUNAdjointStepper_PrintAllStats(adj_stepper, stdout,
+                                           SUN_OUTPUTFORMAT_TABLE);
+  if (check_retval(&retval, "SUNAdjointStepper_PrintAllStats", 1)) { return 1; }
+  printf("\n");
 
   //
   // Cleanup
@@ -320,4 +336,31 @@ void parse_args(int argc, char* argv[], ProgramArgs* args)
     else if (!strcmp(arg, "--help")) { print_help(argc, argv, 0); }
     else { print_help(argc, argv, 1); }
   }
+}
+
+int check_retval(void* retval_ptr, const char* funcname, int opt)
+{
+  int* retval;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && retval_ptr == NULL)
+  {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return 1;
+  }
+
+  /* Check if retval < 0 */
+  else if (opt == 1)
+  {
+    retval = (int*)retval_ptr;
+    if (*retval < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+              funcname, *retval);
+      return 1;
+    }
+  }
+
+  return (0);
 }

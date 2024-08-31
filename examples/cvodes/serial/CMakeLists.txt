@@ -37,6 +37,7 @@ set(CVODES_examples
     "cvsKrylovDemo_ls\;1\;develop"
     "cvsKrylovDemo_ls\;2\;develop"
     "cvsKrylovDemo_prec\;\;develop"
+    "cvsLotkaVolterra_ASA\;\;develop"
     "cvsParticle_dns\;\;develop"
     "cvsPendulum_dns\;\;exclude-single"
     "cvsRoberts_ASAi_dns\;\;exclude-single"

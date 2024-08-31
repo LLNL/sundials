@@ -2134,12 +2134,12 @@ Adjoint Sensitivity Analysis
 ============================
 
 Consider :eq:`ARKODE_IVP_simple_explicit`, but where the ODE also depends on some parameters
-:math:`p` (that is, we have :math:`f(t,y,p)`). Now, let :math:`g(y(t_f),p)` be a cost function for
-which we would like to compute the gradients :math:`\partial g/\partial y(t_0)` and/or
-:math:`\partial g/\partial p`. The adjoint method is one approach to obtaining the gradients that is
-particularly efficient when there are relatively few cost functionals and a large number of parameters.
-With the adjoint method we solve the adjoint ODEs for :math:`\lambda(t) \in \mathbb{R}^N` and
-:math:`\mu(t) \in \mathbb{R}^{N_s}`:
+:math:`p` (that is, we have :math:`f(t,y,p)`). Now, suppose we have a functional :math:`g(y(t_f),p)`
+for which we would like to compute the gradients :math:`\partial g/\partial y(t_0)`
+and/or :math:`\partial g/\partial p`. The adjoint method is one approach to obtaining the
+gradients that is particularly efficient when there are relatively few functionals and a
+large number of parameters. With the adjoint method we solve the adjoint ODEs for :math:`\lambda(t)
+\in \mathbb{R}^N` and :math:`\mu(t) \in \mathbb{R}^{N_s}`:
 
 .. math::
    \lambda'(t) &= -f_y^T(t, y, p) \lambda,\quad \lambda(t_F) = g_y^T(y(t_f), p) \\
