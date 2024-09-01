@@ -26,6 +26,7 @@ set(ARKODE_examples
     "ark_advection_diffusion_reaction_splitting\;\;develop"
     "ark_analytic_mels\;\;develop"
     "ark_analytic_nonlin\;\;develop"
+    "ark_analytic_splitting\;\;develop"
     "ark_brusselator_1D_mri\;\;develop"
     "ark_brusselator_fp\;\;exclude-single"
     "ark_brusselator_mri\;\;develop"
