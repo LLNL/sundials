@@ -319,10 +319,9 @@ SplittingStepCoefficients SplittingStepCoefficients_ThirdOrderSuzuki(
       // Constants from https://doi.org/10.1143/JPSJ.61.3015 pg. 3019
       const sunrealtype p1 = SUN_RCONST(0.2683300957817599249569552299254991394812);
       const sunrealtype p2 = SUN_RCONST(0.6513314272356399320939424082278836500821);
-      const sunrealtype p = i + j < partitions ? p1 : (p1 + p2);
-
-      coefficients->beta[0][i][j] = p;
-      coefficients->beta[0][partitions + i - 1][j] = SUN_RCONST(1.0) - p;
+      
+      coefficients->beta[0][i][j] = i + j < partitions ? p1 : (p1 + p2);
+      coefficients->beta[0][partitions + i - 1][j] = SUN_RCONST(1.0) - (i + j < partitions ? (p1 + p2) : p1);
     }
   }
 

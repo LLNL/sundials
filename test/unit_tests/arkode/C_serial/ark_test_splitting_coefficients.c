@@ -204,7 +204,5 @@ int main(int argc, char* argv[])
 
   printf("%d test failures\n", retval);
 
-  SplittingStepCoefficients_Write(SplittingStepCoefficients_ThirdOrderSuzuki(3), stdout);
-
   return retval;
 }
