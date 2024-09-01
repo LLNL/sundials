@@ -66,6 +66,8 @@ set(arkode_HEADERS
 # Add prefix with complete path to the ARKODE header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
 
+add_subdirectory(execution_policy)
+
 # Create the sundials_arkode library
 sundials_add_library(
   sundials_arkode

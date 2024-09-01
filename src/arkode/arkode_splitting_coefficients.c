@@ -225,7 +225,6 @@ const char* SplittingStepCoefficients_IDToName(
   ---------------------------------------------------------------*/
 SplittingStepCoefficients SplittingStepCoefficients_LieTrotter(const int partitions)
 {
-  if (partitions < 1) { return NULL; }
   const SplittingStepCoefficients coefficients =
     SplittingStepCoefficients_Alloc(1, 1, partitions);
   if (coefficients == NULL) { return NULL; }
@@ -255,8 +254,6 @@ SplittingStepCoefficients SplittingStepCoefficients_Strang(const int partitions)
   ---------------------------------------------------------------*/
 SplittingStepCoefficients SplittingStepCoefficients_Parallel(const int partitions)
 {
-  if (partitions < 1) { return NULL; }
-
   const SplittingStepCoefficients coefficients =
     SplittingStepCoefficients_Alloc(partitions + 1, 1, partitions);
   if (coefficients == NULL) { return NULL; }
@@ -280,8 +277,6 @@ SplittingStepCoefficients SplittingStepCoefficients_Parallel(const int partition
 SplittingStepCoefficients SplittingStepCoefficients_SymmetricParallel(
   const int partitions)
 {
-  if (partitions < 1) { return NULL; }
-
   const SplittingStepCoefficients coefficients =
     SplittingStepCoefficients_Alloc(2, partitions, partitions);
   if (coefficients == NULL) { return NULL; }
@@ -297,6 +292,42 @@ SplittingStepCoefficients SplittingStepCoefficients_SymmetricParallel(
     {
       coefficients->beta[1][i + 1][j] = SUN_RCONST(1.0);
     }
+  }
+
+  return coefficients;
+}
+
+/*---------------------------------------------------------------
+  Routine to construct a 3rd order method of Suzuki of the form
+  L(p1 h) * L*(p2 h) * L(p3 h) * L*(p4 h) * L(p5 h)
+  where L is a Lie-Trotter splitting and L* is its adjoint.
+  Composition is denoted by *.
+  ---------------------------------------------------------------*/
+SplittingStepCoefficients SplittingStepCoefficients_ThirdOrderSuzuki(
+  const int partitions)
+{
+  const SplittingStepCoefficients coefficients =
+    SplittingStepCoefficients_Alloc(1, 2 * partitions - 1, partitions);
+  if (coefficients == NULL) { return NULL; }
+
+  coefficients->order = 3;
+  coefficients->alpha[0] = SUN_RCONST(1.0);
+
+  for (int i = 1; i < partitions; i++)
+  {
+    for (int j = 0; j < partitions; j++) {
+      // Constants from https://doi.org/10.1143/JPSJ.61.3015 pg. 3019
+      const sunrealtype p1 = SUN_RCONST(0.2683300957817599249569552299254991394812);
+      const sunrealtype p2 = SUN_RCONST(0.6513314272356399320939424082278836500821);
+      const sunrealtype p = i + j < partitions ? p1 : (p1 + p2);
+
+      coefficients->beta[0][i][j] = p;
+      coefficients->beta[0][partitions + i - 1][j] = SUN_RCONST(1.0) - p;
+    }
+  }
+
+  for (int i = 0; i < partitions; i++) {
+    coefficients->beta[0][2 * partitions - 1][i] = SUN_RCONST(1.0);
   }
 
   return coefficients;
@@ -322,7 +353,7 @@ static sunrealtype* const* SplittingStepCoefficients_ComposeStrangHelper(
     {
       for (int k = 0; k < partitions; k++)
       {
-        beta[j][k] = (partitions - j > k) ? mid : end;
+        beta[j][k] = (k + j < partitions) ? mid : end;
       }
     }
 
@@ -363,7 +394,7 @@ static sunrealtype* const* SplittingStepCoefficients_ComposeStrangHelper(
 static SplittingStepCoefficients SplittingStepCoefficients_ComposeStrang(
   const int partitions, const int order, const int composition_stages)
 {
-  if (partitions < 1 || order < 2 || order % 2 != 0)
+  if (order < 2 || order % 2 != 0)
   {
     // Only even orders allowed
     return NULL;

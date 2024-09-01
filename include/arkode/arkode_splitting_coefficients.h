@@ -41,15 +41,20 @@ struct SplittingStepCoefficientsMem
 
 typedef _SUNDIALS_STRUCT_ SplittingStepCoefficientsMem* SplittingStepCoefficients;
 
-/* Splitting names use the convention ARKODE_SPLITTING_<name>_<partitions>_<order> */
+/* Splitting names use the convention
+ * ARKODE_SPLITTING_<name>_<stages>_<order>_<partitions> */
 typedef enum
 {
   ARKODE_SPLITTING_NONE        = -1, /* ensure enum is signed int */
-  ARKODE_MIN_SPLITTING_NUM     = 300,
-  ARKODE_SPLITTING_LIE_TROTTER_2_1 = ARKODE_MIN_SPLITTING_NUM,
-  ARKODE_SPLITTING_STRANG_2_2,
-  ARKODE_SPLITTING_YOSHIDA_2_4,
-  ARKODE_MAX_SPLITTING_NUM = ARKODE_SPLITTING_YOSHIDA_2_4
+  ARKODE_MIN_SPLITTING_NUM     = 0,
+  ARKODE_SPLITTING_LIE_TROTTER_1_1_2 = ARKODE_MIN_SPLITTING_NUM,
+  ARKODE_SPLITTING_STRANG_2_2_2,
+  ARKODE_SPLITTING_OPTIMAL_2_2_2,
+  ARKODE_SPLITTING_SUZUKI_3_3_2,
+  ARKODE_SPLITTING_RUTH_3_3_2,
+  ARKODE_SPLITTING_YOSHIDA_4_4_2,
+  ARKODE_SPLITTING_YOSHIDA_8_6_2,
+  ARKODE_MAX_SPLITTING_NUM = ARKODE_SPLITTING_YOSHIDA_8_6_2
 } ARKODE_SplittingCoefficientsID;
 
 /* Coefficient memory management */
@@ -83,6 +88,8 @@ SUNDIALS_EXPORT SplittingStepCoefficients
 SplittingStepCoefficients_Parallel(int partitions);
 SUNDIALS_EXPORT SplittingStepCoefficients
 SplittingStepCoefficients_SymmetricParallel(int partitions);
+SUNDIALS_EXPORT SplittingStepCoefficients
+SplittingStepCoefficients_ThirdOrderSuzuki(int partitions);
 SUNDIALS_EXPORT SplittingStepCoefficients
 SplittingStepCoefficients_TripleJump(int partitions, int order);
 SUNDIALS_EXPORT SplittingStepCoefficients

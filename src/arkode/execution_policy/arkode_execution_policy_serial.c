@@ -27,7 +27,7 @@ static int setup_serial(SUNDIALS_MAYBE_UNUSED ARKodeSplittingExecutionPolicy pol
   return ARK_SUCCESS;
 }
 
-static int execute_serial(ARKodeSplittingExecutionPolicy policy,
+static int execute_serial(SUNDIALS_MAYBE_UNUSED ARKodeSplittingExecutionPolicy policy,
                           ARKExecutionPolicyFn fn, N_Vector yn, N_Vector ycur,
                           N_Vector tmp, sunrealtype* alpha,
                           const int sequential_methods, void* user_data)
@@ -42,16 +42,16 @@ static int execute_serial(ARKodeSplittingExecutionPolicy policy,
 
   for (int i = 1; i < sequential_methods; i++)
   {
-    N_VScale(SUN_RCONST(1), yn, tmp);
-    int retval = fn(i, tmp, user_data);
-    if (retval != ARK_SUCCESS)
-    N_VLinearSum(1, ycur, alpha[i], tmp, ycur);
+    N_VScale(SUN_RCONST(1.0), yn, tmp);
+    retval = fn(i, tmp, user_data);
+    if (retval != ARK_SUCCESS) { return retval; }
+    N_VLinearSum(SUN_RCONST(1.0), ycur, alpha[i], tmp, ycur);
   }
 
   return ARK_SUCCESS;
 }
 
-static void free_serial(ARKodeSplittingExecutionPolicy policy)
+static void free_serial(SUNDIALS_MAYBE_UNUSED ARKodeSplittingExecutionPolicy policy)
 {
   // Nothing needed
 }

@@ -144,12 +144,12 @@ int main(int argc, char* argv[])
   SplittingStepCoefficients_Free(coefficients);
   SplittingStepCoefficients_Free(coefficients_copy);
 
-  coefficients = SplittingStepCoefficients_LoadCoefficients(ARKODE_SPLITTING_LIE_TROTTER_2_1);
+  coefficients = SplittingStepCoefficients_LoadCoefficients(ARKODE_SPLITTING_LIE_TROTTER_1_1_2);
   retval += check_coefficients("Lie-Trotter (load by enum)", coefficients, 1, 1, 2, 1,
                                alpha_lie_trotter, beta_lie_trotter);
   SplittingStepCoefficients_Free(coefficients);
 
-  coefficients = SplittingStepCoefficients_LoadCoefficientsByName("ARKODE_SPLITTING_LIE_TROTTER_2_1");
+  coefficients = SplittingStepCoefficients_LoadCoefficientsByName("ARKODE_SPLITTING_LIE_TROTTER_1_1_2");
   retval += check_coefficients("Lie-Trotter (load by name)", coefficients, 1, 1, 2, 1,
                                alpha_lie_trotter, beta_lie_trotter);
   SplittingStepCoefficients_Free(coefficients);
@@ -203,6 +203,8 @@ int main(int argc, char* argv[])
   SplittingStepCoefficients_Free(coefficients);
 
   printf("%d test failures\n", retval);
+
+  SplittingStepCoefficients_Write(SplittingStepCoefficients_ThirdOrderSuzuki(3), stdout);
 
   return retval;
 }
