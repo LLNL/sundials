@@ -27,5 +27,6 @@ are specific to ERKStep.
 .. toctree::
    :maxdepth: 1
 
+   Skeleton
    User_callable
    SplittingStepCoefficients

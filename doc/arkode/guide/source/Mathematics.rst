@@ -615,10 +615,11 @@ The following algorithmic procedure is used in the Splitting-Step module:
 #. Set :math:`y_n = \sum_{i=1}^r \alpha_i y_{n,i}`
 
 Here, :math:`s` denotes the number of stages, while :math:`r` denotes the number
-of sequential methods within the overall operator splitting scheme. Each of the
-sequential methods are independent can can be run in parallel. The real
-coefficients :math:`\alpha_i` and :math:`\beta_{i,j,k}` determine the particular
-scheme and properties such as the order.
+of sequential methods within the overall operator splitting scheme. The
+sequential methods have independent flows which are combined in a linear
+combination to produce the next step. The real coefficients :math:`\alpha_i` and
+:math:`\beta_{i,j,k}` determine the particular scheme and properties such as the
+order.
 
 An alternative representation of the SplittingStep solution is
 
@@ -637,8 +638,8 @@ and Strang splitting, as well as schemes of arbitrarily high order.
 Alternatively, users may construct their own coefficients (see TODO). Generally,
 methods of order three and higher with real coefficients require backward
 integration, i.e., there exist negative :math:`\gamma_{i,j,k}` coefficients.
-Currently, a fixed time step must be specified for SplittingStep, but
-sub-integrations are free to use adaptive time steps. See TODO for
+Currently, a fixed time step must be specified for the outer SplittingStep, but
+inner integrators are free to use adaptive time steps. See TODO for
 additional details.
 
 
