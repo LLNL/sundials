@@ -317,6 +317,30 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
+   | **Splitting Coefficients specification**      |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_LIE_TROTTER_1_1_2`   | 1st order Lie-Trotter splitting for problems with two      |
+   |                                               | partitions.                                                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_STRANG_2_2_2`        | 2nd order Strang splitting for problems with two           |
+   |                                               | partitions.                                                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_BEST_2_2_2`          | 2nd order splitting with optimal error for problems with   |
+   |                                               | two partitions.                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_SUZUKI_3_3_2`        | 3rd order Suzuki splitting for problems with two           |
+   |                                               | partitions.                                                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_RUTH_3_3_2`          | 3rd order Ruth splitting for problems with two partitions. |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_YOSHIDA_4_4_2`       | 4th order Yoshida splitting for problems with two          |
+   |                                               | partitions.                                                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_YOSHIDA_8_6_2`       | 6th order Yoshida splitting for problems with two          |
+   |                                               | partitions.                                                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   |                                               |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
    | **MRI method types**                          |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_EXPLICIT`                     | Use an explicit (at the slow time scale) MRI method.       |
