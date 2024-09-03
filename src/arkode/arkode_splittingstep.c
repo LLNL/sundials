@@ -24,6 +24,10 @@
 #include "arkode_mristep_impl.h"
 #include "arkode_splittingstep_impl.h"
 
+/*---------------------------------------------------------------
+  Shortcut routine to unpack step_mem structure from ark_mem.
+  If missing it returns ARK_MEM_NULL.
+  ---------------------------------------------------------------*/
 static int splittingStep_AccessStepMem(const ARKodeMem ark_mem,
                                        const char* const fname,
                                        ARKodeSplittingStepMem* const step_mem)
@@ -59,6 +63,10 @@ static int splittingStep_AccessARKODEStepMem(void* const arkode_mem,
   return splittingStep_AccessStepMem(*ark_mem, __func__, step_mem);
 }
 
+/*---------------------------------------------------------------
+  This routine checks if all required vector operations are
+  present.  If any of them is missing it returns SUNFALSE.
+  ---------------------------------------------------------------*/
 static sunbooleantype splittingStep_CheckNVector(const N_Vector y)
 {
   // TODO(SBR): check all ops are correct
@@ -72,7 +80,7 @@ static sunbooleantype splittingStep_CheckNVector(const N_Vector y)
   ---------------------------------------------------------------*/
 static int splittingStep_SetCoefficients(const ARKodeMem ark_mem, const ARKodeSplittingStepMem step_mem)
 {
-  if (step_mem->coefficients == NULL) {
+  if (step_mem->coefficients != NULL) {
     return ARK_SUCCESS;
   }
 
@@ -456,7 +464,7 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
   }
 
   /* Create ark_mem structure and set default values */
-  const ARKodeMem ark_mem = arkCreate(sunctx);
+  ARKodeMem ark_mem = arkCreate(sunctx);
   if (ark_mem == NULL)
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
@@ -470,7 +478,7 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_ARKMEM_FAIL);
-    ARKodeFree((void**)&ark_mem);
+    ARKodeFree((void **)&ark_mem);
     return NULL;
   }
 
