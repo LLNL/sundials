@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * TODO
+  * This is the header file for the ARKODE SplittingStep module.
  *--------------------------------------------------------------*/
 
 #ifndef ARKODE_SPLITTINGSTEP_H_

@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * TODO
+ * The header file for the serial execution policy
  * ---------------------------------------------------------------------------*/
 
 #ifndef ARKODE_EXECUTION_POLICY_SERIAL_H_
@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 SUNDIALS_EXPORT ARKodeSplittingExecutionPolicy
-ARKodeSplittingExecutionPolicy_Serial();
+ARKodeSplittingExecutionPolicy_New_Serial();
 
 #ifdef __cplusplus
 }

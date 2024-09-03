@@ -18,11 +18,11 @@
 Using the SplittingStep time-stepping module
 ============================================
 
-This section is concerned with the use of the SplittingStep time-stepping
-module for the solution of initial value problems (IVPs) in a C or C++
-language setting.  Usage of ERKStep follows that of the rest of ARKODE,
-and so in this section we primarily focus on those usage aspects that
-are specific to ERKStep.
+This section is concerned with the use of the SplittingStep time-stepping module
+for the solution of initial value problems (IVPs) in a C or C++ language
+setting.  Usage of SplittingStep follows that of the rest of ARKODE, and so in
+this section we primarily focus on those usage aspects that are specific to
+SplittingStep.
 
 .. toctree::
    :maxdepth: 1

@@ -11,15 +11,17 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * TODO
+ * This is the implementation file for the serial execution
+ * policy.
  *--------------------------------------------------------------*/
 
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_splittingstep.h>
+#include <arkode/execution_policy/arkode_execution_policy_serial.h>
 
 #include "sundials_macros.h"
 
-static int setup_serial(SUNDIALS_MAYBE_UNUSED ARKodeSplittingExecutionPolicy policy,
+static int setup_serial(SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy,
                         SUNDIALS_MAYBE_UNUSED const N_Vector y,
                         SUNDIALS_MAYBE_UNUSED const int sequential_methods)
 {
@@ -27,10 +29,10 @@ static int setup_serial(SUNDIALS_MAYBE_UNUSED ARKodeSplittingExecutionPolicy pol
   return ARK_SUCCESS;
 }
 
-static int execute_serial(SUNDIALS_MAYBE_UNUSED ARKodeSplittingExecutionPolicy policy,
-                          ARKExecutionPolicyFn fn, N_Vector yn, N_Vector ycur,
-                          N_Vector tmp, sunrealtype* alpha,
-                          const int sequential_methods, void* user_data)
+static int execute_serial(SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy,
+                          const ARKExecutionPolicyFn fn, const N_Vector yn, const N_Vector ycur,
+                          const N_Vector tmp, sunrealtype* const alpha,
+                          const int sequential_methods, void* const user_data)
 {
   N_VScale(1, yn, ycur);
   int retval = fn(0, ycur, user_data);
@@ -51,12 +53,12 @@ static int execute_serial(SUNDIALS_MAYBE_UNUSED ARKodeSplittingExecutionPolicy p
   return ARK_SUCCESS;
 }
 
-static void free_serial(SUNDIALS_MAYBE_UNUSED ARKodeSplittingExecutionPolicy policy)
+static void free_serial(SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy)
 {
   // Nothing needed
 }
 
-ARKodeSplittingExecutionPolicy ARKodeSplittingExecutionPolicy_Serial()
+ARKodeSplittingExecutionPolicy ARKodeSplittingExecutionPolicy_New_Serial()
 {
   ARKodeSplittingExecutionPolicy policy = malloc(sizeof(*policy));
   if (policy == NULL) { return NULL; }

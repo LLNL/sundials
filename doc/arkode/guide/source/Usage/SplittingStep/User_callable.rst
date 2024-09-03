@@ -76,3 +76,4 @@ SplittingStep initialization functions
 
    **Example codes:**
       * ``examples/arkode/C_serial/TODO.c``
+      * ``examples/arkode/C_serial/TODO.c``

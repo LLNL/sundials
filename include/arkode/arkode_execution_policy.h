@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * TODO
+ * This header defines execution policy data structures and functions.
  * ---------------------------------------------------------------------------*/
 
 #ifndef ARKODE_EXECUTION_POLICY_H_

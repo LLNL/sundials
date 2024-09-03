@@ -88,7 +88,7 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
 
     if (step_mem->policy == NULL)
     {
-      step_mem->policy     = ARKodeSplittingExecutionPolicy_Serial();
+      step_mem->policy     = ARKodeSplittingExecutionPolicy_New_Serial();
       if (step_mem->policy == NULL) {
         if (step_mem->coefficients == NULL) {
           arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__,
@@ -161,7 +161,7 @@ static int splittingStep_Stage(const int i, const N_Vector y, void* const user_d
       }
 
       const SUNStepper stepper = step_mem->steppers[k];
-      SUNErrCode err = stepper->ops->reset(stepper, t_start, y, NULL);
+      SUNErrCode err = stepper->ops->reset(stepper, t_start, y);
       if (err != SUN_SUCCESS) { return err; }
         
       err = stepper->ops->setstoptime(stepper, t_end);
@@ -169,7 +169,7 @@ static int splittingStep_Stage(const int i, const N_Vector y, void* const user_d
       
       sunrealtype tret = 0;
       int stop_reason = 0;
-      err = SUNStepper_Evolve(stepper, t_start, t_end, y, NULL, &tret, &stop_reason);
+      err = SUNStepper_Evolve(stepper, t_start, t_end, y, &tret, &stop_reason);
       step_mem->n_stepper_evolves++;
 
       if (err != SUN_SUCCESS) { return err; }

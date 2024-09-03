@@ -45,7 +45,8 @@ set(arkode_SOURCES
     arkode_sprkstep.c
     arkode_sprk.c
     arkode_user_controller.c
-    arkode.c)
+    arkode.c
+    execution_policy/arkode_execution_policy_serial.c)
 
 # Add variable arkode_HEADERS with the exported ARKODE header files
 set(arkode_HEADERS
@@ -65,8 +66,6 @@ set(arkode_HEADERS
 
 # Add prefix with complete path to the ARKODE header files
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/arkode/ arkode_HEADERS)
-
-add_subdirectory(execution_policy)
 
 # Create the sundials_arkode library
 sundials_add_library(

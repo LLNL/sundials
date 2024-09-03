@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * TODO
+ * This header defines the step memory for SplittingStep.
  *--------------------------------------------------------------*/
 
 #ifndef ARKODE_SPLITTINGSTEP_IMPL_H_
