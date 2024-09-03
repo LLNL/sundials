@@ -24,8 +24,6 @@
 #include "arkode_mristep_impl.h"
 #include "arkode_splittingstep_impl.h"
 
-#define DEFAULT_ORDER 2
-
 static int splittingStep_AccessStepMem(const ARKodeMem ark_mem,
                                        const char* const fname,
                                        ARKodeSplittingStepMem* const step_mem)
@@ -64,6 +62,36 @@ static sunbooleantype splittingStep_CheckNVector(const N_Vector y)
          y->ops->nvlinearsum != NULL && y->ops->nvscale != NULL;
 }
 
+static int splittingStep_SetCoefficients(const ARKodeMem ark_mem, const ARKodeSplittingStepMem step_mem)
+{
+  if (step_mem->coefficients == NULL) {
+    return ARK_SUCCESS;
+  }
+
+  if (step_mem->order <= 0) { /* Default to order 2 Strang splitting */
+    step_mem->coefficients = SplittingStepCoefficients_Strang(step_mem->partitions);
+  } else if (step_mem->order == 1) {
+    step_mem->coefficients = SplittingStepCoefficients_LieTrotter(step_mem->partitions);
+  } else if (step_mem->order == 3) {
+    step_mem->coefficients = SplittingStepCoefficients_ThirdOrderSuzuki(step_mem->partitions);
+  } else if (step_mem->order % 2 == 0) {
+    step_mem->coefficients = SplittingStepCoefficients_TripleJump(step_mem->partitions, step_mem->order);
+  } else {
+    const int new_order = step_mem->order + 1;
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "No splitting method at requested order, using q=%i.", new_order);
+    step_mem->coefficients = SplittingStepCoefficients_TripleJump(step_mem->partitions, new_order);
+  }
+  
+  if (step_mem->coefficients == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__,
+                    __FILE__, "Failed to allocate splitting coefficients");
+    return ARK_MEM_FAIL;
+  }
+
+  return ARK_SUCCESS;
+}
+
 static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
 {
   ARKodeSplittingStepMem step_mem = NULL;
@@ -76,19 +104,14 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
   /* initializations/checks for (re-)initialization call */
   if (init_type == FIRST_INIT)
   {
-    if (step_mem->coefficients == NULL)
-    {
-      step_mem->coefficients = SplittingStepCoefficients_TripleJump(step_mem->partitions, step_mem->order <= 1 ? DEFAULT_ORDER : (step_mem->order + (step_mem->order % 2)));
-      if (step_mem->coefficients == NULL) {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__,
-                        __FILE__, "Failed to allocate splitting coefficients");
-        return ARK_MEM_FAIL;
-      }
+    retval = splittingStep_SetCoefficients(ark_mem, step_mem);
+    if (retval != ARK_SUCCESS) {
+      return retval;
     }
 
     if (step_mem->policy == NULL)
     {
-      step_mem->policy     = ARKodeSplittingExecutionPolicy_New_Serial();
+      step_mem->policy = ARKodeSplittingExecutionPolicy_New_Serial();
       if (step_mem->policy == NULL) {
         if (step_mem->coefficients == NULL) {
           arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__,
