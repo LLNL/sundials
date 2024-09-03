@@ -11,16 +11,16 @@
   * -----------------------------------------------------------------------------
   * This example solves the Lotka-Volterra ODE with four parameters,
   *
-  *     u = [dx/dt] = [ p_0*x - p_1*x*y  ] 
+  *     u = [dx/dt] = [ p_0*x - p_1*x*y  ]
   *         [dy/dt]   [ -p_2*y + p_3*x*y ].
   *
-  * The initial condition is u(t_0) = 1.0 and we use the parameters 
-  * p  = [1.5, 1.0, 3.0, 1.0]. The integration interval is t \in [0, 10.]. 
-  * The implicit BDF method from CVODES is used to solve the forward problem. 
+  * The initial condition is u(t_0) = 1.0 and we use the parameters
+  * p  = [1.5, 1.0, 3.0, 1.0]. The integration interval is t \in [0, 10.].
+  * The implicit BDF method from CVODES is used to solve the forward problem.
   * Afterwards, the continuous adjoint sensitivity analysis capabilites of CVODES
-  * are used to obtain the gradient of the cost function.
+  * are used to obtain the gradient of the cost function,
   *
-  *    g(u,p,t) = (sum(u)^2) / 2,
+  *    g(u(t_f), p) = (sum(u)^2) / 2
   *
   * with respect to the initial condition and the parameters.
   * -----------------------------------------------------------------------------
@@ -89,31 +89,31 @@ void dgdu(N_Vector uvec, N_Vector dgvec)
   dg[1] = u[0] + u[1];
 }
 
+// /* Function to compute the adjoint ODE right-hand side:
+//     -lambda*(df/du) - (dg/du)
+//  */
+// static int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
+//                        N_Vector ldotvec, void* user_data)
+// {
+//   sunrealtype* p         = (sunrealtype*)user_data;
+//   sunrealtype* u         = N_VGetArrayPointer(uvec);
+//   sunrealtype* lambda    = N_VGetArrayPointer(lvec);
+//   sunrealtype* lambdaDot = N_VGetArrayPointer(ldotvec);
+
+//   N_Vector dg = N_VClone(uvec);
+//   vjp(lvec, ldotvec, t, uvec, user_data);
+//   dgdu(uvec, dg);
+//   N_VLinearSum(-1.0, ldotvec, -1.0, dg, ldotvec);
+//   N_VDestroy(dg);
+
+//   return 0;
+// }
+
 /* Function to compute the adjoint ODE right-hand side:
-    -lambda*(df/du) - (dg/du)
+    -mu*(df/du)
  */
 static int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
                        N_Vector ldotvec, void* user_data)
-{
-  sunrealtype* p         = (sunrealtype*)user_data;
-  sunrealtype* u         = N_VGetArrayPointer(uvec);
-  sunrealtype* lambda    = N_VGetArrayPointer(lvec);
-  sunrealtype* lambdaDot = N_VGetArrayPointer(ldotvec);
-
-  N_Vector dg = N_VClone(uvec);
-  vjp(lvec, ldotvec, t, uvec, user_data);
-  dgdu(uvec, dg);
-  N_VLinearSum(-1.0, ldotvec, -1.0, dg, ldotvec);
-  N_VDestroy(dg);
-
-  return 0;
-}
-
-/* Function to compute the adjoint ODE right-hand side:
-    -lambda*(df/du)
- */
-static int adjoint_rhs_alt(sunrealtype t, N_Vector uvec, N_Vector lvec,
-                           N_Vector ldotvec, void* user_data)
 {
   sunrealtype* p         = (sunrealtype*)user_data;
   sunrealtype* u         = N_VGetArrayPointer(uvec);
