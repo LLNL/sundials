@@ -624,16 +624,16 @@ order.
 An alternative representation of the SplittingStep solution is
 
 .. math::
-   y_n = \sum_{i=1}^P \alpha_i \left( \phi^1_{\gamma_{i,1,1} h} \circ
-   \phi^2_{\gamma_{i,1,2} h} \circ \dots \circ \phi^P_{\gamma_{i,1,P} h} \circ
-   \phi^1_{\gamma_{i,2,1} h} \circ \dots \circ \phi^1_{\gamma_{i,s,1} h} \circ
-   \dots \circ \phi^P_{\gamma_{i,s,P} h} \right)
+   y_n = \sum_{i=1}^P \alpha_i \left( \phi^P_{\gamma_{i,1,P} h} \circ
+   \phi^{P-1}_{\gamma_{i,1,P-1} h} \circ \dots \circ \phi^1_{\gamma_{i,1,1} h}
+   \circ \phi^P_{\gamma_{i,2,P} h} \circ \dots \circ \phi^P_{\gamma_{i,s,P} h}
+   \circ \dots \circ \phi^1_{\gamma_{i,s,1} h} \right)
    (y_{n-1})
 
 where :math:`\gamma_{i,j,k} = \beta_{i,j,k} - \beta_{i,j-1,k}` and
 :math:`\phi^j_{h}` is the flow map for partition :math:`j`.
 
-SplittingStep provides standard operator splitting methods such as Lie--Trotter
+SplittingStep provides standard operator splitting methods such as Lie-Trotter
 and Strang splitting, as well as schemes of arbitrarily high order.
 Alternatively, users may construct their own coefficients (see TODO). Generally,
 methods of order three and higher with real coefficients require backward

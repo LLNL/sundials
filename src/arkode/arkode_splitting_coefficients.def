@@ -31,7 +31,7 @@ ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_STRANG_2_2_2, {
     return SplittingStepCoefficients_Strang(2);
  })
 
-ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_OPTIMAL_2_2_2, {
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_BEST_2_2_2, {
     const SplittingStepCoefficients coefficients = SplittingStepCoefficients_Alloc(1, 2, 2);
     coefficients->order = 2;
     coefficients->alpha[0] = SUN_RCONST(1.0);

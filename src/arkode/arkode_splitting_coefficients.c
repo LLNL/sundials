@@ -137,7 +137,7 @@ void SplittingStepCoefficients_Free(const SplittingStepCoefficients coefficients
   Routine to create a copy of splitting coefficients
   ---------------------------------------------------------------*/
 SplittingStepCoefficients SplittingStepCoefficients_Copy(
-  SplittingStepCoefficients coefficients)
+  const SplittingStepCoefficients coefficients)
 {
   if (coefficients == NULL) { return NULL; }
 
