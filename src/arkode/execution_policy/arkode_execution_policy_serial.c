@@ -21,11 +21,14 @@
 
 #include "sundials_macros.h"
 
+/*---------------------------------------------------------------
+  This routine does the setup for serial execution for which
+  nothing is needed.
+  ---------------------------------------------------------------*/
 static int setup_serial(SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy,
                         SUNDIALS_MAYBE_UNUSED const N_Vector y,
                         SUNDIALS_MAYBE_UNUSED const int sequential_methods)
 {
-  // Nothing needed
   return ARK_SUCCESS;
 }
 
@@ -53,11 +56,18 @@ static int execute_serial(SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPo
   return ARK_SUCCESS;
 }
 
+/*---------------------------------------------------------------
+  This routine does the freeing for serial execution which happens
+  to be nothing
+  ---------------------------------------------------------------*/
 static void free_serial(SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy)
 {
   // Nothing needed
 }
 
+/*---------------------------------------------------------------
+  This routine creates a serial execution policy
+  ---------------------------------------------------------------*/
 ARKodeSplittingExecutionPolicy ARKodeSplittingExecutionPolicy_New_Serial()
 {
   ARKodeSplittingExecutionPolicy policy = malloc(sizeof(*policy));

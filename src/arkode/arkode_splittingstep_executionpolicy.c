@@ -20,6 +20,10 @@
 
 #include "sundials_macros.h"
 
+/*---------------------------------------------------------------
+  This routine frees all the ARKodeSplittingExecutionPolicy
+  memory
+  ---------------------------------------------------------------*/
 void ARKodeSplittingExecutionPolicy_Free(ARKodeSplittingExecutionPolicy* policy)
 {
   if (policy != NULL)
