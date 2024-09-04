@@ -936,12 +936,6 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     bt1 = 0.694021459207626;
     bt3 = 1 - 0.694021459207626;
   }
-  else if (step_mem->reqstages == 3)
-  {
-    bt1 = 0.635564950337195;
-    bt2 = 0.033488381714827;
-    bt3 = 1 - bt1 - bt2;
-  }
   else
     {
     bt1 = (rs + ONE)/(rs*rs);
