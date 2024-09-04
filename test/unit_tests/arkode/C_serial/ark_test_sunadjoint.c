@@ -280,8 +280,8 @@ int main(int argc, char* argv[])
   SUNContext_PushErrHandler(sunctx, SUNAbortErrHandlerFn, NULL);
 
   ProgramArgs args;
-  args.tf          = 10.0;
-  args.dt          = 1e-2;
+  args.tf          = 1.0;
+  args.dt          = 1e-4;
   args.order       = 4;
   args.save_stages = SUNTRUE;
   args.keep_checks = SUNTRUE;

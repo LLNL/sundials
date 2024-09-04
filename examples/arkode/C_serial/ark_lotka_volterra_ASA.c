@@ -11,12 +11,12 @@
   * -----------------------------------------------------------------------------
   * This example solves the Lotka-Volterra ODE with four parameters,
   *
-  *     u = [dx/dt] = [ p_0*x - p_1*x*y  ] 
+  *     u = [dx/dt] = [ p_0*x - p_1*x*y  ]
   *         [dy/dt]   [ -p_2*y + p_3*x*y ].
   *
-  * The initial condition is u(t_0) = 1.0 and we use the parameters 
+  * The initial condition is u(t_0) = 1.0 and we use the parameters
   *  p  = [1.5, 1.0, 3.0, 1.0]. The integration interval can be controlled via
-  * the --tf command line argument, but by default it is t \in [0, 10.]. 
+  * the --tf command line argument, but by default it is t \in [0, 10.].
   * An explicit Runge--Kutta method is employed via the ARKStep time stepper
   * provided by ARKODE. After solving the forward problem, adjoint sensitivity
   * analysis (ASA) is performed using the discrete adjoint method available with
@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
 
   ProgramArgs args;
   args.tf          = 10.0;
-  args.dt          = 1e-2;
+  args.dt          = 1e-3;
   args.order       = 4;
   args.save_stages = SUNTRUE;
   args.keep_checks = SUNTRUE;
@@ -275,11 +275,11 @@ int main(int argc, char* argv[])
   retval = SUNAdjointStepper_Evolve(adj_stepper, t0, sf, &tret, &stop_reason);
   if (check_retval(&retval, "SUNAdjointStepper_Evolve", 1)) { return 1; }
 
-  // Compute gradient w.r.t. parameters:
-  N_Vector tmp = N_VClone(sensp);
-  parameter_vjp(sensp, tmp, tret, u0, NULL, (void*)params, NULL);
-  N_VLinearSum(1.0, sensp, 1.0, tmp, sensp);
-  N_VDestroy(tmp);
+  // // Compute gradient w.r.t. parameters:
+  // N_Vector tmp = N_VClone(sensp);
+  // parameter_vjp(sensp, tmp, tret, u0, NULL, (void*)params, NULL);
+  // N_VLinearSum(1.0, sensp, 1.0, tmp, sensp);
+  // N_VDestroy(tmp);
 
   printf("Adjoint Solution:\n");
   N_VPrint(sf);

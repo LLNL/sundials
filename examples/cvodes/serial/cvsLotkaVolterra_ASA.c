@@ -41,11 +41,12 @@
 
 /* Problem Constants */
 #define NEQ   2                   /* number of equations  */
+#define NP    4                   /* number of params     */
 #define T0    SUN_RCONST(0.0)     /* initial time         */
 #define TF    SUN_RCONST(10.0)    /* final time           */
 #define RTOL  SUN_RCONST(1.0e-10) /* relative tolerance   */
-#define ATOL  SUN_RCONST(1.0e-14) /* absolute tolerance  */
-#define STEPS 5                   /* checkpoint interval */
+#define ATOL  SUN_RCONST(1.0e-14) /* absolute tolerance   */
+#define STEPS 5                   /* checkpoint interval  */
 
 static int check_retval(void* retval_ptr, const char* funcname, int opt);
 
@@ -65,6 +66,7 @@ static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec,
   return 0;
 }
 
+/* Function to compute v^T (df/du) */
 int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
         void* user_data)
 {
@@ -79,7 +81,28 @@ int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
   return 0;
 }
 
-/* Gradient of the cost function */
+/* Function to compute v^T (df/dp) */
+int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
+                  void* user_data)
+{
+  if (user_data != params) { return -1; }
+
+  sunrealtype* p  = (sunrealtype*)user_data;
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* v  = N_VGetArrayPointer(vvec);
+  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
+
+  Jv[0] = u[0] * v[0];
+  Jv[1] = -u[0] * u[1] * v[0];
+  Jv[2] = -u[1] * v[1];
+  Jv[3] = u[0] * u[1] * v[1];
+
+  return 0;
+}
+
+/* Gradient of the cost function w.r.t to u.
+   The gradient w.r.t to p is zero since the cost function
+   does not depend on the parameters. */
 void dgdu(N_Vector uvec, N_Vector dgvec)
 {
   sunrealtype* u  = N_VGetArrayPointer(uvec);
@@ -89,28 +112,8 @@ void dgdu(N_Vector uvec, N_Vector dgvec)
   dg[1] = u[0] + u[1];
 }
 
-// /* Function to compute the adjoint ODE right-hand side:
-//     -lambda*(df/du) - (dg/du)
-//  */
-// static int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
-//                        N_Vector ldotvec, void* user_data)
-// {
-//   sunrealtype* p         = (sunrealtype*)user_data;
-//   sunrealtype* u         = N_VGetArrayPointer(uvec);
-//   sunrealtype* lambda    = N_VGetArrayPointer(lvec);
-//   sunrealtype* lambdaDot = N_VGetArrayPointer(ldotvec);
-
-//   N_Vector dg = N_VClone(uvec);
-//   vjp(lvec, ldotvec, t, uvec, user_data);
-//   dgdu(uvec, dg);
-//   N_VLinearSum(-1.0, ldotvec, -1.0, dg, ldotvec);
-//   N_VDestroy(dg);
-
-//   return 0;
-// }
-
 /* Function to compute the adjoint ODE right-hand side:
-    -mu*(df/du)
+    -mu^T (df/du)
  */
 static int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
                        N_Vector ldotvec, void* user_data)
@@ -126,11 +129,27 @@ static int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
   return 0;
 }
 
+/* Function to compute the quadrature right-hand side:
+    mu^T (df/dp)
+ */
+static int quad_rhs(sunrealtype t, N_Vector uvec, N_Vector muvec,
+                    N_Vector qBdotvec, void* user_dataB)
+{
+  sunrealtype* p     = (sunrealtype*)user_dataB;
+  sunrealtype* u     = N_VGetArrayPointer(uvec);
+  sunrealtype* mu    = N_VGetArrayPointer(muvec);
+  sunrealtype* qBdot = N_VGetArrayPointer(qBdotvec);
+
+  parameter_vjp(muvec, qBdotvec, t, uvec, user_dataB);
+
+  return 0;
+}
+
 int main(int argc, char* argv[])
 {
   SUNContext sunctx;
   sunrealtype reltol, abstol, t, tout;
-  N_Vector u, uB;
+  N_Vector u, uB, qB;
   void *cvode_mem, *cvode_memB;
   int which, retval;
 
@@ -190,11 +209,16 @@ int main(int argc, char* argv[])
   uB = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void*)uB, "N_VNew_Serial", 0)) { return 1; }
 
+  /* Allocate memory for the quadrature equations and initialize it to zero */
+  qB = N_VNew_Serial(NP, sunctx);
+  N_VConst(SUN_RCONST(0.0), qB);
+
   /* Initialize the adjoint solution vector */
   dgdu(u, uB);
 
   printf("Adjoint terminal condition:\n");
   N_VPrint(uB);
+  N_VPrint(qB);
 
   /* Create the CVODES object for the backward problem */
   retval = CVodeCreateB(cvode_mem, CV_BDF, &which);
@@ -211,10 +235,28 @@ int main(int argc, char* argv[])
   retval = CVodeSStolerancesB(cvode_mem, which, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerancesB", 1)) { return 1; }
 
+  /* Create the linear solver for the backward problem */
   SUNLinearSolver LSB = SUNLinSol_SPGMR(uB, SUN_PREC_NONE, 3, sunctx);
 
   retval = CVodeSetLinearSolverB(cvode_mem, which, LSB, NULL);
   if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
+
+  /* Call CVodeQuadInitB to allocate internal memory and initialize backward
+     quadrature integration. This gives the sensitivites w.r.t. the parameters. */
+  retval = CVodeQuadInitB(cvode_mem, which, quad_rhs, qB);
+  if (check_retval(&retval, "CVodeQuadInitB", 1)) { return (1); }
+
+  /* Call CVodeSetQuadErrCon to specify whether or not the quadrature variables
+     are to be used in the step size control mechanism within CVODES. Call
+     CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
+     tolerances for the quadrature variables. */
+  retval = CVodeSetQuadErrConB(cvode_mem, which, SUNTRUE);
+  if (check_retval(&retval, "CVodeSetQuadErrConB", 1)) { return (1); }
+
+  /* Call CVodeQuadSStolerancesB to specify the scalar relative and absolute tolerances
+     for the backward problem. */
+  retval = CVodeQuadSStolerancesB(cvode_mem, which, reltol, abstol);
+  if (check_retval(&retval, "CVodeQuadSStolerancesB", 1)) { return (1); }
 
   /* Integrate the adjoint ODE */
   retval = CVodeB(cvode_mem, T0, CV_NORMAL);
@@ -224,13 +266,20 @@ int main(int argc, char* argv[])
   retval = CVodeGetB(cvode_mem, which, &t, uB);
   if (check_retval(&retval, "CVodeGetB", 1)) { return 1; }
 
+  /* Call CVodeGetQuadB to get the quadrature solution vector after a
+     successful return from CVodeB. */
+  retval = CVodeGetQuadB(cvode_mem, which, &t, qB);
+  if (check_retval(&retval, "CVodeGetQuadB", 1)) { return (1); }
+
   /* Print the final adjoint solution */
   printf("Adjoint Solution at t = %g:\n", t);
   N_VPrint(uB);
+  N_VPrint(qB);
 
   /* Free memory */
   N_VDestroy(u);
   N_VDestroy(uB);
+  N_VDestroy(qB);
   SUNLinSolFree(LS);
   SUNLinSolFree(LSB);
   CVodeFree(&cvode_mem);
