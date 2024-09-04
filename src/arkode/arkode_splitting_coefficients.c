@@ -143,8 +143,8 @@ SplittingStepCoefficients SplittingStepCoefficients_Copy(
 
   SplittingStepCoefficients coefficientsCopy =
     SplittingStepCoefficients_Alloc(coefficients->sequential_methods,
-                                      coefficients->stages,
-                                      coefficients->partitions);
+                                    coefficients->stages,
+                                    coefficients->partitions);
   if (coefficientsCopy == NULL) { return NULL; }
 
   coefficientsCopy->order = coefficients->order;
@@ -229,7 +229,7 @@ SplittingStepCoefficients SplittingStepCoefficients_LieTrotter(const int partiti
     SplittingStepCoefficients_Alloc(1, 1, partitions);
   if (coefficients == NULL) { return NULL; }
 
-  coefficients->order = 1;
+  coefficients->order    = 1;
   coefficients->alpha[0] = SUN_RCONST(1.0);
   for (int i = 0; i < partitions; i++)
   {
@@ -281,7 +281,7 @@ SplittingStepCoefficients SplittingStepCoefficients_SymmetricParallel(
     SplittingStepCoefficients_Alloc(2, partitions, partitions);
   if (coefficients == NULL) { return NULL; }
 
-  coefficients->order = 2;
+  coefficients->order    = 2;
   coefficients->alpha[0] = SUN_RCONST(0.5);
   coefficients->alpha[1] = SUN_RCONST(0.5);
 
@@ -310,22 +310,27 @@ SplittingStepCoefficients SplittingStepCoefficients_ThirdOrderSuzuki(
     SplittingStepCoefficients_Alloc(1, 2 * partitions - 1, partitions);
   if (coefficients == NULL) { return NULL; }
 
-  coefficients->order = 3;
+  coefficients->order    = 3;
   coefficients->alpha[0] = SUN_RCONST(1.0);
 
   for (int i = 1; i < partitions; i++)
   {
-    for (int j = 0; j < partitions; j++) {
+    for (int j = 0; j < partitions; j++)
+    {
       // Constants from https://doi.org/10.1143/JPSJ.61.3015 pg. 3019
-      const sunrealtype p1 = SUN_RCONST(0.2683300957817599249569552299254991394812);
-      const sunrealtype p2 = SUN_RCONST(0.6513314272356399320939424082278836500821);
-      
+      const sunrealtype p1 =
+        SUN_RCONST(0.2683300957817599249569552299254991394812);
+      const sunrealtype p2 =
+        SUN_RCONST(0.6513314272356399320939424082278836500821);
+
       coefficients->beta[0][i][j] = i + j < partitions ? p1 : (p1 + p2);
-      coefficients->beta[0][partitions + i - 1][j] = SUN_RCONST(1.0) - (i + j < partitions ? (p1 + p2) : p1);
+      coefficients->beta[0][partitions + i - 1][j] =
+        SUN_RCONST(1.0) - (i + j < partitions ? (p1 + p2) : p1);
     }
   }
 
-  for (int i = 0; i < partitions; i++) {
+  for (int i = 0; i < partitions; i++)
+  {
     coefficients->beta[0][2 * partitions - 1][i] = SUN_RCONST(1.0);
   }
 
@@ -374,11 +379,11 @@ static sunrealtype* const* SplittingStepCoefficients_ComposeStrangHelper(
                                   ? (start + i * gamma)
                                   : (end + (i - composition_stages) * gamma);
     /* Recursively generate coefficients and shift beta_cur */
-    beta_cur =
-      SplittingStepCoefficients_ComposeStrangHelper(partitions, order - 2,
-                                                      composition_stages,
-                                                      start_cur, end_cur,
-                                                      beta_cur);
+    beta_cur  = SplittingStepCoefficients_ComposeStrangHelper(partitions,
+                                                              order - 2,
+                                                              composition_stages,
+                                                              start_cur, end_cur,
+                                                              beta_cur);
     start_cur = end_cur;
   }
 
@@ -405,20 +410,19 @@ static SplittingStepCoefficients SplittingStepCoefficients_ComposeStrang(
     SplittingStepCoefficients_Alloc(1, stages, partitions);
   if (coefficients == NULL) { return NULL; }
 
-  coefficients->order = order;
+  coefficients->order    = order;
   coefficients->alpha[0] = SUN_RCONST(1.0);
 
   SplittingStepCoefficients_ComposeStrangHelper(partitions, order,
-                                                  composition_stages,
-                                                  SUN_RCONST(0.0),
-                                                  SUN_RCONST(1.0),
-                                                  coefficients->beta[0]);
+                                                composition_stages,
+                                                SUN_RCONST(0.0), SUN_RCONST(1.0),
+                                                coefficients->beta[0]);
 
   return coefficients;
 }
 
-SplittingStepCoefficients SplittingStepCoefficients_TripleJump(
-  const int partitions, const int order)
+SplittingStepCoefficients SplittingStepCoefficients_TripleJump(const int partitions,
+                                                               const int order)
 {
   return SplittingStepCoefficients_ComposeStrang(partitions, order, 3);
 }
@@ -432,8 +436,8 @@ SplittingStepCoefficients SplittingStepCoefficients_SuzukiFractal(
 /*---------------------------------------------------------------
   Routine to print a splitting coefficient structure
   ---------------------------------------------------------------*/
-void SplittingStepCoefficients_Write(
-  const SplittingStepCoefficients coefficients, FILE* const outfile)
+void SplittingStepCoefficients_Write(const SplittingStepCoefficients coefficients,
+                                     FILE* const outfile)
 {
   // TODO: update when https://github.com/LLNL/sundials/pull/517 merged
   if (coefficients == NULL || coefficients->alpha == NULL ||

@@ -32,13 +32,13 @@ Examples
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sundials/sundials_stepper.h>
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_splittingstep.h>
 #include <nvector/nvector_serial.h>
+#include <sundials/sundials_stepper.h>
 
-#define DT_1   (0.5/8)
-#define DT_2   (0.125/8)
+#define DT_1   (0.5 / 8)
+#define DT_2   (0.125 / 8)
 #define T_END  1.0
 #define LAMBDA 2.0
 
@@ -61,14 +61,15 @@ static sunrealtype exact_sol(sunrealtype t, sunrealtype y0)
   return LAMBDA * y0 / (y0 - (y0 - LAMBDA) * exp(LAMBDA * t));
 }
 
-static void test() {
-SUNContext sunctx;
+static void test()
+{
+  SUNContext sunctx;
   SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
   N_Vector y = N_VNew_Serial(1, sunctx);
   N_VConst(1, y);
-  
-  void *mem = ARKStepCreate(f1, NULL, 0, y, sunctx);
+
+  void* mem = ARKStepCreate(f1, NULL, 0, y, sunctx);
 
   ARKodeSetFixedStep(mem, 0.25);
 
@@ -107,7 +108,8 @@ int main(int argc, char* argv[])
   // SplittingStepCoefficients_Write(coeffs, stdout);
   SplittingStep_SetCoefficients(split_mem, coeffs);
   SplittingStepCoefficients_Free(coeffs);
-  ARKodeSetFixedStep(split_mem, DT_1); // TODO: fix valgrind error if this is not called
+  ARKodeSetFixedStep(split_mem,
+                     DT_1); // TODO: fix valgrind error if this is not called
   sunrealtype tret;
   ARKodeEvolve(split_mem, 1, y, &tret, ARK_NORMAL);
   printf("Final Solution: %e %e\n", T_END, NV_Ith_S(y, 0));

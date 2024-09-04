@@ -24,17 +24,19 @@ module.
 As discussed in the main :ref:`ARKODE user-callable function introduction
 <ARKODE.Usage.UserCallable>`, each of ARKODE's time-stepping modules
 clarifies the categories of user-callable functions that it supports.
-SplittingStep supports the following categories:
+SplittingStep does not support any of the categories beyond the functions that
+apply for all time-stepping modules.
 
 
 .. _ARKODE.Usage.SplittingStep.Initialization:
 
 SplittingStep initialization functions
-------------------------------------------------------
+--------------------------------------
+
 .. c:function:: void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 
-   This function allocates and initializes memory for a problem to
-   be solved using the SplittingStep time-stepping module in ARKODE.
+   This function allocates and initializes memory for a problem to be solved
+   using the SplittingStep time-stepping module in ARKODE.
 
    **Arguments:**
       * *steppers* -- ?
@@ -44,10 +46,10 @@ SplittingStep initialization functions
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
    **Return value:**
-      If successful, a pointer to initialized problem memory of type ``void*``, to
-      be passed to all user-facing SplittingStep routines listed below.  If unsuccessful,
-      a ``NULL`` pointer will be returned, and an error message will be printed to
-      ``stderr``.
+      If successful, a pointer to initialized problem memory of type ``void*``,
+      to be passed to all user-facing SplittingStep routines listed below. If
+      unsuccessful, a ``NULL`` pointer will be returned, and an error message
+      will be printed to ``stderr``.
 
    **Example usage:**
 

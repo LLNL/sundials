@@ -47,8 +47,11 @@ E. functions that apply for time-stepping modules that support relaxation Runge-
 
 In the function descriptions below, we identify those that have any of the restrictions B-E above.
 Then in the introduction for each of the stepper-specific documentation sections
-(:numref:`ARKODE.Usage.ARKStep.UserCallable`, :numref:`ARKODE.Usage.ERKStep.UserCallable`,
-:numref:`ARKODE.Usage.MRIStep.UserCallable`, and :numref:`ARKODE.Usage.SPRKStep.UserCallable`)
+(:numref:`ARKODE.Usage.ARKStep.UserCallable`,
+:numref:`ARKODE.Usage.ERKStep.UserCallable`,
+:numref:`ARKODE.Usage.SplittingStep.UserCallable`,
+:numref:`ARKODE.Usage.MRIStep.UserCallable`,
+and :numref:`ARKODE.Usage.SPRKStep.UserCallable`)
 we clarify the categories of these functions that are supported.
 
 

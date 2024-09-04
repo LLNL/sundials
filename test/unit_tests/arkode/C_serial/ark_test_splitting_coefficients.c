@@ -25,7 +25,10 @@
 #define ONE  SUN_RCONST(1.0)
 #define TWO  SUN_RCONST(2.0)
 #define HALF SUN_RCONST(0.5)
-#define GAMMA (SUN_RCONST(1.0) / (SUN_RCONST(4.0) - SUNRpowerR(SUN_RCONST(4.0), SUN_RCONST(1.0) /  SUN_RCONST(3.0))))
+#define GAMMA         \
+  (SUN_RCONST(1.0) /  \
+   (SUN_RCONST(4.0) - \
+    SUNRpowerR(SUN_RCONST(4.0), SUN_RCONST(1.0) / SUN_RCONST(3.0))))
 
 static int check_coefficients(const char* const name,
                               const SplittingStepCoefficients coefficients,
@@ -99,9 +102,7 @@ static int check_coefficients(const char* const name,
     }
   }
 
-  if (retval > 0) {
-    SplittingStepCoefficients_Write(coefficients, stderr);
-  }
+  if (retval > 0) { SplittingStepCoefficients_Write(coefficients, stderr); }
 
   return retval;
 }
@@ -125,7 +126,7 @@ int main(int argc, char* argv[])
   sunrealtype beta_lie_trotter[]  = {ZERO, ZERO, ONE, ONE};
 
   coefficients = SplittingStepCoefficients_Create(0, 0, 0, 1, alpha_lie_trotter,
-                                                    beta_lie_trotter);
+                                                  beta_lie_trotter);
   if (coefficients != NULL)
   {
     fprintf(stderr, "Coefficients created with invalid sizes\n");
@@ -133,7 +134,7 @@ int main(int argc, char* argv[])
   }
 
   coefficients = SplittingStepCoefficients_Create(1, 1, 2, 1, alpha_lie_trotter,
-                                                    beta_lie_trotter);
+                                                  beta_lie_trotter);
   retval += check_coefficients("Lie-Trotter (manually created)", coefficients,
                                1, 1, 2, 1, alpha_lie_trotter, beta_lie_trotter);
 
@@ -144,19 +145,21 @@ int main(int argc, char* argv[])
   SplittingStepCoefficients_Free(coefficients);
   SplittingStepCoefficients_Free(coefficients_copy);
 
-  coefficients = SplittingStepCoefficients_LoadCoefficients(ARKODE_SPLITTING_LIE_TROTTER_1_1_2);
-  retval += check_coefficients("Lie-Trotter (load by enum)", coefficients, 1, 1, 2, 1,
-                               alpha_lie_trotter, beta_lie_trotter);
+  coefficients = SplittingStepCoefficients_LoadCoefficients(
+    ARKODE_SPLITTING_LIE_TROTTER_1_1_2);
+  retval += check_coefficients("Lie-Trotter (load by enum)", coefficients, 1, 1,
+                               2, 1, alpha_lie_trotter, beta_lie_trotter);
   SplittingStepCoefficients_Free(coefficients);
 
-  coefficients = SplittingStepCoefficients_LoadCoefficientsByName("ARKODE_SPLITTING_LIE_TROTTER_1_1_2");
-  retval += check_coefficients("Lie-Trotter (load by name)", coefficients, 1, 1, 2, 1,
-                               alpha_lie_trotter, beta_lie_trotter);
+  coefficients = SplittingStepCoefficients_LoadCoefficientsByName(
+    "ARKODE_SPLITTING_LIE_TROTTER_1_1_2");
+  retval += check_coefficients("Lie-Trotter (load by name)", coefficients, 1, 1,
+                               2, 1, alpha_lie_trotter, beta_lie_trotter);
   SplittingStepCoefficients_Free(coefficients);
 
   coefficients = SplittingStepCoefficients_LieTrotter(2);
-  retval += check_coefficients("Lie-Trotter (constructor)", coefficients, 1, 1, 2, 1,
-                               alpha_lie_trotter, beta_lie_trotter);
+  retval += check_coefficients("Lie-Trotter (constructor)", coefficients, 1, 1,
+                               2, 1, alpha_lie_trotter, beta_lie_trotter);
   SplittingStepCoefficients_Free(coefficients);
 
   sunrealtype alpha_strang[] = {ONE};
@@ -189,17 +192,24 @@ int main(int argc, char* argv[])
   SplittingStepCoefficients_Free(coefficients);
 
   sunrealtype alpha_suzuki_fractal[] = {ONE};
-  sunrealtype beta_suzuki_fractal[]  = {ZERO, ZERO,
-  HALF * GAMMA, GAMMA,
-  (ONE + HALF) * GAMMA, TWO * GAMMA,
-  HALF, ONE - TWO * GAMMA,
-  ONE - (ONE + HALF) * GAMMA, ONE - GAMMA,
-  ONE - HALF * GAMMA, ONE,
-  ONE, ONE};
+  sunrealtype beta_suzuki_fractal[]  = {ZERO,
+                                        ZERO,
+                                        HALF * GAMMA,
+                                        GAMMA,
+                                        (ONE + HALF) * GAMMA,
+                                        TWO * GAMMA,
+                                        HALF,
+                                        ONE - TWO * GAMMA,
+                                        ONE - (ONE + HALF) * GAMMA,
+                                        ONE - GAMMA,
+                                        ONE - HALF * GAMMA,
+                                        ONE,
+                                        ONE,
+                                        ONE};
 
   coefficients = SplittingStepCoefficients_SuzukiFractal(2, 4);
-  retval += check_coefficients("Suzuki Fractal", coefficients, 1, 6, 2, 4, alpha_suzuki_fractal,
-                               beta_suzuki_fractal);
+  retval += check_coefficients("Suzuki Fractal", coefficients, 1, 6, 2, 4,
+                               alpha_suzuki_fractal, beta_suzuki_fractal);
   SplittingStepCoefficients_Free(coefficients);
 
   printf("%d test failures\n", retval);

@@ -25,25 +25,25 @@
   This routine does the setup for serial execution for which
   nothing is needed.
   ---------------------------------------------------------------*/
-static int setup_serial(SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy,
-                        SUNDIALS_MAYBE_UNUSED const N_Vector y,
-                        SUNDIALS_MAYBE_UNUSED const int sequential_methods)
+static int setup_serial(
+  SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy,
+  SUNDIALS_MAYBE_UNUSED const N_Vector y,
+  SUNDIALS_MAYBE_UNUSED const int sequential_methods)
 {
   return ARK_SUCCESS;
 }
 
-static int execute_serial(SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy,
-                          const ARKExecutionPolicyFn fn, const N_Vector yn, const N_Vector ycur,
-                          const N_Vector tmp, sunrealtype* const alpha,
-                          const int sequential_methods, void* const user_data)
+static int execute_serial(
+  SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy,
+  const ARKExecutionPolicyFn fn, const N_Vector yn, const N_Vector ycur,
+  const N_Vector tmp, sunrealtype* const alpha, const int sequential_methods,
+  void* const user_data)
 {
   N_VScale(1, yn, ycur);
   int retval = fn(0, ycur, user_data);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  if (alpha[0] != SUN_RCONST(1.0)) {
-    N_VScale(alpha[0], ycur, ycur);
-  }
+  if (alpha[0] != SUN_RCONST(1.0)) { N_VScale(alpha[0], ycur, ycur); }
 
   for (int i = 1; i < sequential_methods; i++)
   {
@@ -60,7 +60,8 @@ static int execute_serial(SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPo
   This routine does the freeing for serial execution which happens
   to be nothing
   ---------------------------------------------------------------*/
-static void free_serial(SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy)
+static void free_serial(
+  SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy)
 {
   // Nothing needed
 }

@@ -78,31 +78,43 @@ static sunbooleantype splittingStep_CheckNVector(const N_Vector y)
   This routine determines the splitting coefficients to use,
   based on the desired accuracy.
   ---------------------------------------------------------------*/
-static int splittingStep_SetCoefficients(const ARKodeMem ark_mem, const ARKodeSplittingStepMem step_mem)
+static int splittingStep_SetCoefficients(const ARKodeMem ark_mem,
+                                         const ARKodeSplittingStepMem step_mem)
 {
-  if (step_mem->coefficients != NULL) {
-    return ARK_SUCCESS;
-  }
+  if (step_mem->coefficients != NULL) { return ARK_SUCCESS; }
 
-  if (step_mem->order <= 1) {
+  if (step_mem->order <= 1)
+  {
     /* Lie-Trotter is the default (order < 1) */
-    step_mem->coefficients = SplittingStepCoefficients_LieTrotter(step_mem->partitions);
-  } else if (step_mem->order == 3) {
-    step_mem->coefficients = SplittingStepCoefficients_ThirdOrderSuzuki(step_mem->partitions);
-  } else if (step_mem->order % 2 == 0) {
+    step_mem->coefficients =
+      SplittingStepCoefficients_LieTrotter(step_mem->partitions);
+  }
+  else if (step_mem->order == 3)
+  {
+    step_mem->coefficients =
+      SplittingStepCoefficients_ThirdOrderSuzuki(step_mem->partitions);
+  }
+  else if (step_mem->order % 2 == 0)
+  {
     /* Triple jump only works for even order */
-    step_mem->coefficients = SplittingStepCoefficients_TripleJump(step_mem->partitions, step_mem->order);
-  } else {
+    step_mem->coefficients =
+      SplittingStepCoefficients_TripleJump(step_mem->partitions, step_mem->order);
+  }
+  else
+  {
     /* Bump the order up to be even but with an error */
     const int new_order = step_mem->order + 1;
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "No splitting method at requested order, using q=%i.", new_order);
-    step_mem->coefficients = SplittingStepCoefficients_TripleJump(step_mem->partitions, new_order);
+                    "No splitting method at requested order, using q=%i.",
+                    new_order);
+    step_mem->coefficients =
+      SplittingStepCoefficients_TripleJump(step_mem->partitions, new_order);
   }
-  
-  if (step_mem->coefficients == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__,
-                    __FILE__, "Failed to allocate splitting coefficients");
+
+  if (step_mem->coefficients == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Failed to allocate splitting coefficients");
     return ARK_MEM_FAIL;
   }
 
@@ -133,17 +145,17 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
   if (init_type == FIRST_INIT)
   {
     retval = splittingStep_SetCoefficients(ark_mem, step_mem);
-    if (retval != ARK_SUCCESS) {
-      return retval;
-    }
+    if (retval != ARK_SUCCESS) { return retval; }
 
     if (step_mem->policy == NULL)
     {
       step_mem->policy = ARKodeSplittingExecutionPolicy_New_Serial();
-      if (step_mem->policy == NULL) {
-        if (step_mem->coefficients == NULL) {
-          arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__,
-                          __FILE__, "Failed to allocate execution policy");
+      if (step_mem->policy == NULL)
+      {
+        if (step_mem->coefficients == NULL)
+        {
+          arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                          "Failed to allocate execution policy");
           return ARK_MEM_FAIL;
         }
       }
@@ -186,7 +198,8 @@ static int splittingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = step_mem->steppers[0]->ops->fullrhs(step_mem->steppers[0], t, y, f, ARK_FULLRHS_OTHER);
+  retval = step_mem->steppers[0]->ops->fullrhs(step_mem->steppers[0], t, y, f,
+                                               ARK_FULLRHS_OTHER);
   if (retval != 0)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -196,7 +209,9 @@ static int splittingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
 
   for (int i = 1; i < step_mem->partitions; i++)
   {
-    retval = step_mem->steppers[i]->ops->fullrhs(step_mem->steppers[i], t, y, ark_mem->tempv1, ARK_FULLRHS_OTHER);
+    retval = step_mem->steppers[i]->ops->fullrhs(step_mem->steppers[i], t, y,
+                                                 ark_mem->tempv1,
+                                                 ARK_FULLRHS_OTHER);
     if (retval != 0)
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -212,7 +227,8 @@ static int splittingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
 /*---------------------------------------------------------------
   This routine performs a sequential operator splitting method
   ---------------------------------------------------------------*/
-static int splittingStep_SequentialMethod(const int i, const N_Vector y, void* const user_data)
+static int splittingStep_SequentialMethod(const int i, const N_Vector y,
+                                          void* const user_data)
 {
   ARKodeMem ark_mem               = (ARKodeMem)user_data;
   ARKodeSplittingStepMem step_mem = NULL;
@@ -226,24 +242,21 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y, void* c
     for (int k = 0; k < coefficients->partitions; k++)
     {
       const sunrealtype t_start = ark_mem->tn +
-                               coefficients->beta[i][j][k] * ark_mem->h;
+                                  coefficients->beta[i][j][k] * ark_mem->h;
       const sunrealtype t_end = ark_mem->tn +
                                 coefficients->beta[i][j + 1][k] * ark_mem->h;
 
-      if (t_start == t_end)
-      {
-        continue;
-      }
+      if (t_start == t_end) { continue; }
 
       const SUNStepper stepper = step_mem->steppers[k];
-      SUNErrCode err = stepper->ops->reset(stepper, t_start, y);
+      SUNErrCode err           = stepper->ops->reset(stepper, t_start, y);
       if (err != SUN_SUCCESS) { return err; }
-        
+
       err = stepper->ops->setstoptime(stepper, t_end);
       if (err != SUN_SUCCESS) { return err; }
-      
+
       sunrealtype tret = 0;
-      int stop_reason = 0;
+      int stop_reason  = 0;
       err = SUNStepper_Evolve(stepper, t_start, t_end, y, &tret, &stop_reason);
       step_mem->n_stepper_evolves++;
 
@@ -255,24 +268,24 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y, void* c
   return ARK_SUCCESS;
 }
 
-
 /*---------------------------------------------------------------
   This routine performs a single step of the splitting method.
   ---------------------------------------------------------------*/
-static int splittingStep_TakeStep(const ARKodeMem ark_mem, sunrealtype* const dsmPtr,
-                                  int* const nflagPtr)
+static int splittingStep_TakeStep(const ARKodeMem ark_mem,
+                                  sunrealtype* const dsmPtr, int* const nflagPtr)
 {
   ARKodeSplittingStepMem step_mem = NULL;
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   *nflagPtr = ARK_SUCCESS; /* No algebraic solver */
-  *dsmPtr   = ZERO; /* No error estimate */
+  *dsmPtr   = ZERO;        /* No error estimate */
 
   const SplittingStepCoefficients coefficients = step_mem->coefficients;
 
-  return step_mem->policy->execute(step_mem->policy, splittingStep_SequentialMethod,
-                                   ark_mem->yn, ark_mem->ycur, ark_mem->tempv1,
+  return step_mem->policy->execute(step_mem->policy,
+                                   splittingStep_SequentialMethod, ark_mem->yn,
+                                   ark_mem->ycur, ark_mem->tempv1,
                                    coefficients->alpha,
                                    coefficients->sequential_methods, ark_mem);
 }
@@ -280,7 +293,8 @@ static int splittingStep_TakeStep(const ARKodeMem ark_mem, sunrealtype* const ds
 /*---------------------------------------------------------------
   Prints integrator statistics
   ---------------------------------------------------------------*/
-static int splittingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outfile,
+static int splittingStep_PrintAllStats(const ARKodeMem ark_mem,
+                                       FILE* const outfile,
                                        const SUNOutputFormat fmt)
 {
   // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
@@ -291,7 +305,8 @@ static int splittingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outf
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Stepper evolves              = %ld\n", step_mem->n_stepper_evolves);
+    fprintf(outfile, "Stepper evolves              = %ld\n",
+            step_mem->n_stepper_evolves);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, "Stepper evolves,%ld\n", step_mem->n_stepper_evolves);
@@ -304,6 +319,7 @@ static int splittingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outf
 
   return ARK_SUCCESS;
 }
+
 /*---------------------------------------------------------------
   Outputs all solver parameters to the provided file pointer.
   ---------------------------------------------------------------*/
@@ -408,11 +424,9 @@ static int splittingStep_SetDefaults(const ARKodeMem ark_mem)
   retval = splittingStep_SetOrder(ark_mem, 0);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  if (step_mem->own_policy) {
-    free(step_mem->policy);
-  }
+  if (step_mem->own_policy) { free(step_mem->policy); }
   step_mem->own_policy = SUNFALSE;
-  
+
   ark_mem->interp_type = ARK_INTERP_LAGRANGE;
 
   return ARK_SUCCESS;
@@ -422,7 +436,8 @@ static int splittingStep_SetDefaults(const ARKodeMem ark_mem)
   Creates the SplittingStep integrator
   ---------------------------------------------------------------*/
 void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
-                          const sunrealtype t0, const N_Vector y0, const SUNContext sunctx)
+                          const sunrealtype t0, const N_Vector y0,
+                          const SUNContext sunctx)
 {
   if (steppers == NULL)
   {
@@ -478,12 +493,13 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_ARKMEM_FAIL);
-    ARKodeFree((void **)&ark_mem);
+    ARKodeFree((void**)&ark_mem);
     return NULL;
   }
 
-  step_mem->steppers          = malloc(partitions * sizeof(*steppers));
-  if (step_mem->steppers == NULL) {
+  step_mem->steppers = malloc(partitions * sizeof(*steppers));
+  if (step_mem->steppers == NULL)
+  {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_ARKMEM_FAIL);
     ARKodeFree((void**)&ark_mem);
@@ -546,9 +562,10 @@ int SplittingStep_SetCoefficients(void* arkode_mem,
                                                        &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (coefficients == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "Splitting coefficients must be non-NULL");
+  if (coefficients == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Splitting coefficients must be non-NULL");
     return ARK_ILL_INPUT;
   }
 
@@ -584,9 +601,10 @@ int SplittingStep_SetExecutionPolicy(void* arkode_mem,
                                                  &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (policy == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "The execution policy must be non-NULL");
+  if (policy == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The execution policy must be non-NULL");
     return ARK_ILL_INPUT;
   }
 

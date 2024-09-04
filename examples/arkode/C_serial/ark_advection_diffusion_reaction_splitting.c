@@ -34,13 +34,13 @@
  * printed at the end.
  *---------------------------------------------------------------*/
 
-#include <math.h>
-#include <stdio.h>
-#include <nvector/nvector_serial.h>
-#include <sunmatrix/sunmatrix_band.h>
-#include <sunlinsol/sunlinsol_band.h>
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_splittingstep.h>
+#include <math.h>
+#include <nvector/nvector_serial.h>
+#include <stdio.h>
+#include <sunlinsol/sunlinsol_band.h>
+#include <sunmatrix/sunmatrix_band.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -105,24 +105,26 @@ static int check_flag(void* flagvalue, const char* funcname, int opt)
 }
 
 /* f routine to compute the advection RHS function. */
-static int f_advection(const sunrealtype t, const N_Vector y, const N_Vector ydot, void* const user_data)
+static int f_advection(const sunrealtype t, const N_Vector y,
+                       const N_Vector ydot, void* const user_data)
 {
-  const UserData * const udata = (UserData*) user_data;
-  sunrealtype *Y = NULL;
-  Y = N_VGetArrayPointer(y); /* access data arrays */
+  const UserData* const udata = (UserData*)user_data;
+  sunrealtype* Y              = NULL;
+  Y                           = N_VGetArrayPointer(y); /* access data arrays */
   if (check_flag((void*)Y, "N_VGetArrayPointer", 0)) { return 1; }
 
-  sunrealtype *Ydot = NULL;
-  Ydot = N_VGetArrayPointer(ydot);
+  sunrealtype* Ydot = NULL;
+  Ydot              = N_VGetArrayPointer(ydot);
   if (check_flag((void*)Ydot, "N_VGetArrayPointer", 0)) { return 1; }
 
-  const sunrealtype coeff = udata->a / (SUN_RCONST(4.0) * udata->dx);
+  const sunrealtype coeff  = udata->a / (SUN_RCONST(4.0) * udata->dx);
   const sunrealtype u0_sqr = udata->u0 * udata->u0;
 
   /* Left boundary */
   Ydot[0] = coeff * (Y[1] * Y[1] - u0_sqr);
   /* Interior */
-  for (sunindextype i = 1; i < udata->N - 1; i++) {
+  for (sunindextype i = 1; i < udata->N - 1; i++)
+  {
     Ydot[i] = coeff * (Y[i + 1] * Y[i + 1] - Y[i - 1] * Y[i - 1]);
   }
   /* Right boundary */
@@ -132,15 +134,16 @@ static int f_advection(const sunrealtype t, const N_Vector y, const N_Vector ydo
 }
 
 /* f routine to compute the diffusion RHS function. */
-static int f_diffusion(const sunrealtype t, const N_Vector y, const N_Vector ydot, void * const user_data)
+static int f_diffusion(const sunrealtype t, const N_Vector y,
+                       const N_Vector ydot, void* const user_data)
 {
-  const UserData * const udata = (UserData *) user_data;
-  sunrealtype *Y = NULL;
-  Y = N_VGetArrayPointer(y); /* access data arrays */
+  const UserData* const udata = (UserData*)user_data;
+  sunrealtype* Y              = NULL;
+  Y                           = N_VGetArrayPointer(y); /* access data arrays */
   if (check_flag((void*)Y, "N_VGetArrayPointer", 0)) { return 1; }
 
-  sunrealtype *Ydot = NULL;
-  Ydot = N_VGetArrayPointer(ydot);
+  sunrealtype* Ydot = NULL;
+  Ydot              = N_VGetArrayPointer(ydot);
   if (check_flag((void*)Ydot, "N_VGetArrayPointer", 0)) { return 1; }
 
   const sunrealtype coeff = udata->b / (udata->dx * udata->dx);
@@ -148,27 +151,31 @@ static int f_diffusion(const sunrealtype t, const N_Vector y, const N_Vector ydo
   /* Left boundary */
   Ydot[0] = coeff * (udata->u0 - 2 * Y[0] + Y[1]);
   /* Interior */
-  for (sunindextype i = 1; i < udata->N - 1; i++) {
+  for (sunindextype i = 1; i < udata->N - 1; i++)
+  {
     Ydot[i] = coeff * (Y[i + 1] - 2 * Y[i] + Y[i - 1]);
   }
   /* Right boundary */
-  Ydot[udata->N - 1] = coeff * (Y[udata->N - 2] - 2 * Y[udata->N - 1] + udata->u0);
+  Ydot[udata->N - 1] = coeff *
+                       (Y[udata->N - 2] - 2 * Y[udata->N - 1] + udata->u0);
 
   return 0;
 }
 
 /* Routine to compute the diffusion Jacobian function. */
-static int jac_diffusion(const sunrealtype t, const N_Vector y, const N_Vector fy, const SUNMatrix Jac,
-                          void* const user_data, const N_Vector tmp1, const N_Vector tmp2,
-                          const N_Vector tmp3)
+static int jac_diffusion(const sunrealtype t, const N_Vector y,
+                         const N_Vector fy, const SUNMatrix Jac,
+                         void* const user_data, const N_Vector tmp1,
+                         const N_Vector tmp2, const N_Vector tmp3)
 {
-  const UserData * const udata = (UserData *) user_data;
-  const sunrealtype coeff = udata->b / (udata->dx * udata->dx);
-  
+  const UserData* const udata = (UserData*)user_data;
+  const sunrealtype coeff     = udata->b / (udata->dx * udata->dx);
+
   SM_ELEMENT_B(Jac, 0, 0) = -2 * coeff;
-  for (int i = 1; i < udata->N; i++) {
+  for (int i = 1; i < udata->N; i++)
+  {
     SM_ELEMENT_B(Jac, i - 1, i) = coeff;
-    SM_ELEMENT_B(Jac, i, i) = -2 * coeff;
+    SM_ELEMENT_B(Jac, i, i)     = -2 * coeff;
     SM_ELEMENT_B(Jac, i, i - 1) = coeff;
   }
 
@@ -176,40 +183,41 @@ static int jac_diffusion(const sunrealtype t, const N_Vector y, const N_Vector f
 }
 
 /* f routine to compute the reaction RHS function. */
-static int f_reaction(const sunrealtype t, const N_Vector y, const N_Vector ydot, void * const user_data)
+static int f_reaction(const sunrealtype t, const N_Vector y,
+                      const N_Vector ydot, void* const user_data)
 {
-  const UserData * const udata = (UserData *) user_data;
-  sunrealtype *Y = NULL;
-  Y = N_VGetArrayPointer(y); /* access data arrays */
+  const UserData* const udata = (UserData*)user_data;
+  sunrealtype* Y              = NULL;
+  Y                           = N_VGetArrayPointer(y); /* access data arrays */
   if (check_flag((void*)Y, "N_VGetArrayPointer", 0)) { return 1; }
 
-  sunrealtype *Ydot = NULL;
-  Ydot = N_VGetArrayPointer(ydot);
+  sunrealtype* Ydot = NULL;
+  Ydot              = N_VGetArrayPointer(ydot);
   if (check_flag((void*)Ydot, "N_VGetArrayPointer", 0)) { return 1; }
 
-  for (sunindextype i = 0; i < udata->N; i++) {
+  for (sunindextype i = 0; i < udata->N; i++)
+  {
     Ydot[i] = udata->c * Y[i] * (SUN_RCONST(1.0) - Y[i] * Y[i]);
   }
 
   return 0;
 }
 
-int main() {
+int main()
+{
   /* Problem parameters */
   const sunrealtype T0 = SUN_RCONST(0.0);
   const sunrealtype Tf = SUN_RCONST(1.0);
   const sunrealtype DT = SUN_RCONST(0.06);
-  UserData udata = {
-    .N = 128,
-    .dx = SUN_RCONST(1.0) / (udata.N + 1),
-    .a = SUN_RCONST(1.0),
-    .b = SUN_RCONST(0.125),
-    .c = SUN_RCONST(4.0),
-    .u0 = SUN_RCONST(0.1)
-  };
+  UserData udata       = {.N  = 128,
+                          .dx = SUN_RCONST(1.0) / (udata.N + 1),
+                          .a  = SUN_RCONST(1.0),
+                          .b  = SUN_RCONST(0.125),
+                          .c  = SUN_RCONST(4.0),
+                          .u0 = SUN_RCONST(0.1)};
 
   printf("\n1D Advection-Diffusion-Reaction PDE test problem:\n");
-  printf("  N = %li\n", (long int) udata.N);
+  printf("  N = %li\n", (long int)udata.N);
   printf("  advection coefficient = %" GSYM "\n", udata.a);
   printf("  diffusion coefficient = %" GSYM "\n", udata.b);
   printf("  reaction coefficient = %" GSYM "\n\n", udata.c);
@@ -225,14 +233,15 @@ int main() {
   N_VConst(udata.u0, y);
 
   /* Create advection integrator */
-  void *advection_mem = ARKStepCreate(f_advection, NULL, T0, y, ctx);
+  void* advection_mem = ARKStepCreate(f_advection, NULL, T0, y, ctx);
   if (check_flag(advection_mem, "ARKStepCreate", 0)) { return 1; }
 
   flag = ARKodeSetUserData(advection_mem, &udata);
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Choose a strong stability preserving method for advecton */
-  flag = ARKStepSetTableNum(advection_mem, ARKODE_DIRK_NONE, ARKODE_SHU_OSHER_3_2_3);
+  flag = ARKStepSetTableNum(advection_mem, ARKODE_DIRK_NONE,
+                            ARKODE_SHU_OSHER_3_2_3);
   if (check_flag(&flag, "ARKStepSetTableNum", 1)) { return 1; }
 
   SUNStepper advection_stepper;
@@ -240,7 +249,7 @@ int main() {
   if (check_flag(&flag, "ARKStepCreateSUNStepper", 1)) { return 1; }
 
   /* Create diffusion integrator */
-  void *diffusion_mem = ARKStepCreate(NULL, f_diffusion, T0, y, ctx);
+  void* diffusion_mem = ARKStepCreate(NULL, f_diffusion, T0, y, ctx);
   if (check_flag(diffusion_mem, "ARKStepCreate", 0)) { return 1; }
 
   flag = ARKodeSetUserData(diffusion_mem, &udata);
@@ -269,7 +278,7 @@ int main() {
   if (check_flag(&flag, "ARKStepCreateSUNStepper", 1)) { return 1; }
 
   /* Create reaction integrator */
-  void *reaction_mem = ARKStepCreate(f_reaction, NULL, T0, y, ctx);
+  void* reaction_mem = ARKStepCreate(f_reaction, NULL, T0, y, ctx);
   if (check_flag(reaction_mem, "ARKStepCreate", 0)) { return 1; }
 
   flag = ARKodeSetUserData(reaction_mem, &udata);
@@ -283,8 +292,9 @@ int main() {
   if (check_flag(&flag, "ARKStepCreateSUNStepper", 1)) { return 1; }
 
   /* Create operator splitting integrator */
-  SUNStepper steppers[] = {advection_stepper, diffusion_stepper, reaction_stepper};
-  void *arkode_mem = SplittingStepCreate(steppers, 3, T0, y, ctx);
+  SUNStepper steppers[] = {advection_stepper, diffusion_stepper,
+                           reaction_stepper};
+  void* arkode_mem      = SplittingStepCreate(steppers, 3, T0, y, ctx);
   if (check_flag(arkode_mem, "SplittingStepCreate", 0)) { return 1; }
 
   flag = ARKodeSetFixedStep(arkode_mem, DT);
@@ -298,7 +308,8 @@ int main() {
   printf("        t      ||u||_rms\n");
   printf("   ----------------------\n");
   printf("  %10.6" FSYM "  %10.6f\n", tret, sqrt(N_VDotProd(y, y) / udata.N));
-  while (tret < Tf) {
+  while (tret < Tf)
+  {
     flag = ARKodeEvolve(arkode_mem, Tf, y, &tret, ARK_ONE_STEP);
     if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
     printf("  %10.6" FSYM "  %10.6f\n", tret, sqrt(N_VDotProd(y, y) / udata.N));
@@ -309,15 +320,15 @@ int main() {
   printf("\nSplitting Stepper Statistics:\n");
   flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
   if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
-  
+
   printf("\nAdvection Stepper Statistics:\n");
   flag = ARKodePrintAllStats(advection_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
   if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
-  
+
   printf("\nDiffusion Stepper Statistics:\n");
   flag = ARKodePrintAllStats(diffusion_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
   if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
-  
+
   printf("\nReaction Stepper Statistics:\n");
   flag = ARKodePrintAllStats(reaction_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
   if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }

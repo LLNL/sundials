@@ -31,9 +31,9 @@
  *-----------------------------------------------------------------*/
 
 /* Header files */
-#include <nvector/nvector_serial.h>
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_splittingstep.h>
+#include <nvector/nvector_serial.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -51,27 +51,31 @@ typedef struct
 } UserData;
 
 /* RHS for f^1(t, y) = -lambda * y */
-static int f_linear(const sunrealtype t, const N_Vector y, N_Vector ydot, void* const user_data)
+static int f_linear(const sunrealtype t, const N_Vector y, N_Vector ydot,
+                    void* const user_data)
 {
-  sunrealtype lambda = ((UserData*) user_data)->lambda;
+  sunrealtype lambda = ((UserData*)user_data)->lambda;
   N_VScale(-lambda, y, ydot);
   return 0;
 }
 
 /* RHS for f^2(t, y) = y^2 */
-static int f_nonlinear(const sunrealtype t, const N_Vector y, N_Vector ydot, void* const user_data)
+static int f_nonlinear(const sunrealtype t, const N_Vector y, N_Vector ydot,
+                       void* const user_data)
 {
   N_VProd(y, y, ydot);
   return 0;
 }
 
 /* Compute the exact analytic solution */
-static N_Vector exact_sol(const N_Vector y0, const sunrealtype tf, const UserData* const user_data)
+static N_Vector exact_sol(const N_Vector y0, const sunrealtype tf,
+                          const UserData* const user_data)
 {
-  N_Vector sol = N_VClone(y0);
+  N_Vector sol             = N_VClone(y0);
   const sunrealtype y0_val = NV_Ith_S(y0, 0);
   const sunrealtype lambda = user_data->lambda;
-  NV_Ith_S(sol, 0) = lambda * y0_val / (y0_val - (y0_val - lambda) * SUNRexp(lambda * tf));
+  NV_Ith_S(sol, 0)         = lambda * y0_val /
+                     (y0_val - (y0_val - lambda) * SUNRexp(lambda * tf));
   return sol;
 }
 
@@ -124,12 +128,10 @@ int main()
   const sunrealtype t0 = SUN_RCONST(0.0);   /* initial time */
   const sunrealtype tf = SUN_RCONST(1.0);   /* final time */
   const sunrealtype dt = SUN_RCONST(0.01);  /* operator splitting time step */
-  const sunrealtype dt_linear = dt / 5;     /* linear integrator time step */
+  const sunrealtype dt_linear    = dt / 5;  /* linear integrator time step */
   const sunrealtype dt_nonlinear = dt / 10; /* nonlinear integrator time step */
 
-  UserData user_data = {
-    .lambda = SUN_RCONST(2.0)
-  };
+  UserData user_data = {.lambda = SUN_RCONST(2.0)};
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -147,7 +149,7 @@ int main()
   printf("   lambda = %" GSYM "\n", user_data.lambda);
 
   /* Create the integrator for the linear partition */
-  void *linear_mem = ARKStepCreate(f_linear, NULL, t0, y, ctx);
+  void* linear_mem = ARKStepCreate(f_linear, NULL, t0, y, ctx);
   if (check_flag(linear_mem, "N_VNew_Serial", 0)) { return 1; }
 
   flag = ARKodeSetUserData(linear_mem, &user_data);
@@ -157,7 +159,7 @@ int main()
   if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* Create the integrator for the nonlinear partition */
-  void *nonlinear_mem = ARKStepCreate(f_nonlinear, NULL, t0, y, ctx);
+  void* nonlinear_mem = ARKStepCreate(f_nonlinear, NULL, t0, y, ctx);
   if (check_flag(nonlinear_mem, "N_VNew_Serial", 0)) { return 1; }
 
   flag = ARKodeSetFixedStep(nonlinear_mem, dt_nonlinear);
@@ -169,7 +171,7 @@ int main()
   ARKStepCreateSUNStepper(nonlinear_mem, &steppers[1]);
 
   /* Create the operator splitting method */
-  void *splitting_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
+  void* splitting_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   if (check_flag(splitting_mem, "SplittingStepCreate", 0)) { return 1; }
 
   flag = ARKodeSetFixedStep(splitting_mem, dt);
@@ -196,6 +198,6 @@ int main()
   SUNStepper_Destroy(&steppers[1]);
   ARKodeFree(&splitting_mem);
   SUNContext_Free(&ctx);
-  
+
   return 0;
 }

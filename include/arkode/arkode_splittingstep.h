@@ -17,10 +17,10 @@
 #ifndef ARKODE_SPLITTINGSTEP_H_
 #define ARKODE_SPLITTINGSTEP_H_
 
-#include <sundials/sundials_stepper.h>
 #include <arkode/arkode_execution_policy.h>
 #include <arkode/arkode_splitting_coefficients.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_stepper.h>
 #include <sundials/sundials_types.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

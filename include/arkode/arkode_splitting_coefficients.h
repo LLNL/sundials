@@ -45,8 +45,8 @@ typedef _SUNDIALS_STRUCT_ SplittingStepCoefficientsMem* SplittingStepCoefficient
  * ARKODE_SPLITTING_<name>_<stages>_<order>_<partitions> */
 typedef enum
 {
-  ARKODE_SPLITTING_NONE        = -1, /* ensure enum is signed int */
-  ARKODE_MIN_SPLITTING_NUM     = 0,
+  ARKODE_SPLITTING_NONE              = -1, /* ensure enum is signed int */
+  ARKODE_MIN_SPLITTING_NUM           = 0,
   ARKODE_SPLITTING_LIE_TROTTER_1_1_2 = ARKODE_MIN_SPLITTING_NUM,
   ARKODE_SPLITTING_STRANG_2_2_2,
   ARKODE_SPLITTING_BEST_2_2_2,
@@ -65,7 +65,8 @@ SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Alloc(
 SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Create(
   int sequential_methods, int stages, int partitions, int order,
   sunrealtype* alpha, sunrealtype* beta);
-SUNDIALS_EXPORT void SplittingStepCoefficients_Free(SplittingStepCoefficients coefficients);
+SUNDIALS_EXPORT void SplittingStepCoefficients_Free(
+  SplittingStepCoefficients coefficients);
 SUNDIALS_EXPORT SplittingStepCoefficients
 SplittingStepCoefficients_Copy(SplittingStepCoefficients coefficients);
 SUNDIALS_EXPORT void SplittingStepCoefficients_Write(
