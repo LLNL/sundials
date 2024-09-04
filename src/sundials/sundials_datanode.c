@@ -12,11 +12,11 @@
 
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
-#include <sundials/sundials_datanode.h>
 
 #include "sundatanode/sundatanode_inmem.h"
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_memory.h"
+#include "sundials_datanode.h"
 
 SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
 {

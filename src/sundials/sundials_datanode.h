@@ -36,11 +36,6 @@ typedef enum
   SUNDATANODE_OBJECT
 } SUNDataNodeType;
 
-typedef enum
-{
-  SUNDATAIOMODE_INMEM,
-} SUNDataIOMode;
-
 typedef struct SUNDataNode_Ops_* SUNDataNode_Ops;
 typedef struct SUNDataNode_* SUNDataNode;
 

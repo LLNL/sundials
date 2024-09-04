@@ -10,15 +10,12 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include <fstream>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <iostream>
 #include <nvector/nvector_serial.h>
-#include <string>
 #include <sundials/sundials_core.h>
-#include <sundials/sundials_datanode.h>
 #include <sunmemory/sunmemory_system.h>
+#include "sundials_datanode.h"
 
 #include "sundatanode/sundatanode_inmem.h"
 #include "sundials/sundials_memory.h"

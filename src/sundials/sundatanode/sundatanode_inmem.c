@@ -10,16 +10,15 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include "sundatanode/sundatanode_inmem.h"
-
 #include <string.h>
 
+#include "sundatanode/sundatanode_inmem.h"
 #include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_datanode.h"
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_memory.h"
 #include "sundials/sundials_nvector.h"
 #include "sundials/sundials_types.h"
+#include "sundials_datanode.h"
 #include "sundials_hashmap_impl.h"
 
 #define GET_IMPL(node)        ((SUNDataNode_InMemContent)(node)->content)

@@ -17,12 +17,11 @@
 
 #include "sunadjoint/sunadjoint_checkpointscheme.h"
 #include "sundatanode/sundatanode_inmem.h"
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_datanode.h"
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_logger.h"
 #include "sundials/sundials_memory.h"
 #include "sundials/sundials_types.h"
+#include "sundials_datanode.h"
 #include "sundials_utils.h"
 
 struct SUNAdjointCheckpointScheme_Basic_Content_

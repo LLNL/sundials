@@ -230,4 +230,18 @@ typedef int SUNComm;
 }
 #endif
 
+/*
+ *------------------------------------------------------------------
+ * Type : SUNDataIOMode
+ *------------------------------------------------------------------
+ * Type that controls IO modes for certain data operations, notably
+ * checkpoints for adjoints.
+ *------------------------------------------------------------------
+ */
+
+typedef enum
+{
+  SUNDATAIOMODE_INMEM,
+} SUNDataIOMode;
+
 #endif /* _SUNDIALS_TYPES_H */

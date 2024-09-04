@@ -17,7 +17,6 @@
 
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
 #include <sundials/sundials_core.h>
-#include <sundials/sundials_datanode.h>
 #include <sundials/sundials_export.h>
 #include <sundials/sundials_types.h>
 
