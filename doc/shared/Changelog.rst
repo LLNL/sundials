@@ -21,10 +21,18 @@ Changelog
 
 .. SED_REPLACEMENT_KEY
 
-Changes to SUNDIALS in release 7.1.1
+Changes to SUNDIALS in release X.Y.Z
 ====================================
 
 .. include:: RecentChanges_link.rst
+
+Changes to SUNDIALS in release 7.1.1
+====================================
+
+**Bug Fixes**
+
+Fixed a `bug <https://github.com/LLNL/sundials/pull/523>`_ in v7.1.0 with the
+SYCL N_Vector ``N_VSpace`` function.
 
 Changes to SUNDIALS in release 7.1.0
 ====================================
@@ -1991,7 +1999,7 @@ implemented a custom :c:type:`SUNMatrix` will need to at least update their code
 to set the corresponding ``ops`` structure member, ``matvecsetup``, to ``NULL``.
 
 The generic :c:type:`SUNMatrix` API now defines error codes to be returned by
-matrix operations. Operations which return an integer flag indiciating
+matrix operations. Operations which return an integer flag indicating
 success/failure may return different values than previously.
 
 A new :c:type:`SUNMatrix` (and :c:type:`SUNLinearSolver`) implementation was
@@ -2104,7 +2112,7 @@ function signatures have been changed including :c:func:`MRIStepCreate` which
 now takes an ARKStep memory structure for the fast integration as an input.
 
 The reinitialization functions :c:func:`ERKStepReInit`, :c:func:`ARKStepReInit`,
-and :c:func:`MRIStepReInit` have been updated to retain the minimum and maxiumum
+and :c:func:`MRIStepReInit` have been updated to retain the minimum and maximum
 step size values from before reinitialization rather than resetting them to the
 default values.
 
@@ -2130,7 +2138,7 @@ being built.
 
 Fixed a memory leak in the PETSc :c:type:`N_Vector` clone function.
 
-Fixed a memeory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
+Fixed a memory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
 the default nonlinear solver.
 
 Fixed a bug in the ARKStep time-stepping module in ARKODE that would result in
@@ -2870,7 +2878,7 @@ with sparse direct solvers.
 
 *KINSOL*
 
-The Picard iteration return was chanegd to always return the newest iterate upon
+The Picard iteration return was changed to always return the newest iterate upon
 success.
 
 A minor bug in the line search was fixed to prevent an infinite loop when the

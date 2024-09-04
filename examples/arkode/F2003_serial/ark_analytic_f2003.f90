@@ -15,12 +15,12 @@
 ! The following is a simple example problem with an analytical
 ! solution.
 !
-!   dy/dt = lamda*y + 1/(1+t^2) - lamda*atan(t)
+!   dy/dt = lambda*y + 1/(1+t^2) - lambda*atan(t)
 !
 ! for t in the interval [0.0, 10.0], with initial condition: y=0.
 !
 ! The stiffness of the problem is directly proportional to the
-! value of lamda. The value of lamda should be negative to
+! value of lambda. The value of lambda should be negative to
 ! result in a well-posed ODE; for values with magnitude larger
 ! than 100 the problem becomes quite stiff.
 ! ------------------------------------------------------------------
@@ -48,7 +48,7 @@ module analytic_mod
   integer(kind=myindextype), parameter :: neq = 1
 
   ! ODE parameters
-  real(c_double), parameter :: lamda = -100.0d0
+  real(c_double), parameter :: lambda = -100.0d0
 
 contains
 
@@ -87,7 +87,7 @@ contains
     fvec => FN_VGetArrayPointer(sunvec_f)
 
     ! fill RHS vector
-    fvec(1) = lamda*yvec(1) + 1.0/(1.0 + tn*tn) - lamda*atan(tn); 
+    fvec(1) = lambda*yvec(1) + 1.0/(1.0 + tn*tn) - lambda*atan(tn); 
     ! return success
     ierr = 0
     return

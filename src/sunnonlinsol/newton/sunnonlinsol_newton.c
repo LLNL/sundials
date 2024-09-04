@@ -204,7 +204,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   /* looping point for attempts at solution of the nonlinear system:
        Evaluate the nonlinear residual function (store in delta)
        Setup the linear solver if necessary
-       Preform Newton iteraion */
+       Perform Newton iteration */
   for (;;)
   {
     /* initialize current iteration counter for this solve attempt */

@@ -72,7 +72,7 @@ class ParallelGrid
 public:
   // Constructor that creates a new ParallelGrid object.
   // [in] - the memory helper to use for allocating the MPI buffers
-  // [in,out] comm - on input, the overal MPI communicator, on output, the cartesian communicator
+  // [in,out] comm - on input, the overall MPI communicator, on output, the cartesian communicator
   // [in] a[] - an array of length 3 which defines the domain [a,b]
   // [in] b[] - an array of length 3 which defines the domain [a,b]
   // [in] npts[] - an array of length 3 which defines the number of mesh points in each dimension
@@ -563,7 +563,7 @@ public:
 
   GLOBALINT nx, ny, nz;   /* number of intervals globally       */
   int nxl, nyl, nzl;      /* number of intervals locally        */
-  int npx, npy, npz;      /* numner of processes                */
+  int npx, npy, npz;      /* number of processes                */
   sunrealtype dx, dy, dz; /* mesh spacing                       */
   sunrealtype ax, ay, az; /* domain in [a, b]                   */
   sunrealtype bx, by, bz;

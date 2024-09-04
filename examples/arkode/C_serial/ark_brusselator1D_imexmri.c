@@ -365,7 +365,7 @@ int main(int argc, char* argv[])
    */
 
   /* Initialize the fast integrator. Specify the fast right-hand side
-     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the inital time T0,
+     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the initial time T0,
      and the initial dependent variable vector y. */
   switch (solve_type)
   {
@@ -534,7 +534,7 @@ int main(int argc, char* argv[])
    */
 
   /* Initialize the slow integrator. Specify the slow right-hand side
-     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the inital time
+     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the initial time
      T0, the initial dependent variable vector y, and the fast integrator. */
   switch (solve_type)
   {

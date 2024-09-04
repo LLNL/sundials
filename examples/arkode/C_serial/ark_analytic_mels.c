@@ -15,11 +15,11 @@
  *
  * The following is a simple example problem with analytical
  * solution,
- *    dy/dt = lamda*y + 1/(1+t^2) - lamda*atan(t)
+ *    dy/dt = lambda*y + 1/(1+t^2) - lambda*atan(t)
  * for t in the interval [0.0, 10.0], with initial condition: y=0.
  *
  * The stiffness of the problem is directly proportional to the
- * value of "lamda".  The value of lamda should be negative to
+ * value of "lambda".  The value of lambda should be negative to
  * result in a well-posed ODE; for values with magnitude larger
  * than 100 the problem becomes quite stiff.
  *
@@ -73,7 +73,7 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-6); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-10);
-  sunrealtype lamda  = SUN_RCONST(-100.0); /* stiffness parameter */
+  sunrealtype lambda = SUN_RCONST(-100.0); /* stiffness parameter */
 
   /* general problem variables */
   int retval;                /* reusable error-checking flag */
@@ -90,7 +90,7 @@ int main(void)
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
-  printf("    lamda = %" GSYM "\n", lamda);
+  printf("   lambda = %" GSYM "\n", lambda);
   printf("   reltol = %.1" ESYM "\n", reltol);
   printf("   abstol = %.1" ESYM "\n\n", abstol);
 
@@ -100,7 +100,7 @@ int main(void)
   N_VConst(SUN_RCONST(0.0), y); /* Specify initial condition */
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
-     specify the right-hand side function in y'=f(t,y), the inital time
+     specify the right-hand side function in y'=f(t,y), the initial time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
@@ -108,7 +108,7 @@ int main(void)
 
   /* Set routines */
   retval = ARKodeSetUserData(arkode_mem,
-                             (void*)&lamda); /* Pass lamda to user functions */
+                             (void*)&lambda); /* Pass lambda to user functions */
   if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
   retval = ARKodeSStolerances(arkode_mem, reltol, abstol); /* Specify tolerances */
   if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
@@ -198,12 +198,12 @@ int main(void)
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype lamda = rdata[0];       /* set shortcut for stiffness parameter */
-  sunrealtype u     = NV_Ith_S(y, 0); /* access current solution value */
+  sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
+  sunrealtype u      = NV_Ith_S(y, 0); /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot, 0) = lamda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
-                      lamda * atan(t);
+  NV_Ith_S(ydot, 0) = lambda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
+                      lambda * atan(t);
 
   return 0; /* return with success */
 }
@@ -247,7 +247,7 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   sunrealtype tcur, gamma;
   void* user_data;
   sunrealtype* rdata;
-  sunrealtype lamda;
+  sunrealtype lambda;
 
   /* retrieve implicit system data from ARKODE */
   retval = ARKodeGetNonlinearSystemData(LS->content, &tcur, &zpred, &z, &Fi,
@@ -258,11 +258,11 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   }
 
   /* extract stiffness parameter from user_data */
-  rdata = (sunrealtype*)user_data;
-  lamda = rdata[0];
+  rdata  = (sunrealtype*)user_data;
+  lambda = rdata[0];
 
-  /* perform linear solve: (1-gamma*lamda)*x = b */
-  NV_Ith_S(x, 0) = NV_Ith_S(b, 0) / (1 - gamma * lamda);
+  /* perform linear solve: (1-gamma*lambda)*x = b */
+  NV_Ith_S(x, 0) = NV_Ith_S(b, 0) / (1 - gamma * lambda);
 
   /* return with success */
   return (SUN_SUCCESS);

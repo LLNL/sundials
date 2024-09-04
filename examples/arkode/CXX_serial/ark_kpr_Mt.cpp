@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "Ytrue", 1)) { return 1; }
 
   // Initialize ARKStep. Specify the right-hand side function(s) for
-  // M(t) * y' = fe(t,y) + fi(t,y), the inital time T0, and the
+  // M(t) * y' = fe(t,y) + fi(t,y), the initial time T0, and the
   // initial dependent variable vector y.
   if (rk_type == 0)
   { // ARK method

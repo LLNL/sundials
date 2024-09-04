@@ -591,7 +591,7 @@ static void InputHelp()
   cout << "  --order_fast <int>       : MRI fast method order\n";
   cout << "  --ark_dirk               : Use DIRK method from ARK method\n";
   cout << "  --rtol <real>            : relative tolerance\n";
-  cout << "  --atol <real>            : absoltue tolerance\n";
+  cout << "  --atol <real>            : absolute tolerance\n";
   cout << "  --rtol_fast <real>       : MRI fast relative tolerance\n";
   cout << "  --atol_fast <real>       : MRI fast absolute tolerance\n";
   cout << "  --fixed_h <real>         : fixed step size\n";

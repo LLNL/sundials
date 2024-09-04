@@ -78,101 +78,111 @@ def main():
     import sys
     import argparse
 
-    parser = argparse.ArgumentParser(description='''Plot 2D data files''')
+    parser = argparse.ArgumentParser(description="""Plot 2D data files""")
 
     # List of input data files
 
-    parser.add_argument('datafiles', type=str, nargs='+',
-                        help='Data files to plot')
+    parser.add_argument("datafiles", type=str, nargs="+", help="Data files to plot")
 
     # Plot type options
 
-    group = parser.add_argument_group('Plot Options',
-                                      '''Options to specify the type of plot to
-                                      generate and what data to plot''')
+    group = parser.add_argument_group(
+        "Plot Options",
+        """Options to specify the type of plot to
+                                      generate and what data to plot""",
+    )
 
-    group.add_argument('--plottype', type=str,
-                       choices=['surface', 'surface-ani',
-                                'contour', 'contour-ani',
-                                'slice', 'point'],
-                       default='surface',
-                       help='''Set the plot type''')
+    group.add_argument(
+        "--plottype",
+        type=str,
+        choices=["surface", "surface-ani", "contour", "contour-ani", "slice", "point"],
+        default="surface",
+        help="""Set the plot type""",
+    )
 
-    group.add_argument('--plotvars', type=int, nargs='+',
-                       help='''Variable indices to plot''')
+    group.add_argument(
+        "--plotvars", type=int, nargs="+", help="""Variable indices to plot"""
+    )
 
-    group.add_argument('--plottimes', type=int, nargs='+',
-                       help='''Time indices to plot''')
+    group.add_argument(
+        "--plottimes", type=int, nargs="+", help="""Time indices to plot"""
+    )
 
     # Slice plot options
 
-    group = parser.add_argument_group('Slice Plot Options',
-                                      '''Options specific to the slice plot
-                                      type''')
+    group = parser.add_argument_group(
+        "Slice Plot Options",
+        """Options specific to the slice plot
+                                      type""",
+    )
 
-    group.add_argument('--slicetype', type=str, default='var',
-                       choices=['var', 'time'],
-                       help='''The slice plot type''')
+    group.add_argument(
+        "--slicetype",
+        type=str,
+        default="var",
+        choices=["var", "time"],
+        help="""The slice plot type""",
+    )
 
     mxgroup = group.add_mutually_exclusive_group()
 
-    mxgroup.add_argument('--yslice', type=int, default=-1,
-                         help='''y index to plot''')
+    mxgroup.add_argument("--yslice", type=int, default=-1, help="""y index to plot""")
 
-    mxgroup.add_argument('--xslice', type=int, default=-1,
-                         help='''x index to plot''')
+    mxgroup.add_argument("--xslice", type=int, default=-1, help="""x index to plot""")
 
     # Point plot options
 
-    group = parser.add_argument_group('Point Plot Options',
-                                      '''Options specific to the point plot
-                                      type''')
+    group = parser.add_argument_group(
+        "Point Plot Options",
+        """Options specific to the point plot
+                                      type""",
+    )
 
-    group.add_argument('--point', type=int, nargs=2, default=[0, 0],
-                       help='''x and y index to plot''')
+    group.add_argument(
+        "--point", type=int, nargs=2, default=[0, 0], help="""x and y index to plot"""
+    )
 
     # Output options
 
-    group = parser.add_argument_group('Output Options',
-                                      '''Options for saving plots''')
+    group = parser.add_argument_group("Output Options", """Options for saving plots""")
 
-    group.add_argument('--save', action='store_true',
-                       help='''Save figure to file''')
+    group.add_argument("--save", action="store_true", help="""Save figure to file""")
 
-    group.add_argument('--prefix', type=str,
-                       help='''File name prefix for saving the figure''')
+    group.add_argument(
+        "--prefix", type=str, help="""File name prefix for saving the figure"""
+    )
 
-    group.add_argument('--merge', action='store_true',
-                       help='''Merge PDF output files into a single file''')
+    group.add_argument(
+        "--merge",
+        action="store_true",
+        help="""Merge PDF output files into a single file""",
+    )
 
     # Figure options
 
-    group = parser.add_argument_group('Figure Options',
-                                      '''Options to specify various figure
-                                      properties''')
+    group = parser.add_argument_group(
+        "Figure Options",
+        """Options to specify various figure
+                                      properties""",
+    )
 
-    group.add_argument('--labels', type=str, nargs='+',
-                       help='''Data labels for the plot legend''')
+    group.add_argument(
+        "--labels", type=str, nargs="+", help="""Data labels for the plot legend"""
+    )
 
-    group.add_argument('--title', type=str,
-                       help='''Plot title''')
+    group.add_argument("--title", type=str, help="""Plot title""")
 
-    group.add_argument('--xlabel', type=str,
-                       help='''x-axis label''')
+    group.add_argument("--xlabel", type=str, help="""x-axis label""")
 
-    group.add_argument('--ylabel', type=str,
-                       help='''y-axis label''')
+    group.add_argument("--ylabel", type=str, help="""y-axis label""")
 
-    group.add_argument('--zlabel', type=str,
-                       help='''z-axis label''')
+    group.add_argument("--zlabel", type=str, help="""z-axis label""")
 
-    group.add_argument('--grid', action='store_true',
-                       help='''Add grid to plot''')
+    group.add_argument("--grid", action="store_true", help="""Add grid to plot""")
 
     # Debugging options
 
-    parser.add_argument('--debug', action='store_true',
-                        help='Enable debugging')
+    parser.add_argument("--debug", action="store_true", help="Enable debugging")
 
     # parse command line args
     args = parser.parse_args()
@@ -190,52 +200,53 @@ def main():
     plot_settings(args, info, time, xvals, yvals, zdata)
 
     # Create plots
-    if args.plottype == 'surface':
+    if args.plottype == "surface":
         plot_surface(args, info, time, xvals, yvals, zdata)
 
-    if args.plottype == 'surface-ani':
+    if args.plottype == "surface-ani":
         plot_surface_ani(args, info, time, xvals, yvals, zdata)
 
-    if args.plottype == 'contour':
+    if args.plottype == "contour":
         plot_contour(args, info, time, xvals, yvals, zdata)
 
-    if args.plottype == 'contour-ani':
+    if args.plottype == "contour-ani":
         plot_contour_ani(args, info, time, xvals, yvals, zdata)
 
-    if args.plottype == 'slice':
+    if args.plottype == "slice":
 
         # slice data
-        if (args.yslice > -1) and (args.yslice < info['ny']):
+        if (args.yslice > -1) and (args.yslice < info["ny"]):
             svals = xvals
             sdata = zdata[:, args.yslice, :, :]
             if args.xlabel:
                 hlabel = args.xlabel
             else:
-                hlabel = 'x'
+                hlabel = "x"
             suffix = " at y = {:.4f}".format(yvals[args.yslice])
-        elif (args.xslice > -1) and (args.xslice < info['nx']):
+        elif (args.xslice > -1) and (args.xslice < info["nx"]):
             svals = yvals
             sdata = zdata[:, :, args.xslice, :]
             if args.ylabel:
                 hlabel = args.ylabel
             else:
-                hlabel = 'y'
+                hlabel = "y"
             suffix = " at x = {:.4f}".format(xvals[args.xslice])
         else:
             print("ERROR: invalid xslice or yslice option")
             sys.exit()
 
-        if args.slicetype == 'var':
+        if args.slicetype == "var":
             plot_slice_vars(args, info, time, svals, sdata, hlabel, suffix)
         else:
             plot_slice_time(args, info, time, svals, sdata, hlabel, suffix)
 
-    if args.plottype == 'point':
+    if args.plottype == "point":
 
         # point data
         pdata = zdata[:, args.point[1], args.point[0], :]
-        suffix = " at x = {:.4f}, y = {:.4f}".format(xvals[args.point[0]],
-                                                     yvals[args.point[1]])
+        suffix = " at x = {:.4f}, y = {:.4f}".format(
+            xvals[args.point[0]], yvals[args.point[1]]
+        )
 
         plot_point(args, info, time, pdata, suffix)
 
@@ -264,8 +275,19 @@ def read_header(args):
     import numpy as np
 
     # initialize dictionary of header info variables to None
-    keys = ['title', 'varnames', 'nprocs', 'nvar', 'nt', 'nx', 'xl', 'xu',
-            'ny', 'yl', 'yu']
+    keys = [
+        "title",
+        "varnames",
+        "nprocs",
+        "nvar",
+        "nt",
+        "nx",
+        "xl",
+        "xu",
+        "ny",
+        "yl",
+        "yu",
+    ]
 
     info = dict()
     for k in keys:
@@ -290,62 +312,62 @@ def read_header(args):
 
             # plot title
             if "title" in line:
-                info['title'] = " ".join(text[2:])
+                info["title"] = " ".join(text[2:])
                 continue
 
             # plot variable names
             if "vars" in line:
-                info['varnames'] = text[2:]
+                info["varnames"] = text[2:]
                 continue
 
             # total number of processes
             if "nprocs" in line:
-                info['nprocs'] = int(text[2])
+                info["nprocs"] = int(text[2])
                 continue
 
             # number of variables (at each spatial node)
             if "nvar" in line:
-                info['nvar'] = int(text[2])
+                info["nvar"] = int(text[2])
                 continue
 
             # number of output times
             if "nt" in line:
-                info['nt'] = int(text[2])
+                info["nt"] = int(text[2])
                 continue
 
             # the global number of nodes in the x-direction, the x lower bound
             # (west) and the x upper bound (east)
             if "nx" in line:
-                info['nx'] = int(text[2])
+                info["nx"] = int(text[2])
                 continue
             if "xl" in line:
-                info['xl'] = float(text[2])
+                info["xl"] = float(text[2])
                 continue
             if "xu" in line:
-                info['xu'] = float(text[2])
+                info["xu"] = float(text[2])
                 continue
 
             # the global number of nodes in the y-direction, the y lower bound
             # (south) and the y upper bound (north)
             if "ny" in line:
-                info['ny'] = int(text[2])
+                info["ny"] = int(text[2])
                 continue
             if "yl" in line:
-                info['yl'] = float(text[2])
+                info["yl"] = float(text[2])
                 continue
             if "yu" in line:
-                info['yu'] = float(text[2])
+                info["yu"] = float(text[2])
                 continue
 
     # load data to deduce values and perform sanity checks
     data = np.loadtxt(args.datafiles[0], dtype=np.double)
 
     # try to fill in missing values
-    if info['nvar'] is None:
-        info['nvar'] = 1
+    if info["nvar"] is None:
+        info["nvar"] = 1
         print("WARNING: nvar not provided. Using nvar = 1")
 
-    if info['nt'] is None or info['nx'] is None or info['ny'] is None:
+    if info["nt"] is None or info["nx"] is None or info["ny"] is None:
 
         # check if data exists
         if data.ndim != 2:
@@ -353,72 +375,76 @@ def read_header(args):
             sys.exit()
 
         # number of output times
-        if info['nt'] is None:
-            info['nt'] = np.shape(data)[0]
+        if info["nt"] is None:
+            info["nt"] = np.shape(data)[0]
 
         # number of spatial nodes
-        if info['nx'] is None or info['ny'] is None:
+        if info["nx"] is None or info["ny"] is None:
             col = np.shape(data)[1] - 1  # exclude output times
-            if info['nx'] is None and info['ny'] is not None:
-                info['nx'] = col // (info['nvar'] * info['ny'])
-            elif info['nx'] is not None and info['ny'] is None:
-                info['ny'] = col // (info['nvar'] * info['nx'])
+            if info["nx"] is None and info["ny"] is not None:
+                info["nx"] = col // (info["nvar"] * info["ny"])
+            elif info["nx"] is not None and info["ny"] is None:
+                info["ny"] = col // (info["nvar"] * info["nx"])
             else:
-                info['nx'] = int(np.sqrt(col // info['nvar']))
-                info['ny'] = info['nx']
-                print("WARNING: nx and ny not provided. Using nx = ny =",
-                      info['nx'])
+                info["nx"] = int(np.sqrt(col // info["nvar"]))
+                info["ny"] = info["nx"]
+                print("WARNING: nx and ny not provided. Using nx = ny =", info["nx"])
 
     # sanity checks
-    if info['nt'] != np.shape(data)[0]:
-        print("ERROR: nt != nrows", info['nt'], np.shape(data)[0])
+    if info["nt"] != np.shape(data)[0]:
+        print("ERROR: nt != nrows", info["nt"], np.shape(data)[0])
         sys.exit()
 
-    if (info['nvar'] * info['nx'] * info['ny']) != (np.shape(data)[1] - 1):
+    if (info["nvar"] * info["nx"] * info["ny"]) != (np.shape(data)[1] - 1):
         print("ERROR: nvar * nx * ny != ncols - 1")
         sys.exit()
 
     # check x-dimension lower and upper bounds
-    if info['xl'] is None:
+    if info["xl"] is None:
         print("WARNING: xl not provided, using xl = 0")
-        info['xl'] = 0.0
+        info["xl"] = 0.0
 
-    if info['xu'] is None:
+    if info["xu"] is None:
         print("WARNING: xu not provided, using xu = 1")
-        info['xu'] = 1.0
+        info["xu"] = 1.0
 
     # check y-dimension lower and upper bounds
-    if info['yl'] is None:
+    if info["yl"] is None:
         print("WARNING: yl not provided, using yl = 0")
-        info['yl'] = 0.0
+        info["yl"] = 0.0
 
-    if info['yu'] is None:
+    if info["yu"] is None:
         print("WARNING: yu not provided, using yu = 1")
-        info['yu'] = 1.0
+        info["yu"] = 1.0
 
     # check number of processes
-    if info['nprocs'] is None:
-        info['nprocs'] = len(args.datafiles)
-        print("WARNING: nprocs not provided, using nprocs =", info['nprocs'])
+    if info["nprocs"] is None:
+        info["nprocs"] = len(args.datafiles)
+        print("WARNING: nprocs not provided, using nprocs =", info["nprocs"])
 
     # check if all the expected input files were provided
-    if len(args.datafiles) != info['nprocs']:
-        print("ERROR: number of data files (", len(args.datafiles),
-              ") does not match number of processes (", info['nprocs'], ")")
+    if len(args.datafiles) != info["nprocs"]:
+        print(
+            "ERROR: number of data files (",
+            len(args.datafiles),
+            ") does not match number of processes (",
+            info["nprocs"],
+            ")",
+        )
         sys.exit()
 
     if args.debug:
-        print('title    = ', info['title'])
-        print('varnames = ', info['varnames'])
-        print('nprocs   = ', info['nprocs'])
-        print('nvar     = ', info['nvar'])
-        print('nt       = ', info['nt'])
-        print('nx       = ', info['nx'])
-        print('xl       = ', info['xl'])
-        print('xu       = ', info['xu'])
-        print('ny       = ', info['ny'])
-        print('yl       = ', info['yl'])
-        print('yu       = ', info['yu'])
+        print("title    = ", info["title"])
+        print("varnames = ", info["varnames"])
+        print("nprocs   = ", info["nprocs"])
+        print("nvar     = ", info["nvar"])
+        print("nt       = ", info["nt"])
+        print("nx       = ", info["nx"])
+        print("xl       = ", info["xl"])
+        print("xu       = ", info["xu"])
+        print("ny       = ", info["ny"])
+        print("yl       = ", info["yl"])
+        print("yu       = ", info["yu"])
 
     return info
 
@@ -435,14 +461,14 @@ def read_subdomains(args, info):
     import numpy as np
 
     # load subdomain information, store in table
-    subdomains = np.zeros((info['nprocs'], 4), dtype=int)
+    subdomains = np.zeros((info["nprocs"], 4), dtype=int)
 
     # get the spatial subdomain owned by each process
-    if info['nprocs'] == 1:
+    if info["nprocs"] == 1:
         subdomains[0, 0] = 0
-        subdomains[0, 1] = info['nx'] - 1
+        subdomains[0, 1] = info["nx"] - 1
         subdomains[0, 2] = 0
-        subdomains[0, 3] = info['ny'] - 1
+        subdomains[0, 3] = info["ny"] - 1
     else:
         for idx, datafile in enumerate(args.datafiles):
 
@@ -490,8 +516,7 @@ def read_subdomains(args, info):
 
                 # check if subdomain indices were found
                 if not (found_is and found_ie and found_js and found_je):
-                    print("ERROR: could not find subdomain indices in",
-                          datafile)
+                    print("ERROR: could not find subdomain indices in", datafile)
                     sys.exit()
 
     return subdomains
@@ -507,10 +532,10 @@ def read_data(args, info, subdomains):
     import numpy as np
 
     # initialize data arrays
-    time = np.zeros(info['nt'])
-    xvals = np.linspace(info['xl'], info['xu'], info['nx'])
-    yvals = np.linspace(info['yl'], info['yu'], info['ny'])
-    zdata = np.zeros((info['nt'], info['ny'], info['nx'], info['nvar']))
+    time = np.zeros(info["nt"])
+    xvals = np.linspace(info["xl"], info["xu"], info["nx"])
+    yvals = np.linspace(info["yl"], info["yu"], info["ny"])
+    zdata = np.zeros((info["nt"], info["ny"], info["nx"], info["nvar"]))
 
     # extract data
     for idx, datafile in enumerate(args.datafiles):
@@ -524,10 +549,17 @@ def read_data(args, info, subdomains):
         if args.debug:
             print(np.shape(data))
 
-        if np.shape(data)[0] != info['nt']:
-            print("WARNING: subdomain", str(idx), "has an incorrect number of"
-                  "output times (", np.shape(data)[0], "vs", info['nt'], ")")
-            info['nt'] = np.shape(data)[0]
+        if np.shape(data)[0] != info["nt"]:
+            print(
+                "WARNING: subdomain",
+                str(idx),
+                "has an incorrect number of" "output times (",
+                np.shape(data)[0],
+                "vs",
+                info["nt"],
+                ")",
+            )
+            info["nt"] = np.shape(data)[0]
 
         # x-subdomain indices
         istart = subdomains[idx, 0]
@@ -547,10 +579,11 @@ def read_data(args, info, subdomains):
 
         # reshape and save data
         time[:] = data[:, 0]
-        for v in range(info['nvar']):
-            for i in range(info['nt']):
-                zdata[i, jstart:jend+1, istart:iend+1, v] = \
-                    np.reshape(data[i, 1+v::info['nvar']], (nyl, nxl))
+        for v in range(info["nvar"]):
+            for i in range(info["nt"]):
+                zdata[i, jstart : jend + 1, istart : iend + 1, v] = np.reshape(
+                    data[i, 1 + v :: info["nvar"]], (nyl, nxl)
+                )
 
     return time, xvals, yvals, zdata
 
@@ -565,40 +598,40 @@ def plot_settings(args, info, time, xvals, yvals, zdata):
     import numpy as np
 
     # determine extents of plots
-    info['zmin'] = np.zeros(info['nvar'])
-    info['zmax'] = np.zeros(info['nvar'])
+    info["zmin"] = np.zeros(info["nvar"])
+    info["zmax"] = np.zeros(info["nvar"])
 
-    for v in range(info['nvar']):
-        info['zmin'][v] = np.amin(zdata[:, :, :, v])
-        info['zmax'][v] = np.amax(zdata[:, :, :, v])
+    for v in range(info["nvar"]):
+        info["zmin"][v] = np.amin(zdata[:, :, :, v])
+        info["zmax"][v] = np.amax(zdata[:, :, :, v])
 
     if args.debug:
-        print("z max = ", info['zmax'])
-        print("z min = ", info['zmin'])
+        print("z max = ", info["zmax"])
+        print("z min = ", info["zmin"])
 
     # which variables to plot
     if args.plotvars:
-        info['pltvars'] = args.plotvars
+        info["pltvars"] = args.plotvars
     else:
-        info['pltvars'] = range(info['nvar'])
+        info["pltvars"] = range(info["nvar"])
 
     # which times to plot
     if args.plottimes:
-        info['plttimes'] = args.plottimes
+        info["plttimes"] = args.plottimes
     else:
-        info['plttimes'] = range(info['nt'])
+        info["plttimes"] = range(info["nt"])
 
     # x-axis label
     if args.xlabel:
-        info['xlabel'] = args.xlabel
+        info["xlabel"] = args.xlabel
     else:
-        info['xlabel'] = 'x'
+        info["xlabel"] = "x"
 
     # y-axis label
     if args.ylabel:
-        info['ylabel'] = args.ylabel
+        info["ylabel"] = args.ylabel
     else:
-        info['ylabel'] = 'y'
+        info["ylabel"] = "y"
 
 
 # -----------------------------------------------------------------------------
@@ -638,50 +671,58 @@ def plot_surface(args, info, time, xvals, yvals, zdata):
     X, Y = np.meshgrid(xvals, yvals)
 
     # generate plots
-    for v in info['pltvars']:
+    for v in info["pltvars"]:
 
         if args.merge:
             mergefiles = list()
 
-        for t in info['plttimes']:
+        for t in info["plttimes"]:
 
             # create figure and axes
             fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
+            ax = fig.add_subplot(111, projection="3d")
 
-            ax.plot_surface(X, Y, zdata[t, :, :, v], rstride=1, cstride=1,
-                            cmap=cm.jet, linewidth=0, antialiased=True,
-                            shade=True)
+            ax.plot_surface(
+                X,
+                Y,
+                zdata[t, :, :, v],
+                rstride=1,
+                cstride=1,
+                cmap=cm.jet,
+                linewidth=0,
+                antialiased=True,
+                shade=True,
+            )
 
             # set axis limits
-            ax.set_xlim([info['xl'], info['xu']])
-            ax.set_ylim([info['yl'], info['yu']])
-            ax.set_zlim(info['zmin'][v], info['zmax'][v])
+            ax.set_xlim([info["xl"], info["xu"]])
+            ax.set_ylim([info["yl"], info["yu"]])
+            ax.set_zlim(info["zmin"][v], info["zmax"][v])
 
             # initial perspective
             ax.view_init(20, -120)
 
             # add axis labels
-            plt.xlabel(info['xlabel'])
-            plt.ylabel(info['ylabel'])
+            plt.xlabel(info["xlabel"])
+            plt.ylabel(info["ylabel"])
 
             # add z-axis label
             if args.zlabel:
                 ax.set_zlabel(args.zlabel)
-            elif info['varnames']:
-                ax.set_zlabel(info['varnames'][v])
+            elif info["varnames"]:
+                ax.set_zlabel(info["varnames"][v])
             else:
-                ax.set_zlabel('z')
+                ax.set_zlabel("z")
 
             # add title
             tstr = str(time[t])
             if args.title:
                 title = args.title
-            elif info['title']:
-                title = info['title']
+            elif info["title"]:
+                title = info["title"]
             else:
-                title = 'Solution'
-            plt.title(title + '\nt = ' + tstr)
+                title = "Solution"
+            plt.title(title + "\nt = " + tstr)
 
             # add grid
             if args.grid:
@@ -690,15 +731,15 @@ def plot_surface(args, info, time, xvals, yvals, zdata):
             # save plot to file
             if args.save:
                 if args.prefix:
-                    fname = args.prefix + '_fig_surface_'
+                    fname = args.prefix + "_fig_surface_"
                 else:
-                    fname = 'fig_surface_'
-                if info['varnames']:
-                    fname += info['varnames'][v]
+                    fname = "fig_surface_"
+                if info["varnames"]:
+                    fname += info["varnames"][v]
                 else:
-                    fname += 'var_' + repr(v).zfill(3)
-                fname += '_t_' + repr(t).zfill(3) + '.pdf'
-                plt.savefig(fname, bbox_inches='tight')
+                    fname += "var_" + repr(v).zfill(3)
+                fname += "_t_" + repr(t).zfill(3) + ".pdf"
+                plt.savefig(fname, bbox_inches="tight")
                 if args.merge:
                     mergefiles.append(fname)
             else:
@@ -707,14 +748,14 @@ def plot_surface(args, info, time, xvals, yvals, zdata):
 
         if args.merge:
             if args.prefix:
-                fname = args.prefix + '_fig_surface_'
+                fname = args.prefix + "_fig_surface_"
             else:
-                fname = 'fig_surface_'
-            if info['varnames']:
-                fname += info['varnames'][v]
+                fname = "fig_surface_"
+            if info["varnames"]:
+                fname += info["varnames"][v]
             else:
-                fname += 'var_' + repr(v).zfill(3)
-            fname += '.pdf'
+                fname += "var_" + repr(v).zfill(3)
+            fname += ".pdf"
             merge_pdf(mergefiles, fname)
 
 
@@ -732,38 +773,47 @@ def plot_surface_ani(args, info, time, xvals, yvals, zdata):
 
     def update_plot(frame_number, zarray, v, plot):
         plot[0].remove()
-        plot[0] = ax.plot_surface(X, Y, zarray[frame_number, :, :, v],
-                                  cmap=cm.jet)
+        plot[0] = ax.plot_surface(X, Y, zarray[frame_number, :, :, v], cmap=cm.jet)
 
         tstr = str(time[frame_number])
         if args.title:
             title = args.title
-        elif info['title']:
-            title = info['title']
+        elif info["title"]:
+            title = info["title"]
         else:
-            title = 'Solution'
-        plt.title(title + '\nt = ' + tstr)
+            title = "Solution"
+        plt.title(title + "\nt = " + tstr)
 
-        return plot,
+        return (plot,)
 
     # set x and y meshgrid objects
     X, Y = np.meshgrid(xvals, yvals)
 
     # generate plots
-    for v in info['pltvars']:
+    for v in info["pltvars"]:
 
         # create figure and axes
         fig = plt.figure()
-        ax = plt.axes(projection='3d')
+        ax = plt.axes(projection="3d")
 
-        plot = [ax.plot_surface(X, Y, zdata[0, :, :, v], rstride=1, cstride=1,
-                                cmap=cm.jet, linewidth=0, antialiased=True,
-                                shade=True)]
+        plot = [
+            ax.plot_surface(
+                X,
+                Y,
+                zdata[0, :, :, v],
+                rstride=1,
+                cstride=1,
+                cmap=cm.jet,
+                linewidth=0,
+                antialiased=True,
+                shade=True,
+            )
+        ]
 
         # set axis limits
-        ax.set_xlim([info['xl'], info['xu']])
-        ax.set_ylim([info['yl'], info['yu']])
-        ax.set_zlim([info['zmin'][v], info['zmax'][v]])
+        ax.set_xlim([info["xl"], info["xu"]])
+        ax.set_ylim([info["yl"], info["yu"]])
+        ax.set_zlim([info["zmin"][v], info["zmax"][v]])
 
         # initial perspective
         ax.view_init(20, -120)
@@ -772,45 +822,45 @@ def plot_surface_ani(args, info, time, xvals, yvals, zdata):
         if args.xlabel:
             plt.xlabel(args.xlabel)
         else:
-            ax.set_xlabel('x')
+            ax.set_xlabel("x")
 
         # add y-axis label
         if args.ylabel:
             plt.ylabel(args.ylabel)
         else:
-            ax.set_ylabel('y')
+            ax.set_ylabel("y")
 
         # add z-axis label
         if args.zlabel:
             ax.set_zlabel(args.zlabel)
-        elif info['varnames']:
-            ax.set_zlabel(info['varnames'][v])
+        elif info["varnames"]:
+            ax.set_zlabel(info["varnames"][v])
         else:
-            ax.set_zlabel('z')
+            ax.set_zlabel("z")
 
         # add grid
         if args.grid:
             plt.grid()
 
-        fps = 2          # frame per sec
+        fps = 2  # frame per sec
         frn = len(time)  # number of frames in the animation
 
         # create animation
-        ani = animation.FuncAnimation(fig, update_plot, frn,
-                                      fargs=(zdata, v, plot),
-                                      interval=1000/fps)
+        ani = animation.FuncAnimation(
+            fig, update_plot, frn, fargs=(zdata, v, plot), interval=1000 / fps
+        )
 
         # save animation to file
         if args.save:
             if args.prefix:
-                fname = args.prefix + '_ani_surface_'
+                fname = args.prefix + "_ani_surface_"
             else:
-                fname = 'ani_surface_'
-            if info['varnames']:
-                fname += info['varnames'][v]
+                fname = "ani_surface_"
+            if info["varnames"]:
+                fname += info["varnames"][v]
             else:
-                fname += 'var_' + repr(v).zfill(3)
-            ani.save(fname + '.mp4', dpi=200, fps=fps)
+                fname += "var_" + repr(v).zfill(3)
+            ani.save(fname + ".mp4", dpi=200, fps=fps)
         else:
             plt.show()
         plt.close()
@@ -830,36 +880,37 @@ def plot_contour(args, info, time, xvals, yvals, zdata):
     X, Y = np.meshgrid(xvals, yvals)
 
     # generate plots
-    for v in info['pltvars']:
+    for v in info["pltvars"]:
 
-        levels = np.linspace(info['zmin'][v], info['zmax'][v], 100)
-        ticks = np.linspace(info['zmin'][v], info['zmax'][v], 10)
+        levels = np.linspace(info["zmin"][v], info["zmax"][v], 100)
+        ticks = np.linspace(info["zmin"][v], info["zmax"][v], 10)
 
-        for t in info['plttimes']:
+        for t in info["plttimes"]:
 
             # create figure and axes
             fig, ax = plt.subplots()
 
-            cf = ax.contourf(X, Y, zdata[t, :, :, v], levels=levels,
-                             cmap="coolwarm", extend="both")
+            cf = ax.contourf(
+                X, Y, zdata[t, :, :, v], levels=levels, cmap="coolwarm", extend="both"
+            )
             fig.colorbar(cf, ax=ax, fraction=0.046, pad=0.04, ticks=ticks)
 
             # set axis limits
-            ax.set_xlim([info['xl'], info['xu']])
-            ax.set_ylim([info['yl'], info['yu']])
+            ax.set_xlim([info["xl"], info["xu"]])
+            ax.set_ylim([info["yl"], info["yu"]])
 
             # add axis labels
-            plt.xlabel(info['xlabel'])
-            plt.ylabel(info['ylabel'])
+            plt.xlabel(info["xlabel"])
+            plt.ylabel(info["ylabel"])
 
             # add title
             tstr = str(time[t])
             if args.title:
-                plt.title(args.title + ' at t = ' + tstr)
-            elif info['title']:
-                plt.title(info['title'] + ' at t = ' + tstr)
+                plt.title(args.title + " at t = " + tstr)
+            elif info["title"]:
+                plt.title(info["title"] + " at t = " + tstr)
             else:
-                plt.title('Solution at t = ' + tstr)
+                plt.title("Solution at t = " + tstr)
 
             # add grid
             if args.grid:
@@ -868,15 +919,15 @@ def plot_contour(args, info, time, xvals, yvals, zdata):
             # save plot to file
             if args.save:
                 if args.prefix:
-                    fname = args.prefix + '_fig_contour_'
+                    fname = args.prefix + "_fig_contour_"
                 else:
-                    fname = 'fig_contour_'
-                if info['varnames']:
-                    fname += info['varnames'][v]
+                    fname = "fig_contour_"
+                if info["varnames"]:
+                    fname += info["varnames"][v]
                 else:
-                    fname += 'var_' + repr(v).zfill(3)
-                fname += '_t_' + repr(t).zfill(3) + '.pdf'
-                plt.savefig(fname, bbox_inches='tight')
+                    fname += "var_" + repr(v).zfill(3)
+                fname += "_t_" + repr(t).zfill(3) + ".pdf"
+                plt.savefig(fname, bbox_inches="tight")
             else:
                 plt.show()
             plt.close()
@@ -894,67 +945,76 @@ def plot_contour_ani(args, info, time, xvals, yvals, zdata):
     import matplotlib.animation as animation
 
     def update_plot(frame_number, zarray, v, plot):
-        plot[0] = ax.contourf(X, Y, zdata[frame_number, :, :, v],
-                              levels=levels, cmap="coolwarm", extend="both")
+        plot[0] = ax.contourf(
+            X,
+            Y,
+            zdata[frame_number, :, :, v],
+            levels=levels,
+            cmap="coolwarm",
+            extend="both",
+        )
 
         tstr = str(time[frame_number])
         if args.title:
             title = args.title
-        elif info['title']:
-            title = info['title']
+        elif info["title"]:
+            title = info["title"]
         else:
-            title = 'Solution'
-        plt.title(title + '\nt = ' + tstr)
+            title = "Solution"
+        plt.title(title + "\nt = " + tstr)
 
-        return plot,
+        return (plot,)
 
     # set x and y meshgrid objects
     X, Y = np.meshgrid(xvals, yvals)
 
     # generate plots
-    for v in info['pltvars']:
+    for v in info["pltvars"]:
 
-        levels = np.linspace(info['zmin'][v], info['zmax'][v], 100)
-        ticks = np.linspace(info['zmin'][v], info['zmax'][v], 10)
+        levels = np.linspace(info["zmin"][v], info["zmax"][v], 100)
+        ticks = np.linspace(info["zmin"][v], info["zmax"][v], 10)
 
         # create figure and axes
         fig, ax = plt.subplots()
 
-        plot = [ax.contourf(X, Y, zdata[0, :, :, v], levels=levels,
-                            cmap="coolwarm", extend="both")]
+        plot = [
+            ax.contourf(
+                X, Y, zdata[0, :, :, v], levels=levels, cmap="coolwarm", extend="both"
+            )
+        ]
         fig.colorbar(plot[0], ax=ax, fraction=0.046, pad=0.04, ticks=ticks)
 
         # set axis limits
-        ax.set_xlim([info['xl'], info['xu']])
-        ax.set_ylim([info['yl'], info['yu']])
+        ax.set_xlim([info["xl"], info["xu"]])
+        ax.set_ylim([info["yl"], info["yu"]])
 
         # add axis labels
-        plt.xlabel(info['xlabel'])
-        plt.ylabel(info['ylabel'])
+        plt.xlabel(info["xlabel"])
+        plt.ylabel(info["ylabel"])
 
         # add grid
         if args.grid:
             plt.grid()
 
-        fps = 2          # frame per sec
+        fps = 2  # frame per sec
         frn = len(time)  # number of frames in the animation
 
         # create animation
-        ani = animation.FuncAnimation(fig, update_plot, frn,
-                                      fargs=(zdata, v, plot),
-                                      interval=1000/fps)
+        ani = animation.FuncAnimation(
+            fig, update_plot, frn, fargs=(zdata, v, plot), interval=1000 / fps
+        )
 
         # save animation to file
         if args.save:
             if args.prefix:
-                fname = args.prefix + '_ani_contour_'
+                fname = args.prefix + "_ani_contour_"
             else:
-                fname = 'ani_contour_'
-            if info['varnames']:
-                fname += info['varnames'][v]
+                fname = "ani_contour_"
+            if info["varnames"]:
+                fname += info["varnames"][v]
             else:
-                fname += 'var_' + repr(v).zfill(3)
-            ani.save(fname + '.mp4', dpi=200, fps=fps)
+                fname += "var_" + repr(v).zfill(3)
+            ani.save(fname + ".mp4", dpi=200, fps=fps)
         else:
             plt.show()
         plt.close()
@@ -971,10 +1031,10 @@ def plot_slice_vars(args, info, time, svals, sdata, hlabel, suffix):
     import matplotlib.pyplot as plt
 
     # determine extents of slice plot
-    smin = np.zeros(info['nvar'])
-    smax = np.zeros(info['nvar'])
+    smin = np.zeros(info["nvar"])
+    smax = np.zeros(info["nvar"])
 
-    for v in range(info['nvar']):
+    for v in range(info["nvar"]):
         smin[v] = np.amin(sdata[:, :, v])
         smax[v] = np.amax(sdata[:, :, v])
 
@@ -989,13 +1049,13 @@ def plot_slice_vars(args, info, time, svals, sdata, hlabel, suffix):
         label = ["%.2f" % t for t in time]
 
     # create plot for each variable
-    for v in info['pltvars']:
+    for v in info["pltvars"]:
 
         # create figure and axes
         fig, ax = plt.subplots()
 
         # add each output time to the plot
-        for t in info['plttimes']:
+        for t in info["plttimes"]:
             ax.plot(svals, sdata[t, :, v], label=label[t])
 
         # set axis limits
@@ -1012,19 +1072,19 @@ def plot_slice_vars(args, info, time, svals, sdata, hlabel, suffix):
         if args.zlabel:
             ax.set_ylabel(args.zlabel)
         else:
-            if info['varnames']:
-                ax.set_ylabel(info['varnames'][v])
+            if info["varnames"]:
+                ax.set_ylabel(info["varnames"][v])
             else:
-                ax.set_ylabel('variable ' + repr(v))
+                ax.set_ylabel("variable " + repr(v))
 
         # add title
         if args.title:
             plt.title(args.title + suffix)
-        elif info['title']:
-            plt.title(info['title'] + suffix)
+        elif info["title"]:
+            plt.title(info["title"] + suffix)
         else:
-            if info['varnames']:
-                plt.title("Evolution of " + info['varnames'][v] + suffix)
+            if info["varnames"]:
+                plt.title("Evolution of " + info["varnames"][v] + suffix)
             else:
                 plt.title("Evolution of variable " + repr(v) + suffix)
 
@@ -1035,14 +1095,14 @@ def plot_slice_vars(args, info, time, svals, sdata, hlabel, suffix):
         # save plot to file
         if args.save:
             if args.prefix:
-                fname = args.prefix + '_fig_slice_'
+                fname = args.prefix + "_fig_slice_"
             else:
-                fname = 'fig_slice_'
-            if info['varnames']:
-                fname += info['varnames'][v]
+                fname = "fig_slice_"
+            if info["varnames"]:
+                fname += info["varnames"][v]
             else:
-                fname += 'var_' + repr(v).zfill(3)
-            plt.savefig(fname + '.pdf', bbox_inches='tight')
+                fname += "var_" + repr(v).zfill(3)
+            plt.savefig(fname + ".pdf", bbox_inches="tight")
         else:
             plt.show()
         plt.close()
@@ -1069,19 +1129,19 @@ def plot_slice_time(args, info, time, svals, sdata, hlabel, suffix):
     # set labels for the plot legend
     if args.labels:
         label = args.labels
-    elif info['varnames']:
-        label = info['varnames']
+    elif info["varnames"]:
+        label = info["varnames"]
     else:
-        label = [None] * info['nvar']
+        label = [None] * info["nvar"]
 
     # create plot for each variable
-    for t in info['plttimes']:
+    for t in info["plttimes"]:
 
         # create figure and axes
         fig, ax = plt.subplots()
 
         # add each output time to the plot
-        for v in info['pltvars']:
+        for v in info["pltvars"]:
             ax.plot(svals, sdata[t, :, v], label=label[v])
 
         # set axis limits
@@ -1101,11 +1161,11 @@ def plot_slice_time(args, info, time, svals, sdata, hlabel, suffix):
         # add title
         tstr = str(time[t])
         if args.title:
-            plt.title(args.title + suffix + ' and t = ' + tstr)
-        elif info['title']:
-            plt.title(info['title'] + suffix + ' and t = ' + tstr)
+            plt.title(args.title + suffix + " and t = " + tstr)
+        elif info["title"]:
+            plt.title(info["title"] + suffix + " and t = " + tstr)
         else:
-            plt.title("Evolution" + suffix + ' and t = ' + tstr)
+            plt.title("Evolution" + suffix + " and t = " + tstr)
 
         # add grid
         if args.grid:
@@ -1114,11 +1174,11 @@ def plot_slice_time(args, info, time, svals, sdata, hlabel, suffix):
         # save plot to file
         if args.save:
             if args.prefix:
-                fname = args.prefix + '_fig_slice_t_'
+                fname = args.prefix + "_fig_slice_t_"
             else:
-                fname = 'fig_slice_t_'
-            fname += repr(t).zfill(3) + '.pdf'
-            plt.savefig(fname, bbox_inches='tight')
+                fname = "fig_slice_t_"
+            fname += repr(t).zfill(3) + ".pdf"
+            plt.savefig(fname, bbox_inches="tight")
         else:
             plt.show()
         plt.close()
@@ -1136,16 +1196,16 @@ def plot_point(args, info, time, pdata, suffix):
     # set labels for the plot legend
     if args.labels:
         label = args.labels
-    elif info['varnames']:
-        label = info['varnames']
+    elif info["varnames"]:
+        label = info["varnames"]
     else:
-        label = [None] * info['nvar']
+        label = [None] * info["nvar"]
 
     # create figure and axes
     fig, ax = plt.subplots()
 
     # create plot for each variable
-    for v in info['pltvars']:
+    for v in info["pltvars"]:
         ax.plot(time, pdata[:, v], label=label[v])
 
     # add legend
@@ -1157,8 +1217,8 @@ def plot_point(args, info, time, pdata, suffix):
     # add title
     if args.title:
         plt.title(args.title + suffix)
-    elif info['title']:
-        plt.title(info['title'] + suffix)
+    elif info["title"]:
+        plt.title(info["title"] + suffix)
     else:
         plt.title("Evolution" + suffix)
 
@@ -1169,10 +1229,10 @@ def plot_point(args, info, time, pdata, suffix):
     # save plot to file
     if args.save:
         if args.prefix:
-            fname = args.prefix + '_fig_point'
+            fname = args.prefix + "_fig_point"
         else:
-            fname = 'fig_point'
-        plt.savefig(fname + '.pdf', bbox_inches='tight')
+            fname = "fig_point"
+        plt.savefig(fname + ".pdf", bbox_inches="tight")
     else:
         plt.show()
     plt.close()
@@ -1183,6 +1243,7 @@ def plot_point(args, info, time, pdata, suffix):
 # -----------------------------------------------------------------------------
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
+
     sys.exit(main())

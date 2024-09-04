@@ -14,26 +14,29 @@
 # CMakeLists.txt file for ARKODE parallel C examples
 # -----------------------------------------------------------------
 
-# Example lists are tuples "name\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;nodes\;tasks\;type" where the type is develop
+# for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(ARKODE_examples
-  "ark_diurnal_kry_p\;\;1\;4\;exclude-single\;default"
-  "ark_diurnal_kry_bbd_p\;\;1\;4\;exclude-single\;default"
+set(ARKODE_examples "ark_diurnal_kry_p\;\;1\;4\;exclude-single\;default"
+                    "ark_diurnal_kry_bbd_p\;\;1\;4\;exclude-single\;default")
+
+if(SUNDIALS_PRECISION MATCHES "DOUBLE" AND SUNDIALS_INDEX_SIZE MATCHES "64")
+
+  list(APPEND ARKODE_examples
+       "ark_brusselator1D_task_local_nls\;--monitor\;1\;4\;develop\;2")
+  list(
+    APPEND ARKODE_examples
+    "ark_brusselator1D_task_local_nls\;--monitor --global-nls\;1\;4\;develop\;2"
   )
-
-if(SUNDIALS_PRECISION MATCHES "DOUBLE" AND
-   SUNDIALS_INDEX_SIZE MATCHES "64")
-
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls\;--monitor\;1\;4\;develop\;2")
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls\;--monitor --global-nls\;1\;4\;develop\;2")
-  list(APPEND ARKODE_examples "ark_brusselator1D_task_local_nls\;--monitor --explicit --tf 3\;1\;4\;develop\;2")
+  list(
+    APPEND
+    ARKODE_examples
+    "ark_brusselator1D_task_local_nls\;--monitor --explicit --tf 3\;1\;4\;develop\;2"
+  )
 
   # Auxiliary files to install
-  set(ARKODE_extras
-    "plot_brusselator1D.py"
-  )
+  set(ARKODE_extras "plot_brusselator1D.py")
 endif()
 
 if(MPI_C_COMPILER)
@@ -82,7 +85,8 @@ foreach(example_tuple ${ARKODE_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(
+    ${test_name} ${example}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
@@ -96,13 +100,12 @@ foreach(example_tuple ${ARKODE_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel)
   endif()
 
 endforeach(example_tuple ${ARKODE_examples})
 
-
-# create Makfile and CMakeLists.txt for examples
+# create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -110,7 +113,8 @@ if(EXAMPLES_INSTALL)
 
   # Install the extra files
   foreach(extrafile ${ARKODE_extras})
-    install(FILES ${extrafile} DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel)
+    install(FILES ${extrafile}
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel)
   endforeach(extrafile ${ARKODE_extras})
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -120,39 +124,32 @@ if(EXAMPLES_INSTALL)
   examples2string(ARKODE_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/arkode/C_parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_parallel
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

@@ -14,20 +14,16 @@
 # CMakeLists.txt file for CUDA nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
+# develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS cuda nvector
 set(nvector_cuda_examples
-  "test_nvector_cuda\;3 32 0\;\;\;"
-  "test_nvector_cuda\;500 128 0\;\;\;"
-  "test_nvector_cuda\;1000 0 0\;\;\;"
-  )
+    "test_nvector_cuda\;3 32 0\;\;\;" "test_nvector_cuda\;500 128 0\;\;\;"
+    "test_nvector_cuda\;1000 0 0\;\;\;")
 
 # Dependencies for nvector examples
-set(nvector_examples_dependencies
-  test_nvector
-  )
+set(nvector_examples_dependencies test_nvector)
 
 # Add source directory to include directories
 include_directories(. .. ${PROJECT_SOURCE_DIR}/examples/utilities)
@@ -48,13 +44,13 @@ foreach(example_tuple ${nvector_cuda_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.cu)
 
-    # link vector test utilties
+    # link vector test utilities
     target_link_libraries(${example} PRIVATE test_nvector_obj)
 
     # folder to organize targets in an IDE
@@ -75,27 +71,27 @@ foreach(example_tuple ${nvector_cuda_examples})
     if("${number_of_tasks}" STREQUAL "")
       string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+      string(REGEX REPLACE " " "_" test_name
+                           ${example}_${number_of_tasks}_${example_args})
     endif()
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(
+    ${test_name} ${example}
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu
-      ../test_nvector.c
-      ../test_nvector.h
-      ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_gpu.h
+    install(
+      FILES ${example}.cu ../test_nvector.c ../test_nvector.h
+            ${SUNDIALS_SOURCE_DIR}/examples/utilities/custom_memory_helper_gpu.h
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
   endif()
 
 endforeach(example_tuple ${nvector_cuda_examples})
-
 
 if(EXAMPLES_INSTALL)
 
@@ -109,39 +105,32 @@ if(EXAMPLES_INSTALL)
   examples2string(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_CUDA_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/cuda/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/nvector/cuda/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/cuda/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda
-    )
+  install(FILES ${PROJECT_BINARY_DIR}/examples/nvector/cuda/CMakeLists.txt
+          DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_CUDA_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/cuda/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/nvector/cuda/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/nvector/cuda/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

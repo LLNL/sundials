@@ -1,10 +1,32 @@
 # SUNDIALS Changelog
 
+## Changes to SUNDIALS in release X.Y.Z
+
+### Major Features
+
+### New Features and Enhancements
+
+The default value of `CMAKE_CUDA_ARCHITECTURES` is no longer set to `70` and is
+now determined automatically by CMake. The previous default was only valid for
+Volta GPUs while the automatically selected value will vary across compilers and
+compiler versions. As such, users are encouraged to override this value with the
+architecture for their system.
+
+### Bug Fixes
+
+Fixed the loading of ARKStep's default first order explicit method.
+
+Fixed a CMake bug regarding usage of missing "print_warning" macro
+that was only triggered when the deprecated `CUDA_ARCH` option was used.
+
+### Deprecation Notices
+
 ## Changes to SUNDIALS in release 7.1.1
 
 ### Bug Fixes
 
-Fixed a [bug](https://github.com/LLNL/sundials/pull/523) in v7.1.0 with the SYCL N_Vector `N_VSpace` function. 
+Fixed a [bug](https://github.com/LLNL/sundials/pull/523) in v7.1.0 with the SYCL
+N_Vector `N_VSpace` function.
 
 ## Changes to SUNDIALS in release 7.1.0
 
@@ -1776,7 +1798,7 @@ update their code to set the corresponding `ops` structure member,
 `matvecsetup`, to `NULL`.
 
 The generic SUNMatrix API now defines error codes to be returned by SUNMatrix
-operations. Operations which return an integer flag indiciating success/failure
+operations. Operations which return an integer flag indicating success/failure
 may return different values than previously.
 
 A new SUNMatrix (and SUNLinearSolver) implementation was added to facilitate
@@ -1888,7 +1910,7 @@ function signatures have been changed including MRIStepCreate which now
 takes an ARKStep memory structure for the fast integration as an input.
 
 The reinitialization functions `ERKStepReInit`, `ARKStepReInit`, and
-`MRIStepReInit` have been updated to retain the minimum and maxiumum step
+`MRIStepReInit` have been updated to retain the minimum and maximum step
 size values from before reinitialization rather than resetting them to the
 default values.
 
@@ -1913,7 +1935,7 @@ being built.
 
 Fixed a memory leak in the PETSc `N_Vector` clone function.
 
-Fixed a memeory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
+Fixed a memory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
 the default nonlinear solver.
 
 Fixed a bug in the ARKStep time-stepping module in ARKODE that would result in
@@ -2625,7 +2647,7 @@ with sparse direct solvers.
 
 #### KINSOL
 
-The Picard iteration return was chanegd to always return the newest iterate upon
+The Picard iteration return was changed to always return the newest iterate upon
 success.
 
 A minor bug in the line search was fixed to prevent an infinite loop when the

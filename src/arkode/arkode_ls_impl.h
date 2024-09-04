@@ -234,7 +234,7 @@ int arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);
 int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef);
 int arkLsMassFree(ARKodeMem ark_mem);
 
-/* Auxilliary functions */
+/* Auxiliary functions */
 int arkLsInitializeCounters(ARKLsMem arkls_mem);
 int arkLsInitializeMassCounters(ARKLsMassMem arkls_mem);
 int arkLs_AccessARKODELMem(void* arkode_mem, const char* fname,

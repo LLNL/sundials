@@ -40,8 +40,8 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
   set(multiValueArgs TARGETS BACKENDS)
 
   # Parse keyword arguments and options
-  cmake_parse_arguments(arg
-    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(arg "${options}" "${oneValueArgs}" "${multiValueArgs}"
+                        ${ARGN})
 
   foreach(example_tuple ${${EXAMPLES_VAR}})
     foreach(backend ${arg_BACKENDS})
@@ -87,17 +87,13 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
         target_compile_definitions(${example_target} PRIVATE USE_${backend})
 
         # directories to include
-        target_include_directories(${example_target}
-          PRIVATE
-          "${PROJECT_SOURCE_DIR}/examples/utilities")
+        target_include_directories(
+          ${example_target} PRIVATE "${PROJECT_SOURCE_DIR}/examples/utilities")
 
         # libraries to link against
-        target_link_libraries(${example_target}
-          PRIVATE
-          ${arg_TARGETS}
-          sundials_${vector}
-          Ginkgo::ginkgo
-          ${EXTRA_LINK_LIBS})
+        target_link_libraries(
+          ${example_target} PRIVATE ${arg_TARGETS} sundials_${vector}
+                                    Ginkgo::ginkgo ${EXTRA_LINK_LIBS})
 
       endif()
 
@@ -105,17 +101,20 @@ macro(sundials_add_examples_ginkgo EXAMPLES_VAR)
       if("${example_args}" STREQUAL "")
         set(test_name ${example_target})
       else()
-        string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+        string(REGEX REPLACE " " "_" test_name
+                             ${example_target}_${example_args})
       endif()
 
       # add example to regression tests
       if(${arg_UNIT_TEST})
-        sundials_add_test(${test_name} ${example_target}
+        sundials_add_test(
+          ${test_name} ${example_target}
           EXAMPLE_TYPE ${example_type}
           TEST_ARGS ${example_args}
           NODIFF)
       else()
-        sundials_add_test(${test_name} ${example_target}
+        sundials_add_test(
+          ${test_name} ${example_target}
           EXAMPLE_TYPE ${example_type}
           TEST_ARGS ${example_args}
           ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
