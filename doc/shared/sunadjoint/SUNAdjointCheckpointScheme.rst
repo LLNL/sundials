@@ -180,7 +180,7 @@ The SUNAdjointCheckpointScheme_Basic module implements a scheme where a checkpoi
 fixed interval (in timesteps). The module supports checkpointing of time step states only, or time
 step stages with intermediate stage states as well (for multistage methods). When used with a
 fixed timestep size then the number of checkpoints that will be saved is fixed. However, with
-adaptive timesteps the number of checkpoints stored with this scheme is unbounded. 
+adaptive timesteps the number of checkpoints stored with this scheme is unbounded.
 
 The diagram below illustrates how checkpoints are stored with this scheme:
 
@@ -213,17 +213,6 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param yes_or_no: On output, will be 1 if you should save, 0 otherwise.
    :return: A `SUNErrCode` indicating success or failure.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Insert_Basic(SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num, sunrealtype t, SUNDataNode state)
-
-   Inserts a checkpoint state represented as a `SUNDataNode`.
-
-   :param check_scheme: The `SUNAdjointCheckpointScheme` object.
-   :param step_num: The current time step number.
-   :param stage_num: The current stage number (only nonzero for multistage methods).
-   :param t: The current time.
-   :param state: A `SUNDataNode` object that holds the current state to be inserted.
-   :return: A `SUNErrCode` indicating success or failure.
-
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num, sunrealtype t, N_Vector state)
 
    Inserts a checkpoint state represented as a `N_Vector`.
@@ -246,16 +235,6 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param yes_or_no: On output, will be 1 if you should delete, 0 otherwise.
    :return: A `SUNErrCode` indicating success or failure.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Remove_Basic(SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num, SUNDataNode* out)
-
-   Removes a checkpoint state represented as a `SUNDataNode`.
-
-   :param check_scheme: The `SUNAdjointCheckpointScheme` object.
-   :param step_num: The current time step number.
-   :param stage_num: The current stage number (only nonzero for multistage methods).
-   :param out: Pointer to the `SUNDataNode` object that holds the current state to be removed.
-   :return: A `SUNErrCode` indicating success or failure.
-
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Basic(SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num, N_Vector* out)
 
    Removes a checkpoint state represented as a `N_Vector`.
@@ -264,16 +243,6 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param step_num: The current time step number.
    :param stage_num: The current stage number (only nonzero for multistage methods).
    :param out: Pointer to the `N_Vector` object that holds the current state to be removed.
-   :return: A `SUNErrCode` indicating success or failure.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Load_Basic(SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num, SUNDataNode* out)
-
-   Loads a checkpoint state represented as a `N_Vector`.
-
-   :param check_scheme: The `SUNAdjointCheckpointScheme` object.
-   :param step_num: The current time step number.
-   :param stage_num: The current stage number (only nonzero for multistage methods).
-   :param out: Pointer to the `SUNDataNode` object that holds loaded state.
    :return: A `SUNErrCode` indicating success or failure.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
