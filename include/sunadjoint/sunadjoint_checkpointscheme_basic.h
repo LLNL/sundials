@@ -18,11 +18,8 @@
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_datanode.h>
-
-#include "sundials/priv/sundials_errors_impl.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_export.h"
-#include "sundials/sundials_types.h"
+#include <sundials/sundials_export.h>
+#include <sundials/sundials_types.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -40,11 +37,6 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(
   sunindextype stage_num, sunrealtype t, sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_Insert_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunrealtype t, SUNDataNode state);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
   SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
   sunindextype stage_num, sunrealtype t, N_Vector state);
@@ -55,19 +47,9 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete_Basic(
   sunindextype stage_num, sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_Remove_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, SUNDataNode* out);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Basic(
   SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
   sunindextype stage_num, N_Vector* out);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_Load_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, SUNDataNode* out);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
