@@ -245,7 +245,6 @@ inline int kpr_rhs_s(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   return 0;
 }
 
-
 /* -----------------------------------------------------------------------------
  * ODE Slow Explicit RHS function:
  *   [ r'(t) / (2u) ]

@@ -110,8 +110,8 @@ int main(int argc, char* argv[])
   flag = ARKodeSStolerances(arkode_mem, rtol, atol);
   if (check_flag(flag, "ARKodeSStolerances")) { return 1; }
 
-  SUNMatrix A        = nullptr;
-  SUNLinearSolver LS = nullptr;
+  SUNMatrix A            = nullptr;
+  SUNLinearSolver LS     = nullptr;
   SUNNonlinearSolver NLS = nullptr;
 
   if (method_type > 0)

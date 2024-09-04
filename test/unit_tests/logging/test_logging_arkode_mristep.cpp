@@ -97,10 +97,7 @@ int main(int argc, char* argv[])
 
   MRIStepInnerStepper stepper = nullptr;
   flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
-  if (check_flag(flag, "ARKStepCreateMRIStepInnerStepper"))
-  {
-    return 1;
-  }
+  if (check_flag(flag, "ARKStepCreateMRIStepInnerStepper")) { return 1; }
 
   // Create MRIStep memory structure
   void* arkode_mem = nullptr;
@@ -139,8 +136,8 @@ int main(int argc, char* argv[])
   flag = ARKodeSetFixedStep(arkode_mem, hfixed);
   if (check_flag(flag, "ARKodeSetFixedStep")) { return 1; }
 
-  SUNMatrix A        = nullptr;
-  SUNLinearSolver LS = nullptr;
+  SUNMatrix A            = nullptr;
+  SUNLinearSolver LS     = nullptr;
   SUNNonlinearSolver NLS = nullptr;
 
   if (method_type > 0)
