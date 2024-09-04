@@ -11,14 +11,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
-  * This is the header file for the ARKODE SplittingStep module.
+  * This is the header file for the ARKODE ForcingStep module.
  *--------------------------------------------------------------*/
 
-#ifndef ARKODE_SPLITTINGSTEP_H_
-#define ARKODE_SPLITTINGSTEP_H_
+#ifndef ARKODE_FORCINGINGSTEP_H_
+#define ARKODE_FORCINGINGSTEP_H_
 
-#include <arkode/arkode_execution_policy.h>
-#include <arkode/arkode_splitting_coefficients.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_stepper.h>
 #include <sundials/sundials_types.h>
@@ -27,22 +25,10 @@
 extern "C" {
 #endif
 
-/* TODO: can we use `const SUNStepper* steppers`? */
-/* TODO: would (t0, y0, steppers, partitions, sunctx) be a better arg order? Seems slightly more consistent with MRIStepCreate */
-SUNDIALS_EXPORT void* SplittingStepCreate(SUNStepper* steppers, int partitions,
-                                          sunrealtype t0, N_Vector y0,
-                                          SUNContext sunctx);
-
-SUNDIALS_EXPORT int SplittingStepCreateForcing(SUNStepper stepper1,
+SUNDIALS_EXPORT void *ForcingStepCreate(SUNStepper stepper1,
                                                SUNStepper stepper2,
                                                sunrealtype t0, N_Vector y0,
                                                SUNContext sunctx);
-
-SUNDIALS_EXPORT int SplittingStep_SetCoefficients(
-  void* arkode_mem, SplittingStepCoefficients coefficients);
-
-SUNDIALS_EXPORT int SplittingStep_SetExecutionPolicy(
-  void* arkode_mem, ARKodeSplittingExecutionPolicy policy);
 
 #ifdef __cplusplus
 }

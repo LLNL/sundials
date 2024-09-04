@@ -77,5 +77,39 @@ SplittingStep initialization functions
          outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
 
    **Example codes:**
-      * ``examples/arkode/C_serial/TODO.c``
-      * ``examples/arkode/C_serial/TODO.c``
+      * ``examples/arkode/C_serial/ark_advection_diffusion_reaction_splitting.c``
+      * ``examples/arkode/C_serial/ark_analytic_splitting.c``
+   
+   .. versionadded:: x.y.z
+
+
+Optional inputs for IVP method selection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. c:function:: int SplittingStep_SetCoefficients(void* arkode_mem, SplittingStepCoefficients coefficients)
+
+   Specifies a customized set of coefficients for the operator splitting method.
+
+   **Arguments:**
+
+   * *arkode_mem* -- pointer to the SplittingStep memory block.
+
+   * *coefficients* -- the table of coupling coefficients for the MRI method.
+
+   **Return value:**
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the SplittingStep memory is ``NULL``
+
+   * *ARK_ILL_INPUT* if an argument has an illegal value
+
+   **Notes:**
+
+   For a description of the :c:type:`SplittingStepCoefficients` type and related
+   functions for creating splitting coefficients see
+   :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients`.
+
+   **Warning:**
+
+   This should not be used with :c:func:`ARKodeSetOrder`.

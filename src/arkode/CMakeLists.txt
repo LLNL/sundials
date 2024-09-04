@@ -29,6 +29,7 @@ set(arkode_SOURCES
     arkode_butcher.c
     arkode_erkstep_io.c
     arkode_erkstep.c
+    arkode_forcingstep.c
     arkode_interp.c
     arkode_io.c
     arkode_ls.c
@@ -58,6 +59,7 @@ set(arkode_HEADERS
     arkode_butcher_dirk.h
     arkode_butcher_erk.h
     arkode_erkstep.h
+    arkode_forcingstep.h
     arkode_ls.h
     arkode_mristep.h
     arkode_splittingstep.h

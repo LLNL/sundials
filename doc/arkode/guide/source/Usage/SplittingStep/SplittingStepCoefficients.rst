@@ -369,6 +369,8 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
       * An :c:type:`SplittingStepCoefficients` structure if successful.
       * A ``NULL`` pointer if an argument was invalid or an allocation error
         occurred.
+   
+   .. versionadded:: x.y.z
 
 
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_Copy(SplittingStepCoefficients coefficients)
@@ -381,6 +383,8 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
    **Return value:**
       * An :c:type:`SplittingStepCoefficients` structure if successful.
       * A ``NULL`` pointer if an allocation error occurred.
+   
+   .. versionadded:: x.y.z
 
 
 .. c:function:: void SplittingStepCoefficients_Free(SplittingStepCoefficients coefficients)
@@ -389,6 +393,8 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
 
    **Arguments:**
       * ``coefficients`` -- The splitting coefficients.
+   
+   .. versionadded:: x.y.z
 
 
 .. c:function:: void SplittingStepCoefficients_Write(SplittingStepCoefficients coefficients, FILE* outfile)
@@ -403,6 +409,8 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
 
       The *outfile* argument can be ``stdout`` or ``stderr``, or it may point to
       a specific file created using ``fopen``.
+   
+   .. versionadded:: x.y.z
 
 
 .. _ARKODE.Usage.SplittingStep.SplittingStepCoefficients.Coefficients:
@@ -439,3 +447,11 @@ with values specified for each method below (e.g.,
    ``ARKODE_SPLITTING_YOSHIDA_4_4_2``      4      :cite:p:`Yoshida:90`
    ``ARKODE_SPLITTING_YOSHIDA_8_6_2``      6      :cite:p:`Yoshida:90`
    ======================================  =====  =====================
+
+
+.. _ARKODE.Usage.SplittingStep.SplittingStepCoefficients.Default:
+
+Default Operator Splitting Coefficients
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The default SplittingStep 

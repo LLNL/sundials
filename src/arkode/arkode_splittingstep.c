@@ -138,29 +138,28 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* immediately return if reset */
-  if (init_type == RESET_INIT) { return ARK_SUCCESS; }
-
-  /* initializations/checks for (re-)initialization call */
-  if (init_type == FIRST_INIT)
+  /* immediately return if resize or reset */
+  if (init_type == RESIZE_INIT || init_type == RESET_INIT)
   {
-    retval = splittingStep_SetCoefficients(ark_mem, step_mem);
-    if (retval != ARK_SUCCESS) { return retval; }
+    return ARK_SUCCESS;
+  }
 
+  retval = splittingStep_SetCoefficients(ark_mem, step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (step_mem->policy == NULL)
+  {
+    step_mem->policy = ARKodeSplittingExecutionPolicy_New_Serial();
     if (step_mem->policy == NULL)
     {
-      step_mem->policy = ARKodeSplittingExecutionPolicy_New_Serial();
-      if (step_mem->policy == NULL)
+      if (step_mem->coefficients == NULL)
       {
-        if (step_mem->coefficients == NULL)
-        {
-          arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                          "Failed to allocate execution policy");
-          return ARK_MEM_FAIL;
-        }
+        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                        "Failed to allocate execution policy");
+        return ARK_MEM_FAIL;
       }
-      step_mem->own_policy = SUNTRUE;
     }
+    step_mem->own_policy = SUNTRUE;
   }
 
   ark_mem->interp_degree =
@@ -258,10 +257,10 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y,
       sunrealtype tret = 0;
       int stop_reason  = 0;
       err = SUNStepper_Evolve(stepper, t_start, t_end, y, &tret, &stop_reason);
-      step_mem->n_stepper_evolves++;
-
       if (err != SUN_SUCCESS) { return err; }
       if (stop_reason < 0) { return stop_reason; }
+
+      step_mem->n_stepper_evolves++;
     }
   }
 
