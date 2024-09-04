@@ -16,13 +16,6 @@
 
 install(CODE "MESSAGE(\"\nInstall NVECTOR_Trilinos\n\")")
 
-# Set Trilinos compilers/flags
-set(CMAKE_CXX_COMPILER ${Trilinos_INTERFACE_CXX_COMPILER})
-set(CMAKE_C_COMPILER ${Trilinos_INTERFACE_C_COMPILER})
-set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} ${Trilinos_INTERFACE_CXX_COMPILER_FLAGS}")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Trilinos_INTERFACE_C_COMPILER_FLAGS}")
-
 # Create the library
 sundials_add_library(
   sundials_nvectrilinos

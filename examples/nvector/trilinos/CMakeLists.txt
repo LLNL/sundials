@@ -18,7 +18,7 @@
 # for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS Trilinos nvector wrapper
-if(Trilinos_INTERFACE_MPI_CXX_FOUND)
+if(MPI_CXX_FOUND)
   set(nvector_trilinos_examples
       "test_nvector_trilinos\;1000 0\;\;\;" # run sequentially
       "test_nvector_trilinos\;1000 0\;1\;4\;" # run parallel on 4 procs
@@ -35,16 +35,6 @@ if(Trilinos_MPI)
 else()
   set(nvector_examples_dependencies test_nvector)
 endif()
-
-# Set Trilinos compilers/flags
-set(CMAKE_CXX_COMPILER ${Trilinos_INTERFACE_CXX_COMPILER})
-set(CMAKE_C_COMPILER ${Trilinos_INTERFACE_C_COMPILER})
-set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} ${Trilinos_INTERFACE_CXX_COMPILER_FLAGS}")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Trilinos_INTERFACE_C_COMPILER_FLAGS}")
-
-# Set Trilinos MPI executable for trilinos tests
-set(MPIEXEC_EXECUTABLE ${Trilinos_INTERFACE_MPIEXEC})
 
 # Add source directory to include directories
 include_directories(. ..)
