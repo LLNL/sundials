@@ -22,7 +22,7 @@
 #include "sundials/sundials_types.h"
 #include "sundials_hashmap_impl.h"
 
-#define GET_IMPL(node)        ((SUNDataNode_InMemImpl)(node)->impl)
+#define GET_IMPL(node)        ((SUNDataNode_InMemContent)(node)->content)
 #define IMPL_PROP(node, prop) (GET_IMPL(node)->prop)
 #define BASE_PROP(node, prop) ((node)->prop)
 
@@ -33,35 +33,35 @@ static SUNDataNode sunDataNodeInMem_CreateEmpty(SUNContext sunctx)
   SUNDataNode node;
   SUNCheckCallNoRet(SUNDataNode_CreateEmpty(sunctx, &node));
 
-  node->hasChildren      = SUNDataNode_HasChildren_InMem;
-  node->isLeaf           = SUNDataNode_IsLeaf_InMem;
-  node->isList           = SUNDataNode_IsList_InMem;
-  node->isObject         = SUNDataNode_IsObject_InMem;
-  node->addChild         = SUNDataNode_AddChild_InMem;
-  node->addNamedChild    = SUNDataNode_AddNamedChild_InMem;
-  node->getChild         = SUNDataNode_GetChild_InMem;
-  node->getNamedChild    = SUNDataNode_GetNamedChild_InMem;
-  node->removeChild      = SUNDataNode_RemoveChild_InMem;
-  node->removeNamedChild = SUNDataNode_RemoveNamedChild_InMem;
-  node->getData          = SUNDataNode_GetData_InMem;
-  node->getDataNvector   = SUNDataNode_GetDataNvector_InMem;
-  node->setData          = SUNDataNode_SetData_InMem;
-  node->setDataNvector   = SUNDataNode_SetDataNvector_InMem;
-  node->destroy          = SUNDataNode_Destroy_InMem;
+  node->ops->hasChildren      = SUNDataNode_HasChildren_InMem;
+  node->ops->isLeaf           = SUNDataNode_IsLeaf_InMem;
+  node->ops->isList           = SUNDataNode_IsList_InMem;
+  node->ops->isObject         = SUNDataNode_IsObject_InMem;
+  node->ops->addChild         = SUNDataNode_AddChild_InMem;
+  node->ops->addNamedChild    = SUNDataNode_AddNamedChild_InMem;
+  node->ops->getChild         = SUNDataNode_GetChild_InMem;
+  node->ops->getNamedChild    = SUNDataNode_GetNamedChild_InMem;
+  node->ops->removeChild      = SUNDataNode_RemoveChild_InMem;
+  node->ops->removeNamedChild = SUNDataNode_RemoveNamedChild_InMem;
+  node->ops->getData          = SUNDataNode_GetData_InMem;
+  node->ops->getDataNvector   = SUNDataNode_GetDataNvector_InMem;
+  node->ops->setData          = SUNDataNode_SetData_InMem;
+  node->ops->setDataNvector   = SUNDataNode_SetDataNvector_InMem;
+  node->ops->destroy          = SUNDataNode_Destroy_InMem;
 
-  SUNDataNode_InMemImpl impl =
-    (SUNDataNode_InMemImpl)malloc(sizeof(struct SUNDataNode_InMemImpl_));
-  SUNAssertNoRet(impl, SUN_ERR_MEM_FAIL);
+  SUNDataNode_InMemContent content =
+    (SUNDataNode_InMemContent)malloc(sizeof(struct SUNDataNode_InMemImpl_));
+  SUNAssertNoRet(content, SUN_ERR_MEM_FAIL);
 
-  impl->parent             = NULL;
-  impl->mem_helper         = NULL;
-  impl->leaf_data          = NULL;
-  impl->name               = NULL;
-  impl->named_children     = NULL;
-  impl->num_named_children = 0;
-  impl->anon_children      = NULL;
+  content->parent             = NULL;
+  content->mem_helper         = NULL;
+  content->leaf_data          = NULL;
+  content->name               = NULL;
+  content->named_children     = NULL;
+  content->num_named_children = 0;
+  content->anon_children      = NULL;
 
-  node->impl = (void*)impl;
+  node->content = (void*)content;
 
   return node;
 }
@@ -69,8 +69,8 @@ static SUNDataNode sunDataNodeInMem_CreateEmpty(SUNContext sunctx)
 static void sunDataNodeInMem_DestroyEmpty(SUNDataNode* node)
 {
   if (!node || !(*node)) { return; }
-  if (BASE_PROP(*node, impl)) { free(BASE_PROP(*node, impl)); }
-  BASE_PROP(*node, impl) = NULL;
+  if (BASE_PROP(*node, content)) { free(BASE_PROP(*node, content)); }
+  BASE_PROP(*node, content) = NULL;
   free(*node);
   *node = NULL;
 }

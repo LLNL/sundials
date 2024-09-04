@@ -15,9 +15,7 @@
 #ifndef _SUNADJOINT_CHECKPOINTSCHEME_H
 #define _SUNADJOINT_CHECKPOINTSCHEME_H
 
-#include <stdint.h>
 #include <sundials/sundials_core.h>
-#include <sundials/sundials_datanode.h>
 #include "sundials/sundials_types.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */

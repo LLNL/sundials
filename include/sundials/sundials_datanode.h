@@ -41,9 +41,10 @@ typedef enum
   SUNDATAIOMODE_INMEM,
 } SUNDataIOMode;
 
+typedef struct SUNDataNode_Ops_* SUNDataNode_Ops;
 typedef struct SUNDataNode_* SUNDataNode;
 
-struct SUNDataNode_
+struct SUNDataNode_Ops_
 {
   SUNErrCode (*hasChildren)(const SUNDataNode, sunbooleantype* yes_or_no);
   SUNErrCode (*isLeaf)(const SUNDataNode, sunbooleantype* yes_or_no);
@@ -68,9 +69,13 @@ struct SUNDataNode_
                         size_t data_stride, size_t data_bytes);
   SUNErrCode (*setDataNvector)(SUNDataNode, N_Vector v, sunrealtype t);
   SUNErrCode (*destroy)(SUNDataNode*);
+};
 
-  void* impl;
+struct SUNDataNode_
+{
+  SUNDataNode_Ops ops;
   SUNDataNodeType dtype;
+  void* content;
   SUNContext sunctx;
 };
 

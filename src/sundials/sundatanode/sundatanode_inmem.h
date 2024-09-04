@@ -26,7 +26,7 @@ extern "C" {
 #define TTYPE SUNDataNode
 #include "stl/sunstl_vector.h"
 
-typedef struct SUNDataNode_InMemImpl_* SUNDataNode_InMemImpl;
+typedef struct SUNDataNode_InMemImpl_* SUNDataNode_InMemContent;
 
 struct SUNDataNode_InMemImpl_
 {

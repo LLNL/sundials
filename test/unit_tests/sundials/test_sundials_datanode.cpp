@@ -25,7 +25,7 @@
 #include "sundials/sundials_nvector.h"
 #include "sundials/sundials_types.h"
 
-#define GET_IMPL(node)       ((SUNDataNode_InMemImpl)(node)->impl)
+#define GET_IMPL(node)       ((SUNDataNode_InMemContent)(node)->content)
 #define GET_PROP(node, prop) (GET_IMPL(node)->prop)
 
 int get_leaf_as_int(SUNDataNode node)
