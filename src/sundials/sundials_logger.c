@@ -346,12 +346,12 @@ SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
       return retval;
     }
 
-    va_list args;
-    va_start(args, msg_txt);
-
     if (logger->queuemsg)
     {
+      va_list args;
+      va_start(args, msg_txt);
       retval = logger->queuemsg(logger, lvl, scope, label, msg_txt, args);
+      va_end(args);
     }
     else
     {
@@ -360,7 +360,10 @@ SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
       if (sunLoggerIsOutputRank(logger, &rank))
       {
         char* log_msg = NULL;
+        va_list args;
+        va_start(args, msg_txt);
         sunCreateLogMessage(lvl, rank, scope, label, msg_txt, args, &log_msg);
+        va_end(args);
 
         switch (lvl)
         {
@@ -385,8 +388,6 @@ SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
         free(log_msg);
       }
     }
-
-    va_end(args);
   }
 #else
   /* silence warnings when all logging is disabled */

@@ -101,23 +101,23 @@ void SUNGlobalFallbackErrHandler(int line, const char* func, const char* file,
   char* log_msg       = NULL;
   char* file_and_line = NULL;
 
-  va_start(ap, err_code);
-
   file_and_line = sunCombineFileAndLine(__LINE__, __FILE__);
+  va_start(ap, err_code);
   sunCreateLogMessage(SUN_LOGLEVEL_ERROR, 0, file_and_line,
                       __func__, "The SUNDIALS SUNContext was corrupt or NULL when an error occurred. As such, error messages have been printed to stderr.",
                       ap, &log_msg);
+  va_end(ap);
   fprintf(stderr, "%s", log_msg);
   free(log_msg);
   free(file_and_line);
 
   file_and_line = sunCombineFileAndLine(line, file);
   if (msgfmt == NULL) { msgfmt = SUNGetErrMsg(err_code); }
+  va_start(ap, err_code);
   sunCreateLogMessage(SUN_LOGLEVEL_ERROR, 0, file_and_line, func, msgfmt, ap,
                       &log_msg);
+  va_end(ap);
   fprintf(stderr, "%s", log_msg);
   free(log_msg);
   free(file_and_line);
-
-  va_end(ap);
 }
