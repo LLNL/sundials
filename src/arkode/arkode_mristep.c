@@ -29,8 +29,6 @@
 #include "arkode_interp_impl.h"
 #include "arkode_mristep_impl.h"
 
-#include "sundials_macros.h"
-
 /*===============================================================
   Exported functions
   ===============================================================*/

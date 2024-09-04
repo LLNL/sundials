@@ -20,8 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sundials_macros.h"
-
 /* ---------------
  * Macro accessors
  * --------------- */

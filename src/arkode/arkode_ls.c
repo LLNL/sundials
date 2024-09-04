@@ -25,8 +25,6 @@
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
 
-#include "sundials_macros.h"
-
 /* constants */
 #define MIN_INC_MULT SUN_RCONST(1000.0)
 #define MAX_DQITERS  3 /* max. # of attempts to recover in DQ J*v */
