@@ -48,8 +48,6 @@
         "operation is not implemented: function pointer is NULL")              \
   ENTRY(SUN_ERR_USER_FCN_FAIL, "the user provided callback function failed")   \
                                                                                \
-  ENTRY(SUN_ERR_DATANODE_MAXCHILDREN,                                          \
-        "the data node has reached its max number of children")                \
   ENTRY(SUN_ERR_DATANODE_NODENOTFOUND, "the data node could not be found")     \
                                                                                \
   ENTRY(SUN_ERR_PROFILER_MAPFULL,                                              \
@@ -66,8 +64,6 @@
   ENTRY(SUN_ERR_ADJOINT_STEPPERINVALIDSTOP,                                    \
         "SUNStepper stopped with a stop_reason not supported by adjoint "      \
         "solver")                                                              \
-  ENTRY(SUN_ERR_ADJOINT_STEPPERRECOMPUTE,                                      \
-        "Adjoint solver needs forward step(s) recomputed to continue")         \
   ENTRY(SUN_ERR_CHECKPOINT_NOT_FOUND,                                          \
         "the requested checkpoint was not found")                              \
                                                                                \
