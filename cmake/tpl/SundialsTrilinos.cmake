@@ -26,11 +26,7 @@
 # Section 1: Include guard
 # -----------------------------------------------------------------------------
 
-if(NOT DEFINED SUNDIALS_TRILINOS_INCLUDED)
-  set(SUNDIALS_TRILINOS_INCLUDED)
-else()
-  return()
-endif()
+include_guard(GLOBAL)
 
 # -----------------------------------------------------------------------------
 # Section 2: Check to make sure options are compatible
@@ -51,56 +47,43 @@ message(STATUS "Trilinos_INCLUDE_DIRS: ${Trilinos_INCLUDE_DIRS}")
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 
-# if(Trilinos_FOUND AND (NOT Trilinos_WORKS))
-#   # Do any checks which don't require compilation first.
+# Try building a simple test
+if(NOT Trilinos_WORKS)
 
-#   # Create the Trilinos_TEST directory
-#   set(Trilinos_TEST_DIR ${PROJECT_BINARY_DIR}/Trilinos_TEST)
-#   file(MAKE_DIRECTORY ${Trilinos_TEST_DIR})
+  message(CHECK_START "Testing Trilinos")
 
-#   # Create a CMakeLists.txt file
-#   file(
-#     WRITE ${Trilinos_TEST_DIR}/CMakeLists.txt
-#     "CMAKE_MINIMUM_REQUIRED(VERSION ${CMAKE_VERSION})\n"
-#     "PROJECT(ltest CXX)\n"
-#     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
-#     "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
-#     "SET(CMAKE_CXX_COMPILER \"${Trilinos_INTERFACE_CXX_COMPILER}\")\n"
-#     "SET(CMAKE_CXX_STANDARD \"${CMAKE_CXX_STANDARD}\")\n"
-#     "SET(CMAKE_CXX_FLAGS \"${Trilinos_INTERFACE_CXX_COMPILER_FLAGS}\")\n"
-#     "SET(Trilinos_DIR \"${Trilinos_DIR}\")\n"
-#     "INCLUDE(FindPackageHandleStandardArgs)\n"
-#     "INCLUDE(${PROJECT_SOURCE_DIR}/cmake/tpl/FindTrilinos.cmake)\n"
-#     "ADD_EXECUTABLE(ltest ltest.cpp)\n"
-#     "TARGET_LINK_LIBRARIES(ltest SUNDIALS::TRILINOS)\n")
+  # Create the test directory
+  set(TRILINOS_TEST_DIR ${PROJECT_BINARY_DIR}/TRILINOS_TEST)
 
-#   # Create a C++ source file which calls a Trilinos function
-#   file(WRITE ${Trilinos_TEST_DIR}/ltest.cpp
-#        "#include <Tpetra_Version.hpp>\n" "int main(void) {\n"
-#        "std::cout << Tpetra::version() << std::endl;\n" "return(0);\n" "}\n")
+  # Create a CXX source file calling a Trilinos Tpetra function
+  file(
+    WRITE ${TRILINOS_TEST_DIR}/test.cxx
+    "#include <Tpetra_Version.hpp>\n"
+    "int main(void) {\n"
+    "std::cout << Tpetra::version() << std::endl;\n"
+    "return(0);\n"
+    "}\n")
 
-#   # Attempt to build and link the "ltest" executable
-#   try_compile(
-#     COMPILE_OK ${Trilinos_TEST_DIR}
-#     ${Trilinos_TEST_DIR} ltest
-#     OUTPUT_VARIABLE COMPILE_OUTPUT)
+  # Attempt to build and link the test executable, pass --debug-trycompile to
+  # the cmake command to save build files for debugging
+  try_compile(
+    COMPILE_OK ${TRILINOS_TEST_DIR}
+    ${TRILINOS_TEST_DIR}/test.cxx
+    LINK_LIBRARIES Kokkos::kokkos Tpetra::all_libs
+    OUTPUT_VARIABLE COMPILE_OUTPUT)
 
-#   # Process test result
-#   if(COMPILE_OK)
-#     message(STATUS "Checking if Trilinos works with SUNDIALS... OK")
-#     set(Trilinos_WORKS
-#         TRUE
-#         CACHE BOOL "Trilinos works with SUNDIALS as configured" FORCE)
-#   else()
-#     message(STATUS "Checking if Trilinos works with SUNDIALS... FAILED")
-#     message(STATUS "Check output: ")
-#     message("${COMPILE_OUTPUT}")
-#     message(FATAL_ERROR "SUNDIALS interface to Trilinos is not functional.")
-#   endif()
+  # Check the result
+  if(COMPILE_OK)
+    message(CHECK_PASS "success")
+  else()
+    message(CHECK_FAIL "failed")
+    file(WRITE ${TRILINOS_TEST_DIR}/compile.out "${COMPILE_OUTPUT}")
+    message(
+      FATAL_ERROR
+      "Could not compile Trilinos test. Check output in ${TRILINOS_TEST_DIR}/compile.out"
+    )
+  endif()
 
-# elseif(Trilinos_FOUND AND Trilinos_WORKS)
-#   message(
-#     STATUS
-#       "Skipped Trilinos tests, assuming Trilinos works with SUNDIALS. Set Trilinos_WORKS=FALSE to (re)run compatibility test."
-#   )
-# endif()
+else()
+  message(STATUS "Skipped Trilinos test. Set TRILINOS_WORKS=FALSE to test.")
+endif()
