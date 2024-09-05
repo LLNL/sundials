@@ -38,7 +38,8 @@ preconitioners.  Following our discussion of these commonalities, we
 separately discuss the usage details that that are specific to each of ARKODE's
 time stepping modules: :ref:`ARKStep <ARKODE.Usage.ARKStep>`,
 :ref:`ERKStep <ARKODE.Usage.ERKStep>`, :ref:`SPRKStep <ARKODE.Usage.SPRKStep>`,
-:ref:`SplittingStep <ARKODE.Usage.SplittingStep>`, and
+:ref:`SplittingStep <ARKODE.Usage.SplittingStep>`,
+:ref:`ForcingStep <ARKODE.Usage.ForcingStep>`, and
 :ref:`MRIStep <ARKODE.Usage.MRIStep>`.
 
 ARKODE also uses various input and output constants; these are defined as
@@ -80,4 +81,5 @@ ARKBBDPRE can only be used with NVECTOR_PARALLEL.
    ERKStep/index.rst
    SPRKStep/index.rst
    SplittingStep/index.rst
+   ForcingStep/index.rst
    MRIStep/index.rst
