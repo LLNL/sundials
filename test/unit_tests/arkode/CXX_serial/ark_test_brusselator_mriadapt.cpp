@@ -106,13 +106,13 @@
 #include <iomanip>
 #include <iostream>
 #include <nvector/nvector_serial.h> // serial N_Vector type, fcts., macros
-#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_mrihtol.h>
+#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include <sundials/sundials_core.hpp>
+#include <sundials/sundials_logger.h>
 #include <sunlinsol/sunlinsol_dense.h> // dense linear solver
 #include <sunmatrix/sunmatrix_dense.h> // dense matrix type, fcts., macros
-#include <sundials/sundials_logger.h>
 #include <test_utilities.hpp>          // common utility functions
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -191,8 +191,8 @@ static void PrintFastAdaptivity(Options opts);
 int main(int argc, char* argv[])
 {
   // SUNDIALS context objects
-  sundials::Context sunctx;  // main solver
-  sundials::Context refctx;  // reference solver
+  sundials::Context sunctx; // main solver
+  sundials::Context refctx; // reference solver
 
   // Read input options
   Options opts;
@@ -250,12 +250,12 @@ int main(int argc, char* argv[])
 
   // If SUNLogger is enabled, manually disable it for the reference solver
   SUNLogger logger = NULL;
-  retval = SUNLogger_Create(SUN_COMM_NULL, 0, &logger);
-  retval = SUNContext_SetLogger(refctx, logger);
-  retval = SUNLogger_SetErrorFilename(logger, "/dev/null");
-  retval = SUNLogger_SetWarningFilename(logger, "/dev/null");
-  retval = SUNLogger_SetInfoFilename(logger, "/dev/null");
-  retval = SUNLogger_SetDebugFilename(logger, "/dev/null");
+  retval           = SUNLogger_Create(SUN_COMM_NULL, 0, &logger);
+  retval           = SUNContext_SetLogger(refctx, logger);
+  retval           = SUNLogger_SetErrorFilename(logger, "/dev/null");
+  retval           = SUNLogger_SetWarningFilename(logger, "/dev/null");
+  retval           = SUNLogger_SetInfoFilename(logger, "/dev/null");
+  retval           = SUNLogger_SetDebugFilename(logger, "/dev/null");
 
   // Create and initialize serial vectors for the solution and reference
   N_Vector y = N_VNew_Serial(NEQ, sunctx);

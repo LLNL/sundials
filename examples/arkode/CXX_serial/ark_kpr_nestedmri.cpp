@@ -127,6 +127,7 @@
 #include <arkode/arkode_mristep.h> // prototypes for MRIStep fcts., consts
 #include <cmath>
 #include <cstdio>
+#include <example_utilities.hpp> // common utility functions
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -137,7 +138,6 @@
 #include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_dense.h> // dense linear solver
 #include <sunmatrix/sunmatrix_dense.h> // dense matrix type, fcts., macros
-#include <example_utilities.hpp>       // common utility functions
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define ESYM "Le"
@@ -199,23 +199,23 @@ struct Options
 // User-supplied functions called by the solver
 static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int fs( sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int fmi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int fme(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int fm( sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int ff( sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int fn( sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int f0( sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int Js( sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int fm(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jm( sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jm(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int Jmi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jn( sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
+              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Utility functions
 static void InputHelp();
@@ -259,21 +259,21 @@ int main(int argc, char* argv[])
   int retval;
   sunbooleantype slowimplicit, slowimex, midimplicit, midimex;
   slowimplicit = slowimex = midimplicit = midimex = SUNFALSE;
-  f_mi = NULL;
-  f_me = fm;
-  f_si = NULL;
-  f_se = fs;
-  J_m  = NULL;
-  J_s  = NULL;
-  f_f  = ff;
+  f_mi                                            = NULL;
+  f_me                                            = fm;
+  f_si                                            = NULL;
+  f_se                                            = fs;
+  J_m                                             = NULL;
+  J_s                                             = NULL;
+  f_f                                             = ff;
   if ((opts.mri_method == "ARKODE_MRI_GARK_IRK21a") ||
       (opts.mri_method == "ARKODE_MRI_GARK_ESDIRK34a") ||
       (opts.mri_method == "ARKODE_MRI_GARK_ESDIRK46a"))
   {
     slowimplicit = SUNTRUE;
-    f_se = NULL;
-    f_si = fs;
-    J_s  = Js;
+    f_se         = NULL;
+    f_si         = fs;
+    J_s          = Js;
   }
   if ((opts.mri_method == "ARKODE_IMEX_MRI_SR21") ||
       (opts.mri_method == "ARKODE_IMEX_MRI_SR32") ||
@@ -281,18 +281,18 @@ int main(int argc, char* argv[])
   {
     slowimex     = SUNTRUE;
     slowimplicit = SUNTRUE;
-    f_se = fse;
-    f_si = fsi;
-    J_s  = Jsi;
+    f_se         = fse;
+    f_si         = fsi;
+    J_s          = Jsi;
   }
   if ((opts.mid_method == "ARKODE_MRI_GARK_IRK21a") ||
       (opts.mid_method == "ARKODE_MRI_GARK_ESDIRK34a") ||
       (opts.mid_method == "ARKODE_MRI_GARK_ESDIRK46a"))
   {
     midimplicit = SUNTRUE;
-    f_me = NULL;
-    f_mi = fm;
-    J_m  = Jm;
+    f_me        = NULL;
+    f_mi        = fm;
+    J_m         = Jm;
   }
   if ((opts.mid_method == "ARKODE_IMEX_MRI_SR21") ||
       (opts.mid_method == "ARKODE_IMEX_MRI_SR32") ||
@@ -300,12 +300,13 @@ int main(int argc, char* argv[])
   {
     midimex     = SUNTRUE;
     midimplicit = SUNTRUE;
-    f_me = fme;
-    f_mi = fmi;
-    J_m  = Jmi;
+    f_me        = fme;
+    f_mi        = fmi;
+    J_m         = Jmi;
   }
-  std::cout << "\nAdaptive nested multirate nonlinear Kvaerno-Prothero-Robinson test "
-               "problem:\n";
+  std::cout
+    << "\nAdaptive nested multirate nonlinear Kvaerno-Prothero-Robinson test "
+       "problem:\n";
   std::cout << "    time domain:  (" << T0 << "," << Tf << "]\n";
   std::cout << "    G = " << opts.G << std::endl;
   std::cout << "    e = " << opts.e << std::endl;
@@ -483,7 +484,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(sunctx, mcontrol_H, mcontrol_Tol);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) > -1)
+    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
+        -1)
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -503,8 +505,7 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_PI (slow Tol)"))
       return 1;
     mcontrol_H = SUNAdaptController_PI(sunctx);
-    if (check_ptr((void*)mcontrol_H, "SUNAdaptController_PI (mid H)"))
-      return 1;
+    if (check_ptr((void*)mcontrol_H, "SUNAdaptController_PI (mid H)")) return 1;
     mcontrol_Tol = SUNAdaptController_PI(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_PI (mid Tol)"))
       return 1;
@@ -747,8 +748,7 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_ExpGus (slow)"))
       return 1;
     mcontrol = SUNAdaptController_ExpGus(sunctx);
-    if (check_ptr((void*)mcontrol, "SUNAdaptController_ExpGus (mid)"))
-      return 1;
+    if (check_ptr((void*)mcontrol, "SUNAdaptController_ExpGus (mid)")) return 1;
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
       retval = SUNAdaptController_SetParams_ExpGus(scontrol, opts.k1s, opts.k2s);
@@ -762,8 +762,7 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_ImpGus (slow)"))
       return 1;
     mcontrol = SUNAdaptController_ImpGus(sunctx);
-    if (check_ptr((void*)mcontrol, "SUNAdaptController_ImpGus (mid)"))
-      return 1;
+    if (check_ptr((void*)mcontrol, "SUNAdaptController_ImpGus (mid)")) return 1;
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
       retval = SUNAdaptController_SetParams_ImpGus(scontrol, opts.k1s, opts.k2s);
@@ -846,12 +845,13 @@ int main(int argc, char* argv[])
 
   // Create intermediate stepper
   MRIStepInnerStepper intermediate_stepper = NULL;
-  retval = MRIStepCreateMRIStepInnerStepper(mid_arkode_mem, &intermediate_stepper);
+  retval = MRIStepCreateMRIStepInnerStepper(mid_arkode_mem,
+                                            &intermediate_stepper);
   if (check_flag(retval, "MRIStepCreateMRIStepInnerStepper")) return 1;
 
   // Create MRI (slow) integrator
   void* arkode_mem = NULL; // ARKode memory structure
-  arkode_mem       = MRIStepCreate(f_se, f_si, T0, y, intermediate_stepper, sunctx);
+  arkode_mem = MRIStepCreate(f_se, f_si, T0, y, intermediate_stepper, sunctx);
   if (check_ptr((void*)arkode_mem, "MRIStepCreate")) return 1;
   MRIStepCoupling Cs = MRIStepCoupling_LoadTableByName((opts.mri_method).c_str());
   if (check_ptr((void*)Cs, "MRIStepCoupling_LoadTableByName")) return 1;
@@ -913,11 +913,16 @@ int main(int argc, char* argv[])
   sunrealtype t2    = T0;
   sunrealtype dTout = (Tf - T0) / Nt;
   sunrealtype tout  = T0 + dTout;
-  sunrealtype u, v, w, uerr, verr, werr, uerrtot, verrtot, werrtot, errtot, accuracy;
+  sunrealtype u, v, w, uerr, verr, werr, uerrtot, verrtot, werrtot, errtot,
+    accuracy;
   uerr = verr = werr = uerrtot = verrtot = werrtot = errtot = accuracy = ZERO;
-  printf("        t          u          v          w        uerr       verr       werr\n");
-  printf("   ----------------------------------------------------------------------------\n");
-  printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.2" ESYM "   %.2" ESYM "   %.2" ESYM "\n",
+  printf("        t          u          v          w        uerr       verr    "
+         "   werr\n");
+  printf("   "
+         "---------------------------------------------------------------------"
+         "-------\n");
+  printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.2" ESYM
+         "   %.2" ESYM "   %.2" ESYM "\n",
          t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2), uerr, verr, werr);
   int Nout = 0;
   while (Tf - t > 1.0e-8)
@@ -969,7 +974,8 @@ int main(int argc, char* argv[])
     {
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
-      printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.2" ESYM "   %.2" ESYM "   %.2" ESYM "\n",
+      printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM
+             "   %.2" ESYM "   %.2" ESYM "   %.2" ESYM "\n",
              t, u, v, w, uerr, verr, werr);
     }
   }
@@ -977,7 +983,9 @@ int main(int argc, char* argv[])
   verrtot = SUNRsqrt(verrtot / Nt);
   werrtot = SUNRsqrt(werrtot / Nt);
   errtot  = SUNRsqrt(errtot / Nt / 3);
-  printf("   ----------------------------------------------------------------------------\n");
+  printf("   "
+         "---------------------------------------------------------------------"
+         "-------\n");
 
   //
   // Finalize
@@ -1028,8 +1036,8 @@ int main(int argc, char* argv[])
             << ", total error = " << errtot << std::endl;
   std::cout << "   Relative accuracy = " << accuracy << std::endl;
   std::cout << "   Total RHS evals:  Fse = " << nfse << ", Fsi = " << nfsi
-            << ", Fme = " << nfme << ", Fmi = " << nfmi
-            << ", Ff = " << nff << std::endl;
+            << ", Fme = " << nfme << ", Fmi = " << nfmi << ", Ff = " << nff
+            << std::endl;
 
   // Get/print slow integrator implicit solver statistics
   if (slowimplicit)
@@ -1072,12 +1080,12 @@ int main(int argc, char* argv[])
   if (mcontrol_H) { SUNAdaptController_Destroy(mcontrol_H); }
   if (mcontrol_Tol) { SUNAdaptController_Destroy(mcontrol_Tol); }
   if (fcontrol) { SUNAdaptController_Destroy(fcontrol); }
-  ARKodeFree(&inner_arkode_mem);            // Free fast integrator memory
-  ARKodeFree(&mid_arkode_mem)  ;            // Free intermediate integrator memory
+  ARKodeFree(&inner_arkode_mem); // Free fast integrator memory
+  ARKodeFree(&mid_arkode_mem);   // Free intermediate integrator memory
   MRIStepInnerStepper_Free(&inner_stepper); // Free inner stepper structures
   MRIStepInnerStepper_Free(&intermediate_stepper);
-  ARKodeFree(&arkode_mem);                  // Free slow integrator memory
-  ARKodeFree(&arkode_ref);                  // Free reference solver memory
+  ARKodeFree(&arkode_mem); // Free slow integrator memory
+  ARKodeFree(&arkode_ref); // Free reference solver memory
 
   return 0;
 }
@@ -1089,12 +1097,12 @@ int main(int argc, char* argv[])
 // fn routine to compute the full ODE RHS.
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
-  const sunrealtype w = NV_Ith_S(y, 2);
-  const sunrealtype G = opts->G;
-  const sunrealtype e = opts->e;
+  Options* opts        = (Options*)user_data;
+  const sunrealtype u  = NV_Ith_S(y, 0);
+  const sunrealtype v  = NV_Ith_S(y, 1);
+  const sunrealtype w  = NV_Ith_S(y, 2);
+  const sunrealtype G  = opts->G;
+  const sunrealtype e  = opts->e;
   const sunrealtype al = opts->al;
   const sunrealtype be = opts->be;
   sunrealtype tmp1, tmp2, tmp3;
@@ -1107,8 +1115,10 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   tmp2 = (-TWO + v * v - q(t, opts)) / (TWO * v);
   tmp3 = (-TWO + w * w - r(t, opts)) / (TWO * w);
   NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + e * tmp3 + pdot(t, opts) / (TWO * u);
-  NV_Ith_S(ydot, 1) = e * tmp1 + al * tmp2 + be * tmp3 + qdot(t, opts) / (TWO * v);
-  NV_Ith_S(ydot, 2) = e * tmp1 - be * tmp2 + al * tmp3 + rdot(t, opts) / (TWO * w);
+  NV_Ith_S(ydot, 1) = e * tmp1 + al * tmp2 + be * tmp3 +
+                      qdot(t, opts) / (TWO * v);
+  NV_Ith_S(ydot, 2) = e * tmp1 - be * tmp2 + al * tmp3 +
+                      rdot(t, opts) / (TWO * w);
 
   // Return with success
   return 0;
@@ -1117,11 +1127,11 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // ff routine to compute the fast portion of the ODE RHS.
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
-  const sunrealtype w = NV_Ith_S(y, 2);
-  const sunrealtype e = opts->e;
+  Options* opts        = (Options*)user_data;
+  const sunrealtype u  = NV_Ith_S(y, 0);
+  const sunrealtype v  = NV_Ith_S(y, 1);
+  const sunrealtype w  = NV_Ith_S(y, 2);
+  const sunrealtype e  = opts->e;
   const sunrealtype al = opts->al;
   const sunrealtype be = opts->be;
   sunrealtype tmp1, tmp2, tmp3;
@@ -1130,12 +1140,13 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ 0   0   0 ] [(u^2-p-2)/(2u)] +  [      0       ]
   //   [ 0   0   0 ] [(v^2-q-2)/(2v)]    [      0       ]
   //   [ e -be  al ] [(w^2-r-2)/(2w)]    [ rdot(t)/(2w) ]
-  tmp1 = (-TWO + u * u - p(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - q(t, opts)) / (TWO * v);
-  tmp3 = (-TWO + w * w - r(t, opts)) / (TWO * w);
+  tmp1              = (-TWO + u * u - p(t, opts)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, opts)) / (TWO * v);
+  tmp3              = (-TWO + w * w - r(t, opts)) / (TWO * w);
   NV_Ith_S(ydot, 0) = ZERO;
   NV_Ith_S(ydot, 1) = ZERO;
-  NV_Ith_S(ydot, 2) = e * tmp1 - be * tmp2 + al * tmp3 + rdot(t, opts) / (TWO * w);
+  NV_Ith_S(ydot, 2) = e * tmp1 - be * tmp2 + al * tmp3 +
+                      rdot(t, opts) / (TWO * w);
 
   // Return with success
   return 0;
@@ -1144,11 +1155,11 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fm routine to compute the intermediate portion of the ODE RHS.
 static int fm(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
-  const sunrealtype w = NV_Ith_S(y, 2);
-  const sunrealtype e = opts->e;
+  Options* opts        = (Options*)user_data;
+  const sunrealtype u  = NV_Ith_S(y, 0);
+  const sunrealtype v  = NV_Ith_S(y, 1);
+  const sunrealtype w  = NV_Ith_S(y, 2);
+  const sunrealtype e  = opts->e;
   const sunrealtype al = opts->al;
   const sunrealtype be = opts->be;
   sunrealtype tmp1, tmp2, tmp3;
@@ -1157,11 +1168,12 @@ static int fm(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ 0   0   0 ] [(u^2-p-2)/(2u)] +  [      0       ]
   //   [ e  al  be ] [(v^2-q-2)/(2v)]    [ qdot(t)/(2v) ]
   //   [ 0   0   0 ] [(w^2-r-2)/(2w)]    [      0       ]
-  tmp1 = (-TWO + u * u - p(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - q(t, opts)) / (TWO * v);
-  tmp3 = (-TWO + w * w - r(t, opts)) / (TWO * w);
+  tmp1              = (-TWO + u * u - p(t, opts)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, opts)) / (TWO * v);
+  tmp3              = (-TWO + w * w - r(t, opts)) / (TWO * w);
   NV_Ith_S(ydot, 0) = ZERO;
-  NV_Ith_S(ydot, 1) = e * tmp1 + al * tmp2 + be * tmp3 + qdot(t, opts) / (TWO * v);
+  NV_Ith_S(ydot, 1) = e * tmp1 + al * tmp2 + be * tmp3 +
+                      qdot(t, opts) / (TWO * v);
   NV_Ith_S(ydot, 2) = ZERO;
 
   return 0;
@@ -1187,11 +1199,11 @@ static int fme(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fmi routine to compute the implicit intermediate portion of the ODE RHS.
 static int fmi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
-  const sunrealtype w = NV_Ith_S(y, 2);
-  const sunrealtype e = opts->e;
+  Options* opts        = (Options*)user_data;
+  const sunrealtype u  = NV_Ith_S(y, 0);
+  const sunrealtype v  = NV_Ith_S(y, 1);
+  const sunrealtype w  = NV_Ith_S(y, 2);
+  const sunrealtype e  = opts->e;
   const sunrealtype al = opts->al;
   const sunrealtype be = opts->be;
   sunrealtype tmp1, tmp2, tmp3;
@@ -1200,9 +1212,9 @@ static int fmi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ 0   0   0 ] [(u^2-p-2)/(2u)]
   //   [ e  al  be ] [(v^2-q-2)/(2v)]
   //   [ 0   0   0 ] [(w^2-r-2)/(2w)]
-  tmp1 = (-TWO + u * u - p(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - q(t, opts)) / (TWO * v);
-  tmp3 = (-TWO + w * w - r(t, opts)) / (TWO * w);
+  tmp1              = (-TWO + u * u - p(t, opts)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, opts)) / (TWO * v);
+  tmp3              = (-TWO + w * w - r(t, opts)) / (TWO * w);
   NV_Ith_S(ydot, 0) = ZERO;
   NV_Ith_S(ydot, 1) = e * tmp1 + al * tmp2 + be * tmp3;
   NV_Ith_S(ydot, 2) = ZERO;
@@ -1268,9 +1280,9 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ G   e   e ] [(u^2-p-2)/(2u)]
   //   [ 0   0   0 ] [(v^2-q-2)/(2v)]
   //   [ 0   0   0 ] [(w^2-r-2)/(2w)]
-  tmp1 = (-TWO + u * u - p(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - q(t, opts)) / (TWO * v);
-  tmp3 = (-TWO + w * w - r(t, opts)) / (TWO * w);
+  tmp1              = (-TWO + u * u - p(t, opts)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, opts)) / (TWO * v);
+  tmp3              = (-TWO + w * w - r(t, opts)) / (TWO * w);
   NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + e * tmp3;
   NV_Ith_S(ydot, 1) = ZERO;
   NV_Ith_S(ydot, 2) = ZERO;
@@ -1299,9 +1311,9 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   //   [G   e   e]*[1-(u^2-p(t)-2)/(2*u^2),  0,  0] + [-p'(t)/(2*u^2),  0,  0]
   //   [e  al  be] [0,  1-(v^2-q(t)-2)/(2*v^2),  0]   [0,  -q'(t)/(2*v^2),  0]
   //   [e -be  al] [0,  0,  1-(w^2-r(t)-2)/(2*w^2)]   [0,  0,  -r'(t)/(2*w^2)]
-  t11 = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
-  t22 = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
-  t33 = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
+  t11                   = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
+  t33                   = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
   SM_ELEMENT_D(J, 0, 0) = opts->G * t11 - pdot(t, opts) / (TWO * u * u);
   SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
   SM_ELEMENT_D(J, 0, 2) = opts->e * t33;
@@ -1330,9 +1342,9 @@ static int Jm(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   //   [0   0   0]*[1-(u^2-p(t)-2)/(2*u^2),  0,  0] + [0,        0,         0]
   //   [e  al  be] [0,  1-(v^2-q(t)-2)/(2*v^2),  0]   [0,  -q'(t)/(2*v^2),  0]
   //   [0   0   0] [0,  0,  1-(w^2-r(t)-2)/(2*w^2)]   [0,        0,         0]
-  t11 = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
-  t22 = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
-  t33 = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
+  t11                   = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
+  t33                   = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
   SM_ELEMENT_D(J, 0, 0) = ZERO;
   SM_ELEMENT_D(J, 0, 1) = ZERO;
   SM_ELEMENT_D(J, 0, 2) = ZERO;
@@ -1361,9 +1373,9 @@ static int Jmi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   //   [0   0   0]*[1-(u^2-p(t)-2)/(2*u^2),  0,  0]
   //   [e  al  be] [0,  1-(v^2-q(t)-2)/(2*v^2),  0]
   //   [0   0   0] [0,  0,  1-(w^2-r(t)-2)/(2*w^2)]
-  t11 = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
-  t22 = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
-  t33 = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
+  t11                   = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
+  t33                   = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
   SM_ELEMENT_D(J, 0, 0) = ZERO;
   SM_ELEMENT_D(J, 0, 1) = ZERO;
   SM_ELEMENT_D(J, 0, 2) = ZERO;
@@ -1377,7 +1389,6 @@ static int Jmi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   // Return with success
   return 0;
 }
-
 
 // Jacobian of fs
 static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
@@ -1393,9 +1404,9 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   //   [G   e   e]*[1-(u^2-p(t)-2)/(2*u^2),  0,  0] + [-p'(t)/(2*u^2),  0,  0]
   //   [0   0   0] [0,  1-(v^2-q(t)-2)/(2*v^2),  0]   [0,               0,  0]
   //   [0   0   0] [0,  0,  1-(w^2-r(t)-2)/(2*w^2)]   [0,               0,  0]
-  t11 = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
-  t22 = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
-  t33 = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
+  t11                   = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
+  t33                   = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
   SM_ELEMENT_D(J, 0, 0) = opts->G * t11 - pdot(t, opts) / (TWO * u * u);
   SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
   SM_ELEMENT_D(J, 0, 2) = opts->e * t33;
@@ -1424,9 +1435,9 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   //   [G   e   e]*[1-(u^2-p(t)-2)/(2*u^2),  0,  0]
   //   [0   0   0] [0,  1-(v^2-q(t)-2)/(2*v^2),  0]
   //   [0   0   0] [0,  0,  1-(w^2-r(t)-2)/(2*w^2)]
-  t11 = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
-  t22 = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
-  t33 = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
+  t11                   = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
+  t33                   = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
   SM_ELEMENT_D(J, 0, 0) = opts->G * t11;
   SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
   SM_ELEMENT_D(J, 0, 2) = opts->e * t33;
@@ -1445,7 +1456,7 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 // Private helper functions
 // -----------------------------
 
-static sunrealtype p(sunrealtype t, Options* opts) { return HALF*cos(t); }
+static sunrealtype p(sunrealtype t, Options* opts) { return HALF * cos(t); }
 
 static sunrealtype q(sunrealtype t, Options* opts)
 {
@@ -1457,7 +1468,7 @@ static sunrealtype r(sunrealtype t, Options* opts)
   return (cos(opts->om * opts->om * t * (ONE + exp(-(t - THREE) * (t - THREE)))));
 }
 
-static sunrealtype pdot(sunrealtype t, Options* opts) { return -HALF*sin(t); }
+static sunrealtype pdot(sunrealtype t, Options* opts) { return -HALF * sin(t); }
 
 static sunrealtype qdot(sunrealtype t, Options* opts)
 {
@@ -1469,8 +1480,8 @@ static sunrealtype qdot(sunrealtype t, Options* opts)
 
 static sunrealtype rdot(sunrealtype t, Options* opts)
 {
-  const sunrealtype tThree  = t - THREE;
-  const sunrealtype eterm = exp(-tThree * tThree);
+  const sunrealtype tThree = t - THREE;
+  const sunrealtype eterm  = exp(-tThree * tThree);
   return (-sin(opts->om * opts->om * t * (ONE + eterm)) * opts->om * opts->om *
           (ONE + eterm * (ONE - TWO * t * tThree)));
 }
@@ -1523,17 +1534,22 @@ void InputHelp()
   std::cout
     << "  --fast_rtol    : relative solution tolerance for fast method\n";
   std::cout << "  --safety : slow time step safety factor\n";
-  std::cout << "  --mri_method   : slow MRI method name (valid ARKODE_MRITableID)\n";
-  std::cout << "  --mid_method   : intemediate MRI method name (valid ARKODE_MRITableID)\n";
+  std::cout
+    << "  --mri_method   : slow MRI method name (valid ARKODE_MRITableID)\n";
+  std::cout << "  --mid_method   : intemediate MRI method name (valid "
+               "ARKODE_MRITableID)\n";
   std::cout << "  --fast_order   : fast RK method order\n";
-  std::cout << "  --scontrol     : slow/intermeidate time step controllers, int in [0,12] "
+  std::cout << "  --scontrol     : slow/intermeidate time step controllers, "
+               "int in [0,12] "
                "(see source)\n";
   std::cout << "  --fcontrol     : fast time step controller, int in [0,6] "
                "(see source)\n";
   std::cout << "  --faccum       : fast error accumulation type {-1,0,1}\n";
-  std::cout << "  --slow_pq      : use p (0) vs q (1) for slow/intermediate adaptivity\n";
+  std::cout << "  --slow_pq      : use p (0) vs q (1) for slow/intermediate "
+               "adaptivity\n";
   std::cout << "  --fast_pq      : use p (0) vs q (1) for fast adaptivity\n";
-  std::cout << "  --k1s, --k2s, -k3s : slow/intermediate controller parameters\n";
+  std::cout
+    << "  --k1s, --k2s, -k3s : slow/intermediate controller parameters\n";
   std::cout << "  --k1f, --k2f, -k3f : fast controller parameters\n";
   std::cout << "  --bias : slow and fast controller bias factors\n";
   std::cout
@@ -1677,7 +1693,8 @@ static void PrintSlowAdaptivity(Options opts)
   switch (opts.scontrol)
   {
   case (0):
-    std::cout << "    fixed steps, hs = " << opts.hs << ", hm = " << opts.hm << std::endl;
+    std::cout << "    fixed steps, hs = " << opts.hs << ", hm = " << opts.hm
+              << std::endl;
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     break;
   case (1):
@@ -1688,7 +1705,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (opts.k1s > -1)
     {
-      std::cout << "    slow/intermediate controller parameter: " << opts.k1s << "\n";
+      std::cout << "    slow/intermediate controller parameter: " << opts.k1s
+                << "\n";
     }
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)
@@ -1705,8 +1723,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow/intermediate controller parameters: " << opts.k1s << " "
-                << opts.k2s << "\n";
+      std::cout << "    slow/intermediate controller parameters: " << opts.k1s
+                << " " << opts.k2s << "\n";
     }
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)
@@ -1723,8 +1741,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, std::min(opts.k2s, opts.k3s)) > -1)
     {
-      std::cout << "    slow/intermediate controller parameters: " << opts.k1s << " "
-                << opts.k2s << " " << opts.k3s << "\n";
+      std::cout << "    slow/intermediate controller parameters: " << opts.k1s
+                << " " << opts.k2s << " " << opts.k3s << "\n";
     }
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)
@@ -1741,8 +1759,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow/intermediate controller parameters: " << opts.k1s << " "
-                << opts.k2s << "\n";
+      std::cout << "    slow/intermediate controller parameters: " << opts.k1s
+                << " " << opts.k2s << "\n";
     }
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)
@@ -1759,8 +1777,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow/intermediate controller parameters: " << opts.k1s << " "
-                << opts.k2s << "\n";
+      std::cout << "    slow/intermediate controller parameters: " << opts.k1s
+                << " " << opts.k2s << "\n";
     }
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)
@@ -1783,7 +1801,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     if (opts.k1s > -1)
     {
-      std::cout << "    slow/intermediate controller parameter: " << opts.k1s << "\n";
+      std::cout << "    slow/intermediate controller parameter: " << opts.k1s
+                << "\n";
     }
     break;
   case (8):
@@ -1793,8 +1812,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow/intermediate controller parameters: " << opts.k1s << " "
-                << opts.k2s << "\n";
+      std::cout << "    slow/intermediate controller parameters: " << opts.k1s
+                << " " << opts.k2s << "\n";
     }
     break;
   case (9):
@@ -1804,8 +1823,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1s, std::min(opts.k2s, opts.k3s)) > -1)
     {
-      std::cout << "    slow/intermediate controller parameters: " << opts.k1s << " "
-                << opts.k2s << " " << opts.k3s << "\n";
+      std::cout << "    slow/intermediate controller parameters: " << opts.k1s
+                << " " << opts.k2s << " " << opts.k3s << "\n";
     }
     break;
   case (10):
@@ -1815,8 +1834,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow/intermediate controller parameters: " << opts.k1s << " "
-                << opts.k2s << "\n";
+      std::cout << "    slow/intermediate controller parameters: " << opts.k1s
+                << " " << opts.k2s << "\n";
     }
     break;
   case (11):
@@ -1826,8 +1845,8 @@ static void PrintSlowAdaptivity(Options opts)
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     if (std::min(opts.k1s, opts.k2s) > -1)
     {
-      std::cout << "    slow/intermediate controller parameters: " << opts.k1s << " "
-                << opts.k2s << "\n";
+      std::cout << "    slow/intermediate controller parameters: " << opts.k1s
+                << " " << opts.k2s << "\n";
     }
     break;
   case (12):

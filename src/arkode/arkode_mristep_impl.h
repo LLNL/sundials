@@ -133,8 +133,8 @@ typedef struct ARKodeMRIStepMemRec
   MRIStepPostInnerFn post_inner_evolve;
 
   /* MRI adaptivity parameters */
-  sunrealtype inner_control; /* prev control parameter */
-  sunrealtype inner_dsm;     /* prev inner stepper accumulated error */
+  sunrealtype inner_control;     /* prev control parameter */
+  sunrealtype inner_dsm;         /* prev inner stepper accumulated error */
   sunrealtype inner_control_new; /* upcoming control parameter */
 
   /* Counters */
