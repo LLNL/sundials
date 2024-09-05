@@ -929,6 +929,19 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   sunrealtype rs = (sunrealtype)step_mem->reqstages;
   sunrealtype sm1inv = ONE/(rs - ONE);
+  sunrealtype bt1, bt2, bt3;
+
+  if(step_mem->reqstages == 2)
+  {
+    bt1 = 0.694021459207626;
+    bt3 = 1 - 0.694021459207626;
+  }
+  else
+    {
+    bt1 = (rs + ONE)/(rs*rs);
+    bt2 = ONE/rs;
+    bt3 = (rs - ONE)/(rs*rs);
+  }
 
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
@@ -950,7 +963,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
      y and its slope is evaluated in temp1.  */
 
   N_VLinearSum(ONE, ark_mem->yn, sm1inv*ark_mem->h, ark_mem->fn, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->yn, (rs + ONE)/(rs*rs)*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
+  N_VLinearSum(ONE, ark_mem->yn, bt1*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
 
   /* Evaluate stages j = 2,...,step_mem->reqstages - 1 */
   for (int j = 2; j < step_mem->reqstages; j++)
@@ -960,7 +973,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
     
     N_VLinearSum(ONE, ark_mem->ycur, sm1inv*ark_mem->h, ark_mem->fn, ark_mem->ycur);
-    N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h/rs, ark_mem->fn, ark_mem->tempv1);
+    N_VLinearSum(ONE, ark_mem->tempv1, bt2*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
 
   }
   /* Evaluate the last stage for j = step_mem->reqstages */
@@ -971,7 +984,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   N_VLinearSum(ONE/rs, ark_mem->yn, ONE/(sm1inv*rs), ark_mem->ycur, ark_mem->ycur);
   N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h/rs, ark_mem->fn, ark_mem->ycur);
 
-  N_VLinearSum(ONE, ark_mem->tempv1, (rs - ONE)/(rs*rs)*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
+  N_VLinearSum(ONE, ark_mem->tempv1, bt3*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
   
   step_mem->nfe += step_mem->reqstages - 1;
 
