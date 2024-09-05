@@ -580,10 +580,8 @@ SplittingStep -- Operator splitting methods
 The SplittingStep time-stepping module in ARKODE is designed for IVPs of the
 form
 
-.. TODO: SPRK uses subscript for function number. Make consistent
 .. math::
-   \dot{y} = f^1(t,y) + f^2(t,y) + \dots + f^P(t,y), \qquad y(t_0) = y_0,
-   :label: ARKODE_IVP_partitioned
+   \dot{y} = f_1(t,y) + f_2(t,y) + \dots + f_P(t,y), \qquad y(t_0) = y_0,
 
 with :math:`P > 1` additive partitions. Operator splitting methods, such as
 those implemented in SplittingStep, allow each partition to be integrated
@@ -607,7 +605,7 @@ The following algorithmic procedure is used in the Splitting-Step module:
          #. Let :math:`v(t_{\text{start}}) = y_{n,i}`.
 
          #. For :math:`t \in [t_{\text{start}}, t_{\text{end}}]` solve
-            :math:`\dot{v} = f^{k}(t, v)`.
+            :math:`\dot{v} = f_{k}(t, v)`.
 
          #. Set :math:`y_{n, i} = v(t_{\text{end}})`.
 
@@ -630,12 +628,12 @@ An alternative representation of the SplittingStep solution is
    (y_{n-1})
 
 where :math:`\gamma_{i,j,k} = \beta_{i,j,k} - \beta_{i,j-1,k}` and
-:math:`\phi^j_{h}` is the flow map for partition :math:`j`:
+:math:`\phi^k_{h}` is the flow map for partition :math:`k`:
 
 .. math::
-   \phi^j_{h}(y_{n_1}) = v(t_n),
+   \phi^k_{h}(y_{n_1}) = v(t_n),
    \quad \begin{cases}
-      v(t_{n-1}) = y_{n-1}, \\ \dot{v} = f^j(t, v).
+      v(t_{n-1}) = y_{n-1}, \\ \dot{v} = f_k(t, v).
    \end{cases}
 
 SplittingStep provides standard operator splitting methods such as Lie-Trotter
@@ -646,6 +644,37 @@ methods of order three and higher with real coefficients require backward
 integration, i.e., there exist negative :math:`\gamma_{i,j,k}` coefficients.
 Currently, a fixed time step must be specified for the outer SplittingStep, but
 inner integrators are free to use adaptive time steps.
+
+
+.. _ARKODE.Mathematics.ForcingStep:
+
+ForcingStep -- Forcing method
+=============================
+
+The ForcingStep time-stepping module in ARKODE is designed for IVPs of the form
+
+.. math::
+   \dot{y} = f_1(t,y) + f_2(t,y), \qquad y(t_0) = y_0,
+
+with two additive partitions. One step of the forcing method implemented in
+ForcingStep is given by
+
+.. math::
+   v_1(t_{n-1}) &= y_{n-1}, \\
+   \dot{v}_1 &= f_1(t, v_1), \\
+   f_1^* &= \frac{v_1(t_n) - y_{n-1}}{h_n}, \\
+   v_2(t_{n-1}) &= y_{n-1}, \\
+   \dot{v}_2 &= f_1^* + f_2(t, v_2), \\
+   y_n &= v_2(t_n).
+
+Like a Lie-Trotter method from SplittingStep, the partitions are evolved through
+a sequence of inner IVPs which can be solve with an arbitrary integrator or
+exact solution procedure. However, the IVP for partition two includes a
+"forcing" or "tendency" term :math:`f_1^*` to strengthen the coupling. This
+coupling leads to a first order method provided :math:`v_1` and :math:`v_2` are
+integrated to at least first order accuracy. Currently, a fixed time step must
+be specified for the outer ForcingStep, but inner integrators are free to use
+adaptive time steps.
 
 
 .. _ARKODE.Mathematics.MRIStep:
