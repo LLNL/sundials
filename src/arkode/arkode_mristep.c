@@ -2772,9 +2772,8 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       /* Evolve fast IVP for this stage:
            force reset on first stage in group
            potentially get inner dsm on all non-embedding stages */
-      retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf,
-                                    ark_mem->ycur, ytemp, is == 0,
-                                    need_inner_dsm && !embedding);
+      retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
+                                    ytemp, is == 0, need_inner_dsm && !embedding);
       if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
 
       /* Update "initial time" for next stage in group */
@@ -3301,8 +3300,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
 int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                          sunrealtype t0, sunrealtype tf, N_Vector ycur,
                          SUNDIALS_MAYBE_UNUSED N_Vector ytemp,
-                         sunbooleantype force_reset,
-                         sunbooleantype get_inner_dsm)
+                         sunbooleantype force_reset, sunbooleantype get_inner_dsm)
 {
   int retval;                         /* reusable return flag */
   SUNAdaptController_Type adapt_type; /* timestep adaptivity type */

@@ -16,8 +16,8 @@
 
 #include <algorithm>
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
 // Check function return flag
 int check_flag(const int flag, const std::string funcname)
