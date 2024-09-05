@@ -46,10 +46,6 @@ sundials_option(ENABLE_PTHREAD BOOL "Enable Pthreads support" OFF)
 # -------------------------------------------------------------
 sundials_option(ENABLE_CUDA BOOL "Enable CUDA support" OFF)
 
-# CMake 3.18 adds this option.
-sundials_option(CMAKE_CUDA_ARCHITECTURES STRING "Target CUDA architecture" "70"
-                DEPENDS_ON ENABLE_CUDA)
-
 # -------------------------------------------------------------
 # Enable HIP support?
 # -------------------------------------------------------------

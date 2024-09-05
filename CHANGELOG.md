@@ -6,8 +6,14 @@
 
 ### New Features and Enhancements
 
-Added Multirate time step adaptivity controllers, based on the recently introduced
-`SUNAdaptController` base class, to ARKODE's MRIStep module.
+The default value of `CMAKE_CUDA_ARCHITECTURES` is no longer set to `70` and is
+now determined automatically by CMake. The previous default was only valid for
+Volta GPUs while the automatically selected value will vary across compilers and
+compiler versions. As such, users are encouraged to override this value with the
+architecture for their system.
+
+Added support for multirate time step adaptivity controllers, based on the
+recently introduced `SUNAdaptController` base class, to ARKODE's MRIStep module.
 
 Added functionality to ARKODE to accumulate a temporal error
 estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorType`,
@@ -16,6 +22,9 @@ estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorT
 ### Bug Fixes
 
 Fixed the loading of ARKStep's default first order explicit method.
+
+Fixed a CMake bug regarding usage of missing "print_warning" macro
+that was only triggered when the deprecated `CUDA_ARCH` option was used.
 
 ### Deprecation Notices
 
