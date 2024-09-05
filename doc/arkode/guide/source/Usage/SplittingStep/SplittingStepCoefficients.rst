@@ -22,7 +22,7 @@ coefficients of various orders and partitions. There are also a number of
 built-in methods of fixed orders and partitions (see
 :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients.Coefficients`).
 Finally, a user may construct a custom set of coefficients and attach it with
-:c:func:`SplittingStepSetCoefficients`. The operator splitting coefficients are
+:c:func:`SplittingStep_SetCoefficients`. The operator splitting coefficients are
 stored in a :c:func:`SplittingStepCoefficients` object which is a pointer to a
 :c:struct:`SplittingStepCoefficientsMem` structure:
 
@@ -152,7 +152,7 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
    .. versionadded:: x.y.z
 
 
-.. c:function:: const char* SplittingStepCoefficients_LoadCoefficientsByName(ARKODE_SplittingCoefficientsID method)
+.. c:function:: const char* SplittingStepCoefficients_IDToName(ARKODE_SplittingCoefficientsID method)
 
    Converts specified splitting coefficients ID to a string of the same name.
    For further information on the current set of splitting coefficients and
@@ -176,7 +176,6 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
    .. math::
       y_n = L_h(y_{n-1}) = \left( \phi^P_{h} \circ \phi^{P-1}_{h}
       \circ \dots \circ \phi^1_{h} \right) (y_{n-1})
-      :label: ARKODE_Lie-Trotter
 
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
@@ -194,10 +193,9 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
 
    .. math::
       y_n = S_h(y_{n-1}) = \left( L^*_{h/2} \circ L_{h/2} \right) (y_{n-1}),
-      :label: ARKODE_Strang
 
-   where :math:`L` is the Lie-Trotter splitting :eq:`ARKODE_Lie` and
-   :math:`L*_h = L^{-1}_{-h}` is its adjoint.
+   where :math:`L` is the Lie-Trotter splitting and :math:`L*_h = L^{-1}_{-h}`
+   is its adjoint.
 
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
@@ -235,8 +233,8 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
    .. math::
       y_n = \frac{1}{2} \left( L_h(y_{n-1}) + L^*_h(y_{n-1}) \right),
 
-   where :math:`L` is the Lie-Trotter splitting :eq:`ARKODE_Lie` and
-   :math:`L^*_h = L^{-1}_{-h}` is its adjoint.
+   where :math:`L` is the Lie-Trotter splitting and :math:`L^*_h = L^{-1}_{-h}`
+   is its adjoint.
    
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
@@ -256,9 +254,9 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
       y_n = \left( L_{p_1 h} \circ L^*_{p_2 h} \circ L_{p_3 h} \circ L^*_{p_4 h}
       \circ L_{p_5 h} \right) (y_{n-1}),
 
-   where :math:`L` is the Lie-Trotter splitting :eq:`ARKODE_Lie` and
-   :math:`L^*_h = L^{-1}_{-h}` is its adjoint. The parameters
-   :math:`p_1, \dots, p_5` are selected to give third order.
+   where :math:`L` is the Lie-Trotter splitting and :math:`L^*_h = L^{-1}_{-h}`
+   is its adjoint. The parameters :math:`p_1, \dots, p_5` are selected to give
+   third order.
    
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
@@ -283,8 +281,8 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
       y_n &= T_h^{[order]}(y_{n-1}),
       \end{align*}
    
-   where :math:`S` is the Strang splitting :eq:`ARKODE_Stang` and parameter
-   :math:`\gamma_1` selected to increase the order by two each recursion.
+   where :math:`S` is the Strang splitting and parameter :math:`\gamma_1` is
+   selected to increase the order by two each recursion.
    
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
@@ -312,8 +310,8 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
       y_n &= Q_h^{[order]}(y_{n-1}),
       \end{align*}
    
-   where :math:`S` is the Strang splitting :eq:`ARKODE_Stang` and parameter
-   :math:`\gamma_1` selected to increase the order by two each recursion.
+   where :math:`S` is the Strang splitting and parameter :math:`\gamma_1` is
+   selected to increase the order by two each recursion.
    
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
