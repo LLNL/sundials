@@ -268,7 +268,7 @@ int mriStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
 sunbooleantype mriStep_CheckNVector(N_Vector tmpl);
 int mriStep_SetCoupling(ARKodeMem ark_mem);
 int mriStep_CheckCoupling(ARKodeMem ark_mem);
-int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
+int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                          sunrealtype t0, sunrealtype tf, N_Vector ycur,
                          N_Vector ytemp, sunbooleantype force_reset,
                          sunbooleantype get_inner_dsm);
@@ -286,8 +286,7 @@ int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 int mriStep_FastRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int mriStep_Hin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
-                N_Vector ycur, N_Vector fcur, N_Vector ytmp, N_Vector temp1,
-                N_Vector temp2, ARKTimestepFullRHSFn rhs, sunrealtype* h);
+                N_Vector fcur, sunrealtype* h);
 void mriStep_ApplyForcing(ARKodeMRIStepMem step_mem, sunrealtype t,
                           sunrealtype s, int* nvec);
 

@@ -99,8 +99,7 @@ int SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C, sunrealtype H,
   /* Estimate slow stepsize from MRI controller */
   retval = SUNAdaptController_EstimateStepTol(MRICONTROL_C(C), H,
                                               step_mem->inner_control,
-                                              step_mem->p, DSM,
-                                              step_mem->inner_dsm, Hnew,
+                                              P, DSM, step_mem->inner_dsm, Hnew,
                                               &(step_mem->inner_control_new));
   return retval;
 }

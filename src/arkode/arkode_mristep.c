@@ -1278,9 +1278,8 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
                         "error calling slow RHS function(s)");
         return (ARK_RHSFUNC_FAIL);
       }
-      retval = mriStep_Hin(ark_mem, ark_mem->tcur, ark_mem->tout, ark_mem->yn,
-                           ark_mem->tempv1, ark_mem->ycur, ark_mem->tempv2,
-                           ark_mem->tempv3, mriStep_SlowRHS, &(ark_mem->hin));
+      retval = mriStep_Hin(ark_mem, ark_mem->tcur, ark_mem->tout,
+                           ark_mem->tempv1, &(ark_mem->hin));
       if (retval != ARK_SUCCESS)
       {
         retval = arkHandleFailure(ark_mem, retval);
@@ -1850,7 +1849,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
         *nflagPtr = CONV_FAIL;
         break;
       }
-      retval = mriStep_StageERKFast(ark_mem, step_mem, is, t0, tf, ark_mem->ycur,
+      retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
                                     ark_mem->tempv2, SUNTRUE, need_inner_dsm);
       if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
       break;
@@ -2044,9 +2043,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
         *nflagPtr = CONV_FAIL;
         break;
       }
-      retval = mriStep_StageERKFast(ark_mem, step_mem, step_mem->stages, t0, tf,
-                                    ark_mem->ycur, ark_mem->tempv2, SUNTRUE,
-                                    SUNFALSE);
+      retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
+                                    ark_mem->tempv2, SUNTRUE, SUNFALSE);
       if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
       break;
     case (MRISTAGE_ERK_NOFAST):
@@ -2332,7 +2330,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Evolve fast IVP for this stage:
          force reset due to "stage-restart" structure
          potentially get inner dsm on all non-embedding stages */
-    retval = mriStep_StageERKFast(ark_mem, step_mem, stage, ark_mem->tn,
+    retval = mriStep_StageERKFast(ark_mem, step_mem, ark_mem->tn,
                                   ark_mem->tn + cstage * ark_mem->h,
                                   ark_mem->ycur, ytemp, SUNTRUE,
                                   need_inner_dsm && !embedding);
@@ -2774,7 +2772,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       /* Evolve fast IVP for this stage:
            force reset on first stage in group
            potentially get inner dsm on all non-embedding stages */
-      retval = mriStep_StageERKFast(ark_mem, step_mem, stage, t0, tf,
+      retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf,
                                     ark_mem->ycur, ytemp, is == 0,
                                     need_inner_dsm && !embedding);
       if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
@@ -3300,14 +3298,14 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   get_inner_dsm indicates whether this stage is one that should
   accumulate an inner temporal error estimate.
   ---------------------------------------------------------------*/
-int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
+int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                          sunrealtype t0, sunrealtype tf, N_Vector ycur,
-                         N_Vector ytemp, sunbooleantype force_reset,
+                         SUNDIALS_MAYBE_UNUSED N_Vector ytemp,
+                         sunbooleantype force_reset,
                          sunbooleantype get_inner_dsm)
 {
   int retval;                         /* reusable return flag */
   SUNAdaptController_Type adapt_type; /* timestep adaptivity type */
-  sunrealtype inner_error_factor;
 
 #ifdef SUNDIALS_DEBUG
   printf("    MRIStep ERK fast stage\n");
@@ -3957,7 +3955,7 @@ int mriStep_StageSetup(ARKodeMem ark_mem)
   ARK_FULLRHS_OTHER.
   ---------------------------------------------------------------*/
 int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
-                    int mode)
+                    SUNDIALS_MAYBE_UNUSED int mode)
 {
   ARKodeMRIStepMem step_mem;
   int nvec, retval;
@@ -4036,7 +4034,7 @@ int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   adaptivity is enabled.
   ---------------------------------------------------------------*/
 int mriStep_FastRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
-                    int mode)
+                    SUNDIALS_MAYBE_UNUSED int mode)
 {
   ARKodeMRIStepMem step_mem;
   int retval;
@@ -4069,8 +4067,7 @@ int mriStep_FastRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   initial condition.
   ---------------------------------------------------------------*/
 int mriStep_Hin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
-                N_Vector ycur, N_Vector fcur, N_Vector ytmp, N_Vector temp1,
-                N_Vector temp2, ARKTimestepFullRHSFn rhs, sunrealtype* h)
+                N_Vector fcur, sunrealtype* h)
 {
   int sign;
   sunrealtype tdiff, tdist, tround, fnorm, h0_inv;
@@ -4694,7 +4691,8 @@ int MRIStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
   ODE IVP.
   ----------------------------------------------------------------------------*/
 
-int mriStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
+int mriStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
+                               SUNDIALS_MAYBE_UNUSED sunrealtype t0,
                                sunrealtype tout, N_Vector y)
 {
   void* arkode_mem;           /* arkode memory             */
