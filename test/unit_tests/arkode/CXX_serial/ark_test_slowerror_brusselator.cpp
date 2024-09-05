@@ -55,7 +55,7 @@
  * hmax=(t_f-t_0)/20/Npart.
  *
  * We place the entire ODE in the "slow" RHS partition.  For IMEX
- * methods, thw third row is treated implicitly, and the first two
+ * methods, the third row is treated implicitly, and the first two
  * are treated explicitly.  For the fast time scale, all tests use
  * ARKODE's default fifth-order ERK method, with relative and
  * absolute tolerances set to 1e-10 and 1e-12, respectively.
