@@ -17,7 +17,6 @@ sundials_add_f2003_library(
   SOURCES fsunadaptcontroller_mrihtol_mod.f90 fsunadaptcontroller_mrihtol_mod.c
   LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
-  OUTPUT_NAME sundials_fsunadaptcontrollermrihtol_mod OBJECT_LIB_ONLY
-)
+  OUTPUT_NAME sundials_fsunadaptcontrollermrihtol_mod OBJECT_LIB_ONLY)
 
 message(STATUS "Added SUNAdaptController_MRIHTol F2003 interface")
