@@ -384,7 +384,7 @@ int main(int argc, char* argv[])
    */
 
   /* Initialize the fast integrator. Specify the fast right-hand side
-     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the inital time T0,
+     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the initial time T0,
      and the initial dependent variable vector y.  If the fast scale is implicit,
      set up matrix, linear solver, and Jacobian function */
   if (implicit_fast)
@@ -524,7 +524,7 @@ int main(int argc, char* argv[])
    */
 
   /* Initialize the slow integrator. Specify the slow right-hand side
-     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the inital time
+     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the initial time
      T0, the initial dependent variable vector y, and the fast integrator.  If
      the slow scale contains an implicit component, set up matrix, linear solver,
      and Jacobian function. */

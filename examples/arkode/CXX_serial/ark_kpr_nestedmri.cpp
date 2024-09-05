@@ -1539,7 +1539,7 @@ void InputHelp()
   std::cout << "  --mid_method   : intemediate MRI method name (valid "
                "ARKODE_MRITableID)\n";
   std::cout << "  --fast_order   : fast RK method order\n";
-  std::cout << "  --scontrol     : slow/intermeidate time step controllers, "
+  std::cout << "  --scontrol     : slow/intermediate time step controllers, "
                "int in [0,12] "
                "(see source)\n";
   std::cout << "  --fcontrol     : fast time step controller, int in [0,6] "
