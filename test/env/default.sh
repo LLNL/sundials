@@ -261,27 +261,27 @@ fi
 # Ginkgo
 # ------
 
-if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-    if [ "$SUNDIALS_CUDA" == "ON" ]; then
-        if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-            export SUNDIALS_GINKGO=ON
-            export GINKGO_ROOT="$(spack location -i ginkgo@1.8.0 +cuda)"
-            export GINKGO_BACKENDS="REF;OMP;CUDA"
-        else
-            export SUNDIALS_GINKGO=OFF
-            unset GINKGO_ROOT
-            unset GINKGO_BACKENDS
-        fi
-    else
-        export SUNDIALS_GINKGO=ON
-        export GINKGO_ROOT="$(spack location -i ginkgo@1.8.0 ~cuda)"
-        export GINKGO_BACKENDS="REF;OMP"
-    fi
-else
-    export SUNDIALS_GINKGO=OFF
-    unset GINKGO_ROOT
-    unset GINKGO_BACKENDS
-fi
+# if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+#     if [ "$SUNDIALS_CUDA" == "ON" ]; then
+#         if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#             export SUNDIALS_GINKGO=ON
+#             export GINKGO_ROOT="$(spack location -i ginkgo@1.8.0 +cuda)"
+#             export GINKGO_BACKENDS="REF;OMP;CUDA"
+#         else
+#             export SUNDIALS_GINKGO=OFF
+#             unset GINKGO_ROOT
+#             unset GINKGO_BACKENDS
+#         fi
+#     else
+#         export SUNDIALS_GINKGO=ON
+#         export GINKGO_ROOT="$(spack location -i ginkgo@1.8.0 ~cuda)"
+#         export GINKGO_BACKENDS="REF;OMP"
+#     fi
+# else
+#     export SUNDIALS_GINKGO=OFF
+#     unset GINKGO_ROOT
+#     unset GINKGO_BACKENDS
+# fi
 
 # ------
 # Kokkos
@@ -407,18 +407,18 @@ fi
 # trilinos
 # --------
 
-if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-    export SUNDIALS_TRILINOS=ON
-    if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=int +cuda)"
-    else
-        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=long_long +cuda)"
-    fi
-    export TRILINOS_ROOT
-else
-    export SUNDIALS_TRILINOS=OFF
-    unset TRILINOS_ROOT
-fi
+# if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#     export SUNDIALS_TRILINOS=ON
+#     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+#         TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=int +cuda)"
+#     else
+#         TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=long_long +cuda)"
+#     fi
+#     export TRILINOS_ROOT
+# else
+#     export SUNDIALS_TRILINOS=OFF
+#     unset TRILINOS_ROOT
+# fi
 
 # ----
 # raja
