@@ -1,6 +1,6 @@
-/*-----------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * Programmer(s): Steven B. Roberts @ LLNL
- *---------------------------------------------------------------
+ *------------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -10,30 +10,37 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- *---------------------------------------------------------------
- * Example problem:
+ *------------------------------------------------------------------------------
+ * We consider the initial value problem
+ *    y' + lambda*y = y^2, y(0) = 1
+ * proposed in 
+ * 
+ * Estep, D., et al. "An a posteriori–a priori analysis of multiscale operator
+ * splitting." SIAM Journal on Numerical Analysis 46.3 (2008): 1116-1146.
  *
- * The following is a simple example problem with analytical
- * solution,
- *    dy/dt = lambda*y + 1/(1+t^2) - lambda*atan(t)
- * for t in the interval [0.0, 10.0], with initial condition: y=0.
+ * The parameter lambda is positive, t is in [0, 1], and the exact solution is
+ * 
+ *    y(t) = lambda*y / (y(0) - (y(0) - lambda)*exp(lambda*t))
  *
- * The stiffness of the problem is directly proportional to the
- * value of "lambda".  The value of lambda should be negative to
- * result in a well-posed ODE; for values with magnitude larger
- * than 100 the problem becomes quite stiff.
- *
- * This program solves the problem with the DIRK method,
- * Newton iteration with the dense SUNLinearSolver, and a
- * user-supplied Jacobian routine.
- * Output is printed every 1.0 units of time (10 total).
- * Run statistics (optional outputs) are printed at the end.
- *-----------------------------------------------------------------*/
+ * This program solves the problem with a splitting or forcing method which can
+ * be specified with the command line syntax
+ * 
+ * ./ark_analytic_partitioned <integrator> <coefficients>
+ *    integrator: either 'splitting' or 'forcing'
+ *    coefficients (splitting only): the SplittingStepCoefficients to load
+ * 
+ * The linear term lambda*y and nonlinear term y^2 are treated as the two
+ * partitions. The former is integrated with a time step 5x smaller than the
+ * outer method, while the later uses a 10x smaller time step. Once solved, the
+ * program prints the error and statistics.
+ *----------------------------------------------------------------------------*/
 
 /* Header files */
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_splittingstep.h>
+#include <arkode/arkode_forcingstep.h>
 #include <nvector/nvector_serial.h>
+#include <string.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -122,12 +129,20 @@ static int check_flag(void* flagvalue, const char* funcname, int opt)
   return 0;
 }
 
-int main()
+int main(const int argc, char* const argv[])
 {
+  /* Parse arguments */
+  const char *const integrator_name = (argc > 1) ? argv[1] : "splitting";
+  if (strcmp(integrator_name, "splitting") != 0 && strcmp(integrator_name, "forcing") != 0) {
+    fprintf(stderr, "Invalid integrator: %s\nMust be 'splitting' or 'forcing'\n", integrator_name);
+    return 1;
+  }
+  const char *const coefficients_name = (argc > 2) ? argv[2] : NULL;
+
   /* Problem parameters */
   const sunrealtype t0 = SUN_RCONST(0.0);   /* initial time */
   const sunrealtype tf = SUN_RCONST(1.0);   /* final time */
-  const sunrealtype dt = SUN_RCONST(0.01);  /* operator splitting time step */
+  const sunrealtype dt = SUN_RCONST(0.01);  /* outer time step */
   const sunrealtype dt_linear    = dt / 5;  /* linear integrator time step */
   const sunrealtype dt_nonlinear = dt / 10; /* nonlinear integrator time step */
 
@@ -139,14 +154,18 @@ int main()
   if (check_flag(&flag, "SUNContext_Create", 1)) { return 1; }
 
   /* Initialize vector with initial condition */
-  N_Vector y = N_VNew_Serial(1, ctx);
+  const N_Vector y = N_VNew_Serial(1, ctx);
   if (check_flag(y, "N_VNew_Serial", 0)) { return 1; }
   N_VConst(SUN_RCONST(1.0), y);
 
-  N_Vector y_exact = exact_sol(y, tf, &user_data);
+  const N_Vector y_exact = exact_sol(y, tf, &user_data);
 
   printf("\nAnalytical ODE test problem:\n");
-  printf("   lambda = %" GSYM "\n", user_data.lambda);
+  printf("   integrator = %s method\n", integrator_name);
+  if (coefficients_name != NULL) {
+    printf("   coefficients = %s\n", coefficients_name);
+  }
+  printf("   lambda     = %" GSYM "\n", user_data.lambda);
 
   /* Create the integrator for the linear partition */
   void* linear_mem = ARKStepCreate(f_linear, NULL, t0, y, ctx);
@@ -170,23 +189,43 @@ int main()
   ARKStepCreateSUNStepper(linear_mem, &steppers[0]);
   ARKStepCreateSUNStepper(nonlinear_mem, &steppers[1]);
 
-  /* Create the operator splitting method */
-  void* splitting_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
-  if (check_flag(splitting_mem, "SplittingStepCreate", 0)) { return 1; }
+  /* Create the outer integrator */
+  void *arkode_mem;
+  if (strcmp(integrator_name, "splitting") == 0) {
+    arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
+    if (check_flag(arkode_mem, "SplittingStepCreate", 0)) { return 1; }
 
-  flag = ARKodeSetFixedStep(splitting_mem, dt);
+    if (coefficients_name != NULL) {
+      const SplittingStepCoefficients coefficients = SplittingStepCoefficients_LoadCoefficientsByName(coefficients_name);
+      if (check_flag(coefficients, "SplittingStepCoefficients_LoadCoefficientsByName", 0)) { return 1; }
+
+      flag = SplittingStep_SetCoefficients(arkode_mem, coefficients);
+      if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
+
+      SplittingStepCoefficients_Free(coefficients);
+    }
+  } else {
+    arkode_mem = ForcingStepCreate(steppers[0], steppers[1], t0, y, ctx);
+    if (check_flag(arkode_mem, "ForcingStepCreate", 0)) { return 1; }
+  }
+
+  flag = ARKodeSetFixedStep(arkode_mem, dt);
   if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
-  /* Compute the operator splitting solution */
+  /* Compute the numerical solution */
   sunrealtype tret;
-  flag = ARKodeEvolve(splitting_mem, tf, y, &tret, ARK_NORMAL);
+  flag = ARKodeEvolve(arkode_mem, tf, y, &tret, ARK_NORMAL);
   if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
-  /* Print the numerical error */
-  N_Vector y_err = N_VClone(y);
+  /* Print the numerical error and statistics */
+  const N_Vector y_err = N_VClone(y);
   if (check_flag(y_err, "N_VClone", 0)) { return 1; }
   N_VLinearSum(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), y_exact, y_err);
-  printf("Error: %" GSYM "\n", N_VMaxNorm(y_err));
+  printf("\nError: %" GSYM "\n", N_VMaxNorm(y_err));
+
+  printf("Final Solver Statistics:\n");
+  flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
 
   /* Free memory */
   N_VDestroy(y);
@@ -196,7 +235,7 @@ int main()
   SUNStepper_Destroy(&steppers[0]);
   ARKodeFree(&nonlinear_mem);
   SUNStepper_Destroy(&steppers[1]);
-  ARKodeFree(&splitting_mem);
+  ARKodeFree(&arkode_mem);
   SUNContext_Free(&ctx);
 
   return 0;

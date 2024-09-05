@@ -56,8 +56,7 @@ static sunbooleantype forcingStep_CheckNVector(const N_Vector y)
   within arkInitialSetup.
 
   With initialization types FIRST_INIT this routine:
-  - sets/checks the splitting coefficients to be used
-  - sets/checks the execution policy to be used
+  - sets the forcing for stepper2
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
@@ -74,11 +73,7 @@ static int forcingStep_Init(const ARKodeMem ark_mem, const int init_type)
     return ARK_SUCCESS;
   }
 
-  /* Only one forcing vector is needed which come from the already allocated
-   * tempv1 */
-  step_mem->stepper2->nforcing = 1;
-  step_mem->stepper2->nforcing_allocated = 1;
-  step_mem->stepper2->forcing = &ark_mem->tempv1;
+  SUNStepper_SetForcing(step_mem->stepper2, 1, ark_mem->yn);
 
   ark_mem->interp_degree = 1;
 
@@ -155,23 +150,27 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   sunrealtype tret = 0;
   int stop_reason = 0;
 
-  SUNErrCode err = s1->ops->reset(s1, ark_mem->tn, ark_mem->yn);
+  /* Evolve partition 1 on its own */
+  SUNErrCode err = SUNStepper_Reset(s1, ark_mem->tn, ark_mem->yn);
   if (err != SUN_SUCCESS) { return err; }
-
-  err = s1->ops->evolve(s1, ark_mem->tn, tout, ark_mem->ycur, &tret, &stop_reason);
+  err = SUNStepper_SetStopTime(s1, tout);
+  if (err != SUN_SUCCESS) { return err; }
+  err = SUNStepper_Evolve(s1, ark_mem->tn, tout, ark_mem->ycur, &tret, &stop_reason);
   if (err != SUN_SUCCESS) { return err; }
   if (stop_reason < 0) { return stop_reason; }
   step_mem->n_stepper_evolves++;
 
-  /* Write tendency into the SUNStepper forcing */
+  /* Write tendency into stepper 2 forcing */
   const SUNStepper s2 = step_mem->stepper2;
   const sunrealtype hinv = SUN_RCONST(1.0) / ark_mem->h;
   N_VLinearSum(hinv, ark_mem->ycur, -hinv, ark_mem->yn, s2->forcing[0]);
 
-  err = s2->ops->reset(s2, ark_mem->tn, ark_mem->ycur);
+  /* No need to reset stepper 2 since its trajectory is continuous and in sync
+   * with the outer forcing method */
+  err = SUNStepper_SetStopTime(s2, tout);
   if (err != SUN_SUCCESS) { return err; }
 
-  err = s2->ops->evolve(s2, ark_mem->tn, tout, ark_mem->ycur, &tret, &stop_reason);
+  err = SUNStepper_Evolve(s2, ark_mem->tn, tout, ark_mem->ycur, &tret, &stop_reason);
   if (err != SUN_SUCCESS) { return err; }
   if (stop_reason < 0) { return stop_reason; }
   step_mem->n_stepper_evolves++;
@@ -210,30 +209,6 @@ static int forcingStep_PrintAllStats(const ARKodeMem ark_mem,
 }
 
 /*---------------------------------------------------------------
-  Outputs all solver parameters to the provided file pointer.
-  ---------------------------------------------------------------*/
-static int forcingStep_WriteParameters(SUNDIALS_MAYBE_UNUSED const ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED FILE* const fp)
-{
-  // This method has no extra parameters
-  return ARK_SUCCESS;
-}
-
-/*---------------------------------------------------------------
-  This routine resizes the memory within the ForcingStep module.
-  ---------------------------------------------------------------*/
-static int forcingStep_Resize(SUNDIALS_MAYBE_UNUSED const ARKodeMem ark_mem,
-                                SUNDIALS_MAYBE_UNUSED const N_Vector ynew,
-                                SUNDIALS_MAYBE_UNUSED const sunrealtype hscale,
-                                SUNDIALS_MAYBE_UNUSED const sunrealtype t0,
-                                SUNDIALS_MAYBE_UNUSED const ARKVecResizeFn resize,
-                                SUNDIALS_MAYBE_UNUSED void* const resize_data)
-{
-  /* Nothing to do since the step_mem has no vectors. Users are responsible for
-   * resizing the SUNSteppers. */
-  return ARK_SUCCESS;
-}
-
-/*---------------------------------------------------------------
   Frees all ForcingStep memory.
   ---------------------------------------------------------------*/
 static void forcingStep_Free(const ARKodeMem ark_mem)
@@ -260,18 +235,6 @@ static void forcingStep_PrintMem(const ARKodeMem ark_mem, FILE* const outfile)
 }
 
 /*---------------------------------------------------------------
-  Specifies the method order
-  ---------------------------------------------------------------*/
-static int forcingStep_SetOrder(const ARKodeMem ark_mem, const int order)
-{
-  if (order > 1) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "ForcingStep only supports an order of 1");
-  }
-  return ARK_SUCCESS;
-}
-
-/*---------------------------------------------------------------
   Resets all ForcingStep optional inputs to their default
   values. Does not change problem-defining function pointers or
   user_data pointer.
@@ -279,6 +242,20 @@ static int forcingStep_SetOrder(const ARKodeMem ark_mem, const int order)
 static int forcingStep_SetDefaults(const ARKodeMem ark_mem)
 {
   ark_mem->interp_type = ARK_INTERP_LAGRANGE;
+
+  return ARK_SUCCESS;
+}
+
+static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
+{
+  ARKodeForcingStepMem step_mem = NULL;
+  int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  /* Reset stepper 2 to be consistent. No need to reset stepper 1 since that
+   * happens at the start of a step anyway. */
+  retval = SUNStepper_Reset(step_mem->stepper2, tR, yR);
+  if (retval != ARK_SUCCESS) { return ARK_INNERSTEP_FAIL; }
 
   return ARK_SUCCESS;
 }
@@ -355,12 +332,10 @@ void* ForcingStepCreate(SUNStepper stepper1,
   ark_mem->step_fullrhs         = forcingStep_FullRHS;
   ark_mem->step                 = forcingStep_TakeStep;
   ark_mem->step_printallstats   = forcingStep_PrintAllStats;
-  ark_mem->step_writeparameters = forcingStep_WriteParameters;
-  ark_mem->step_resize          = forcingStep_Resize;
   ark_mem->step_free            = forcingStep_Free;
   ark_mem->step_printmem        = forcingStep_PrintMem;
   ark_mem->step_setdefaults     = forcingStep_SetDefaults;
-  ark_mem->step_setorder        = forcingStep_SetOrder;
+  ark_mem->step_reset           = forcingStep_Reset;
   ark_mem->step_mem             = (void*)step_mem;
 
   /* Set default values for ARKStep optional inputs */

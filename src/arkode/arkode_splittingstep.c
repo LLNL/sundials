@@ -248,10 +248,10 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y,
       if (t_start == t_end) { continue; }
 
       const SUNStepper stepper = step_mem->steppers[k];
-      SUNErrCode err           = stepper->ops->reset(stepper, t_start, y);
+      SUNErrCode err           = SUNStepper_Reset(stepper, t_start, y);
       if (err != SUN_SUCCESS) { return err; }
 
-      err = stepper->ops->setstoptime(stepper, t_end);
+      err = SUNStepper_SetStopTime(stepper, t_end);
       if (err != SUN_SUCCESS) { return err; }
 
       sunrealtype tret = 0;
@@ -331,21 +331,6 @@ static int splittingStep_WriteParameters(const ARKodeMem ark_mem, FILE* const fp
   fprintf(fp, "SplittingStep time step module parameters:\n  Method order %i\n\n",
           step_mem->order);
 
-  return ARK_SUCCESS;
-}
-
-/*---------------------------------------------------------------
-  This routine resizes the memory within the SplittingStep module.
-  ---------------------------------------------------------------*/
-static int splittingStep_Resize(SUNDIALS_MAYBE_UNUSED const ARKodeMem ark_mem,
-                                SUNDIALS_MAYBE_UNUSED const N_Vector ynew,
-                                SUNDIALS_MAYBE_UNUSED const sunrealtype hscale,
-                                SUNDIALS_MAYBE_UNUSED const sunrealtype t0,
-                                SUNDIALS_MAYBE_UNUSED const ARKVecResizeFn resize,
-                                SUNDIALS_MAYBE_UNUSED void* const resize_data)
-{
-  /* Nothing to do since the step_mem has no vectors. Users are responsible for
-   * resizing the SUNSteppers. */
   return ARK_SUCCESS;
 }
 
@@ -519,7 +504,6 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
   ark_mem->step                 = splittingStep_TakeStep;
   ark_mem->step_printallstats   = splittingStep_PrintAllStats;
   ark_mem->step_writeparameters = splittingStep_WriteParameters;
-  ark_mem->step_resize          = splittingStep_Resize;
   ark_mem->step_free            = splittingStep_Free;
   ark_mem->step_printmem        = splittingStep_PrintMem;
   ark_mem->step_setdefaults     = splittingStep_SetDefaults;
