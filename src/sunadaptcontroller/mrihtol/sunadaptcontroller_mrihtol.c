@@ -139,7 +139,8 @@ SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(SUNAdaptControll
  * implementation of controller operations
  * ----------------------------------------------------------------- */
 
-SUNAdaptController_Type SUNAdaptController_GetType_MRIHTol(SUNAdaptController C)
+SUNAdaptController_Type SUNAdaptController_GetType_MRIHTol(
+  SUNDIALS_MAYBE_UNUSED SUNAdaptController C)
 {
   return SUN_ADAPTCONTROLLER_MRI_TOL;
 }
