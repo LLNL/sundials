@@ -46,7 +46,6 @@ static int forcingStep_AccessStepMem(const ARKodeMem ark_mem,
   ---------------------------------------------------------------*/
 static sunbooleantype forcingStep_CheckNVector(const N_Vector y)
 {
-  // TODO(SBR): check all ops are correct
   return y->ops->nvlinearsum != NULL;
 }
 
@@ -74,7 +73,6 @@ static int forcingStep_Init(const ARKodeMem ark_mem, const int init_type)
   }
 
   SUNStepper_SetForcing(step_mem->stepper2, 1, ark_mem->yn);
-
   ark_mem->interp_degree = 1;
 
   return ARK_SUCCESS;
@@ -133,7 +131,7 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
 }
 
 /*---------------------------------------------------------------
-  This routine performs a single step of the splitting method.
+  This routine performs a single step of the forcing method.
   ---------------------------------------------------------------*/
 static int forcingStep_TakeStep(const ARKodeMem ark_mem,
                                   sunrealtype* const dsmPtr, int* const nflagPtr)
@@ -170,6 +168,7 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   err = SUNStepper_SetStopTime(s2, tout);
   if (err != SUN_SUCCESS) { return err; }
 
+  /* Eolve partition 2 with the forcing */
   err = SUNStepper_Evolve(s2, ark_mem->tn, tout, ark_mem->ycur, &tret, &stop_reason);
   if (err != SUN_SUCCESS) { return err; }
   if (stop_reason < 0) { return stop_reason; }
@@ -213,9 +212,7 @@ static int forcingStep_PrintAllStats(const ARKodeMem ark_mem,
   ---------------------------------------------------------------*/
 static void forcingStep_Free(const ARKodeMem ark_mem)
 {
-  ARKodeForcingStepMem step_mem = (ARKodeForcingStepMem)ark_mem->step_mem;
-  if (step_mem == NULL) { return; }
-  free(step_mem);
+  free(ark_mem->step_mem);
   ark_mem->step_mem = NULL;
 }
 

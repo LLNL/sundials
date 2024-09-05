@@ -339,17 +339,17 @@ static int splittingStep_WriteParameters(const ARKodeMem ark_mem, FILE* const fp
   ---------------------------------------------------------------*/
 static void splittingStep_Free(const ARKodeMem ark_mem)
 {
-  ARKodeSplittingStepMem step_mem = (ARKodeSplittingStepMem)ark_mem->step_mem;
-  if (step_mem == NULL) { return; }
+  const ARKodeSplittingStepMem step_mem = (ARKodeSplittingStepMem)ark_mem->step_mem;
+  if (step_mem != NULL) {
+    free(step_mem->steppers);
+    if (step_mem->own_policy)
+    {
+      ARKodeSplittingExecutionPolicy_Free(&step_mem->policy);
+    }
 
-  free(step_mem->steppers);
-  if (step_mem->own_policy)
-  {
-    ARKodeSplittingExecutionPolicy_Free(&step_mem->policy);
+    SplittingStepCoefficients_Free(step_mem->coefficients);
+    free(step_mem);
   }
-
-  SplittingStepCoefficients_Free(step_mem->coefficients);
-  free(step_mem);
   ark_mem->step_mem = NULL;
 }
 
