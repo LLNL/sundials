@@ -514,7 +514,7 @@ following member functions:
       :c:type:`MRIStepInnerResetAccumulatedError` functions should be provided, or not; if only
       one is provided then MRIStep will disable multirate temporal adaptivity and call neither.
 
-      This function peforms a different role within MRIStep than the
+      This function performs a different role within MRIStep than the
       :c:type:`MRIStepInnerResetFn`, and thus an implementation should make no
       assumptions about the frequency/ordering of calls to either.
 

@@ -1639,7 +1639,7 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   If timestep adaptivity is enabled, this routine also computes
   the error estimate y-ytilde, where ytilde is the
   embedded solution, and the norm weights come from ark_ewt.
-  This esimate is stored in ark_mem->tempv1, in case the calling
+  This estimate is stored in ark_mem->tempv1, in case the calling
   routine wishes to examine the error locations.
 
   The output variable dsmPtr should contain a scalar-valued
@@ -2104,7 +2104,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   If timestep adaptivity is enabled, this routine also computes
   the error estimate y-ytilde, where ytilde is the
   embedded solution, and the norm weights come from ark_ewt.
-  This esimate is stored in ark_mem->tempv1, in case the calling
+  This estimate is stored in ark_mem->tempv1, in case the calling
   routine wishes to examine the error locations.
 
   The output variable dsmPtr should contain a scalar-valued
@@ -2571,7 +2571,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   If timestep adaptivity is enabled, this routine also computes
   the error estimate y-ytilde, where ytilde is the
   embedded solution, and the norm weights come from ark_ewt.
-  This esimate is stored in ark_mem->tempv1, in case the calling
+  This estimate is stored in ark_mem->tempv1, in case the calling
   routine wishes to examine the error locations.
 
   The output variable dsmPtr should contain a scalar-valued

@@ -1536,7 +1536,7 @@ void InputHelp()
   std::cout << "  --safety : slow time step safety factor\n";
   std::cout
     << "  --mri_method   : slow MRI method name (valid ARKODE_MRITableID)\n";
-  std::cout << "  --mid_method   : intemediate MRI method name (valid "
+  std::cout << "  --mid_method   : intermediate MRI method name (valid "
                "ARKODE_MRITableID)\n";
   std::cout << "  --fast_order   : fast RK method order\n";
   std::cout << "  --scontrol     : slow/intermediate time step controllers, "
