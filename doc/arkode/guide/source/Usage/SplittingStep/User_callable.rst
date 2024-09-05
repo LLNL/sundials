@@ -39,8 +39,9 @@ SplittingStep initialization functions
    using the SplittingStep time-stepping module in ARKODE.
 
    **Arguments:**
-      * *steppers* -- ?
-      * *partitions* -- ?
+      * *steppers* -- an array of :c:type:`SUNStepper` with one for each
+        partition of the IVP.
+      * *partitions* -- the number :math:`P > 1` of partitions in the IVP.
       * *t0* -- the initial value of :math:`t`.
       * *y0* -- the initial condition vector :math:`y(t_0)`.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
@@ -55,30 +56,30 @@ SplittingStep initialization functions
 
       .. code-block:: C
 
-         /* fast (inner) and slow (outer) ARKODE objects */
-         void *inner_arkode_mem = NULL;
-         void *outer_arkode_mem = NULL;
+         /* inner ARKODE objects for integrating individual partitions */
+         void *partition_mem[] = {NULL, NULL};
 
-         /* MRIStepInnerStepper to wrap the inner (fast) ARKStep object */
-         MRIStepInnerStepper stepper = NULL;
+         /* SUNSteppers to wrap the inner ARKStep objects */
+         SUNStepper steppers[] = {NULL, NULL};
 
-         /* create an ARKStep object, setting fast (inner) right-hand side
-            functions and the initial condition */
-         inner_arkode_mem = ARKStepCreate(ffe, ffi, t0, y0, sunctx);
+         /* create ARKStep objects, setting right-hand side functions and the
+            initial condition */
+         partition_mem[0] = ARKStepCreate(ffe1, ffi1, t0, y0, sunctx);
+         partition_mem[1] = ARKStepCreate(ffe2, ffi2, t0, y0, sunctx);
 
          /* setup ARKStep */
          . . .
 
-         /* create MRIStepInnerStepper wrapper for the ARKStep memory block */
-         flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
+         /* create SUNStepper wrappers for the ARKStep memory blocks */
+         flag = ARKStepCreateSUNStepper(partition_mem[0], &stepper[0]);
+         flag = ARKStepCreateSUNStepper(partition_mem[1], &stepper[1]);
 
-         /* create an MRIStep object, setting the slow (outer) right-hand side
-            functions and the initial condition */
-         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
+         /* create a SplittingStep object with two partitions */
+         arkode_mem = SplittingStepCreate(steppers, 2, t0, y0, sunctx);
 
    **Example codes:**
       * ``examples/arkode/C_serial/ark_advection_diffusion_reaction_splitting.c``
-      * ``examples/arkode/C_serial/ark_analytic_splitting.c``
+      * ``examples/arkode/C_serial/ark_analytic_partitioned.c``
    
    .. versionadded:: x.y.z
 
@@ -94,7 +95,7 @@ Optional inputs for IVP method selection
 
    * *arkode_mem* -- pointer to the SplittingStep memory block.
 
-   * *coefficients* -- the table of coupling coefficients for the MRI method.
+   * *coefficients* -- the splitting coefficients for the method.
 
    **Return value:**
 
