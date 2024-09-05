@@ -69,7 +69,7 @@ if(NOT Trilinos_WORKS)
   try_compile(
     COMPILE_OK ${TRILINOS_TEST_DIR}
     ${TRILINOS_TEST_DIR}/test.cxx
-    LINK_LIBRARIES Kokkos::kokkos Tpetra::all_libs
+    LINK_LIBRARIES Tpetra::all_libs
     OUTPUT_VARIABLE COMPILE_OUTPUT)
 
   # Check the result

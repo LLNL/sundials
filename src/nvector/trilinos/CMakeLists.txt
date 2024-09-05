@@ -22,9 +22,7 @@ sundials_add_library(
   SOURCES nvector_trilinos.cpp
   HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_trilinos.h
   INCLUDE_SUBDIR nvector
-  LINK_LIBRARIES PUBLIC sundials_core
-  OBJECT_LIBRARIES
-  LINK_LIBRARIES PUBLIC Tpetra::all_libs
+  LINK_LIBRARIES PUBLIC sundials_core Tpetra::all_libs
   OUTPUT_NAME sundials_nvectrilinos
   VERSION ${nveclib_VERSION}
   SOVERSION ${nveclib_SOVERSION})
