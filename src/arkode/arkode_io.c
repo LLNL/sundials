@@ -2476,7 +2476,7 @@ int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
   }
   else if (ark_mem->AccumErrorType == 1)
   {
-    *accum_error = ark_mem->AccumError * ark_mem->reltol / steps;
+    *accum_error = ark_mem->AccumError * ark_mem->reltol / ((sunrealtype) steps);
   }
   else
   {
