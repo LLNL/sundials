@@ -454,4 +454,19 @@ with values specified for each method below (e.g.,
 Default Operator Splitting Coefficients
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The default SplittingStep 
+The default SplittingStep coefficients are Lie-Trotter. If a particular order is
+requested with :c:func:`ARKodeSetOrder`, the following are the default for each
+order
+
+.. table:: Default operator splitting coefficients by order.
+
+   ============  ==========================================================
+   Order         Default operator splitting coefficients
+   ============  ==========================================================
+   1             :c:func:`SplittingStepCoefficients_LieTrotter`
+   2             :c:func:`SplittingStepCoefficients_Strang`
+   3             :c:func:`SplittingStepCoefficients_ThirdOrderSuzuki`
+   4, 6, 8, ...  :c:func:`SplittingStepCoefficients_TripleJump`
+   5, 7, 9, ...  Warning: this will select a triple jump method of the next
+                 even order
+   ============  ==========================================================
