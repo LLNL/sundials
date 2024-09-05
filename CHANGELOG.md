@@ -4,6 +4,9 @@
 
 ### Major Features
 
+Added an operator splitting module, SplittingStep, and forcing method module,
+ForcingStep. to ARKODE.
+
 ### New Features and Enhancements
 
 The default value of `CMAKE_CUDA_ARCHITECTURES` is no longer set to `70` and is

@@ -1,5 +1,9 @@
 **Major Features**
 
+Added an operator splitting module,
+:ref:`SplittingStep <ARKODE.Usage.SplittingStep>`, and forcing method module,
+:ref:`ForcingStep <ARKODE.Usage.ForcingStep>`, to ARKODE.
+
 **New Features and Enhancements**
 
 The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
