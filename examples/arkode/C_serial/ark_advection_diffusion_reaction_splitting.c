@@ -220,7 +220,7 @@ int main()
   printf("  N = %li\n", (long int)udata.N);
   printf("  advection coefficient = %" GSYM "\n", udata.a);
   printf("  diffusion coefficient = %" GSYM "\n", udata.b);
-  printf("  reaction coefficient = %" GSYM "\n\n", udata.c);
+  printf("  reaction coefficient  = %" GSYM "\n\n", udata.c);
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
