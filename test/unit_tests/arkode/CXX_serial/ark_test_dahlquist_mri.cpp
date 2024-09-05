@@ -363,9 +363,9 @@ int run_tests(ARKODE_MRIType type, ProblemOptions& prob_opts,
     std::cout << "Test IMEX MRI SR methods\n";
     std::cout << "========================\n";
 
-    methods.insert({{"ARKODE_IMEX_MRISR21", true},
-                    {"ARKODE_IMEX_MRISR32", true},
-                    {"ARKODE_IMEX_MRISR43", true}});
+    methods.insert({{"ARKODE_IMEX_MRI_SR21", true},
+                    {"ARKODE_IMEX_MRI_SR32", true},
+                    {"ARKODE_IMEX_MRI_SR43", true}});
   }
   else { return 1; }
 
