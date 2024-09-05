@@ -81,10 +81,6 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNAdaptController_EstimateStep`
 
-   .. c:member:: SUNErrCode (*estimatemristeps)(SUNAdaptController C, sunrealtype H, sunrealtype h, int P, sunrealtype DSM, sunrealtype dsm, sunrealtype* Hnew, sunrealtype* hnew)
-
-      The function implementing :c:func:`SUNAdaptController_EstimateMRISteps`
-
    .. c:member:: SUNErrCode (*estimatesteptol)(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, int P, sunrealtype DSM, sunrealtype dsm, sunrealtype* Hnew, sunrealtype* tolfacnew)
 
       The function implementing :c:func:`SUNAdaptController_EstimateStepTol`
@@ -108,10 +104,6 @@ The virtual table structure is defined as
    .. c:member:: SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 
       The function implementing :c:func:`SUNAdaptController_UpdateH`
-
-   .. c:member:: SUNErrCode (*updatemrih)(SUNAdaptController C, sunrealtype H, sunrealtype h, sunrealtype DSM, sunrealtype dsm)
-
-      The function implementing :c:func:`SUNAdaptController_UpdateMRIH`
 
    .. c:member:: SUNErrCode (*updatemritol)(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
 
@@ -145,11 +137,6 @@ following set of SUNAdaptController types:
 .. c:enumerator:: SUN_ADAPTCONTROLLER_H
 
    Controls a single-rate step size.
-
-.. c:enumerator:: SUN_ADAPTCONTROLLER_MRI_H
-
-   Controls both slow and fast time steps within a multirate simulation that has
-   two time scales.
 
 .. c:enumerator:: SUN_ADAPTCONTROLLER_MRI_TOL
 
@@ -252,29 +239,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
    .. code-block:: c
 
       retval = SUNAdaptController_EstimateStep(C, hcur, p, dsm, &hnew);
-
-.. c:function:: SUNErrCode SUNAdaptController_EstimateMRISteps(SUNAdaptController C, sunrealtype H, sunrealtype h, int P, sunrealtype DSM, sunrealtype dsm, sunrealtype* Hnew, sunrealtype* hnew)
-
-   Estimates slow and fast step sizes within a two-time-scale multirate application.
-   This routine is required for controllers of type ``SUN_ADAPTCONTROLLER_MRI_H``.
-   If this is not provided by the implementation, the base class method will set
-   ``*Hnew = H`` and ``*hnew = h`` and return.
-
-   :param C: the :c:type:`SUNAdaptController` object.
-   :param H: the slow step size from the previous step attempt.
-   :param h: the fast size from the previous step attempt.
-   :param P: the current order of accuracy for the slow time scale integration method.
-   :param DSM: the slow time scale local temporal estimate from the previous step attempt.
-   :param dsm: the fast time scale local temporal estimate from the previous step attempt.
-   :param Hnew: (output) the estimated slow step size.
-   :param hnew: (output) the estimated fast step size.
-   :return: :c:type:`SUNErrCode` indicating success or failure.
-
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_EstimateMRISteps(C, Hcur, hcur, P, DSM, dsm, &Hnew, &hnew);
 
 .. c:function:: SUNErrCode SUNAdaptController_EstimateStepTol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, int P, sunrealtype DSM, sunrealtype dsm, sunrealtype* Hnew, sunrealtype* tolfacnew)
 
@@ -381,27 +345,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
    .. code-block:: c
 
       retval = SUNAdaptController_UpdateH(C, h, dsm);
-
-.. c:function:: SUNErrCode SUNAdaptController_UpdateMRIH(SUNAdaptController C, sunrealtype H, sunrealtype h, sunrealtype DSM, sunrealtype dsm)
-
-   Notifies a controller of type ``SUN_ADAPTCONTROLLER_MRI_H`` that a successful time step
-   was taken with slow stepsize *H* and fast stepsize *h*, and that the step had slow and
-   fast local error factors *DSM* and *dsm*, indicating that these can be saved for
-   subsequent controller functions. This is typically relevant for controllers that store a
-   history of either step sizes or error estimates for performing the estimation process.
-
-   :param C:  the :c:type:`SUNAdaptController` object.
-   :param H:  the successful slow step size.
-   :param h:  the successful fast step size.
-   :param DSM:  the successful slow temporal error estimate.
-   :param dsm:  the successful fast temporal error estimate.
-   :return: :c:type:`SUNErrCode` indicating success or failure.
-
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_UpdateMRIH(C, H, h, DSM, dsm);
 
 .. c:function:: SUNErrCode SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
 

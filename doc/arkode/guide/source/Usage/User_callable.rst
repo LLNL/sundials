@@ -1422,7 +1422,7 @@ Maximum first step growth factor                            :c:func:`ARKodeSetMa
 Maximum allowed general step growth factor                  :c:func:`ARKodeSetMaxGrowth`                20.0
 Minimum allowed step reduction factor on error test fail    :c:func:`ARKodeSetMinReduction`             0.1
 Time step safety factor                                     :c:func:`ARKodeSetSafetyFactor`             0.96
-Error fails before MaxEFailGrowth takes effect              :c:func:`ARKodeSetSmallNumEFails`           2
+Error fails before ``MaxEFailGrowth`` takes effect          :c:func:`ARKodeSetSmallNumEFails`           2
 Explicit stability function                                 :c:func:`ARKodeSetStabilityFn`              none
 Set accumulated error estimation type                       :c:func:`ARKodeSetAccumulatedErrorType`     none
 Reset accumulated error                                     :c:func:`ARKodeResetAccumulatedError`

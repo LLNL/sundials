@@ -1,7 +1,5 @@
 /* -----------------------------------------------------------------------------
- * Programmer(s): David J. Gardner @ LLNL
- *                Daniel R. Reynolds @ SMU
- *                Rujeko Chinomona @ SMU
+ * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2024, Lawrence Livermore National Security
@@ -24,19 +22,9 @@
 #include "arkode_impl.h"
 #include "arkode_mristep_impl.h"
 
-/* SUNAdaptController_MRIStep heuristic constants */
+/* SUNAdaptController_MRIStep heuristic constant: */
 /*   minimum estimated temporal error for inner solver */
 #define INNER_MIN_DSM SUNRsqrt(SUN_UNIT_ROUNDOFF)
-/*   maximum relative change for inner step size or tolerance */
-#define INNER_MAX_RELCH SUN_RCONST(20.0)
-/*   minimum tolerance sent to inner solver */
-#define INNER_MIN_RTOL (SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF)
-/*   maximum tolerance sent to inner solver */
-#define INNER_MAX_RTOL (SUN_RCONST(0.1))
-/*   minimum step size for inner solver */
-#define INNER_MIN_H (SUN_RCONST(10.0) * SUN_UNIT_ROUNDOFF)
-/*   maximum step size for inner solver, as fraction of MRIStep H */
-#define INNER_MAX_H SUN_RCONST(0.5)
 
 /*--------------------------------------------
   MRIStep SUNAdaptController wrapper functions
@@ -54,8 +42,7 @@ SUNAdaptController SUNAdaptController_MRIStep(void* arkode_mem,
   /* Return with failure if input controller is NULL or has
      unsupported type */
   if (CMRI == NULL) { return (NULL); }
-  if ((SUNAdaptController_GetType(CMRI) != SUN_ADAPTCONTROLLER_MRI_H) &&
-      (SUNAdaptController_GetType(CMRI) != SUN_ADAPTCONTROLLER_MRI_TOL))
+  if (SUNAdaptController_GetType(CMRI) != SUN_ADAPTCONTROLLER_MRI_TOL)
   {
     return (NULL);
   }
@@ -109,34 +96,12 @@ int SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C, sunrealtype H,
   /* Enforce bound on inner_dsm */
   step_mem->inner_dsm = SUNMAX(step_mem->inner_dsm, INNER_MIN_DSM);
 
-  /* Estimate slow stepsize based on MRI controller type, and enforce bounds on
-     controller-specified value for the inner solver */
-  if (SUNAdaptController_GetType(MRICONTROL_C(C)) == SUN_ADAPTCONTROLLER_MRI_H)
-  {
-    retval = SUNAdaptController_EstimateMRISteps(MRICONTROL_C(C), H,
-                                                 step_mem->inner_control,
-                                                 step_mem->p, DSM,
-                                                 step_mem->inner_dsm, Hnew,
-                                                 &(step_mem->inner_control_new));
-    step_mem->inner_control_new = SUNMAX(step_mem->inner_control_new,
-                                         INNER_MIN_H);
-    step_mem->inner_control_new = SUNMIN(step_mem->inner_control_new,
-                                         INNER_MAX_H);
-    step_mem->inner_control_new =
-      SUNMAX(step_mem->inner_control_new,
-             step_mem->inner_control / INNER_MAX_RELCH);
-    step_mem->inner_control_new =
-      SUNMIN(step_mem->inner_control_new,
-             step_mem->inner_control * INNER_MAX_RELCH);
-  }
-  else /* SUN_ADAPTCONTROLLER_MRI_TOL */
-  {
-    retval = SUNAdaptController_EstimateStepTol(MRICONTROL_C(C), H,
-                                                step_mem->inner_control,
-                                                step_mem->p, DSM,
-                                                step_mem->inner_dsm, Hnew,
-                                                &(step_mem->inner_control_new));
-  }
+  /* Estimate slow stepsize from MRI controller */
+  retval = SUNAdaptController_EstimateStepTol(MRICONTROL_C(C), H,
+                                              step_mem->inner_control,
+                                              step_mem->p, DSM,
+                                              step_mem->inner_dsm, Hnew,
+                                              &(step_mem->inner_control_new));
   return retval;
 }
 
@@ -148,20 +113,11 @@ int SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C, sunrealtype H,
   ARKodeMRIStepMem step_mem = MRICONTROL_S(C);
   if ((ark_mem == NULL) || (step_mem == NULL)) { return SUN_ERR_MEM_FAIL; }
 
-  /* Update MRI controller based on its type */
+  /* Update MRI controller */
   int retval;
-  if (SUNAdaptController_GetType(MRICONTROL_C(C)) == SUN_ADAPTCONTROLLER_MRI_H)
-  {
-    retval = SUNAdaptController_UpdateMRIH(MRICONTROL_C(C), H,
+  retval = SUNAdaptController_UpdateMRITol(MRICONTROL_C(C), H,
                                            step_mem->inner_control, DSM,
                                            step_mem->inner_dsm);
-  }
-  else /* SUN_ADAPTCONTROLLER_MRI_TOL */
-  {
-    retval = SUNAdaptController_UpdateMRITol(MRICONTROL_C(C), H,
-                                             step_mem->inner_control, DSM,
-                                             step_mem->inner_dsm);
-  }
   if (retval != SUN_SUCCESS) { return (retval); }
 
   /* Update inner controller parameter to most-recent prediction */

@@ -23,7 +23,7 @@ by the user to setup and then solve an IVP using the MRIStep time-stepping
 module.  The large majority of these routines merely wrap :ref:`underlying
 ARKODE functions <ARKODE.Usage.UserCallable>`, and are now deprecated
 -- each of these are clearly marked.  However, some
-of these user-callable functions are specific to ERKStep, as explained
+of these user-callable functions are specific to MRIStep, as explained
 below.
 
 As discussed in the main :ref:`ARKODE user-callable function introduction
@@ -31,6 +31,7 @@ As discussed in the main :ref:`ARKODE user-callable function introduction
 clarifies the categories of user-callable functions that it supports.
 MRIStep supports the following categories:
 
+* temporal adaptivity
 * implicit nonlinear and/or linear solvers
 
 
@@ -192,14 +193,11 @@ For the simplest form of multirate temporal adaptivity, corresponding to
 controller to MRIStep using the :c:func:`ARKodeSetAdaptController` function.
 The time step controller for the inner integrator may be specified independently.
 
-However, specification of either the :math:`h^S-h^F` or :math:`h^S-Tol` types of
-multirate controllers requires additional steps.
-
-First, a SUNAdaptController with :c:type:`SUNAdaptController_Type` type either
-``SUN_ADAPTCONTROLLER_MRI_H`` or ``SUN_ADAPTCONTROLLER_MRI_TOL`` should be
-constructed, following the documentation in Section :numref:`SUNAdaptController`.
-This controller should then be passed as an input to the MRIStep function
-:c:func:`MRIStepSetAdaptController`, as follows.
+However, specification of the :math:`h^S-Tol` type of multirate controller requires
+an additional step.  First, a SUNAdaptController with :c:type:`SUNAdaptController_Type` type
+``SUN_ADAPTCONTROLLER_MRI_TOL`` should be constructed, following the documentation in
+Section :numref:`SUNAdaptController.MRIHTol`.  This controller should then be passed as an
+input to the MRIStep function :c:func:`MRIStepSetAdaptController`, as follows.
 
 
 .. c:function:: int MRIStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
@@ -217,54 +215,13 @@ This controller should then be passed as an input to the MRIStep function
 
    .. note::
 
-      If the input *C* has :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_MRI_H``
-      or ``SUN_ADAPTCONTROLLER_MRI_TOL`` then this creates an MRIStep-specific adaptivity
-      controller that couples the slow and fast time scales, and that leverages *C* to perform
-      multirate temporal adaptivity.
+      If the input *C* has :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_MRI_TOL``
+      then this creates an MRIStep-specific adaptivity controller that couples the slow and fast
+      time scales, and that leverages *C* to perform multirate temporal adaptivity.
 
       If *C* has :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_H``
       or ``SUN_ADAPTCONTROLLER_NONE`` then this routine merely passes *C* to the ARKODE-level
       routine :c:func:`ARKodeSetAdaptController`.
-
-  .. versionadded:: x.y.z
-
-
-Second, if the multirate controller had type ``SUN_ADAPTCONTROLLER_MRI_H``, then fast time
-scale error will be estimated using the "full step accumulation" strategy described in
-Section :numref:`ARKODE.Mathematics.MultirateFastError`, where by default the fast integrator
-is called with step sizes :math:`h^F` and :math:`2h^F`.  If the user wishes to adjust the
-factor "2" to something else, they may call the function :c:func:`MRIStepSetFastErrorStepFactor`,
-as follows.
-
-.. c:function:: int MRIStepSetFastErrorStepFactor(void* arkode_mem, sunrealtype hfactor)
-
-   This function specifies a time step factor
-
-   If this value is nonzero and MRI temporal adaptivity is enabled, then MRIStep will
-   compute the fast temporal error using the "full step accumulation" stragegy (see
-   Section :numref:`ARKODE.Mathematics.MultirateFastError`). Here, the fast integrator
-   is run twice over each fast time interval, once using the inner step size ``h``, and
-   again using ``hfactor*h`` (typically ``hfactor`` will be either :math:`k` or
-   :math:`1/k` for an integer :math:`k>1`).  This routine should only be used when the
-   results from the fast-integrator-provided :c:type:`MRIStepInnerGetAccumulatedError`
-   cannot be trusted.  In testing, we found this to be the case when the inner integrator
-   uses fixed step sizes.
-
-   An argument of 0 disables this fast error estimation strategy.
-   Arguments less than zero or exactly equal to one are illegal.
-   All other positive ``hfactor`` values will *attempt* to be used.
-
-   :param arkode_mem: pointer to the MRIStep memory block.
-   :param hfactor: user-supplied fast stepsize factor.
-
-   :retval ARK_SUCCESS: the function exited successfully.
-   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
-   :retval ARK_ILL_INPUT: the value of ``hfactor`` was illegal.
-
-   .. note::
-
-      This routine should only be called directly when using a "multirate"
-      :c:type:`SUNAdaptController` of type ``SUN_ADAPTCONTROLLER_MRI_H``.
 
   .. versionadded:: x.y.z
 
@@ -2652,3 +2609,70 @@ MRIStep system resize function
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeResize` instead.
+
+
+
+
+.. _ARKStep_CInterface.MRIStepInterface:
+
+Nested multirate calculations
+-----------------------------
+
+It is possible to use MRIStep as an inner integrator within a slower time scale
+MRIStep integration, thereby allowing for nested multirate calculations with more than
+two time scales.  Here, the inner MRIStep integrator can be wrapped as an
+:c:type:`MRIStepInnerStepper` by calling the utility function
+:c:func:`MRIStepCreateMRIStepInnerStepper`.
+
+.. c:function:: int MRIStepCreateMRIStepInnerStepper(void *inner_arkode_mem, MRIStepInnerStepper *stepper)
+
+   Wraps an MRIStep memory block as an :c:type:`MRIStepInnerStepper` for use
+   with an outer MRIStep instance.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the inner MRIStep memory block.
+      * *stepper* -- the :c:type:`MRIStepInnerStepper` object.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_FAIL* if a memory allocation failed
+      * *ARK_ILL_INPUT* if an argument has an illegal value.
+
+   **Example usage:**
+      .. code-block:: C
+
+         /* fast, intermediate, and slow ARKODE objects */
+         void *fast_arkode_mem = NULL;
+         void *mid_arkode_mem = NULL;
+         void *outer_arkode_mem = NULL;
+
+         /* MRIStepInnerSteppers to wrap the fast ARKStep and intermediate MRIStep objects */
+         MRIStepInnerStepper faststepper = NULL;
+         MRIStepInnerStepper midstepper = NULL;
+
+         /* create an ARKStep object, setting fast (inner) right-hand side
+            functions and the initial condition */
+         fast_arkode_mem = ARKStepCreate(ffe, ffi, t0, y0, sunctx);
+
+         /* setup ARKStep */
+         . . .
+
+         /* create MRIStepInnerStepper wrapper for the ARKStep memory block */
+         flag = ARKStepCreateMRIStepInnerStepper(fast_arkode_mem, &faststepper);
+
+         /* create an MRIStep object, setting the intermediate right-hand side
+            functions and the initial condition */
+         mid_arkode_mem = MRIStepCreate(fme, fmi, t0, y0, faststepper, sunctx);
+
+         /* setup MRIStep */
+         . . .
+
+         /* create MRIStepInnerStepper wrapper for the MRIStep memory block */
+         flag = MRIStepCreateMRIStepInnerStepper(mid_arkode_mem, &midstepper);
+
+         /* create an MRIStep object, setting the slow (outer) right-hand side
+            functions and the initial condition */
+         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, midstepper, sunctx);
+
+   **Example codes:**
+      * ``examples/arkode/CXX_serial/ark_test_kpr_nestedmri.cpp``

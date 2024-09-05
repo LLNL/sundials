@@ -17,15 +17,15 @@
 MRIStep Custom Inner Steppers
 =============================
 
-Recall that MIS, MRI-GARK, and IMEX-MRI-GARK methods require solving a set of auxiliary IVPs
+Recall that infinitesimal multirate methods require solving a set of auxiliary IVPs
 
 .. math::
    \dot{v}(t) = f^F(t, v) + r_i(t), \qquad v(t_{i,0}) = v_{i,0},
    :label: ARKODE_MRI_IVP
 
-on intervals :math:`t \in [t_{i,0}, t_{i,f}]`.  For MIS, MRI-GARK and IMEX-MRI-GARK methods,
-the forcing term :math:`r_i(t)` presented in :numref:`ARKODE.Mathematics.MRIStep` can be
-equivalently written as
+on intervals :math:`t \in [t_{i,0}, t_{i,f}]`.  For the MIS, MRI-GARK and IMEX-MRI-GARK
+methods implemented in MRIStep, the forcing term :math:`r_i(t)`
+presented in :numref:`ARKODE.Mathematics.MRIStep` can be equivalently written as
 
 .. math::
    r_i(t) =
@@ -46,6 +46,11 @@ vectors are
    \hat{\gamma}^{\{k\}}_i = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i
    \gamma^{\{k\}}_{i,j}  f^I(t_{n,j}^S, z_j).
    :label: ARKODE_MRI_forcing_coefficients
+
+The MERK and IMEX-MRI-SR methods included in MRIStep compute the forcing polynomial
+:eq:`ARKODE_MRI_forcing_poly` similarly, with appropriate modifications to
+:math:`\Delta c_i^S`, :math:`t_{n,i-1}^S`, and the coefficients
+:eq:`ARKODE_MRI_forcing_coefficients`.
 
 To evolve the IVP :eq:`ARKODE_MRI_IVP` MRIStep utilizes a generic time integrator
 interface defined by the :c:type:`MRIStepInnerStepper` base class. This section

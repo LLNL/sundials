@@ -280,7 +280,6 @@ int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
 int arkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
                                             sunrealtype* accum_error);
 int arkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
-int arkStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h);
 int arkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
 /* private functions for relaxation */

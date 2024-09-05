@@ -1236,8 +1236,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
   /* get timestep adaptivity type, and return an error if an
      incompatible type is detected */
   adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
-  if ((adapt_type != SUN_ADAPTCONTROLLER_MRI_H) &&
-      (adapt_type != SUN_ADAPTCONTROLLER_MRI_TOL) &&
+  if ((adapt_type != SUN_ADAPTCONTROLLER_MRI_TOL) &&
       (adapt_type != SUN_ADAPTCONTROLLER_H))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -1303,70 +1302,6 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
 
     /* initialize fast stepper to use the same relative tolerance as MRIStep */
     step_mem->inner_control = ONE;
-  }
-
-  /* Perform additional setup for (H,h) controller */
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H)
-  {
-    /* verify that adaptivity type is supported by inner stepper */
-    if (!mriStepInnerStepper_SupportsStepAdaptivity(step_mem->stepper))
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "MRI-H SUNAdaptController provided, but unsupported by inner stepper");
-      return (ARK_ILL_INPUT);
-    }
-
-    /* If user has left inner_hfactor unset, reset to our default to indicate
-       that we **do not trust** fixed-stepsize fast error estimates. */
-    if (step_mem->inner_hfactor < ZERO)
-    {
-      step_mem->inner_hfactor = INNER_HFACTOR;
-    }
-
-    /* initialize fast stepper fixed step size (store in step_mem->inner_control) */
-    if (step_mem->stepper->ops->fullrhs)
-    {
-      /* tempv1 = ffast(t0, y0) */
-      if (mriStep_FastRHS(ark_mem, ark_mem->tcur, ark_mem->yn, ark_mem->tempv1,
-                          ARK_FULLRHS_START) != ARK_SUCCESS)
-      {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                        "error calling fast RHS function(s)");
-        return (ARK_RHSFUNC_FAIL);
-      }
-
-      /* compute initial fast step size */
-      retval = arkHin(ark_mem, ark_mem->tcur, ark_mem->tout, ark_mem->yn,
-                      ark_mem->tempv1, ark_mem->ycur, ark_mem->tempv2,
-                      ark_mem->tempv3, mriStep_FastRHS,
-                      &(step_mem->inner_control));
-      if (retval != ARK_SUCCESS)
-      {
-        retval = arkHandleFailure(ark_mem, retval);
-        return (retval);
-      }
-    }
-    else
-    {
-      /* set step_mem->inner_control to equal H/100 */
-      step_mem->inner_control = SUN_RCONST(0.01) * ark_mem->hin;
-    }
-    /* Pass fixed stepsize to inner stepper */
-    retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
-                                              step_mem->inner_control);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                      "error setting fast fixed step");
-      return (ARK_INNERSTEP_FAIL);
-    }
-  }
-  else
-  {
-    /* If user has left inner_hfactor unset, reset to zero to indicate
-       either that we **trust** tolerance-based adaptive fast error
-       estimates, or that the method does not use fast error estimates. */
-    if (step_mem->inner_hfactor < ZERO) { step_mem->inner_hfactor = ZERO; }
   }
 
   /* /\* Signal to shared arkode module that fullrhs is required after each step *\/ */
@@ -1762,8 +1697,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
      and send appropriate control parameter to the fast integrator */
   adapt_type     = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   need_inner_dsm = SUNFALSE;
-  if ((adapt_type == SUN_ADAPTCONTROLLER_MRI_H) ||
-      (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL))
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
@@ -1774,20 +1708,6 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                       "Unable to reset the inner stepper error estimate");
       return (ARK_INNERSTEP_FAIL);
     }
-  }
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H)
-  {
-    retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
-                                              step_mem->inner_control);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                      "Unable to set a fixed stepsize in the inner stepper");
-      return (ARK_INNERSTEP_FAIL);
-    }
-  }
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
-  {
     retval =
       mriStepInnerStepper_SetRTol(step_mem->stepper,
                                   step_mem->inner_control * ark_mem->reltol);
@@ -2244,8 +2164,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      and send appropriate control parameter to the fast integrator */
   adapt_type     = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   need_inner_dsm = SUNFALSE;
-  if ((adapt_type == SUN_ADAPTCONTROLLER_MRI_H) ||
-      (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL))
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
@@ -2256,20 +2175,6 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                       "Unable to reset the inner stepper error estimate");
       return (ARK_INNERSTEP_FAIL);
     }
-  }
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H)
-  {
-    retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
-                                              step_mem->inner_control);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                      "Unable to set a fixed stepsize in the inner stepper");
-      return (ARK_INNERSTEP_FAIL);
-    }
-  }
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
-  {
     retval =
       mriStepInnerStepper_SetRTol(step_mem->stepper,
                                   step_mem->inner_control * ark_mem->reltol);
@@ -2728,8 +2633,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      and send appropriate control parameter to the fast integrator */
   adapt_type     = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   need_inner_dsm = SUNFALSE;
-  if ((adapt_type == SUN_ADAPTCONTROLLER_MRI_H) ||
-      (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL))
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
@@ -2740,20 +2644,6 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                       "Unable to reset the inner stepper error estimate");
       return (ARK_INNERSTEP_FAIL);
     }
-  }
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H)
-  {
-    retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
-                                              step_mem->inner_control);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                      "Unable to set a fixed stepsize in the inner stepper");
-      return (ARK_INNERSTEP_FAIL);
-    }
-  }
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
-  {
     retval =
       mriStepInnerStepper_SetRTol(step_mem->stepper,
                                   step_mem->inner_control * ark_mem->reltol);
@@ -3449,14 +3339,6 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
                  ? SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller)
                  : SUN_ADAPTCONTROLLER_NONE;
 
-  /* if we'll need to manually accumulate the fast error estimate, archive the
-     current state to provide an initial condition for the ``fast embedding'' */
-  if ((get_inner_dsm) && (adapt_type == SUN_ADAPTCONTROLLER_MRI_H) &&
-      (step_mem->inner_hfactor != ZERO))
-  {
-    N_VScale(ONE, ycur, ytemp);
-  }
-
   /* advance inner method in time */
   retval = mriStepInnerStepper_Evolve(step_mem->stepper, t0, tf, ycur);
   if (retval != ARK_SUCCESS)
@@ -3482,83 +3364,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is,
         return (ARK_INNERSTEP_FAIL);
       }
     }
-
-    /* the fast integrator uses fixed steps */
-    if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H)
-    {
-      /* if we trust inner integrator accumulated error estimate, call it here */
-      if (step_mem->inner_hfactor == ZERO)
-      {
-        retval = mriStepInnerStepper_GetError(step_mem->stepper,
-                                              &(step_mem->inner_dsm));
-        if (retval != ARK_SUCCESS)
-        {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
-                          __FILE__, "Unable to get accumulated error from the inner stepper");
-          return (ARK_INNERSTEP_FAIL);
-        }
-      }
-      else /* manually accumulate fast error estimate */
-      {
-        /* reset fast integrator for time interval */
-        retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ytemp);
-        if (retval != ARK_SUCCESS)
-        {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
-                          __FILE__, "Unable to reset the inner stepper");
-          return (ARK_INNERSTEP_FAIL);
-        }
-
-        /* update fixed-step size for fast integrator */
-        retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
-                                                  step_mem->inner_control *
-                                                    step_mem->inner_hfactor);
-        if (retval != ARK_SUCCESS)
-        {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
-                          __FILE__, "Unable to set a fixed stepsize in the inner stepper");
-          return (ARK_INNERSTEP_FAIL);
-        }
-
-        /* evolve fast integrator using modified step size */
-        retval = mriStepInnerStepper_Evolve(step_mem->stepper, t0, tf, ytemp);
-        if (retval != ARK_SUCCESS)
-        {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
-                          __FILE__, "Failure when evolving the inner stepper");
-          return (ARK_INNERSTEP_FAIL);
-        }
-
-        /* compute solution difference */
-        N_VLinearSum(ONE, ytemp, -ONE, ycur, ytemp);
-
-        /* accumulate fast error estimate -- this assumes that the inner
-           integrator has the same asymptotic order of accuracy as the MRI method */
-        inner_error_factor = ark_mem->reltol /
-          SUNRabs(ONE - SUNRpowerI(step_mem->inner_hfactor, step_mem->q));
-        step_mem->inner_dsm =
-          SUNMAX(step_mem->inner_dsm,
-                 inner_error_factor * N_VWrmsNorm(ytemp, ark_mem->ewt));
-
-        /* reset fast integrator to the main evolution result */
-        retval = mriStepInnerStepper_Reset(step_mem->stepper, tf, ycur);
-        if (retval != ARK_SUCCESS)
-        {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
-                          __FILE__, "Unable to reset the inner stepper");
-          return (ARK_INNERSTEP_FAIL);
-        }
-        retval = mriStepInnerStepper_SetFixedStep(step_mem->stepper,
-                                                  step_mem->inner_control);
-        if (retval != ARK_SUCCESS)
-        {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
-                          __FILE__, "Unable to set a fixed stepsize in the inner stepper");
-          return (ARK_INNERSTEP_FAIL);
-        }
-      } /* if (step_mem->inner_hfactor == ZERO) */
-    }   /* if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H) */
-  }     /* if (get_inner_dsm) */
+  }
 
   /* post inner evolve function (if supplied) */
   if (step_mem->post_inner_evolve)
@@ -4472,28 +4278,6 @@ int MRIStepInnerStepper_SetAccumulatedErrorResetFn(
   return ARK_SUCCESS;
 }
 
-int MRIStepInnerStepper_SetFixedStepFn(MRIStepInnerStepper stepper,
-                                       MRIStepInnerSetFixedStep fn)
-{
-  if (stepper == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Inner stepper memory is NULL");
-    return ARK_ILL_INPUT;
-  }
-
-  if (stepper->ops == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Inner stepper operations structure is NULL");
-    return ARK_ILL_INPUT;
-  }
-
-  stepper->ops->setfixedstep = fn;
-
-  return ARK_SUCCESS;
-}
-
 int MRIStepInnerStepper_SetRTolFn(MRIStepInnerStepper stepper,
                                   MRIStepInnerSetRTol fn)
 {
@@ -4580,20 +4364,6 @@ int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper)
 
   if (stepper->ops->evolve) { return ARK_SUCCESS; }
   else { return ARK_ILL_INPUT; }
-}
-
-/* Check whether stepper supports fast/slow stepsize adaptivity */
-sunbooleantype mriStepInnerStepper_SupportsStepAdaptivity(MRIStepInnerStepper stepper)
-{
-  if (stepper == NULL) { return SUNFALSE; }
-  if (stepper->ops == NULL) { return SUNFALSE; }
-
-  if (stepper->ops->geterror && stepper->ops->reseterror &&
-      stepper->ops->setfixedstep)
-  {
-    return SUNTRUE;
-  }
-  else { return SUNFALSE; }
 }
 
 /* Check whether stepper supports fast/slow tolerance adaptivity */
@@ -4707,24 +4477,6 @@ int mriStepInnerStepper_ResetError(MRIStepInnerStepper stepper)
   else
   {
     /* assume stepper provides exact solution and needs no reset */
-    return ARK_SUCCESS;
-  }
-}
-
-/* Sets the inner (fast) stepper fixed step size */
-int mriStepInnerStepper_SetFixedStep(MRIStepInnerStepper stepper, sunrealtype h)
-{
-  if (stepper == NULL) { return ARK_ILL_INPUT; }
-  if (stepper->ops == NULL) { return ARK_ILL_INPUT; }
-
-  if (stepper->ops->setfixedstep)
-  {
-    stepper->last_flag = stepper->ops->setfixedstep(stepper, h);
-    return stepper->last_flag;
-  }
-  else
-  {
-    /* assume stepper provides exact solution using infinitesimally small step */
     return ARK_SUCCESS;
   }
 }
@@ -4929,10 +4681,6 @@ int MRIStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
                                                    mriStep_MRIStepInnerResetAccumulatedError);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = MRIStepInnerStepper_SetFixedStepFn(*stepper,
-                                              mriStep_MRIStepInnerSetFixedStep);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
   retval = MRIStepInnerStepper_SetRTolFn(*stepper, mriStep_MRIStepInnerSetRTol);
   if (retval != ARK_SUCCESS) { return (retval); }
 
@@ -5061,25 +4809,6 @@ int mriStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return (ARKodeResetAccumulatedError(arkode_mem));
-}
-
-/*------------------------------------------------------------------------------
-  mriStep_MRIStepInnerSetFixedStep
-
-  Implementation of MRIStepInnerSetFixedStep to set a fixed step size for
-  the upcoming evolution using the inner (fast) stepper.
-  ----------------------------------------------------------------------------*/
-
-int mriStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h)
-{
-  void* arkode_mem;
-  int retval;
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARKodeSetFixedStep(arkode_mem, h));
 }
 
 /*------------------------------------------------------------------------------

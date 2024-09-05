@@ -928,7 +928,7 @@ MRIStep, :eq:`MRI_fast_IVP` and :eq:`MRI_embedding_fast_IVP`.
 Multirate temporal controls
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We consider three categories of temporal controllers that may be used within MRI
+We consider two categories of temporal controllers that may be used within MRI
 methods.  The first (and simplest), are "decoupled" controllers, that consist of
 two separate single-rate temporal controllers: one that adapts the slow time scale
 step size, :math:`h^S`, and the other that adapts the fast time scale step size,
@@ -936,15 +936,7 @@ step size, :math:`h^S`, and the other that adapts the fast time scale step size,
 methods should work well for multirate problems where the time scales are somewhat
 decoupled, and that errors introduced at one scale do not "pollute" the other.
 
-The second category of controllers we consider are :math:`h^S-h^F` multirate
-controllers that adapt both the slow and fast step sizes simultaneously.  We
-implement four controllers of this type that were introduced in :cite:p:`Fish:23`:
-MRI-CC, MRI-LL, MRI-PI, and MRI-PID.  We note that this group of multirate
-controllers adapts these values only between slow time steps, and thus individual
-"fast" IVP solves over :math:`[t_{0,i},t_{F,i}]` or
-:math:`[\tilde{t}_{0},\tilde{t}_{F}]` use fixed step sizes :math:`h^F`.
-
-The third category of controllers that we provide are :math:`h^S-Tol` multirate
+The second category of controllers that we provide are :math:`h^S-Tol` multirate
 controllers.  The basic idea is that at any given time scale, an integrator will
 attempt to adapt step sizes to control the *local error* within each step to
 achieve a requested tolerance.  However, MRI methods must ask another adaptive
@@ -991,11 +983,9 @@ adaptivity controllers:
 * fcontrol -- this adapts time steps :math:`h^F` within the fast integrator to achieve
   the current tolerance, :math:`\text{reltol}^f_n`.
 
-We note that of the three classes of controllers considered here, the :math:`h^S-h^F`
-controllers are only amenable to problems with two time scales.  On the other hand, both
-the decoupled and :math:`h^S-Tol` controllers may be used in multirate calculations with
-an arbitrary number of time scales, since these focus on only one scale at a time, or on
-how a given time scale relates to the next-faster scale.
+We note that both the decoupled and :math:`h^S-Tol` controller families may be used in
+multirate calculations with an arbitrary number of time scales, since these focus on only
+one scale at a time, or on how a given time scale relates to the next-faster scale.
 
 
 .. _ARKODE.Mathematics.MultirateInitialSteps:
@@ -1107,16 +1097,15 @@ arise at *both* the slow and fast time scales, which we denote here as
 :math:`\varepsilon^s` and :math:`\varepsilon^f`, respectively.  While the
 slow error may be estimated as :math:`\varepsilon^s = \|y_n - \tilde{y}_n\|`,
 non-intrusive approaches for estimating :math:`\varepsilon^f` are more
-challenging.  ARKODE provides three strategies within ARKODE to help provide
-this estimate.  The first two assume that at each sub-step of the fast
-integrator :math:`t_{n,m}`, the method computes an estimate of the local
-temporal error, :math:`\varepsilon^f_{n,m}` (this typically results from its
-own time step solution and embedding), and that the fast integrator itself is
-temporally adaptive.  In this case, we assume that the fast integrator was
-run with the same absolute tolerances as the slow integrator, but that it may
-have used a potentially different relative solution tolerance, :math:`\text{reltol}^f`.
-The fast integrator then accumulates these local error estimates using either
-a "maximum accumulation: strategy,
+challenging.  ARKODE provides two strategies to help provide this estimate, both
+of which assume that at each sub-step of the fast integrator :math:`t_{n,m}`, the
+method computes an estimate of the local temporal error, :math:`\varepsilon^f_{n,m}`
+(this typically results from its own time step solution and embedding), and that
+the fast integrator itself is temporally adaptive.  In this case, we assume that the
+fast integrator was run with the same absolute tolerances as the slow integrator, but
+that it may have used a potentially different relative solution tolerance,
+:math:`\text{reltol}^f`.  The fast integrator then accumulates these local error
+estimates using either a "maximum accumulation: strategy,
 
 .. math::
    \varepsilon^f_{max} = \text{reltol}^f \max_{m\in M} \|\varepsilon^f_{n,m}\|_{WRMS},
@@ -1131,23 +1120,6 @@ or using an "averaged accumulation" strategy,
 where the norm is taken using the tolerance-informed error-weight vector.  In
 both cases, the sum or the maximum is taken over the set of all steps :math:`M`
 since the fast error accumulator has been reset.
-
-The third, "full step accumulation," approach for fast error estimation uses
-fixed time steps of size :math:`h^F` and :math:`2h^F` to achieve fast solutions
-:math:`y_{h^f}^f` and :math:`y_{sh^f}^f`, which it then subtracts to estimate
-the fast temporal error
-
-.. math::
-   \varepsilon^f_{full} = \text{reltol}^f \|y_h^f - y_{2h}^f\|_{WRMS}.
-   :label: full_step_accumulation
-
-
-We note here that the factor "2" is the default for the full step accumulation
-strategy, but alternate values may be specified by the user.
-Here, although the fast integrator is run using fixed step sizes, it is still
-provided with appropriate relative and absolute tolerances, as these are used
-when determining implicit algebraic solver norms and tolerances within the fast
-integrator.
 
 
 

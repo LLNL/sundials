@@ -190,8 +190,6 @@ SUNDIALS_EXPORT int MRIStepSetPreInnerFn(void* arkode_mem,
                                          MRIStepPreInnerFn prefn);
 SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void* arkode_mem,
                                           MRIStepPostInnerFn postfn);
-SUNDIALS_EXPORT int MRIStepSetFastErrorStepFactor(void* arkode_mem,
-                                                  sunrealtype hfactor);
 SUNDIALS_EXPORT int MRIStepSetAdaptController(void* arkode_mem,
                                               SUNAdaptController C);
 
@@ -220,8 +218,6 @@ SUNDIALS_EXPORT int MRIStepInnerStepper_SetAccumulatedErrorGetFn(
   MRIStepInnerStepper stepper, MRIStepInnerGetAccumulatedError fn);
 SUNDIALS_EXPORT int MRIStepInnerStepper_SetAccumulatedErrorResetFn(
   MRIStepInnerStepper stepper, MRIStepInnerResetAccumulatedError fn);
-SUNDIALS_EXPORT int MRIStepInnerStepper_SetFixedStepFn(
-  MRIStepInnerStepper stepper, MRIStepInnerSetFixedStep fn);
 SUNDIALS_EXPORT int MRIStepInnerStepper_SetRTolFn(MRIStepInnerStepper stepper,
                                                   MRIStepInnerSetRTol fn);
 SUNDIALS_EXPORT int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper,

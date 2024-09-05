@@ -152,7 +152,6 @@ module farkode_mristep_mod
  public :: FMRIStepSetCoupling
  public :: FMRIStepSetPreInnerFn
  public :: FMRIStepSetPostInnerFn
- public :: FMRIStepSetFastErrorStepFactor
  public :: FMRIStepSetAdaptController
  public :: FMRIStepGetNumRhsEvals
  public :: FMRIStepGetCurrentCoupling
@@ -166,7 +165,6 @@ module farkode_mristep_mod
  public :: FMRIStepInnerStepper_SetResetFn
  public :: FMRIStepInnerStepper_SetAccumulatedErrorGetFn
  public :: FMRIStepInnerStepper_SetAccumulatedErrorResetFn
- public :: FMRIStepInnerStepper_SetFixedStepFn
  public :: FMRIStepInnerStepper_SetRTolFn
  public :: FMRIStepInnerStepper_AddForcing
  public :: FMRIStepInnerStepper_GetForcingData
@@ -584,15 +582,6 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FMRIStepSetFastErrorStepFactor(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepSetFastErrorStepFactor") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FMRIStepSetAdaptController(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepSetAdaptController") &
 result(fresult)
@@ -703,15 +692,6 @@ end function
 
 function swigc_FMRIStepInnerStepper_SetAccumulatedErrorResetFn(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepInnerStepper_SetAccumulatedErrorResetFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepInnerStepper_SetFixedStepFn(farg1, farg2) &
-bind(C, name="_wrap_FMRIStepInnerStepper_SetFixedStepFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2102,22 +2082,6 @@ fresult = swigc_FMRIStepSetPostInnerFn(farg1, farg2)
 swig_result = fresult
 end function
 
-function FMRIStepSetFastErrorStepFactor(arkode_mem, hfactor) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: hfactor
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = hfactor
-fresult = swigc_FMRIStepSetFastErrorStepFactor(farg1, farg2)
-swig_result = fresult
-end function
-
 function FMRIStepSetAdaptController(arkode_mem, c) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2323,22 +2287,6 @@ type(C_FUNPTR) :: farg2
 farg1 = stepper
 farg2 = fn
 fresult = swigc_FMRIStepInnerStepper_SetAccumulatedErrorResetFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepInnerStepper_SetFixedStepFn(stepper, fn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = stepper
-farg2 = fn
-fresult = swigc_FMRIStepInnerStepper_SetFixedStepFn(farg1, farg2)
 swig_result = fresult
 end function
 

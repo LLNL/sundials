@@ -34,6 +34,7 @@ set(ARKODE_examples
     "ark_kpr_Mt.cpp\;2 4 0 -10 0\;develop"
     "ark_kpr_Mt.cpp\;0 4 0 -10 1 10 1\;develop"
     "ark_kpr_Mt.cpp\;0 4 0 -10 0 10 1\;develop"
+    "ark_kpr_nestedmri.cpp\;\;develop"
     "ark_pendulum.cpp\;\;develop")
 
 # Header files to install

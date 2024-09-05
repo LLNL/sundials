@@ -50,13 +50,11 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
   ops->destroy          = NULL;
   ops->reset            = NULL;
   ops->estimatestep     = NULL;
-  ops->estimatemristeps = NULL;
   ops->estimatesteptol  = NULL;
   ops->setdefaults      = NULL;
   ops->write            = NULL;
   ops->seterrorbias     = NULL;
   ops->updateh          = NULL;
-  ops->updatemrih       = NULL;
   ops->updatemritol     = NULL;
   ops->space            = NULL;
 
@@ -141,26 +139,6 @@ SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
   return (ier);
 }
 
-SUNErrCode SUNAdaptController_EstimateMRISteps(SUNAdaptController C,
-                                               sunrealtype H, sunrealtype h,
-                                               int P, sunrealtype DSM,
-                                               sunrealtype dsm, sunrealtype* Hnew,
-                                               sunrealtype* hnew)
-{
-  SUNErrCode ier = SUN_SUCCESS;
-  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
-  SUNFunctionBegin(C->sunctx);
-  SUNAssert(Hnew, SUN_ERR_ARG_CORRUPT);
-  SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
-  *Hnew = H; /* initialize outputs with identity */
-  *hnew = h;
-  if (C->ops->estimatemristeps)
-  {
-    ier = C->ops->estimatemristeps(C, H, h, P, DSM, dsm, Hnew, hnew);
-  }
-  return (ier);
-}
-
 SUNErrCode SUNAdaptController_EstimateStepTol(SUNAdaptController C,
                                               sunrealtype H, sunrealtype tolfac,
                                               int P, sunrealtype DSM,
@@ -225,17 +203,6 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   if (C->ops->updateh) { ier = C->ops->updateh(C, h, dsm); }
-  return (ier);
-}
-
-SUNErrCode SUNAdaptController_UpdateMRIH(SUNAdaptController C, sunrealtype H,
-                                         sunrealtype h, sunrealtype DSM,
-                                         sunrealtype dsm)
-{
-  SUNErrCode ier = SUN_SUCCESS;
-  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
-  SUNFunctionBegin(C->sunctx);
-  if (C->ops->updatemrih) { ier = C->ops->updatemrih(C, H, h, DSM, dsm); }
   return (ier);
 }
 

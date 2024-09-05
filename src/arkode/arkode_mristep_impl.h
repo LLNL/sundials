@@ -37,9 +37,6 @@ extern "C" {
 #define MRISTAGE_DIRK_NOFAST 2
 #define MRISTAGE_DIRK_FAST   3
 
-/* Default inner_factor value */
-#define INNER_HFACTOR SUN_RCONST(2.0)
-
 /* Implicit solver constants (duplicate from arkode_arkstep_impl.h) */
 /*   max number of nonlinear iterations */
 #define MAXCOR 3
@@ -136,8 +133,7 @@ typedef struct ARKodeMRIStepMemRec
   MRIStepPostInnerFn post_inner_evolve;
 
   /* MRI adaptivity parameters */
-  sunrealtype inner_hfactor; /* h factor for inner stepper error estimation */
-  sunrealtype inner_control; /* prev control parameter (h or tolfac) */
+  sunrealtype inner_control; /* prev control parameter */
   sunrealtype inner_dsm;     /* prev inner stepper accumulated error */
   sunrealtype inner_control_new; /* upcoming control parameter */
 
@@ -176,7 +172,6 @@ struct _MRIStepInnerStepper_Ops
   MRIStepInnerResetFn reset;
   MRIStepInnerGetAccumulatedError geterror;
   MRIStepInnerResetAccumulatedError reseterror;
-  MRIStepInnerSetFixedStep setfixedstep;
   MRIStepInnerSetRTol setrtol;
 };
 
@@ -307,8 +302,6 @@ int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 
 /* Inner stepper functions */
 int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper);
-sunbooleantype mriStepInnerStepper_SupportsStepAdaptivity(
-  MRIStepInnerStepper stepper);
 sunbooleantype mriStepInnerStepper_SupportsRTolAdaptivity(
   MRIStepInnerStepper stepper);
 int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
@@ -320,7 +313,6 @@ int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
 int mriStepInnerStepper_GetError(MRIStepInnerStepper stepper,
                                  sunrealtype* accum_error);
 int mriStepInnerStepper_ResetError(MRIStepInnerStepper stepper);
-int mriStepInnerStepper_SetFixedStep(MRIStepInnerStepper stepper, sunrealtype h);
 int mriStepInnerStepper_SetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
                                   N_Vector tmpl);
@@ -350,7 +342,6 @@ int mriStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
 int mriStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
                                             sunrealtype* accum_error);
 int mriStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
-int mriStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h);
 int mriStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
 /*===============================================================

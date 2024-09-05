@@ -49,7 +49,6 @@ set(unit_tests
     "ark_test_getjac.cpp\;"
     "ark_test_getjac_mri.cpp\;"
     "ark_test_kpr_mriadapt.cpp\;--hs 0.002 --rtol 0.000004 --scontrol 0"
-    "ark_test_kpr_nestedmri.cpp\;"
     "ark_test_brusselator_mriadapt.cpp\;--rtol 0.000004 --scontrol 0"
     "ark_test_slowerror_brusselator.cpp\;"
     "ark_test_slowerror_kpr.cpp\;"
@@ -96,11 +95,7 @@ foreach(test_tuple ${unit_tests})
       sundials_sunnonlinsolfixedpoint_obj
       sundials_sunadaptcontrollerimexgus_obj
       sundials_sunadaptcontrollersoderlind_obj
-      sundials_sunadaptcontrollermricc_obj
-      sundials_sunadaptcontrollermrill_obj
       sundials_sunadaptcontrollermrihtol_obj
-      sundials_sunadaptcontrollermripi_obj
-      sundials_sunadaptcontrollermripid_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

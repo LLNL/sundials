@@ -118,7 +118,6 @@ int erkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
 int erkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
                                             sunrealtype* accum_error);
 int erkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
-int erkStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h);
 int erkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
 /* private functions for relaxation */

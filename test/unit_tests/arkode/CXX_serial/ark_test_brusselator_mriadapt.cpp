@@ -59,10 +59,6 @@
  *      specify a valid explicit method order.
  * - "slow" MRI temporal adaptivity controller: scontrol [default = 6]
  *      0:  no controller [fixed time steps]
- *      1:  MRI-CC controller
- *      2:  MRI-LL controller
- *      3:  MRI-PI controller
- *      4:  MRI-PID controller
  *      5:  I controller (as part of MRI-HTOL)
  *      6:  I controller (alone)
  *      7:  PI controller (as part of MRI-HTOL)
@@ -89,9 +85,8 @@
  *     -1:  no accumulation
  *      0:  maximum accumulation
  *      1:  additive accumulation
- * - controller parameters: (k1s, k2s, k3s, k4s, k5s, k6s, k1f, k2f, k3f,
+ * - controller parameters: (k1s, k2s, k3s, k1f, k2f, k3f,
  *                           bias, htol_relch, htol_minfac, htol_maxfac)
- *     MRICC, MRILL, MRIPI, and MRIPID: use k1s through k6s, as appropriate.
  *     slow single-rate controllers: use k1s through k3s, as appropriate.
  *     fast single-rate controllers: use k1f through k3f, as appropriate.
  *     MRIHTol controllers: use htol_relch, htol_minfac, htol_maxfac.
@@ -111,13 +106,9 @@
 #include <iomanip>
 #include <iostream>
 #include <nvector/nvector_serial.h> // serial N_Vector type, fcts., macros
-#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
-#include <sunadaptcontroller/sunadaptcontroller_mricc.h>
-#include <sunadaptcontroller/sunadaptcontroller_mrihtol.h>
-#include <sunadaptcontroller/sunadaptcontroller_mrill.h>
-#include <sunadaptcontroller/sunadaptcontroller_mripi.h>
-#include <sunadaptcontroller/sunadaptcontroller_mripid.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
+#include <sunadaptcontroller/sunadaptcontroller_mrihtol.h>
 #include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_dense.h> // dense linear solver
 #include <sunmatrix/sunmatrix_dense.h> // dense matrix type, fcts., macros
@@ -165,9 +156,6 @@ struct Options
   sunrealtype k1s         = SUN_RCONST(-1.0);
   sunrealtype k2s         = SUN_RCONST(-1.0);
   sunrealtype k3s         = SUN_RCONST(-1.0);
-  sunrealtype k4s         = SUN_RCONST(-1.0);
-  sunrealtype k5s         = SUN_RCONST(-1.0);
-  sunrealtype k6s         = SUN_RCONST(-1.0);
   sunrealtype k1f         = SUN_RCONST(-1.0);
   sunrealtype k2f         = SUN_RCONST(-1.0);
   sunrealtype k3f         = SUN_RCONST(-1.0);
@@ -397,54 +385,6 @@ int main(int argc, char* argv[])
   SUNAdaptController scontrol_Tol = NULL;
   switch (opts.scontrol)
   {
-  case (1):
-    scontrol = SUNAdaptController_MRICC(sunctx,
-                                        opts.fast_order + opts.fast_pq - 1);
-    if (check_ptr((void*)scontrol, "SUNAdaptController_MRICC")) return 1;
-    if (std::min(opts.k1s, opts.k2s) > -1)
-    {
-      retval = SUNAdaptController_SetParams_MRICC(scontrol, opts.k1s, opts.k2s);
-      if (check_flag(retval, "SUNAdaptController_SetParams_MRICC")) return 1;
-    }
-    break;
-  case (2):
-    scontrol = SUNAdaptController_MRILL(sunctx,
-                                        opts.fast_order + opts.fast_pq - 1);
-    if (check_ptr((void*)scontrol, "SUNAdaptController_MRILL")) return 1;
-    if (std::min(opts.k1s, std::min(opts.k2s, std::min(opts.k3s, opts.k4s))) > -1)
-    {
-      retval = SUNAdaptController_SetParams_MRILL(scontrol, opts.k1s, opts.k2s,
-                                                  opts.k3s, opts.k4s);
-      if (check_flag(retval, "SUNAdaptController_SetParams_MRILL")) return 1;
-    }
-    break;
-  case (3):
-    scontrol = SUNAdaptController_MRIPI(sunctx,
-                                        opts.fast_order + opts.fast_pq - 1);
-    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIPI")) return 1;
-    if (std::min(opts.k1s, std::min(opts.k2s, std::min(opts.k3s, opts.k4s))) > -1)
-    {
-      retval = SUNAdaptController_SetParams_MRIPI(scontrol, opts.k1s, opts.k2s,
-                                                  opts.k3s, opts.k4s);
-      if (check_flag(retval, "SUNAdaptController_SetParams_MRIPI")) return 1;
-    }
-    break;
-  case (4):
-    scontrol = SUNAdaptController_MRIPID(sunctx,
-                                         opts.fast_order + opts.fast_pq - 1);
-    if (check_ptr((void*)scontrol, "SUNAdaptController_MRIPID")) return 1;
-    if (std::min(opts.k1s,
-                 std::min(opts.k2s,
-                          std::min(opts.k3s,
-                                   std::min(opts.k4s,
-                                            std::min(opts.k5s, opts.k6s))))) > -1)
-    {
-      retval = SUNAdaptController_SetParams_MRIPID(scontrol, opts.k1s, opts.k2s,
-                                                   opts.k3s, opts.k4s, opts.k5s,
-                                                   opts.k6s);
-      if (check_flag(retval, "SUNAdaptController_SetParams_MRIPID")) return 1;
-    }
-    break;
   case (5):
     scontrol_H = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)scontrol_H, "SUNAdaptController_I (slow H)")) return 1;
@@ -1101,9 +1041,6 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
   find_arg(args, "--k1s", opts.k1s);
   find_arg(args, "--k2s", opts.k2s);
   find_arg(args, "--k3s", opts.k3s);
-  find_arg(args, "--k4s", opts.k4s);
-  find_arg(args, "--k5s", opts.k5s);
-  find_arg(args, "--k6s", opts.k6s);
   find_arg(args, "--k1f", opts.k1f);
   find_arg(args, "--k2f", opts.k2f);
   find_arg(args, "--k3f", opts.k3f);
@@ -1193,55 +1130,6 @@ static void PrintSlowAdaptivity(Options opts)
   case (0):
     std::cout << "    fixed steps, hs = " << opts.hs << std::endl;
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    break;
-  case (1):
-    std::cout << "    MRI-CC controller based on order of MRI "
-              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
-    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (std::min(opts.k1s, opts.k2s) > -1)
-    {
-      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s
-                << "\n";
-    }
-    break;
-  case (2):
-    std::cout << "    MRI-LL controller based on order of MRI "
-              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
-    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (std::min(opts.k1s, std::min(opts.k2s, std::min(opts.k3s, opts.k4s))) > -1)
-    {
-      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s
-                << " " << opts.k3s << " " << opts.k4s << "\n";
-    }
-    break;
-  case (3):
-    std::cout << "    MRI-PI controller based on order of MRI "
-              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
-    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (std::min(opts.k1s, std::min(opts.k2s, std::min(opts.k3s, opts.k4s))) > -1)
-    {
-      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s
-                << " " << opts.k3s << " " << opts.k4s << "\n";
-    }
-    break;
-  case (4):
-    std::cout << "    MRI-PID controller based on order of MRI "
-              << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
-    std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (std::min(opts.k1s,
-                 std::min(opts.k2s,
-                          std::min(opts.k3s,
-                                   std::min(opts.k4s,
-                                            std::min(opts.k5s, opts.k6s))))) > -1)
-    {
-      std::cout << "    controller parameters: " << opts.k1s << " " << opts.k2s
-                << " " << opts.k3s << " " << opts.k4s << " " << opts.k5s << " "
-                << opts.k6s << "\n";
-    }
     break;
   case (5):
     std::cout

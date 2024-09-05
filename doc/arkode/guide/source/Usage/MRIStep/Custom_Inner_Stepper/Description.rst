@@ -264,24 +264,6 @@ Setting Member Functions
       /* set the inner stepper accumulated error 'reset' function */
       flag = MRIStepInnerStepper_SetAccumulatedErrorResetFn(inner_stepper, MyResetAccumErr);
 
-.. c:function:: int MRIStepInnerStepper_SetFixedStepFn(MRIStepInnerStepper stepper, MRIStepInnerSetFixedStep fn)
-
-   This function attaches an :c:type:`MRIStepInnerSetFixedStep` function to an
-   :c:type:`MRIStepInnerStepper` object.
-
-   :param stepper: an inner stepper object.
-   :param fn: the :c:type:`MRIStepInnerSetFixedStep` function to attach.
-
-   :retval ARK_SUCCESS: if successful
-   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
-
-   **Example usage:**
-
-   .. code-block:: C
-
-      /* set the inner stepper fixed step size function */
-      flag = MRIStepInnerStepper_SetFixedStep(inner_stepper, MySetFixedStep);
-
 .. c:function:: int MRIStepInnerStepper_SetRTolFn(MRIStepInnerStepper stepper, MRIStepInnerSetRTol fn)
 
    This function attaches an :c:type:`MRIStepInnerSetRTol` function to an
@@ -537,24 +519,6 @@ following member functions:
       This function peforms a different role within MRIStep than the
       :c:type:`MRIStepInnerResetFn`, and thus an implementation should make no
       assumptions about the frequency/ordering of calls to either.
-
-
-.. c:type:: int (*MRIStepInnerSetFixedStep)(MRIStepInnerStepper stepper, sunrealtype h)
-
-   This function accepts a fixed step size for the inner stepper to use.
-
-   **Arguments:**
-      * *stepper* -- the inner stepper object.
-      * *h* -- fixed step size to use on the upcoming solve.
-
-   **Return value:**
-      An :c:type:`MRIStepInnerSetFixedStep` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed
-      unrecoverably.
-
-   **Notes:**
-      This function is only called when multirate temporal adaptivity has been enabled
-      using a :c:type:`SUNAdaptController` module having type ``SUNDIALS_CONTROL_MRI_H``.
 
 
 .. c:type:: int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol)

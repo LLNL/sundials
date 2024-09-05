@@ -785,20 +785,6 @@ SWIGEXPORT int _wrap_FMRIStepSetPostInnerFn(void *farg1, MRIStepPostInnerFn farg
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepSetFastErrorStepFactor(void *farg1, double const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  sunrealtype arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (sunrealtype)(*farg2);
-  result = (int)MRIStepSetFastErrorStepFactor(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FMRIStepSetAdaptController(void *farg1, SUNAdaptController farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -976,20 +962,6 @@ SWIGEXPORT int _wrap_FMRIStepInnerStepper_SetAccumulatedErrorResetFn(void *farg1
   arg1 = (MRIStepInnerStepper)(farg1);
   arg2 = (MRIStepInnerResetAccumulatedError)(farg2);
   result = (int)MRIStepInnerStepper_SetAccumulatedErrorResetFn(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FMRIStepInnerStepper_SetFixedStepFn(void *farg1, MRIStepInnerSetFixedStep farg2) {
-  int fresult ;
-  MRIStepInnerStepper arg1 = (MRIStepInnerStepper) 0 ;
-  MRIStepInnerSetFixedStep arg2 = (MRIStepInnerSetFixedStep) 0 ;
-  int result;
-  
-  arg1 = (MRIStepInnerStepper)(farg1);
-  arg2 = (MRIStepInnerSetFixedStep)(farg2);
-  result = (int)MRIStepInnerStepper_SetFixedStepFn(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

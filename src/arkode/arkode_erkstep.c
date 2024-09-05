@@ -1260,10 +1260,6 @@ int ERKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
                                                    erkStep_MRIStepInnerResetAccumulatedError);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = MRIStepInnerStepper_SetFixedStepFn(*stepper,
-                                              erkStep_MRIStepInnerSetFixedStep);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
   retval = MRIStepInnerStepper_SetRTolFn(*stepper, erkStep_MRIStepInnerSetRTol);
   if (retval != ARK_SUCCESS) { return (retval); }
 
@@ -1392,25 +1388,6 @@ int erkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return (ARKodeResetAccumulatedError(arkode_mem));
-}
-
-/*------------------------------------------------------------------------------
-  erkStep_MRIStepInnerSetFixedStep
-
-  Implementation of MRIStepInnerSetFixedStep to set a fixed step size for
-  the upcoming evolution using the inner (fast) stepper.
-  ----------------------------------------------------------------------------*/
-
-int erkStep_MRIStepInnerSetFixedStep(MRIStepInnerStepper stepper, sunrealtype h)
-{
-  void* arkode_mem;
-  int retval;
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARKodeSetFixedStep(arkode_mem, h));
 }
 
 /*------------------------------------------------------------------------------

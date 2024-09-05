@@ -137,7 +137,7 @@
 #include <sundials/sundials_core.hpp>
 #include <sunlinsol/sunlinsol_dense.h> // dense linear solver
 #include <sunmatrix/sunmatrix_dense.h> // dense matrix type, fcts., macros
-#include <test_utilities.hpp>          // common utility functions
+#include <example_utilities.hpp>       // common utility functions
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define ESYM "Le"
