@@ -480,8 +480,7 @@ following member functions:
 
    **Notes:**
       This function is only called when multirate temporal adaptivity has been enabled,
-      using a :c:type:`SUNAdaptController` module having type ``SUNDIALS_CONTROL_MRI_H`` or
-      ``SUNDIALS_CONTROL_MRI_TOL``.
+      using a :c:type:`SUNAdaptController` module having type ``SUNDIALS_CONTROL_MRI_TOL``.
 
       If provided, the :c:type:`MRIStepInnerGetAccumulatedError` function will always
       be called *after* a preceding call to the :c:type:`MRIStepInnerResetAccumulatedError`
@@ -506,8 +505,7 @@ following member functions:
 
    **Notes:**
       This function is only called when multirate temporal adaptivity has been enabled,
-      using a :c:type:`SUNAdaptController` module having type ``SUNDIALS_CONTROL_MRI_H`` or
-      ``SUNDIALS_CONTROL_MRI_TOL``.
+      using a :c:type:`SUNAdaptController` module having type ``SUNDIALS_CONTROL_MRI_TOL``.
 
       The :c:type:`MRIStepInnerResetAccumulatedError` function will always be called
       *before* any calls to the :c:type:`MRIStepInnerGetAccumulatedError` function.
