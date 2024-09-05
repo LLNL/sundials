@@ -64,8 +64,8 @@ SplittingStep initialization functions
 
          /* create ARKStep objects, setting right-hand side functions and the
             initial condition */
-         partition_mem[0] = ARKStepCreate(ffe1, ffi1, t0, y0, sunctx);
-         partition_mem[1] = ARKStepCreate(ffe2, ffi2, t0, y0, sunctx);
+         partition_mem[0] = ARKStepCreate(fe1, fi1, t0, y0, sunctx);
+         partition_mem[1] = ARKStepCreate(fe2, fi2, t0, y0, sunctx);
 
          /* setup ARKStep */
          . . .

@@ -23,7 +23,7 @@ built-in methods of fixed orders and partitions (see
 :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients.Coefficients`).
 Finally, a user may construct a custom set of coefficients and attach it with
 :c:func:`SplittingStep_SetCoefficients`. The operator splitting coefficients are
-stored in a :c:func:`SplittingStepCoefficients` object which is a pointer to a
+stored in a :c:type:`SplittingStepCoefficients` object which is a pointer to a
 :c:struct:`SplittingStepCoefficientsMem` structure:
 
 .. c:type:: SplittingStepCoefficientsMem *SplittingStepCoefficients
@@ -175,7 +175,7 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
 
    .. math::
       y_n = L_h(y_{n-1}) = \left( \phi^P_{h} \circ \phi^{P-1}_{h}
-      \circ \dots \circ \phi^1_{h} \right) (y_{n-1})
+      \circ \dots \circ \phi^1_{h} \right) (y_{n-1}).
 
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
@@ -194,8 +194,8 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
    .. math::
       y_n = S_h(y_{n-1}) = \left( L^*_{h/2} \circ L_{h/2} \right) (y_{n-1}),
 
-   where :math:`L` is the Lie-Trotter splitting and :math:`L*_h = L^{-1}_{-h}`
-   is its adjoint.
+   where :math:`L_h` is the Lie-Trotter splitting and
+   :math:`L^*_h = L^{-1}_{-h}` is its adjoint.
 
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
@@ -213,7 +213,7 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
 
    .. math::
       y_n = \phi^1_h(y_{n-1}) + \phi^2_h(y_{n-1}) + \dots + \phi^P(y_{n-1}) +
-      (1 - p) y_{n-1},
+      (1 - p) y_{n-1}.
 
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
@@ -233,8 +233,8 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
    .. math::
       y_n = \frac{1}{2} \left( L_h(y_{n-1}) + L^*_h(y_{n-1}) \right),
 
-   where :math:`L` is the Lie-Trotter splitting and :math:`L^*_h = L^{-1}_{-h}`
-   is its adjoint.
+   where :math:`L_h` is the Lie-Trotter splitting and
+   :math:`L^*_h = L^{-1}_{-h}` is its adjoint.
    
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
@@ -254,9 +254,9 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
       y_n = \left( L_{p_1 h} \circ L^*_{p_2 h} \circ L_{p_3 h} \circ L^*_{p_4 h}
       \circ L_{p_5 h} \right) (y_{n-1}),
 
-   where :math:`L` is the Lie-Trotter splitting and :math:`L^*_h = L^{-1}_{-h}`
-   is its adjoint. The parameters :math:`p_1, \dots, p_5` are selected to give
-   third order.
+   where :math:`L_h` is the Lie-Trotter splitting and
+   :math:`L^*_h = L^{-1}_{-h}` is its adjoint. The parameters
+   :math:`p_1, \dots, p_5` are selected to give third order.
    
    **Arguments:**
       * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
@@ -275,7 +275,7 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
 
    .. math::
       \begin{align*}
-      T_h^{[2]} &= S, \\
+      T_h^{[2]} &= S_h, \\
       T_h^{[i+2]} &= T_{\gamma_1 h}^{[i]} \circ T_{(1 - 2 \gamma_1) h}^{[i]}
       \circ T_{\gamma_1 h}^{[i]}, \\
       y_n &= T_h^{[order]}(y_{n-1}),
@@ -303,7 +303,7 @@ integer constants are defined ``arkode/arkode_splitting_coefficients.h``.
 
    .. math::
       \begin{align*}
-      Q_h^{[2]} &= S, \\
+      Q_h^{[2]} &= S_h, \\
       Q_h^{[i+2]} &= Q_{\gamma_1 h}^{[i]} \circ Q_{\gamma_1 h}^{[i]} \circ
       Q_{(1 - 4 \gamma_1) h}^i \circ Q_{\gamma_1 h}^{[i]} \circ
       Q_{\gamma_1 h}^{[i]}, \\

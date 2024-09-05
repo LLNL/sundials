@@ -36,6 +36,7 @@ struct SplittingStepCoefficientsMem
   int sequential_methods; /* number of sequential splitting methods */
   int stages;     /* number of stages within each sequential splitting method */
   int partitions; /* number of RHS partitions */
+  /* TODO(SBR): q to be more consistent? */
   int order;      /* order of convergence */
 };
 
