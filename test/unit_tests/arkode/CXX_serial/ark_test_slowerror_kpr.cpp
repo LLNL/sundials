@@ -188,8 +188,7 @@ int main(int argc, char* argv[])
     implicit = SUNTRUE;
   }
   if ((method == "ARKODE_IMEX_MRI_SR21") ||
-      (method == "ARKODE_IMEX_MRI_SR32") ||
-      (method == "ARKODE_IMEX_MRI_SR43"))
+      (method == "ARKODE_IMEX_MRI_SR32") || (method == "ARKODE_IMEX_MRI_SR43"))
   {
     imex     = SUNTRUE;
     implicit = SUNTRUE;
@@ -276,10 +275,12 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "ARKodeSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
-  sunrealtype hmax          = (Tf - T0) / 20 / udata.Npart;
+  sunrealtype hmax = (Tf - T0) / 20 / udata.Npart;
   vector<sunrealtype> Hvals(5);
   for (size_t i = 0; i < Hvals.size(); i++)
-  { Hvals[i] = hmax / SUNRpowerI(SUN_RCONST(4.0), i); }
+  {
+    Hvals[i] = hmax / SUNRpowerI(SUN_RCONST(4.0), i);
+  }
   retval = run_test(mristep_mem, y, T0, Tf, Hvals, method, reltol, abstol, udata);
   if (check_retval(&retval, "run_test", 1)) return 1;
 

@@ -127,8 +127,7 @@ int main(int argc, char* argv[])
       (method == "ARKODE_MRI_GARK_ESDIRK34a") ||
       (method == "ARKODE_MRI_GARK_ESDIRK46a") ||
       (method == "ARKODE_IMEX_MRI_SR21") ||
-      (method == "ARKODE_IMEX_MRI_SR32") ||
-      (method == "ARKODE_IMEX_MRI_SR43"))
+      (method == "ARKODE_IMEX_MRI_SR32") || (method == "ARKODE_IMEX_MRI_SR43"))
   {
     implicit = SUNTRUE;
   }
@@ -210,7 +209,9 @@ int main(int argc, char* argv[])
   // Run test for various H values
   vector<sunrealtype> Hvals(5);
   for (size_t i = 0; i < Hvals.size(); i++)
-  { Hvals[i] = SUN_RCONST(0.01) / SUNRpowerI(SUN_RCONST(2.0), i); }
+  {
+    Hvals[i] = SUN_RCONST(0.01) / SUNRpowerI(SUN_RCONST(2.0), i);
+  }
   retval = run_test(mristep_mem, y, T0, Hvals, method, reltol, abstol, udata);
   if (check_retval(&retval, "run_test", 1)) return 1;
 
