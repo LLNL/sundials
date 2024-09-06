@@ -22,8 +22,6 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#include <assert.h>
-
 sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 {
   int i, expt;
