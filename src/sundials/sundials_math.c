@@ -38,10 +38,6 @@ sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 
 sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 {
-  // TODO(SBR): cleanup this and header
-  // if (base <= SUN_RCONST(0.0)) { return (SUN_RCONST(0.0)); }
-  assert(base > 0.0);
-
 #if defined(SUNDIALS_DOUBLE_PRECISION)
   return (pow(base, exponent));
 #elif defined(SUNDIALS_SINGLE_PRECISION)
