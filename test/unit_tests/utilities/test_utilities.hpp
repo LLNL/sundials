@@ -1,5 +1,6 @@
 /* -----------------------------------------------------------------------------
  * Programmer(s): David J. Gardner @ LLNL
+ *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2023, Lawrence Livermore National Security
@@ -11,7 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Utility functions for C++ examples
+ * Utility functions for C++ unit tests.
  * ---------------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -20,7 +21,7 @@
 #include <vector>
 
 // Check function return flag
-int check_flag(const int flag, const std::string funcname)
+static int check_flag(const int flag, const std::string funcname)
 {
   if (!flag) return 0;
   if (flag < 0) std::cerr << "ERROR: ";
@@ -29,7 +30,7 @@ int check_flag(const int flag, const std::string funcname)
 }
 
 // Check if a function returned a NULL pointer
-int check_ptr(const void* ptr, const std::string funcname)
+static int check_ptr(const void* ptr, const std::string funcname)
 {
   if (ptr) return 0;
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;

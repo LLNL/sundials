@@ -809,8 +809,6 @@ int main(int argc, char* argv[])
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
   const sunrealtype w = NV_Ith_S(y, 2);
 
   // fill in the RHS function:
@@ -845,7 +843,6 @@ static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   Options* opts       = (Options*)user_data;
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
-  const sunrealtype w = NV_Ith_S(y, 2);
 
   // fill in the RHS function:
   NV_Ith_S(ydot, 0) = opts->a + v * u * u;
@@ -859,9 +856,7 @@ static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fsi routine to compute the slow portion of the ODE RHS.(currently same as fse)
 static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
   const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
   const sunrealtype w = NV_Ith_S(y, 2);
 
   // fill in the RHS function:
@@ -898,7 +893,6 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts       = (Options*)user_data;
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
   const sunrealtype w = NV_Ith_S(y, 2);
@@ -923,9 +917,7 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts       = (Options*)user_data;
   const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
   const sunrealtype w = NV_Ith_S(y, 2);
 
   // fill in the Jacobian:

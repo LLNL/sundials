@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
   sunindextype NEQ = 3;                    // number of dependent vars.
   string method;                           // MRI method name
   int test = 2;                            // test problem to run
-  sunrealtype a, b, u0, v0, w0;            // parameters
+  sunrealtype u0, v0, w0;                  // parameters
   sunrealtype reltol = SUN_RCONST(1.e-10); // fast solver tolerances
   sunrealtype abstol = SUN_RCONST(1.e-12);
 
@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
   cout << "    partition size = " << udata.Npart << endl;
   cout << "    initial conditions:  u0 = " << u0 << ",  v0 = " << v0
        << ",  w0 = " << w0 << endl;
-  cout << "    problem parameters:  a = " << a << ",  b = " << b
+  cout << "    problem parameters:  a = " << udata.a << ",  b = " << udata.b
        << ",  ep = " << udata.ep << endl;
   cout << "    MRI method: " << method;
   if (imex) { cout << " (ImEx)" << endl; }
@@ -392,7 +392,6 @@ static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata = (UserData*)user_data;
   sunrealtype u   = NV_Ith_S(y, 0); // access solution values
-  sunrealtype v   = NV_Ith_S(y, 1);
   sunrealtype w   = NV_Ith_S(y, 2);
 
   // fill in the RHS function
@@ -450,7 +449,6 @@ static int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 {
   UserData* udata = (UserData*)user_data;
   sunrealtype u   = NV_Ith_S(y, 0); // access solution values
-  sunrealtype v   = NV_Ith_S(y, 1);
   sunrealtype w   = NV_Ith_S(y, 2);
 
   // fill in the Jacobian
