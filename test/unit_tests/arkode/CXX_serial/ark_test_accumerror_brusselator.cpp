@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   int order               = 4;       // order of accuracy for RK method
   int test                = 2;       // test problem to run
   sunbooleantype adaptive = SUNTRUE; // adaptive run vs convergence order
-  sunrealtype a, b, u0, v0, w0;      // parameters
+  sunrealtype u0, v0, w0;            // parameters
 
   // general problem variables
   int retval;              // reusable error-checking flag
