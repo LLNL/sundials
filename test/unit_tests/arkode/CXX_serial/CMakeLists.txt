@@ -14,8 +14,8 @@
 # ARKODE C++ serial unit_tests
 # ---------------------------------------------------------------
 
-# List of test tuples of the form "name\;args\;type" where the
-# type is 'develop' for tests excluded from 'make test' in releases
+# List of test tuples of the form "name\;args\;type" where the type is 'develop'
+# for tests excluded from 'make test' in releases
 set(unit_tests
     "ark_test_accumerror_brusselator.cpp\;20 3 1\;exclude-single"
     "ark_test_accumerror_brusselator.cpp\;20 -4 0\;exclude-single"
