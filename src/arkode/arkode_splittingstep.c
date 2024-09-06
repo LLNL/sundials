@@ -144,6 +144,14 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
     return ARK_SUCCESS;
   }
 
+  /* assume fixed outer step size */
+  if (!ark_mem->fixedstep)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Adaptive outer time stepping is not currently supported");
+    return ARK_ILL_INPUT;
+  }
+
   retval = splittingStep_SetCoefficients(ark_mem, step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
@@ -573,7 +581,7 @@ int SplittingStep_SetCoefficients(void* arkode_mem,
 }
 
 /*---------------------------------------------------------------
-  Sets the exection policy.
+  Sets the execution policy.
   ---------------------------------------------------------------*/
 int SplittingStep_SetExecutionPolicy(void* arkode_mem,
                                      ARKodeSplittingExecutionPolicy policy)

@@ -65,6 +65,13 @@ static int forcingStep_Init(const ARKodeMem ark_mem, const int init_type)
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  /* assume fixed outer step size */
+  if (!ark_mem->fixedstep)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Adaptive outer time stepping is not currently supported");
+    return ARK_ILL_INPUT;
+  }
 
   /* immediately return if resize or reset */
   if (init_type == RESIZE_INIT || init_type == RESET_INIT)

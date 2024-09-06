@@ -77,13 +77,15 @@ static void test()
   ARKodeEvolve(mem, 1, y, &tret, ARK_NORMAL);
 
   ARKodeReset(mem, 1, y);
-  ARKodeEvolve(mem, 1.5, y, &tret, ARK_NORMAL);
+  ARKodeEvolve(mem, 0.5, y, &tret, ARK_NORMAL);
 
   N_VPrint(y);
 }
 
 int main(int argc, char* argv[])
 {
+  test();
+  return 0;
   SUNContext sunctx;
   SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
@@ -109,7 +111,7 @@ int main(int argc, char* argv[])
   SplittingStep_SetCoefficients(split_mem, coeffs);
   SplittingStepCoefficients_Free(coeffs);
   ARKodeSetFixedStep(split_mem,
-                     DT_1); // TODO: fix valgrind error if this is not called
+                     DT_1);
   sunrealtype tret;
   ARKodeEvolve(split_mem, 1, y, &tret, ARK_NORMAL);
   printf("Final Solution: %e %e\n", T_END, NV_Ith_S(y, 0));

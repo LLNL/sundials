@@ -54,6 +54,8 @@ typedef SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR,
 typedef SUNErrCode (*SUNStepperSetStopTimeFn)(SUNStepper stepper,
                                               sunrealtype tstop);
 
+typedef SUNErrCode (*SUNStepperSetStepDirectionFn)(SUNStepper stepper,)
+
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper);
 
