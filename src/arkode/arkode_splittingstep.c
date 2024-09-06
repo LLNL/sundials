@@ -104,7 +104,7 @@ static int splittingStep_SetCoefficients(const ARKodeMem ark_mem,
   {
     /* Bump the order up to be even but with an error */
     const int new_order = step_mem->order + 1;
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                     "No splitting method at requested order, using q=%i.",
                     new_order);
     step_mem->coefficients =
