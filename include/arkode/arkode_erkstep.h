@@ -33,13 +33,13 @@ extern "C" {
 /* Default Butcher tables for each order */
 
 static const int ERKSTEP_DEFAULT_1 = ARKODE_FORWARD_EULER_1_1;
-static const int ERKSTEP_DEFAULT_2 = ARKODE_RALSTON_3_1_2;
+static const int ERKSTEP_DEFAULT_2 = ARKODE_HEUN_EULER_2_1_2;
 static const int ERKSTEP_DEFAULT_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3;
-static const int ERKSTEP_DEFAULT_4 = ARKODE_SOFRONIOU_SPALETTA_5_3_4;
-static const int ERKSTEP_DEFAULT_5 = ARKODE_TSITOURAS_7_4_5;
-static const int ERKSTEP_DEFAULT_6 = ARKODE_VERNER_9_5_6;
+static const int ERKSTEP_DEFAULT_4 = ARKODE_ZONNEVELD_5_3_4;
+static const int ERKSTEP_DEFAULT_5 = ARKODE_CASH_KARP_6_4_5;
+static const int ERKSTEP_DEFAULT_6 = ARKODE_VERNER_8_5_6;
 static const int ERKSTEP_DEFAULT_7 = ARKODE_VERNER_10_6_7;
-static const int ERKSTEP_DEFAULT_8 = ARKODE_VERNER_13_7_8;
+static const int ERKSTEP_DEFAULT_8 = ARKODE_FEHLBERG_13_7_8;
 static const int ERKSTEP_DEFAULT_9 = ARKODE_VERNER_16_8_9;
 
 /* -------------------
