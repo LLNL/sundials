@@ -96,7 +96,7 @@ static int check_steps(void* const arkode_mem, const N_Vector y,
   const int num_steps = 5;
   for (int step = 1; step <= num_steps; step++)
   {
-    const int retval = check_step_no_err(arkode_mem, y, h_expect, step);
+    const int retval = check_step(arkode_mem, y, h_expect, step);
     if (retval != 0) { return retval; }
     h_expect *= growth;
   }
@@ -126,20 +126,20 @@ int main()
 
   /* Forward integration from 0 */
   void* arkode_mem = ERKStepCreate(f, SUN_RCONST(0.0), y, sunctx);
-  retval           = check_steps_no_err(arkode_mem, y, SUN_RCONST(1.0e-4),
-                                        SUN_RCONST(1234.0), SUN_RCONST(3.0));
+  retval = check_steps(arkode_mem, y, SUN_RCONST(1.0e-4), SUN_RCONST(1234.0),
+                       SUN_RCONST(3.0));
   if (retval != 0) { return retval; }
 
   /* Backward integration from positive time */
   ERKStepReInit(arkode_mem, f, SUN_RCONST(999.0), y);
-  retval = check_steps_no_err(arkode_mem, y, SUN_RCONST(-1.0e-2),
-                              SUN_RCONST(1.6), SUN_RCONST(2.3));
+  retval = check_steps(arkode_mem, y, SUN_RCONST(-1.0e-2), SUN_RCONST(1.6),
+                       SUN_RCONST(2.3));
   if (retval != 0) { return retval; }
 
   /* Forward integration from a negative time */
   ERKStepReInit(arkode_mem, f, SUN_RCONST(-999.0), y);
-  retval = check_steps_no_err(arkode_mem, y, SUN_RCONST(20.0),
-                              SUN_RCONST(1.0e5), SUN_RCONST(1.1e3));
+  retval = check_steps(arkode_mem, y, SUN_RCONST(20.0), SUN_RCONST(1.0e5),
+                       SUN_RCONST(1.1e3));
   if (retval != 0) { return retval; }
 
   /* TODO(SBR): add additional tests for more the default controller */
