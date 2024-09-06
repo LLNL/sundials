@@ -158,7 +158,7 @@ SUNErrCode SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C,
   {
     /* hnew can be INFINITY or NAN if multiple e's are 0 or there are overflows.
      * In that case, make hnew INFINITY with the same sign as h */
-    *hnew = h / SUN_RCONST(0.0);
+    *hnew = SUNRcopysign(INFINITY, h);
   }
 
   /* return with success */

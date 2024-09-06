@@ -90,7 +90,7 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   C->ops->space        = SUNAdaptController_Space_Soderlind;
 
   /* Create content */
-  C->content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof *C->content);
+  C->content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof(struct _SUNAdaptControllerContent_Soderlind));
   SUNAssertNull(C->content, SUN_ERR_MALLOC_FAIL);
 
   /* Fill content with default/reset values */
@@ -329,7 +329,7 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
   {
     /* hnew can be INFINITY or NAN if multiple e's are 0 or there are overflows.
      * In that case, make hnew INFINITY with the same sign as h */
-    *hnew = h / SUN_RCONST(0.0);
+    *hnew = SUNRcopysign(INFINITY, h);
   }
 
   /* return with success */

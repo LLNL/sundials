@@ -160,6 +160,30 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * Function : SUNRcopysign
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype z;
+ *         z = SUNRcopysign(x, y);
+ * -----------------------------------------------------------------
+ * SUNRcopysign(x, y) returns x with the sign of y.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRcopysign
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRcopysign(x, y) (copysign((x), (y)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRcopysign(x, y) (copysignf((x), (y)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRcopysign(x, y) (copysignl((x), (y)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
  * Function : SUNRpowerI
  * -----------------------------------------------------------------
  * Usage : int exponent;

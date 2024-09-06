@@ -95,7 +95,7 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
              sunrealtype tcur, sunrealtype hcur, sunrealtype dsm)
 {
   int retval;
-  sunrealtype h_acc, h_cfl, int_dir;
+  sunrealtype h_acc, h_cfl;
   int controller_order;
 
   /* Request error-based step size from adaptivity controller */
@@ -120,9 +120,6 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
     return (ARK_CONTROLLER_ERR);
   }
 
-  /* determine direction of integration */
-  int_dir = hcur / SUNRabs(hcur);
-
   /* Call explicit stability function */
   retval = hadapt_mem->expstab(ycur, tcur, &h_cfl, hadapt_mem->estab_data);
   if (retval != ARK_SUCCESS)
@@ -141,24 +138,25 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
 
   /* enforce safety factors */
   h_acc *= hadapt_mem->safety;
-  h_cfl *= hadapt_mem->cfl * int_dir;
+  h_cfl *= hadapt_mem->cfl;
 
   /* enforce maximum bound on time step growth */
-  h_acc = int_dir * SUNMIN(SUNRabs(h_acc), SUNRabs(hadapt_mem->etamax * hcur));
+  h_acc = SUNMIN(SUNRabs(h_acc), SUNRabs(hadapt_mem->etamax * hcur));
 
   /* enforce minimum bound time step reduction */
-  h_acc = int_dir * SUNMAX(SUNRabs(h_acc), SUNRabs(hadapt_mem->etamin * hcur));
+  h_acc = SUNMAX(h_acc, SUNRabs(hadapt_mem->etamin * hcur));
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",
                      "new-step-after-max-min-bounds",
-                     "h_acc = %" RSYM ", h_cfl = %" RSYM, h_acc, h_cfl);
+                     "h_acc = %" RSYM ", h_cfl = %" RSYM,
+                     SUNRcopysign(h_acc, hcur), h_cfl);
 #endif
 
   /* increment the relevant step counter, set desired step */
-  if (SUNRabs(h_acc) <= SUNRabs(h_cfl)) { hadapt_mem->nst_acc++; }
+  if (h_acc <= h_cfl) { hadapt_mem->nst_acc++; }
   else { hadapt_mem->nst_exp++; }
-  h_acc = int_dir * SUNMIN(SUNRabs(h_acc), SUNRabs(h_cfl));
+  h_acc = SUNRcopysign(SUNMIN(h_acc, h_cfl), hcur);
 
   /* enforce adaptivity bounds to retain Jacobian/preconditioner accuracy */
   if (dsm <= ONE)
