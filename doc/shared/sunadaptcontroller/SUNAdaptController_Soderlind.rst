@@ -27,11 +27,10 @@ and :cite:p:`Sod:06`.  This controller has the form
 
 with default parameter values :math:`k_1 = 1.25`, :math:`k_2 = 0.5`,
 :math:`k_3 = -0.75`, :math:`k_4 = 0.25`, and :math:`k_5 = 0.75`, where
-:math:`p` is the global order of the time integration method.  In this estimate,
-a floor of :math:`\varepsilon_* > 10^{-10}` is enforced to avoid division-by-zero
-errors.  During the first two steps (when :math:`\varepsilon_{n-2}`,
-:math:`\varepsilon_{n-1}`, :math:`h_{n-2}`, and :math:`h_{n-2}` may be unavailable),
-the corresponding terms are merely omitted during estimation of :math:`h'`.
+:math:`p` is the global order of the time integration method.  During the first
+two steps (when :math:`\varepsilon_{n-2}`, :math:`\varepsilon_{n-1}`,
+:math:`h_{n-2}`, and :math:`h_{n-2}` may be unavailable), the I controller
+:math:`h' = h_n \varepsilon_1^{-1/(p+1)}` is used.
 
 The SUNAdaptController_Soderlind controller is implemented as a derived
 SUNAdaptController class, and defines its *content* field as:
