@@ -155,18 +155,18 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
 
   /* increment the relevant step counter, set desired step */
   if (h_acc <= h_cfl) { hadapt_mem->nst_acc++; }
-  else { hadapt_mem->nst_exp++; }
-  h_acc = SUNRcopysign(SUNMIN(h_acc, h_cfl), hcur);
+  else { hadapt_mem->nst_exp++; h_acc = h_cfl; }
 
   /* enforce adaptivity bounds to retain Jacobian/preconditioner accuracy */
   if (dsm <= ONE)
   {
-    if ((SUNRabs(h_acc) > SUNRabs(hcur * hadapt_mem->lbound * ONEMSM)) &&
-        (SUNRabs(h_acc) < SUNRabs(hcur * hadapt_mem->ubound * ONEPSM)))
+    if ((h_acc > SUNRabs(hcur * hadapt_mem->lbound * ONEMSM)) &&
+        (h_acc < SUNRabs(hcur * hadapt_mem->ubound * ONEPSM)))
     {
       h_acc = hcur;
     }
   }
+  h_acc = SUNRcopysign(h_acc, hcur);
 
   /* set basic value of ark_eta */
   ark_mem->eta = h_acc / hcur;
