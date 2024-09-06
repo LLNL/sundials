@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
   vector<sunrealtype> Hvals(5);
   for (size_t i = 0; i < Hvals.size(); i++)
   {
-    Hvals[i] = SUN_RCONST(0.01) / SUNRpowerI(SUN_RCONST(2.0), i);
+    Hvals[i] = SUN_RCONST(0.01) / SUNRpowerI(SUN_RCONST(2.0), (int) i);
   }
   retval = run_test(mristep_mem, y, T0, Hvals, method, reltol, abstol, udata);
   if (check_retval(&retval, "run_test", 1)) return 1;
