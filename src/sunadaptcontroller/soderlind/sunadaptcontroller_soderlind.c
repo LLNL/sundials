@@ -90,7 +90,8 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   C->ops->space        = SUNAdaptController_Space_Soderlind;
 
   /* Create content */
-  C->content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof(struct _SUNAdaptControllerContent_Soderlind));
+  C->content = (SUNAdaptControllerContent_Soderlind)malloc(
+    sizeof(struct _SUNAdaptControllerContent_Soderlind));
   SUNAssertNull(C->content, SUN_ERR_MALLOC_FAIL);
 
   /* Fill content with default/reset values */
@@ -303,7 +304,8 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
   /* order parameter to use */
   const int ord = p + 1;
 
-  if (SODERLIND_FIRSTSTEPS(C) > 1) {
+  if (SODERLIND_FIRSTSTEPS(C) > 1)
+  {
     /* After the first 2 steps, there is sufficient history */
     const sunrealtype k1    = -SODERLIND_K1(C) / ord;
     const sunrealtype k2    = -SODERLIND_K2(C) / ord;
@@ -318,7 +320,9 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
 
     *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(e3, k3) *
             SUNRpowerR(hrat, k4) * SUNRpowerR(hrat2, k5);
-  } else {
+  }
+  else
+  {
     /* Use an I controller on the first two steps */
     const sunrealtype k = -SUN_RCONST(1.0) / ord;
     const sunrealtype e = SODERLIND_BIAS(C) * dsm;

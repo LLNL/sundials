@@ -11,7 +11,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Unit test for GetUserData functions
+ * Unit test for step size growth and handling of inf/nan within a controller
+ * due to 0 local error.
  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -20,6 +21,7 @@
 #include "arkode/arkode_erkstep.h"
 #include "nvector/nvector_serial.h"
 
+/* If an error occurs, print to stderr and exit */
 static void err_fn(const int line, const char* const func, const char* const file,
                    const char* const msg, const SUNErrCode err_code,
                    void* const err_user_data, const SUNContext sunctx)
@@ -28,7 +30,7 @@ static void err_fn(const int line, const char* const func, const char* const fil
   exit(err_code);
 }
 
-// RHS for the simple ODE y' = 0
+/* RHS for the simple ODE y'=0 */
 static int f(const sunrealtype t, const N_Vector y, const N_Vector ydot,
              void* const user_data)
 {
@@ -36,13 +38,16 @@ static int f(const sunrealtype t, const N_Vector y, const N_Vector ydot,
   return 0;
 }
 
+/* Take a single time step solving y'=0 and check the max growth was attained */
 static int check_step(void* const arkode_mem, const N_Vector y,
                       const sunrealtype h_expected, const int step)
 {
+  /* Integration much farther than expected step */
+  const sunrealtype tout = SUN_RCONST(100.0) * h_expected;
   sunrealtype tret;
   /* The ERK method should be able to take the maximum possible timestep for the
-     simple ODE y' = 0 without any rejected steps or local error */
-  ARKodeEvolve(arkode_mem, SUN_RCONST(1.0), y, &tret, ARK_ONE_STEP);
+     without any rejected steps or local error */
+  ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
 
   long int local_err_fails;
   ARKodeGetNumErrTestFails(arkode_mem, &local_err_fails);
@@ -66,11 +71,34 @@ static int check_step(void* const arkode_mem, const N_Vector y,
 
   sunrealtype h_actual;
   ARKodeGetCurrentStep(arkode_mem, &h_actual);
-  if (h_expected != h_actual)
+  if (SUNRCompare(h_expected, h_actual))
   {
     fprintf(stderr, "Expected h at step %i to be %g but is %g\n", step,
             h_expected, h_actual);
     return 1;
+  }
+
+  return 0;
+}
+
+/* Take several steps solving y'=0 and check the max growth was attained */
+static int check_steps(void* const arkode_mem, const N_Vector y,
+                       const sunrealtype h0, const sunrealtype first_growth,
+                       const sunrealtype growth)
+{
+  ARKodeSetInitStep(arkode_mem, h0);
+  ARKodeSetMaxFirstGrowth(arkode_mem, first_growth);
+  ARKodeSetMaxGrowth(arkode_mem, growth);
+
+  sunrealtype h_expect = first_growth * h0;
+  /* Take several steps to see the special behavior at step one then to allow
+     the adaptivity controller history fill up */
+  const int num_steps = 5;
+  for (int step = 1; step <= num_steps; step++)
+  {
+    const int retval = check_step_no_err(arkode_mem, y, h_expect, step);
+    if (retval != 0) { return retval; }
+    h_expect *= growth;
   }
 
   return 0;
@@ -96,26 +124,25 @@ int main()
   const N_Vector y = N_VNew_Serial(1, sunctx);
   N_VConst(SUN_RCONST(1.0), y);
 
+  /* Forward integration from 0 */
   void* arkode_mem = ERKStepCreate(f, SUN_RCONST(0.0), y, sunctx);
+  retval           = check_steps_no_err(arkode_mem, y, SUN_RCONST(1.0e-4),
+                                        SUN_RCONST(1234.0), SUN_RCONST(3.0));
+  if (retval != 0) { return retval; }
 
-  const sunrealtype h0           = SUN_RCONST(1.0e-4);
-  const sunrealtype first_growth = SUN_RCONST(1234.0);
-  const sunrealtype growth       = SUN_RCONST(3.0);
+  /* Backward integration from positive time */
+  ERKStepReInit(arkode_mem, f, SUN_RCONST(999.0), y);
+  retval = check_steps_no_err(arkode_mem, y, SUN_RCONST(-1.0e-2),
+                              SUN_RCONST(1.6), SUN_RCONST(2.3));
+  if (retval != 0) { return retval; }
 
-  ARKodeSetInitStep(arkode_mem, h0);
-  ARKodeSetMaxFirstGrowth(arkode_mem, first_growth);
-  ARKodeSetMaxGrowth(arkode_mem, growth);
+  /* Forward integration from a negative time */
+  ERKStepReInit(arkode_mem, f, SUN_RCONST(-999.0), y);
+  retval = check_steps_no_err(arkode_mem, y, SUN_RCONST(20.0),
+                              SUN_RCONST(1.0e5), SUN_RCONST(1.1e3));
+  if (retval != 0) { return retval; }
 
-  sunrealtype h_expect = first_growth * h0;
-  /* Take several steps to see the special behavior at step one then to allow
-     the adaptivity controller history fill up */
-  const int num_steps = 5;
-  for (int step = 1; step <= num_steps; step++)
-  {
-    retval = check_step(arkode_mem, y, h_expect, step);
-    if (retval != 0) { return retval; }
-    h_expect *= growth;
-  }
+  /* TODO(SBR): add additional tests for more the default controller */
 
   ARKodeFree(&arkode_mem);
   N_VDestroy(y);

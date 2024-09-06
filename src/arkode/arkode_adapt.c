@@ -155,7 +155,11 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
 
   /* increment the relevant step counter, set desired step */
   if (h_acc <= h_cfl) { hadapt_mem->nst_acc++; }
-  else { hadapt_mem->nst_exp++; h_acc = h_cfl; }
+  else
+  {
+    hadapt_mem->nst_exp++;
+    h_acc = h_cfl;
+  }
 
   /* enforce adaptivity bounds to retain Jacobian/preconditioner accuracy */
   if (dsm <= ONE)
