@@ -91,7 +91,7 @@ static int computeErrorWeights(N_Vector ycur, N_Vector weight, sunrealtype rtol,
                                sunrealtype atol, N_Vector vtemp);
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
-                    vector<sunrealtype>& Hvals, char* method,
+                    vector<sunrealtype>& Hvals, string method,
                     sunrealtype reltol, sunrealtype abstol, UserData& udata);
 
 // Main Program
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
   // general problem parameters
   sunrealtype T0   = ZERO;                 // initial time
   sunindextype NEQ = 1;                    // number of dependent vars.
-  char* method;                            // MRI method name
+  string method;                           // MRI method name
   sunrealtype reltol = SUN_RCONST(1.e-10); // fast solver tolerances
   sunrealtype abstol = SUN_RCONST(1.e-12);
 
@@ -123,12 +123,12 @@ int main(int argc, char* argv[])
   else { udata.c = ONE; }
 
   sunbooleantype implicit = SUNFALSE;
-  if ((strcmp(method, "ARKODE_MRI_GARK_IRK21a") == 0) ||
-      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK34a") == 0) ||
-      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK46a") == 0) ||
-      (strcmp(method, "ARKODE_IMEX_MRI_SR21") == 0) ||
-      (strcmp(method, "ARKODE_IMEX_MRI_SR32") == 0) ||
-      (strcmp(method, "ARKODE_IMEX_MRI_SR43") == 0))
+  if ((method == "ARKODE_MRI_GARK_IRK21a") ||
+      (method == "ARKODE_MRI_GARK_ESDIRK34a") ||
+      (method == "ARKODE_MRI_GARK_ESDIRK46a") ||
+      (method == "ARKODE_IMEX_MRI_SR21") ||
+      (method == "ARKODE_IMEX_MRI_SR32") ||
+      (method == "ARKODE_IMEX_MRI_SR43"))
   {
     implicit = SUNTRUE;
   }
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
   }
   else { mristep_mem = MRIStepCreate(fn, NULL, T0, y, inner_stepper, ctx); }
   if (check_retval((void*)mristep_mem, "MRIStepCreate", 0)) return 1;
-  MRIStepCoupling C = MRIStepCoupling_LoadTableByName(method);
+  MRIStepCoupling C = MRIStepCoupling_LoadTableByName(method.c_str());
   if (check_retval((void*)C, "MRIStepCoupling_LoadTableByName", 0)) return 1;
   retval = MRIStepSetCoupling(mristep_mem, C);
   if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
@@ -208,9 +208,9 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "ARKodeSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values
-  //  vector<sunrealtype> Hvals = {ONE, ONE/2.0, ONE/4.0, ONE/8.0, ONE/16.0};
-  vector<sunrealtype> Hvals = {ONE / 100.0, ONE / 200.0, ONE / 400.0,
-                               ONE / 800.0, ONE / 1600.0};
+  vector<sunrealtype> Hvals(5);
+  for (size_t i = 0; i < Hvals.size(); i++)
+  { Hvals[i] = SUN_RCONST(0.01) / SUNRpowerI(SUN_RCONST(2.0), i); }
   retval = run_test(mristep_mem, y, T0, Hvals, method, reltol, abstol, udata);
   if (check_retval(&retval, "run_test", 1)) return 1;
 
@@ -257,7 +257,7 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 //------------------------------
 
 static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
-                    vector<sunrealtype>& Hvals, char* method,
+                    vector<sunrealtype>& Hvals, string method,
                     sunrealtype reltol, sunrealtype abstol, UserData& udata)
 {
   // Reused variables
@@ -272,7 +272,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
   vector<sunrealtype> dsm_est(Hvals.size(), ZERO);
 
   // Loop over step sizes
-  for (int iH = 0; iH < Hvals.size(); iH++)
+  for (size_t iH = 0; iH < Hvals.size(); iH++)
   {
     // Reset integrator for this run
     t      = T0;
@@ -299,7 +299,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
     if (check_retval(&retval, "Ytrue", 1)) return 1;
     dsm[iH] = abs(NV_Ith_S(y, 0) - NV_Ith_S(vtemp, 0)) /
               (abstol + reltol * abs(NV_Ith_S(vtemp, 0)));
-    if (strcmp(method, "ARKODE_MRI_GARK_ERK22a") == 0)
+    if (method == "ARKODE_MRI_GARK_ERK22a")
     {
       printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e   "
              " dsm_est_anal  %.2e\n",
@@ -310,7 +310,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
                abs(udata.a * Hvals[iH] / 4.0 + udata.b / 2.0) /
                (abstol + reltol * abs(NV_Ith_S(vtemp, 0))));
     }
-    else if (strcmp(method, "ARKODE_MRI_GARK_IRK21a") == 0)
+    else if (method == "ARKODE_MRI_GARK_IRK21a")
     {
       printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e   "
              " dsm_est_anal  %.2e\n",
@@ -321,7 +321,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
                abs(udata.a * Hvals[iH] / 2.0 + udata.b / 2.0) /
                (abstol + reltol * abs(NV_Ith_S(vtemp, 0))));
     }
-    else if (strcmp(method, "ARKODE_IMEX_MRI_SR21") == 0)
+    else if (method == "ARKODE_IMEX_MRI_SR21")
     {
       printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e   "
              " dsm_est_anal  %.2e\n",

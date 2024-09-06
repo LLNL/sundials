@@ -125,7 +125,7 @@ static int computeErrorWeights(N_Vector ycur, N_Vector weight, sunrealtype rtol,
                                sunrealtype atol, N_Vector vtemp);
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
-                    sunrealtype Tf, vector<sunrealtype> Hvals, char* method,
+                    sunrealtype Tf, vector<sunrealtype> Hvals, string method,
                     sunrealtype reltol, sunrealtype abstol, UserData& udata);
 
 // Main Program
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
   sunrealtype T0   = SUN_RCONST(0.0);      // initial time
   sunrealtype Tf   = SUN_RCONST(5.0);      // final time
   sunindextype NEQ = 2;                    // number of dependent vars.
-  char* method;                            // MRI method name
+  string method;                           // MRI method name
   sunrealtype reltol = SUN_RCONST(1.e-10); // fast solver tolerances
   sunrealtype abstol = SUN_RCONST(1.e-12);
 
@@ -181,15 +181,15 @@ int main(int argc, char* argv[])
 
   sunbooleantype implicit = SUNFALSE;
   sunbooleantype imex     = SUNFALSE;
-  if ((strcmp(method, "ARKODE_MRI_GARK_IRK21a") == 0) ||
-      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK34a") == 0) ||
-      (strcmp(method, "ARKODE_MRI_GARK_ESDIRK46a") == 0))
+  if ((method == "ARKODE_MRI_GARK_IRK21a") ||
+      (method == "ARKODE_MRI_GARK_ESDIRK34a") ||
+      (method == "ARKODE_MRI_GARK_ESDIRK46a"))
   {
     implicit = SUNTRUE;
   }
-  if ((strcmp(method, "ARKODE_IMEX_MRI_SR21") == 0) ||
-      (strcmp(method, "ARKODE_IMEX_MRI_SR32") == 0) ||
-      (strcmp(method, "ARKODE_IMEX_MRI_SR43") == 0))
+  if ((method == "ARKODE_IMEX_MRI_SR21") ||
+      (method == "ARKODE_IMEX_MRI_SR32") ||
+      (method == "ARKODE_IMEX_MRI_SR43"))
   {
     imex     = SUNTRUE;
     implicit = SUNTRUE;
@@ -244,7 +244,7 @@ int main(int argc, char* argv[])
   }
   else { mristep_mem = MRIStepCreate(fn, NULL, T0, y, inner_stepper, ctx); }
   if (check_retval((void*)mristep_mem, "MRIStepCreate", 0)) return 1;
-  MRIStepCoupling C = MRIStepCoupling_LoadTableByName(method);
+  MRIStepCoupling C = MRIStepCoupling_LoadTableByName(method.c_str());
   if (check_retval((void*)C, "MRIStepCoupling_LoadTableByName", 0)) return 1;
   retval = MRIStepSetCoupling(mristep_mem, C);
   if (check_retval(&retval, "MRIStepSetCoupling", 1)) return 1;
@@ -277,8 +277,9 @@ int main(int argc, char* argv[])
 
   // Run test for various H values
   sunrealtype hmax          = (Tf - T0) / 20 / udata.Npart;
-  vector<sunrealtype> Hvals = {hmax, hmax / 4.0, hmax / 16.0, hmax / 64.0,
-                               hmax / 256.0};
+  vector<sunrealtype> Hvals(5);
+  for (size_t i = 0; i < Hvals.size(); i++)
+  { Hvals[i] = hmax / SUNRpowerI(SUN_RCONST(4.0), i); }
   retval = run_test(mristep_mem, y, T0, Tf, Hvals, method, reltol, abstol, udata);
   if (check_retval(&retval, "run_test", 1)) return 1;
 
@@ -409,7 +410,7 @@ static int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 //------------------------------
 
 static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
-                    sunrealtype Tf, vector<sunrealtype> Hvals, char* method,
+                    sunrealtype Tf, vector<sunrealtype> Hvals, string method,
                     sunrealtype reltol, sunrealtype abstol, UserData& udata)
 {
   // Reused variables
@@ -427,7 +428,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
                                       vector<sunrealtype>(udata.Npart, ZERO));
 
   // Loop over step sizes
-  for (int iH = 0; iH < Hvals.size(); iH++)
+  for (size_t iH = 0; iH < Hvals.size(); iH++)
   {
     // Loop over partition
     for (int ipart = 0; ipart < udata.Npart; ipart++)
@@ -465,7 +466,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
   }
 
   cout << endl << method << " summary:" << endl;
-  for (int iH = 0; iH < Hvals.size(); iH++)
+  for (size_t iH = 0; iH < Hvals.size(); iH++)
   {
     cout << "  Stepsize " << Hvals[iH] << "  \tmaxdsm "
          << *max_element(dsm[iH].begin(), dsm[iH].end()) << "  \tmaxdsmest "
