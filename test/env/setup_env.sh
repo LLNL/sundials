@@ -37,9 +37,6 @@
 # EXTRA ARGS = Additional inputs passed to the environment script
 # ------------------------------------------------------------------------------
 
-set -o errexit
-set -o pipefail
-
 echo "./setup_env.sh $*" | tee -a setup_env.log
 
 # Check number of inputs

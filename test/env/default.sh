@@ -24,9 +24,6 @@
 #                       opt : optimized build
 # ------------------------------------------------------------------------------
 
-set -o errexit
-set -o pipefail
-
 echo "./default.sh $*" | tee -a setup_env.log
 
 # set defaults for optional inputs
