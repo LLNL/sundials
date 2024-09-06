@@ -75,12 +75,8 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdaptController C;
-  SUNAdaptControllerContent_Soderlind content;
-
   /* Create an empty controller object */
-  C = NULL;
-  C = SUNAdaptController_NewEmpty(sunctx);
+  SUNAdaptController C = SUNAdaptController_NewEmpty(sunctx);
   SUNCheckLastErrNull();
 
   /* Attach operations */
@@ -94,12 +90,8 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   C->ops->space        = SUNAdaptController_Space_Soderlind;
 
   /* Create content */
-  content = NULL;
-  content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof *content);
-  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
-
-  /* Attach content */
-  C->content = content;
+  C->content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof *C->content);
+  SUNAssertNull(C->content, SUN_ERR_MALLOC_FAIL);
 
   /* Fill content with default/reset values */
   SUNCheckCallNull(SUNAdaptController_SetDefaults_Soderlind(C));
@@ -168,8 +160,7 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdaptController C;
-  C = SUNAdaptController_Soderlind(sunctx);
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
   SUNCheckLastErrNull();
 
   SUNCheckCallNull(
@@ -202,8 +193,7 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdaptController C;
-  C = SUNAdaptController_Soderlind(sunctx);
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
   SUNCheckLastErrNull();
 
   SUNCheckCallNull(SUNAdaptController_SetParams_I(C, DEFAULT_I_K1));
@@ -234,8 +224,7 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdaptController C;
-  C = SUNAdaptController_Soderlind(sunctx);
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
   SUNCheckLastErrNull();
 
   SUNCheckCallNull(SUNAdaptController_SetParams_ExpGus(C, DEFAULT_EXPGUS_K1,
@@ -268,8 +257,7 @@ SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdaptController C;
-  C = SUNAdaptController_Soderlind(sunctx);
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
   SUNCheckLastErrNull();
 
   SUNCheckCallNull(SUNAdaptController_SetParams_ImpGus(C, DEFAULT_IMPGUS_K1,
