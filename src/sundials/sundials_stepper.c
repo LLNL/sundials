@@ -38,6 +38,7 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
   stepper->ops->fullrhs     = NULL;
   stepper->ops->reset       = NULL;
   stepper->ops->setstoptime = NULL;
+  stepper->ops->setstepdirection = NULL;
 
   *stepper_ptr = stepper;
 
@@ -163,6 +164,13 @@ SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper, SUNStepperSetStopTimeFn 
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNStepper_SetStepDirectionFn(SUNStepper stepper, SUNStepperSetStepDirectionFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->setstepdirection = fn;
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, int count, N_Vector tmpl)
 {
   SUNFunctionBegin(stepper->sunctx);
@@ -243,6 +251,16 @@ SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop)
   if (stepper->ops->setstoptime)
   {
     return stepper->ops->setstoptime(stepper, tstop);
+  }
+  else { return SUN_ERR_NOT_IMPLEMENTED; }
+}
+
+SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype dir, sunbooleantype *dir_changed)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->setstepdirection)
+  {
+    return stepper->ops->setstepdirection(stepper, dir, dir_changed);
   }
   else { return SUN_ERR_NOT_IMPLEMENTED; }
 }
