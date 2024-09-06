@@ -36,7 +36,6 @@ extern "C" {
 
 /*    explicit */
 static const int ARKSTEP_DEFAULT_ERK_1 = ARKODE_FORWARD_EULER_1_1;
-//TODO(SBR): Check if this is better than ARKODE_HEUN_EULER_2_1_2
 static const int ARKSTEP_DEFAULT_ERK_2 = ARKODE_RALSTON_3_1_2;
 static const int ARKSTEP_DEFAULT_ERK_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3;
 static const int ARKSTEP_DEFAULT_ERK_4 = ARKODE_SOFRONIOU_SPALETTA_5_3_4;
