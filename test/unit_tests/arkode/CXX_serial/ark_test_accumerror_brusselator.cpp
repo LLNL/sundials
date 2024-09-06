@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
   cout << "    partition size = " << udata.Npart << endl;
   cout << "    initial conditions:  u0 = " << u0 << ",  v0 = " << v0
        << ",  w0 = " << w0 << endl;
-  cout << "    problem parameters:  a = " << a << ",  b = " << b
+  cout << "    problem parameters:  a = " << udata.a << ",  b = " << udata.b
        << ",  ep = " << udata.ep << endl;
   if (rk_type == 0) { cout << "    DIRK solver, order = " << order << endl; }
   else if (rk_type == 1)
@@ -412,10 +412,10 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
 
   // Loop over tolerances
   cout << "\nAdaptive-step runs:\n";
-  for (int irtol = 0; irtol < rtols.size(); irtol++)
+  for (size_t irtol = 0; irtol < rtols.size(); irtol++)
   {
     // Loop over accumulation types
-    for (int iaccum = 0; iaccum < accum_types.size(); iaccum++)
+    for (size_t iaccum = 0; iaccum < accum_types.size(); iaccum++)
     {
       // Loop over partition
       for (int ipart = 0; ipart < udata.Npart; ipart++)
@@ -499,10 +499,10 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
 
   // Loop over step sizes
   cout << "\nFixed-step runs:\n";
-  for (int ih = 0; ih < hvals.size(); ih++)
+  for (size_t ih = 0; ih < hvals.size(); ih++)
   {
     // Loop over built-in accumulation types
-    for (int iaccum = 0; iaccum < accum_types.size(); iaccum++)
+    for (size_t iaccum = 0; iaccum < accum_types.size(); iaccum++)
     {
       // Loop over partition
       for (int ipart = 0; ipart < udata.Npart; ipart++)

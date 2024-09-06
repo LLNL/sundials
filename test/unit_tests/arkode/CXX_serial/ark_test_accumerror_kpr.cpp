@@ -357,10 +357,10 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
 
   // Loop over tolerances
   cout << "\nAdaptive-step runs:\n";
-  for (int irtol = 0; irtol < rtols.size(); irtol++)
+  for (size_t irtol = 0; irtol < rtols.size(); irtol++)
   {
     // Loop over accumulation types
-    for (int iaccum = 0; iaccum < accum_types.size(); iaccum++)
+    for (size_t iaccum = 0; iaccum < accum_types.size(); iaccum++)
     {
       // Loop over partition
       for (int ipart = 0; ipart < udata.Npart; ipart++)
@@ -456,10 +456,10 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0,
 
   // Loop over step sizes
   cout << "\nFixed-step runs:\n";
-  for (int ih = 0; ih < hvals.size(); ih++)
+  for (size_t ih = 0; ih < hvals.size(); ih++)
   {
     // Loop over built-in accumulation types
-    for (int iaccum = 0; iaccum < accum_types.size(); iaccum++)
+    for (size_t iaccum = 0; iaccum < accum_types.size(); iaccum++)
     {
       // Loop over partition
       for (int ipart = 0; ipart < udata.Npart; ipart++)
