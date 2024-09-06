@@ -205,7 +205,6 @@ static int fme(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int fm(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
-static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
