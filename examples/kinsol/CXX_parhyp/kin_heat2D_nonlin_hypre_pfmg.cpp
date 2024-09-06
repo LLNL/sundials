@@ -88,8 +88,7 @@ int main(int argc, char* argv[])
     sundials::Context sunctx(comm_w);
 
     // Initialize hypre if v2.20.0 or newer
-#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 ||
-    (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
     retval = HYPRE_Init();
     if (check_retval(&retval, "HYPRE_Init", 1)) { return 1; }
 #endif
@@ -283,8 +282,7 @@ int main(int argc, char* argv[])
     // --------------------
 
     // Finalize hypre if v2.20.0 or newer
-#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 ||
-  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
     retval = HYPRE_Finalize();
     if (check_retval(&retval, "HYPRE_Finalize", 1)) { return 1; }
 #endif
