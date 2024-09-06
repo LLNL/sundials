@@ -303,20 +303,26 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
   /* order parameter to use */
   const int ord = p + 1;
 
-  /* set usable time-step adaptivity parameters */
-  const sunrealtype ke[] = {-SODERLIND_K1(C) / ord, -SODERLIND_K2(C) / ord,
-                            -SODERLIND_K3(C) / ord};
-  const sunrealtype kh[] = {SODERLIND_K4(C), SODERLIND_K5(C)};
-  // TODO: Should e2 and e3 be set to e1 when we don't have enough history yet?
-  const sunrealtype e[]    = {SODERLIND_BIAS(C) * dsm, SODERLIND_EP(C),
-                              SODERLIND_EPP(C)};
-  const sunrealtype hrat[] = {h / SODERLIND_HP(C),
-                              SODERLIND_HP(C) / SODERLIND_HPP(C)};
+  if (SODERLIND_FIRSTSTEPS(C) > 1) {
+    /* After the first 2 steps, there is sufficient history */
+    const sunrealtype k1    = -SODERLIND_K1(C) / ord;
+    const sunrealtype k2    = -SODERLIND_K2(C) / ord;
+    const sunrealtype k3    = -SODERLIND_K3(C) / ord;
+    const sunrealtype k4    = SODERLIND_K4(C);
+    const sunrealtype k5    = SODERLIND_K5(C);
+    const sunrealtype e1    = SODERLIND_BIAS(C) * dsm;
+    const sunrealtype e2    = SODERLIND_EP(C);
+    const sunrealtype e3    = SODERLIND_EPP(C);
+    const sunrealtype hrat  = h / SODERLIND_HP(C);
+    const sunrealtype hrat2 = SODERLIND_HP(C) / SODERLIND_HPP(C);
 
-  *hnew = h * SUNRpowerR(e[0], ke[0]);
-  for (int i = 0; i < SUNMIN(2, SODERLIND_FIRSTSTEPS(C)); i++)
-  {
-    *hnew *= SUNRpowerR(hrat[i], kh[i]) * SUNRpowerR(e[i + 1], ke[i + 1]);
+    *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(e3, k3) *
+            SUNRpowerR(hrat, k4) * SUNRpowerR(hrat2, k5);
+  } else {
+    /* Use an I controller on the first two steps */
+    const sunrealtype k = -SUN_RCONST(1.0) / ord;
+    const sunrealtype e = SODERLIND_BIAS(C) * dsm;
+    *hnew               = h * SUNRpowerR(e, k);
   }
 
   if (!isfinite(*hnew))
