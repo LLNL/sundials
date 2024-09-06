@@ -407,7 +407,7 @@ int sprkStep_Init(ARKodeMem ark_mem, int init_type)
         step_mem->method = ARKodeSPRKTable_Load(SPRKSTEP_DEFAULT_10);
         break;
       default:
-        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+        arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                         "No SPRK method at requested order, using q=4.");
         step_mem->method = ARKodeSPRKTable_Load(SPRKSTEP_DEFAULT_4);
         break;
