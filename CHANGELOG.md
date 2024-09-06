@@ -14,6 +14,12 @@ architecture for their system.
 
 ### Bug Fixes
 
+Removed error floors from the SUNAdaptController implementations which could
+unnecessarily limit the time size growth, particularly after the first step.
+
+On the first two time steps, the Soderlind controller uses an I controller
+instead omitting unavailable terms.
+
 Fixed the loading of ARKStep's default first order explicit method.
 
 Fixed a CMake bug regarding usage of missing "print_warning" macro
