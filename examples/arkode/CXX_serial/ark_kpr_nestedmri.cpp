@@ -214,8 +214,6 @@ static int Jm(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int Jmi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 // Utility functions
 static void InputHelp();
@@ -1286,43 +1284,6 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + e * tmp3;
   NV_Ith_S(ydot, 1) = ZERO;
   NV_Ith_S(ydot, 2) = ZERO;
-
-  // Return with success
-  return 0;
-}
-
-static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
-{
-  N_VConst(ZERO, ydot);
-  return (0);
-}
-
-// Jacobian of fn
-static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-              void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
-  const sunrealtype w = NV_Ith_S(y, 2);
-  sunrealtype t11, t22, t33;
-
-  // fill in the Jacobian:
-  //   [G   e   e]*[1-(u^2-p(t)-2)/(2*u^2),  0,  0] + [-p'(t)/(2*u^2),  0,  0]
-  //   [e  al  be] [0,  1-(v^2-q(t)-2)/(2*v^2),  0]   [0,  -q'(t)/(2*v^2),  0]
-  //   [e -be  al] [0,  0,  1-(w^2-r(t)-2)/(2*w^2)]   [0,  0,  -r'(t)/(2*w^2)]
-  t11                   = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
-  t22                   = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
-  t33                   = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
-  SM_ELEMENT_D(J, 0, 0) = opts->G * t11 - pdot(t, opts) / (TWO * u * u);
-  SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
-  SM_ELEMENT_D(J, 0, 2) = opts->e * t33;
-  SM_ELEMENT_D(J, 1, 0) = opts->e * t11;
-  SM_ELEMENT_D(J, 1, 1) = opts->al * t22 - qdot(t, opts) / (TWO * v * v);
-  SM_ELEMENT_D(J, 1, 2) = opts->be * t33;
-  SM_ELEMENT_D(J, 2, 0) = opts->e * t11;
-  SM_ELEMENT_D(J, 2, 1) = -opts->be * t22;
-  SM_ELEMENT_D(J, 2, 2) = opts->al * t33 - rdot(t, opts) / (TWO * w * w);
 
   // Return with success
   return 0;
