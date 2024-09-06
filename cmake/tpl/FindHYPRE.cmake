@@ -59,8 +59,7 @@ else()
     HYPRE_LIBRARY
     NAMES ${HYPRE_LIBRARY_NAMES}
     HINTS "${HYPRE_DIR}" "${HYPRE_DIR}/lib" "${HYPRE_DIR}/lib64"
-          "${HYPRE_LIBRARY_DIR}"
-    NO_DEFAULT_PATH)
+          "${HYPRE_LIBRARY_DIR}")
 endif()
 mark_as_advanced(HYPRE_LIBRARY)
 
@@ -69,6 +68,23 @@ if(_idx EQUAL -1)
   set(HYPRE_LIBRARIES
       "${HYPRE_LIBRARY};${HYPRE_LIBRARIES}"
       CACHE STRING "" FORCE)
+endif()
+
+# Extract version parts from the version information
+if(HYPRE_INCLUDE_DIR)
+
+  # HYPRE_config.h file added in at least v2.11.0 (possibly sooner)
+  find_file(HYPRE_CONFIG_FILE HYPRE_config.h
+            PATHS "${HYPRE_INCLUDE_DIR}")
+
+  file(STRINGS "${HYPRE_CONFIG_FILE}" _hypre_release_version
+       REGEX "HYPRE_RELEASE_VERSION")
+  string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" HYPRE_VERSION "${_hypre_release_version}")
+  string(REGEX MATCHALL "[0-9]+" _hypre_version_numbers "${HYPRE_VERSION}")
+  list(GET _hypre_version_numbers 0 HYPRE_VERSION_MAJOR)
+  list(GET _hypre_version_numbers 1 HYPRE_VERSION_MINOR)
+  list(GET _hypre_version_numbers 2 HYPRE_VERSION_PATCH)
+
 endif()
 
 # set a more informative error message in case the library was not found
@@ -83,6 +99,7 @@ ERROR: Could not find HYPRE. Please check the variables:\n\
 find_package_handle_standard_args(
   HYPRE
   REQUIRED_VARS HYPRE_LIBRARY HYPRE_LIBRARIES HYPRE_INCLUDE_DIR
+  VERSION_VAR HYPRE_VERSION
   FAIL_MESSAGE "${HYPRE_NOT_FOUND_MESSAGE}")
 
 # Create target for HYPRE
