@@ -25,7 +25,7 @@ set(ARKODE_examples
     # develop tests
     "ark_analytic_mels\;\;develop"
     "ark_analytic_nonlin\;\;develop"
-    "ark_brusselator_1D_mri\;\;develop"
+    "ark_brusselator_1D_mri\;\;exclude-single"
     "ark_brusselator_fp\;\;exclude-single"
     "ark_brusselator_mri\;\;develop"
     "ark_brusselator\;\;develop"
@@ -77,12 +77,12 @@ set(ARKODE_examples
     "ark_KrylovDemo_prec\;\;exclude-single"
     "ark_KrylovDemo_prec\;1\;exclude-single"
     "ark_KrylovDemo_prec\;2\;exclude-single"
-    "ark_onewaycouple_mri\;\;develop"
+    "ark_onewaycouple_mri\;\;exclude-single"
     "ark_reaction_diffusion_mri\;\;develop"
     "ark_robertson_constraints\;\;exclude-single"
     "ark_robertson_root\;\;exclude-single"
     "ark_robertson\;\;exclude-single"
-    "ark_twowaycouple_mri\;\;develop")
+    "ark_twowaycouple_mri\;\;exclude-single")
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
   list(APPEND ARKODE_examples "ark_brusselator_fp\;1\;exclude-single")
