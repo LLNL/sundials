@@ -17,10 +17,7 @@
 
 # imports
 import sys, os
-import shlex
 import numpy as np
-from pylab import *
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
@@ -78,7 +75,7 @@ plt.rcParams['text.usetex'] = True
 plt.rcParams['figure.constrained_layout.use'] = True
 
 #   subplots with time snapshots of the density, x-velocity, and pressure
-fig = plt.figure()
+fig = plt.figure(figsize=(10,5))
 gs = GridSpec(3, 3, figure=fig)
 ax00 = fig.add_subplot(gs[0,0])  # left column
 ax10 = fig.add_subplot(gs[1,0])
@@ -93,7 +90,7 @@ it = 0
 ax00.plot(x, rho[it,:])
 ax10.plot(x, u[it,:])
 ax20.plot(x, p[it,:])
-ax00.set_title(r"$t =$" + repr(t[it]).zfill(3))
+ax00.set_title(r"$t =$ " + repr(t[it]).zfill(3))
 ax00.set_ylabel(r"$\rho$")
 ax10.set_ylabel(r"$v_x$")
 ax20.set_ylabel(r"$p$")
@@ -102,39 +99,15 @@ it = nt//2
 ax01.plot(x, rho[it,:])
 ax11.plot(x, u[it,:])
 ax21.plot(x, p[it,:])
-ax01.set_title(r"$t =$" + repr(t[it]).zfill(3))
+ax01.set_title(r"$t =$ " + repr(t[it]).zfill(3))
 ax21.set_xlabel(r"$x$")
 it = nt-1
 ax02.plot(x, rho[it,:])
 ax12.plot(x, u[it,:])
 ax22.plot(x, p[it,:])
-ax02.set_title(r"$t =$" + repr(t[it]).zfill(3))
+ax02.set_title(r"$t =$ " + repr(t[it]).zfill(3))
 ax22.set_xlabel(r"$x$")
-savefig("sod_frames.png")
-
-#   subplots with surface plots of the density, x-velocity, and pressure
-fig = plt.figure(figsize=(15,5))
-gs = GridSpec(1, 3, figure=fig)
-ax0 = fig.add_subplot(gs[0,0], projection="3d")
-ax1 = fig.add_subplot(gs[0,1], projection="3d")
-ax2 = fig.add_subplot(gs[0,2], projection="3d")
-X, T = np.meshgrid(x, t)
-ax0.plot_surface(X, T, rho, cmap='viridis', linewidth=0, antialiased=True, shade=True)
-ax0.set_title(r"$\rho$")
-ax0.set_xlabel(r"$x$")
-ax0.set_ylabel(r"$t$")
-ax1.plot_surface(X, T, u, cmap='viridis', linewidth=0, antialiased=True, shade=True)
-ax1.set_title(r"$v_x$")
-ax1.set_xlabel(r"$x$")
-ax1.set_ylabel(r"$t$")
-ax2.plot_surface(X, T, p, cmap='viridis', linewidth=0, antialiased=True, shade=True)
-ax2.set_title(r"$p$")
-ax2.set_xlabel(r"$x$")
-ax2.set_ylabel(r"$t$")
-ax0.view_init(20, 45)
-ax1.view_init(20, 45)
-ax2.view_init(20, 45)
-savefig("sod_surfaces.png")
+plt.savefig("sod_frames.png")
 
 plt.show()
 
