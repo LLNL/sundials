@@ -3998,7 +3998,11 @@ void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
 
   /* Compose the message */
   va_start(ap, msgfmt);
-  size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
+  size_t msglen = 1;
+  if (msgfmt)
+  {
+    msglen += vsnprintf(NULL, 0, msgfmt, ap) + 1;
+  }
   va_end(ap);
 
   char* msg = (char*)malloc(msglen);
