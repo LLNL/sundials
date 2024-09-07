@@ -24,10 +24,8 @@ set(ARKODE_examples
 # Header files to install
 set(ARKODE_headers)
 
-if(BUILD_CVODE)
-  list(APPEND ARKODE_examples "ark_advection_diffusion_reaction.cpp\;\;develop")
-  list(APPEND ARKODE_headers "ark_advection_diffusion_reaction.hpp")
-endif()
+# Auxiliary files to install
+set(ARKODE_extras plot_sod.py)
 
 # Add the build and install targets for each example
 foreach(example_tuple ${ARKODE_examples})
@@ -85,7 +83,7 @@ if(EXAMPLES_INSTALL)
     MAKE_TEMPLATE makefile_serial_CXX_ex.in
     SUNDIALS_TARGETS nvecserial nvecmanyvector arkode
     DESTINATION arkode/CXX_manyvector
-    EXTRA_FILES README ${ARKODE_headers}
+    EXTRA_FILES README ${ARKODE_extras} ${ARKODE_headers}
     TEST_INSTALL CXX_manyvector)
 
 endif()

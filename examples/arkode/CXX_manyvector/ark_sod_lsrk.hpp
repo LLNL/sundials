@@ -86,8 +86,8 @@ class ARKODEParameters
 
     // constructor (with default values)
     ARKODEParameters() :
-      integrator("ARKODE_LSRK_SSP10_4"), stages(0), rtol(SUN_RCONST(1.e-5)),
-      atol(SUN_RCONST(1.e-12)), fixed_h(ZERO), maxsteps(10000), output(1),
+      integrator("ARKODE_LSRK_SSP10_4"), stages(0), rtol(SUN_RCONST(1.e-4)),
+      atol(SUN_RCONST(1.e-11)), fixed_h(ZERO), maxsteps(10000), output(1),
       nout(10)
     {};
 
@@ -121,7 +121,7 @@ class EulerData
 
     // constructor
     EulerData() :
-      nx(512), t0(ZERO), tf(SUN_RCONST(0.2)), xl(ZERO), xr(ONE),
+      nx(512), t0(ZERO), tf(SUN_RCONST(0.1)), xl(ZERO), xr(ONE),
       gamma(SUN_RCONST(1.4)), flux(NULL), dx(ZERO)
       { };
 
@@ -163,16 +163,16 @@ class EulerData
                             const sunrealtype* mz, const sunrealtype* et,
                             const long int& i) const
     {
-      for (int l=0; l<3; l++)  w1d[l][0] = (i-3+l<0) ? rho[3-i-l] : rho[i-3+l];
-      for (int l=0; l<3; l++)  w1d[l][1] = (i-3+l<0) ? mx[ 3-i-l] : mx[ i-3+l];
-      for (int l=0; l<3; l++)  w1d[l][2] = (i-3+l<0) ? my[ 3-i-l] : my[ i-3+l];
-      for (int l=0; l<3; l++)  w1d[l][3] = (i-3+l<0) ? mz[ 3-i-l] : mz[ i-3+l];
-      for (int l=0; l<3; l++)  w1d[l][4] = (i-3+l<0) ? et[ 3-i-l] : et[ i-3+l];
-      for (int l=0; l<3; l++)  w1d[l+3][0] = (i+l>(nx-1)) ? rho[2*nx-(i+l+1)] : rho[i+l];
-      for (int l=0; l<3; l++)  w1d[l+3][1] = (i+l>(nx-1)) ? mx[ 2*nx-(i+l+1)] : mx[ i+l];
-      for (int l=0; l<3; l++)  w1d[l+3][2] = (i+l>(nx-1)) ? my[ 2*nx-(i+l+1)] : my[ i+l];
-      for (int l=0; l<3; l++)  w1d[l+3][3] = (i+l>(nx-1)) ? mz[ 2*nx-(i+l+1)] : mz[ i+l];
-      for (int l=0; l<3; l++)  w1d[l+3][4] = (i+1>(nx-1)) ? et[ 2*nx-(i+l+1)] : et[ i+l];
+      for (int l=0; l<3; l++)  w1d[l][0] = (i<(3-l)) ? rho[2-(i+l)] : rho[i-3+l];
+      for (int l=0; l<3; l++)  w1d[l][1] = (i<(3-l)) ?  mx[2-(i+l)] :  mx[i-3+l];
+      for (int l=0; l<3; l++)  w1d[l][2] = (i<(3-l)) ?  my[2-(i+l)] :  my[i-3+l];
+      for (int l=0; l<3; l++)  w1d[l][3] = (i<(3-l)) ?  mz[2-(i+l)] :  mz[i-3+l];
+      for (int l=0; l<3; l++)  w1d[l][4] = (i<(3-l)) ?  et[2-(i+l)] :  et[i-3+l];
+      for (int l=0; l<3; l++)  w1d[l+3][0] = (i>(nx-l-1)) ? rho[i+l-3] : rho[i+l];
+      for (int l=0; l<3; l++)  w1d[l+3][1] = (i>(nx-l-1)) ?  mx[i+l-3] :  mx[i+l];
+      for (int l=0; l<3; l++)  w1d[l+3][2] = (i>(nx-l-1)) ?  my[i+l-3] :  my[i+l];
+      for (int l=0; l<3; l++)  w1d[l+3][3] = (i>(nx-l-1)) ?  mz[i+l-3] :  mz[i+l];
+      for (int l=0; l<3; l++)  w1d[l+3][4] = (i>(nx-l-1)) ?  et[i+l-3] :  et[i+l];
     }
 
     // Equation of state -- compute and return pressure,
@@ -417,7 +417,7 @@ static int OpenOutput(EulerData& udata, ARKODEParameters& uopts)
   {
     // Open output stream
     stringstream fname;
-    fname << "sod_shock_tube.out";
+    fname << "sod.out";
     uopts.uout.open(fname.str());
 
     uopts.uout << scientific;
