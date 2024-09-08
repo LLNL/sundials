@@ -8766,7 +8766,7 @@ void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
   size_t msglen = 1;
   if (msgfmt)
   {
-    msglen += vsnprintf(NULL, 0, msgfmt, ap) + 1;
+    msglen += vsnprintf(NULL, 0, msgfmt, ap);
   }
   va_end(ap);
 
