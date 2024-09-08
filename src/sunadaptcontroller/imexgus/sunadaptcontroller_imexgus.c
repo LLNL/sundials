@@ -47,7 +47,7 @@
 #define DEFAULT_K2E  SUN_RCONST(0.268)
 #define DEFAULT_K1I  SUN_RCONST(0.95)
 #define DEFAULT_K2I  SUN_RCONST(0.95)
-#define DEFAULT_BIAS SUN_RCONST(1.5)
+#define DEFAULT_BIAS SUN_RCONST(1.0)
 #define TINY         SUN_RCONST(1.0e-10)
 
 /* -----------------------------------------------------------------

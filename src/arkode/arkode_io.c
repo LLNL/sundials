@@ -933,11 +933,11 @@ int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
   /* On NULL-valued input, create default SUNAdaptController object */
   if (C == NULL)
   {
-    C = SUNAdaptController_PID(ark_mem->sunctx);
+    C = SUNAdaptController_I(ark_mem->sunctx);
     if (C == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptControllerPID allocation failure");
+                      "SUNAdaptControllerI allocation failure");
       return (ARK_MEM_FAIL);
     }
     ark_mem->hadapt_mem->owncontroller = SUNTRUE;
@@ -1604,7 +1604,7 @@ int ARKodeSetSafetyFactor(void* arkode_mem, sunrealtype safety)
   }
 
   /* check for allowable parameters */
-  if (safety >= ONE)
+  if (safety > ONE)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Illegal safety factor");

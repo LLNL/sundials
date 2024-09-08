@@ -308,13 +308,7 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->p      = 0;                          /* embedding order */
   step_mem->stages = 0;                          /* no stages */
   step_mem->B      = NULL;                       /* no Butcher table */
-  ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
-  ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
-  ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
-  (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(1.2));
-  (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(0.8), -SUN_RCONST(0.31));
+  /* TODO: add ERK-specific config here if needed */
   return (ARK_SUCCESS);
 }
 
