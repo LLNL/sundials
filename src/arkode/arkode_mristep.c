@@ -1850,7 +1850,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
         break;
       }
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
-                                    ark_mem->tempv2, SUNTRUE, need_inner_dsm);
+                                    ark_mem->tempv2, SUNFALSE, need_inner_dsm);
       if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
       break;
     case (MRISTAGE_ERK_NOFAST):
