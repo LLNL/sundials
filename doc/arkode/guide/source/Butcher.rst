@@ -181,6 +181,42 @@ This is the default 1st order explicit method (from :cite:p:`Euler:68`).
    Linear stability region for the forward Euler method.
 
 
+.. _Butcher.Ralston:
+
+Ralston-3-1-2
+^^^^^^^^^^^^^
+
+.. index:: Ralston-3-1-2 ERK method
+
+Accessible via the constant ``ARKODE_RALSTON_3_1_2`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_RALSTON_3_1_2"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the default 2nd order explicit method
+(primary method from :cite:p:`Ralston:62`).
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cc}
+     0 & 0 & 0 & 0 \\
+     \frac{2}{3} & \frac{2}{3} & 0 & 0 \\
+     1 & \frac{1}{4} & \frac{3}{4} & 0 \\
+     \hline
+     2 & \frac{1}{4} & \frac{3}{4} & 0 \\
+     1 & \frac{5}{37} & \frac{2}{3} & \frac{22}{111}
+   \end{array}
+
+.. figure:: /figs/arkode/ralston_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the Ralston method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
 .. _Butcher.Heun_Euler:
 
 Heun-Euler-2-1-2
