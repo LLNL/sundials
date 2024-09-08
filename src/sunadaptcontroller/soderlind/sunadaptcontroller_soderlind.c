@@ -62,7 +62,6 @@
 #define DEFAULT_IMPGUS_K1 SUN_RCONST(0.98) /* Implicit Gustafsson parameters */
 #define DEFAULT_IMPGUS_K2 SUN_RCONST(0.95)
 #define DEFAULT_BIAS      SUN_RCONST(1.0)
-#define TINY              SUN_RCONST(1.0e-10)
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -76,12 +75,8 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdaptController C;
-  SUNAdaptControllerContent_Soderlind content;
-
   /* Create an empty controller object */
-  C = NULL;
-  C = SUNAdaptController_NewEmpty(sunctx);
+  SUNAdaptController C = SUNAdaptController_NewEmpty(sunctx);
   SUNCheckLastErrNull();
 
   /* Attach operations */
@@ -95,12 +90,9 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   C->ops->space        = SUNAdaptController_Space_Soderlind;
 
   /* Create content */
-  content = NULL;
-  content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof *content);
-  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
-
-  /* Attach content */
-  C->content = content;
+  C->content = (SUNAdaptControllerContent_Soderlind)malloc(
+    sizeof(struct _SUNAdaptControllerContent_Soderlind));
+  SUNAssertNull(C->content, SUN_ERR_MALLOC_FAIL);
 
   /* Fill content with default/reset values */
   SUNCheckCallNull(SUNAdaptController_SetDefaults_Soderlind(C));
@@ -169,8 +161,7 @@ SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdaptController C;
-  C = SUNAdaptController_Soderlind(sunctx);
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
   SUNCheckLastErrNull();
 
   SUNCheckCallNull(
@@ -203,8 +194,7 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdaptController C;
-  C = SUNAdaptController_Soderlind(sunctx);
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
   SUNCheckLastErrNull();
 
   SUNCheckCallNull(SUNAdaptController_SetParams_I(C, DEFAULT_I_K1));
@@ -235,8 +225,7 @@ SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdaptController C;
-  C = SUNAdaptController_Soderlind(sunctx);
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
   SUNCheckLastErrNull();
 
   SUNCheckCallNull(SUNAdaptController_SetParams_ExpGus(C, DEFAULT_EXPGUS_K1,
@@ -269,8 +258,7 @@ SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdaptController C;
-  C = SUNAdaptController_Soderlind(sunctx);
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
   SUNCheckLastErrNull();
 
   SUNCheckCallNull(SUNAdaptController_SetParams_ImpGus(C, DEFAULT_IMPGUS_K1,
@@ -316,28 +304,36 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
   /* order parameter to use */
   const int ord = p + 1;
 
-  /* set usable time-step adaptivity parameters */
-  const sunrealtype k1    = -SODERLIND_K1(C) / ord;
-  const sunrealtype k2    = -SODERLIND_K2(C) / ord;
-  const sunrealtype k3    = -SODERLIND_K3(C) / ord;
-  const sunrealtype k4    = SODERLIND_K4(C);
-  const sunrealtype k5    = SODERLIND_K5(C);
-  const sunrealtype e1    = SUNMAX(SODERLIND_BIAS(C) * dsm, TINY);
-  const sunrealtype e2    = SUNMAX(SODERLIND_EP(C), TINY);
-  const sunrealtype e3    = SUNMAX(SODERLIND_EPP(C), TINY);
-  const sunrealtype hrat  = h / SODERLIND_HP(C);
-  const sunrealtype hrat2 = SODERLIND_HP(C) / SODERLIND_HPP(C);
-
-  /* compute estimated optimal time step size */
-  if (SODERLIND_FIRSTSTEPS(C) < 1) { *hnew = h * SUNRpowerR(e1, k1); }
-  else if (SODERLIND_FIRSTSTEPS(C) < 2)
+  if (SODERLIND_FIRSTSTEPS(C) > 1)
   {
-    *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(hrat, k4);
+    /* After the first 2 steps, there is sufficient history */
+    const sunrealtype k1    = -SODERLIND_K1(C) / ord;
+    const sunrealtype k2    = -SODERLIND_K2(C) / ord;
+    const sunrealtype k3    = -SODERLIND_K3(C) / ord;
+    const sunrealtype k4    = SODERLIND_K4(C);
+    const sunrealtype k5    = SODERLIND_K5(C);
+    const sunrealtype e1    = SODERLIND_BIAS(C) * dsm;
+    const sunrealtype e2    = SODERLIND_EP(C);
+    const sunrealtype e3    = SODERLIND_EPP(C);
+    const sunrealtype hrat  = h / SODERLIND_HP(C);
+    const sunrealtype hrat2 = SODERLIND_HP(C) / SODERLIND_HPP(C);
+
+    *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(e3, k3) *
+            SUNRpowerR(hrat, k4) * SUNRpowerR(hrat2, k5);
   }
   else
   {
-    *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(e3, k3) *
-            SUNRpowerR(hrat, k4) * SUNRpowerR(hrat2, k5);
+    /* Use an I controller on the first two steps */
+    const sunrealtype k = -SUN_RCONST(1.0) / ord;
+    const sunrealtype e = SODERLIND_BIAS(C) * dsm;
+    *hnew               = h * SUNRpowerR(e, k);
+  }
+
+  if (!isfinite(*hnew))
+  {
+    /* hnew can be INFINITY or NAN if multiple e's are 0 or there are overflows.
+     * In that case, make hnew INFINITY with the same sign as h */
+    *hnew = SUNRcopysign(INFINITY, h);
   }
 
   /* return with success */

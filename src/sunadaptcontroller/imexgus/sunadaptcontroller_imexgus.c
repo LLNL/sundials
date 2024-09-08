@@ -48,7 +48,6 @@
 #define DEFAULT_K1I  SUN_RCONST(0.95)
 #define DEFAULT_K2I  SUN_RCONST(0.95)
 #define DEFAULT_BIAS SUN_RCONST(1.0)
-#define TINY         SUN_RCONST(1.0e-10)
 
 /* -----------------------------------------------------------------
  * exported functions
@@ -133,25 +132,33 @@ SUNErrCode SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C,
   /* order parameter to use */
   const int ord = p + 1;
 
-  /* set usable time-step adaptivity parameters -- first step */
-  const sunrealtype k = -SUN_RCONST(1.0) / ord;
-  const sunrealtype e = SUNMAX(SACIMEXGUS_BIAS(C) * dsm, TINY);
-
-  /* set usable time-step adaptivity parameters -- subsequent steps */
-  const sunrealtype k1e  = -SACIMEXGUS_K1E(C) / ord;
-  const sunrealtype k2e  = -SACIMEXGUS_K2E(C) / ord;
-  const sunrealtype k1i  = -SACIMEXGUS_K1I(C) / ord;
-  const sunrealtype k2i  = -SACIMEXGUS_K2I(C) / ord;
-  const sunrealtype e1   = SUNMAX(SACIMEXGUS_BIAS(C) * dsm, TINY);
-  const sunrealtype e2   = e1 / SUNMAX(SACIMEXGUS_EP(C), TINY);
-  const sunrealtype hrat = h / SACIMEXGUS_HP(C);
-
   /* compute estimated time step size, modifying the first step formula */
-  if (SACIMEXGUS_FIRSTSTEP(C)) { *hnew = h * SUNRpowerR(e, k); }
+  if (SACIMEXGUS_FIRSTSTEP(C))
+  {
+    /* set usable time-step adaptivity parameters -- first step */
+    const sunrealtype k = -SUN_RCONST(1.0) / ord;
+    const sunrealtype e = SACIMEXGUS_BIAS(C) * dsm;
+    *hnew               = h * SUNRpowerR(e, k);
+  }
   else
   {
+    /* set usable time-step adaptivity parameters -- subsequent steps */
+    const sunrealtype k1e  = -SACIMEXGUS_K1E(C) / ord;
+    const sunrealtype k2e  = -SACIMEXGUS_K2E(C) / ord;
+    const sunrealtype k1i  = -SACIMEXGUS_K1I(C) / ord;
+    const sunrealtype k2i  = -SACIMEXGUS_K2I(C) / ord;
+    const sunrealtype e1   = SACIMEXGUS_BIAS(C) * dsm;
+    const sunrealtype e2   = e1 / SACIMEXGUS_EP(C);
+    const sunrealtype hrat = h / SACIMEXGUS_HP(C);
     *hnew = h * SUNMIN(hrat * SUNRpowerR(e1, k1i) * SUNRpowerR(e2, k2i),
                        SUNRpowerR(e1, k1e) * SUNRpowerR(e2, k2e));
+  }
+
+  if (!isfinite(*hnew))
+  {
+    /* hnew can be INFINITY or NAN if multiple e's are 0 or there are overflows.
+     * In that case, make hnew INFINITY with the same sign as h */
+    *hnew = SUNRcopysign(INFINITY, h);
   }
 
   /* return with success */
