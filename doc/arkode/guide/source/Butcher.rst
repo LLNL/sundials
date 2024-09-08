@@ -513,6 +513,7 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_SOFRONIOU_SPALETTA_5_3_4"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the default 4th order explicit method
 (from :cite:p:`Sof:04`).
 
 .. math::
@@ -552,7 +553,6 @@ Accessible via the constant ``ARKODE_ZONNEVELD_5_3_4`` to
 Accessible via the string ``"ARKODE_ZONNEVELD_5_3_4"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName`, or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the default 4th order explicit method
 (from :cite:p:`Zon:63`).
 
 .. math::
@@ -593,8 +593,8 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ARK436L2SA_ERK_6_3_4"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the explicit portion of the default 4th order additive method (the
-explicit portion of the ARK4(3)6L[2]SA method from :cite:p:`KenCarp:03`).
+This is the explicit portion of the ARK4(3)6L[2]SA method from
+:cite:p:`KenCarp:03`.
 
 .. math::
 
@@ -634,8 +634,8 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ARK437L2SA_ERK_7_3_4"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the explicit portion of the 4th order additive method (the explicit
-portion of the ARK4(3)7L[2]SA method from :cite:p:`KenCarp:19`).
+This is the explicit portion of the default 4th order additive method and the
+explicit portion of the ARK4(3)7L[2]SA method from :cite:p:`KenCarp:19`.
 
 .. only:: html
 
@@ -849,8 +849,8 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ARK548L2SA_ERK_8_4_5"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the explicit portion of the default 5th order additive method (the
-explicit portion of the ARK5(4)8L[2]SA method from :cite:p:`KenCarp:03`).
+This is the explicit portion of the ARK5(4)8L[2]SA method from
+:cite:p:`KenCarp:03`.
 
 .. only:: html
 
@@ -901,7 +901,8 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_ARK548L2SAb_ERK_8_4_5"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the explicit portion of the 5th order ARK5(4)8L[2]SA method from
+This is the explicit portion of the default 5th order additive method and the
+explicit portion of the 5th order ARK5(4)8L[2]SA method from
 :cite:p:`KenCarp:19`.
 
 .. only:: html
@@ -951,7 +952,7 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_VERNER_8_5_6"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the default 6th order explicit method (from :cite:p:`HEJ:76`).
+(from :cite:p:`HEJ:76`).
 
 .. math::
 
@@ -992,7 +993,8 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_VERNER_9_5_6"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the 6th order explicit method IIIXb-6(5) from :cite:p:`Ver:10`.
+This is the default 6th order explicit method
+(method IIIXb-6(5) from :cite:p:`Ver:10`).
 
 .. only:: html
 
@@ -1093,7 +1095,7 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_FEHLBERG_13_7_8"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the default 8th order explicit method (from :cite:p:`Butcher:08`).
+(from :cite:p:`Butcher:08`).
 
 .. math::
 
@@ -1140,7 +1142,8 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_VERNER_13_7_8"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the 8th order explicit method IIIX-8(7) from :cite:p:`Ver:10`.
+This is the default 8th order explicit method
+(method IIIX-8(7) from :cite:p:`Ver:10`).
 
 
 .. only:: html
@@ -1302,8 +1305,7 @@ Accessible via the constant ``ARKODE_SDIRK_2_1_2`` to
 Accessible via the string ``"ARKODE_SDIRK_2_1_2"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the default 2nd order implicit method.  Both the method and embedding
-are A- and B-stable.
+Both the method and embedding are A- and B-stable.
 
 .. math::
 
@@ -1337,8 +1339,9 @@ Accessible via the constant ``ARKODE_ARK2_DIRK_3_1_2`` to
 Accessible via the string ``"ARKODE_ARK2_DIRK_3_1_2"`` to
 :c:func:`ARKStepSetTableName`, or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the implicit portion of the default 2nd order additive method (the
-implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
+This is the default 2nd order implicit method and the implicit portion of the
+default 2nd order additive method
+(the implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
 
 .. math::
 
@@ -1535,7 +1538,8 @@ Accessible via the constant ``ARKODE_ESDIRK325L2SA_5_2_3`` to
 Accessible via the string ``"ARKODE_ESDIRK325L2SA_5_2_3"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK3(2)5L[2]SA method from :cite:p:`KenCarp:16`.
+This is the default 3rd order implicit method and the ESDIRK3(2)5L[2]SA method
+from :cite:p:`KenCarp:16`.
 Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_26.png
@@ -1624,10 +1628,10 @@ Accessible via the constant ``ARKODE_ARK324L2SA_DIRK_4_2_3`` to
 Accessible via the string ``"ARKODE_ARK324L2SA_DIRK_4_2_3"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the default 3rd order implicit method, and the implicit portion of the
-default 3rd order additive method.  Both the method and embedding are A-stable;
-additionally the method is L-stable (this is the implicit portion of the
-ARK3(2)4L[2]SA method from :cite:p:`KenCarp:03`).
+This is the implicit portion of the default 3rd order additive method.  Both the
+method and embedding are A-stable; additionally the method is L-stable
+(this is the implicit portion of the ARK3(2)4L[2]SA method from
+:cite:p:`KenCarp:03`).
 
 .. math::
 
@@ -1751,9 +1755,8 @@ Accessible via the constant ``ARKODE_SDIRK_5_3_4`` to
 Accessible via the string ``"ARKODE_SDIRK_5_3_4"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the default 4th order implicit method.  Here, the method is both A- and
-L-stable, although the embedding has reduced stability
-(from :cite:p:`HaWa:91`).
+Here, the method is both A- and L-stable, although the embedding has reduced
+stability (from :cite:p:`HaWa:91`).
 
 .. math::
 
@@ -1844,9 +1847,9 @@ Accessible via the constant ``ARKODE_ARK436L2SA_DIRK_6_3_4`` to
 Accessible via the string ``"ARKODE_ARK436L2SA_DIRK_6_3_4"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the implicit portion of the default 4th order additive method. Both the
-method and embedding are A-stable; additionally the method is L-stable (this is
-the implicit portion of the ARK4(3)6L[2]SA method from :cite:p:`KenCarp:03`).
+Both the method and embedding are A-stable; additionally the method is L-stable
+(this is the implicit portion of the ARK4(3)6L[2]SA method from
+:cite:p:`KenCarp:03`).
 
 .. math::
 
@@ -1888,7 +1891,8 @@ Accessible via the constant ``ARKODE_ARK437L2SA_DIRK_7_3_4`` to
 Accessible via the string ``"ARKODE_ARK437L2SA_DIRK_7_3_4"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the implicit portion of the 4th order ARK4(3)7L[2]SA method from
+This is the implicit portion of the default 4th order additive method and the
+implicit portion of the 4th order ARK4(3)7L[2]SA method from
 :cite:p:`KenCarp:19`.  Both the method and embedding are A- and L-stable.
 
 .. math::
@@ -1927,8 +1931,8 @@ Accessible via the constant ``ARKODE_ESDIRK436L2SA_6_3_4`` to
 Accessible via the string ``"ARKODE_ESDIRK436L2SA_6_3_4"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
+This is the default 4th order implicit method and the ESDIRK4(3)6L[2]SA method
+from :cite:p:`KenCarp:16`. Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_28.png
    :scale: 50 %
@@ -2072,10 +2076,8 @@ Accessible via the constant ``ARKODE_ARK548L2SA_DIRK_8_4_5`` for
 Accessible via the string ``"ARKODE_ARK548L2SA_DIRK_8_4_5"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the default 5th order implicit method, and the implicit portion of the
-default 5th order additive method.  Both the method and embedding are A-stable;
-additionally the method is L-stable (the implicit portion of the ARK5(4)8L[2]SA
-method from :cite:p:`KenCarp:03`).
+Both the method and embedding are A-stable; additionally the method is L-stable
+(the implicit portion of the ARK5(4)8L[2]SA method from :cite:p:`KenCarp:03`).
 
 .. only:: html
 
@@ -2124,6 +2126,7 @@ Accessible via the constant ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` for
 Accessible via the string ``"ARKODE_ARK548L2SAb_DIRK_8_4_5"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the implicit portion of the default 5th order additive method.
 Both the method and embedding are A-stable; additionally the method is L-stable
 (this is the implicit portion of the 5th order ARK5(4)8L[2]SA method from
 :cite:p:`KenCarp:19`).
@@ -2195,8 +2198,8 @@ Accessible via the constant ``ARKODE_ESDIRK547L2SA2_7_4_5`` to
 Accessible via the string ``"ARKODE_ESDIRK547L2SA2_7_4_5"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK5(4)7L[2]SA2 method from :cite:p:`KenCarp:19b`.
-Both the method and embedding are A- and L-stable.
+This is the default 5th order implicit method and the ESDIRK5(4)7L[2]SA2 method
+from :cite:p:`KenCarp:19b`. Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_33.png
    :scale: 50 %
