@@ -286,7 +286,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_KOKKOS=ON
-    export KOKKOS_ROOT="$(spack location -i kokkos@4.3.01~cuda)"
+    export KOKKOS_ROOT="$(spack location -i kokkos@4.3.01+cuda)"
 else
     export SUNDIALS_KOKKOS=OFF
     unset KOKKOS_ROOT
@@ -298,7 +298,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_KOKKOS_KERNELS=ON
-    export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@4.3.01~cuda)"
+    export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@4.3.01+cuda)"
 else
     export SUNDIALS_KOKKOS_KERNELS=OFF
     unset KOKKOS_KERNELS_ROOT
