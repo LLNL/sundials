@@ -707,7 +707,50 @@ Accessible via the string ``"ARKODE_SAYFY_ABURUB_6_3_4"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
+.. _Butcher.Tsitouras:
 
+Tsitouras-6-4-5
+^^^^^^^^^^^^^^^
+
+.. index:: Tsitouras-6-4-5 ERK method
+
+Accessible via the constant ``ARKODE_TSITOURAS_7_4_5`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_TSITOURAS_7_4_5"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the default 5th order explicit method (from :cite:p:`Tsitouras:11`).
+
+.. only:: html
+
+   .. math::
+
+      \renewcommand{\arraystretch}{1.5}
+      \begin{array}{r|ccccccc}
+         0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+         0.1610000000000000 & 0.1610000000000000 & 0 & 0 & 0 & 0 & 0 & 0 \\
+         0.3270000000000000 & -0.008480655492356989 & 0.3354806554923570 & 0 & 0 & 0 & 0 & 0 \\
+         0.9000000000000000 & 2.897153057105493 & -6.359448489975075 & 4.362295432869581 & 0 & 0 & 0 & 0 \\
+         0.9800255409045097 & 5.325864828439257 & -11.74888356406283 & 7.495539342889836 & -0.09249506636175525 & 0 & 0 & 0 \\
+         1.000000000000000 & 5.861455442946420 & -12.92096931784711 & 8.159367898576159 & -0.07158497328140100 & -0.02826905039406838 & 0 & 0 \\
+         1.000000000000000 & 0.09646076681806523 & 0.01000000000000000 & 0.4798896504144996 & 1.379008574103742 & -3.290069515436081 & 2.324710524099774 & 0 \\
+         \hline
+         5 & 0.09646076681806523 & 0.01000000000000000 & 0.4798896504144996 & 1.379008574103742 & -3.290069515436081 & 2.324710524099774 & 0 \\
+         4 & 0.09352374858189271 & 0.008652883141566368 & 0.4928930991314319 & 1.140235412267858 & -2.329180192439365 & 1.568875049316616 & 0.02500000000000000
+      \end{array}
+
+.. only:: latex
+
+   The Butcher table is too large to fit in the PDF version of this documentation.  Please see the HTML documentation for the table coefficients.
+
+
+.. figure:: /figs/arkode/tsitouras_stab_region.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the Tsitouras method.  The method's
+   region is outlined in blue; the embedding's region is in red.
 
 
 .. _Butcher.Cash-Karp:
@@ -723,7 +766,7 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_CASH_KARP_6_4_5"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the default 5th order explicit method (from :cite:p:`CashKarp:90`).
+(from :cite:p:`CashKarp:90`).
 
 .. math::
 
