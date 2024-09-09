@@ -48,11 +48,6 @@ typedef vector_type::local_ordinal_type local_ordinal_type;
 typedef vector_type::node_type::memory_space memory_space;
 typedef vector_type::execution_space execution_space;
 
-static constexpr scalar_type zero   = 0;
-static constexpr scalar_type half   = 0.5;
-static constexpr scalar_type one    = 1.0;
-static constexpr scalar_type onept5 = 1.5;
-
 /*----------------------------------------------------------------
  *  Streaming vector kernels
  *---------------------------------------------------------------*/
@@ -147,7 +142,7 @@ inline void compare(scalar_type c, const vector_type& x, vector_type& z)
   Kokkos::parallel_for(
     "compare", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i) {
-      z_1d(i) = std::abs(x_1d(i)) >= c ? one : zero;
+      z_1d(i) = std::abs(x_1d(i)) >= c ? static_cast<scalar_type>(1.0) : static_cast<scalar_type>(0.0);
     });
 }
 
@@ -180,7 +175,7 @@ inline mag_type normWrms(const vector_type& x, const vector_type& w)
   auto w_1d = Kokkos::subview(w_2d, Kokkos::ALL(), 0);
 #endif
 
-  mag_type sum = zero;
+  mag_type sum = static_cast<scalar_type>(0.0);
   Kokkos::parallel_reduce(
     "normWrms", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, mag_type& local_sum) {
@@ -188,7 +183,7 @@ inline mag_type normWrms(const vector_type& x, const vector_type& w)
     },
     sum);
 
-  mag_type globalSum = zero;
+  mag_type globalSum = static_cast<scalar_type>(0.0);
   reduceAll<int, mag_type>(*comm, REDUCE_SUM, sum, outArg(globalSum));
   return std::sqrt(globalSum / static_cast<mag_type>(Nglob));
 }
@@ -225,15 +220,15 @@ inline mag_type normWrmsMask(const vector_type& x, const vector_type& w,
   auto id_1d = Kokkos::subview(id_2d, Kokkos::ALL(), 0);
 #endif
 
-  mag_type sum = zero;
+  mag_type sum = static_cast<scalar_type>(0.0);
   Kokkos::parallel_reduce(
     "normWrmsMask", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, mag_type& local_sum) {
-      if (id_1d(i) > zero) local_sum += x_1d(i) * w_1d(i) * (x_1d(i) * w_1d(i));
+      if (id_1d(i) > static_cast<scalar_type>(0.0)) local_sum += x_1d(i) * w_1d(i) * (x_1d(i) * w_1d(i));
     },
     sum);
 
-  mag_type globalSum = zero;
+  mag_type globalSum = static_cast<scalar_type>(0.0);
   reduceAll<int, mag_type>(*comm, REDUCE_SUM, sum, outArg(globalSum));
   return std::sqrt(globalSum / static_cast<mag_type>(Nglob));
 }
@@ -295,7 +290,7 @@ inline mag_type normWL2(const vector_type& x, const vector_type& w)
   auto w_1d = Kokkos::subview(w_2d, Kokkos::ALL(), 0);
 #endif
 
-  mag_type sum = zero;
+  mag_type sum = static_cast<scalar_type>(0.0);
   Kokkos::parallel_reduce(
     "normWL2", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, mag_type& local_sum) {
@@ -303,7 +298,7 @@ inline mag_type normWL2(const vector_type& x, const vector_type& w)
     },
     sum);
 
-  mag_type globalSum = zero;
+  mag_type globalSum = static_cast<scalar_type>(0.0);
   reduceAll<int, mag_type>(*comm, REDUCE_SUM, sum, outArg(globalSum));
   return std::sqrt(globalSum);
 }
@@ -339,14 +334,14 @@ inline bool invTest(const vector_type& x, vector_type& z)
   Kokkos::parallel_reduce(
     "invTest", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, scalar_type& local_min) {
-      if (x_1d(i) == zero) { min_reducer.join(local_min, zero); }
-      else { z_1d(i) = one / x_1d(i); }
+      if (x_1d(i) == static_cast<scalar_type>(0.0)) { min_reducer.join(local_min, static_cast<scalar_type>(0.0)); }
+      else { z_1d(i) = static_cast<scalar_type>(1.0) / x_1d(i); }
     },
     min_reducer);
 
   scalar_type globalMin;
   reduceAll<int, scalar_type>(*comm, REDUCE_MIN, minimum, outArg(globalMin));
-  return (globalMin > half);
+  return (globalMin > static_cast<scalar_type>(0.5));
 }
 
 /// Find constraint violations
@@ -379,20 +374,20 @@ inline bool constraintMask(const vector_type& c, const vector_type& x,
   auto m_1d = Kokkos::subview(m_2d, Kokkos::ALL(), 0);
 #endif
 
-  mag_type sum = zero;
+  mag_type sum = static_cast<scalar_type>(0.0);
   Kokkos::parallel_reduce(
     "constraintMask", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, mag_type& local_sum) {
-      const bool test = (std::abs(c_1d(i)) > onept5 && c_1d(i) * x_1d(i) <= zero) ||
-                        (std::abs(c_1d(i)) > half && c_1d(i) * x_1d(i) < zero);
-      m_1d(i) = test ? one : zero;
+      const bool test = (std::abs(c_1d(i)) > static_cast<scalar_type>(1.5) && c_1d(i) * x_1d(i) <= static_cast<scalar_type>(0.0)) ||
+                        (std::abs(c_1d(i)) > static_cast<scalar_type>(0.5) && c_1d(i) * x_1d(i) < static_cast<scalar_type>(0.0));
+      m_1d(i) = test ? static_cast<scalar_type>(1.0) : static_cast<scalar_type>(0.0);
       local_sum += m_1d(i);
     },
     sum);
 
-  mag_type globalSum = zero;
+  mag_type globalSum = static_cast<scalar_type>(0.0);
   reduceAll<int, mag_type>(*comm, REDUCE_SUM, sum, outArg(globalSum));
-  return (globalSum < half);
+  return (globalSum < static_cast<scalar_type>(0.5));
 }
 
 /// Minimum quotient: min_i(num(i)/den(i))
@@ -427,7 +422,7 @@ inline scalar_type minQuotient(const vector_type& num, const vector_type& den)
   Kokkos::parallel_reduce(
     "minQuotient", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, scalar_type& local_min) {
-      if (den_1d(i) != zero) min_reducer.join(local_min, num_1d(i) / den_1d(i));
+      if (den_1d(i) != static_cast<scalar_type>(0.0)) min_reducer.join(local_min, num_1d(i) / den_1d(i));
     },
     min_reducer);
 
@@ -458,7 +453,7 @@ inline scalar_type dotProdLocal(const vector_type& x, const vector_type& y)
   auto y_1d = Kokkos::subview(y_2d, Kokkos::ALL(), 0);
 #endif
 
-  scalar_type sum = zero;
+  scalar_type sum = static_cast<scalar_type>(0.0);
   Kokkos::parallel_reduce(
     "dotProdLocal", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, scalar_type& local_sum) {
@@ -549,7 +544,7 @@ inline mag_type L1NormLocal(const vector_type& x)
   auto x_1d = Kokkos::subview(x_2d, Kokkos::ALL(), 0);
 #endif
 
-  mag_type sum = zero;
+  mag_type sum = static_cast<scalar_type>(0.0);
   Kokkos::parallel_reduce(
     "L1NormLocal", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, mag_type& local_sum) {
@@ -582,7 +577,7 @@ inline mag_type WSqrSumLocal(const vector_type& x, const vector_type& w)
   auto w_1d = Kokkos::subview(w_2d, Kokkos::ALL(), 0);
 #endif
 
-  mag_type sum = zero;
+  mag_type sum = static_cast<scalar_type>(0.0);
   Kokkos::parallel_reduce(
     "WSqrSumLocal", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, mag_type& local_sum) {
@@ -622,11 +617,11 @@ inline mag_type WSqrSumMaskLocal(const vector_type& x, const vector_type& w,
   auto id_1d = Kokkos::subview(id_2d, Kokkos::ALL(), 0);
 #endif
 
-  mag_type sum = zero;
+  mag_type sum = static_cast<scalar_type>(0.0);
   Kokkos::parallel_reduce(
     "WSqrSumMaskLocal", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, mag_type& local_sum) {
-      if (id_1d(i) > zero) local_sum += x_1d(i) * w_1d(i) * (x_1d(i) * w_1d(i));
+      if (id_1d(i) > static_cast<scalar_type>(0.0)) local_sum += x_1d(i) * w_1d(i) * (x_1d(i) * w_1d(i));
     },
     sum);
 
@@ -663,12 +658,12 @@ inline bool invTestLocal(const vector_type& x, vector_type& z)
   Kokkos::parallel_reduce(
     "invTestLocal", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, scalar_type& local_min) {
-      if (x_1d(i) == zero) { min_reducer.join(local_min, zero); }
-      else { z_1d(i) = one / x_1d(i); }
+      if (x_1d(i) == static_cast<scalar_type>(0.0)) { min_reducer.join(local_min, static_cast<scalar_type>(0.0)); }
+      else { z_1d(i) = static_cast<scalar_type>(1.0) / x_1d(i); }
     },
     min_reducer);
 
-  return (minimum > half);
+  return (minimum > static_cast<scalar_type>(0.5));
 }
 
 /// MPI task-local constraint violation check
@@ -700,18 +695,18 @@ inline bool constraintMaskLocal(const vector_type& c, const vector_type& x,
   auto m_1d = Kokkos::subview(m_2d, Kokkos::ALL(), 0);
 #endif
 
-  mag_type sum = zero;
+  mag_type sum = static_cast<scalar_type>(0.0);
   Kokkos::parallel_reduce(
     "constraintMaskLocal", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, mag_type& local_sum) {
-      const bool test = (std::abs(c_1d(i)) > onept5 && c_1d(i) * x_1d(i) <= zero) ||
-                        (std::abs(c_1d(i)) > half && c_1d(i) * x_1d(i) < zero);
-      m_1d(i) = test ? one : zero;
+      const bool test = (std::abs(c_1d(i)) > static_cast<scalar_type>(1.5) && c_1d(i) * x_1d(i) <= static_cast<scalar_type>(0.0)) ||
+                        (std::abs(c_1d(i)) > static_cast<scalar_type>(0.5) && c_1d(i) * x_1d(i) < static_cast<scalar_type>(0.0));
+      m_1d(i) = test ? static_cast<scalar_type>(1.0) : static_cast<scalar_type>(0.0);
       local_sum += m_1d(i);
     },
     sum);
 
-  return (sum < half);
+  return (sum < static_cast<scalar_type>(0.5));
 }
 
 /// MPI task-local minimum quotient: min_i(num(i)/den(i))
@@ -745,7 +740,7 @@ inline scalar_type minQuotientLocal(const vector_type& num, const vector_type& d
   Kokkos::parallel_reduce(
     "minQuotient", Kokkos::RangePolicy<execution_space>(0, N),
     KOKKOS_LAMBDA(const local_ordinal_type& i, scalar_type& local_min) {
-      if (den_1d(i) != zero) min_reducer.join(local_min, num_1d(i) / den_1d(i));
+      if (den_1d(i) != static_cast<scalar_type>(0.0)) min_reducer.join(local_min, num_1d(i) / den_1d(i));
     },
     min_reducer);
 

@@ -40,15 +40,17 @@ include_guard(GLOBAL)
 find_package(Trilinos REQUIRED COMPONENTS Tpetra
   HINTS "${Trilinos_DIR}/lib/cmake/Trilinos" "${Trilinos_DIR}")
 
-message(STATUS "Trilinos_LIBRARIES:    ${Trilinos_LIBRARIES}")
-message(STATUS "Trilinos_INCLUDE_DIRS: ${Trilinos_INCLUDE_DIRS}")
+message(STATUS "Trilinos Libraries: ${Trilinos_LIBRARIES}")
+message(STATUS "Trilinos Includes: ${Trilinos_INCLUDE_DIRS}")
+message(STATUS "Trilinos Devices: ${Kokkos_DEVICES}")
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 
-# Try building a simple test
-if(NOT Trilinos_WORKS)
+# Try building a simple test -- does not currently work with CUDA enabled
+# because Tpetra target sets target link libraries
+if(NOT Trilinos_WORKS AND NOT Kokkos_DEVICES MATCHES "CUDA")
 
   message(CHECK_START "Testing Trilinos")
 
@@ -66,10 +68,14 @@ if(NOT Trilinos_WORKS)
 
   # Attempt to build and link the test executable, pass --debug-trycompile to
   # the cmake command to save build files for debugging
+  if (ENABLE_MPI)
+    set(_mpi_target MPI::MPI_C)
+  endif()
+
   try_compile(
     COMPILE_OK ${TRILINOS_TEST_DIR}
     ${TRILINOS_TEST_DIR}/test.cxx
-    LINK_LIBRARIES Tpetra::all_libs
+    LINK_LIBRARIES Tpetra::all_libs ${_mpi_target}
     OUTPUT_VARIABLE COMPILE_OUTPUT)
 
   # Check the result
@@ -84,6 +90,6 @@ if(NOT Trilinos_WORKS)
     )
   endif()
 
-else()
+elseif(NOT Kokkos_DEVICES MATCHES "CUDA")
   message(STATUS "Skipped Trilinos test. Set TRILINOS_WORKS=FALSE to test.")
 endif()
