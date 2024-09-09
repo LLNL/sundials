@@ -1754,6 +1754,18 @@ the first example and ``libsundials_cvode``, ``libsundials_nveccuda``,
 Refer to the documentations sections for the individual packages and modules of
 SUNDIALS that interest you for the proper includes and libraries to link to.
 
+Furthermore, each of the sundials solvers is distributed with a set of examples demonstrating basic
+usage. To build and install the examples, set both ``EXAMPLES_ENABLE_<lang>`` and
+:cmakeop:`EXAMPLES_INSTALL` to ``ON`` and specify the example installation directory
+:cmakeop:`EXAMPLES_INSTALL_PATH`. CMake will generate a CMakeLists.txt configuration file (and
+Makefile files if on Linux/Unix) that reference the installed sundials headers and libraries. Either
+the CMakeLists.txt file or the traditional Makefile may be used to build the examples as well as
+serve as a template for creating user developed solutions. To use the supplied Makefile simply run
+make to compile and generate the executables. To use CMake, from within the installed example
+directory, run cmake (or ccmake to use the GUI) followed by make to compile the example code. Note
+that if CMake is used, it will overwrite the traditional Makefile with a new CMake generated
+Makefile.
+
 
 Using SUNDIALS as a Third Party Library in other CMake Projects
 ---------------------------------------------------------------
