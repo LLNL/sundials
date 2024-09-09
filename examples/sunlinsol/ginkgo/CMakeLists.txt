@@ -17,14 +17,19 @@
 set(examples
     "test_sunlinsol_ginkgo.cpp\;bicg csr 100 0 100 0\;"
     # "test_sunlinsol_ginkgo.cpp\;bicg dense 100 0 100 0\;"
-    "test_sunlinsol_ginkgo.cpp\;bicgstab csr 100 0 100 0\;"
-    # "test_sunlinsol_ginkgo.cpp\;bicgstab dense 100 0 100 0\;"
     "test_sunlinsol_ginkgo.cpp\;cgs csr 100 0 100 0\;"
     # "test_sunlinsol_ginkgo.cpp\;cgs dense 100 0 100 0\;"
     "test_sunlinsol_ginkgo.cpp\;gmres csr 100 0 100 0\;"
     # "test_sunlinsol_ginkgo.cpp\;gmres dense 100 0 100 0\;"
     "test_sunlinsol_ginkgo.cpp\;idr csr 100 0 100 0\;"
     # "test_sunlinsol_ginkgo.cpp\;idr dense 100 0 100 0\;"
+  )
+
+# The BiCGStab solver has a known bug with the OpenMP backend
+# https://github.com/ginkgo-project/ginkgo/issues/1563
+set(examples_bicgstab
+    "test_sunlinsol_ginkgo.cpp\;bicgstab csr 100 0 100 0\;"
+    # "test_sunlinsol_ginkgo.cpp\;bicgstab dense 100 0 100 0\;"
 )
 
 # Add source directory to include directories
@@ -34,6 +39,12 @@ sundials_add_examples_ginkgo(
   examples
   TARGETS test_sunlinsol_obj
   BACKENDS REF OMP CUDA HIP SYCL
+  UNIT_TEST)
+
+sundials_add_examples_ginkgo(
+  examples_bicgstab
+  TARGETS test_sunlinsol_obj
+  BACKENDS REF CUDA HIP SYCL
   UNIT_TEST)
 
 # Install the targets
