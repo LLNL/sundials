@@ -286,7 +286,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_KOKKOS=ON
-    export KOKKOS_ROOT="$(spack location -i kokkos@4.3.01)"
+    export KOKKOS_ROOT="$(spack location -i kokkos@4.3.01 ~cuda)"
 else
     export SUNDIALS_KOKKOS=OFF
     unset KOKKOS_ROOT
@@ -298,7 +298,7 @@ fi
 
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_KOKKOS_KERNELS=ON
-    export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@4.3.01)"
+    export KOKKOS_KERNELS_ROOT="$(spack location -i kokkos-kernels@4.3.01 ~cuda)"
 else
     export SUNDIALS_KOKKOS_KERNELS=OFF
     unset KOKKOS_KERNELS_ROOT
@@ -407,9 +407,9 @@ fi
 if [ "$SUNDIALS_PRECISION" == "double" ]; then
     export SUNDIALS_TRILINOS=ON
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=int)"
+        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=int ~cuda)"
     else
-        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=long_long)"
+        TRILINOS_ROOT="$(spack location -i trilinos@16.0.0 gotype=long_long ~cuda)"
     fi
     export TRILINOS_ROOT
 else
