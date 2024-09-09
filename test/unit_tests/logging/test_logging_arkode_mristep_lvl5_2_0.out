@@ -1,0 +1,770 @@
+Start MRIStep Logging test
+Using ImEx-MRI method
+Using fixed-point nonlinear solver
+           t                        u                        v                      u err                    v err            
+------------------------------------------------------------------------------------------------------------------------------
+ 0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
+-0.0000000000000000e+00
+0.0000000000000000e+00
+
+[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
+1.1719990452195032e-16
+0.0000000000000000e+00
+
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.001
+[DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
+1.1719990452195032e-16
+0.0000000000000000e+00
+
+[INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 3.432259064882502e-08
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
+1.2247448713915889e+00
+1.7320508075688772e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_0(:) =
+0.0000000000000000e+00
+8.2872847241886988e-17
+
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 1.716129532441251e-08
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+2.0113021734941386e-24
+1.4222054058929473e-24
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
+1.2247448713915889e+00
+1.7320508075688772e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3040(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 1.716129532441251e-08
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+2.0113021734941386e-24
+-3.4007092452483091e-14
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
+1.2247448713915889e+00
+1.7320508075688432e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3088(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 3.432259064882502e-08
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+4.0226043469882772e-24
+-6.8014183738948770e-14
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
+1.2247448713915889e+00
+1.7320508075688092e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3136(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 2.574194298661876e-08
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+3.0169532602412079e-24
+-3.8257978571290206e-14
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
+1.2247448713915889e+00
+1.7320508075688390e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3184(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
+1.2247448713915889e+00
+1.7320508075688092e+00
+
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 2.943834522851139e-06, h_cfl = 3.432259064882502e+22
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 2.826081141937093e-06, h_cfl = 1.716129532441251e+22
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 82.33880626472582
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 8.804214614523296e-19
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 3.432259064882502e-08, h = 2.826081141937093e-06
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 3.432259064882502e-08
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
+1.2247448713915889e+00
+1.7320508075688092e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_0(:) =
+0.0000000000000000e+00
+-3.9632313900013054e-06
+
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 1.447363161617372e-06
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+1.6560822000315584e-22
+-5.6002067462079118e-12
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
+1.2247448713915889e+00
+1.7320508075632091e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3040(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 1.447363161617372e-06
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+1.6560822000315584e-22
+-2.3615753862002202e-10
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
+1.2247448713915889e+00
+1.7320508073326517e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3088(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 2.860403732585918e-06
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+3.3121644000631168e-22
+-4.7231442572919524e-10
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
+1.2247448713915889e+00
+1.7320508070964948e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3136(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 2.153883447101645e-06
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+2.4841233000473376e-22
+-2.6777706418463673e-10
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
+1.2247448713915889e+00
+1.7320508073010321e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3184(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
+1.2247448713915889e+00
+1.7320508070964946e+00
+
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 4.836352648054796e-05, h_cfl = 2.826081141937094e+24
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 4.642898542132604e-05, h_cfl = 1.413040570968547e+24
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 16.4287517199531
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.411104910109019e-14
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 2.860403732585918e-06, h = 4.642898542132604e-05
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 2.860403732585918e-06
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
+1.2247448713915889e+00
+1.7320508070964946e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_0(:) =
+0.0000000000000000e+00
+-3.3029097249239625e-04
+
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 2.607489644324894e-05
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+2.7207363292152174e-21
+-7.6675373733225329e-09
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
+1.2247448713915889e+00
+1.7320507994289573e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3040(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 2.607489644324894e-05
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+2.7207363292152174e-21
+-6.9896531267136496e-08
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
+1.2247448713915889e+00
+1.7320507371999634e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3088(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 4.928938915391196e-05
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+5.4414726584304348e-21
+-1.3979017832764306e-07
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
+1.2247448713915889e+00
+1.7320506673063163e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3136(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 3.768214279858045e-05
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+4.0811044938228263e-21
+-8.1507843160561677e-08
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
+1.2247448713915889e+00
+1.7320507255886515e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3184(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
+1.2247448713915889e+00
+1.7320506673048772e+00
+
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0009027104293663809, h_cfl = 4.642898542132603e+25
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0008666020121917257, h_cfl = 2.321449271066302e+25
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 18.66510767632827
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.825411617494555e-09
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, t_n = 4.928938915391196e-05, h = 0.0008666020121917258
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 4.928938915391196e-05
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
+1.2247448713915889e+00
+1.7320506673048772e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_0(:) =
+0.0000000000000000e+00
+-5.6914478343640020e-03
+
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0004825903952497748
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+5.0782836543700145e-20
+-2.4661100727720423e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
+1.2247448713915889e+00
+1.7320482011948044e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3040(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0004825903952497748
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+5.0782836543700145e-20
+-2.4149938566577070e-05
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
+1.2247448713915889e+00
+1.7320265173663107e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3088(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0009158914013456378
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+1.0156567308740029e-19
+-4.8281690448824959e-05
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
+1.2247448713915889e+00
+1.7320023856144284e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3136(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0006992408982977064
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+7.6174254815550232e-20
+-2.8086709001824412e-05
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
+1.2247448713915889e+00
+1.7320225805958753e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3184(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
+1.2247448713915889e+00
+1.7320023768242530e+00
+
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002209013645599271, h_cfl = 8.666020121917257e+26
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0021206530997753, h_cfl = 4.333010060958629e+26
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 2.447089978953487
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.0002217455835500968
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, t_n = 0.0009158914013456378, h = 8.410859865436217e-05
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0009158914013456378
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
+1.2247448713915889e+00
+1.7320023768242530e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_0(:) =
+0.0000000000000000e+00
+-1.0575502940721115e-01
+
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0009579457006728189
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+4.9287598658831423e-21
+-4.4474536620456958e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
+1.2247448713915889e+00
+1.7319979293705909e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3040(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0009579457006728189
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+4.9287598658831423e-21
+-4.6516557737051315e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
+1.2247448713915889e+00
+1.7319977251684793e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3088(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.001
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+9.8575197317662846e-21
+-9.3032954691144281e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
+1.2247448713915889e+00
+1.7319930735287838e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3136(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0009789728503364094
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+7.3931397988247150e-21
+-6.9009019426115374e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
+1.2247448713915889e+00
+1.7319954759223104e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3184(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
+1.2247448713915889e+00
+1.7319930735212956e+00
+
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002646354389226758, h_cfl = 8.410859865436217e+25
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001682171973087243, h_cfl = 4.205429932718108e+25
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.966228842065669e-08
+[INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_1(:) =
+1.2247448713915889e+00
+1.7319930735212956e+00
+
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 2, tcur = 0.001
+[DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
+1.2247448713915889e+00
+1.7320508075688772e+00
+
+[DEBUG][rank 0][mriStep_StageDIRKNoFast][rhs data] sdata(:) =
+-5.8599952260975159e-20
+-5.7734047581581294e-05
+
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 23.568466952903
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.008340646212225947
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
+[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
+1.2247448712752000e+00
+1.7319930735212956e+00
+
+[DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.001
+[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_2(:) =
+-2.0412411123064050e-04
+0.0000000000000000e+00
+
+[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_2(:) =
+-2.0388280999090456e-07
+0.0000000000000000e+00
+
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 1, tcur = 0.001
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_3(:) =
+1.2247447692131443e+00
+1.7319930735212956e+00
+
+[DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.001
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+ 1.000000000000000e-03    1.224744769213144e+00    1.731993073521296e+00    1.163762419764680e-10    1.708033714464818e-11
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 0.001, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
+-2.0412412824098172e-04
+0.0000000000000000e+00
+
+[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
+2.4129288446662508e-10
+0.0000000000000000e+00
+
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.002
+[DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
+-2.0412388694809725e-04
+0.0000000000000000e+00
+
+[INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, t_n = 0.001, h = 0.0009999999999999992
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.001
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
+1.2247447692131443e+00
+1.7319930735212956e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_0(:) =
+0.0000000000000000e+00
+-1.1546620487176937e-01
+
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0015
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+-1.0206194347404854e-07
+-5.7733102435884635e-05
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
+1.2247446671512008e+00
+1.7319353404188598e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3040(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0015
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+-1.0206194347404854e-07
+-8.6602532972991189e-05
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
+1.2247446671512008e+00
+1.7319064709883225e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3088(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.001999999999999999
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+-2.0412388694809707e-07
+-1.7317908345844605e-04
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
+1.2247445650892574e+00
+1.7318198944378371e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3136(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.001749999999999999
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+-1.5309291521107282e-07
+-1.1906829054523738e-04
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
+1.2247446161202291e+00
+1.7318740052307504e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3184(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
+1.2247445650892574e+00
+1.7318198828917668e+00
+
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.001633552695318153, h_cfl = 9.999999999999992e+26
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001568210587505427, h_cfl = 4.999999999999996e+26
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 1.568210587505429
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.0003932616367314406
+[INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_1(:) =
+1.2247445650892574e+00
+1.7318198828917668e+00
+
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 2, tcur = 0.002
+[DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
+1.2247447692131443e+00
+1.7319930735212956e+00
+
+[DEBUG][rank 0][mriStep_StageDIRKNoFast][rhs data] sdata(:) =
+-2.0412400755082601e-07
+-1.7319062952880770e-04
+
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 70.7031143104352
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.02490160210773791
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
+[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
+1.2247445649442101e+00
+1.7318198828917668e+00
+
+[DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.002
+[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_2(:) =
+-4.0824812044747420e-04
+0.0000000000000000e+00
+
+[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_2(:) =
+-2.0358460481659791e-07
+0.0000000000000000e+00
+
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 1, tcur = 0.002
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_3(:) =
+1.2247444628822139e+00
+1.7318198828917668e+00
+
+[DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.002
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+ 2.000000000000000e-03    1.224744462882214e+00    1.731819882891767e+00    2.611526550566623e-10    3.414757365760579e-11
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 0.002, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
+-4.0824815446813679e-04
+0.0000000000000000e+00
+
+[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
+5.3937926118218571e-10
+0.0000000000000000e+00
+
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.003
+[DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
+-4.0824761508887559e-04
+0.0000000000000000e+00
+
+[INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 7, t_n = 0.002, h = 0.0009999999999999992
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.002
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
+1.2247444628822139e+00
+1.7318198828917668e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_0(:) =
+0.0000000000000000e+00
+-2.3090931458985103e-01
+
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0025
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+-2.0412380754443762e-07
+-1.1545465729492542e-04
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
+1.2247442587584063e+00
+1.7317044282344718e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3040(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0025
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+-2.0412380754443762e-07
+-1.4431350000518352e-04
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
+1.2247442587584063e+00
+1.7316755693917616e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3088(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002999999999999999
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+-4.0824761508887525e-07
+-2.8860295097458049e-04
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
+1.2247440546345989e+00
+1.7315312799407923e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3136(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.002749999999999999
+[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
+-1.8325506472120096e-06
+-1.8325506472120096e-06
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
+-3.0618571131665646e-07
+-2.0563961717963357e-04
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
+1.2247441566965027e+00
+1.7316142432745871e+00
+
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3184(:) =
+[INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
+1.2247440546345989e+00
+1.7315312703246828e+00
+
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.004459119180060047, h_cfl = 9.999999999999992e+26
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.004280754412857645, h_cfl = 4.999999999999996e+26
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.280754412857648
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.0003934088523860448
+[INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_1(:) =
+1.2247440546345989e+00
+1.7315312703246828e+00
+
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 2, tcur = 0.003
+[DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
+1.2247444628822139e+00
+1.7318198828917668e+00
+
+[DEBUG][rank 0][mriStep_StageDIRKNoFast][rhs data] sdata(:) =
+-4.0824788473650560e-07
+-2.8861256708401228e-04
+
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 117.8346543933633
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
+[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.04145645128901755
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
+[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
+1.2247440544609038e+00
+1.7315312703246828e+00
+
+[DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.003
+[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_2(:) =
+-6.1237192560255674e-04
+0.0000000000000000e+00
+
+[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_2(:) =
+-2.0322968302974974e-07
+0.0000000000000000e+00
+
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 1, tcur = 0.003
+[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_3(:) =
+1.2247439523990182e+00
+1.7315312703246828e+00
+
+[DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.003
+[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+ 3.000000000000000e-03    1.224743952399018e+00    1.731531270324683e+00    4.342617376806857e-10    5.111244760769296e-11
+------------------------------------------------------------------------------------------------------------------------------
+Current time                 = 0.003
+Steps                        = 3
+Step attempts                = 3
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.001
+Last step size               = 0.001
+Current step size            = 0.001
+Explicit slow RHS fn evals   = 6
+Implicit slow RHS fn evals   = 12
+NLS iters                    = 6
+NLS fails                    = 0
+NLS iters per step           = 2
+LS setups                    = 0
+End MRIStep Logging test

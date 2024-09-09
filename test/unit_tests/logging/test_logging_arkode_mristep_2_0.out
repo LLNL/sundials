@@ -1,0 +1,28 @@
+Start MRIStep Logging test
+Using ImEx-MRI method
+Using fixed-point nonlinear solver
+           t                        u                        v                      u err                    v err            
+------------------------------------------------------------------------------------------------------------------------------
+ 0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
+ 1.000000000000000e-03    1.224744769213144e+00    1.731993073521296e+00    1.163762419764680e-10    1.708033714464818e-11
+ 2.000000000000000e-03    1.224744462882214e+00    1.731819882891767e+00    2.611526550566623e-10    3.414757365760579e-11
+ 3.000000000000000e-03    1.224743952399018e+00    1.731531270324683e+00    4.342617376806857e-10    5.111244760769296e-11
+------------------------------------------------------------------------------------------------------------------------------
+Current time                 = 0.003
+Steps                        = 3
+Step attempts                = 3
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.001
+Last step size               = 0.001
+Current step size            = 0.001
+Explicit slow RHS fn evals   = 6
+Implicit slow RHS fn evals   = 12
+NLS iters                    = 6
+NLS fails                    = 0
+NLS iters per step           = 2
+LS setups                    = 0
+End MRIStep Logging test

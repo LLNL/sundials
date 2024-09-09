@@ -1,0 +1,40 @@
+Start MRIStep Logging test
+Using ImEx-MRI method
+Using Newton nonlinear solver
+Using dense direct linear solver
+           t                        u                        v                      u err                    v err            
+------------------------------------------------------------------------------------------------------------------------------
+ 0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
+ 1.000000000000000e-03    1.224744769227581e+00    1.731993073535712e+00    1.019393458534523e-10    3.149658311940584e-11
+ 2.000000000000000e-03    1.224744462939732e+00    1.731819882949398e+00    2.036346646860920e-10    9.177880677668782e-11
+ 3.000000000000000e-03    1.224743952528208e+00    1.731531270454312e+00    3.050717456432039e-10    1.807416438737164e-10
+------------------------------------------------------------------------------------------------------------------------------
+Current time                 = 0.003
+Steps                        = 3
+Step attempts                = 3
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.001
+Last step size               = 0.001
+Current step size            = 0.001
+Explicit slow RHS fn evals   = 6
+Implicit slow RHS fn evals   = 12
+NLS iters                    = 6
+NLS fails                    = 0
+NLS iters per step           = 2
+LS setups                    = 1
+Jac fn evals                 = 1
+LS RHS fn evals              = 0
+Prec setup evals             = 0
+Prec solves                  = 0
+LS iters                     = 0
+LS fails                     = 0
+Jac-times setups             = 0
+Jac-times evals              = 0
+LS iters per NLS iter        = 0
+Jac evals per NLS iter       = 0.1666666666666667
+Prec evals per NLS iter      = 0
+End MRIStep Logging test
