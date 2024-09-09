@@ -48,48 +48,7 @@ message(STATUS "Trilinos Devices: ${Kokkos_DEVICES}")
 # Section 4: Test the TPL
 # -----------------------------------------------------------------------------
 
-# Try building a simple test -- does not currently work with CUDA enabled
-# because Tpetra target sets target link libraries
-if(NOT Trilinos_WORKS AND NOT Kokkos_DEVICES MATCHES "CUDA")
-
-  message(CHECK_START "Testing Trilinos")
-
-  # Create the test directory
-  set(TRILINOS_TEST_DIR ${PROJECT_BINARY_DIR}/TRILINOS_TEST)
-
-  # Create a CXX source file calling a Trilinos Tpetra function
-  file(
-    WRITE ${TRILINOS_TEST_DIR}/test.cxx
-    "#include <Tpetra_Version.hpp>\n"
-    "int main(void) {\n"
-    "std::cout << Tpetra::version() << std::endl;\n"
-    "return(0);\n"
-    "}\n")
-
-  # Attempt to build and link the test executable, pass --debug-trycompile to
-  # the cmake command to save build files for debugging
-  if (ENABLE_MPI)
-    set(_mpi_target MPI::MPI_C)
-  endif()
-
-  try_compile(
-    COMPILE_OK ${TRILINOS_TEST_DIR}
-    ${TRILINOS_TEST_DIR}/test.cxx
-    LINK_LIBRARIES Tpetra::all_libs ${_mpi_target}
-    OUTPUT_VARIABLE COMPILE_OUTPUT)
-
-  # Check the result
-  if(COMPILE_OK)
-    message(CHECK_PASS "success")
-  else()
-    message(CHECK_FAIL "failed")
-    file(WRITE ${TRILINOS_TEST_DIR}/compile.out "${COMPILE_OUTPUT}")
-    message(
-      FATAL_ERROR
-      "Could not compile Trilinos test. Check output in ${TRILINOS_TEST_DIR}/compile.out"
-    )
-  endif()
-
-elseif(NOT Kokkos_DEVICES MATCHES "CUDA")
-  message(STATUS "Skipped Trilinos test. Set TRILINOS_WORKS=FALSE to test.")
-endif()
+# Does not currently work with Trilinos imported targets due to an error from
+# evaluating generator expression: $<LINK_LANGUAGE:CXX> may only be used with
+# binary targets to specify link libraries, link directories, link options and
+# link depends.

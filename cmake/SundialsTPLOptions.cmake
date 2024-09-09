@@ -269,12 +269,6 @@ sundials_option(ENABLE_TRILINOS BOOL "Enable Trilinos support" OFF)
 sundials_option(Trilinos_DIR PATH "Path to root of Trilinos installation"
                 "${Trilinos_DIR}" DEPENDS_ON ENABLE_TRILINOS)
 
-sundials_option(
-  Trilinos_WORKS BOOL
-  "Set to ON to force CMake to accept a given Trilinos configuration" OFF
-  DEPENDS_ON ENABLE_TRILINOS
-  ADVANCED)
-
 # ---------------------------------------------------------------
 # Enable XBraid support?
 # ---------------------------------------------------------------
