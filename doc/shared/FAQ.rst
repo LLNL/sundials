@@ -17,6 +17,10 @@
 Frequently Asked Questions
 ##########################
 
+The following are some questions frequently asked by SUNDIALS users.
+If you do not see your question here, please do not hesistate to ask the
+SUNDIALS mailing list by emailing your question to ``sundials-users@llnl.gov``,
+or by opening an issue on our GitHub at `https://github.com/LLNL/sundials`.
 
 Installation Related
 --------------------
@@ -199,11 +203,6 @@ CVODE/IDA/ARKODE Related
   when sometimes you want to only integrate the states and sometimes you also need sensitivities
   computed), it is most efficient to use :c:func:`CVodeSensToggleOff`.
 
-  Sensitivity calculations are enabled by the following functions: :c:func:`CVodeSensMalloc` and
-  :c:func:`CVodeSensReInit` and are disabled by :c:func:`CVodeSensFree` (after calling this one,
-  they can be re-enabled only by calling :c:func:`CVodeSensMalloc`) and
-  :c:func:`CVodeSensToggleOff`.
-
 
 .. collapse:: What is the role of plist in CVODES?
 
@@ -304,7 +303,7 @@ KINSOL
 .. collapse:: Why is the system function being evaluated at points that violate the constraints?
 
   If you have not supplied a function to compute either J(u) (of type :c:type:`KINLsJacFn`) or J(u)v
-  (of type :c:type:`KINLSJacTimesVecFn``), then the internal function may be the culprit. The
+  (of type :c:type:`KINLsJacTimesVecFn`), then the internal function may be the culprit. The
   default function used to compute a difference quotient approximation to the Jacobian (direct
   methods) or Jacobian matrix-vector product (Kylov methods) evaluates the user-supplied system
   function at a slightly perturbed point, but does not check if that point violates the constraints.
@@ -323,3 +322,14 @@ Miscellaneous
 
   The specific version number of each solver is contained in corresponding README files:
   ``sundials/src/<solver>/README``.
+
+
+.. collapse:: http://sundials.wikidot.com
+
+  Some additional information might be found at `http://sundials.wikidot.com
+  <http://sundials.wikidot.com/>`_ however the wikidot page has not been maintained in many years so
+  it contains plenty of outdated information.
+
+.. warning::
+
+  The SUNDIALS team does not maintain the wikidot web page.
