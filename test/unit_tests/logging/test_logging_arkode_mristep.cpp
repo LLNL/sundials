@@ -239,7 +239,9 @@ int main(int argc, char* argv[])
   SUNMatDestroy(A);
   SUNLinSolFree(LS);
   SUNNonlinSolFree(NLS);
-  MRIStepFree(&arkode_mem);
+  MRIStepInnerStepper_Free(&stepper);
+  ARKodeFree(&inner_arkode_mem);
+  ARKodeFree(&arkode_mem);
 
   cout << "End MRIStep Logging test" << endl;
 
