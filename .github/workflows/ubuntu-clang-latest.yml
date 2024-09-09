@@ -59,7 +59,7 @@ jobs:
       run: |
         ctest \
         --test-dir ${{github.workspace}}/build \
-        --label-regex Logging \
+        --label-regex logging \
         --verbose
 
   build_cycle_profiling:
