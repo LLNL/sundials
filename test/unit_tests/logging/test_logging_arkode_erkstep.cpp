@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 
   // Clean up and return with successful completion
   N_VDestroy(y);
-  ERKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
 
   cout << "End ERKStep Logging test" << endl;
 

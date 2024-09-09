@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
   SUNMatDestroy(A);
   SUNLinSolFree(LS);
   SUNNonlinSolFree(NLS);
-  ARKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
 
   cout << "End ARKStep Logging test" << endl;
 
