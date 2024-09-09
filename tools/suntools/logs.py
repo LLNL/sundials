@@ -247,6 +247,15 @@ def log_file_to_list(filename):
                 level -= 1
                 continue
 
+            if label == "begin-mass-linear-solve":
+                s.open_dict("mass-linear-solve")
+                s.update(line_dict["payload"])
+                continue
+            elif label == "end-mass-linear-solve":
+                s.update(line_dict["payload"])
+                s.close_dict()
+                continue
+
             s.update(line_dict["payload"])
 
     return step_attempts
