@@ -4,9 +4,6 @@ Analytical ODE test problem:
    reltol = 1.0e-08
    abstol = 1.0e-08
 
-
-Solving with RKL method
-
         t           u
    ---------------------
     1.000000    0.785398
@@ -33,7 +30,7 @@ Inequality constraint fails  = 0
 Initial step size            = 1.930101110942615e-10
 Last step size               = 0.01627887578334304
 Current step size            = 0.02442720680359409
-RHS fn evals                  = 174916
+RHS fn evals                  = 173236
 RHS fn evals for Dom. Eigs.   = 0
 Number of DomEig update calls = 1
 Max. num. of stages taken     = 199

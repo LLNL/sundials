@@ -276,18 +276,6 @@ inline void find_arg(vector<string>& args, const string key, sunrealtype& dest)
   }
 }
 
-#if defined(SUNDIALS_INT64_T)
-inline void find_arg(vector<string>& args, const string key, sunindextype& dest)
-{
-  auto it = find(args.begin(), args.end(), key);
-  if (it != args.end())
-  {
-    dest = stoll(*(it + 1));
-    args.erase(it, it + 2);
-  }
-}
-#endif
-
 inline void find_arg(vector<string>& args, const string key, long int& dest)
 {
   auto it = find(args.begin(), args.end(), key);

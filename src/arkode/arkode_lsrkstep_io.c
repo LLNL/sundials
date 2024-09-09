@@ -223,7 +223,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
   SSP methods:
 
       ARKODE_LSRK_SSPs_2  -- numofstages must be greater than or equal to 2
-      ARKODE_LSRK_SSPs_3  -- numofstages must be a full-square greater than 8
+      ARKODE_LSRK_SSPs_3  -- numofstages must be a full-square greater than or equal to 9
       ARKODE_LSRK_SSP10_4 -- numofstages must be equal to 10 - no need to call!
 
   This set routine must be called after calling LSRKStepSetMethod with an SSP method

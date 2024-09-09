@@ -1,11 +1,8 @@
 
 Analytical ODE test problem:
-    lambda = -1e+06
+    lambda = -10
    reltol = 1.0e-08
    abstol = 1.0e-08
-
-
-Solving with RKL method
 
         t           u
    ---------------------
@@ -22,23 +19,18 @@ Solving with RKL method
    ---------------------
 
 Final Statistics:
-Current time                 = 10.01061550413158
-Steps                        = 1681
-Step attempts                = 1690
+Current time                 = 10.02392134053359
+Steps                        = 1116
+Step attempts                = 1119
 Stability limited steps      = 0
-Accuracy limited steps       = 1690
-Error test fails             = 9
+Accuracy limited steps       = 1119
+Error test fails             = 3
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 1.930101110942615e-10
-Last step size               = 0.01627887578334304
-Current step size            = 0.02442720680359409
-RHS fn evals                  = 174916
-RHS fn evals for Dom. Eigs.   = 0
-Number of DomEig update calls = 1
-Max. num. of stages taken     = 199
-Max. num. of stages allowed   = 200
-Max. spectral radius         = 1010000.00
-Min. spectral radius         = 1010000.00
+Last step size               = 0.0257563455221273
+Current step size            = 0.0257563455221273
+RHS fn evals                 = 10071
+Current stages taken         = 9
 
-ACCURACY at the final time = 3.54383e-13
+ACCURACY at the final time = 2.35984e-09

@@ -83,7 +83,7 @@ if(EXAMPLES_INSTALL)
     MAKE_TEMPLATE makefile_serial_CXX_ex.in
     SUNDIALS_TARGETS nvecserial nvecmanyvector arkode
     DESTINATION arkode/CXX_manyvector
-    EXTRA_FILES README ${ARKODE_extras} ${ARKODE_headers}
+    EXTRA_FILES ${ARKODE_extras} ${ARKODE_headers}
     TEST_INSTALL CXX_manyvector)
 
 endif()

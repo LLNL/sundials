@@ -246,6 +246,7 @@ static int compute_error(N_Vector y, sunrealtype t)
   err = fabs(NV_Ith_S(y, 0) - ans);
 
   fprintf(stdout, "\nACCURACY at the final time = %" GSYM "\n", err);
+  return 0;
 }
 
 /*---- end of file ----*/
