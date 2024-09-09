@@ -258,27 +258,27 @@ fi
 # Ginkgo
 # ------
 
-# if [ "$SUNDIALS_PRECISION" != "extended" ]; then
-#     if [ "$SUNDIALS_CUDA" == "ON" ]; then
-#         if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-#             export SUNDIALS_GINKGO=ON
-#             export GINKGO_ROOT="$(spack location -i ginkgo@1.8.0 +cuda)"
-#             export GINKGO_BACKENDS="REF;OMP;CUDA"
-#         else
-#             export SUNDIALS_GINKGO=OFF
-#             unset GINKGO_ROOT
-#             unset GINKGO_BACKENDS
-#         fi
-#     else
-#         export SUNDIALS_GINKGO=ON
-#         export GINKGO_ROOT="$(spack location -i ginkgo@1.8.0 ~cuda)"
-#         export GINKGO_BACKENDS="REF;OMP"
-#     fi
-# else
-#     export SUNDIALS_GINKGO=OFF
-#     unset GINKGO_ROOT
-#     unset GINKGO_BACKENDS
-# fi
+if [ "$SUNDIALS_PRECISION" != "extended" ]; then
+    if [ "$SUNDIALS_CUDA" == "ON" ]; then
+        if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
+            export SUNDIALS_GINKGO=ON
+            export GINKGO_ROOT="$(spack location -i ginkgo@1.8.0 +cuda)"
+            export GINKGO_BACKENDS="REF;OMP;CUDA"
+        else
+            export SUNDIALS_GINKGO=OFF
+            unset GINKGO_ROOT
+            unset GINKGO_BACKENDS
+        fi
+    else
+        export SUNDIALS_GINKGO=ON
+        export GINKGO_ROOT="$(spack location -i ginkgo@1.8.0 ~cuda)"
+        export GINKGO_BACKENDS="REF;OMP"
+    fi
+else
+    export SUNDIALS_GINKGO=OFF
+    unset GINKGO_ROOT
+    unset GINKGO_BACKENDS
+fi
 
 # ------
 # Kokkos

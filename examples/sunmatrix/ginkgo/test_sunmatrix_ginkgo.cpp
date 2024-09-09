@@ -96,18 +96,25 @@ int main(int argc, char* argv[])
   /* Create SUNDIALS context before calling any other SUNDIALS function*/
   sundials::Context sunctx;
 
-  auto gko_exec{
-    REF_OR_OMP_OR_HIP_OR_CUDA_OR_SYCL(gko::ReferenceExecutor::create(),
-                                      gko::OmpExecutor::create(),
-                                      gko::HipExecutor::create(0,
-                                                               gko::OmpExecutor::create(),
-                                                               true),
-                                      gko::CudaExecutor::create(0,
-                                                                gko::OmpExecutor::create(),
-                                                                true),
-                                      gko::DpcppExecutor::
-                                        create(0,
-                                               gko::ReferenceExecutor::create()))};
+#if defined(USE_CUDA)
+#if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 7)
+  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create())};
+#else
+  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), true)};
+#endif
+#elif defined(USE_HIP)
+#if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 7)
+  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create())}
+#else
+  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), true)};
+#endif
+#elif defined(USE_SYCL)
+  auto gko_exec{gko::DpcppExecutor::create(0, gko::ReferenceExecutor::create())};
+#elif defined(USE_OMP)
+  auto gko_exec{gko::OmpExecutor::create()};
+#else
+  auto gko_exec{gko::ReferenceExecutor::create()};
+#endif
 
   /* check input and set vector length */
   if (argc < 4)
