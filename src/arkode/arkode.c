@@ -1899,7 +1899,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
   /* Create default Hermite interpolation module (if needed) */
   if (ark_mem->interp_type != ARK_INTERP_NONE && !(ark_mem->interp))
   {
-    if (ark_mem->interp_type = ARK_INTERP_LAGRANGE)
+    if (ark_mem->interp_type == ARK_INTERP_LAGRANGE)
     {
       ark_mem->interp = arkInterpCreate_Lagrange(ark_mem, ark_mem->interp_degree);
     }
