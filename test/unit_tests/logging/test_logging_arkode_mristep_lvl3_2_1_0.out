@@ -6,7 +6,7 @@ Using GMRES iterative linear solver
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.001
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -99,7 +99,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  1.000000000000000e-03    1.224744769227808e+00    1.731993073521296e+00    1.017130824010337e-10    1.708033714464818e-11
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 0.001, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.001
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.002
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -144,7 +144,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  2.000000000000000e-03    1.224744462942071e+00    1.731819882891774e+00    2.012956468178118e-10    3.415490112956832e-11
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 0.002, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.002
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.003
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 

@@ -5,7 +5,7 @@ Using fixed-point nonlinear solver
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.0003333333333333333
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -145,7 +145,7 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  1.000000000000000e-03    1.224744769312645e+00    1.731993073504226e+00    1.687561201890730e-11    1.043609643147647e-14
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 0.001, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.001
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.001333333333333333
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -225,7 +225,7 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  2.000000000000000e-03    1.224744463066094e+00    1.731819882857627e+00    7.727218864772567e-11    7.993605777301127e-15
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 0.002, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.002
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.002333333333333334
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
