@@ -10,6 +10,7 @@ override this value with the architecture for their system.
 
 Added support for multirate time step adaptivity controllers, based on the
 recently introduced `SUNAdaptController` base class, to ARKODE's MRIStep module.
+Added new default MRI methods for temporally adaptive versus fixed-step runs.
 
 Added functionality to ARKODE to accumulate a temporal error
 estimate over multiple time steps.  See the routines
@@ -22,5 +23,9 @@ Fixed the loading of ARKStep's default first order explicit method.
 
 Fixed a CMake bug regarding usage of missing "print_warning" macro
 that was only triggered when the deprecated ``CUDA_ARCH`` option was used.
+
+Fixed loading the default IMEX-MRI method if :c:func:`ARKodeSetOrder` is used to
+specify a third or fourth order method. Previously, the default second order method
+was loaded in both cases.
 
 **Deprecation Notices**
