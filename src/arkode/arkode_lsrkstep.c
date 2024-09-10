@@ -1401,4 +1401,3 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
 /*===============================================================
   EOF
   ===============================================================*/
-  
