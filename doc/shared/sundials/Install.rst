@@ -1066,7 +1066,7 @@ illustration only.
 
    Default: OFF
 
-.. cmakeoption:: TRILINOS_DIR
+.. cmakeoption:: Trilinos_DIR
 
    Path to the Trilinos installation.
 
@@ -1611,7 +1611,7 @@ Building with Trilinos
 linear solvers, non-linear solvers, optimization solvers, etc. To enable the
 SUNDIALS interface to the Trilinos Tpetra vector, set the
 :cmakeop:`ENABLE_TRILINOS` to ``ON`` and provide the path to the root of the
-Trilinos installation in :cmakeop:`TRILINOS_DIR`.
+Trilinos installation in :cmakeop:`Trilinos_DIR`.
 
 .. code-block:: bash
 
