@@ -26,23 +26,6 @@
 
 echo "./default.sh $*" | tee -a setup_env.log
 
-# set defaults for optional inputs
-compiler="gcc@5.5.0" # compiler spec
-bldtype="dbg"        # build type dbg = debug or opt = optimized
-
-# set optional inputs if provided
-if [ "$#" -gt 0 ]; then
-    compiler=$1
-fi
-
-if [ "$#" -gt 1 ]; then
-    bldtype=$2
-fi
-
-# get compiler name and version from spec
-compilername="${compiler%%@*}"
-compilerversion="${compiler##*@}"
-
 # ------------------------------------------------------------------------------
 # Check input values
 # ------------------------------------------------------------------------------
@@ -63,14 +46,6 @@ case "$SUNDIALS_INDEX_SIZE" in
         ;;
 esac
 
-case "$bldtype" in
-    dbg|opt) ;;
-    *)
-        echo "ERROR: Unknown build type: $bldtype"
-        return 1
-        ;;
-esac
-
 # ------------------------------------------------------------------------------
 # Setup environment
 # ------------------------------------------------------------------------------
@@ -78,21 +53,16 @@ esac
 # set file permissions (rwxrwxr-x)
 umask 002
 
-# path to shared installs
-APPROOT=/usr/local/suntest
-
 # setup the python environment
-# source ${APPROOT}/python-venv/sundocs/bin/activate
+source /usr/local/suntest/pyevn/sundials/bin/activate
 
 # setup spack
-export SPACK_ROOT=${APPROOT}/spack
-
-# shellcheck disable=SC1090
+export SPACK_ROOT=/usr/local/suntest/spack
 source ${SPACK_ROOT}/share/spack/setup-env.sh
 
-spack load cmake@3.18.6
-
 # add CUDA
+export CUDAARCHS=60
+
 if [[ ":${PATH}:" != *":/usr/local/cuda/bin:"* ]]; then
     export PATH="/usr/local/cuda/bin${PATH:+:${PATH}}"
 fi
@@ -101,8 +71,8 @@ if [[ ":${LD_LIBRARY_PATH}:" != *":/usr/local/cuda/lib64:"* ]]; then
     export LD_LIBRARY_PATH="/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 fi
 
-# set CUDA architecture
-export CUDAARCHS=60
+# load CMake
+spack load cmake@3.18.6
 
 # ------------------------------------------------------------------------------
 # Compilers and flags
@@ -112,18 +82,11 @@ export CC="$(which gcc)"
 export CXX="$(which g++)"
 export FC="$(which gfortran)"
 
-# optimization flags
-if [ "$bldtype" == "dbg" ]; then
-    export CFLAGS="-g -O0"
-    export CXXFLAGS="-g -O0"
-    export FFLAGS="-g -O0"
-    export CUDAFLAGS="-g -O0"
-else
-    export CFLAGS="-g -O3"
-    export CXXFLAGS="-g -O3"
-    export FFLAGS="-g -O3"
-    export CUDAFLAGS="-g -O3"
-fi
+# disable optimization
+export CFLAGS="-O0"
+export CXXFLAGS="-O0"
+export FFLAGS="-O0"
+export CUDAFLAGS="-O0"
 
 # ------------------------------------------------------------------------------
 # SUNDIALS Options
