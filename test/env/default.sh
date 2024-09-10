@@ -14,14 +14,7 @@
 # ------------------------------------------------------------------------------
 # Script that sets up the default SUNDIALS testing environment.
 #
-# Usage: source default.sh <compiler spec> <build type>
-#
-# Optional Inputs:
-#   <compiler spec> = Compiler to build sundials with:
-#                       gcc@4.9.4
-#   <build type>    = SUNDIALS build type:
-#                       dbg : debug build
-#                       opt : optimized build
+# Usage: source default.sh
 # ------------------------------------------------------------------------------
 
 echo "./default.sh $*" | tee -a setup_env.log
@@ -98,7 +91,7 @@ export CMAKE_VERBOSE_MAKEFILE=OFF
 export CMAKE_BUILD_TYPE=Debug
 
 # Number of build and test jobs
-export SUNDIALS_BUILD_JOBS=1
+export SUNDIALS_BUILD_JOBS=6
 export SUNDIALS_TEST_JOBS=1
 
 # Sundials packages
@@ -275,8 +268,6 @@ if [ "$SUNDIALS_PRECISION" != "extended" ] && \
     [ "$SUNDIALS_INDEX_SIZE" == "32" ] && \
     [ "$SUNDIALS_CUDA" == "ON" ]; then
     export SUNDIALS_MAGMA=ON
-    # Bug in magma@2.6.2 causes tests to fail with certain system sizes
-    #export MAGMA_ROOT="$(spack location -i magma@2.6.2 +cuda)"
     export MAGMA_ROOT="$(spack location -i magma@2.8.0 +cuda)"
     export MAGMA_BACKENDS="CUDA"
 else
@@ -291,6 +282,8 @@ fi
 
 if [ "$SUNDIALS_PRECISION" != "extended" ]; then
     export SUNDIALS_SUPERLU_MT=ON
+    # Using @master (sha 9e23fe72652afc28c97829e69e7c6966050541a7) as it
+    # additional fixes necessary for building with newer versions of GCC
     if [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
         SUPERLU_MT_ROOT="$(spack location -i superlu-mt@master ~int64)"
     else
