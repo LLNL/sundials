@@ -61,10 +61,10 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step = lsrkStep_TakeStepRKL;
     step_mem->LSRKmethod = ARKODE_LSRK_RKL;
     break;
-  case ARKODE_LSRK_RKG:
-    ark_mem->step = lsrkStep_TakeStepRKG;
-    step_mem->LSRKmethod = ARKODE_LSRK_RKG;    
-    break;
+  // case ARKODE_LSRK_RKG:
+  //   ark_mem->step = lsrkStep_TakeStepRKG;
+  //   step_mem->LSRKmethod = ARKODE_LSRK_RKG;    
+  //   break;
   case ARKODE_LSRK_SSPs_2:
     ark_mem->step = lsrkStep_TakeStepSSPs2;
     step_mem->LSRKmethod = ARKODE_LSRK_SSPs_2;

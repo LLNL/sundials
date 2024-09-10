@@ -237,8 +237,9 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
 
   This routine resizes the memory within the LSRKStep module.
   ---------------------------------------------------------------*/
-int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
-                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, 
+                    SUNDIALS_MAYBE_UNUSED sunrealtype hscale,
+                    SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
 {
   ARKodeLSRKStepMem step_mem;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
@@ -747,7 +748,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
   sunrealtype* cvals;
-  sunrealtype w1, bjm1, bjm2, mus, bj, ajm1, cjm1, temj, cj, mu, nu, thj;
+  sunrealtype w1, bjm1, bjm2, mus, bj, ajm1, cjm1, temj, cj, mu, nu;
   sunrealtype p8 = 0.8, p4 = 0.4;
   N_Vector* Xvecs;
   ARKodeLSRKStepMem step_mem;
@@ -844,8 +845,6 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-    // thj = mu*thjm1 + nu*thjm2 + mus*(ONE - ajm1);
-
     /* Shift the data for the next stage */
     if (j < step_mem->reqstages)
     {
@@ -886,11 +885,11 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   return (ARK_SUCCESS);
 }
 
-int lsrkStep_TakeStepRKG(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
-{
-  printf("\nRKG is not supported yet! Try RKC or RKL instead.\n");
-  return (ARK_ILL_INPUT);
-}
+// int lsrkStep_TakeStepRKG(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
+// {
+//   printf("\nRKG is not supported yet! Try RKC or RKL instead.\n");
+//   return (ARK_ILL_INPUT);
+// }
 
 /*---------------------------------------------------------------
   lsrkStep_TakeStepSSPs2:
@@ -1402,3 +1401,4 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
 /*===============================================================
   EOF
   ===============================================================*/
+  

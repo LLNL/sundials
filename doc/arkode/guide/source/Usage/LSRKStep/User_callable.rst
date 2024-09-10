@@ -88,7 +88,6 @@ Allowable Method Families
 
    * ``ARKODE_LSRK_RKC`` -- Runge--Kutta--Chebyshev
    * ``ARKODE_LSRK_RKL`` -- Runge--Kutta--Legendre
-   * ``ARKODE_LSRK_RKG`` -- Runge--Kutta--Gegenbauer
    * ``ARKODE_LSRK_SSPs_2`` -- SSP(s,2) -- 2nd order, s-stage
    * ``ARKODE_LSRK_SSPs_3`` -- SSP(s,3) -- 3rd order, s-stage
    * ``ARKODE_LSRK_SSP10_4`` -- SSP(10,4) -- 4th order, 10-stage

@@ -693,7 +693,7 @@ void UserOptions::print()
     {
     case (ARKODE_LSRK_RKC): cout << " method = RKC " << endl; break;
     case (ARKODE_LSRK_RKL): cout << " method = RKL " << endl; break;
-    case (ARKODE_LSRK_RKG): cout << " method = RKG " << endl; break;
+    // case (ARKODE_LSRK_RKG): cout << " method = RKG " << endl; break;
     }
     cout << " --------------------------------- " << endl;
   }
