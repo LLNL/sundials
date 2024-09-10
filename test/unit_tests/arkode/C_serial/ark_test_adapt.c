@@ -45,8 +45,8 @@ static int check_step(void* const arkode_mem, const N_Vector y,
   /* Integration much farther than expected step */
   const sunrealtype tout = SUN_RCONST(100.0) * h_expected;
   sunrealtype tret;
-  /* The ERK method should be able to take the maximum possible timestep for the
-     without any rejected steps or local error */
+  /* The ERK method should be able to take the maximum possible timestep without
+     any rejected steps or local error */
   ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
 
   long int local_err_fails;
@@ -91,8 +91,7 @@ static int check_steps(void* const arkode_mem, const N_Vector y,
   ARKodeSetMaxGrowth(arkode_mem, growth);
 
   sunrealtype h_expect = first_growth * h0;
-  /* Take several steps to see the special behavior at step one then to allow
-     the adaptivity controller history fill up */
+  /* Take enough steps to allow the controller history to fill up */
   const int num_steps = 5;
   for (int step = 1; step <= num_steps; step++)
   {
@@ -142,7 +141,7 @@ int main()
                        SUN_RCONST(1.1e3));
   if (retval != 0) { return retval; }
 
-  /* TODO(SBR): add additional tests for more the default controller */
+  /* TODO(SBR): test non-default controllers */
 
   ARKodeFree(&arkode_mem);
   N_VDestroy(y);
