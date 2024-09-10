@@ -202,7 +202,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
        FP_CONTENT(NLS)->curiter < FP_CONTENT(NLS)->maxiters;
        FP_CONTENT(NLS)->curiter++)
   {
-    SUNLogDebug(NLS->sunctx->logger, __func__, "begin-iteration", "", "");
+    SUNLogInfo(NLS->sunctx->logger, __func__, "begin-nonlinear-iterate", "", "");
 
     /* update previous solution guess */
     N_VScale(ONE, ycor, yprev);
@@ -244,7 +244,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
     retval = FP_CONTENT(NLS)->CTest(NLS, ycor, delta, tol, w,
                                     FP_CONTENT(NLS)->ctest_data);
 
-    SUNLogDebug(NLS->sunctx->logger, __func__, "nonlinear-iterate",
+    SUNLogInfo(NLS->sunctx->logger, __func__, "nonlinear-iterate",
                 "cur-iter = %d, update-norm = %.16g", FP_CONTENT(NLS)->niters,
                 N_VWrmsNorm(delta, w));
 
@@ -261,7 +261,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
     if (retval != SUN_NLS_CONTINUE)
     {
       SUNLogInfo(NLS->sunctx->logger, __func__, "end-nonlinear-iterate",
-                 "status = failed, retval = %d", retval);
+                 "status = failed, retval = %i", retval);
       FP_CONTENT(NLS)->nconvfails++;
       return (retval);
     }
