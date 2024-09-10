@@ -135,7 +135,7 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
     }
   }
 
-  /* Determing change in vector sizes */
+  /* Determining change in vector sizes */
   lrw1 = liw1 = 0;
   if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
   lrw_diff      = lrw1 - ark_mem->lrw1;
@@ -2773,7 +2773,7 @@ int arkEwtSetSmallReal(SUNDIALS_MAYBE_UNUSED N_Vector ycur, N_Vector weight,
 /*---------------------------------------------------------------
   arkRwtSetSS
 
-  This routine sets rwt as decribed above in the case tol_type = ARK_SS.
+  This routine sets rwt as described above in the case tol_type = ARK_SS.
   When the absolute tolerance is zero, it tests for non-positive
   components before inverting. arkRwtSetSS returns 0 if rwt is
   successfully set to a positive vector and -1 otherwise. In the
@@ -2795,7 +2795,7 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 /*---------------------------------------------------------------
   arkRwtSetSV
 
-  This routine sets rwt as decribed above in the case tol_type = ARK_SV.
+  This routine sets rwt as described above in the case tol_type = ARK_SV.
   When any absolute tolerance is zero, it tests for non-positive
   components before inverting. arkRwtSetSV returns 0 if rwt is
   successfully set to a positive vector and -1 otherwise. In the
@@ -3189,7 +3189,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 
   SUNTRUE is returned if the allocation is successful (or if the
   target vector or vector array already exists) otherwise SUNFALSE
-  is retured.
+  is returned.
   ---------------------------------------------------------------*/
 sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v)
 {
@@ -3270,7 +3270,7 @@ void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
   integer work spaces.
 
   SUNTRUE is returned if the resize is successful otherwise
-  SUNFALSE is retured.
+  SUNFALSE is returned.
   ---------------------------------------------------------------*/
 sunbooleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
                             void* resize_data, sunindextype lrw_diff,

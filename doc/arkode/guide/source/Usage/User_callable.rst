@@ -1235,7 +1235,7 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       The default is that no stop time is imposed.
 
       Once the integrator returns at a stop time, any future testing for
-      ``tstop`` is disabled (and can be reenabled only though a new call to
+      ``tstop`` is disabled (and can be re-enabled only though a new call to
       :c:func:`ARKodeSetStopTime`).
 
       A stop time not reached before a call to ``*StepReInit`` or
@@ -1271,7 +1271,7 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
    .. note::
 
-      The stop time can be reenabled though a new call to
+      The stop time can be re-enabled though a new call to
       :c:func:`ARKodeSetStopTime`.
 
    .. versionadded:: 6.1.0

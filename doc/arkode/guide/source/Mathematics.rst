@@ -550,7 +550,7 @@ can be ignored).
 Optionally, a different algorithm leveraging compensated summation can be used
 that is more robust to roundoff error at the expense of 2 extra vector operations
 per stage and an additional 5 per time step. It also requires one extra vector to
-be stored.  However, it is signficantly more robust to roundoff error accumulation
+be stored.  However, it is significantly more robust to roundoff error accumulation
 :cite:p:`Sof:02`. When compensated summation is enabled, the following incremental
 form is used to compute a time step:
 

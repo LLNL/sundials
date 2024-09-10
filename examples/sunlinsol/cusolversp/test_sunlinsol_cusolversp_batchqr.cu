@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
   N_VCopyToDevice_Cuda(d_x);
   N_VCopyToDevice_Cuda(d_xref);
 
-  /* Synchronize before peforming dense operation on CPU */
+  /* Synchronize before performing dense operation on CPU */
   cudaDeviceSynchronize();
 
   /* create right-hand side vector for linear solve */

@@ -94,7 +94,7 @@ foreach(example_tuple ${FARKODE_examples})
 
 endforeach(example_tuple ${FARKODE_examples})
 
-# create Makfile and CMakeLists.txt for examples
+# create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the extra files
@@ -121,7 +121,7 @@ if(EXAMPLES_INSTALL)
 
   list2string(EXAMPLE_LIBS_LIST EXAMPLE_LIBS)
 
-  # CMakeLists: replace sundials_ prefix and convert to space separted string
+  # CMakeLists: replace sundials_ prefix and convert to space separated string
   list(TRANSFORM EXAMPLE_LIBS_LIST
        REPLACE "sundials_" "SUNDIALS::" OUTPUT_VARIABLE
                                         EXAMPLES_CMAKE_TARGETS_tmp)

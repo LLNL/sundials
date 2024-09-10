@@ -606,7 +606,7 @@ static int PSetup(void* user_data)
   retval = HYPRE_StructPFMGCreate(udata->comm_c, &(udata->precond));
   if (retval != 0) { return -1; }
 
-  // Signal that the inital guess is zero
+  // Signal that the initial guess is zero
   retval = HYPRE_StructPFMGSetZeroGuess(udata->precond);
   if (retval != 0) { return -1; }
 
@@ -678,7 +678,7 @@ static int PSolve(void* user_data, N_Vector r, N_Vector z, sunrealtype tol, int 
   retval = HYPRE_StructPFMGSolve(udata->precond, udata->Jmatrix, udata->bvec,
                                  udata->xvec);
 
-  // If a convergence error occured, clear the error and continue. For any
+  // If a convergence error occurred, clear the error and continue. For any
   // other error return with a recoverable error.
   if (retval == HYPRE_ERROR_CONV) { HYPRE_ClearError(HYPRE_ERROR_CONV); }
   else if (retval != 0) { return 1; }

@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# Setup the CUDA languge and CUDA libraries.
+# Setup the CUDA language and CUDA libraries.
 # ---------------------------------------------------------------
 
 # ===============================================================

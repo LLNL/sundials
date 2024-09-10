@@ -22,7 +22,7 @@
 !    w_t = -c * w_x + (B - w) / ep - w * u
 !
 ! for t in [0, 10], x in [0, xmax] with periodic boundary conditions. The
-! initial condition is a Gaussian pertubation of the steady state
+! initial condition is a Gaussian perturbation of the steady state
 ! solution without advection
 !
 !    u(0,x) = k1 * A / k4 + p(x)
@@ -92,7 +92,7 @@ module ode_mod
   integer         :: reqS   ! MPI send request handle
   integer         :: reqR   ! MPI receive request handle
 
-  ! Excahnge buffers
+  ! Exchange buffers
   real(c_double) :: Wsend(Nvar), Wrecv(Nvar)
   real(c_double) :: Esend(Nvar), Erecv(Nvar)
 
@@ -245,7 +245,7 @@ contains
     real(c_double), pointer :: fdata(:)
 
     ! local variables
-    real(c_double) :: u, v, w ! chemcial species
+    real(c_double) :: u, v, w ! chemical species
     integer(kind=myindextype) :: j, idx  ! loop counter and array index
 
     !======= Internals ============
@@ -371,7 +371,7 @@ contains
     type(N_Vector)        :: sunvec_y   ! solution N_Vector
     type(N_Vector)        :: sunvec_f   ! rhs N_Vector
     integer(c_int), value :: jok        ! flag to signal for Jacobian update
-    integer(c_int)        :: jcurPtr    ! flag to singal Jacobian is current
+    integer(c_int)        :: jcurPtr    ! flag to signal Jacobian is current
     real(c_double), value :: gamma      ! current gamma value
     type(c_ptr), value :: user_data  ! user-defined data
 
@@ -424,7 +424,7 @@ contains
         pdata(offset + 2) = -k3*u*u
         pdata(offset + 3) = 0.0d0
 
-        ! thrid column (derivative with respect to v)
+        ! third column (derivative with respect to v)
         offset = offset + Neq
 
         pdata(offset + 1) = -k2*u
@@ -648,7 +648,7 @@ contains
     implicit none
 
     ! calling variables
-    type(N_Vector)     :: sunvec_delta ! input linear system rhs, ouput solution
+    type(N_Vector)     :: sunvec_delta ! input linear system rhs, output solution
     type(c_ptr), value :: arkode_mem   ! ARKODE memory structure
 
     ! residual data
@@ -710,7 +710,7 @@ contains
       J_data(5) = -k3*u*u
       J_data(6) = 0.0d0
 
-      ! thrid column (derivative with respect to v)
+      ! third column (derivative with respect to v)
       J_data(7) = -k2*u
       J_data(8) = k2*u
       J_data(9) = -k2*u - k6
@@ -1536,7 +1536,7 @@ subroutine EvolveProblemExplicit(sunvec_y)
   tout = t(1) + dtout
   iout = 0
 
-  ! Ouput initial condition
+  ! Output initial condition
   if (myid == 0 .and. monitor) then
     print *, ""
     print *, "     t           ||u||_rms       ||v||_rms       ||w||_rms"
@@ -1598,7 +1598,7 @@ subroutine EvolveProblemExplicit(sunvec_y)
     call MPI_Abort(comm, 1, ierr)
   end if
 
-  ! Print final statistcs
+  ! Print final statistics
   if (myid == 0) then
     print "(A)", "Final Solver Statistics (for processor 0):"
     print "(2x,A,i0)", "Steps            = ", nst

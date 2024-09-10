@@ -187,7 +187,7 @@ include(SundialsSetupCompilers)
 include(SundialsSetupTPLs)
 
 # ===============================================================
-# Build options to be proccessed last
+# Build options to be processed last
 # ===============================================================
 
 include(SundialsBuildOptionsPost)

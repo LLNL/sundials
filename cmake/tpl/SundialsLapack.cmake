@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -----------------------------------------------------------------------------
-# Module to find and setup LAPACK/BLAS corrrectly.
+# Module to find and setup LAPACK/BLAS correctly.
 # Created from the SundialsTPL.cmake template.
 # All SUNDIALS modules that find and setup a TPL must:
 #
@@ -160,8 +160,8 @@ if(NEED_FORTRAN_NAME_MANGLING)
     list(LENGTH options imax)
     set(iopt 0)
 
-    # We will attempt to sucessfully generate the "ctest1" executable as long as
-    # there still are entries in the "options" list
+    # We will attempt to successfully generate the "ctest1" executable as long
+    # as there still are entries in the "options" list
     while(${iopt} LESS ${imax})
       # Get the current list entry (current scheme)
       list(GET options ${iopt} opt)

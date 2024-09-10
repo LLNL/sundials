@@ -137,7 +137,7 @@ CVODES output constants
    | ``CV_FIRST_RHSFUNC_ERR``         | -9   | The right-hand side function failed at the first       |
    |                                  |      | call.                                                  |
    +----------------------------------+------+--------------------------------------------------------+
-   | ``CV_REPTD_RHSFUNC_ERR``         | -10  | The right-hand side function had repetead              |
+   | ``CV_REPTD_RHSFUNC_ERR``         | -10  | The right-hand side function had repeated              |
    |                                  |      | recoverable errors.                                    |
    +----------------------------------+------+--------------------------------------------------------+
    | ``CV_UNREC_RHSFUNC_ERR``         | -11  | The right-hand side function had a recoverable         |
@@ -180,7 +180,7 @@ CVODES output constants
    | ``CV_FIRST_QRHSFUNC_ERR``        | -32  | The quadrature right-hand side function failed at      |
    |                                  |      | the first call.                                        |
    +----------------------------------+------+--------------------------------------------------------+
-   | ``CV_REPTD_QRHSFUNC_ERR``        | -33  | The quadrature ight-hand side function had repetead    |
+   | ``CV_REPTD_QRHSFUNC_ERR``        | -33  | The quadrature ight-hand side function had repeated    |
    |                                  |      | recoverable errors.                                    |
    +----------------------------------+------+--------------------------------------------------------+
    | ``CV_UNREC_QRHSFUNC_ERR``        | -34  | The quadrature right-hand side function had a          |
@@ -194,7 +194,7 @@ CVODES output constants
    | ``CV_FIRST_SRHSFUNC_ERR``        | -42  | The sensitivity right-hand side function failed at     |
    |                                  |      | the first call.                                        |
    +----------------------------------+------+--------------------------------------------------------+
-   | ``CV_REPTD_SRHSFUNC_ERR``        | -43  | The sensitivity ight-hand side function had repetead   |
+   | ``CV_REPTD_SRHSFUNC_ERR``        | -43  | The sensitivity ight-hand side function had repeated   |
    |                                  |      | recoverable errors.                                    |
    +----------------------------------+------+--------------------------------------------------------+
    | ``CV_UNREC_SRHSFUNC_ERR``        | -44  | The sensitivity right-hand side function had a         |
@@ -211,7 +211,7 @@ CVODES output constants
    | ``CV_FIRST_QSRHSFUNC_ERR``       | -52  | The sensitivity right-hand side function failed at     |
    |                                  |      | the first call.                                        |
    +----------------------------------+------+--------------------------------------------------------+
-   | ``CV_REPTD_QSRHSFUNC_ERR``       | -53  | The sensitivity ight-hand side function had repetead   |
+   | ``CV_REPTD_QSRHSFUNC_ERR``       | -53  | The sensitivity ight-hand side function had repeated   |
    |                                  |      | recoverable errors.                                    |
    +----------------------------------+------+--------------------------------------------------------+
    | ``CV_UNREC_QSRHSFUNC_ERR``       | -54  | The sensitivity right-hand side function had a         |

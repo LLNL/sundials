@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
      user's right hand side function in u'=fi(t,u) [here fe is NULL],
-     the inital time T0, and the initial dependent variable vector u. */
+     the initial time T0, and the initial dependent variable vector u. */
   arkode_mem = ARKStepCreate(NULL, f, T0, u, sunctx);
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0, my_pe))
   {

@@ -23,7 +23,7 @@ by the user to setup and then solve an IVP using the MRIStep time-stepping
 module.  The large majority of these routines merely wrap :ref:`underlying
 ARKODE functions <ARKODE.Usage.UserCallable>`, and are now deprecated
 -- each of these are clearly marked.  However, some
-of these user-callable functions are specific to ERKStep, as explained
+of these user-callable functions are specific to MRIStep, as explained
 below.
 
 As discussed in the main :ref:`ARKODE user-callable function introduction
@@ -303,7 +303,7 @@ Rootfinding initialization function
    *nrtfn = 0*.
 
    Rootfinding is only supported for the slow (outer) integrator and should not
-   be actived for the fast (inner) integrator.
+   be activated for the fast (inner) integrator.
 
    .. deprecated:: 6.1.0
 
@@ -676,7 +676,7 @@ Optional inputs for MRIStep
       The default is that no stop time is imposed.
 
       Once the integrator returns at a stop time, any future testing for
-      ``tstop`` is disabled (and can be reenabled only though a new call to
+      ``tstop`` is disabled (and can be re-enabled only though a new call to
       :c:func:`MRIStepSetStopTime`).
 
       A stop time not reached before a call to :c:func:`MRIStepReInit` or
@@ -723,7 +723,7 @@ Optional inputs for MRIStep
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
    **Notes:**
-      The stop time can be reenabled though a new call to
+      The stop time can be re-enabled though a new call to
       :c:func:`MRIStepSetStopTime`.
 
    .. versionadded:: 5.5.1
@@ -830,7 +830,7 @@ Optional inputs for IVP method selection
 
    Select the default MRI method of a given order.
 
-   The default order is 3. An order less than 3 or greater than 4 will result in
+   The default order is 3. An order less than 1 or greater than 4 will result in
    using the default.
 
    **Arguments:**

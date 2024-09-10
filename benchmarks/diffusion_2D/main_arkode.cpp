@@ -382,7 +382,7 @@ int main(int argc, char* argv[])
     sunrealtype dTout = udata.tf / uout.nout;
     sunrealtype tout  = dTout;
 
-    // Inital output
+    // Initial output
     flag = uout.open(&udata);
     if (check_flag(&flag, "UserOutput::open", 1)) { return 1; }
 

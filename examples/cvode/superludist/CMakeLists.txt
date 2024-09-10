@@ -78,7 +78,7 @@ else()
   set(_ex_lang CXX)
 endif()
 
-# create Makfile and CMakeLists.txt for examples
+# create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   sundials_install_examples(

@@ -62,7 +62,7 @@ foreach(example_tuple ${KINSOL_examples})
 
 endforeach(example_tuple ${KINSOL_examples_OMP})
 
-# create Makfile and CMakeLists.txt for examples
+# create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the README file

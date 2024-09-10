@@ -83,7 +83,7 @@ Suggested plugins:
 * Dashboard view -- Customizable dashboard that can present various views of job
   information.
 
-* Rebuilder -- allows ther user to rebuild a parametrized build without entering
+* Rebuilder -- allows the user to rebuild a parameterized build without entering
   the parameters again.
 
 

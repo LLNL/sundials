@@ -449,7 +449,7 @@ For many users, the appropriate choices for tolerance values in ``reltol`` and
    different components have different noise levels, then ``abstol`` should be a
    vector. See the example ``idaRoberts_dns`` in the IDA package, and the
    discussion of it in the IDA Examples document :cite:p:`ida_ex`. In that
-   problem, the three components vary betwen 0 and 1, and have different noise
+   problem, the three components vary between 0 and 1, and have different noise
    levels; hence the ``abstol`` vector. It is impossible to give any general
    advice on ``abstol`` values, because the appropriate noise levels are
    completely problem-dependent. The user or modeler hopefully has some idea as
@@ -840,7 +840,7 @@ rootfinding (with :c:func:`IDARootInit`).
       If a stop time is enabled (through a call to :c:func:`IDASetStopTime`), then
       :c:func:`IDASolve` returns the solution at ``tstop``. Once the integrator
       returns at a stop time, any future testing for ``tstop`` is disabled (and
-      can be reenabled only though a new call to :c:func:`IDASetStopTime`).
+      can be re-enabled only though a new call to :c:func:`IDASetStopTime`).
 
       All failure return values are negative and therefore a test ``flag < 0`` will
       trap all :c:func:`IDASolve` failures.
@@ -1067,7 +1067,7 @@ Main solver optional input functions
    **Notes:**
       The default, if this routine is not called, is that no stop time is imposed.
       Once the integrator returns at a stop time, any future testing for ``tstop``
-      is disabled (and can be reenabled only though a new call to
+      is disabled (and can be re-enabled only though a new call to
       :c:func:`IDASetStopTime`).
 
       A stop time not reached before a call to :c:func:`IDAReInit` will
@@ -1085,7 +1085,7 @@ Main solver optional input functions
       * ``IDA_MEM_NULL`` if the IDA memory is ``NULL``
 
    **Notes:**
-      The stop time can be reenabled though a new call to
+      The stop time can be re-enabled though a new call to
       :c:func:`IDASetStopTime`.
 
    .. versionadded:: 6.5.1
@@ -2492,7 +2492,7 @@ described next.
 
    .. note::
 
-      The ``ele`` vector, togther with the ``eweight`` vector from
+      The ``ele`` vector, together with the ``eweight`` vector from
       :c:func:`IDAGetErrWeights`, can be used to determine how the various
       components of the system contributed to the estimated local error test.
       Specifically, that error test uses the RMS norm of a vector whose
@@ -3054,7 +3054,7 @@ To stop when the location of the discontinuity is known, simply make that
 location a value of :math:`t_{\text{out}}`. To stop when the location of the
 discontinuity is determined by the solution, use the rootfinding feature. In
 either case, it is critical that the residual function *not* incorporate the
-discontinuity, but rather have a smooth extention over the discontinuity, so
+discontinuity, but rather have a smooth extension over the discontinuity, so
 that the step across it (and subsequent rootfinding, if used) can be done
 efficiently. Then use a switch within the residual function (communicated
 through ``user_data``) that can be flipped between the stopping of the
@@ -3164,7 +3164,7 @@ Error weight function
 
    **Return value:**
       * ``0`` -- if it the error weights were successfully set.
-      * ``-1`` -- if any error occured.
+      * ``-1`` -- if any error occurred.
 
    **Notes:**
       Allocation of memory for ``ewt`` is handled within IDA.
@@ -3172,7 +3172,7 @@ Error weight function
    .. warning::
 
       The error weight vector must have all components positive. It is the
-      user's responsiblity to perform this test and return -1 if it is not
+      user's responsibility to perform this test and return -1 if it is not
       satisfied.
 
 
@@ -3203,8 +3203,8 @@ as follows:
         parameter passed to :c:func:`IDASetUserData`.
 
    **Return value:**
-      ``0`` if successful or non-zero if an error occured (in which case the
-      integration is halted and :c:func:`IDASolve` returs ``IDA_RTFUNC_FAIL``).
+      ``0`` if successful or non-zero if an error occurred (in which case the
+      integration is halted and :c:func:`IDASolve` returns ``IDA_RTFUNC_FAIL``).
 
    **Notes:**
       Allocation of memory for ``gout`` is handled within IDA.
@@ -3247,7 +3247,7 @@ user may provide a function of type :c:type:`IDALsJacFn` defined as follows:
       value if a recoverable error occurred, or a negative value if a
       nonrecoverable error occurred.
 
-      In the case of a recoverable eror return, the integrator will attempt to
+      In the case of a recoverable error return, the integrator will attempt to
       recover by reducing the stepsize, and hence changing :math:`\alpha` in
       :eq:`IDA_DAE_Jacobian`.
 
