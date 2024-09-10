@@ -114,12 +114,23 @@ using XYZ_KERNEL_POL =
 
 #else
 #define NVECTOR_ID_STRING "Serial"
-using EXEC_POLICY           = RAJA::seq_exec;
-using XYZ_KERNEL_POL        = RAJA::KernelPolicy<RAJA::statement::For<
+
+#if RAJA_VERSION_MAJOR < 2024
+using EXEC_POLICY    = RAJA::seq_exec;
+using XYZ_KERNEL_POL = RAJA::KernelPolicy<RAJA::statement::For<
   2, RAJA::loop_exec,
   RAJA::statement::For<
     1, RAJA::loop_exec,
     RAJA::statement::For<0, RAJA::loop_exec, RAJA::statement::Lambda<0>>>>>;
+#else
+using EXEC_POLICY    = RAJA::seq_exec;
+using XYZ_KERNEL_POL = RAJA::KernelPolicy<RAJA::statement::For<
+  2, RAJA::seq_exec,
+  RAJA::statement::For<
+    1, RAJA::seq_exec,
+    RAJA::statement::For<0, RAJA::seq_exec, RAJA::statement::Lambda<0>>>>>;
+#endif
+
 constexpr auto LocalNvector = N_VNew_Serial;
 #define CopyVecFromDevice(v)
 
