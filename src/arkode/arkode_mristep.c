@@ -1742,8 +1742,8 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
     {
     case 1: table_id = MRISTEP_DEFAULT_IMEX_SD_1; break;
     case 2: table_id = MRISTEP_DEFAULT_IMEX_SD_2; break;
-    case 3: table_id = MRISTEP_DEFAULT_IMEX_SD_2; break;
-    case 4: table_id = MRISTEP_DEFAULT_IMEX_SD_2; break;
+    case 3: table_id = MRISTEP_DEFAULT_IMEX_SD_3; break;
+    case 4: table_id = MRISTEP_DEFAULT_IMEX_SD_4; break;
     }
 
     /**** implicit methods ****/
