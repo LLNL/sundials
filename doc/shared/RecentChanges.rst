@@ -8,7 +8,7 @@ only valid for Volta GPUs while the automatically selected value will vary
 across compilers and compiler versions. As such, users are encouraged to
 override this value with the architecture for their system.
 
-The Trilinos Teptra NVector interface has been updated to utilized CMake
+The Trilinos Tpetra NVector interface has been updated to utilized CMake
 imported targets added in Trilinos 14 to improve support for different Kokkos
 backends with Trilinos. As such, Trilinos 14 or newer is required and the
 ``Trilinos_INTERFACE_*`` CMake options have been removed.
