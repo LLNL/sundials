@@ -27,6 +27,8 @@ set(examples
 
 # The BiCGStab solver has a known bug with the OpenMP backend
 # https://github.com/ginkgo-project/ginkgo/issues/1563
+# which should be fixed in the next release (1.9.0) by
+# https://github.com/ginkgo-project/ginkgo/pull/1676
 set(examples_bicgstab
     "test_sunlinsol_ginkgo.cpp\;bicgstab csr 100 0 100 0\;"
     # "test_sunlinsol_ginkgo.cpp\;bicgstab dense 100 0 100 0\;"
