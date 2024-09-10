@@ -26,15 +26,29 @@ module farkode_lsrkstep_mod
  private
 
  ! DECLARATION CONSTRUCTS
+ ! typedef enum ARKODE_LSRKMethodType
+ enum, bind(c)
+  enumerator :: ARKODE_LSRK_RKC = 1
+  enumerator :: ARKODE_LSRK_RKL = 2
+  enumerator :: ARKODE_LSRK_RKG = 3
+  enumerator :: ARKODE_LSRK_SSPs_2 = 4
+  enumerator :: ARKODE_LSRK_SSPs_3 = 5
+  enumerator :: ARKODE_LSRK_SSP10_4 = 6
+ end enum
+ integer, parameter, public :: ARKODE_LSRKMethodType = kind(ARKODE_LSRK_RKC)
+ public :: ARKODE_LSRK_RKC, ARKODE_LSRK_RKL, ARKODE_LSRK_RKG, ARKODE_LSRK_SSPs_2, ARKODE_LSRK_SSPs_3, ARKODE_LSRK_SSP10_4
  public :: FLSRKStepCreate
- public :: FLSRKodeSetMethod
- public :: FLSRKodeSetSprRadFn
- public :: FLSRKodeSetConstJac
- public :: FLSRKodeSetSprRadFrequency
- public :: FLSRKodeSetMaxStageNum
- public :: FLSRKodeSetSprRadSafetyFactor
  public :: FLSRKStepReInit
+ public :: FLSRKStepSetMethod
+ public :: FLSRKStepSetDomEigFn
+ public :: FLSRKStepSetDomEigFrequency
+ public :: FLSRKStepSetMaxStageNum
+ public :: FLSRKStepSetDomEigSafetyFactor
+ public :: FLSRKStepSetSSPStageNum
  public :: FLSRKStepGetNumRhsEvals
+ public :: FLSRKStepGetNumDomEigUpdates
+ public :: FLSRKStepGetMaxStageNum
+ public :: FLSRKStepGetAverStageNum
  public :: FLSRKStepGetTimestepperStats
 
 ! WRAPPER DECLARATIONS
@@ -51,59 +65,6 @@ type(C_PTR), value :: farg5
 type(C_PTR) :: fresult
 end function
 
-function swigc_FLSRKodeSetMethod(farg1, farg2) &
-bind(C, name="_wrap_FLSRKodeSetMethod") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FLSRKodeSetSprRadFn(farg1, farg2) &
-bind(C, name="_wrap_FLSRKodeSetSprRadFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FLSRKodeSetConstJac(farg1) &
-bind(C, name="_wrap_FLSRKodeSetConstJac") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT) :: fresult
-end function
-
-function swigc_FLSRKodeSetSprRadFrequency(farg1, farg2) &
-bind(C, name="_wrap_FLSRKodeSetSprRadFrequency") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FLSRKodeSetMaxStageNum(farg1, farg2) &
-bind(C, name="_wrap_FLSRKodeSetMaxStageNum") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FLSRKodeSetSprRadSafetyFactor(farg1, farg2) &
-bind(C, name="_wrap_FLSRKodeSetSprRadSafetyFactor") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FLSRKStepReInit(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FLSRKStepReInit") &
 result(fresult)
@@ -116,8 +77,90 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FLSRKStepGetNumRhsEvals(farg1, farg2) &
+function swigc_FLSRKStepSetMethod(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetMethod") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepSetDomEigFn(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetDomEigFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepSetDomEigFrequency(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetDomEigFrequency") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepSetMaxStageNum(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetMaxStageNum") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepSetDomEigSafetyFactor(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetDomEigSafetyFactor") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepSetSSPStageNum(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetSSPStageNum") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepGetNumRhsEvals(farg1, farg2, farg3) &
 bind(C, name="_wrap_FLSRKStepGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepGetNumDomEigUpdates(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepGetNumDomEigUpdates") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepGetMaxStageNum(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepGetMaxStageNum") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepGetAverStageNum(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepGetAverStageNum") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -173,99 +216,6 @@ fresult = swigc_FLSRKStepCreate(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FLSRKodeSetMethod(arkode_mem, method) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: method
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = method
-fresult = swigc_FLSRKodeSetMethod(farg1, farg2)
-swig_result = fresult
-end function
-
-function FLSRKodeSetSprRadFn(arkode_mem, spr) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: spr
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = spr
-fresult = swigc_FLSRKodeSetSprRadFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FLSRKodeSetConstJac(arkode_mem) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-
-farg1 = arkode_mem
-fresult = swigc_FLSRKodeSetConstJac(farg1)
-swig_result = fresult
-end function
-
-function FLSRKodeSetSprRadFrequency(arkode_mem, nsteps) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: nsteps
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = nsteps
-fresult = swigc_FLSRKodeSetSprRadFrequency(farg1, farg2)
-swig_result = fresult
-end function
-
-function FLSRKodeSetMaxStageNum(arkode_mem, stagemaxlimit) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: stagemaxlimit
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-
-farg1 = arkode_mem
-farg2 = stagemaxlimit
-fresult = swigc_FLSRKodeSetMaxStageNum(farg1, farg2)
-swig_result = fresult
-end function
-
-function FLSRKodeSetSprRadSafetyFactor(arkode_mem, sprsfty) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: sprsfty
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-
-farg1 = arkode_mem
-farg2 = sprsfty
-fresult = swigc_FLSRKodeSetSprRadSafetyFactor(farg1, farg2)
-swig_result = fresult
-end function
-
 function FLSRKStepReInit(arkode_mem, fe, fi, t0, y0) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -291,24 +241,171 @@ fresult = swigc_FLSRKStepReInit(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FLSRKStepGetNumRhsEvals(arkode_mem, nfevals) &
+function FLSRKStepSetMethod(arkode_mem, method) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nfevals
+integer(ARKODE_LSRKMethodType), intent(in) :: method
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = method
+fresult = swigc_FLSRKStepSetMethod(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepSetDomEigFn(arkode_mem, domeig) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_FUNPTR), intent(in), value :: domeig
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = domeig
+fresult = swigc_FLSRKStepSetDomEigFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepSetDomEigFrequency(arkode_mem, nsteps) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: nsteps
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = nsteps
+fresult = swigc_FLSRKStepSetDomEigFrequency(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepSetMaxStageNum(arkode_mem, stagemaxlimit) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: stagemaxlimit
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = stagemaxlimit
+fresult = swigc_FLSRKStepSetMaxStageNum(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepSetDomEigSafetyFactor(arkode_mem, domeigsfty) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: domeigsfty
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = domeigsfty
+fresult = swigc_FLSRKStepSetDomEigSafetyFactor(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepSetSSPStageNum(arkode_mem, numofstages) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: numofstages
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = numofstages
+fresult = swigc_FLSRKStepSetSSPStageNum(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepGetNumRhsEvals(arkode_mem, fe_evals, fi_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: fe_evals
+integer(C_LONG), dimension(*), target, intent(inout) :: fi_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = c_loc(fe_evals(1))
+farg3 = c_loc(fi_evals(1))
+fresult = swigc_FLSRKStepGetNumRhsEvals(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FLSRKStepGetNumDomEigUpdates(arkode_mem, ndomeigupdates) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: ndomeigupdates
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = c_loc(nfevals(1))
-fresult = swigc_FLSRKStepGetNumRhsEvals(farg1, farg2)
+farg2 = c_loc(ndomeigupdates(1))
+fresult = swigc_FLSRKStepGetNumDomEigUpdates(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepGetTimestepperStats(arkode_mem, expsteps, accsteps, attempts, fevals, sprfevals, netfails, stagemax, &
-  nsprupdates, sprmax, sprmin) &
+function FLSRKStepGetMaxStageNum(arkode_mem, stagemax) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), dimension(*), target, intent(inout) :: stagemax
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(stagemax(1))
+fresult = swigc_FLSRKStepGetMaxStageNum(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepGetAverStageNum(arkode_mem, averstage) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), dimension(*), target, intent(inout) :: averstage
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(averstage(1))
+fresult = swigc_FLSRKStepGetAverStageNum(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepGetTimestepperStats(arkode_mem, expsteps, accsteps, attempts, fevals, domeigfevals, netfails, stagemax, &
+  ndomeigupdates, sprmax, sprmin) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -317,10 +414,10 @@ integer(C_LONG), dimension(*), target, intent(inout) :: expsteps
 integer(C_LONG), dimension(*), target, intent(inout) :: accsteps
 integer(C_LONG), dimension(*), target, intent(inout) :: attempts
 integer(C_LONG), dimension(*), target, intent(inout) :: fevals
-integer(C_LONG), dimension(*), target, intent(inout) :: sprfevals
+integer(C_LONG), dimension(*), target, intent(inout) :: domeigfevals
 integer(C_LONG), dimension(*), target, intent(inout) :: netfails
 integer(C_LONG), dimension(*), target, intent(inout) :: stagemax
-integer(C_LONG), dimension(*), target, intent(inout) :: nsprupdates
+integer(C_LONG), dimension(*), target, intent(inout) :: ndomeigupdates
 real(C_DOUBLE), dimension(*), target, intent(inout) :: sprmax
 real(C_DOUBLE), dimension(*), target, intent(inout) :: sprmin
 integer(C_INT) :: fresult 
@@ -341,10 +438,10 @@ farg2 = c_loc(expsteps(1))
 farg3 = c_loc(accsteps(1))
 farg4 = c_loc(attempts(1))
 farg5 = c_loc(fevals(1))
-farg6 = c_loc(sprfevals(1))
+farg6 = c_loc(domeigfevals(1))
 farg7 = c_loc(netfails(1))
 farg8 = c_loc(stagemax(1))
-farg9 = c_loc(nsprupdates(1))
+farg9 = c_loc(ndomeigupdates(1))
 farg10 = c_loc(sprmax(1))
 farg11 = c_loc(sprmin(1))
 fresult = swigc_FLSRKStepGetTimestepperStats(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8, farg9, farg10, farg11)

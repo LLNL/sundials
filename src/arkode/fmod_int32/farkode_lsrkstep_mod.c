@@ -225,88 +225,6 @@ SWIGEXPORT void * _wrap_FLSRKStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double c
 }
 
 
-SWIGEXPORT int _wrap_FLSRKodeSetMethod(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)LSRKodeSetMethod(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FLSRKodeSetSprRadFn(void *farg1, ARKSprFn farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKSprFn arg2 = (ARKSprFn) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKSprFn)(farg2);
-  result = (int)LSRKodeSetSprRadFn(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FLSRKodeSetConstJac(void *farg1) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  result = (int)LSRKodeSetConstJac(arg1);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FLSRKodeSetSprRadFrequency(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)LSRKodeSetSprRadFrequency(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FLSRKodeSetMaxStageNum(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  int arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  result = (int)LSRKodeSetMaxStageNum(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FLSRKodeSetSprRadSafetyFactor(void *farg1, double const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  sunrealtype arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (sunrealtype)(*farg2);
-  result = (int)LSRKodeSetSprRadSafetyFactor(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FLSRKStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3, double const *farg4, N_Vector farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -327,7 +245,107 @@ SWIGEXPORT int _wrap_FLSRKStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3
 }
 
 
-SWIGEXPORT int _wrap_FLSRKStepGetNumRhsEvals(void *farg1, long *farg2) {
+SWIGEXPORT int _wrap_FLSRKStepSetMethod(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKODE_LSRKMethodType arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKODE_LSRKMethodType)(*farg2);
+  result = (int)LSRKStepSetMethod(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepSetDomEigFn(void *farg1, ARKDomEigFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKDomEigFn arg2 = (ARKDomEigFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKDomEigFn)(farg2);
+  result = (int)LSRKStepSetDomEigFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepSetDomEigFrequency(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)LSRKStepSetDomEigFrequency(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepSetMaxStageNum(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)LSRKStepSetMaxStageNum(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepSetDomEigSafetyFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (int)LSRKStepSetDomEigSafetyFactor(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepSetSSPStageNum(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  result = (int)LSRKStepSetSSPStageNum(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepGetNumRhsEvals(void *farg1, long *farg2, long *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  long *arg2 = (long *) 0 ;
+  long *arg3 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (long *)(farg2);
+  arg3 = (long *)(farg3);
+  result = (int)LSRKStepGetNumRhsEvals(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepGetNumDomEigUpdates(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   long *arg2 = (long *) 0 ;
@@ -335,7 +353,35 @@ SWIGEXPORT int _wrap_FLSRKStepGetNumRhsEvals(void *farg1, long *farg2) {
   
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
-  result = (int)LSRKStepGetNumRhsEvals(arg1,arg2);
+  result = (int)LSRKStepGetNumDomEigUpdates(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepGetMaxStageNum(void *farg1, int *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int *arg2 = (int *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int *)(farg2);
+  result = (int)LSRKStepGetMaxStageNum(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepGetAverStageNum(void *farg1, int *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int *arg2 = (int *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int *)(farg2);
+  result = (int)LSRKStepGetAverStageNum(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
