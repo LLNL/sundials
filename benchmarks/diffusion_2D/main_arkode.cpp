@@ -16,9 +16,9 @@
 
 #include "arkode/arkode_arkstep.h"
 #include "arkode/arkode_lsrkstep.h"
-#include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
-#include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 #include "diffusion_2D.hpp"
+#include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
+#include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
 
 struct UserOptions
 {
@@ -31,8 +31,8 @@ struct UserOptions
   int maxsteps       = 0;                   // max steps between outputs
   int onestep        = 0;                   // one step mode, number of steps
   bool linear        = true;                // linearly implicit RHS
-  bool implicit      = true;                // implicit (ARKStep) vs explicit (LSRKStep)
-  ARKODE_LSRKMethodType lsrkmethod = ARKODE_LSRK_RKC;  // LSRK method type
+  bool implicit      = true; // implicit (ARKStep) vs explicit (LSRKStep)
+  ARKODE_LSRKMethodType lsrkmethod = ARKODE_LSRK_RKC; // LSRK method type
 
   // Linear solver and preconditioner settings
   std::string ls       = "cg";  // linear solver to use
@@ -166,10 +166,9 @@ int main(int argc, char* argv[])
 
     // Set up implicit solver, if applicable
     SUNLinearSolver LS = nullptr;
-    SUNMatrix A = nullptr;
+    SUNMatrix A        = nullptr;
     if (uopts.implicit)
     {
-
       // ---------------------
       // Create linear solver
       // ---------------------
@@ -221,9 +220,10 @@ int main(int argc, char* argv[])
         if (check_flag((void*)A_row_ptrs, "malloc Arowptr", 0)) return 1;
 
         // Create and initialize SuperLU_DIST structures
-        dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes, nnz_loc,
-                                       udata.nodes_loc, 0, A_data, A_col_idxs,
-                                       A_row_ptrs, SLU_NR_loc, SLU_D, SLU_GE);
+        dCreate_CompRowLoc_Matrix_dist(&A_super, udata.nodes, udata.nodes,
+                                       nnz_loc, udata.nodes_loc, 0, A_data,
+                                       A_col_idxs, A_row_ptrs, SLU_NR_loc,
+                                       SLU_D, SLU_GE);
         dScalePermstructInit(udata.nodes, udata.nodes, &A_scaleperm);
         dLUstructInit(udata.nodes, &A_lu);
         PStatInit(&A_stat);
@@ -240,7 +240,8 @@ int main(int argc, char* argv[])
 
         uopts.preconditioning = false;
 #else
-        std::cerr << "ERROR: Benchmark was not built with SuperLU_DIST enabled\n";
+        std::cerr
+          << "ERROR: Benchmark was not built with SuperLU_DIST enabled\n";
         return 1;
 #endif
       }
@@ -281,7 +282,6 @@ int main(int argc, char* argv[])
     // Configure implicit solver
     if (uopts.implicit)
     {
-
       // Attach linear solver
       flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
       if (check_flag(&flag, "ARKodeSetLinearSolver", 1)) { return 1; }
@@ -319,11 +319,9 @@ int main(int argc, char* argv[])
         flag = ARKodeSetLinear(arkode_mem, 0);
         if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
       }
-
     }
-    else    // Configure explicit solver
+    else // Configure explicit solver
     {
-
       // Select LSRK method
       flag = LSRKStepSetMethod(arkode_mem, uopts.lsrkmethod);
       if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
@@ -331,7 +329,6 @@ int main(int argc, char* argv[])
       // Provide dominant eigenvalue function
       flag = LSRKStepSetDomEigFn(arkode_mem, DomEig);
       if (check_flag(&flag, "LSRKStepSetDomEigFn", 1)) { return 1; }
-
     }
 
     // Set fixed step size or adaptivity method
@@ -470,7 +467,8 @@ int main(int argc, char* argv[])
 // Dominant eigenvalue estimation function
 // -----------------------------------------------------------------------------
 
-static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data)
+static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
+                  sunrealtype* lambdaI, void* user_data)
 {
   // Access problem data
   UserData* udata = (UserData*)user_data;
@@ -480,8 +478,8 @@ static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunrealtype* 
   sunindextype ny = udata->ny;
 
   // Fill in spectral radius value
-  *lambdaR = -SUN_RCONST(8.0)*SUNMAX(udata->kx/udata->dx/udata->dx,
-                                     udata->ky/udata->dy/udata->dy);
+  *lambdaR = -SUN_RCONST(8.0) * SUNMAX(udata->kx / udata->dx / udata->dx,
+                                       udata->ky / udata->dy / udata->dy);
   *lambdaI = SUN_RCONST(0.0);
 
   // return with success
@@ -541,7 +539,7 @@ int UserOptions::parse_args(vector<string>& args, bool outproc)
   it = find(args.begin(), args.end(), "--lsrkmethod");
   if (it != args.end())
   {
-    lsrkmethod = (ARKODE_LSRKMethodType) stoi(*(it + 1));
+    lsrkmethod = (ARKODE_LSRKMethodType)stoi(*(it + 1));
     args.erase(it, it + 2);
   }
 
@@ -692,8 +690,10 @@ void UserOptions::print()
     switch (lsrkmethod)
     {
     case (ARKODE_LSRK_RKC): cout << " method = RKC " << endl; break;
-    case (ARKODE_LSRK_RKL): cout << " method = RKL " << endl; break;
-    // case (ARKODE_LSRK_RKG): cout << " method = RKG " << endl; break;
+    case (ARKODE_LSRK_RKL):
+      cout << " method = RKL " << endl;
+      break;
+      // case (ARKODE_LSRK_RKG): cout << " method = RKG " << endl; break;
     }
     cout << " --------------------------------- " << endl;
   }

@@ -1540,7 +1540,8 @@ static int Jac(UserData* udata)
                                           work);
     if (flag != 0)
     {
-      cerr << "Error in HYPRE_StructMatrixSetBoxValues (interior) = " << flag << endl;
+      cerr << "Error in HYPRE_StructMatrixSetBoxValues (interior) = " << flag
+           << endl;
       return -1;
     }
 
@@ -1586,7 +1587,8 @@ static int Jac(UserData* udata)
                                               entries, work);
         if (flag != 0)
         {
-          cerr << "Error in HYPRE_StructMatrixSetBoxValues (west bdry) = " << flag << endl;
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (west bdry) = " << flag
+               << endl;
           return -1;
         }
       }
@@ -1611,7 +1613,8 @@ static int Jac(UserData* udata)
                                               entries, work);
         if (flag != 0)
         {
-          cerr << "Error in HYPRE_StructMatrixSetBoxValues (east bdry) = " << flag << endl;
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (east bdry) = " << flag
+               << endl;
           return -1;
         }
       }
@@ -1636,7 +1639,8 @@ static int Jac(UserData* udata)
                                               entries, work);
         if (flag != 0)
         {
-          cerr << "Error in HYPRE_StructMatrixSetBoxValues (south bdry) = " << flag << endl;
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (south bdry) = "
+               << flag << endl;
           return -1;
         }
       }
@@ -1661,7 +1665,8 @@ static int Jac(UserData* udata)
                                               entries, work);
         if (flag != 0)
         {
-          cerr << "Error in HYPRE_StructMatrixSetBoxValues (north bdry) = " << flag << endl;
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (north bdry) = "
+               << flag << endl;
           return -1;
         }
       }
@@ -1696,7 +1701,9 @@ static int Jac(UserData* udata)
                                               entry, work);
         if (flag != 0)
         {
-          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect west bdry) = " << flag << endl;
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect west "
+                  "bdry) = "
+               << flag << endl;
           return -1;
         }
       }
@@ -1724,7 +1731,9 @@ static int Jac(UserData* udata)
                                               entry, work);
         if (flag != 0)
         {
-          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect east bdry) = " << flag << endl;
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect east "
+                  "bdry) = "
+               << flag << endl;
           return -1;
         }
       }
@@ -1752,7 +1761,9 @@ static int Jac(UserData* udata)
                                               entry, work);
         if (flag != 0)
         {
-          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect south bdry) = " << flag << endl;
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect south "
+                  "bdry) = "
+               << flag << endl;
           return -1;
         }
       }
@@ -1780,7 +1791,9 @@ static int Jac(UserData* udata)
                                               entry, work);
         if (flag != 0)
         {
-          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect north bdry) = " << flag << endl;
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect north "
+                  "bdry) = "
+               << flag << endl;
           return -1;
         }
       }

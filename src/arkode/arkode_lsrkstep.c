@@ -237,9 +237,10 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
 
   This routine resizes the memory within the LSRKStep module.
   ---------------------------------------------------------------*/
-int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, 
+int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
                     SUNDIALS_MAYBE_UNUSED sunrealtype hscale,
-                    SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
+                    SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize,
+                    void* resize_data)
 {
   ARKodeLSRKStepMem step_mem;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
@@ -347,7 +348,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 
   /* output sunrealtype quantities */
   fprintf(outfile, "LSRKStep: DomEig        = %f + i%f\n", step_mem->lambdaR,
-                                                           step_mem->lambdaI);
+          step_mem->lambdaI);
   fprintf(outfile, "LSRKStep: sprad         = %f\n", step_mem->sprad);
   fprintf(outfile, "LSRKStep: sprmax        = %f\n", step_mem->sprmax);
   fprintf(outfile, "LSRKStep: sprmin        = %f\n", step_mem->sprmin);
@@ -674,12 +675,12 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (j < step_mem->reqstages)
     {
       /* To avoid two data copies we swap ARKODE's tempv1 and tempv2 pointers*/
-      N_Vector *ptrtempv1 = &(ark_mem->tempv1);
-      N_Vector *ptrtempv2 = &(ark_mem->tempv2);
+      N_Vector* ptrtempv1 = &(ark_mem->tempv1);
+      N_Vector* ptrtempv2 = &(ark_mem->tempv2);
 
       N_Vector temp = *ptrtempv2;
-      *ptrtempv2 = *ptrtempv1;
-      *ptrtempv1 = temp;
+      *ptrtempv2    = *ptrtempv1;
+      *ptrtempv1    = temp;
 
       N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
 
@@ -926,20 +927,20 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  sunrealtype rs = (sunrealtype)step_mem->reqstages;
-  sunrealtype sm1inv = ONE/(rs - ONE);
+  sunrealtype rs     = (sunrealtype)step_mem->reqstages;
+  sunrealtype sm1inv = ONE / (rs - ONE);
   sunrealtype bt1, bt2, bt3;
 
-  if(step_mem->reqstages == 2)
+  if (step_mem->reqstages == 2)
   {
     bt1 = 0.694021459207626;
     bt3 = 1 - 0.694021459207626;
   }
   else
-    {
-    bt1 = (rs + ONE)/(rs*rs);
-    bt2 = ONE/rs;
-    bt3 = (rs - ONE)/(rs*rs);
+  {
+    bt1 = (rs + ONE) / (rs * rs);
+    bt2 = ONE / rs;
+    bt3 = (rs - ONE) / (rs * rs);
   }
 
   /* Call the full RHS if needed. If this is the first step then we may need to
@@ -947,7 +948,6 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
      compute h0). For subsequent steps treat this RHS evaluation as an
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
-
 
   if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
   {
@@ -961,30 +961,34 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   /* A tentative solution at t+h is returned in
      y and its slope is evaluated in temp1.  */
 
-  N_VLinearSum(ONE, ark_mem->yn, sm1inv*ark_mem->h, ark_mem->fn, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->yn, bt1*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
+  N_VLinearSum(ONE, ark_mem->yn, sm1inv * ark_mem->h, ark_mem->fn, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->yn, bt1 * ark_mem->h, ark_mem->fn, ark_mem->tempv1);
 
   /* Evaluate stages j = 2,...,step_mem->reqstages - 1 */
   for (int j = 2; j < step_mem->reqstages; j++)
   {
-    retval = step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE)*sm1inv*ark_mem->h, ark_mem->ycur,
-                          ark_mem->fn, ark_mem->user_data);
+    retval =
+      step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE) * sm1inv * ark_mem->h,
+                   ark_mem->ycur, ark_mem->fn, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
-    
-    N_VLinearSum(ONE, ark_mem->ycur, sm1inv*ark_mem->h, ark_mem->fn, ark_mem->ycur);
-    N_VLinearSum(ONE, ark_mem->tempv1, bt2*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
 
+    N_VLinearSum(ONE, ark_mem->ycur, sm1inv * ark_mem->h, ark_mem->fn,
+                 ark_mem->ycur);
+    N_VLinearSum(ONE, ark_mem->tempv1, bt2 * ark_mem->h, ark_mem->fn,
+                 ark_mem->tempv1);
   }
   /* Evaluate the last stage for j = step_mem->reqstages */
-  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                        ark_mem->fn, ark_mem->user_data);
+  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur, ark_mem->fn,
+                        ark_mem->user_data);
   if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
-  N_VLinearSum(ONE/rs, ark_mem->yn, ONE/(sm1inv*rs), ark_mem->ycur, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h/rs, ark_mem->fn, ark_mem->ycur);
+  N_VLinearSum(ONE / rs, ark_mem->yn, ONE / (sm1inv * rs), ark_mem->ycur,
+               ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h / rs, ark_mem->fn, ark_mem->ycur);
 
-  N_VLinearSum(ONE, ark_mem->tempv1, bt3*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
-  
+  N_VLinearSum(ONE, ark_mem->tempv1, bt3 * ark_mem->h, ark_mem->fn,
+               ark_mem->tempv1);
+
   step_mem->nfe += step_mem->reqstages - 1;
 
   /* Compute yerr (if step adaptivity enabled) */
@@ -1043,15 +1047,14 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   sunrealtype rs  = (sunrealtype)step_mem->reqstages;
   sunrealtype rn  = SUNRsqrt(rs);
-  sunrealtype rat = ONE/(rs - rn);
-  int in = (int)rn;
+  sunrealtype rat = ONE / (rs - rn);
+  int in          = (int)rn;
 
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
      compute h0). For subsequent steps treat this RHS evaluation as an
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
-
 
   if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
   {
@@ -1065,45 +1068,60 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   /* A tentative solution at t+h is returned in
      y and its slope is evaluated in temp1.  */
 
-  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h*rat, ark_mem->fn, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h/rs, ark_mem->fn, ark_mem->tempv1);
+  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * rat, ark_mem->fn, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h / rs, ark_mem->fn, ark_mem->tempv1);
 
   /* Evaluate stages j = 2,...,step_mem->reqstages */
-  for (int j = 2; j <= (int)((in - 1)*(in - 2)/2); j++)
+  for (int j = 2; j <= (int)((in - 1) * (in - 2) / 2); j++)
   {
-    retval = step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE)*rat*ark_mem->h, ark_mem->ycur,
-                          ark_mem->fn, ark_mem->user_data);
+    retval =
+      step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h,
+                   ark_mem->ycur, ark_mem->fn, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
-    
-    N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h*rat, ark_mem->fn, ark_mem->ycur);
-    N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h/rs, ark_mem->fn, ark_mem->tempv1);
+
+    N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, ark_mem->fn,
+                 ark_mem->ycur);
+    N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
+                 ark_mem->tempv1);
   }
   N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
-  for (int j = (int)((in - 1)*(in - 2)/2 + 1); j <= (int)(in*(in + 1)/2 - 1); j++)
+  for (int j = (int)((in - 1) * (in - 2) / 2 + 1);
+       j <= (int)(in * (in + 1) / 2 - 1); j++)
   {
-    retval = step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE)*rat*ark_mem->h, ark_mem->ycur,
-                          ark_mem->fn, ark_mem->user_data);
+    retval =
+      step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h,
+                   ark_mem->ycur, ark_mem->fn, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
-    
-    N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h*rat, ark_mem->fn, ark_mem->ycur);
-    N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h/rs, ark_mem->fn, ark_mem->tempv1);
+
+    N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, ark_mem->fn,
+                 ark_mem->ycur);
+    N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
+                 ark_mem->tempv1);
   }
-  retval = step_mem->fe(ark_mem->tcur + rat*(rn*(rn + ONE)/TWO - ONE)*ark_mem->h, ark_mem->ycur,
-                        ark_mem->fn, ark_mem->user_data);
+  retval = step_mem->fe(ark_mem->tcur +
+                          rat * (rn * (rn + ONE) / TWO - ONE) * ark_mem->h,
+                        ark_mem->ycur, ark_mem->fn, ark_mem->user_data);
   if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
-  N_VLinearSum(rn/(TWO*rn - ONE), ark_mem->tempv2, (rn - ONE)/(TWO*rn - ONE), ark_mem->ycur, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->ycur, (rn - ONE)*rat*ark_mem->h/(TWO*rn - ONE), ark_mem->fn, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h/rs, ark_mem->fn, ark_mem->tempv1);
+  N_VLinearSum(rn / (TWO * rn - ONE), ark_mem->tempv2,
+               (rn - ONE) / (TWO * rn - ONE), ark_mem->ycur, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->ycur,
+               (rn - ONE) * rat * ark_mem->h / (TWO * rn - ONE), ark_mem->fn,
+               ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
+               ark_mem->tempv1);
 
-  for (int j = (int)(in*(in + 1)/2 + 1); j <= step_mem->reqstages; j++)
+  for (int j = (int)(in * (in + 1) / 2 + 1); j <= step_mem->reqstages; j++)
   {
-    retval = step_mem->fe(ark_mem->tcur + ((sunrealtype)j - rn - ONE)*rat*ark_mem->h, ark_mem->ycur,
-                          ark_mem->fn, ark_mem->user_data);
+    retval = step_mem->fe(ark_mem->tcur +
+                            ((sunrealtype)j - rn - ONE) * rat * ark_mem->h,
+                          ark_mem->ycur, ark_mem->fn, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
-    
-    N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h*rat, ark_mem->fn, ark_mem->ycur);
-    N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h/rs, ark_mem->fn, ark_mem->tempv1);
+
+    N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, ark_mem->fn,
+                 ark_mem->ycur);
+    N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
+                 ark_mem->tempv1);
   }
 
   step_mem->nfe += step_mem->reqstages - 1;
@@ -1158,7 +1176,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   *nflagPtr = ARK_SUCCESS;
   *dsmPtr   = ZERO;
 
-  sunrealtype onesixth = 1.0/6.0;
+  sunrealtype onesixth = 1.0 / 6.0;
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -1169,7 +1187,6 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
      compute h0). For subsequent steps treat this RHS evaluation as an
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
-
 
   if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
   {
@@ -1182,46 +1199,63 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
   /* A tentative solution at t+h is returned in
      y and its slope is evaluated in temp1.  */
-     
+
   N_VScale(ONE, ark_mem->yn, ark_mem->tempv2);
 
-  N_VLinearSum(ONE, ark_mem->yn, onesixth*ark_mem->h, ark_mem->fn, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->yn, 1.0/5.0*ark_mem->h, ark_mem->fn, ark_mem->tempv1);
+  N_VLinearSum(ONE, ark_mem->yn, onesixth * ark_mem->h, ark_mem->fn,
+               ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->yn, 1.0 / 5.0 * ark_mem->h, ark_mem->fn,
+               ark_mem->tempv1);
 
   /* Evaluate stages j = 2,...,step_mem->reqstages */
   for (int j = 2; j <= 5; j++)
   {
-    retval = step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE)*onesixth*ark_mem->h, ark_mem->ycur,
-                          ark_mem->fn, ark_mem->user_data);
+    retval = step_mem->fe(ark_mem->tcur +
+                            ((sunrealtype)j - ONE) * onesixth * ark_mem->h,
+                          ark_mem->ycur, ark_mem->fn, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
-    
-    N_VLinearSum(ONE, ark_mem->ycur, onesixth*ark_mem->h, ark_mem->fn, ark_mem->ycur);
-    if(j == 4)
-      {N_VLinearSum(ONE, ark_mem->tempv1, 3.0/10.0*ark_mem->h, ark_mem->fn, ark_mem->tempv1);}
+
+    N_VLinearSum(ONE, ark_mem->ycur, onesixth * ark_mem->h, ark_mem->fn,
+                 ark_mem->ycur);
+    if (j == 4)
+    {
+      N_VLinearSum(ONE, ark_mem->tempv1, 3.0 / 10.0 * ark_mem->h, ark_mem->fn,
+                   ark_mem->tempv1);
+    }
   }
-  N_VLinearSum(1.0/25.0, ark_mem->tempv2, 9.0/25.0, ark_mem->ycur, ark_mem->tempv2);
+  N_VLinearSum(1.0 / 25.0, ark_mem->tempv2, 9.0 / 25.0, ark_mem->ycur,
+               ark_mem->tempv2);
   N_VLinearSum(15, ark_mem->tempv2, -5, ark_mem->ycur, ark_mem->ycur);
   for (int j = 6; j <= 9; j++)
   {
-    retval = step_mem->fe(ark_mem->tcur + ((sunrealtype)j - 4.0)*onesixth*ark_mem->h, ark_mem->ycur,
-                          ark_mem->fn, ark_mem->user_data);
+    retval = step_mem->fe(ark_mem->tcur +
+                            ((sunrealtype)j - 4.0) * onesixth * ark_mem->h,
+                          ark_mem->ycur, ark_mem->fn, ark_mem->user_data);
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
-    
-    N_VLinearSum(ONE, ark_mem->ycur, onesixth*ark_mem->h, ark_mem->fn, ark_mem->ycur);
 
-    if(j == 7)
-      {N_VLinearSum(ONE, ark_mem->tempv1, 1.0/5.0*ark_mem->h, ark_mem->fn, ark_mem->tempv1);}
-    if(j == 9)
-      {N_VLinearSum(ONE, ark_mem->tempv1, 3.0/10.0*ark_mem->h, ark_mem->fn, ark_mem->tempv1);}  
+    N_VLinearSum(ONE, ark_mem->ycur, onesixth * ark_mem->h, ark_mem->fn,
+                 ark_mem->ycur);
+
+    if (j == 7)
+    {
+      N_VLinearSum(ONE, ark_mem->tempv1, 1.0 / 5.0 * ark_mem->h, ark_mem->fn,
+                   ark_mem->tempv1);
+    }
+    if (j == 9)
+    {
+      N_VLinearSum(ONE, ark_mem->tempv1, 3.0 / 10.0 * ark_mem->h, ark_mem->fn,
+                   ark_mem->tempv1);
+    }
   }
 
-  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                        ark_mem->fn, ark_mem->user_data);
+  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur, ark_mem->fn,
+                        ark_mem->user_data);
   if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
-  N_VLinearSum(ONE, ark_mem->tempv2, 3.0/5.0, ark_mem->ycur, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->ycur, 1.0/10.0*ark_mem->h, ark_mem->fn, ark_mem->ycur);
-  
+  N_VLinearSum(ONE, ark_mem->tempv2, 3.0 / 5.0, ark_mem->ycur, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->ycur, 1.0 / 10.0 * ark_mem->h, ark_mem->fn,
+               ark_mem->ycur);
+
   step_mem->nfe += 9;
 
   /* Compute yerr (if step adaptivity enabled) */
@@ -1242,7 +1276,6 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
   return (ARK_SUCCESS);
 }
-
 
 /*===============================================================
   Internal utility routines
@@ -1327,16 +1360,16 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
   if ((step_mem->isextDomEig))
   {
-    retval = step_mem->extDomEig(ark_mem->tn, ark_mem->ycur, &step_mem->lambdaR, &step_mem->lambdaI, ark_mem->user_data);
+    retval = step_mem->extDomEig(ark_mem->tn, ark_mem->ycur, &step_mem->lambdaR,
+                                 &step_mem->lambdaI, ark_mem->user_data);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                     "Unable to estimate the dominant eigenvalue");
+                      "Unable to estimate the dominant eigenvalue");
       return (ARK_DOMEIG_FAIL);
     }
 
-
-    if(step_mem->lambdaR*ark_mem->h > ZERO)
+    if (step_mem->lambdaR * ark_mem->h > ZERO)
     {
       printf("\nlambdaR*h must be nonpositive\n");
       return (ARK_ILL_INPUT);
@@ -1346,10 +1379,11 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       printf("\nDomEig cannot be purely imaginary\n");
       return (ARK_ILL_INPUT);
     }
-    
+
     step_mem->lambdaR *= step_mem->domeigsfty;
     step_mem->lambdaI *= step_mem->domeigsfty;
-    step_mem->sprad = SUNRsqrt(SUNSQR(step_mem->lambdaR) + SUNSQR(step_mem->lambdaI));
+    step_mem->sprad =
+      SUNRsqrt(SUNSQR(step_mem->lambdaR) + SUNSQR(step_mem->lambdaI));
   }
   else
   {
@@ -1361,9 +1395,8 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   }
   step_mem->jacatt = SUNTRUE;
 
-  step_mem->sprmax = (step_mem->sprad > step_mem->sprmax)
-                       ? step_mem->sprad
-                       : step_mem->sprmax;
+  step_mem->sprmax = (step_mem->sprad > step_mem->sprmax) ? step_mem->sprad
+                                                          : step_mem->sprmax;
 
   if (step_mem->sprad < step_mem->sprmin || ark_mem->nst == 0)
   {
@@ -1390,8 +1423,8 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
     N_VScale(ONE, ark_mem->tempv2, ark_mem->fn);
     ark_mem->fn_is_current = SUNTRUE;
 
-    step_mem->jacatt = (step_mem->constJac == SUNTRUE);
-    step_mem->nstsig = (step_mem->nstsig + 1) % step_mem->domeigfreq;
+    step_mem->jacatt    = (step_mem->constJac == SUNTRUE);
+    step_mem->nstsig    = (step_mem->nstsig + 1) % step_mem->domeigfreq;
     step_mem->newdomeig = SUNFALSE;
     if (step_mem->nstsig == 0) { step_mem->newdomeig = !step_mem->jacatt; }
   }

@@ -21,14 +21,14 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <string>
 #include <limits>
 #include <sstream>
+#include <string>
 #include <vector>
 
 // Include desired integrators, vectors, linear solvers, and nonlinear solvers
-#include "arkode/arkode_lsrkstep.h"
 #include "arkode/arkode_erkstep.h"
+#include "arkode/arkode_lsrkstep.h"
 #include "nvector/nvector_manyvector.h"
 #include "nvector/nvector_serial.h"
 #include "sundials/sundials_core.hpp"
@@ -58,40 +58,42 @@ using namespace std;
 
 class ARKODEParameters
 {
+public:
+  // Integration method (ARKODE_LSRK_SSPs_2, ARKODE_LSRK_SSPs_3, ARKODE_LSRK_SSP10_4,
+  // or any valid ARKODE_ERKTableID for ERK methods)
+  string integrator;
 
-  public:
+  // Method stages (0 => to use the default; ignored if using ARKODE_LSRK_SSP10_4 or
+  // an ERK method)
+  int stages;
 
-    // Integration method (ARKODE_LSRK_SSPs_2, ARKODE_LSRK_SSPs_3, ARKODE_LSRK_SSP10_4,
-    // or any valid ARKODE_ERKTableID for ERK methods)
-    string integrator;
+  // Relative and absolute tolerances
+  sunrealtype rtol;
+  sunrealtype atol;
 
-    // Method stages (0 => to use the default; ignored if using ARKODE_LSRK_SSP10_4 or
-    // an ERK method)
-    int stages;
+  // Step size selection (ZERO = adaptive steps)
+  sunrealtype fixed_h;
 
-    // Relative and absolute tolerances
-    sunrealtype rtol;
-    sunrealtype atol;
+  // Maximum number of time steps between outputs
+  int maxsteps;
 
-    // Step size selection (ZERO = adaptive steps)
-    sunrealtype fixed_h;
+  // Output-related information
+  int output;    // 0 = none, 1 = stats, 2 = disk, 3 = disk with tstop
+  int nout;      // number of output times
+  ofstream uout; // output file stream
 
-    // Maximum number of time steps between outputs
-    int maxsteps;
+  // constructor (with default values)
+  ARKODEParameters()
+    : integrator("ARKODE_LSRK_SSP10_4"),
+      stages(0),
+      rtol(SUN_RCONST(1.e-4)),
+      atol(SUN_RCONST(1.e-11)),
+      fixed_h(ZERO),
+      maxsteps(10000),
+      output(1),
+      nout(10){};
 
-    // Output-related information
-    int output;    // 0 = none, 1 = stats, 2 = disk, 3 = disk with tstop
-    int nout;      // number of output times
-    ofstream uout; // output file stream
-
-    // constructor (with default values)
-    ARKODEParameters() :
-      integrator("ARKODE_LSRK_SSP10_4"), stages(0), rtol(SUN_RCONST(1.e-4)),
-      atol(SUN_RCONST(1.e-11)), fixed_h(ZERO), maxsteps(10000), output(1),
-      nout(10)
-    {};
-
-};    // end ARKODEParameters
+}; // end ARKODEParameters
 
 // -----------------------------------------------------------------------------
 // Problem parameters
@@ -100,103 +102,116 @@ class ARKODEParameters
 // user data class
 class EulerData
 {
+public:
+  ///// domain related data /////
+  long int nx;    // global number of x grid points
+  sunrealtype t0; // time domain extents
+  sunrealtype tf;
+  sunrealtype xl; // spatial domain extents
+  sunrealtype xr;
+  sunrealtype dx; // spatial mesh spacing
 
-  public:
-    ///// domain related data /////
-    long int nx;          // global number of x grid points
-    sunrealtype t0;       // time domain extents
-    sunrealtype tf;
-    sunrealtype xl;       // spatial domain extents
-    sunrealtype xr;
-    sunrealtype dx;       // spatial mesh spacing
+  ///// problem-defining data /////
+  sunrealtype gamma; // ratio of specific heat capacities, cp/cv
 
-    ///// problem-defining data /////
-    sunrealtype gamma;    // ratio of specific heat capacities, cp/cv
+  ///// reusable arrays for WENO flux calculations /////
+  sunrealtype* flux;
+  sunrealtype w1d[6][NSPECIES];
 
-    ///// reusable arrays for WENO flux calculations /////
-    sunrealtype* flux;
-    sunrealtype w1d[6][NSPECIES];
+  ///// class operations /////
 
-    ///// class operations /////
+  // constructor
+  EulerData()
+    : nx(512),
+      t0(ZERO),
+      tf(SUN_RCONST(0.1)),
+      xl(ZERO),
+      xr(ONE),
+      gamma(SUN_RCONST(1.4)),
+      flux(NULL),
+      dx(ZERO){};
 
-    // constructor
-    EulerData() :
-      nx(512), t0(ZERO), tf(SUN_RCONST(0.1)), xl(ZERO), xr(ONE),
-      gamma(SUN_RCONST(1.4)), flux(NULL), dx(ZERO)
-      { };
-
-    // manual destructor
-    void FreeData() {
-      if (flux != NULL) {
-        delete[] flux;
-        flux = NULL;
-      }
-    };
-
-    // destructor
-    ~EulerData() {
-      this->FreeData();
-    };
-
-    // Utility routine to pack 1-dimensional data for *interior only* data;
-    // e.g., in the x-direction given a location (i), we return values at
-    // the 6 nodal values closest to the (i-1/2) face along the x-direction,
-    // {w(i-3), w(i-2), w(i-1), w(i), w(i+1), w(i+2)}.
-    inline void pack1D(sunrealtype (&w1d)[6][NSPECIES], const sunrealtype* rho,
-                       const sunrealtype* mx, const sunrealtype* my,
-                       const sunrealtype* mz, const sunrealtype* et,
-                       const long int& i) const
+  // manual destructor
+  void FreeData()
+  {
+    if (flux != NULL)
     {
-      for (int l=0; l<6; l++)  w1d[l][0] = rho[i-3+l];
-      for (int l=0; l<6; l++)  w1d[l][1] = mx[ i-3+l];
-      for (int l=0; l<6; l++)  w1d[l][2] = my[ i-3+l];
-      for (int l=0; l<6; l++)  w1d[l][3] = mz[ i-3+l];
-      for (int l=0; l<6; l++)  w1d[l][4] = et[ i-3+l];
+      delete[] flux;
+      flux = NULL;
     }
+  };
 
-    // Utility routine to pack 1-dimensional data for locations near the
-    // boundary; like the routine above this packs the 6 closest
-    // entries aligned with, e.g., the (i-1/2) face, but now some entries
-    // are set to satisfy homogeneous Neumann boundary conditions.
-    inline void pack1D_bdry(sunrealtype (&w1d)[6][NSPECIES], const sunrealtype* rho,
-                            const sunrealtype* mx, const sunrealtype* my,
-                            const sunrealtype* mz, const sunrealtype* et,
-                            const long int& i) const
-    {
-      for (int l=0; l<3; l++)  w1d[l][0] = (i<(3-l)) ? rho[2-(i+l)] : rho[i-3+l];
-      for (int l=0; l<3; l++)  w1d[l][1] = (i<(3-l)) ?  mx[2-(i+l)] :  mx[i-3+l];
-      for (int l=0; l<3; l++)  w1d[l][2] = (i<(3-l)) ?  my[2-(i+l)] :  my[i-3+l];
-      for (int l=0; l<3; l++)  w1d[l][3] = (i<(3-l)) ?  mz[2-(i+l)] :  mz[i-3+l];
-      for (int l=0; l<3; l++)  w1d[l][4] = (i<(3-l)) ?  et[2-(i+l)] :  et[i-3+l];
-      for (int l=0; l<3; l++)  w1d[l+3][0] = (i>(nx-l-1)) ? rho[i+l-3] : rho[i+l];
-      for (int l=0; l<3; l++)  w1d[l+3][1] = (i>(nx-l-1)) ?  mx[i+l-3] :  mx[i+l];
-      for (int l=0; l<3; l++)  w1d[l+3][2] = (i>(nx-l-1)) ?  my[i+l-3] :  my[i+l];
-      for (int l=0; l<3; l++)  w1d[l+3][3] = (i>(nx-l-1)) ?  mz[i+l-3] :  mz[i+l];
-      for (int l=0; l<3; l++)  w1d[l+3][4] = (i>(nx-l-1)) ?  et[i+l-3] :  et[i+l];
-    }
+  // destructor
+  ~EulerData() { this->FreeData(); };
 
-    // Equation of state -- compute and return pressure,
-    //    p = (gamma-1)*(e - rho/2*(vx^2+vy^2+vz^2)), or equivalently
-    //    p = (gamma-1)*(e - (mx^2+my^2+mz^2)/(2*rho))
-    inline sunrealtype eos(const sunrealtype& rho, const sunrealtype& mx,
-                           const sunrealtype& my, const sunrealtype& mz,
-                           const sunrealtype& et) const
-    {
-      return((gamma-ONE)*(et - (mx*mx + my*my + mz*mz)*HALF/rho));
-    }
+  // Utility routine to pack 1-dimensional data for *interior only* data;
+  // e.g., in the x-direction given a location (i), we return values at
+  // the 6 nodal values closest to the (i-1/2) face along the x-direction,
+  // {w(i-3), w(i-2), w(i-1), w(i), w(i+1), w(i+2)}.
+  inline void pack1D(sunrealtype (&w1d)[6][NSPECIES], const sunrealtype* rho,
+                     const sunrealtype* mx, const sunrealtype* my,
+                     const sunrealtype* mz, const sunrealtype* et,
+                     const long int& i) const
+  {
+    for (int l = 0; l < 6; l++) w1d[l][0] = rho[i - 3 + l];
+    for (int l = 0; l < 6; l++) w1d[l][1] = mx[i - 3 + l];
+    for (int l = 0; l < 6; l++) w1d[l][2] = my[i - 3 + l];
+    for (int l = 0; l < 6; l++) w1d[l][3] = mz[i - 3 + l];
+    for (int l = 0; l < 6; l++) w1d[l][4] = et[i - 3 + l];
+  }
 
-    // Equation of state inverse -- compute and return energy,
-    //    e_t = p/(gamma-1) + rho/2*(vx^2+vy^2+vz^2), or equivalently
-    //    e_t = p/(gamma-1) + (mx^2+my^2+mz^2)/(2*rho)
-    inline sunrealtype eos_inv(const sunrealtype& rho, const sunrealtype& mx,
-                               const sunrealtype& my, const sunrealtype& mz,
-                               const sunrealtype& pr) const
-    {
-      return(pr/(gamma-ONE) + (mx*mx + my*my + mz*mz)*HALF/rho);
-    }
+  // Utility routine to pack 1-dimensional data for locations near the
+  // boundary; like the routine above this packs the 6 closest
+  // entries aligned with, e.g., the (i-1/2) face, but now some entries
+  // are set to satisfy homogeneous Neumann boundary conditions.
+  inline void pack1D_bdry(sunrealtype (&w1d)[6][NSPECIES],
+                          const sunrealtype* rho, const sunrealtype* mx,
+                          const sunrealtype* my, const sunrealtype* mz,
+                          const sunrealtype* et, const long int& i) const
+  {
+    for (int l = 0; l < 3; l++)
+      w1d[l][0] = (i < (3 - l)) ? rho[2 - (i + l)] : rho[i - 3 + l];
+    for (int l = 0; l < 3; l++)
+      w1d[l][1] = (i < (3 - l)) ? mx[2 - (i + l)] : mx[i - 3 + l];
+    for (int l = 0; l < 3; l++)
+      w1d[l][2] = (i < (3 - l)) ? my[2 - (i + l)] : my[i - 3 + l];
+    for (int l = 0; l < 3; l++)
+      w1d[l][3] = (i < (3 - l)) ? mz[2 - (i + l)] : mz[i - 3 + l];
+    for (int l = 0; l < 3; l++)
+      w1d[l][4] = (i < (3 - l)) ? et[2 - (i + l)] : et[i - 3 + l];
+    for (int l = 0; l < 3; l++)
+      w1d[l + 3][0] = (i > (nx - l - 1)) ? rho[i + l - 3] : rho[i + l];
+    for (int l = 0; l < 3; l++)
+      w1d[l + 3][1] = (i > (nx - l - 1)) ? mx[i + l - 3] : mx[i + l];
+    for (int l = 0; l < 3; l++)
+      w1d[l + 3][2] = (i > (nx - l - 1)) ? my[i + l - 3] : my[i + l];
+    for (int l = 0; l < 3; l++)
+      w1d[l + 3][3] = (i > (nx - l - 1)) ? mz[i + l - 3] : mz[i + l];
+    for (int l = 0; l < 3; l++)
+      w1d[l + 3][4] = (i > (nx - l - 1)) ? et[i + l - 3] : et[i + l];
+  }
 
-};   // end EulerData;
+  // Equation of state -- compute and return pressure,
+  //    p = (gamma-1)*(e - rho/2*(vx^2+vy^2+vz^2)), or equivalently
+  //    p = (gamma-1)*(e - (mx^2+my^2+mz^2)/(2*rho))
+  inline sunrealtype eos(const sunrealtype& rho, const sunrealtype& mx,
+                         const sunrealtype& my, const sunrealtype& mz,
+                         const sunrealtype& et) const
+  {
+    return ((gamma - ONE) * (et - (mx * mx + my * my + mz * mz) * HALF / rho));
+  }
 
+  // Equation of state inverse -- compute and return energy,
+  //    e_t = p/(gamma-1) + rho/2*(vx^2+vy^2+vz^2), or equivalently
+  //    e_t = p/(gamma-1) + (mx^2+my^2+mz^2)/(2*rho)
+  inline sunrealtype eos_inv(const sunrealtype& rho, const sunrealtype& mx,
+                             const sunrealtype& my, const sunrealtype& mz,
+                             const sunrealtype& pr) const
+  {
+    return (pr / (gamma - ONE) + (mx * mx + my * my + mz * mz) * HALF / rho);
+  }
+
+}; // end EulerData;
 
 // -----------------------------------------------------------------------------
 // Functions provided to the SUNDIALS integrators
@@ -210,7 +225,8 @@ int frhs(sunrealtype t, N_Vector y, N_Vector f, void* user_data);
 // -----------------------------------------------------------------------------
 
 // WENO flux calculation helper function
-void face_flux(sunrealtype (&w1d)[6][NSPECIES], sunrealtype* f_face, const EulerData& udata);
+void face_flux(sunrealtype (&w1d)[6][NSPECIES], sunrealtype* f_face,
+               const EulerData& udata);
 
 // Compute the initial condition
 int SetIC(N_Vector y, EulerData& udata);
@@ -238,14 +254,16 @@ static int check_ptr(void* ptr, const string funcname)
   return 1;
 }
 
-
 // Print command line options
 static void InputHelp()
 {
   cout << endl;
   cout << "Command line options:" << endl;
-  cout << "  --integrator <str> : method (ARKODE_LSRK_SSPs_2, ARKODE_LSRK_SSPs_3, ARKODE_LSRK_SSP10_4, or any valid ARKODE_ERKTableID)\n";
-  cout << "  --stages <int>     : number of stages (ignored for ARKODE_LSRK_SSP10_4 and ERK)\n";
+  cout
+    << "  --integrator <str> : method (ARKODE_LSRK_SSPs_2, ARKODE_LSRK_SSPs_3, "
+       "ARKODE_LSRK_SSP10_4, or any valid ARKODE_ERKTableID)\n";
+  cout << "  --stages <int>     : number of stages (ignored for "
+          "ARKODE_LSRK_SSP10_4 and ERK)\n";
   cout << "  --tf <real>        : final time\n";
   cout << "  --xl <real>        : domain lower boundary\n";
   cout << "  --xr <real>        : domain upper boundary\n";
@@ -285,6 +303,7 @@ inline void find_arg(vector<string>& args, const string key, long int& dest)
     args.erase(it, it + 2);
   }
 }
+
 inline void find_arg(vector<string>& args, const string key, int& dest)
 {
   auto it = find(args.begin(), args.end(), key);
@@ -316,8 +335,8 @@ inline void find_arg(vector<string>& args, const string key, bool& dest,
   }
 }
 
-static int ReadInputs(vector<string>& args, EulerData& udata, ARKODEParameters& uopts,
-                      SUNContext ctx)
+static int ReadInputs(vector<string>& args, EulerData& udata,
+                      ARKODEParameters& uopts, SUNContext ctx)
 {
   if (find(args.begin(), args.end(), "--help") != args.end())
   {
@@ -344,7 +363,7 @@ static int ReadInputs(vector<string>& args, EulerData& udata, ARKODEParameters& 
   // Recompute mesh spacing and [re]allocate flux array
   udata.dx = (udata.xr - udata.xl) / (udata.nx);
   if (udata.flux != NULL) { delete[] udata.flux; }
-  udata.flux = new sunrealtype[NSPECIES*(udata.nx+1)];
+  udata.flux = new sunrealtype[NSPECIES * (udata.nx + 1)];
 
   if (uopts.stages < 0)
   {
@@ -370,8 +389,7 @@ static int PrintSetup(EulerData& udata, ARKODEParameters& uopts)
   cout << "  dx         = " << udata.dx << endl;
   cout << " --------------------------------- " << endl;
   cout << "  integrator = " << uopts.integrator << endl;
-  if (uopts.stages > 0)
-  { cout << "  stages     = " << uopts.stages << endl; }
+  if (uopts.stages > 0) { cout << "  stages     = " << uopts.stages << endl; }
   cout << "  rtol       = " << uopts.rtol << endl;
   cout << "  atol       = " << uopts.atol << endl;
   cout << "  fixed h    = " << uopts.fixed_h << endl;
@@ -397,7 +415,9 @@ static int OpenOutput(EulerData& udata, ARKODEParameters& uopts)
          << " ||my||      "
          << " ||mz||      "
          << " ||et||" << endl;
-    cout << " --------------------------------------------------------------------------" << endl;
+    cout << " -----------------------------------------------------------------"
+            "---------"
+         << endl;
   }
 
   // Open output stream and output problem information
@@ -429,41 +449,42 @@ static int WriteOutput(sunrealtype t, N_Vector y, EulerData& udata,
   if (uopts.output)
   {
     // Compute rms norm of the state
-    N_Vector rho = N_VGetSubvector_ManyVector(y, 0);
-    N_Vector mx  = N_VGetSubvector_ManyVector(y, 1);
-    N_Vector my  = N_VGetSubvector_ManyVector(y, 2);
-    N_Vector mz  = N_VGetSubvector_ManyVector(y, 3);
-    N_Vector et  = N_VGetSubvector_ManyVector(y, 4);
+    N_Vector rho       = N_VGetSubvector_ManyVector(y, 0);
+    N_Vector mx        = N_VGetSubvector_ManyVector(y, 1);
+    N_Vector my        = N_VGetSubvector_ManyVector(y, 2);
+    N_Vector mz        = N_VGetSubvector_ManyVector(y, 3);
+    N_Vector et        = N_VGetSubvector_ManyVector(y, 4);
     sunrealtype rhorms = sqrt(N_VDotProd(rho, rho) / udata.nx);
-    sunrealtype mxrms = sqrt(N_VDotProd(mx, mx) / udata.nx);
-    sunrealtype myrms = sqrt(N_VDotProd(my, my) / udata.nx);
-    sunrealtype mzrms = sqrt(N_VDotProd(mz, mz) / udata.nx);
-    sunrealtype etrms = sqrt(N_VDotProd(et, et) / udata.nx);
+    sunrealtype mxrms  = sqrt(N_VDotProd(mx, mx) / udata.nx);
+    sunrealtype myrms  = sqrt(N_VDotProd(my, my) / udata.nx);
+    sunrealtype mzrms  = sqrt(N_VDotProd(mz, mz) / udata.nx);
+    sunrealtype etrms  = sqrt(N_VDotProd(et, et) / udata.nx);
     cout << setprecision(2) << "  " << t << setprecision(5) << "  " << rhorms
-         << "  " << mxrms << "  " << myrms << "  " << mzrms << "  " << etrms << endl;
+         << "  " << mxrms << "  " << myrms << "  " << mzrms << "  " << etrms
+         << endl;
 
     // Write solution to disk
     if (uopts.output >= 2)
     {
       sunrealtype* rhodata = N_VGetArrayPointer(rho);
       if (check_ptr(rhodata, "N_VGetArrayPointer")) { return -1; }
-      sunrealtype* mxdata  = N_VGetArrayPointer(mx);
+      sunrealtype* mxdata = N_VGetArrayPointer(mx);
       if (check_ptr(mxdata, "N_VGetArrayPointer")) { return -1; }
-      sunrealtype* mydata  = N_VGetArrayPointer(my);
+      sunrealtype* mydata = N_VGetArrayPointer(my);
       if (check_ptr(mydata, "N_VGetArrayPointer")) { return -1; }
-      sunrealtype* mzdata  = N_VGetArrayPointer(mz);
+      sunrealtype* mzdata = N_VGetArrayPointer(mz);
       if (check_ptr(mzdata, "N_VGetArrayPointer")) { return -1; }
-      sunrealtype* etdata  = N_VGetArrayPointer(et);
+      sunrealtype* etdata = N_VGetArrayPointer(et);
       if (check_ptr(etdata, "N_VGetArrayPointer")) { return -1; }
 
       uopts.uout << t;
       for (sunindextype i = 0; i < udata.nx; i++)
       {
         uopts.uout << setw(WIDTH) << rhodata[i];
-        uopts.uout << setw(WIDTH) << mxdata[ i];
-        uopts.uout << setw(WIDTH) << mydata[ i];
-        uopts.uout << setw(WIDTH) << mzdata[ i];
-        uopts.uout << setw(WIDTH) << etdata[ i];
+        uopts.uout << setw(WIDTH) << mxdata[i];
+        uopts.uout << setw(WIDTH) << mydata[i];
+        uopts.uout << setw(WIDTH) << mzdata[i];
+        uopts.uout << setw(WIDTH) << etdata[i];
       }
       uopts.uout << endl;
     }
@@ -478,7 +499,9 @@ static int CloseOutput(ARKODEParameters& uopts)
   // Footer for status output
   if (uopts.output)
   {
-    cout << " --------------------------------------------------------------------------" << endl;
+    cout << " -----------------------------------------------------------------"
+            "---------"
+         << endl;
     cout << endl;
   }
 

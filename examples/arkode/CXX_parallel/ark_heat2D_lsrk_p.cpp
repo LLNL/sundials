@@ -53,11 +53,11 @@
 #include <limits>
 #include <sstream>
 
-#include "arkode/arkode_lsrkstep.h"    // access to LSRKStep
-#include "mpi.h"                       // MPI header file
-#include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
+#include "arkode/arkode_lsrkstep.h"   // access to LSRKStep
+#include "mpi.h"                      // MPI header file
+#include "nvector/nvector_parallel.h" // access to the MPI N_Vector
 #include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
-#include "nvector/nvector_parallel.h"  // access to the MPI N_Vector
+#include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
 
 // Macros for problem constants
 #define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
@@ -169,10 +169,10 @@ struct UserData
   bool diagnostics;   // output diagnostics
 
   // LSRKStep options
-  ARKODE_LSRKMethodType method;  // LSRK method choice
-  int eigfrequency;       // dominant eigenvalue update frequency
-  int stagemaxlimit;      // maximum number of stages per step
-  sunrealtype eigsafety;  // dominant eigenvalue safety factor
+  ARKODE_LSRKMethodType method; // LSRK method choice
+  int eigfrequency;             // dominant eigenvalue update frequency
+  int stagemaxlimit;            // maximum number of stages per step
+  sunrealtype eigsafety;        // dominant eigenvalue safety factor
 
   // Output variables
   int output;    // output level
@@ -1119,9 +1119,9 @@ static int WaitRecv(UserData* udata)
   return 0;
 }
 
-
 // Spectral radius estimation routine
-static int eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data)
+static int eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
+               sunrealtype* lambdaI, void* user_data)
 {
   // Access problem data
   UserData* udata = (UserData*)user_data;
@@ -1131,14 +1131,13 @@ static int eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lam
   sunindextype ny = udata->ny;
 
   // Fill in spectral radius value
-  *lambdaR = -SUN_RCONST(8.0)*SUNMAX(udata->kx/udata->dx/udata->dx,
-                                     udata->ky/udata->dy/udata->dy);
+  *lambdaR = -SUN_RCONST(8.0) * SUNMAX(udata->kx / udata->dx / udata->dx,
+                                       udata->ky / udata->dy / udata->dy);
   *lambdaI = SUN_RCONST(0.0);
 
   // return with success
   return 0;
 }
-
 
 // -----------------------------------------------------------------------------
 // UserData and input functions
@@ -1223,10 +1222,10 @@ static int InitUserData(UserData* udata)
   udata->diagnostics = false;              // output diagnostics
 
   // LSRKStep options
-  udata->method = ARKODE_LSRK_RKC;      // RKC
-  udata->eigfrequency = 25;             // update eigenvalue at least every 20 steps
-  udata->stagemaxlimit = 1000;          // allow up to 1000 stages/step
-  udata->eigsafety = SUN_RCONST(1.01);  // 1% safety factor
+  udata->method        = ARKODE_LSRK_RKC; // RKC
+  udata->eigfrequency  = 25;   // update eigenvalue at least every 20 steps
+  udata->stagemaxlimit = 1000; // allow up to 1000 stages/step
+  udata->eigsafety     = SUN_RCONST(1.01); // 1% safety factor
 
   // Output variables
   udata->output = 1;  // 0 = no output, 1 = stats output, 2 = output to disk
@@ -1319,11 +1318,20 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata, bool outproc)
     else if (arg == "--diagnostics") { udata->diagnostics = true; }
     else if (arg == "--method")
     {
-      udata->method = (ARKODE_LSRKMethodType) stoi((*argv)[arg_idx++]);
+      udata->method = (ARKODE_LSRKMethodType)stoi((*argv)[arg_idx++]);
     }
-    else if (arg == "--eigfrequency")  { udata->eigfrequency = stoi((*argv)[arg_idx++]); }
-    else if (arg == "--stagemaxlimit")  { udata->stagemaxlimit = stoi((*argv)[arg_idx++]); }
-    else if (arg == "--eigsafety") { udata->eigsafety = stod((*argv)[arg_idx++]); }
+    else if (arg == "--eigfrequency")
+    {
+      udata->eigfrequency = stoi((*argv)[arg_idx++]);
+    }
+    else if (arg == "--stagemaxlimit")
+    {
+      udata->stagemaxlimit = stoi((*argv)[arg_idx++]);
+    }
+    else if (arg == "--eigsafety")
+    {
+      udata->eigsafety = stod((*argv)[arg_idx++]);
+    }
     // Output settings
     else if (arg == "--output") { udata->output = stoi((*argv)[arg_idx++]); }
     else if (arg == "--nout") { udata->nout = stoi((*argv)[arg_idx++]); }
@@ -1440,7 +1448,8 @@ static void InputHelp()
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
   cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
   cout << "  --method <mth>          : LSRK method choice" << endl;
-  cout << "  --eigfrequency <nst>    : dominant eigenvalue update frequency" << endl;
+  cout << "  --eigfrequency <nst>    : dominant eigenvalue update frequency"
+       << endl;
   cout << "  --stagemaxlimit <smax>  : maximum number of stages per step" << endl;
   cout << "  --eigsafety <safety>    : dominant eigenvalue safety factor" << endl;
   cout << "  --diagnostics           : output diagnostics" << endl;

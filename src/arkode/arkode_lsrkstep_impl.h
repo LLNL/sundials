@@ -58,30 +58,29 @@ typedef struct ARKodeLSRKStepMemRec
   ARKODE_LSRKMethodType LSRKmethod;
 
   /* Counters and stats*/
-  long int nfe;           /* num fe calls       */
-  long int nfi;           /* num fi calls       */
-  long int domeignfe;        /* num fe calls for spectral DomEig      */
-  long int ndomeigupdates;   /* num of domeig computations   */
-  int stagemax;      /* num of max stages taken      */
-  int stagemaxlimit; /* max allowed num of stages     */
+  long int nfe;            /* num fe calls       */
+  long int nfi;            /* num fi calls       */
+  long int domeignfe;      /* num fe calls for spectral DomEig      */
+  long int ndomeigupdates; /* num of domeig computations   */
+  int stagemax;            /* num of max stages taken      */
+  int stagemaxlimit;       /* max allowed num of stages     */
   int nstsig; /* num of steps that successfully used domeig; indicates domeig update when 0;  */
 
   /* Spectral info */
-  sunrealtype lambdaR; /* Real part of the dominated eigenvalue*/
-  sunrealtype lambdaI; /* Imaginary part of the dominated eigenvalue*/
-  sunrealtype sprad;   /* spectral radius*/
-  sunrealtype sprmax;  /* max spectral radius*/
-  sunrealtype sprmin;  /* min spectral radius*/
+  sunrealtype lambdaR;    /* Real part of the dominated eigenvalue*/
+  sunrealtype lambdaI;    /* Imaginary part of the dominated eigenvalue*/
+  sunrealtype sprad;      /* spectral radius*/
+  sunrealtype sprmax;     /* max spectral radius*/
+  sunrealtype sprmin;     /* min spectral radius*/
   sunrealtype domeigsfty; /* some safety factor for the user provided domeig*/
-  int domeigfreq;         /* indicates domeig update after domeigfreq successful steps*/
+  int domeigfreq; /* indicates domeig update after domeigfreq successful steps*/
 
   /* Flags */
   sunbooleantype isextDomEig; /* flag indicating user provided DomEig */
   sunbooleantype newdomeig;   /* flag indicating new domeig is needed */
-  sunbooleantype constJac; /* flag indicating Jacobian is constant */
-  sunbooleantype jacatt;   /* an internal flag*/
-  sunbooleantype isSSP;    /* flag indicating SSP method*/
-
+  sunbooleantype constJac;    /* flag indicating Jacobian is constant */
+  sunbooleantype jacatt;      /* an internal flag*/
+  sunbooleantype isSSP;       /* flag indicating SSP method*/
 
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;
@@ -102,10 +101,12 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int lsrkStep_TakeStepRKG(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
-int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr,
+                            int* nflagPtr);
 int lsrkStep_SetDefaults(ARKodeMem ark_mem);
 int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
-int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
+int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
+                              SUNOutputFormat fmt);
 int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
 int lsrkStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR);
 int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,

@@ -29,11 +29,11 @@
  *-----------------------------------------------------------------*/
 
 /* Header files */
-#include <arkode/arkode_lsrkstep.h>  /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_lsrkstep.h> /* prototypes for ARKStep fcts., consts */
 #include <math.h>
-#include <nvector/nvector_serial.h>  /* serial N_Vector types, fcts., macros */
+#include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
 #include <stdio.h>
-#include <sundials/sundials_math.h>  /* def. of SUNRsqrt, etc. */
+#include <sundials/sundials_math.h> /* def. of SUNRsqrt, etc. */
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -164,9 +164,9 @@ int main(void)
   flag = compute_error(y, t);
 
   /* Clean up and return */
-  N_VDestroy(y);            /* Free y vector */
+  N_VDestroy(y);           /* Free y vector */
   ARKodeFree(&arkode_mem); /* Free integrator memory */
-  SUNContext_Free(&ctx);    /* Free context */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return flag;
 }

@@ -50,7 +50,8 @@
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* User-supplied Dominated Eigenvalue Called by the Solver */
-static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data);
+static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
+                  sunrealtype* lambdaI, void* user_data);
 
 /* Private function to check function return values */
 static int check_flag(void* flagvalue, const char* funcname, int opt);
@@ -185,9 +186,9 @@ int main(void)
   flag = compute_error(y, t);
 
   /* Clean up and return */
-  N_VDestroy(y);            /* Free y vector */
+  N_VDestroy(y);           /* Free y vector */
   ARKodeFree(&arkode_mem); /* Free integrator memory */
-  SUNContext_Free(&ctx);    /* Free context */
+  SUNContext_Free(&ctx);   /* Free context */
 
   return flag;
 }
@@ -211,13 +212,14 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 }
 
 /* DomEig routine to estimate the dominated eigenvalue */
-static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data)
+static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
+                  sunrealtype* lambdaI, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
-  *lambdaR           = lambda;   
-  *lambdaI           = 0.0;   
-  return 0;                      /* return with success */
+  *lambdaR           = lambda;
+  *lambdaI           = 0.0;
+  return 0; /* return with success */
 }
 
 /*-------------------------------

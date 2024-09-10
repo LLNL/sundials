@@ -23,7 +23,8 @@
 extern "C" {
 #endif
 
-typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data);
+typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
+                           sunrealtype* lambdaI, void* user_data);
 
 /* ------------------
  * LSRKStep Constants
@@ -31,12 +32,12 @@ typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, sunrealtype* lambdaR, sunr
 
 typedef enum
 {
-  ARKODE_LSRK_RKC         = 1, /* ensure enum is int */
-  ARKODE_LSRK_RKL         = 2,
-  ARKODE_LSRK_RKG         = 3,
-  ARKODE_LSRK_SSPs_2      = 4,
-  ARKODE_LSRK_SSPs_3      = 5,
-  ARKODE_LSRK_SSP10_4     = 6
+  ARKODE_LSRK_RKC     = 1, /* ensure enum is int */
+  ARKODE_LSRK_RKL     = 2,
+  ARKODE_LSRK_RKG     = 3,
+  ARKODE_LSRK_SSPs_2  = 4,
+  ARKODE_LSRK_SSPs_3  = 5,
+  ARKODE_LSRK_SSP10_4 = 6
 } ARKODE_LSRKMethodType;
 
 /* -------------------
@@ -49,11 +50,12 @@ SUNDIALS_EXPORT void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
                                      N_Vector y0, SUNContext sunctx);
 
 SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
-                                   sunrealtype t0, N_Vector y0);                                     
+                                   sunrealtype t0, N_Vector y0);
 
 /* Optional input functions -- must be called AFTER a creation routine above */
 
-SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
+SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem,
+                                      ARKODE_LSRKMethodType method);
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig);
 
@@ -62,16 +64,17 @@ SUNDIALS_EXPORT int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps);
 SUNDIALS_EXPORT int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit);
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigSafetyFactor(void* arkode_mem,
-                                                 sunrealtype domeigsfty);
+                                                  sunrealtype domeigsfty);
 
-SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem,
-                                                 int numofstages);
+SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals);
+SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals,
+                                           long int* fi_evals);
 
-SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* ndomeigupdates);
+SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem,
+                                                long int* ndomeigupdates);
 
 SUNDIALS_EXPORT int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax);
 
@@ -80,8 +83,9 @@ SUNDIALS_EXPORT int LSRKStepGetAverStageNum(void* arkode_mem, int* averstage);
 /* Grouped optional output functions */
 SUNDIALS_EXPORT int LSRKStepGetTimestepperStats(
   void* arkode_mem, long int* expsteps, long int* accsteps, long int* attempts,
-  long int* fevals, long int* domeigfevals, long int* netfails, long int* stagemax,
-  long int* ndomeigupdates, sunrealtype* sprmax, sunrealtype* sprmin);
+  long int* fevals, long int* domeigfevals, long int* netfails,
+  long int* stagemax, long int* ndomeigupdates, sunrealtype* sprmax,
+  sunrealtype* sprmin);
 
 #ifdef __cplusplus
 }
