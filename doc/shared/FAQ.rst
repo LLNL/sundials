@@ -18,7 +18,7 @@ Frequently Asked Questions
 ##########################
 
 The following are some questions frequently asked by SUNDIALS users.
-If you do not see your question here, please do not hesistate to ask the
+If you do not see your question here, please do not hesitate to ask the
 SUNDIALS mailing list by emailing your question to ``sundials-users@llnl.gov``,
 or by opening an issue on our GitHub at `https://github.com/LLNL/sundials`.
 
