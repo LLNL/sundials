@@ -16,6 +16,10 @@ architecture for their system.
 
 Fixed the loading of ARKStep's default first order explicit method.
 
+Fixed loading the default IMEX-MRI method if ``ARKodeSetOrder`` is used to
+specify a third or fourth order method. Previously, the default second order
+method was loaded in both cases.
+
 Fixed a CMake bug regarding usage of missing "print_warning" macro
 that was only triggered when the deprecated `CUDA_ARCH` option was used.
 
