@@ -1288,7 +1288,7 @@ static int Precondbd(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
       for (js = 0; js < ns; js++)
       {
         inc = sqru *
-              (MAX(fabs(cxy[js]), MAX(hh * fabs(cpxy[js]), ONE / ewtxy[js])));
+              (MAX(SUNRabs(cxy[js]), MAX(hh * SUNRabs(cpxy[js]), ONE / ewtxy[js])));
         cctemp = cxy[js]; /* Save the (js,ix,jy) element of cc. */
         cxy[js] += inc;   /* Perturb the (js,ix,jy) element of cc. */
         fac = -ONE / inc;
