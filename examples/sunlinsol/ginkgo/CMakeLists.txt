@@ -23,7 +23,7 @@ set(examples
     # "test_sunlinsol_ginkgo.cpp\;gmres dense 100 0 100 0\;"
     "test_sunlinsol_ginkgo.cpp\;idr csr 100 0 100 0\;"
     # "test_sunlinsol_ginkgo.cpp\;idr dense 100 0 100 0\;"
-  )
+)
 
 # The BiCGStab solver has a known bug with the OpenMP backend
 # https://github.com/ginkgo-project/ginkgo/issues/1563

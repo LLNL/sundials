@@ -25,12 +25,11 @@ set(IDA_examples
 
 # Previous tests with PETSc v3.17.1 installed with Spack v0.18.1 had identical
 # results with 32 and 64-bit indexing. Now with PETSc v3.21.4 installed with
-# Spack v0.23.0.dev0 (73fc86cbc3ae6dea5f69e3a0516e1a7691864fa3) the results
-# are slightly different.
+# Spack v0.23.0.dev0 (73fc86cbc3ae6dea5f69e3a0516e1a7691864fa3) the results are
+# slightly different.
 if(SUNDIALS_INDEX_SIZE STREQUAL "32")
-  list(APPEND IDA_examples
-    "idaHeat2D_petsc_snes\;-jac\;1\;4\;develop"
-    "idaHeat2D_petsc_snes\;-jac -pre\;1\;4\;develop")
+  list(APPEND IDA_examples "idaHeat2D_petsc_snes\;-jac\;1\;4\;develop"
+       "idaHeat2D_petsc_snes\;-jac -pre\;1\;4\;develop")
 endif()
 
 if(MPI_C_COMPILER)

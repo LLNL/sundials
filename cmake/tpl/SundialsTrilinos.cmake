@@ -37,8 +37,10 @@ include_guard(GLOBAL)
 # -----------------------------------------------------------------------------
 
 # Find Trilinos
-find_package(Trilinos REQUIRED COMPONENTS Tpetra
-  HINTS "${Trilinos_DIR}/lib/cmake/Trilinos" "${Trilinos_DIR}")
+find_package(
+  Trilinos REQUIRED
+  COMPONENTS Tpetra HINTS "${Trilinos_DIR}/lib/cmake/Trilinos"
+             "${Trilinos_DIR}")
 
 message(STATUS "Trilinos Libraries: ${Trilinos_LIBRARIES}")
 message(STATUS "Trilinos Includes: ${Trilinos_INCLUDE_DIRS}")

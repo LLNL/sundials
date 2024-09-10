@@ -859,8 +859,7 @@ static int Reaction(double t, N_Vector y, N_Vector ydot, void* user_data)
 }
 
 /* Compute the RHS as Advection+Reaction. */
-static int AdvectionReaction(double t, N_Vector y, N_Vector ydot,
-                             void* user_data)
+static int AdvectionReaction(double t, N_Vector y, N_Vector ydot, void* user_data)
 {
   int retval;
 

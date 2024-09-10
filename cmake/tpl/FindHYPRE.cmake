@@ -74,12 +74,12 @@ endif()
 if(HYPRE_INCLUDE_DIR)
 
   # HYPRE_config.h file added in at least v2.11.0 (possibly sooner)
-  find_file(HYPRE_CONFIG_FILE HYPRE_config.h
-            PATHS "${HYPRE_INCLUDE_DIR}")
+  find_file(HYPRE_CONFIG_FILE HYPRE_config.h PATHS "${HYPRE_INCLUDE_DIR}")
 
   file(STRINGS "${HYPRE_CONFIG_FILE}" _hypre_release_version
        REGEX "HYPRE_RELEASE_VERSION")
-  string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" HYPRE_VERSION "${_hypre_release_version}")
+  string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" HYPRE_VERSION
+               "${_hypre_release_version}")
   string(REGEX MATCHALL "[0-9]+" _hypre_version_numbers "${HYPRE_VERSION}")
   list(GET _hypre_version_numbers 0 HYPRE_VERSION_MAJOR)
   list(GET _hypre_version_numbers 1 HYPRE_VERSION_MINOR)
