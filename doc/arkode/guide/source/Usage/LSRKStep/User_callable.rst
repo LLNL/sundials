@@ -61,7 +61,7 @@ LSRKStep initialization functions
       listed below.  If unsuccessful, a ``NULL`` pointer will be
       returned, and an error message will be printed to ``stderr``.
 
-   .. warning: LSRK module cannot support implicit treatment yet. fi function is there as a space holder for future releases.
+   .. warning: LSRKStep does not currently support implicit or ImEx methods. The *fi* argument is included here as a placeholder for upcoming development.
 
 .. _ARKODE.Usage.LSRKStep.OptionalInputs:
 
