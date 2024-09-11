@@ -339,7 +339,7 @@ fi
 # --------
 
 if [ "$SUNDIALS_PRECISION" == "double" ] && [ "$SUNDIALS_INDEX_SIZE" == "32" ]; then
-    export SUNDIALS_TRILINOS=ON
+    export SUNDIALS_TRILINOS=OFF
     export TRILINOS_ROOT=/opt/view
 else
     export SUNDIALS_TRILINOS=OFF
