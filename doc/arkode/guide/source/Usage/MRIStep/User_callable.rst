@@ -2613,7 +2613,7 @@ MRIStep system resize function
 
 
 
-.. _ARKStep_CInterface.MRIStepInterface:
+.. _MRIStep_CInterface.MRIStepInterface:
 
 Nested multirate calculations
 -----------------------------
