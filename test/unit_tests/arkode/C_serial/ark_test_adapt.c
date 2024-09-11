@@ -63,7 +63,7 @@ static int check_step(void* const arkode_mem, const N_Vector y,
   const sunrealtype err_norm = N_VMaxNorm(err);
   N_VDestroy(err);
 
-  if (err_norm != SUN_RCONST(0))
+  if (err_norm != SUN_RCONST(0.0))
   {
     fprintf(stderr, "Expected local error at step %i to be 0 but is %g\n", step,
             err_norm);
