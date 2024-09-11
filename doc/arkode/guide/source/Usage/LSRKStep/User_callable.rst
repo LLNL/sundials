@@ -144,7 +144,7 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty);
 
-   Specifies the safety factor for the Dominant Eigenvalues.
+   Specifies a safety factor to use for the result of the Dominant Eigenvalue estimation function.  This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring a sufficient number of stages for the method to be stable.  This input is only used for RKC and RKL methods, and is ignored by SSPRK methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
