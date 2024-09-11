@@ -129,7 +129,8 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit);
 
-   Specifies the maximum number of stages allowed within each time step.
+   Specifies the maximum number of stages allowed within each time step.  This bound only applies to 
+   RKL and RKC methods, and any inputs are ignored for SSPRK methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
