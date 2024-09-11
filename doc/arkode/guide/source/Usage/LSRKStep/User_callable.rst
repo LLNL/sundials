@@ -210,7 +210,7 @@ Optional output functions
 
 .. c:function:: int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax);
 
-   Returns the max number of stages taken (so far).
+   Returns the max number of stages taken in any single step (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
