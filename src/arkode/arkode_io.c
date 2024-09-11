@@ -1,3 +1,4 @@
+
 /*---------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
@@ -911,10 +912,11 @@ int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
 
   /* Remove current SUNAdaptController object
      (delete if owned, and then nullify pointer) */
-  if (ark_mem->hadapt_mem->owncontroller && (ark_mem->hadapt_mem->hcontroller != NULL))
+  if (ark_mem->hadapt_mem->owncontroller &&
+      (ark_mem->hadapt_mem->hcontroller != NULL))
   {
     retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
+                                      &leniw);
     if (retval == SUN_SUCCESS)
     {
       ark_mem->liw -= leniw;
@@ -3066,7 +3068,8 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
 
   /* Remove current SUNAdaptController object
      (delete if owned, and then nullify pointer) */
-  if (ark_mem->hadapt_mem->owncontroller && (ark_mem->hadapt_mem->hcontroller != NULL))
+  if (ark_mem->hadapt_mem->owncontroller &&
+      (ark_mem->hadapt_mem->hcontroller != NULL))
   {
     retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
                                       &leniw);
@@ -3268,7 +3271,8 @@ int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
 
   /* Remove current SUNAdaptController object
      (delete if owned, and then nullify pointer) */
-  if (ark_mem->hadapt_mem->owncontroller && (ark_mem->hadapt_mem->hcontroller != NULL))
+  if (ark_mem->hadapt_mem->owncontroller &&
+      (ark_mem->hadapt_mem->hcontroller != NULL))
   {
     retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
                                       &leniw);
