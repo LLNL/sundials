@@ -148,7 +148,7 @@ Allowable Method Families
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *domeigsfty* -- safety factor :math:`(>1)`.
+      * *domeigsfty* -- safety factor :math:`(\ge 1)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
