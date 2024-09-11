@@ -737,8 +737,12 @@ LSRKStep -- Low-Storage Runge--Kutta methods
 ============================================
 
 The LSRKStep time-stepping module in ARKODE supports a variety of so-called
-"low-storage" Runge--Kutta methods, including traditional explicit low-storage
-RK methods, adaptive and mixed implicit-explicit low-storage RK methods, and a
+"low-storage" Runge--Kutta methods.  This category includes traditional explicit 
+fixed-step and low-storage RK methods, adaptive and mixed implicit-explicit 
+low-storage RK methods, and others.  These are characterized by coefficient tables
+that have an exploitable structure, such that their implementation does not require
+that all stages be stored simultaneously.  At present, this module supports explicit, 
+adaptive "super-time-stepping (STS)" and "strong-stability-preserving (SSP)" methods.
 variety of "super-time-stepping (STS)" and "strong-stability-preserving (SSP)" methods.
 
 The LSRK time-stepping module in ARKODE is designed for IVP
