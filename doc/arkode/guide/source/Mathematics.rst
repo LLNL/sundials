@@ -780,9 +780,11 @@ The SSP methods in ARKODE uses the following Shu and Osher representation of exp
    y_{n+1} &= z_s.
    :label: ARKODE_SSP
 
-In particular, the methods SSP(s,2), SSP(s,3), and SSP(10,4) implemented herein and presented in :cite:p:`K:08` have "almost" all zero coefficients appearing in :math:`\alpha_{i,i-1}` and :math:`\beta_{i,i-1}`. This feature facilitates their implementation 
-in an LSRK manner. The corresponding coefficients and embedding weights can be found in :cite:p:`K:08` and :cite:p:`FCS:22`, 
-respectively.
+In particular, the methods SSP(s,2), SSP(s,3), and SSP(10,4) implemented herein and presented in 
+:cite:p:`K:08` have "almost" all zero coefficients appearing in :math:`\alpha_{i,i-1}` and 
+:math:`\beta_{i,i-1}`. This feature facilitates their implementation in a low-storage manner. The 
+corresponding coefficients and embedding weights can be found in :cite:p:`K:08` and 
+:cite:p:`FCS:22`, respectively.
 
 LSRK methods of the SSP type are designed to preserve the so-called "strong-stability" properties of advection-type equations. For details, see :cite:p:`K:08`.
 
