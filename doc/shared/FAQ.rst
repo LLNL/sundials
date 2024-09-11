@@ -20,10 +20,10 @@ Frequently Asked Questions
 The following are some questions frequently asked by SUNDIALS users.
 If you do not see your question here, please do not hesitate to ask the
 SUNDIALS mailing list by emailing your question to ``sundials-users@llnl.gov``,
-or by opening an issue on our GitHub at `https://github.com/LLNL/sundials`.
+or by opening an issue on our `GitHub <https://github.com/LLNL/sundials>`_.
 
-Installation Related
---------------------
+Installation
+------------
 
 .. collapse:: I have the sundials source, how do I build it?
 
@@ -33,7 +33,7 @@ Installation Related
 .. collapse:: Can I use a non-default compiler to build SUNDIALS?
 
   Yes, specific compilers can be specified on the CMake command line.
-  The following example specifies gcc and g++ for the CXX compiler:
+  The following example specifies gcc and g++ for the C and CXX compilers, respectively:
 
   .. code-block:: cpp
 
@@ -58,18 +58,18 @@ Installation Related
   Refer to :ref:`Installation.Results`.
 
 
-CVODE/IDA/ARKODE Related
-------------------------
+CVODE(S) / IDA(S) / ARKODE
+--------------------------
 
 .. collapse:: How do I choose tolerances?
 
-  The same advice applies to CVODE, IDA and ARKODE:
+  The same advice applies to CVODE(S), IDA(S), and ARKODE:
 
   1. The scalar relative tolerance ``reltol`` is to be set to control relative errors. So
   :math:`\texttt{reltol} = 10^{-4}` means that errors are controlled to .01%. We do not recommend
   using ``reltol`` larger than :math:`10^{-3}`. On the other hand, ``reltol`` should not be so small
   that it is comparable to the unit roundoff of the machine arithmetic (generally
-  around :math:`10^{-15}`).
+  around :math:`10^{-15}` for double-precision).
 
   2. The absolute tolerances ``abstol`` (whether scalar or vector) need to be set to control
   absolute errors when any components of the solution vector ``y`` may be so small that
@@ -97,39 +97,39 @@ CVODE/IDA/ARKODE Related
 
 .. collapse:: How do I choose what linear solver to use for the stiff case?
 
-  If the problem is size is fairly small (say :math:`N < 100`), then using the dense solver is
-  probably best; it is the simplest to use, and reasonably inexpensive for small N. For larger N, it
+  If the problem size is fairly small (say :math:`N < 100`), then using the dense solver is
+  probably best; it is the simplest to use, and reasonably inexpensive for small :math:`N`. For larger :math:`N`, it
   is important to take advantage of sparsity (zero-nonzero) structure within the problem. If there
   is local (nearest-neighbor) coupling, or if the coupling is local after a suitable reordering of
-  y, then use the banded linear solver. Local coupling means that the i-th component of the RHS or
+  :math:`y`, then use the banded linear solver. Local coupling means that the :math:`i`-th component of the RHS or
   residual function depends only on components :math:`y_j` for which :math:`|i-j|` is small relative
-  to N. (Note that the dense and band solvers are only applicable for the serial version of the
+  to :math:`N`. (Note that the dense and band solvers are only applicable for the single node versions of the
   solver.) For even larger problems, consider one of the Krylov iterative methods. These are hardest
-  to use, because for best results they usually require preconditioning. However they offer the best
+  to use, because for best results they usually require preconditioning. However, they offer the best
   opportunity to exploit the sparsity structure in the problem. The preconditioner is a matrix
   which, at least crudely, approximates the actual matrix in the linear system to be solved, and is
   typically built from an approximation of the relevant Jacobian matrix. Typically, that
   approximation uses only part of the true Jacobian, but as a result is much less expensive to
   solve. If the Jacobian can be approximated by a matrix that is banded (serial case) or
-  block-diagonal with banded blocks (parallel case), SUNDIALS includes preconditioner modules for
+  block-diagonal with banded blocks (distributed parallel case), SUNDIALS includes preconditioner modules for
   such cases. In each of the user guides, the section 'Linear solver specification functions' and
   the section on preconditioner modules contain more detailed comments on preconditioning. On the
   construction of preconditioners for problems arising from the spatial discretization of
   time-dependent partial differential equation systems, there is considerable discussion in the
   paper :cite:p:`BrHi:89`.
 
-.. collapse:: How do I handle a data-defined function within the RHS function?
+.. collapse:: How do I handle a data-defined function within the RHS or residual function?
 
   Often the RHS or residual function depends on some function :math:`A(t)` that is data-defined,
-  i.e. defined only at a set of discrete set of times t. The solver must be able to obtain values of
-  the user-supplied functions at arbitrary times t in the integration interval. So the user must fit
+  i.e. defined only at a set of discrete set of times :math:`t`. The solver must be able to obtain values of
+  the user-supplied functions at arbitrary times :math:`t` in the integration interval. So the user must fit
   the data with a reasonably smooth function :math:`A(t)` that is defined continuously for all
-  relevant t, and incorporate an evaluation of that fit function in the user function involved. This
+  relevant :math:`t`, and incorporate an evaluation of that fit function in the user function involved. This
   may be as simple as a piecewise linear fit, but a smoother fit (e.g. spline) would make the
   integration more efficient. If there is noise in the data, the fit should be a least-squares fit
   instead of a straight interpolation. The same advice applies if the user function has a
   data-defined function :math:`A(y)` that involves one or more components of the dependent variable
-  vector y. Of course, if more that one component is involved, the fit is more complicated.
+  vector :math:`y`. Of course, if more that one component is involved, the fit is more complicated.
 
 .. collapse:: How do I control unphysical negative values?
 
@@ -152,12 +152,12 @@ CVODE/IDA/ARKODE Related
   magnitude comparable to ``abstol`` or less, is equivalent to zero as far as the computation
   is concerned.
 
-  3. The user’s right-hand side routine ``f`` should never change a negative value in
+  3. The user’s right-hand side routine ``f`` (or residual ``F``) should never change a negative value in
   the solution vector ``y`` to a non-negative value, as a "solution" to this problem.
-  This can cause instability. If the ``f`` routine cannot tolerate a zero or negative
+  This can cause instability. If the ``f`` (or ``F``) routine cannot tolerate a zero or negative
   value (e.g. because there is a square root or log of it), then the offending
   value should be changed to zero or a tiny positive number in a temporary
-  variable (not in the input ``y`` vector) for the purposes of computing :math:`f(t,y)`.
+  variable (not in the input ``y`` vector) for the purposes of computing :math:`f(t,y)` (or :math:`F(t,y,y')`).
 
   4. Positivity and non-negativity constraints on components can be enforced by
   use of the recoverable error return feature in the user-supplied right-hand side
@@ -165,35 +165,35 @@ CVODE/IDA/ARKODE Related
   should only be exercised if the use of absolute tolerances to control the
   computed values is unsuccessful.
 
-  In addition, IDA provides the option of enforcing positivity or non-negativity on components. But
+  In addition, SUNDIALS integrators provide the option of enforcing positivity or non-negativity on components. But
   these constraint options should only be exercised if the use of absolute tolerances to control the
   computed values is unsuccessful, because they involve some extra overhead cost.
 
 
-.. collapse:: How do I treat discontinuities in the RHS function?
+.. collapse:: How do I treat discontinuities in the RHS or residual function?
 
-  If the jumps at the discontinuities are relatively small, simply keep them in the RHS function,
+  If the jumps at the discontinuities are relatively small, simply keep them in the RHS (or residual) function,
   and let the integrator respond to them (possibly taking smaller steps through each point of
   discontinuity). If the jumps are large, it is more efficient to stop at the point of discontinuity
-  and restart the integrator with a readjusted ODE model. To stop when the location of the
-  discontinuity is known, simply make that location a value of tout. To stop when the location of
+  and restart the integrator with a readjusted ODE (or DAE) model. To stop when the location of the
+  discontinuity is known, simply make that location a value of ``tout``. To stop when the location of
   the discontinuity is determined by the solution, use the rootfinding feature. In either case, it
-  is critical that the RHS function not incorporate the discontinuity, but rather have a smooth
+  is critical that the RHS (or residual) function not incorporate the discontinuity, but rather have a smooth
   extension over the discontinuity, so that the step across it (and subsequent rootfinding, if used)
-  can be done efficiently. Then use a switch within the RHS function that can be flipped between the
+  can be done efficiently. Then use a switch within the RHS (or residual) function that can be flipped between the
   stopping of the integration and the restart, so that the restarted problem uses the new values
   (which have jumped).
 
 
-.. collapse:: When is it advantageous to supply my own EwtFn function?
+.. collapse:: When is it advantageous to supply my own error weight function?
 
-  The main situation where this is a good idea is where the problem needs something "in between" the
+  The main situation where supplying an ``EwtFn`` function is a good idea is where the problem needs something "in between" the
   cases covered by scalar and vector absolute tolerances. Namely, suppose there are a few groups of
   variables (relative to the total number of variables) such that all the variables in each group
-  require the same value of abstol, but these values are very different from one group to another.
-  Then a user EwtFn function can keep an array of those values and construct the ewt vector without
+  require the same value of ``abstol``, but these values are very different from one group to another.
+  Then a user ``EwtFn`` function can keep an array of those values and construct the ``ewt`` vector without
   any additional storage. Also, in rare cases, one may want to use this option to apply different
-  values of reltol to different variables (or groups of variables).
+  values of ``reltol`` to different variables (or groups of variables).
 
 
 .. collapse:: How do switch on/off forward sensitivity computations in CVODES?
@@ -206,14 +206,14 @@ CVODE/IDA/ARKODE Related
 
 .. collapse:: What is the role of plist in CVODES?
 
-  The argument plist to :c:func:`CVodeSetSensParams` is used to specify the problem parameters with
+  The argument ``plist`` to :c:func:`CVodeSetSensParams` is used to specify the problem parameters with
   respect to which solution sensitivities are to be computed.
 
   ``plist`` is used only if the sensitivity right-hand sides are evaluated using the internal
-  difference-quotient approximation function. In that case, plist should be declared as an array of
-  Ns integers and should contain the indices in the array of problem parameters p with respect to
+  difference-quotient approximation function. In that case, ``plist`` should be declared as an array of
+  ``Ns`` integers and should contain the indices in the array of problem parameters ``p`` with respect to
   which sensitivities are desired. For example, if you want to compute sensitivities with respect to
-  the first and third parameters in the p array, p[0] and p[2], you need to set
+  the first and third parameters in the ``p`` array, ``p[0]`` and ``p[2]``, you need to set
 
   .. code-block:: C
 
@@ -221,10 +221,10 @@ CVODE/IDA/ARKODE Related
     plist[1] = 2
 
 
-  If plist is not provided, CVODES will compute sensitivities with respect to the first Ns
-  parameters in the array p (i.e. it will use plist[i]=i, i=0,1,...Ns). If the user provides a
+  If ``plist`` is not provided, CVODES will compute sensitivities with respect to the first ``Ns``
+  parameters in the array ``p`` (i.e. it will use ``plist[i]=i, i=0,1,...Ns``). If the user provides a
   function to evaluate the right-hand sides of the sensitivity equations or if the default values
-  are desired, a NULL pointer can be passed to :c:func:`CVodeSetSensParams`.
+  are desired, a ``NULL`` pointer can be passed to :c:func:`CVodeSetSensParams`.
 
 
 .. collapse:: What is the role of pbar in CVODES?
@@ -243,8 +243,8 @@ CVODE/IDA/ARKODE Related
   * the tolerances for the sensitivity variables are estimated automatically by CVODES from those
     specified for the state variables.
 
-  If provided, ``pbar`` should be declared as an array of Ns realtypes and should contain non-zero
-  scaling factors for the Ns parameters with respect to which sensitivities are to be computed. For
+  If provided, ``pbar`` should be declared as an array of ``Ns`` real types and should contain non-zero
+  scaling factors for the ``Ns`` parameters with respect to which sensitivities are to be computed. For
   non-zero problem parameters, a good choice is
 
   .. code-block:: C
@@ -252,7 +252,7 @@ CVODE/IDA/ARKODE Related
     pbar[i] = p[plist[i]]
 
 
-  If ``pbar`` is not provided, CVODES will use pbar[i]=1.0, i=0,1,...Ns-1.
+  If ``pbar`` is not provided, CVODES will use ``pbar[i]=1.0, i=0,1,...Ns-1``.
 
   If the user provides a function to evaluate the right-hand sides of the sensitivity equations and
   also specifies tolerances for the sensitivity variables (through the ``CVodeSens*tolerances``
@@ -262,22 +262,22 @@ CVODE/IDA/ARKODE Related
 
 .. collapse:: What is pure quadrature integration?
 
-  Suppose your ODE is :math:`y'=F(t,y)` and you integrate it from 0 to T and that you are also interested in computing an integral of the form
+  Suppose your ODE is :math:`y'=f(t,y)` and you integrate it from :math:`0` to :math:`T` and that you are also interested in computing an integral of the form
 
   .. math::
 
-    G = int_0^T g(t,y(t)) dt
+    z(t) = int_0^t g(t,y(t)) dt
 
-  for some function *g*. The most efficient way of computing *z* is by appending one additional differential equation to your ODE system:
+  for some function :math:`g`. The most efficient way of computing :math:`z` is by appending one additional differential equation to your ODE system:
 
   .. math::
 
     z' = g(t,y)
 
-  with initial condition z(0)=0, in which case :math:`G = z(T)`.
+  with initial condition :math:`z(0)=0`, in which case the integral from :math:`0` to :math:`T` is `z(T)`.
 
   This additional equation is "a pure quadrature equation" and its main characteristic is that the
-  new differential variable z does not appear in the right hand side of the extended ODE system. If
+  new differential variable :math:`z` does not appear in the right hand side of the extended ODE system. If
   CVODES is notified of such "pure quadrature equations", it can take advantage of this property and
   do less work than if it didn't know about them (these variables need not be considered in the
   nonlinear system solution).
@@ -294,15 +294,15 @@ KINSOL
   Although KINSOL does not provide a reinitialization function, it is possible to reinitialize the
   solver (meaning reuse a KINSOL object), but only if the problem size remains unchanged. To
   reinitialize KINSOL, begin by making any necessary changes to the problem definition by calling
-  the appropriate KINSet* functions (e.g., :c:func:`KINSetSysFunc`). Next, if you would like to use
+  the appropriate ``KINSet*`` functions (e.g., :c:func:`KINSetSysFunc`). Next, if you would like to use
   a different linear solver, call the appropriate function, followed by any calls to the
-  corresponding KIN*Set* functions. Then you can call the KINSol function to solve the updated
+  corresponding ``KIN*Set*`` functions. Then you can call the ``KINSol`` function to solve the updated
   nonlinear algebraic system.
 
 
 .. collapse:: Why is the system function being evaluated at points that violate the constraints?
 
-  If you have not supplied a function to compute either J(u) (of type :c:type:`KINLsJacFn`) or J(u)v
+  If you have not supplied a function to compute either :math:`J(u)` (of type :c:type:`KINLsJacFn`) or :math:`J(u) v`
   (of type :c:type:`KINLsJacTimesVecFn`), then the internal function may be the culprit. The
   default function used to compute a difference quotient approximation to the Jacobian (direct
   methods) or Jacobian matrix-vector product (Kylov methods) evaluates the user-supplied system
@@ -315,16 +315,14 @@ Miscellaneous
 .. collapse:: How do I determine which version of SUNDIALS I have?
 
   If you still have access to the distribution files, then the SUNDIALS release number is indicated
-  in the header of sundials/README and the corresponding solver versions can be determined by
-  reading the appropriate row of the "Release History" table. You can also call the functions
+  in the top-level ``README.md`` and the corresponding solver versions can be determined by
+  reading the appropriate row of the :ref:`release history <History>` table or from the files, ``sundials/src/<solver>/README.md``. You can also call the functions
   :c:func:`SUNDIALSGetVersion` and :c:func:`SUNDIALSGetVersionNumber` from your program, or
-  use the ``SUNDIALS_VERSION*`` macros found in the header file ``sundials/sundials_version.h``.
-
-  The specific version number of each solver is contained in corresponding README files:
-  ``sundials/src/<solver>/README``.
+  use the ``SUNDIALS_VERSION*`` macros found in the header file ``sundials/sundials_config.h``.
 
 
-.. collapse:: http://sundials.wikidot.com
+
+.. collapse:: SUNDIALS Wiki
 
   Some additional information might be found at `http://sundials.wikidot.com
   <http://sundials.wikidot.com/>`_ however the wikidot page has not been maintained in many years so
