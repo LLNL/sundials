@@ -270,7 +270,7 @@ static void InputHelp()
   cout << "  --gamma <real>     : ideal gas constant\n";
   cout << "  --nx <int>         : number of mesh points\n";
   cout << "  --rtol <real>      : relative tolerance\n";
-  cout << "  --atol <real>      : absoltue tolerance\n";
+  cout << "  --atol <real>      : absolute tolerance\n";
   cout << "  --fixed_h <real>   : fixed step size\n";
   cout << "  --maxsteps <int>   : max steps between outputs\n";
   cout << "  --output <int>     : output level\n";

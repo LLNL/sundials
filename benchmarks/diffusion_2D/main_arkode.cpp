@@ -615,7 +615,7 @@ void UserOptions::help()
   cout << endl;
   cout << "Integrator command line options:" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
   cout << "  --explicit              : use LSRKStep (instead of ARKStep)" << endl;
