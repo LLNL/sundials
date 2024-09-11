@@ -115,7 +115,7 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
 
   /* Update time-stepping parameters */
   /*   adjust upcoming step size depending on hscale */
-  if (hscale < ZERO) { hscale = ONE; }
+  if (hscale <= ZERO) { hscale = ONE; }
   if (hscale != ONE)
   {
     /* Encode hscale into ark_mem structure */
