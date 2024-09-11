@@ -55,6 +55,7 @@ static int check_step(void* const arkode_mem, const N_Vector y,
   {
     fprintf(stderr, "Expected 0 local error failures at step %i but is %li\n",
             step, local_err_fails);
+    return 1;
   }
 
   const N_Vector err = N_VClone(y);
