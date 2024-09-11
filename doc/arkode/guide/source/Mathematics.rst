@@ -772,7 +772,7 @@ real axis. The extent of this stability region is proportional to the square of 
 of stages used. This quadratic expansion of the stability region enables the effective 
 use of explicit methods for finding solutions efficiently.
 
-The SSP methods in ARKODE uses the following Shu and Osher representation of explicit RK methods:
+The SSPRK methods in ARKODE use the following Shu and Osher representation of explicit RK methods:
 
 .. math::
    z_1 &= y_n,\\
