@@ -154,7 +154,7 @@ struct UserData
   sunrealtype* Ssend;
   sunrealtype* Nsend;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -412,7 +412,7 @@ int main(int argc, char* argv[])
   sunrealtype dTout = udata->tf / udata->nout;
   sunrealtype tout  = dTout;
 
-  // Inital output
+  // Initial output
   flag = OpenOutput(udata);
   if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 

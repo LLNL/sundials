@@ -323,7 +323,7 @@ int main(int argc, char* argv[])
   sunrealtype dTout = udata->tf / udata->nout;
   sunrealtype tout  = dTout;
 
-  // Inital output
+  // initial output
   flag = OpenOutput(udata);
   if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 

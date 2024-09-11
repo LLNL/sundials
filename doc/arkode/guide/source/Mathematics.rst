@@ -748,7 +748,7 @@ and that the right-hand side function is not split into separate
 components.
 
 For such problems, LSRKStep provides variable-step, adaptive,
-:index:`Runge--Kutta methods`, corresponding to algorithms of the folowing forms:
+:index:`Runge--Kutta methods`, corresponding to algorithms of the following forms:
 
 The RKC and RKL methods in ARKODE have the form
 

@@ -91,7 +91,7 @@ int main(void)
   NV_Ith_S(y, 0) = SUN_RCONST(0.0); /* Specify initial condition */
 
   /* Call LSRKStepCreate to initialize the ARK timestepper module and
-     specify the right-hand side function in y'=f(t,y), the inital time
+     specify the right-hand side function in y'=f(t,y), the initial time
      T0, and the initial dependent variable vector y. */
   arkode_mem = LSRKStepCreate(f, NULL, T0, y, ctx);
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
