@@ -115,7 +115,7 @@ Allowable Method Families
 .. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps);
 
    Specifies the number of steps after which the Dominant Eigenvalue information is
-   considered out-of-date.
+   considered out-of-date, and should be recomputed.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
