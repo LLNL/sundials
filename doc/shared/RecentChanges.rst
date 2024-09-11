@@ -8,7 +8,11 @@ only valid for Volta GPUs while the automatically selected value will vary
 across compilers and compiler versions. As such, users are encouraged to
 override this value with the architecture for their system.
 
-Added low storage Runge--Kutta module, :ref:`LSRKStep <ARKODE.Usage.LSRKStep>`, to ARKODE. 
+Added a time-stepping module to ARKODE for low storage Runge--Kutta methods, 
+:ref:`LSRKStep <ARKODE.Usage.LSRKStep>`.  This currently supports five explicit low-storage 
+methods: the second-order Runge--Kutta--Chebyshev and Runge--Kutta--Legendre methods, 
+and the second- through fourth-order optimal strong stability preserving Runge--Kutta methods.  
+All methods include embeddings for temporal adaptivity.
 
 The Trilinos Tpetra NVector interface has been updated to utilize CMake
 imported targets added in Trilinos 14 to improve support for different Kokkos
