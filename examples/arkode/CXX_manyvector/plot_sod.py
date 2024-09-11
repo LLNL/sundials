@@ -30,7 +30,7 @@ if not os.path.isfile(datafile):
     sys.exit(msg)
 
 # read solution file, storing each line as a string in a list
-with open(datafile, 'r') as file:
+with open(datafile, "r") as file:
     lines = file.readlines()
 
     # extract header information
@@ -55,15 +55,15 @@ with open(datafile, 'r') as file:
         line = (lines.pop(0)).split()
         t[it] = line.pop(0)
         for ix in range(nx):
-            rho[it,ix] = line.pop(0)
-            mx[it,ix]  = line.pop(0)
-            my[it,ix]  = line.pop(0)
-            mz[it,ix]  = line.pop(0)
-            et[it,ix]  = line.pop(0)
+            rho[it, ix] = line.pop(0)
+            mx[it, ix]  = line.pop(0)
+            my[it, ix]  = line.pop(0)
+            mz[it, ix]  = line.pop(0)
+            et[it, ix]  = line.pop(0)
 
-    gamma=1.4
-    u = mx/rho
-    p = (gamma-1.0)*(et - (mx*mx+my*my+mz*mz)/(2.0*rho))
+    gamma = 1.4
+    u = mx / rho
+    p = (gamma - 1.0) * (et - (mx * mx + my * my + mz * mz) / (2.0 * rho))
 
 # generate plots
 x = np.linspace(xl, xr, nx)
@@ -87,9 +87,9 @@ ax02 = fig.add_subplot(gs[0, 2])  # right column
 ax12 = fig.add_subplot(gs[1, 2])
 ax22 = fig.add_subplot(gs[2, 2])
 it = 0
-ax00.plot(x, rho[it,:])
-ax10.plot(x, u[it,:])
-ax20.plot(x, p[it,:])
+ax00.plot(x, rho[it, :])
+ax10.plot(x, u[it, :])
+ax20.plot(x, p[it, :])
 ax00.set_title(r"$t =$ " + repr(t[it]).zfill(3))
 ax00.set_ylabel(r"$\rho$")
 ax10.set_ylabel(r"$v_x$")
@@ -102,9 +102,9 @@ ax21.plot(x, p[it, :])
 ax01.set_title(r"$t =$ " + repr(t[it]).zfill(3))
 ax21.set_xlabel(r"$x$")
 it = nt-1
-ax02.plot(x, rho[it,:])
-ax12.plot(x, u[it,:])
-ax22.plot(x, p[it,:])
+ax02.plot(x, rho[it, :])
+ax12.plot(x, u[it, :])
+ax22.plot(x, p[it, :])
 ax02.set_title(r"$t =$ " + repr(t[it]).zfill(3))
 ax22.set_xlabel(r"$x$")
 plt.savefig("sod_frames.png")
