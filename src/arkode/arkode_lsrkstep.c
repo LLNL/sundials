@@ -410,7 +410,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     ark_mem->e_data    = ark_mem;
   }
 
-  /* Retrieve/store method and embedding orders now that table is finalized */
+  /* Store method and embedding orders now that LSRK method choice is finalized */
   step_mem->q = ark_mem->hadapt_mem->q = 2;
   step_mem->p = ark_mem->hadapt_mem->p = 2;
 
