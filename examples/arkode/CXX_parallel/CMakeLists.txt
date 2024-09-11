@@ -178,9 +178,9 @@ if(ENABLE_RAJA
   # -------------
 
   set(serial_raja_examples
-      "ark_brusselator1D_task_local_nls.cpp\;\;--monitor\;1\;4\;develop\;2"
-      "ark_brusselator1D_task_local_nls.cpp\;\;--monitor --global-nls\;1\;4\;develop\;2"
-      "ark_brusselator1D_task_local_nls.cpp\;\;--monitor --explicit --tf 1\;1\;4\;develop\;2"
+      "ark_brusselator1D_task_local_nls.cpp\;USE_SERIAL_NVEC\;--monitor\;1\;4\;develop\;2"
+      "ark_brusselator1D_task_local_nls.cpp\;USE_SERIAL_NVEC\;--monitor --global-nls\;1\;4\;develop\;2"
+      "ark_brusselator1D_task_local_nls.cpp\;USE_SERIAL_NVEC\;--monitor --explicit --tf 1\;1\;4\;develop\;2"
   )
   set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx)
   build_examples(serial_raja_examples CXX)
