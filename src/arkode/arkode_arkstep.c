@@ -3162,6 +3162,12 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   retval = SUNStepper_SetStopTimeFn(*stepper, arkStep_SUNStepperSetStopTime);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  retval = SUNStepper_SetSetStepDirectionFn(*stepper, arkStep_SUNStepperSetStepDirection);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = SUNStepper_SetGetStepDirectionFn(*stepper, arkStep_SUNStepperGetStepDirection);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
   return (ARK_SUCCESS);
 }
 
@@ -3334,6 +3340,48 @@ int arkStep_SUNStepperSetStopTime(SUNStepper stepper, sunrealtype tstop)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   retval = ARKodeSetStopTime(arkode_mem, tstop);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return retval;
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_SUNStepperSetStepDirection
+
+  TODO(SBR)
+  ----------------------------------------------------------------------------*/
+
+int arkStep_SUNStepperSetStepDirection(SUNStepper stepper, sunrealtype stepdir)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = ARKodeSetStepDirection(arkode_mem, stepdir);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return retval;
+}
+
+/*------------------------------------------------------------------------------
+  arkStep_SUNStepperGetStepDirection
+
+  TODO(SBR)
+  ----------------------------------------------------------------------------*/
+
+int arkStep_SUNStepperGetStepDirection(SUNStepper stepper, sunrealtype* stepdir)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = SUNStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = ARKodeGetStepDirection(arkode_mem, stepdir);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return retval;

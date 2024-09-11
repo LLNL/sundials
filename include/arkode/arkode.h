@@ -228,6 +228,7 @@ SUNDIALS_EXPORT int ARKodeSetInterpolateStopTime(void* arkode_mem,
 SUNDIALS_EXPORT int ARKodeSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_EXPORT int ARKodeClearStopTime(void* arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed);
+SUNDIALS_EXPORT int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir);
 SUNDIALS_EXPORT int ARKodeSetUserData(void* arkode_mem, void* user_data);
 SUNDIALS_EXPORT int ARKodeSetPostprocessStepFn(void* arkode_mem,
                                                ARKPostProcessFn ProcessStep);
@@ -301,6 +302,7 @@ SUNDIALS_EXPORT int ARKodeGetWorkSpace(void* arkode_mem, long int* lenrw,
 SUNDIALS_EXPORT int ARKodeGetNumSteps(void* arkode_mem, long int* nsteps);
 SUNDIALS_EXPORT int ARKodeGetLastStep(void* arkode_mem, sunrealtype* hlast);
 SUNDIALS_EXPORT int ARKodeGetCurrentStep(void* arkode_mem, sunrealtype* hcur);
+SUNDIALS_EXPORT int ARKodeGetStepDirection(void *arkode_mem, sunrealtype *stepdir);
 SUNDIALS_EXPORT int ARKodeGetErrWeights(void* arkode_mem, N_Vector eweight);
 SUNDIALS_EXPORT int ARKodeGetNumGEvals(void* arkode_mem, long int* ngevals);
 SUNDIALS_EXPORT int ARKodeGetRootInfo(void* arkode_mem, int* rootsfound);

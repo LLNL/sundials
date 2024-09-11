@@ -145,6 +145,7 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
   }
 
   /* assume fixed outer step size */
+  /* TODO(SBR): Should this validation be done by ARKODE? */
   if (!ark_mem->fixedstep)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
@@ -257,6 +258,9 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y,
 
       const SUNStepper stepper = step_mem->steppers[k];
       SUNErrCode err           = SUNStepper_Reset(stepper, t_start, y);
+      if (err != SUN_SUCCESS) { return err; }
+
+      err = SUNStepper_SetStepDirection(stepper, t_end - t_start);
       if (err != SUN_SUCCESS) { return err; }
 
       err = SUNStepper_SetStopTime(stepper, t_end);

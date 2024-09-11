@@ -54,7 +54,9 @@ typedef SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR,
 typedef SUNErrCode (*SUNStepperSetStopTimeFn)(SUNStepper stepper,
                                               sunrealtype tstop);
 
-typedef SUNErrCode (*SUNStepperSetStepDirectionFn)(SUNStepper stepper, sunrealtype dir, sunbooleantype *dir_changed);
+typedef SUNErrCode (*SUNStepperSetStepDirectionFn)(SUNStepper stepper, sunrealtype stepdir);
+
+typedef SUNErrCode (*SUNStepperGetStepDirectionFn)(SUNStepper stepper, sunrealtype* stepdir);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper);
@@ -88,8 +90,12 @@ SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper,
                                     SUNStepperSetStopTimeFn fn);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetStepDirectionFn(SUNStepper stepper,
+SUNErrCode SUNStepper_SetSetStepDirectionFn(SUNStepper stepper,
                                     SUNStepperSetStepDirectionFn fn);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_SetGetStepDirectionFn(SUNStepper stepper,
+                                    SUNStepperGetStepDirectionFn fn);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_AddForcing(SUNStepper stepper, sunrealtype t, N_Vector f);
@@ -123,7 +129,10 @@ SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype dir, sunbooleantype *dir_changed);
+SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype stepdir);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_GetStepDirection(SUNStepper stepper, sunrealtype* stepdir);
 
 #ifdef __cplusplus
 }

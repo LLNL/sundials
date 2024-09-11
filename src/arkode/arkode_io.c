@@ -1281,6 +1281,55 @@ int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed)
 }
 
 /*---------------------------------------------------------------
+  ARKodeSetStepDirection:
+
+  TODO(SBR)
+  ---------------------------------------------------------------*/
+int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  sunrealtype h;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  if (stepdir == ZERO) {
+    return ARK_SUCCESS;
+  }
+
+  h = ark_mem->h == ZERO ? ark_mem->hin : ark_mem->h;
+
+  // TODO(SBR): use SUNRcopysign once merged from other PR
+  // if (SUNRcopysign(h, stepdir) == h) {
+  if (h == ZERO || ((h > 0) == (stepdir > 0))) {
+    return ARK_SUCCESS;
+  }
+
+  /* Reverse the sign of h. If adaptive, h will be overwritten anyway by the
+   * initial step estimation since ARKodeReset must be called before this.
+   * However, the sign of h will be used to check if the integration direction
+   * and stop time are consistent, e.g., in ARKodeSetStopTime, so we should not
+   * set h = 0. */
+  ark_mem->h = -h;
+  /* Clear previous initial step */
+  ark_mem->h0u = ZERO;
+  /* Reverse the step if in fixed mode. If adaptive, reset to 0 to clear any old
+   * value from a call to ARKodeSetInit */
+  ark_mem->hin = ark_mem->fixedstep ? -h : ZERO;
+
+  /* Reset error controller (e.g., error and step size history) */
+  retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
+  if (retval != SUN_SUCCESS) { return (ARK_CONTROLLER_ERR); }
+  
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
   ARKodeSetRootDirection:
 
   Specifies the direction of zero-crossings to be monitored.
@@ -2082,6 +2131,26 @@ int ARKodeGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
   ark_mem = (ARKodeMem)arkode_mem;
 
   *hcur = ark_mem->next_h;
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKodeGetStepDirection:
+
+  TODO(SBR)
+  ---------------------------------------------------------------*/
+int ARKodeGetStepDirection(void *arkode_mem, sunrealtype *stepdir)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  *stepdir = ark_mem->h == ZERO ? ark_mem->hin : ark_mem->h;
   return (ARK_SUCCESS);
 }
 

@@ -33,12 +33,13 @@ Examples
 #include <stdlib.h>
 
 #include <arkode/arkode_arkstep.h>
+#include <arkode/arkode_mristep.h>
 #include <arkode/arkode_splittingstep.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_stepper.h>
 
-#define DT_1   (0.5 / 8)
-#define DT_2   (0.125 / 8)
+#define DT_1   (0.5 / 4)
+#define DT_2   (DT_1 / 4)
 #define T_END  1.0
 #define LAMBDA 2.0
 
@@ -71,21 +72,30 @@ static void test()
 
   void* mem = ARKStepCreate(f1, NULL, 0, y, sunctx);
 
-  ARKodeSetFixedStep(mem, 0.25);
+  // ARKodeSetFixedStep(mem, 0.25);
+  ARKodeSetInitStep(mem, -0.25);
 
   sunrealtype tret = 0;
   ARKodeEvolve(mem, 1, y, &tret, ARK_NORMAL);
 
-  ARKodeReset(mem, 1, y);
-  ARKodeEvolve(mem, 0.5, y, &tret, ARK_NORMAL);
+  printf("-------------------------\n");
+
+  // ARKodeReset(mem, 1, y);
+  // ARKodeSetStepDirection(mem, -1);
+  // ARKodeSetStopTime(mem, -2);
+  // ARKodeEvolve(mem, 0.0, y, &tret, ARK_NORMAL);
+
+  long steps = 0;
+  ARKodeGetNumSteps(mem, &steps);
+  printf("Steps: %li\n", steps);
 
   N_VPrint(y);
 }
 
 int main(int argc, char* argv[])
 {
-  test();
-  return 0;
+  // test();
+  // return 0;
   SUNContext sunctx;
   SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
@@ -94,26 +104,28 @@ int main(int argc, char* argv[])
   const sunrealtype sol = exact_sol(T_END, NV_Ith_S(y, 0));
 
   void* arkode_mem1 = ARKStepCreate(f1, NULL, 0, y, sunctx);
-  ARKodeSetOrder(arkode_mem1, 2);
+  ARKodeSetOrder(arkode_mem1, 5);
+  // ARKodeSStolerances(arkode_mem1, 1e-13, 1e-13);
   ARKodeSetFixedStep(arkode_mem1, DT_1);
 
   void* arkode_mem2 = ARKStepCreate(f2, NULL, 0, y, sunctx);
-  ARKodeSetOrder(arkode_mem2, 2);
-  ARKodeSetFixedStep(arkode_mem2, DT_2);
+  ARKodeSetOrder(arkode_mem2, 5);
+  ARKodeSStolerances(arkode_mem2, 1e-13, 1e-13);
+  // ARKodeSetFixedStep(arkode_mem2, DT_2);
 
   SUNStepper steppers[2];
   ARKStepCreateSUNStepper(arkode_mem1, &steppers[0]);
   ARKStepCreateSUNStepper(arkode_mem2, &steppers[1]);
 
   void* split_mem = SplittingStepCreate(steppers, 2, 0, y, sunctx);
-  SplittingStepCoefficients coeffs = SplittingStepCoefficients_Parallel(2);
+  SplittingStepCoefficients coeffs = SplittingStepCoefficients_LoadCoefficients(ARKODE_SPLITTING_RUTH_3_3_2);
   // SplittingStepCoefficients_Write(coeffs, stdout);
   SplittingStep_SetCoefficients(split_mem, coeffs);
   SplittingStepCoefficients_Free(coeffs);
   ARKodeSetFixedStep(split_mem,
                      DT_1);
   sunrealtype tret;
-  ARKodeEvolve(split_mem, 1, y, &tret, ARK_NORMAL);
+  ARKodeEvolve(split_mem, T_END, y, &tret, ARK_NORMAL);
   printf("Final Solution: %e %e\n", T_END, NV_Ith_S(y, 0));
 
   N_VPrint(y);
