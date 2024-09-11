@@ -228,28 +228,6 @@ Optional output functions
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``  
 
 
-.. c:function:: int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps, long int* accsteps, long int* attempts, long int* fevals, long int* domeigfevals, long int* netfails, long int* stagemax, long int* ndomeigupdates, sunrealtype* sprmax, sunrealtype* sprmin);
-
-   Returns many of the most useful time-stepper statistics in a single call.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *expsteps* -- number of stability-limited steps taken in the solver.
-      * *accsteps* -- number of accuracy-limited steps taken in the solver.
-      * *attempts* -- number of steps attempted by the solver.
-      * *fevals* -- number of calls to the user's :math:`f^E(t,y)` function.
-      * *domeigfevals* -- number of calls to the user's `DomEig` function.
-      * *netfails* -- number of error test failures.
-      * *stagemax* -- number of error test failures.
-      * *ndomeigupdates* -- number of Dominant Eigenvalue updates.
-      * *sprmax* -- number of error test failures.
-      * *sprmin* -- number of error test failures.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
-
-
 .. _ARKODE.Usage.LSRKStep.Reinitialization:
 
 LSRKStep re-initialization function

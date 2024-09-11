@@ -80,13 +80,6 @@ SUNDIALS_EXPORT int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax);
 
 SUNDIALS_EXPORT int LSRKStepGetAverStageNum(void* arkode_mem, int* averstage);
 
-/* Grouped optional output functions */
-SUNDIALS_EXPORT int LSRKStepGetTimestepperStats(
-  void* arkode_mem, long int* expsteps, long int* accsteps, long int* attempts,
-  long int* fevals, long int* domeigfevals, long int* netfails,
-  long int* stagemax, long int* ndomeigupdates, sunrealtype* sprmax,
-  sunrealtype* sprmin);
-
 #ifdef __cplusplus
 }
 #endif

@@ -2013,7 +2013,7 @@ user must call the function :c:func:`ERKStepReInit()`.  The new
 problem must have the same size as the previous one.  This routine
 retains the current settings for all ERKstep module options and
 performs the same input checking and initializations that are done in
-:c:func:`ERKStepCreate`, but it performs no memory allocation as is
+:c:func:`ERKStepCreate`, but it performs no memory allocation as it
 assumes that the existing internal memory is sufficient for the new
 problem.  A call to this re-initialization routine deletes the
 solution history that was stored internally during the previous

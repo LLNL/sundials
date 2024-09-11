@@ -376,52 +376,6 @@ int LSRKStepGetAverStageNum(void* arkode_mem, int* averstage)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
-  LSRKStepGetTimestepperStats:
-
-  Returns integrator statistics
-  ---------------------------------------------------------------*/
-int LSRKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
-                                long int* accsteps, long int* attempts,
-                                long int* fevals, long int* domeigfevals,
-                                long int* netfails, long int* stagemax,
-                                long int* ndomeigupdates, sunrealtype* sprmax,
-                                sunrealtype* sprmin)
-{
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeERKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  // /* set expsteps and accsteps from adaptivity structure */
-  *expsteps = ark_mem->hadapt_mem->nst_exp;
-  *accsteps = ark_mem->hadapt_mem->nst_acc;
-
-  // /* set remaining outputs */
-  *attempts       = ark_mem->nst_attempts;
-  *fevals         = step_mem->nfe;
-  *domeigfevals   = step_mem->domeignfe;
-  *netfails       = ark_mem->netf;
-  *stagemax       = step_mem->stagemax;
-  *ndomeigupdates = step_mem->ndomeigupdates;
-  *sprmax         = step_mem->sprmax;
-  *sprmin         = step_mem->sprmin;
-
-  if (step_mem->isSSP)
-  {
-    *sprmax         = NAN;
-    *sprmin         = NAN;
-    *ndomeigupdates = NAN;
-    *stagemax       = step_mem->reqstages;
-  }
-
-  return (ARK_SUCCESS);
-}
-
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
