@@ -1998,6 +1998,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
                                      ark_mem->fn, ARK_FULLRHS_START);
       if (retval != 0) return (ARK_RHSFUNC_FAIL);
+      ark_mem->fn_is_current = SUNTRUE;
 
       /* Estimate the first step size */
       tout_hin = tout;
