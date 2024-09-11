@@ -597,7 +597,6 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   fprintf(fp, "  Method order %i\n", 2);
   fprintf(fp, "\n");
 
-  printf("\nlsrkStep_WriteParameters is not ready yet!\n");
 
   return (ARK_SUCCESS);
 }
