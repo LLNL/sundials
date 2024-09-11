@@ -231,7 +231,7 @@ Optional output functions
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``  
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``  
 
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:
