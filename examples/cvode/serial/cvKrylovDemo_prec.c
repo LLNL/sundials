@@ -847,7 +847,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
   f1 = N_VGetArrayPointer(wdata->tmp);
 
   fac = N_VWrmsNorm(fc, rewt);
-  r0  = SUN_RCONST(1000.0) * fabs(gamma) * uround * NEQ * fac;
+  r0  = SUN_RCONST(1000.0) * SUNRabs(gamma) * uround * NEQ * fac;
   if (r0 == ZERO) { r0 = ONE; }
 
   for (igy = 0; igy < ngy; igy++)
@@ -865,7 +865,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
         /* Generate the jth column as a difference quotient */
         jj   = if0 + j;
         save = cdata[jj];
-        r    = MAX(srur * fabs(save), r0 / rewtdata[jj]);
+        r    = MAX(srur * SUNRabs(save), r0 / rewtdata[jj]);
         cdata[jj] += r;
         fac = -gamma / r;
         fblock(t, cdata, jx, jy, f1, wdata);

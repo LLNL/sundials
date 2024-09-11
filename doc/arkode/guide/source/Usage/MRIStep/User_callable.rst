@@ -23,7 +23,7 @@ by the user to setup and then solve an IVP using the MRIStep time-stepping
 module.  The large majority of these routines merely wrap :ref:`underlying
 ARKODE functions <ARKODE.Usage.UserCallable>`, and are now deprecated
 -- each of these are clearly marked.  However, some
-of these user-callable functions are specific to ERKStep, as explained
+of these user-callable functions are specific to MRIStep, as explained
 below.
 
 As discussed in the main :ref:`ARKODE user-callable function introduction
@@ -830,7 +830,7 @@ Optional inputs for IVP method selection
 
    Select the default MRI method of a given order.
 
-   The default order is 3. An order less than 3 or greater than 4 will result in
+   The default order is 3. An order less than 1 or greater than 4 will result in
    using the default.
 
    **Arguments:**
