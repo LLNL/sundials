@@ -192,7 +192,7 @@ Optional output functions
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
 .. c:function:: int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* ndomeigupdates);
