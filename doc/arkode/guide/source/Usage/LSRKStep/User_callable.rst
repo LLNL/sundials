@@ -97,7 +97,8 @@ Allowable Method Families
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig);
 
    Specifies the Dominant Eigenvalue approximation routine to
-   be used for number of stages selection.
+   be used for determining the number of stages that will be used by either the 
+   Runge--Kutta--Chebyshev or Runge--Kutta--Legendre methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
