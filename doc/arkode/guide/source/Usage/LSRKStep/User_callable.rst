@@ -107,7 +107,9 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* ``DomEig = NULL`` and internal Dominant Eigenvalue estimation is not supported yet.
+      * *ARK_ILL_INPUT* ``DomEig = NULL`` and LSRKStep does not currently estimate this internally.
+      
+   .. note:: This function is currently required when either the RKC or RKL methods are used; it is ignored when using SSPRK methods.
 
 
 .. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps);
