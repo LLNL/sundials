@@ -38,7 +38,7 @@ endif()
 
 # LAPACK does not support extended precision
 if(ENABLE_LAPACK AND SUNDIALS_PRECISION MATCHES "EXTENDED")
-  print_error("LAPACK is not compatible with ${SUNDIALS_PRECISION} precision")
+  message(FATAL_ERROR "LAPACK is not compatible with ${SUNDIALS_PRECISION} precision")
 endif()
 
 # -----------------------------------------------------------------------------
