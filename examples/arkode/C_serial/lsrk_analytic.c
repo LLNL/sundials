@@ -29,7 +29,7 @@
  *-----------------------------------------------------------------*/
 
 /* Header files */
-#include <arkode/arkode_lsrkstep.h> /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_lsrkstep.h> /* prototypes for LSRKStep fcts., consts */
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
 #include <stdio.h>
