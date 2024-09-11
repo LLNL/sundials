@@ -71,7 +71,7 @@ Optional input functions
 
 .. c:function:: int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
 
-   This function sets the type of the LSRK method.
+   This function selects the LSRK method that should be used.  The list of allowable values for this input is below.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
