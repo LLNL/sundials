@@ -134,7 +134,7 @@ int main(void)
   flag = LSRKStepSetDomEigSafetyFactor(arkode_mem, 1.01);
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
-  /* Specify the LSRK method */
+  /* Specify the Runge--Kutta--Legendre LSRK method */
   flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKL);
   if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
 
