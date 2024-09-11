@@ -745,7 +745,7 @@ that all stages be stored simultaneously.  At present, this module supports expl
 adaptive "super-time-stepping (STS)" and "strong-stability-preserving (SSP)" methods.
 variety of "super-time-stepping (STS)" and "strong-stability-preserving (SSP)" methods.
 
-The LSRK time-stepping module in ARKODE is designed for IVP
+The LSRK time-stepping module in ARKODE currently supports IVP
 of the form :eq:`ARKODE_IVP_simple_explicit`, i.e., unlike the more general problem form :eq:`ARKODE_IMEX_IVP`, LSRKStep
 requires that problems have an identity mass matrix (i.e., :math:`M(t)=I`)
 and that the right-hand side function is not split into separate
