@@ -123,8 +123,8 @@ set(OTHER_LIBS ${EXE_EXTRA_LINK_LIBS})
 
 set(parallel_examples
     "ark_heat2D_p.cpp\;\;--np 2 2\;1\;4\;develop\;default"
-    "ark_heat2D_lsrk_p.cpp\;\;--np 2 2\;1\;4\;develop\;default"
-)
+    "ark_heat2D_lsrk_p.cpp\;\;--np 2 2\;1\;4\;develop\;default")
+
 set(SUNDIALS_LIBS sundials_arkode sundials_nvecparallel)
 build_examples(parallel_examples CXX)
 

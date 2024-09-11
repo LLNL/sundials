@@ -26,7 +26,7 @@ datafile = "sod.out"
 
 # return with an error if the file does not exist
 if not os.path.isfile(datafile):
-    msg = "Error: file " + datafile +" does not exist"
+    msg = "Error: file " + datafile + " does not exist"
     sys.exit(msg)
 
 # read solution file, storing each line as a string in a list
@@ -45,10 +45,10 @@ with open(datafile, 'r') as file:
     # allocate solution data as 2D Python arrays
     t = np.zeros((nt), dtype=float)
     rho = np.zeros((nt, nx), dtype=float)
-    mx  = np.zeros((nt, nx), dtype=float)
-    my  = np.zeros((nt, nx), dtype=float)
-    mz  = np.zeros((nt, nx), dtype=float)
-    et  = np.zeros((nt, nx), dtype=float)
+    mx = np.zeros((nt, nx), dtype=float)
+    my = np.zeros((nt, nx), dtype=float)
+    mz = np.zeros((nt, nx), dtype=float)
+    et = np.zeros((nt, nx), dtype=float)
 
     # store remaining data into numpy arrays
     for it in range(nt):
@@ -69,23 +69,23 @@ with open(datafile, 'r') as file:
 x = np.linspace(xl, xr, nx)
 
 #   plot defaults: increase default font size, increase plot width, enable LaTeX rendering
-plt.rc('font', size=15)
-plt.rcParams['figure.figsize'] = [7.2, 4.8]
-plt.rcParams['text.usetex'] = True
-plt.rcParams['figure.constrained_layout.use'] = True
+plt.rc("font", size=15)
+plt.rcParams["figure.figsize"] = [7.2, 4.8]
+plt.rcParams["text.usetex"] = True
+plt.rcParams["figure.constrained_layout.use"] = True
 
 #   subplots with time snapshots of the density, x-velocity, and pressure
-fig = plt.figure(figsize=(10,5))
+fig = plt.figure(figsize=(10, 5))
 gs = GridSpec(3, 3, figure=fig)
-ax00 = fig.add_subplot(gs[0,0])  # left column
-ax10 = fig.add_subplot(gs[1,0])
-ax20 = fig.add_subplot(gs[2,0])
-ax01 = fig.add_subplot(gs[0,1])  # middle column
-ax11 = fig.add_subplot(gs[1,1])
-ax21 = fig.add_subplot(gs[2,1])
-ax02 = fig.add_subplot(gs[0,2])  # right column
-ax12 = fig.add_subplot(gs[1,2])
-ax22 = fig.add_subplot(gs[2,2])
+ax00 = fig.add_subplot(gs[0, 0])  # left column
+ax10 = fig.add_subplot(gs[1, 0])
+ax20 = fig.add_subplot(gs[2, 0])
+ax01 = fig.add_subplot(gs[0, 1])  # middle column
+ax11 = fig.add_subplot(gs[1, 1])
+ax21 = fig.add_subplot(gs[2, 1])
+ax02 = fig.add_subplot(gs[0, 2])  # right column
+ax12 = fig.add_subplot(gs[1, 2])
+ax22 = fig.add_subplot(gs[2, 2])
 it = 0
 ax00.plot(x, rho[it,:])
 ax10.plot(x, u[it,:])
@@ -95,10 +95,10 @@ ax00.set_ylabel(r"$\rho$")
 ax10.set_ylabel(r"$v_x$")
 ax20.set_ylabel(r"$p$")
 ax20.set_xlabel(r"$x$")
-it = nt//2
-ax01.plot(x, rho[it,:])
-ax11.plot(x, u[it,:])
-ax21.plot(x, p[it,:])
+it = nt // 2
+ax01.plot(x, rho[it, :])
+ax11.plot(x, u[it, :])
+ax21.plot(x, p[it, :])
 ax01.set_title(r"$t =$ " + repr(t[it]).zfill(3))
 ax21.set_xlabel(r"$x$")
 it = nt-1

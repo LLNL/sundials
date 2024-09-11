@@ -18,8 +18,7 @@
 # examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(ARKODE_examples
-    "ark_sod_lsrk.cpp\;\;develop")
+set(ARKODE_examples "ark_sod_lsrk.cpp\;\;develop")
 
 # Header files to install
 set(ARKODE_headers)
@@ -50,8 +49,7 @@ foreach(example_tuple ${ARKODE_examples})
 
     # libraries to link against
     target_link_libraries(${example_target} sundials_arkode sundials_nvecserial
-                          sundials_nvecmanyvector
-                          ${EXE_EXTRA_LINK_LIBS})
+                          sundials_nvecmanyvector ${EXE_EXTRA_LINK_LIBS})
 
     if(BUILD_CVODE)
       target_link_libraries(${example_target} sundials_cvode)
