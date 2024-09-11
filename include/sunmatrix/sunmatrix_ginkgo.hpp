@@ -324,8 +324,14 @@ void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
 template<typename GkoMatType>
 void ScaleAdd(const sunrealtype c, Matrix<GkoMatType>& A, Matrix<GkoMatType>& B)
 {
+#if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 8)
+  // Identity constructor always creates a square matrix
+  const auto I{
+    gko::matrix::Identity<sunrealtype>::create(A.GkoExec(), A.GkoSize()[1])};
+#else
   const auto I{
     gko::matrix::Identity<sunrealtype>::create(A.GkoExec(), A.GkoSize())};
+#endif
   const auto one{gko::initialize<GkoDenseMat>({1.0}, A.GkoExec())};
   const auto cmat{gko::initialize<GkoDenseMat>({c}, A.GkoExec())};
   // A = B + cA

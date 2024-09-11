@@ -269,42 +269,6 @@ sundials_option(ENABLE_TRILINOS BOOL "Enable Trilinos support" OFF)
 sundials_option(Trilinos_DIR PATH "Path to root of Trilinos installation"
                 "${Trilinos_DIR}" DEPENDS_ON ENABLE_TRILINOS)
 
-sundials_option(
-  Trilinos_INTERFACE_CXX_COMPILER STRING "C++ compiler for Trilinos interface"
-  "${Trilinos_CXX_COMPILER}"
-  DEPENDS_ON ENABLE_TRILINOS
-  ADVANCED)
-
-sundials_option(
-  Trilinos_INTERFACE_C_COMPILER STRING "C compiler for Trilinos interface"
-  "${Trilinos_C_COMPILER}"
-  DEPENDS_ON ENABLE_TRILINOS
-  ADVANCED)
-
-sundials_option(
-  Trilinos_INTERFACE_CXX_COMPILER_FLAGS STRING
-  "C++ compiler flags for Trilinos interface" "${Trilinos_CXX_COMPILER_FLAGS}"
-  DEPENDS_ON ENABLE_TRILINOS
-  ADVANCED)
-
-sundials_option(
-  Trilinos_INTERFACE_C_COMPILER_FLAGS STRING
-  "C compiler flags for Trilinos interface" "${Trilinos_C_COMPILER_FLAGS}"
-  DEPENDS_ON ENABLE_TRILINOS
-  ADVANCED)
-
-sundials_option(
-  Trilinos_INTERFACE_MPIEXEC STRING "MPI executable for Trilinos interface"
-  "${Trilinos_MPI_EXEC}"
-  DEPENDS_ON ENABLE_TRILINOS
-  ADVANCED)
-
-sundials_option(
-  Trilinos_WORKS BOOL
-  "Set to ON to force CMake to accept a given Trilinos configuration" OFF
-  DEPENDS_ON ENABLE_TRILINOS
-  ADVANCED)
-
 # ---------------------------------------------------------------
 # Enable XBraid support?
 # ---------------------------------------------------------------

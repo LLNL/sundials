@@ -87,6 +87,13 @@ int main(int argc, char* argv[])
     // SUNDIALS context
     sundials::Context sunctx(comm_w);
 
+    // Initialize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+    retval = HYPRE_Init();
+    if (check_retval(&retval, "HYPRE_Init", 1)) { return 1; }
+#endif
+
     // ------------------------------------------
     // Setup UserData and parallel decomposition
     // ------------------------------------------
@@ -274,6 +281,13 @@ int main(int argc, char* argv[])
     // --------------------
     // Free memory
     // --------------------
+
+    // Finalize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+    retval = HYPRE_Finalize();
+    if (check_retval(&retval, "HYPRE_Finalize", 1)) { return 1; }
+#endif
 
     KINFree(&kin_mem); // Free solver memory
     N_VDestroy(u);     // Free vectors
