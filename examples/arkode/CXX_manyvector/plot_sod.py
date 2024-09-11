@@ -56,10 +56,10 @@ with open(datafile, "r") as file:
         t[it] = line.pop(0)
         for ix in range(nx):
             rho[it, ix] = line.pop(0)
-            mx[it, ix]  = line.pop(0)
-            my[it, ix]  = line.pop(0)
-            mz[it, ix]  = line.pop(0)
-            et[it, ix]  = line.pop(0)
+            mx[it, ix] = line.pop(0)
+            my[it, ix] = line.pop(0)
+            mz[it, ix] = line.pop(0)
+            et[it, ix] = line.pop(0)
 
     gamma = 1.4
     u = mx / rho
@@ -101,7 +101,7 @@ ax11.plot(x, u[it, :])
 ax21.plot(x, p[it, :])
 ax01.set_title(r"$t =$ " + repr(t[it]).zfill(3))
 ax21.set_xlabel(r"$x$")
-it = nt-1
+it = nt - 1
 ax02.plot(x, rho[it, :])
 ax12.plot(x, u[it, :])
 ax22.plot(x, p[it, :])
