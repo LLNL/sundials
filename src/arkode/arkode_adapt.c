@@ -102,9 +102,9 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   int controller_order;
 
   /* Return with no stepsize adjustment if the controller is NULL */
-  if (hdapt_mem->hcontroller == NULL)
+  if (hadapt_mem->hcontroller == NULL)
   {
-    h_acc = hcur;
+    ark_mem->eta = ONE;
     return (ARK_SUCCESS);
   }
 
