@@ -18,10 +18,7 @@
 User-supplied functions
 =============================
 
-The user-supplied functions for LSRKStep consist of:
-
-* at least one function :ref:`defining the dominant eigenvalue of the RHS <LSRKStep.Usage.DomEig>`
-  (required),
+Currently, there is only one user-supplied function for LSRKStep (in addition to the :c:type:`ARKRhsFn` arguments that define the IVP).
 
 
 
