@@ -123,8 +123,6 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   }
 
   /* Allocate the general LSRK stepper vectors using y0 as a template */
-  /* NOTE: F, cvals and Xvecs will be allocated later on
-     (based on the number of LSRK stages) */
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = fe;
@@ -222,8 +220,17 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
     return (retval);
   }
 
-  /* Initialize all the counters */
+  /* Initialize all the counters, flags and stats */
   step_mem->nfe = 0;
+  step_mem->nfi = 0;
+  step_mem->domeignfe = 0;
+  step_mem->ndomeigupdates = 0;
+  step_mem->stagemax = 0;
+  step_mem->sprmax = 0;
+  step_mem->sprmin = 0;  
+  step_mem->nstsig = 0;
+  step_mem->newdomeig = SUNTRUE;
+  step_mem->jacatt    = SUNFALSE;
 
   return (ARK_SUCCESS);
 }
