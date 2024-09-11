@@ -119,7 +119,7 @@ Allowable Method Families
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *nsteps* -- the Dominant Eigenvalue re-computation update frequency, in particular ``nsteps = 0`` means constant Jacobian.
+      * *nsteps* -- the Dominant Eigenvalue re-computation update frequency.  A value ``nsteps = 0`` indicates that the dominant eigenvalue will not change throughout the simulation.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
