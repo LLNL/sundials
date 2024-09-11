@@ -28,7 +28,7 @@ Currently, there is only one user-supplied function for LSRKStep (in addition to
 The dominant eigenvalue estimation
 ----------------------------------
 
-The user must supply one dominant eigenvalue function of type :c:type:`ARKDomEigFn`:
+When running LSRKStep with either the RKC or RKL methods, the user must supply a dominant eigenvalue estimation function of type :c:type:`ARKDomEigFn`:
 
 .. c:type:: int (*ARKDomEigFn)(sunrealtype* t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data)
 
