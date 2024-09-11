@@ -80,6 +80,8 @@ Optional input functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. typo in the method type).
+      
+   .. note:: If this routine is not called, then LSRKStep will use the Runge--Kutta--Chebyshev method by default. 
 
 
 Allowable Method Families
