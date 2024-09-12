@@ -647,24 +647,28 @@ int SplittingStep_SetExecutionPolicy(void* const arkode_mem,
   return ARK_SUCCESS;
 }
 
-long int SplittingStep_GetNumEvolves(void* const arkode_mem, const int partition) {
+int SplittingStep_GetNumEvolves(void* const arkode_mem, const int partition, long int * const evolves) {
   ARKodeMem ark_mem               = NULL;
   ARKodeSplittingStepMem step_mem = NULL;
   int retval = splittingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                                  &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (partition < 0) {
-    long int total = 0;
-    for (int k = 0; k < step_mem->partitions; k++) {
-      total += step_mem->n_stepper_evolves[k];
-    }
-    return total;
-  } else if (partition >= step_mem->partitions) {
+  if (partition >= step_mem->partitions) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "The partition index is %i but there are only %i partitions", partition, step_mem->partitions);
     return ARK_ILL_INPUT;
-  } else {
-    return step_mem->n_stepper_evolves[partition];
   }
+
+  if (partition < 0) {
+    *evolves = 0;
+    for (int k = 0; k < step_mem->partitions; k++) {
+      *evolves += step_mem->n_stepper_evolves[k];
+    }
+    return ARK_SUCCESS;
+  } else {
+    *evolves = step_mem->n_stepper_evolves[partition];
+  }
+
+  return ARK_SUCCESS;
 }
