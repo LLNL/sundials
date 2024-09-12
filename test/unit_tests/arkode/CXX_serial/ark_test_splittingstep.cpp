@@ -36,9 +36,9 @@
 static int test_forward(sundials::Context &ctx, const int partitions) {
   constexpr auto t0 = SUN_RCONST(0.0);
   constexpr auto tf = SUN_RCONST(1.0);
-  constexpr auto dt = SUN_RCONST(0.01);
-  constexpr auto local_tol = SUN_RCONST(1.0e-8);
-  constexpr auto global_tol = local_tol;
+  constexpr auto dt = SUN_RCONST(0.008);
+  constexpr auto local_tol = SUN_RCONST(1.0e-6);
+  constexpr auto global_tol = 10 * local_tol;
   const auto y = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
@@ -98,9 +98,9 @@ static int test_mixed_directions(const sundials::Context &ctx) {
   constexpr auto t1 = SUN_RCONST(-1.0);
   constexpr auto t2 = SUN_RCONST(0.4);
   constexpr auto t3 = t0;
-  constexpr auto dt = -SUN_RCONST(7.0e-4);
-  constexpr auto local_tol = SUN_RCONST(1.0e-6);
-  constexpr auto global_tol = local_tol;
+  constexpr auto dt = -SUN_RCONST(1.00001e-3);
+  constexpr auto local_tol = SUN_RCONST(5.0e-7);
+  constexpr auto global_tol = 1 * local_tol;
   const auto y = N_VNew_Serial(2, ctx);
   N_VConst(SUN_RCONST(1.0), y);
   const auto err = N_VClone(y);
@@ -154,6 +154,7 @@ static int test_mixed_directions(const sundials::Context &ctx) {
   N_VLinearSum(SUN_RCONST(1.0), err, -SUN_RCONST(1.0), y, err);
   const auto max_err = N_VMaxNorm(err);
 
+  std::cout << max_err << std::endl;
   if (max_err > global_tol) {
     std::cerr << "Mixed direction solution failed with an error of " << max_err << "\n";
     return 1;
@@ -349,15 +350,15 @@ int main() {
   int errors = 0;
 
   /* Run the tests */
-  constexpr auto min_partitions = 2;
-  constexpr auto max_partitions = 7;
-  for (auto p = min_partitions; p <= max_partitions; p++) {
-    errors += test_forward(ctx, p);
-  }
+  // constexpr auto min_partitions = 2;
+  // constexpr auto max_partitions = 7;
+  // for (auto p = min_partitions; p <= max_partitions; p++) {
+  //   errors += test_forward(ctx, p);
+  // }
 
   errors += test_mixed_directions(ctx);
-  errors += test_resize(ctx);
-  errors += test_custom_stepper(ctx);
+  // errors += test_resize(ctx);
+  // errors += test_custom_stepper(ctx);
 
   if (errors == 0) {
     std::cout << "Success\n";

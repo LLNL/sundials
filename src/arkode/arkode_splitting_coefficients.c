@@ -106,9 +106,9 @@ SplittingStepCoefficients SplittingStepCoefficients_Create(
   if (coefficients == NULL) { return NULL; }
 
   coefficients->order = order;
-  memcpy(coefficients->alpha, alpha, sequential_methods * sizeof(*alpha));
+  memcpy(coefficients->alpha, alpha, sequential_methods * sizeof(sunrealtype));
   memcpy(coefficients->beta[0][0], beta,
-         sequential_methods * (stages + 1) * partitions * sizeof(*beta));
+         sequential_methods * (stages + 1) * partitions * sizeof(sunrealtype));
 
   return coefficients;
 }
@@ -149,13 +149,13 @@ SplittingStepCoefficients SplittingStepCoefficients_Copy(
 
   coefficientsCopy->order = coefficients->order;
   memcpy(coefficientsCopy->alpha, coefficients->alpha,
-         coefficients->sequential_methods * sizeof(*coefficients->alpha));
+         coefficients->sequential_methods * sizeof(sunrealtype));
 
   /* beta[0][0] points to the contiguous memory allocation, so we can copy it
      with a single memcpy */
   memcpy(coefficientsCopy->beta[0][0], coefficients->beta[0][0],
          coefficients->sequential_methods * (coefficients->stages + 1) *
-           coefficients->partitions * sizeof(*coefficients->beta));
+           coefficients->partitions * sizeof(sunrealtype));
 
   return coefficientsCopy;
 }
