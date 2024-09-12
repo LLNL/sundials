@@ -81,3 +81,34 @@ ForcingStep initialization functions
       * ``examples/arkode/C_serial/ark_analytic_partitioned.c``
    
    .. versionadded:: x.y.z
+
+
+.. _ARKODE.Usage.ForcingStep.OptionalOutputs:
+
+
+Optional output functions
+------------------------------
+
+.. c:function:: int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int *evolves)
+
+   Returns the number of times the :c:type:`SUNStepper` for the given partition
+   index has been evolved (so far).
+
+   **Arguments:**
+
+   * *arkode_mem* -- pointer to the ForcingStep memory block.
+
+   * *partition* -- index of the partition (0 or 1) or a negative number to
+     indicate the total number across both partitions.
+
+   * *evolves* -- number of :c:type:`SUNStepper` evolves.
+
+   **Return value:**
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the ForcingStep memory was ``NULL``
+
+   * *ARK_ILL_INPUT* if *evolves* was out of bounds
+   
+   .. versionadded:: x.y.z
