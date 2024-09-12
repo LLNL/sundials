@@ -1304,17 +1304,13 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  if (stepdir == ZERO) {
-    return ARK_SUCCESS;
-  }
+  if (stepdir == ZERO) { return ARK_SUCCESS; }
 
   h = ark_mem->h == ZERO ? ark_mem->hin : ark_mem->h;
 
   // TODO(SBR): use SUNRcopysign once merged from other PR
   // if (SUNRcopysign(h, stepdir) == h) {
-  if (h == ZERO || ((h > 0) == (stepdir > 0))) {
-    return ARK_SUCCESS;
-  }
+  if (h == ZERO || ((h > 0) == (stepdir > 0))) { return ARK_SUCCESS; }
 
   /* Reverse the sign of h. If adaptive, h will be overwritten anyway by the
    * initial step estimation since ARKodeReset must be called before this.
@@ -1331,7 +1327,7 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
   /* Reset error controller (e.g., error and step size history) */
   retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
   if (retval != SUN_SUCCESS) { return (ARK_CONTROLLER_ERR); }
-  
+
   return ARK_SUCCESS;
 }
 
@@ -2147,7 +2143,7 @@ int ARKodeGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
   on the sign of stepdir. A value of 0 indicates integration can
   procede in either direction.
   ---------------------------------------------------------------*/
-int ARKodeGetStepDirection(void *arkode_mem, sunrealtype *stepdir)
+int ARKodeGetStepDirection(void* arkode_mem, sunrealtype* stepdir)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)

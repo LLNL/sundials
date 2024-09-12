@@ -3162,10 +3162,12 @@ int ARKStepCreateSUNStepper(void* inner_arkode_mem, SUNStepper* stepper)
   retval = SUNStepper_SetStopTimeFn(*stepper, arkStep_SUNStepperSetStopTime);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = SUNStepper_SetSetStepDirectionFn(*stepper, arkStep_SUNStepperSetStepDirection);
+  retval = SUNStepper_SetSetStepDirectionFn(*stepper,
+                                            arkStep_SUNStepperSetStepDirection);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = SUNStepper_SetGetStepDirectionFn(*stepper, arkStep_SUNStepperGetStepDirection);
+  retval = SUNStepper_SetGetStepDirectionFn(*stepper,
+                                            arkStep_SUNStepperGetStepDirection);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return (ARK_SUCCESS);

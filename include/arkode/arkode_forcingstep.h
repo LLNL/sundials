@@ -25,12 +25,12 @@
 extern "C" {
 #endif
 
-SUNDIALS_EXPORT void *ForcingStepCreate(SUNStepper stepper1,
-                                               SUNStepper stepper2,
-                                               sunrealtype t0, N_Vector y0,
-                                               SUNContext sunctx);
+SUNDIALS_EXPORT void* ForcingStepCreate(SUNStepper stepper1,
+                                        SUNStepper stepper2, sunrealtype t0,
+                                        N_Vector y0, SUNContext sunctx);
 
-SUNDIALS_EXPORT int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int *evolves);
+SUNDIALS_EXPORT int ForcingStep_GetNumEvolves(void* arkode_mem, int partition,
+                                              long int* evolves);
 
 #ifdef __cplusplus
 }

@@ -148,8 +148,8 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
   /* TODO(SBR): Should this validation be done by ARKODE? */
   if (!ark_mem->fixedstep)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "Adaptive outer time stepping is not currently supported");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Adaptive outer time stepping is not currently supported");
     return ARK_ILL_INPUT;
   }
 
@@ -171,7 +171,7 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
     step_mem->own_policy = SUNTRUE;
   }
 
-  ark_mem->interp_degree = 
+  ark_mem->interp_degree =
     SUNMAX(1, SUNMIN(step_mem->coefficients->order - 1, ark_mem->interp_degree));
 
   return ARK_SUCCESS;
@@ -247,18 +247,18 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y,
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                    "ARKODE::splittingStep_SequentialMethod", "start-sequential-method",
-                    "step = %li, sequential method = %i",
-                    ark_mem->nst, i);
+                     "ARKODE::splittingStep_SequentialMethod",
+                     "start-sequential-method",
+                     "step = %li, sequential method = %i", ark_mem->nst, i);
 #endif
 
   for (int j = 0; j < coefficients->stages; j++)
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                      "ARKODE::splittingStep_SequentialMethod", "start-stage",
-                      "step = %li, sequential method = %i, stage = %i",
-                      ark_mem->nst, i, j);
+                       "ARKODE::splittingStep_SequentialMethod", "start-stage",
+                       "step = %li, sequential method = %i, stage = %i",
+                       ark_mem->nst, i, j);
 #endif
     for (int k = 0; k < coefficients->partitions; k++)
     {
@@ -269,9 +269,11 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y,
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                        "ARKODE::splittingStep_SequentialMethod", "start-inner-evolve",
-                        "step = %li, sequential method = %i, stage = %i, partition = %i, t0 = %" RSYM ", tout = %" RSYM,
-                        ark_mem->nst, i, j, k, t_start, t_end);
+                         "ARKODE::splittingStep_SequentialMethod",
+                         "start-inner-evolve",
+                         "step = %li, sequential method = %i, stage = %i, "
+                         "partition = %i, t0 = %" RSYM ", tout = %" RSYM,
+                         ark_mem->nst, i, j, k, t_start, t_end);
 #endif
 
       if (t_start == t_end) { continue; }
@@ -336,14 +338,17 @@ static int splittingStep_PrintAllStats(const ARKodeMem ark_mem,
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    for (int k = 0; k < step_mem->partitions; k++) {
-      fprintf(outfile, "Partition %i evolves          = %ld\n",
-              k, step_mem->n_stepper_evolves[k]);
+    for (int k = 0; k < step_mem->partitions; k++)
+    {
+      fprintf(outfile, "Partition %i evolves          = %ld\n", k,
+              step_mem->n_stepper_evolves[k]);
     }
     break;
   case SUN_OUTPUTFORMAT_CSV:
-    for (int k = 0; k < step_mem->partitions; k++) {
-      fprintf(outfile, "Partition %i evolves,%ld\n", k, step_mem->n_stepper_evolves[k]);
+    for (int k = 0; k < step_mem->partitions; k++)
+    {
+      fprintf(outfile, "Partition %i evolves,%ld\n", k,
+              step_mem->n_stepper_evolves[k]);
     }
     break;
   default:
@@ -375,8 +380,10 @@ static int splittingStep_WriteParameters(const ARKodeMem ark_mem, FILE* const fp
   ---------------------------------------------------------------*/
 static void splittingStep_Free(const ARKodeMem ark_mem)
 {
-  const ARKodeSplittingStepMem step_mem = (ARKodeSplittingStepMem)ark_mem->step_mem;
-  if (step_mem != NULL) {
+  const ARKodeSplittingStepMem step_mem =
+    (ARKodeSplittingStepMem)ark_mem->step_mem;
+  if (step_mem != NULL)
+  {
     free(step_mem->steppers);
     free(step_mem->n_stepper_evolves);
     if (step_mem->own_policy)
@@ -405,8 +412,10 @@ static void splittingStep_PrintMem(const ARKodeMem ark_mem, FILE* const outfile)
   fprintf(outfile, "SplittingStep: order = %i\n", step_mem->order);
 
   /* output long integer quantities */
-  for (int k = 0; k < step_mem->partitions; k++) {
-    fprintf(outfile, "SplittingStep: partition %i: n_stepper_evolves = %li\n", k, step_mem->n_stepper_evolves[k]);
+  for (int k = 0; k < step_mem->partitions; k++)
+  {
+    fprintf(outfile, "SplittingStep: partition %i: n_stepper_evolves = %li\n",
+            k, step_mem->n_stepper_evolves[k]);
   }
 
   /* output sunrealtype quantities */
@@ -533,16 +542,18 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
 
   step_mem->coefficients      = NULL;
   step_mem->policy            = NULL;
-  step_mem->n_stepper_evolves = calloc(partitions, sizeof(*step_mem->n_stepper_evolves));
-  if (step_mem->n_stepper_evolves == NULL) {
+  step_mem->n_stepper_evolves = calloc(partitions,
+                                       sizeof(*step_mem->n_stepper_evolves));
+  if (step_mem->n_stepper_evolves == NULL)
+  {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_ARKMEM_FAIL);
     ARKodeFree((void**)&ark_mem);
     return NULL;
   }
-  step_mem->partitions        = partitions;
-  step_mem->order             = 0;
-  step_mem->own_policy        = SUNFALSE;
+  step_mem->partitions = partitions;
+  step_mem->order      = 0;
+  step_mem->own_policy = SUNFALSE;
 
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init            = splittingStep_Init;
@@ -647,27 +658,32 @@ int SplittingStep_SetExecutionPolicy(void* const arkode_mem,
   return ARK_SUCCESS;
 }
 
-int SplittingStep_GetNumEvolves(void* const arkode_mem, const int partition, long int * const evolves) {
+int SplittingStep_GetNumEvolves(void* const arkode_mem, const int partition,
+                                long int* const evolves)
+{
   ARKodeMem ark_mem               = NULL;
   ARKodeSplittingStepMem step_mem = NULL;
   int retval = splittingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                                  &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (partition >= step_mem->partitions) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The partition index is %i but there are only %i partitions", partition, step_mem->partitions);
+  if (partition >= step_mem->partitions)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "The partition index is %i but there are only %i partitions",
+                    partition, step_mem->partitions);
     return ARK_ILL_INPUT;
   }
 
-  if (partition < 0) {
+  if (partition < 0)
+  {
     *evolves = 0;
-    for (int k = 0; k < step_mem->partitions; k++) {
+    for (int k = 0; k < step_mem->partitions; k++)
+    {
       *evolves += step_mem->n_stepper_evolves[k];
     }
-  } else {
-    *evolves = step_mem->n_stepper_evolves[partition];
   }
+  else { *evolves = step_mem->n_stepper_evolves[partition]; }
 
   return ARK_SUCCESS;
 }

@@ -18,9 +18,9 @@
 #include <arkode/arkode_forcingstep.h>
 #include <sundials/sundials_nvector.h>
 
+#include "arkode_forcingstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_mristep_impl.h"
-#include "arkode_forcingstep_impl.h"
 
 #define PARTITIONS 2
 
@@ -29,8 +29,8 @@
   If missing it returns ARK_MEM_NULL.
   ---------------------------------------------------------------*/
 static int forcingStep_AccessStepMem(const ARKodeMem ark_mem,
-                                       const char* const fname,
-                                       ARKodeForcingStepMem* const step_mem)
+                                     const char* const fname,
+                                     ARKodeForcingStepMem* const step_mem)
 {
   if (ark_mem->step_mem == NULL)
   {
@@ -47,9 +47,9 @@ static int forcingStep_AccessStepMem(const ARKodeMem ark_mem,
   void* pointer.  If either is missing it returns ARK_MEM_NULL.
   ---------------------------------------------------------------*/
 static int forcingStep_AccessARKODEStepMem(void* const arkode_mem,
-                                             const char* const fname,
-                                             ARKodeMem* const ark_mem,
-                                             ARKodeForcingStepMem* const step_mem)
+                                           const char* const fname,
+                                           ARKodeMem* const ark_mem,
+                                           ARKodeForcingStepMem* const step_mem)
 {
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)
@@ -91,8 +91,8 @@ static int forcingStep_Init(const ARKodeMem ark_mem, const int init_type)
   /* assume fixed outer step size */
   if (!ark_mem->fixedstep)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "Adaptive outer time stepping is not currently supported");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Adaptive outer time stepping is not currently supported");
     return ARK_ILL_INPUT;
   }
 
@@ -130,8 +130,8 @@ static int forcingStep_Init(const ARKodeMem ark_mem, const int init_type)
   resets at the next ARKodeEvolve call.
   ----------------------------------------------------------------------------*/
 static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
-                                 const N_Vector y, const N_Vector f,
-                                 SUNDIALS_MAYBE_UNUSED const int mode)
+                               const N_Vector y, const N_Vector f,
+                               SUNDIALS_MAYBE_UNUSED const int mode)
 {
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -147,7 +147,7 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
   }
 
   const SUNStepper s1 = step_mem->stepper[1];
-  retval = s1->ops->fullrhs(s1, t, y, f, ARK_FULLRHS_OTHER);
+  retval              = s1->ops->fullrhs(s1, t, y, f, ARK_FULLRHS_OTHER);
   if (retval != 0)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -172,10 +172,10 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   *nflagPtr = ARK_SUCCESS; /* No algebraic solver */
   *dsmPtr   = ZERO;        /* No error estimate */
 
-  const SUNStepper s0 = step_mem->stepper[0];
+  const SUNStepper s0    = step_mem->stepper[0];
   const sunrealtype tout = ark_mem->tn + ark_mem->h;
-  sunrealtype tret = 0;
-  int stop_reason = 0;
+  sunrealtype tret       = 0;
+  int stop_reason        = 0;
 
   /* Evolve stepper 0 on its own */
   SUNErrCode err = SUNStepper_Reset(s0, ark_mem->tn, ark_mem->yn);
@@ -184,7 +184,8 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   if (err != SUN_SUCCESS) { return err; }
   err = SUNStepper_SetStopTime(s0, tout);
   if (err != SUN_SUCCESS) { return err; }
-  err = SUNStepper_Evolve(s0, ark_mem->tn, tout, ark_mem->ycur, &tret, &stop_reason);
+  err = SUNStepper_Evolve(s0, ark_mem->tn, tout, ark_mem->ycur, &tret,
+                          &stop_reason);
   if (err != SUN_SUCCESS) { return err; }
   if (stop_reason < 0) { return stop_reason; }
   step_mem->n_stepper_evolves[0]++;
@@ -194,7 +195,7 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
    * changes or a resize is performed, the stepper and outer forcing method
    * could become out of sync. */
   const SUNStepper s1 = step_mem->stepper[1];
-  err = SUNStepper_Reset(s1, ark_mem->tn, ark_mem->yn);
+  err                 = SUNStepper_Reset(s1, ark_mem->tn, ark_mem->yn);
   if (err != SUN_SUCCESS) { return err; }
   err = SUNStepper_SetStepDirection(s1, ark_mem->h);
   if (err != SUN_SUCCESS) { return err; }
@@ -206,7 +207,8 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   N_VLinearSum(hinv, ark_mem->ycur, -hinv, ark_mem->yn, s1->forcing[0]);
 
   /* Evolve stepper 1 with the forcing */
-  err = SUNStepper_Evolve(s1, ark_mem->tn, tout, ark_mem->ycur, &tret, &stop_reason);
+  err = SUNStepper_Evolve(s1, ark_mem->tn, tout, ark_mem->ycur, &tret,
+                          &stop_reason);
   if (err != SUN_SUCCESS) { return err; }
   if (stop_reason < 0) { return stop_reason; }
   step_mem->n_stepper_evolves[1]++;
@@ -217,9 +219,8 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
 /*---------------------------------------------------------------
   Prints integrator statistics
   ---------------------------------------------------------------*/
-static int forcingStep_PrintAllStats(const ARKodeMem ark_mem,
-                                       FILE* const outfile,
-                                       const SUNOutputFormat fmt)
+static int forcingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outfile,
+                                     const SUNOutputFormat fmt)
 {
   // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
   ARKodeForcingStepMem step_mem = NULL;
@@ -229,14 +230,17 @@ static int forcingStep_PrintAllStats(const ARKodeMem ark_mem,
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    for (int k = 0; k < PARTITIONS; k++) {
-      fprintf(outfile, "Partition %i evolves          = %ld\n",
-              k, step_mem->n_stepper_evolves[k]);
+    for (int k = 0; k < PARTITIONS; k++)
+    {
+      fprintf(outfile, "Partition %i evolves          = %ld\n", k,
+              step_mem->n_stepper_evolves[k]);
     }
     break;
   case SUN_OUTPUTFORMAT_CSV:
-    for (int k = 0; k < PARTITIONS; k++) {
-      fprintf(outfile, "Partition %i evolves,%ld\n", k, step_mem->n_stepper_evolves[k]);
+    for (int k = 0; k < PARTITIONS; k++)
+    {
+      fprintf(outfile, "Partition %i evolves,%ld\n", k,
+              step_mem->n_stepper_evolves[k]);
     }
     break;
   default:
@@ -268,8 +272,10 @@ static void forcingStep_PrintMem(const ARKodeMem ark_mem, FILE* const outfile)
   if (retval != ARK_SUCCESS) { return; }
 
   /* output long integer quantities */
-  for (int k = 0; k < 2; k++) {
-    fprintf(outfile, "ForcingStep: partition %i: n_stepper_evolves = %li\n", k, step_mem->n_stepper_evolves[k]);
+  for (int k = 0; k < 2; k++)
+  {
+    fprintf(outfile, "ForcingStep: partition %i: n_stepper_evolves = %li\n", k,
+            step_mem->n_stepper_evolves[k]);
   }
 }
 
@@ -288,10 +294,8 @@ static int forcingStep_SetDefaults(const ARKodeMem ark_mem)
 /*---------------------------------------------------------------
   Creates the ForcingStep integrator
   ---------------------------------------------------------------*/
-void* ForcingStepCreate(SUNStepper stepper1,
-                        SUNStepper stepper2,
-                        sunrealtype t0, N_Vector y0,
-                        SUNContext sunctx)
+void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
+                        sunrealtype t0, N_Vector y0, SUNContext sunctx)
 {
   if (stepper1 == NULL)
   {
@@ -348,20 +352,20 @@ void* ForcingStepCreate(SUNStepper stepper1,
     return NULL;
   }
 
-  step_mem->stepper[0] = stepper1;
-  step_mem->stepper[1] = stepper2;
+  step_mem->stepper[0]           = stepper1;
+  step_mem->stepper[1]           = stepper2;
   step_mem->n_stepper_evolves[0] = 0;
   step_mem->n_stepper_evolves[1] = 0;
 
   /* Attach step_mem structure and function pointers to ark_mem */
-  ark_mem->step_init            = forcingStep_Init;
-  ark_mem->step_fullrhs         = forcingStep_FullRHS;
-  ark_mem->step                 = forcingStep_TakeStep;
-  ark_mem->step_printallstats   = forcingStep_PrintAllStats;
-  ark_mem->step_free            = forcingStep_Free;
-  ark_mem->step_printmem        = forcingStep_PrintMem;
-  ark_mem->step_setdefaults     = forcingStep_SetDefaults;
-  ark_mem->step_mem             = (void*)step_mem;
+  ark_mem->step_init          = forcingStep_Init;
+  ark_mem->step_fullrhs       = forcingStep_FullRHS;
+  ark_mem->step               = forcingStep_TakeStep;
+  ark_mem->step_printallstats = forcingStep_PrintAllStats;
+  ark_mem->step_free          = forcingStep_Free;
+  ark_mem->step_printmem      = forcingStep_PrintMem;
+  ark_mem->step_setdefaults   = forcingStep_SetDefaults;
+  ark_mem->step_mem           = (void*)step_mem;
 
   /* Set default values for ARKStep optional inputs */
   int retval = forcingStep_SetDefaults(ark_mem);
@@ -386,24 +390,27 @@ void* ForcingStepCreate(SUNStepper stepper1,
   return ark_mem;
 }
 
-int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int *evolves) {
-  ARKodeMem ark_mem               = NULL;
+int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves)
+{
+  ARKodeMem ark_mem             = NULL;
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                                 &step_mem);
+                                               &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (partition >= PARTITIONS) {
+  if (partition >= PARTITIONS)
+  {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The partition index is %i but there are only 2 partitions", partition);
+                    "The partition index is %i but there are only 2 partitions",
+                    partition);
     return ARK_ILL_INPUT;
   }
 
-  if (partition < 0) {
+  if (partition < 0)
+  {
     *evolves = step_mem->n_stepper_evolves[0] + step_mem->n_stepper_evolves[1];
-  } else {
-    *evolves = step_mem->n_stepper_evolves[partition];
   }
+  else { *evolves = step_mem->n_stepper_evolves[partition]; }
 
   return ARK_SUCCESS;
 }

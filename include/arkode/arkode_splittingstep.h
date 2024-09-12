@@ -44,7 +44,8 @@ SUNDIALS_EXPORT int SplittingStep_SetCoefficients(
 SUNDIALS_EXPORT int SplittingStep_SetExecutionPolicy(
   void* arkode_mem, ARKodeSplittingExecutionPolicy policy);
 
-SUNDIALS_EXPORT int SplittingStep_GetNumEvolves(void* arkode_mem, int partition, long int *evolves);
+SUNDIALS_EXPORT int SplittingStep_GetNumEvolves(void* arkode_mem, int partition,
+                                                long int* evolves);
 
 #ifdef __cplusplus
 }

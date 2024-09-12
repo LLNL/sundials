@@ -37,8 +37,8 @@
 
 /* Header files */
 #include <arkode/arkode_arkstep.h>
-#include <arkode/arkode_splittingstep.h>
 #include <arkode/arkode_forcingstep.h>
+#include <arkode/arkode_splittingstep.h>
 #include <nvector/nvector_serial.h>
 #include <string.h>
 
@@ -132,17 +132,20 @@ static int check_flag(void* flagvalue, const char* funcname, int opt)
 int main(const int argc, char* const argv[])
 {
   /* Parse arguments */
-  const char *const integrator_name = (argc > 1) ? argv[1] : "splitting";
-  if (strcmp(integrator_name, "splitting") != 0 && strcmp(integrator_name, "forcing") != 0) {
-    fprintf(stderr, "Invalid integrator: %s\nMust be 'splitting' or 'forcing'\n", integrator_name);
+  const char* const integrator_name = (argc > 1) ? argv[1] : "splitting";
+  if (strcmp(integrator_name, "splitting") != 0 &&
+      strcmp(integrator_name, "forcing") != 0)
+  {
+    fprintf(stderr, "Invalid integrator: %s\nMust be 'splitting' or 'forcing'\n",
+            integrator_name);
     return 1;
   }
-  const char *const coefficients_name = (argc > 2) ? argv[2] : NULL;
+  const char* const coefficients_name = (argc > 2) ? argv[2] : NULL;
 
   /* Problem parameters */
-  const sunrealtype t0 = SUN_RCONST(0.0);   /* initial time */
-  const sunrealtype tf = SUN_RCONST(1.0);   /* final time */
-  const sunrealtype dt = SUN_RCONST(0.01);  /* outer time step */
+  const sunrealtype t0           = SUN_RCONST(0.0);  /* initial time */
+  const sunrealtype tf           = SUN_RCONST(1.0);  /* final time */
+  const sunrealtype dt           = SUN_RCONST(0.01); /* outer time step */
   const sunrealtype dt_linear    = dt / 5;  /* linear integrator time step */
   const sunrealtype dt_nonlinear = dt / 10; /* nonlinear integrator time step */
 
@@ -162,7 +165,8 @@ int main(const int argc, char* const argv[])
 
   printf("\nAnalytical ODE test problem:\n");
   printf("   integrator = %s method\n", integrator_name);
-  if (coefficients_name != NULL) {
+  if (coefficients_name != NULL)
+  {
     printf("   coefficients = %s\n", coefficients_name);
   }
   printf("   lambda     = %" GSYM "\n", user_data.lambda);
@@ -190,21 +194,30 @@ int main(const int argc, char* const argv[])
   ARKStepCreateSUNStepper(nonlinear_mem, &steppers[1]);
 
   /* Create the outer integrator */
-  void *arkode_mem;
-  if (strcmp(integrator_name, "splitting") == 0) {
+  void* arkode_mem;
+  if (strcmp(integrator_name, "splitting") == 0)
+  {
     arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
     if (check_flag(arkode_mem, "SplittingStepCreate", 0)) { return 1; }
 
-    if (coefficients_name != NULL) {
-      const SplittingStepCoefficients coefficients = SplittingStepCoefficients_LoadCoefficientsByName(coefficients_name);
-      if (check_flag(coefficients, "SplittingStepCoefficients_LoadCoefficientsByName", 0)) { return 1; }
+    if (coefficients_name != NULL)
+    {
+      const SplittingStepCoefficients coefficients =
+        SplittingStepCoefficients_LoadCoefficientsByName(coefficients_name);
+      if (check_flag(coefficients,
+                     "SplittingStepCoefficients_LoadCoefficientsByName", 0))
+      {
+        return 1;
+      }
 
       flag = SplittingStep_SetCoefficients(arkode_mem, coefficients);
       if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
       SplittingStepCoefficients_Free(coefficients);
     }
-  } else {
+  }
+  else
+  {
     arkode_mem = ForcingStepCreate(steppers[0], steppers[1], t0, y, ctx);
     if (check_flag(arkode_mem, "ForcingStepCreate", 0)) { return 1; }
   }

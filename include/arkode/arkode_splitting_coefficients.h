@@ -37,7 +37,7 @@ struct SplittingStepCoefficientsMem
   int stages;     /* number of stages within each sequential splitting method */
   int partitions; /* number of RHS partitions */
   /* TODO(SBR): q to be more consistent? */
-  int order;      /* order of convergence */
+  int order; /* order of convergence */
 };
 
 typedef _SUNDIALS_STRUCT_ SplittingStepCoefficientsMem* SplittingStepCoefficients;
