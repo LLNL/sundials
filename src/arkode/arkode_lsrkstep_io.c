@@ -13,10 +13,6 @@
  *---------------------------------------------------------------
  * This is the implementation file for the optional input and
  * output functions for the ARKODE LSRKStep time stepper module.
- *
- * NOTE: many functions currently in arkode_io.c will move here,
- * with slightly different names.  The code transition will be
- * minimal, but the documentation changes will be significant.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
