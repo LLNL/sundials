@@ -120,7 +120,7 @@ Final Solver Statistics:
    Total RHS evals:  Fe = 501,  Fi = 1738
    Total mass matrix setups = 418
    Total mass matrix solves = 585
-   Total mass times evals = 1735
+   Total mass times evals = 1734
    Total number of Jacobian evaluations = 145
    Total linear solver setups = 150
    Total number of Nonlinear iterations = 1652

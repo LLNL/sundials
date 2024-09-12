@@ -119,5 +119,5 @@ Final Solver Statistics:
    Total RHS evals:  Fe = 1742,  Fi = 0
    Total mass matrix setups = 1439
    Total mass matrix solves = 1742
-   Total mass times evals = 103
+   Total mass times evals = 102
    Errors: u = 1.83418e-08, v = 2.86413e-09, total = 1.31268e-08

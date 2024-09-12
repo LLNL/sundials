@@ -3,7 +3,7 @@ Accumulated error estimation test (stiff Brusselator ODE problem):
     time domain:  (0,10]
     partition size = 20
     initial conditions:  u0 = 1.2,  v0 = 3.1,  w0 = 3
-    problem parameters:  a = 0,  b = 0,  ep = 0.0004
+    problem parameters:  a = 1,  b = 3.5,  ep = 0.0004
     ERK solver, order = 3
 
 Adaptive-step runs:
