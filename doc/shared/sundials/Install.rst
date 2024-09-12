@@ -1060,6 +1060,18 @@ illustration only.
 
    Default: OFF
 
+.. cmakeoption:: ENABLE_TRILINOS
+
+   Enable Trilinos (Tpetra) support
+
+   Default: OFF
+
+.. cmakeoption:: Trilinos_DIR
+
+   Path to the Trilinos installation.
+
+   Default: None
+
 .. cmakeoption:: ENABLE_CALIPER
 
    Enable CALIPER support
@@ -1588,6 +1600,25 @@ repository.
    to ``ON``.
 
 SUNDIALS has been tested with XBraid version 3.0.0.
+
+
+.. _Installation.CMake.ExternalLibraries.Trilinos:
+
+Building with Trilinos
+^^^^^^^^^^^^^^^^^^^^^^
+
+`Trilinos <https://trilinos.github.io/>`_ is a collection of C++ libraries of
+linear solvers, non-linear solvers, optimization solvers, etc. To enable the
+SUNDIALS interface to the Trilinos Tpetra vector, set the
+:cmakeop:`ENABLE_TRILINOS` to ``ON`` and provide the path to the root of the
+Trilinos installation in :cmakeop:`Trilinos_DIR`.
+
+.. code-block:: bash
+
+   % cmake \
+   > -DENABLE_TRILONOS=ON \
+   > -DTRILINOS_DIR=/path/to/ginkgo/installation \
+   > /home/myname/sundials/srcdir
 
 
 .. _Installation.CMake.Testing:
