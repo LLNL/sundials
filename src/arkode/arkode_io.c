@@ -1283,7 +1283,13 @@ int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed)
 /*---------------------------------------------------------------
   ARKodeSetStepDirection:
 
-  TODO(SBR)
+  Specifies the direction of integration (forward or backward)
+  based on the sign of stepdir. If 0, the direction will remain
+  unchanged. Note that if a fixed step size was previously set,
+  this function can change the sign of that.
+  
+  This should only be called after ARKodeReset, or between
+  creating a stepper and ARKodeEvolve.
   ---------------------------------------------------------------*/
 int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
 {
@@ -2137,7 +2143,9 @@ int ARKodeGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
 /*---------------------------------------------------------------
   ARKodeGetStepDirection:
 
-  TODO(SBR)
+  Gets the direction of integration (forward or backward) based
+  on the sign of stepdir. A value of 0 indicates integration can
+  procede in either direction.
   ---------------------------------------------------------------*/
 int ARKodeGetStepDirection(void *arkode_mem, sunrealtype *stepdir)
 {
