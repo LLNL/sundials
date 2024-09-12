@@ -1235,6 +1235,9 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
 
   /*** Perform timestep adaptivity checks and initial setup ***/
 
+  /* get timestep adaptivity type */
+  adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
+
   if (ark_mem->fixedstep)
   {
     /* Non-adaptive controller: user must have supplied initial step
@@ -1249,9 +1252,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
   else
   {
 
-    /* get timestep adaptivity type, and return an error if an
-       incompatible type is detected */
-    adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
+    /* ensure that a compatible adaptivity controller is provided */
     if ((adapt_type != SUN_ADAPTCONTROLLER_MRI_TOL) &&
         (adapt_type != SUN_ADAPTCONTROLLER_H))
     {
