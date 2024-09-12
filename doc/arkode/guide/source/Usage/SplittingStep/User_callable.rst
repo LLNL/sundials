@@ -114,3 +114,37 @@ Optional inputs for IVP method selection
    **Warning:**
 
    This should not be used with :c:func:`ARKodeSetOrder`.
+   
+   .. versionadded:: x.y.z
+
+
+.. _ARKODE.Usage.SplittingStep.OptionalOutputs:
+
+
+Optional output functions
+------------------------------
+
+.. c:function:: int SplittingStep_GetNumEvolves(void* arkode_mem, int partition, long int *evolves)
+
+   Returns the number of times the :c:type:`SUNStepper` for the given partition
+   index has been evolved (so far).
+
+   **Arguments:**
+
+   * *arkode_mem* -- pointer to the SplittingStep memory block.
+
+   * *partition* -- index of the partition between 0 and :math:`P - 1` or a
+     negative number to indicate the total number across all
+     partitions.
+
+   * *evolves* -- number of :c:type:`SUNStepper` evolves.
+
+   **Return value:**
+
+   * *ARK_SUCCESS* if successful
+
+   * *ARK_MEM_NULL* if the SplittingStep memory was ``NULL``
+
+   * *ARK_ILL_INPUT* if *evolves* is out of bounds
+   
+   .. versionadded:: x.y.z
