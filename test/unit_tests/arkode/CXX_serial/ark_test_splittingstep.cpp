@@ -68,8 +68,10 @@ static int test_forward(sundials::Context &ctx, const int partitions) {
 
   /* Check that the solution matches the exact solution */
   const auto exact_solution = std::exp(t0 - tf);
-  if (SUNRCompareTol(exact_solution, NV_Ith_S(y, 0), global_tol)) {
-    std::cerr << "Forward solution with " << partitions << " partitions is not within the tolerance\n";
+  const auto numerical_solution = NV_Ith_S(y, 0);
+  if (SUNRCompareTol(exact_solution, numerical_solution, global_tol)) {
+    const auto err = numerical_solution - exact_solution;
+    std::cerr << "Forward solution with " << partitions << " partitions failed with an error of" << err << "\n";
     return 1;
   }
 
@@ -320,8 +322,10 @@ static int test_custom_stepper(const sundials::Context &ctx) {
 
   /* Check that the solution matches the exact solution */
   const auto exact_solution = std::exp(t0 - tf);
-  if (SUNRCompare(exact_solution, NV_Ith_S(y, 0))) {
-    std::cerr << "Custom SUNStepper is not within the tolerance\n";
+  const auto numerical_solution = NV_Ith_S(y, 0);
+  if (SUNRCompare(exact_solution, numerical_solution)) {
+    const auto err = numerical_solution - exact_solution;
+    std::cerr << "Custom SUNStepper failed with an error of" << err << "\n";
     return 1;
   }
 
