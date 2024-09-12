@@ -106,9 +106,9 @@ then
         mirror_opt="--mirror=${buildcache}"
     fi
 
-    echo ">>>> ${mirror_opt}"
+    python3 .gitlab/uberenv/uberenv.py --mirror-autopush --trust-keys /usr/workspace/sundials/spack_gpg_backup \
+        --spec="${spec}" "${mirror_opt}" "${prefix_opt}"
 
-    python3 .gitlab/uberenv/uberenv.py --mirror-autopush --spec="${spec}" "${mirror_opt}" "${prefix_opt}"
     # This wont work because we stop at the initconfig phase so sundials@develop is never installed
     # if [[ -d $buildcache ]]
     # then
