@@ -1251,7 +1251,6 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
   }
   else
   {
-
     /* ensure that a compatible adaptivity controller is provided */
     if ((adapt_type != SUN_ADAPTCONTROLLER_MRI_TOL) &&
         (adapt_type != SUN_ADAPTCONTROLLER_H))
