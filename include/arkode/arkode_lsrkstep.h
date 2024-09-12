@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds and Mustafa Aggul @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2024, Lawrence Livermore National Security
@@ -78,7 +78,7 @@ SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem,
 
 SUNDIALS_EXPORT int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax);
 
-SUNDIALS_EXPORT int LSRKStepGetAverStageNum(void* arkode_mem, int* averstage);
+SUNDIALS_EXPORT int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* averstage);
 
 #ifdef __cplusplus
 }

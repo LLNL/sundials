@@ -23,13 +23,13 @@
  * result in a well-posed ODE; for values with magnitude larger
  * than 100 the problem becomes quite stiff.
  *
- * This program solves the problem with the LSRK method.
+ * This program solves the problem with the SSP(s,3) method from LSRK.
  * Output is printed every 1.0 units of time (10 total).
  * Run statistics (optional outputs) are printed at the end.
  *-----------------------------------------------------------------*/
 
 /* Header files */
-#include <arkode/arkode_lsrkstep.h> /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_lsrkstep.h> /* prototypes for LSRKStep fcts., consts */
 #include <math.h>
 #include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
 #include <stdio.h>
@@ -109,7 +109,7 @@ int main(void)
   flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
-  /* Specify the LSRK method */
+  /* Specify the SSP(s,3) LSRK method */
   flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSPs_3);
   if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
 

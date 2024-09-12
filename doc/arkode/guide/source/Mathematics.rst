@@ -751,10 +751,8 @@ requires that problems have an identity mass matrix (i.e., :math:`M(t)=I`)
 and that the right-hand side function is not split into separate
 components.
 
-For such problems, LSRKStep provides variable-step, adaptive,
-:index:`Runge--Kutta methods`, corresponding to algorithms of the following forms:
-
-The RKC and RKL methods in ARKODE have the form
+LSRKStep currently supports two families of second-order, explicit, and temporally adaptive STS methods: 
+Runge--Kutta--Chebyshev (RKC) and Runge--Kutta--Legendre (RKL).   These methods have the form
 
 .. math::
    z_0 &= y_n,\\
@@ -765,12 +763,13 @@ The RKC and RKL methods in ARKODE have the form
 
 The corresponding coefficients can be found in :cite:p:`VSH:04, MBA:14`, respectively.
 
-LSRK methods of STS type are designed to be memory-efficient for stiff problems characterized by 
-large real eigenvalues and small imaginary parts. These methods use more stages than 
+LSRK methods of STS type are designed stiff problems characterized by 
+having Jacobians with eigenvalues that have large real and small imaginary parts. 
+While those problems are traditionally treated using implicit methods, STS methods
+are explicit.  To achieve stability for these stiff problems, STS methods use more stages than 
 conventional Runge-Kutta (RK) methods to extend the stability region along the negative 
 real axis. The extent of this stability region is proportional to the square of the number 
-of stages used. This quadratic expansion of the stability region enables the effective 
-use of explicit methods for finding solutions efficiently.
+of stages used.
 
 The SSPRK methods in ARKODE use the following Shu and Osher representation of explicit RK methods:
 
