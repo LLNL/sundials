@@ -98,7 +98,7 @@ static int test_mixed_directions(const sundials::Context &ctx) {
   constexpr auto t1 = SUN_RCONST(-1.0);
   constexpr auto t2 = SUN_RCONST(0.4);
   constexpr auto t3 = t0;
-  constexpr auto dt = -SUN_RCONST(1.00001e-3);
+  constexpr auto dt = -SUN_RCONST(1.001e-3);
   constexpr auto local_tol = SUN_RCONST(5.0e-7);
   constexpr auto global_tol = 1 * local_tol;
   const auto y = N_VNew_Serial(2, ctx);

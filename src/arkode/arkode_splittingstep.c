@@ -171,8 +171,8 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
     step_mem->own_policy = SUNTRUE;
   }
 
-  ark_mem->interp_degree =
-    SUNMAX(1, SUNMIN(step_mem->order - 1, ark_mem->interp_degree));
+  ark_mem->interp_degree = 
+    SUNMAX(1, SUNMIN(step_mem->coefficients->order - 1, ark_mem->interp_degree));
 
   return ARK_SUCCESS;
 }
