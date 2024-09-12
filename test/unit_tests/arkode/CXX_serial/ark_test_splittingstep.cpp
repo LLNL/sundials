@@ -11,12 +11,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * TODO
+ * Unit tests on several ODEs with analytical solutions to verify the
+ * SplittingStep module.
  * ---------------------------------------------------------------------------*/
 
 #include <sundials/sundials_context.hpp>
 #include <arkode/arkode_arkstep.h>
-#include <arkode/arkode_mristep.h>
 #include <arkode/arkode_splittingstep.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_stepper.h>
