@@ -33,6 +33,10 @@ static int setup_serial(
   return ARK_SUCCESS;
 }
 
+/*---------------------------------------------------------------
+  This routine evaluates the policy function fn in serial over
+  the range of sequential methods
+  ---------------------------------------------------------------*/
 static int execute_serial(
   SUNDIALS_MAYBE_UNUSED const ARKodeSplittingExecutionPolicy policy,
   const ARKExecutionPolicyFn fn, const N_Vector yn, const N_Vector ycur,
