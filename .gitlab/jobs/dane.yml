@@ -44,7 +44,6 @@ stages:
       echo -e "\e[7;32m### CI job ${CI_JOB_ID} reproducer on dane (${SYS_TYPE}) \e[0m"
       if [[ -n "${LLNL_SERVICE_USER}" ]]; then echo -e "xsu ${LLNL_SERVICE_USER}"; fi
       echo -e "
-      # Repository setup \n
       working_dir=\"/usr/workspace/\${USER}/${GITHUB_PROJECT_NAME}/${CI_JOB_ID}-\$(date +%s)\" \n
       mkdir -p \${working_dir} && cd \${working_dir} \n
       git clone https://github.com/${GITHUB_PROJECT_ORG}/${GITHUB_PROJECT_NAME}.git --single-branch --depth=1 \n
@@ -116,18 +115,12 @@ release_resources:
     - export JOBID=$(squeue -h --name=${ALLOC_NAME} --format=%A)
     - ([[ -n "${JOBID}" ]] && scancel ${JOBID} || exit 0)
 
-########################
-# Extra jobs
-########################
-
 dane_clang_tpls:
   parallel:
     matrix:
-      - COMPILER_SPEC: clang
+      - COMPILER_SPEC: clang@14.0.6
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre +superlu-dist +lapack +klu +petsc +ginkgo"
-  extends: [.job_on_dane]
-
-
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre +superlu-dist +lapack +klu +petsc ^suite-sparse@5.13.0 ^openblas"
+  extends: .job_on_dane
