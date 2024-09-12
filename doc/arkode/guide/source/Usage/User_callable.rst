@@ -880,6 +880,7 @@ Set dense output interpolation type (SPRKStep)    :c:func:`ARKodeSetInterpolantT
 Set dense output interpolation type (others)      :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_HERMITE``
 Set dense output polynomial degree                :c:func:`ARKodeSetInterpolantDegree`     5
 Disable time step adaptivity (fixed-step mode)    :c:func:`ARKodeSetFixedStep`             disabled
+Set forward or backward integration direction     :c:func:`ARKodeSetStepDirection`         0.0
 Supply an initial step size to attempt            :c:func:`ARKodeSetInitStep`              estimated
 Maximum no. of warnings for :math:`t_n+h = t_n`   :c:func:`ARKodeSetMaxHnilWarns`          10
 Maximum no. of internal steps before *tout*       :c:func:`ARKodeSetMaxNumSteps`           500
@@ -1096,6 +1097,30 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       worst they may interfere with the desired fixed step size.
 
    .. versionadded:: 6.1.0
+
+
+.. c:function:: int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
+
+   Specifies the direction of integration (forward or backward).
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param stepdir: value whose sign determines the direction. A positive value
+                   selects forward integration, a negative value selects
+                   backward integration, and zero leaves the current direction
+                   unchanged.
+                   
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_ILL_INPUT: an argument had an illegal value.
+
+   .. note::
+
+      The step direction can only be set after a call to either ``*Create``,
+      ``*StepReInit``, or :c:func:`ARKodeReset` but before a call to
+      :c:func:`ARKodeEvolve`.
+
+   .. versionadded:: x.y.z
 
 
 
@@ -3157,6 +3182,7 @@ Cumulative number of internal steps                    :c:func:`ARKodeGetNumStep
 Actual initial time step size used                     :c:func:`ARKodeGetActualInitStep`
 Step size used for the last successful step            :c:func:`ARKodeGetLastStep`
 Step size to be attempted on the next step             :c:func:`ARKodeGetCurrentStep`
+Integration direction, e.g., forward or backward       :c:func:`ARKodeGetStepDirection`
 Current internal time reached by the solver            :c:func:`ARKodeGetCurrentTime`
 Current internal solution reached by the solver        :c:func:`ARKodeGetCurrentState`
 Current :math:`\gamma` value used by the solver        :c:func:`ARKodeGetCurrentGamma`
@@ -3255,6 +3281,22 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
    .. versionadded:: 6.1.0
+
+
+.. c:function:: int ARKodeGetStepDirection(void *arkode_mem, sunrealtype *stepdir)
+
+   Returns the direction of integration that will be used on the next internal
+   step.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param stepdir: a positive number if integrating forward, a negative number
+                   if integrating backward, or zero if the direction has not
+                   been set.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+
+   .. versionadded:: x.y.z
 
 
 .. c:function:: int ARKodeGetCurrentTime(void* arkode_mem, sunrealtype* tcur)
