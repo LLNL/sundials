@@ -6,6 +6,9 @@ Added an operator splitting module,
 
 **New Features and Enhancements**
 
+Added the :c:func:`ARKodeSetStepDirection` and :c:func:`ARKodeGetStepDirection`
+functions to change and query the direction of integration.
+
 The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
 ``70`` and is now determined automatically by CMake. The previous default was
 only valid for Volta GPUs while the automatically selected value will vary

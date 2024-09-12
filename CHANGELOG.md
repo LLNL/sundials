@@ -9,6 +9,9 @@ ForcingStep. to ARKODE.
 
 ### New Features and Enhancements
 
+Added the `ARKodeSetStepDirection` and `ARKodeGetStepDirection` functions to
+change and query the direction of integration.
+
 The default value of `CMAKE_CUDA_ARCHITECTURES` is no longer set to `70` and is
 now determined automatically by CMake. The previous default was only valid for
 Volta GPUs while the automatically selected value will vary across compilers and
