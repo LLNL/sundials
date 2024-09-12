@@ -1233,17 +1233,6 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     }
   }
 
-  /* get timestep adaptivity type, and return an error if an
-     incompatible type is detected */
-  adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
-  if ((adapt_type != SUN_ADAPTCONTROLLER_MRI_TOL) &&
-      (adapt_type != SUN_ADAPTCONTROLLER_H))
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "SUNAdaptController type is unsupported by MRIStep");
-    return (ARK_ILL_INPUT);
-  }
-
   /*** Perform timestep adaptivity checks and initial setup ***/
 
   if (ark_mem->fixedstep)
@@ -1259,6 +1248,18 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
   }
   else
   {
+
+    /* get timestep adaptivity type, and return an error if an
+       incompatible type is detected */
+    adapt_type = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
+    if ((adapt_type != SUN_ADAPTCONTROLLER_MRI_TOL) &&
+        (adapt_type != SUN_ADAPTCONTROLLER_H))
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "SUNAdaptController type is unsupported by MRIStep");
+      return (ARK_ILL_INPUT);
+    }
+
     /* Controller provides adaptivity (at least at the slow time scale):
        - verify that the MRI method includes an embedding, and
        - estimate initial slow step size (store in ark_mem->hin) */
