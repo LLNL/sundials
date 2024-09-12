@@ -30,10 +30,16 @@ estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorT
 
 ### Bug Fixes
 
+Fixed `ARKodeResize` not using the default `hscale` when an argument of `0` was
+provided.
+
 Fixed the loading of ARKStep's default first order explicit method.
 
 Fixed a CMake bug regarding usage of missing "print_warning" macro
 that was only triggered when the deprecated `CUDA_ARCH` option was used.
+
+Fixed a memory leak that could occur if ``ARKodeSetDefaults`` is called
+repeatedly.
 
 Fixed compilation errors when building the Trilinos Teptra NVector with CUDA
 support.
