@@ -56,14 +56,17 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   case ARKODE_LSRK_RKC:
     ark_mem->step        = lsrkStep_TakeStepRKC;
     step_mem->LSRKmethod = ARKODE_LSRK_RKC;
+    step_mem->nfusedopvecs = 5;
     break;
   case ARKODE_LSRK_RKL:
     ark_mem->step        = lsrkStep_TakeStepRKL;
     step_mem->LSRKmethod = ARKODE_LSRK_RKL;
+    step_mem->nfusedopvecs = 5;
     break;
   // case ARKODE_LSRK_RKG:
   //   ark_mem->step = lsrkStep_TakeStepRKG;
   //   step_mem->LSRKmethod = ARKODE_LSRK_RKG;
+  //   step_mem->nfusedopvecs = 5;
   //   break;
   case ARKODE_LSRK_SSPs_2:
     ark_mem->step               = lsrkStep_TakeStepSSPs2;
