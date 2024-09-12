@@ -17,6 +17,9 @@ Example programs using *hypre* have been updated to support v2.20 and newer.
 
 **Bug Fixes**
 
+Fixed c:func:`ARKodeResize` not using the default ``hscale`` when an argument of
+``0`` was provided.
+
 Fixed the loading of ARKStep's default first order explicit method.
 
 Fixed a CMake bug regarding usage of missing "print_warning" macro
