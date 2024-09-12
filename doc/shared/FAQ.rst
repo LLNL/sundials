@@ -316,7 +316,7 @@ Miscellaneous
 
    If you still have access to the distribution files, then the SUNDIALS release number is indicated
    in the top-level ``README.md`` and the corresponding solver versions can be determined by
-   reading the appropriate row of the :ref:`release history <History>` table or from the files, ``sundials/src/<solver>/README.md``. You can also call the functions
+   reading the appropriate row of the :ref:`release history <ReleaseHistory>` table or from the files, ``sundials/src/<solver>/README.md``. You can also call the functions
    :c:func:`SUNDIALSGetVersion` and :c:func:`SUNDIALSGetVersionNumber` from your program, or
    use the ``SUNDIALS_VERSION*`` macros found in the header file ``sundials/sundials_config.h``.
 
