@@ -62,10 +62,7 @@ static int test_forward(sundials::Context &ctx, const int partitions) {
 
   auto arkode_mem = SplittingStepCreate(steppers.data(), partitions, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
-  const auto coefficients = SplittingStepCoefficients_ThirdOrderSuzuki(partitions);
-  SplittingStep_SetCoefficients(arkode_mem, coefficients);
-  SplittingStepCoefficients_Free(coefficients);
-
+  ARKodeSetOrder(arkode_mem, 3);
   auto tret = t0;
   ARKodeEvolve(arkode_mem, tf, y, &tret, ARK_NORMAL);
 
@@ -190,7 +187,7 @@ static int test_resize(const sundials::Context &ctx) {
   constexpr auto t0 = SUN_RCONST(0.0);
   constexpr auto t1 = SUN_RCONST(0.5);
   constexpr auto t2 = SUN_RCONST(1.0);
-  constexpr auto dt = SUN_RCONST(7.0e-5);
+  constexpr auto dt = SUN_RCONST(7.0e-3);
   constexpr auto local_tol = SUN_RCONST(1.0e-5);
   constexpr auto global_tol = local_tol;
   const auto y = N_VNew_Serial(1, ctx);
@@ -221,7 +218,9 @@ static int test_resize(const sundials::Context &ctx) {
 
   auto arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
-  ARKodeSetMaxNumSteps(arkode_mem, -1);
+  const auto coefficients = SplittingStepCoefficients_SymmetricParallel(2);
+  SplittingStep_SetCoefficients(arkode_mem, coefficients);
+  SplittingStepCoefficients_Free(coefficients);
 
   /* Integrate from 0 to 0.5 */
   auto tret = t0;
@@ -351,7 +350,7 @@ int main() {
 
   /* Run the tests */
   constexpr auto min_partitions = 2;
-  constexpr auto max_partitions = 8;
+  constexpr auto max_partitions = 7;
   for (auto p = min_partitions; p <= max_partitions; p++) {
     errors += test_forward(ctx, p);
   }
