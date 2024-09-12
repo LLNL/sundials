@@ -21,9 +21,8 @@
 
 typedef struct ARKodeForcingStepMemRec
 {
-  SUNStepper stepper1;
-  SUNStepper stepper2;
-  long int n_stepper_evolves;
+  SUNStepper stepper[2];
+  long int n_stepper_evolves[2];
 }* ARKodeForcingStepMem;
 
 #endif
