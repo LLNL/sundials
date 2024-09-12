@@ -292,7 +292,7 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y,
       if (err != SUN_SUCCESS) { return err; }
       if (stop_reason < 0) { return stop_reason; }
 
-      step_mem->n_stepper_evolves++;
+      step_mem->n_stepper_evolves[k]++;
     }
   }
 
@@ -336,11 +336,15 @@ static int splittingStep_PrintAllStats(const ARKodeMem ark_mem,
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Stepper evolves              = %ld\n",
-            step_mem->n_stepper_evolves);
+    for (int k = 0; k < step_mem->partitions; k++) {
+      fprintf(outfile, "Partition %i evolves          = %ld\n",
+              k, step_mem->n_stepper_evolves[k]);
+    }
     break;
   case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, "Stepper evolves,%ld\n", step_mem->n_stepper_evolves);
+    for (int k = 0; k < step_mem->partitions; k++) {
+      fprintf(outfile, "Partition %i evolves,%ld\n", k, step_mem->n_stepper_evolves[k]);
+    }
     break;
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -374,6 +378,7 @@ static void splittingStep_Free(const ARKodeMem ark_mem)
   const ARKodeSplittingStepMem step_mem = (ARKodeSplittingStepMem)ark_mem->step_mem;
   if (step_mem != NULL) {
     free(step_mem->steppers);
+    free(step_mem->n_stepper_evolves);
     if (step_mem->own_policy)
     {
       ARKodeSplittingExecutionPolicy_Free(&step_mem->policy);
@@ -400,8 +405,9 @@ static void splittingStep_PrintMem(const ARKodeMem ark_mem, FILE* const outfile)
   fprintf(outfile, "SplittingStep: order = %i\n", step_mem->order);
 
   /* output long integer quantities */
-  fprintf(outfile, "SplittingStep: n_stepper_evolves = %li\n",
-          step_mem->n_stepper_evolves);
+  for (int k = 0; k < step_mem->partitions; k++) {
+    fprintf(outfile, "SplittingStep: partition %i: n_stepper_evolves = %li\n", k, step_mem->n_stepper_evolves[k]);
+  }
 
   /* output sunrealtype quantities */
   fprintf(outfile, "SplittingStep: Coefficients:\n");
@@ -443,8 +449,9 @@ static int splittingStep_SetDefaults(const ARKodeMem ark_mem)
   if (step_mem->own_policy) { free(step_mem->policy); }
   step_mem->own_policy = SUNFALSE;
 
-  // TODO(SBR): This is ignored currently. Possible ARKODE bug?
-  ark_mem->interp_type = ARK_INTERP_LAGRANGE;
+  /* TODO(SBR): This may cause issues if a user calls ARKodeSetDefaults. This
+   * issues affects other ARKODE steppers as well */
+  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ARK_SUCCESS;
 }
@@ -526,7 +533,13 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
 
   step_mem->coefficients      = NULL;
   step_mem->policy            = NULL;
-  step_mem->n_stepper_evolves = 0;
+  step_mem->n_stepper_evolves = calloc(partitions, sizeof(*step_mem->n_stepper_evolves));
+  if (step_mem->n_stepper_evolves == NULL) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_ARKMEM_FAIL);
+    ARKodeFree((void**)&ark_mem);
+    return NULL;
+  }
   step_mem->partitions        = partitions;
   step_mem->order             = 0;
   step_mem->own_policy        = SUNFALSE;
@@ -569,8 +582,8 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
 /*---------------------------------------------------------------
   Sets the SplittingStep coefficients.
   ---------------------------------------------------------------*/
-int SplittingStep_SetCoefficients(void* arkode_mem,
-                                  SplittingStepCoefficients coefficients)
+int SplittingStep_SetCoefficients(void* const arkode_mem,
+                                  const SplittingStepCoefficients coefficients)
 {
   ARKodeMem ark_mem               = NULL;
   ARKodeSplittingStepMem step_mem = NULL;
@@ -608,7 +621,7 @@ int SplittingStep_SetCoefficients(void* arkode_mem,
 /*---------------------------------------------------------------
   Sets the execution policy.
   ---------------------------------------------------------------*/
-int SplittingStep_SetExecutionPolicy(void* arkode_mem,
+int SplittingStep_SetExecutionPolicy(void* const arkode_mem,
                                      ARKodeSplittingExecutionPolicy policy)
 {
   ARKodeMem ark_mem               = NULL;
@@ -632,4 +645,26 @@ int SplittingStep_SetExecutionPolicy(void* arkode_mem,
   step_mem->own_policy = SUNFALSE;
 
   return ARK_SUCCESS;
+}
+
+long int SplittingStep_GetNumEvolves(void* const arkode_mem, const int partition) {
+  ARKodeMem ark_mem               = NULL;
+  ARKodeSplittingStepMem step_mem = NULL;
+  int retval = splittingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                                 &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if (partition < 0) {
+    long int total = 0;
+    for (int k = 0; k < step_mem->partitions; k++) {
+      total += step_mem->n_stepper_evolves[k];
+    }
+    return total;
+  } else if (partition >= step_mem->partitions) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The partition index is %i but there are only %i partitions", partition, step_mem->partitions);
+    return ARK_ILL_INPUT;
+  } else {
+    return step_mem->n_stepper_evolves[partition];
+  }
 }
