@@ -245,14 +245,34 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y,
 
   const SplittingStepCoefficients coefficients = step_mem->coefficients;
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                    "ARKODE::splittingStep_SequentialMethod", "start-sequential-method",
+                    "step = %li, sequential method = %i",
+                    ark_mem->nst, i);
+#endif
+
   for (int j = 0; j < coefficients->stages; j++)
   {
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                      "ARKODE::splittingStep_SequentialMethod", "start-stage",
+                      "step = %li, sequential method = %i, stage = %i",
+                      ark_mem->nst, i, j);
+#endif
     for (int k = 0; k < coefficients->partitions; k++)
     {
       const sunrealtype t_start = ark_mem->tn +
                                   coefficients->beta[i][j][k] * ark_mem->h;
       const sunrealtype t_end = ark_mem->tn +
                                 coefficients->beta[i][j + 1][k] * ark_mem->h;
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                        "ARKODE::splittingStep_SequentialMethod", "start-inner-evolve",
+                        "step = %li, sequential method = %i, stage = %i, partition = %i, t0 = %" RSYM ", tout = %" RSYM,
+                        ark_mem->nst, i, j, k, t_start, t_end);
+#endif
 
       if (t_start == t_end) { continue; }
 
@@ -423,6 +443,7 @@ static int splittingStep_SetDefaults(const ARKodeMem ark_mem)
   if (step_mem->own_policy) { free(step_mem->policy); }
   step_mem->own_policy = SUNFALSE;
 
+  // TODO(SBR): This is ignored currently. Possible ARKODE bug?
   ark_mem->interp_type = ARK_INTERP_LAGRANGE;
 
   return ARK_SUCCESS;
