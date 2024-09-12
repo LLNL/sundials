@@ -146,7 +146,6 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
     return (ARK_RHSFUNC_FAIL);
   }
 
-  // TODO(SBR): confirm this doesn't include forcing
   retval = step_mem->stepper[1]->ops->fullrhs(step_mem->stepper[1], t, y, f, ARK_FULLRHS_OTHER);
   if (retval != 0)
   {
