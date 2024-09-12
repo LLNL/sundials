@@ -141,12 +141,12 @@ static int test_mixed_directions(const sundials::Context &ctx) {
   auto tret = t0;
   ARKodeEvolve(arkode_mem, t1, y, &tret, ARK_NORMAL);
 
-  /* Integrate from -1 to 2 */
+  /* Integrate from -1 to 0.4 */
   ARKodeReset(arkode_mem, t1, y);
   ARKodeSetStepDirection(arkode_mem, t2 - t1);
   ARKodeEvolve(arkode_mem, t2, y, &tret, ARK_NORMAL);
 
-  /* Integrate from 2 to 0 */
+  /* Integrate from 0.4 to 0 */
   ARKodeReset(arkode_mem, t2, y);
   ARKodeSetStepDirection(arkode_mem, t3 - t2);
   ARKodeEvolve(arkode_mem, t3, y, &tret, ARK_NORMAL);
