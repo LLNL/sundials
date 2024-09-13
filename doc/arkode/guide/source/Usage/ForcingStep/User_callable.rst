@@ -109,6 +109,6 @@ Optional output functions
 
    * *ARK_MEM_NULL* if the ForcingStep memory was ``NULL``
 
-   * *ARK_ILL_INPUT* if *evolves* was out of bounds
+   * *ARK_ILL_INPUT* if *partition* was out of bounds
    
    .. versionadded:: x.y.z

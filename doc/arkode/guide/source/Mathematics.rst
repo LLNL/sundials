@@ -668,7 +668,7 @@ ForcingStep is given by
    y_n &= v_2(t_n).
 
 Like a Lie-Trotter method from SplittingStep, the partitions are evolved through
-a sequence of inner IVPs which can be solve with an arbitrary integrator or
+a sequence of inner IVPs which can be solved with an arbitrary integrator or
 exact solution procedure. However, the IVP for partition two includes a
 "forcing" or "tendency" term :math:`f_1^*` to strengthen the coupling. This
 coupling leads to a first order method provided :math:`v_1` and :math:`v_2` are

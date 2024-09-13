@@ -3350,7 +3350,7 @@ int arkStep_SUNStepperSetStopTime(SUNStepper stepper, sunrealtype tstop)
 /*------------------------------------------------------------------------------
   arkStep_SUNStepperSetStepDirection
 
-  TODO(SBR)
+  Implementation of SetStepDirectionFn to set the integration direction.
   ----------------------------------------------------------------------------*/
 
 int arkStep_SUNStepperSetStepDirection(SUNStepper stepper, sunrealtype stepdir)
@@ -3371,7 +3371,7 @@ int arkStep_SUNStepperSetStepDirection(SUNStepper stepper, sunrealtype stepdir)
 /*------------------------------------------------------------------------------
   arkStep_SUNStepperGetStepDirection
 
-  TODO(SBR)
+  Implementation of GetStepDirectionFn to get the integration direction.
   ----------------------------------------------------------------------------*/
 
 int arkStep_SUNStepperGetStepDirection(SUNStepper stepper, sunrealtype* stepdir)

@@ -40,7 +40,6 @@ struct ARKodeSplittingExecutionPolicyMem
   void* data;
 };
 
-// TODO: Return error code? Accept pointer?
 SUNDIALS_EXPORT void ARKodeSplittingExecutionPolicy_Free(
   ARKodeSplittingExecutionPolicy* policy);
 
