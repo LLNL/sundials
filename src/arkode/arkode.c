@@ -115,7 +115,7 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
 
   /* Update time-stepping parameters */
   /*   adjust upcoming step size depending on hscale */
-  if (hscale < ZERO) { hscale = ONE; }
+  if (hscale <= ZERO) { hscale = ONE; }
   if (hscale != ONE)
   {
     /* Encode hscale into ark_mem structure */
@@ -1364,7 +1364,6 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
 ARKodeMem arkCreate(SUNContext sunctx)
 {
   int iret;
-  long int lenrw, leniw;
   ARKodeMem ark_mem;
 
   if (!sunctx)
@@ -1485,21 +1484,6 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->lrw += ARK_ADAPT_LRW;
   ark_mem->liw += ARK_ADAPT_LIW;
 
-  /* Allocate default step controller (PID) and note storage */
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PID(sunctx);
-  if (ark_mem->hadapt_mem->hcontroller == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "Allocation of step controller object failed");
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  (void)SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                 &leniw);
-  ark_mem->lrw += lenrw;
-  ark_mem->liw += leniw;
-
   /* Initialize the interpolation structure to NULL */
   ark_mem->interp        = NULL;
   ark_mem->interp_type   = ARK_INTERP_HERMITE;
@@ -1523,7 +1507,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->h   = ZERO;
   ark_mem->h0u = ZERO;
 
-  /* Set default values for integrator optional inputs */
+  /* Set default values for integrator and stepper optional inputs */
   iret = ARKodeSetDefaults(ark_mem);
   if (iret != ARK_SUCCESS)
   {
@@ -1706,12 +1690,15 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     ark_mem->tolsf = ONE;
 
     /* Reset error controller object */
-    retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
-    if (retval != SUN_SUCCESS)
+    if (ark_mem->hadapt_mem->hcontroller)
     {
-      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
-                      "Unable to reset error controller object");
-      return (ARK_CONTROLLER_ERR);
+      retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
+      if (retval != SUN_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
+                        __FILE__, "Unable to reset error controller object");
+        return (ARK_CONTROLLER_ERR);
+      }
     }
 
     /* Adaptivity counters */
@@ -2543,13 +2530,16 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   ark_mem->fn_is_current = SUNFALSE;
 
   /* Notify time step controller object of successful step */
-  retval = SUNAdaptController_UpdateH(ark_mem->hadapt_mem->hcontroller,
-                                      ark_mem->h, dsm);
-  if (retval != SUN_SUCCESS)
+  if (ark_mem->hadapt_mem->hcontroller)
   {
-    arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
-                    "Failure updating controller object");
-    return (ARK_CONTROLLER_ERR);
+    retval = SUNAdaptController_UpdateH(ark_mem->hadapt_mem->hcontroller,
+                                        ark_mem->h, dsm);
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
+                      "Failure updating controller object");
+      return (ARK_CONTROLLER_ERR);
+    }
   }
 
   /* update scalar quantities */
