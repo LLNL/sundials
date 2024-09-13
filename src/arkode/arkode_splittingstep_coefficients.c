@@ -168,7 +168,7 @@ SplittingStepCoefficients SplittingStepCoefficients_LoadCoefficients(
   {
 #define ARK_SPLITTING_COEFFICIENTS(name, coeff) \
   case name: coeff break;
-#include "arkode_splitting_coefficients.def"
+#include "arkode_splittingstep_coefficients.def"
 #undef ARK_SPLITTING_COEFFICIENTS
 
   default:
@@ -187,7 +187,7 @@ SplittingStepCoefficients SplittingStepCoefficients_LoadCoefficientsByName(
 {
 #define ARK_SPLITTING_COEFFICIENTS(name, coeff) \
   if (strcmp(#name, method) == 0) coeff
-#include "arkode_splitting_coefficients.def"
+#include "arkode_splittingstep_coefficients.def"
 #undef ARK_SPLITTING_COEFFICIENTS
 
   arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -208,7 +208,7 @@ const char* SplittingStepCoefficients_IDToName(
   {
 #define ARK_SPLITTING_COEFFICIENTS(name, coeff) \
   case name: return #name;
-#include "arkode_splitting_coefficients.def"
+#include "arkode_splittingstep_coefficients.def"
 #undef ARK_SPLITTING_COEFFICIENTS
 
   default:
@@ -403,7 +403,7 @@ static SplittingStepCoefficients SplittingStepCoefficients_ComposeStrang(
   }
 
   const int stages = 1 + (partitions - 1) *
-                           SUNRpowerI(composition_stages, order / 2 - 1);
+                           SUNIpowerI(composition_stages, order / 2 - 1);
   const SplittingStepCoefficients coefficients =
     SplittingStepCoefficients_Alloc(1, stages, partitions);
   if (coefficients == NULL) { return NULL; }
