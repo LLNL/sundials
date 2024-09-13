@@ -1312,7 +1312,8 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
 
   if (stepdir == ZERO) { return ARK_SUCCESS; }
 
-  h = ark_mem->h == ZERO ? ark_mem->hin : ark_mem->h;
+  retval = ARKodeGetStepDirection(arkode_mem, &h);
+  if (retval != SUN_SUCCESS) { return retval; }
 
   // TODO(SBR): use SUNRcopysign once merged from other PR
   // if (SUNRcopysign(h, stepdir) == h) {
@@ -2168,7 +2169,7 @@ int ARKodeGetStepDirection(void* arkode_mem, sunrealtype* stepdir)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  *stepdir = ark_mem->h == ZERO ? ark_mem->hin : ark_mem->h;
+  *stepdir = (ark_mem->fixedstep || ark_mem->h == ZERO) ? ark_mem->hin : ark_mem->h;
   return (ARK_SUCCESS);
 }
 
