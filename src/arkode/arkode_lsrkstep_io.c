@@ -53,16 +53,25 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step        = lsrkStep_TakeStepRKC;
     step_mem->LSRKmethod = ARKODE_LSRK_RKC;
     step_mem->nfusedopvecs = 5;
+  /* Store method and embedding orders now that LSRK method choice is finalized */
+    step_mem->q = ark_mem->hadapt_mem->q = 2;
+    step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
   case ARKODE_LSRK_RKL:
     ark_mem->step        = lsrkStep_TakeStepRKL;
     step_mem->LSRKmethod = ARKODE_LSRK_RKL;
     step_mem->nfusedopvecs = 5;
+  /* Store method and embedding orders now that LSRK method choice is finalized */
+    step_mem->q = ark_mem->hadapt_mem->q = 2;
+    step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
   // case ARKODE_LSRK_RKG:
   //   ark_mem->step = lsrkStep_TakeStepRKG;
   //   step_mem->LSRKmethod = ARKODE_LSRK_RKG;
   //   step_mem->nfusedopvecs = 5;
+  // /* Store method and embedding orders now that LSRK method choice is finalized */
+  //   step_mem->q = ark_mem->hadapt_mem->q = 2;
+  //   step_mem->p = ark_mem->hadapt_mem->p = 2;
   //   break;
   case ARKODE_LSRK_SSPs_2:
     ark_mem->step               = lsrkStep_TakeStepSSPs2;
@@ -71,6 +80,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 10;
     step_mem->nfusedopvecs      = 3;
+  /* Store method and embedding orders now that LSRK method choice is finalized */
+    step_mem->q = ark_mem->hadapt_mem->q = 2;
+    step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
   case ARKODE_LSRK_SSPs_3:
     ark_mem->step               = lsrkStep_TakeStepSSPs3;
@@ -79,6 +91,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 9;
     step_mem->nfusedopvecs      = 3;
+  /* Store method and embedding orders now that LSRK method choice is finalized */
+    step_mem->q = ark_mem->hadapt_mem->q = 3;
+    step_mem->p = ark_mem->hadapt_mem->p = 3;
     break;
   case ARKODE_LSRK_SSP10_4:
     ark_mem->step               = lsrkStep_TakeStepSSP104;
@@ -87,6 +102,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 10;
     step_mem->nfusedopvecs      = 3;
+  /* Store method and embedding orders now that LSRK method choice is finalized */
+    step_mem->q = ark_mem->hadapt_mem->q = 4;
+    step_mem->p = ark_mem->hadapt_mem->p = 4;
     break;
 
   default:
