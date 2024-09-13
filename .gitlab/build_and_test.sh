@@ -106,7 +106,8 @@ then
         mirror_opt=("--mirror=${buildcache}" "--mirror-autopush")
     fi
 
-    python3 .gitlab/uberenv/uberenv.py --trust-key /usr/workspace/sundials/spackcache/pubring.gpg \
+    key_path=/usr/workspace/sundials/spack_gpg_backup
+    python3 .gitlab/uberenv/uberenv.py --trust-key ${key_path}/pubring.gpg --trust-key ${key_path}/secring.gpg \
         --spec="${spec}" "${mirror_opt[@]}" "${prefix_opt}"
 
     # This wont work because we stop at the initconfig phase so sundials@develop is never installed
