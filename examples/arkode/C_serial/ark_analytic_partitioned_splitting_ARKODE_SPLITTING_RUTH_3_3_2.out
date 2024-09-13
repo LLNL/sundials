@@ -1,0 +1,21 @@
+
+Analytical ODE test problem:
+   integrator = splitting method
+   coefficients = ARKODE_SPLITTING_RUTH_3_3_2
+   lambda     = 2
+
+Error: 6.72016e-09
+Final Solver Statistics:
+Current time                 = 1.000000000000001
+Steps                        = 100
+Step attempts                = 100
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.01
+Last step size               = 0.01
+Current step size            = 0.01
+Partition 0 evolves          = 300
+Partition 1 evolves          = 300

@@ -1,0 +1,21 @@
+
+Analytical ODE test problem:
+   integrator = splitting method
+   coefficients = ARKODE_SPLITTING_YOSHIDA_8_6_2
+   lambda     = 2
+
+Error: 1.4436e-12
+Final Solver Statistics:
+Current time                 = 1.000000000000001
+Steps                        = 100
+Step attempts                = 100
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.01
+Last step size               = 0.01
+Current step size            = 0.01
+Partition 0 evolves          = 1000
+Partition 1 evolves          = 900
