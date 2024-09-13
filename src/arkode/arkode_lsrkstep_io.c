@@ -514,7 +514,7 @@ int lsrkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
 /*---------------------------------------------------------------
   lsrkStep_PrintAllStats:
 
-  Prints integrator statistics
+  Prints integrator statistics for STS methods
   ---------------------------------------------------------------*/
 int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
 {
@@ -564,7 +564,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
 /*---------------------------------------------------------------
   lsrkSSPStep_PrintAllStats:
 
-  Prints integrator statistics
+  Prints integrator statistics for SSP methods
   ---------------------------------------------------------------*/
 int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
                               SUNOutputFormat fmt)
