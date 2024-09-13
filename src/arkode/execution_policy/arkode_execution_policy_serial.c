@@ -73,7 +73,7 @@ static void free_serial(
 /*---------------------------------------------------------------
   This routine creates a serial execution policy
   ---------------------------------------------------------------*/
-ARKodeSplittingExecutionPolicy ARKodeSplittingExecutionPolicy_New_Serial()
+ARKodeSplittingExecutionPolicy ARKodeSplittingExecutionPolicy_New_Serial(void)
 {
   ARKodeSplittingExecutionPolicy policy = malloc(sizeof(*policy));
   if (policy == NULL) { return NULL; }
