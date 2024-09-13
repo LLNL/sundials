@@ -1386,13 +1386,15 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
     if (step_mem->lambdaR * ark_mem->h > ZERO)
     {
-      printf("\nlambdaR*h must be nonpositive\n");
-      return (ARK_ILL_INPUT);
+      arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "\n\nlambdaR*h must be nonpositive\n");
+      return (NULL);
     }
     else if (step_mem->lambdaR == 0 && SUNRabs(step_mem->lambdaI) > 0)
     {
-      printf("\nDomEig cannot be purely imaginary\n");
-      return (ARK_ILL_INPUT);
+      arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "\n\nDomEig cannot be purely imaginary\n");
+      return (NULL);
     }
 
     step_mem->lambdaR *= step_mem->domeigsfty;
