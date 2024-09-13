@@ -1,4 +1,4 @@
-/* TODO: merge this header into arkode_splittingstep.h? MRI uses one header, but ARK/SPRK uses two */
+/* TODO(SBR): merge this header into arkode_splittingstep.h? MRI uses one header, but ARK/SPRK uses two */
 
 /* -----------------------------------------------------------------------------
  * Programmer(s): Steven B. Roberts @ LLNL
@@ -16,8 +16,8 @@
 * This is the header file for ARKode splitting coefficient structures.
  * ---------------------------------------------------------------------------*/
 
-#ifndef ARKODE_SPLITTING_STEP_COEFFICIENTS_H_
-#define ARKODE_SPLITTING_STEP_COEFFICIENTS_H_
+#ifndef ARKODE_SPLITTINGSTEP_COEFFICIENTS_H_
+#define ARKODE_SPLITTINGSTEP_COEFFICIENTS_H_
 
 #include <stdio.h>
 #include <sundials/sundials_types.h>
@@ -61,8 +61,8 @@ typedef enum
 /* Coefficient memory management */
 SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Alloc(
   int sequential_methods, int stages, int partitions);
-/* TODO: Ideally, alpha and beta would be const, but that would be inconsistent
- * with other ARKODE function which accept arrays */
+/* TODO(SBR): Ideally, alpha and beta would be const, but that would be
+ * inconsistent with other ARKODE function which accept arrays */
 SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Create(
   int sequential_methods, int stages, int partitions, int order,
   sunrealtype* alpha, sunrealtype* beta);

@@ -18,7 +18,7 @@
 #define ARKODE_SPLITTINGSTEP_H_
 
 #include <arkode/arkode_execution_policy.h>
-#include <arkode/arkode_splitting_coefficients.h>
+#include <arkode/arkode_splittingstep_coefficients.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_stepper.h>
 #include <sundials/sundials_types.h>
