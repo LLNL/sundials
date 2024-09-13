@@ -264,12 +264,22 @@ SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop)
   else { return SUN_ERR_NOT_IMPLEMENTED; }
 }
 
-SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype dir)
+SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype stepdir)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->setstepdirection)
   {
-    return stepper->ops->setstepdirection(stepper, dir);
+    return stepper->ops->setstepdirection(stepper, stepdir);
+  }
+  else { return SUN_ERR_NOT_IMPLEMENTED; }
+}
+
+SUNErrCode SUNStepper_GetStepDirection(SUNStepper stepper, sunrealtype *stepdir)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->setstepdirection)
+  {
+    return stepper->ops->getstepdirection(stepper, stepdir);
   }
   else { return SUN_ERR_NOT_IMPLEMENTED; }
 }
