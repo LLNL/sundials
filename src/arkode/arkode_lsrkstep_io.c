@@ -70,6 +70,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->isSSP             = SUNTRUE;
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 10;
+    step_mem->nfusedopvecs      = 3;
     break;
   case ARKODE_LSRK_SSPs_3:
     ark_mem->step               = lsrkStep_TakeStepSSPs3;
@@ -77,6 +78,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->isSSP             = SUNTRUE;
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 9;
+    step_mem->nfusedopvecs      = 3;
     break;
   case ARKODE_LSRK_SSP10_4:
     ark_mem->step               = lsrkStep_TakeStepSSP104;
@@ -84,6 +86,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->isSSP             = SUNTRUE;
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 10;
+    step_mem->nfusedopvecs      = 3;
     break;
 
   default:

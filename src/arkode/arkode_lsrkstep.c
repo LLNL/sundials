@@ -941,6 +941,12 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  sunrealtype* cvals;
+  N_Vector* Xvecs;
+  
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+  
   sunrealtype rs     = (sunrealtype)step_mem->reqstages;
   sunrealtype sm1inv = ONE / (rs - ONE);
   sunrealtype bt1, bt2, bt3;
@@ -997,9 +1003,14 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                         ark_mem->user_data);
   if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
-  N_VLinearSum(ONE / rs, ark_mem->yn, ONE / (sm1inv * rs), ark_mem->ycur,
-               ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h / rs, ark_mem->fn, ark_mem->ycur);
+  cvals[0] = ONE / (sm1inv * rs);
+  Xvecs[0] = ark_mem->ycur;
+  cvals[1] = ONE / rs;
+  Xvecs[1] = ark_mem->yn;
+  cvals[2] = ark_mem->h / rs;
+  Xvecs[2] = ark_mem->fn;
+
+  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs, ark_mem->ycur);
 
   N_VLinearSum(ONE, ark_mem->tempv1, bt3 * ark_mem->h, ark_mem->fn,
                ark_mem->tempv1);
@@ -1060,6 +1071,12 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  sunrealtype* cvals;
+  N_Vector* Xvecs;
+  
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
   sunrealtype rs  = (sunrealtype)step_mem->reqstages;
   sunrealtype rn  = SUNRsqrt(rs);
   sunrealtype rat = ONE / (rs - rn);
@@ -1118,11 +1135,15 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                         ark_mem->ycur, ark_mem->fn, ark_mem->user_data);
   if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
-  N_VLinearSum(rn / (TWO * rn - ONE), ark_mem->tempv2,
-               (rn - ONE) / (TWO * rn - ONE), ark_mem->ycur, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->ycur,
-               (rn - ONE) * rat * ark_mem->h / (TWO * rn - ONE), ark_mem->fn,
-               ark_mem->ycur);
+  cvals[0] = (rn - ONE) / (TWO * rn - ONE);
+  Xvecs[0] = ark_mem->ycur;
+  cvals[1] = rn / (TWO * rn - ONE);
+  Xvecs[1] = ark_mem->tempv2;
+  cvals[2] = (rn - ONE) * rat * ark_mem->h / (TWO * rn - ONE);
+  Xvecs[2] = ark_mem->fn;
+
+  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs, ark_mem->ycur);
+
   N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
                ark_mem->tempv1);
 
@@ -1197,6 +1218,12 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  sunrealtype* cvals;
+  N_Vector* Xvecs;
+  
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
+
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
      compute h0). For subsequent steps treat this RHS evaluation as an
@@ -1267,9 +1294,14 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                         ark_mem->user_data);
   if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
-  N_VLinearSum(ONE, ark_mem->tempv2, SUN_RCONST(0.6), ark_mem->ycur, ark_mem->ycur);
-  N_VLinearSum(ONE, ark_mem->ycur, SUN_RCONST(0.1) * ark_mem->h, ark_mem->fn,
-               ark_mem->ycur);
+  cvals[0] = SUN_RCONST(0.6);
+  Xvecs[0] = ark_mem->ycur;
+  cvals[1] = ONE;
+  Xvecs[1] = ark_mem->tempv2;
+  cvals[2] = SUN_RCONST(0.1) * ark_mem->h;
+  Xvecs[2] = ark_mem->fn;
+
+  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs, ark_mem->ycur);
 
   step_mem->nfe += 9;
 
