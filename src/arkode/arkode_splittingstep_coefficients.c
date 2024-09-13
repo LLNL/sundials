@@ -117,7 +117,6 @@ SplittingStepCoefficients SplittingStepCoefficients_Create(
   ---------------------------------------------------------------*/
 void SplittingStepCoefficients_Free(const SplittingStepCoefficients coefficients)
 {
-  // TODO: should argument be a pointer?
   if (coefficients != NULL)
   {
     free(coefficients->alpha);
@@ -438,7 +437,7 @@ SplittingStepCoefficients SplittingStepCoefficients_SuzukiFractal(
 void SplittingStepCoefficients_Write(const SplittingStepCoefficients coefficients,
                                      FILE* const outfile)
 {
-  // TODO: update when https://github.com/LLNL/sundials/pull/517 merged
+  // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
   if (coefficients == NULL || coefficients->alpha == NULL ||
       coefficients->beta == NULL || coefficients->beta[0] == NULL ||
       coefficients->beta[0][0] == NULL)

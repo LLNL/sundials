@@ -61,8 +61,6 @@ typedef enum
 /* Coefficient memory management */
 SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Alloc(
   int sequential_methods, int stages, int partitions);
-/* TODO(SBR): Ideally, alpha and beta would be const, but that would be
- * inconsistent with other ARKODE function which accept arrays */
 SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Create(
   int sequential_methods, int stages, int partitions, int order,
   sunrealtype* alpha, sunrealtype* beta);

@@ -70,8 +70,8 @@ static int splittingStep_AccessARKODEStepMem(void* const arkode_mem,
 static sunbooleantype splittingStep_CheckNVector(const N_Vector y)
 {
   // TODO(SBR): check all ops are correct
-  return y->ops->nvclone != NULL && y->ops->nvdestroy != NULL &&
-         y->ops->nvlinearsum != NULL && y->ops->nvscale != NULL;
+  return y->ops->nvdestroy != NULL && y->ops->nvlinearsum != NULL &&
+         y->ops->nvscale != NULL;
 }
 
 /*---------------------------------------------------------------
