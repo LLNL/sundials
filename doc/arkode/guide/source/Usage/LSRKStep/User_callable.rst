@@ -221,7 +221,7 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``  
 
 
-.. c:function:: int LSRKStepGetAverStageNum(void* arkode_mem, int* averstage);
+.. c:function:: int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* averstage);
 
    Returns the average number of stages per step (so far).
 

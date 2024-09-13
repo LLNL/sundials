@@ -703,7 +703,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       d2zjm1 = d2zj;
     }
   }
-  step_mem->nfe += step_mem->reqstages;
+  step_mem->nfe += step_mem->reqstages - 1;
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
@@ -856,7 +856,14 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Shift the data for the next stage */
     if (j < step_mem->reqstages)
     {
-      N_VScale(ONE, ark_mem->tempv2, ark_mem->tempv1);
+      /* To avoid two data copies we swap ARKODE's tempv1 and tempv2 pointers*/
+      N_Vector* ptrtempv1 = &(ark_mem->tempv1);
+      N_Vector* ptrtempv2 = &(ark_mem->tempv2);
+
+      N_Vector temp = *ptrtempv2;
+      *ptrtempv2    = *ptrtempv1;
+      *ptrtempv1    = temp;
+
       N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
 
       cjm1 = cj;
@@ -864,7 +871,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       bjm1 = bj;
     }
   }
-  step_mem->nfe += step_mem->reqstages;
+  step_mem->nfe += step_mem->reqstages - 1;
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)

@@ -353,11 +353,11 @@ int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepGetAverStageNum:
+  LSRKStepGetAverageStageNum:
 
   Returns the average number of stages taken
   ---------------------------------------------------------------*/
-int LSRKStepGetAverStageNum(void* arkode_mem, int* averstage)
+int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* averstage)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -369,8 +369,7 @@ int LSRKStepGetAverStageNum(void* arkode_mem, int* averstage)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
-  *averstage =
-    round(((sunrealtype)step_mem->nfe) / ((sunrealtype)ark_mem->nst_attempts));
+  *averstage = ((sunrealtype)step_mem->nfe) / ((sunrealtype)ark_mem->nst_attempts);
 
   return (ARK_SUCCESS);
 }
