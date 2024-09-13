@@ -46,13 +46,8 @@ find_package(LAPACK REQUIRED)
 
 # get path to LAPACK library to use in generated makefiles for examples, if
 # LAPACK_LIBRARIES contains multiple items only use the path of the first entry
-list(LENGTH LAPACK_LIBRARIES len)
-if(len EQUAL 1)
-  get_filename_component(LAPACK_LIBRARY_DIR ${LAPACK_LIBRARIES} PATH)
-else()
-  list(GET LAPACK_LIBRARIES 0 TMP_LAPACK_LIBRARIES)
-  get_filename_component(LAPACK_LIBRARY_DIR ${TMP_LAPACK_LIBRARIES} PATH)
-endif()
+list(GET LAPACK_LIBRARIES 0 TMP_LAPACK_LIBRARIES)
+get_filename_component(LAPACK_LIBRARY_DIR ${TMP_LAPACK_LIBRARIES} PATH)
 
 # -----------------------------------------------------------------------------
 # Section 4: Test the TPL
