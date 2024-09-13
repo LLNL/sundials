@@ -74,12 +74,20 @@ static int test_forward(sundials::Context& ctx, const int partitions)
   /* Check that the solution matches the exact solution */
   const auto exact_solution     = std::exp(t0 - tf);
   const auto numerical_solution = NV_Ith_S(y, 0);
+
   if (SUNRCompareTol(exact_solution, numerical_solution, global_tol))
   {
     const auto err = numerical_solution - exact_solution;
     std::cerr << "Forward solution with " << partitions
               << " partitions failed with an error of" << err << "\n";
     return 1;
+  }
+  else
+  {
+    std::cout << "Forward solution with " << partitions
+              << " partitions passed with these stats:\n";
+    ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+    std::cout << "\n";
   }
 
   N_VDestroy(y);
@@ -173,6 +181,12 @@ static int test_mixed_directions(const sundials::Context& ctx)
     std::cerr << "Mixed direction solution failed with an error of " << max_err
               << "\n";
     return 1;
+  }
+  else
+  {
+    std::cout << "Mixed direction solution passed with these stats:\n";
+    ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+    std::cout << "\n";
   }
 
   N_VDestroy(y);
@@ -268,6 +282,12 @@ static int test_resize(const sundials::Context& ctx)
     std::cerr << "Resized solution failed with an error of " << max_err << "\n";
     return 1;
   }
+  else
+  {
+    std::cout << "Resized solution passed with these stats:\n";
+    ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+    std::cout << "\n";
+  }
 
   N_VDestroy(y_new);
   N_VDestroy(err);
@@ -348,6 +368,12 @@ static int test_custom_stepper(const sundials::Context& ctx)
     const auto err = numerical_solution - exact_solution;
     std::cerr << "Custom SUNStepper failed with an error of" << err << "\n";
     return 1;
+  }
+  else
+  {
+    std::cout << "Custom SUNStepper passed with these stats:\n";
+    ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+    std::cout << "\n";
   }
 
   N_VDestroy(y);
