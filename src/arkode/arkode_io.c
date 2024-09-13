@@ -2169,7 +2169,8 @@ int ARKodeGetStepDirection(void* arkode_mem, sunrealtype* stepdir)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  *stepdir = (ark_mem->fixedstep || ark_mem->h == ZERO) ? ark_mem->hin : ark_mem->h;
+  *stepdir = (ark_mem->fixedstep || ark_mem->h == ZERO) ? ark_mem->hin
+                                                        : ark_mem->h;
   return (ARK_SUCCESS);
 }
 

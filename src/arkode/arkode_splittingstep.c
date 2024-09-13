@@ -263,12 +263,12 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y,
     for (int k = 0; k < coefficients->partitions; k++)
     {
       const sunrealtype beta_start = coefficients->beta[i][j][k];
-      const sunrealtype beta_end = coefficients->beta[i][j + 1][k];
+      const sunrealtype beta_end   = coefficients->beta[i][j + 1][k];
 
       if (beta_start == beta_end) { continue; }
 
       const sunrealtype t_start = ark_mem->tn + beta_start * ark_mem->h;
-      const sunrealtype t_end = ark_mem->tn + beta_end * ark_mem->h;
+      const sunrealtype t_end   = ark_mem->tn + beta_end * ark_mem->h;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,

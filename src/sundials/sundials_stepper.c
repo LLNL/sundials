@@ -274,7 +274,7 @@ SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype stepdir)
   else { return SUN_ERR_NOT_IMPLEMENTED; }
 }
 
-SUNErrCode SUNStepper_GetStepDirection(SUNStepper stepper, sunrealtype *stepdir)
+SUNErrCode SUNStepper_GetStepDirection(SUNStepper stepper, sunrealtype* stepdir)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->setstepdirection)
