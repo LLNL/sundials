@@ -20,9 +20,6 @@ job_unique_id=${CI_JOB_ID:-""}
 sys_type=${SYS_TYPE:-""}
 py_env_path=${PYTHON_ENVIRONMENT_PATH:-""}
 
-spack_prefix=${SHARED_SPACK_PREFIX:-"v0.19.1"}
-shared_spack=${SHARED_SPACK:-"UPSTREAM"}
-
 # Dependencies
 date
 
@@ -38,7 +35,6 @@ echo "spec          = ${spec}"
 echo "job_unique_id = ${job_unique_id}"
 echo "sys_type      = ${sys_type}"
 echo "py_env_path   = ${py_env_path}"
-echo "shared_spack  = ${shared_spack}"
 
 # remove tailing number from hostname
 hostname=${hostname%%[0-9]*}
@@ -98,7 +94,7 @@ then
     fi
 
     mirror_opt=""
-    buildcache="/usr/workspace/sundials/spackcache"
+    buildcache="/usr/workspace/sundials/ci/spack_stuff/build_caches/${SPACK_REF}"
 
     if [[ -d "${buildcache}" ]]
     then
@@ -106,15 +102,9 @@ then
         mirror_opt=("--mirror=${buildcache}" "--mirror-autopush")
     fi
 
-    key_path=/usr/workspace/sundials/spack_gpg_backup
+    key_path=/usr/workspace/sundials/ci/spack_stuff/gpg_backup
     python3 .gitlab/uberenv/uberenv.py --trust-key ${key_path}/pubring.gpg --trust-key ${key_path}/secring.gpg \
         --spec="${spec}" "${mirror_opt[@]}" "${prefix_opt}"
-
-    # This wont work because we stop at the initconfig phase so sundials@develop is never installed
-    # if [[ -d $buildcache ]]
-    # then
-    #     ${prefix}/spack/bin/spack buildcache push ${buildcache} "sundials@develop ${spec}"
-    # fi
 
     # Ensure correct CUDA module is loaded, only works for module naming
     # convention on Lassen. Only needed for CUDA 11 (unclear why).
