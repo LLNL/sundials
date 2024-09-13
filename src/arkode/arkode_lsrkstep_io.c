@@ -417,15 +417,15 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Remove current SUNAdaptController object, and replace with "PI" */
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
-  {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
-  }
   if (ark_mem->hadapt_mem->owncontroller)
   {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUN_SUCCESS)
