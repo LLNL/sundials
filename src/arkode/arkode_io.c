@@ -2156,7 +2156,7 @@ int ARKodeGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
 
   Gets the direction of integration (forward or backward) based
   on the sign of stepdir. A value of 0 indicates integration can
-  procede in either direction.
+  proceed in either direction.
   ---------------------------------------------------------------*/
 int ARKodeGetStepDirection(void* arkode_mem, sunrealtype* stepdir)
 {
