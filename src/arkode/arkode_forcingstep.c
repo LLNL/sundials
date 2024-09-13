@@ -22,8 +22,6 @@
 #include "arkode_impl.h"
 #include "arkode_mristep_impl.h"
 
-#define PARTITIONS 2
-
 /*---------------------------------------------------------------
   Shortcut routine to unpack step_mem structure from ark_mem.
   If missing it returns ARK_MEM_NULL.
