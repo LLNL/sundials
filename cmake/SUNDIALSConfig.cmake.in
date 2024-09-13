@@ -109,6 +109,12 @@ if("@ENABLE_KOKKOS_KERNELS@" AND NOT TARGET Kokkos::kokkoskernels)
 endif()
 
 if("@ENABLE_LAPACK@" AND NOT TARGET LAPACK::LAPACK)
+  # For some reason find_dependency does not find the libraries if the variables
+  # below are internal rather than CACHE variables
+  set(BLAS_LIBRARIES "@BLAS_LIBRARIES@" CACHE "FILEPATH" "BLAS libraries")
+  set(BLAS_LINKER_FLAGS "@BLAS_LINKER_FLAGS@" CACHE "STRING" "BLAS linker flags")
+  set(LAPACK_LIBRARIES "@LAPACK_LIBRARIES@" CACHE "FILEPATH" "LAPACK libraries")
+  set(LAPACK_LINKER_FLAGS "@LAPACK_LINKER_FLAGS@" "STRING" "LAPACK linker flags")
   find_dependency(LAPACK)
 endif()
 
