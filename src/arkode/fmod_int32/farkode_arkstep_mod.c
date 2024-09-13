@@ -178,6 +178,22 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
+enum {
+    SWIG_MEM_OWN = 0x01,
+    SWIG_MEM_RVALUE = 0x02,
+    SWIG_MEM_CONST = 0x04
+};
+
+
+#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
+        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+            "Cannot pass const " TYPENAME " (class " FNAME ") " \
+            "as a mutable reference", \
+            RETURNNULL); \
+    }
+
+
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -228,6 +244,20 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   result.data = NULL;
   result.size = 0;
   return result;
+}
+
+
+typedef struct {
+    void* cptr;
+    int cmemflags;
+} SwigClassWrapper;
+
+
+SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+    SwigClassWrapper result;
+    result.cptr = NULL;
+    result.cmemflags = 0;
+    return result;
 }
 
 
@@ -428,6 +458,21 @@ SWIGEXPORT int _wrap_FARKStepCreateMRIStepInnerStepper(void *farg1, void *farg2)
   arg1 = (void *)(farg1);
   arg2 = (MRIStepInnerStepper *)(farg2);
   result = (int)ARKStepCreateMRIStepInnerStepper(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKStepCreateSUNStepper(void *farg1, SwigClassWrapper const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNStepper *arg2 = (SUNStepper *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  SWIG_check_mutable(*farg2, "SUNStepper *", "SWIGTYPE_p_SUNStepper", "ARKStepCreateSUNStepper(void *,SUNStepper *)", return 0);
+  arg2 = (SUNStepper *)(farg2->cptr);
+  result = (int)ARKStepCreateSUNStepper(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

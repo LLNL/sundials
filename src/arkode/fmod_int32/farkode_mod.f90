@@ -122,6 +122,7 @@ module farkode_mod
  public :: FARKodeSetStopTime
  public :: FARKodeClearStopTime
  public :: FARKodeSetFixedStep
+ public :: FARKodeSetStepDirection
  public :: FARKodeSetUserData
  public :: FARKodeSetPostprocessStepFn
  public :: FARKodeSetPostprocessStageFn
@@ -168,6 +169,7 @@ module farkode_mod
  public :: FARKodeGetNumSteps
  public :: FARKodeGetLastStep
  public :: FARKodeGetCurrentStep
+ public :: FARKodeGetStepDirection
  public :: FARKodeGetErrWeights
  public :: FARKodeGetNumGEvals
  public :: FARKodeGetRootInfo
@@ -643,6 +645,15 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKodeSetStepDirection(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetStepDirection") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKodeSetUserData(farg1, farg2) &
 bind(C, name="_wrap_FARKodeSetUserData") &
 result(fresult)
@@ -1058,6 +1069,15 @@ end function
 
 function swigc_FARKodeGetCurrentStep(farg1, farg2) &
 bind(C, name="_wrap_FARKodeGetCurrentStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetStepDirection(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetStepDirection") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2704,6 +2724,22 @@ fresult = swigc_FARKodeSetFixedStep(farg1, farg2)
 swig_result = fresult
 end function
 
+function FARKodeSetStepDirection(arkode_mem, stepdir) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: stepdir
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = stepdir
+fresult = swigc_FARKodeSetStepDirection(farg1, farg2)
+swig_result = fresult
+end function
+
 function FARKodeSetUserData(arkode_mem, user_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -3461,6 +3497,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(hcur(1))
 fresult = swigc_FARKodeGetCurrentStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetStepDirection(arkode_mem, stepdir) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: stepdir
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(stepdir(1))
+fresult = swigc_FARKodeGetStepDirection(farg1, farg2)
 swig_result = fresult
 end function
 
