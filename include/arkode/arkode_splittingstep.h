@@ -27,8 +27,8 @@
 extern "C" {
 #endif
 
-/* TODO: can we use `const SUNStepper* steppers`? */
-/* TODO: would (t0, y0, steppers, partitions, sunctx) be a better arg order? Seems slightly more consistent with MRIStepCreate */
+/* TODO(SBR): would (t0, y0, steppers, partitions, sunctx) be a better arg
+   order? That would be more consistent with MRIStep but less with others */
 SUNDIALS_EXPORT void* SplittingStepCreate(SUNStepper* steppers, int partitions,
                                           sunrealtype t0, N_Vector y0,
                                           SUNContext sunctx);

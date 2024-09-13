@@ -16,7 +16,7 @@
 
 /*
   When adding a new method, enter the coefficients below and add
-  a new enum entry to include/arkode/arkode_splitting_coefficients.h
+  a new enum entry to include/arkode/arkode_splittingstep_coefficients.h
 */
 
 ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_NONE, {

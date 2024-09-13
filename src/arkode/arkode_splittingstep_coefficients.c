@@ -50,7 +50,6 @@ SplittingStepCoefficients SplittingStepCoefficients_Alloc(
      i index requires allocating an array of pointers into that matrix. */
 
   /* Array of pointers for index i */
-
   coefficients->beta =
     (sunrealtype***)malloc(sequential_methods * sizeof(*coefficients->beta));
   if (coefficients->beta == NULL)
