@@ -37,5 +37,5 @@ dane_clang_tpls:
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre +superlu-dist +lapack +klu +petsc ^suite-sparse@5.13.0 ^openblas"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos ^openblas"
   extends: .job_on_dane
