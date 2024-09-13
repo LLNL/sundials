@@ -11,13 +11,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
- * This header defines the step memory for SplittingStep.
+ * This header defines the step memory for ForcingStep.
  *--------------------------------------------------------------*/
 
-#ifndef ARKODE_SPLITTINGSTEP_IMPL_H_
-#define ARKODE_SPLITTINGSTEP_IMPL_H_
+#ifndef ARKODE_FORCINGSTEP_IMPL_H_
+#define ARKODE_FORCINGSTEP_IMPL_H_
 
-#include <arkode/arkode_splittingstep.h>
+#include <sundials/sundials_stepper.h>
 
 typedef struct ARKodeForcingStepMemRec
 {
