@@ -1388,13 +1388,13 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     {
       arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "\n\nlambdaR*h must be nonpositive\n");
-      return (NULL);
+      return (ARK_ILL_INPUT);
     }
     else if (step_mem->lambdaR == 0 && SUNRabs(step_mem->lambdaI) > 0)
     {
       arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "\n\nDomEig cannot be purely imaginary\n");
-      return (NULL);
+      return (ARK_ILL_INPUT);
     }
 
     step_mem->lambdaR *= step_mem->domeigsfty;
@@ -1404,11 +1404,9 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   }
   else
   {
-    printf("\nInternal DomEig is not supported yet!");
-    printf(
-      "\nCall LSRKStepSetDomEigFn to provide an external DomEig function\n");
-
-    return (ARK_ILL_INPUT);
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                  "\n\nInternal DomEig is not supported yet!\n");
+     return (ARK_ILL_INPUT);
   }
   step_mem->jacatt = SUNTRUE;
 
