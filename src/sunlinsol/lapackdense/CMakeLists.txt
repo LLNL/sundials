@@ -18,10 +18,9 @@ install(CODE "MESSAGE(\"\nInstall SUNLINSOL_LAPACKDENSE\n\")")
 
 # Workaround bug in older versions of CMake where the BLAS::BLAS target, which
 # LAPACK::LAPACK depends on, is not picked up by LINK_LIBRARIES
+set(_lapack_targets LAPACK::LAPACK)
 if(CMAKE_VERSION VERSION_LESS 3.20)
-  set(_lapack_targets LAPACK::LAPACK BLAS::BLAS)
-else()
-  set(_lapack_targets LAPACK::LAPACK)
+  list(APPEND _lapack_targets BLAS::BLAS)
 endif()
 
 # Add the library

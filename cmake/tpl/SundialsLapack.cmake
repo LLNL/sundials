@@ -324,10 +324,9 @@ if(NOT LAPACK_WORKS)
   # LAPACK::LAPACK depends on, is not defined in the file
   # ${LAPACK_TEST_DIR}/CMakeFiles/CMakeTmp/<random_name>Targets.cmake created by
   # try_compile
+  set(_lapack_targets LAPACK::LAPACK)
   if(CMAKE_VERSION VERSION_LESS 3.20)
-    set(_lapack_targets LAPACK::LAPACK BLAS::BLAS)
-  else()
-    set(_lapack_targets LAPACK::LAPACK)
+    list(APPEND _lapack_targets BLAS::BLAS)
   endif()
 
   # Attempt to build and link the test executable, pass --debug-trycompile to
