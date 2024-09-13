@@ -41,18 +41,6 @@ dane-build-and-test:
   needs: [dane-up-check]
   extends: [.build-and-test]
 
-# # CORONA
-# corona-up-check:
-#   variables:
-#     CI_MACHINE: "corona"
-#   extends: [.machine-check]
-
-# corona-build-and-test:
-#   variables:
-#     CI_MACHINE: "corona"
-#   needs: [corona-up-check]
-#   extends: [.build-and-test]
-
 # TIOGA
 tioga-up-check:
   variables:
