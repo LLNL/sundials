@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 SUNDIALS_EXPORT ARKodeSplittingExecutionPolicy
-ARKodeSplittingExecutionPolicy_New_Serial();
+ARKodeSplittingExecutionPolicy_New_Serial(void);
 
 #ifdef __cplusplus
 }
