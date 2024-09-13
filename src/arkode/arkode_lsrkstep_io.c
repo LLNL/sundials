@@ -594,11 +594,45 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* print integrator parameters to file */
-  fprintf(fp, "LSRKStep time step module parameters:\n");
-  fprintf(fp, "  Method order %i\n", 2);
-  fprintf(fp, "\n");
+  switch (step_mem->LSRKmethod)
+  {
+  case ARKODE_LSRK_RKC:
+    fprintf(fp, "LSRKStep RKC time step module parameters:\n");
+    fprintf(fp, "  Method order %i\n", 2);
+    fprintf(fp, "\n");
+    break;
+  case ARKODE_LSRK_RKL:
+    fprintf(fp, "LSRKStep RKL time step module parameters:\n");
+    fprintf(fp, "  Method order %i\n", 2);
+    fprintf(fp, "\n");
+    break;
+  // case ARKODE_LSRK_RKG:
+  //   fprintf(fp, "LSRKStep RKG time step module parameters:\n");
+  //   fprintf(fp, "  Method order %i\n", 2);
+  //   fprintf(fp, "\n");
+  //   break;
+  case ARKODE_LSRK_SSPs_2:
+    fprintf(fp, "LSRKStep SSP(s,2) time step module parameters:\n");
+    fprintf(fp, "  Method order %i\n", 2);
+    fprintf(fp, "\n");
+    break;
+  case ARKODE_LSRK_SSPs_3:
+    fprintf(fp, "LSRKStep SSP(s,3) time step module parameters:\n");
+    fprintf(fp, "  Method order %i\n", 3);
+    fprintf(fp, "\n");
+    break;
+  case ARKODE_LSRK_SSP10_4:
+    fprintf(fp, "LSRKStep SSP(10,4) time step module parameters:\n");
+    fprintf(fp, "  Method order %i\n", 4);
+    fprintf(fp, "\n");
+    break;
 
-
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid method option.");
+    return (ARK_ILL_INPUT);
+  }
+  
   return (ARK_SUCCESS);
 }
 
