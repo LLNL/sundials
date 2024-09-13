@@ -203,7 +203,7 @@ static int f_reaction(const sunrealtype t, const N_Vector y,
   return 0;
 }
 
-int main()
+int main(void)
 {
   /* Problem parameters */
   const sunrealtype T0 = SUN_RCONST(0.0);
