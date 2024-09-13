@@ -270,7 +270,7 @@ static void forcingStep_PrintMem(const ARKodeMem ark_mem, FILE* const outfile)
   if (retval != ARK_SUCCESS) { return; }
 
   /* output long integer quantities */
-  for (int k = 0; k < 2; k++)
+  for (int k = 0; k < PARTITIONS; k++)
   {
     fprintf(outfile, "ForcingStep: partition %i: n_stepper_evolves = %li\n", k,
             step_mem->n_stepper_evolves[k]);
