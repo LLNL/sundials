@@ -2354,7 +2354,7 @@ static int cvStep(CVodeMem cv_mem)
   for (;;)
   {
     SUNLogInfo(CV_LOGGER, __func__, "begin-step-attempt",
-               "step = %li, t_n = %" RSYM ", h = %" RSYM ", q = %d",
+               "step = %li, tn = %" RSYM ", h = %" RSYM ", q = %d",
                cv_mem->cv_nst + 1, cv_mem->cv_tn, cv_mem->cv_h, cv_mem->cv_q);
 
     cvPredict(cv_mem);

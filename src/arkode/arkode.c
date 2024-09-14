@@ -875,7 +875,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       ark_mem->nst_attempts++;
 
       SUNLogInfo(ARK_LOGGER, __func__, "begin-step-attempt",
-                 "step = %li, t_n = %" RSYM ", h = %" RSYM, ark_mem->nst + 1,
+                 "step = %li, tn = %" RSYM ", h = %" RSYM, ark_mem->nst + 1,
                  ark_mem->tn, ark_mem->h);
 
       /* Call time stepper module to attempt a step:

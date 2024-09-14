@@ -5911,7 +5911,7 @@ static int IDAStep(IDAMem IDA_mem)
   for (;;)
   {
     SUNLogInfo(IDA_LOGGER, __func__, "begin-step-attempt",
-               "step = %li, t_n = %" RSYM ", h = %" RSYM ", q = %d",
+               "step = %li, tn = %" RSYM ", h = %" RSYM ", q = %d",
                IDA_mem->ida_nst + 1, IDA_mem->ida_tn, IDA_mem->ida_hh,
                IDA_mem->ida_kk);
 
