@@ -7,9 +7,13 @@ Using dense direct linear solver
 [INFO][rank 0][cvStep][begin-step-attempt] step = 1, t_n = 0, h = 0.0001029860256095084, q = 1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
+[INFO][rank 0][cvLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][cvLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 0.4999243864411202
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
+[INFO][rank 0][cvLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][cvLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 2.207987840210415e-11
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.2499621932116032
@@ -17,6 +21,8 @@ Using dense direct linear solver
 [INFO][rank 0][cvStep][begin-step-attempt] step = 2, t_n = 0.0001029860256095084, h = 0.0001029860256095084, q = 1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
+[INFO][rank 0][cvLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][cvLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 0.499923682675401
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.2499618413377005
@@ -24,18 +30,26 @@ Using dense direct linear solver
 [INFO][rank 0][cvStep][begin-step-attempt] step = 3, t_n = 0.0002059720512190168, h = 0.001029860256095084, q = 2
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
+[INFO][rank 0][cvLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][cvLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 33.32111802218621
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
+[INFO][rank 0][cvLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][cvLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0.001726792321093216
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvStep][end-step-attempt] status = failed error test, dsm = 8.198477691401965, eflag = 5
 [INFO][rank 0][cvStep][begin-step-attempt] step = 3, t_n = 0.0002059720512190168, h = 0.0002810714214160092, q = 2
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
+[INFO][rank 0][cvLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][cvLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 2.482483008202045
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
+[INFO][rank 0][cvLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][cvLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 1.190779226370788e-05
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.5885920559914323
