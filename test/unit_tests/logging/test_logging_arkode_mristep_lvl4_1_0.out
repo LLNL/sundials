@@ -4,12 +4,12 @@ Using fixed-point nonlinear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.0003333333333333333
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 1.144086354960834e-08
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 1.144086354960834e-08
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 5.72043177480417e-09
@@ -24,7 +24,7 @@ Using fixed-point nonlinear solver
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 9.420270473123646e-07, h_cfl = 5.72043177480417e+21
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 82.33880626472583
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 3.054311027668149e-19
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 1.144086354960834e-08, h = 9.420270473123646e-07
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 1.144086354960834e-08, h = 9.420270473123646e-07
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 1.144086354960834e-08
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 4.824543872057906e-07
@@ -39,7 +39,7 @@ Using fixed-point nonlinear solver
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 1.547632847377535e-05, h_cfl = 4.710135236561823e+23
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 16.42875171995309
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 8.125318529963199e-18
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 9.534679108619729e-07, h = 1.547632847377535e-05
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 9.534679108619729e-07, h = 1.547632847377535e-05
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 9.534679108619729e-07
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 8.691632147749645e-06
@@ -54,7 +54,7 @@ Using fixed-point nonlinear solver
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0003095265694755069, h_cfl = 7.738164236887673e+24
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.253820759884639e-11
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, t_n = 1.642979638463732e-05, h = 0.0003095265694755069
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, tn = 1.642979638463732e-05, h = 0.0003095265694755069
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 1.642979638463732e-05
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0001711930811223908
@@ -69,7 +69,7 @@ Using fixed-point nonlinear solver
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001332135699349735, h_cfl = 1.547632847377535e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.303784652823311
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 3.606776744248313e-06
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, t_n = 0.0003259563658601442, h = 7.376967473189085e-06
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, tn = 0.0003259563658601442, h = 7.376967473189085e-06
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0003259563658601442
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0003296448495967387
@@ -88,17 +88,17 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 2, tcur = 0.0003333333333333333
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 2.618808553272737
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 2.618808553272737
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.0007928652556788505
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.0007928652556788505
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.0003333333333333333
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 0, tcur = 0.0006666666666666666
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, t_n = 0.0003333333333333333, h = 0.0001475393494637817
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, tn = 0.0003333333333333333, h = 0.0001475393494637817
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0003333333333333333
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0004071030080652242
@@ -113,7 +113,7 @@ Using fixed-point nonlinear solver
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0007831571166676468, h_cfl = 7.376967473189085e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.308123693875294
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.861618612523282e-07
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 7, t_n = 0.000480872682797115, h = 0.0001857939838695515
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 7, tn = 0.000480872682797115, h = 0.0001857939838695515
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.000480872682797115
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0005737696747318907
@@ -132,17 +132,17 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 4, stage type = 2, tcur = 0.0006666666666666666
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 10.47508400821115
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 10.47508400821115
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.00318668913410324
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.00318668913410324
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.0006666666666666666
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 5, stage type = 0, tcur = 0.001
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 8, t_n = 0.0006666666666666666, h = 0.0003333333333333331
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 8, tn = 0.0006666666666666666, h = 0.0003333333333333331
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0006666666666666666
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0008333333333333332
@@ -161,22 +161,22 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 6, stage type = 2, tcur = 0.001
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 23.56852920005934
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 23.56852920005934
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.00721853154020951
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.00721853154020951
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.001
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  1.000000000000000e-03    1.224744769312645e+00    1.731993073504226e+00    1.687561201890730e-11    1.043609643147647e-14
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 0.001, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.001
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.001333333333333333
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 9, t_n = 0.001, h = 0.000333333333333333
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 9, tn = 0.001, h = 0.000333333333333333
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.001
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.001166666666666667
@@ -195,17 +195,17 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 2, tcur = 0.001333333333333333
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 18.33117208795071
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 18.33117208795071
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.005605053590958301
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.005605053590958301
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.001333333333333333
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 0, tcur = 0.001666666666666667
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 10, t_n = 0.001333333333333333, h = 0.000333333333333333
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 10, tn = 0.001333333333333333, h = 0.000333333333333333
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.001333333333333333
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0015
@@ -224,17 +224,17 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 4, stage type = 2, tcur = 0.001666666666666667
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 41.89912728820217
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 41.89912728820217
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.012810580405903
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.012810580405903
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.001666666666666667
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 5, stage type = 0, tcur = 0.002
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 11, t_n = 0.001666666666666667, h = 0.0003333333333333332
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 11, tn = 0.001666666666666667, h = 0.0003333333333333332
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.001666666666666667
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.001833333333333333
@@ -253,22 +253,22 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 6, stage type = 2, tcur = 0.002
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 70.70323030012283
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 70.70323030012283
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.02165342185634298
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.02165342185634298
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.002
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  2.000000000000000e-03    1.224744463066094e+00    1.731819882857627e+00    7.727218864772567e-11    7.993605777301127e-15
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 0.002, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.002
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.002333333333333334
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, t_n = 0.002, h = 0.0003333333333333332
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, tn = 0.002, h = 0.0003333333333333332
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.002
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.002166666666666667
@@ -287,17 +287,17 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 2, tcur = 0.002333333333333334
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 34.04320255383404
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 34.04320255383404
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.01041601086240528
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.01041601086240528
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.002333333333333334
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 0, tcur = 0.002666666666666667
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 13, t_n = 0.002333333333333334, h = 0.0003333333333333328
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 13, tn = 0.002333333333333334, h = 0.0003333333333333328
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.002333333333333334
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0025
@@ -316,17 +316,17 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 4, stage type = 2, tcur = 0.002666666666666667
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 73.3217906642831
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 73.3217906642831
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.0224314713676539
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.0224314713676539
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.002666666666666667
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 5, stage type = 0, tcur = 0.003
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 14, t_n = 0.002666666666666667, h = 0.0003333333333333332
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 14, tn = 0.002666666666666667, h = 0.0003333333333333332
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.002666666666666667
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.002833333333333333
@@ -345,11 +345,11 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 6, stage type = 2, tcur = 0.003
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 117.8347848203848
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 117.8347848203848
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.03608300450075731
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.03608300450075731
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.003
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success

@@ -1,4 +1,4 @@
-Start IDA Logging test
+Start IDAS Logging test
 Using Newton nonlinear solver
 Using dense direct linear solver
            t                        u                        v                      u err                    v err            
@@ -35,4 +35,4 @@ LS iters per NLS iter        = 0
 Jac evals per NLS iter       = 0.4444444444444444
 Prec evals per NLS iter      = 0
 Root fn evals                = 0
-End IDA Logging test
+End IDAS Logging test

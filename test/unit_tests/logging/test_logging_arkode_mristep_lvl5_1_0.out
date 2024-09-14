@@ -4,8 +4,8 @@ Using fixed-point nonlinear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
 1.1719990452195032e-16
@@ -18,7 +18,7 @@ Using fixed-point nonlinear solver
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 1.144086354960834e-08
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 1.144086354960834e-08
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -42,7 +42,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320508075688772e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-6.6053856682085423e-07
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 5.72043177480417e-09
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -57,7 +60,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320508075688734e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-6.6053856310312784e-07
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 1.144086354960834e-08
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -72,7 +78,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320508075688696e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.3210771299314208e-06
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 8.580647662206255e-09
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -87,7 +96,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320508075688730e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-9.9080784746839703e-07
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
@@ -97,7 +109,7 @@ Using fixed-point nonlinear solver
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 9.420270473123646e-07, h_cfl = 5.72043177480417e+21
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 82.33880626472583
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 3.054311027668149e-19
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 1.144086354960834e-08, h = 9.420270473123646e-07
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 1.144086354960834e-08, h = 9.420270473123646e-07
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 1.144086354960834e-08
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -121,7 +133,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320508075682477e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-5.5709046861272483e-05
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 4.824543872057906e-07
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -136,7 +151,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320508075426302e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-5.5709021244515720e-05
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 9.534679108619729e-07
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -151,7 +169,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320508075163905e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.1009699095050957e-04
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 7.179611490338818e-07
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -166,7 +187,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320508075391168e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-8.2903012504834220e-05
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
@@ -176,7 +200,7 @@ Using fixed-point nonlinear solver
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 1.547632847377535e-05, h_cfl = 4.710135236561823e+23
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 16.42875171995309
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 8.125318529963199e-18
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 9.534679108619729e-07, h = 1.547632847377535e-05
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 9.534679108619729e-07, h = 1.547632847377535e-05
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 9.534679108619729e-07
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -200,7 +224,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320508066644420e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-1.0036266807812572e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 8.691632147749645e-06
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -215,7 +242,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320507997501624e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-1.0036197705080342e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 1.642979638463732e-05
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -230,7 +260,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320507919840413e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.8971494422882198e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 1.256071426619348e-05
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -245,7 +278,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320507984599434e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-1.4503863368916410e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
@@ -255,7 +291,7 @@ Using fixed-point nonlinear solver
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0003095265694755069, h_cfl = 7.738164236887673e+24
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.253820759884639e-11
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, t_n = 1.642979638463732e-05, h = 0.0003095265694755069
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, tn = 1.642979638463732e-05, h = 0.0003095265694755069
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 1.642979638463732e-05
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -279,7 +315,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320504983749085e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-1.9769020554131735e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0001711930811223908
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -294,7 +333,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320477324654309e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-1.9766286211624975e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0003259563658601442
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -309,7 +351,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320446737932254e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-3.7638060803422323e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0002485747234912675
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -324,7 +369,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320472402386546e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-2.8702874510251369e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
@@ -334,7 +382,7 @@ Using fixed-point nonlinear solver
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001332135699349735, h_cfl = 1.547632847377535e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.303784652823311
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 3.606776744248313e-06
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, t_n = 0.0003259563658601442, h = 7.376967473189085e-06
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, tn = 0.0003259563658601442, h = 7.376967473189085e-06
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0003259563658601442
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -358,7 +406,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320445345476552e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-3.8063965878194383e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0003296448495967387
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -373,7 +424,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320445329767096e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-3.8063964341772422e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0003333333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -388,7 +442,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320443925784019e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-3.8489869720701411e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.000331489091465036
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -403,7 +460,10 @@ Using fixed-point nonlinear solver
 1.2247448713915889e+00
 1.7320444633666590e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-3.8276917428533966e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
@@ -429,11 +489,11 @@ Using fixed-point nonlinear solver
 -6.4149904805965718e-06
 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 2.618808553272737
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 2.618808553272737
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.0007928652556788505
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.0007928652556788505
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
@@ -452,7 +512,7 @@ Using fixed-point nonlinear solver
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, t_n = 0.0003333333333333333, h = 0.0001475393494637817
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, tn = 0.0003333333333333333, h = 0.0001475393494637817
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0003333333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448417493858e+00
@@ -476,7 +536,10 @@ Using fixed-point nonlinear solver
 1.2247448321487588e+00
 1.7320415531921334e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-4.7008263389618679e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0004071030080652242
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -491,7 +554,10 @@ Using fixed-point nonlinear solver
 1.2247448321487588e+00
 1.7320409247940967e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-4.7007652046430641e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.000480872682797115
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -506,7 +572,10 @@ Using fixed-point nonlinear solver
 1.2247448225481321e+00
 1.7320374570999939e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-5.5525979238878413e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0004439878454311696
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -521,7 +590,10 @@ Using fixed-point nonlinear solver
 1.2247448273484456e+00
 1.7320394265847963e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-5.1266975514912889e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448225481321e+00
@@ -531,7 +603,7 @@ Using fixed-point nonlinear solver
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0007831571166676468, h_cfl = 7.376967473189085e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.308123693875294
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.861618612523282e-07
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 7, t_n = 0.000480872682797115, h = 0.0001857939838695515
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 7, tn = 0.000480872682797115, h = 0.0001857939838695515
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.000480872682797115
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448225481321e+00
@@ -555,7 +627,10 @@ Using fixed-point nonlinear solver
 1.2247448104582137e+00
 1.7320322988597237e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-6.6252981023261451e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0005737696747318907
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -570,7 +645,10 @@ Using fixed-point nonlinear solver
 1.2247448104582137e+00
 1.7320313023535214e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-6.6252022634728430e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0006666666666666665
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -585,7 +663,10 @@ Using fixed-point nonlinear solver
 1.2247447983682951e+00
 1.7320251478289406e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-7.6978909351402405e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0006202181706992786
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -600,7 +681,10 @@ Using fixed-point nonlinear solver
 1.2247448044132543e+00
 1.7320285987581305e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-7.1615721136348051e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247447983682951e+00
@@ -626,11 +710,11 @@ Using fixed-point nonlinear solver
 -2.5659825403590020e-05
 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 10.47508400821115
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 10.47508400821115
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.00318668913410324
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.00318668913410324
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
@@ -649,7 +733,7 @@ Using fixed-point nonlinear solver
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 8, t_n = 0.0006666666666666666, h = 0.0003333333333333331
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 8, tn = 0.0006666666666666666, h = 0.0003333333333333331
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0006666666666666666
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247447831239917e+00
@@ -673,7 +757,10 @@ Using fixed-point nonlinear solver
 1.2247448207091973e+00
 1.7320123179239917e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-9.6224321887741396e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0008333333333333332
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -688,7 +775,10 @@ Using fixed-point nonlinear solver
 1.2247448207091973e+00
 1.7320091103564923e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-9.6221292518436141e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0009999999999999998
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -703,7 +793,10 @@ Using fixed-point nonlinear solver
 1.2247448582944032e+00
 1.7319930739793008e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.1546616075861313e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0009166666666666665
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -718,7 +811,10 @@ Using fixed-point nonlinear solver
 1.2247448395018004e+00
 1.7320022948738938e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-1.0584455776019856e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448582944032e+00
@@ -744,11 +840,11 @@ Using fixed-point nonlinear solver
 -5.7734064651482342e-05
 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 23.56852920005934
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 23.56852920005934
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.00721853154020951
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.00721853154020951
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
@@ -759,8 +855,8 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  1.000000000000000e-03    1.224744769312645e+00    1.731993073504226e+00    1.687561201890730e-11    1.043609643147647e-14
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 0.001, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.001
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
 -2.0412409446764196e-04
@@ -773,7 +869,7 @@ Using fixed-point nonlinear solver
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 9, t_n = 0.001, h = 0.000333333333333333
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 9, tn = 0.001, h = 0.000333333333333333
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.001
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247447693126450e+00
@@ -797,7 +893,10 @@ Using fixed-point nonlinear solver
 1.2247447352919625e+00
 1.7319738291367581e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-1.3471042809526759e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001166666666666667
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -812,7 +911,10 @@ Using fixed-point nonlinear solver
 1.2247447352919625e+00
 1.7319706217662099e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-1.3470747018687246e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.001333333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -827,7 +929,10 @@ Using fixed-point nonlinear solver
 1.2247447012712802e+00
 1.7319481710141633e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.5395094281195390e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.00125
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -842,7 +947,10 @@ Using fixed-point nonlinear solver
 1.2247447182816213e+00
 1.7319605990230766e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-1.4433004649475453e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247447012712802e+00
@@ -868,11 +976,11 @@ Using fixed-point nonlinear solver
 -4.4902941343405445e-05
 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 18.33117208795071
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 18.33117208795071
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.005605053590958301
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.005605053590958301
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
@@ -891,7 +999,7 @@ Using fixed-point nonlinear solver
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 10, t_n = 0.001333333333333333, h = 0.000333333333333333
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 10, tn = 0.001333333333333333, h = 0.000333333333333333
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.001333333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247446716218264e+00
@@ -915,7 +1023,10 @@ Using fixed-point nonlinear solver
 1.2247446159106095e+00
 1.7319225120700115e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-1.7319354609981777e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0015
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -930,7 +1041,10 @@ Using fixed-point nonlinear solver
 1.2247446159106095e+00
 1.7319193049718657e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-1.7319065971148512e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.001666666666666666
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -945,7 +1059,10 @@ Using fixed-point nonlinear solver
 1.2247445601993927e+00
 1.7318904403429785e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.9243228400219578e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.001583333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -960,7 +1077,10 @@ Using fixed-point nonlinear solver
 1.2247445880550012e+00
 1.7319060751889128e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-1.8281232071260242e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247445601993927e+00
@@ -986,11 +1106,11 @@ Using fixed-point nonlinear solver
 -1.0263358872419914e-04
 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 41.89912728820217
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 41.89912728820217
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.012810580405903
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.012810580405903
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
@@ -1009,7 +1129,7 @@ Using fixed-point nonlinear solver
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 11, t_n = 0.001666666666666667, h = 0.0003333333333333332
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 11, tn = 0.001666666666666667, h = 0.0003333333333333332
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.001666666666666667
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247445449405781e+00
@@ -1033,7 +1153,10 @@ Using fixed-point nonlinear solver
 1.2247445485050701e+00
 1.7318583678669597e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-2.1167277744850593e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001833333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1048,7 +1171,10 @@ Using fixed-point nonlinear solver
 1.2247445485050701e+00
 1.7318551611192601e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-2.1166996263663226e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1063,7 +1189,10 @@ Using fixed-point nonlinear solver
 1.2247445520695623e+00
 1.7318198832612892e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-2.3090927031643102e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.001916666666666666
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1078,7 +1207,10 @@ Using fixed-point nonlinear solver
 1.2247445502873162e+00
 1.7318387245911020e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-2.2129047418052736e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247445520695623e+00
@@ -1104,11 +1236,11 @@ Using fixed-point nonlinear solver
 -1.7319064659848671e-04
 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 70.70323030012283
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 70.70323030012283
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.02165342185634298
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.02165342185634298
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
@@ -1119,8 +1251,8 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  2.000000000000000e-03    1.224744463066094e+00    1.731819882857627e+00    7.727218864772567e-11    7.993605777301127e-15
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 0.002, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.002
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
 -4.0824799985838097e-04
@@ -1133,7 +1265,7 @@ Using fixed-point nonlinear solver
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, t_n = 0.002, h = 0.0003333333333333332
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, tn = 0.002, h = 0.0003333333333333332
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.002
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247444630660944e+00
@@ -1157,7 +1289,10 @@ Using fixed-point nonlinear solver
 1.2247443950247612e+00
 1.7317813979718826e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-2.5014733561149305e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002166666666666667
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1172,7 +1307,10 @@ Using fixed-point nonlinear solver
 1.2247443950247612e+00
 1.7317781916350252e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-2.5014459241217268e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002333333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1187,7 +1325,10 @@ Using fixed-point nonlinear solver
 1.2247443269834277e+00
 1.7317365013268231e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-2.6938122107071688e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.00225
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1202,7 +1343,10 @@ Using fixed-point nonlinear solver
 1.2247443610040945e+00
 1.7317585487284406e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-2.5976377328903322e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247443269834277e+00
@@ -1228,11 +1372,11 @@ Using fixed-point nonlinear solver
 -8.3381910643609558e-05
 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 34.04320255383404
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 34.04320255383404
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.01041601086240528
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.01041601086240528
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
@@ -1251,7 +1395,7 @@ Using fixed-point nonlinear solver
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 13, t_n = 0.002333333333333334, h = 0.0003333333333333328
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 13, tn = 0.002333333333333334, h = 0.0003333333333333328
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.002333333333333334
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247442973267411e+00
@@ -1275,7 +1419,10 @@ Using fixed-point nonlinear solver
 1.2247442075948949e+00
 1.7316916040743873e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-2.8861633883154819e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0025
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1290,7 +1437,10 @@ Using fixed-point nonlinear solver
 1.2247442075948949e+00
 1.7316883982238451e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-2.8861366728941101e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002666666666666666
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1305,7 +1455,10 @@ Using fixed-point nonlinear solver
 1.2247441178630489e+00
 1.7316402963912205e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-3.0784716406485779e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.002583333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1320,7 +1473,10 @@ Using fixed-point nonlinear solver
 1.2247441627289719e+00
 1.7316655493734376e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-2.9823129106051893e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247441178630489e+00
@@ -1346,11 +1502,11 @@ Using fixed-point nonlinear solver
 -1.7958682241503432e-04
 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 73.3217906642831
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 73.3217906642831
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.0224314713676539
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.0224314713676539
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
@@ -1369,7 +1525,7 @@ Using fixed-point nonlinear solver
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 14, t_n = 0.002666666666666667, h = 0.0003333333333333332
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 14, tn = 0.002666666666666667, h = 0.0003333333333333332
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.002666666666666667
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247441025897374e+00
@@ -1393,7 +1549,10 @@ Using fixed-point nonlinear solver
 1.2247440721335288e+00
 1.7315889881733106e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-3.2707888835270321e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002833333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1408,7 +1567,10 @@ Using fixed-point nonlinear solver
 1.2247440721335288e+00
 1.7315857828871535e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-3.2707628850945208e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.003
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1423,7 +1585,10 @@ Using fixed-point nonlinear solver
 1.2247440416773201e+00
 1.7315312706057091e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-3.4630618495366805e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.002916666666666666
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1438,7 +1603,10 @@ Using fixed-point nonlinear solver
 1.2247440569054244e+00
 1.7315597286014499e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-3.3669212094406925e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247440416773201e+00
@@ -1464,11 +1632,11 @@ Using fixed-point nonlinear solver
 -2.8861258408663382e-04
 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 117.8347848203848
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 1, update-norm = 117.8347848203848
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = continue
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][begin-iteration] 
-[DEBUG][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.03608300450075731
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
+[INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.03608300450075731
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =

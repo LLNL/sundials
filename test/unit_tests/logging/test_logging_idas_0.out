@@ -1,4 +1,4 @@
-Start IDA Logging test
+Start IDAS Logging test
 Using Newton nonlinear solver
 Using GMRES iterative linear solver
            t                        u                        v                      u err                    v err            
@@ -35,4 +35,4 @@ LS iters per NLS iter        = 1.25
 Jac evals per NLS iter       = 0
 Prec evals per NLS iter      = 0
 Root fn evals                = 0
-End IDA Logging test
+End IDAS Logging test

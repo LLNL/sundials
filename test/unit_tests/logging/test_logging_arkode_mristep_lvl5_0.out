@@ -3,8 +3,8 @@ Using Ex-MRI method
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
 1.1719990452195032e-16
@@ -17,7 +17,7 @@ Using Ex-MRI method
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 1.144086354960834e-08
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 1.144086354960834e-08
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -41,7 +41,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320508075688772e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-6.6053856682085423e-07
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 5.72043177480417e-09
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -56,7 +59,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320508075688734e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-6.6053856310312784e-07
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 1.144086354960834e-08
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -71,7 +77,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320508075688696e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.3210771299314208e-06
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 8.580647662206255e-09
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -86,7 +95,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320508075688730e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-9.9080784746839703e-07
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
@@ -96,7 +108,7 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 9.420270473123646e-07, h_cfl = 5.72043177480417e+21
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 82.33880626472583
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 3.054311027668149e-19
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 1.144086354960834e-08, h = 9.420270473123646e-07
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 1.144086354960834e-08, h = 9.420270473123646e-07
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 1.144086354960834e-08
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -120,7 +132,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320508075682477e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-5.5709046861272483e-05
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 4.824543872057906e-07
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -135,7 +150,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320508075426302e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-5.5709021244515720e-05
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 9.534679108619729e-07
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -150,7 +168,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320508075163905e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.1009699095050957e-04
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 7.179611490338818e-07
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -165,7 +186,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320508075391168e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-8.2903012504834220e-05
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
@@ -175,7 +199,7 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 1.547632847377535e-05, h_cfl = 4.710135236561823e+23
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 16.42875171995309
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 8.125318529963199e-18
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 9.534679108619729e-07, h = 1.547632847377535e-05
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 9.534679108619729e-07, h = 1.547632847377535e-05
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 9.534679108619729e-07
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -199,7 +223,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320508066644420e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-1.0036266807812572e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 8.691632147749645e-06
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -214,7 +241,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320507997501624e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-1.0036197705080342e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 1.642979638463732e-05
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -229,7 +259,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320507919840413e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.8971494422882198e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 1.256071426619348e-05
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -244,7 +277,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320507984599434e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-1.4503863368916410e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
@@ -254,7 +290,7 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0003095265694755069, h_cfl = 7.738164236887673e+24
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.253820759884639e-11
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, t_n = 1.642979638463732e-05, h = 0.0003095265694755069
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, tn = 1.642979638463732e-05, h = 0.0003095265694755069
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 1.642979638463732e-05
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -278,7 +314,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320504983749085e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-1.9769020554131735e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0001711930811223908
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -293,7 +332,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320477324654309e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-1.9766286211624975e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0003259563658601442
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -308,7 +350,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320446737932254e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-3.7638060803422323e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0002485747234912675
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -323,7 +368,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320472402386546e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-2.8702874510251369e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
@@ -333,7 +381,7 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001332135699349735, h_cfl = 1.547632847377535e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.303784652823311
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 3.606776744248313e-06
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, t_n = 0.0003259563658601442, h = 7.376967473189085e-06
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, tn = 0.0003259563658601442, h = 7.376967473189085e-06
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0003259563658601442
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -357,7 +405,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320445345476552e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-3.8063965878194383e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0003296448495967387
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -372,7 +423,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320445329767096e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-3.8063964341772422e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0003333333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -387,7 +441,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320443925784019e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-3.8489869720701411e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.000331489091465036
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -402,7 +459,10 @@ Using Ex-MRI method
 1.2247448713915889e+00
 1.7320444633666590e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-3.8276917428533966e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
@@ -428,7 +488,7 @@ Using Ex-MRI method
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, t_n = 0.0003333333333333333, h = 0.0001475393494637817
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, tn = 0.0003333333333333333, h = 0.0001475393494637817
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0003333333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -452,7 +512,10 @@ Using Ex-MRI method
 1.2247448600941959e+00
 1.7320415531932267e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-4.7008249417963652e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0004071030080652242
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -467,7 +530,10 @@ Using Ex-MRI method
 1.2247448600941959e+00
 1.7320409247951274e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-4.7007638074714753e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.000480872682797115
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -482,7 +548,10 @@ Using Ex-MRI method
 1.2247448487968027e+00
 1.7320374571020551e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-5.5525966116538074e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0004439878454311696
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -497,7 +566,10 @@ Using Ex-MRI method
 1.2247448544454993e+00
 1.7320394265863657e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-5.1266961967908885e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448487968027e+00
@@ -507,7 +579,7 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0007831571144177833, h_cfl = 7.376967473189085e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.308123678626051
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.861618640185768e-07
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 7, t_n = 0.000480872682797115, h = 0.0002691273172028848
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 7, tn = 0.000480872682797115, h = 0.0002691273172028848
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.000480872682797115
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448487968027e+00
@@ -531,7 +603,10 @@ Using Ex-MRI method
 1.2247448281891673e+00
 1.7320299852810845e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-7.1064575037149705e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0006154363413985574
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -546,7 +621,10 @@ Using Ex-MRI method
 1.2247448281891673e+00
 1.7320278943490128e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-7.1062569894116898e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0007499999999999998
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -561,7 +639,10 @@ Using Ex-MRI method
 1.2247448075815321e+00
 1.7320183321794378e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-8.6600920017551195e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0006827181706992786
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -576,7 +657,10 @@ Using Ex-MRI method
 1.2247448178853497e+00
 1.7320238972941204e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-7.8832282114519550e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448075815321e+00
@@ -602,7 +686,7 @@ Using Ex-MRI method
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 8, t_n = 0.00075, h = 0.0002499999999999998
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 8, tn = 0.00075, h = 0.0002499999999999998
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.00075
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448075815321e+00
@@ -626,7 +710,10 @@ Using Ex-MRI method
 1.2247447884555376e+00
 1.7320075068062570e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-1.0103457038865726e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0008749999999999999
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -641,7 +728,10 @@ Using Ex-MRI method
 1.2247447884555376e+00
 1.7320057025999300e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-1.0103287142769918e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0009999999999999998
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -656,7 +746,10 @@ Using Ex-MRI method
 1.2247447693295430e+00
 1.7319930737033717e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.1546620498350778e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0009374999999999999
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -671,7 +764,10 @@ Using Ex-MRI method
 1.2247447788925403e+00
 1.7320000646734539e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-1.0825000539838989e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247447693295430e+00
@@ -689,8 +785,8 @@ Using Ex-MRI method
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  1.000000000000000e-03    1.224744769329543e+00    1.731993073504213e+00    2.242650509742816e-14    2.664535259100376e-15
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 0.001, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.001
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
 -2.0412412826749547e-04
@@ -703,7 +799,7 @@ Using Ex-MRI method
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 9, t_n = 0.001, h = 0.000333333333333333
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 9, tn = 0.001, h = 0.000333333333333333
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.001
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247447693295430e+00
@@ -727,7 +823,10 @@ Using Ex-MRI method
 1.2247447353088550e+00
 1.7319738291367464e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-1.3471042808681047e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001166666666666667
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -742,7 +841,10 @@ Using Ex-MRI method
 1.2247447353088550e+00
 1.7319706217661981e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-1.3470747017841533e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.001333333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -757,7 +859,10 @@ Using Ex-MRI method
 1.2247447012881669e+00
 1.7319481710141531e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-1.5395094280350119e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.00125
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -772,7 +877,10 @@ Using Ex-MRI method
 1.2247447182985109e+00
 1.7319605990230655e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-1.4433004648629949e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247447012881669e+00
@@ -798,7 +906,7 @@ Using Ex-MRI method
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 10, t_n = 0.001333333333333333, h = 0.0004166666666666664
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 10, tn = 0.001333333333333333, h = 0.0004166666666666664
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.001333333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247447012881669e+00
@@ -822,7 +930,10 @@ Using Ex-MRI method
 1.2247446268572899e+00
 1.7319160974498737e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-1.7800447825417720e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001541666666666666
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -837,7 +948,10 @@ Using Ex-MRI method
 1.2247446268572899e+00
 1.7319110862965692e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-1.7799998213607038e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.00175
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -852,7 +966,10 @@ Using Ex-MRI method
 1.2247445524264131e+00
 1.7318740039036487e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-2.0205196927351796e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.001645833333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -867,7 +984,10 @@ Using Ex-MRI method
 1.2247445896418514e+00
 1.7318944240282597e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-1.9002730638403170e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247445524264131e+00
@@ -893,7 +1013,7 @@ Using Ex-MRI method
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 11, t_n = 0.00175, h = 0.0002499999999999998
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 11, tn = 0.00175, h = 0.0002499999999999998
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.00175
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247445524264131e+00
@@ -917,7 +1037,10 @@ Using Ex-MRI method
 1.2247445077849122e+00
 1.7318487465784400e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-2.1648176970596372e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001875
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -932,7 +1055,10 @@ Using Ex-MRI method
 1.2247445077849122e+00
 1.7318469428532943e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-2.1648019144645875e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -947,7 +1073,10 @@ Using Ex-MRI method
 1.2247444631434115e+00
 1.7318198830266460e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-2.3090931457614758e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0019375
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -962,7 +1091,10 @@ Using Ex-MRI method
 1.2247444854641618e+00
 1.7318340892822821e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-2.2369523515123488e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247444631434115e+00
@@ -980,8 +1112,8 @@ Using Ex-MRI method
 [INFO][rank 0][mriStep_TakeStep][end-stage] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  2.000000000000000e-03    1.224744463143411e+00    1.731819882857615e+00    4.485301019485632e-14    4.218847493575595e-15
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 0.002, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
+[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.002
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
 [DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
 -4.0824815447279339e-04
@@ -994,7 +1126,7 @@ Using Ex-MRI method
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, t_n = 0.002, h = 0.0003333333333333332
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, tn = 0.002, h = 0.0003333333333333332
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.002
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247444631434115e+00
@@ -1018,7 +1150,10 @@ Using Ex-MRI method
 1.2247443951020525e+00
 1.7317813979718768e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-2.5014733557284241e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002166666666666667
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1033,7 +1168,10 @@ Using Ex-MRI method
 1.2247443951020525e+00
 1.7317781916350194e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-2.5014459237352205e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002333333333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1048,7 +1186,10 @@ Using Ex-MRI method
 1.2247443270606932e+00
 1.7317365013268238e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-2.6938122103208478e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.00225
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1063,7 +1204,10 @@ Using Ex-MRI method
 1.2247443610813729e+00
 1.7317585487284382e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-2.5976377325039196e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247443270606932e+00
@@ -1089,7 +1233,7 @@ Using Ex-MRI method
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 13, t_n = 0.002333333333333334, h = 0.0004166666666666659
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 13, tn = 0.002333333333333334, h = 0.0004166666666666659
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.002333333333333334
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247443270606932e+00
@@ -1113,7 +1257,10 @@ Using Ex-MRI method
 1.2247442101040049e+00
 1.7316803798593359e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-2.9342526570773531e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002541666666666666
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1128,7 +1275,10 @@ Using Ex-MRI method
 1.2247442101040049e+00
 1.7316753706832950e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-2.9342110530871401e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002749999999999999
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1143,7 +1293,10 @@ Using Ex-MRI method
 1.2247440931473168e+00
 1.7316142421531053e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-3.1746259855389553e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.002645833333333333
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1158,7 +1311,10 @@ Using Ex-MRI method
 1.2247441516256607e+00
 1.7316466846093022e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-3.0544322406377666e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247440931473168e+00
@@ -1184,7 +1340,7 @@ Using Ex-MRI method
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 14, t_n = 0.00275, h = 0.00025
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 14, tn = 0.00275, h = 0.00025
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.00275
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247440931473168e+00
@@ -1208,7 +1364,10 @@ Using Ex-MRI method
 1.2247440229903319e+00
 1.7315745586388116e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2560(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+0.0000000000000000e+00
+-3.3188566184069873e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002875
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1223,7 +1382,10 @@ Using Ex-MRI method
 1.2247440229903319e+00
 1.7315727557558305e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2608(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+0.0000000000000000e+00
+-3.3188420451026790e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.003
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1238,7 +1400,10 @@ Using Ex-MRI method
 1.2247439528333472e+00
 1.7315312704124328e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2656(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+0.0000000000000000e+00
+-3.4630622922103182e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0029375
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -1253,7 +1418,10 @@ Using Ex-MRI method
 1.2247439879118396e+00
 1.7315526891115898e+00
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2704(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+0.0000000000000000e+00
+-3.3909571391256599e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247439528333472e+00

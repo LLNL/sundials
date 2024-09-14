@@ -5,7 +5,7 @@ Using dense direct linear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, t_n = 0, h = 0.0001029860256095084
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.0001029860256095084
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448713915889e+00
@@ -32,7 +32,8 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 1.964697559380313e-06
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -48,7 +49,10 @@ Using dense direct linear solver
 7.5995958375887289e-08
 -1.5294593714809218e-07
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1312(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+-1.0510967219525540e-05
+-5.9458999098063797e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 3.419136050235679e-05
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -62,7 +66,8 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 0.02755288476307282
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -78,7 +83,10 @@ Using dense direct linear solver
 1.3176459665558473e-12
 -1.1073861384540185e-12
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1360(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+-6.9792822361829657e-06
+-3.9480780841471040e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 6.385133587789521e-05
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -92,7 +100,8 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 0.09608896636098527
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -108,7 +117,10 @@ Using dense direct linear solver
 5.2577714137188794e-12
 -4.3814726068795874e-12
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1408(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+-1.3033599353582813e-05
+-7.3729161894512917e-03
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 8.753812176808214e-05
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -122,11 +134,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 0.180603158079822
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 2.25245970796259e-13
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -142,7 +156,10 @@ Using dense direct linear solver
 1.3893494183907939e-11
 -1.1584508346205501e-11
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1456(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+-1.7868644269775539e-05
+-1.0108029051474806e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 5, implicit = 1, tcur = 0.0001029860256095084
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -156,7 +173,8 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 0.2499749863599196
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -172,7 +190,10 @@ Using dense direct linear solver
 -1.3012215100047188e-15
 3.1576701690002997e-15
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1504(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_5(:) =
+-2.1021934429794617e-05
+-1.1891797717486928e-02
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448703091064e+00
@@ -183,7 +204,7 @@ Using dense direct linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 62.64081825721642
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.742319852554314e-10
  1.029860256095084e-04    1.224744870309106e+00    1.732050195224277e+00    0.000000000000000e+00    0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, t_n = 0.0001029860256095084, h = 0.006451128913238251
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.0001029860256095084, h = 0.006451128913238251
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0001029860256095084
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247448703091064e+00
@@ -210,11 +231,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 16.05452507214864
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 1.129920641765477e-05
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -230,7 +253,10 @@ Using dense direct linear solver
 2.9667083773838898e-04
 -5.9873288270613230e-04
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1312(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+-6.7943604022255939e-04
+-3.8407293609244092e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 0.002244760824804608
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -244,11 +270,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 118.3454769917176
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 1.953618323509618e-05
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -264,7 +292,10 @@ Using dense direct linear solver
 4.0509690656551196e-07
 -4.3886732434035768e-07
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1360(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+-4.5820973189758177e-04
+-2.5915905637732384e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 0.004102685951817224
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -278,11 +309,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 396.1432178884001
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0.0002187086232103356
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -298,7 +331,10 @@ Using dense direct linear solver
 1.1075769930358795e-06
 -7.2549646736720538e-07
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1408(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+-8.3745637942210559e-04
+-4.7347138399883171e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 0.005586445601862022
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -312,11 +348,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 734.2942058683061
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0.0007520421592194119
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -332,7 +370,10 @@ Using dense direct linear solver
 3.0093311825797051e-06
 -2.0876531884634739e-06
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1456(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+-1.1403265134450578e-03
+-6.4439534652147978e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 5, implicit = 1, tcur = 0.00655411493884776
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -346,11 +387,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 1011.478964763825
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0.001424579352601338
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -366,7 +409,10 @@ Using dense direct linear solver
 -2.1363255745115990e-08
 4.2830034279925051e-08
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1504(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_5(:) =
+-1.3378483205559986e-03
+-7.5571990444177584e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247404871513676e+00
@@ -377,7 +423,7 @@ Using dense direct linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 0.5658959866197795
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.004100655316169613
  6.554114938847760e-03    1.224740487151368e+00    1.729572493235030e+00    2.654254593892347e-11    2.225244433162743e-10
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, t_n = 0.00655411493884776, h = 0.003650667961168346
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.00655411493884776, h = 0.003650667961168346
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.00655411493884776
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_0(:) =
 1.2247404871513676e+00
@@ -404,11 +450,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 564.0014806129656
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0.0003203746251509396
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -424,7 +472,10 @@ Using dense direct linear solver
 9.4740878326696616e-05
 -1.9097447425667612e-04
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1312(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1(:) =
+-1.7104372442686014e-03
+-9.6520241237757498e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 0.007766136701955651
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -438,11 +489,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 408.8942864970894
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0.0001318689853766368
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -458,7 +511,10 @@ Using dense direct linear solver
 1.1118492442866392e-07
 -1.5511496782376229e-07
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1360(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_2(:) =
+-1.5852480732880558e-03
+-8.9495219362911327e-01
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 0.008817529074772134
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -472,11 +528,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 819.5599166135717
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0.0005296666417807359
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -492,7 +550,10 @@ Using dense direct linear solver
 1.3162222103951659e-07
 6.8711811078490099e-09
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1408(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_3(:) =
+-1.7998590373553198e-03
+-1.0155198351526731e+00
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 0.009657182705840853
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -506,11 +567,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 1184.62805856745
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0.001106743799152199
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -526,7 +589,10 @@ Using dense direct linear solver
 4.1031927634032651e-07
 -1.0738999148623674e-07
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1456(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
+-1.9712491729398287e-03
+-1.1116455964561234e+00
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 5, implicit = 1, tcur = 0.01020478290001611
 [DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
@@ -540,11 +606,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 1, total-iters = 1, update-norm = 1440.490382360151
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = continue
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
-[DEBUG][rank 0][arkLsSolve][ls-stats] bnorm = 0, resnorm = 0, ls_iters = 0, prec_solves = 0
+[INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 0
+[INFO][rank 0][arkLsSolve][end-linear-solve] status = success, iters = 0, p-solves = 0, resnorm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0.001636494915150856
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [DEBUG][rank 0][arkStep_Nls][correction] zcor(:) =
@@ -560,7 +628,10 @@ Using dense direct linear solver
 8.2095520908622548e-09
 -1.6317850493869213e-08
 
-[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_1504(:) =
+[DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_5(:) =
+-2.0830245098250881e-03
+-1.1742522080968119e+00
+
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247342429104990e+00
