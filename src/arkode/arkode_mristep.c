@@ -1490,8 +1490,9 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     ark_mem->fn_is_current = SUNTRUE;
   }
 
-  SUNLogInfo(ARK_LOGGER, __func__, "begin-stage", "stage = 0, stage type = %d, tcur = %" RSYM,
-             MRISTAGE_ERK_NOFAST, ark_mem->tcur);
+  SUNLogInfo(ARK_LOGGER, __func__, "begin-stage",
+             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_ERK_NOFAST,
+             ark_mem->tcur);
   SUNLogExtraDebug(ARK_LOGGER, __func__, "slow stage",
                    "z_0(:) =", ark_mem->ycur, "");
   SUNLogExtraDebugVecIf(step_mem->explicit_rhs, ARK_LOGGER, __func__,

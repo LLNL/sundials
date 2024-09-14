@@ -3455,10 +3455,10 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   arkls_mem->last_flag = retval;
 
   SUNLogInfoIf(retval == SUN_SUCCESS, ARK_LOGGER, __func__, "end-linear-solve",
-               "status = success, iters = %i, p-solves = %i, resnorm = %.16g", nli_inc,
-               (int)(arkls_mem->nps - nps_inc), resnorm);
-  SUNLogInfoIf(retval != SUN_SUCCESS, ARK_LOGGER, __func__, "end-linear-solve",
-               "status = failed, retval = %i, iters = %i, p-solves = %i, resnorm = %.16g",
+               "status = success, iters = %i, p-solves = %i, resnorm = %.16g",
+               nli_inc, (int)(arkls_mem->nps - nps_inc), resnorm);
+  SUNLogInfoIf(retval != SUN_SUCCESS, ARK_LOGGER, __func__,
+               "end-linear-solve", "status = failed, retval = %i, iters = %i, p-solves = %i, resnorm = %.16g",
                retval, nli_inc, (int)(arkls_mem->nps - nps_inc), resnorm);
 
   switch (retval)
@@ -3809,7 +3809,8 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
   {
     delta = ZERO;
 
-    SUNLogInfo(ARK_LOGGER, __func__, "begin-mass-linear-solve", "iterative = 0", "");
+    SUNLogInfo(ARK_LOGGER, __func__, "begin-mass-linear-solve", "iterative = 0",
+               "");
   }
 
   /* Set initial guess x = 0 for LS */
@@ -3892,11 +3893,12 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
   arkls_mem->nli += nli_inc;
   if (retval != SUN_SUCCESS) { arkls_mem->ncfl++; }
 
-  SUNLogInfoIf(retval == SUN_SUCCESS, ARK_LOGGER, __func__, "end-mass-linear-solve",
-               "status = success, iters = %i, p-solves = %i, resnorm = %.16g", nli_inc,
-               (int)(arkls_mem->nps - nps_inc), resnorm);
-  SUNLogInfoIf(retval != SUN_SUCCESS, ARK_LOGGER, __func__, "end-mass-linear-solve",
-               "status = failed, retval = %i, iters = %i, p-solves = %i, resnorm = %.16g",
+  SUNLogInfoIf(retval == SUN_SUCCESS, ARK_LOGGER, __func__,
+               "end-mass-linear-solve",
+               "status = success, iters = %i, p-solves = %i, resnorm = %.16g",
+               nli_inc, (int)(arkls_mem->nps - nps_inc), resnorm);
+  SUNLogInfoIf(retval != SUN_SUCCESS, ARK_LOGGER, __func__,
+               "end-mass-linear-solve", "status = failed, retval = %i, iters = %i, p-solves = %i, resnorm = %.16g",
                retval, nli_inc, (int)(arkls_mem->nps - nps_inc), resnorm);
 
   /* Interpret solver return value  */
