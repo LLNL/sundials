@@ -1435,7 +1435,8 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
                N_Vector ypcur, N_Vector rescur)
 {
   IDALsMem idals_mem;
-  int nli_inc, retval;
+  int retval;
+  int nli_inc = 0;
   sunrealtype tol, w_mean;
 
   /* only used with logging */
