@@ -3895,10 +3895,10 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
 
   SUNLogInfoIf(retval == SUN_SUCCESS, ARK_LOGGER, __func__,
                "end-mass-linear-solve",
-               "status = success, iters = %i, p-solves = %i, resnorm = %.16g",
+               "status = success, iters = %i, p-solves = %i, res-norm = %.16g",
                nli_inc, (int)(arkls_mem->nps - nps_inc), resnorm);
   SUNLogInfoIf(retval != SUN_SUCCESS, ARK_LOGGER, __func__,
-               "end-mass-linear-solve", "status = failed, retval = %i, iters = %i, p-solves = %i, resnorm = %.16g",
+               "end-mass-linear-solve", "status = failed, retval = %i, iters = %i, p-solves = %i, res-norm = %.16g",
                retval, nli_inc, (int)(arkls_mem->nps - nps_inc), resnorm);
 
   /* Interpret solver return value  */
