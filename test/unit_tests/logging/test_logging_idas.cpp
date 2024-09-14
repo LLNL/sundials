@@ -38,7 +38,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-  cout << "Start IDA Logging test" << endl;
+  cout << "Start IDAS Logging test" << endl;
 
   // SUNDIALS context object for this simulation
   sundials::Context sunctx;
@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
   SUNLinSolFree(LS);
   IDAFree(&ida_mem);
 
-  cout << "End IDA Logging test" << endl;
+  cout << "End IDAS Logging test" << endl;
 
   return 0;
 }
