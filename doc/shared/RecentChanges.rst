@@ -15,6 +15,12 @@ backends with Trilinos. As such, Trilinos 14 or newer is required and the
 
 Example programs using *hypre* have been updated to support v2.20 and newer.
 
+The information level logging output in ARKODE, CVODE(S), and IDA(S) has been
+updated to be more uniform across the packages and a new ``tools`` directory
+has been added with a Python module, ``suntools``, containing utilities for
+parsing logging output. The Python utilities for parsing CSV output have been
+relocated from the ``scripts`` directory to the Python module.
+
 **Bug Fixes**
 
 Fixed c:func:`ARKodeResize` not using the default ``hscale`` when an argument of
