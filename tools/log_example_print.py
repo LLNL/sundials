@@ -26,14 +26,6 @@ def main():
     parser.add_argument('logfile', type=str,
                         help='Log file to print')
 
-    parser.add_argument('--step-range', type=int, nargs=2,
-                        default=None, metavar=('LOWER_BOUND', 'UPPER_BOUND'),
-                        help='Step range to print')
-
-    parser.add_argument('--time-range', type=float, nargs=2,
-                        default=None, metavar=('LOWER_BOUND', 'UPPER_BOUND'),
-                        help='Time range to print')
-
     # parse command line args
     args = parser.parse_args()
 
