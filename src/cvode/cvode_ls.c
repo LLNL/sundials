@@ -1649,6 +1649,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
 
   /* only used with logging */
   SUNDIALS_MAYBE_UNUSED long int nps_inc;
+  SUNDIALS_MAYBE_UNUSED sunrealtype resnorm;
 
   /* access CVLsMem structure */
   if (cv_mem->cv_lmem == NULL)
@@ -1781,9 +1782,11 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   }
 
   /* Retrieve statistics from iterative linear solvers */
+  resnorm = ZERO;
   nli_inc = 0;
   if (cvls_mem->iterative)
   {
+    if (cvls_mem->LS->ops->resnorm) resnorm = SUNLinSolResNorm(cvls_mem->LS);
     if (cvls_mem->LS->ops->numiters)
     {
       nli_inc = SUNLinSolNumIters(cvls_mem->LS);
@@ -1798,11 +1801,11 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   cvls_mem->last_flag = retval;
 
   SUNLogInfoIf(retval == SUN_SUCCESS, CV_LOGGER, __func__, "end-linear-solve",
-               "status = success, iters = %i, p-solves = %i", nli_inc,
-               (int)(cvls_mem->nps - nps_inc));
+               "status = success, iters = %i, p-solves = %i, resnorm = %.16g", nli_inc,
+               (int)(cvls_mem->nps - nps_inc), resnorm);
   SUNLogInfoIf(retval != SUN_SUCCESS, CV_LOGGER, __func__, "end-linear-solve",
-               "status = failed, retval = %i, iters = %i, p-solves = %i",
-               retval, nli_inc, (int)(cvls_mem->nps - nps_inc));
+               "status = failed, retval = %i, iters = %i, p-solves = %i, resnorm = %.16g",
+               retval, nli_inc, (int)(cvls_mem->nps - nps_inc), resnorm);
 
   switch (retval)
   {

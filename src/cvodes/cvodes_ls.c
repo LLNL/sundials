@@ -1725,10 +1725,10 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   sunrealtype deltar, delta, w_mean;
   int curiter, nli_inc, retval;
   sunbooleantype do_sensi_sim, do_sensi_stg, do_sensi_stg1;
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  sunrealtype resnorm;
-  long int nps_inc;
-#endif
+
+  /* only used with logging */
+  SUNDIALS_MAYBE_UNUSED long int nps_inc;
+  SUNDIALS_MAYBE_UNUSED sunrealtype resnorm;
 
   /* access CVLsMem structure */
   if (cv_mem->cv_lmem == NULL)
@@ -1766,16 +1766,30 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   {
     deltar = cvls_mem->eplifac * cv_mem->cv_tq[4];
     bnorm  = N_VWrmsNorm(b, weight);
+
+    SUNLogInfo(CV_LOGGER, __func__, "begin-linear-solve",
+               "iterative = 1, b-norm = %.16g, b-tol = %.16g, res-tol = %.16g",
+               bnorm, deltar, deltar * cvls_mem->nrmfac);
+
     if (bnorm <= deltar)
     {
       if (curiter > 0) { N_VConst(ZERO, b); }
       cvls_mem->last_flag = CVLS_SUCCESS;
+
+      SUNLogInfo(CV_LOGGER, __func__, "end-linear-solve",
+                 "status = success small rhs", "");
+
       return (cvls_mem->last_flag);
     }
     /* Adjust tolerance for 2-norm */
     delta = deltar * cvls_mem->nrmfac;
   }
-  else { delta = ZERO; }
+  else
+  {
+    delta = ZERO;
+
+    SUNLogInfo(CV_LOGGER, __func__, "begin-linear-solve", "iterative = 0", "");
+  }
 
   /* Set vectors ycur and fcur for use by the Atimes and Psolve
      interface routines */
@@ -1791,6 +1805,10 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
       cvProcessError(cv_mem, CVLS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                      "Error in calling SUNLinSolSetScalingVectors");
       cvls_mem->last_flag = CVLS_SUNLS_FAIL;
+
+      SUNLogInfo(CV_LOGGER, __func__, "end-linear-solve",
+                 "status = failed set scaling vectors", "");
+
       return (cvls_mem->last_flag);
     }
 
@@ -1821,12 +1839,15 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
-  if (retval != SUN_SUCCESS) { return (-1); }
+  if (retval != SUN_SUCCESS)
+  {
+    SUNLogInfo(CV_LOGGER, __func__, "end-linear-solve",
+               "status = failed set zero guess", "");
+    return (-1);
+  }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   /* Store previous nps value in nps_inc */
   nps_inc = cvls_mem->nps;
-#endif
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (cvls_mem->jtsetup)
@@ -1838,6 +1859,9 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
     {
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      MSG_LS_JTSETUP_FAILED);
+
+      SUNLogInfo(CV_LOGGER, __func__, "end-linear-solve",
+                 "status = failed J-times setup", "");
       return (cvls_mem->last_flag);
     }
   }
@@ -1854,15 +1878,11 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   }
 
   /* Retrieve statistics from iterative linear solvers */
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   resnorm = ZERO;
-#endif
   nli_inc = 0;
   if (cvls_mem->iterative)
   {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     if (cvls_mem->LS->ops->resnorm) resnorm = SUNLinSolResNorm(cvls_mem->LS);
-#endif
     if (cvls_mem->LS->ops->numiters)
     {
       nli_inc = SUNLinSolNumIters(cvls_mem->LS);
@@ -1876,10 +1896,12 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   /* Interpret solver return value  */
   cvls_mem->last_flag = retval;
 
-  SUNLogDebug(CV_LOGGER, __func__, "ls-stats",
-              "bnorm = %" RSYM ", resnorm = %" RSYM
-              ", ls_iters = %i, prec_solves = %i",
-              bnorm, resnorm, nli_inc, (int)(cvls_mem->nps - nps_inc));
+  SUNLogInfoIf(retval == SUN_SUCCESS, CV_LOGGER, __func__, "end-linear-solve",
+               "status = success, iters = %i, p-solves = %i, resnorm = %.16g", nli_inc,
+               (int)(cvls_mem->nps - nps_inc), resnorm);
+  SUNLogInfoIf(retval != SUN_SUCCESS, CV_LOGGER, __func__, "end-linear-solve",
+               "status = failed, retval = %i, iters = %i, p-solves = %i, resnorm = %.16g",
+               retval, nli_inc, (int)(cvls_mem->nps - nps_inc), resnorm);
 
   switch (retval)
   {
