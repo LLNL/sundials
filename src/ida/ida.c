@@ -2748,6 +2748,9 @@ static int IDANls(IDAMem IDA_mem)
     if (retval > 0) { return (IDA_NLS_SETUP_RECVR); }
   }
 
+  SUNLogInfo(IDA_LOGGER, __func__, "begin-nonlinear-solve", "tol = %.16g",
+             IDA_mem->ida_epsNewt);
+
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(IDA_mem->NLS, IDA_mem->ida_yypredict,
                              IDA_mem->ida_ee, IDA_mem->ida_ewt,
@@ -2760,17 +2763,22 @@ static int IDANls(IDAMem IDA_mem)
   (void)SUNNonlinSolGetNumConvFails(IDA_mem->NLS, &nnf_inc);
   IDA_mem->ida_nnf += nnf_inc;
 
-  SUNLogDebug(IDA_LOGGER, __func__, "nls-return",
-              "flag = %i, iters = %li, fails = %li", retval, nni_inc, nnf_inc);
-
   /* return if nonlinear solver failed */
-  if (retval != SUN_SUCCESS) { return (retval); }
+  if (retval != SUN_SUCCESS)
+  {
+    SUNLogInfo(IDA_LOGGER, __func__, "end-nonlinear-solve",
+               "status = failed, flag = %i, iters = %li", retval, nni_inc);
+    return (retval);
+  }
 
   /* update yy and yp based on the final correction from the nonlinear solver */
   N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee,
                IDA_mem->ida_yy);
   N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, IDA_mem->ida_ee,
                IDA_mem->ida_yp);
+
+  SUNLogInfo(IDA_LOGGER, __func__, "end-nonlinear-solve",
+             "status = success, iters = %li", nni_inc);
 
   /* If otherwise successful, check and enforce inequality constraints. */
 
