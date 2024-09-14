@@ -2028,8 +2028,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                             ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
       step_mem->nfe++;
 
-      SUNLogExtraDebug(ARK_LOGGER, __func__, "explicit RHS",
-                       "Fe_%i(:) =", step_mem->Fe[is], is);
+      SUNLogExtraDebugVec(ARK_LOGGER, __func__, "explicit RHS",
+                          "Fe_%i(:) =", step_mem->Fe[is], is);
       SUNLogInfoIf(retval != 0, ARK_LOGGER, __func__, "end-stage",
                    "status = failed explicit rhs eval, retval = %i", retval);
 
