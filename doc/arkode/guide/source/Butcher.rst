@@ -204,7 +204,7 @@ This is the default 2nd order explicit method
 .. math::
 
    \renewcommand{\arraystretch}{1.5}
-   \begin{array}{r|cc}
+   \begin{array}{r|ccc}
      0 & 0 & 0 & 0 \\
      \frac{2}{3} & \frac{2}{3} & 0 & 0 \\
      1 & \frac{1}{4} & \frac{3}{4} & 0 \\
