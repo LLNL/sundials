@@ -776,15 +776,29 @@ illustration only.
              options. See additional information on building with
              LAPACK enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
+.. cmakeoption:: BLAS_LIBRARIES
+
+   BLAS libraries
+
+   Default: none (CMake will try to find a BLAS installation)
+
+.. cmakeoption:: BLAS_LINKER_FLAGS
+
+   BLAS required linker flags
+
+   Default: none (CMake will try to determine the necessary flags)
+
 .. cmakeoption:: LAPACK_LIBRARIES
 
-   LAPACK (and BLAS) libraries
+   LAPACK libraries
 
-   Default: ``/usr/lib/liblapack.so;/usr/lib/libblas.so``
+   Default: none (CMake will try to find a LAPACK installation)
 
-   .. note:: CMake will search for libraries in your
-      ``LD_LIBRARY_PATH`` prior to searching default system
-      paths.
+.. cmakeoption:: LAPACK_LINKER_FLAGS
+
+   LAPACK required linker flags
+
+   Default: none (CMake will try to determine the necessary flags)
 
 .. cmakeoption:: ENABLE_MAGMA
 
@@ -1334,13 +1348,12 @@ path to the root of the Kokkos-Kernels installation in
 Building with LAPACK
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To enable LAPACK, set the ``ENABLE_LAPACK`` option to ``ON``.
-If the directory containing the LAPACK library is in the
-``LD_LIBRARY_PATH`` environment variable, CMake will set the
-``LAPACK_LIBRARIES`` variable accordingly, otherwise CMake will
-attempt to find the LAPACK library in standard system locations. To
-explicitly tell CMake what library to use, the ``LAPACK_LIBRARIES``
-variable can be set to the desired libraries required for LAPACK.
+To enable LAPACK, set the :cmakeop:`ENABLE_LAPACK` option to ``ON``. CMake will
+attempt to find BLAS and LAPACK installations on the system and set the
+variables :cmakeop:`BLAS_LIBRARIES`, :cmakeop:`BLAS_LINKER_FLAGS`,
+:cmakeop:`LAPACK_LIBRARIES`, and :cmakeop:`LAPACK_LINKER_FLAGS`. To explicitly
+specify the LAPACK library to build with, manually set the aforementioned
+variables to the desired values when configuring the build.
 
 .. code-block:: bash
 
@@ -1348,7 +1361,8 @@ variable can be set to the desired libraries required for LAPACK.
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
    > -DENABLE_LAPACK=ON \
-   > -DLAPACK_LIBRARIES=/mylapackpath/lib/libblas.so;/mylapackpath/lib/liblapack.so \
+   > -DBLAS_LIBRARIES=/mylapackpath/lib/libblas.so \
+   > -DLAPACK_LIBRARIES=/mylapackpath/lib/liblapack.so \
    > /home/myname/sundials/srcdir
 
    % make install
@@ -1362,7 +1376,7 @@ variable can be set to the desired libraries required for LAPACK.
    these options in earlier versions of SUNDIALS were ``lower`` and ``one``,
    respectively.
 
-SUNDIALS has been tested with OpenBLAS 0.3.18.
+SUNDIALS has been tested with OpenBLAS 0.3.27.
 
 
 .. _Installation.CMake.ExternalLibraries.KLU:
