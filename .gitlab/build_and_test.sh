@@ -118,6 +118,10 @@ then
 fi
 date
 
+# Reload the spack environment created by uberenv
+. ${prefix}/spack/share/spack/setup-env.sh
+spack load
+
 # Host config file
 if [[ -z ${hostconfig} ]]
 then
