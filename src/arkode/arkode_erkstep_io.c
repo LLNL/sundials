@@ -259,23 +259,42 @@ int erkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
 int erkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeERKStepMem step_mem;
-  int retval;
+  sunindextype Blrw, Bliw;
   long int lenrw, leniw;
+  int retval;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* Remove current SUNAdaptController object, and replace with "PI" */
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
+  /* Set default values for integrator optional inputs */
+  step_mem->q      = Q_DEFAULT;                  /* method order */
+  step_mem->p      = 0;                          /* embedding order */
+  step_mem->stages = 0;                          /* no stages */
+  ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
+  ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
+  ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
+
+  /* Remove pre-existing Butcher table */
+  if (step_mem->B)
   {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
+    ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+    ark_mem->liw -= Bliw;
+    ark_mem->lrw -= Blrw;
+    ARKodeButcherTable_Free(step_mem->B);
   }
+  step_mem->B = NULL;
+
+  /* Remove current SUNAdaptController object, and replace with "PI" */
   if (ark_mem->hadapt_mem->owncontroller)
   {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUN_SUCCESS)
@@ -302,13 +321,6 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
     ark_mem->lrw += lenrw;
   }
 
-  /* Set default values for integrator optional inputs
-     (overwrite some adaptivity params for ERKStep use) */
-  step_mem->q      = Q_DEFAULT;                  /* method order */
-  step_mem->p      = 0;                          /* embedding order */
-  step_mem->stages = 0;                          /* no stages */
-  step_mem->B      = NULL;                       /* no Butcher table */
-  /* TODO: add ERK-specific config here if needed */
   return (ARK_SUCCESS);
 }
 
