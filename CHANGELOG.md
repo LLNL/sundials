@@ -38,6 +38,10 @@ backends with Trilinos.  As such, Trilinos 14 or newer is required and the
 
 Example programs using *hypre* have been updated to support v2.20 and newer.
 
+The build system has been updated to utilize the CMake LAPACK imported target
+which should ease building SUNDIALS with LAPACK libraries that require setting
+specific linker flags e.g., MKL.
+
 ### Bug Fixes
 
 Fixed `ARKodeResize` not using the default `hscale` when an argument of `0` was

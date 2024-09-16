@@ -48,9 +48,8 @@ foreach(example_tuple ${sunlinsol_lapackband_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(
-      ${example} sundials_nvecserial sundials_sunmatrixband
-      sundials_sunlinsollapackband ${LAPACK_LIBRARIES} ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${example} sundials_nvecserial sundials_sunmatrixband
+                          sundials_sunlinsollapackband ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
