@@ -52,8 +52,7 @@ set(sundials_HEADERS
     sundials_stepper.h
     sundials_types_deprecated.h
     sundials_types.h
-    sundials_version.h
-  )
+    sundials_version.h)
 
 if(ENABLE_MPI)
   list(APPEND sundials_HEADERS sundials_mpi_errors.h)
@@ -80,28 +79,28 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 set(sundials_SOURCES
-  sundatanode/sundatanode_inmem.c
-  sundials_adaptcontroller.c
-  sundials_band.c
-  sundials_context.c
-  sundials_dense.c
-  sundials_datanode.c
-  sundials_direct.c
-  sundials_errors.c
-  sundials_futils.c
-  sundials_hashmap.c
-  sundials_iterative.c
-  sundials_linearsolver.c
-  sundials_logger.c
-  sundials_math.c
-  sundials_matrix.c
-  sundials_memory.c
-  sundials_nonlinearsolver.c
-  sundials_nvector_senswrapper.c
-  sundials_nvector.c
-  sundials_stepper.c
-  sundials_profiler.c
-  sundials_version.c
+    sundatanode/sundatanode_inmem.c
+    sundials_adaptcontroller.c
+    sundials_band.c
+    sundials_context.c
+    sundials_dense.c
+    sundials_datanode.c
+    sundials_direct.c
+    sundials_errors.c
+    sundials_futils.c
+    sundials_hashmap.c
+    sundials_iterative.c
+    sundials_linearsolver.c
+    sundials_logger.c
+    sundials_math.c
+    sundials_matrix.c
+    sundials_memory.c
+    sundials_nonlinearsolver.c
+    sundials_nvector_senswrapper.c
+    sundials_nvector.c
+    sundials_stepper.c
+    sundials_profiler.c
+    sundials_version.c
   )
 
 if(ENABLE_MPI)

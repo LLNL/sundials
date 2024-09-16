@@ -54,7 +54,7 @@ SUNErrCode SUNStepper_Destroy(SUNStepper* stepper_ptr)
   if (stepper->forcing)
   {
     N_VDestroyVectorArray(stepper->forcing, stepper->nforcing);
-    N_VDestroyVectorArray(stepper->fused_vectors, stepper->nforcing);
+    free(stepper->fused_vectors);
     free(stepper->fused_scalars);
   }
 

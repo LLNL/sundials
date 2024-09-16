@@ -3855,8 +3855,9 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
   ARKodeMem ark_mem         = NULL;
   ARKodeARKStepMem step_mem = NULL;
 
-  retval = arkStep_AccessStepMem(inner_arkode_mem,
-                                 "ARKStepCreateMRIStepInnerStepper", &step_mem);
+  retval = arkStep_AccessARKODEStepMem(inner_arkode_mem,
+                                       "ARKStepCreateMRIStepInnerStepper",
+                                       &ark_mem, &step_mem);
   if (retval)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
