@@ -2448,7 +2448,7 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
       itable = ARKSTEP_DEFAULT_ARK_ITABLE_5;
       break;
     default: /* no available method, set default */
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+      arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                       "No ImEx method at requested order, using q=5.");
       etable = ARKSTEP_DEFAULT_ARK_ETABLE_5;
       itable = ARKSTEP_DEFAULT_ARK_ITABLE_5;
@@ -2467,7 +2467,7 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
     case (4): itable = ARKSTEP_DEFAULT_DIRK_4; break;
     case (5): itable = ARKSTEP_DEFAULT_DIRK_5; break;
     default: /* no available method, set default */
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+      arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                       "No implicit method at requested order, using q=5.");
       itable = ARKSTEP_DEFAULT_DIRK_5;
       break;
@@ -2489,7 +2489,7 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
     case (8): etable = ARKSTEP_DEFAULT_ERK_8; break;
     case (9): etable = ARKSTEP_DEFAULT_ERK_9; break;
     default: /* no available method, set default */
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+      arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                       "No explicit method at requested order, using q=9.");
       etable = ARKSTEP_DEFAULT_ERK_9;
       break;

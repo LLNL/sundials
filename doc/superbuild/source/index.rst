@@ -178,6 +178,7 @@ SUNDIALS License and Notices
    sunmemory/index.rst
    History_link.rst
    Changelog_link.rst
+   FAQ_link.rst
 
 .. toctree::
    :caption: DEVELOPMENT
