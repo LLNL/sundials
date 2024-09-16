@@ -722,9 +722,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("CMAKE_C_COMPILER", spec["llvm-amdgpu"].prefix.bin.clang),
                     cmake_cache_path("CMAKE_CXX_COMPILER", spec["hip"].hipcc),
                     cmake_cache_path("HIP_PATH", spec["hip"].prefix),
-                    cmake_cache_path("HIP_DIR", "{0}/../share/cmake".format(spec["hip"].prefix)),
+                    cmake_cache_path("HIP_DIR", spec["hip"].prefix.cmake),
                     cmake_cache_path("HIP_CLANG_INCLUDE_PATH", spec["llvm-amdgpu"].prefix.include),
-                    cmake_cache_path("ROCM_PATH", spec["llvm-amdgpu"].prefix),
+                    cmake_cache_path("ROCM_PATH", spec["rocm-core"].prefix),
                     cmake_cache_string("AMDGPU_TARGETS", ";".join(spec.variants["amdgpu_target"].value))
                 ]
             )
