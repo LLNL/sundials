@@ -118,6 +118,9 @@ then
 fi
 date
 
+. spack/share/spack/setup-env.sh
+spack load
+
 # Host config file
 if [[ -z ${hostconfig} ]]
 then
