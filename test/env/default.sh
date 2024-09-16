@@ -187,9 +187,11 @@ if [ "$SUNDIALS_PRECISION" != "extended" ]; then
         LAPACK_ROOT="$(spack location -i openblas@0.3.27 +ilp64)"
     fi
     export LAPACK_LIBRARIES="${LAPACK_ROOT}/lib/libopenblas.so"
+    export BLAS_LIBRARIES="${LAPACK_LIBRARIES}"
 else
     export SUNDIALS_LAPACK=OFF
     unset LAPACK_LIBRARIES
+    unset BLAS_LIBRARIES
 fi
 
 # ---
