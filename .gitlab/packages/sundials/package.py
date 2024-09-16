@@ -183,9 +183,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
 
     # Scheduler
     variant(
-        "scheduler", 
-        default="slurm", 
-        description="Specify which scheduler the system runs on", 
+        "scheduler",
+        default="slurm",
+        description="Specify which scheduler the system runs on",
         values=("flux", "lsf", "slurm")
     )
 
@@ -194,9 +194,9 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
 
     # Profiling examples
     variant(
-        "profile-examples", 
-        default=False, 
-        when="+adiak +caliper", 
+        "profile-examples",
+        default=False,
+        when="+adiak +caliper",
         description="Build examples with profiling capabilities")
 
     # Caliper Directory
@@ -697,7 +697,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "srun"))
             if "scheduler=lsf" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "jsrun"))
-                
+
 
         return entries
 
@@ -722,6 +722,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                     cmake_cache_path("CMAKE_C_COMPILER", spec["llvm-amdgpu"].prefix.bin.clang),
                     cmake_cache_path("CMAKE_CXX_COMPILER", spec["hip"].hipcc),
                     cmake_cache_path("HIP_PATH", spec["hip"].prefix),
+                    cmake_cache_path("HIP_DIR", spec["hip"].prefix.share.cmake),
                     cmake_cache_path("HIP_CLANG_INCLUDE_PATH", spec["llvm-amdgpu"].prefix.include),
                     cmake_cache_path("ROCM_PATH", spec["llvm-amdgpu"].prefix),
                     cmake_cache_string("AMDGPU_TARGETS", ";".join(spec.variants["amdgpu_target"].value))
@@ -763,7 +764,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 self.cache_option_from_variant("SUNDIALS_TEST_PROFILE", "profile-examples"),
                 self.cache_option_from_variant("SUNDIALS_TEST_DEVTESTS", "profile-examples"),
                 cmake_cache_string("SPACK_VERSION", ".".join(map(str, spack.spack_version_info)))
-                
+
             ]
         )
 
@@ -799,7 +800,7 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         )
 
         # Building with Adiak
-        if "+adiak" in spec: 
+        if "+adiak" in spec:
             entries.append(cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak"))
 
         # Building with Caliper
