@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * SUNDataNode class definition. A SUNDataNode is a hirearchical
+ * SUNDataNode class definition. A SUNDataNode is a hierarchical
  * object that can hold arbitrary data in arbitrary storage locations.
  * The data may be held directly (a leaf node) or indirectly by
  * holding references to child nodes (list or object nodes). A

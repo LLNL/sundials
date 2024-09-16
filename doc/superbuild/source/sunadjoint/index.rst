@@ -21,8 +21,8 @@ Adjoint Sensitivity Analysis
 
 The ``SUNAdjoint`` API consists of a few customizable modules that provide a framework for adjoint
 sensitivity analysis (ASA). The API itself does not implement ASA, but it provides a common
-interface for ASA capabilties implemented in the SUNDIALS packages. Right now it supports :ref:`the
-ASA capabilties in ARKODE <ARKODE.Mathematics.ASA>`, while the ASA capabilities in :ref:`CVODES
+interface for ASA capabilities implemented in the SUNDIALS packages. Right now it supports :ref:`the
+ASA capabilities in ARKODE <ARKODE.Mathematics.ASA>`, while the ASA capabilities in :ref:`CVODES
 <CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` must be used directly.
 
 .. toctree::

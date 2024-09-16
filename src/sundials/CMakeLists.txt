@@ -100,8 +100,7 @@ set(sundials_SOURCES
     sundials_nvector.c
     sundials_stepper.c
     sundials_profiler.c
-    sundials_version.c
-  )
+    sundials_version.c)
 
 if(ENABLE_MPI)
   list(APPEND sundials_SOURCES sundials_mpi_errors.c)
@@ -111,9 +110,8 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
 
 if(ENABLE_MPI)
-  set(_link_mpi_if_needed PUBLIC
-    MPI::MPI_C
-    $<$<LINK_LANGUAGE:CXX>:MPI::MPI_CXX>)
+  set(_link_mpi_if_needed PUBLIC MPI::MPI_C
+                          $<$<LINK_LANGUAGE:CXX>:MPI::MPI_CXX>)
 endif()
 
 if(SUNDIALS_BUILD_WITH_PROFILING)

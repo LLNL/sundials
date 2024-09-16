@@ -11,11 +11,8 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(unit_tests
-  "test_sundials_errors\;"
-  "test_sundials_datanode\;"
-  "test_sundials_stlvector\;"
-  "test_sundials_hashmap\;")
+set(unit_tests "test_sundials_errors\;" "test_sundials_datanode\;"
+               "test_sundials_stlvector\;" "test_sundials_hashmap\;")
 
 # Add the build and install targets for each test
 if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
@@ -25,10 +22,10 @@ if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
     list(GET test_tuple 1 test_args)
 
     add_executable(${test} ${test}.cpp)
-    target_link_libraries(${test}
-      PRIVATE sundials_core sundials_nvecserial sundials_sunmemsys_obj GTest::gtest_main GTest::gmock)
+    target_link_libraries(
+      ${test} PRIVATE sundials_core sundials_nvecserial sundials_sunmemsys_obj
+                      GTest::gtest_main GTest::gmock)
 
     gtest_discover_tests(${test})
   endforeach()
 endif()
-

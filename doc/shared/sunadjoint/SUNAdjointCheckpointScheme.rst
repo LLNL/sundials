@@ -15,7 +15,7 @@
 The SUNAdjointCheckpointScheme API
 ==================================
 
-The :c:type:`SUNAdjointCheckpointScheme` base class provides an inteface for checkpointing
+The :c:type:`SUNAdjointCheckpointScheme` base class provides an interface for checkpointing
 states during forward integration and accessing them as needed during the backwards integration
 of the adjoint model.
 

@@ -11,8 +11,7 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(unit_tests
-  "test_sunadjointcheckpointscheme_basic\;")
+set(unit_tests "test_sunadjointcheckpointscheme_basic\;")
 
 # Add the build and install targets for each test
 if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
@@ -22,10 +21,10 @@ if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
     list(GET test_tuple 1 test_args)
 
     add_executable(${test} ${test}.cpp)
-    target_link_libraries(${test}
-      PRIVATE sundials_core sundials_adjoint sundials_nvecserial sundials_nvecmanyvector GTest::gtest_main GTest::gmock)
+    target_link_libraries(
+      ${test} PRIVATE sundials_core sundials_adjoint sundials_nvecserial
+                      sundials_nvecmanyvector GTest::gtest_main GTest::gmock)
 
     gtest_discover_tests(${test})
   endforeach()
 endif()
-

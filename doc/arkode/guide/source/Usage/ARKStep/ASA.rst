@@ -3,7 +3,7 @@
 Adjoint Sensitivity Analysis
 ============================
 
-The previous sections discuss using ARKStep for the intergation of forward ODE models.
+The previous sections discuss using ARKStep for the integration of forward ODE models.
 This section discusses how to use ARKStep for adjoint sensitivity analysis as introduced
 in :numref:`ARKODE.Mathematics.ASA`. To use ARKStep for ASA, users simply setup the forward
 integration as usual (following :numref:`ARKODE.Usage.Skeleton`) with one exception:

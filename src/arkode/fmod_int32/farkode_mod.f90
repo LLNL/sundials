@@ -160,6 +160,19 @@ module farkode_mod
  public :: FARKodeSetMinStep
  public :: FARKodeSetMaxStep
  public :: FARKodeSetMaxNumConstrFails
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
+ type, public :: SWIGTYPE_p_SUNAdjointCheckpointScheme
+  type(SwigClassWrapper), public :: swigdata
+ end type
+ public :: FARKodeSetAdjointCheckpointScheme
+ public :: FARKodeSetAdjointCheckpointIndex
  public :: FARKodeEvolve
  public :: FARKodeGetDky
  public :: FARKodeComputeState
@@ -247,14 +260,6 @@ module farkode_mod
  public :: FARKBBDPrecReInit
  public :: FARKBBDPrecGetWorkSpace
  public :: FARKBBDPrecGetNumGfnEvals
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
  ! struct struct ARKodeButcherTableMem
  type, public :: ARKodeButcherTableMem
   type(SwigClassWrapper), public :: swigdata
@@ -983,6 +988,25 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetAdjointCheckpointScheme") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(C_PTR), value :: farg1
+type(SwigClassWrapper) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetAdjointCheckpointIndex") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_LONG), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -3312,6 +3336,38 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = maxfails
 fresult = swigc_FARKodeSetMaxNumConstrFails(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(SWIGTYPE_p_SUNAdjointCheckpointScheme), intent(in) :: checkpoint_scheme
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg2 
+
+farg1 = arkode_mem
+farg2 = checkpoint_scheme%swigdata
+fresult = swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetAdjointCheckpointIndex(arkode_mem, step_index) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), intent(in) :: step_index
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_LONG) :: farg2 
+
+farg1 = arkode_mem
+farg2 = step_index
+fresult = swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2)
 swig_result = fresult
 end function
 

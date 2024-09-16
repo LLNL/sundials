@@ -17,7 +17,7 @@
   * The initial condition is u(t_0) = 1.0 and we use the parameters
   * p  = [1.5, 1.0, 3.0, 1.0]. The integration interval is t \in [0, 10.].
   * The implicit BDF method from CVODES is used to solve the forward problem.
-  * Afterwards, the continuous adjoint sensitivity analysis capabilites of CVODES
+  * Afterwards, the continuous adjoint sensitivity analysis capabilities of CVODES
   * are used to obtain the gradient of the cost function,
   *
   *    g(u(t_f), p) = (sum(u)^2) / 2
@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 
   /* Call CVodeQuadInitB to allocate internal memory and initialize backward
-     quadrature integration. This gives the sensitivites w.r.t. the parameters. */
+     quadrature integration. This gives the sensitivities w.r.t. the parameters. */
   retval = CVodeQuadInitB(cvode_mem, which, quad_rhs, qB);
   if (check_retval(&retval, "CVodeQuadInitB", 1)) { return (1); }
 

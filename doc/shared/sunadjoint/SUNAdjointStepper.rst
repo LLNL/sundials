@@ -189,7 +189,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 .. c:function:: SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_stepper, SUNJacFn JacFn, \
       SUNMatrix Jac, SUNJacFn JacPFn, SUNMatrix JacP)
 
-   Sets the function pointers and matrices needed to evluate and store :math:`df/dy` and
+   Sets the function pointers and matrices needed to evaluate and store :math:`df/dy` and
    :math:`df/dp`. ``Jac`` should have dimensions ``neq x neq`` where ``neq`` is the number of states
    in the forward problem. ``JacP`` should have dimensions ``nparams x neq`` where ``nparams`` is the
    number of parameters in the model to get sensitivities for.

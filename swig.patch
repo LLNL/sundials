@@ -1,0 +1,1036 @@
+diff --git a/src/arkode/fmod_int32/farkode_arkstep_mod.c b/src/arkode/fmod_int32/farkode_arkstep_mod.c
+index 587e4a9..8010f61 100644
+--- a/src/arkode/fmod_int32/farkode_arkstep_mod.c
++++ b/src/arkode/fmod_int32/farkode_arkstep_mod.c
+@@ -2488,6 +2488,23 @@ SWIGEXPORT void _wrap_FARKStepPrintMem(void *farg1, void *farg2) {
+ }
+ 
+ 
++SWIGEXPORT int _wrap_FARKStepCreateAdjointStepper(void *farg1, N_Vector farg2, SwigClassWrapper const *farg3) {
++  int fresult ;
++  void *arg1 = (void *) 0 ;
++  N_Vector arg2 = (N_Vector) 0 ;
++  SUNAdjointStepper *arg3 = (SUNAdjointStepper *) 0 ;
++  int result;
++  
++  arg1 = (void *)(farg1);
++  arg2 = (N_Vector)(farg2);
++  SWIG_check_mutable(*farg3, "SUNAdjointStepper *", "SWIGTYPE_p_SUNAdjointStepper", "ARKStepCreateAdjointStepper(void *,N_Vector,SUNAdjointStepper *)", return 0);
++  arg3 = (SUNAdjointStepper *)(farg3->cptr);
++  result = (int)ARKStepCreateAdjointStepper(arg1,arg2,arg3);
++  fresult = (int)(result);
++  return fresult;
++}
++
++
+ SWIGEXPORT int _wrap_FARKStepSetRelaxFn(void *farg1, ARKRelaxFn farg2, ARKRelaxJacFn farg3) {
+   int fresult ;
+   void *arg1 = (void *) 0 ;
+diff --git a/src/arkode/fmod_int32/farkode_arkstep_mod.f90 b/src/arkode/fmod_int32/farkode_arkstep_mod.f90
+index 356c547..02c6e85 100644
+--- a/src/arkode/fmod_int32/farkode_arkstep_mod.f90
++++ b/src/arkode/fmod_int32/farkode_arkstep_mod.f90
+@@ -215,6 +215,10 @@ module farkode_arkstep_mod
+  public :: FARKStepGetLinReturnFlagName
+  public :: FARKStepFree
+  public :: FARKStepPrintMem
++ type, public :: SWIGTYPE_p_SUNAdjointStepper
++  type(SwigClassWrapper), public :: swigdata
++ end type
++ public :: FARKStepCreateAdjointStepper
+  public :: FARKStepSetRelaxFn
+  public :: FARKStepSetRelaxEtaFail
+  public :: FARKStepSetRelaxLowerBound
+@@ -1657,6 +1661,17 @@ type(C_PTR), value :: farg1
+ type(C_PTR), value :: farg2
+ end subroutine
+ 
++function swigc_FARKStepCreateAdjointStepper(farg1, farg2, farg3) &
++bind(C, name="_wrap_FARKStepCreateAdjointStepper") &
++result(fresult)
++use, intrinsic :: ISO_C_BINDING
++import :: swigclasswrapper
++type(C_PTR), value :: farg1
++type(C_PTR), value :: farg2
++type(SwigClassWrapper) :: farg3
++integer(C_INT) :: fresult
++end function
++
+ function swigc_FARKStepSetRelaxFn(farg1, farg2, farg3) &
+ bind(C, name="_wrap_FARKStepSetRelaxFn") &
+ result(fresult)
+@@ -4413,6 +4428,25 @@ farg2 = outfile
+ call swigc_FARKStepPrintMem(farg1, farg2)
+ end subroutine
+ 
++function FARKStepCreateAdjointStepper(arkode_mem, sf, adj_stepper_ptr) &
++result(swig_result)
++use, intrinsic :: ISO_C_BINDING
++integer(C_INT) :: swig_result
++type(C_PTR) :: arkode_mem
++type(N_Vector), target, intent(inout) :: sf
++class(SWIGTYPE_p_SUNAdjointStepper), intent(in) :: adj_stepper_ptr
++integer(C_INT) :: fresult 
++type(C_PTR) :: farg1 
++type(C_PTR) :: farg2 
++type(SwigClassWrapper) :: farg3 
++
++farg1 = arkode_mem
++farg2 = c_loc(sf)
++farg3 = adj_stepper_ptr%swigdata
++fresult = swigc_FARKStepCreateAdjointStepper(farg1, farg2, farg3)
++swig_result = fresult
++end function
++
+ function FARKStepSetRelaxFn(arkode_mem, rfn, rjac) &
+ result(swig_result)
+ use, intrinsic :: ISO_C_BINDING
+diff --git a/src/arkode/fmod_int32/farkode_mod.c b/src/arkode/fmod_int32/farkode_mod.c
+index 1423d2e..bae8bd4 100644
+--- a/src/arkode/fmod_int32/farkode_mod.c
++++ b/src/arkode/fmod_int32/farkode_mod.c
+@@ -185,6 +185,14 @@ enum {
+ };
+ 
+ 
++#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
++  if (!(SWIG_CLASS_WRAPPER).cptr) { \
++    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
++                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
++                        "as a reference", RETURNNULL); \
++  }
++
++
+ #define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+     if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
+         SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+@@ -194,14 +202,6 @@ enum {
+     }
+ 
+ 
+-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
+-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
+-                        "as a reference", RETURNNULL); \
+-  }
+-
+-
+ #define SWIG_check_mutable_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+     SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL); \
+     SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL);
+@@ -242,6 +242,20 @@ enum {
+ #include "arkode/arkode_ls.h"
+ 
+ 
++typedef struct {
++    void* cptr;
++    int cmemflags;
++} SwigClassWrapper;
++
++
++SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
++    SwigClassWrapper result;
++    result.cptr = NULL;
++    result.cmemflags = 0;
++    return result;
++}
++
++
+ #include <stdlib.h>
+ #ifdef _MSC_VER
+ # ifndef strtoull
+@@ -270,20 +284,6 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
+ #include <string.h>
+ 
+ 
+-typedef struct {
+-    void* cptr;
+-    int cmemflags;
+-} SwigClassWrapper;
+-
+-
+-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+-    SwigClassWrapper result;
+-    result.cptr = NULL;
+-    result.cmemflags = 0;
+-    return result;
+-}
+-
+-
+ SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
+   if (self->cptr == NULL) {
+     /* LHS is unassigned */
+@@ -1139,6 +1139,35 @@ SWIGEXPORT int _wrap_FARKodeSetMaxNumConstrFails(void *farg1, int const *farg2)
+ }
+ 
+ 
++SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointScheme(void *farg1, SwigClassWrapper const *farg2) {
++  int fresult ;
++  void *arg1 = (void *) 0 ;
++  SUNAdjointCheckpointScheme arg2 ;
++  int result;
++  
++  arg1 = (void *)(farg1);
++  SWIG_check_nonnull(*farg2, "SUNAdjointCheckpointScheme", "SWIGTYPE_p_SUNAdjointCheckpointScheme", "ARKodeSetAdjointCheckpointScheme(void *,SUNAdjointCheckpointScheme)", return 0);
++  arg2 = *(SUNAdjointCheckpointScheme *)(farg2->cptr);
++  result = (int)ARKodeSetAdjointCheckpointScheme(arg1,arg2);
++  fresult = (int)(result);
++  return fresult;
++}
++
++
++SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointIndex(void *farg1, long const *farg2) {
++  int fresult ;
++  void *arg1 = (void *) 0 ;
++  long arg2 ;
++  int result;
++  
++  arg1 = (void *)(farg1);
++  arg2 = (long)(*farg2);
++  result = (int)ARKodeSetAdjointCheckpointIndex(arg1,arg2);
++  fresult = (int)(result);
++  return fresult;
++}
++
++
+ SWIGEXPORT int _wrap_FARKodeEvolve(void *farg1, double const *farg2, N_Vector farg3, double *farg4, int const *farg5) {
+   int fresult ;
+   void *arg1 = (void *) 0 ;
+diff --git a/src/arkode/fmod_int32/farkode_mod.f90 b/src/arkode/fmod_int32/farkode_mod.f90
+index 366867f..382852c 100644
+--- a/src/arkode/fmod_int32/farkode_mod.f90
++++ b/src/arkode/fmod_int32/farkode_mod.f90
+@@ -160,6 +160,19 @@ module farkode_mod
+  public :: FARKodeSetMinStep
+  public :: FARKodeSetMaxStep
+  public :: FARKodeSetMaxNumConstrFails
++
++ integer, parameter :: swig_cmem_own_bit = 0
++ integer, parameter :: swig_cmem_rvalue_bit = 1
++ integer, parameter :: swig_cmem_const_bit = 2
++ type, bind(C) :: SwigClassWrapper
++  type(C_PTR), public :: cptr = C_NULL_PTR
++  integer(C_INT), public :: cmemflags = 0
++ end type
++ type, public :: SWIGTYPE_p_SUNAdjointCheckpointScheme
++  type(SwigClassWrapper), public :: swigdata
++ end type
++ public :: FARKodeSetAdjointCheckpointScheme
++ public :: FARKodeSetAdjointCheckpointIndex
+  public :: FARKodeEvolve
+  public :: FARKodeGetDky
+  public :: FARKodeComputeState
+@@ -247,14 +260,6 @@ module farkode_mod
+  public :: FARKBBDPrecReInit
+  public :: FARKBBDPrecGetWorkSpace
+  public :: FARKBBDPrecGetNumGfnEvals
+-
+- integer, parameter :: swig_cmem_own_bit = 0
+- integer, parameter :: swig_cmem_rvalue_bit = 1
+- integer, parameter :: swig_cmem_const_bit = 2
+- type, bind(C) :: SwigClassWrapper
+-  type(C_PTR), public :: cptr = C_NULL_PTR
+-  integer(C_INT), public :: cmemflags = 0
+- end type
+  ! struct struct ARKodeButcherTableMem
+  type, public :: ARKodeButcherTableMem
+   type(SwigClassWrapper), public :: swigdata
+@@ -986,6 +991,25 @@ integer(C_INT), intent(in) :: farg2
+ integer(C_INT) :: fresult
+ end function
+ 
++function swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2) &
++bind(C, name="_wrap_FARKodeSetAdjointCheckpointScheme") &
++result(fresult)
++use, intrinsic :: ISO_C_BINDING
++import :: swigclasswrapper
++type(C_PTR), value :: farg1
++type(SwigClassWrapper) :: farg2
++integer(C_INT) :: fresult
++end function
++
++function swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2) &
++bind(C, name="_wrap_FARKodeSetAdjointCheckpointIndex") &
++result(fresult)
++use, intrinsic :: ISO_C_BINDING
++type(C_PTR), value :: farg1
++integer(C_LONG), intent(in) :: farg2
++integer(C_INT) :: fresult
++end function
++
+ function swigc_FARKodeEvolve(farg1, farg2, farg3, farg4, farg5) &
+ bind(C, name="_wrap_FARKodeEvolve") &
+ result(fresult)
+@@ -3315,6 +3339,38 @@ fresult = swigc_FARKodeSetMaxNumConstrFails(farg1, farg2)
+ swig_result = fresult
+ end function
+ 
++function FARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme) &
++result(swig_result)
++use, intrinsic :: ISO_C_BINDING
++integer(C_INT) :: swig_result
++type(C_PTR) :: arkode_mem
++type(SWIGTYPE_p_SUNAdjointCheckpointScheme), intent(in) :: checkpoint_scheme
++integer(C_INT) :: fresult 
++type(C_PTR) :: farg1 
++type(SwigClassWrapper) :: farg2 
++
++farg1 = arkode_mem
++farg2 = checkpoint_scheme%swigdata
++fresult = swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2)
++swig_result = fresult
++end function
++
++function FARKodeSetAdjointCheckpointIndex(arkode_mem, step_index) &
++result(swig_result)
++use, intrinsic :: ISO_C_BINDING
++integer(C_INT) :: swig_result
++type(C_PTR) :: arkode_mem
++integer(C_LONG), intent(in) :: step_index
++integer(C_INT) :: fresult 
++type(C_PTR) :: farg1 
++integer(C_LONG) :: farg2 
++
++farg1 = arkode_mem
++farg2 = step_index
++fresult = swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2)
++swig_result = fresult
++end function
++
+ function FARKodeEvolve(arkode_mem, tout, yout, tret, itask) &
+ result(swig_result)
+ use, intrinsic :: ISO_C_BINDING
+diff --git a/src/arkode/fmod_int64/farkode_arkstep_mod.c b/src/arkode/fmod_int64/farkode_arkstep_mod.c
+index 587e4a9..8010f61 100644
+--- a/src/arkode/fmod_int64/farkode_arkstep_mod.c
++++ b/src/arkode/fmod_int64/farkode_arkstep_mod.c
+@@ -2488,6 +2488,23 @@ SWIGEXPORT void _wrap_FARKStepPrintMem(void *farg1, void *farg2) {
+ }
+ 
+ 
++SWIGEXPORT int _wrap_FARKStepCreateAdjointStepper(void *farg1, N_Vector farg2, SwigClassWrapper const *farg3) {
++  int fresult ;
++  void *arg1 = (void *) 0 ;
++  N_Vector arg2 = (N_Vector) 0 ;
++  SUNAdjointStepper *arg3 = (SUNAdjointStepper *) 0 ;
++  int result;
++  
++  arg1 = (void *)(farg1);
++  arg2 = (N_Vector)(farg2);
++  SWIG_check_mutable(*farg3, "SUNAdjointStepper *", "SWIGTYPE_p_SUNAdjointStepper", "ARKStepCreateAdjointStepper(void *,N_Vector,SUNAdjointStepper *)", return 0);
++  arg3 = (SUNAdjointStepper *)(farg3->cptr);
++  result = (int)ARKStepCreateAdjointStepper(arg1,arg2,arg3);
++  fresult = (int)(result);
++  return fresult;
++}
++
++
+ SWIGEXPORT int _wrap_FARKStepSetRelaxFn(void *farg1, ARKRelaxFn farg2, ARKRelaxJacFn farg3) {
+   int fresult ;
+   void *arg1 = (void *) 0 ;
+diff --git a/src/arkode/fmod_int64/farkode_arkstep_mod.f90 b/src/arkode/fmod_int64/farkode_arkstep_mod.f90
+index 356c547..02c6e85 100644
+--- a/src/arkode/fmod_int64/farkode_arkstep_mod.f90
++++ b/src/arkode/fmod_int64/farkode_arkstep_mod.f90
+@@ -215,6 +215,10 @@ module farkode_arkstep_mod
+  public :: FARKStepGetLinReturnFlagName
+  public :: FARKStepFree
+  public :: FARKStepPrintMem
++ type, public :: SWIGTYPE_p_SUNAdjointStepper
++  type(SwigClassWrapper), public :: swigdata
++ end type
++ public :: FARKStepCreateAdjointStepper
+  public :: FARKStepSetRelaxFn
+  public :: FARKStepSetRelaxEtaFail
+  public :: FARKStepSetRelaxLowerBound
+@@ -1657,6 +1661,17 @@ type(C_PTR), value :: farg1
+ type(C_PTR), value :: farg2
+ end subroutine
+ 
++function swigc_FARKStepCreateAdjointStepper(farg1, farg2, farg3) &
++bind(C, name="_wrap_FARKStepCreateAdjointStepper") &
++result(fresult)
++use, intrinsic :: ISO_C_BINDING
++import :: swigclasswrapper
++type(C_PTR), value :: farg1
++type(C_PTR), value :: farg2
++type(SwigClassWrapper) :: farg3
++integer(C_INT) :: fresult
++end function
++
+ function swigc_FARKStepSetRelaxFn(farg1, farg2, farg3) &
+ bind(C, name="_wrap_FARKStepSetRelaxFn") &
+ result(fresult)
+@@ -4413,6 +4428,25 @@ farg2 = outfile
+ call swigc_FARKStepPrintMem(farg1, farg2)
+ end subroutine
+ 
++function FARKStepCreateAdjointStepper(arkode_mem, sf, adj_stepper_ptr) &
++result(swig_result)
++use, intrinsic :: ISO_C_BINDING
++integer(C_INT) :: swig_result
++type(C_PTR) :: arkode_mem
++type(N_Vector), target, intent(inout) :: sf
++class(SWIGTYPE_p_SUNAdjointStepper), intent(in) :: adj_stepper_ptr
++integer(C_INT) :: fresult 
++type(C_PTR) :: farg1 
++type(C_PTR) :: farg2 
++type(SwigClassWrapper) :: farg3 
++
++farg1 = arkode_mem
++farg2 = c_loc(sf)
++farg3 = adj_stepper_ptr%swigdata
++fresult = swigc_FARKStepCreateAdjointStepper(farg1, farg2, farg3)
++swig_result = fresult
++end function
++
+ function FARKStepSetRelaxFn(arkode_mem, rfn, rjac) &
+ result(swig_result)
+ use, intrinsic :: ISO_C_BINDING
+diff --git a/src/arkode/fmod_int64/farkode_mod.c b/src/arkode/fmod_int64/farkode_mod.c
+index 7b2c3c9..28d8602 100644
+--- a/src/arkode/fmod_int64/farkode_mod.c
++++ b/src/arkode/fmod_int64/farkode_mod.c
+@@ -185,6 +185,14 @@ enum {
+ };
+ 
+ 
++#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
++  if (!(SWIG_CLASS_WRAPPER).cptr) { \
++    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
++                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
++                        "as a reference", RETURNNULL); \
++  }
++
++
+ #define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+     if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
+         SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+@@ -194,14 +202,6 @@ enum {
+     }
+ 
+ 
+-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
+-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
+-                        "as a reference", RETURNNULL); \
+-  }
+-
+-
+ #define SWIG_check_mutable_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+     SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL); \
+     SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL);
+@@ -242,6 +242,20 @@ enum {
+ #include "arkode/arkode_ls.h"
+ 
+ 
++typedef struct {
++    void* cptr;
++    int cmemflags;
++} SwigClassWrapper;
++
++
++SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
++    SwigClassWrapper result;
++    result.cptr = NULL;
++    result.cmemflags = 0;
++    return result;
++}
++
++
+ #include <stdlib.h>
+ #ifdef _MSC_VER
+ # ifndef strtoull
+@@ -270,20 +284,6 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
+ #include <string.h>
+ 
+ 
+-typedef struct {
+-    void* cptr;
+-    int cmemflags;
+-} SwigClassWrapper;
+-
+-
+-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+-    SwigClassWrapper result;
+-    result.cptr = NULL;
+-    result.cmemflags = 0;
+-    return result;
+-}
+-
+-
+ SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
+   if (self->cptr == NULL) {
+     /* LHS is unassigned */
+@@ -1139,6 +1139,35 @@ SWIGEXPORT int _wrap_FARKodeSetMaxNumConstrFails(void *farg1, int const *farg2)
+ }
+ 
+ 
++SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointScheme(void *farg1, SwigClassWrapper const *farg2) {
++  int fresult ;
++  void *arg1 = (void *) 0 ;
++  SUNAdjointCheckpointScheme arg2 ;
++  int result;
++  
++  arg1 = (void *)(farg1);
++  SWIG_check_nonnull(*farg2, "SUNAdjointCheckpointScheme", "SWIGTYPE_p_SUNAdjointCheckpointScheme", "ARKodeSetAdjointCheckpointScheme(void *,SUNAdjointCheckpointScheme)", return 0);
++  arg2 = *(SUNAdjointCheckpointScheme *)(farg2->cptr);
++  result = (int)ARKodeSetAdjointCheckpointScheme(arg1,arg2);
++  fresult = (int)(result);
++  return fresult;
++}
++
++
++SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointIndex(void *farg1, long const *farg2) {
++  int fresult ;
++  void *arg1 = (void *) 0 ;
++  long arg2 ;
++  int result;
++  
++  arg1 = (void *)(farg1);
++  arg2 = (long)(*farg2);
++  result = (int)ARKodeSetAdjointCheckpointIndex(arg1,arg2);
++  fresult = (int)(result);
++  return fresult;
++}
++
++
+ SWIGEXPORT int _wrap_FARKodeEvolve(void *farg1, double const *farg2, N_Vector farg3, double *farg4, int const *farg5) {
+   int fresult ;
+   void *arg1 = (void *) 0 ;
+diff --git a/src/arkode/fmod_int64/farkode_mod.f90 b/src/arkode/fmod_int64/farkode_mod.f90
+index e627472..b650eb9 100644
+--- a/src/arkode/fmod_int64/farkode_mod.f90
++++ b/src/arkode/fmod_int64/farkode_mod.f90
+@@ -160,6 +160,19 @@ module farkode_mod
+  public :: FARKodeSetMinStep
+  public :: FARKodeSetMaxStep
+  public :: FARKodeSetMaxNumConstrFails
++
++ integer, parameter :: swig_cmem_own_bit = 0
++ integer, parameter :: swig_cmem_rvalue_bit = 1
++ integer, parameter :: swig_cmem_const_bit = 2
++ type, bind(C) :: SwigClassWrapper
++  type(C_PTR), public :: cptr = C_NULL_PTR
++  integer(C_INT), public :: cmemflags = 0
++ end type
++ type, public :: SWIGTYPE_p_SUNAdjointCheckpointScheme
++  type(SwigClassWrapper), public :: swigdata
++ end type
++ public :: FARKodeSetAdjointCheckpointScheme
++ public :: FARKodeSetAdjointCheckpointIndex
+  public :: FARKodeEvolve
+  public :: FARKodeGetDky
+  public :: FARKodeComputeState
+@@ -247,14 +260,6 @@ module farkode_mod
+  public :: FARKBBDPrecReInit
+  public :: FARKBBDPrecGetWorkSpace
+  public :: FARKBBDPrecGetNumGfnEvals
+-
+- integer, parameter :: swig_cmem_own_bit = 0
+- integer, parameter :: swig_cmem_rvalue_bit = 1
+- integer, parameter :: swig_cmem_const_bit = 2
+- type, bind(C) :: SwigClassWrapper
+-  type(C_PTR), public :: cptr = C_NULL_PTR
+-  integer(C_INT), public :: cmemflags = 0
+- end type
+  ! struct struct ARKodeButcherTableMem
+  type, public :: ARKodeButcherTableMem
+   type(SwigClassWrapper), public :: swigdata
+@@ -986,6 +991,25 @@ integer(C_INT), intent(in) :: farg2
+ integer(C_INT) :: fresult
+ end function
+ 
++function swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2) &
++bind(C, name="_wrap_FARKodeSetAdjointCheckpointScheme") &
++result(fresult)
++use, intrinsic :: ISO_C_BINDING
++import :: swigclasswrapper
++type(C_PTR), value :: farg1
++type(SwigClassWrapper) :: farg2
++integer(C_INT) :: fresult
++end function
++
++function swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2) &
++bind(C, name="_wrap_FARKodeSetAdjointCheckpointIndex") &
++result(fresult)
++use, intrinsic :: ISO_C_BINDING
++type(C_PTR), value :: farg1
++integer(C_LONG), intent(in) :: farg2
++integer(C_INT) :: fresult
++end function
++
+ function swigc_FARKodeEvolve(farg1, farg2, farg3, farg4, farg5) &
+ bind(C, name="_wrap_FARKodeEvolve") &
+ result(fresult)
+@@ -3315,6 +3339,38 @@ fresult = swigc_FARKodeSetMaxNumConstrFails(farg1, farg2)
+ swig_result = fresult
+ end function
+ 
++function FARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme) &
++result(swig_result)
++use, intrinsic :: ISO_C_BINDING
++integer(C_INT) :: swig_result
++type(C_PTR) :: arkode_mem
++type(SWIGTYPE_p_SUNAdjointCheckpointScheme), intent(in) :: checkpoint_scheme
++integer(C_INT) :: fresult 
++type(C_PTR) :: farg1 
++type(SwigClassWrapper) :: farg2 
++
++farg1 = arkode_mem
++farg2 = checkpoint_scheme%swigdata
++fresult = swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2)
++swig_result = fresult
++end function
++
++function FARKodeSetAdjointCheckpointIndex(arkode_mem, step_index) &
++result(swig_result)
++use, intrinsic :: ISO_C_BINDING
++integer(C_INT) :: swig_result
++type(C_PTR) :: arkode_mem
++integer(C_LONG), intent(in) :: step_index
++integer(C_INT) :: fresult 
++type(C_PTR) :: farg1 
++integer(C_LONG) :: farg2 
++
++farg1 = arkode_mem
++farg2 = step_index
++fresult = swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2)
++swig_result = fresult
++end function
++
+ function FARKodeEvolve(arkode_mem, tout, yout, tret, itask) &
+ result(swig_result)
+ use, intrinsic :: ISO_C_BINDING
+diff --git a/src/sundials/fmod_int32/fsundials_core_mod.c b/src/sundials/fmod_int32/fsundials_core_mod.c
+index 62e0215..eaef229 100644
+--- a/src/sundials/fmod_int32/fsundials_core_mod.c
++++ b/src/sundials/fmod_int32/fsundials_core_mod.c
+@@ -1825,6 +1825,22 @@ SWIGEXPORT int _wrap_FSUNMatMatvec(SUNMatrix farg1, N_Vector farg2, N_Vector far
+ }
+ 
+ 
++SWIGEXPORT int _wrap_FSUNMatMatvecTranspose(SUNMatrix farg1, N_Vector farg2, N_Vector farg3) {
++  int fresult ;
++  SUNMatrix arg1 = (SUNMatrix) 0 ;
++  N_Vector arg2 = (N_Vector) 0 ;
++  N_Vector arg3 = (N_Vector) 0 ;
++  SUNErrCode result;
++  
++  arg1 = (SUNMatrix)(farg1);
++  arg2 = (N_Vector)(farg2);
++  arg3 = (N_Vector)(farg3);
++  result = (SUNErrCode)SUNMatMatvecTranspose(arg1,arg2,arg3);
++  fresult = (SUNErrCode)(result);
++  return fresult;
++}
++
++
+ SWIGEXPORT int _wrap_FSUNMatSpace(SUNMatrix farg1, long *farg2, long *farg3) {
+   int fresult ;
+   SUNMatrix arg1 = (SUNMatrix) 0 ;
+diff --git a/src/sundials/fmod_int32/fsundials_core_mod.f90 b/src/sundials/fmod_int32/fsundials_core_mod.f90
+index 2bda4cb..f6c51d8 100644
+--- a/src/sundials/fmod_int32/fsundials_core_mod.f90
++++ b/src/sundials/fmod_int32/fsundials_core_mod.f90
+@@ -56,6 +56,12 @@ module fsundials_core_mod
+  end enum
+  integer, parameter, public :: SUNOutputFormat = kind(SUN_OUTPUTFORMAT_TABLE)
+  public :: SUN_OUTPUTFORMAT_TABLE, SUN_OUTPUTFORMAT_CSV
++ ! typedef enum SUNDataIOMode
++ enum, bind(c)
++  enumerator :: SUNDATAIOMODE_INMEM
++ end enum
++ integer, parameter, public :: SUNDataIOMode = kind(SUNDATAIOMODE_INMEM)
++ public :: SUNDATAIOMODE_INMEM
+  enum, bind(c)
+   enumerator :: SUN_ERR_MINIMUM = -10000
+   enumerator :: SUN_ERR_ARG_CORRUPT
+@@ -74,11 +80,15 @@ module fsundials_core_mod
+   enumerator :: SUN_ERR_DESTROY_FAIL
+   enumerator :: SUN_ERR_NOT_IMPLEMENTED
+   enumerator :: SUN_ERR_USER_FCN_FAIL
++  enumerator :: SUN_ERR_DATANODE_NODENOTFOUND
+   enumerator :: SUN_ERR_PROFILER_MAPFULL
+   enumerator :: SUN_ERR_PROFILER_MAPGET
+   enumerator :: SUN_ERR_PROFILER_MAPINSERT
+   enumerator :: SUN_ERR_PROFILER_MAPKEYNOTFOUND
+   enumerator :: SUN_ERR_PROFILER_MAPSORT
++  enumerator :: SUN_ERR_ADJOINT_STEPPERFAILED
++  enumerator :: SUN_ERR_ADJOINT_STEPPERINVALIDSTOP
++  enumerator :: SUN_ERR_CHECKPOINT_NOT_FOUND
+   enumerator :: SUN_ERR_SUNCTX_CORRUPT
+   enumerator :: SUN_ERR_MPI_FAIL
+   enumerator :: SUN_ERR_UNREACHABLE
+@@ -89,9 +99,10 @@ module fsundials_core_mod
+  public :: SUN_ERR_MINIMUM, SUN_ERR_ARG_CORRUPT, SUN_ERR_ARG_INCOMPATIBLE, SUN_ERR_ARG_OUTOFRANGE, SUN_ERR_ARG_WRONGTYPE, &
+     SUN_ERR_ARG_DIMSMISMATCH, SUN_ERR_GENERIC, SUN_ERR_CORRUPT, SUN_ERR_OUTOFRANGE, SUN_ERR_FILE_OPEN, SUN_ERR_OP_FAIL, &
+     SUN_ERR_MEM_FAIL, SUN_ERR_MALLOC_FAIL, SUN_ERR_EXT_FAIL, SUN_ERR_DESTROY_FAIL, SUN_ERR_NOT_IMPLEMENTED, &
+-    SUN_ERR_USER_FCN_FAIL, SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, SUN_ERR_PROFILER_MAPINSERT, &
+-    SUN_ERR_PROFILER_MAPKEYNOTFOUND, SUN_ERR_PROFILER_MAPSORT, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, SUN_ERR_UNREACHABLE, &
+-    SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
++    SUN_ERR_USER_FCN_FAIL, SUN_ERR_DATANODE_NODENOTFOUND, SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, &
++    SUN_ERR_PROFILER_MAPINSERT, SUN_ERR_PROFILER_MAPKEYNOTFOUND, SUN_ERR_PROFILER_MAPSORT, SUN_ERR_ADJOINT_STEPPERFAILED, &
++    SUN_ERR_ADJOINT_STEPPERINVALIDSTOP, SUN_ERR_CHECKPOINT_NOT_FOUND, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, &
++    SUN_ERR_UNREACHABLE, SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
+  type, bind(C) :: SwigArrayWrapper
+   type(C_PTR), public :: data = C_NULL_PTR
+   integer(C_SIZE_T), public :: size = 0
+@@ -324,6 +335,7 @@ module fsundials_core_mod
+   type(C_FUNPTR), public :: scaleaddi
+   type(C_FUNPTR), public :: matvecsetup
+   type(C_FUNPTR), public :: matvec
++  type(C_FUNPTR), public :: matvectranspose
+   type(C_FUNPTR), public :: space
+  end type SUNMatrix_Ops
+  ! struct struct _generic_SUNMatrix
+@@ -344,6 +356,7 @@ module fsundials_core_mod
+  public :: FSUNMatScaleAddI
+  public :: FSUNMatMatvecSetup
+  public :: FSUNMatMatvec
++ public :: FSUNMatMatvecTranspose
+  public :: FSUNMatSpace
+  enum, bind(c)
+   enumerator :: SUN_PREC_NONE
+@@ -1525,6 +1538,16 @@ type(C_PTR), value :: farg3
+ integer(C_INT) :: fresult
+ end function
+ 
++function swigc_FSUNMatMatvecTranspose(farg1, farg2, farg3) &
++bind(C, name="_wrap_FSUNMatMatvecTranspose") &
++result(fresult)
++use, intrinsic :: ISO_C_BINDING
++type(C_PTR), value :: farg1
++type(C_PTR), value :: farg2
++type(C_PTR), value :: farg3
++integer(C_INT) :: fresult
++end function
++
+ function swigc_FSUNMatSpace(farg1, farg2, farg3) &
+ bind(C, name="_wrap_FSUNMatSpace") &
+ result(fresult)
+@@ -3822,6 +3845,25 @@ fresult = swigc_FSUNMatMatvec(farg1, farg2, farg3)
+ swig_result = fresult
+ end function
+ 
++function FSUNMatMatvecTranspose(a, x, y) &
++result(swig_result)
++use, intrinsic :: ISO_C_BINDING
++integer(C_INT) :: swig_result
++type(SUNMatrix), target, intent(inout) :: a
++type(N_Vector), target, intent(inout) :: x
++type(N_Vector), target, intent(inout) :: y
++integer(C_INT) :: fresult 
++type(C_PTR) :: farg1 
++type(C_PTR) :: farg2 
++type(C_PTR) :: farg3 
++
++farg1 = c_loc(a)
++farg2 = c_loc(x)
++farg3 = c_loc(y)
++fresult = swigc_FSUNMatMatvecTranspose(farg1, farg2, farg3)
++swig_result = fresult
++end function
++
+ function FSUNMatSpace(a, lenrw, leniw) &
+ result(swig_result)
+ use, intrinsic :: ISO_C_BINDING
+diff --git a/src/sundials/fmod_int64/fsundials_core_mod.c b/src/sundials/fmod_int64/fsundials_core_mod.c
+index 2478b92..c4ba5d3 100644
+--- a/src/sundials/fmod_int64/fsundials_core_mod.c
++++ b/src/sundials/fmod_int64/fsundials_core_mod.c
+@@ -1825,6 +1825,22 @@ SWIGEXPORT int _wrap_FSUNMatMatvec(SUNMatrix farg1, N_Vector farg2, N_Vector far
+ }
+ 
+ 
++SWIGEXPORT int _wrap_FSUNMatMatvecTranspose(SUNMatrix farg1, N_Vector farg2, N_Vector farg3) {
++  int fresult ;
++  SUNMatrix arg1 = (SUNMatrix) 0 ;
++  N_Vector arg2 = (N_Vector) 0 ;
++  N_Vector arg3 = (N_Vector) 0 ;
++  SUNErrCode result;
++  
++  arg1 = (SUNMatrix)(farg1);
++  arg2 = (N_Vector)(farg2);
++  arg3 = (N_Vector)(farg3);
++  result = (SUNErrCode)SUNMatMatvecTranspose(arg1,arg2,arg3);
++  fresult = (SUNErrCode)(result);
++  return fresult;
++}
++
++
+ SWIGEXPORT int _wrap_FSUNMatSpace(SUNMatrix farg1, long *farg2, long *farg3) {
+   int fresult ;
+   SUNMatrix arg1 = (SUNMatrix) 0 ;
+diff --git a/src/sundials/fmod_int64/fsundials_core_mod.f90 b/src/sundials/fmod_int64/fsundials_core_mod.f90
+index 7096d0c..ec0072e 100644
+--- a/src/sundials/fmod_int64/fsundials_core_mod.f90
++++ b/src/sundials/fmod_int64/fsundials_core_mod.f90
+@@ -56,6 +56,12 @@ module fsundials_core_mod
+  end enum
+  integer, parameter, public :: SUNOutputFormat = kind(SUN_OUTPUTFORMAT_TABLE)
+  public :: SUN_OUTPUTFORMAT_TABLE, SUN_OUTPUTFORMAT_CSV
++ ! typedef enum SUNDataIOMode
++ enum, bind(c)
++  enumerator :: SUNDATAIOMODE_INMEM
++ end enum
++ integer, parameter, public :: SUNDataIOMode = kind(SUNDATAIOMODE_INMEM)
++ public :: SUNDATAIOMODE_INMEM
+  enum, bind(c)
+   enumerator :: SUN_ERR_MINIMUM = -10000
+   enumerator :: SUN_ERR_ARG_CORRUPT
+@@ -74,11 +80,15 @@ module fsundials_core_mod
+   enumerator :: SUN_ERR_DESTROY_FAIL
+   enumerator :: SUN_ERR_NOT_IMPLEMENTED
+   enumerator :: SUN_ERR_USER_FCN_FAIL
++  enumerator :: SUN_ERR_DATANODE_NODENOTFOUND
+   enumerator :: SUN_ERR_PROFILER_MAPFULL
+   enumerator :: SUN_ERR_PROFILER_MAPGET
+   enumerator :: SUN_ERR_PROFILER_MAPINSERT
+   enumerator :: SUN_ERR_PROFILER_MAPKEYNOTFOUND
+   enumerator :: SUN_ERR_PROFILER_MAPSORT
++  enumerator :: SUN_ERR_ADJOINT_STEPPERFAILED
++  enumerator :: SUN_ERR_ADJOINT_STEPPERINVALIDSTOP
++  enumerator :: SUN_ERR_CHECKPOINT_NOT_FOUND
+   enumerator :: SUN_ERR_SUNCTX_CORRUPT
+   enumerator :: SUN_ERR_MPI_FAIL
+   enumerator :: SUN_ERR_UNREACHABLE
+@@ -89,9 +99,10 @@ module fsundials_core_mod
+  public :: SUN_ERR_MINIMUM, SUN_ERR_ARG_CORRUPT, SUN_ERR_ARG_INCOMPATIBLE, SUN_ERR_ARG_OUTOFRANGE, SUN_ERR_ARG_WRONGTYPE, &
+     SUN_ERR_ARG_DIMSMISMATCH, SUN_ERR_GENERIC, SUN_ERR_CORRUPT, SUN_ERR_OUTOFRANGE, SUN_ERR_FILE_OPEN, SUN_ERR_OP_FAIL, &
+     SUN_ERR_MEM_FAIL, SUN_ERR_MALLOC_FAIL, SUN_ERR_EXT_FAIL, SUN_ERR_DESTROY_FAIL, SUN_ERR_NOT_IMPLEMENTED, &
+-    SUN_ERR_USER_FCN_FAIL, SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, SUN_ERR_PROFILER_MAPINSERT, &
+-    SUN_ERR_PROFILER_MAPKEYNOTFOUND, SUN_ERR_PROFILER_MAPSORT, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, SUN_ERR_UNREACHABLE, &
+-    SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
++    SUN_ERR_USER_FCN_FAIL, SUN_ERR_DATANODE_NODENOTFOUND, SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, &
++    SUN_ERR_PROFILER_MAPINSERT, SUN_ERR_PROFILER_MAPKEYNOTFOUND, SUN_ERR_PROFILER_MAPSORT, SUN_ERR_ADJOINT_STEPPERFAILED, &
++    SUN_ERR_ADJOINT_STEPPERINVALIDSTOP, SUN_ERR_CHECKPOINT_NOT_FOUND, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, &
++    SUN_ERR_UNREACHABLE, SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
+  type, bind(C) :: SwigArrayWrapper
+   type(C_PTR), public :: data = C_NULL_PTR
+   integer(C_SIZE_T), public :: size = 0
+@@ -324,6 +335,7 @@ module fsundials_core_mod
+   type(C_FUNPTR), public :: scaleaddi
+   type(C_FUNPTR), public :: matvecsetup
+   type(C_FUNPTR), public :: matvec
++  type(C_FUNPTR), public :: matvectranspose
+   type(C_FUNPTR), public :: space
+  end type SUNMatrix_Ops
+  ! struct struct _generic_SUNMatrix
+@@ -344,6 +356,7 @@ module fsundials_core_mod
+  public :: FSUNMatScaleAddI
+  public :: FSUNMatMatvecSetup
+  public :: FSUNMatMatvec
++ public :: FSUNMatMatvecTranspose
+  public :: FSUNMatSpace
+  enum, bind(c)
+   enumerator :: SUN_PREC_NONE
+@@ -1525,6 +1538,16 @@ type(C_PTR), value :: farg3
+ integer(C_INT) :: fresult
+ end function
+ 
++function swigc_FSUNMatMatvecTranspose(farg1, farg2, farg3) &
++bind(C, name="_wrap_FSUNMatMatvecTranspose") &
++result(fresult)
++use, intrinsic :: ISO_C_BINDING
++type(C_PTR), value :: farg1
++type(C_PTR), value :: farg2
++type(C_PTR), value :: farg3
++integer(C_INT) :: fresult
++end function
++
+ function swigc_FSUNMatSpace(farg1, farg2, farg3) &
+ bind(C, name="_wrap_FSUNMatSpace") &
+ result(fresult)
+@@ -3822,6 +3845,25 @@ fresult = swigc_FSUNMatMatvec(farg1, farg2, farg3)
+ swig_result = fresult
+ end function
+ 
++function FSUNMatMatvecTranspose(a, x, y) &
++result(swig_result)
++use, intrinsic :: ISO_C_BINDING
++integer(C_INT) :: swig_result
++type(SUNMatrix), target, intent(inout) :: a
++type(N_Vector), target, intent(inout) :: x
++type(N_Vector), target, intent(inout) :: y
++integer(C_INT) :: fresult 
++type(C_PTR) :: farg1 
++type(C_PTR) :: farg2 
++type(C_PTR) :: farg3 
++
++farg1 = c_loc(a)
++farg2 = c_loc(x)
++farg3 = c_loc(y)
++fresult = swigc_FSUNMatMatvecTranspose(farg1, farg2, farg3)
++swig_result = fresult
++end function
++
+ function FSUNMatSpace(a, lenrw, leniw) &
+ result(swig_result)
+ use, intrinsic :: ISO_C_BINDING
+diff --git a/src/sunmatrix/dense/fmod_int32/fsunmatrix_dense_mod.c b/src/sunmatrix/dense/fmod_int32/fsunmatrix_dense_mod.c
+index 7f6d3a1..0f8e71f 100644
+--- a/src/sunmatrix/dense/fmod_int32/fsunmatrix_dense_mod.c
++++ b/src/sunmatrix/dense/fmod_int32/fsunmatrix_dense_mod.c
+@@ -386,6 +386,22 @@ SWIGEXPORT int _wrap_FSUNMatMatvec_Dense(SUNMatrix farg1, N_Vector farg2, N_Vect
+ }
+ 
+ 
++SWIGEXPORT int _wrap_FSUNMatMatvecTranspose_Dense(SUNMatrix farg1, N_Vector farg2, N_Vector farg3) {
++  int fresult ;
++  SUNMatrix arg1 = (SUNMatrix) 0 ;
++  N_Vector arg2 = (N_Vector) 0 ;
++  N_Vector arg3 = (N_Vector) 0 ;
++  SUNErrCode result;
++  
++  arg1 = (SUNMatrix)(farg1);
++  arg2 = (N_Vector)(farg2);
++  arg3 = (N_Vector)(farg3);
++  result = (SUNErrCode)SUNMatMatvecTranspose_Dense(arg1,arg2,arg3);
++  fresult = (SUNErrCode)(result);
++  return fresult;
++}
++
++
+ SWIGEXPORT int _wrap_FSUNMatSpace_Dense(SUNMatrix farg1, long *farg2, long *farg3) {
+   int fresult ;
+   SUNMatrix arg1 = (SUNMatrix) 0 ;
+diff --git a/src/sunmatrix/dense/fmod_int32/fsunmatrix_dense_mod.f90 b/src/sunmatrix/dense/fmod_int32/fsunmatrix_dense_mod.f90
+index 23c12b6..5fe2102 100644
+--- a/src/sunmatrix/dense/fmod_int32/fsunmatrix_dense_mod.f90
++++ b/src/sunmatrix/dense/fmod_int32/fsunmatrix_dense_mod.f90
+@@ -39,6 +39,7 @@ module fsunmatrix_dense_mod
+  public :: FSUNMatScaleAdd_Dense
+  public :: FSUNMatScaleAddI_Dense
+  public :: FSUNMatMatvec_Dense
++ public :: FSUNMatMatvecTranspose_Dense
+  public :: FSUNMatSpace_Dense
+ 
+  public :: FSUNDenseMatrix_Data
+@@ -164,6 +165,16 @@ type(C_PTR), value :: farg3
+ integer(C_INT) :: fresult
+ end function
+ 
++function swigc_FSUNMatMatvecTranspose_Dense(farg1, farg2, farg3) &
++bind(C, name="_wrap_FSUNMatMatvecTranspose_Dense") &
++result(fresult)
++use, intrinsic :: ISO_C_BINDING
++type(C_PTR), value :: farg1
++type(C_PTR), value :: farg2
++type(C_PTR), value :: farg3
++integer(C_INT) :: fresult
++end function
++
+ function swigc_FSUNMatSpace_Dense(farg1, farg2, farg3) &
+ bind(C, name="_wrap_FSUNMatSpace_Dense") &
+ result(fresult)
+@@ -402,6 +413,25 @@ fresult = swigc_FSUNMatMatvec_Dense(farg1, farg2, farg3)
+ swig_result = fresult
+ end function
+ 
++function FSUNMatMatvecTranspose_Dense(a, x, y) &
++result(swig_result)
++use, intrinsic :: ISO_C_BINDING
++integer(C_INT) :: swig_result
++type(SUNMatrix), target, intent(inout) :: a
++type(N_Vector), target, intent(inout) :: x
++type(N_Vector), target, intent(inout) :: y
++integer(C_INT) :: fresult 
++type(C_PTR) :: farg1 
++type(C_PTR) :: farg2 
++type(C_PTR) :: farg3 
++
++farg1 = c_loc(a)
++farg2 = c_loc(x)
++farg3 = c_loc(y)
++fresult = swigc_FSUNMatMatvecTranspose_Dense(farg1, farg2, farg3)
++swig_result = fresult
++end function
++
+ function FSUNMatSpace_Dense(a, lenrw, leniw) &
+ result(swig_result)
+ use, intrinsic :: ISO_C_BINDING
+diff --git a/src/sunmatrix/dense/fmod_int64/fsunmatrix_dense_mod.c b/src/sunmatrix/dense/fmod_int64/fsunmatrix_dense_mod.c
+index 140e8d8..4bf4d78 100644
+--- a/src/sunmatrix/dense/fmod_int64/fsunmatrix_dense_mod.c
++++ b/src/sunmatrix/dense/fmod_int64/fsunmatrix_dense_mod.c
+@@ -386,6 +386,22 @@ SWIGEXPORT int _wrap_FSUNMatMatvec_Dense(SUNMatrix farg1, N_Vector farg2, N_Vect
+ }
+ 
+ 
++SWIGEXPORT int _wrap_FSUNMatMatvecTranspose_Dense(SUNMatrix farg1, N_Vector farg2, N_Vector farg3) {
++  int fresult ;
++  SUNMatrix arg1 = (SUNMatrix) 0 ;
++  N_Vector arg2 = (N_Vector) 0 ;
++  N_Vector arg3 = (N_Vector) 0 ;
++  SUNErrCode result;
++  
++  arg1 = (SUNMatrix)(farg1);
++  arg2 = (N_Vector)(farg2);
++  arg3 = (N_Vector)(farg3);
++  result = (SUNErrCode)SUNMatMatvecTranspose_Dense(arg1,arg2,arg3);
++  fresult = (SUNErrCode)(result);
++  return fresult;
++}
++
++
+ SWIGEXPORT int _wrap_FSUNMatSpace_Dense(SUNMatrix farg1, long *farg2, long *farg3) {
+   int fresult ;
+   SUNMatrix arg1 = (SUNMatrix) 0 ;
+diff --git a/src/sunmatrix/dense/fmod_int64/fsunmatrix_dense_mod.f90 b/src/sunmatrix/dense/fmod_int64/fsunmatrix_dense_mod.f90
+index 7bfb049..457182a 100644
+--- a/src/sunmatrix/dense/fmod_int64/fsunmatrix_dense_mod.f90
++++ b/src/sunmatrix/dense/fmod_int64/fsunmatrix_dense_mod.f90
+@@ -39,6 +39,7 @@ module fsunmatrix_dense_mod
+  public :: FSUNMatScaleAdd_Dense
+  public :: FSUNMatScaleAddI_Dense
+  public :: FSUNMatMatvec_Dense
++ public :: FSUNMatMatvecTranspose_Dense
+  public :: FSUNMatSpace_Dense
+ 
+  public :: FSUNDenseMatrix_Data
+@@ -164,6 +165,16 @@ type(C_PTR), value :: farg3
+ integer(C_INT) :: fresult
+ end function
+ 
++function swigc_FSUNMatMatvecTranspose_Dense(farg1, farg2, farg3) &
++bind(C, name="_wrap_FSUNMatMatvecTranspose_Dense") &
++result(fresult)
++use, intrinsic :: ISO_C_BINDING
++type(C_PTR), value :: farg1
++type(C_PTR), value :: farg2
++type(C_PTR), value :: farg3
++integer(C_INT) :: fresult
++end function
++
+ function swigc_FSUNMatSpace_Dense(farg1, farg2, farg3) &
+ bind(C, name="_wrap_FSUNMatSpace_Dense") &
+ result(fresult)
+@@ -402,6 +413,25 @@ fresult = swigc_FSUNMatMatvec_Dense(farg1, farg2, farg3)
+ swig_result = fresult
+ end function
+ 
++function FSUNMatMatvecTranspose_Dense(a, x, y) &
++result(swig_result)
++use, intrinsic :: ISO_C_BINDING
++integer(C_INT) :: swig_result
++type(SUNMatrix), target, intent(inout) :: a
++type(N_Vector), target, intent(inout) :: x
++type(N_Vector), target, intent(inout) :: y
++integer(C_INT) :: fresult 
++type(C_PTR) :: farg1 
++type(C_PTR) :: farg2 
++type(C_PTR) :: farg3 
++
++farg1 = c_loc(a)
++farg2 = c_loc(x)
++farg3 = c_loc(y)
++fresult = swigc_FSUNMatMatvecTranspose_Dense(farg1, farg2, farg3)
++swig_result = fresult
++end function
++
+ function FSUNMatSpace_Dense(a, lenrw, leniw) &
+ result(swig_result)
+ use, intrinsic :: ISO_C_BINDING

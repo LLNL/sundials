@@ -62,7 +62,6 @@ foreach(example_tuple ${ARKODE_examples})
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
 
-
   # libraries to link against
   target_link_libraries(${example} ${SUNDIALS_LIBS})
 
