@@ -40,13 +40,22 @@ dane_clang_tpls:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos ^openblas"
   extends: .job_on_dane
 
-# dane_intel_tpls:
-#   parallel:
-#     matrix:
-#       - COMPILER_SPEC: intel@19.1.2
-#         INDEX_SPEC: [~int64]
-#         PRECISION_SPEC: [double]
-#   variables:
-#     # perl@5.32.0 needed until spack v0.20.0: https://github.com/spack/spack/pull/35666
-#     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi +openmp +hypre ~superlu-dist +lapack +klu ^suite-sparse@5.13.0 ^perl@5.32.0"
-#   extends: .quartz_build_and_test
+dane_gcc_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: gcc@10.3.1
+        INDEX_SPEC: [~int64]
+        PRECISION_SPEC: [double]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos ^openblas"
+  extends: .job_on_dane
+
+dane_intel_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: intel@2023.2.1
+        INDEX_SPEC: [~int64]
+        PRECISION_SPEC: [double]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos ^openblas"
+  extends: .job_on_dane
