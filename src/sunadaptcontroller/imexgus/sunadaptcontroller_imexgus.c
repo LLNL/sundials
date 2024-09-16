@@ -127,8 +127,6 @@ SUNErrCode SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C,
 {
   SUNFunctionBegin(C->sunctx);
 
-  SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
-
   /* order parameter to use */
   const int ord = p + 1;
 
