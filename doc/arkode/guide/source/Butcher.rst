@@ -141,13 +141,76 @@ Explicit Butcher tables
 ---------------------------
 
 In the category of explicit Runge--Kutta methods, ARKODE includes
-methods that have orders 2 through 6, with embeddings that are of
-orders 1 through 5.  Each of ARKODE's explicit Butcher tables are
+methods that have orders 2 through 9, with embeddings that are of
+orders 1 through 8.  Each of ARKODE's explicit Butcher tables are
 specified via a unique ID and name:
 
 .. c:enum:: ARKODE_ERKTableID
 
 with values specified for each method below (e.g., ``ARKODE_HEUN_EULER_2_1_2``).
+A summary of the method is given in :numref:`ARKODE.Butcher.ERK_properties`.
+
+.. _ARKODE.Butcher.ERK_properties:
+.. table:: Explicit Butcher tables. The default method for each order is marked
+   with an asterisk (*).
+
+   +------------------------------------------+--------+----------------+-------+
+   | Method ID                                | Stages | Embedded Order | Order |
+   +==========================================+========+================+=======+
+   | ``ARKODE_FORWARD_EULER_1_1``             | 1      | ---            | 1*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_RALSTON_3_1_2``                 | 3      | 1              | 2*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_HEUN_EULER_2_1_2``              | 2      | 1              | 2     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_RALSTON_EULER_2_1_2``           | 2      | 1              | 2     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2`` | 2      | 1              | 2     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK2_ERK_3_1_2``                | 3      | 1              | 2     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_BOGACKI_SHAMPINE_4_2_3``        | 4      | 2              | 3*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK324L2SA_ERK_4_2_3``          | 4      | 2              | 3     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_SHU_OSHER_3_2_3``               | 3      | 2              | 3     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_KNOTH_WOLKE_3_3``               | 3      | ---            | 3     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_SOFRONIOU_SPALETTA_5_3_4``      | 5      | 3              | 4*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ZONNEVELD_5_3_4``               | 5      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK436L2SA_ERK_6_3_4``          | 6      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK437L2SA_ERK_7_3_4``          | 7      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_SAYFY_ABURUB_6_3_4``            | 6      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_TSITOURAS_7_4_5``               | 7      | 4              | 5*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_CASH_KARP_6_4_5``               | 6      | 4              | 5     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_FEHLBERG_6_4_5``                | 6      | 4              | 5     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_DORMAND_PRINCE_7_4_5``          | 7      | 4              | 5     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK548L2SA_ERK_8_4_5``          | 8      | 4              | 5     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK548L2SAb_ERK_8_4_5``         | 8      | 4              | 5     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_VERNER_9_5_6``                  | 9      | 5              | 6*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_VERNER_8_5_6``                  | 8      | 5              | 6     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_VERNER_10_6_7``                 | 10     | 6              | 7*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_VERNER_13_7_8``                 | 13     | 7              | 8*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_FEHLBERG_13_7_8``               | 13     | 7              | 8     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_VERNER_16_8_9``                 | 16     | 8              | 9*    |
+   +------------------------------------------+--------+----------------+-------+
 
 
 .. _Butcher.Forward_Euler:
@@ -1021,52 +1084,6 @@ explicit portion of the 5th order ARK5(4)8L[2]SA method from
 
 
 
-
-.. _Butcher.Verner-6-5:
-
-Verner-8-5-6
-^^^^^^^^^^^^^^
-
-.. index:: Verner-8-5-6 ERK method
-
-Accessible via the constant ``ARKODE_VERNER_8_5_6`` to
-:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
-or :c:func:`ARKodeButcherTable_LoadERK`.
-Accessible via the string ``"ARKODE_VERNER_8_5_6"`` to
-:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadERKByName`.
-(from :cite:p:`HEJ:76`).
-
-.. versionchanged:: x.y.z
-
-   Replaced by ``ARKODE_VERNER_9_5_6`` as the default 6th order explicit method
-
-.. math::
-
-   \renewcommand{\arraystretch}{1.5}
-   \begin{array}{r|cccccccc}
-     0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-     \frac{1}{6} & \frac{1}{6} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-     \frac{4}{15} & \frac{4}{75} & \frac{16}{75} & 0 & 0 & 0 & 0 & 0 & 0 \\
-     \frac{2}{3} & \frac{5}{6} & -\frac{8}{3} & \frac{5}{2} & 0 & 0 & 0 & 0 & 0 \\
-     \frac{5}{6} & -\frac{165}{64} & \frac{55}{6} & -\frac{425}{64} & \frac{85}{96} & 0 & 0 & 0 & 0 \\
-     1 & \frac{12}{5} & -8 & \frac{4015}{612} & -\frac{11}{36} & \frac{88}{255} & 0 & 0 & 0 \\
-     \frac{1}{15} & -\frac{8263}{15000} & \frac{124}{75} & -\frac{643}{680} & -\frac{81}{250} & \frac{2484}{10625} & 0 & 0 & 0 \\
-     1 & \frac{3501}{1720} & -\frac{300}{43} & \frac{297275}{52632} & -\frac{319}{2322} & \frac{24068}{84065} & 0 & \frac{3850}{26703} & 0 \\
-     \hline
-     6 & \frac{3}{40} & 0 & \frac{875}{2244} & \frac{23}{72} & \frac{264}{1955} & 0 & \frac{125}{11592} & \frac{43}{616} \\
-     5 & \frac{13}{160} & 0 & \frac{2375}{5984} & \frac{5}{16} & \frac{12}{85} & \frac{3}{44} & 0 & 0
-   \end{array}
-
-.. figure:: /figs/arkode/stab_region_10.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the Verner-8-5-6 method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-
 .. _Butcher.Verner-6-5b:
 
 Verner-9-5-6
@@ -1123,6 +1140,52 @@ This is the default 6th order explicit method
 
 
 
+
+.. _Butcher.Verner-6-5:
+
+Verner-8-5-6
+^^^^^^^^^^^^^^
+
+.. index:: Verner-8-5-6 ERK method
+
+Accessible via the constant ``ARKODE_VERNER_8_5_6`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_VERNER_8_5_6"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+(from :cite:p:`HEJ:76`).
+
+.. versionchanged:: x.y.z
+
+   Replaced by ``ARKODE_VERNER_9_5_6`` as the default 6th order explicit method
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cccccccc}
+     0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{1}{6} & \frac{1}{6} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{4}{15} & \frac{4}{75} & \frac{16}{75} & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{2}{3} & \frac{5}{6} & -\frac{8}{3} & \frac{5}{2} & 0 & 0 & 0 & 0 & 0 \\
+     \frac{5}{6} & -\frac{165}{64} & \frac{55}{6} & -\frac{425}{64} & \frac{85}{96} & 0 & 0 & 0 & 0 \\
+     1 & \frac{12}{5} & -8 & \frac{4015}{612} & -\frac{11}{36} & \frac{88}{255} & 0 & 0 & 0 \\
+     \frac{1}{15} & -\frac{8263}{15000} & \frac{124}{75} & -\frac{643}{680} & -\frac{81}{250} & \frac{2484}{10625} & 0 & 0 & 0 \\
+     1 & \frac{3501}{1720} & -\frac{300}{43} & \frac{297275}{52632} & -\frac{319}{2322} & \frac{24068}{84065} & 0 & \frac{3850}{26703} & 0 \\
+     \hline
+     6 & \frac{3}{40} & 0 & \frac{875}{2244} & \frac{23}{72} & \frac{264}{1955} & 0 & \frac{125}{11592} & \frac{43}{616} \\
+     5 & \frac{13}{160} & 0 & \frac{2375}{5984} & \frac{5}{16} & \frac{12}{85} & \frac{3}{44} & 0 & 0
+   \end{array}
+
+.. figure:: /figs/arkode/stab_region_10.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the Verner-8-5-6 method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+
 .. _Butcher.Verner-7-6:
 
 Verner-10-6-7
@@ -1169,57 +1232,6 @@ This is the default 7th order explicit method (from :cite:p:`Ver:10`).
    :align: center
 
    Linear stability region for the Verner-10-6-7 method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-
-.. _Butcher.Fehlberg-8-7:
-
-Fehlberg-13-7-8
-^^^^^^^^^^^^^^^^^^
-
-.. index:: Fehlberg-13-7-8 ERK method
-
-Accessible via the constant ``ARKODE_FEHLBERG_13_7_8`` to
-:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
-or :c:func:`ARKodeButcherTable_LoadERK`.
-Accessible via the string ``"ARKODE_FEHLBERG_13_7_8"`` to
-:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadERKByName`.
-(from :cite:p:`Butcher:08`).
-
-.. versionchanged:: x.y.z
-
-   Replaced by ``ARKODE_VERNER_13_7_8`` as the default 8th order explicit method
-
-.. math::
-
-   \renewcommand{\arraystretch}{1.5}
-   \begin{array}{r|ccccccccccccc}
-     0&   0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
-     \frac{2}{27}&   \frac{2}{27}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
-     \frac{1}{9}&   \frac{1}{36}& \frac{1}{12}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
-     \frac{1}{6}&   \frac{1}{24}& 0& \frac{1}{8}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
-     \frac{5}{12}&   \frac{5}{12}& 0& -\frac{25}{16}& \frac{25}{16}& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
-     \frac{1}{2}&   \frac{1}{20}& 0& 0& \frac{1}{4}& \frac{1}{5}& 0& 0& 0& 0& 0& 0& 0& 0\\
-     \frac{5}{6}&   -\frac{25}{108}& 0& 0& \frac{125}{108}& -\frac{65}{27}& \frac{125}{54}& 0& 0& 0& 0& 0& 0& 0\\
-     \frac{1}{6}&   \frac{31}{300}& 0& 0& 0& \frac{61}{225}& -\frac{2}{9}& \frac{13}{900}& 0& 0& 0& 0& 0& 0\\
-     \frac{2}{3}&   2& 0& 0& -\frac{53}{6}& \frac{704}{45}& -\frac{107}{9}& \frac{67}{90}& 3& 0& 0& 0& 0& 0\\
-     \frac{1}{3}&   -\frac{91}{108}& 0& 0& \frac{23}{108}& -\frac{976}{135}& \frac{311}{54}& -\frac{19}{60}& \frac{17}{6}& -\frac{1}{12}& 0& 0& 0& 0\\
-     1&   \frac{2383}{4100}& 0& 0& -\frac{341}{164}& \frac{4496}{1025}& -\frac{301}{82}& \frac{2133}{4100}& \frac{45}{82}& \frac{45}{164}& \frac{18}{41}& 0& 0& 0\\
-     0&   \frac{3}{205}& 0& 0& 0& 0& -\frac{6}{41}& -\frac{3}{205}& -\frac{3}{41}& \frac{3}{41}& \frac{6}{41}& 0& 0& 0\\
-     1&   -\frac{1777}{4100}& 0& 0& -\frac{341}{164}& \frac{4496}{1025}& -\frac{289}{82}& \frac{2193}{4100}& \frac{51}{82}& \frac{33}{164}& \frac{12}{41}& 0& 1& 0\\
-     \hline
-     8& 0& 0& 0& 0& 0& \frac{34}{105}& \frac{9}{35}& \frac{9}{35}& \frac{9}{280}& \frac{9}{280}& 0& \frac{41}{840}& \frac{41}{840} \\
-     7& \frac{41}{840}& 0& 0& 0& 0& \frac{34}{105}& \frac{9}{35}& \frac{9}{35}& \frac{9}{280}& \frac{9}{280}& \frac{41}{840}& 0& 0
-   \end{array}
-
-
-.. figure:: /figs/arkode/stab_region_23.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the Fehlberg-13-7-8 method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
@@ -1279,6 +1291,57 @@ This is the default 8th order explicit method
    :align: center
 
    Linear stability region for the Verner-13-7-8 method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+
+.. _Butcher.Fehlberg-8-7:
+
+Fehlberg-13-7-8
+^^^^^^^^^^^^^^^^^^
+
+.. index:: Fehlberg-13-7-8 ERK method
+
+Accessible via the constant ``ARKODE_FEHLBERG_13_7_8`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
+or :c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_FEHLBERG_13_7_8"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+(from :cite:p:`Butcher:08`).
+
+.. versionchanged:: x.y.z
+
+   Replaced by ``ARKODE_VERNER_13_7_8`` as the default 8th order explicit method
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccccccccccccc}
+     0&   0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
+     \frac{2}{27}&   \frac{2}{27}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
+     \frac{1}{9}&   \frac{1}{36}& \frac{1}{12}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
+     \frac{1}{6}&   \frac{1}{24}& 0& \frac{1}{8}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
+     \frac{5}{12}&   \frac{5}{12}& 0& -\frac{25}{16}& \frac{25}{16}& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
+     \frac{1}{2}&   \frac{1}{20}& 0& 0& \frac{1}{4}& \frac{1}{5}& 0& 0& 0& 0& 0& 0& 0& 0\\
+     \frac{5}{6}&   -\frac{25}{108}& 0& 0& \frac{125}{108}& -\frac{65}{27}& \frac{125}{54}& 0& 0& 0& 0& 0& 0& 0\\
+     \frac{1}{6}&   \frac{31}{300}& 0& 0& 0& \frac{61}{225}& -\frac{2}{9}& \frac{13}{900}& 0& 0& 0& 0& 0& 0\\
+     \frac{2}{3}&   2& 0& 0& -\frac{53}{6}& \frac{704}{45}& -\frac{107}{9}& \frac{67}{90}& 3& 0& 0& 0& 0& 0\\
+     \frac{1}{3}&   -\frac{91}{108}& 0& 0& \frac{23}{108}& -\frac{976}{135}& \frac{311}{54}& -\frac{19}{60}& \frac{17}{6}& -\frac{1}{12}& 0& 0& 0& 0\\
+     1&   \frac{2383}{4100}& 0& 0& -\frac{341}{164}& \frac{4496}{1025}& -\frac{301}{82}& \frac{2133}{4100}& \frac{45}{82}& \frac{45}{164}& \frac{18}{41}& 0& 0& 0\\
+     0&   \frac{3}{205}& 0& 0& 0& 0& -\frac{6}{41}& -\frac{3}{205}& -\frac{3}{41}& \frac{3}{41}& \frac{6}{41}& 0& 0& 0\\
+     1&   -\frac{1777}{4100}& 0& 0& -\frac{341}{164}& \frac{4496}{1025}& -\frac{289}{82}& \frac{2193}{4100}& \frac{51}{82}& \frac{33}{164}& \frac{12}{41}& 0& 1& 0\\
+     \hline
+     8& 0& 0& 0& 0& 0& \frac{34}{105}& \frac{9}{35}& \frac{9}{35}& \frac{9}{280}& \frac{9}{280}& 0& \frac{41}{840}& \frac{41}{840} \\
+     7& \frac{41}{840}& 0& 0& 0& 0& \frac{34}{105}& \frac{9}{35}& \frac{9}{35}& \frac{9}{280}& \frac{9}{280}& \frac{41}{840}& 0& 0
+   \end{array}
+
+
+.. figure:: /figs/arkode/stab_region_23.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the Fehlberg-13-7-8 method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
