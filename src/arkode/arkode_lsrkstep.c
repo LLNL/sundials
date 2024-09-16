@@ -777,15 +777,28 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->ndomeigupdates++;
   }
 
-  /* determine the number of required stages */
-  for (int ss = 1; ss < step_mem->stagemaxlimit; ss++)
+  /* determine the number of required stages and shrink the step size if necessary*/
+
+  sunbooleantype recompute = SUNTRUE;
+  while(recompute)
   {
-    if ((SUNSQR(ss) + ss - 2) >= 2 * (SUNRabs(ark_mem->h) * step_mem->sprad))
+    int ss;
+    for (ss = 1; ss < step_mem->stagemaxlimit; ss++)
     {
-      step_mem->reqstages = SUNMAX(ss, 2);
-      break;
+      if ((SUNSQR(ss) + ss - 2) >= 2 * (SUNRabs(ark_mem->h) * step_mem->sprad))
+      {
+        step_mem->reqstages = SUNMAX(ss, 2);
+        recompute = SUNFALSE;
+        break;
+      }
+    }
+    if(ss == step_mem->stagemaxlimit)
+    {
+      ark_mem->h *= SUN_RCONST(0.5);
+      recompute = SUNTRUE;
     }
   }
+  
   step_mem->stagemax = SUNMAX(step_mem->reqstages, step_mem->stagemax);
 
   /* Call the full RHS if needed. If this is the first step then we may need to
