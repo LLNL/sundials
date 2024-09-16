@@ -15,6 +15,10 @@ backends with Trilinos. As such, Trilinos 14 or newer is required and the
 
 Example programs using *hypre* have been updated to support v2.20 and newer.
 
+The build system has been updated to utilize the CMake LAPACK imported target
+which should ease building SUNDIALS with LAPACK libraries that require setting
+specific linker flags e.g., MKL.
+
 **Bug Fixes**
 
 Removed error floors from the SUNAdaptController implementations which could
@@ -24,10 +28,16 @@ On the first two time steps, the
 :ref:`Soderlind controller <SUNAdaptController.Soderlind>` uses an I controller
 instead of omitting unavailable terms.
 
+Fixed c:func:`ARKodeResize` not using the default ``hscale`` when an argument of
+``0`` was provided.
+
 Fixed the loading of ARKStep's default first order explicit method.
 
 Fixed a CMake bug regarding usage of missing "print_warning" macro
 that was only triggered when the deprecated ``CUDA_ARCH`` option was used.
+
+Fixed a memory leak that could occur if :c:func:`ARKodeSetDefaults` is called
+repeatedly.
 
 Fixed compilation errors when building the Trilinos Teptra NVector with CUDA
 support.
