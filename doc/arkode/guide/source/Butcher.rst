@@ -1421,6 +1421,69 @@ specified via a unique ID and name:
 .. c:enum:: ARKODE_DIRKTableID
 
 with values specified for each method below (e.g., ``ARKODE_SDIRK_2_1_2``).
+A summary of the method is given in :numref:`ARKODE.Butcher.DIRK_properties`.
+
+.. _ARKODE.Butcher.DIRK_properties:
+.. table:: Implicit Butcher tables. The default method for each order is marked
+   with an asterisk (*).
+
+   +------------------------------------------+--------+----------------+-------+
+   | Method ID                                | Stages | Embedded Order | Order |
+   +==========================================+========+================+=======+
+   | ``ARKODE_BACKWARD_EULER_1_1``            | 1      | ---            | 1*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK2_DIRK_3_1_2``               | 3      | 1              | 2*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_SDIRK_2_1_2``                   | 2      | 1              | 2     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_IMPLICIT_MIDPOINT_1_2``         | 1      | ---            | 2     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_IMPLICIT_TRAPEZOIDAL_2_2``      | 2      | ---            | 2     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_BILLINGTON_3_3_2``              | 3      | 3              | 2     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_TRBDF2_3_3_2``                  | 3      | 3              | 2     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ESDIRK325L2SA_5_2_3``           | 5      | 2              | 3*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ESDIRK324L2SA_4_2_3``           | 4      | 2              | 3     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ESDIRK32I5L2SA_5_2_3``          | 5      | 2              | 3     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_KVAERNO_4_2_3``                 | 4      | 2              | 3     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK324L2SA_DIRK_4_2_3``         | 4      | 2              | 3     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ESDIRK436L2SA_6_3_4``           | 6      | 3              | 4*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_CASH_5_2_4``                    | 5      | 2              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_CASH_5_3_4``                    | 5      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_SDIRK_5_3_4``                   | 5      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_KVAERNO_5_3_4``                 | 5      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK436L2SA_DIRK_6_3_4``         | 6      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK437L2SA_DIRK_7_3_4``         | 7      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ESDIRK43I6L2SA_6_3_4``          | 6      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_QESDIRK436L2SA_6_3_4``          | 6      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ESDIRK437L2SA_7_3_4``           | 7      | 3              | 4     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ESDIRK547L2SA2_7_4_5``          | 7      | 4              | 5*    |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_KVAERNO_7_4_5``                 | 7      | 4              | 5     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK548L2SA_DIRK_8_4_5``         | 8      | 4              | 5     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ARK548L2SAb_DIRK_8_4_5``        | 8      | 4              | 5     |
+   +------------------------------------------+--------+----------------+-------+
+   | ``ARKODE_ESDIRK547L2SA_7_4_5``           | 7      | 4              | 5     |
+   +------------------------------------------+--------+----------------+-------+
 
 
 .. _Butcher.Backward-Euler:
@@ -1452,44 +1515,6 @@ This is the default 1st order implicit method.  The method is A-, L-, and B-stab
    :align: center
 
    Linear stability region for the backward Euler method.
-
-
-.. _Butcher.SDIRK-2-1:
-
-SDIRK-2-1-2
-^^^^^^^^^^^^^^
-
-.. index:: SDIRK-2-1-2 method
-
-Accessible via the constant ``ARKODE_SDIRK_2_1_2`` to
-:c:func:`ARKStepSetTableNum` or
-:c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_SDIRK_2_1_2"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-Both the method and embedding are A- and B-stable.
-
-.. versionchanged:: x.y.z
-
-   Replaced by ``ARKODE_ARK2_DIRK_3_1_2`` as the default 2nd order implicit method
-
-.. math::
-
-   \renewcommand{\arraystretch}{1.5}
-   \begin{array}{r|cc}
-     1 & 1 & 0 \\
-     0 & -1 & 1 \\
-     \hline
-     2 & \frac{1}{2} & \frac{1}{2} \\
-     1 & 1 & 0
-   \end{array}
-
-.. figure:: /figs/arkode/stab_region_11.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the SDIRK-2-1-2 method.  The method's
-   region is outlined in blue; the embedding's region is in red.
 
 
 .. _Butcher.ARK2_DIRK:
@@ -1530,6 +1555,44 @@ default 2nd order additive method
    :align: center
 
    Linear stability region for the ARK2-DIRK method. The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+.. _Butcher.SDIRK-2-1:
+
+SDIRK-2-1-2
+^^^^^^^^^^^^^^
+
+.. index:: SDIRK-2-1-2 method
+
+Accessible via the constant ``ARKODE_SDIRK_2_1_2`` to
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_SDIRK_2_1_2"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+Both the method and embedding are A- and B-stable.
+
+.. versionchanged:: x.y.z
+
+   Replaced by ``ARKODE_ARK2_DIRK_3_1_2`` as the default 2nd order implicit method
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cc}
+     1 & 1 & 0 \\
+     0 & -1 & 1 \\
+     \hline
+     2 & \frac{1}{2} & \frac{1}{2} \\
+     1 & 1 & 0
+   \end{array}
+
+.. figure:: /figs/arkode/stab_region_11.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the SDIRK-2-1-2 method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
@@ -1672,29 +1735,6 @@ lower-order method (from :cite:p:`Bank:85`).
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ESDIRK324L2SA:
-
-ESDIRK324L2SA-4-2-3
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK324L2SA-4-2-3 method
-
-Accessible via the constant ``ARKODE_ESDIRK324L2SA_4_2_3`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK324L2SA_4_2_3"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK3(2)4L[2]SA method from :cite:p:`KenCarp:19b`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_25.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK324L2SA-4-2-3 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
 
 .. _Butcher.ESDIRK325L2SA:
 
@@ -1721,6 +1761,29 @@ Both the method and embedding are A- and L-stable.
    :align: center
 
    Linear stability region for the ESDIRK325L2SA-5-2-3 method method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+.. _Butcher.ESDIRK324L2SA:
+
+ESDIRK324L2SA-4-2-3
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK324L2SA-4-2-3 method
+
+Accessible via the constant ``ARKODE_ESDIRK324L2SA_4_2_3`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK324L2SA_4_2_3"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK3(2)4L[2]SA method from :cite:p:`KenCarp:19b`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_25.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ESDIRK324L2SA-4-2-3 method method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
@@ -1832,8 +1895,31 @@ method and embedding are A-stable; additionally the method is L-stable
    region is outlined in blue; the embedding's region is in red.
 
 
+.. _Butcher.ESDIRK436L2SA:
 
+ESDIRK436L2SA-6-3-4
+^^^^^^^^^^^^^^^^^^^^
 
+.. index:: ESDIRK436L2SA-6-3-4 method
+
+Accessible via the constant ``ARKODE_ESDIRK436L2SA_6_3_4`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK436L2SA_6_3_4"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the default 4th order implicit method and the ESDIRK4(3)6L[2]SA method
+from :cite:p:`KenCarp:16`. Both the method and embedding are A- and L-stable.
+
+.. versionchanged:: x.y.z
+
+   Made the default 4th order implicit method
+
+.. figure:: /figs/arkode/stab_region_28.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ESDIRK436L2SA-6-3-4 method method.  The method's
+   region is outlined in blue; the embedding's region is in red.
 
 
 
@@ -2109,33 +2195,6 @@ implicit portion of the 4th order ARK4(3)7L[2]SA method from
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ESDIRK436L2SA:
-
-ESDIRK436L2SA-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK436L2SA-6-3-4 method
-
-Accessible via the constant ``ARKODE_ESDIRK436L2SA_6_3_4`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK436L2SA_6_3_4"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the default 4th order implicit method and the ESDIRK4(3)6L[2]SA method
-from :cite:p:`KenCarp:16`. Both the method and embedding are A- and L-stable.
-
-.. versionchanged:: x.y.z
-
-   Made the default 4th order implicit method
-
-.. figure:: /figs/arkode/stab_region_28.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK436L2SA-6-3-4 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
 .. _Butcher.ESDIRK43I6L2SA:
 
 ESDIRK43I6L2SA-6-3-4
@@ -2202,6 +2261,31 @@ Both the method and embedding are A- and L-stable.
    :align: center
 
    Linear stability region for the ESDIRK437L2SA-7-3-4 method method.  The method's
+   region is outlined in blue; the embedding's region is in red.
+
+
+ESDIRK547L2SA2-7-4-5
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK547L2SA2-7-4-5 method
+
+Accessible via the constant ``ARKODE_ESDIRK547L2SA2_7_4_5`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK547L2SA2_7_4_5"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the default 5th order implicit method and the ESDIRK5(4)7L[2]SA2 method
+from :cite:p:`KenCarp:19b`. Both the method and embedding are A- and L-stable.
+
+.. versionchanged:: x.y.z
+
+   Made the default 5th order implicit method
+
+.. figure:: /figs/arkode/stab_region_33.png
+   :scale: 50 %
+   :align: center
+
+   Linear stability region for the ESDIRK547L2SA2-7-4-5 method method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
@@ -2389,30 +2473,6 @@ Both the method and embedding are A- and L-stable.
 
 
 .. _Butcher.ESDIRK547L2SA2:
-
-ESDIRK547L2SA2-7-4-5
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK547L2SA2-7-4-5 method
-
-Accessible via the constant ``ARKODE_ESDIRK547L2SA2_7_4_5`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK547L2SA2_7_4_5"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the default 5th order implicit method and the ESDIRK5(4)7L[2]SA2 method
-from :cite:p:`KenCarp:19b`. Both the method and embedding are A- and L-stable.
-
-.. versionchanged:: x.y.z
-
-   Made the default 5th order implicit method
-
-.. figure:: /figs/arkode/stab_region_33.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK547L2SA2-7-4-5 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
 
 
 
