@@ -503,10 +503,6 @@ static int eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
   // Access problem data
   UserData* udata = (UserData*)user_data;
 
-  // Shortcuts to number of nodes
-  sunindextype nx = udata->nx;
-  sunindextype ny = udata->ny;
-
   // Fill in spectral radius value
   *lambdaR = -SUN_RCONST(8.0) * SUNMAX(udata->kx / udata->dx / udata->dx,
                                        udata->ky / udata->dy / udata->dy);
