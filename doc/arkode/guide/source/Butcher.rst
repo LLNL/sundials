@@ -2137,42 +2137,25 @@ explicit calculations, ARKODE includes methods that have orders 2
 through 5, with embeddings that are of orders 1 through 4.  These
 Butcher table pairs are as follows:
 
-* :index:`2nd-order pair <ARK-3-1-2 ARK method>`:
-  :numref:`Butcher.ARK2_ERK` with :numref:`Butcher.ARK2_DIRK`,
-  corresponding to Butcher tables ``ARKODE_ARK2_ERK_3_1_2`` and
-  ``ARKODE_ARK2_DIRK_3_1_2`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
+.. _ARKODE.Butcher.ARK_properties:
+.. table:: Additive Butcher tables. The default method for each order is marked
+   with an asterisk (*).
 
-* :index:`3rd-order pair <ARK-4-2-3 ARK method>`:
-  :numref:`Butcher.ARK_4_2_3_E` with :numref:`Butcher.ARK_4_2_3_I`,
-  corresponding to Butcher tables ``ARKODE_ARK324L2SA_ERK_4_2_3`` and
-  ``ARKODE_ARK324L2SA_DIRK_4_2_3`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
-
-* :index:`4th-order pair <ARK-6-3-4 ARK method>`:
-  :numref:`Butcher.ARK_6_3_4_E` with :numref:`Butcher.ARK_6_3_4_I`,
-  corresponding to Butcher tables ``ARKODE_ARK436L2SA_ERK_6_3_4`` and
-  ``ARKODE_ARK436L2SA_DIRK_6_3_4`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
-
-* :index:`4th-order pair <ARK-7-3-4 ARK method>`:
-  :numref:`Butcher.ARK_7_3_4_E` with :numref:`Butcher.ARK_7_3_4_I`,
-  corresponding to Butcher tables ``ARKODE_ARK437L2SA_ERK_7_3_4`` and
-  ``ARKODE_ARK437L2SA_DIRK_7_3_4`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
-
-* :index:`5th-order pair <ARK-8-4-5 ARK method>`:
-  :numref:`Butcher.ARK_8_4_5_E` with :numref:`Butcher.ARK_8_4_5_I`,
-  corresponding to Butcher tables ``ARKODE_ARK548L2SA_ERK_8_4_5`` and
-  ``ARKODE_ARK548L2SA_DIRK_8_4_5`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
-
-* :index:`5th-order pair <ARK-8-4-5b ARK method>`:
-  :numref:`Butcher.ARK_8_4_5b_E` with :numref:`Butcher.ARK_8_4_5b_I`,
-  corresponding to Butcher tables ``ARKODE_ARK548L2SAb_ERK_8_4_5`` and
-  ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
-
+   +----------------------------------------------+-----------------------------------------------+--------+----------------+-------+
+   | ERK Method ID                                | DIRK Method ID                                | Stages | Embedded Order | Order |
+   +==============================================+===============================================+========+================+=======+
+   | :c:enumerator:`ARKODE_ARK2_ERK_3_1_2`        | :c:enumerator:`ARKODE_ARK2_DIRK_3_1_2`        | 3      | 1              | 2*    |
+   +----------------------------------------------+-----------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK324L2SA_ERK_4_2_3`  | :c:enumerator:`ARKODE_ARK324L2SA_DIRK_4_2_3`  | 4      | 2              | 3*    |
+   +----------------------------------------------+-----------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK437L2SA_ERK_7_3_4`  | :c:enumerator:`ARKODE_ARK437L2SA_DIRK_7_3_4`  | 7      | 3              | 4*    |
+   +----------------------------------------------+-----------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK436L2SA_ERK_6_3_4`  | :c:enumerator:`ARKODE_ARK436L2SA_DIRK_6_3_4`  | 6      | 3              | 4     |
+   +----------------------------------------------+-----------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK548L2SAb_ERK_8_4_5` | :c:enumerator:`ARKODE_ARK548L2SAb_DIRK_8_4_5` | 8      | 4              | 5*    |
+   +----------------------------------------------+-----------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK548L2SA_ERK_8_4_5`  | :c:enumerator:`ARKODE_ARK548L2SA_DIRK_8_4_5`  | 8      | 5              | 5     |
+   +----------------------------------------------+-----------------------------------------------+--------+----------------+-------+
 
 
 
