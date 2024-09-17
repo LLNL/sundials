@@ -22,6 +22,7 @@
 #include "sundials/sundials_memory.h"
 #include "sundials/sundials_types.h"
 #include "sundials_datanode.h"
+#include "sundials_macros.h"
 #include "sundials_utils.h"
 
 struct SUNAdjointCheckpointScheme_Basic_Content_
@@ -87,8 +88,8 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(
-  SUNAdjointCheckpointScheme self, sunindextype step_num,
-  sunindextype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
+  SUNAdjointCheckpointScheme self, sunindextype step_num, sunindextype stage_num,
+  SUNDIALS_MAYBE_UNUSED sunrealtype t, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
 

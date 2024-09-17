@@ -20,6 +20,7 @@
 #include "sundials/sundials_types.h"
 #include "sundials_datanode.h"
 #include "sundials_hashmap_impl.h"
+#include "sundials_macros.h"
 
 #define GET_IMPL(node)        ((SUNDataNode_InMemContent)(node)->content)
 #define IMPL_PROP(node, prop) (GET_IMPL(node)->prop)
@@ -461,7 +462,7 @@ SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node)
 }
 
 /* This function is the callback provided to the child hashmap as the destroy function. */
-static void sunDataNodeFreeKeyValue(SUNHashMapKeyValue* kv_ptr)
+static void sunDataNodeFreeKeyValue(SUNDIALS_MAYBE_UNUSED SUNHashMapKeyValue* kv_ptr)
 {
   // if (!kv_ptr || !(*kv_ptr)) { return; }
   // SUNDataNode value = (SUNDataNode)(*kv_ptr)->value;
@@ -472,7 +473,7 @@ static void sunDataNodeFreeKeyValue(SUNHashMapKeyValue* kv_ptr)
 }
 
 /* This function is the callback provided to the child stlvector as the destroy function. */
-static void sunDataNodeFreeValue(SUNDataNode* nodeptr)
+static void sunDataNodeFreeValue(SUNDIALS_MAYBE_UNUSED SUNDataNode* nodeptr)
 {
   // if (!nodeptr || !(*nodeptr)) { return; }
   // SUNDataNode_Destroy_InMem(nodeptr);

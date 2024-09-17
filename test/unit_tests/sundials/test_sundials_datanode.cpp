@@ -105,7 +105,6 @@ TEST_F(SUNDataNodeTest, AddChildWorks)
   err = SUNDataNode_CreateList(SUNDATAIOMODE_INMEM, num_elem, sunctx, &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  int integer_value = 5;
   err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_INMEM, mem_helper, sunctx,
                                &child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -131,7 +130,6 @@ TEST_F(SUNDataNodeTest, AddNamedChildWorks)
                                  &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  int integer_value = 5;
   err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_INMEM, mem_helper, sunctx,
                                &child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -347,8 +345,6 @@ TEST_F(SUNDataNodeTest, GetNamedChildWorks)
   err = SUNDataNode_GetNamedChild(root_node, "int_value", &child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  // EXPECT_EQ(integer_value, get_leaf_as_int(child_node));
-
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
   err = SUNDataNode_Destroy(&child_node);
@@ -400,7 +396,6 @@ TEST_F(SUNDataNodeTest, GetDataWorksWhenLeaf)
 {
   SUNErrCode err;
   SUNDataNode root_node;
-  unsigned int num_elem = 5;
 
   int integer_value = 5;
   err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_INMEM, mem_helper, sunctx,
@@ -430,7 +425,6 @@ TEST_F(SUNDataNodeTest, SetDataWorksWhenLeaf)
 {
   SUNErrCode err;
   SUNDataNode root_node;
-  unsigned int num_elem = 5;
 
   err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_INMEM, mem_helper, sunctx,
                                &root_node);
@@ -458,7 +452,6 @@ TEST_F(SUNDataNodeTest, SetAndGetDataNvectorWhenLeaf)
 {
   SUNErrCode err;
   SUNDataNode root_node;
-  unsigned int num_elem  = 1;
   sunrealtype real_value = 3.0;
   N_Vector v             = N_VNew_Serial(2, sunctx);
   N_Vector vec_we_got    = N_VClone(v);

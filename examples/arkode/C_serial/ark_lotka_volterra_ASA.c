@@ -63,7 +63,7 @@ typedef struct
   sunbooleantype keep_checks;
 } ProgramArgs;
 
-static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
+static sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 static void parse_args(int argc, char* argv[], ProgramArgs* args);
 static void print_help(int argc, char* argv[], int exit_code);
 static int check_retval(void* retval_ptr, const char* funcname, int opt);
@@ -99,7 +99,6 @@ int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
 {
   if (user_data != params) { return -1; }
 
-  sunrealtype* p  = (sunrealtype*)user_data;
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* v  = N_VGetArrayPointer(vvec);
   sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
@@ -123,7 +122,6 @@ void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p)
 
 void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p)
 {
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* dg = N_VGetArrayPointer(dgvec);
 
   dg[0] = SUN_RCONST(0.0);

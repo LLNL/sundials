@@ -39,7 +39,7 @@ typedef struct
   sunbooleantype keep_checks;
 } ProgramArgs;
 
-static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
+static sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 
 int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
 {
@@ -102,7 +102,6 @@ int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec,
 {
   if (user_data != params) { return -1; }
 
-  sunrealtype* p = (sunrealtype*)user_data;
   sunrealtype* u = N_VGetArrayPointer(uvec);
   sunrealtype* J = SUNDenseMatrix_Data(Jac);
 
@@ -123,7 +122,6 @@ int parameter_jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
 {
   if (user_data != params) { return -1; }
 
-  sunrealtype* p  = (sunrealtype*)user_data;
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* v  = N_VGetArrayPointer(vvec);
   sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
@@ -141,7 +139,6 @@ int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
 {
   if (user_data != params) { return -1; }
 
-  sunrealtype* p  = (sunrealtype*)user_data;
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* v  = N_VGetArrayPointer(vvec);
   sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
@@ -174,7 +171,6 @@ void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
 
 void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
 {
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* dg = N_VGetArrayPointer(dgvec);
 
   dg[0] = SUN_RCONST(0.0);
@@ -218,10 +214,9 @@ int adjoint_solution(SUNContext sunctx, SUNAdjointStepper adj_stepper,
                      SUNAdjointCheckpointScheme checkpoint_scheme,
                      const sunrealtype tf, const sunrealtype tout, N_Vector sf)
 {
-  int retval      = 0;
   int stop_reason = 0;
   sunrealtype t   = tf;
-  retval = SUNAdjointStepper_Evolve(adj_stepper, tout, sf, &t, &stop_reason);
+  SUNAdjointStepper_Evolve(adj_stepper, tout, sf, &t, &stop_reason);
 
   printf("Adjoint Solution:\n");
   N_VPrint(sf);

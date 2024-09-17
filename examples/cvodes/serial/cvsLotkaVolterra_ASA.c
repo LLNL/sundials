@@ -50,7 +50,7 @@
 
 static int check_retval(void* retval_ptr, const char* funcname, int opt);
 
-static const sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
+static sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 
 /* Function to compute the ODE right-hand side */
 static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec,
@@ -87,7 +87,6 @@ int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
 {
   if (user_data != params) { return -1; }
 
-  sunrealtype* p  = (sunrealtype*)user_data;
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* v  = N_VGetArrayPointer(vvec);
   sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
@@ -118,11 +117,6 @@ void dgdu(N_Vector uvec, N_Vector dgvec)
 static int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
                        N_Vector ldotvec, void* user_data)
 {
-  sunrealtype* p         = (sunrealtype*)user_data;
-  sunrealtype* u         = N_VGetArrayPointer(uvec);
-  sunrealtype* lambda    = N_VGetArrayPointer(lvec);
-  sunrealtype* lambdaDot = N_VGetArrayPointer(ldotvec);
-
   vjp(lvec, ldotvec, t, uvec, user_data);
   N_VScale(-1.0, ldotvec, ldotvec);
 
@@ -135,13 +129,7 @@ static int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
 static int quad_rhs(sunrealtype t, N_Vector uvec, N_Vector muvec,
                     N_Vector qBdotvec, void* user_dataB)
 {
-  sunrealtype* p     = (sunrealtype*)user_dataB;
-  sunrealtype* u     = N_VGetArrayPointer(uvec);
-  sunrealtype* mu    = N_VGetArrayPointer(muvec);
-  sunrealtype* qBdot = N_VGetArrayPointer(qBdotvec);
-
   parameter_vjp(muvec, qBdotvec, t, uvec, user_dataB);
-
   return 0;
 }
 
@@ -150,7 +138,7 @@ int main(int argc, char* argv[])
   SUNContext sunctx;
   sunrealtype reltol, abstol, t, tout;
   N_Vector u, uB, qB;
-  void *cvode_mem, *cvode_memB;
+  void* cvode_mem;
   int which, retval;
 
   SUNContext_Create(SUN_COMM_NULL, &sunctx);

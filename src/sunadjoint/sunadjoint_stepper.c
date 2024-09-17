@@ -18,11 +18,13 @@
 #include "sundials/sundials_errors.h"
 #include "sundials/sundials_stepper.h"
 #include "sundials/sundials_types.h"
+#include "sundials_macros.h"
 
 SUNErrCode SUNAdjointStepper_Create(
   SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper, int64_t final_step_idx,
-  N_Vector sf, sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme,
-  SUNContext sunctx, SUNAdjointStepper* adj_stepper_ptr)
+  SUNDIALS_MAYBE_UNUSED N_Vector sf, sunrealtype tf,
+  SUNAdjointCheckpointScheme checkpoint_scheme, SUNContext sunctx,
+  SUNAdjointStepper* adj_stepper_ptr)
 {
   SUNFunctionBegin(sunctx);
 
@@ -87,7 +89,6 @@ SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper adj_stepper,
 
 {
   SUNFunctionBegin(adj_stepper->sunctx);
-  SUNStepper adj_sunstepper = adj_stepper->adj_sunstepper;
 
   SUNErrCode retcode = SUN_SUCCESS;
   sunrealtype t      = adj_stepper->tf;
@@ -130,12 +131,10 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
 }
 
 SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
-                                          int64_t start_idx, int64_t stop_idx,
-                                          sunrealtype t0, sunrealtype tf,
-                                          N_Vector y0)
+                                          int64_t start_idx, sunrealtype t0,
+                                          sunrealtype tf, N_Vector y0)
 {
   SUNFunctionBegin(adj_stepper->sunctx);
-  SUNStepper adj_sunstepper = adj_stepper->adj_sunstepper;
 
   int fwd_stop_reason = 0;
   sunrealtype fwd_t   = t0;

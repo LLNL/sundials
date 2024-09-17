@@ -339,9 +339,6 @@ SUNErrCode SUNProfiler_GetElapsedTime(SUNProfiler p, const char* name,
 
 SUNErrCode SUNProfiler_Reset(SUNProfiler p)
 {
-  int i                 = 0;
-  sunTimerStruct* timer = NULL;
-
   if (!p) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Reset the overhead timer */
@@ -368,7 +365,6 @@ SUNErrCode SUNProfiler_Reset(SUNProfiler p)
 SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
 {
   SUNErrCode ier             = 0;
-  int i                      = 0;
   int rank                   = 0;
   sunTimerStruct* timer      = NULL;
   SUNHashMapKeyValue* sorted = NULL;
@@ -423,7 +419,7 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
 #endif
 
     /* Print all the other timers out */
-    for (i = 0; i < SUNHashMap_Capacity(p->map); i++)
+    for (size_t i = 0; i < SUNHashMap_Capacity(p->map); i++)
     {
       if (sorted[i]) { sunPrintTimer(sorted[i], fp, (void*)p); }
     }
@@ -463,7 +459,7 @@ static void sunTimerStructReduceMaxAndSum(void* a, void* b, int* len,
 /* Find the max and average time across all ranks */
 SUNErrCode sunCollectTimers(SUNProfiler p)
 {
-  int i, rank, nranks;
+  int rank, nranks;
 
   MPI_Comm comm = p->comm;
   MPI_Comm_rank(comm, &rank);
@@ -477,7 +473,7 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
   SUNHashMap_Values(p->map, (void***)&values, sizeof(sunTimerStruct));
   sunTimerStruct* reduced =
     (sunTimerStruct*)malloc(map_size * sizeof(sunTimerStruct));
-  for (i = 0; i < map_size; ++i) { reduced[i] = *values[i]; }
+  for (size_t i = 0; i < map_size; ++i) { reduced[i] = *values[i]; }
 
   /* Register MPI datatype for sunTimerStruct */
   MPI_Datatype tmp_type, MPI_sunTimerStruct;
@@ -515,7 +511,7 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
   MPI_Op_free(&MPI_sunTimerStruct_MAXANDSUM);
 
   /* Update the values that are in this rank's hash map. */
-  for (i = 0; i < map_size; ++i)
+  for (size_t i = 0; i < map_size; ++i)
   {
     values[i]->average = reduced[i].average / (double)nranks;
     values[i]->maximum = reduced[i].maximum;

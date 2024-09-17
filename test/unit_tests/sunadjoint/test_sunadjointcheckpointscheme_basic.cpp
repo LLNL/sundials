@@ -62,15 +62,14 @@ void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
     {
       N_VConst(step * stage, state);
       sunrealtype ts = t; //t + dt / stages;
-      SUNErrCode err = SUNAdjointCheckpointScheme_InsertVector(cs, step, stage,
-                                                               ts, state);
+      err = SUNAdjointCheckpointScheme_InsertVector(cs, step, stage, ts, state);
       EXPECT_EQ(err, SUN_SUCCESS);
     }
 
     int stage_idx = step == 0 ? stages + 1 : stages;
     N_VConst(step * stage_idx, state);
-    SUNErrCode err = SUNAdjointCheckpointScheme_InsertVector(cs, step, stage_idx,
-                                                             t + dt, state);
+    err = SUNAdjointCheckpointScheme_InsertVector(cs, step, stage_idx, t + dt,
+                                                  state);
     EXPECT_EQ(err, SUN_SUCCESS);
 
     t += dt;
@@ -92,7 +91,7 @@ void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
       for (int stage = stages; stage >= 1; --stage)
       {
         N_VConst(step * stage, state);
-        int stage_idx = step == 0 ? stage : stage - 1;
+        stage_idx = step == 0 ? stage : stage - 1;
         err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage_idx, 0,
                                                     &loaded, &tout);
         EXPECT_EQ(err, SUN_SUCCESS);
@@ -236,7 +235,6 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, SingleStageWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  const sunrealtype t               = 0.0;
   uint64_t interval                 = 1;
   uint64_t estimate                 = 100;
   sunbooleantype save_stages        = SUNTRUE;

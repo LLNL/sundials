@@ -581,7 +581,6 @@ int Test_SUNMatMatvecTranspose(SUNMatrix A, SUNMatrix AT, N_Vector x,
 {
   int failure;
   double start_time, stop_time;
-  SUNMatrix B, C;
   N_Vector z, w;
   sunrealtype tol = 100 * SUN_UNIT_ROUNDOFF;
 

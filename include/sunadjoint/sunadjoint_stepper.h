@@ -72,9 +72,8 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
-                                          int64_t start_idx, int64_t stop_idx,
-                                          sunrealtype t0, sunrealtype tf,
-                                          N_Vector y0);
+                                          int64_t start_idx, sunrealtype t0,
+                                          sunrealtype tf, N_Vector y0);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper, SUNJacFn JacFn,

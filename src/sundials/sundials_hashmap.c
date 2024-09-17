@@ -378,7 +378,7 @@ int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
   {
     /* Keys did not match, so we have a collision and need to probe */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet,
-                                (void*)key);
+                                (const void*)key);
     if (retval < 0) { return (-1); /* error occurred */ }
     else if (retval > SUNHashMap_Capacity(map)) { return (-2); /* not found */ }
     else { idx = retval; }
@@ -412,8 +412,6 @@ int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
 SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
                            int (*compar)(const void*, const void*))
 {
-  int i;
-
   if (!map || !compar) { return SUN_ERR_ARG_CORRUPT; }
 
   *sorted =
@@ -421,7 +419,7 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
   if (!(*sorted)) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the buckets into a new array */
-  for (i = 0; i < SUNHashMap_Capacity(map); i++)
+  for (size_t i = 0; i < SUNHashMap_Capacity(map); i++)
   {
     (*sorted)[i] = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i);
   }
@@ -444,7 +442,6 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
  */
 SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
 {
-  int i;
   int count = 0;
 
   if (!map) { return SUN_ERR_ARG_CORRUPT; }
@@ -453,7 +450,7 @@ SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
   if (!values) { return SUN_ERR_MALLOC_FAIL; }
 
   /* Copy the values into a new array */
-  for (i = 0; i < SUNHashMap_Capacity(map); i++)
+  for (size_t i = 0; i < SUNHashMap_Capacity(map); i++)
   {
     SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i);
     if (kvp) { (*values)[count++] = kvp->value; }
@@ -464,14 +461,11 @@ SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size)
 
 SUNErrCode SUNHashMap_PrintKeys(SUNHashMap map, FILE* file)
 {
-  int i;
-  int count = 0;
-
   if (!map) { return SUN_ERR_ARG_CORRUPT; }
 
   /* Print keys into a new array */
   fprintf(file, "[");
-  for (i = 0; i < SUNHashMap_Capacity(map); i++)
+  for (size_t i = 0; i < SUNHashMap_Capacity(map); i++)
   {
     SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i);
     if (kvp) { fprintf(file, "%s, ", kvp->key); }

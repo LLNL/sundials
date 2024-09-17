@@ -2168,14 +2168,12 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   N_Vector sens_n               = ark_mem->ycur;
   N_Vector sens_tmp             = step_mem->sdata;
   N_Vector Lambda_tmp           = N_VGetSubvector_ManyVector(sens_tmp, 0);
-  N_Vector nu_tmp               = N_VGetSubvector_ManyVector(sens_tmp, 1);
   N_Vector lambda_np1           = N_VGetSubvector_ManyVector(sens_np1, 0);
-  N_Vector mu_np1               = N_VGetSubvector_ManyVector(sens_np1, 1);
   N_Vector* stage_values        = step_mem->Fe;
 
-  /* determine if method has fsal property */
-  sunbooleantype fsal = (SUNRabs(step_mem->Be->A[0][0]) == ZERO) &&
-                        ARKodeButcherTable_IsStifflyAccurate(step_mem->Be);
+  // /* determine if method has fsal property */
+  // sunbooleantype fsal = (SUNRabs(step_mem->Be->A[0][0]) == ZERO) &&
+  //                       ARKodeButcherTable_IsStifflyAccurate(step_mem->Be);
 
   /* Loop over stages */
   for (int is = step_mem->stages - 1; is >= 0; --is)
@@ -2261,8 +2259,8 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                              ", tf = %" RSYM "",
                              start_step, stop_step, t0, tf);
 #endif
-          if (SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, stop_step,
-                                             t0, tf, checkpoint))
+          if (SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, t0, tf,
+                                             checkpoint))
           {
             return (ARK_RHSFUNC_FAIL);
           }
@@ -3617,9 +3615,8 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   SUNAdjointStepper adj_stepper           = (SUNAdjointStepper)content;
   SUNAdjointCheckpointScheme check_scheme = adj_stepper->checkpoint_scheme;
-  ARKodeMem ark_mem         = (ARKodeMem)adj_stepper->adj_sunstepper->content;
-  ARKodeARKStepMem step_mem = (ARKodeARKStepMem)ark_mem->step_mem;
-  void* user_data           = adj_stepper->user_data;
+  ARKodeMem ark_mem = (ARKodeMem)adj_stepper->adj_sunstepper->content;
+  void* user_data   = adj_stepper->user_data;
 
   N_Vector Lambda_part     = N_VGetSubvector_ManyVector(sens_partial_stage, 0);
   N_Vector Lambda          = N_VGetSubvector_ManyVector(sens_complete_stage, 0);
@@ -3753,7 +3750,7 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
   retval   = ARKodeGetNumSteps(arkode_mem, &nst);
   if (retval)
   {
-    arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "ARKodeGetNumSteps failed");
     return retval;
   }
@@ -3767,7 +3764,7 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
   retval = ARKodeSetFixedStep(arkode_mem_adj, -ark_mem->h);
   if (retval)
   {
-    arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "ARKodeSetFixedStep failed");
     return retval;
   }
@@ -3776,7 +3773,7 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
                             step_mem->Bi, step_mem->Be);
   if (retval)
   {
-    arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "ARKStepSetTables failed");
     return retval;
   }
@@ -3784,7 +3781,7 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
   retval = ARKodeSetMaxNumSteps(arkode_mem_adj, nst);
   if (retval)
   {
-    arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "ARKodeSetMaxNumSteps failed");
     return retval;
   }
@@ -3793,7 +3790,7 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
                                             ark_mem->checkpoint_scheme);
   if (retval)
   {
-    arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "ARKodeSetAdjointCheckpointScheme failed");
     return retval;
   }
@@ -3803,7 +3800,7 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
   retval = ARKStepCreateSUNStepper(arkode_mem, &fwd_stepper);
   if (retval)
   {
-    arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "ARKStepCreateSUNStepper failed");
     return retval;
   }
@@ -3812,7 +3809,7 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
   retval = ARKStepCreateSUNStepper(arkode_mem_adj, &adj_stepper);
   if (retval)
   {
-    arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "ARKStepCreateSUNStepper failed");
     return retval;
   }
@@ -3822,15 +3819,29 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
                                      ark_mem->tretlast,
                                      ark_mem->checkpoint_scheme,
                                      ark_mem->sunctx, adj_stepper_ptr);
+  if (errcode)
+  {
+    retval = ARK_UNRECOGNIZED_ERROR;
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "SUNAdjointStepper_Create failed");
+    return retval;
+  }
 
   errcode = SUNAdjointStepper_SetUserData(*adj_stepper_ptr, ark_mem->user_data);
+  if (errcode)
+  {
+    retval = ARK_UNRECOGNIZED_ERROR;
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "SUNAdjointStepper_SetUserData failed");
+    return retval;
+  }
 
   /* We need access to the adjoint solver to access the parameter Jacobian inside of ARKStep's
      backwards integration of the the adjoint problem. */
   retval = ARKodeSetUserData(arkode_mem_adj, *adj_stepper_ptr);
   if (retval)
   {
-    arkProcessError(NULL, retval, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "ARKodeSetUserData failed");
     return retval;
   }
