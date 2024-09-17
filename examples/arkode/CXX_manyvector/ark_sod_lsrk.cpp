@@ -271,7 +271,7 @@ int frhs(sunrealtype t, N_Vector y, N_Vector f, void* user_data)
   // of variable shortcuts, and compute flux at lower x-directional face
   for (long int i = 3; i < nx - 2; i++)
   {
-    udata->pack1D(udata->w1d, rho, mx, my, mz, et, i);
+    udata->pack1D(rho, mx, my, mz, et, i);
     face_flux(udata->w1d, &(flux[i * NSPECIES]), *udata);
   }
 
@@ -282,13 +282,13 @@ int frhs(sunrealtype t, N_Vector y, N_Vector f, void* user_data)
     if ((i > 2) && (i < udata->nx - 2)) continue;
 
     // x-directional fluxes at "lower" face
-    udata->pack1D_bdry(udata->w1d, rho, mx, my, mz, et, i);
+    udata->pack1D_bdry(rho, mx, my, mz, et, i);
     face_flux(udata->w1d, &(flux[i * NSPECIES]), *udata);
 
     // x-directional fluxes at "upper" boundary face
     if (i == udata->nx - 1)
     {
-      udata->pack1D_bdry(udata->w1d, rho, mx, my, mz, et, nx);
+      udata->pack1D_bdry(rho, mx, my, mz, et, nx);
       face_flux(udata->w1d, &(flux[nx * NSPECIES]), *udata);
     }
   }
