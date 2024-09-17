@@ -83,7 +83,7 @@ static inline void MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype self)
 {
   if (self->size == self->capacity)
   {
-    size_t new_capacity = (size_t)(ceil(self->capacity * GROWTH_FACTOR));
+    size_t new_capacity = (size_t)(ceil(((double)self->capacity) * GROWTH_FACTOR));
     MAKE_NAME(SUNStlVectorTtype, Resize)(self, new_capacity);
   }
 }
