@@ -806,7 +806,7 @@ Main solver optional output functions
    :param user_data: memory reference to a user data pointer
 
    :retval ARK_SUCCESS: if successful
-   :retval ARK_MEM_NULL: if the ARKStep memory was ``NULL``
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
    .. deprecated:: 6.1.0
 

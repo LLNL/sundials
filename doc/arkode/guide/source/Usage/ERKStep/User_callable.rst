@@ -650,7 +650,7 @@ Optional inputs for ERKStep
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
 
    .. versionadded:: 5.6.0
 
@@ -1874,7 +1874,7 @@ Main solver optional output functions
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+      * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
    .. versionadded:: 5.3.0
 

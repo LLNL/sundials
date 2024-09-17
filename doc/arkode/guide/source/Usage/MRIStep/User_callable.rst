@@ -361,7 +361,7 @@ MRIStep solver function
             internal time-stepping.
 
         (b) The linear solver initialization function (called by the
-            user after calling :c:func:`ARKStepCreate`) failed to set
+            user after calling :c:func:`MRIStepCreate`) failed to set
             the linear solver-specific *lsolve* field in
             *arkode_mem*.
 
@@ -701,7 +701,7 @@ Optional inputs for MRIStep
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
    .. versionadded:: 5.6.0
 
@@ -757,11 +757,10 @@ Optional inputs for MRIStep
    user-supplied functions called by the outer integrator for which it is an
    argument; otherwise ``NULL`` is passed.
 
-   To attach a user data block to the inner integrator call the appropriate
-   *SetUserData* function for the inner integrator memory structure (e.g.,
-   :c:func:`ARKStepSetUserData()` if the inner stepper is ARKStep). This pointer
-   may be the same as or different from the pointer attached to the outer
-   integrator depending on what is required by the user code.
+   To attach a user data block to the inner integrator call :c:func:`ARKodeSetUserData`
+   for the inner integrator memory structure. This pointer may be the same as or
+   different from the pointer attached to the outer integrator depending on what is
+   required by the user code.
 
    .. deprecated:: 6.1.0
 
@@ -1987,7 +1986,7 @@ Main solver optional output functions
 
    * *ARK_SUCCESS* if successful
 
-   * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
    .. versionadded:: 5.3.0
 
@@ -2642,7 +2641,7 @@ To reinitialize the MRIStep module for the solution of a new problem,
 where a prior call to :c:func:`MRIStepCreate()` has been made, the
 user must call the function :c:func:`MRIStepReInit()`.  The new
 problem must have the same size as the previous one.  This routine
-retains the current settings for all ARKstep module options and
+retains the current settings for all MRIStep module options and
 performs the same input checking and initializations that are done in
 :c:func:`MRIStepCreate()`, but it performs no memory allocation as is
 assumes that the existing internal memory is sufficient for the new

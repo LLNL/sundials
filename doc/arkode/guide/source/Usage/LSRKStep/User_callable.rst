@@ -80,8 +80,8 @@ Optional input functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. typo in the method type).
-      
-   .. note:: If this routine is not called, then LSRKStep will use the Runge--Kutta--Chebyshev method by default. 
+
+   .. note:: If this routine is not called, then LSRKStep will use the Runge--Kutta--Chebyshev method by default.
 
 
 Allowable Method Families
@@ -93,11 +93,11 @@ Allowable Method Families
    * ``ARKODE_LSRK_SSPs_2`` -- SSP(s,2) -- 2nd order, s-stage
    * ``ARKODE_LSRK_SSPs_3`` -- SSP(s,3) -- 3rd order, s-stage
    * ``ARKODE_LSRK_SSP10_4`` -- SSP(10,4) -- 4th order, 10-stage
-   
+
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig);
 
    Specifies the Dominant Eigenvalue approximation routine to
-   be used for determining the number of stages that will be used by either the 
+   be used for determining the number of stages that will be used by either the
    Runge--Kutta--Chebyshev or Runge--Kutta--Legendre methods.
 
    **Arguments:**
@@ -108,7 +108,7 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* ``DomEig = NULL`` and LSRKStep does not currently estimate this internally.
-      
+
    .. note:: This function is currently required when either the RKC or RKL methods are used; it is ignored when using SSPRK methods.
 
 
@@ -129,7 +129,7 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit);
 
-   Specifies the maximum number of stages allowed within each time step.  This bound only applies to 
+   Specifies the maximum number of stages allowed within each time step.  This bound only applies to
    RKL and RKC methods, and any inputs are ignored for SSPRK methods.
 
    **Arguments:**
@@ -159,7 +159,7 @@ Allowable Method Families
 .. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages);
 
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods.  This input is ignored by RKC and RKL methods.
-      
+
       * ``ARKODE_LSRK_SSPs_2``  -- ``numofstages`` must be greater than or equal to 2
       * ``ARKODE_LSRK_SSPs_3``  -- ``numofstages`` must be a perfect-square greater than or equal to 9
       * ``ARKODE_LSRK_SSP10_4`` -- ``numofstages`` cannot be modified from 10, so this function should not be called.
@@ -171,7 +171,7 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``numofstages < 2``)      
+      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``numofstages < 2``)
 
 
 .. _ARKODE.Usage.LSRKStep.OptionalOutputs:
@@ -205,7 +205,7 @@ Optional output functions
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``     
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
 .. c:function:: int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax);
@@ -218,7 +218,7 @@ Optional output functions
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``  
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
 .. c:function:: int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* averstage);
@@ -231,7 +231,7 @@ Optional output functions
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``  
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
 .. _ARKODE.Usage.LSRKStep.Reinitialization:
@@ -251,7 +251,7 @@ problem.  A call to this re-initialization routine deletes the
 solution history that was stored internally during the previous
 integration, and deletes any previously-set *tstop* value specified via a
 call to :c:func:`ARKodeSetStopTime()`.  Following a successful call to
-:c:func:`LSRKStepReInit()`, call :c:func:`ARKStepEvolve()` again for the
+:c:func:`LSRKStepReInit()`, call :c:func:`ARKodeEvolve()` again for the
 solution of the new problem.
 
 One important use of the :c:func:`LSRKStepReInit()` function is in the
@@ -283,7 +283,7 @@ vector.
       * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the explicit right-hand side function in :math:`\dot{y} = f^E(t,y)`.
       * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
-        defining the implicit right-hand side function in :math:`\dot{y} = f^I(t,y)`.        
+        defining the implicit right-hand side function in :math:`\dot{y} = f^I(t,y)`.
       * *t0* -- the initial value of :math:`t`.
       * *y0* -- the initial condition vector :math:`y(t_0)`.
 
