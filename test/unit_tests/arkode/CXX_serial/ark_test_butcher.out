@@ -50,6 +50,8 @@ ARKodeButcherTable_CheckOrder:
 Testing method ARKODE_FORWARD_EULER_1_1:  table matches predicted method/embedding orders of 1/0
 Testing method ARKODE_RALSTON_EULER_2_1_2:  table matches predicted method/embedding orders of 2/1
 Testing method ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2:  table matches predicted method/embedding orders of 2/1
+Testing method ARKODE_RALSTON_3_1_2:  table matches predicted method/embedding orders of 2/1
+Testing method ARKODE_TSITOURAS_7_4_5:  table matches predicted method/embedding orders of 5/4
 
 Testing individual DIRK methods:
 

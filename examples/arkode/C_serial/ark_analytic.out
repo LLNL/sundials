@@ -7,10 +7,10 @@ Analytical ODE test problem:
         t           u
    ---------------------
     1.000000    0.785398
-    2.000000    1.107149
+    2.000000    1.107148
     3.000000    1.249046
     4.000000    1.325818
-    5.000000    1.373401
+    5.000000    1.373400
     6.000000    1.405648
     7.000000    1.428899
     8.000000    1.446441
@@ -19,12 +19,12 @@ Analytical ODE test problem:
    ---------------------
 
 Final Solver Statistics:
-   Internal solver steps = 559 (attempted = 559)
-   Total RHS evals:  Fe = 0,  Fi = 5593
-   Total linear solver setups = 25
+   Internal solver steps = 94 (attempted = 94)
+   Total RHS evals:  Fe = 0,  Fi = 943
+   Total linear solver setups = 21
    Total RHS evals for setting up the linear system = 0
-   Total number of Jacobian evaluations = 5
-   Total number of Newton iterations = 2795
+   Total number of Jacobian evaluations = 2
+   Total number of Newton iterations = 470
    Total number of linear solver convergence failures = 0
    Total number of error test failures = 0
 
