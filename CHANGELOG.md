@@ -19,6 +19,10 @@ backends with Trilinos.  As such, Trilinos 14 or newer is required and the
 
 Example programs using *hypre* have been updated to support v2.20 and newer.
 
+The build system has been updated to utilize the CMake LAPACK imported target
+which should ease building SUNDIALS with LAPACK libraries that require setting
+specific linker flags e.g., MKL.
+
 Added support for multirate time step adaptivity controllers, based on the
 recently introduced `SUNAdaptController` base class, to ARKODE's MRIStep module.
 Added new default MRI methods for temporally adaptive versus fixed-step runs.
@@ -26,7 +30,6 @@ Added new default MRI methods for temporally adaptive versus fixed-step runs.
 Added functionality to ARKODE to accumulate a temporal error
 estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorType`,
 `ARKodeResetAccumulatedError`, and `ARKodeGetAccumulatedError` for details.
-
 
 ### Bug Fixes
 
