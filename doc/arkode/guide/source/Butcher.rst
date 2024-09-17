@@ -140,85 +140,78 @@ half-plane indicate an `A-stable` method.
 Explicit Butcher tables
 ---------------------------
 
-In the category of explicit Runge--Kutta methods, ARKODE includes
-methods that have orders 2 through 9, with embeddings that are of
-orders 1 through 8.  Each of ARKODE's explicit Butcher tables are
-specified via a unique ID and name:
+In the category of explicit Runge--Kutta methods, ARKODE includes methods that
+have orders 2 through 9, with embeddings that are of orders 1 through 8.
+ARKODE's explicit Butcher tables are provided in the enumeration
 
 .. c:enum:: ARKODE_ERKTableID
 
-with values specified for each method below (e.g., ``ARKODE_HEUN_EULER_2_1_2``).
-A summary of the method is given in :numref:`ARKODE.Butcher.ERK_properties`.
+with values specified in :numref:`ARKODE.Butcher.ERK_properties`.
 
 .. _ARKODE.Butcher.ERK_properties:
 .. table:: Explicit Butcher tables. The default method for each order is marked
    with an asterisk (*).
 
-   +------------------------------------------+--------+----------------+-------+
-   | Method ID                                | Stages | Embedded Order | Order |
-   +==========================================+========+================+=======+
-   | ``ARKODE_FORWARD_EULER_1_1``             | 1      | ---            | 1*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_RALSTON_3_1_2``                 | 3      | 1              | 2*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_HEUN_EULER_2_1_2``              | 2      | 1              | 2     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_RALSTON_EULER_2_1_2``           | 2      | 1              | 2     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2`` | 2      | 1              | 2     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK2_ERK_3_1_2``                | 3      | 1              | 2     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_BOGACKI_SHAMPINE_4_2_3``        | 4      | 2              | 3*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK324L2SA_ERK_4_2_3``          | 4      | 2              | 3     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_SHU_OSHER_3_2_3``               | 3      | 2              | 3     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_KNOTH_WOLKE_3_3``               | 3      | ---            | 3     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_SOFRONIOU_SPALETTA_5_3_4``      | 5      | 3              | 4*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ZONNEVELD_5_3_4``               | 5      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK436L2SA_ERK_6_3_4``          | 6      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK437L2SA_ERK_7_3_4``          | 7      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_SAYFY_ABURUB_6_3_4``            | 6      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_TSITOURAS_7_4_5``               | 7      | 4              | 5*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_CASH_KARP_6_4_5``               | 6      | 4              | 5     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_FEHLBERG_6_4_5``                | 6      | 4              | 5     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_DORMAND_PRINCE_7_4_5``          | 7      | 4              | 5     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK548L2SA_ERK_8_4_5``          | 8      | 4              | 5     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK548L2SAb_ERK_8_4_5``         | 8      | 4              | 5     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_VERNER_9_5_6``                  | 9      | 5              | 6*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_VERNER_8_5_6``                  | 8      | 5              | 6     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_VERNER_10_6_7``                 | 10     | 6              | 7*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_VERNER_13_7_8``                 | 13     | 7              | 8*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_FEHLBERG_13_7_8``               | 13     | 7              | 8     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_VERNER_16_8_9``                 | 16     | 8              | 9*    |
-   +------------------------------------------+--------+----------------+-------+
+   +------------------------------------------------------+--------+----------------+-------+
+   | Method ID                                            | Stages | Embedded Order | Order |
+   +======================================================+========+================+=======+
+   | :c:enumerator:`ARKODE_FORWARD_EULER_1_1`             | 1      | ---            | 1*    |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_RALSTON_3_1_2`                 | 3      | 1              | 2*    |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_HEUN_EULER_2_1_2`              | 2      | 1              | 2     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_RALSTON_EULER_2_1_2`           | 2      | 1              | 2     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2` | 2      | 1              | 2     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK2_ERK_3_1_2`                | 3      | 1              | 2     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_BOGACKI_SHAMPINE_4_2_3`        | 4      | 2              | 3*    |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK324L2SA_ERK_4_2_3`          | 4      | 2              | 3     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_SHU_OSHER_3_2_3`               | 3      | 2              | 3     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_KNOTH_WOLKE_3_3`               | 3      | ---            | 3     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_SOFRONIOU_SPALETTA_5_3_4`      | 5      | 3              | 4*    |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ZONNEVELD_5_3_4`               | 5      | 3              | 4     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK436L2SA_ERK_6_3_4`          | 6      | 3              | 4     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK437L2SA_ERK_7_3_4`          | 7      | 3              | 4     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_SAYFY_ABURUB_6_3_4`            | 6      | 3              | 4     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_TSITOURAS_7_4_5`               | 7      | 4              | 5*    |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_CASH_KARP_6_4_5`               | 6      | 4              | 5     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_FEHLBERG_6_4_5`                | 6      | 4              | 5     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_DORMAND_PRINCE_7_4_5`          | 7      | 4              | 5     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK548L2SA_ERK_8_4_5`          | 8      | 4              | 5     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK548L2SAb_ERK_8_4_5`         | 8      | 4              | 5     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_VERNER_9_5_6`                  | 9      | 5              | 6*    |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_VERNER_8_5_6`                  | 8      | 5              | 6     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_VERNER_10_6_7`                 | 10     | 6              | 7*    |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_VERNER_13_7_8`                 | 13     | 7              | 8*    |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_FEHLBERG_13_7_8`               | 13     | 7              | 8     |
+   +------------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_VERNER_16_8_9`                 | 16     | 8              | 9*    |
+   +------------------------------------------------------+--------+----------------+-------+
 
 
-.. _Butcher.Forward_Euler:
-
-Forward-Euler-1-1
-^^^^^^^^^^^^^^^^^
-
-.. index:: Forward-Euler-1-1 ERK method
+.. c:enumerator:: ARKODE_FORWARD_EULER_1_1
 
 Accessible via the constant ``ARKODE_FORWARD_EULER_1_1`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
@@ -244,12 +237,7 @@ This is the default 1st order explicit method (from :cite:p:`Euler:68`).
    Linear stability region for the forward Euler method.
 
 
-.. _Butcher.Ralston:
-
-Ralston-3-1-2
-^^^^^^^^^^^^^
-
-.. index:: Ralston-3-1-2 ERK method
+.. c:enumerator:: ARKODE_RALSTON_3_1_2
 
 Accessible via the constant ``ARKODE_RALSTON_3_1_2`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
@@ -284,12 +272,7 @@ This is the default 2nd order explicit method
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Heun_Euler:
-
-Heun-Euler-2-1-2
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Heun-Euler-2-1-2 ERK method
+.. c:enumerator:: ARKODE_HEUN_EULER_2_1_2
 
 Accessible via the constant ``ARKODE_HEUN_EULER_2_1_2`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
@@ -322,12 +305,7 @@ Accessible via the string ``"ARKODE_HEUN_EULER_2_1_2"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Ralston_Euler:
-
-Ralston-Euler-2-1-2
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Ralston-Euler-2-1-2 ERK method
+.. c:enumerator:: ARKODE_RALSTON_EULER_2_1_2
 
 Accessible via the constant ``ARKODE_RALSTON_EULER_2_1_2`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
@@ -356,12 +334,7 @@ Accessible via the string ``"ARKODE_RALSTON_EULER_2_1_2"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Explicit_Midpoint_Euler:
-
-Explicit-Midpoint-Euler-2-1-2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Explicit-Midpoint-Euler-2-1-2 ERK method
+.. c:enumerator:: ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2
 
 Accessible via the constant ``ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
@@ -390,12 +363,7 @@ Accessible via the string ``"ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ARK2_ERK:
-
-ARK2-ERK-3-1-2
-^^^^^^^^^^^^^^
-
-.. index:: ARK2-ERK-3-1-2
+.. c:enumerator:: ARKODE_ARK2_ERK_3_1_2
 
 Accessible via the constant ``ARKODE_ARK2_ERK_3_1_2`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
@@ -426,12 +394,7 @@ explicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Bogacki_Shampine:
-
-Bogacki-Shampine-4-2-3
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Bogacki-Shampine-4-2-3 ERK method
+.. c:enumerator:: ARKODE_BOGACKI_SHAMPINE_4_2_3
 
 Accessible via the constant ``ARKODE_BOGACKI_SHAMPINE_4_2_3`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
@@ -463,14 +426,7 @@ explicit method (from :cite:p:`Bogacki:89`).
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-.. _Butcher.ARK_4_2_3_E:
-
-ARK324L2SA-ERK-4-2-3
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ARK324L2SA-ERK-4-2-3 method
+.. c:enumerator:: ARKODE_ARK324L2SA_ERK_4_2_3
 
 Accessible via the constant ``ARKODE_ARK324L2SA_ERK_4_2_3`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
@@ -503,10 +459,7 @@ method from :cite:p:`KenCarp:03`).
    region is outlined in blue; the embedding's region is in red.
 
 
-Shu-Osher-3-2-3
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Shu-Osher-3-2-3 ERK method
+.. c:enumerator:: ARKODE_SHU_OSHER_3_2_3
 
 Accessible via the constant ``ARKODE_SHU_OSHER_3_2_3`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
@@ -536,13 +489,7 @@ Accessible via the string ``"ARKODE_SHU_OSHER_3_2_3"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-
-.. _Butcher.Knoth_Wolke:
-
-Knoth-Wolke-3-3
-^^^^^^^^^^^^^^^^^^
-
-.. index:: Knoth-Wolke-3-3 ERK method
+.. c:enumerator:: ARKODE_KNOTH_WOLKE_3_3
 
 Accessible via the constant ``ARKODE_KNOTH_WOLKE_3_3`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`, or
@@ -571,12 +518,7 @@ This is the default 3th order slow and fast MRIStep method (from
    Linear stability region for the Knoth-Wolke method
 
 
-.. _Butcher.Sofroniou_Spaletta:
-
-Sofroniou-Spaletta-5-3-4
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Sofroniou-Spaletta-5-3-4 ERK method
+.. c:enumerator:: ARKODE_SOFRONIOU_SPALETTA_5_3_4
 
 Accessible via the constant ``ARKODE_SOFRONIOU_SPALETTA_5_3_4`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -613,14 +555,7 @@ This is the default 4th order explicit method.
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-.. _Butcher.Zonneveld:
-
-Zonneveld-5-3-4
-^^^^^^^^^^^^^^^^^^
-
-.. index:: Zonneveld-5-3-4 ERK method
+.. c:enumerator:: ARKODE_ZONNEVELD_5_3_4
 
 Accessible via the constant ``ARKODE_ZONNEVELD_5_3_4`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`, or
@@ -656,15 +591,7 @@ Accessible via the string ``"ARKODE_ZONNEVELD_5_3_4"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-.. _Butcher.ARK_6_3_4_E:
-
-ARK436L2SA-ERK-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ARK436L2SA-ERK-6-3-4 method
+.. c:enumerator:: ARKODE_ARK436L2SA_ERK_6_3_4
 
 Accessible via the constant ``ARKODE_ARK436L2SA_ERK_6_3_4`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -702,14 +629,7 @@ This is the explicit portion of the ARK4(3)6L[2]SA method from
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-.. _Butcher.ARK_7_3_4_E:
-
-ARK437L2SA-ERK-7-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ARK437L2SA-ERK-7-3-4 method
+.. c:enumerator:: ARKODE_ARK437L2SA_ERK_7_3_4
 
 Accessible via the constant ``ARKODE_ARK437L2SA_ERK_7_3_4`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -754,14 +674,7 @@ explicit portion of the ARK4(3)7L[2]SA method from :cite:p:`KenCarp:19`.
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-.. _Butcher.Sayfy_Aburub:
-
-Sayfy-Aburub-6-3-4
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Sayfy-Aburub-6-3-4 ERK method
+.. c:enumerator:: ARKODE_SAYFY_ABURUB_6_3_4
 
 Accessible via the constant ``ARKODE_SAYFY_ABURUB_6_3_4`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -794,12 +707,7 @@ Accessible via the string ``"ARKODE_SAYFY_ABURUB_6_3_4"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Tsitouras:
-
-Tsitouras-7-4-5
-^^^^^^^^^^^^^^^
-
-.. index:: Tsitouras-7-4-5 ERK method
+.. c:enumerator:: ARKODE_TSITOURAS_7_4_5
 
 Accessible via the constant ``ARKODE_TSITOURAS_7_4_5`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -844,12 +752,7 @@ This is the default 5th order explicit method (from :cite:p:`Tsitouras:11`).
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Cash-Karp:
-
-Cash-Karp-6-4-5
-^^^^^^^^^^^^^^^^^^
-
-.. index:: Cash-Karp-6-4-5 ERK method
+.. c:enumerator:: ARKODE_CASH_KARP_6_4_5
 
 Accessible via the constant ``ARKODE_CASH_KARP_6_4_5`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -886,17 +789,7 @@ Accessible via the string ``"ARKODE_CASH_KARP_6_4_5"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-
-
-.. _Butcher.Fehlberg:
-
-Fehlberg-6-4-5
-^^^^^^^^^^^^^^^^^
-
-.. index:: Fehlberg-6-4-5 ERK method
+.. c:enumerator:: ARKODE_FEHLBERG_6_4_5
 
 Accessible via the constant ``ARKODE_FEHLBERG_6_4_5`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -929,15 +822,7 @@ Accessible via the string ``"ARKODE_FEHLBERG_6_4_5"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-.. _Butcher.Dormand_Prince:
-
-Dormand-Prince-7-4-5
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Dormand-Prince-7-4-5 ERK method
+.. c:enumerator:: ARKODE_DORMAND_PRINCE_7_4_5
 
 Accessible via the constant ``ARKODE_DORMAND_PRINCE_7_4_5`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -971,15 +856,7 @@ Accessible via the string ``"ARKODE_DORMAND_PRINCE_7_4_5"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-.. _Butcher.ARK_8_4_5_E:
-
-ARK548L2SA-ERK-8-4-5
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ARK548L2SA-ERK-8-4-5 method
+.. c:enumerator:: ARKODE_ARK548L2SA_ERK_8_4_5
 
 Accessible via the constant ``ARKODE_ARK548L2SA_ERK_8_4_5`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -1026,16 +903,7 @@ This is the explicit portion of the ARK5(4)8L[2]SA method from
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-
-.. _Butcher.ARK_8_4_5b_E:
-
-ARK548L2SAb-ERK-8-4-5
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ARK548L2SAb-ERK-8-4-5 method
+.. c:enumerator:: ARKODE_ARK548L2SAb_ERK_8_4_5
 
 Accessible via the constant ``ARKODE_ARK548L2SAb_ERK_8_4_5`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -1083,13 +951,7 @@ explicit portion of the 5th order ARK5(4)8L[2]SA method from
    region is outlined in blue; the embedding's region is in red.
 
 
-
-.. _Butcher.Verner-6-5b:
-
-Verner-9-5-6
-^^^^^^^^^^^^^^
-
-.. index:: Verner-9-5-6 ERK method
+.. c:enumerator:: ARKODE_VERNER_9_5_6
 
 Accessible via the constant ``ARKODE_VERNER_9_5_6`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -1139,14 +1001,7 @@ This is the default 6th order explicit method
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-.. _Butcher.Verner-6-5:
-
-Verner-8-5-6
-^^^^^^^^^^^^^^
-
-.. index:: Verner-8-5-6 ERK method
+.. c:enumerator:: ARKODE_VERNER_8_5_6
 
 Accessible via the constant ``ARKODE_VERNER_8_5_6`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -1185,13 +1040,7 @@ Accessible via the string ``"ARKODE_VERNER_8_5_6"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-
-.. _Butcher.Verner-7-6:
-
-Verner-10-6-7
-^^^^^^^^^^^^^^
-
-.. index:: Verner-10-6-7 ERK method
+.. c:enumerator:: ARKODE_VERNER_10_6_7
 
 Accessible via the constant ``ARKODE_VERNER_10_6_7`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -1235,13 +1084,7 @@ This is the default 7th order explicit method (from :cite:p:`Ver:10`).
    region is outlined in blue; the embedding's region is in red.
 
 
-
-.. _Butcher.Verner-8-7:
-
-Verner-13-7-8
-^^^^^^^^^^^^^^
-
-.. index:: Verner-13-7-8 ERK method
+.. c:enumerator:: ARKODE_VERNER_13_7_8
 
 Accessible via the constant ``ARKODE_VERNER_13_7_8`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -1294,13 +1137,7 @@ This is the default 8th order explicit method
    region is outlined in blue; the embedding's region is in red.
 
 
-
-.. _Butcher.Fehlberg-8-7:
-
-Fehlberg-13-7-8
-^^^^^^^^^^^^^^^^^^
-
-.. index:: Fehlberg-13-7-8 ERK method
+.. c:enumerator:: ARKODE_FEHLBERG_13_7_8
 
 Accessible via the constant ``ARKODE_FEHLBERG_13_7_8`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
@@ -1345,13 +1182,7 @@ Accessible via the string ``"ARKODE_FEHLBERG_13_7_8"`` to
    region is outlined in blue; the embedding's region is in red.
 
 
-
-.. _Butcher.Verner-9-8:
-
-Verner-16-8-9
-^^^^^^^^^^^^^^
-
-.. index:: Verner-16-8-9 ERK method
+.. c:enumerator:: ARKODE_VERNER_16_8_9
 
 Accessible via the constant ``ARKODE_VERNER_16_8_9`` to
 :c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`
