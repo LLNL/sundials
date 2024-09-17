@@ -90,7 +90,10 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile)
       fprintf(outfile, "  ark_hadapt: stability function data pointer = %p\n",
               hadapt_mem->estab_data);
     }
-    (void)SUNAdaptController_Write(hadapt_mem->hcontroller, outfile);
+    if (hadapt_mem->hcontroller != NULL)
+    {
+      (void)SUNAdaptController_Write(hadapt_mem->hcontroller, outfile);
+    }
   }
 }
 
@@ -105,6 +108,13 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   int retval;
   sunrealtype h_acc, h_cfl, int_dir;
   int controller_order;
+
+  /* Return with no stepsize adjustment if the controller is NULL */
+  if (hadapt_mem->hcontroller == NULL)
+  {
+    ark_mem->eta = ONE;
+    return (ARK_SUCCESS);
+  }
 
   /* Request error-based step size from adaptivity controller */
   if (hadapt_mem->pq == 0)

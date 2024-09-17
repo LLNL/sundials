@@ -1747,7 +1747,7 @@ int mriStep_SetCoupling(ARKodeMem ark_mem)
 
   if (q_actual < 1 || q_actual > 4)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                     "No MRI method at requested order, using q=3.");
     q_actual = 3;
   }
