@@ -3001,6 +3001,7 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
   ARKodeHAdaptMem hadapt_mem;
 
   if (*nflagPtr == ARK_SUCCESS) { return (ARK_SUCCESS); }
+  if (*nflagPtr == ARK_RETRY_STEP) { return (ARK_RETRY_STEP); }
 
   /* The nonlinear soln. failed; increment ncfn */
   ark_mem->ncfn++;

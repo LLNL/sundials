@@ -408,6 +408,15 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     ark_mem->e_data    = ark_mem;
   }
 
+  /* Set default parameters for the default stepper */
+  if (ark_mem->step == lsrkStep_TakeStepRKC)
+  {
+    step_mem->LSRKmethod   = ARKODE_LSRK_RKC;
+    step_mem->nfusedopvecs = 5;
+    step_mem->q = ark_mem->hadapt_mem->q = 2;
+    step_mem->p = ark_mem->hadapt_mem->p = 2;
+  }
+  
   /* Allocate ARK RHS vector memory, update storage requirements */
   /*   Allocate Fe if needed */
   if (step_mem->Fe == NULL)
@@ -557,7 +566,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
   sunrealtype* cvals;
-  sunrealtype w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, zjm1,
+  sunrealtype hmax, w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, zjm1,
     zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1, mu, nu, thj;
   const sunrealtype onep54 = SUN_RCONST(1.54), c13 = SUN_RCONST(13.0),
                     p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
@@ -585,14 +594,23 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   /* determine the number of required stages */
-  for (int ss = 1; ss < step_mem->stagemaxlimit; ss++)
+  int ss;
+  for (ss = 1; ss <= step_mem->stagemaxlimit; ss++)
   {
     if (SUNSQR(ss) >= (onep54 * SUNRabs(ark_mem->h) * step_mem->sprad))
     {
       step_mem->reqstages = SUNMAX(ss, 2);
       break;
     }
+    if (ss == step_mem->stagemaxlimit)
+    {
+      hmax = SUN_RCONST(0.95)*SUNSQR(ss)/(onep54*step_mem->sprad);
+      ark_mem->eta = hmax/ark_mem->h;
+      *nflagPtr = ARK_RETRY_STEP;
+      return (ARK_RETRY_STEP);
+    }
   }
+
   step_mem->stagemax = SUNMAX(step_mem->reqstages, step_mem->stagemax);
 
   /* Call the full RHS if needed. If this is the first step then we may need to
@@ -753,7 +771,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
   sunrealtype* cvals;
-  sunrealtype w1, bjm1, bjm2, mus, bj, ajm1, cjm1, temj, cj, mu, nu;
+  sunrealtype hmax, w1, bjm1, bjm2, mus, bj, ajm1, cjm1, temj, cj, mu, nu;
   const sunrealtype p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
   N_Vector* Xvecs;
   ARKodeLSRKStepMem step_mem;
@@ -778,25 +796,21 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->ndomeigupdates++;
   }
 
-  /* determine the number of required stages and shrink the step size if necessary*/
-
-  sunbooleantype recompute = SUNTRUE;
-  while (recompute)
+  /* determine the number of required stages */
+  int ss;
+  for (ss = 1; ss <= step_mem->stagemaxlimit; ss++)
   {
-    int ss;
-    for (ss = 1; ss < step_mem->stagemaxlimit; ss++)
+    if ((SUNSQR(ss) + ss - 2) >= 2 * (SUNRabs(ark_mem->h) * step_mem->sprad))
     {
-      if ((SUNSQR(ss) + ss - 2) >= 2 * (SUNRabs(ark_mem->h) * step_mem->sprad))
-      {
-        step_mem->reqstages = SUNMAX(ss, 2);
-        recompute           = SUNFALSE;
-        break;
-      }
+      step_mem->reqstages = SUNMAX(ss, 2);
+      break;
     }
     if (ss == step_mem->stagemaxlimit)
     {
-      ark_mem->h *= SUN_RCONST(0.5);
-      recompute = SUNTRUE;
+      hmax = SUN_RCONST(0.95)*(SUNSQR(ss) + ss - 2)/(2.0*step_mem->sprad);
+      ark_mem->eta = hmax/ark_mem->h;
+      *nflagPtr = ARK_RETRY_STEP;
+      return (ARK_RETRY_STEP);
     }
   }
 
@@ -1092,7 +1106,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   sunrealtype rs  = (sunrealtype)step_mem->reqstages;
   sunrealtype rn  = SUNRsqrt(rs);
   sunrealtype rat = ONE / (rs - rn);
-  int in          = (int)rn;
+  int in          = (int)SUNRround(rn);
 
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
