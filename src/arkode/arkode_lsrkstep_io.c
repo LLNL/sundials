@@ -456,8 +456,8 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->domeignfe      = 0;
   step_mem->stagemax       = 0;
   step_mem->ndomeigupdates = 0;
-  step_mem->stagemaxlimit =
-    SUNMAX(2, round(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround))));
+  step_mem->stagemaxlimit = round(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround)));
+  step_mem->stagemaxlimit = (step_mem->stagemaxlimit > 2) ? step_mem->stagemaxlimit : 2;
   step_mem->nstsig = 0;
 
   /* Spectral info */
