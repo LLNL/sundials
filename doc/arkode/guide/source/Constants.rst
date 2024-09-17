@@ -319,15 +319,15 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    | **LSRK method types**                         |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_LSRK_RKC`                      | Use Runge-Kutta-Chebyshev (RKC) method.                    |
+   | :index:`ARKODE_LSRK_RKC`                      | 2nd order Runge-Kutta-Chebyshev (RKC) method.              |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_LSRK_RKL`                      | Use Runge-Kutta-Legendre (RKL) method.                     |
+   | :index:`ARKODE_LSRK_RKL`                      | 2nd order Runge-Kutta-Legendre (RKL) method.               |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_LSRK_SSPs_2`                   | Optimal 2nd order s-stage SSP RK method.              |
+   | :index:`ARKODE_LSRK_SSPs_2`                   | Optimal 2nd order s-stage SSP RK method.                   |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_LSRK_SSPs_3`                   | Optimal 3rd order s-stage SSP RK method.              |
+   | :index:`ARKODE_LSRK_SSPs_3`                   | Optimal 3rd order s-stage SSP RK method.                   |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_LSRK_SSP10_4`                  | Optimal 4th order 10-stage SSP RK method.              |
+   | :index:`ARKODE_LSRK_SSP10_4`                  | Optimal 4th order 10-stage SSP RK method.                  |
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
