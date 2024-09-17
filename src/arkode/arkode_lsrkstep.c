@@ -416,7 +416,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
   }
-  
+
   /* Allocate ARK RHS vector memory, update storage requirements */
   /*   Allocate Fe if needed */
   if (step_mem->Fe == NULL)
@@ -566,8 +566,9 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
   sunrealtype* cvals;
-  sunrealtype hmax, w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, zjm1,
-    zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1, mu, nu, thj;
+  sunrealtype hmax, w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, 
+    zjm1, zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1, mu, nu, 
+    thj;
   const sunrealtype onep54 = SUN_RCONST(1.54), c13 = SUN_RCONST(13.0),
                     p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
   N_Vector* Xvecs;
@@ -604,12 +605,14 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
     if (ss == step_mem->stagemaxlimit)
     {
-      hmax = SUN_RCONST(0.95)*SUNSQR(ss)/(onep54*step_mem->sprad);
-      ark_mem->eta = hmax/ark_mem->h;
-      *nflagPtr = ARK_RETRY_STEP;
+      hmax         = SUN_RCONST(0.95) * SUNSQR(ss) / (onep54 * step_mem->sprad);
+      ark_mem->eta = hmax / ark_mem->h;
+      *nflagPtr    = ARK_RETRY_STEP;
       return (ARK_RETRY_STEP);
     }
   }
+
+
 
   step_mem->stagemax = SUNMAX(step_mem->reqstages, step_mem->stagemax);
 
@@ -807,9 +810,9 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
     if (ss == step_mem->stagemaxlimit)
     {
-      hmax = SUN_RCONST(0.95)*(SUNSQR(ss) + ss - 2)/(2.0*step_mem->sprad);
-      ark_mem->eta = hmax/ark_mem->h;
-      *nflagPtr = ARK_RETRY_STEP;
+      hmax = SUN_RCONST(0.95) * (SUNSQR(ss) + ss - 2) / (2.0 * step_mem->sprad);
+      ark_mem->eta = hmax / ark_mem->h;
+      *nflagPtr    = ARK_RETRY_STEP;
       return (ARK_RETRY_STEP);
     }
   }
