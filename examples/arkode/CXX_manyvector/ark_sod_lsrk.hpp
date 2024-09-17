@@ -150,13 +150,13 @@ public:
   // {w(i-3), w(i-2), w(i-1), w(i), w(i+1), w(i+2)}.
   inline void pack1D(const sunrealtype* rho, const sunrealtype* mx,
                      const sunrealtype* my, const sunrealtype* mz,
-                     const sunrealtype* et, const long int& i) const
+                     const sunrealtype* et, const long int& i)
   {
-    for (int l = 0; l < 6; l++) w1d[l][0] = rho[i - 3 + l];
-    for (int l = 0; l < 6; l++) w1d[l][1] = mx[i - 3 + l];
-    for (int l = 0; l < 6; l++) w1d[l][2] = my[i - 3 + l];
-    for (int l = 0; l < 6; l++) w1d[l][3] = mz[i - 3 + l];
-    for (int l = 0; l < 6; l++) w1d[l][4] = et[i - 3 + l];
+    for (int l = 0; l < 6; l++) this->w1d[l][0] = rho[i - 3 + l];
+    for (int l = 0; l < 6; l++) this->w1d[l][1] = mx[i - 3 + l];
+    for (int l = 0; l < 6; l++) this->w1d[l][2] = my[i - 3 + l];
+    for (int l = 0; l < 6; l++) this->w1d[l][3] = mz[i - 3 + l];
+    for (int l = 0; l < 6; l++) this->w1d[l][4] = et[i - 3 + l];
   }
 
   // Utility routine to pack 1-dimensional data for locations near the
@@ -165,28 +165,28 @@ public:
   // are set to satisfy homogeneous Neumann boundary conditions.
   inline void pack1D_bdry(const sunrealtype* rho, const sunrealtype* mx,
                           const sunrealtype* my, const sunrealtype* mz,
-                          const sunrealtype* et, const long int& i) const
+                          const sunrealtype* et, const long int& i)
   {
     for (int l = 0; l < 3; l++)
-      w1d[l][0] = (i < (3 - l)) ? rho[2 - (i + l)] : rho[i - 3 + l];
+      this->w1d[l][0] = (i < (3 - l)) ? rho[2 - (i + l)] : rho[i - 3 + l];
     for (int l = 0; l < 3; l++)
-      w1d[l][1] = (i < (3 - l)) ? mx[2 - (i + l)] : mx[i - 3 + l];
+      this->w1d[l][1] = (i < (3 - l)) ? mx[2 - (i + l)] : mx[i - 3 + l];
     for (int l = 0; l < 3; l++)
-      w1d[l][2] = (i < (3 - l)) ? my[2 - (i + l)] : my[i - 3 + l];
+      this->w1d[l][2] = (i < (3 - l)) ? my[2 - (i + l)] : my[i - 3 + l];
     for (int l = 0; l < 3; l++)
-      w1d[l][3] = (i < (3 - l)) ? mz[2 - (i + l)] : mz[i - 3 + l];
+      this->w1d[l][3] = (i < (3 - l)) ? mz[2 - (i + l)] : mz[i - 3 + l];
     for (int l = 0; l < 3; l++)
-      w1d[l][4] = (i < (3 - l)) ? et[2 - (i + l)] : et[i - 3 + l];
+      this->w1d[l][4] = (i < (3 - l)) ? et[2 - (i + l)] : et[i - 3 + l];
     for (int l = 0; l < 3; l++)
-      w1d[l + 3][0] = (i > (nx - l - 1)) ? rho[i + l - 3] : rho[i + l];
+      this->w1d[l + 3][0] = (i > (nx - l - 1)) ? rho[i + l - 3] : rho[i + l];
     for (int l = 0; l < 3; l++)
-      w1d[l + 3][1] = (i > (nx - l - 1)) ? mx[i + l - 3] : mx[i + l];
+      this->w1d[l + 3][1] = (i > (nx - l - 1)) ? mx[i + l - 3] : mx[i + l];
     for (int l = 0; l < 3; l++)
-      w1d[l + 3][2] = (i > (nx - l - 1)) ? my[i + l - 3] : my[i + l];
+      this->w1d[l + 3][2] = (i > (nx - l - 1)) ? my[i + l - 3] : my[i + l];
     for (int l = 0; l < 3; l++)
-      w1d[l + 3][3] = (i > (nx - l - 1)) ? mz[i + l - 3] : mz[i + l];
+      this->w1d[l + 3][3] = (i > (nx - l - 1)) ? mz[i + l - 3] : mz[i + l];
     for (int l = 0; l < 3; l++)
-      w1d[l + 3][4] = (i > (nx - l - 1)) ? et[i + l - 3] : et[i + l];
+      this->w1d[l + 3][4] = (i > (nx - l - 1)) ? et[i + l - 3] : et[i + l];
   }
 
   // Equation of state -- compute and return pressure,
