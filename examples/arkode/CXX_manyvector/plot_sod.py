@@ -118,11 +118,11 @@ def exact_Riemann(t, x, xI):
         p40 = p41
         p41 = p4
         f0 = f1
-        if iter == itmax-1:
+        if iter == itmax - 1:
             raise ValueError("exact_Riemann iteration failed to converge")
 
     # compute post-shock density and velocity
-    z  = p4 / p5 - 1.0
+    z = p4 / p5 - 1.0
     c5 = np.sqrt(gamma * p5 / rho5)
 
     gm1 = gamma - 1.0
@@ -158,7 +158,7 @@ def exact_Riemann(t, x, xI):
     elif x < xft:
         u = 2.0 / gp1 * (c1 + (x - xI) / t)
         fact = 1.0 - 0.5 * gm1 * u / c1
-        rho = rho1 * fact ** (2.0/gm1)
+        rho = rho1 * fact ** (2.0 / gm1)
         p = p1 * fact ** (2.0 * gamma / gm1)
     elif x < xcd:
         rho = rho3
@@ -175,6 +175,7 @@ def exact_Riemann(t, x, xI):
 
     # return with success
     return rho, u, p
+
 
 # generate analytical solutions over same mesh and times as loaded from data file
 rhotrue = np.zeros((nt, nx), dtype=float)
