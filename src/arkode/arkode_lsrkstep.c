@@ -122,8 +122,6 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
     return (NULL);
   }
 
-  /* Allocate the general LSRK stepper vectors using y0 as a template */
-
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = fe;
   step_mem->fi = fi;
@@ -506,7 +504,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     break;
 
   case ARK_FULLRHS_END:
-    /* No further action is needed since the currently 
+    /* No further action is needed since the currently
     available methods evaluate the RHS at the end of each time step*/
 
     break;
@@ -561,8 +559,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunrealtype* cvals;
   sunrealtype w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, zjm1,
     zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1, mu, nu, thj;
-  static sunrealtype onep54 = SUN_RCONST(1.54), c13 = SUN_RCONST(13.0),
-                     p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
+  const sunrealtype onep54 = SUN_RCONST(1.54), c13 = SUN_RCONST(13.0),
+                    p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
   N_Vector* Xvecs;
   ARKodeLSRKStepMem step_mem;
 
@@ -578,7 +576,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-  /* Compute Dominat Eigenvalue and update stats */
+  /* Compute Dominant Eigenvalue and update stats */
   if ((step_mem->newdomeig))
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
@@ -756,7 +754,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   int retval;
   sunrealtype* cvals;
   sunrealtype w1, bjm1, bjm2, mus, bj, ajm1, cjm1, temj, cj, mu, nu;
-  static sunrealtype p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
+  const sunrealtype p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
   N_Vector* Xvecs;
   ARKodeLSRKStepMem step_mem;
 
@@ -772,7 +770,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-  /* Compute Dominated Eigenvalue and update stats */
+  /* Compute Dominant Eigenvalue and update stats */
   if ((step_mem->newdomeig))
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
@@ -1227,7 +1225,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   *nflagPtr = ARK_SUCCESS;
   *dsmPtr   = ZERO;
 
-  static sunrealtype onesixth = ONE / SIX, onefifth = ONE / FIVE;
+  const sunrealtype onesixth = ONE / SIX, onefifth = ONE / FIVE;
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -1435,15 +1433,15 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
     if (step_mem->lambdaR * ark_mem->h > ZERO)
     {
-      arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+      arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                       "\n\nlambdaR*h must be nonpositive\n");
-      return (ARK_ILL_INPUT);
+      return (ARK_DOMEIG_FAIL);
     }
     else if (step_mem->lambdaR == 0 && SUNRabs(step_mem->lambdaI) > 0)
     {
-      arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+      arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                       "\n\nDomEig cannot be purely imaginary\n");
-      return (ARK_ILL_INPUT);
+      return (ARK_DOMEIG_FAIL);
     }
 
     step_mem->lambdaR *= step_mem->domeigsfty;
@@ -1453,9 +1451,9 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   }
   else
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                     "\n\nInternal DomEig is not supported yet!\n");
-    return (ARK_ILL_INPUT);
+    return (ARK_DOMEIG_FAIL);
   }
   step_mem->jacatt = SUNTRUE;
 

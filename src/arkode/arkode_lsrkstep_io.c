@@ -53,7 +53,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step          = lsrkStep_TakeStepRKC;
     step_mem->LSRKmethod   = ARKODE_LSRK_RKC;
     step_mem->nfusedopvecs = 5;
-    /* Store method and embedding orders now that LSRK method choice is finalized */
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
@@ -61,7 +60,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step          = lsrkStep_TakeStepRKL;
     step_mem->LSRKmethod   = ARKODE_LSRK_RKL;
     step_mem->nfusedopvecs = 5;
-    /* Store method and embedding orders now that LSRK method choice is finalized */
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
@@ -69,7 +67,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   //   ark_mem->step = lsrkStep_TakeStepRKG;
   //   step_mem->LSRKmethod = ARKODE_LSRK_RKG;
   //   step_mem->nfusedopvecs = 5;
-  // /* Store method and embedding orders now that LSRK method choice is finalized */
   //   step_mem->q = ark_mem->hadapt_mem->q = 2;
   //   step_mem->p = ark_mem->hadapt_mem->p = 2;
   //   break;
@@ -80,7 +77,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 10;
     step_mem->nfusedopvecs      = 3;
-    /* Store method and embedding orders now that LSRK method choice is finalized */
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 1;
     break;
@@ -91,7 +87,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 9;
     step_mem->nfusedopvecs      = 3;
-    /* Store method and embedding orders now that LSRK method choice is finalized */
     step_mem->q = ark_mem->hadapt_mem->q = 3;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
@@ -102,7 +97,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 10;
     step_mem->nfusedopvecs      = 3;
-    /* Store method and embedding orders now that LSRK method choice is finalized */
     step_mem->q = ark_mem->hadapt_mem->q = 4;
     step_mem->p = ark_mem->hadapt_mem->p = 3;
     break;
@@ -143,9 +137,9 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig)
     step_mem->isextDomEig = SUNFALSE;
     step_mem->extDomEig   = NULL;
 
-    printf("\nInternal DomEig is not supported yet!\n");
-
-    return (ARK_FAIL_OTHER);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Internal DomEig is not supported yet!");
+    return (ARK_ILL_INPUT);
   }
 }
 
@@ -236,7 +230,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetSSPStageNum sets the number of stages in the following 
+  LSRKStepSetSSPStageNum sets the number of stages in the following
   SSP methods:
 
       ARKODE_LSRK_SSPs_2  -- numofstages must be greater than or equal to 2
