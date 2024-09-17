@@ -693,10 +693,13 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             )
             if "scheduler=flux" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "flux run"))
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux run"))
             if "scheduler=slurm" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "srun"))
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "srun"))
             if "scheduler=lsf" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "jsrun"))
+                entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "jsrun"))
 
 
         return entries
