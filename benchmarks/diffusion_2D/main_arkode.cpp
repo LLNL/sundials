@@ -32,7 +32,7 @@ struct UserOptions
   int onestep        = 0;                   // one step mode, number of steps
   bool linear        = true;                // linearly implicit RHS
   bool implicit      = true; // implicit (ARKStep) vs explicit STS (LSRKStep)
-  ARKODE_LSRKMethodType lsrkmethod = ARKODE_LSRK_RKC; // LSRK method type
+  ARKODE_LSRKMethodType lsrkmethod = ARKODE_LSRK_RKC_2; // LSRK method type
 
   // Linear solver and preconditioner settings
   std::string ls       = "cg";  // linear solver to use
@@ -685,11 +685,11 @@ void UserOptions::print()
     cout << " --------------------------------- " << endl;
     switch (lsrkmethod)
     {
-    case (ARKODE_LSRK_RKC): cout << " method = RKC " << endl; break;
-    case (ARKODE_LSRK_RKL):
-      cout << " method = RKL " << endl;
+    case (ARKODE_LSRK_RKC_2): cout << " method = RKC_2 " << endl; break;
+    case (ARKODE_LSRK_RKL_2):
+      cout << " method = RKL_2 " << endl;
       break;
-      // case (ARKODE_LSRK_RKG): cout << " method = RKG " << endl; break;
+      // case (ARKODE_LSRK_RKG_2): cout << " method = RKG_2 " << endl; break;
     }
     cout << " --------------------------------- " << endl;
   }

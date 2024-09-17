@@ -411,7 +411,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   /* Set default parameters for the default stepper */
   if (ark_mem->step == lsrkStep_TakeStepRKC)
   {
-    step_mem->LSRKmethod   = ARKODE_LSRK_RKC;
+    step_mem->LSRKmethod   = ARKODE_LSRK_RKC_2;
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;

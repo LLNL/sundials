@@ -368,8 +368,8 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }
 
   // Set maximum number of stages per step
-  flag = LSRKStepSetMaxStageNum(arkode_mem, udata->stagemaxlimit);
-  if (check_flag(&flag, "LSRKStepSetMaxStageNum", 1)) { return 1; }
+  flag = LSRKStepSetMaxNumStages(arkode_mem, udata->stagemaxlimit);
+  if (check_flag(&flag, "LSRKStepSetMaxNumStages", 1)) { return 1; }
 
   // Set spectral radius safety factor
   flag = LSRKStepSetDomEigSafetyFactor(arkode_mem, udata->eigsafety);
@@ -1218,7 +1218,7 @@ static int InitUserData(UserData* udata)
   udata->diagnostics = false;              // output diagnostics
 
   // LSRKStep options
-  udata->method        = ARKODE_LSRK_RKC; // RKC
+  udata->method        = ARKODE_LSRK_RKC_2; // RKC
   udata->eigfrequency  = 25;   // update eigenvalue at least every 20 steps
   udata->stagemaxlimit = 1000; // allow up to 1000 stages/step
   udata->eigsafety     = SUN_RCONST(1.01); // 1% safety factor

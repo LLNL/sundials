@@ -130,8 +130,8 @@ int main(void)
   if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }
 
   /* Specify max number of stages allowed */
-  flag = LSRKStepSetMaxStageNum(arkode_mem, 200);
-  if (check_flag(&flag, "LSRKStepSetMaxStageNum", 1)) { return 1; }
+  flag = LSRKStepSetMaxNumStages(arkode_mem, 200);
+  if (check_flag(&flag, "LSRKStepSetMaxNumStages", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
   flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
@@ -142,7 +142,7 @@ int main(void)
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
   /* Specify the Runge--Kutta--Chebyshev LSRK method */
-  flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC);
+  flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC_2);
   if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */

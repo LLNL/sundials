@@ -88,8 +88,8 @@ Allowable Method Families
 
 .. c:enum:: ARKODE_LSRKMethodType
 
-   * ``ARKODE_LSRK_RKC`` -- Runge--Kutta--Chebyshev
-   * ``ARKODE_LSRK_RKL`` -- Runge--Kutta--Legendre
+   * ``ARKODE_LSRK_RKC_2`` -- Runge--Kutta--Chebyshev
+   * ``ARKODE_LSRK_RKL_2`` -- Runge--Kutta--Legendre
    * ``ARKODE_LSRK_SSPs_2`` -- SSP(s,2) -- 2nd order, s-stage
    * ``ARKODE_LSRK_SSPs_3`` -- SSP(s,3) -- 3rd order, s-stage
    * ``ARKODE_LSRK_SSP10_4`` -- SSP(10,4) -- 4th order, 10-stage
@@ -127,7 +127,7 @@ Allowable Method Families
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``nsteps < 0``)
 
 
-.. c:function:: int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit);
+.. c:function:: int LSRKStepSetMaxNumStages(void* arkode_mem, int stagemaxlimit);
 
    Specifies the maximum number of stages allowed within each time step.  This bound only applies to
    RKL and RKC methods, and any inputs are ignored for SSPRK methods.
@@ -208,7 +208,7 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
-.. c:function:: int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax);
+.. c:function:: int LSRKStepGetMaxNumStages(void* arkode_mem, int* stagemax);
 
    Returns the max number of stages taken in any single step (so far).
 

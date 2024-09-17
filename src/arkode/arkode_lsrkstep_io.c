@@ -29,9 +29,9 @@
 
 /*---------------------------------------------------------------
   LSRKStepSetMethod sets method
-    ARKODE_LSRK_RKC
-    ARKODE_LSRK_RKL
-    ARKODE_LSRK_RKG
+    ARKODE_LSRK_RKC_2
+    ARKODE_LSRK_RKL_2
+    ARKODE_LSRK_RKG_2
     ARKODE_LSRK_SSPs_2
     ARKODE_LSRK_SSPs_3
     ARKODE_LSRK_SSP10_4
@@ -49,23 +49,23 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
 
   switch (method)
   {
-  case ARKODE_LSRK_RKC:
+  case ARKODE_LSRK_RKC_2:
     ark_mem->step          = lsrkStep_TakeStepRKC;
-    step_mem->LSRKmethod   = ARKODE_LSRK_RKC;
+    step_mem->LSRKmethod   = ARKODE_LSRK_RKC_2;
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
-  case ARKODE_LSRK_RKL:
+  case ARKODE_LSRK_RKL_2:
     ark_mem->step          = lsrkStep_TakeStepRKL;
-    step_mem->LSRKmethod   = ARKODE_LSRK_RKL;
+    step_mem->LSRKmethod   = ARKODE_LSRK_RKL_2;
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
-  // case ARKODE_LSRK_RKG:
+  // case ARKODE_LSRK_RKG_2:
   //   ark_mem->step = lsrkStep_TakeStepRKG;
-  //   step_mem->LSRKmethod = ARKODE_LSRK_RKG;
+  //   step_mem->LSRKmethod = ARKODE_LSRK_RKG_2;
   //   step_mem->nfusedopvecs = 5;
   //   step_mem->q = ark_mem->hadapt_mem->q = 2;
   //   step_mem->p = ark_mem->hadapt_mem->p = 2;
@@ -178,9 +178,9 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetMaxStageNum sets the maximum number of stages allowed.
+  LSRKStepSetMaxNumStages sets the maximum number of stages allowed.
   ---------------------------------------------------------------*/
-int LSRKStepSetMaxStageNum(void* arkode_mem, int stagemaxlimit)
+int LSRKStepSetMaxNumStages(void* arkode_mem, int stagemaxlimit)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -346,11 +346,11 @@ int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* ndomeigupdates)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepGetMaxStageNum:
+  LSRKStepGetMaxNumStages:
 
   Returns the max number of stages taken
   ---------------------------------------------------------------*/
-int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax)
+int LSRKStepGetMaxNumStages(void* arkode_mem, int* stagemax)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -611,17 +611,17 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   /* print integrator parameters to file */
   switch (step_mem->LSRKmethod)
   {
-  case ARKODE_LSRK_RKC:
+  case ARKODE_LSRK_RKC_2:
     fprintf(fp, "LSRKStep RKC time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 2);
     fprintf(fp, "\n");
     break;
-  case ARKODE_LSRK_RKL:
+  case ARKODE_LSRK_RKL_2:
     fprintf(fp, "LSRKStep RKL time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 2);
     fprintf(fp, "\n");
     break;
-  // case ARKODE_LSRK_RKG:
+  // case ARKODE_LSRK_RKG_2:
   //   fprintf(fp, "LSRKStep RKG time step module parameters:\n");
   //   fprintf(fp, "  Method order %i\n", 2);
   //   fprintf(fp, "\n");

@@ -287,7 +287,7 @@ SWIGEXPORT int _wrap_FLSRKStepSetDomEigFrequency(void *farg1, int const *farg2) 
 }
 
 
-SWIGEXPORT int _wrap_FLSRKStepSetMaxStageNum(void *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FLSRKStepSetMaxNumStages(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int arg2 ;
@@ -295,7 +295,7 @@ SWIGEXPORT int _wrap_FLSRKStepSetMaxStageNum(void *farg1, int const *farg2) {
   
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)LSRKStepSetMaxStageNum(arg1,arg2);
+  result = (int)LSRKStepSetMaxNumStages(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -359,7 +359,7 @@ SWIGEXPORT int _wrap_FLSRKStepGetNumDomEigUpdates(void *farg1, long *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FLSRKStepGetMaxStageNum(void *farg1, int *farg2) {
+SWIGEXPORT int _wrap_FLSRKStepGetMaxNumStages(void *farg1, int *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int *arg2 = (int *) 0 ;
@@ -367,7 +367,7 @@ SWIGEXPORT int _wrap_FLSRKStepGetMaxStageNum(void *farg1, int *farg2) {
   
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
-  result = (int)LSRKStepGetMaxStageNum(arg1,arg2);
+  result = (int)LSRKStepGetMaxNumStages(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

@@ -42,12 +42,12 @@ module farkode_lsrkstep_mod
  public :: FLSRKStepSetMethod
  public :: FLSRKStepSetDomEigFn
  public :: FLSRKStepSetDomEigFrequency
- public :: FLSRKStepSetMaxStageNum
+ public :: FLSRKStepSetMaxNumStages
  public :: FLSRKStepSetDomEigSafetyFactor
  public :: FLSRKStepSetSSPStageNum
  public :: FLSRKStepGetNumRhsEvals
  public :: FLSRKStepGetNumDomEigUpdates
- public :: FLSRKStepGetMaxStageNum
+ public :: FLSRKStepGetMaxNumStages
  public :: FLSRKStepGetAverageStageNum
 
 ! WRAPPER DECLARATIONS
@@ -103,8 +103,8 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FLSRKStepSetMaxStageNum(farg1, farg2) &
-bind(C, name="_wrap_FLSRKStepSetMaxStageNum") &
+function swigc_FLSRKStepSetMaxNumStages(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetMaxNumStages") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -149,8 +149,8 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FLSRKStepGetMaxStageNum(farg1, farg2) &
-bind(C, name="_wrap_FLSRKStepGetMaxStageNum") &
+function swigc_FLSRKStepGetMaxNumStages(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepGetMaxNumStages") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -270,7 +270,7 @@ fresult = swigc_FLSRKStepSetDomEigFrequency(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepSetMaxStageNum(arkode_mem, stagemaxlimit) &
+function FLSRKStepSetMaxNumStages(arkode_mem, stagemaxlimit) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -282,7 +282,7 @@ integer(C_INT) :: farg2
 
 farg1 = arkode_mem
 farg2 = stagemaxlimit
-fresult = swigc_FLSRKStepSetMaxStageNum(farg1, farg2)
+fresult = swigc_FLSRKStepSetMaxNumStages(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -353,7 +353,7 @@ fresult = swigc_FLSRKStepGetNumDomEigUpdates(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepGetMaxStageNum(arkode_mem, stagemax) &
+function FLSRKStepGetMaxNumStages(arkode_mem, stagemax) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -365,7 +365,7 @@ type(C_PTR) :: farg2
 
 farg1 = arkode_mem
 farg2 = c_loc(stagemax(1))
-fresult = swigc_FLSRKStepGetMaxStageNum(farg1, farg2)
+fresult = swigc_FLSRKStepGetMaxNumStages(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -743,7 +743,6 @@ low-storage RK methods, and others.  These are characterized by coefficient tabl
 that have an exploitable structure, such that their implementation does not require
 that all stages be stored simultaneously.  At present, this module supports explicit, 
 adaptive "super-time-stepping (STS)" and "strong-stability-preserving (SSP)" methods.
-variety of "super-time-stepping (STS)" and "strong-stability-preserving (SSP)" methods.
 
 The LSRK time-stepping module in ARKODE currently supports IVP
 of the form :eq:`ARKODE_IVP_simple_explicit`, i.e., unlike the more general problem form :eq:`ARKODE_IMEX_IVP`, LSRKStep
@@ -763,7 +762,7 @@ Runge--Kutta--Chebyshev (RKC) and Runge--Kutta--Legendre (RKL).   These methods 
 
 The corresponding coefficients can be found in :cite:p:`VSH:04, MBA:14`, respectively.
 
-LSRK methods of STS type are designed stiff problems characterized by 
+LSRK methods of STS type are designed for stiff problems characterized by 
 having Jacobians with eigenvalues that have large real and small imaginary parts. 
 While those problems are traditionally treated using implicit methods, STS methods
 are explicit.  To achieve stability for these stiff problems, STS methods use more stages than 
