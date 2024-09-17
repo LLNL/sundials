@@ -1241,88 +1241,79 @@ This is the default 9th order explicit method (from :cite:p:`Ver:10`).
 Implicit Butcher tables
 ---------------------------
 
-
-In the category of diagonally implicit Runge--Kutta methods, ARKODE
-includes methods that have orders 2 through 5, with embeddings that are of
-orders 1 through 4.
-
-Each of ARKODE's diagonally-implicit Butcher tables are
-specified via a unique ID and name:
+In the category of diagonally implicit Runge--Kutta methods, ARKODE includes
+methods that have orders 2 through 5, with embeddings that are of orders 1
+through 4. ARKODE's diagonally-implicit Butcher tables are
+provided in the enumeration
 
 .. c:enum:: ARKODE_DIRKTableID
 
-with values specified for each method below (e.g., ``ARKODE_SDIRK_2_1_2``).
-A summary of the method is given in :numref:`ARKODE.Butcher.DIRK_properties`.
+with values specified in :numref:`ARKODE.Butcher.DIRK_properties`.
 
 .. _ARKODE.Butcher.DIRK_properties:
 .. table:: Implicit Butcher tables. The default method for each order is marked
    with an asterisk (*).
 
-   +------------------------------------------+--------+----------------+-------+
-   | Method ID                                | Stages | Embedded Order | Order |
-   +==========================================+========+================+=======+
-   | ``ARKODE_BACKWARD_EULER_1_1``            | 1      | ---            | 1*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK2_DIRK_3_1_2``               | 3      | 1              | 2*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_SDIRK_2_1_2``                   | 2      | 1              | 2     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_IMPLICIT_MIDPOINT_1_2``         | 1      | ---            | 2     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_IMPLICIT_TRAPEZOIDAL_2_2``      | 2      | ---            | 2     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_BILLINGTON_3_3_2``              | 3      | 3              | 2     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_TRBDF2_3_3_2``                  | 3      | 3              | 2     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ESDIRK325L2SA_5_2_3``           | 5      | 2              | 3*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ESDIRK324L2SA_4_2_3``           | 4      | 2              | 3     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ESDIRK32I5L2SA_5_2_3``          | 5      | 2              | 3     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_KVAERNO_4_2_3``                 | 4      | 2              | 3     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK324L2SA_DIRK_4_2_3``         | 4      | 2              | 3     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ESDIRK436L2SA_6_3_4``           | 6      | 3              | 4*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_CASH_5_2_4``                    | 5      | 2              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_CASH_5_3_4``                    | 5      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_SDIRK_5_3_4``                   | 5      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_KVAERNO_5_3_4``                 | 5      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK436L2SA_DIRK_6_3_4``         | 6      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK437L2SA_DIRK_7_3_4``         | 7      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ESDIRK43I6L2SA_6_3_4``          | 6      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_QESDIRK436L2SA_6_3_4``          | 6      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ESDIRK437L2SA_7_3_4``           | 7      | 3              | 4     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ESDIRK547L2SA2_7_4_5``          | 7      | 4              | 5*    |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_KVAERNO_7_4_5``                 | 7      | 4              | 5     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK548L2SA_DIRK_8_4_5``         | 8      | 4              | 5     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ARK548L2SAb_DIRK_8_4_5``        | 8      | 4              | 5     |
-   +------------------------------------------+--------+----------------+-------+
-   | ``ARKODE_ESDIRK547L2SA_7_4_5``           | 7      | 4              | 5     |
-   +------------------------------------------+--------+----------------+-------+
+   +-------------------------------------------------+--------+----------------+-------+
+   | Method ID                                       | Stages | Embedded Order | Order |
+   +=================================================+========+================+=======+
+   | :c:enumerator:`ARKODE_BACKWARD_EULER_1_1`       | 1      | ---            | 1*    |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK2_DIRK_3_1_2`          | 3      | 1              | 2*    |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_SDIRK_2_1_2`              | 2      | 1              | 2     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_IMPLICIT_MIDPOINT_1_2`    | 1      | ---            | 2     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_IMPLICIT_TRAPEZOIDAL_2_2` | 2      | ---            | 2     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_BILLINGTON_3_3_2`         | 3      | 3              | 2     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_TRBDF2_3_3_2`             | 3      | 3              | 2     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ESDIRK325L2SA_5_2_3`      | 5      | 2              | 3*    |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ESDIRK324L2SA_4_2_3`      | 4      | 2              | 3     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ESDIRK32I5L2SA_5_2_3`     | 5      | 2              | 3     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_KVAERNO_4_2_3`            | 4      | 2              | 3     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK324L2SA_DIRK_4_2_3`    | 4      | 2              | 3     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ESDIRK436L2SA_6_3_4`      | 6      | 3              | 4*    |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_CASH_5_2_4`               | 5      | 2              | 4     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_CASH_5_3_4`               | 5      | 3              | 4     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_SDIRK_5_3_4`              | 5      | 3              | 4     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_KVAERNO_5_3_4`            | 5      | 3              | 4     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK436L2SA_DIRK_6_3_4`    | 6      | 3              | 4     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK437L2SA_DIRK_7_3_4`    | 7      | 3              | 4     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ESDIRK43I6L2SA_6_3_4`     | 6      | 3              | 4     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_QESDIRK436L2SA_6_3_4`     | 6      | 3              | 4     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ESDIRK437L2SA_7_3_4`      | 7      | 3              | 4     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ESDIRK547L2SA2_7_4_5`     | 7      | 4              | 5*    |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_KVAERNO_7_4_5`            | 7      | 4              | 5     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK548L2SA_DIRK_8_4_5`    | 8      | 4              | 5     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ARK548L2SAb_DIRK_8_4_5`   | 8      | 4              | 5     |
+   +-------------------------------------------------+--------+----------------+-------+
+   | :c:enumerator:`ARKODE_ESDIRK547L2SA_7_4_5`      | 7      | 4              | 5     |
+   +-------------------------------------------------+--------+----------------+-------+
 
 
-.. _Butcher.Backward-Euler:
-
-Backward-Euler-1-1
-^^^^^^^^^^^^^^^^^^
-
-.. index:: Backward-Euler-1-1 method
+.. c:enumerator:: ARKODE_BACKWARD_EULER_1_1
 
 Accessible via the constant ``ARKODE_BACKWARD_EULER_1_1`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1348,12 +1339,7 @@ This is the default 1st order implicit method.  The method is A-, L-, and B-stab
    Linear stability region for the backward Euler method.
 
 
-.. _Butcher.ARK2_DIRK:
-
-ARK2-DIRK-3-1-2
-^^^^^^^^^^^^^^^
-
-.. index:: ARK2-DIRK-3-1-2
+.. c:enumerator:: ARKODE_ARK2_DIRK_3_1_2
 
 Accessible via the constant ``ARKODE_ARK2_DIRK_3_1_2`` to
 :c:func:`ARKStepSetTableNum`, or
@@ -1389,12 +1375,7 @@ default 2nd order additive method
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.SDIRK-2-1:
-
-SDIRK-2-1-2
-^^^^^^^^^^^^^^
-
-.. index:: SDIRK-2-1-2 method
+.. c:enumerator:: ARKODE_SDIRK_2_1_2
 
 Accessible via the constant ``ARKODE_SDIRK_2_1_2`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1427,12 +1408,7 @@ Both the method and embedding are A- and B-stable.
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Implicit_Midpoint:
-
-Implicit-Midpoint-1-2
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Implicit-Midpoint-1-2 method
+.. c:enumerator:: ARKODE_IMPLICIT_MIDPOINT_1_2
 
 Accessible via the constant ``ARKODE_IMPLICIT_MIDPOINT_1_2`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1458,12 +1434,7 @@ The method is A- and B-stable.
    Linear stability region for the implicit midpoint method.
 
 
-.. _Butcher.Implicit_Trapezoidal:
-
-Implicit-Trapezoidal-2-2
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: Implicit-Trapezoidal-2-2 method
+.. c:enumerator:: ARKODE_IMPLICIT_TRAPEZOIDAL_2_2
 
 Accessible via the constant ``ARKODE_IMPLICIT_TRAPEZOIDAL_2_2`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1490,12 +1461,7 @@ The method is A-stable.
    Linear stability region for the implicit trapezoidal method.
 
 
-.. _Butcher.Billington:
-
-Billington-3-3-2
-^^^^^^^^^^^^^^^^^^^
-
-.. index:: Billington-3-3-2 SDIRK method
+.. c:enumerator:: ARKODE_BILLINGTON_3_3_2
 
 Accessible via the constant ``ARKODE_BILLINGTON_3_3_2`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1526,16 +1492,7 @@ Here, the higher-order embedding is less stable than the lower-order method
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-
-.. _Butcher.TRBDF2:
-
-TRBDF2-3-3-2
-^^^^^^^^^^^^^^^
-
-.. index:: TRBDF2-3-3-2 ESDIRK method
+.. c:enumerator:: ARKODE_TRBDF2_3_3_2
 
 Accessible via the constant ``ARKODE_TRBDF2_3_3_2`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1566,13 +1523,7 @@ lower-order method (from :cite:p:`Bank:85`).
    region is outlined in blue; the embedding's region is in red.
 
 
-
-.. _Butcher.ESDIRK325L2SA:
-
-ESDIRK325L2SA-5-2-3
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK325L2SA-5-2-3 method
+.. c:enumerator:: ARKODE_ESDIRK325L2SA_5_2_3
 
 Accessible via the constant ``ARKODE_ESDIRK325L2SA_5_2_3`` to
 :c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
@@ -1595,12 +1546,7 @@ Both the method and embedding are A- and L-stable.
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ESDIRK324L2SA:
-
-ESDIRK324L2SA-4-2-3
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK324L2SA-4-2-3 method
+.. c:enumerator:: ARKODE_ESDIRK324L2SA_4_2_3
 
 Accessible via the constant ``ARKODE_ESDIRK324L2SA_4_2_3`` to
 :c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
@@ -1618,13 +1564,7 @@ Both the method and embedding are A- and L-stable.
    region is outlined in blue; the embedding's region is in red.
 
 
-
-.. _Butcher.ESDIRK32I5L2SA:
-
-ESDIRK32I5L2SA-5-2-3
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK32I5L2SA-5-2-3 method
+.. c:enumerator:: ARKODE_ESDIRK32I5L2SA_5_2_3
 
 Accessible via the constant ``ARKODE_ESDIRK32I5L2SA_5_2_3`` to
 :c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
@@ -1642,12 +1582,7 @@ Both the method and embedding are A- and L-stable.
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Kvaerno_4_2_3:
-
-Kvaerno-4-2-3
-^^^^^^^^^^^^^^^^
-
-.. index:: Kvaerno-4-2-3 ESDIRK method
+.. c:enumerator:: ARKODE_KVAERNO_4_2_3
 
 Accessible via the constant ``ARKODE_KVAERNO_4_2_3`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1679,16 +1614,7 @@ Both the method and embedding are A-stable; additionally the method is L-stable
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-
-.. _Butcher.ARK_4_2_3_I:
-
-ARK324L2SA-DIRK-4-2-3
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ARK324L2SA-DIRK-4-2-3 method
+.. c:enumerator:: ARKODE_ARK324L2SA_DIRK_4_2_3
 
 Accessible via the constant ``ARKODE_ARK324L2SA_DIRK_4_2_3`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1726,12 +1652,7 @@ method and embedding are A-stable; additionally the method is L-stable
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ESDIRK436L2SA:
-
-ESDIRK436L2SA-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK436L2SA-6-3-4 method
+.. c:enumerator:: ARKODE_ESDIRK436L2SA_6_3_4
 
 Accessible via the constant ``ARKODE_ESDIRK436L2SA_6_3_4`` to
 :c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
@@ -1753,13 +1674,7 @@ from :cite:p:`KenCarp:16`. Both the method and embedding are A- and L-stable.
    region is outlined in blue; the embedding's region is in red.
 
 
-
-.. _Butcher.Cash_5_2_4:
-
-Cash-5-2-4
-^^^^^^^^^^^^^^
-
-.. index:: Cash-5-2-4 SDIRK method
+.. c:enumerator:: ARKODE_CASH_5_2_4
 
 Accessible via the constant ``ARKODE_CASH_5_2_4`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1792,16 +1707,7 @@ Both the method and embedding are A-stable; additionally the method is L-stable
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-
-.. _Butcher.Cash_5_3_4:
-
-Cash-5-3-4
-^^^^^^^^^^^
-
-.. index:: Cash-5-3-4 SDIRK method
+.. c:enumerator:: ARKODE_CASH_5_3_4
 
 Accessible via the constant ``ARKODE_CASH_5_3_4`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1834,15 +1740,7 @@ Both the method and embedding are A-stable; additionally the method is L-stable
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-.. _Butcher.SDIRK-5-4:
-
-SDIRK-5-3-4
-^^^^^^^^^^^^^^
-
-.. index:: SDIRK-5-3-4 method
+.. c:enumerator:: ARKODE_SDIRK_5_3_4
 
 Accessible via the constant ``ARKODE_SDIRK_5_3_4`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1879,18 +1777,7 @@ stability (from :cite:p:`HaWa:91`).
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-
-
-
-.. _Butcher.Kvaerno_5_3_4:
-
-Kvaerno-5-3-4
-^^^^^^^^^^^^^^^^
-
-.. index:: Kvaerno-5-3-4 ESDIRK method
+.. c:enumerator:: ARKODE_KVAERNO_5_3_4
 
 Accessible via the constant ``ARKODE_KVAERNO_5_3_4`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1929,16 +1816,7 @@ Both the method and embedding are A-stable (from :cite:p:`Kva:04`).
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-
-.. _Butcher.ARK_6_3_4_I:
-
-ARK436L2SA-DIRK-6-3-4
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ARK436L2SA-DIRK-6-3-4 method
+.. c:enumerator:: ARKODE_ARK436L2SA_DIRK_6_3_4
 
 Accessible via the constant ``ARKODE_ARK436L2SA_DIRK_6_3_4`` to
 :c:func:`ARKStepSetTableNum` or
@@ -1977,16 +1855,7 @@ Both the method and embedding are A-stable; additionally the method is L-stable
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-
-.. _Butcher.ARK_7_3_4_I:
-
-ARK437L2SA-DIRK-7-3-4
-^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ARK437L2SA-DIRK-7-3-4 method
+.. c:enumerator:: ARKODE_ARK437L2SA_DIRK_7_3_4
 
 Accessible via the constant ``ARKODE_ARK437L2SA_DIRK_7_3_4`` to
 :c:func:`ARKStepSetTableNum` or
@@ -2026,12 +1895,7 @@ implicit portion of the 4th order ARK4(3)7L[2]SA method from
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ESDIRK43I6L2SA:
-
-ESDIRK43I6L2SA-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK43I6L2SA-6-3-4 method
+.. c:enumerator:: ARKODE_ESDIRK43I6L2SA_6_3_4
 
 Accessible via the constant ``ARKODE_ESDIRK43I6L2SA_6_3_4`` to
 :c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
@@ -2049,12 +1913,7 @@ Both the method and embedding are A- and L-stable.
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.QESDIRK436L2SA:
-
-QESDIRK436L2SA-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: QESDIRK436L2SA-6-3-4 method
+.. c:enumerator:: ARKODE_QESDIRK436L2SA_6_3_4
 
 Accessible via the constant ``ARKODE_QESDIRK436L2SA_6_3_4`` to
 :c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
@@ -2072,12 +1931,7 @@ Both the method and embedding are A- and L-stable.
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ESDIRK437L2SA:
-
-ESDIRK437L2SA-7-3-4
-^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK437L2SA-7-3-4 method
+.. c:enumerator:: ARKODE_ESDIRK437L2SA_7_3_4
 
 Accessible via the constant ``ARKODE_ESDIRK437L2SA_7_3_4`` to
 :c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
@@ -2095,10 +1949,7 @@ Both the method and embedding are A- and L-stable.
    region is outlined in blue; the embedding's region is in red.
 
 
-ESDIRK547L2SA2-7-4-5
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK547L2SA2-7-4-5 method
+.. c:enumerator:: ARKODE_ESDIRK547L2SA2_7_4_5
 
 Accessible via the constant ``ARKODE_ESDIRK547L2SA2_7_4_5`` to
 :c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
@@ -2120,12 +1971,7 @@ from :cite:p:`KenCarp:19b`. Both the method and embedding are A- and L-stable.
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Kvaerno_7_4_5:
-
-Kvaerno-7-4-5
-^^^^^^^^^^^^^^^^^
-
-.. index:: Kvaerno-7-4-5 ESDIRK method
+.. c:enumerator:: ARKODE_KVAERNO_7_4_5
 
 Accessible via the constant ``ARKODE_KVAERNO_7_4_5`` to
 :c:func:`ARKStepSetTableNum` or
@@ -2167,17 +2013,7 @@ L-stable (from :cite:p:`Kva:04`).
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-
-
-
-.. _Butcher.ARK_8_4_5_I:
-
-ARK548L2SA-ESDIRK-8-4-5
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ARK548L2SA-ESDIRK-8-4-5 method
+.. c:enumerator:: ARKODE_ARK548L2SA_DIRK_8_4_5
 
 Accessible via the constant ``ARKODE_ARK548L2SA_DIRK_8_4_5`` for
 :c:func:`ARKStepSetTableNum` or
@@ -2224,14 +2060,7 @@ Both the method and embedding are A-stable; additionally the method is L-stable
    region is outlined in blue; the embedding's region is in red.
 
 
-
-
-.. _Butcher.ARK_8_4_5b_I:
-
-ARK548L2SAb-DIRK-8-4-5
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ARK548L2SAb-DIRK-8-4-5 method
+.. c:enumerator:: ARKODE_ARK548L2SAb_DIRK_8_4_5
 
 Accessible via the constant ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` for
 :c:func:`ARKStepSetTableNum` or
@@ -2280,12 +2109,7 @@ Both the method and embedding are A-stable; additionally the method is L-stable
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ESDIRK547L2SA:
-
-ESDIRK547L2SA-7-4-5
-^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK547L2SA-7-4-5 method
+.. c:enumerator:: ARKODE_ESDIRK547L2SA_7_4_5
 
 Accessible via the constant ``ARKODE_ESDIRK547L2SA_7_4_5`` to
 :c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
@@ -2301,11 +2125,6 @@ Both the method and embedding are A- and L-stable.
 
    Linear stability region for the ESDIRK547L2SA-7-4-5 method method.  The method's
    region is outlined in blue; the embedding's region is in red.
-
-
-.. _Butcher.ESDIRK547L2SA2:
-
-
 
 
 .. _Butcher.additive:
