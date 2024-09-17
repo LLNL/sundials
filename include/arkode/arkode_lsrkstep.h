@@ -78,7 +78,8 @@ SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem,
 
 SUNDIALS_EXPORT int LSRKStepGetMaxStageNum(void* arkode_mem, int* stagemax);
 
-SUNDIALS_EXPORT int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* averstage);
+SUNDIALS_EXPORT int LSRKStepGetAverageStageNum(void* arkode_mem,
+                                               sunrealtype* averstage);
 
 #ifdef __cplusplus
 }

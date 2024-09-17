@@ -50,18 +50,18 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   switch (method)
   {
   case ARKODE_LSRK_RKC:
-    ark_mem->step        = lsrkStep_TakeStepRKC;
-    step_mem->LSRKmethod = ARKODE_LSRK_RKC;
+    ark_mem->step          = lsrkStep_TakeStepRKC;
+    step_mem->LSRKmethod   = ARKODE_LSRK_RKC;
     step_mem->nfusedopvecs = 5;
-  /* Store method and embedding orders now that LSRK method choice is finalized */
+    /* Store method and embedding orders now that LSRK method choice is finalized */
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
   case ARKODE_LSRK_RKL:
-    ark_mem->step        = lsrkStep_TakeStepRKL;
-    step_mem->LSRKmethod = ARKODE_LSRK_RKL;
+    ark_mem->step          = lsrkStep_TakeStepRKL;
+    step_mem->LSRKmethod   = ARKODE_LSRK_RKL;
     step_mem->nfusedopvecs = 5;
-  /* Store method and embedding orders now that LSRK method choice is finalized */
+    /* Store method and embedding orders now that LSRK method choice is finalized */
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
@@ -80,7 +80,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 10;
     step_mem->nfusedopvecs      = 3;
-  /* Store method and embedding orders now that LSRK method choice is finalized */
+    /* Store method and embedding orders now that LSRK method choice is finalized */
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 1;
     break;
@@ -91,7 +91,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 9;
     step_mem->nfusedopvecs      = 3;
-  /* Store method and embedding orders now that LSRK method choice is finalized */
+    /* Store method and embedding orders now that LSRK method choice is finalized */
     step_mem->q = ark_mem->hadapt_mem->q = 3;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
@@ -102,7 +102,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 10;
     step_mem->nfusedopvecs      = 3;
-  /* Store method and embedding orders now that LSRK method choice is finalized */
+    /* Store method and embedding orders now that LSRK method choice is finalized */
     step_mem->q = ark_mem->hadapt_mem->q = 4;
     step_mem->p = ark_mem->hadapt_mem->p = 3;
     break;
@@ -390,7 +390,8 @@ int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* averstage)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
-  *averstage = ((sunrealtype)step_mem->nfe) / ((sunrealtype)ark_mem->nst_attempts);
+  *averstage = ((sunrealtype)step_mem->nfe) /
+               ((sunrealtype)ark_mem->nst_attempts);
 
   return (ARK_SUCCESS);
 }
@@ -650,7 +651,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
                     "Invalid method option.");
     return (ARK_ILL_INPUT);
   }
-  
+
   return (ARK_SUCCESS);
 }
 

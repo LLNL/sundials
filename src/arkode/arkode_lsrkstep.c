@@ -221,16 +221,16 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   }
 
   /* Initialize all the counters, flags and stats */
-  step_mem->nfe = 0;
-  step_mem->nfi = 0;
-  step_mem->domeignfe = 0;
+  step_mem->nfe            = 0;
+  step_mem->nfi            = 0;
+  step_mem->domeignfe      = 0;
   step_mem->ndomeigupdates = 0;
-  step_mem->stagemax = 0;
-  step_mem->sprmax = 0;
-  step_mem->sprmin = 0;  
-  step_mem->nstsig = 0;
-  step_mem->newdomeig = SUNTRUE;
-  step_mem->jacatt    = SUNFALSE;
+  step_mem->stagemax       = 0;
+  step_mem->sprmax         = 0;
+  step_mem->sprmin         = 0;
+  step_mem->nstsig         = 0;
+  step_mem->newdomeig      = SUNTRUE;
+  step_mem->jacatt         = SUNFALSE;
 
   return (ARK_SUCCESS);
 }
@@ -425,7 +425,8 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   /* Allocate reusable arrays for fused vector interface */
   if (step_mem->cvals == NULL)
   {
-    step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs, sizeof(sunrealtype));
+    step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
+                                           sizeof(sunrealtype));
     if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
     ark_mem->lrw += step_mem->nfusedopvecs;
   }
@@ -560,7 +561,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunrealtype* cvals;
   sunrealtype w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, zjm1,
     zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1, mu, nu, thj;
-  static sunrealtype onep54 = SUN_RCONST(1.54), c13 = SUN_RCONST(13.0), p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
+  static sunrealtype onep54 = SUN_RCONST(1.54), c13 = SUN_RCONST(13.0),
+                     p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
   N_Vector* Xvecs;
   ARKodeLSRKStepMem step_mem;
 
@@ -669,7 +671,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cvals[4] = -mus * ajm1 * ark_mem->h;
     Xvecs[4] = ark_mem->fn;
 
-    retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs, ark_mem->ycur);
+    retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
+                                  ark_mem->ycur);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
     thj = mu * thjm1 + nu * thjm2 + mus * (ONE - ajm1);
@@ -780,7 +783,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* determine the number of required stages and shrink the step size if necessary*/
 
   sunbooleantype recompute = SUNTRUE;
-  while(recompute)
+  while (recompute)
   {
     int ss;
     for (ss = 1; ss < step_mem->stagemaxlimit; ss++)
@@ -788,17 +791,17 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       if ((SUNSQR(ss) + ss - 2) >= 2 * (SUNRabs(ark_mem->h) * step_mem->sprad))
       {
         step_mem->reqstages = SUNMAX(ss, 2);
-        recompute = SUNFALSE;
+        recompute           = SUNFALSE;
         break;
       }
     }
-    if(ss == step_mem->stagemaxlimit)
+    if (ss == step_mem->stagemaxlimit)
     {
       ark_mem->h *= SUN_RCONST(0.5);
       recompute = SUNTRUE;
     }
   }
-  
+
   step_mem->stagemax = SUNMAX(step_mem->reqstages, step_mem->stagemax);
 
   /* Call the full RHS if needed. If this is the first step then we may need to
@@ -859,7 +862,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cvals[4] = -mus * ajm1 * ark_mem->h;
     Xvecs[4] = ark_mem->fn;
 
-    retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs, ark_mem->ycur);
+    retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
+                                  ark_mem->ycur);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
     /* Shift the data for the next stage */
@@ -952,10 +956,10 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   sunrealtype* cvals;
   N_Vector* Xvecs;
-  
+
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
-  
+
   sunrealtype rs     = (sunrealtype)step_mem->reqstages;
   sunrealtype sm1inv = ONE / (rs - ONE);
   sunrealtype bt1, bt2, bt3;
@@ -1019,7 +1023,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   cvals[2] = ark_mem->h / rs;
   Xvecs[2] = ark_mem->fn;
 
-  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs, ark_mem->ycur);
+  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
+                                ark_mem->ycur);
 
   N_VLinearSum(ONE, ark_mem->tempv1, bt3 * ark_mem->h, ark_mem->fn,
                ark_mem->tempv1);
@@ -1082,7 +1087,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   sunrealtype* cvals;
   N_Vector* Xvecs;
-  
+
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
@@ -1151,7 +1156,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   cvals[2] = (rn - ONE) * rat * ark_mem->h / (TWO * rn - ONE);
   Xvecs[2] = ark_mem->fn;
 
-  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs, ark_mem->ycur);
+  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
+                                ark_mem->ycur);
 
   N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
                ark_mem->tempv1);
@@ -1229,7 +1235,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
   sunrealtype* cvals;
   N_Vector* Xvecs;
-  
+
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
@@ -1270,13 +1276,14 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                  ark_mem->ycur);
     if (j == 4)
     {
-      N_VLinearSum(ONE, ark_mem->tempv1, SUN_RCONST(0.3) * ark_mem->h, ark_mem->fn,
-                   ark_mem->tempv1);
+      N_VLinearSum(ONE, ark_mem->tempv1, SUN_RCONST(0.3) * ark_mem->h,
+                   ark_mem->fn, ark_mem->tempv1);
     }
   }
-  N_VLinearSum(SUN_RCONST(1.0/25.0), ark_mem->tempv2, SUN_RCONST(9.0/25.0), ark_mem->ycur,
-               ark_mem->tempv2);
-  N_VLinearSum(SUN_RCONST(15.0), ark_mem->tempv2, SUN_RCONST(-5.0), ark_mem->ycur, ark_mem->ycur);
+  N_VLinearSum(SUN_RCONST(1.0 / 25.0), ark_mem->tempv2, SUN_RCONST(9.0 / 25.0),
+               ark_mem->ycur, ark_mem->tempv2);
+  N_VLinearSum(SUN_RCONST(15.0), ark_mem->tempv2, SUN_RCONST(-5.0),
+               ark_mem->ycur, ark_mem->ycur);
   for (int j = 6; j <= 9; j++)
   {
     retval = step_mem->fe(ark_mem->tcur +
@@ -1294,8 +1301,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     }
     if (j == 9)
     {
-      N_VLinearSum(ONE, ark_mem->tempv1, SUN_RCONST(0.3) * ark_mem->h, ark_mem->fn,
-                   ark_mem->tempv1);
+      N_VLinearSum(ONE, ark_mem->tempv1, SUN_RCONST(0.3) * ark_mem->h,
+                   ark_mem->fn, ark_mem->tempv1);
     }
   }
 
@@ -1310,7 +1317,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   cvals[2] = SUN_RCONST(0.1) * ark_mem->h;
   Xvecs[2] = ark_mem->fn;
 
-  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs, ark_mem->ycur);
+  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
+                                ark_mem->ycur);
 
   step_mem->nfe += 9;
 
@@ -1428,13 +1436,13 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     if (step_mem->lambdaR * ark_mem->h > ZERO)
     {
       arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "\n\nlambdaR*h must be nonpositive\n");
+                      "\n\nlambdaR*h must be nonpositive\n");
       return (ARK_ILL_INPUT);
     }
     else if (step_mem->lambdaR == 0 && SUNRabs(step_mem->lambdaI) > 0)
     {
       arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "\n\nDomEig cannot be purely imaginary\n");
+                      "\n\nDomEig cannot be purely imaginary\n");
       return (ARK_ILL_INPUT);
     }
 
@@ -1446,8 +1454,8 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   else
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                  "\n\nInternal DomEig is not supported yet!\n");
-     return (ARK_ILL_INPUT);
+                    "\n\nInternal DomEig is not supported yet!\n");
+    return (ARK_ILL_INPUT);
   }
   step_mem->jacatt = SUNTRUE;
 

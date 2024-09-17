@@ -85,7 +85,7 @@ typedef struct ARKodeLSRKStepMemRec
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;
   N_Vector* Xvecs;
-  int nfusedopvecs;           /* length of cvals and Xvecs arrays */
+  int nfusedopvecs; /* length of cvals and Xvecs arrays */
 
 }* ARKodeLSRKStepMem;
 

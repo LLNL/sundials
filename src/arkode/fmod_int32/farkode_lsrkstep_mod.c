@@ -373,47 +373,15 @@ SWIGEXPORT int _wrap_FLSRKStepGetMaxStageNum(void *farg1, int *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FLSRKStepGetAverStageNum(void *farg1, int *farg2) {
+SWIGEXPORT int _wrap_FLSRKStepGetAverageStageNum(void *farg1, double *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  int *arg2 = (int *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (int *)(farg2);
-  result = (int)LSRKStepGetAverStageNum(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FLSRKStepGetTimestepperStats(void *farg1, long *farg2, long *farg3, long *farg4, long *farg5, long *farg6, long *farg7, long *farg8, long *farg9, double *farg10, double *farg11) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  long *arg2 = (long *) 0 ;
-  long *arg3 = (long *) 0 ;
-  long *arg4 = (long *) 0 ;
-  long *arg5 = (long *) 0 ;
-  long *arg6 = (long *) 0 ;
-  long *arg7 = (long *) 0 ;
-  long *arg8 = (long *) 0 ;
-  long *arg9 = (long *) 0 ;
-  sunrealtype *arg10 = (sunrealtype *) 0 ;
-  sunrealtype *arg11 = (sunrealtype *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (long *)(farg2);
-  arg3 = (long *)(farg3);
-  arg4 = (long *)(farg4);
-  arg5 = (long *)(farg5);
-  arg6 = (long *)(farg6);
-  arg7 = (long *)(farg7);
-  arg8 = (long *)(farg8);
-  arg9 = (long *)(farg9);
-  arg10 = (sunrealtype *)(farg10);
-  arg11 = (sunrealtype *)(farg11);
-  result = (int)LSRKStepGetTimestepperStats(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11);
+  arg2 = (sunrealtype *)(farg2);
+  result = (int)LSRKStepGetAverageStageNum(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
