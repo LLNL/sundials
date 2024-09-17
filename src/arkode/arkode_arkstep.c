@@ -2226,12 +2226,12 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     {
       N_Vector checkpoint = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
       int64_t start_step  = adj_stepper->step_idx;
-      int64_t stop_step   = adj_stepper->step_idx + 1;
 
       SUNErrCode errcode = SUN_ERR_CHECKPOINT_NOT_FOUND;
       for (int64_t i = 0; i <= adj_stepper->step_idx; ++i, --start_step)
       {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+        int64_t stop_step = adj_stepper->step_idx + 1;
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                            "ARKODE::arkStep_TakeStep_ERK_Adjoint",
                            "searching-for-checkpoint",
