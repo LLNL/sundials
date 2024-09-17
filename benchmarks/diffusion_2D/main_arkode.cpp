@@ -31,7 +31,7 @@ struct UserOptions
   int maxsteps       = 0;                   // max steps between outputs
   int onestep        = 0;                   // one step mode, number of steps
   bool linear        = true;                // linearly implicit RHS
-  bool implicit      = true; // implicit (ARKStep) vs explicit (LSRKStep)
+  bool implicit      = true; // implicit (ARKStep) vs explicit STS (LSRKStep)
   ARKODE_LSRKMethodType lsrkmethod = ARKODE_LSRK_RKC; // LSRK method type
 
   // Linear solver and preconditioner settings
@@ -320,7 +320,7 @@ int main(int argc, char* argv[])
         if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
       }
     }
-    else // Configure explicit solver
+    else // Configure explicit STS solver
     {
       // Select LSRK method
       flag = LSRKStepSetMethod(arkode_mem, uopts.lsrkmethod);
@@ -522,7 +522,7 @@ int UserOptions::parse_args(vector<string>& args, bool outproc)
     args.erase(it, it + 2);
   }
 
-  it = find(args.begin(), args.end(), "--explicit");
+  it = find(args.begin(), args.end(), "--explicitSTS");
   if (it != args.end())
   {
     implicit = false;
@@ -618,7 +618,7 @@ void UserOptions::help()
   cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --controller <ctr>      : time step adaptivity controller" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
-  cout << "  --explicit              : use LSRKStep (instead of ARKStep)" << endl;
+  cout << "  --explicitSTS           : use LSRKStep (instead of ARKStep)" << endl;
   cout << endl;
   cout << "Implicit (ARKStep) solver command line options:" << endl;
   cout << "  --nonlinear             : disable linearly implicit flag" << endl;
@@ -630,7 +630,7 @@ void UserOptions::help()
   cout << "  --noprec                : disable preconditioner" << endl;
   cout << "  --msbp <steps>          : max steps between prec setups" << endl;
   cout << endl;
-  cout << "Explicit (LSRKStep) solver command line options:" << endl;
+  cout << "Explicit STS (LSRKStep) solver command line options:" << endl;
   cout << "  --lsrkmethod            : LSRK method choice" << endl;
 }
 
