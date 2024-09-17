@@ -27,18 +27,18 @@
 static inline char* sunUnsignedToString(uint64_t uint)
 {
   char* str     = NULL;
-  size_t length = snprintf(NULL, 0, "%llu", uint);
+  size_t length = snprintf(NULL, 0, "%llu", (unsigned long long)uint);
   str           = (char*)malloc(sizeof(*str) * (length + 1));
-  snprintf(str, length + 1, "%llu", uint);
+  snprintf(str, length + 1, "%llu", (unsigned long long)uint);
   return str;
 }
 
 static inline char* sunSignedToString(int64_t val)
 {
   char* str     = NULL;
-  size_t length = snprintf(NULL, 0, "%lld", val);
+  size_t length = snprintf(NULL, 0, "%lld", (long long)val);
   str           = (char*)malloc(sizeof(*str) * (length + 1));
-  snprintf(str, length + 1, "%lld", val);
+  snprintf(str, length + 1, "%lld", (long long)val);
   return str;
 }
 
