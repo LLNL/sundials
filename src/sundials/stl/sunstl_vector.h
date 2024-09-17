@@ -101,7 +101,7 @@ static inline void MAKE_NAME(SUNStlVectorTtype,
 static inline TTYPE* MAKE_NAME(SUNStlVectorTtype, At)(SUNStlVectorTtype self,
                                                       size_t index)
 {
-  if (index < 0 || index >= self->size)
+  if (index >= self->size)
   {
     // Handle index out of bounds
     return NULL;
@@ -112,7 +112,7 @@ static inline TTYPE* MAKE_NAME(SUNStlVectorTtype, At)(SUNStlVectorTtype self,
 static inline void MAKE_NAME(SUNStlVectorTtype, Set)(SUNStlVectorTtype self,
                                                      size_t index, TTYPE element)
 {
-  if (index < 0 || index >= self->size)
+  if (index >= self->size)
   {
     // Handle index out of bounds
     return;
