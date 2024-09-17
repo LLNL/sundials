@@ -220,66 +220,74 @@ SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper adj_stepper,
   {
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "Num backwards steps    = %llu\n",
-            (long long)adj_stepper->nst);
+            (unsigned long long)adj_stepper->nst);
     fprintf(outfile, "Num recompute passes   = %llu\n",
-            (long long)adj_stepper->nrecompute);
+            (unsigned long long)adj_stepper->nrecompute);
     if (adj_stepper->JacFn)
     {
       fprintf(outfile, "Jac fn evals           = %llu\n",
-              (long long)adj_stepper->njeval);
+              (unsigned long long)adj_stepper->njeval);
     }
     if (adj_stepper->JacPFn)
     {
       fprintf(outfile, "JacP fn evals          = %llu\n",
-              (long long)adj_stepper->njpeval);
+              (unsigned long long)adj_stepper->njpeval);
     }
     if (adj_stepper->JvpFn)
     {
       fprintf(outfile, "Jac-times-v evals      = %llu\n",
-              (long long)adj_stepper->njtimesv);
+              (unsigned long long)adj_stepper->njtimesv);
     }
     if (adj_stepper->JPvpFn)
     {
       fprintf(outfile, "JacP-times-v evals     = %llu\n",
-              (long long)adj_stepper->njptimesv);
+              (unsigned long long)adj_stepper->njptimesv);
     }
     if (adj_stepper->vJpFn)
     {
       fprintf(outfile, "v-times-Jac evals      = %llu\n",
-              (long long)adj_stepper->nvtimesj);
+              (unsigned long long)adj_stepper->nvtimesj);
     }
     if (adj_stepper->vJPpFn)
     {
       fprintf(outfile, "v-times-Jacp evals     = %llu\n",
-              (long long)adj_stepper->nvtimesjp);
+              (unsigned long long)adj_stepper->nvtimesjp);
     }
     break;
   case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, "Num backwards steps,%llu", adj_stepper->nst);
-    fprintf(outfile, "Num recompute passes,%llu", adj_stepper->nrecompute);
+    fprintf(outfile, "Num backwards steps,%llu",
+            (unsigned long long)adj_stepper->nst);
+    fprintf(outfile, "Num recompute passes,%llu",
+            (unsigned long long)adj_stepper->nrecompute);
     if (adj_stepper->JacFn)
     {
-      fprintf(outfile, ",Jac fn evals,%llu", adj_stepper->njeval);
+      fprintf(outfile, ",Jac fn evals,%llu",
+              (unsigned long long)adj_stepper->njeval);
     }
     if (adj_stepper->JacPFn)
     {
-      fprintf(outfile, ",JacP fn evals,%llu", adj_stepper->njpeval);
+      fprintf(outfile, ",JacP fn evals,%llu",
+              (unsigned long long)adj_stepper->njpeval);
     }
     if (adj_stepper->JvpFn)
     {
-      fprintf(outfile, ",Jac-times-v evals,%llu", adj_stepper->njtimesv);
+      fprintf(outfile, ",Jac-times-v evals,%llu",
+              (unsigned long long)adj_stepper->njtimesv);
     }
     if (adj_stepper->JPvpFn)
     {
-      fprintf(outfile, ",JacP-times-v evals,%llu", adj_stepper->njptimesv);
+      fprintf(outfile, ",JacP-times-v evals,%llu",
+              (unsigned long long)adj_stepper->njptimesv);
     }
     if (adj_stepper->vJpFn)
     {
-      fprintf(outfile, ",v-times-Jac evals,%llu", adj_stepper->nvtimesj);
+      fprintf(outfile, ",v-times-Jac evals,%llu",
+              (unsigned long long)adj_stepper->nvtimesj);
     }
     if (adj_stepper->vJPpFn)
     {
-      fprintf(outfile, ",v-times-Jacp evals,%llu", adj_stepper->nvtimesjp);
+      fprintf(outfile, ",v-times-Jacp evals,%llu",
+              (unsigned long long)adj_stepper->nvtimesjp);
     }
 
     break;
