@@ -219,31 +219,39 @@ SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper adj_stepper,
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Num backwards steps    = %llu\n", adj_stepper->nst);
-    fprintf(outfile, "Num recompute passes   = %llu\n", adj_stepper->nrecompute);
+    fprintf(outfile, "Num backwards steps    = %llu\n",
+            (long long)adj_stepper->nst);
+    fprintf(outfile, "Num recompute passes   = %llu\n",
+            (long long)adj_stepper->nrecompute);
     if (adj_stepper->JacFn)
     {
-      fprintf(outfile, "Jac fn evals           = %llu\n", adj_stepper->njeval);
+      fprintf(outfile, "Jac fn evals           = %llu\n",
+              (long long)adj_stepper->njeval);
     }
     if (adj_stepper->JacPFn)
     {
-      fprintf(outfile, "JacP fn evals          = %llu\n", adj_stepper->njpeval);
+      fprintf(outfile, "JacP fn evals          = %llu\n",
+              (long long)adj_stepper->njpeval);
     }
     if (adj_stepper->JvpFn)
     {
-      fprintf(outfile, "Jac-times-v evals      = %llu\n", adj_stepper->njtimesv);
+      fprintf(outfile, "Jac-times-v evals      = %llu\n",
+              (long long)adj_stepper->njtimesv);
     }
     if (adj_stepper->JPvpFn)
     {
-      fprintf(outfile, "JacP-times-v evals     = %llu\n", adj_stepper->njptimesv);
+      fprintf(outfile, "JacP-times-v evals     = %llu\n",
+              (long long)adj_stepper->njptimesv);
     }
     if (adj_stepper->vJpFn)
     {
-      fprintf(outfile, "v-times-Jac evals      = %llu\n", adj_stepper->nvtimesj);
+      fprintf(outfile, "v-times-Jac evals      = %llu\n",
+              (long long)adj_stepper->nvtimesj);
     }
     if (adj_stepper->vJPpFn)
     {
-      fprintf(outfile, "v-times-Jacp evals     = %llu\n", adj_stepper->nvtimesjp);
+      fprintf(outfile, "v-times-Jacp evals     = %llu\n",
+              (long long)adj_stepper->nvtimesjp);
     }
     break;
   case SUN_OUTPUTFORMAT_CSV:
