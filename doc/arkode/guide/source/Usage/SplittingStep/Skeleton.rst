@@ -64,7 +64,7 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
       :c:func:`ARKodeSetUserData()`. This *user_data* pointer will only be
       passed to user-supplied functions that are attached to an inner
       integrator. To supply a *user_data* pointer to user-supplied functions
-      called by the outer integrator the desired pointer should be attached be
+      called by the outer integrator the desired pointer should be attached by
       calling :c:func:`ARKodeSetUserData()` after creating the SplittingStep
       memory below. The *user_data* pointers attached to the inner and outer
       integrators may be the same or different depending on what is required by
@@ -98,9 +98,9 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
 
 #. Free solver memory
 
-   * If ARKStep was used as the inner IVP integrator, call
+   * If ARKStep was used as an inner IVP integrator, call
      :c:func:`SUNStepper_Free` and :c:func:`ARKodeFree` to free the memory
-     allocated for the fast (inner) integrator.
+     allocated for that inner integrator.
 
    * If a user-defined inner integrator was supplied, free the integrator
      content and call :c:func:`SUNStepper_Free` to free the ``SUNStepper``
