@@ -169,6 +169,7 @@ then
     echo "~ Host-config: ${hostconfig_path}"
     echo "~ Build Dir:   ${build_dir}"
     echo "~ Project Dir: ${project_dir}"
+    echo "~ MPIEXEC_EXECUTABLE: ${MPIEXEC_EXECUTABLE}"
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
