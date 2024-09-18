@@ -29,7 +29,7 @@ variables:
 
 # Dane
 # Arguments for top level allocation
-  DANE_SHARED_ALLOC: "--exclusive --partition=pdebug --time=60 --nodes=1"
+  DANE_SHARED_ALLOC: "--partition=pdebug --time=60 --nodes=1"
 # Arguments for job level allocation
   DANE_JOB_ALLOC: "--nodes=1 --overlap"
 # Add variables that should apply to all the jobs on a machine:
