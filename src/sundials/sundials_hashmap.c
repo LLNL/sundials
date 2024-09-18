@@ -245,7 +245,7 @@ size_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
     if (retval == SIZE_MAX)
     {
       fprintf(stderr, ">>> error?\n");
-      return retval; /* an error occured */
+      return retval; /* an error occurred */
     }
     if (retval >= SUNHashMap_Capacity(map))
     {
@@ -335,7 +335,7 @@ size_t SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet, key);
     if (retval > SUNHashMap_Capacity(map))
     {
-      return retval; /* not found or an error occured */
+      return retval; /* not found or an error occurred */
     }
     else { idx = retval; }
   }
@@ -390,7 +390,7 @@ size_t SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
     /* Keys did not match, so we have a collision and need to probe */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet,
                                 (const void*)key);
-    if (retval < 0) { return retval; /* an error occured or not found */ }
+    if (retval < 0) { return retval; /* an error occurred or not found */ }
     else { idx = retval; }
   }
 
