@@ -24,7 +24,7 @@ set(ARKODE_examples
     "ark_analytic\;\;"
     "lsrk_ssp_analytic\;\;"
     "lsrk_analytic\;\;"
-    "lsrk_analytic_VarJac\;\;"
+    "lsrk_analytic_varjac\;\;"
     # develop tests
     "ark_analytic_mels\;\;develop"
     "ark_analytic_nonlin\;\;develop"

@@ -79,7 +79,7 @@ Optional input functions
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. typo in the method type).
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method type).
 
    .. note:: If this routine is not called, then LSRKStep will use the Runge--Kutta--Chebyshev method by default.
 
@@ -96,17 +96,17 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
-   Specifies the Dominant Eigenvalue approximation routine to
+   Specifies the dominant eigenvalue approximation routine to
    be used for determining the number of stages that will be used by either the
    Runge--Kutta--Chebyshev or Runge--Kutta--Legendre methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *dom_eig* -- name of user-supplied Dominant Eigenvalue approximation function (of type :c:func:`ARKDomEigFn()`).
+      * *dom_eig* -- name of user-supplied dominant eigenvalue approximation function (of type :c:func:`ARKDomEigFn()`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
+      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* ``dom_eig = NULL`` and LSRKStep does not currently estimate this internally.
 
    .. note:: This function is currently required when either the RKC or RKL methods are used; it is ignored when using SSPRK methods.
@@ -114,17 +114,17 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps);
 
-   Specifies the number of steps after which the Dominant Eigenvalue information is
+   Specifies the number of steps after which the dominant eigenvalue information is
    considered out-of-date, and should be recomputed.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *nsteps* -- the Dominant Eigenvalue re-computation update frequency.  A value ``nsteps = 0`` indicates that the dominant eigenvalue will not change throughout the simulation.
+      * *nsteps* -- the dominant eigenvalue re-computation update frequency.  A value ``nsteps = 0`` indicates that the dominant eigenvalue will not change throughout the simulation.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``nsteps < 0``)
+      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``nsteps < 0``)
 
 
 .. c:function:: int LSRKStepSetMaxNumStages(void* arkode_mem, int stagemaxlimit);
@@ -138,13 +138,13 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``stagemaxlimit < 2``)
+      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``stagemaxlimit < 2``)
 
 
 .. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty);
 
-   Specifies a safety factor to use for the result of the Dominant Eigenvalue estimation function.  This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring a sufficient number of stages for the method to be stable.  This input is only used for RKC and RKL methods, and is ignored by SSPRK methods.
+   Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.  This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring a sufficient number of stages for the method to be stable.  This input is only used for RKC and RKL methods, and is ignored by SSPRK methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -152,8 +152,8 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``domeigsfty < 1``)
+      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``domeigsfty < 1``)
 
 
 .. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages);
@@ -170,8 +170,8 @@ Allowable Method Families
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. ``numofstages < 2``)
+      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``numofstages < 2``)
 
 
 .. _ARKODE.Usage.LSRKStep.OptionalOutputs:
@@ -197,7 +197,7 @@ Optional output functions
 
 .. c:function:: int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* ndomeigupdates);
 
-   Returns the number of Dominant Eigenvalue evaluations (so far).
+   Returns the number of dominant eigenvalue evaluations (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -293,7 +293,7 @@ vector.
       * *ARK_MEM_FAIL*  if memory allocation failed
       * *ARK_NO_MALLOC*  if memory allocation failed
       * *ARK_CONTROLLER_ERR*  if unable to reset error controller object
-      * *ARK_ILL_INPUT* if an argument has an illegal value.
+      * *ARK_ILL_INPUT* if an argument had an illegal value.
 
    **Notes:**
       All previously set options are retained but may be updated by calling

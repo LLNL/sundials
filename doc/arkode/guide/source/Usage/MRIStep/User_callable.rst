@@ -134,7 +134,7 @@ MRIStep tolerance specification functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
       * *ARK_NO_MALLOC*  if the MRIStep memory was not allocated by the time-stepping module
-      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. a negative tolerance).
 
    .. deprecated:: 6.1.0
 
@@ -158,7 +158,7 @@ MRIStep tolerance specification functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
       * *ARK_NO_MALLOC*  if the MRIStep memory was not allocated by the time-stepping module
-      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. a negative tolerance).
 
    .. deprecated:: 6.1.0
 
@@ -447,7 +447,7 @@ Optional inputs for MRIStep
 
    * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value
+   * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** This function does not change problem-defining function pointers
    *fs* and *ff* or the *user_data* pointer. It also does not affect any data
@@ -489,7 +489,7 @@ Optional inputs for MRIStep
 
    * *ARK_INTERP_FAIL* if this is called after :c:func:`MRIStepEvolve()`
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value or the
+   * *ARK_ILL_INPUT* if an argument had an illegal value or the
      interpolation module has already been initialized
 
    **Notes:** Allowed values are between 0 and 5.
@@ -544,7 +544,7 @@ Optional inputs for MRIStep
 
    * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value
+   * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** This parameter can be ``stdout`` or ``stderr``, although the
    suggested approach is to specify a pointer to a unique file opened
@@ -577,7 +577,7 @@ Optional inputs for MRIStep
 
    * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value
+   * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:**
 
@@ -608,7 +608,7 @@ Optional inputs for MRIStep
 
    * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value
+   * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** The default value is 10; set *mxhnil* to zero to specify
    this default.
@@ -639,7 +639,7 @@ Optional inputs for MRIStep
 
    * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value
+   * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** Passing *mxsteps* = 0 results in MRIStep using the
    default value (500).
@@ -669,7 +669,7 @@ Optional inputs for MRIStep
 
    * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value
+   * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:**
 
@@ -751,7 +751,7 @@ Optional inputs for MRIStep
 
    * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value
+   * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** If specified, the pointer to *user_data* is passed to all
    user-supplied functions called by the outer integrator for which it is an
@@ -866,7 +866,7 @@ Optional inputs for IVP method selection
 
    * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value
+   * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:**
 
@@ -899,7 +899,7 @@ Optional inputs for implicit stage solves
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** Tightens the linear solver tolerances and takes only a
    single Newton iteration.  Calls :c:func:`MRIStepSetDeltaGammaMax()`
@@ -929,7 +929,7 @@ Optional inputs for implicit stage solves
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** This is the default behavior of MRIStep, so the function
    is primarily useful to undo a previous call to
@@ -969,7 +969,7 @@ Optional inputs for implicit stage solves
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** The default value is 0.  If *method* is set to an
    undefined value, this default predictor will be used.
@@ -995,7 +995,7 @@ Optional inputs for implicit stage solves
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value or if the SUNNONLINSOL module is ``NULL``
+      * *ARK_ILL_INPUT* if an argument had an illegal value or if the SUNNONLINSOL module is ``NULL``
       * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
 
    **Notes:** The default value is 3; set *maxcor* :math:`\le 0`
@@ -1018,7 +1018,7 @@ Optional inputs for implicit stage solves
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** The default value is 0.1; set *nlscoef* :math:`\le 0`
    to specify this default.
@@ -1040,7 +1040,7 @@ Optional inputs for implicit stage solves
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** Any non-positive parameter will imply a reset to the default value.
 
@@ -1063,7 +1063,7 @@ Optional inputs for implicit stage solves
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:** Any non-positive parameter will imply a reset to the default value.
 
@@ -1172,7 +1172,7 @@ Optional inputs for the ARKLS linear solver interface
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:**  Any non-positive parameter will imply a reset to the default value.
 
@@ -1533,7 +1533,7 @@ Rootfinding optional input functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument had an illegal value
 
    **Notes:**  The default behavior is to monitor for both zero-crossing directions.
 
@@ -2704,7 +2704,7 @@ vector.
 
    * *ARK_MEM_FAIL*  if a memory allocation failed
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value.
+   * *ARK_ILL_INPUT* if an argument had an illegal value.
 
    **Notes:**
    If the inner (fast) stepper also needs to be reinitialized, its
@@ -2745,7 +2745,7 @@ MRIStep reset function
 
    * *ARK_MEM_FAIL*  if a memory allocation failed
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value.
+   * *ARK_ILL_INPUT* if an argument had an illegal value.
 
    **Notes:**
    If the inner (fast) stepper also needs to be reset, its reset function should
@@ -2802,7 +2802,7 @@ MRIStep system resize function
 
    * *ARK_NO_MALLOC* if *arkode_mem* was not allocated.
 
-   * *ARK_ILL_INPUT* if an argument has an illegal value.
+   * *ARK_ILL_INPUT* if an argument had an illegal value.
 
    **Notes:** If an error occurred, :c:func:`MRIStepResize()` also sends an error
    message to the error handler function.
