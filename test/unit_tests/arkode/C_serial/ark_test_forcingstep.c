@@ -44,7 +44,7 @@ static int f_forward_2(const sunrealtype t, const N_Vector y,
 
 /* Integrates the ODE
  * 
- * y' = [t / y] - [1 / y]
+ * y' = [t / y] + [1 / y]
  * 
  * with initial condition y(0) = 1 and partitioning specified by the square
  * brackets. We integrate to t = 1 and check the error against the exact

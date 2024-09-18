@@ -124,7 +124,7 @@ static int forcingStep_Init(const ARKodeMem ark_mem, const int init_type)
   In ForcingStep, we accumulate the RHS functions in ARK_FULLRHS_OTHER mode.
   Generally, inner steppers will not have the correct yn when this function is
   called and will not be able to reuse a function evaluation since their state
-  resets at the next ARKodeEvolve call.
+  resets at the next SUNStepper_Evolve call.
   ----------------------------------------------------------------------------*/
 static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
                                const N_Vector y, const N_Vector f,
