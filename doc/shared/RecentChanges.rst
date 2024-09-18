@@ -2,7 +2,9 @@
 
 Added an operator splitting module,
 :ref:`SplittingStep <ARKODE.Usage.SplittingStep>`, and forcing method module,
-:ref:`ForcingStep <ARKODE.Usage.ForcingStep>`, to ARKODE.
+:ref:`ForcingStep <ARKODE.Usage.ForcingStep>`, to ARKODE. These modules support
+a broad range of operator-split time integration methods for multiphysics
+applications.
 
 **New Features and Enhancements**
 

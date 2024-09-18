@@ -5,7 +5,8 @@
 ### Major Features
 
 Added an operator splitting module, SplittingStep, and forcing method module,
-ForcingStep. to ARKODE.
+ForcingStep, to ARKODE. These modules support a broad range of operator-split
+time integration methods for multiphysics applications.
 
 ### New Features and Enhancements
 
