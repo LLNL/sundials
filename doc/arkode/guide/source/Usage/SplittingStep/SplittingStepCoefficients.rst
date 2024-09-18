@@ -209,7 +209,7 @@ integer constants are defined ``arkode/arkode_splittingstep_coefficients.h``.
 
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_Parallel(int partitions)
 
-   Create the coefficients for the first order splitting method
+   Create the coefficients for the first order parallel splitting method
 
    .. math::
       y_n = \phi^1_h(y_{n-1}) + \phi^2_h(y_{n-1}) + \dots + \phi^P(y_{n-1}) +
@@ -336,7 +336,7 @@ integer constants are defined ``arkode/arkode_splittingstep_coefficients.h``.
       * *partitions* -- The number :math:`P` of partitions in the IVP.
 
    **Return value:**
-      * An :c:type:`SplittingStepCoefficients` structure if successful.
+      * A :c:type:`SplittingStepCoefficients` structure if successful.
       * A ``NULL`` pointer if *sequential_methods*, *stages* or *partitions* was
         invalid or an allocation error occurred.
    
@@ -364,7 +364,7 @@ integer constants are defined ``arkode/arkode_splittingstep_coefficients.h``.
            \beta_{1,0,1}, \dots, \beta_{1,0,P}, \beta_{1,1,1}, \dots, \beta_{1,1,P}, \dots, \beta_{2,0,1}, \dots, \beta_{r,s,P}.
 
    **Return value:**
-      * An :c:type:`SplittingStepCoefficients` structure if successful.
+      * A :c:type:`SplittingStepCoefficients` structure if successful.
       * A ``NULL`` pointer if an argument was invalid or an allocation error
         occurred.
    
@@ -379,7 +379,7 @@ integer constants are defined ``arkode/arkode_splittingstep_coefficients.h``.
       * ``coefficients`` -- The splitting coefficients to copy.
 
    **Return value:**
-      * An :c:type:`SplittingStepCoefficients` structure if successful.
+      * A :c:type:`SplittingStepCoefficients` structure if successful.
       * A ``NULL`` pointer if an allocation error occurred.
    
    .. versionadded:: x.y.z
