@@ -617,7 +617,7 @@ Here, :math:`s` denotes the number of stages, while :math:`r` denotes the number
 of sequential methods within the overall operator splitting scheme. The
 sequential methods have independent flows which are linearly combined to produce
 the next step. The real coefficients :math:`\alpha_i` and :math:`\beta_{i,j,k}`
-determine the particular scheme and properties such as the order.
+determine the particular scheme and properties such as the order of accuracy.
 
 An alternative representation of the SplittingStep solution is
 
