@@ -138,7 +138,7 @@ TEST_F(SUNHashMapTest, InsertDuplicateKeyFails)
   err = SUNHashMap_Insert(map, key, &value1);
   ASSERT_EQ(err, 0);
   err = SUNHashMap_Insert(map, key, &value2);
-  ASSERT_EQ(err, -2);
+  ASSERT_EQ(err, 3 /* size + 1*/);
 }
 
 TEST_F(SUNHashMapTest, RemoveWorks)

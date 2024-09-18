@@ -55,15 +55,16 @@ size_t SUNHashMap_Capacity(SUNHashMap map);
 
 SUNErrCode SUNHashMap_Destroy(SUNHashMap* map);
 
-size_t SUNHashMap_Iterate(SUNHashMap map, int start,
-                          int (*yieldfn)(int, SUNHashMapKeyValue, const void*),
+size_t SUNHashMap_Iterate(SUNHashMap map, size_t start,
+                          size_t (*yieldfn)(size_t, SUNHashMapKeyValue,
+                                            const void*),
                           const void* ctx);
 
-int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value);
+size_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value);
 
-int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value);
+size_t SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value);
 
-int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value);
+size_t SUNHashMap_Remove(SUNHashMap map, const char* key, void** value);
 
 SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
                            int (*compar)(const void*, const void*));

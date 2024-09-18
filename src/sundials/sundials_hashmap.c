@@ -17,6 +17,7 @@
  * the hash map upon its destruction.
  * -----------------------------------------------------------------*/
 
+#include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -149,37 +150,38 @@ SUNErrCode SUNHashMap_Destroy(SUNHashMap* map)
     * ``ctx`` -- a pointer to pass on to ``yieldfn``
 
   **Returns:**
-    * ``capacity + 1`` -- iterated the whole map
+    * ``SIZE_MAX`` -- an error occurred
+    * ``size + 1`` -- iterated the whole map
     * ``>=0`` -- the index at which the iteration stopped
-    * ``<-1`` -- an error occurred
  */
-size_t SUNHashMap_Iterate(SUNHashMap map, int start,
-                          int (*yieldfn)(int, SUNHashMapKeyValue, const void*),
+size_t SUNHashMap_Iterate(SUNHashMap map, size_t start,
+                          size_t (*yieldfn)(size_t, SUNHashMapKeyValue,
+                                            const void*),
                           const void* ctx)
 {
-  if (map == NULL || yieldfn == NULL) { return (-2); }
+  if (map == NULL || yieldfn == NULL) { return SIZE_MAX; }
 
   for (size_t i = start; i < SUNStlVector_SUNHashMapKeyValue_Size(map->buckets);
        i++)
   {
-    int retval =
+    size_t retval =
       yieldfn(i, *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i), ctx);
+    if (retval == SIZE_MAX) { continue; /* keep looking */ }
     if (retval >= 0)
     {
       return (retval); /* yieldfn indicates the loop should break */
     }
-    if (retval < -1) { return (retval); /* error occurred */ }
   }
 
   return SUNStlVector_SUNHashMapKeyValue_Size(map->buckets) + 1;
 }
 
-static int sunHashMapLinearProbeInsert(int idx, SUNHashMapKeyValue kv,
-                                       SUNDIALS_MAYBE_UNUSED const void* ctx)
+static size_t sunHashMapLinearProbeInsert(size_t idx, SUNHashMapKeyValue kv,
+                                          SUNDIALS_MAYBE_UNUSED const void* ctx)
 {
   /* find the next open spot */
   if (kv == NULL) { return (idx); /* open spot found at idx */ }
-  return (-1); /* keep looking */
+  return SIZE_MAX; /* keep looking */
 }
 
 static void sunHashMapResize(SUNHashMap map)
@@ -218,16 +220,16 @@ static void sunHashMapResize(SUNHashMap map)
 
   **Returns:**
     * ``0`` -- success
-    * ``-1`` -- an error occurred
-    * ``-2`` -- duplicate key
+    * ``SIZE_MAX`` -- an error occurred
+    * ``SIZE_MAX-1`` -- duplicate key
  */
-int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
+size_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
 {
   size_t idx;
   size_t retval;
   SUNHashMapKeyValue kvp;
 
-  if (map == NULL || key == NULL || value == NULL) { return (-1); }
+  if (map == NULL || key == NULL || value == NULL) { return SIZE_MAX; }
 
   idx = sunHashMapIdxFromKey(map, key);
 
@@ -236,11 +238,15 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   if (kvp != NULL)
   {
     /* Determine if key is actually a duplicate (not allowed) */
-    if (!strcmp(key, kvp->key)) { return (-2); }
+    if (!strcmp(key, kvp->key)) { return SUNHashMap_Capacity(map) + 1; }
 
     /* OK, it was a real collision, so find the next open spot */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeInsert, NULL);
-    if (retval < 0) { return (-1); /* error occurred */ }
+    if (retval == SIZE_MAX)
+    {
+      fprintf(stderr, ">>> error?\n");
+      return retval; /* an error occured */
+    }
     if (retval >= SUNHashMap_Capacity(map))
     {
       sunHashMapResize(map);
@@ -267,19 +273,22 @@ int SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   return (0);
 }
 
-static int sunHashMapLinearProbeGet(int idx, SUNHashMapKeyValue kv,
-                                    const void* key)
+static size_t sunHashMapLinearProbeGet(size_t idx, SUNHashMapKeyValue kv,
+                                       const void* key)
 {
   /* target key cannot be NULL */
-  if (key == NULL) { return (-2); }
+  if (key == NULL) { return SIZE_MAX; }
 
   /* find the matching entry */
-  if (kv == NULL) { return (-1); /* keep looking since this bucket is empty */ }
+  if (kv == NULL)
+  {
+    return SIZE_MAX - 1; /* keep looking since this bucket is empty */
+  }
   if (!strcmp(kv->key, (const char*)key))
   {
     return (idx); /* found it at idx */
   }
-  return (-1); /* keep looking */
+  return SIZE_MAX - 1; /* keep looking */
 }
 
 /*
@@ -292,10 +301,10 @@ static int sunHashMapLinearProbeGet(int idx, SUNHashMapKeyValue kv,
 
   **Returns:**
     * ``0`` -- success
-    * ``-1`` -- an error occurred
-    * ``-2`` -- key not found
+    * ``SIZE_MAX`` -- an error occurred
+    * ``SIZE_MAX-1`` -- key not found
  */
-int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
+size_t SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
 {
   size_t idx;
   size_t retval;
@@ -324,8 +333,10 @@ int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
   {
     /* Keys did not match, so we have a collision and need to probe */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet, key);
-    if (retval < 0) { return (-1); /* error occurred */ }
-    if (retval > SUNHashMap_Capacity(map)) { return (-2); /* not found */ }
+    if (retval > SUNHashMap_Capacity(map))
+    {
+      return retval; /* not found or an error occured */
+    }
     else { idx = retval; }
   }
 
@@ -346,16 +357,16 @@ int SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
 
   **Returns:**
     * ``0`` -- success
-    * ``-1`` -- an error occurred
-    * ``-2`` -- key not found
+    * ``SIZE_MAX`` -- an error occurred
+    * ``SIZE_MAX-1`` -- key not found
  */
-int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
+size_t SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
 {
   size_t idx;
   size_t retval;
   sunbooleantype maybe_collision = SUNFALSE;
 
-  if (map == NULL || key == NULL) { return (-1); }
+  if (map == NULL || key == NULL) { SIZE_MAX; }
 
   idx = sunHashMapIdxFromKey(map, key);
 
@@ -379,8 +390,7 @@ int SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
     /* Keys did not match, so we have a collision and need to probe */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet,
                                 (const void*)key);
-    if (retval < 0) { return (-1); /* error occurred */ }
-    else if (retval > SUNHashMap_Capacity(map)) { return (-2); /* not found */ }
+    if (retval < 0) { return retval; /* an error occured or not found */ }
     else { idx = retval; }
   }
 
