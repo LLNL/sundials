@@ -68,7 +68,7 @@
  * ----------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------
- * Function to create a new Soderlind controller
+ * Function to create a new Soderlind controller (a.k.a., H_{0}321)
  */
 
 SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
@@ -281,6 +281,66 @@ SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
   SODERLIND_K4(C) = SUN_RCONST(1.0);
   SODERLIND_K5(C) = SUN_RCONST(0.0);
   return SUN_SUCCESS;
+}
+
+/* -----------------------------------------------------------------
+ * Function to create an H_{0}211 controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_H0211(SUNContext sunctx)
+{
+  SUNFunctionBegin(sunctx);
+
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
+  SUNCheckLastErrNull();
+
+  SODERLIND_K1(C) = SUN_RCONST(0.5);
+  SODERLIND_K2(C) = SUN_RCONST(0.5);
+  SODERLIND_K3(C) = SUN_RCONST(0.0);
+  SODERLIND_K4(C) = -SUN_RCONST(0.5);
+  SODERLIND_K5(C) = SUN_RCONST(0.0);
+
+  return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to create an H211 controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_H211(SUNContext sunctx)
+{
+  SUNFunctionBegin(sunctx);
+
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
+  SUNCheckLastErrNull();
+
+  SODERLIND_K1(C) = SUN_RCONST(0.25);
+  SODERLIND_K2(C) = SUN_RCONST(0.25);
+  SODERLIND_K3(C) = SUN_RCONST(0.0);
+  SODERLIND_K4(C) = -SUN_RCONST(0.25);
+  SODERLIND_K5(C) = SUN_RCONST(0.0);
+
+  return (C);
+}
+
+/* -----------------------------------------------------------------
+ * Function to create an H312 controller (subset of Soderlind)
+ */
+
+SUNAdaptController SUNAdaptController_H312(SUNContext sunctx)
+{
+  SUNFunctionBegin(sunctx);
+
+  SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
+  SUNCheckLastErrNull();
+
+  SODERLIND_K1(C) = SUN_RCONST(1.0) / SUN_RCONST(8.0);
+  SODERLIND_K2(C) = SUN_RCONST(0.25);
+  SODERLIND_K3(C) = SUN_RCONST(1.0) / SUN_RCONST(8.0);
+  SODERLIND_K4(C) = -SUN_RCONST(3.0) / SUN_RCONST(8.0);
+  SODERLIND_K5(C) = -SUN_RCONST(1.0) / SUN_RCONST(8.0);
+
+  return (C);
 }
 
 /* -----------------------------------------------------------------

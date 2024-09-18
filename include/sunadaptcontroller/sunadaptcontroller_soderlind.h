@@ -125,6 +125,16 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
                                                sunrealtype k1, sunrealtype k2);
 
+SUNDIALS_EXPORT
+SUNAdaptController SUNAdaptController_H0211(SUNContext sunctx);
+
+SUNDIALS_EXPORT
+SUNAdaptController SUNAdaptController_H211(SUNContext sunctx);
+
+SUNDIALS_EXPORT
+SUNAdaptController SUNAdaptController_H312(SUNContext sunctx);
+
+
 #ifdef __cplusplus
 }
 #endif

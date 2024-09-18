@@ -106,7 +106,9 @@ struct UserData
   sunrealtype atol;   // absolute tolerance
   sunrealtype hfixed; // fixed step size
   int order;          // ARKode method order
-  int controller;     // step size adaptivity method
+  int controller;     // step size adaptivity method: 0=PID, 1=PI, 
+                      //    2=I, 3=ExpGus, 4=ImpGus, 5=ImExGus, 
+                      //    6=H0321, 7=H0211, 8=H211, 9=H312
   int maxsteps;       // max number of steps between outputs
   bool linear;        // enable/disable linearly implicit option
   bool diagnostics;   // output diagnostics
@@ -360,12 +362,16 @@ int main(int argc, char* argv[])
   {
     switch (udata->controller)
     {
-    case (ARK_ADAPT_PID): C = SUNAdaptController_PID(ctx); break;
-    case (ARK_ADAPT_PI): C = SUNAdaptController_PI(ctx); break;
-    case (ARK_ADAPT_I): C = SUNAdaptController_I(ctx); break;
-    case (ARK_ADAPT_EXP_GUS): C = SUNAdaptController_ExpGus(ctx); break;
-    case (ARK_ADAPT_IMP_GUS): C = SUNAdaptController_ImpGus(ctx); break;
-    case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
+    case (0): C = SUNAdaptController_PID(ctx); break;
+    case (1): C = SUNAdaptController_PI(ctx); break;
+    case (2): C = SUNAdaptController_I(ctx); break;
+    case (3): C = SUNAdaptController_ExpGus(ctx); break;
+    case (4): C = SUNAdaptController_ImpGus(ctx); break;
+    case (5): C = SUNAdaptController_ImExGus(ctx); break;
+    case (6): C = SUNAdaptController_Soderlind(ctx); break;
+    case (7): C = SUNAdaptController_H0211(ctx); break;
+    case (8): C = SUNAdaptController_H211(ctx); break;
+    case (9): C = SUNAdaptController_H312(ctx); break;
     }
     flag = ARKodeSetAdaptController(arkode_mem, C);
     if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }

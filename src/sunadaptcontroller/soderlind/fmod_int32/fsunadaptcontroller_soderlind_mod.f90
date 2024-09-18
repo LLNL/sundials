@@ -45,6 +45,9 @@ module fsunadaptcontroller_soderlind_mod
  public :: FSUNAdaptController_SetParams_ExpGus
  public :: FSUNAdaptController_ImpGus
  public :: FSUNAdaptController_SetParams_ImpGus
+ public :: FSUNAdaptController_H0211
+ public :: FSUNAdaptController_H211
+ public :: FSUNAdaptController_H312
 
 ! WRAPPER DECLARATIONS
 interface
@@ -231,6 +234,30 @@ type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdaptController_H0211(farg1) &
+bind(C, name="_wrap_FSUNAdaptController_H0211") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_FSUNAdaptController_H211(farg1) &
+bind(C, name="_wrap_FSUNAdaptController_H211") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_FSUNAdaptController_H312(farg1) &
+bind(C, name="_wrap_FSUNAdaptController_H312") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR) :: fresult
 end function
 
 end interface
@@ -571,6 +598,45 @@ farg2 = k1
 farg3 = k2
 fresult = swigc_FSUNAdaptController_SetParams_ImpGus(farg1, farg2, farg3)
 swig_result = fresult
+end function
+
+function FSUNAdaptController_H0211(sunctx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SUNAdaptController), pointer :: swig_result
+type(C_PTR) :: sunctx
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = sunctx
+fresult = swigc_FSUNAdaptController_H0211(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+function FSUNAdaptController_H211(sunctx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SUNAdaptController), pointer :: swig_result
+type(C_PTR) :: sunctx
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = sunctx
+fresult = swigc_FSUNAdaptController_H211(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+function FSUNAdaptController_H312(sunctx) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SUNAdaptController), pointer :: swig_result
+type(C_PTR) :: sunctx
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = sunctx
+fresult = swigc_FSUNAdaptController_H312(farg1)
+call c_f_pointer(fresult, swig_result)
 end function
 
 

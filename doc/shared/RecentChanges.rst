@@ -35,6 +35,7 @@ Improved the efficiency of default ARKODE methods with the following changes:
 |                    | ``ARKODE_ARK548L2SA_DIRK_8_4_5``    | ``ARKODE_ARK548L2SAb_DIRK_8_4_5``    |
 +--------------------+-------------------------------------+--------------------------------------+
 
+Added new temporal adaptivity controller utility constructors, :c:func:`SUNAdaptController_H0211`, :c:func:`SUNAdaptController_H211`, and :c:func:`SUNAdaptController_H312`.
 
 The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
 ``70`` and is now determined automatically by CMake. The previous default was
