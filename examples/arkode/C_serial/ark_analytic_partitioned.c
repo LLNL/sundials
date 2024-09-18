@@ -236,8 +236,16 @@ int main(const int argc, char* const argv[])
   N_VLinearSum(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), y_exact, y_err);
   printf("\nError: %" GSYM "\n", N_VMaxNorm(y_err));
 
-  printf("Final Solver Statistics:\n");
+  printf("\nSplitting Stepper Statistics:\n");
   flag = ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
+
+  printf("\nLinear Stepper Statistics:\n");
+  flag = ARKodePrintAllStats(linear_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
+
+  printf("\nNonlinear Stepper Statistics:\n");
+  flag = ARKodePrintAllStats(nonlinear_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
   if (check_flag(&flag, "ARKodePrintAllStats", 1)) { return 1; }
 
   /* Free memory */
