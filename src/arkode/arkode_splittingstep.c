@@ -144,7 +144,6 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
   }
 
   /* assume fixed outer step size */
-  /* TODO(SBR): Should this validation be done by ARKODE? */
   if (!ark_mem->fixedstep)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
