@@ -20,7 +20,6 @@
 
 #include "arkode_forcingstep_impl.h"
 #include "arkode_impl.h"
-#include "arkode_mristep_impl.h"
 
 /*---------------------------------------------------------------
   Shortcut routine to unpack step_mem structure from ark_mem.
