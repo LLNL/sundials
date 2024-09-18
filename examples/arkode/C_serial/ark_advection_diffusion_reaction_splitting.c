@@ -18,7 +18,7 @@
  *    u_t = a*(u^2/2)_x + b*u_xx + c*(u - u^3)
  * for t in [0, 1], x in [0, 1], with initial conditions
  *    u(0,x) = u_0
- * and Dirichlet boundary condition at x=1
+ * and Dirichlet boundary conditions at x=0 and x=1
  *    u(0,t) = u(1,t) = u_0
  *
  * The spatial derivatives are computed using second-order

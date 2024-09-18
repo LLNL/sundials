@@ -43,7 +43,7 @@ static int execute_serial(
   const N_Vector tmp, sunrealtype* const alpha, const int sequential_methods,
   void* const user_data)
 {
-  N_VScale(1, yn, ycur);
+  N_VScale(SUN_RCONST(1.0), yn, ycur);
   int retval = fn(0, ycur, user_data);
   if (retval != ARK_SUCCESS) { return retval; }
 
