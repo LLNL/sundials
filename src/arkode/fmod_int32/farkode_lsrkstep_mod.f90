@@ -238,18 +238,18 @@ fresult = swigc_FLSRKStepSetMethod(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepSetDomEigFn(arkode_mem, domeig) &
+function FLSRKStepSetDomEigFn(arkode_mem, dom_eig) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-type(C_FUNPTR), intent(in), value :: domeig
+type(C_FUNPTR), intent(in), value :: dom_eig
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_FUNPTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = domeig
+farg2 = dom_eig
 fresult = swigc_FLSRKStepSetDomEigFn(farg1, farg2)
 swig_result = fresult
 end function

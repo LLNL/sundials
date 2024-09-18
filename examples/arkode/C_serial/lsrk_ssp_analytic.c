@@ -46,6 +46,14 @@
 #define FSYM "f"
 #endif
 
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define ATAN(x)  (atan((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define ATAN(x)  (atanf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define ATAN(x)  (atanl((x)))
+#endif
+
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
@@ -184,7 +192,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
   NV_Ith_S(ydot, 0) = lambda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
-                      lambda * atan(t);
+                      lambda * ATAN(t);
 
   return 0; /* return with success */
 }
@@ -242,8 +250,8 @@ static int compute_error(N_Vector y, sunrealtype t)
   sunrealtype ans, err; /* answer data, error */
 
   /* compute solution error */
-  ans = atan(t);
-  err = fabs(NV_Ith_S(y, 0) - ans);
+  ans = ATAN(t);
+  err = SUNRabs(NV_Ith_S(y, 0) - ans);
 
   fprintf(stdout, "\nACCURACY at the final time = %" GSYM "\n", err);
   return 0;

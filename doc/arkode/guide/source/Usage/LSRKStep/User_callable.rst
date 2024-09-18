@@ -94,7 +94,7 @@ Allowable Method Families
    * ``ARKODE_LSRK_SSPs_3`` -- SSP(s,3) -- 3rd order, s-stage
    * ``ARKODE_LSRK_SSP10_4`` -- SSP(10,4) -- 4th order, 10-stage
 
-.. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig);
+.. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
    Specifies the Dominant Eigenvalue approximation routine to
    be used for determining the number of stages that will be used by either the
@@ -102,12 +102,12 @@ Allowable Method Families
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *DomEig* -- name of user-supplied Dominant Eigenvalue approximation function (of type :c:func:`ARKDomEigFn()`).
+      * *dom_eig* -- name of user-supplied Dominant Eigenvalue approximation function (of type :c:func:`ARKDomEigFn()`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* ``DomEig = NULL`` and LSRKStep does not currently estimate this internally.
+      * *ARK_ILL_INPUT* ``dom_eig = NULL`` and LSRKStep does not currently estimate this internally.
 
    .. note:: This function is currently required when either the RKC or RKL methods are used; it is ignored when using SSPRK methods.
 
@@ -201,7 +201,7 @@ Optional output functions
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *ndomeigupdates* -- number of calls to the user's ``DomEig`` function.
+      * *ndomeigupdates* -- number of calls to the user's ``dom_eig`` function.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

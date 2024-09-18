@@ -52,7 +52,7 @@ struct UserOptions
 // LSRKStep-specific dominant eigenvalue function prototype
 // -----------------------------------------------------------------------------
 
-static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
+static int dom_eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
                   sunrealtype* lambdaI, void* user_data);
 
 // -----------------------------------------------------------------------------
@@ -327,7 +327,7 @@ int main(int argc, char* argv[])
       if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
 
       // Provide dominant eigenvalue function
-      flag = LSRKStepSetDomEigFn(arkode_mem, DomEig);
+      flag = LSRKStepSetDomEigFn(arkode_mem, dom_eig);
       if (check_flag(&flag, "LSRKStepSetDomEigFn", 1)) { return 1; }
     }
 
@@ -467,7 +467,7 @@ int main(int argc, char* argv[])
 // Dominant eigenvalue estimation function
 // -----------------------------------------------------------------------------
 
-static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
+static int dom_eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
                   sunrealtype* lambdaI, void* user_data)
 {
   // Access problem data

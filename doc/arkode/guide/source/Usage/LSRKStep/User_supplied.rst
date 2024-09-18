@@ -23,7 +23,7 @@ Currently, there is only one user-supplied function for LSRKStep (in addition to
 
 
 
-.. _LSRKStep.Usage.DomEig:
+.. _LSRKStep.Usage.dom_eig:
 
 The dominant eigenvalue estimation
 ----------------------------------

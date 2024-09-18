@@ -352,7 +352,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "LSRKStep: ndomeigupdates = %li\n", step_mem->ndomeigupdates);
 
   /* output sunrealtype quantities */
-  fprintf(outfile, "LSRKStep: DomEig        = %f + i%f\n", step_mem->lambdaR,
+  fprintf(outfile, "LSRKStep: dom_eig        = %f + i%f\n", step_mem->lambdaR,
           step_mem->lambdaI);
   fprintf(outfile, "LSRKStep: sprad         = %f\n", step_mem->sprad);
   fprintf(outfile, "LSRKStep: sprmax        = %f\n", step_mem->sprmax);
@@ -1430,7 +1430,7 @@ sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl)
 /*---------------------------------------------------------------
   lsrkStep_ComputeNewDomEig:
 
-  This routine computes new DomEig and returns SUN_SUCCESS.
+  This routine computes new dom_eig and returns SUN_SUCCESS.
   ---------------------------------------------------------------*/
 
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
@@ -1469,7 +1469,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   else
   {
     arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                    "\n\nInternal DomEig is not supported yet!\n");
+                    "\n\nInternal dom_eig is not supported yet!\n");
     return (ARK_DOMEIG_FAIL);
   }
   step_mem->jacatt = SUNTRUE;
@@ -1491,7 +1491,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   lsrkStep_DomEigUpdateLogic:
 
   This routine checks if the step is accepted or not and reassigns
-  the DomEig update flags accordingly.
+  the dom_eig update flags accordingly.
   ---------------------------------------------------------------*/
 
 void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,

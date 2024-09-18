@@ -111,9 +111,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetDomEigFn specifies the DomEig function.
+  LSRKStepSetDomEigFn specifies the dom_eig function.
   ---------------------------------------------------------------*/
-int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig)
+int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -124,11 +124,11 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* set the DomEig routine pointer, and update relevant flags */
-  if (DomEig != NULL)
+  /* set the dom_eig routine pointer, and update relevant flags */
+  if (dom_eig != NULL)
   {
     step_mem->isextDomEig = SUNTRUE;
-    step_mem->extDomEig   = DomEig;
+    step_mem->extDomEig   = dom_eig;
 
     return (ARK_SUCCESS);
   }
@@ -138,13 +138,13 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn DomEig)
     step_mem->extDomEig   = NULL;
 
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Internal DomEig is not supported yet!");
+                    "Internal dom_eig is not supported yet!");
     return (ARK_ILL_INPUT);
   }
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetDomEigFrequency sets DomEig computation frequency -
+  LSRKStepSetDomEigFrequency sets dom_eig computation frequency -
   Dominated Eigenvalue is recomputed after "nsteps" successful steps.
 
     nsteps = 0 refers to Constant Jacobian
@@ -528,7 +528,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     fprintf(outfile, "RHS fn evals                  = %ld\n", step_mem->nfe);
     fprintf(outfile, "RHS fn evals for Dom. Eigs.   = %ld\n",
             step_mem->domeignfe);
-    fprintf(outfile, "Number of DomEig update calls = %ld\n",
+    fprintf(outfile, "Number of dom_eig update calls = %ld\n",
             step_mem->ndomeigupdates);
     fprintf(outfile, "Max. num. of stages taken     = %d\n", step_mem->stagemax);
     fprintf(outfile, "Max. num. of stages allowed   = %d\n",
@@ -540,7 +540,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
     fprintf(outfile, ",RHS fn evals for Dom. Eigs.,%ld", step_mem->domeignfe);
-    fprintf(outfile, ",Number of DomEig update calls,%ld",
+    fprintf(outfile, ",Number of dom_eig update calls,%ld",
             step_mem->ndomeigupdates);
     fprintf(outfile, ",Max. num. of stages taken,%d", step_mem->stagemax);
     fprintf(outfile, ",Max. num. of stages allowed,%d", step_mem->stagemaxlimit);

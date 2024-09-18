@@ -47,11 +47,25 @@
 #define FSYM "f"
 #endif
 
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define ATAN(x)  (atan((x)))
+#define ACOS(x)  (acos((x)))
+#define  COS(x)  (cos((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define ATAN(x)  (atanf((x)))
+#define ACOS(x)  (acosf((x)))
+#define  COS(x)  (cosf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define ATAN(x)  (atanl((x)))
+#define ACOS(x)  (acosl((x)))
+#define  COS(x)  (cosl((x)))
+#endif
+
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* User-supplied Dominated Eigenvalue Called by the Solver */
-static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
+static int dom_eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
                   sunrealtype* lambdaI, void* user_data);
 
 /* Private function to check function return values */
@@ -122,10 +136,10 @@ int main(void)
   if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
 
   /* Specify user provided spectral radius */
-  flag = LSRKStepSetDomEigFn(arkode_mem, DomEig);
+  flag = LSRKStepSetDomEigFn(arkode_mem, dom_eig);
   if (check_flag(&flag, "LSRKStepSetDomEigFn", 1)) { return 1; }
 
-  /* Specify after how many successful steps DomEig is recomputed */
+  /* Specify after how many successful steps dom_eig is recomputed */
   flag = LSRKStepSetDomEigFrequency(arkode_mem, 25);
   if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }
 
@@ -137,7 +151,7 @@ int main(void)
   flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
-  /* Specify safety factor for user provided DomEig */
+  /* Specify safety factor for user provided dom_eig */
   flag = LSRKStepSetDomEigSafetyFactor(arkode_mem, 1.01);
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
@@ -213,22 +227,22 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype u      = NV_Ith_S(y, 0); /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot, 0) = (lambda - alpha * cos((10 - t) / 10 * acos(-1))) * u +
+  NV_Ith_S(ydot, 0) = (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * u +
                       SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
-                      (lambda - alpha * cos((10 - t) / 10 * acos(-1))) * atan(t);
+                      (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * ATAN(t);
 
   return 0; /* return with success */
 }
 
-/* DomEig routine to estimate the dominated eigenvalue */
-static int DomEig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
+/* dom_eig routine to estimate the dominated eigenvalue */
+static int dom_eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
                   sunrealtype* lambdaI, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter 1 */
   sunrealtype alpha  = rdata[1]; /* set shortcut for stiffness parameter 2 */
-  *lambdaR           = (lambda - alpha * cos((10 - t) / 10 *
-                                             acos(-1))); /* access current solution value */
+  *lambdaR           = (lambda - alpha * COS((10 - t) / 10 *
+                                             ACOS(-1))); /* access current solution value */
   *lambdaI           = 0.0;
 
   return 0; /* return with success */
@@ -288,9 +302,9 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
   sunrealtype ans, err, ewt; /* answer data, error, and error weight */
 
   /* compute solution error */
-  ans = atan(t);
-  ewt = SUN_RCONST(1.0) / (rtol * fabs(ans) + atol);
-  err = ewt * fabs(NV_Ith_S(y, 0) - ans);
+  ans = ATAN(t);
+  ewt = SUN_RCONST(1.0) / (rtol * SUNRabs(ans) + atol);
+  err = ewt * SUNRabs(NV_Ith_S(y, 0) - ans);
 
   /* is the solution within the tolerances? */
   passfail = (err < SUN_RCONST(1.0)) ? 0 : 1;
@@ -309,8 +323,8 @@ static int compute_error(N_Vector y, sunrealtype t)
   sunrealtype ans, err; /* answer data, error */
 
   /* compute solution error */
-  ans = atan(t);
-  err = fabs(NV_Ith_S(y, 0) - ans);
+  ans = ATAN(t);
+  err = SUNRabs(NV_Ith_S(y, 0) - ans);
 
   fprintf(stdout, "\nACCURACY at the final time = %" GSYM "\n", err);
   return 0;
