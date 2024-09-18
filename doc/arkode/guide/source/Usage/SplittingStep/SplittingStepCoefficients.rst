@@ -228,7 +228,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_SymmetricParallel(int partitions)
 
    Create the coefficients for the second order, symmetrized Lie-Trotter
-   splitting
+   splitting :cite:p:`Strang:63`
 
    .. math::
       y_n = \frac{1}{2} \left( L_h(y_{n-1}) + L^*_h(y_{n-1}) \right),
