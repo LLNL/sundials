@@ -167,10 +167,7 @@ size_t SUNHashMap_Iterate(SUNHashMap map, size_t start,
     size_t retval =
       yieldfn(i, *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, i), ctx);
     if (retval == SIZE_MAX) { continue; /* keep looking */ }
-    if (retval >= 0)
-    {
-      return (retval); /* yieldfn indicates the loop should break */
-    }
+    else { return (retval); /* yieldfn indicates the loop should break */ }
   }
 
   return SUNStlVector_SUNHashMapKeyValue_Size(map->buckets) + 1;
@@ -390,7 +387,10 @@ size_t SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
     /* Keys did not match, so we have a collision and need to probe */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeGet,
                                 (const void*)key);
-    if (retval < 0) { return retval; /* an error occurred or not found */ }
+    if (retval == SIZE_MAX)
+    {
+      return retval; /* an error occurred or not found */
+    }
     else { idx = retval; }
   }
 
