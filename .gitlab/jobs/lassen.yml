@@ -30,6 +30,11 @@
 # Extra jobs
 ########################
 
+.sundials_job_on_lassen:
+  variables:
+    MPIEXEC_EXECUTABLE: "jsrun"
+  extends: .job_on_lassen
+
 lassen_cuda_no_tpls:
   parallel:
     matrix:
@@ -37,7 +42,7 @@ lassen_cuda_no_tpls:
         CUDA_SPEC: [cuda@10.1.243+allow-unsupported-compilers]
   variables:
       SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda~raja~magma~superlu-dist~petsc~hypre~ginkgo cuda_arch=70  ^openblas ^${CUDA_SPEC}"
-  extends: [.job_on_lassen]
+  extends: [.sundials_job_on_lassen]
 
 lassen_gcc_cuda_tpls:
   parallel:
@@ -46,7 +51,7 @@ lassen_gcc_cuda_tpls:
         CUDA_SPEC: [cuda@12.0.0+allow-unsupported-compilers]
   variables:
       SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda+raja+magma+superlu-dist+petsc+hypre+ginkgo cuda_arch=70 ^openblas ^ginkgo+cuda cuda_arch=70 ^hypre~cuda ^petsc~cuda ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^${CUDA_SPEC}"
-  extends: [.job_on_lassen]
+  extends: [.sundials_job_on_lassen]
 
 # # Benchmark job
 # lassen_gcc_cuda_bench:
