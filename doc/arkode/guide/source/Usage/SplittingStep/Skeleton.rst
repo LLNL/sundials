@@ -44,11 +44,12 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
      :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for details on configuring
      ARKStep.
 
-     Once the ARKStep object is setup, create a ``SUNStepper`` object with
+     Once the ARKStep object is setup, create a :c:type:`SUNStepper` object with
      :c:func:`ARKStepCreateSUNStepper`.
 
-   * If supplying a user-defined inner integrator, create the ``SUNStepper``
-     object as described in section TODO(SBR).
+   * If supplying a user-defined inner integrator, create the
+     :c:type:`SUNStepper` object as described in section
+     :numref:`SUNStepper.Implementing`.
 
    .. note::
 
@@ -78,8 +79,8 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
 #. Create a SplittingStep object for the outer integration
 
    Create the SplittingStep object by calling :c:func:`SplittingStepCreate`. One
-   of the inputs to :c:func:`SplittingStepCreate` is an array of ``SUNStepper``
-   objects with one to evolve each partition.
+   of the inputs to :c:func:`SplittingStepCreate` is an array of
+   :c:type:`SUNStepper` objects with one to evolve each partition.
 
 #. Set the SplittingStep step size
 
@@ -99,11 +100,11 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
 #. Free solver memory
 
    * If ARKStep was used as an inner IVP integrator, call
-     :c:func:`SUNStepper_Free` and :c:func:`ARKodeFree` to free the memory
+     :c:func:`SUNStepper_Destroy` and :c:func:`ARKodeFree` to free the memory
      allocated for that inner integrator.
 
    * If a user-defined inner integrator was supplied, free the integrator
-     content and call :c:func:`SUNStepper_Free` to free the ``SUNStepper``
+     content and call :c:func:`SUNStepper_Destroy` to free the :c:type:`SUNStepper`
      object.
 
    * Call :c:func:`ARKodeFree` to free the memory allocated for the
