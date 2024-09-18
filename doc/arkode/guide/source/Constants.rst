@@ -74,6 +74,83 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
+   | **Default explicit Butcher tables**           |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_1`                | Use ARKStep's default first-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_FORWARD_EULER_1_1`.                  |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_2`                | Use ARKStep's default second-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_RALSTON_3_1_2`.                      |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_3`                | Use ARKStep's default third-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_BOGACKI_SHAMPINE_4_2_3`.             |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_4`                | Use ARKStep's default fourth-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_SOFRONIOU_SPALETTA_5_3_4`.           |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_5`                | Use ARKStep's default fifth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_TSITOURAS_7_4_5`.                    |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_6`                | Use ARKStep's default sixth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_VERNER_9_5_6`.                       |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_7`                | Use ARKStep's default seventh-order ERK method             |
+   |                                               | :c:enumerator:`ARKODE_VERNER_10_6_7`.                      |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_8`                | Use ARKStep's default eighth-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_VERNER_13_7_8`.                      |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ERK_9`                | Use ARKStep's default ninth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_VERNER_16_8_9`.                      |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_1`                    | Use ERKStep's default first-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_FORWARD_EULER_1_1`.                  |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_2`                    | Use ERKStep's default second-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_RALSTON_3_1_2`.                      |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_3`                    | Use ERKStep's default third-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_BOGACKI_SHAMPINE_4_2_3`.             |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_4`                    | Use ERKStep's default fourth-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_SOFRONIOU_SPALETTA_5_3_4`.           |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_5`                    | Use ERKStep's default fifth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_TSITOURAS_7_4_5`.                    |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_6`                    | Use ERKStep's default sixth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_VERNER_9_5_6`.                       |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_7`                    | Use ERKStep's default seventh-order ERK method             |
+   |                                               | :c:enumerator:`ARKODE_VERNER_10_6_7`.                      |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_8`                    | Use ERKStep's default eighth-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_VERNER_13_7_8`.                      |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ERKSTEP_DEFAULT_9`                    | Use ERKStep's default ninth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_VERNER_16_8_9`.                      |
+   +-----------------------------------------------+------------------------------------------------------------+
+   |                                               |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | **Default implicit Butcher tables**           |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_DIRK_1`               | Use ARKStep's default first-order DIRK method              |
+   |                                               | :c:enumerator:`ARKODE_BACKWARD_EULER_1_1`.                 |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_DIRK_2`               | Use ARKStep's default second-order DIRK method             |
+   |                                               | :c:enumerator:`ARKODE_ARK2_DIRK_3_1_2`.                    |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_DIRK_3`               | Use ARKStep's default third-order DIRK method              |
+   |                                               | :c:enumerator:`ARKODE_ESDIRK325L2SA_5_2_3`.                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_DIRK_4`               | Use ARKStep's default fourth-order DIRK method             |
+   |                                               | :c:enumerator:`ARKODE_ESDIRK436L2SA_6_3_4`.                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_DIRK_5`               | Use ARKStep's default fifth-order DIRK method              |
+   |                                               | :c:enumerator:`ARKODE_ESDIRK547L2SA2_7_4_5`.               |
+   +-----------------------------------------------+------------------------------------------------------------+
+   |                                               |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
    | **MRI method types**                          |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_EXPLICIT`                     | Use an explicit (at the slow time scale) MRI method.       |
