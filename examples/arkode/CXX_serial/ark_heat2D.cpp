@@ -106,8 +106,8 @@ struct UserData
   sunrealtype atol;   // absolute tolerance
   sunrealtype hfixed; // fixed step size
   int order;          // ARKode method order
-  int controller;     // step size adaptivity method: 0=PID, 1=PI, 
-                      //    2=I, 3=ExpGus, 4=ImpGus, 5=ImExGus, 
+  int controller;     // step size adaptivity method: 0=PID, 1=PI,
+                      //    2=I, 3=ExpGus, 4=ImpGus, 5=ImExGus,
                       //    6=H0321, 7=H0211, 8=H211, 9=H312
   int maxsteps;       // max number of steps between outputs
   bool linear;        // enable/disable linearly implicit option

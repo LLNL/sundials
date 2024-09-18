@@ -38,7 +38,7 @@ extern "C" {
 
 /* Time step controller default values */
 #define CFLFAC    SUN_RCONST(0.5)
-#define SAFETY    SUN_RCONST(0.9) /* CVODE uses 1.0  */
+#define SAFETY    SUN_RCONST(0.9)  /* CVODE uses 1.0  */
 #define GROWTH    SUN_RCONST(20.0) /* CVODE uses 10.0 */
 #define HFIXED_LB SUN_RCONST(1.0)  /* CVODE uses 1.0  */
 #define HFIXED_UB SUN_RCONST(1.0)  /* CVODE uses 1.5  */

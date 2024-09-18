@@ -16,9 +16,9 @@
  * operations listed in sundials_adaptcontroller.h
  * -----------------------------------------------------------------*/
 
+#include <math.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
-#include <math.h>
 
 #include "sundials/sundials_errors.h"
 

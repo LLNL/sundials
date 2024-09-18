@@ -134,7 +134,6 @@ SUNAdaptController SUNAdaptController_H211(SUNContext sunctx);
 SUNDIALS_EXPORT
 SUNAdaptController SUNAdaptController_H312(SUNContext sunctx);
 
-
 #ifdef __cplusplus
 }
 #endif
