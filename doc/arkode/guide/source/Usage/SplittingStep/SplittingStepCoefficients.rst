@@ -427,7 +427,7 @@ references for each in the table below. We use the naming convention
 Each of the splitting coefficients that are packaged with SplittingStep are
 specified by a unique ID having type:
 
-.. c:type:: int ARKODE_SplittingCoefficientsID
+.. c:enum:: ARKODE_SplittingCoefficientsID
 
 with values specified for each method below (e.g.,
 ``ARKODE_SPLITTING_LIE_TROTTER_1_1_2``).
