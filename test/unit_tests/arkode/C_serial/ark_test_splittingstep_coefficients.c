@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "arkode/arkode_splittingstep_coefficients.h"
+#include "arkode/arkode_splittingstep.h"
 #include "sundials/sundials_math.h"
 
 #define ZERO SUN_RCONST(0.0)

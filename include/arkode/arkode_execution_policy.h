@@ -21,6 +21,8 @@
 extern "C" {
 #endif
 
+#include <sundials/sundials_nvector.h>
+
 /* Parallelization Policy */
 typedef int (*ARKExecutionPolicyFn)(int i, N_Vector y, void* user_data);
 

@@ -14,7 +14,7 @@
  * This is the implementation file for splitting coefficients
  *--------------------------------------------------------------*/
 
-#include <arkode/arkode_splittingstep_coefficients.h>
+#include <arkode/arkode_splittingstep.h>
 #include <stdlib.h>
 
 #include "arkode_impl.h"

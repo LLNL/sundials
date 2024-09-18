@@ -73,7 +73,7 @@ SplittingStepCoefficients Functions
 
 This section describes the functions for creating and interacting with operator
 splitting coefficients. The function prototypes and as well as the relevant
-integer constants are defined ``arkode/arkode_splittingstep_coefficients.h``.
+integer constants are defined ``arkode/arkode_splittingstep.h``.
 
 .. _ARKODE.Usage.SplittingStep.SplittingStepCoefficients.Functions.Table:
 .. table:: SplittingStepCoefficients functions
