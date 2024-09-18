@@ -13,6 +13,11 @@ time integration methods for multiphysics applications.
 Added the `ARKodeSetStepDirection` and `ARKodeGetStepDirection` functions to
 change and query the direction of integration.
 
+Added the `SUNStepper` base class to represent a generic solution procedure for
+IVPs. This is used by the SplittingStep and ForcingStep modules of ARKODE. A
+SUNStepper can be created from an ARKstep memory block with the new function
+`ARKStepCreateSUNStepper`.
+
 The default value of `CMAKE_CUDA_ARCHITECTURES` is no longer set to `70` and is
 now determined automatically by CMake. The previous default was only valid for
 Volta GPUs while the automatically selected value will vary across compilers and
@@ -25,6 +30,10 @@ backends with Trilinos.  As such, Trilinos 14 or newer is required and the
 `Trilinos_INTERFACE_*` CMake options have been removed.
 
 Example programs using *hypre* have been updated to support v2.20 and newer.
+
+The build system has been updated to utilize the CMake LAPACK imported target
+which should ease building SUNDIALS with LAPACK libraries that require setting
+specific linker flags e.g., MKL.
 
 ### Bug Fixes
 
