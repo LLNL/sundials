@@ -192,7 +192,7 @@ then
         $cmake_exe \
             -C "${hostconfig_path}" \
             -DCMAKE_INSTALL_PREFIX=${install_dir} \
-            -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE} \
+            -DMPIEXEC_EXECUTABLE=$(which $MPIEXEC_EXECUTABLE) \
             -DSUNDIALS_CALIPER_OUTPUT_DIR="${CALIPER_DIR}/Release/${hostname}/${sundials_version}" \
             "${project_dir}"
 
@@ -200,7 +200,7 @@ then
         $cmake_exe \
             -C "${hostconfig_path}" \
             -DCMAKE_INSTALL_PREFIX=${install_dir} \
-            -DMPIEXEC_EXECUTABLE=${MPIEXEC_EXECUTABLE} \
+            -DMPIEXEC_EXECUTABLE=$(which $MPIEXEC_EXECUTABLE) \
             "${project_dir}"
     fi
 
