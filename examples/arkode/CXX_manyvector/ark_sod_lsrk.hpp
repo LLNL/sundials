@@ -47,6 +47,7 @@
 #define FOURTH SUN_RCONST(0.25)
 
 #define NSPECIES 5
+#define STSIZE 6
 
 #define WIDTH (10 + numeric_limits<sunrealtype>::digits10)
 
@@ -116,7 +117,7 @@ public:
 
   ///// reusable arrays for WENO flux calculations /////
   sunrealtype* flux;
-  sunrealtype w1d[6][NSPECIES];
+  sunrealtype w1d[STSIZE][NSPECIES];
 
   ///// class operations /////
 
@@ -152,11 +153,11 @@ public:
                      const sunrealtype* my, const sunrealtype* mz,
                      const sunrealtype* et, const long int& i)
   {
-    for (int l = 0; l < 6; l++) this->w1d[l][0] = rho[i - 3 + l];
-    for (int l = 0; l < 6; l++) this->w1d[l][1] = mx[i - 3 + l];
-    for (int l = 0; l < 6; l++) this->w1d[l][2] = my[i - 3 + l];
-    for (int l = 0; l < 6; l++) this->w1d[l][3] = mz[i - 3 + l];
-    for (int l = 0; l < 6; l++) this->w1d[l][4] = et[i - 3 + l];
+    for (int l = 0; l < STSIZE; l++) this->w1d[l][0] = rho[i - 3 + l];
+    for (int l = 0; l < STSIZE; l++) this->w1d[l][1] = mx[i - 3 + l];
+    for (int l = 0; l < STSIZE; l++) this->w1d[l][2] = my[i - 3 + l];
+    for (int l = 0; l < STSIZE; l++) this->w1d[l][3] = mz[i - 3 + l];
+    for (int l = 0; l < STSIZE; l++) this->w1d[l][4] = et[i - 3 + l];
   }
 
   // Utility routine to pack 1-dimensional data for locations near the
