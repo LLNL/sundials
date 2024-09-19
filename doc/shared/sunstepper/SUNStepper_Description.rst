@@ -175,6 +175,44 @@ Setting Member Functions
       /* set the stepper evolve function */
       err = SUNStepper_SetEvolveFn(stepper, MyEvolve);
 
+.. c:function:: SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn)
+
+   This function attaches a :c:type:`SUNStepperOneStepFn` function to a
+   :c:type:`SUNStepper` object.
+
+   **Arguments:**
+      * *stepper* -- a stepper object.
+      * *fn* -- the :c:type:`SUNStepperOneStepFn` function to attach.
+
+   **Return value:**
+      * A :c:type:`SUNErrCode` indicating success or failure.
+
+   **Example usage:**
+
+   .. code-block:: C
+
+      /* set the stepper one step function */
+      err = SUNStepper_SetOneStepFn(stepper, MyOneStep);
+
+.. c:function:: SUNErrCode SUNStepper_SetTryStepFn(SUNStepper stepper, SUNStepperTryStepFn fn)
+
+   This function attaches a :c:type:`SUNStepperTryStepFn` function to a
+   :c:type:`SUNStepper` object.
+
+   **Arguments:**
+      * *stepper* -- a stepper object.
+      * *fn* -- the :c:type:`SUNStepperTryStepFn` function to attach.
+
+   **Return value:**
+      * A :c:type:`SUNErrCode` indicating success or failure.
+
+   **Example usage:**
+
+   .. code-block:: C
+
+      /* set the stepper try step function */
+      err = SUNStepper_SetTryStepFn(stepper, MyTryStep);
+
 
 .. c:function:: SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn)
 
@@ -214,6 +252,26 @@ Setting Member Functions
 
       /* set the stepper reset function */
       err = SUNStepper_SetResetFn(stepper, MyReset);
+
+
+.. c:function:: SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper, SUNStepperSetStopTimeFn fn)
+
+   This function attaches a :c:type:`SUNStepperSetStopTimeFn` function to a
+   :c:type:`SUNStepper` object.
+
+   **Arguments:**
+      * *stepper* -- a stepper object.
+      * *fn* -- the :c:type:`SUNStepperSetStopTimeFn` function to attach.
+
+   **Return value:**
+      * A :c:type:`SUNErrCode` indicating success or failure.
+
+   **Example usage:**
+
+   .. code-block:: C
+
+      /* set the stepper reset function */
+      err = SUNStepper_SetStopTimeFn(stepper, MyStopTime);
 
 
 .. _SUNStepper.Description.BaseMethods.Forcing:
@@ -313,7 +371,7 @@ An :c:type:`SUNStepper` *must* provide implementations of the following
 member functions:
 
 
-.. c:type:: SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector v)
+.. c:type:: SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
 
    This function advances the state vector *v* for the ODE system from time *t0*
    to time *tout*.
@@ -324,6 +382,39 @@ member functions:
       * *tout* -- the final time for the integration.
       * *v* -- on input the state at time *t0* and, on output, the state at time
         *tout*.
+      * *tret* -- the final time corresponding to the output value *v*.
+      * *stop_reason* -- TODO
+
+   **Return value:**
+      * A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:type:: SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
+
+   TODO
+
+   **Arguments:**
+      * *stepper* -- the stepper object.
+      * *t0* -- the initial time for the integration.
+      * *tout* -- the final time for the integration.
+      * *v* -- on input the state at time *t0* and, on output, the state at time
+        *tout*.
+      * *tret* -- the final time corresponding to the output value *v*.
+      * *stop_reason* -- TODO
+
+
+.. c:type:: SUNErrCode (*SUNStepperTryStepFn)(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
+
+   TODO
+
+   **Arguments:**
+      * *stepper* -- the stepper object.
+      * *t0* -- the initial time for the integration.
+      * *tout* -- the final time for the integration.
+      * *v* -- on input the state at time *t0* and, on output, the state at time
+        *tout*.
+      * *tret* -- the final time corresponding to the output value *v*.
+      * *stop_reason* -- TODO
 
    **Return value:**
       * A :c:type:`SUNErrCode` indicating success or failure.
@@ -338,6 +429,19 @@ member functions:
       * *stepper* -- the stepper object.
       * *tR* -- the value of the independent variable :math:`t_R`.
       * *vR* -- the value of the dependent variable vector :math:`v(t_R)`.
+
+   **Return value:**
+      * A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:type:: SUNErrCode (*SUNStepperSetStopTimeFn)(SUNStepper stepper, sunrealtype tstop)
+
+   This function specifies the value of the independent variable :math:`t` past
+   which the solution is not to proceed.
+
+   **Arguments:**
+      * *stepper* -- the stepper object.
+      * *tstop* -- stopping time for the stepper.
 
    **Return value:**
       * A :c:type:`SUNErrCode` indicating success or failure.
