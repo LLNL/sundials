@@ -52,6 +52,7 @@
  * ---------------------------------------------------------------------------*/
 
 #include "ark_sod_lsrk.hpp"
+using namespace std;
 
 int main(int argc, char* argv[])
 {
@@ -312,21 +313,21 @@ int frhs(sunrealtype t, N_Vector y, N_Vector f, void* user_data)
 // Computational Fluid Dynamics, 17:2, 107-118, DOI: 10.1080/1061856031000104851
 // with the only change that since this is 1D, we manually set the y- and
 // z-velocities, v and w, to zero.
-void face_flux(sunrealtype (&w1d)[6][NSPECIES], sunrealtype* f_face,
+void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
                const EulerData& udata)
 {
   // local data
   int i, j;
   sunrealtype rhosqrL, rhosqrR, rhosqrbar, u, v, w, H, qsq, csnd, cinv, gamm,
     alpha, beta1, beta2, beta3, w1, w2, w3, f1, f2, f3;
-  sunrealtype RV[5][5], LV[5][5], p[6], flux[6][NSPECIES], fproj[5][NSPECIES],
-    fs[5][NSPECIES], ff[NSPECIES];
+  sunrealtype RV[5][5], LV[5][5], p[STSIZE], flux[STSIZE][NSPECIES],
+    fproj[5][NSPECIES], fs[5][NSPECIES], ff[NSPECIES];
   const sunrealtype bc =
     SUN_RCONST(1.083333333333333333333333333333333333333); // 13/12
   const sunrealtype epsilon = 1e-6;
 
   // compute pressures over stencil
-  for (i = 0; i < 6; i++)
+  for (i = 0; i < STSIZE; i++)
     p[i] = udata.eos(w1d[i][0], w1d[i][1], w1d[i][2], w1d[i][3], w1d[i][4]);
 
   // compute Roe-average state at face:
@@ -336,8 +337,8 @@ void face_flux(sunrealtype (&w1d)[6][NSPECIES], sunrealtype* f_face,
   //   v = wbar_3 / wbar_1
   //   w = wbar_4 / wbar_1
   //   H = wbar_5 / wbar_1
-  rhosqrL   = SUNRsqrt(w1d[2][0]);
-  rhosqrR   = SUNRsqrt(w1d[3][0]);
+  rhosqrL   = sqrt(w1d[2][0]);
+  rhosqrR   = sqrt(w1d[3][0]);
   rhosqrbar = HALF * (rhosqrL + rhosqrR);
   u         = HALF * (w1d[2][1] / rhosqrL + w1d[3][1] / rhosqrR) / rhosqrbar;
   v         = HALF * (w1d[2][2] / rhosqrL + w1d[3][2] / rhosqrR) / rhosqrbar;
@@ -407,7 +408,7 @@ void face_flux(sunrealtype (&w1d)[6][NSPECIES], sunrealtype* f_face,
 
   // compute fluxes and max wave speed over stencil
   alpha = ZERO;
-  for (j = 0; j < 6; j++)
+  for (j = 0; j < STSIZE; j++)
   {
     u          = w1d[j][1] / w1d[j][0];  // u = vx = mx/rho
     flux[j][0] = w1d[j][1];              // f_rho = rho*u = mx
@@ -415,8 +416,8 @@ void face_flux(sunrealtype (&w1d)[6][NSPECIES], sunrealtype* f_face,
     flux[j][2] = u * w1d[j][2];          // f_my = rho*v*u = my*u
     flux[j][3] = u * w1d[j][3];          // f_mz = rho*w*u = mz*u
     flux[j][4] = u * (w1d[j][4] + p[j]); // f_et = u*(et + p)
-    csnd = SUNRsqrt(udata.gamma * p[j] / w1d[j][0]); // csnd = sqrt(gamma*p/rho)
-    alpha = SUNMAX(alpha, SUNRabs(u) + csnd);
+    csnd  = sqrt(udata.gamma * p[j] / w1d[j][0]); // csnd = sqrt(gamma*p/rho)
+    alpha = max(alpha, abs(u) + csnd);
   }
 
   // fp(x_{i+1/2}):

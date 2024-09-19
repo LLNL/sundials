@@ -48,27 +48,26 @@
 #endif
 
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define ATAN(x)  (atan((x)))
-#define ACOS(x)  (acos((x)))
-#define  COS(x)  (cos((x)))
+#define ATAN(x) (atan((x)))
+#define ACOS(x) (acos((x)))
+#define COS(x)  (cos((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-#define ATAN(x)  (atanf((x)))
-#define ACOS(x)  (acosf((x)))
-#define  COS(x)  (cosf((x)))
+#define ATAN(x) (atanf((x)))
+#define ACOS(x) (acosf((x)))
+#define COS(x)  (cosf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define ATAN(x)  (atanl((x)))
-#define ACOS(x)  (acosl((x)))
-#define  COS(x)  (cosl((x)))
+#define ATAN(x) (atanl((x)))
+#define ACOS(x) (acosl((x)))
+#define COS(x)  (cosl((x)))
 #endif
 
 /* User-supplied Functions Called by the Solver */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* User-supplied Dominated Eigenvalue Called by the Solver */
-static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, 
-                   sunrealtype* lambdaR, sunrealtype* lambdaI, 
-                   void* user_data, 
-                   N_Vector temp1, N_Vector temp2, N_Vector temp3);
+static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
+                   sunrealtype* lambdaI, void* user_data, N_Vector temp1,
+                   N_Vector temp2, N_Vector temp3);
 
 /* Private function to check function return values */
 static int check_flag(void* flagvalue, const char* funcname, int opt);
@@ -237,8 +236,9 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 }
 
 /* dom_eig routine to estimate the dominated eigenvalue */
-static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR, sunrealtype* lambdaI, 
-                   void* user_data, N_Vector temp1, N_Vector temp2, N_Vector temp3)
+static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
+                   sunrealtype* lambdaI, void* user_data, N_Vector temp1,
+                   N_Vector temp2, N_Vector temp3)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter 1 */

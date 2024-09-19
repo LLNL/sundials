@@ -23,7 +23,10 @@
 extern "C" {
 #endif
 
-typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data, N_Vector temp1, N_Vector temp2, N_Vector temp3);
+typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn,
+                           sunrealtype* lambdaR, sunrealtype* lambdaI,
+                           void* user_data, N_Vector temp1, N_Vector temp2,
+                           N_Vector temp3);
 
 /* ------------------
  * LSRKStep Constants
