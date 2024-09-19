@@ -361,11 +361,8 @@ construct the forcing polynomial.
 Implementation Specific Methods
 -------------------------------
 
-This section describes the required and optional virtual methods defined by the
-:c:type:`SUNStepper` abstract base class.
-
-Required Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^
+This section describes the virtual methods defined by the :c:type:`SUNStepper`
+abstract base class.
 
 An :c:type:`SUNStepper` *must* provide implementations of the following
 member functions:
@@ -420,6 +417,29 @@ member functions:
       * A :c:type:`SUNErrCode` indicating success or failure.
 
 
+.. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, int mode)
+
+   This function computes the full right-hand side function of the ODE,
+   :math:`f(t, v)` in :eq:`SUNStepper_IVP` for a given value of the independent
+   variable *t* and state vector *y*.
+
+   **Arguments:**
+      * *stepper* -- the stepper object.
+      * *t* -- the current value of the independent variable.
+      * *v* -- the current value of the dependent variable vector.
+      * *f* -- the output vector for the ODE right-hand side, :math:`f(t, v)`,
+        in :eq:`SUNStepper_IVP`.
+      * *mode* -- a flag indicating the purpose for which the right-hand side
+        function evaluation is called.
+
+        * ``ARK_FULLRHS_START`` -- called at the beginning of the simulation
+        * ``ARK_FULLRHS_END``   -- called at the end of a successful step
+        * ``ARK_FULLRHS_OTHER`` -- called elsewhere e.g., for dense output
+
+   **Return value:**
+      * A :c:type:`SUNErrCode` indicating success or failure.
+
+
 .. c:type:: SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR, N_Vector vR)
 
    This function resets the stepper state to the provided independent variable
@@ -442,35 +462,6 @@ member functions:
    **Arguments:**
       * *stepper* -- the stepper object.
       * *tstop* -- stopping time for the stepper.
-
-   **Return value:**
-      * A :c:type:`SUNErrCode` indicating success or failure.
-
-
-Optional Member Functions
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-An :c:type:`SUNStepper` *may* provide implementations of any of the following
-member functions:
-
-.. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, int mode)
-
-   This function computes the full right-hand side function of the ODE,
-   :math:`f(t, v)` in :eq:`SUNStepper_IVP` for a given value of the independent
-   variable *t* and state vector *y*.
-
-   **Arguments:**
-      * *stepper* -- the stepper object.
-      * *t* -- the current value of the independent variable.
-      * *v* -- the current value of the dependent variable vector.
-      * *f* -- the output vector for the ODE right-hand side, :math:`f(t, v)`,
-        in :eq:`SUNStepper_IVP`.
-      * *mode* -- a flag indicating the purpose for which the right-hand side
-        function evaluation is called.
-
-        * ``ARK_FULLRHS_START`` -- called at the beginning of the simulation
-        * ``ARK_FULLRHS_END``   -- called at the end of a successful step
-        * ``ARK_FULLRHS_OTHER`` -- called elsewhere e.g., for dense output
 
    **Return value:**
       * A :c:type:`SUNErrCode` indicating success or failure.
