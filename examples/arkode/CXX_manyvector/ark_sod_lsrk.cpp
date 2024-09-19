@@ -275,22 +275,18 @@ int frhs(sunrealtype t, N_Vector y, N_Vector f, void* user_data)
     face_flux(udata->w1d, &(flux[i * NSPECIES]), *udata);
   }
 
-  // compute face-centered fluxes at domain boundaries
-  for (long int i = 0; i < udata->nx; i++)
+  // compute face-centered fluxes at left boundary
+  for (long int i = 0; i < 3; i++)
   {
-    // skip strict interior (already computed)
-    if ((i > 2) && (i < udata->nx - 2)) continue;
-
-    // x-directional fluxes at "lower" face
     udata->pack1D_bdry(rho, mx, my, mz, et, i);
     face_flux(udata->w1d, &(flux[i * NSPECIES]), *udata);
+  }
 
-    // x-directional fluxes at "upper" boundary face
-    if (i == udata->nx - 1)
-    {
-      udata->pack1D_bdry(rho, mx, my, mz, et, nx);
-      face_flux(udata->w1d, &(flux[nx * NSPECIES]), *udata);
-    }
+  // compute face-centered fluxes at right boundary
+  for (long int i = nx - 2; i <= nx; i++)
+  {
+    udata->pack1D_bdry(rho, mx, my, mz, et, i);
+    face_flux(udata->w1d, &(flux[i * NSPECIES]), *udata);
   }
 
   // iterate over subdomain, updating RHS
@@ -420,7 +416,7 @@ void face_flux(sunrealtype (&w1d)[6][NSPECIES], sunrealtype* f_face,
     flux[j][3] = u * w1d[j][3];          // f_mz = rho*w*u = mz*u
     flux[j][4] = u * (w1d[j][4] + p[j]); // f_et = u*(et + p)
     csnd = SUNRsqrt(udata.gamma * p[j] / w1d[j][0]); // csnd = sqrt(gamma*p/rho)
-    alpha = max(alpha, abs(u) + csnd);
+    alpha = SUNMAX(alpha, SUNRabs(u) + csnd);
   }
 
   // fp(x_{i+1/2}):
