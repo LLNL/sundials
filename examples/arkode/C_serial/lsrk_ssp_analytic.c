@@ -47,11 +47,11 @@
 #endif
 
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define ATAN(x)  (atan((x)))
+#define ATAN(x) (atan((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-#define ATAN(x)  (atanf((x)))
+#define ATAN(x) (atanf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define ATAN(x)  (atanl((x)))
+#define ATAN(x) (atanl((x)))
 #endif
 
 /* User-supplied Functions Called by the Solver */

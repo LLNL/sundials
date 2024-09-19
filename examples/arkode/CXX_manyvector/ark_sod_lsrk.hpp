@@ -47,10 +47,9 @@
 #define FOURTH SUN_RCONST(0.25)
 
 #define NSPECIES 5
-#define STSIZE 6
+#define STSIZE   6
 
 #define WIDTH (10 + std::numeric_limits<sunrealtype>::digits10)
-
 
 // -----------------------------------------------------------------------------
 // Problem options
@@ -78,8 +77,8 @@ public:
   int maxsteps;
 
   // Output-related information
-  int output;    // 0 = none, 1 = stats, 2 = disk, 3 = disk with tstop
-  int nout;      // number of output times
+  int output;         // 0 = none, 1 = stats, 2 = disk, 3 = disk with tstop
+  int nout;           // number of output times
   std::ofstream uout; // output file stream
 
   // constructor (with default values)
@@ -257,11 +256,11 @@ static void InputHelp()
 {
   std::cout << std::endl;
   std::cout << "Command line options:" << std::endl;
-  std::cout
-    << "  --integrator <str> : method (ARKODE_LSRK_SSP_S_2, ARKODE_LSRK_SSP_S_3, "
-       "ARKODE_LSRK_SSP_10_4, or any valid ARKODE_ERKTableID)\n";
+  std::cout << "  --integrator <str> : method (ARKODE_LSRK_SSP_S_2, "
+               "ARKODE_LSRK_SSP_S_3, "
+               "ARKODE_LSRK_SSP_10_4, or any valid ARKODE_ERKTableID)\n";
   std::cout << "  --stages <int>     : number of stages (ignored for "
-          "ARKODE_LSRK_SSP_10_4 and ERK)\n";
+               "ARKODE_LSRK_SSP_10_4 and ERK)\n";
   std::cout << "  --tf <real>        : final time\n";
   std::cout << "  --xl <real>        : domain lower boundary\n";
   std::cout << "  --xr <real>        : domain upper boundary\n";
@@ -276,7 +275,8 @@ static void InputHelp()
   std::cout << "  --help             : print options and exit\n";
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, sunrealtype& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     sunrealtype& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -292,7 +292,8 @@ inline void find_arg(std::vector<std::string>& args, const std::string key, sunr
   }
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, long int& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     long int& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -302,7 +303,8 @@ inline void find_arg(std::vector<std::string>& args, const std::string key, long
   }
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, int& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     int& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -312,7 +314,8 @@ inline void find_arg(std::vector<std::string>& args, const std::string key, int&
   }
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, std::string& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     std::string& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -322,8 +325,8 @@ inline void find_arg(std::vector<std::string>& args, const std::string key, std:
   }
 }
 
-inline void find_arg(std::vector<std::string>& args, const std::string key, bool& dest,
-                     bool store = true)
+inline void find_arg(std::vector<std::string>& args, const std::string key,
+                     bool& dest, bool store = true)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -387,7 +390,10 @@ static int PrintSetup(EulerData& udata, ARKODEParameters& uopts)
   std::cout << "  dx         = " << udata.dx << std::endl;
   std::cout << " --------------------------------- " << std::endl;
   std::cout << "  integrator = " << uopts.integrator << std::endl;
-  if (uopts.stages > 0) { std::cout << "  stages     = " << uopts.stages << std::endl; }
+  if (uopts.stages > 0)
+  {
+    std::cout << "  stages     = " << uopts.stages << std::endl;
+  }
   std::cout << "  rtol       = " << uopts.rtol << std::endl;
   std::cout << "  atol       = " << uopts.atol << std::endl;
   std::cout << "  fixed h    = " << uopts.fixed_h << std::endl;
@@ -408,14 +414,15 @@ static int OpenOutput(EulerData& udata, ARKODEParameters& uopts)
     std::cout << std::scientific;
     std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
     std::cout << "    t        "
-         << " ||rho||     "
-         << " ||mx||      "
-         << " ||my||      "
-         << " ||mz||      "
-         << " ||et||" << std::endl;
-    std::cout << " -----------------------------------------------------------------"
-            "---------"
-         << std::endl;
+              << " ||rho||     "
+              << " ||mx||      "
+              << " ||my||      "
+              << " ||mz||      "
+              << " ||et||" << std::endl;
+    std::cout
+      << " -----------------------------------------------------------------"
+         "---------"
+      << std::endl;
   }
 
   // Open output stream and output problem information
@@ -457,9 +464,9 @@ static int WriteOutput(sunrealtype t, N_Vector y, EulerData& udata,
     sunrealtype myrms  = sqrt(N_VDotProd(my, my) / udata.nx);
     sunrealtype mzrms  = sqrt(N_VDotProd(mz, mz) / udata.nx);
     sunrealtype etrms  = sqrt(N_VDotProd(et, et) / udata.nx);
-    std::cout << std::setprecision(2) << "  " << t << std::setprecision(5) << "  " << rhorms
-         << "  " << mxrms << "  " << myrms << "  " << mzrms << "  " << etrms
-         << std::endl;
+    std::cout << std::setprecision(2) << "  " << t << std::setprecision(5)
+              << "  " << rhorms << "  " << mxrms << "  " << myrms << "  "
+              << mzrms << "  " << etrms << std::endl;
 
     // Write solution to disk
     if (uopts.output >= 2)
@@ -497,9 +504,10 @@ static int CloseOutput(ARKODEParameters& uopts)
   // Footer for status output
   if (uopts.output)
   {
-    std::cout << " -----------------------------------------------------------------"
-            "---------"
-         << std::endl;
+    std::cout
+      << " -----------------------------------------------------------------"
+         "---------"
+      << std::endl;
     std::cout << std::endl;
   }
 

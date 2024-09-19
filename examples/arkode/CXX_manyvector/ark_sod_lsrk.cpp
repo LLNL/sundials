@@ -320,7 +320,7 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
   int i, j;
   sunrealtype rhosqrL, rhosqrR, rhosqrbar, u, v, w, H, qsq, csnd, cinv, gamm,
     alpha, beta1, beta2, beta3, w1, w2, w3, f1, f2, f3;
-  sunrealtype RV[5][5], LV[5][5], p[STSIZE], flux[STSIZE][NSPECIES], 
+  sunrealtype RV[5][5], LV[5][5], p[STSIZE], flux[STSIZE][NSPECIES],
     fproj[5][NSPECIES], fs[5][NSPECIES], ff[NSPECIES];
   const sunrealtype bc =
     SUN_RCONST(1.083333333333333333333333333333333333333); // 13/12
@@ -416,7 +416,7 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
     flux[j][2] = u * w1d[j][2];          // f_my = rho*v*u = my*u
     flux[j][3] = u * w1d[j][3];          // f_mz = rho*w*u = mz*u
     flux[j][4] = u * (w1d[j][4] + p[j]); // f_et = u*(et + p)
-    csnd = sqrt(udata.gamma * p[j] / w1d[j][0]); // csnd = sqrt(gamma*p/rho)
+    csnd  = sqrt(udata.gamma * p[j] / w1d[j][0]); // csnd = sqrt(gamma*p/rho)
     alpha = max(alpha, abs(u) + csnd);
   }
 

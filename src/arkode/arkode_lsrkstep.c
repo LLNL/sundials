@@ -566,8 +566,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
   sunrealtype* cvals;
-  sunrealtype hmax, w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2, 
-    zjm1, zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1, mu, nu, 
+  sunrealtype hmax, w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2,
+    zjm1, zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1, mu, nu,
     thj;
   const sunrealtype onep54 = SUN_RCONST(1.54), c13 = SUN_RCONST(13.0),
                     p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
@@ -611,8 +611,6 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       return (ARK_RETRY_STEP);
     }
   }
-
-
 
   step_mem->stagemax = SUNMAX(step_mem->reqstages, step_mem->stagemax);
 
@@ -1439,9 +1437,10 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
   if ((step_mem->isextDomEig))
   {
-    retval = step_mem->extDomEig(ark_mem->tn, ark_mem->ycur, ark_mem->fn, &step_mem->lambdaR,
-                                 &step_mem->lambdaI, ark_mem->user_data,
-                                 ark_mem->tempv1, ark_mem->tempv2, ark_mem->tempv3);
+    retval = step_mem->extDomEig(ark_mem->tn, ark_mem->ycur, ark_mem->fn,
+                                 &step_mem->lambdaR, &step_mem->lambdaI,
+                                 ark_mem->user_data, ark_mem->tempv1,
+                                 ark_mem->tempv2, ark_mem->tempv3);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
