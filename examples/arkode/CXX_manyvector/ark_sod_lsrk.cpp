@@ -31,13 +31,13 @@
  * Runge--Kutta methods from LSRKStep, based on the --integrator METHOD input
  * value. The following options are available:
  *
- *   SSPRK(s,2) -- specified via METHOD = ARKODE_LSRK_SSPs_2.  The number of
+ *   SSPRK(s,2) -- specified via METHOD = ARKODE_LSRK_SSP_S_2.  The number of
  *                 stages to use defaults to 10.
  *
- *   SSPRK(s,3) -- specified via METHOD = ARKODE_LSRK_SSPs_3.  The number of
+ *   SSPRK(s,3) -- specified via METHOD = ARKODE_LSRK_SSP_S_3.  The number of
  *                 stages to use defaults to 9.
  *
- *   SSPRK(10,4) -- specified via METHOD = ARKODE_LSRK_SSP10_4.
+ *   SSPRK(10,4) -- specified via METHOD = ARKODE_LSRK_SSP_10_4.
  *
  * Both the SSPRK(s,2) and SSPRK(s,3) methods allow specification of a
  * non-default number of stages.  This may be specified using the --stages S
@@ -94,9 +94,9 @@ int main(int argc, char* argv[])
 
   // Determine type (LSRKStep vs ERKStep)
   bool lsrk = false;
-  if (uopts.integrator == "ARKODE_LSRK_SSPs_2") { lsrk = true; }
-  if (uopts.integrator == "ARKODE_LSRK_SSPs_3") { lsrk = true; }
-  if (uopts.integrator == "ARKODE_LSRK_SSP10_4") { lsrk = true; }
+  if (uopts.integrator == "ARKODE_LSRK_SSP_S_2") { lsrk = true; }
+  if (uopts.integrator == "ARKODE_LSRK_SSP_S_3") { lsrk = true; }
+  if (uopts.integrator == "ARKODE_LSRK_SSP_10_4") { lsrk = true; }
 
   if (lsrk) // Setup LSRKStep
   {
@@ -106,17 +106,17 @@ int main(int argc, char* argv[])
 
     // Select SSPRK method type
     ARKODE_LSRKMethodType mtype;
-    if (uopts.integrator == "ARKODE_LSRK_SSPs_2")
+    if (uopts.integrator == "ARKODE_LSRK_SSP_S_2")
     {
-      mtype = ARKODE_LSRK_SSPs_2;
+      mtype = ARKODE_LSRK_SSP_S_2;
     }
-    else if (uopts.integrator == "ARKODE_LSRK_SSPs_3")
+    else if (uopts.integrator == "ARKODE_LSRK_SSP_S_3")
     {
-      mtype = ARKODE_LSRK_SSPs_3;
+      mtype = ARKODE_LSRK_SSP_S_3;
     }
-    else if (uopts.integrator == "ARKODE_LSRK_SSP10_4")
+    else if (uopts.integrator == "ARKODE_LSRK_SSP_10_4")
     {
-      mtype = ARKODE_LSRK_SSP10_4;
+      mtype = ARKODE_LSRK_SSP_10_4;
     }
     flag = LSRKStepSetMethod(arkode_mem, mtype);
     if (check_flag(flag, "LSRKStepSetMethod")) { return 1; }

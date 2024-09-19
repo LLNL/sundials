@@ -1439,8 +1439,9 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 
   if ((step_mem->isextDomEig))
   {
-    retval = step_mem->extDomEig(ark_mem->tn, ark_mem->ycur, &step_mem->lambdaR,
-                                 &step_mem->lambdaI, ark_mem->user_data);
+    retval = step_mem->extDomEig(ark_mem->tn, ark_mem->ycur, ark_mem->fn, &step_mem->lambdaR,
+                                 &step_mem->lambdaI, ark_mem->user_data,
+                                 ark_mem->tempv1, ark_mem->tempv2, ark_mem->tempv3);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,

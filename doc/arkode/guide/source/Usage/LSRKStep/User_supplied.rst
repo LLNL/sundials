@@ -30,16 +30,20 @@ The dominant eigenvalue estimation
 
 When running LSRKStep with either the RKC or RKL methods, the user must supply a dominant eigenvalue estimation function of type :c:type:`ARKDomEigFn`:
 
-.. c:type:: int (*ARKDomEigFn)(sunrealtype* t, N_Vector y, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data)
+.. c:type:: int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data, N_Vector temp1, N_Vector temp2, N_Vector temp3);
 
    These functions compute the dominant eigenvalue of the Jacobian of the ODE right-hand side for a given
    value of the independent variable :math:`t` and state vector :math:`y`.
 
    :param t: the current value of the independent variable.
    :param y: the current value of the dependent variable vector.
+   :param fn: the current value of the vector :math:`f(t,y)`.
    :param lambdaR: The real part of the dominant eigenvalue.
    :param lambdaI: The imaginary part of the dominant eigenvalue.   
    :param user_data: the `user_data` pointer that was passed to
                      :c:func:`ARKodeSetUserData`.
+   :param tmp*: pointers to memory allocated to
+                variables of type ``N_Vector`` which can be used by an
+                ARKDomEigFn as temporary storage or work space.
 
    :return: An *ARKDomEigFn* should return 0 if successful and any nonzero for a failure.
