@@ -49,9 +49,8 @@
 #define NSPECIES 5
 #define STSIZE 6
 
-#define WIDTH (10 + numeric_limits<sunrealtype>::digits10)
+#define WIDTH (10 + std::numeric_limits<sunrealtype>::digits10)
 
-using namespace std;
 
 // -----------------------------------------------------------------------------
 // Problem options
@@ -62,7 +61,7 @@ class ARKODEParameters
 public:
   // Integration method (ARKODE_LSRK_SSPs_2, ARKODE_LSRK_SSPs_3, ARKODE_LSRK_SSP10_4,
   // or any valid ARKODE_ERKTableID for ERK methods)
-  string integrator;
+  std::string integrator;
 
   // Method stages (0 => to use the default; ignored if using ARKODE_LSRK_SSP10_4 or
   // an ERK method)
@@ -81,7 +80,7 @@ public:
   // Output-related information
   int output;    // 0 = none, 1 = stats, 2 = disk, 3 = disk with tstop
   int nout;      // number of output times
-  ofstream uout; // output file stream
+  std::ofstream uout; // output file stream
 
   // constructor (with default values)
   ARKODEParameters()
@@ -235,49 +234,49 @@ int SetIC(N_Vector y, EulerData& udata);
 // -----------------------------------------------------------------------------
 
 // Check function return flag
-static int check_flag(int flag, const string funcname)
+static int check_flag(int flag, const std::string funcname)
 {
   if (flag < 0)
   {
-    cerr << "ERROR: " << funcname << " returned " << flag << endl;
+    std::cerr << "ERROR: " << funcname << " returned " << flag << std::endl;
     return 1;
   }
   return 0;
 }
 
 // Check if a function returned a NULL pointer
-static int check_ptr(void* ptr, const string funcname)
+static int check_ptr(void* ptr, const std::string funcname)
 {
   if (ptr) { return 0; }
-  cerr << "ERROR: " << funcname << " returned NULL" << endl;
+  std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;
   return 1;
 }
 
 // Print command line options
 static void InputHelp()
 {
-  cout << endl;
-  cout << "Command line options:" << endl;
-  cout
+  std::cout << std::endl;
+  std::cout << "Command line options:" << std::endl;
+  std::cout
     << "  --integrator <str> : method (ARKODE_LSRK_SSPs_2, ARKODE_LSRK_SSPs_3, "
        "ARKODE_LSRK_SSP10_4, or any valid ARKODE_ERKTableID)\n";
-  cout << "  --stages <int>     : number of stages (ignored for "
+  std::cout << "  --stages <int>     : number of stages (ignored for "
           "ARKODE_LSRK_SSP10_4 and ERK)\n";
-  cout << "  --tf <real>        : final time\n";
-  cout << "  --xl <real>        : domain lower boundary\n";
-  cout << "  --xr <real>        : domain upper boundary\n";
-  cout << "  --gamma <real>     : ideal gas constant\n";
-  cout << "  --nx <int>         : number of mesh points\n";
-  cout << "  --rtol <real>      : relative tolerance\n";
-  cout << "  --atol <real>      : absolute tolerance\n";
-  cout << "  --fixed_h <real>   : fixed step size\n";
-  cout << "  --maxsteps <int>   : max steps between outputs\n";
-  cout << "  --output <int>     : output level\n";
-  cout << "  --nout <int>       : number of outputs\n";
-  cout << "  --help             : print options and exit\n";
+  std::cout << "  --tf <real>        : final time\n";
+  std::cout << "  --xl <real>        : domain lower boundary\n";
+  std::cout << "  --xr <real>        : domain upper boundary\n";
+  std::cout << "  --gamma <real>     : ideal gas constant\n";
+  std::cout << "  --nx <int>         : number of mesh points\n";
+  std::cout << "  --rtol <real>      : relative tolerance\n";
+  std::cout << "  --atol <real>      : absolute tolerance\n";
+  std::cout << "  --fixed_h <real>   : fixed step size\n";
+  std::cout << "  --maxsteps <int>   : max steps between outputs\n";
+  std::cout << "  --output <int>     : output level\n";
+  std::cout << "  --nout <int>       : number of outputs\n";
+  std::cout << "  --help             : print options and exit\n";
 }
 
-inline void find_arg(vector<string>& args, const string key, sunrealtype& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key, sunrealtype& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -293,7 +292,7 @@ inline void find_arg(vector<string>& args, const string key, sunrealtype& dest)
   }
 }
 
-inline void find_arg(vector<string>& args, const string key, long int& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key, long int& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -303,7 +302,7 @@ inline void find_arg(vector<string>& args, const string key, long int& dest)
   }
 }
 
-inline void find_arg(vector<string>& args, const string key, int& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key, int& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -313,7 +312,7 @@ inline void find_arg(vector<string>& args, const string key, int& dest)
   }
 }
 
-inline void find_arg(vector<string>& args, const string key, string& dest)
+inline void find_arg(std::vector<std::string>& args, const std::string key, std::string& dest)
 {
   auto it = find(args.begin(), args.end(), key);
   if (it != args.end())
@@ -323,7 +322,7 @@ inline void find_arg(vector<string>& args, const string key, string& dest)
   }
 }
 
-inline void find_arg(vector<string>& args, const string key, bool& dest,
+inline void find_arg(std::vector<std::string>& args, const std::string key, bool& dest,
                      bool store = true)
 {
   auto it = find(args.begin(), args.end(), key);
@@ -334,7 +333,7 @@ inline void find_arg(vector<string>& args, const string key, bool& dest,
   }
 }
 
-static int ReadInputs(vector<string>& args, EulerData& udata,
+static int ReadInputs(std::vector<std::string>& args, EulerData& udata,
                       ARKODEParameters& uopts, SUNContext ctx)
 {
   if (find(args.begin(), args.end(), "--help") != args.end())
@@ -366,7 +365,7 @@ static int ReadInputs(vector<string>& args, EulerData& udata,
 
   if (uopts.stages < 0)
   {
-    cerr << "ERROR: Invalid number of stages" << endl;
+    std::cerr << "ERROR: Invalid number of stages" << std::endl;
     return -1;
   }
 
@@ -376,26 +375,26 @@ static int ReadInputs(vector<string>& args, EulerData& udata,
 // Print user data
 static int PrintSetup(EulerData& udata, ARKODEParameters& uopts)
 {
-  cout << endl;
-  cout << "Problem parameters and options:" << endl;
-  cout << " --------------------------------- " << endl;
-  cout << "  gamma      = " << udata.gamma << endl;
-  cout << " --------------------------------- " << endl;
-  cout << "  tf         = " << udata.tf << endl;
-  cout << "  xl         = " << udata.xl << endl;
-  cout << "  xr         = " << udata.xr << endl;
-  cout << "  nx         = " << udata.nx << endl;
-  cout << "  dx         = " << udata.dx << endl;
-  cout << " --------------------------------- " << endl;
-  cout << "  integrator = " << uopts.integrator << endl;
-  if (uopts.stages > 0) { cout << "  stages     = " << uopts.stages << endl; }
-  cout << "  rtol       = " << uopts.rtol << endl;
-  cout << "  atol       = " << uopts.atol << endl;
-  cout << "  fixed h    = " << uopts.fixed_h << endl;
-  cout << " --------------------------------- " << endl;
-  cout << "  output     = " << uopts.output << endl;
-  cout << " --------------------------------- " << endl;
-  cout << endl;
+  std::cout << std::endl;
+  std::cout << "Problem parameters and options:" << std::endl;
+  std::cout << " --------------------------------- " << std::endl;
+  std::cout << "  gamma      = " << udata.gamma << std::endl;
+  std::cout << " --------------------------------- " << std::endl;
+  std::cout << "  tf         = " << udata.tf << std::endl;
+  std::cout << "  xl         = " << udata.xl << std::endl;
+  std::cout << "  xr         = " << udata.xr << std::endl;
+  std::cout << "  nx         = " << udata.nx << std::endl;
+  std::cout << "  dx         = " << udata.dx << std::endl;
+  std::cout << " --------------------------------- " << std::endl;
+  std::cout << "  integrator = " << uopts.integrator << std::endl;
+  if (uopts.stages > 0) { std::cout << "  stages     = " << uopts.stages << std::endl; }
+  std::cout << "  rtol       = " << uopts.rtol << std::endl;
+  std::cout << "  atol       = " << uopts.atol << std::endl;
+  std::cout << "  fixed h    = " << uopts.fixed_h << std::endl;
+  std::cout << " --------------------------------- " << std::endl;
+  std::cout << "  output     = " << uopts.output << std::endl;
+  std::cout << " --------------------------------- " << std::endl;
+  std::cout << std::endl;
 
   return 0;
 }
@@ -406,36 +405,36 @@ static int OpenOutput(EulerData& udata, ARKODEParameters& uopts)
   // Header for status output
   if (uopts.output)
   {
-    cout << scientific;
-    cout << setprecision(numeric_limits<sunrealtype>::digits10);
-    cout << "    t        "
+    std::cout << std::scientific;
+    std::cout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+    std::cout << "    t        "
          << " ||rho||     "
          << " ||mx||      "
          << " ||my||      "
          << " ||mz||      "
-         << " ||et||" << endl;
-    cout << " -----------------------------------------------------------------"
+         << " ||et||" << std::endl;
+    std::cout << " -----------------------------------------------------------------"
             "---------"
-         << endl;
+         << std::endl;
   }
 
   // Open output stream and output problem information
   if (uopts.output >= 2)
   {
     // Open output stream
-    stringstream fname;
+    std::stringstream fname;
     fname << "sod.out";
     uopts.uout.open(fname.str());
 
-    uopts.uout << scientific;
-    uopts.uout << setprecision(numeric_limits<sunrealtype>::digits10);
-    uopts.uout << "# title Sod Shock Tube" << endl;
-    uopts.uout << "# nvar 5" << endl;
-    uopts.uout << "# vars rho mx my mz et" << endl;
-    uopts.uout << "# nt " << uopts.nout + 1 << endl;
-    uopts.uout << "# nx " << udata.nx << endl;
-    uopts.uout << "# xl " << udata.xl << endl;
-    uopts.uout << "# xr " << udata.xr << endl;
+    uopts.uout << std::scientific;
+    uopts.uout << std::setprecision(std::numeric_limits<sunrealtype>::digits10);
+    uopts.uout << "# title Sod Shock Tube" << std::endl;
+    uopts.uout << "# nvar 5" << std::endl;
+    uopts.uout << "# vars rho mx my mz et" << std::endl;
+    uopts.uout << "# nt " << uopts.nout + 1 << std::endl;
+    uopts.uout << "# nx " << udata.nx << std::endl;
+    uopts.uout << "# xl " << udata.xl << std::endl;
+    uopts.uout << "# xr " << udata.xr << std::endl;
   }
 
   return 0;
@@ -458,9 +457,9 @@ static int WriteOutput(sunrealtype t, N_Vector y, EulerData& udata,
     sunrealtype myrms  = sqrt(N_VDotProd(my, my) / udata.nx);
     sunrealtype mzrms  = sqrt(N_VDotProd(mz, mz) / udata.nx);
     sunrealtype etrms  = sqrt(N_VDotProd(et, et) / udata.nx);
-    cout << setprecision(2) << "  " << t << setprecision(5) << "  " << rhorms
+    std::cout << std::setprecision(2) << "  " << t << std::setprecision(5) << "  " << rhorms
          << "  " << mxrms << "  " << myrms << "  " << mzrms << "  " << etrms
-         << endl;
+         << std::endl;
 
     // Write solution to disk
     if (uopts.output >= 2)
@@ -479,13 +478,13 @@ static int WriteOutput(sunrealtype t, N_Vector y, EulerData& udata,
       uopts.uout << t;
       for (sunindextype i = 0; i < udata.nx; i++)
       {
-        uopts.uout << setw(WIDTH) << rhodata[i];
-        uopts.uout << setw(WIDTH) << mxdata[i];
-        uopts.uout << setw(WIDTH) << mydata[i];
-        uopts.uout << setw(WIDTH) << mzdata[i];
-        uopts.uout << setw(WIDTH) << etdata[i];
+        uopts.uout << std::setw(WIDTH) << rhodata[i];
+        uopts.uout << std::setw(WIDTH) << mxdata[i];
+        uopts.uout << std::setw(WIDTH) << mydata[i];
+        uopts.uout << std::setw(WIDTH) << mzdata[i];
+        uopts.uout << std::setw(WIDTH) << etdata[i];
       }
-      uopts.uout << endl;
+      uopts.uout << std::endl;
     }
   }
 
@@ -498,10 +497,10 @@ static int CloseOutput(ARKODEParameters& uopts)
   // Footer for status output
   if (uopts.output)
   {
-    cout << " -----------------------------------------------------------------"
+    std::cout << " -----------------------------------------------------------------"
             "---------"
-         << endl;
-    cout << endl;
+         << std::endl;
+    std::cout << std::endl;
   }
 
   // Close output streams

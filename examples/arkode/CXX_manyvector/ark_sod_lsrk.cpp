@@ -52,6 +52,7 @@
  * ---------------------------------------------------------------------------*/
 
 #include "ark_sod_lsrk.hpp"
+using namespace std;
 
 int main(int argc, char* argv[])
 {
