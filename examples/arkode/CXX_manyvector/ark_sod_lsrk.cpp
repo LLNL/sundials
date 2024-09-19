@@ -337,8 +337,8 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
   //   v = wbar_3 / wbar_1
   //   w = wbar_4 / wbar_1
   //   H = wbar_5 / wbar_1
-  rhosqrL   = SUNRsqrt(w1d[2][0]);
-  rhosqrR   = SUNRsqrt(w1d[3][0]);
+  rhosqrL   = sqrt(w1d[2][0]);
+  rhosqrR   = sqrt(w1d[3][0]);
   rhosqrbar = HALF * (rhosqrL + rhosqrR);
   u         = HALF * (w1d[2][1] / rhosqrL + w1d[3][1] / rhosqrR) / rhosqrbar;
   v         = HALF * (w1d[2][2] / rhosqrL + w1d[3][2] / rhosqrR) / rhosqrbar;
@@ -416,8 +416,8 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
     flux[j][2] = u * w1d[j][2];          // f_my = rho*v*u = my*u
     flux[j][3] = u * w1d[j][3];          // f_mz = rho*w*u = mz*u
     flux[j][4] = u * (w1d[j][4] + p[j]); // f_et = u*(et + p)
-    csnd = SUNRsqrt(udata.gamma * p[j] / w1d[j][0]); // csnd = sqrt(gamma*p/rho)
-    alpha = SUNMAX(alpha, SUNRabs(u) + csnd);
+    csnd = sqrt(udata.gamma * p[j] / w1d[j][0]); // csnd = sqrt(gamma*p/rho)
+    alpha = max(alpha, abs(u) + csnd);
   }
 
   // fp(x_{i+1/2}):
