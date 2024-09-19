@@ -196,8 +196,9 @@ struct UserData
 static int f(sunrealtype t, N_Vector u, N_Vector f, void* user_data);
 
 // Spectral radius estimation routine
-static int eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
-               sunrealtype* lambdaI, void* user_data);
+static int eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
+               sunrealtype* lambdaI, void* user_data, N_Vector temp1,
+               N_Vector temp2, N_Vector temp3);
 
 // -----------------------------------------------------------------------------
 // Helper functions
@@ -1120,8 +1121,9 @@ static int WaitRecv(UserData* udata)
 }
 
 // Spectral radius estimation routine
-static int eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
-               sunrealtype* lambdaI, void* user_data)
+static int eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
+               sunrealtype* lambdaI, void* user_data, N_Vector temp1,
+               N_Vector temp2, N_Vector temp3)
 {
   // Access problem data
   UserData* udata = (UserData*)user_data;

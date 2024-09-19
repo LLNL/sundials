@@ -408,13 +408,11 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     ark_mem->e_data    = ark_mem;
   }
 
-  /* Set default parameters for the default stepper */
+  /* Set the default stepper */
   if (ark_mem->step == lsrkStep_TakeStepRKC)
   {
-    step_mem->LSRKmethod   = ARKODE_LSRK_RKC_2;
-    step_mem->nfusedopvecs = 5;
-    step_mem->q = ark_mem->hadapt_mem->q = 2;
-    step_mem->p = ark_mem->hadapt_mem->p = 2;
+    retval = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC_2);
+    if (retval != ARK_SUCCESS) { return (retval); }
   }
 
   /* Allocate ARK RHS vector memory, update storage requirements */
@@ -595,21 +593,14 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   /* determine the number of required stages */
-  int ss;
-  for (ss = 1; ss <= step_mem->stagemaxlimit; ss++)
+  int ss = SUNRceil(SUNRsqrt(onep54 * SUNRabs(ark_mem->h) * step_mem->sprad));
+  step_mem->reqstages = SUNMAX(ss, 2);
+  if (step_mem->reqstages == step_mem->stagemaxlimit)
   {
-    if (SUNSQR(ss) >= (onep54 * SUNRabs(ark_mem->h) * step_mem->sprad))
-    {
-      step_mem->reqstages = SUNMAX(ss, 2);
-      break;
-    }
-    if (ss == step_mem->stagemaxlimit)
-    {
-      hmax         = SUN_RCONST(0.95) * SUNSQR(ss) / (onep54 * step_mem->sprad);
-      ark_mem->eta = hmax / ark_mem->h;
-      *nflagPtr    = ARK_RETRY_STEP;
-      return (ARK_RETRY_STEP);
-    }
+    hmax         = SUN_RCONST(0.95) * SUNSQR(ss) / (onep54 * step_mem->sprad);
+    ark_mem->eta = hmax / ark_mem->h;
+    *nflagPtr    = ARK_RETRY_STEP;
+    return (ARK_RETRY_STEP);
   }
 
   step_mem->stagemax = SUNMAX(step_mem->reqstages, step_mem->stagemax);
@@ -798,17 +789,17 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   /* determine the number of required stages */
-  int ss;
-  for (ss = 1; ss <= step_mem->stagemaxlimit; ss++)
+  int ss = floor(SUNRsqrt(TWO * SUNRabs(ark_mem->h) * step_mem->sprad + THREE) - ONE);
+  for (ss; ss <= step_mem->stagemaxlimit; ss++)
   {
-    if ((SUNSQR(ss) + ss - 2) >= 2 * (SUNRabs(ark_mem->h) * step_mem->sprad))
+    if ((SUNSQR(ss) + ss - TWO) >= TWO * (SUNRabs(ark_mem->h) * step_mem->sprad))
     {
       step_mem->reqstages = SUNMAX(ss, 2);
       break;
     }
     if (ss == step_mem->stagemaxlimit)
     {
-      hmax = SUN_RCONST(0.95) * (SUNSQR(ss) + ss - 2) / (2.0 * step_mem->sprad);
+      hmax = SUN_RCONST(0.95) * (SUNSQR(ss) + ss - TWO) / (TWO * step_mem->sprad);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
       return (ARK_RETRY_STEP);
@@ -1295,7 +1286,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                    ark_mem->fn, ark_mem->tempv1);
     }
   }
-  N_VLinearSum(SUN_RCONST(1.0 / 25.0), ark_mem->tempv2, SUN_RCONST(9.0 / 25.0),
+  N_VLinearSum(SUN_RCONST(1.0) / SUN_RCONST(25.0), ark_mem->tempv2, SUN_RCONST(9.0) / SUN_RCONST(25.0),
                ark_mem->ycur, ark_mem->tempv2);
   N_VLinearSum(SUN_RCONST(15.0), ark_mem->tempv2, SUN_RCONST(-5.0),
                ark_mem->ycur, ark_mem->ycur);

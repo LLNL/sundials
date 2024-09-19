@@ -127,7 +127,7 @@ int main(void)
   if (check_flag(&flag, "LSRKStepSetDomEigFn", 1)) { return 1; }
 
   /* Specify after how many successful steps dom_eig is recomputed 
-     Note that nsteps = 0 refers to Constant Jacobian */
+     Note that nsteps = 0 refers to constant dominant eigenvalue */
   flag = LSRKStepSetDomEigFrequency(arkode_mem, 0);
   if (check_flag(&flag, "LSRKStepSetDomEigFrequency", 1)) { return 1; }
 

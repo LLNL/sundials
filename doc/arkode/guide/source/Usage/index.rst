@@ -77,6 +77,6 @@ ARKBBDPRE can only be used with NVECTOR_PARALLEL.
    Preconditioners
    ARKStep/index.rst
    ERKStep/index.rst
+   LSRKStep/index.rst
    SPRKStep/index.rst
    MRIStep/index.rst
-   LSRKStep/index.rst
