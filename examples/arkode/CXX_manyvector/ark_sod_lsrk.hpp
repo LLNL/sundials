@@ -59,11 +59,11 @@
 class ARKODEParameters
 {
 public:
-  // Integration method (ARKODE_LSRK_SSPs_2, ARKODE_LSRK_SSPs_3, ARKODE_LSRK_SSP10_4,
+  // Integration method (ARKODE_LSRK_SSP_S_2, ARKODE_LSRK_SSP_S_3, ARKODE_LSRK_SSP_10_4,
   // or any valid ARKODE_ERKTableID for ERK methods)
   std::string integrator;
 
-  // Method stages (0 => to use the default; ignored if using ARKODE_LSRK_SSP10_4 or
+  // Method stages (0 => to use the default; ignored if using ARKODE_LSRK_SSP_10_4 or
   // an ERK method)
   int stages;
 
@@ -84,7 +84,7 @@ public:
 
   // constructor (with default values)
   ARKODEParameters()
-    : integrator("ARKODE_LSRK_SSP10_4"),
+    : integrator("ARKODE_LSRK_SSP_10_4"),
       stages(0),
       rtol(SUN_RCONST(1.e-4)),
       atol(SUN_RCONST(1.e-11)),
@@ -258,10 +258,10 @@ static void InputHelp()
   std::cout << std::endl;
   std::cout << "Command line options:" << std::endl;
   std::cout
-    << "  --integrator <str> : method (ARKODE_LSRK_SSPs_2, ARKODE_LSRK_SSPs_3, "
-       "ARKODE_LSRK_SSP10_4, or any valid ARKODE_ERKTableID)\n";
+    << "  --integrator <str> : method (ARKODE_LSRK_SSP_S_2, ARKODE_LSRK_SSP_S_3, "
+       "ARKODE_LSRK_SSP_10_4, or any valid ARKODE_ERKTableID)\n";
   std::cout << "  --stages <int>     : number of stages (ignored for "
-          "ARKODE_LSRK_SSP10_4 and ERK)\n";
+          "ARKODE_LSRK_SSP_10_4 and ERK)\n";
   std::cout << "  --tf <real>        : final time\n";
   std::cout << "  --xl <real>        : domain lower boundary\n";
   std::cout << "  --xr <real>        : domain upper boundary\n";

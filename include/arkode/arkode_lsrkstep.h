@@ -23,8 +23,7 @@
 extern "C" {
 #endif
 
-typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
-                           sunrealtype* lambdaI, void* user_data);
+typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data, N_Vector temp1, N_Vector temp2, N_Vector temp3);
 
 /* ------------------
  * LSRKStep Constants
@@ -32,12 +31,12 @@ typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
 
 typedef enum
 {
-  ARKODE_LSRK_RKC_2   = 1, /* ensure enum is int */
-  ARKODE_LSRK_RKL_2   = 2,
-  ARKODE_LSRK_RKG_2   = 3,
-  ARKODE_LSRK_SSPs_2  = 4,
-  ARKODE_LSRK_SSPs_3  = 5,
-  ARKODE_LSRK_SSP10_4 = 6
+  ARKODE_LSRK_RKC_2    = 1, /* ensure enum is int */
+  ARKODE_LSRK_RKL_2    = 2,
+  ARKODE_LSRK_RKG_2    = 3,
+  ARKODE_LSRK_SSP_S_2  = 4,
+  ARKODE_LSRK_SSP_S_3  = 5,
+  ARKODE_LSRK_SSP_10_4 = 6
 } ARKODE_LSRKMethodType;
 
 /* -------------------

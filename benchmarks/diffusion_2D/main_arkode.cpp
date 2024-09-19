@@ -52,8 +52,10 @@ struct UserOptions
 // LSRKStep-specific dominant eigenvalue function prototype
 // -----------------------------------------------------------------------------
 
-static int dom_eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
-                  sunrealtype* lambdaI, void* user_data);
+static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, 
+                   sunrealtype* lambdaR, sunrealtype* lambdaI, 
+                   void* user_data, 
+                   N_Vector temp1, N_Vector temp2, N_Vector temp3);
 
 // -----------------------------------------------------------------------------
 // Main Program
@@ -467,8 +469,10 @@ int main(int argc, char* argv[])
 // Dominant eigenvalue estimation function
 // -----------------------------------------------------------------------------
 
-static int dom_eig(sunrealtype t, N_Vector y, sunrealtype* lambdaR,
-                  sunrealtype* lambdaI, void* user_data)
+static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, 
+                   sunrealtype* lambdaR, sunrealtype* lambdaI, 
+                   void* user_data, 
+                   N_Vector temp1, N_Vector temp2, N_Vector temp3)
 {
   // Access problem data
   UserData* udata = (UserData*)user_data;

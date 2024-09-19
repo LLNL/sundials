@@ -32,9 +32,9 @@
     ARKODE_LSRK_RKC_2
     ARKODE_LSRK_RKL_2
     ARKODE_LSRK_RKG_2
-    ARKODE_LSRK_SSPs_2
-    ARKODE_LSRK_SSPs_3
-    ARKODE_LSRK_SSP10_4
+    ARKODE_LSRK_SSP_S_2
+    ARKODE_LSRK_SSP_S_3
+    ARKODE_LSRK_SSP_10_4
   ---------------------------------------------------------------*/
 int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
 {
@@ -70,9 +70,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   //   step_mem->q = ark_mem->hadapt_mem->q = 2;
   //   step_mem->p = ark_mem->hadapt_mem->p = 2;
   //   break;
-  case ARKODE_LSRK_SSPs_2:
+  case ARKODE_LSRK_SSP_S_2:
     ark_mem->step               = lsrkStep_TakeStepSSPs2;
-    step_mem->LSRKmethod        = ARKODE_LSRK_SSPs_2;
+    step_mem->LSRKmethod        = ARKODE_LSRK_SSP_S_2;
     step_mem->isSSP             = SUNTRUE;
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 10;
@@ -80,9 +80,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 1;
     break;
-  case ARKODE_LSRK_SSPs_3:
+  case ARKODE_LSRK_SSP_S_3:
     ark_mem->step               = lsrkStep_TakeStepSSPs3;
-    step_mem->LSRKmethod        = ARKODE_LSRK_SSPs_3;
+    step_mem->LSRKmethod        = ARKODE_LSRK_SSP_S_3;
     step_mem->isSSP             = SUNTRUE;
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 9;
@@ -90,9 +90,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->q = ark_mem->hadapt_mem->q = 3;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
-  case ARKODE_LSRK_SSP10_4:
+  case ARKODE_LSRK_SSP_10_4:
     ark_mem->step               = lsrkStep_TakeStepSSP104;
-    step_mem->LSRKmethod        = ARKODE_LSRK_SSP10_4;
+    step_mem->LSRKmethod        = ARKODE_LSRK_SSP_10_4;
     step_mem->isSSP             = SUNTRUE;
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->reqstages         = 10;
@@ -233,9 +233,9 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
   LSRKStepSetSSPStageNum sets the number of stages in the following
   SSP methods:
 
-      ARKODE_LSRK_SSPs_2  -- numofstages must be greater than or equal to 2
-      ARKODE_LSRK_SSPs_3  -- numofstages must be a full-square greater than or equal to 9
-      ARKODE_LSRK_SSP10_4 -- numofstages must be equal to 10 - no need to call!
+      ARKODE_LSRK_SSP_S_2  -- numofstages must be greater than or equal to 2
+      ARKODE_LSRK_SSP_S_3  -- numofstages must be a full-square greater than or equal to 9
+      ARKODE_LSRK_SSP_10_4 -- numofstages must be equal to 10 - no need to call!
 
   This set routine must be called after calling LSRKStepSetMethod with an SSP method
   ---------------------------------------------------------------*/
@@ -252,7 +252,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
 
   switch (step_mem->LSRKmethod)
   {
-  case ARKODE_LSRK_SSPs_2:
+  case ARKODE_LSRK_SSP_S_2:
     if (numofstages < 2)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -262,7 +262,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
     step_mem->reqstages = numofstages;
     break;
 
-  case ARKODE_LSRK_SSPs_3:
+  case ARKODE_LSRK_SSP_S_3:
     if (numofstages < 9 ||
         (ceil(SUNRsqrt(numofstages)) != floor(SUNRsqrt(numofstages))))
     {
@@ -274,7 +274,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
 
     break;
 
-  case ARKODE_LSRK_SSP10_4:
+  case ARKODE_LSRK_SSP_10_4:
     if (numofstages != 10)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -626,17 +626,17 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   //   fprintf(fp, "  Method order %i\n", 2);
   //   fprintf(fp, "\n");
   //   break;
-  case ARKODE_LSRK_SSPs_2:
+  case ARKODE_LSRK_SSP_S_2:
     fprintf(fp, "LSRKStep SSP(s,2) time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 2);
     fprintf(fp, "\n");
     break;
-  case ARKODE_LSRK_SSPs_3:
+  case ARKODE_LSRK_SSP_S_3:
     fprintf(fp, "LSRKStep SSP(s,3) time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 3);
     fprintf(fp, "\n");
     break;
-  case ARKODE_LSRK_SSP10_4:
+  case ARKODE_LSRK_SSP_10_4:
     fprintf(fp, "LSRKStep SSP(10,4) time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 4);
     fprintf(fp, "\n");

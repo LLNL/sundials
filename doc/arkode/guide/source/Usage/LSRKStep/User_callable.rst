@@ -90,9 +90,9 @@ Allowable Method Families
 
    * ``ARKODE_LSRK_RKC_2`` -- Runge--Kutta--Chebyshev
    * ``ARKODE_LSRK_RKL_2`` -- Runge--Kutta--Legendre
-   * ``ARKODE_LSRK_SSPs_2`` -- SSP(s,2) -- 2nd order, s-stage
-   * ``ARKODE_LSRK_SSPs_3`` -- SSP(s,3) -- 3rd order, s-stage
-   * ``ARKODE_LSRK_SSP10_4`` -- SSP(10,4) -- 4th order, 10-stage
+   * ``ARKODE_LSRK_SSP_S_2`` -- SSP(s,2) -- 2nd order, s-stage
+   * ``ARKODE_LSRK_SSP_S_3`` -- SSP(s,3) -- 3rd order, s-stage
+   * ``ARKODE_LSRK_SSP_10_4`` -- SSP(10,4) -- 4th order, 10-stage
 
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
@@ -160,9 +160,9 @@ Allowable Method Families
 
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods.  This input is ignored by RKC and RKL methods.
 
-      * ``ARKODE_LSRK_SSPs_2``  -- ``numofstages`` must be greater than or equal to 2
-      * ``ARKODE_LSRK_SSPs_3``  -- ``numofstages`` must be a perfect-square greater than or equal to 9
-      * ``ARKODE_LSRK_SSP10_4`` -- ``numofstages`` cannot be modified from 10, so this function should not be called.
+      * ``ARKODE_LSRK_SSP_S_2``  -- ``numofstages`` must be greater than or equal to 2
+      * ``ARKODE_LSRK_SSP_S_3``  -- ``numofstages`` must be a perfect-square greater than or equal to 9
+      * ``ARKODE_LSRK_SSP_10_4`` -- ``numofstages`` cannot be modified from 10, so this function should not be called.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
