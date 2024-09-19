@@ -1819,6 +1819,21 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     return (ARK_ILL_INPUT);
   }
 
+  /* Set up the time stepper module */
+  if (ark_mem->step_init == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Time stepper module is missing");
+    return (ARK_ILL_INPUT);
+  }
+  retval = ark_mem->step_init(ark_mem, ark_mem->init_type);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Error in initialization of time stepper module");
+    return (retval);
+  }
+
   /* Load initial residual weights */
   if (ark_mem->rwt_is_ewt)
   { /* update pointer to ewt */
@@ -1841,21 +1856,6 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       }
       return (ARK_ILL_INPUT);
     }
-  }
-
-  /* Set up the time stepper module */
-  if (ark_mem->step_init == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Time stepper module is missing");
-    return (ARK_ILL_INPUT);
-  }
-  retval = ark_mem->step_init(ark_mem, ark_mem->init_type);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Error in initialization of time stepper module");
-    return (retval);
   }
 
   /* Check that user has supplied an initial step size if fixedstep mode is on */
