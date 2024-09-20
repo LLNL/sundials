@@ -157,7 +157,7 @@ int main(void)
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
   /* Specify the Runge--Kutta--Chebyshev LSRK method */
-  flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKL_2);
+  flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC_2);
   if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */

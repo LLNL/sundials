@@ -49,7 +49,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   if (fi != NULL)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "\n\nNO IMEX-LSRK support yet, set fi = NULL\n");
+                    "NO IMEX-LSRK support yet, set fi = NULL");
     return (NULL);
   }
 
@@ -193,7 +193,7 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   if (fi != NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "\n\nNO IMEX-LSRK support yet, set fi = NULL");
+                    "NO IMEX-LSRK support yet, set fi = NULL");
     return (ARK_ILL_INPUT);
   }
 
@@ -411,7 +411,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   /* Set the default stepper */
   if (ark_mem->step == lsrkStep_TakeStepRKC)
   {
-    retval = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC_2);
+    retval = LSRKStepSetMethod(ark_mem, ARKODE_LSRK_RKC_2);
     if (retval != ARK_SUCCESS) { return (retval); }
   }
 
@@ -1444,13 +1444,13 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     if (step_mem->lambdaR * ark_mem->h > ZERO)
     {
       arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                      "\n\nlambdaR*h must be nonpositive\n");
+                      "lambdaR*h must be nonpositive");
       return (ARK_DOMEIG_FAIL);
     }
     else if (step_mem->lambdaR == 0 && SUNRabs(step_mem->lambdaI) > 0)
     {
       arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                      "\n\nDomEig cannot be purely imaginary\n");
+                      "DomEig cannot be purely imaginary");
       return (ARK_DOMEIG_FAIL);
     }
 
@@ -1462,7 +1462,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   else
   {
     arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                    "\n\nInternal dom_eig is not supported yet!\n");
+                    "Internal dom_eig is not supported yet!");
     return (ARK_DOMEIG_FAIL);
   }
   step_mem->jacatt = SUNTRUE;
