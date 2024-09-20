@@ -133,11 +133,8 @@ public:
   // manual destructor
   void FreeData()
   {
-    if (flux != NULL)
-    {
-      delete[] flux;
-      flux = NULL;
-    }
+    delete[] flux;
+    flux = NULL;
   };
 
   // destructor
