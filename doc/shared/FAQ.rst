@@ -291,7 +291,7 @@ CVODE(S) / IDA(S) / ARKODE
    The default temporal adaptivity controller in ARKODE was selected due to its robust performance on test
    problems that ranged in difficulty and stiffness, and when running with a wide range of solution tolerances
    and method orders.  While we hope that this default runs well on most applications, it is unlikely to be
-   optimal.  A prime indicator that an alterate adaptivity controller may be useful is if the default results
+   optimal.  A prime indicator that an alternate adaptivity controller may be useful is if the default results
    in a large number of rejected steps.  Alternately, for higher-cost calculations where a reduction of 10%-20%
    in the number of time steps would be important, users may want to try another controller option.
 
