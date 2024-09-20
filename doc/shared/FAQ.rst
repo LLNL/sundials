@@ -286,6 +286,50 @@ CVODE(S) / IDA(S) / ARKODE
    integrals (very often a large number of them) need to be computed for adjoint sensitivity.
 
 
+.. collapse:: When should I select a non-default temporal adaptivity controller in ARKODE?
+
+   The default temporal adaptivity controller in ARKODE was selected due to its robust performance on test
+   problems that ranged in difficulty and stiffness, and when running with a wide range of solution tolerances
+   and method orders.  While we hope that this default runs well on most applications, it is unlikely to be
+   optimal.  A prime indicator that an alterate adaptivity controller may be useful is if the default results
+   in a large number of rejected steps.  Alternately, for higher-cost calculations where a reduction of 10%-20%
+   in the number of time steps would be important, users may want to try another controller option.
+
+   The default temporal adaptivity controller in ARKODE is the industry-standard *I* controller:
+
+   .. math::
+      h' = h_n \varepsilon_n^{-1/(p+1)}
+
+   where :math:`\varepsilon_n = \text{bias}*\text{dsm}_n`, and :math:`\text{dsm}_n` is the WRMS norm of the
+   local temporal error when using the time step :math:`h_n`, weighted by the user-requested tolerances.
+   However, the :ref:`SUNAdaptController class <SUNAdaptController>` in SUNDIALS provides a range of more
+   advanced temporal error controllers that could be applied to a given application problem, including the
+   :math:`H_{0}321`, :math:`H_{0}211`,  :math:`H211`, and :math:`H312` controllers from :cite:p:`Sod:03`,
+   as well as a variety of controllers (*PI*, *PID*, *ExpGus*, *ImpGus*, and *ImExGus*) that were included
+   in the initial ARKODE release.
+
+   The adaptive time-stepping controllers introduced by Soderlind in :cite:p:`Sod:03` can be classified into
+   two groups; *deadbeat* controllers and *non-deadbeat* controllers. A controller is known as deadbeat if
+   the roots of its characteristic equation are located at the origin. These controllers are generalized
+   forms of the *I* controller, are denoted with a zero subscript as part of the controller name (e.g.,
+   :math:`H_{0}321`), and are generally recommended for applications with smooth solutions as a function of time.
+
+   While it is impossible to exhaustively explore the question of controller optimality for all application
+   problems, we have performed tests on the range of provided controllers on a variety of stiff and non-stiff
+   problems, at varying tolerances (:math:`10^{-9} \to 10^{-3}`), and for Runge--Kutta methods at a wide range
+   of orders of accuracy (ERK orders 2-9, and DIRK orders 2-5). From our experiments, stiff problems benefitted
+   from the *I*, *PI*, :math:`H_{0}211`, :math:`H_{0}321`, and *ImpGus* controllers.  On the other hand,
+   non-stiff test problems ran most efficiently when using the *PID*, *I*, *ExpGus*, :math:`H211`, and
+   :math:`H312` controllers.
+
+   Lastly, we note that the internal controller parameters for the legacy ARKODE controllers (*PI*, *PID*,
+   *ExpGus*, *ImpGus*, and *ImExGus*) were determined via numerical optimization over a given set of test
+   problems.  As a result, although those controllers work very well for some applications, they may not
+   work well with others.  For users who are interested in exploring novel controller methods, we point out
+   that the :ref:`"Soderlind" <SUNAdaptController.Soderlind>` SUNAdaptController allows complete control
+   over all internal parameters via the :c:func:`SUNAdaptController_SetParams_Soderlind` function.
+
+
 KINSOL
 ------
 
