@@ -127,51 +127,51 @@ Allowable Method Families
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``nsteps < 0``)
 
 
-.. c:function:: int LSRKStepSetMaxNumStages(void* arkode_mem, int stagemaxlimit);
+.. c:function:: int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit);
 
    Specifies the maximum number of stages allowed within each time step.  This bound only applies to
    RKL and RKC methods, and any inputs are ignored for SSPRK methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *stagemaxlimit* -- maximum allowed number of stages :math:`(>1)`.
+      * *stage_max_limit* -- maximum allowed number of stages :math:`(>1)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``stagemaxlimit < 2``)
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``stage_max_limit < 2``)
 
 
-.. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty);
+.. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_sfty);
 
    Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.  This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring a sufficient number of stages for the method to be stable.  This input is only used for RKC and RKL methods, and is ignored by SSPRK methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *domeigsfty* -- safety factor :math:`(\ge 1)`.
+      * *dom_eig_sfty* -- safety factor :math:`(\ge 1)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``domeigsfty < 1``)
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``dom_eig_sfty < 1``)
 
 
-.. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages);
+.. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
 
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods.  This input is ignored by RKC and RKL methods.
 
-      * ``ARKODE_LSRK_SSP_S_2``  -- ``numofstages`` must be greater than or equal to 2
-      * ``ARKODE_LSRK_SSP_S_3``  -- ``numofstages`` must be a perfect-square greater than or equal to 9
-      * ``ARKODE_LSRK_SSP_10_4`` -- ``numofstages`` cannot be modified from 10, so this function should not be called.
+      * ``ARKODE_LSRK_SSP_S_2``  -- ``num_of_stages`` must be greater than or equal to 2
+      * ``ARKODE_LSRK_SSP_S_3``  -- ``num_of_stages`` must be a perfect-square greater than or equal to 9
+      * ``ARKODE_LSRK_SSP_10_4`` -- ``num_of_stages`` cannot be modified from 10, so this function should not be called.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *numofstages* -- number of stages :math:`(>1)` for ``SSP(s,2)`` and :math:`(n^2 = s \geq 9)` for ``SSP(s,3)``.
+      * *num_of_stages* -- number of stages :math:`(>1)` for ``SSP(s,2)`` and :math:`(n^2 = s \geq 9)` for ``SSP(s,3)``.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``numofstages < 2``)
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``num_of_stages < 2``)
 
 
 .. _ARKODE.Usage.LSRKStep.OptionalOutputs:
@@ -195,26 +195,26 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
-.. c:function:: int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* ndomeigupdates);
+.. c:function:: int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* num_dom_eig_updates);
 
    Returns the number of dominant eigenvalue evaluations (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *ndomeigupdates* -- number of calls to the user's ``dom_eig`` function.
+      * *num_dom_eig_updates* -- number of calls to the user's ``dom_eig`` function.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
-.. c:function:: int LSRKStepGetMaxNumStages(void* arkode_mem, int* stagemax);
+.. c:function:: int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
 
    Returns the max number of stages taken in any single step (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *stagemax* -- max number of stages taken.
+      * *stage_max* -- max number of stages taken.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

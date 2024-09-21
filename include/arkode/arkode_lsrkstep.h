@@ -63,12 +63,12 @@ SUNDIALS_EXPORT int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps);
 
-SUNDIALS_EXPORT int LSRKStepSetMaxNumStages(void* arkode_mem, int stagemaxlimit);
+SUNDIALS_EXPORT int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit);
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigSafetyFactor(void* arkode_mem,
-                                                  sunrealtype domeigsfty);
+                                                  sunrealtype dom_eig_sfty);
 
-SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages);
+SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
 
 /* Optional output functions */
 
@@ -76,9 +76,9 @@ SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals,
                                            long int* fi_evals);
 
 SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem,
-                                                long int* ndomeigupdates);
+                                                long int* num_dom_eig_updates);
 
-SUNDIALS_EXPORT int LSRKStepGetMaxNumStages(void* arkode_mem, int* stagemax);
+SUNDIALS_EXPORT int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
 
 SUNDIALS_EXPORT int LSRKStepGetAverageStageNum(void* arkode_mem,
                                                sunrealtype* averstage);

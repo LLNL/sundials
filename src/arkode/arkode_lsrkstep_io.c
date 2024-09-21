@@ -73,9 +73,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   case ARKODE_LSRK_SSP_S_2:
     ark_mem->step               = lsrkStep_TakeStepSSPs2;
     step_mem->LSRKmethod        = ARKODE_LSRK_SSP_S_2;
-    step_mem->isSSP             = SUNTRUE;
+    step_mem->is_SSP            = SUNTRUE;
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
-    step_mem->reqstages         = 10;
+    step_mem->req_stages        = 10;
     step_mem->nfusedopvecs      = 3;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 1;
@@ -83,9 +83,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   case ARKODE_LSRK_SSP_S_3:
     ark_mem->step               = lsrkStep_TakeStepSSPs3;
     step_mem->LSRKmethod        = ARKODE_LSRK_SSP_S_3;
-    step_mem->isSSP             = SUNTRUE;
+    step_mem->is_SSP            = SUNTRUE;
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
-    step_mem->reqstages         = 9;
+    step_mem->req_stages        = 9;
     step_mem->nfusedopvecs      = 3;
     step_mem->q = ark_mem->hadapt_mem->q = 3;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
@@ -93,9 +93,9 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   case ARKODE_LSRK_SSP_10_4:
     ark_mem->step               = lsrkStep_TakeStepSSP104;
     step_mem->LSRKmethod        = ARKODE_LSRK_SSP_10_4;
-    step_mem->isSSP             = SUNTRUE;
+    step_mem->is_SSP            = SUNTRUE;
     ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
-    step_mem->reqstages         = 10;
+    step_mem->req_stages        = 10;
     step_mem->nfusedopvecs      = 3;
     step_mem->q = ark_mem->hadapt_mem->q = 4;
     step_mem->p = ark_mem->hadapt_mem->p = 3;
@@ -127,14 +127,14 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   /* set the dom_eig routine pointer, and update relevant flags */
   if (dom_eig != NULL)
   {
-    step_mem->isextDomEig = SUNTRUE;
+    step_mem->is_ext_dom_eig = SUNTRUE;
     step_mem->extDomEig   = dom_eig;
 
     return (ARK_SUCCESS);
   }
   else
   {
-    step_mem->isextDomEig = SUNFALSE;
+    step_mem->is_ext_dom_eig = SUNFALSE;
     step_mem->extDomEig   = NULL;
 
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -169,13 +169,13 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
 
   if (nsteps == 0)
   {
-    step_mem->constJac   = SUNTRUE;
-    step_mem->domeigfreq = 1;
+    step_mem->const_Jac   = SUNTRUE;
+    step_mem->dom_eig_freq = 1;
   }
   else
   {
-    step_mem->domeigfreq = nsteps;
-    step_mem->constJac   = SUNFALSE;
+    step_mem->dom_eig_freq = nsteps;
+    step_mem->const_Jac   = SUNFALSE;
   }
 
   return (ARK_SUCCESS);
@@ -184,7 +184,7 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
 /*---------------------------------------------------------------
   LSRKStepSetMaxNumStages sets the maximum number of stages allowed.
   ---------------------------------------------------------------*/
-int LSRKStepSetMaxNumStages(void* arkode_mem, int stagemaxlimit)
+int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -195,14 +195,14 @@ int LSRKStepSetMaxNumStages(void* arkode_mem, int stagemaxlimit)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (stagemaxlimit < 2)
+  if (stage_max_limit < 2)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "stagemaxlimit must be greater than or equal to 2");
+                    "stage_max_limit must be greater than or equal to 2");
     return (ARK_ILL_INPUT);
   }
 
-  step_mem->stagemaxlimit = stagemaxlimit;
+  step_mem->stage_max_limit = stage_max_limit;
 
   return (ARK_SUCCESS);
 }
@@ -210,7 +210,7 @@ int LSRKStepSetMaxNumStages(void* arkode_mem, int stagemaxlimit)
 /*---------------------------------------------------------------
   LSRKStepSetDomEigSafetyFactor sets the safety factor for the DomEigs.
   ---------------------------------------------------------------*/
-int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
+int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_sfty)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -221,14 +221,14 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (domeigsfty < SUN_RCONST(1.0))
+  if (dom_eig_sfty < SUN_RCONST(1.0))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "domeigsfty must be greater than or equal to 1");
+                    "dom_eig_sfty must be greater than or equal to 1");
     return (ARK_ILL_INPUT);
   }
 
-  step_mem->domeigsfty = domeigsfty;
+  step_mem->dom_eig_sfty = dom_eig_sfty;
 
   return (ARK_SUCCESS);
 }
@@ -237,13 +237,13 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype domeigsfty)
   LSRKStepSetSSPStageNum sets the number of stages in the following
   SSP methods:
 
-      ARKODE_LSRK_SSP_S_2  -- numofstages must be greater than or equal to 2
-      ARKODE_LSRK_SSP_S_3  -- numofstages must be a full-square greater than or equal to 9
-      ARKODE_LSRK_SSP_10_4 -- numofstages must be equal to 10 - no need to call!
+      ARKODE_LSRK_SSP_S_2  -- num_of_stages must be greater than or equal to 2
+      ARKODE_LSRK_SSP_S_3  -- num_of_stages must be a perfect square greater than or equal to 9
+      ARKODE_LSRK_SSP_10_4 -- num_of_stages must be equal to 10 - no need to call!
 
   This set routine must be called after calling LSRKStepSetMethod with an SSP method
   ---------------------------------------------------------------*/
-int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
+int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -257,35 +257,35 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int numofstages)
   switch (step_mem->LSRKmethod)
   {
   case ARKODE_LSRK_SSP_S_2:
-    if (numofstages < 2)
+    if (num_of_stages < 2)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "numofstages must be greater than or equal to 2");
+                      "num_of_stages must be greater than or equal to 2");
       return (ARK_ILL_INPUT);
     }
-    step_mem->reqstages = numofstages;
+    step_mem->req_stages = num_of_stages;
     break;
 
   case ARKODE_LSRK_SSP_S_3:
-    if (numofstages < 9 ||
-        (ceil(SUNRsqrt(numofstages)) != floor(SUNRsqrt(numofstages))))
+    if (num_of_stages < 9 ||
+        (ceil(SUNRsqrt(num_of_stages)) != floor(SUNRsqrt(num_of_stages))))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "numofstages must be a full-square greater than or equal to 9");
+                      __FILE__, "num_of_stages must be a perfect square greater than or equal to 9");
       return (ARK_ILL_INPUT);
     }
-    else { step_mem->reqstages = numofstages; }
+    else { step_mem->req_stages = num_of_stages; }
 
     break;
 
   case ARKODE_LSRK_SSP_10_4:
-    if (numofstages != 10)
+    if (num_of_stages != 10)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "SSP10_4 method has a prefixed numofstages = 10");
+                      "SSP10_4 method has a prefixed num_of_stages = 10");
       return (ARK_ILL_INPUT);
     }
-    else { step_mem->reqstages = numofstages; }
+    else { step_mem->req_stages = num_of_stages; }
 
     break;
 
@@ -332,7 +332,7 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals,
 
   Returns the number of dominant eigenvalue updates
   ---------------------------------------------------------------*/
-int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* ndomeigupdates)
+int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* num_dom_eig_updates)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -344,7 +344,7 @@ int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* ndomeigupdates)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
-  *ndomeigupdates = step_mem->ndomeigupdates;
+  *num_dom_eig_updates = step_mem->num_dom_eig_updates;
 
   return (ARK_SUCCESS);
 }
@@ -354,7 +354,7 @@ int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* ndomeigupdates)
 
   Returns the max number of stages taken
   ---------------------------------------------------------------*/
-int LSRKStepGetMaxNumStages(void* arkode_mem, int* stagemax)
+int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -366,7 +366,7 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stagemax)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
-  *stagemax = step_mem->stagemax;
+  *stage_max = step_mem->stage_max;
 
   return (ARK_SUCCESS);
 }
@@ -434,7 +434,6 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
       return (ARK_MEM_FAIL);
     }
   }
-  ark_mem->hadapt_mem->hcontroller = NULL;
   ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
@@ -453,33 +452,33 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
 
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for LSRKStep use) */
-  step_mem->reqstages = 0; /* no stages */
+  step_mem->req_stages = 0; /* no stages */
 
   /* Counters and stats*/
-  step_mem->nfe            = 0;
-  step_mem->domeignfe      = 0;
-  step_mem->stagemax       = 0;
-  step_mem->ndomeigupdates = 0;
-  step_mem->stagemaxlimit =
+  step_mem->nfe                 = 0;
+  step_mem->dom_eig_nfe         = 0;
+  step_mem->stage_max            = 0;
+  step_mem->num_dom_eig_updates = 0;
+  step_mem->stage_max_limit =
     (int)round(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround)));
-  step_mem->stagemaxlimit =
-    (step_mem->stagemaxlimit > 2) ? step_mem->stagemaxlimit : 2;
+  step_mem->stage_max_limit =
+    (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
   step_mem->nstsig = 0;
 
   /* Spectral info */
   step_mem->lambdaR    = 0;
   step_mem->lambdaI    = 0;
   step_mem->sprad      = 0;
-  step_mem->sprmax     = 0;
-  step_mem->sprmin     = 0;
-  step_mem->domeigsfty = 1.01;
-  step_mem->domeigfreq = 25;
+  step_mem->spr_max     = 0;
+  step_mem->spr_min     = 0;
+  step_mem->dom_eig_sfty = 1.01;
+  step_mem->dom_eig_freq = 25;
 
   /* Flags */
-  step_mem->newdomeig = SUNTRUE;
-  step_mem->constJac  = SUNFALSE;
-  step_mem->jacatt    = SUNFALSE;
-  step_mem->isSSP     = SUNFALSE;
+  step_mem->new_dom_eig = SUNTRUE;
+  step_mem->const_Jac   = SUNFALSE;
+  step_mem->jacatt      = SUNFALSE;
+  step_mem->is_SSP      = SUNFALSE;
 
   ark_mem->hadapt_mem->adjust = 0;               /* set default adjustment */
   ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
@@ -531,26 +530,26 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "RHS fn evals                  = %ld\n", step_mem->nfe);
     fprintf(outfile, "RHS fn evals for Dom. Eigs.   = %ld\n",
-            step_mem->domeignfe);
+            step_mem->dom_eig_nfe);
     fprintf(outfile, "Number of dom_eig update calls = %ld\n",
-            step_mem->ndomeigupdates);
-    fprintf(outfile, "Max. num. of stages taken     = %d\n", step_mem->stagemax);
+            step_mem->num_dom_eig_updates);
+    fprintf(outfile, "Max. num. of stages taken     = %d\n", step_mem->stage_max);
     fprintf(outfile, "Max. num. of stages allowed   = %d\n",
-            step_mem->stagemaxlimit);
+            step_mem->stage_max_limit);
 
-    fprintf(outfile, "Max. spectral radius         = %.2f\n", step_mem->sprmax);
-    fprintf(outfile, "Min. spectral radius         = %.2f\n", step_mem->sprmin);
+    fprintf(outfile, "Max. spectral radius         = %.2f\n", step_mem->spr_max);
+    fprintf(outfile, "Min. spectral radius         = %.2f\n", step_mem->spr_min);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, ",RHS fn evals for Dom. Eigs.,%ld", step_mem->domeignfe);
+    fprintf(outfile, ",RHS fn evals for Dom. Eigs.,%ld", step_mem->dom_eig_nfe);
     fprintf(outfile, ",Number of dom_eig update calls,%ld",
-            step_mem->ndomeigupdates);
-    fprintf(outfile, ",Max. num. of stages taken,%d", step_mem->stagemax);
-    fprintf(outfile, ",Max. num. of stages allowed,%d", step_mem->stagemaxlimit);
+            step_mem->num_dom_eig_updates);
+    fprintf(outfile, ",Max. num. of stages taken,%d", step_mem->stage_max);
+    fprintf(outfile, ",Max. num. of stages allowed,%d", step_mem->stage_max_limit);
 
-    fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->sprmax);
-    fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->sprmin);
+    fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->spr_max);
+    fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->spr_min);
     fprintf(outfile, "\n");
     break;
   default:
@@ -581,11 +580,11 @@ int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
   {
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-    fprintf(outfile, "Current stages taken         = %d\n", step_mem->reqstages);
+    fprintf(outfile, "Current stages taken         = %d\n", step_mem->req_stages);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, ",Current stages taken,%d", step_mem->reqstages);
+    fprintf(outfile, ",Current stages taken,%d", step_mem->req_stages);
 
     fprintf(outfile, "\n");
     break;
@@ -618,32 +617,26 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   case ARKODE_LSRK_RKC_2:
     fprintf(fp, "LSRKStep RKC time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 2);
-    fprintf(fp, "\n");
     break;
   case ARKODE_LSRK_RKL_2:
     fprintf(fp, "LSRKStep RKL time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 2);
-    fprintf(fp, "\n");
     break;
   // case ARKODE_LSRK_RKG_2:
   //   fprintf(fp, "LSRKStep RKG time step module parameters:\n");
   //   fprintf(fp, "  Method order %i\n", 2);
-  //   fprintf(fp, "\n");
   //   break;
   case ARKODE_LSRK_SSP_S_2:
     fprintf(fp, "LSRKStep SSP(s,2) time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 2);
-    fprintf(fp, "\n");
     break;
   case ARKODE_LSRK_SSP_S_3:
     fprintf(fp, "LSRKStep SSP(s,3) time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 3);
-    fprintf(fp, "\n");
     break;
   case ARKODE_LSRK_SSP_10_4:
     fprintf(fp, "LSRKStep SSP(10,4) time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 4);
-    fprintf(fp, "\n");
     break;
 
   default:
@@ -651,6 +644,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
                     "Invalid method option.");
     return (ARK_ILL_INPUT);
   }
+  fprintf(fp, "\n");
 
   return (ARK_SUCCESS);
 }
