@@ -132,7 +132,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
 
   /* Initialize all the counters */
   step_mem->nfe                 = 0;
-  step_mem->nfi = 0;
+  step_mem->nfi                 = 0;
   step_mem->dom_eig_nfe         = 0;
   step_mem->stage_max           = 0;
   step_mem->num_dom_eig_updates = 0;
