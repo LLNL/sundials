@@ -35,9 +35,9 @@ module farkode_lsrkstep_mod
   enumerator :: ARKODE_LSRK_SSP_S_3 = 5
   enumerator :: ARKODE_LSRK_SSP_10_4 = 6
  end enum
-integer, parameter, public :: ARKODE_LSRKMethodType = kind(ARKODE_LSRK_RKC_2)
-public :: ARKODE_LSRK_RKC_2, ARKODE_LSRK_RKL_2, ARKODE_LSRK_RKG_2, ARKODE_LSRK_SSP_S_2, ARKODE_LSRK_SSP_S_3, &
-ARKODE_LSRK_SSP_10_4
+ integer, parameter, public :: ARKODE_LSRKMethodType = kind(ARKODE_LSRK_RKC_2)
+ public :: ARKODE_LSRK_RKC_2, ARKODE_LSRK_RKL_2, ARKODE_LSRK_RKG_2, ARKODE_LSRK_SSP_S_2, ARKODE_LSRK_SSP_S_3, &
+    ARKODE_LSRK_SSP_10_4
  public :: FLSRKStepCreate
  public :: FLSRKStepReInit
  public :: FLSRKStepSetMethod
