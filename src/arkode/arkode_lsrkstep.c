@@ -131,8 +131,16 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->lrw += 0;
 
   /* Initialize all the counters */
-  step_mem->nfe = 0;
+  step_mem->nfe                 = 0;
   step_mem->nfi = 0;
+  step_mem->dom_eig_nfe         = 0;
+  step_mem->stage_max           = 0;
+  step_mem->num_dom_eig_updates = 0;
+  step_mem->stage_max_limit =
+    (int)SUNRround(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround)));
+  step_mem->stage_max_limit =
+    (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
+  step_mem->nstsig = 0;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);

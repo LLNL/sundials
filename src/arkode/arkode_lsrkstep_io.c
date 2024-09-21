@@ -263,19 +263,16 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
                       "num_of_stages must be greater than or equal to 2");
       return (ARK_ILL_INPUT);
     }
-    step_mem->req_stages = num_of_stages;
     break;
 
   case ARKODE_LSRK_SSP_S_3:
-    if (num_of_stages < 9 ||
-        (ceil(SUNRsqrt(num_of_stages)) != floor(SUNRsqrt(num_of_stages))))
+    int root = SUNRsqrt(numofstages);
+	  if (numofstages < 9 || root * root != numofstages)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                       __FILE__, "num_of_stages must be a perfect square greater than or equal to 9");
       return (ARK_ILL_INPUT);
     }
-    else { step_mem->req_stages = num_of_stages; }
-
     break;
 
   case ARKODE_LSRK_SSP_10_4:
@@ -285,8 +282,6 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
                       "SSP10_4 method has a prefixed num_of_stages = 10");
       return (ARK_ILL_INPUT);
     }
-    else { step_mem->req_stages = num_of_stages; }
-
     break;
 
   default:
@@ -295,6 +290,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
     return (ARK_ILL_INPUT);
     break;
   }
+  step_mem->req_stages = num_of_stages;
 
   return (ARK_SUCCESS);
 }
@@ -453,17 +449,6 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for LSRKStep use) */
   step_mem->req_stages = 0; /* no stages */
-
-  /* Counters and stats*/
-  step_mem->nfe                 = 0;
-  step_mem->dom_eig_nfe         = 0;
-  step_mem->stage_max           = 0;
-  step_mem->num_dom_eig_updates = 0;
-  step_mem->stage_max_limit =
-    (int)round(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround)));
-  step_mem->stage_max_limit =
-    (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
-  step_mem->nstsig = 0;
 
   /* Spectral info */
   step_mem->lambdaR      = 0;
