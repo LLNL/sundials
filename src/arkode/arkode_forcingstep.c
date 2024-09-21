@@ -176,15 +176,14 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
 
   /* Evolve stepper 0 on its own */
   SUNErrCode err = SUNStepper_Reset(s0, ark_mem->tn, ark_mem->yn);
-  if (err != SUN_SUCCESS) { return err; }
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_SetStepDirection(s0, ark_mem->h);
-  if (err != SUN_SUCCESS) { return err; }
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_SetStopTime(s0, tout);
-  if (err != SUN_SUCCESS) { return err; }
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_Evolve(s0, ark_mem->tn, tout, ark_mem->ycur, &tret,
                           &stop_reason);
-  if (err != SUN_SUCCESS) { return err; }
-  if (stop_reason < 0) { return stop_reason; }
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   step_mem->n_stepper_evolves[0]++;
 
   /* Reset stepper 1. It may be possible to avoid the reset here (like explicit
@@ -193,11 +192,11 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
    * could become out of sync. */
   const SUNStepper s1 = step_mem->stepper[1];
   err                 = SUNStepper_Reset(s1, ark_mem->tn, ark_mem->yn);
-  if (err != SUN_SUCCESS) { return err; }
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_SetStepDirection(s1, ark_mem->h);
-  if (err != SUN_SUCCESS) { return err; }
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_SetStopTime(s1, tout);
-  if (err != SUN_SUCCESS) { return err; }
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   /* Write tendency (ycur - yn)/h into stepper 1 forcing */
   const sunrealtype hinv = SUN_RCONST(1.0) / ark_mem->h;
@@ -206,8 +205,7 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   /* Evolve stepper 1 with the forcing */
   err = SUNStepper_Evolve(s1, ark_mem->tn, tout, ark_mem->ycur, &tret,
                           &stop_reason);
-  if (err != SUN_SUCCESS) { return err; }
-  if (stop_reason < 0) { return stop_reason; }
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   step_mem->n_stepper_evolves[1]++;
 
   return ARK_SUCCESS;

@@ -277,19 +277,18 @@ static int splittingStep_SequentialMethod(const int i, const N_Vector y,
 
       const SUNStepper stepper = step_mem->steppers[k];
       SUNErrCode err           = SUNStepper_Reset(stepper, t_start, y);
-      if (err != SUN_SUCCESS) { return err; }
+      if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
       err = SUNStepper_SetStepDirection(stepper, t_end - t_start);
-      if (err != SUN_SUCCESS) { return err; }
+      if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
       err = SUNStepper_SetStopTime(stepper, t_end);
-      if (err != SUN_SUCCESS) { return err; }
+      if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
       sunrealtype tret = 0;
       int stop_reason  = 0;
       err = SUNStepper_Evolve(stepper, t_start, t_end, y, &tret, &stop_reason);
-      if (err != SUN_SUCCESS) { return err; }
-      if (stop_reason < 0) { return stop_reason; }
+      if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
       step_mem->n_stepper_evolves[k]++;
     }

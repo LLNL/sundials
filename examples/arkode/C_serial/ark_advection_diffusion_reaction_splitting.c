@@ -209,8 +209,9 @@ int main(void)
   const sunrealtype T0 = SUN_RCONST(0.0);
   const sunrealtype Tf = SUN_RCONST(1.0);
   const sunrealtype DT = SUN_RCONST(0.06);
-  UserData udata       = {.N  = 128,
-                          .dx = SUN_RCONST(1.0) / (udata.N + 1),
+  const sunindextype N = 128;
+  UserData udata       = {.N  = N,
+                          .dx = SUN_RCONST(1.0) / (N + 1),
                           .a  = SUN_RCONST(1.0),
                           .b  = SUN_RCONST(0.125),
                           .c  = SUN_RCONST(4.0),
