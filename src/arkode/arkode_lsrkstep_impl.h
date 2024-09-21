@@ -76,11 +76,11 @@ typedef struct ARKodeLSRKStepMemRec
   int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
   /* Flags */
-  sunbooleantype is_ext_dom_eig; /* flag indicating user provided dom_eig */
-  sunbooleantype new_dom_eig; /* flag indicating new dom_eig is needed */
-  sunbooleantype const_Jac;   /* flag indicating Jacobian is constant */
-  sunbooleantype jacatt;      /* an internal flag*/
-  sunbooleantype is_SSP;      /* flag indicating SSP method*/
+  sunbooleantype is_ext_dom_eig;    /* flag indicating user provided dom_eig */
+  sunbooleantype new_dom_eig;       /* flag indicating new dom_eig is needed */
+  sunbooleantype const_Jac;         /* flag indicating Jacobian is constant */
+  sunbooleantype jacatt;            /* an internal flag*/
+  sunbooleantype is_SSP;            /* flag indicating SSP method*/
 
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;

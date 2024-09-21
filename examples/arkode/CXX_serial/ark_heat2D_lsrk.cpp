@@ -116,7 +116,7 @@ struct UserData
   // LSRKStep options
   ARKODE_LSRKMethodType method; // LSRK method choice
   int eigfrequency;             // dominant eigenvalue update frequency
-  int stage_max_limit;            // maximum number of stages per step
+  int stage_max_limit;          // maximum number of stages per step
   sunrealtype eigsafety;        // dominant eigenvalue safety factor
 
   // Output variables
@@ -553,10 +553,10 @@ static int InitUserData(UserData* udata)
   udata->diagnostics = false;              // output diagnostics
 
   // LSRKStep options
-  udata->method        = ARKODE_LSRK_RKC_2; // RKC
-  udata->eigfrequency  = 25;   // update eigenvalue at least every 20 steps
+  udata->method          = ARKODE_LSRK_RKC_2; // RKC
+  udata->eigfrequency    = 25;   // update eigenvalue at least every 20 steps
   udata->stage_max_limit = 1000; // allow up to 1000 stages/step
-  udata->eigsafety     = SUN_RCONST(1.01); // 1% safety factor
+  udata->eigsafety       = SUN_RCONST(1.01); // 1% safety factor
 
   // Output variables
   udata->output = 1;  // 0 = no output, 1 = stats output, 2 = output to disk
@@ -748,7 +748,8 @@ static void InputHelp()
   cout << "  --method <mth>          : LSRK method choice" << endl;
   cout << "  --eigfrequency <nst>    : dominant eigenvalue update frequency"
        << endl;
-  cout << "  --stage_max_limit <smax>  : maximum number of stages per step" << endl;
+  cout << "  --stage_max_limit <smax>  : maximum number of stages per step"
+       << endl;
   cout << "  --eigsafety <safety>    : dominant eigenvalue safety factor" << endl;
   cout << "  --diagnostics           : output diagnostics" << endl;
   cout << "  --output <level>        : output level" << endl;

@@ -128,14 +128,14 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   if (dom_eig != NULL)
   {
     step_mem->is_ext_dom_eig = SUNTRUE;
-    step_mem->extDomEig   = dom_eig;
+    step_mem->extDomEig      = dom_eig;
 
     return (ARK_SUCCESS);
   }
   else
   {
     step_mem->is_ext_dom_eig = SUNFALSE;
-    step_mem->extDomEig   = NULL;
+    step_mem->extDomEig      = NULL;
 
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Internal dom_eig is not supported yet!");
@@ -169,13 +169,13 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
 
   if (nsteps == 0)
   {
-    step_mem->const_Jac   = SUNTRUE;
+    step_mem->const_Jac    = SUNTRUE;
     step_mem->dom_eig_freq = 1;
   }
   else
   {
     step_mem->dom_eig_freq = nsteps;
-    step_mem->const_Jac   = SUNFALSE;
+    step_mem->const_Jac    = SUNFALSE;
   }
 
   return (ARK_SUCCESS);
@@ -457,7 +457,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   /* Counters and stats*/
   step_mem->nfe                 = 0;
   step_mem->dom_eig_nfe         = 0;
-  step_mem->stage_max            = 0;
+  step_mem->stage_max           = 0;
   step_mem->num_dom_eig_updates = 0;
   step_mem->stage_max_limit =
     (int)round(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround)));
@@ -466,11 +466,11 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->nstsig = 0;
 
   /* Spectral info */
-  step_mem->lambdaR    = 0;
-  step_mem->lambdaI    = 0;
-  step_mem->sprad      = 0;
-  step_mem->spr_max     = 0;
-  step_mem->spr_min     = 0;
+  step_mem->lambdaR      = 0;
+  step_mem->lambdaI      = 0;
+  step_mem->sprad        = 0;
+  step_mem->spr_max      = 0;
+  step_mem->spr_min      = 0;
   step_mem->dom_eig_sfty = 1.01;
   step_mem->dom_eig_freq = 25;
 
@@ -546,7 +546,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     fprintf(outfile, ",Number of dom_eig update calls,%ld",
             step_mem->num_dom_eig_updates);
     fprintf(outfile, ",Max. num. of stages taken,%d", step_mem->stage_max);
-    fprintf(outfile, ",Max. num. of stages allowed,%d", step_mem->stage_max_limit);
+    fprintf(outfile, ",Max. num. of stages allowed,%d",
+            step_mem->stage_max_limit);
 
     fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->spr_max);
     fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->spr_min);

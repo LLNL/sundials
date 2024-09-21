@@ -219,16 +219,16 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   }
 
   /* Initialize all the counters, flags and stats */
-  step_mem->nfe            = 0;
-  step_mem->nfi            = 0;
-  step_mem->dom_eig_nfe    = 0;
+  step_mem->nfe                 = 0;
+  step_mem->nfi                 = 0;
+  step_mem->dom_eig_nfe         = 0;
   step_mem->num_dom_eig_updates = 0;
-  step_mem->stage_max       = 0;
-  step_mem->spr_max         = 0;
-  step_mem->spr_min         = 0;
-  step_mem->nstsig         = 0;
-  step_mem->new_dom_eig    = SUNTRUE;
-  step_mem->jacatt         = SUNFALSE;
+  step_mem->stage_max           = 0;
+  step_mem->spr_max             = 0;
+  step_mem->spr_min             = 0;
+  step_mem->nstsig              = 0;
+  step_mem->new_dom_eig         = SUNTRUE;
+  step_mem->jacatt              = SUNFALSE;
 
   return (ARK_SUCCESS);
 }
@@ -349,7 +349,8 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   /* output long integer quantities */
   fprintf(outfile, "LSRKStep: nfe             = %li\n", step_mem->nfe);
   fprintf(outfile, "LSRKStep: dom_eig_nfe     = %li\n", step_mem->dom_eig_nfe);
-  fprintf(outfile, "LSRKStep: num_dom_eig_updates  = %li\n", step_mem->num_dom_eig_updates);
+  fprintf(outfile, "LSRKStep: num_dom_eig_updates  = %li\n",
+          step_mem->num_dom_eig_updates);
 
   /* output sunrealtype quantities */
   fprintf(outfile, "LSRKStep: dom_eig         = %f + i%f\n", step_mem->lambdaR,
@@ -360,7 +361,8 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "LSRKStep: dom_eig_sfty    = %f\n", step_mem->dom_eig_sfty);
 
   /* output sunbooleantype quantities */
-  fprintf(outfile, "LSRKStep: is_ext_dom_eig     = %d\n", step_mem->is_ext_dom_eig);
+  fprintf(outfile, "LSRKStep: is_ext_dom_eig     = %d\n",
+          step_mem->is_ext_dom_eig);
   fprintf(outfile, "LSRKStep: new_dom_eig     = %d\n", step_mem->new_dom_eig);
   fprintf(outfile, "LSRKStep: jacatt          = %d\n", step_mem->jacatt);
 
@@ -1470,7 +1472,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   step_mem->jacatt = SUNTRUE;
 
   step_mem->spr_max = (step_mem->sprad > step_mem->spr_max) ? step_mem->sprad
-                                                          : step_mem->spr_max;
+                                                            : step_mem->spr_max;
 
   if (step_mem->sprad < step_mem->spr_min || ark_mem->nst == 0)
   {
