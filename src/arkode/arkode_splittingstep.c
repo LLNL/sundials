@@ -17,7 +17,6 @@
 
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_splittingstep.h>
-#include <arkode/execution_policy/arkode_execution_policy_serial.h>
 #include <sundials/sundials_nvector.h>
 
 #include "arkode_impl.h"
@@ -125,7 +124,6 @@ static int splittingStep_SetCoefficients(const ARKodeMem ark_mem,
 
   With initialization types FIRST_INIT this routine:
   - sets/checks the splitting coefficients to be used
-  - sets/checks the execution policy to be used
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
@@ -151,21 +149,6 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
 
   retval = splittingStep_SetCoefficients(ark_mem, step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
-
-  if (step_mem->policy == NULL)
-  {
-    step_mem->policy = ARKodeSplittingExecutionPolicy_New_Serial();
-    if (step_mem->policy == NULL)
-    {
-      if (step_mem->coefficients == NULL)
-      {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                        "Failed to allocate execution policy");
-        return ARK_MEM_FAIL;
-      }
-    }
-    step_mem->own_policy = SUNTRUE;
-  }
 
   ark_mem->interp_degree =
     SUNMAX(1, SUNMIN(step_mem->coefficients->order - 1, ark_mem->interp_degree));
@@ -222,7 +205,7 @@ static int splittingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
                       MSG_ARK_RHSFUNC_FAILED, t);
       return (ARK_RHSFUNC_FAIL);
     }
-    N_VLinearSum(SUN_RCONST(1.0), f, SUN_RCONST(1.0), ark_mem->tempv1, f);
+    N_VLinearSum(ONE, f, ONE, ark_mem->tempv1, f);
   }
 
   return ARK_SUCCESS;
@@ -231,14 +214,10 @@ static int splittingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
 /*---------------------------------------------------------------
   This routine performs a sequential operator splitting method
   ---------------------------------------------------------------*/
-static int splittingStep_SequentialMethod(const int i, const N_Vector y,
-                                          void* const user_data)
+static int splittingStep_SequentialMethod(const ARKodeMem ark_mem,
+                                          const ARKodeSplittingStepMem step_mem,
+                                          const int i, const N_Vector y)
 {
-  ARKodeMem ark_mem               = (ARKodeMem)user_data;
-  ARKodeSplittingStepMem step_mem = NULL;
-  const int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
   const SplittingStepCoefficients coefficients = step_mem->coefficients;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -312,11 +291,26 @@ static int splittingStep_TakeStep(const ARKodeMem ark_mem,
 
   const SplittingStepCoefficients coefficients = step_mem->coefficients;
 
-  return step_mem->policy->execute(step_mem->policy,
-                                   splittingStep_SequentialMethod, ark_mem->yn,
-                                   ark_mem->ycur, ark_mem->tempv1,
-                                   coefficients->alpha,
-                                   coefficients->sequential_methods, ark_mem);
+  N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
+  retval = splittingStep_SequentialMethod(ark_mem, step_mem, 0, ark_mem->ycur);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (coefficients->alpha[0] != ONE)
+  {
+    N_VScale(coefficients->alpha[0], ark_mem->ycur, ark_mem->ycur);
+  }
+
+  for (int i = 1; i < coefficients->sequential_methods; i++)
+  {
+    N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
+    retval = splittingStep_SequentialMethod(ark_mem, step_mem, i,
+                                            ark_mem->tempv1);
+    if (retval != ARK_SUCCESS) { return retval; }
+    N_VLinearSum(ONE, ark_mem->ycur, coefficients->alpha[i], ark_mem->tempv1,
+                 ark_mem->ycur);
+  }
+
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -382,11 +376,6 @@ static void splittingStep_Free(const ARKodeMem ark_mem)
   {
     free(step_mem->steppers);
     free(step_mem->n_stepper_evolves);
-    if (step_mem->own_policy)
-    {
-      ARKodeSplittingExecutionPolicy_Free(&step_mem->policy);
-    }
-
     SplittingStepCoefficients_Free(step_mem->coefficients);
     free(step_mem);
   }
@@ -450,9 +439,6 @@ static int splittingStep_SetDefaults(const ARKodeMem ark_mem)
 
   retval = splittingStep_SetOrder(ark_mem, 0);
   if (retval != ARK_SUCCESS) { return retval; }
-
-  if (step_mem->own_policy) { free(step_mem->policy); }
-  step_mem->own_policy = SUNFALSE;
 
   /* TODO(SBR): This may cause issues if a user calls ARKodeSetDefaults. This
    * issues affects other ARKODE steppers as well */
@@ -537,7 +523,6 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
   memcpy(step_mem->steppers, steppers, partitions * sizeof(*steppers));
 
   step_mem->coefficients      = NULL;
-  step_mem->policy            = NULL;
   step_mem->n_stepper_evolves = calloc(partitions,
                                        sizeof(*step_mem->n_stepper_evolves));
   if (step_mem->n_stepper_evolves == NULL)
@@ -549,7 +534,6 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
   }
   step_mem->partitions = partitions;
   step_mem->order      = 0;
-  step_mem->own_policy = SUNFALSE;
 
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init            = splittingStep_Init;
@@ -621,35 +605,6 @@ int SplittingStep_SetCoefficients(void* const arkode_mem,
                     "Failed to copy splitting coefficients");
     return (ARK_MEM_NULL);
   }
-
-  return ARK_SUCCESS;
-}
-
-/*---------------------------------------------------------------
-  Sets the execution policy.
-  ---------------------------------------------------------------*/
-int SplittingStep_SetExecutionPolicy(void* const arkode_mem,
-                                     ARKodeSplittingExecutionPolicy policy)
-{
-  ARKodeMem ark_mem               = NULL;
-  ARKodeSplittingStepMem step_mem = NULL;
-  int retval = splittingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                                 &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  if (policy == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The execution policy must be non-NULL");
-    return ARK_ILL_INPUT;
-  }
-
-  if (step_mem->own_policy)
-  {
-    ARKodeSplittingExecutionPolicy_Free(&step_mem->policy);
-  }
-  step_mem->policy     = policy;
-  step_mem->own_policy = SUNFALSE;
 
   return ARK_SUCCESS;
 }

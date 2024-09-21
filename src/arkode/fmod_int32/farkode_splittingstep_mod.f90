@@ -98,10 +98,6 @@ module farkode_splittingstep_mod
  end type
  public :: FSplittingStepCreate
  public :: FSplittingStep_SetCoefficients
- type, public :: SWIGTYPE_p_ARKodeSplittingExecutionPolicy
-  type(SwigClassWrapper), public :: swigdata
- end type
- public :: FSplittingStep_SetExecutionPolicy
  public :: FSplittingStep_GetNumEvolves
 
 ! WRAPPER DECLARATIONS
@@ -393,16 +389,6 @@ end function
 
 function swigc_FSplittingStep_SetCoefficients(farg1, farg2) &
 bind(C, name="_wrap_FSplittingStep_SetCoefficients") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSplittingStep_SetExecutionPolicy(farg1, farg2) &
-bind(C, name="_wrap_FSplittingStep_SetExecutionPolicy") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -902,22 +888,6 @@ type(SwigClassWrapper) :: farg2
 farg1 = arkode_mem
 farg2 = coefficients%swigdata
 fresult = swigc_FSplittingStep_SetCoefficients(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSplittingStep_SetExecutionPolicy(arkode_mem, policy) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(SWIGTYPE_p_ARKodeSplittingExecutionPolicy), intent(in) :: policy
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
-
-farg1 = arkode_mem
-farg2 = policy%swigdata
-fresult = swigc_FSplittingStep_SetExecutionPolicy(farg1, farg2)
 swig_result = fresult
 end function
 

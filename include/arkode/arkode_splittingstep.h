@@ -17,7 +17,6 @@
 #ifndef ARKODE_SPLITTINGSTEP_H_
 #define ARKODE_SPLITTINGSTEP_H_
 
-#include <arkode/arkode_execution_policy.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_stepper.h>
 #include <sundials/sundials_types.h>
@@ -101,9 +100,6 @@ SUNDIALS_EXPORT void* SplittingStepCreate(SUNStepper* steppers, int partitions,
 
 SUNDIALS_EXPORT int SplittingStep_SetCoefficients(
   void* arkode_mem, SplittingStepCoefficients coefficients);
-
-SUNDIALS_EXPORT int SplittingStep_SetExecutionPolicy(
-  void* arkode_mem, ARKodeSplittingExecutionPolicy policy);
 
 SUNDIALS_EXPORT int SplittingStep_GetNumEvolves(void* arkode_mem, int partition,
                                                 long int* evolves);

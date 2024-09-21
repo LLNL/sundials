@@ -727,21 +727,6 @@ SWIGEXPORT int _wrap_FSplittingStep_SetCoefficients(void *farg1, SwigClassWrappe
 }
 
 
-SWIGEXPORT int _wrap_FSplittingStep_SetExecutionPolicy(void *farg1, SwigClassWrapper const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKodeSplittingExecutionPolicy arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  SWIG_check_nonnull(*farg2, "ARKodeSplittingExecutionPolicy", "SWIGTYPE_p_ARKodeSplittingExecutionPolicy", "SplittingStep_SetExecutionPolicy(void *,ARKodeSplittingExecutionPolicy)", return 0);
-  arg2 = *(ARKodeSplittingExecutionPolicy *)(farg2->cptr);
-  result = (int)SplittingStep_SetExecutionPolicy(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSplittingStep_GetNumEvolves(void *farg1, int const *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

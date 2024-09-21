@@ -40,14 +40,12 @@ set(arkode_SOURCES
     arkode_relaxation.c
     arkode_root.c
     arkode_splittingstep_coefficients.c
-    arkode_splittingstep_executionpolicy.c
     arkode_splittingstep.c
     arkode_sprkstep_io.c
     arkode_sprkstep.c
     arkode_sprk.c
     arkode_user_controller.c
-    arkode.c
-    execution_policy/arkode_execution_policy_serial.c)
+    arkode.c)
 
 # Add variable arkode_HEADERS with the exported ARKODE header files
 set(arkode_HEADERS
