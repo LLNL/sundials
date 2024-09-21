@@ -789,8 +789,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   /* determine the number of required stages */
-  int ss = 
-    SUNRfloor(SUNRsqrt(TWO * SUNRabs(ark_mem->h) * step_mem->sprad + THREE) - ONE);
+  int ss = SUNRfloor(
+    SUNRsqrt(TWO * SUNRabs(ark_mem->h) * step_mem->sprad + THREE) - ONE);
   for (; ss <= step_mem->stagemaxlimit; ss++)
   {
     if ((SUNSQR(ss) + ss - TWO) >= TWO * (SUNRabs(ark_mem->h) * step_mem->sprad))
