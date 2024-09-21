@@ -44,6 +44,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: ARK_TSTOP_RETURN = 1_C_INT
  integer(C_INT), parameter, public :: ARK_ROOT_RETURN = 2_C_INT
+ integer(C_INT), parameter, public :: ARK_RETRY_STEP = 3_C_INT
  integer(C_INT), parameter, public :: ARK_WARNING = 99_C_INT
  integer(C_INT), parameter, public :: ARK_TOO_MUCH_WORK = -1_C_INT
  integer(C_INT), parameter, public :: ARK_TOO_MUCH_ACC = -2_C_INT

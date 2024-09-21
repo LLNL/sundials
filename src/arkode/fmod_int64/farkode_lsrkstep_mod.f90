@@ -28,15 +28,16 @@ module farkode_lsrkstep_mod
  ! DECLARATION CONSTRUCTS
  ! typedef enum ARKODE_LSRKMethodType
  enum, bind(c)
-  enumerator :: ARKODE_LSRK_RKC = 1
-  enumerator :: ARKODE_LSRK_RKL = 2
-  enumerator :: ARKODE_LSRK_RKG = 3
+  enumerator :: ARKODE_LSRK_RKC_2 = 1
+  enumerator :: ARKODE_LSRK_RKL_2 = 2
+  enumerator :: ARKODE_LSRK_RKG_2 = 3
   enumerator :: ARKODE_LSRK_SSP_S_2 = 4
   enumerator :: ARKODE_LSRK_SSP_S_3 = 5
   enumerator :: ARKODE_LSRK_SSP_10_4 = 6
  end enum
- integer, parameter, public :: ARKODE_LSRKMethodType = kind(ARKODE_LSRK_RKC)
- public :: ARKODE_LSRK_RKC, ARKODE_LSRK_RKL, ARKODE_LSRK_RKG, ARKODE_LSRK_SSP_S_2, ARKODE_LSRK_SSP_S_3, ARKODE_LSRK_SSP_10_4
+ integer, parameter, public :: ARKODE_LSRKMethodType = kind(ARKODE_LSRK_RKC_2)
+ public :: ARKODE_LSRK_RKC_2, ARKODE_LSRK_RKL_2, ARKODE_LSRK_RKG_2, ARKODE_LSRK_SSP_S_2, ARKODE_LSRK_SSP_S_3, &
+ARKODE_LSRK_SSP_10_4
  public :: FLSRKStepCreate
  public :: FLSRKStepReInit
  public :: FLSRKStepSetMethod

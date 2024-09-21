@@ -666,7 +666,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Use the ycur array for temporary storage here */
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h * thjm1, ark_mem->tempv2,
                           ark_mem->ycur, ark_mem->user_data);
-    step_mem->nfe++;                      
+    step_mem->nfe++;
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
     cvals[0] = mus * ark_mem->h;
@@ -789,8 +789,9 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   /* determine the number of required stages */
-  int ss = floor(SUNRsqrt(TWO * SUNRabs(ark_mem->h) * step_mem->sprad + THREE) - ONE);
-  for (ss; ss <= step_mem->stagemaxlimit; ss++)
+  int ss = 
+  SUNRfloor(SUNRsqrt(TWO * SUNRabs(ark_mem->h) * step_mem->sprad + THREE) - ONE);
+  for (; ss <= step_mem->stagemaxlimit; ss++)
   {
     if ((SUNSQR(ss) + ss - TWO) >= TWO * (SUNRabs(ark_mem->h) * step_mem->sprad))
     {
@@ -1046,7 +1047,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                           ark_mem->fn, ark_mem->user_data);
-    step_mem->nfe++;                      
+    step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
   }
@@ -1286,8 +1287,9 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                    ark_mem->fn, ark_mem->tempv1);
     }
   }
-  N_VLinearSum(SUN_RCONST(1.0) / SUN_RCONST(25.0), ark_mem->tempv2, SUN_RCONST(9.0) / SUN_RCONST(25.0),
-               ark_mem->ycur, ark_mem->tempv2);
+  N_VLinearSum(SUN_RCONST(1.0) / SUN_RCONST(25.0), ark_mem->tempv2,
+               SUN_RCONST(9.0) / SUN_RCONST(25.0), ark_mem->ycur,
+               ark_mem->tempv2);
   N_VLinearSum(SUN_RCONST(15.0), ark_mem->tempv2, SUN_RCONST(-5.0),
                ark_mem->ycur, ark_mem->ycur);
   for (int j = 6; j <= 9; j++)

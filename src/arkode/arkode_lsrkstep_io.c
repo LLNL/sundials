@@ -172,7 +172,11 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
     step_mem->constJac   = SUNTRUE;
     step_mem->domeigfreq = 1;
   }
-  else { step_mem->domeigfreq = nsteps; }
+  else 
+  {
+    step_mem->domeigfreq = nsteps;
+    step_mem->constJac   = SUNFALSE;
+  }
 
   return (ARK_SUCCESS);
 }
