@@ -2671,7 +2671,7 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_SUNSTEPPER_ERR:
     arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, __LINE__, __func__, __FILE__,
-                    "An inner SUNStepper error occured");
+                    "An inner SUNStepper error occurred");
     break;
   default:
     /* This return should never happen */
