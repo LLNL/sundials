@@ -13,14 +13,22 @@
  *---------------------------------------------------------------
  * Example problem:
  *
- * The following is a simple example problem with analytical
- * solution,
+ * The following is a simple example problem that solves the ODE
+ *  
  *    dy/dt = (lambda - alpha*cos((10 - t)/10*pi)*y + 1/(1+t^2) 
- *          - (lambda - alpha*cos((10 - t)/10*pi)*atan(t)
- * for t in the interval [0.0, 10.0], with initial condition: y=0.
+ *          - (lambda - alpha*cos((10 - t)/10*pi)*atan(t),
+ * 
+ * for t in the interval [0.0, 10.0], with an initial condition: y=0.
+ * This initial value problem has the analytical solution 
+ * 
+ *    y(t) = arctan(t).
  *
- * The stiffness of the problem is directly proportional to the
- * value of "lambda - alpha*cos((10 - t)/10*pi)". This value should 
+ * The stiffness of the problem depends on both lambda and alpha together. 
+ * While lambda determines the center of the stiffness parameter, 
+ * the value of alpha determines the radius of the interval in which 
+ * the stiffness parameter lies.
+ * 
+ * The value of "lambda - alpha*cos((10 - t)/10*pi)" should 
  * be negative to result in a well-posed ODE; for values with magnitude 
  * larger than 100 the problem becomes quite stiff.
  *

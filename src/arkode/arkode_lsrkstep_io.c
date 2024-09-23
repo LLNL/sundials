@@ -513,13 +513,13 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "RHS fn evals                  = %ld\n", step_mem->nfe);
-    fprintf(outfile, "RHS fn evals for Dom. Eigs.   = %ld\n",
+    fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
+    fprintf(outfile, "RHS fn evals for Dom. Eigs.  = %ld\n",
             step_mem->dom_eig_nfe);
-    fprintf(outfile, "Number of dom_eig update calls = %ld\n",
+    fprintf(outfile, "Number of dom_eig updates    = %ld\n",
             step_mem->num_dom_eig_updates);
-    fprintf(outfile, "Max. num. of stages taken     = %d\n", step_mem->stage_max);
-    fprintf(outfile, "Max. num. of stages allowed   = %d\n",
+    fprintf(outfile, "Max. num. of stages taken    = %d\n", step_mem->stage_max);
+    fprintf(outfile, "Max. num. of stages allowed  = %d\n",
             step_mem->stage_max_limit);
 
     fprintf(outfile, "Max. spectral radius         = %.2f\n", step_mem->spr_max);
