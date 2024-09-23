@@ -3,9 +3,37 @@ name: Checks - spelling
 on:
   pull_request:
   workflow_dispatch:
+  issue_comment:
+    types: [created]
 
 jobs:
+  apply_spelling:
+    if: startsWith(github.event.comment.body, '/style')
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the GitHub created reference for the PR.
+      # The only way to do this is by using the "issue" number
+      # but that is really the PR number in this context.
+      # This is due to using an `issue_comment` event which
+      # is due to the GitHub Actions API that does not have
+      # a `pull_request_comment` event or something similar.
+      # This leaves us in a detached head state which is corrected
+      # in `apply-style/checkout.sh`
+      - name: Checkout pull request
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
+
+      - name: Checkout the right git ref
+        run: ./.github/actions/apply-style/checkout.sh
+
+      - name: Download the git diff from spelling_check
+        uses: actions/download-artifact@v4
+        with:
+          name: spelling.patch
+
   spelling_check:
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Install python3-pip
