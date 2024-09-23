@@ -7,6 +7,17 @@ on:
     types: [created]
 
 jobs:
+  pr_commented:
+    # This job only runs for pull request comments
+    name: PR comment
+    if: ${{ github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo A comment on PR $NUMBER
+        env:
+          NUMBER: ${{ github.event.issue.number }}
+
   apply-style:
     if: startsWith(github.event.comment.body, '/style')
     name: Apply Formatting to Source
