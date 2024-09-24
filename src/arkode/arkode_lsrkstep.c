@@ -126,10 +126,6 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   step_mem->fe = fe;
   step_mem->fi = fi;
 
-  /* Update the ARKODE workspace requirements -- UPDATE */
-  ark_mem->liw += 0; /* fcn/data ptr, int, long int, sunindextype, sunbooleantype */
-  ark_mem->lrw += 0;
-
   /* Initialize all the counters */
   step_mem->nfe                 = 0;
   step_mem->nfi                 = 0;
@@ -236,7 +232,7 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   step_mem->spr_min             = 0;
   step_mem->nstsig              = 0;
   step_mem->new_dom_eig         = SUNTRUE;
-  step_mem->jacatt              = SUNFALSE;
+  step_mem->dom_eig_is_current  = SUNFALSE;
 
   return (ARK_SUCCESS);
 }
@@ -348,31 +344,31 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   if (retval != ARK_SUCCESS) { return; }
 
   /* output integer quantities */
-  fprintf(outfile, "LSRKStep: req_stages      = %i\n", step_mem->req_stages);
-  fprintf(outfile, "LSRKStep: nstsig          = %i\n", step_mem->nstsig);
-  fprintf(outfile, "LSRKStep: stage_max        = %i\n", step_mem->stage_max);
-  fprintf(outfile, "LSRKStep: stage_max_limit = %i\n", step_mem->stage_max_limit);
-  fprintf(outfile, "LSRKStep: dom_eig_freq      = %i\n", step_mem->dom_eig_freq);
+  fprintf(outfile, "LSRKStep: req_stages          = %i\n", step_mem->req_stages);
+  fprintf(outfile, "LSRKStep: nstsig              = %i\n", step_mem->nstsig);
+  fprintf(outfile, "LSRKStep: stage_max           = %i\n", step_mem->stage_max);
+  fprintf(outfile, "LSRKStep: stage_max_limit     = %i\n", step_mem->stage_max_limit);
+  fprintf(outfile, "LSRKStep: dom_eig_freq        = %i\n", step_mem->dom_eig_freq);
 
   /* output long integer quantities */
-  fprintf(outfile, "LSRKStep: nfe             = %li\n", step_mem->nfe);
-  fprintf(outfile, "LSRKStep: dom_eig_nfe     = %li\n", step_mem->dom_eig_nfe);
-  fprintf(outfile, "LSRKStep: num_dom_eig_updates  = %li\n",
+  fprintf(outfile, "LSRKStep: nfe                 = %li\n", step_mem->nfe);
+  fprintf(outfile, "LSRKStep: dom_eig_nfe         = %li\n", step_mem->dom_eig_nfe);
+  fprintf(outfile, "LSRKStep: num_dom_eig_updates = %li\n",
           step_mem->num_dom_eig_updates);
 
   /* output sunrealtype quantities */
-  fprintf(outfile, "LSRKStep: dom_eig         = %f + i%f\n", step_mem->lambdaR,
+  fprintf(outfile, "LSRKStep: dom_eig             = %f + i%f\n", step_mem->lambdaR,
           step_mem->lambdaI);
-  fprintf(outfile, "LSRKStep: sprad           = %f\n", step_mem->sprad);
-  fprintf(outfile, "LSRKStep: spr_max          = %f\n", step_mem->spr_max);
-  fprintf(outfile, "LSRKStep: spr_min          = %f\n", step_mem->spr_min);
-  fprintf(outfile, "LSRKStep: dom_eig_sfty    = %f\n", step_mem->dom_eig_sfty);
+  fprintf(outfile, "LSRKStep: sprad               = %f\n", step_mem->sprad);
+  fprintf(outfile, "LSRKStep: spr_max             = %f\n", step_mem->spr_max);
+  fprintf(outfile, "LSRKStep: spr_min             = %f\n", step_mem->spr_min);
+  fprintf(outfile, "LSRKStep: dom_eig_sfty        = %f\n", step_mem->dom_eig_sfty);
 
   /* output sunbooleantype quantities */
-  fprintf(outfile, "LSRKStep: is_ext_dom_eig     = %d\n",
+  fprintf(outfile, "LSRKStep: is_ext_dom_eig      = %d\n",
           step_mem->is_ext_dom_eig);
-  fprintf(outfile, "LSRKStep: new_dom_eig     = %d\n", step_mem->new_dom_eig);
-  fprintf(outfile, "LSRKStep: jacatt          = %d\n", step_mem->jacatt);
+  fprintf(outfile, "LSRKStep: new_dom_eig         = %d\n", step_mem->new_dom_eig);
+  fprintf(outfile, "LSRKStep: dom_eig_is_current  = %d\n", step_mem->dom_eig_is_current);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
@@ -795,7 +791,6 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
     if (retval != ARK_SUCCESS) { return (retval); }
-    step_mem->num_dom_eig_updates++;
   }
 
   /* determine the number of required stages */
@@ -927,12 +922,6 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
   return (ARK_SUCCESS);
 }
-
-// int lsrkStep_TakeStepRKG(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
-// {
-//   printf("\nRKG is not supported yet! Try RKC or RKL instead.\n");
-//   return (ARK_ILL_INPUT);
-// }
 
 /*---------------------------------------------------------------
   lsrkStep_TakeStepSSPs2:
@@ -1146,7 +1135,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                  ark_mem->tempv1);
   }
   N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
-  for (int j = (int)((in - 1) * (in - 2) / 2 + 1);
+  for (int j = ((in - 1) * (in - 2) / 2 + 1);
        j <= (int)(in * (in + 1) / 2 - 1); j++)
   {
     retval =
@@ -1179,7 +1168,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
                ark_mem->tempv1);
 
-  for (int j = (int)(in * (in + 1) / 2 + 1); j <= step_mem->req_stages; j++)
+  for (int j = (in * (in + 1) / 2 + 1); j <= step_mem->req_stages; j++)
   {
     retval = step_mem->fe(ark_mem->tcur +
                             ((sunrealtype)j - rn - ONE) * rat * ark_mem->h,
@@ -1446,6 +1435,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
                                  &step_mem->lambdaR, &step_mem->lambdaI,
                                  ark_mem->user_data, ark_mem->tempv1,
                                  ark_mem->tempv2, ark_mem->tempv3);
+    step_mem->num_dom_eig_updates++;
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
@@ -1477,7 +1467,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
                     "Internal dom_eig is not supported yet!");
     return (ARK_DOMEIG_FAIL);
   }
-  step_mem->jacatt = SUNTRUE;
+  step_mem->dom_eig_is_current = SUNTRUE;
 
   step_mem->spr_max = (step_mem->sprad > step_mem->spr_max) ? step_mem->sprad
                                                             : step_mem->spr_max;
@@ -1507,12 +1497,12 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
     N_VScale(ONE, ark_mem->tempv2, ark_mem->fn);
     ark_mem->fn_is_current = SUNTRUE;
 
-    step_mem->jacatt      = (step_mem->const_Jac == SUNTRUE);
+    step_mem->dom_eig_is_current = (step_mem->const_Jac == SUNTRUE);
     step_mem->nstsig      = (step_mem->nstsig + 1) % step_mem->dom_eig_freq;
     step_mem->new_dom_eig = SUNFALSE;
-    if (step_mem->nstsig == 0) { step_mem->new_dom_eig = !step_mem->jacatt; }
+    if (step_mem->nstsig == 0) { step_mem->new_dom_eig = !step_mem->dom_eig_is_current; }
   }
-  else { step_mem->new_dom_eig = !step_mem->jacatt; }
+  else { step_mem->new_dom_eig = !step_mem->dom_eig_is_current; }
 }
 
 /*===============================================================

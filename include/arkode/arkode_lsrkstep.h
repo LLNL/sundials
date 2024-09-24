@@ -36,7 +36,6 @@ typedef enum
 {
   ARKODE_LSRK_RKC_2    = 1, /* ensure enum is int */
   ARKODE_LSRK_RKL_2    = 2,
-  ARKODE_LSRK_RKG_2    = 3,
   ARKODE_LSRK_SSP_S_2  = 4,
   ARKODE_LSRK_SSP_S_3  = 5,
   ARKODE_LSRK_SSP_10_4 = 6

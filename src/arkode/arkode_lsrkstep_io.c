@@ -31,7 +31,6 @@
   LSRKStepSetMethod sets method
     ARKODE_LSRK_RKC_2
     ARKODE_LSRK_RKL_2
-    ARKODE_LSRK_RKG_2
     ARKODE_LSRK_SSP_S_2
     ARKODE_LSRK_SSP_S_3
     ARKODE_LSRK_SSP_10_4
@@ -63,13 +62,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
-  // case ARKODE_LSRK_RKG_2:
-  //   ark_mem->step = lsrkStep_TakeStepRKG;
-  //   step_mem->LSRKmethod = ARKODE_LSRK_RKG_2;
-  //   step_mem->nfusedopvecs = 5;
-  //   step_mem->q = ark_mem->hadapt_mem->q = 2;
-  //   step_mem->p = ark_mem->hadapt_mem->p = 2;
-  //   break;
   case ARKODE_LSRK_SSP_S_2:
     ark_mem->step               = lsrkStep_TakeStepSSPs2;
     step_mem->LSRKmethod        = ARKODE_LSRK_SSP_S_2;
@@ -460,15 +452,15 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->dom_eig_freq = 25;
 
   /* Flags */
-  step_mem->new_dom_eig = SUNTRUE;
-  step_mem->const_Jac   = SUNFALSE;
-  step_mem->jacatt      = SUNFALSE;
-  step_mem->is_SSP      = SUNFALSE;
+  step_mem->new_dom_eig        = SUNTRUE;
+  step_mem->const_Jac          = SUNFALSE;
+  step_mem->dom_eig_is_current = SUNFALSE;
+  step_mem->is_SSP             = SUNFALSE;
 
-  ark_mem->hadapt_mem->adjust = 0;               /* set default adjustment */
-  ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
-  ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
-  ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
+  ark_mem->hadapt_mem->adjust   = 0;               /* set default adjustment */
+  ark_mem->hadapt_mem->etamxf   = SUN_RCONST(0.3); /* max change on error-failed step */
+  ark_mem->hadapt_mem->safety   = SUN_RCONST(0.99); /* step adaptivity safety factor  */
+  ark_mem->hadapt_mem->growth   = SUN_RCONST(25.0); /* step adaptivity growth factor */
 
   (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
                                         SUN_RCONST(1.2));
@@ -608,10 +600,6 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
     fprintf(fp, "LSRKStep RKL time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 2);
     break;
-  // case ARKODE_LSRK_RKG_2:
-  //   fprintf(fp, "LSRKStep RKG time step module parameters:\n");
-  //   fprintf(fp, "  Method order %i\n", 2);
-  //   break;
   case ARKODE_LSRK_SSP_S_2:
     fprintf(fp, "LSRKStep SSP(s,2) time step module parameters:\n");
     fprintf(fp, "  Method order %i\n", 2);
