@@ -457,10 +457,10 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->dom_eig_is_current = SUNFALSE;
   step_mem->is_SSP             = SUNFALSE;
 
-  ark_mem->hadapt_mem->adjust   = 0;               /* set default adjustment */
-  ark_mem->hadapt_mem->etamxf   = SUN_RCONST(0.3); /* max change on error-failed step */
-  ark_mem->hadapt_mem->safety   = SUN_RCONST(0.99); /* step adaptivity safety factor  */
-  ark_mem->hadapt_mem->growth   = SUN_RCONST(25.0); /* step adaptivity growth factor */
+  ark_mem->hadapt_mem->adjust = 0;               /* set default adjustment */
+  ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
+  ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
+  ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
 
   (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
                                         SUN_RCONST(1.2));

@@ -688,9 +688,7 @@ void UserOptions::print()
     switch (lsrkmethod)
     {
     case (ARKODE_LSRK_RKC_2): cout << " method = RKC_2 " << endl; break;
-    case (ARKODE_LSRK_RKL_2):
-      cout << " method = RKL_2 " << endl;
-      break;
+    case (ARKODE_LSRK_RKL_2): cout << " method = RKL_2 " << endl; break;
     }
     cout << " --------------------------------- " << endl;
   }

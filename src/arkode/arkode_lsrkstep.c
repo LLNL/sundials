@@ -347,28 +347,33 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "LSRKStep: req_stages          = %i\n", step_mem->req_stages);
   fprintf(outfile, "LSRKStep: nstsig              = %i\n", step_mem->nstsig);
   fprintf(outfile, "LSRKStep: stage_max           = %i\n", step_mem->stage_max);
-  fprintf(outfile, "LSRKStep: stage_max_limit     = %i\n", step_mem->stage_max_limit);
-  fprintf(outfile, "LSRKStep: dom_eig_freq        = %i\n", step_mem->dom_eig_freq);
+  fprintf(outfile, "LSRKStep: stage_max_limit     = %i\n",
+          step_mem->stage_max_limit);
+  fprintf(outfile, "LSRKStep: dom_eig_freq        = %i\n",
+          step_mem->dom_eig_freq);
 
   /* output long integer quantities */
   fprintf(outfile, "LSRKStep: nfe                 = %li\n", step_mem->nfe);
-  fprintf(outfile, "LSRKStep: dom_eig_nfe         = %li\n", step_mem->dom_eig_nfe);
+  fprintf(outfile, "LSRKStep: dom_eig_nfe         = %li\n",
+          step_mem->dom_eig_nfe);
   fprintf(outfile, "LSRKStep: num_dom_eig_updates = %li\n",
           step_mem->num_dom_eig_updates);
 
   /* output sunrealtype quantities */
-  fprintf(outfile, "LSRKStep: dom_eig             = %f + i%f\n", step_mem->lambdaR,
-          step_mem->lambdaI);
+  fprintf(outfile, "LSRKStep: dom_eig             = %f + i%f\n",
+          step_mem->lambdaR, step_mem->lambdaI);
   fprintf(outfile, "LSRKStep: sprad               = %f\n", step_mem->sprad);
   fprintf(outfile, "LSRKStep: spr_max             = %f\n", step_mem->spr_max);
   fprintf(outfile, "LSRKStep: spr_min             = %f\n", step_mem->spr_min);
-  fprintf(outfile, "LSRKStep: dom_eig_sfty        = %f\n", step_mem->dom_eig_sfty);
+  fprintf(outfile, "LSRKStep: dom_eig_sfty        = %f\n",
+          step_mem->dom_eig_sfty);
 
   /* output sunbooleantype quantities */
   fprintf(outfile, "LSRKStep: is_ext_dom_eig      = %d\n",
           step_mem->is_ext_dom_eig);
   fprintf(outfile, "LSRKStep: new_dom_eig         = %d\n", step_mem->new_dom_eig);
-  fprintf(outfile, "LSRKStep: dom_eig_is_current  = %d\n", step_mem->dom_eig_is_current);
+  fprintf(outfile, "LSRKStep: dom_eig_is_current  = %d\n",
+          step_mem->dom_eig_is_current);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
@@ -1135,8 +1140,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                  ark_mem->tempv1);
   }
   N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
-  for (int j = ((in - 1) * (in - 2) / 2 + 1);
-       j <= (int)(in * (in + 1) / 2 - 1); j++)
+  for (int j = ((in - 1) * (in - 2) / 2 + 1); j <= (int)(in * (in + 1) / 2 - 1);
+       j++)
   {
     retval =
       step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h,
@@ -1500,7 +1505,10 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
     step_mem->dom_eig_is_current = (step_mem->const_Jac == SUNTRUE);
     step_mem->nstsig      = (step_mem->nstsig + 1) % step_mem->dom_eig_freq;
     step_mem->new_dom_eig = SUNFALSE;
-    if (step_mem->nstsig == 0) { step_mem->new_dom_eig = !step_mem->dom_eig_is_current; }
+    if (step_mem->nstsig == 0)
+    {
+      step_mem->new_dom_eig = !step_mem->dom_eig_is_current;
+    }
   }
   else { step_mem->new_dom_eig = !step_mem->dom_eig_is_current; }
 }
