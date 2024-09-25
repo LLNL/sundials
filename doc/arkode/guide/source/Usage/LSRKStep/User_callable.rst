@@ -94,6 +94,23 @@ Allowable Method Families
    * ``ARKODE_LSRK_SSP_S_3`` -- SSP(s,3) -- 3rd order, s-stage
    * ``ARKODE_LSRK_SSP_10_4`` -- SSP(10,4) -- 4th order, 10-stage
 
+
+.. c:function:: int LSRKStepSetMethodByName(void* arkode_mem, const char* emethod);
+
+   This function selects the LSRK method by name.  The list of allowable values for this input is below.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *emethod* -- Type of the method in strings.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method type).
+
+   .. note:: If one of these set method routines is not called, then LSRKStep will use the 
+      Runge--Kutta--Chebyshev method by default.
+
+
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
    Specifies the dominant eigenvalue approximation routine to
@@ -140,6 +157,9 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``stage_max_limit < 2``)
+
+.. note:: If LSRKStepSetMaxNumStages routine is not called, then the default stage_max_limit is
+   set to \sqrt(reltol/(10uround)).
 
 
 .. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_sfty);

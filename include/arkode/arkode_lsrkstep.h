@@ -34,11 +34,11 @@ typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn,
 
 typedef enum
 {
-  ARKODE_LSRK_RKC_2    = 1, /* ensure enum is int */
-  ARKODE_LSRK_RKL_2    = 2,
-  ARKODE_LSRK_SSP_S_2  = 4,
-  ARKODE_LSRK_SSP_S_3  = 5,
-  ARKODE_LSRK_SSP_10_4 = 6
+  ARKODE_LSRK_RKC_2    = 0, /* ensure enum is int */
+  ARKODE_LSRK_RKL_2    = 1,
+  ARKODE_LSRK_SSP_S_2  = 3,
+  ARKODE_LSRK_SSP_S_3  = 4,
+  ARKODE_LSRK_SSP_10_4 = 5
 } ARKODE_LSRKMethodType;
 
 /* -------------------
@@ -57,6 +57,9 @@ SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
 
 SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem,
                                       ARKODE_LSRKMethodType method);
+                                      
+SUNDIALS_EXPORT int LSRKStepSetMethodByName(void* arkode_mem,
+                                              const char* emethod);
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
