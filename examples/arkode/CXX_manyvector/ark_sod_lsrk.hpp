@@ -128,13 +128,13 @@ public:
       xr(ONE),
       dx(ZERO),
       gamma(SUN_RCONST(1.4)),
-      flux(NULL){};
+      flux(nullptr){};
 
   // manual destructor
   void FreeData()
   {
     delete[] flux;
-    flux = NULL;
+    flux = nullptr;
   };
 
   // destructor
@@ -360,7 +360,7 @@ static int ReadInputs(std::vector<std::string>& args, EulerData& udata,
 
   // Recompute mesh spacing and [re]allocate flux array
   udata.dx = (udata.xr - udata.xl) / (udata.nx);
-  if (udata.flux != NULL) { delete[] udata.flux; }
+  if (udata.flux) { delete[] udata.flux; }
   udata.flux = new sunrealtype[NSPECIES * (udata.nx + 1)];
 
   if (uopts.stages < 0)
