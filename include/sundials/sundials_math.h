@@ -247,7 +247,7 @@ extern "C" {
  * Usage : sunrealtype floor_x;
  *         floor_x = SUNRfloor(x);
  * -----------------------------------------------------------------
- * SUNRfloor(x) returns the smallest integer value not less than x.
+ * SUNRfloor(x) returns the largest integer value not greater than x.
  * -----------------------------------------------------------------
  */
 
@@ -271,7 +271,8 @@ extern "C" {
  * Usage : sunrealtype round_x;
  *         round_x = SUNRround(x);
  * -----------------------------------------------------------------
- * SUNRround(x) returns the nearest integer value.
+ * SUNRround(x) returns the nearest integer value to x (in floating-point format), 
+ * rounding halfway cases away from zero, regardless of the current rounding mode.
  * -----------------------------------------------------------------
  */
 

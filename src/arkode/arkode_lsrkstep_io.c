@@ -340,7 +340,7 @@ int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* num_dom_eig_updates)
 /*---------------------------------------------------------------
   LSRKStepGetMaxNumStages:
 
-  Returns the max number of stages taken
+  Returns the max number of stages used
   ---------------------------------------------------------------*/
 int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
 {
@@ -364,7 +364,7 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
 
   Returns the average number of stages taken
   ---------------------------------------------------------------*/
-int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* averstage)
+int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* avg_stage)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -376,7 +376,7 @@ int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* averstage)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
-  *averstage = ((sunrealtype)step_mem->nfe) /
+  *avg_stage = ((sunrealtype)step_mem->nfe) /
                ((sunrealtype)ark_mem->nst_attempts);
 
   return (ARK_SUCCESS);
@@ -502,6 +502,10 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
+  /* compute the average number of stages */
+  sunrealtype avg_stage = ((sunrealtype)step_mem->nfe) /
+               ((sunrealtype)ark_mem->nst_attempts);
+
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
@@ -510,6 +514,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
             step_mem->dom_eig_nfe);
     fprintf(outfile, "Number of dom_eig updates    = %ld\n",
             step_mem->num_dom_eig_updates);
+    fprintf(outfile, "Avr. num. of stages taken    = %.2f\n", avg_stage);
     fprintf(outfile, "Max. num. of stages taken    = %d\n", step_mem->stage_max);
     fprintf(outfile, "Max. num. of stages allowed  = %d\n",
             step_mem->stage_max_limit);
@@ -522,6 +527,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     fprintf(outfile, ",RHS fn evals for Dom. Eigs.,%ld", step_mem->dom_eig_nfe);
     fprintf(outfile, ",Number of dom_eig update calls,%ld",
             step_mem->num_dom_eig_updates);
+    fprintf(outfile, ",Avr. num. of stages taken,%.2f", avg_stage);
     fprintf(outfile, ",Max. num. of stages taken,%d", step_mem->stage_max);
     fprintf(outfile, ",Max. num. of stages allowed,%d",
             step_mem->stage_max_limit);

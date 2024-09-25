@@ -738,11 +738,11 @@ LSRKStep -- Low-Storage Runge--Kutta methods
 
 The LSRKStep time-stepping module in ARKODE supports a variety of so-called
 "low-storage" Runge--Kutta methods, :cite:p:`VSH:04, MBA:14, K:08, FCS:22`.  This category includes traditional explicit 
-fixed-step and low-storage RK methods, adaptive and mixed implicit-explicit 
-low-storage RK methods, and others.  These are characterized by coefficient tables
+fixed-step and low-storage Runge--Kutta methods, adaptive  
+low-storage Runge--Kutta methods, and others.  These are characterized by coefficient tables
 that have an exploitable structure, such that their implementation does not require
 that all stages be stored simultaneously.  At present, this module supports explicit, 
-adaptive "super-time-stepping (STS)" and "strong-stability-preserving (SSP)" methods.
+adaptive "super-time-stepping" (STS) and "strong-stability-preserving" (SSP) methods.
 
 The LSRK time-stepping module in ARKODE currently supports IVP
 of the form :eq:`ARKODE_IVP_simple_explicit`, i.e., unlike the more general problem form :eq:`ARKODE_IMEX_IVP`, LSRKStep
@@ -751,7 +751,7 @@ and that the right-hand side function is not split into separate
 components.
 
 LSRKStep currently supports two families of second-order, explicit, and temporally adaptive STS methods: 
-Runge--Kutta--Chebyshev (RKC) and Runge--Kutta--Legendre (RKL).   These methods have the form
+Runge--Kutta--Chebyshev (RKC), :cite:p:`VSH:04` and Runge--Kutta--Legendre (RKL), :cite:p:`MBA:14`.   These methods have the form
 
 .. math::
    z_0 &= y_n,\\
@@ -760,17 +760,19 @@ Runge--Kutta--Chebyshev (RKC) and Runge--Kutta--Legendre (RKL).   These methods 
    y_{n+1} &= z_s.
    :label: ARKODE_RKC_RKL
 
-The corresponding coefficients can be found in :cite:p:`VSH:04, MBA:14`, respectively.
+The corresponding coefficients can be found in :cite:p:`VSH:04` and :cite:p:`MBA:14`, respectively.
 
 LSRK methods of STS type are designed for stiff problems characterized by 
 having Jacobians with eigenvalues that have large real and small imaginary parts. 
 While those problems are traditionally treated using implicit methods, STS methods
 are explicit.  To achieve stability for these stiff problems, STS methods use more stages than 
-conventional Runge-Kutta (RK) methods to extend the stability region along the negative 
+conventional Runge-Kutta methods to extend the stability region along the negative 
 real axis. The extent of this stability region is proportional to the square of the number 
 of stages used.
 
-The SSPRK methods in ARKODE use the following Shu and Osher representation of explicit RK methods:
+LSRK methods of the SSP type are designed to preserve the so-called "strong-stability" properties of advection-type equations. 
+For details, see :cite:p:`K:08`.
+The SSPRK methods in ARKODE use the following Shu--Osher representation :cite:p:`SO:88` of explicit Runge--Kutta methods:
 
 .. math::
    z_1 &= y_n,\\
@@ -781,10 +783,7 @@ The SSPRK methods in ARKODE use the following Shu and Osher representation of ex
 In particular, the methods SSP(s,2), SSP(s,3), and SSP(10,4) implemented herein and presented in 
 :cite:p:`K:08` have "almost" all zero coefficients appearing in :math:`\alpha_{i,i-1}` and 
 :math:`\beta_{i,i-1}`. This feature facilitates their implementation in a low-storage manner. The 
-corresponding coefficients and embedding weights can be found in :cite:p:`K:08` and 
-:cite:p:`FCS:22`, respectively.
-
-LSRK methods of the SSP type are designed to preserve the so-called "strong-stability" properties of advection-type equations. For details, see :cite:p:`K:08`.
+corresponding coefficients and embedding weights can be found in :cite:p:`K:08` and :cite:p:`FCS:22`, respectively.
 
 .. _ARKODE.Mathematics.Error.Norm:
 

@@ -98,7 +98,7 @@ Allowable Method Families
 
    Specifies the dominant eigenvalue approximation routine to
    be used for determining the number of stages that will be used by either the
-   Runge--Kutta--Chebyshev or Runge--Kutta--Legendre methods.
+   RKC or RKL methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -109,13 +109,13 @@ Allowable Method Families
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* ``dom_eig = NULL`` and LSRKStep does not currently estimate this internally.
 
-   .. note:: This function is currently required when either the RKC or RKL methods are used; it is ignored when using SSPRK methods.
+   .. note:: This function is currently required when either the RKC or RKL methods are used.
 
 
 .. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps);
 
    Specifies the number of steps after which the dominant eigenvalue information is
-   considered out-of-date, and should be recomputed.
+   considered out-of-date, and should be recomputed. This only applies to RKL and RKC methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -130,7 +130,7 @@ Allowable Method Families
 .. c:function:: int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit);
 
    Specifies the maximum number of stages allowed within each time step.  This bound only applies to
-   RKL and RKC methods, and any inputs are ignored for SSPRK methods.
+   RKL and RKC methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -144,7 +144,7 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_sfty);
 
-   Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.  This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring a sufficient number of stages for the method to be stable.  This input is only used for RKC and RKL methods, and is ignored by SSPRK methods.
+   Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.  This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring a sufficient number of stages for the method to be stable.  This input is only used for RKC and RKL methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -158,7 +158,7 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
 
-   Sets the number of stages, ``s`` in ``SSP(s, p)`` methods.  This input is ignored by RKC and RKL methods.
+   Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods.
 
       * ``ARKODE_LSRK_SSP_S_2``  -- ``num_of_stages`` must be greater than or equal to 2
       * ``ARKODE_LSRK_SSP_S_3``  -- ``num_of_stages`` must be a perfect-square greater than or equal to 9
@@ -210,24 +210,24 @@ Optional output functions
 
 .. c:function:: int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
 
-   Returns the max number of stages taken in any single step (so far).
+   Returns the max number of stages used in any single step (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *stage_max* -- max number of stages taken.
+      * *stage_max* -- max number of stages used.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
-.. c:function:: int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* averstage);
+.. c:function:: int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* avg_stage);
 
    Returns the average number of stages per step (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *averstage* -- average number of stages.
+      * *avg_stage* -- average number of stages.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
