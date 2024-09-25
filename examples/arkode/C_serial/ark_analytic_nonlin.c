@@ -150,7 +150,7 @@ int main(void)
 /* f routine to compute the ODE RHS function f(t,y). */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  NV_Ith_S(ydot, 0) = (t + 1.0) * SUNRexp(-NV_Ith_S(y, 0));
+  N_VGetArrayPointer(ydot)[0] = (t + 1.0) * SUNRexp(-NV_Ith_S(y, 0));
   return 0;
 }
 

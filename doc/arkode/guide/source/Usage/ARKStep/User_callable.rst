@@ -2321,7 +2321,7 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
       * *ARKLS_SUCCESS*  if successful
       * *ARKLS_MEM_NULL*  if the ARKStep memory was ``NULL``
       * *ARKLS_MASSMEM_NULL* if the mass matrix solver memory was ``NULL``
-      * *ARKLS_ILL_INPUT* if an argument has an illegal value
+      * *ARKLS_ILL_INPUT* if an argument had an illegal value
 
    **Notes:**
       This routine must be called after the ARKLS mass matrix
