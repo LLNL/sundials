@@ -122,6 +122,17 @@ int main(int argc, char* argv[])
       return 1;
     }
 
+    // Return with error on unsupported LSRK method type
+    if (!uopts.implicit)
+    {
+      if ((uopts.lsrkmethod != ARKODE_LSRK_RKC_2) &&
+          (uopts.lsrkmethod != ARKODE_LSRK_RKL_2))
+      {
+        cerr << "ERROR: illegal lsrkmethod" << endl;
+        return 1;
+      }
+    }
+
     // -----------------------------
     // Setup parallel decomposition
     // -----------------------------
@@ -168,6 +179,19 @@ int main(int argc, char* argv[])
     // Set up implicit solver, if applicable
     SUNLinearSolver LS = nullptr;
     SUNMatrix A        = nullptr;
+#if defined(USE_SUPERLU_DIST)
+    // SuperLU-DIST objects
+    SuperMatrix A_super;
+    gridinfo_t grid;
+    dLUstruct_t A_lu;
+    dScalePermstruct_t A_scaleperm;
+    dSOLVEstruct_t A_solve;
+    SuperLUStat_t A_stat;
+    superlu_dist_options_t A_opts;
+    sunrealtype* A_data      = nullptr;
+    sunindextype* A_col_idxs = nullptr;
+    sunindextype* A_row_ptrs = nullptr;
+#endif
     if (uopts.implicit)
     {
       // ---------------------
@@ -175,19 +199,6 @@ int main(int argc, char* argv[])
       // ---------------------
 
       // Create linear solver
-#if defined(USE_SUPERLU_DIST)
-      // SuperLU-DIST objects
-      SuperMatrix A_super;
-      gridinfo_t grid;
-      dLUstruct_t A_lu;
-      dScalePermstruct_t A_scaleperm;
-      dSOLVEstruct_t A_solve;
-      SuperLUStat_t A_stat;
-      superlu_dist_options_t A_opts;
-      sunrealtype* A_data      = nullptr;
-      sunindextype* A_col_idxs = nullptr;
-      sunindextype* A_row_ptrs = nullptr;
-#endif
 
       int prectype = (uopts.preconditioning) ? SUN_PREC_RIGHT : SUN_PREC_NONE;
 
@@ -260,15 +271,15 @@ int main(int argc, char* argv[])
     // ----------------------
 
     // Create integrator
-    void* arkode_mem = NULL;
+    void* arkode_mem = nullptr;
     if (uopts.implicit)
     {
-      arkode_mem = ARKStepCreate(NULL, diffusion, ZERO, u, ctx);
+      arkode_mem = ARKStepCreate(nullptr, diffusion, ZERO, u, ctx);
       if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
     }
     else
     {
-      arkode_mem = LSRKStepCreate(diffusion, NULL, ZERO, u, ctx);
+      arkode_mem = LSRKStepCreate(diffusion, nullptr, ZERO, u, ctx);
       if (check_flag((void*)arkode_mem, "LSRKStepCreate", 0)) { return 1; }
     }
 
@@ -333,7 +344,7 @@ int main(int argc, char* argv[])
     }
 
     // Set fixed step size or adaptivity method
-    SUNAdaptController C = NULL;
+    SUNAdaptController C = nullptr;
     if (uopts.hfixed > ZERO)
     {
       flag = ARKodeSetFixedStep(arkode_mem, uopts.hfixed);
@@ -476,8 +487,8 @@ static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
   UserData* udata = (UserData*)user_data;
 
   // Fill in spectral radius value
-  *lambdaR = -SUN_RCONST(8.0) * SUNMAX(udata->kx / udata->dx / udata->dx,
-                                       udata->ky / udata->dy / udata->dy);
+  *lambdaR = -SUN_RCONST(8.0) * std::max(udata->kx / udata->dx / udata->dx,
+                                         udata->ky / udata->dy / udata->dy);
   *lambdaI = SUN_RCONST(0.0);
 
   // return with success
@@ -688,10 +699,7 @@ void UserOptions::print()
     switch (lsrkmethod)
     {
     case (ARKODE_LSRK_RKC_2): cout << " method = RKC_2 " << endl; break;
-    case (ARKODE_LSRK_RKL_2):
-      cout << " method = RKL_2 " << endl;
-      break;
-      // case (ARKODE_LSRK_RKG_2): cout << " method = RKG_2 " << endl; break;
+    case (ARKODE_LSRK_RKL_2): cout << " method = RKL_2 " << endl; break;
     }
     cout << " --------------------------------- " << endl;
   }
