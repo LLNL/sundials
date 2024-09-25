@@ -1129,8 +1129,8 @@ static int eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
   UserData* udata = (UserData*)user_data;
 
   // Fill in spectral radius value
-  *lambdaR = -SUN_RCONST(8.0) * SUNMAX(udata->kx / udata->dx / udata->dx,
-                                       udata->ky / udata->dy / udata->dy);
+  *lambdaR = -SUN_RCONST(8.0) * max(udata->kx / udata->dx / udata->dx,
+                                    udata->ky / udata->dy / udata->dy);
   *lambdaI = SUN_RCONST(0.0);
 
   // return with success
