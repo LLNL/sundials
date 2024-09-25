@@ -42,7 +42,7 @@
  * Both the SSPRK(s,2) and SSPRK(s,3) methods allow specification of a
  * non-default number of stages.  This may be specified using the --stages S
  * input value, where S is an integer.  Note: SSPRK(s,2) requires S at least
- * 2, and SSPRK(s,3) requires S be a perfect square, with S at least 4.
+ * 2, and SSPRK(s,3) requires S be a perfect square, with S at least 9.
  *
  * Alternately, if METHOD corresponds with a valid ARKODE_ERKTableID then
  * the system will be advanced using that method in ERKStep.
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
   // --------------------
   // Setup the integrator
   // --------------------
-  void* arkode_mem = NULL;
+  void* arkode_mem = nullptr;
 
   // Determine type (LSRKStep vs ERKStep)
   bool lsrk = false;
@@ -324,7 +324,7 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
     fproj[5][NSPECIES], fs[5][NSPECIES], ff[NSPECIES];
   const sunrealtype bc =
     SUN_RCONST(1.083333333333333333333333333333333333333); // 13/12
-  const sunrealtype epsilon = 1e-6;
+  const sunrealtype epsilon = SUN_RCONST(1.0e-6);
 
   // compute pressures over stencil
   for (i = 0; i < STSIZE; i++)
