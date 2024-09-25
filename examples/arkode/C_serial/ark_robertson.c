@@ -222,8 +222,8 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   /* Fill in ODE RHS function */
   N_VGetArrayPointer(ydot)[0] = -0.04 * u + 1.e4 * v * w;
-  NV_Ith_S(ydot, 1) = 0.04 * u - 1.e4 * v * w - 3.e7 * v * v;
-  NV_Ith_S(ydot, 2) = 3.e7 * v * v;
+  NV_Ith_S(ydot, 1)           = 0.04 * u - 1.e4 * v * w - 3.e7 * v * v;
+  NV_Ith_S(ydot, 2)           = 3.e7 * v * v;
 
   return 0; /* Return with success */
 }

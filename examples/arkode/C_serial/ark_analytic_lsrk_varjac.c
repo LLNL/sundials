@@ -236,9 +236,10 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype u      = NV_Ith_S(y, 0); /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  N_VGetArrayPointer(ydot)[0] = (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * u +
-                      SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
-                      (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * ATAN(t);
+  N_VGetArrayPointer(ydot)[0] =
+    (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * u +
+    SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
+    (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * ATAN(t);
 
   return 0; /* return with success */
 }

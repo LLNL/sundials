@@ -504,7 +504,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
 
   /* compute the average number of stages */
   sunrealtype avg_stage = ((sunrealtype)step_mem->nfe) /
-               ((sunrealtype)ark_mem->nst_attempts);
+                          ((sunrealtype)ark_mem->nst_attempts);
 
   switch (fmt)
   {
