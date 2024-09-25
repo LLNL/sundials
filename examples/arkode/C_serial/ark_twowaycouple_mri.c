@@ -232,8 +232,8 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   /* fill in the RHS function */
   N_VGetArrayPointer(ydot)[0] = c1 * v;
-  NV_Ith_S(ydot, 1) = -c1 * u;
-  NV_Ith_S(ydot, 2) = u;
+  NV_Ith_S(ydot, 1)           = -c1 * u;
+  NV_Ith_S(ydot, 2)           = u;
 
   /* Return with success */
   return 0;
@@ -246,8 +246,8 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   /* fill in the RHS function */
   N_VGetArrayPointer(ydot)[0] = w;
-  NV_Ith_S(ydot, 1) = SUN_RCONST(0.0);
-  NV_Ith_S(ydot, 2) = -w;
+  NV_Ith_S(ydot, 1)           = SUN_RCONST(0.0);
+  NV_Ith_S(ydot, 2)           = -w;
 
   /* Return with success */
   return 0;

@@ -71,8 +71,8 @@ int main(int argc, char* argv[])
 
   // Create SUNDIALS context
   MPI_Comm comm    = MPI_COMM_WORLD;
-  SUNContext ctx   = NULL;
-  SUNProfiler prof = NULL;
+  SUNContext ctx   = nullptr;
+  SUNProfiler prof = nullptr;
 
   flag = SUNContext_Create(comm, &ctx);
   if (check_flag(&flag, "SUNContextCreate", 1)) { return 1; }

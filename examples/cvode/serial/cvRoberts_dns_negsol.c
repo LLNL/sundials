@@ -221,7 +221,8 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   if (*check_negative && (y1 < 0 || y2 < 0 || y3 < 0)) { return (1); }
 
-  yd1 = N_VGetArrayPointer(ydot)[0] = SUN_RCONST(-0.04) * y1 + SUN_RCONST(1.0e4) * y2 * y3;
+  yd1 = N_VGetArrayPointer(ydot)[0] = SUN_RCONST(-0.04) * y1 +
+                                      SUN_RCONST(1.0e4) * y2 * y3;
   yd3 = NV_Ith_S(ydot, 2) = SUN_RCONST(3.0e7) * y2 * y2;
   NV_Ith_S(ydot, 1)       = -yd1 - yd3;
 
