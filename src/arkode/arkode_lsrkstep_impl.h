@@ -44,43 +44,40 @@ typedef struct ARKodeLSRKStepMemRec
   ARKRhsFn fi;
   ARKDomEigFn extDomEig;
 
-  /* LSRK method storage and parameters */
-  // N_Vector  temp1; /* Temp vector storage */
-  // N_Vector  temp2; /* Temp vector storage */
   N_Vector* Fe; /* RHS vector storage */
   N_Vector* Fi; /* RHS vector storage */
 
   int q; /* method order               */
   int p; /* embedding order            */
 
-  int reqstages; /* number of requested stages   */
+  int req_stages; /* number of requested stages   */
 
   ARKODE_LSRKMethodType LSRKmethod;
 
   /* Counters and stats*/
-  long int nfe;            /* num fe calls       */
-  long int nfi;            /* num fi calls       */
-  long int domeignfe;      /* num fe calls for spectral dom_eig      */
-  long int ndomeigupdates; /* num of dom_eig computations   */
-  int stagemax;            /* num of max stages taken      */
-  int stagemaxlimit;       /* max allowed num of stages     */
+  long int nfe;                 /* num fe calls       */
+  long int nfi;                 /* num fi calls       */
+  long int dom_eig_nfe;         /* num fe calls for spectral dom_eig      */
+  long int num_dom_eig_updates; /* num of dom_eig computations   */
+  int stage_max;                /* num of max stages taken      */
+  int stage_max_limit;          /* max allowed num of stages     */
   int nstsig; /* num of steps that successfully used dom_eig; indicates dom_eig update when 0;  */
 
   /* Spectral info */
-  sunrealtype lambdaR;    /* Real part of the dominated eigenvalue*/
-  sunrealtype lambdaI;    /* Imaginary part of the dominated eigenvalue*/
-  sunrealtype sprad;      /* spectral radius*/
-  sunrealtype sprmax;     /* max spectral radius*/
-  sunrealtype sprmin;     /* min spectral radius*/
-  sunrealtype domeigsfty; /* some safety factor for the user provided dom_eig*/
-  int domeigfreq; /* indicates dom_eig update after domeigfreq successful steps*/
+  sunrealtype lambdaR;      /* Real part of the dominated eigenvalue*/
+  sunrealtype lambdaI;      /* Imaginary part of the dominated eigenvalue*/
+  sunrealtype sprad;        /* spectral radius*/
+  sunrealtype spr_max;      /* max spectral radius*/
+  sunrealtype spr_min;      /* min spectral radius*/
+  sunrealtype dom_eig_sfty; /* some safety factor for the user provided dom_eig*/
+  int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
   /* Flags */
-  sunbooleantype isextDomEig; /* flag indicating user provided dom_eig */
-  sunbooleantype newdomeig;   /* flag indicating new dom_eig is needed */
-  sunbooleantype constJac;    /* flag indicating Jacobian is constant */
-  sunbooleantype jacatt;      /* an internal flag*/
-  sunbooleantype isSSP;       /* flag indicating SSP method*/
+  sunbooleantype is_ext_dom_eig; /* flag indicating user provided dom_eig */
+  sunbooleantype new_dom_eig;    /* flag indicating new dom_eig is needed */
+  sunbooleantype const_Jac;      /* flag indicating Jacobian is constant */
+  sunbooleantype dom_eig_is_current; /* SUNTRUE if dom_eig has been evaluated at tn */
+  sunbooleantype is_SSP;             /* flag indicating SSP method*/
 
   /* Reusable fused vector operation arrays */
   sunrealtype* cvals;

@@ -22,9 +22,9 @@
 set(ARKODE_examples
     # tests that are always run
     "ark_analytic\;\;"
-    "lsrk_ssp_analytic\;\;"
-    "lsrk_analytic\;\;"
-    "lsrk_analytic_varjac\;\;"
+    "ark_analytic_ssprk\;\;"
+    "ark_analytic_lsrk\;\;"
+    "ark_analytic_lsrk_varjac\;\;"
     # develop tests
     "ark_analytic_mels\;\;develop"
     "ark_analytic_nonlin\;\;develop"

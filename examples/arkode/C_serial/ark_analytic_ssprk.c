@@ -191,7 +191,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype u      = NV_Ith_S(y, 0); /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot, 0) = lambda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
+  N_VGetArrayPointer(ydot)[0] = lambda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
                       lambda * ATAN(t);
 
   return 0; /* return with success */
@@ -251,7 +251,7 @@ static int compute_error(N_Vector y, sunrealtype t)
 
   /* compute solution error */
   ans = ATAN(t);
-  err = SUNRabs(NV_Ith_S(y, 0) - ans);
+  err = SUNRabs(N_VGetArrayPointer(y)[0] - ans);
 
   fprintf(stdout, "\nACCURACY at the final time = %" GSYM "\n", err);
   return 0;

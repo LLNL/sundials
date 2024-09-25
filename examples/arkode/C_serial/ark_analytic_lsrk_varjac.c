@@ -13,14 +13,22 @@
  *---------------------------------------------------------------
  * Example problem:
  *
- * The following is a simple example problem with analytical
- * solution,
+ * The following is a simple example problem that solves the ODE
+ *  
  *    dy/dt = (lambda - alpha*cos((10 - t)/10*pi)*y + 1/(1+t^2) 
- *          - (lambda - alpha*cos((10 - t)/10*pi)*atan(t)
- * for t in the interval [0.0, 10.0], with initial condition: y=0.
+ *          - (lambda - alpha*cos((10 - t)/10*pi)*atan(t),
+ * 
+ * for t in the interval [0.0, 10.0], with an initial condition: y=0.
+ * This initial value problem has the analytical solution 
+ * 
+ *    y(t) = arctan(t).
  *
- * The stiffness of the problem is directly proportional to the
- * value of "lambda - alpha*cos((10 - t)/10*pi)". This value should 
+ * The stiffness of the problem depends on both lambda and alpha together. 
+ * While lambda determines the center of the stiffness parameter, 
+ * the value of alpha determines the radius of the interval in which 
+ * the stiffness parameter lies.
+ * 
+ * The value of "lambda - alpha*cos((10 - t)/10*pi)" should 
  * be negative to result in a well-posed ODE; for values with magnitude 
  * larger than 100 the problem becomes quite stiff.
  *
@@ -157,7 +165,7 @@ int main(void)
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
   /* Specify the Runge--Kutta--Chebyshev LSRK method */
-  flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKL_2);
+  flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC_2);
   if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
@@ -228,7 +236,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype u      = NV_Ith_S(y, 0); /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot, 0) = (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * u +
+  N_VGetArrayPointer(ydot)[0] = (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * u +
                       SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
                       (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * ATAN(t);
 
@@ -326,7 +334,7 @@ static int compute_error(N_Vector y, sunrealtype t)
 
   /* compute solution error */
   ans = ATAN(t);
-  err = SUNRabs(NV_Ith_S(y, 0) - ans);
+  err = SUNRabs(N_VGetArrayPointer(y)[0] - ans);
 
   fprintf(stdout, "\nACCURACY at the final time = %" GSYM "\n", err);
   return 0;

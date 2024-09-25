@@ -303,7 +303,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   yd0               = 1.0 * y0 - 1.0 * y1 + 1.0 * y2; // yd = V*y
   yd1               = -1.0 * y0 + 2.0 * y1 + 1.0 * y2;
   yd2               = 0.0 * y0 - 1.0 * y1 + 2.0 * y2;
-  NV_Ith_S(ydot, 0) = yd0;
+  N_VGetArrayPointer(ydot)[0] = yd0;
   NV_Ith_S(ydot, 1) = yd1;
   NV_Ith_S(ydot, 2) = yd2;
 
