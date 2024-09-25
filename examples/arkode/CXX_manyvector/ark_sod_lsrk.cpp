@@ -328,7 +328,9 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
 
   // compute pressures over stencil
   for (i = 0; i < STSIZE; i++)
+  {
     p[i] = udata.eos(w1d[i][0], w1d[i][1], w1d[i][2], w1d[i][3], w1d[i][4]);
+  }
 
   // compute Roe-average state at face:
   //   wbar = [sqrt(rho), sqrt(rho)*vx, sqrt(rho)*vy, sqrt(rho)*vz, (e+p)/sqrt(rho)]
@@ -352,11 +354,13 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
   csnd = gamm * (H - HALF * qsq);
   cinv = ONE / csnd;
   for (i = 0; i < 5; i++)
+  {
     for (j = 0; j < 5; j++)
     {
       RV[i][j] = ZERO;
       LV[i][j] = ZERO;
     }
+  }
 
   RV[0][0] = ONE;
   RV[0][3] = ONE;
@@ -420,20 +424,26 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
     alpha = max(alpha, abs(u) + csnd);
   }
 
-  // fp(x_{i+1/2}):
+  // compute flux from right side of face at x_{i+1/2}:
 
   //   compute right-shifted Lax-Friedrichs flux over left portion of patch
   for (j = 0; j < 5; j++)
+  {
     for (i = 0; i < NSPECIES; i++)
+    {
       fs[j][i] = HALF * (flux[j][i] + alpha * w1d[j][i]);
+    }
+  }
 
   // compute projected flux for fluid fields
   for (j = 0; j < 5; j++)
   {
     for (i = 0; i < 5; i++)
+    {
       fproj[j][i] = LV[i][0] * fs[j][0] + LV[i][1] * fs[j][1] +
                     LV[i][2] * fs[j][2] + LV[i][3] * fs[j][3] +
                     LV[i][4] * fs[j][4];
+    }
   }
 
   //   compute WENO signed flux
@@ -471,20 +481,26 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
     ff[i] = (f1 * w1 + f2 * w2 + f3 * w3) / (w1 + w2 + w3);
   }
 
-  // fm(x_{i+1/2}):
+  // compute flux from left side of face at x_{i+1/2}:
 
   //   compute left-shifted Lax-Friedrichs flux over right portion of patch
   for (j = 0; j < 5; j++)
+  {
     for (i = 0; i < NSPECIES; i++)
+    {
       fs[j][i] = HALF * (flux[j + 1][i] - alpha * w1d[j + 1][i]);
+    }
+  }
 
   // compute projected flux for fluid fields
   for (j = 0; j < 5; j++)
   {
     for (i = 0; i < 5; i++)
+    {
       fproj[j][i] = LV[i][0] * fs[j][0] + LV[i][1] * fs[j][1] +
                     LV[i][2] * fs[j][2] + LV[i][3] * fs[j][3] +
                     LV[i][4] * fs[j][4];
+    }
   }
 
   //   compute WENO signed fluxes
@@ -524,8 +540,10 @@ void face_flux(sunrealtype (&w1d)[STSIZE][NSPECIES], sunrealtype* f_face,
 
   // combine signed fluxes into output, converting back to conserved variables
   for (i = 0; i < NSPECIES; i++)
+  {
     f_face[i] = RV[i][0] * ff[0] + RV[i][1] * ff[1] + RV[i][2] * ff[2] +
                 RV[i][3] * ff[3] + RV[i][4] * ff[4];
+  }
   return;
 }
 
