@@ -2670,7 +2670,7 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
                     "The relaxation Jacobian failed unrecoverably");
     break;
   case ARK_SUNSTEPPER_ERR:
-    arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
                     "An inner SUNStepper error occurred");
     break;
   default:
