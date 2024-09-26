@@ -25,7 +25,9 @@ specific linker flags e.g., MKL.
 
 Added support for multirate time step adaptivity controllers, based on the
 recently introduced `SUNAdaptController` base class, to ARKODE's MRIStep module.
-Added new default MRI methods for temporally adaptive versus fixed-step runs.
+As a part of this, we added embeddings for existing MRI-GARK methods, as well as
+support for embedded MERK and IMEX-MRI-SR methods.  Added new default MRI methods
+for temporally adaptive versus fixed-step runs.
 
 Added functionality to ARKODE to accumulate a temporal error
 estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorType`,
