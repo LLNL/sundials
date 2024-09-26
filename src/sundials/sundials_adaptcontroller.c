@@ -133,7 +133,7 @@ SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h,
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   SUNAssert(isfinite(h), SUN_ERR_ARG_OUTOFRANGE);
-  SUNAssert(p > 0, SUN_ERR_ARG_OUTOFRANGE);
+  SUNAssert(p >= 0, SUN_ERR_ARG_OUTOFRANGE);
   SUNAssert(dsm >= SUN_RCONST(0.0), SUN_ERR_ARG_OUTOFRANGE);
   SUNAssert(hnew, SUN_ERR_ARG_CORRUPT);
   *hnew = h; /* initialize output with identity */
