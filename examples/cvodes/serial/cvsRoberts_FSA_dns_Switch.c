@@ -379,7 +379,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* udata)
   p2   = data->p[1];
   p3   = data->p[2];
 
-  yd1 = N_VGetArrayPointer(ydot)[0] = -p1 * y1 + p2 * y2 * y3;
+  yd1 = NV_Ith_S(ydot, 0) = -p1 * y1 + p2 * y2 * y3;
   yd3 = NV_Ith_S(ydot, 2) = p3 * y2 * y2;
   NV_Ith_S(ydot, 1)       = -yd1 - yd3;
 

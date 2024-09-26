@@ -710,7 +710,7 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
      [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2*vtrue(t))] */
   tmp1                        = (-ONE + u * u - r(t, rpar)) / (TWO * u);
   tmp2                        = (-TWO + v * v - s(t, rpar)) / (TWO * v);
-  N_VGetArrayPointer(ydot)[0] = ZERO;
+  NV_Ith_S(ydot, 0) = ZERO;
   NV_Ith_S(ydot, 1) = e * tmp1 - tmp2 + sdot(t, rpar) / (TWO * vtrue(t, rpar));
 
   /* Return with success */
@@ -732,7 +732,7 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
      [0 0] [(-2+v^2-s(t))/(2*v)]    [      0      ] */
   tmp1                        = (-ONE + u * u - r(t, rpar)) / (TWO * u);
   tmp2                        = (-TWO + v * v - s(t, rpar)) / (TWO * v);
-  N_VGetArrayPointer(ydot)[0] = G * tmp1 + e * tmp2 + rdot(t, rpar) / (TWO * u);
+  NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + rdot(t, rpar) / (TWO * u);
   NV_Ith_S(ydot, 1)           = ZERO;
 
   /* Return with success */
@@ -748,7 +748,7 @@ static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   /* fill in the slow explicit RHS function:
      [rdot(t)/(2*u)]
      [      0      ] */
-  N_VGetArrayPointer(ydot)[0] = rdot(t, rpar) / (TWO * u);
+  NV_Ith_S(ydot, 0) = rdot(t, rpar) / (TWO * u);
   NV_Ith_S(ydot, 1)           = ZERO;
 
   /* Return with success */
@@ -770,7 +770,7 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
      [0 0] [(-2+v^2-s(t))/(2*v)]  */
   tmp1                        = (-ONE + u * u - r(t, rpar)) / (TWO * u);
   tmp2                        = (-TWO + v * v - s(t, rpar)) / (TWO * v);
-  N_VGetArrayPointer(ydot)[0] = G * tmp1 + e * tmp2;
+  NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2;
   NV_Ith_S(ydot, 1)           = ZERO;
 
   /* Return with success */
@@ -791,7 +791,7 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
      [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2*vtrue(t))] */
   tmp1                        = (-ONE + u * u - r(t, rpar)) / (TWO * u);
   tmp2                        = (-TWO + v * v - s(t, rpar)) / (TWO * v);
-  N_VGetArrayPointer(ydot)[0] = G * tmp1 + e * tmp2 + rdot(t, rpar) / (TWO * u);
+  NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + rdot(t, rpar) / (TWO * u);
   NV_Ith_S(ydot, 1) = e * tmp1 - tmp2 + sdot(t, rpar) / (TWO * vtrue(t, rpar));
 
   /* Return with success */
