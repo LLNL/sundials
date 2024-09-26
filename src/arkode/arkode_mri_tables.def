@@ -41,7 +41,7 @@
      ARKODE_MRI_GARK_RALSTON2          2       1          E       Y
      ARKODE_MIS_KW3                    3       0          E       Y
      ARKODE_MRI_GARK_ERK33a            3       2          E       Y
-     ARKODE_MRI_GARK_RALSTON3          3       0          E       Y
+     ARKODE_MRI_GARK_RALSTON3          3       2          E       Y
      ARKODE_MRI_GARK_ERK45a            4       3          E       Y
      ARKODE_MERK21                     2       1          ES      Y
      ARKODE_MERK32                     3       2          ES      Y
@@ -132,7 +132,7 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_RALSTON3, { /* Roberts et al., SISC 44:A1405 - A14
     MRIStepCoupling C = MRIStepCoupling_Alloc(2, 4, MRISTEP_EXPLICIT);
 
     C->q = 3;
-    C->p = 0;
+    C->p = 2;
 
     C->c[1] = ONE/TWO;
     C->c[2] = SUN_RCONST(3.0)/SUN_RCONST(4.0);
@@ -144,6 +144,9 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_RALSTON3, { /* Roberts et al., SISC 44:A1405 - A14
     C->W[0][3][0] =  SUN_RCONST(47.0)/SUN_RCONST(36.0);
     C->W[0][3][1] =  -ONE/SUN_RCONST(6.0);
     C->W[0][3][2] =  -SUN_RCONST(8.0)/SUN_RCONST(9.0);
+    C->W[0][4][0] =  ONE/SUN_RCONST(40.0);
+    C->W[0][4][1] =  SUN_RCONST(7.0)/SUN_RCONST(40.0);
+    C->W[0][4][2] =  ONE/SUN_RCONST(20.0);
 
     C->W[1][2][0] =  SUN_RCONST(9.0)/TWO;
     C->W[1][2][1] = -SUN_RCONST(9.0)/TWO;
