@@ -65,7 +65,7 @@ Single-rate controllers are constructed to adapt a single parameter, e.g.,
 asymptotically on this parameter via the form
 
 .. math::
-   \varepsilon = \mathcal{O}(\delta^q).
+   \varepsilon = \mathcal{O}(\delta^{q+1}).
 
 Both :eq:`slow_error_assumption` and :eq:`inner_solver_assumption` fit this form,
 with control parameters :math:`h^s` and :math:`\text{tolfac}^f_n`, and "orders"
