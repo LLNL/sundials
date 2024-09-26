@@ -61,14 +61,14 @@
  *      5 - ARKODE_DORMAND_PRINCE_7_4_5
   *
  * The program should be run with arguments in the following order:
- *   $ a.out slow_type fast_type h G w e deduce
+ *   $ ark_kpr_mri slow_type fast_type h G w e deduce_rhs
  * Not all arguments are required, but these must be omitted from
  * end-to-beginning, i.e. any one of
- *   $ a.out slow_type fast_type h G w e
- *   $ a.out slow_type fast_type h G w
- *   $ a.out slow_type fast_type h G
- *   $ a.out slow_type fast_type h
- *   $ a.out slow_type fast_type
+ *   $ ark_kpr_mri slow_type fast_type h G w e
+ *   $ ark_kpr_mri slow_type fast_type h G w
+ *   $ ark_kpr_mri slow_type fast_type h G
+ *   $ ark_kpr_mri slow_type fast_type h
+ *   $ ark_kpr_mri slow_type fast_type
  * are acceptable.  We require:
  *   * 0 <= solve_type <= 9
  *   * 0 < h < 1/|G|
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
   sunbooleantype implicit_fast      = SUNFALSE;
   sunbooleantype explicit_fast      = SUNFALSE;
   sunbooleantype no_fast            = SUNFALSE;
-  sunbooleantype deduce             = SUNFALSE;
+  sunbooleantype deduce_rhs         = SUNFALSE;
   FILE* UFID;
   sunrealtype hf, gamma, beta, t, tout, rpar[3];
   sunrealtype uerr, verr, uerrtot, verrtot, errtot;
@@ -180,13 +180,13 @@ int main(int argc, char* argv[])
    * Initialization
    */
 
-  /* Retrieve the command-line options: slow_type fast_type h G w e deduce */
+  /* Retrieve the command-line options: slow_type fast_type h G w e deduce_rhs */
   if (argc < 3)
   {
     printf("ERROR: executable requires at least two arguments [slow_type "
            "fast_type]\n");
     printf("Usage:\n");
-    printf("  a.out slow_type fast_type h G w e deduce");
+    printf("  ark_kpr_mri slow_type fast_type h G w e deduce_rhs");
     return (-1);
   }
   slow_type = (sunindextype)atol(argv[1]);
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
   if (argc > 4) { G = SUNStrToReal(argv[4]); }
   if (argc > 5) { w = SUNStrToReal(argv[5]); }
   if (argc > 6) { e = SUNStrToReal(argv[6]); }
-  if (argc > 7) { deduce = (sunbooleantype)atoi(argv[7]); }
+  if (argc > 7) { deduce_rhs = (sunbooleantype)atoi(argv[7]); }
 
   /* Check arguments for validity */
   /*   0 <= slow_type <= 13      */
@@ -658,7 +658,7 @@ int main(int argc, char* argv[])
   retval = ARKodeSetUserData(arkode_mem, (void*)rpar);
   if (check_retval(&retval, "ARKodeSetUserData", 1)) { return 1; }
 
-  retval = ARKodeSetDeduceImplicitRhs(arkode_mem, deduce);
+  retval = ARKodeSetDeduceImplicitRhs(arkode_mem, deduce_rhs);
   if (check_retval(&retval, "ARKodeSetDeduceImplicitRhs", 1)) { return 1; }
 
   /* Set the slow step size */
