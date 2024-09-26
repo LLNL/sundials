@@ -260,7 +260,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    .. note::
 
-      If the current [slow] time scale has relative tolerance :math:`rtol`, then the
+      If the current time scale has relative tolerance :math:`rtol`, then the
       next-faster time scale will be called with relative tolerance :math:`tolfac * rtol`.
 
    Usage:
@@ -277,11 +277,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param C:  the :c:type:`SUNAdaptController` object.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_Reset(C);
 
 .. c:function:: SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)
 
@@ -290,11 +285,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param C:  the :c:type:`SUNAdaptController` object.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_SetDefaults(C);
 
 .. c:function:: SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
 
@@ -304,11 +294,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param fptr:  the output stream to write the parameters to.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_Write(C, stdout);
 
 .. c:function:: SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bias)
 
@@ -321,11 +306,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
                  the default value for the controller.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_SetErrorBias(C, 1.2);
 
 .. c:function:: SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h, sunrealtype dsm)
 
@@ -340,11 +320,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param dsm:  the successful temporal error estimate.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_UpdateH(C, h, dsm);
 
 .. c:function:: SUNErrCode SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
 
@@ -361,11 +336,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param dsm:  the successful fast temporal error estimate.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_UpdateMRITol(C, H, tolfac, DSM, dsm);
 
 .. c:function:: SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw)
 
@@ -380,11 +350,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
                  `long int` words.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_Space(C, &lenrw, &leniw);
 
 
 

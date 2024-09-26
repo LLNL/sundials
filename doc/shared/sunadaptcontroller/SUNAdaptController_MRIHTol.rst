@@ -32,7 +32,7 @@ results from two types of error:
 #. "Slow" temporal errors introduced at the current time scale,
 
    .. math::
-      \varepsilon^s_{n} = C(t_n) \left(h_n^s\right)^P,
+      \varepsilon^s_{n} = C(t_n) \left(h_n^s\right)^{P+1},
       :label: slow_error_assumption
 
    where :math:`C(t)` is independent of the current time scale step size :math:`h^s`
@@ -60,7 +60,7 @@ results from two types of error:
    :math:`\kappa(t_n) = c(t_n) \text{reltol}^s \left(t_{F,i}-t_{0,i}\right)` is
    independent of the relative tolerance factor, :math:`\text{tolfac}_n^f`.
 
-Single-rate controllers are constructed to adapt a single order parameter, e.g.,
+Single-rate controllers are constructed to adapt a single parameter, e.g.,
 :math:`\delta`, under an assumption that solution error :math:`\varepsilon` depends
 asymptotically on this parameter via the form
 
@@ -69,7 +69,7 @@ asymptotically on this parameter via the form
 
 Both :eq:`slow_error_assumption` and :eq:`inner_solver_assumption` fit this form,
 with control parameters :math:`h^s` and :math:`\text{tolfac}^f_n`, and "orders"
-:math:`P` and :math:`1`, respectively.  Thus an MRIHTol controller employs
+:math:`P` and :math:`0`, respectively.  Thus an MRIHTol controller employs
 *HControl* to adapt :math:`h_n^s` to control the current time scale error
 :math:`\varepsilon^s_n`, and it employs *TolControl* to adapt
 :math:`\text{tolfac}_n^f` to control the accumulated inner solver error
@@ -140,11 +140,6 @@ also provides the following additional user-callable routines:
    :return: if successful, a usable :c:type:`SUNAdaptController` object;
             otherwise it will return ``NULL``.
 
-   Usage:
-
-   .. code-block:: c
-
-      SUNAdaptController C = SUNAdaptController_MRIHTol(sunctx, HControl, TolControl);
 
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C, sunrealtype inner_max_relch, sunrealtype inner_min_tolfac, sunrealtype inner_max_tolfac)
 
@@ -157,9 +152,3 @@ also provides the following additional user-callable routines:
    :param inner_min_tolfac: the parameter :math:`\text{tolfac}_{min}`.
    :param inner_max_tolfac: the parameter :math:`\text{tolfac}_{max}`.
    :return: :c:type:`SUNErrCode` indicating success or failure.
-
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_SetParams_MRIHTol(C, 20.0, 1e-5, 1.0);

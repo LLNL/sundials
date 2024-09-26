@@ -650,7 +650,7 @@ Optional inputs for ERKStep
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
 
    .. versionadded:: 5.6.0
 
@@ -1874,7 +1874,7 @@ Main solver optional output functions
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+      * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
    .. versionadded:: 5.3.0
 
@@ -2199,7 +2199,7 @@ wrap an ERKStep memory block as an :c:type:`MRIStepInnerStepper`.
          /* setup ERKStep */
          . . .
 
-         /* create MRIStepInnerStepper wrapper for the ARKStep memory block */
+         /* create MRIStepInnerStepper wrapper for the ERKStep memory block */
          flag = ERKStepCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
 
          /* create an MRIStep object, setting the slow (outer) right-hand side

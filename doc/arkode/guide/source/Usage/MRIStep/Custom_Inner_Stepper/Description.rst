@@ -239,12 +239,6 @@ Setting Member Functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
-   **Example usage:**
-
-   .. code-block:: C
-
-      /* set the inner stepper accumulated error 'get' function */
-      flag = MRIStepInnerStepper_SetAccumulatedErrorGetFn(inner_stepper, MyAccumErr);
 
 .. c:function:: int MRIStepInnerStepper_SetAccumulatedErrorResetFn(MRIStepInnerStepper stepper, MRIStepInnerResetAccumulatedError fn)
 
@@ -257,12 +251,6 @@ Setting Member Functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
-   **Example usage:**
-
-   .. code-block:: C
-
-      /* set the inner stepper accumulated error 'reset' function */
-      flag = MRIStepInnerStepper_SetAccumulatedErrorResetFn(inner_stepper, MyResetAccumErr);
 
 .. c:function:: int MRIStepInnerStepper_SetRTolFn(MRIStepInnerStepper stepper, MRIStepInnerSetRTol fn)
 
@@ -275,12 +263,6 @@ Setting Member Functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
-   **Example usage:**
-
-   .. code-block:: C
-
-      /* set the inner stepper relative tolerance function */
-      flag = MRIStepInnerStepper_SetRTolFn(inner_stepper, MySetRTol);
 
 
 .. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.Forcing:
@@ -308,13 +290,6 @@ data necessary to construct the inner (fast) forcing polynomial.
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
-
-   **Example usage:**
-
-   .. code-block:: C
-
-      /* compute the forcing term and add it the fast RHS vector */
-      flag = MRIStepInnerStepper_AddForcing(inner_stepper, t, f_fast);
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``

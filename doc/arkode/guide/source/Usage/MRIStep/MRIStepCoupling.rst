@@ -26,22 +26,22 @@ constructing a coupling table and attaching it with
 the MRI methods supported by MRIStep.  The family of MRI method encoded
 by the table is determined by an enumerated type, :c:type:`ARKODE_MRIType`:
 
-.. c:type:: ARKODE_MRIType
+.. c:enum:: ARKODE_MRIType
 
    This may take any of the following constants:
 
-   * :index:`MRISTEP_EXPLICIT` -- indicates an MRI-GARK method that
+   * :enumerator:`MRISTEP_EXPLICIT` -- indicates an MRI-GARK method that
      does not support a slow implicit operator, :math:`f^I`.
 
-   * :index:`MRISTEP_IMPLICIT` -- indicates an MRI-GARK method that
+   * :enumerator:`MRISTEP_IMPLICIT` -- indicates an MRI-GARK method that
      does not support a slow explicit operator, :math:`f^E`.
 
-   * :index:`MRISTEP_IMEX` -- indicates an IMEX-MRK-GARK method.
+   * :enumerator:`MRISTEP_IMEX` -- indicates an IMEX-MRK-GARK method.
 
-   * :index:`MRISTEP_MERK` -- indicates a MERK method, that by definition
+   * :enumerator:`MRISTEP_MERK` -- indicates a MERK method, that by definition
      does not support a slow implicit operator, :math:`f^I`.
 
-   * :index:`MRISTEP_MRISR` -- indicates an IMEX-MRI-SR method.
+   * :enumerator:`MRISTEP_MRISR` -- indicates an IMEX-MRI-SR method.
 
 The MRI coupling tables themselves are stored in an
 :c:func:`MRIStepCoupling` object which is a pointer to a
@@ -383,14 +383,14 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
    ======================================  ==================  ===============  ==============  =====================
    Table name                              Method Order        Embedding Order  Slow RHS Calls  Reference
    ======================================  ==================  ===============  ==============  =====================
-   :index:`ARKODE_MRI_GARK_FORWARD_EULER`  :math:`1^*`         0                1
+   :index:`ARKODE_MRI_GARK_FORWARD_EULER`  :math:`1^*`         --               1
    :index:`ARKODE_MRI_GARK_ERK22a`         :math:`2^{\circ}`   1                2               :cite:p:`Sandu:19`
    :index:`ARKODE_MRI_GARK_ERK22b`         :math:`2^*`         1                2               :cite:p:`Sandu:19`
-   :index:`ARKODE_MRI_GARK_RALSTON2`       2                   0                2               :cite:p:`Roberts:22`
+   :index:`ARKODE_MRI_GARK_RALSTON2`       2                   1                2               :cite:p:`Roberts:22`
    :index:`ARKODE_MERK21`                  2                   1                2               :cite:p:`Luan:20`
-   :index:`ARKODE_MIS_KW3`                 :math:`3^*`         0                3               :cite:p:`Schlegel:09`
+   :index:`ARKODE_MIS_KW3`                 :math:`3^*`         --               3               :cite:p:`Schlegel:09`
    :index:`ARKODE_MRI_GARK_ERK33a`         :math:`3^{\circ}`   2                3               :cite:p:`Sandu:19`
-   :index:`ARKODE_MRI_GARK_RALSTON3`       3                   0                3               :cite:p:`Roberts:22`
+   :index:`ARKODE_MRI_GARK_RALSTON3`       3                   --               3               :cite:p:`Roberts:22`
    :index:`ARKODE_MERK32`                  3                   2                3               :cite:p:`Luan:20`
    :index:`ARKODE_MRI_GARK_ERK45a`         :math:`4^{*\circ}`  3                5               :cite:p:`Sandu:19`
    :index:`ARKODE_MERK43`                  4                   3                6               :cite:p:`Luan:20`
@@ -408,9 +408,9 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
    ==========================================  ==================  ===============  ===============  ==================
    Table name                                  Method Order        Embedding Order  Implicit Solves  Reference
    ==========================================  ==================  ===============  ===============  ==================
-   :index:`ARKODE_MRI_GARK_BACKWARD_EULER`     :math:`1^{*\circ}`  0                1
+   :index:`ARKODE_MRI_GARK_BACKWARD_EULER`     :math:`1^{*\circ}`  --               1
    :index:`ARKODE_MRI_GARK_IRK21a`             :math:`2^{*\circ}`  1                1                :cite:p:`Sandu:19`
-   :index:`ARKODE_MRI_GARK_IMPLICIT_MIDPOINT`  2                   0                2
+   :index:`ARKODE_MRI_GARK_IMPLICIT_MIDPOINT`  2                   --               2
    :index:`ARKODE_MRI_GARK_ESDIRK34a`          :math:`3^{*\circ}`  2                3                :cite:p:`Sandu:19`
    :index:`ARKODE_MRI_GARK_ESDIRK46a`          :math:`4^{*\circ}`  3                5                :cite:p:`Sandu:19`
    ==========================================  ==================  ===============  ===============  ==================
@@ -426,13 +426,13 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
    =========================================  =================  ===============  ===============  ===================
    Table name                                 Method Order       Embedding Order  Implicit Solves  Reference
    =========================================  =================  ===============  ===============  ===================
-   :index:`ARKODE_IMEX_MRI_GARK_EULER`        :math:`1^*`        0                1
-   :index:`ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL`  :math:`2^*`        0                1
-   :index:`ARKODE_IMEX_MRI_GARK_MIDPOINT`     2                  0                2
+   :index:`ARKODE_IMEX_MRI_GARK_EULER`        :math:`1^*`        --               1
+   :index:`ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL`  :math:`2^*`        --               1
+   :index:`ARKODE_IMEX_MRI_GARK_MIDPOINT`     2                  --               2
    :index:`ARKODE_IMEX_MRI_SR21`              :math:`2^{\circ}`  1                3                :cite:p:`Fish:24`
-   :index:`ARKODE_IMEX_MRI_GARK3a`            :math:`3^*`        0                2                :cite:p:`ChiRen:21`
-   :index:`ARKODE_IMEX_MRI_GARK3b`            3                  0                2                :cite:p:`ChiRen:21`
+   :index:`ARKODE_IMEX_MRI_GARK3a`            :math:`3^*`        --               2                :cite:p:`ChiRen:21`
+   :index:`ARKODE_IMEX_MRI_GARK3b`            3                  --               2                :cite:p:`ChiRen:21`
    :index:`ARKODE_IMEX_MRI_SR32`              :math:`3^{\circ}`  2                4                :cite:p:`Fish:24`
-   :index:`ARKODE_IMEX_MRI_GARK4`             :math:`4^*`        0                5                :cite:p:`ChiRen:21`
+   :index:`ARKODE_IMEX_MRI_GARK4`             :math:`4^*`        --               5                :cite:p:`ChiRen:21`
    :index:`ARKODE_IMEX_MRI_SR43`              :math:`4^{\circ}`  3                5                :cite:p:`Fish:24`
    =========================================  =================  ===============  ===============  ===================

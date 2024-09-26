@@ -815,7 +815,7 @@ Optional inputs for IVP method selection
 
    Select the default MRI method of a given order.
 
-   The default order is 3. An order less than 1 or greater than 4 will result in
+   The default order is 3. An order less than 1 will result in
    using the default.
 
    :param arkode_mem: pointer to the MRIStep memory block.
