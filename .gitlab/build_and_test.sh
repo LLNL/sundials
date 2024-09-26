@@ -170,6 +170,8 @@ then
     echo "~ Build Dir:   ${build_dir}"
     echo "~ Project Dir: ${project_dir}"
     echo "~ MPIEXEC_EXECUTABLE: ${MPIEXEC_EXECUTABLE}"
+    echo "~ MPIEXEC_PREFLAGS: ${MPIEXEC_PREFLAGS}"
+    echo "~ MPIEXEC_POSTFLAGS: ${MPIEXEC_POSTFLAGS}"
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -193,6 +195,8 @@ then
             -C "${hostconfig_path}" \
             -DCMAKE_INSTALL_PREFIX=${install_dir} \
             -DMPIEXEC_EXECUTABLE=$(which $MPIEXEC_EXECUTABLE) \
+            -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} \
+            -DMPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS} \
             -DSUNDIALS_CALIPER_OUTPUT_DIR="${CALIPER_DIR}/Release/${hostname}/${sundials_version}" \
             "${project_dir}"
 
@@ -201,6 +205,8 @@ then
             -C "${hostconfig_path}" \
             -DCMAKE_INSTALL_PREFIX=${install_dir} \
             -DMPIEXEC_EXECUTABLE=$(which $MPIEXEC_EXECUTABLE) \
+            -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} \
+            -DMPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS} \
             "${project_dir}"
     fi
 
