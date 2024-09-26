@@ -337,7 +337,7 @@ static int compute_error(N_Vector y, sunrealtype t)
   ans = ATAN(t);
   err = SUNRabs(N_VGetArrayPointer(y)[0] - ans);
 
-  fprintf(stdout, "\nACCURACY at the final time = %" GSYM "\n", err);
+  fprintf(stdout, "\nACCURACY at the final time   = %" GSYM "\n", err);
   return 0;
 }
 
