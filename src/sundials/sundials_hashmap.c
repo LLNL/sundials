@@ -257,7 +257,7 @@ size_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   kvp = (SUNHashMapKeyValue)malloc(sizeof(*kvp));
 
   /* Copy the original_key so that the hashmap owns it */
-  size_t len     = strlen(key);
+  size_t len     = strlen(key)+1;
   char* key_copy = malloc(sizeof(*key) * len);
   strcpy(key_copy, key);
 

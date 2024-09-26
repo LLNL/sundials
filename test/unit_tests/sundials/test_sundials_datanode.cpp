@@ -25,7 +25,7 @@
 #define GET_IMPL(node)       ((SUNDataNode_InMemContent)(node)->content)
 #define GET_PROP(node, prop) (GET_IMPL(node)->prop)
 
-int get_leaf_as_int(SUNDataNode node)
+static int get_leaf_as_int(SUNDataNode node)
 {
   SUNMemory mem = (SUNMemory)GET_PROP(node, leaf_data);
   return *((int*)mem->ptr);

@@ -24,7 +24,7 @@
 #include "sundials/sundials_types.h"
 #include "sunmemory/sunmemory_system.h"
 
-bool compare_vectors(N_Vector expected, N_Vector actual)
+static bool compare_vectors(N_Vector expected, N_Vector actual)
 {
   sunrealtype* adata = N_VGetArrayPointer(actual);
   sunrealtype* edata = N_VGetArrayPointer(expected);
@@ -42,7 +42,7 @@ bool compare_vectors(N_Vector expected, N_Vector actual)
   return true;
 }
 
-void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
+static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
                             int stages, bool test_load = false)
 {
   N_Vector state  = N_VNew_Serial(10, cs->sunctx);

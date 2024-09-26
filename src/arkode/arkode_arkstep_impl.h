@@ -305,6 +305,14 @@ int arkStep_GetOrder(ARKodeMem ark_mem);
 int arkStep_TryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
                     N_Vector y, sunrealtype* tret, int* ark_flag);
 
+/* private functions for adjoints */
+int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
+                   N_Vector sens_complete_stage, void* content);
+
+int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
+                                       ARKodeARKStepMem step_mem, int lineno,
+                                       const char* fname, const char* filename);
+
 /*===============================================================
   Reusable ARKStep Error Messages
   ===============================================================*/

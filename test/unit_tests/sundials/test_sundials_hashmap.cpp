@@ -22,7 +22,7 @@
 const size_t init_capacity = 2;
 
 // Helper function to free memory for value
-void freeKeyValue(SUNHashMapKeyValue* ptr)
+static void freeKeyValue(SUNHashMapKeyValue* ptr)
 {
   // NO-OP: nothing we test with needs to be freed
   return;

@@ -52,86 +52,22 @@ static int check_retval(void* retval_ptr, const char* funcname, int opt);
 
 static sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 
-/* Function to compute the ODE right-hand side */
+static int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
+        void* user_data);
+
 static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec,
-                          void* user_data)
-{
-  sunrealtype* p    = (sunrealtype*)user_data;
-  sunrealtype* u    = N_VGetArrayPointer(uvec);
-  sunrealtype* udot = N_VGetArrayPointer(udotvec);
+                          void* user_data);
 
-  udot[0] = p[0] * u[0] - p[1] * u[0] * u[1];
-  udot[1] = -p[2] * u[1] + p[3] * u[0] * u[1];
+static int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
+                  void* user_data);
 
-  return 0;
-}
+static void dgdu(N_Vector uvec, N_Vector dgvec);
 
-/* Function to compute v^T (df/du) */
-int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-        void* user_data)
-{
-  sunrealtype* p  = (sunrealtype*)user_data;
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
-  sunrealtype* v  = N_VGetArrayPointer(vvec);
-  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
-
-  Jv[0] = (p[0] - p[1] * u[1]) * v[0] + p[3] * u[1] * v[1];
-  Jv[1] = -p[1] * u[0] * v[0] + (-p[2] + p[3] * u[0]) * v[1];
-
-  return 0;
-}
-
-/* Function to compute v^T (df/dp) */
-int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-                  void* user_data)
-{
-  if (user_data != params) { return -1; }
-
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
-  sunrealtype* v  = N_VGetArrayPointer(vvec);
-  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
-
-  Jv[0] = u[0] * v[0];
-  Jv[1] = -u[0] * u[1] * v[0];
-  Jv[2] = -u[1] * v[1];
-  Jv[3] = u[0] * u[1] * v[1];
-
-  return 0;
-}
-
-/* Gradient of the cost function w.r.t to u.
-   The gradient w.r.t to p is zero since the cost function
-   does not depend on the parameters. */
-void dgdu(N_Vector uvec, N_Vector dgvec)
-{
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
-  sunrealtype* dg = N_VGetArrayPointer(dgvec);
-
-  dg[0] = u[0] + u[1];
-  dg[1] = u[0] + u[1];
-}
-
-/* Function to compute the adjoint ODE right-hand side:
-    -mu^T (df/du)
- */
 static int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
-                       N_Vector ldotvec, void* user_data)
-{
-  vjp(lvec, ldotvec, t, uvec, user_data);
-  N_VScale(-1.0, ldotvec, ldotvec);
+                       N_Vector ldotvec, void* user_data);
 
-  return 0;
-}
-
-/* Function to compute the quadrature right-hand side:
-    mu^T (df/dp)
- */
 static int quad_rhs(sunrealtype t, N_Vector uvec, N_Vector muvec,
-                    N_Vector qBdotvec, void* user_dataB)
-{
-  parameter_vjp(muvec, qBdotvec, t, uvec, user_dataB);
-  return 0;
-}
+                    N_Vector qBdotvec, void* user_dataB);
 
 int main(int argc, char* argv[])
 {
@@ -273,6 +209,87 @@ int main(int argc, char* argv[])
   CVodeFree(&cvode_mem);
   SUNContext_Free(&sunctx);
 
+  return 0;
+}
+
+/* Function to compute the ODE right-hand side */
+int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec,
+                          void* user_data)
+{
+  sunrealtype* p    = (sunrealtype*)user_data;
+  sunrealtype* u    = N_VGetArrayPointer(uvec);
+  sunrealtype* udot = N_VGetArrayPointer(udotvec);
+
+  udot[0] = p[0] * u[0] - p[1] * u[0] * u[1];
+  udot[1] = -p[2] * u[1] + p[3] * u[0] * u[1];
+
+  return 0;
+}
+
+/* Function to compute v^T (df/du) */
+int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
+        void* user_data)
+{
+  sunrealtype* p  = (sunrealtype*)user_data;
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* v  = N_VGetArrayPointer(vvec);
+  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
+
+  Jv[0] = (p[0] - p[1] * u[1]) * v[0] + p[3] * u[1] * v[1];
+  Jv[1] = -p[1] * u[0] * v[0] + (-p[2] + p[3] * u[0]) * v[1];
+
+  return 0;
+}
+
+/* Function to compute v^T (df/dp) */
+int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
+                  void* user_data)
+{
+  if (user_data != params) { return -1; }
+
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* v  = N_VGetArrayPointer(vvec);
+  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
+
+  Jv[0] = u[0] * v[0];
+  Jv[1] = -u[0] * u[1] * v[0];
+  Jv[2] = -u[1] * v[1];
+  Jv[3] = u[0] * u[1] * v[1];
+
+  return 0;
+}
+
+/* Gradient of the cost function w.r.t to u.
+   The gradient w.r.t to p is zero since the cost function
+   does not depend on the parameters. */
+void dgdu(N_Vector uvec, N_Vector dgvec)
+{
+  sunrealtype* u  = N_VGetArrayPointer(uvec);
+  sunrealtype* dg = N_VGetArrayPointer(dgvec);
+
+  dg[0] = u[0] + u[1];
+  dg[1] = u[0] + u[1];
+}
+
+/* Function to compute the adjoint ODE right-hand side:
+    -mu^T (df/du)
+ */
+int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
+                       N_Vector ldotvec, void* user_data)
+{
+  vjp(lvec, ldotvec, t, uvec, user_data);
+  N_VScale(-1.0, ldotvec, ldotvec);
+
+  return 0;
+}
+
+/* Function to compute the quadrature right-hand side:
+    mu^T (df/dp)
+ */
+int quad_rhs(sunrealtype t, N_Vector uvec, N_Vector muvec,
+                    N_Vector qBdotvec, void* user_dataB)
+{
+  parameter_vjp(muvec, qBdotvec, t, uvec, user_dataB);
   return 0;
 }
 

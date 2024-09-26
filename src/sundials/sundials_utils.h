@@ -24,12 +24,12 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
 
-static inline char* sunUnsignedToString(uint64_t uint)
+static inline char* sunUnsignedToString(uint64_t val)
 {
   char* str     = NULL;
-  size_t length = snprintf(NULL, 0, "%llu", (unsigned long long)uint);
+  size_t length = snprintf(NULL, 0, "%llu", (unsigned long long)val);
   str           = (char*)malloc(sizeof(*str) * (length + 1));
-  snprintf(str, length + 1, "%llu", (unsigned long long)uint);
+  snprintf(str, length + 1, "%llu", (unsigned long long)val);
   return str;
 }
 
