@@ -102,8 +102,8 @@ int main(int argc, char* argv[])
   if (lsrk) // Setup LSRKStep
   {
     // ARKODE memory structure
-    arkode_mem = LSRKStepCreate(frhs, nullptr, udata.t0, y, ctx);
-    if (check_ptr(arkode_mem, "LSRKStepCreate")) { return 1; }
+    arkode_mem = LSRKStepCreateSSP(frhs, udata.t0, y, ctx);
+    if (check_ptr(arkode_mem, "LSRKStepCreateSSP")) { return 1; }
 
     // Select SSPRK method type
     ARKODE_LSRKMethodType mtype;

@@ -96,12 +96,12 @@ int main(void)
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx); /* Create serial vector for solution */
   if (check_flag((void*)y, "N_VNew_Serial", 0)) { return 1; }
-  NV_Ith_S(y, 0) = SUN_RCONST(0.0); /* Specify initial condition */
+  N_VGetArrayPointer(y)[0] = SUN_RCONST(0.0); /* Specify initial condition */
 
-  /* Call LSRKStepCreate to initialize the ARK timestepper module and
+  /* Call LSRKStepCreateSSP to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the initial time
      T0, and the initial dependent variable vector y. */
-  arkode_mem = LSRKStepCreate(f, NULL, T0, y, ctx);
+  arkode_mem = LSRKStepCreateSSP(f, T0, y, ctx);
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
   /* Set routines */
@@ -130,7 +130,7 @@ int main(void)
   fprintf(UFID, "# t u\n");
 
   /* output initial condition to disk */
-  fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", T0, NV_Ith_S(y, 0));
+  fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", T0, N_VGetArrayPointer(y)[0]);
 
   /* Main time-stepping loop: calls ARKodeEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
@@ -143,8 +143,8 @@ int main(void)
     flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
     if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
     printf("  %10.6" FSYM "  %10.6" FSYM "\n", t,
-           NV_Ith_S(y, 0)); /* access/print solution */
-    fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", t, NV_Ith_S(y, 0));
+           N_VGetArrayPointer(y)[0]); /* access/print solution */
+    fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", t, N_VGetArrayPointer(y)[0]);
     if (flag >= 0)
     { /* successful solve: update time */
       tout += dTout;
@@ -188,9 +188,9 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
-  sunrealtype u      = NV_Ith_S(y, 0); /* access current solution value */
+  sunrealtype u      = N_VGetArrayPointer(y)[0]; /* access current solution value */
 
-  /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
+  /* fill in the RHS function: "N_VGetArrayPointer" accesses the 0th entry of ydot */
   N_VGetArrayPointer(ydot)[0] =
     lambda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) - lambda * ATAN(t);
 

@@ -363,8 +363,8 @@ static int fe(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   gsin = (udata->M_timedep) ? udata->g * sin(t) : udata->g * sin(PI4);
   tmp1 = rdot(t) / (TWO * u);
   tmp2 = sdot(t) / (TWO * v);
-  N_VGetArrayPointer(ydot)[0] = gcos * tmp1 + gsin * tmp2;
-  NV_Ith_S(ydot, 1)           = -gsin * tmp1 + gcos * tmp2;
+  NV_Ith_S(ydot, 0) = gcos * tmp1 + gsin * tmp2;
+  NV_Ith_S(ydot, 1) = -gsin * tmp1 + gcos * tmp2;
 
   // Return with success
   return 0;
@@ -387,8 +387,8 @@ static int fi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
   tmp3 = udata->G * tmp1 + udata->e * tmp2;
   tmp4 = udata->e * tmp1 - tmp2;
-  N_VGetArrayPointer(ydot)[0] = gcos * tmp3 + gsin * tmp4;
-  NV_Ith_S(ydot, 1)           = -gsin * tmp3 + gcos * tmp4;
+  NV_Ith_S(ydot, 0) = gcos * tmp3 + gsin * tmp4;
+  NV_Ith_S(ydot, 1) = -gsin * tmp3 + gcos * tmp4;
 
   // Return with success
   return 0;
@@ -410,8 +410,8 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
   tmp3 = udata->G * tmp1 + udata->e * tmp2 + rdot(t) / (TWO * u);
   tmp4 = udata->e * tmp1 - tmp2 + sdot(t) / (TWO * v);
-  N_VGetArrayPointer(ydot)[0] = gcos * tmp3 + gsin * tmp4;
-  NV_Ith_S(ydot, 1)           = -gsin * tmp3 + gcos * tmp4;
+  NV_Ith_S(ydot, 0) = gcos * tmp3 + gsin * tmp4;
+  NV_Ith_S(ydot, 1) = -gsin * tmp3 + gcos * tmp4;
 
   // Return with success
   return 0;

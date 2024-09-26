@@ -47,10 +47,16 @@ typedef enum
 
 /* Creation and Reinitialization functions */
 
-SUNDIALS_EXPORT void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
+SUNDIALS_EXPORT void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0,
                                      N_Vector y0, SUNContext sunctx);
 
-SUNDIALS_EXPORT int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
+SUNDIALS_EXPORT void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0,
+                                     N_Vector y0, SUNContext sunctx);
+
+SUNDIALS_EXPORT int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs,
+                                   sunrealtype t0, N_Vector y0);
+
+SUNDIALS_EXPORT int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs,
                                    sunrealtype t0, N_Vector y0);
 
 /* Optional input functions -- must be called AFTER a creation routine above */

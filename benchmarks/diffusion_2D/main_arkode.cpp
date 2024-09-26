@@ -279,8 +279,8 @@ int main(int argc, char* argv[])
     }
     else
     {
-      arkode_mem = LSRKStepCreate(diffusion, nullptr, ZERO, u, ctx);
-      if (check_flag((void*)arkode_mem, "LSRKStepCreate", 0)) { return 1; }
+      arkode_mem = LSRKStepCreateSTS(diffusion, nullptr, ZERO, u, ctx);
+      if (check_flag((void*)arkode_mem, "LSRKStepCreateSTS", 0)) { return 1; }
     }
 
     // Specify tolerances

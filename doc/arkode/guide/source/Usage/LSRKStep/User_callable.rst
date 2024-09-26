@@ -39,18 +39,14 @@ LSRKStep initialization functions
 ---------------------------------
 
 
-.. c:function:: void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0, SUNContext sunctx);
+.. c:function:: void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx);
 
    This function allocates and initializes memory for a problem to
    be solved using the LSRKStep time-stepping module in ARKODE.
 
    **Arguments:**
-      * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
-        defining the explicit portion of the right-hand side function in
-        :math:`y'(t) = f^E(t,y) + f^I(t,y)`.
-      * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
-        defining the implicit portion of the right-hand side function in
-        :math:`y'(t) = f^E(t,y) + f^I(t,y)`.
+      * *rhs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+        defining the right-hand side function.
       * *t0* -- the initial value of :math:`t`.
       * *y0* -- the initial condition vector :math:`y(t_0)`.
       * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
@@ -61,7 +57,25 @@ LSRKStep initialization functions
       listed below.  If unsuccessful, a ``NULL`` pointer will be
       returned, and an error message will be printed to ``stderr``.
 
-   .. warning: LSRKStep does not currently support implicit or ImEx methods. The *fi* argument is included here as a placeholder for upcoming development.
+
+.. c:function:: void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx);
+
+   This function allocates and initializes memory for a problem to
+   be solved using the LSRKStep time-stepping module in ARKODE.
+
+   **Arguments:**
+      * *rhs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+        defining the right-hand side function.
+      * *t0* -- the initial value of :math:`t`.
+      * *y0* -- the initial condition vector :math:`y(t_0)`.
+      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
+
+   **Return value:**
+      If successful, a pointer to initialized problem memory
+      of type ``void*``, to be passed to all user-facing LSRKStep routines
+      listed below.  If unsuccessful, a ``NULL`` pointer will be
+      returned, and an error message will be printed to ``stderr``.
+
 
 .. _ARKODE.Usage.LSRKStep.OptionalInputs:
 
@@ -260,21 +274,21 @@ LSRKStep re-initialization function
 -------------------------------------
 
 To reinitialize the LSRKStep module for the solution of a new problem,
-where a prior call to :c:func:`LSRKStepCreate` has been made, the
-user must call the function :c:func:`LSRKStepReInit()`.  The new
+where a prior call to :c:func:`LSRKStepCreateSTS` or :c:func:`LSRKStepCreateSSP` has been made, the
+user must call the function :c:func:`LSRKStepReInitSTS()` or :c:func:`LSRKStepReInitSSP()`, accordingly.  The new
 problem must have the same size as the previous one.  This routine
 retains the current settings for all LSRKstep module options and
 performs the same input checking and initializations that are done in
-:c:func:`LSRKStepCreate`, but it performs no memory allocation as it
+:c:func:`LSRKStepCreateSTS` or :c:func:`LSRKStepCreateSSP`, but it performs no memory allocation as it
 assumes that the existing internal memory is sufficient for the new
 problem.  A call to this re-initialization routine deletes the
 solution history that was stored internally during the previous
 integration, and deletes any previously-set *tstop* value specified via a
 call to :c:func:`ARKodeSetStopTime()`.  Following a successful call to
-:c:func:`LSRKStepReInit()`, call :c:func:`ARKodeEvolve()` again for the
+:c:func:`LSRKStepReInitSTS()` or :c:func:`LSRKStepReInitSSP()`, call :c:func:`ARKodeEvolve()` again for the
 solution of the new problem.
 
-One important use of the :c:func:`LSRKStepReInit()` function is in the
+One important use of the :c:func:`LSRKStepReInitSTS()` and :c:func:`LSRKStepReInitSSP()` function is in the
 treating of jump discontinuities in the RHS function.  Except in cases
 of fairly small jumps, it is usually more efficient to stop at each
 point of discontinuity and restart the integrator with a readjusted
@@ -293,17 +307,15 @@ comments apply if there is to be a jump in the dependent variable
 vector.
 
 
-.. c:function:: int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0);
+.. c:function:: int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0);
 
    Provides required problem specifications and re-initializes the
    LSRKStep time-stepper module.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
-        defining the explicit right-hand side function in :math:`\dot{y} = f^E(t,y)`.
-      * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
-        defining the implicit right-hand side function in :math:`\dot{y} = f^I(t,y)`.
+      * *rhs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+        defining the right-hand side function.
       * *t0* -- the initial value of :math:`t`.
       * *y0* -- the initial condition vector :math:`y(t_0)`.
 
@@ -319,5 +331,32 @@ vector.
       All previously set options are retained but may be updated by calling
       the appropriate "Set" functions.
 
-      If an error occurred, :c:func:`LSRKStepReInit()` also
+      If an error occurred, :c:func:`LSRKStepReInitSTS()` also
+      sends an error message to the error handler function.
+
+.. c:function:: int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0);
+
+   Provides required problem specifications and re-initializes the
+   LSRKStep time-stepper module.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *rhs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+        defining the right-hand side function.
+      * *t0* -- the initial value of :math:`t`.
+      * *y0* -- the initial condition vector :math:`y(t_0)`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL*  if the LSRKStep memory was ``NULL``
+      * *ARK_MEM_FAIL*  if memory allocation failed
+      * *ARK_NO_MALLOC*  if memory allocation failed
+      * *ARK_CONTROLLER_ERR*  if unable to reset error controller object
+      * *ARK_ILL_INPUT* if an argument had an illegal value.
+
+   **Notes:**
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
+
+      If an error occurred, :c:func:`LSRKStepReInitSSP()` also
       sends an error message to the error handler function.

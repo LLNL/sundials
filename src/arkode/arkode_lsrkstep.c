@@ -29,7 +29,7 @@
   Exported functions
   ===============================================================*/
 
-void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
+void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
                      SUNContext sunctx)
 {
   ARKodeMem ark_mem;
@@ -37,19 +37,11 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   sunbooleantype nvectorOK;
   int retval;
 
-  /* Check that fe is supplied */
-  if (fe == NULL)
+  /* Check that rhs is supplied */
+  if (rhs == NULL)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_F);
-    return (NULL);
-  }
-
-  /* Check that fi is NULL until IMEX module is ready */
-  if (fi != NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "NO IMEX-LSRK support yet, set fi = NULL");
     return (NULL);
   }
 
@@ -123,8 +115,125 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   }
 
   /* Copy the input parameters into ARKODE state */
-  step_mem->fe = fe;
-  step_mem->fi = fi;
+  step_mem->fe = rhs;
+  step_mem->fi = rhs;
+
+  /* Initialize all the counters */
+  step_mem->nfe                 = 0;
+  step_mem->nfi                 = 0;
+  step_mem->dom_eig_nfe         = 0;
+  step_mem->stage_max           = 0;
+  step_mem->num_dom_eig_updates = 0;
+  step_mem->stage_max_limit =
+    (int)SUNRround(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround)));
+  step_mem->stage_max_limit =
+    (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
+  step_mem->nstsig = 0;
+
+  /* Initialize main ARKODE infrastructure */
+  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to initialize main ARKODE infrastructure");
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+
+  /* Specify preferred interpolation type */
+  ark_mem->interp_type = ARK_INTERP_LAGRANGE;
+
+  return ((void*)ark_mem);
+}
+
+void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
+                     SUNContext sunctx)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  sunbooleantype nvectorOK;
+  int retval;
+
+  /* Check that rhs is supplied */
+  if (rhs == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_F);
+    return (NULL);
+  }
+
+  /* Check for legal input parameters */
+  if (y0 == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
+    return (NULL);
+  }
+
+  if (!sunctx)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_SUNCTX);
+    return (NULL);
+  }
+
+  /* Test if all required vector operations are implemented */
+  nvectorOK = lsrkStep_CheckNVector(y0);
+  if (!nvectorOK)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_BAD_NVECTOR);
+    return (NULL);
+  }
+
+  /* Create ark_mem structure and set default values */
+  ark_mem = arkCreate(sunctx);
+  if (ark_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (NULL);
+  }
+
+  /* Allocate ARKodeLSRKStepMem structure, and initialize to zero */
+  step_mem = NULL;
+  step_mem = (ARKodeLSRKStepMem)malloc(sizeof(struct ARKodeLSRKStepMemRec));
+  if (step_mem == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_ARKMEM_FAIL);
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+  memset(step_mem, 0, sizeof(struct ARKodeLSRKStepMemRec));
+
+  /* Attach step_mem structure and function pointers to ark_mem */
+  ark_mem->step_init              = lsrkStep_Init;
+  ark_mem->step_fullrhs           = lsrkStep_FullRHS;
+  ark_mem->step                   = lsrkStep_TakeStepRKC;
+  ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
+  ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
+  ark_mem->step_resize            = lsrkStep_Resize;
+  ark_mem->step_free              = lsrkStep_Free;
+  ark_mem->step_printmem          = lsrkStep_PrintMem;
+  ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
+  ark_mem->step_getestlocalerrors = lsrkStep_GetEstLocalErrors;
+  ark_mem->step_mem               = (void*)step_mem;
+  ark_mem->step_supports_adaptive = SUNTRUE;
+
+  /* Set default values for optional inputs */
+  retval = lsrkStep_SetDefaults((void*)ark_mem);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Error setting default solver options");
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+
+  /* Copy the input parameters into ARKODE state */
+  step_mem->fe = rhs;
+  step_mem->fi = rhs;
 
   /* Initialize all the counters */
   step_mem->nfe                 = 0;
@@ -155,9 +264,9 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
 }
 
 /*---------------------------------------------------------------
-  LSRKStepReInit:
+  LSRKStepReInitSTS:
 
-  This routine re-initializes the LSRKStep module to solve a new
+  This routine re-initializes the LSRK STS module to solve a new
   problem of the same size as was previously solved. This routine
   should also be called when the problem dynamics or desired solvers
   have changed dramatically, so that the problem integration should
@@ -165,7 +274,7 @@ void* LSRKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
 
   Note all internal counters are set to 0 on re-initialization.
   ---------------------------------------------------------------*/
-int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
+int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
                    N_Vector y0)
 {
   ARKodeMem ark_mem;
@@ -185,19 +294,11 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
     return (ARK_NO_MALLOC);
   }
 
-  /* Check that fe is supplied */
-  if (fe == NULL)
+  /* Check that rhs is supplied */
+  if (rhs == NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_F);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Check that fi is NULL until IMEX module is ready */
-  if (fi != NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "NO IMEX-LSRK support yet, set fi = NULL");
     return (ARK_ILL_INPUT);
   }
 
@@ -210,8 +311,83 @@ int LSRKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   }
 
   /* Copy the input parameters into ARKODE state */
-  step_mem->fe = fe;
-  step_mem->fi = fi;
+  step_mem->fe = rhs;
+  step_mem->fi = rhs;
+
+  /* Initialize main ARKODE infrastructure */
+  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to initialize main ARKODE infrastructure");
+    return (retval);
+  }
+
+  /* Initialize all the counters, flags and stats */
+  step_mem->nfe                 = 0;
+  step_mem->nfi                 = 0;
+  step_mem->dom_eig_nfe         = 0;
+  step_mem->num_dom_eig_updates = 0;
+  step_mem->stage_max           = 0;
+  step_mem->spr_max             = 0;
+  step_mem->spr_min             = 0;
+  step_mem->nstsig              = 0;
+  step_mem->new_dom_eig         = SUNTRUE;
+  step_mem->dom_eig_is_current  = SUNFALSE;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  LSRKStepReInitSSP:
+
+  This routine re-initializes the LSRK SSP module to solve a new
+  problem of the same size as was previously solved. This routine
+  should also be called when the problem dynamics or desired solvers
+  have changed dramatically, so that the problem integration should
+  resume as if started from scratch.
+
+  Note all internal counters are set to 0 on re-initialization.
+  ---------------------------------------------------------------*/
+int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
+                   N_Vector y0)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE)
+  {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
+    return (ARK_NO_MALLOC);
+  }
+
+  /* Check that rhs is supplied */
+  if (rhs == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_F);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Check for legal input parameters */
+  if (y0 == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Copy the input parameters into ARKODE state */
+  step_mem->fe = rhs;
+  step_mem->fi = rhs;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);

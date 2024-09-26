@@ -258,8 +258,8 @@ int main(int argc, char* argv[])
   // --------------
 
   // Create integrator
-  arkode_mem = LSRKStepCreate(f, nullptr, ZERO, u, ctx);
-  if (check_flag((void*)arkode_mem, "LSKStepCreate", 0)) { return 1; }
+  arkode_mem = LSRKStepCreateSTS(f, ZERO, u, ctx);
+  if (check_flag((void*)arkode_mem, "LSRKStepCreateSTS", 0)) { return 1; }
 
   // Specify tolerances
   flag = ARKodeSStolerances(arkode_mem, udata->rtol, udata->atol);
