@@ -32,7 +32,8 @@
 
 .sundials_job_on_tioga:
   variables:
-    MPIEXEC_EXECUTABLE: "flux run"
+    MPIEXEC_EXECUTABLE: "flux"
+    MPIEXEC_PREFLAGS: "run"
   extends: .job_on_tioga
 
 # Builds with HIP
