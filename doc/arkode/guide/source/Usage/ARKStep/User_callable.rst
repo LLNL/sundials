@@ -4400,3 +4400,25 @@ wrap an ARKStep memory block as an :c:type:`MRIStepInnerStepper`.
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+
+
+.. _ARKStep_CInterface.SUNStepperInterface:
+
+Interfacing with SUNStepper
+---------------------------
+
+The utility function :c:func:`ARKStepCreateSUNStepper` can be used to wrap an
+ARKStep memory block as a :c:type:`SUNStepper`.
+
+.. c:function:: int ARKStepCreateSUNStepper(void *inner_arkode_mem, SUNStepper *stepper)
+
+   Wraps an ARKStep memory block as a :c:type:`SUNStepper`.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *stepper* -- the :c:type:`SUNStepper` object.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_FAIL* if a memory allocation failed
+      * *ARK_ILL_INPUT* if an argument has an illegal value.
