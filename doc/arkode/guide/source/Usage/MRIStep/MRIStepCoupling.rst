@@ -24,7 +24,7 @@ supply a custom set of slow-to-fast time scale coupling coefficients by
 constructing a coupling table and attaching it with
 :c:func:`MRIStepSetCoupling`. A given MRI coupling table can encode any of
 the MRI methods supported by MRIStep.  The family of MRI method encoded
-by the table is determined by an enumerated type, :c:type:`ARKODE_MRIType`:
+by the table is determined by an enumerated type, :c:enum:`ARKODE_MRIType`:
 
 .. c:enum:: ARKODE_MRIType
 
