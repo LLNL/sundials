@@ -142,8 +142,26 @@ int main()
                        SUN_RCONST(1.1e3));
   if (retval != 0) { return retval; }
 
-  /* TODO(SBR): test non-default controllers */
+  /* Try a non-default controller */
+  ERKStepReInit(arkode_mem, f, SUN_RCONST(0.0), y);
+  SUNAdaptController controller1 = SUNAdaptController_ExpGus(sunctx);
+  ARKodeSetAdaptController(arkode_mem, controller1);
+  retval = check_steps(arkode_mem, y, SUN_RCONST(0.1), SUN_RCONST(4.0),
+                       SUN_RCONST(10.0));
+  if (retval != 0) { return retval; }
 
+  /* Try another non-default controller */
+  ERKStepReInit(arkode_mem, f, SUN_RCONST(0.0), y);
+  SUNAdaptController controller2 = SUNAdaptController_Soderlind(sunctx);
+  SUNAdaptController_SetParams_PI(controller2, SUN_RCONST(0.123),
+                                  SUN_RCONST(-0.456));
+  ARKodeSetAdaptController(arkode_mem, controller2);
+  retval = check_steps(arkode_mem, y, SUN_RCONST(-0.1), SUN_RCONST(4.0),
+                       SUN_RCONST(10.0));
+  if (retval != 0) { return retval; }
+
+  SUNAdaptController_Destroy(controller1);
+  SUNAdaptController_Destroy(controller2);
   ARKodeFree(&arkode_mem);
   N_VDestroy(y);
   SUNContext_Free(&sunctx);
