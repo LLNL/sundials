@@ -186,11 +186,11 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
                                              OR (SUNDIALS_TEST_MPIRUN_COMMAND)))
         if(SUNDIALS_TEST_MPIRUN_COMMAND)
           set(RUN_COMMAND
-              "${SUNDIALS_TEST_MPIRUN_COMMAND} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${MPIEXEC_PREFLAGS}"
+              "${SUNDIALS_TEST_MPIRUN_COMMAND} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${MPIEXEC_POSTFLAGS}"
           )
         elseif(MPIEXEC_EXECUTABLE)
           set(RUN_COMMAND
-              "${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${MPIEXEC_PREFLAGS}"
+              "${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${MPIEXEC_POSTFLAGS}"
           )
         endif()
 
@@ -239,21 +239,24 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         if(MPIEXEC_PREFLAGS)
           string(REPLACE " " ";" PREFLAGS "${MPIEXEC_PREFLAGS}")
         endif()
+        if(MPIEXEC_POSTFLAGS)
+          string(REPLACE " " ";" POSTLAGS "${MPIEXEC_POSTFLAGS}")
+        endif()
         if(SUNDIALS_TEST_MPIRUN_COMMAND)
           string(REPLACE " " ";" MPI_EXEC_ARGS
                          "${SUNDIALS_TEST_MPIRUN_COMMAND}")
           add_test(
             NAME ${NAME}
             COMMAND
-              ${MPI_EXEC_ARGS} ${MPIEXEC_NUMPROC_FLAG}
-              ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${PREFLAGS}
+              ${MPI_EXEC_ARGS} ${PREFLAGS} ${MPIEXEC_NUMPROC_FLAG}
+              ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${POSTFLAGS}
               $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
         else()
           add_test(
             NAME ${NAME}
             COMMAND
-              ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG}
-              ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${PREFLAGS}
+              ${MPIEXEC_EXECUTABLE} ${PREFLAGS} ${MPIEXEC_NUMPROC_FLAG}
+              ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${POSTFLAGS}
               $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
         endif()
       else()
