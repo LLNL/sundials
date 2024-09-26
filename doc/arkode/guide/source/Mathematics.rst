@@ -682,9 +682,9 @@ single step:
 
 
 The specific aspects of the fast IVP forcing function (:math:`r_i(t)` or :math:`\tilde{r}(t)`)
-and Runge--Kutta stage coefficient and data (:math:`\gamma_{i,i}`, :math:`\tilde{\gamma}`,
+and Runge--Kutta stage coefficients and data (:math:`\gamma_{i,i}`, :math:`\tilde{\gamma}`,
 :math:`a_i` and :math:`\tilde{a}`), are determined by the method family (MRI-GARK, MERK, etc.).
-Generally, however, the forcing functions and RK stage update data, :math:`r_i(t)`,
+Generally, however, the forcing functions and Runge--Kutta stage update data, :math:`r_i(t)`,
 :math:`\tilde{r}(t)`, :math:`a_i` and :math:`\tilde{a}`, are constructed using evaluations of
 the slow RHS functions :math:`f^E` and :math:`f^I` at preceding stages, :math:`z_j`.
 For specific details, please see the references for each method family listed above.
@@ -701,7 +701,7 @@ For problems with only a slow-nonstiff term (:math:`f^I \equiv 0`), MRIStep
 provides first through fourth order explicit MRI-GARK methods, as well as explicit MERK methods
 of orders two through five. In cases with only a slow-stiff term (:math:`f^E \equiv 0`), MRIStep
 supplies first through fourth order implicit MRI-GARK methods. For applications
-with both stiff and nonstiff slow terms, MRIStep implements third and fourth
+with both stiff and nonstiff slow terms, MRIStep implements first through fourth
 order IMEX-MRI-GARK methods, as well as IMEX-MRI-SR methods of orders two through four. We note
 that ImEx methods may also be applied to problems with simpler structure through specification of
 either :math:`f^I=0` or :math:`f^E=0`. For a complete list of the methods available in
@@ -937,21 +937,21 @@ methods should work well for multirate problems where the time scales are somewh
 decoupled, and that errors introduced at one scale do not "pollute" the other.
 
 The second category of controllers that we provide are :math:`h^S-Tol` multirate
-controllers.  The basic idea is that at any given time scale, an integrator will
+controllers.  The basic idea is that an adaptive time integration method will
 attempt to adapt step sizes to control the *local error* within each step to
-achieve a requested tolerance.  However, MRI methods must ask another adaptive
-fast-scale solver to produce the stage solutions :math:`v_i(t_{F,i})` and
-:math:`\tilde{v}(\tilde{t}_{F})`, that result from sub-stepping over fast intervals
+achieve a requested tolerance.  However, MRI methods must ask an adaptive "inner"
+solver to produce the stage solutions :math:`v_i(t_{F,i})` and
+:math:`\tilde{v}(\tilde{t}_{F})`, that result from sub-stepping over intervals
 :math:`[t_{0,i},t_{F,i}]` or :math:`[\tilde{t}_{0},\tilde{t}_{F}]`, respectively.
-Local errors within the fast integrator may accumulate, resulting in an overall
-fast-solver error :math:`\varepsilon^f_n` that exceeds the requested tolerance.
-If that next-fastest solver can produce *both* :math:`v_i(t_{F,i})` and
+Local errors within the inner integrator may accumulate, resulting in an overall
+inner solver error :math:`\varepsilon^f_n` that exceeds the requested tolerance.
+If that inner solver can produce *both* :math:`v_i(t_{F,i})` and
 an estimation of the accumulated error, :math:`\varepsilon^f_{n,approx}`, then the
-tolerances provided to that next-fastest solver can be adjusted accordingly to
-ensure stage solutions that are within the overall tolerances requested of the MRI
-method.
+tolerances provided to that inner solver can be adjusted accordingly to
+ensure stage solutions that are within the overall tolerances requested of the outer
+MRI method.
 
-To this end, we assume that the next-fastest solver will provide accumulated errors
+To this end, we assume that the inner solver will provide accumulated errors
 over each fast interval having the form
 
 .. math::
@@ -963,11 +963,11 @@ Single-scale adaptive controllers assume that the local error at a step :math:`n
 size :math:`h^S` has order :math:`p`, i.e.,
 
 .. math::
-   LTE_n = c(t_n) (h^S)^p,
+   LTE_n = c(t_n) (h^S)^{p+1},
 
 to predict candidate values :math:`h^S_{n+1}`.  We may therefore repurpose an existing
 single-scale controller to predict candidate values :math:`\text{reltol}^f_{n+1}` by
-supplying an "order" :math:`p=1` and a "control parameter"
+supplying an "order" :math:`p=0` and a "control parameter"
 :math:`h^S_n=\left(\text{reltol}_n^f\right) \left(t_{F,i}-t_{0,i}\right)`, and scaling
 the output by the subinterval width.
 
