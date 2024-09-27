@@ -346,10 +346,10 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   // Reused variables
   int retval;
   sunrealtype t;
-  sunrealtype hpart         = (Tf - T0) / udata.Npart;
-  sunrealtype abstol        = SUN_RCONST(1.e-12);
-  vector<sunrealtype> rtols = {SUN_RCONST(1.e-2), SUN_RCONST(1.e-4),
-                               SUN_RCONST(1.e-6)};
+  sunrealtype hpart                 = (Tf - T0) / udata.Npart;
+  sunrealtype abstol                = SUN_RCONST(1.e-12);
+  vector<sunrealtype> rtols         = {SUN_RCONST(1.e-2), SUN_RCONST(1.e-4),
+                                       SUN_RCONST(1.e-6)};
   vector<ARKAccumError> accum_types = {ARK_ACCUMERROR_MAX, ARK_ACCUMERROR_AVG};
   vector<sunrealtype> dsm(udata.Npart);
   vector<sunrealtype> dsm_est(udata.Npart);
@@ -448,7 +448,7 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   // Set array of fixed step sizes to use, storage for corresponding errors/orders
   sunrealtype hmax = (Tf - T0) / 1000;
   if (rk_type == 1) hmax = min(hmax, ONE / abs(udata.G));
-  vector<sunrealtype> hvals = {hmax, hmax / 4, hmax / 16, hmax / 64};
+  vector<sunrealtype> hvals         = {hmax, hmax / 4, hmax / 16, hmax / 64};
   vector<ARKAccumError> accum_types = {ARK_ACCUMERROR_MAX, ARK_ACCUMERROR_AVG};
   vector<sunrealtype> dsm(udata.Npart);
   vector<sunrealtype> dsm_est(udata.Npart);

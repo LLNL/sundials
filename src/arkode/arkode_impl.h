@@ -520,11 +520,11 @@ struct ARKodeMemRec
   long int liw;      /* no. of integer words in ARKODE work vectors  */
 
   /* Saved Values */
-  sunrealtype h0u;         /* actual initial stepsize                     */
-  sunrealtype tn;          /* time of last successful step                */
-  sunrealtype terr;        /* error in tn for compensated sums            */
-  sunrealtype hold;        /* last successful h value used                */
-  sunrealtype tolsf;       /* tolerance scale factor (suggestion to user) */
+  sunrealtype h0u;   /* actual initial stepsize                     */
+  sunrealtype tn;    /* time of last successful step                */
+  sunrealtype terr;  /* error in tn for compensated sums            */
+  sunrealtype hold;  /* last successful h value used                */
+  sunrealtype tolsf; /* tolerance scale factor (suggestion to user) */
   ARKAccumError AccumErrorType; /* accumulated error estimation type      */
   long int AccumErrorStep; /* time step of last accumulated error reset   */
   sunrealtype AccumError;  /* accumulated error estimate                  */
