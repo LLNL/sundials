@@ -72,3 +72,4 @@ variables:
 .custom_job:
   variables:
     SPACK_DISABLE_LOCAL_CONFIG: "true"
+    SPACK_USER_CACHE_PATH: /tmp/spack
