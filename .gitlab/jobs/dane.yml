@@ -33,7 +33,7 @@
 .sundials_job_on_dane:
   variables:
     MPIEXEC_EXECUTABLE: "srun"
-  extends: .job_on_dane
+  extends: [.sundials_job, .job_on_dane]
 
 dane_clang_tpls:
   parallel:

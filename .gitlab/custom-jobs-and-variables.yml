@@ -38,9 +38,6 @@ variables:
 # Number of threads to use for builds.
   BUILD_JOBS: 32
 
-# Number of CPUs to alloc.
-  NCPU: 12
-
 # Sets CMAKE_VERBOSE_MAKEFILE to TRUE when "ON".
   VERBOSE_BUILD: "ON"
 
@@ -48,7 +45,7 @@ variables:
   VERBOSE_TEST: "ON"
 
 # Should the Corona pipeline run? Set to  "ON" or "OFF" to enable/disable.
-  ON_CORONA: "ON"
+  ON_CORONA: "OFF"
 
 # Should the Quartz pipeline run? Set to  "ON" or "OFF" to enable/disable.
   ON_DANE: "ON"
@@ -72,6 +69,6 @@ variables:
 # Not all configuration can be shared. Here projects can fine tune the
 # CI behavior.
 # See Umpire for an example (export junit test reports).
-.custom_job:
+.sundials_job:
   variables:
-    JOB_TEMPLATE_CANNOT_BE_EMPTY: "True"
+    SPACK_DISABLE_LOCAL_CONFIG: "True"

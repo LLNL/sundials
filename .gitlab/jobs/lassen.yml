@@ -33,7 +33,7 @@
 .sundials_job_on_lassen:
   variables:
     MPIEXEC_EXECUTABLE: "jsrun"
-  extends: .job_on_lassen
+  extends: [.sundials_job, .job_on_lassen]
 
 lassen_xl_cuda_no_tpls:
   parallel:
