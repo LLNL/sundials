@@ -343,7 +343,6 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   Interface routines supplied to ARKODE
   ===============================================================*/
@@ -964,7 +963,10 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
     if (step_mem->implicit) { reset_efun = SUNFALSE; }
     if (!ark_mem->fixedstep) { reset_efun = SUNFALSE; }
     if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
-    if (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE) { reset_efun = SUNFALSE; }
+    if (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)
+    {
+      reset_efun = SUNFALSE;
+    }
     if (ark_mem->rwt_is_ewt &&
         (step_mem->msolve_type == SUNLINEARSOLVER_ITERATIVE))
     {

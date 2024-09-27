@@ -226,7 +226,6 @@ SUNDIALS_EXPORT int MRIStepInnerStepper_GetForcingData(
   MRIStepInnerStepper stepper, sunrealtype* tshift, sunrealtype* tscale,
   N_Vector** forcing, int* nforcing);
 
-
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines
  * -------------------------------------------------------------------------- */

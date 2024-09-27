@@ -68,7 +68,6 @@ SUNDIALS_EXPORT int ERKStepGetTimestepperStats(
   void* arkode_mem, long int* expsteps, long int* accsteps,
   long int* step_attempts, long int* nfevals, long int* netfails);
 
-
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines
  * -------------------------------------------------------------------------- */

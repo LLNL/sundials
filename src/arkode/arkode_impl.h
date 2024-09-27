@@ -290,8 +290,8 @@ typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
 
 /* time stepper interface functions -- forcing */
 typedef int (*ARKTimestepSetForcingFn)(void* arkode_mem, sunrealtype tshift,
-                                       sunrealtype tscale, N_Vector* f, int nvecs);
-
+                                       sunrealtype tscale, N_Vector* f,
+                                       int nvecs);
 
 /*===============================================================
   ARKODE interpolation module definition
@@ -670,7 +670,7 @@ int ark_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
 int ark_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
                           N_Vector yR);
 int ark_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
-                                            sunrealtype* accum_error);
+                                        sunrealtype* accum_error);
 int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
 int ark_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 

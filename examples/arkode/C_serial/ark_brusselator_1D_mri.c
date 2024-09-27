@@ -249,10 +249,7 @@ int main(int argc, char* argv[])
 
   /* Create inner stepper */
   retval = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1))
-  {
-    return 1;
-  }
+  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   /*
    * Create the slow integrator and set options

@@ -1451,6 +1451,7 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
 {
   return (ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, stepper));
 }
+
 int ARKStepResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
 {

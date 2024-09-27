@@ -869,8 +869,7 @@ int main(int argc, char* argv[])
 
   // Create intermediate stepper
   MRIStepInnerStepper intermediate_stepper = nullptr;
-  retval = ARKodeCreateMRIStepInnerStepper(mid_arkode_mem,
-                                           &intermediate_stepper);
+  retval = ARKodeCreateMRIStepInnerStepper(mid_arkode_mem, &intermediate_stepper);
   if (check_flag(retval, "ARKodeCreateMRIStepInnerStepper")) return 1;
 
   // Create MRI (slow) integrator

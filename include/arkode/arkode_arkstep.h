@@ -96,7 +96,6 @@ SUNDIALS_EXPORT int ARKStepGetTimestepperStats(
   long int* step_attempts, long int* nfe_evals, long int* nfi_evals,
   long int* nlinsetups, long int* netfails);
 
-
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines
  * -------------------------------------------------------------------------- */

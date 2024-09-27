@@ -300,10 +300,7 @@ int main(void)
   retval = ARKodeSetMaxNumSteps(arkode_mem, 100);
   check_retval(&retval, "ARKodeSetMaxNumSteps", 1);
   retval = ARKodeCreateMRIStepInnerStepper(arkode_mem, &inner_stepper);
-  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1))
-  {
-    return 1;
-  }
+  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
   mristep_mem = MRIStepCreate(NULL, f, t, y, inner_stepper, ctx);
   if (check_retval((void*)mristep_mem, "MRIStepCreate", 0)) { return 1; }
   retval = ARKodeSetUserData(mristep_mem, (void*)&lambda);
