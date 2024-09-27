@@ -183,17 +183,17 @@ struct Options
   int fast_pq            = 0;
 
   // controller parameters
-  sunrealtype k1s         = SUN_RCONST(-1.0);
-  sunrealtype k2s         = SUN_RCONST(-1.0);
-  sunrealtype k3s         = SUN_RCONST(-1.0);
-  sunrealtype k1f         = SUN_RCONST(-1.0);
-  sunrealtype k2f         = SUN_RCONST(-1.0);
-  sunrealtype k3f         = SUN_RCONST(-1.0);
-  sunrealtype bias        = SUN_RCONST(-1.0);
-  sunrealtype htol_relch  = SUN_RCONST(-1.0);
-  sunrealtype htol_minfac = SUN_RCONST(-1.0);
-  sunrealtype htol_maxfac = SUN_RCONST(-1.0);
-  sunrealtype slow_safety = SUN_RCONST(-1.0);
+  sunrealtype k1s         = NAN;
+  sunrealtype k2s         = NAN;
+  sunrealtype k3s         = NAN;
+  sunrealtype k1f         = NAN;
+  sunrealtype k2f         = NAN;
+  sunrealtype k3f         = NAN;
+  sunrealtype bias        = NAN;
+  sunrealtype htol_relch  = NAN;
+  sunrealtype htol_minfac = NAN;
+  sunrealtype htol_maxfac = NAN;
+  sunrealtype slow_safety = NAN;
 };
 
 // User-supplied functions called by the solver
@@ -220,16 +220,16 @@ static int ReadInputs(std::vector<std::string>& args, Options& opts,
                       SUNContext ctx);
 static void PrintSlowAdaptivity(Options opts);
 static void PrintFastAdaptivity(Options opts);
-static sunrealtype p(sunrealtype t, Options* opts);
-static sunrealtype q(sunrealtype t, Options* opts);
-static sunrealtype r(sunrealtype t, Options* opts);
-static sunrealtype pdot(sunrealtype t, Options* opts);
-static sunrealtype qdot(sunrealtype t, Options* opts);
-static sunrealtype rdot(sunrealtype t, Options* opts);
-static sunrealtype utrue(sunrealtype t, Options* opts);
-static sunrealtype vtrue(sunrealtype t, Options* opts);
-static sunrealtype wtrue(sunrealtype t, Options* opts);
-static int Ytrue(sunrealtype t, N_Vector y, Options* opts);
+static sunrealtype p(sunrealtype t, const Options& opts);
+static sunrealtype q(sunrealtype t, const Options& opts);
+static sunrealtype r(sunrealtype t, const Options& opts);
+static sunrealtype pdot(sunrealtype t, const Options& opts);
+static sunrealtype qdot(sunrealtype t, const Options& opts);
+static sunrealtype rdot(sunrealtype t, const Options& opts);
+static sunrealtype utrue(sunrealtype t, const Options& opts);
+static sunrealtype vtrue(sunrealtype t, const Options& opts);
+static sunrealtype wtrue(sunrealtype t, const Options& opts);
+static int Ytrue(sunrealtype t, N_Vector y, const Options& opts);
 
 // Main Program
 int main(int argc, char* argv[])
@@ -256,19 +256,19 @@ int main(int argc, char* argv[])
   int retval;
   sunbooleantype slowimplicit, slowimex, midimplicit, midimex;
   slowimplicit = slowimex = midimplicit = midimex = SUNFALSE;
-  f_mi                                            = NULL;
+  f_mi                                            = nullptr;
   f_me                                            = fm;
-  f_si                                            = NULL;
+  f_si                                            = nullptr;
   f_se                                            = fs;
-  J_m                                             = NULL;
-  J_s                                             = NULL;
+  J_m                                             = nullptr;
+  J_s                                             = nullptr;
   f_f                                             = ff;
   if ((opts.mri_method == "ARKODE_MRI_GARK_IRK21a") ||
       (opts.mri_method == "ARKODE_MRI_GARK_ESDIRK34a") ||
       (opts.mri_method == "ARKODE_MRI_GARK_ESDIRK46a"))
   {
     slowimplicit = SUNTRUE;
-    f_se         = NULL;
+    f_se         = nullptr;
     f_si         = fs;
     J_s          = Js;
   }
@@ -287,7 +287,7 @@ int main(int argc, char* argv[])
       (opts.mid_method == "ARKODE_MRI_GARK_ESDIRK46a"))
   {
     midimplicit = SUNTRUE;
-    f_me        = NULL;
+    f_me        = nullptr;
     f_mi        = fm;
     J_m         = Jm;
   }
@@ -329,7 +329,7 @@ int main(int argc, char* argv[])
   if (check_ptr((void*)yref, "N_VClone")) return 1;
 
   // Set initial conditions
-  retval = Ytrue(T0, y, &opts);
+  retval = Ytrue(T0, y, opts);
   if (check_flag(retval, "Ytrue")) return 1;
   N_VScale(ONE, y, yref);
 
@@ -346,13 +346,13 @@ int main(int argc, char* argv[])
   if (check_flag(retval, "ARKodeSetMaxNumSteps")) return (1);
 
   // Create and configure fast controller object
-  SUNAdaptController fcontrol = NULL;
+  SUNAdaptController fcontrol = nullptr;
   switch (opts.fcontrol)
   {
   case (1):
     fcontrol = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_I")) return 1;
-    if (opts.k1f > -1)
+    if (!std::isnan(opts.k1f))
     {
       retval = SUNAdaptController_SetParams_I(fcontrol, opts.k1f);
       if (check_flag(retval, "SUNAdaptController_SetParams_I")) return 1;
@@ -361,7 +361,7 @@ int main(int argc, char* argv[])
   case (2):
     fcontrol = SUNAdaptController_PI(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_PI")) return 1;
-    if (std::min(opts.k1f, opts.k2f) > -1)
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
     {
       retval = SUNAdaptController_SetParams_PI(fcontrol, opts.k1f, opts.k2f);
       if (check_flag(retval, "SUNAdaptController_SetParams_PI")) return 1;
@@ -370,7 +370,7 @@ int main(int argc, char* argv[])
   case (3):
     fcontrol = SUNAdaptController_PID(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_PID")) return 1;
-    if (std::min(opts.k1f, std::min(opts.k2f, opts.k3f)) > -1)
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f) || std::isnan(opts.k3f)))
     {
       retval = SUNAdaptController_SetParams_PID(fcontrol, opts.k1f, opts.k2f,
                                                 opts.k3f);
@@ -380,7 +380,7 @@ int main(int argc, char* argv[])
   case (4):
     fcontrol = SUNAdaptController_ExpGus(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_ExpGus")) return 1;
-    if (std::min(opts.k1f, opts.k2f) > -1)
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
     {
       retval = SUNAdaptController_SetParams_ExpGus(fcontrol, opts.k1f, opts.k2f);
       if (check_flag(retval, "SUNAdaptController_SetParams_ExpGus")) return 1;
@@ -389,7 +389,7 @@ int main(int argc, char* argv[])
   case (5):
     fcontrol = SUNAdaptController_ImpGus(sunctx);
     if (check_ptr((void*)fcontrol, "SUNAdaptController_ImpGus")) return 1;
-    if (std::min(opts.k1f, opts.k2f) > -1)
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
     {
       retval = SUNAdaptController_SetParams_ImpGus(fcontrol, opts.k1f, opts.k2f);
       if (check_flag(retval, "SUNAdaptController_SetParams_ImpGus")) return 1;
@@ -400,15 +400,14 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)fcontrol, "SUNAdaptController_ImExGus")) return 1;
     break;
   }
-  if ((opts.bias > -1) && (opts.fcontrol > 0))
+  if (!std::isnan(opts.bias) && (opts.fcontrol > 0))
   {
     retval = SUNAdaptController_SetErrorBias(fcontrol, opts.bias);
     if (check_flag(retval, "SUNAdaptController_SetErrorBias")) return 1;
   }
 
   // Create ERKStep (fast) integrator
-  void* inner_arkode_mem = NULL; // ARKode memory structure
-  inner_arkode_mem       = ERKStepCreate(f_f, T0, y, sunctx);
+  void* inner_arkode_mem = ERKStepCreate(f_f, T0, y, sunctx);
   if (check_ptr((void*)inner_arkode_mem, "ERKStepCreate")) return 1;
   retval = ARKodeSetOrder(inner_arkode_mem, opts.fast_order);
   if (check_flag(retval, "ARKodeSetOrder")) return 1;
@@ -442,20 +441,21 @@ int main(int argc, char* argv[])
   if (check_flag(retval, "ARKodeSetUserData")) return 1;
 
   // Create inner stepper
-  MRIStepInnerStepper inner_stepper = NULL;
+  MRIStepInnerStepper inner_stepper = nullptr;
   retval = ERKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
   if (check_flag(retval, "ERKStepCreateMRIStepInnerStepper")) return 1;
 
   // Create intermediate and slow controller objects, and select orders of accuracy as relevant
-  SUNAdaptController scontrol     = NULL;
-  SUNAdaptController scontrol_H   = NULL;
-  SUNAdaptController scontrol_Tol = NULL;
-  SUNAdaptController mcontrol     = NULL;
-  SUNAdaptController mcontrol_H   = NULL;
-  SUNAdaptController mcontrol_Tol = NULL;
+  SUNAdaptController scontrol     = nullptr;
+  SUNAdaptController scontrol_H   = nullptr;
+  SUNAdaptController scontrol_Tol = nullptr;
+  SUNAdaptController mcontrol     = nullptr;
+  SUNAdaptController mcontrol_H   = nullptr;
+  SUNAdaptController mcontrol_Tol = nullptr;
   switch (opts.scontrol)
   {
   case (1):
+  {
     scontrol_H = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)scontrol_H, "SUNAdaptController_I (slow H)")) return 1;
     scontrol_Tol = SUNAdaptController_I(sunctx);
@@ -466,7 +466,7 @@ int main(int argc, char* argv[])
     mcontrol_Tol = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_I (mid Tol)"))
       return 1;
-    if (opts.k1s > -1)
+    if (!std::isnan(opts.k1s))
     {
       retval = SUNAdaptController_SetParams_I(scontrol_H, opts.k1s);
       if (check_flag(retval, "SUNAdaptController_SetParams_I")) return 1;
@@ -481,8 +481,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(sunctx, mcontrol_H, mcontrol_Tol);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -494,7 +494,9 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
+  }
   case (2):
+  {
     scontrol_H = SUNAdaptController_PI(sunctx);
     if (check_ptr((void*)scontrol_H, "SUNAdaptController_PI (slow H)"))
       return 1;
@@ -506,7 +508,7 @@ int main(int argc, char* argv[])
     mcontrol_Tol = SUNAdaptController_PI(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_PI (mid Tol)"))
       return 1;
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_PI(scontrol_H, opts.k1s, opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_PI")) return 1;
@@ -521,8 +523,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(sunctx, mcontrol_H, mcontrol_Tol);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -534,7 +536,9 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
+  }
   case (3):
+  {
     scontrol_H = SUNAdaptController_PID(sunctx);
     if (check_ptr((void*)scontrol_H, "SUNAdaptController_PID (slow H)"))
       return 1;
@@ -547,7 +551,7 @@ int main(int argc, char* argv[])
     mcontrol_Tol = SUNAdaptController_PID(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_PID (mid Tol)"))
       return 1;
-    if (std::min(opts.k1s, std::min(opts.k2s, opts.k3s)) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s) || std::isnan(opts.k3s)))
     {
       retval = SUNAdaptController_SetParams_PID(scontrol_H, opts.k1s, opts.k2s,
                                                 opts.k3s);
@@ -566,8 +570,7 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(sunctx, mcontrol_H, mcontrol_Tol);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) || std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -579,7 +582,9 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
+  }
   case (4):
+  {
     scontrol_H = SUNAdaptController_ExpGus(sunctx);
     if (check_ptr((void*)scontrol_H, "SUNAdaptController_ExpGus (slow H)"))
       return 1;
@@ -592,7 +597,7 @@ int main(int argc, char* argv[])
     mcontrol_Tol = SUNAdaptController_ExpGus(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_ExpGus (mid Tol)"))
       return 1;
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_ExpGus(scontrol_H, opts.k1s,
                                                    opts.k2s);
@@ -611,8 +616,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(sunctx, mcontrol_H, mcontrol_Tol);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -624,7 +629,9 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
+  }
   case (5):
+  {
     scontrol_H = SUNAdaptController_ImpGus(sunctx);
     if (check_ptr((void*)scontrol_H, "SUNAdaptController_ImpGus (slow H)"))
       return 1;
@@ -637,7 +644,7 @@ int main(int argc, char* argv[])
     mcontrol_Tol = SUNAdaptController_ImpGus(sunctx);
     if (check_ptr((void*)mcontrol_Tol, "SUNAdaptController_ImpGus (mid Tol)"))
       return 1;
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_ImpGus(scontrol_H, opts.k1s,
                                                    opts.k2s);
@@ -656,8 +663,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(sunctx, mcontrol_H, mcontrol_Tol);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -669,7 +676,9 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
+  }
   case (6):
+  {
     scontrol_H = SUNAdaptController_ImExGus(sunctx);
     if (check_ptr((void*)scontrol_H, "SUNAdaptController_ImExGus (slow H)"))
       return 1;
@@ -686,8 +695,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -699,12 +708,14 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_MRIHTol")) return 1;
     }
     break;
+  }
   case (7):
+  {
     scontrol = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptControllerI (slow)")) return 1;
     mcontrol = SUNAdaptController_I(sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptControllerI (mid)")) return 1;
-    if (opts.k1s > -1)
+    if (!std::isnan(opts.k1s))
     {
       retval = SUNAdaptController_SetParams_I(scontrol, opts.k1s);
       if (check_flag(retval, "SUNAdaptController_SetParams_I")) return 1;
@@ -712,12 +723,14 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_I")) return 1;
     }
     break;
+  }
   case (8):
+  {
     scontrol = SUNAdaptController_PI(sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_PI (slow)")) return 1;
     mcontrol = SUNAdaptController_PI(sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_PI (mid)")) return 1;
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_PI(scontrol, opts.k1s, opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_PI")) return 1;
@@ -725,12 +738,14 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_PI")) return 1;
     }
     break;
+  }
   case (9):
+  {
     scontrol = SUNAdaptController_PID(sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_PID (slow)")) return 1;
     mcontrol = SUNAdaptController_PID(sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_PID (mid)")) return 1;
-    if (std::min(opts.k1s, std::min(opts.k2s, opts.k3s)) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s) || std::isnan(opts.k3s)))
     {
       retval = SUNAdaptController_SetParams_PID(scontrol, opts.k1s, opts.k2s,
                                                 opts.k3s);
@@ -740,13 +755,15 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_PID")) return 1;
     }
     break;
+  }
   case (10):
+  {
     scontrol = SUNAdaptController_ExpGus(sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_ExpGus (slow)"))
       return 1;
     mcontrol = SUNAdaptController_ExpGus(sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_ExpGus (mid)")) return 1;
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_ExpGus(scontrol, opts.k1s, opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_ExpGus")) return 1;
@@ -754,13 +771,15 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_ExpGus")) return 1;
     }
     break;
+  }
   case (11):
+  {
     scontrol = SUNAdaptController_ImpGus(sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_ImpGus (slow)"))
       return 1;
     mcontrol = SUNAdaptController_ImpGus(sunctx);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_ImpGus (mid)")) return 1;
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       retval = SUNAdaptController_SetParams_ImpGus(scontrol, opts.k1s, opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_ImpGus")) return 1;
@@ -768,7 +787,9 @@ int main(int argc, char* argv[])
       if (check_flag(retval, "SUNAdaptController_SetParams_ImpGus")) return 1;
     }
     break;
-  case (16):
+  }
+  case (12):
+  {
     scontrol = SUNAdaptController_ImExGus(sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_ImExGus (slow)"))
       return 1;
@@ -777,7 +798,8 @@ int main(int argc, char* argv[])
       return 1;
     break;
   }
-  if ((opts.bias > -1) && (opts.scontrol > 0))
+  }
+  if (!std::isnan(opts.bias) && (opts.scontrol > 0))
   {
     retval = SUNAdaptController_SetErrorBias(scontrol, opts.bias);
     if (check_flag(retval, "SUNAdaptController_SetErrorBias")) return 1;
@@ -786,15 +808,14 @@ int main(int argc, char* argv[])
   }
 
   // Create MRI (intermediate) integrator
-  void* mid_arkode_mem = NULL; // ARKode memory structure
-  mid_arkode_mem = MRIStepCreate(f_me, f_mi, T0, y, inner_stepper, sunctx);
+  void* mid_arkode_mem = MRIStepCreate(f_me, f_mi, T0, y, inner_stepper, sunctx);
   if (check_ptr((void*)mid_arkode_mem, "MRIStepCreate")) return 1;
   MRIStepCoupling Cm = MRIStepCoupling_LoadTableByName((opts.mid_method).c_str());
   if (check_ptr((void*)Cm, "MRIStepCoupling_LoadTableByName")) return 1;
   retval = MRIStepSetCoupling(mid_arkode_mem, Cm);
   if (check_flag(retval, "MRIStepSetCoupling")) return 1;
-  SUNMatrix Am        = NULL; // matrix for intermediate solver
-  SUNLinearSolver LSm = NULL; // intermediate linear solver object
+  SUNMatrix Am        = nullptr; // matrix for intermediate solver
+  SUNLinearSolver LSm = nullptr; // intermediate linear solver object
   if (midimplicit)
   {
     Am = SUNDenseMatrix(NEQ, NEQ, sunctx);
@@ -828,7 +849,7 @@ int main(int argc, char* argv[])
       retval = ARKodeSetAdaptivityAdjustment(mid_arkode_mem, 0);
       if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
     }
-    if (opts.slow_safety > -1)
+    if (!std::isnan(opts.slow_safety))
     {
       retval = ARKodeSetSafetyFactor(mid_arkode_mem, opts.slow_safety);
       if (check_flag(retval, "ARKodeSetSafetyFactor")) return 1;
@@ -841,21 +862,19 @@ int main(int argc, char* argv[])
   }
 
   // Create intermediate stepper
-  MRIStepInnerStepper intermediate_stepper = NULL;
-  retval = MRIStepCreateMRIStepInnerStepper(mid_arkode_mem,
-                                            &intermediate_stepper);
+  MRIStepInnerStepper intermediate_stepper = nullptr;
+  retval = MRIStepCreateMRIStepInnerStepper(mid_arkode_mem, &intermediate_stepper);
   if (check_flag(retval, "MRIStepCreateMRIStepInnerStepper")) return 1;
 
   // Create MRI (slow) integrator
-  void* arkode_mem = NULL; // ARKode memory structure
-  arkode_mem = MRIStepCreate(f_se, f_si, T0, y, intermediate_stepper, sunctx);
+  void* arkode_mem = MRIStepCreate(f_se, f_si, T0, y, intermediate_stepper, sunctx);
   if (check_ptr((void*)arkode_mem, "MRIStepCreate")) return 1;
   MRIStepCoupling Cs = MRIStepCoupling_LoadTableByName((opts.mri_method).c_str());
   if (check_ptr((void*)Cs, "MRIStepCoupling_LoadTableByName")) return 1;
   retval = MRIStepSetCoupling(arkode_mem, Cs);
   if (check_flag(retval, "MRIStepSetCoupling")) return 1;
-  SUNMatrix As        = NULL; // matrix for slow solver
-  SUNLinearSolver LSs = NULL; // slow linear solver object
+  SUNMatrix As        = nullptr; // matrix for slow solver
+  SUNLinearSolver LSs = nullptr; // slow linear solver object
   if (slowimplicit)
   {
     As = SUNDenseMatrix(NEQ, NEQ, sunctx);
@@ -887,7 +906,7 @@ int main(int argc, char* argv[])
       retval = ARKodeSetAdaptivityAdjustment(arkode_mem, 0);
       if (check_flag(retval, "ARKodeSetAdaptivityAdjustment")) return 1;
     }
-    if (opts.slow_safety > -1)
+    if (!std::isnan(opts.slow_safety))
     {
       retval = ARKodeSetSafetyFactor(arkode_mem, opts.slow_safety);
       if (check_flag(retval, "ARKodeSetSafetyFactor")) return 1;
@@ -951,19 +970,19 @@ int main(int argc, char* argv[])
     u    = NV_Ith_S(y, 0);
     v    = NV_Ith_S(y, 1);
     w    = NV_Ith_S(y, 2);
-    uerr = SUNRabs(NV_Ith_S(yref, 0) - u);
-    verr = SUNRabs(NV_Ith_S(yref, 1) - v);
-    werr = SUNRabs(NV_Ith_S(yref, 2) - w);
+    uerr = std::abs(NV_Ith_S(yref, 0) - u);
+    verr = std::abs(NV_Ith_S(yref, 1) - v);
+    werr = std::abs(NV_Ith_S(yref, 2) - w);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     werrtot += werr * werr;
     errtot += uerr * uerr + verr * verr + werr * werr;
-    accuracy = std::max(accuracy, uerr / SUNRabs(opts.atol +
-                                                 opts.rtol * NV_Ith_S(yref, 0)));
-    accuracy = std::max(accuracy, verr / SUNRabs(opts.atol +
-                                                 opts.rtol * NV_Ith_S(yref, 1)));
-    accuracy = std::max(accuracy, werr / SUNRabs(opts.atol +
-                                                 opts.rtol * NV_Ith_S(yref, 2)));
+    accuracy = std::max(accuracy, uerr / std::abs(opts.atol +
+                                                  opts.rtol * NV_Ith_S(yref, 0)));
+    accuracy = std::max(accuracy, verr / std::abs(opts.atol +
+                                                  opts.rtol * NV_Ith_S(yref, 1)));
+    accuracy = std::max(accuracy, werr / std::abs(opts.atol +
+                                                  opts.rtol * NV_Ith_S(yref, 2)));
     Nout++;
 
     // Periodically output current results to screen
@@ -976,10 +995,10 @@ int main(int argc, char* argv[])
              t, u, v, w, uerr, verr, werr);
     }
   }
-  uerrtot = SUNRsqrt(uerrtot / Nt);
-  verrtot = SUNRsqrt(verrtot / Nt);
-  werrtot = SUNRsqrt(werrtot / Nt);
-  errtot  = SUNRsqrt(errtot / Nt / 3);
+  uerrtot = std::sqrt(uerrtot / Nt);
+  verrtot = std::sqrt(verrtot / Nt);
+  werrtot = std::sqrt(werrtot / Nt);
+  errtot  = std::sqrt(errtot / Nt / 3);
   printf("   "
          "---------------------------------------------------------------------"
          "-------\n");
@@ -1066,17 +1085,17 @@ int main(int argc, char* argv[])
   N_VDestroy(y);
   MRIStepCoupling_Free(Cs);
   MRIStepCoupling_Free(Cm);
-  if (As) { SUNMatDestroy(As); }
-  if (LSs) { SUNLinSolFree(LSs); }
-  if (Am) { SUNMatDestroy(Am); }
-  if (LSm) { SUNLinSolFree(LSm); }
-  if (scontrol) { SUNAdaptController_Destroy(scontrol); }
-  if (scontrol_H) { SUNAdaptController_Destroy(scontrol_H); }
-  if (scontrol_Tol) { SUNAdaptController_Destroy(scontrol_Tol); }
-  if (mcontrol) { SUNAdaptController_Destroy(mcontrol); }
-  if (mcontrol_H) { SUNAdaptController_Destroy(mcontrol_H); }
-  if (mcontrol_Tol) { SUNAdaptController_Destroy(mcontrol_Tol); }
-  if (fcontrol) { SUNAdaptController_Destroy(fcontrol); }
+  SUNMatDestroy(As);
+  SUNLinSolFree(LSs);
+  SUNMatDestroy(Am);
+  SUNLinSolFree(LSm);
+  SUNAdaptController_Destroy(scontrol);
+  SUNAdaptController_Destroy(scontrol_H);
+  SUNAdaptController_Destroy(scontrol_Tol);
+  SUNAdaptController_Destroy(mcontrol);
+  SUNAdaptController_Destroy(mcontrol_H);
+  SUNAdaptController_Destroy(mcontrol_Tol);
+  SUNAdaptController_Destroy(fcontrol);
   ARKodeFree(&inner_arkode_mem); // Free fast integrator memory
   ARKodeFree(&mid_arkode_mem);   // Free intermediate integrator memory
   MRIStepInnerStepper_Free(&inner_stepper); // Free inner stepper structures
@@ -1094,7 +1113,7 @@ int main(int argc, char* argv[])
 // fn routine to compute the full ODE RHS.
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts        = (Options*)user_data;
+  Options* opts        = static_cast<Options*>(user_data);
   const sunrealtype u  = NV_Ith_S(y, 0);
   const sunrealtype v  = NV_Ith_S(y, 1);
   const sunrealtype w  = NV_Ith_S(y, 2);
@@ -1108,14 +1127,14 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ G   e   e ] [(u^2-p-2)/(2u)] +  [ pdot(t)/(2u) ]
   //   [ e  al  be ] [(v^2-q-2)/(2v)]    [ qdot(t)/(2v) ]
   //   [ e -be  al ] [(w^2-r-2)/(2w)]    [ rdot(t)/(2w) ]
-  tmp1 = (-TWO + u * u - p(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - q(t, opts)) / (TWO * v);
-  tmp3 = (-TWO + w * w - r(t, opts)) / (TWO * w);
-  NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + e * tmp3 + pdot(t, opts) / (TWO * u);
+  tmp1 = (-TWO + u * u - p(t, *opts)) / (TWO * u);
+  tmp2 = (-TWO + v * v - q(t, *opts)) / (TWO * v);
+  tmp3 = (-TWO + w * w - r(t, *opts)) / (TWO * w);
+  NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + e * tmp3 + pdot(t, *opts) / (TWO * u);
   NV_Ith_S(ydot, 1) = e * tmp1 + al * tmp2 + be * tmp3 +
-                      qdot(t, opts) / (TWO * v);
+                      qdot(t, *opts) / (TWO * v);
   NV_Ith_S(ydot, 2) = e * tmp1 - be * tmp2 + al * tmp3 +
-                      rdot(t, opts) / (TWO * w);
+                      rdot(t, *opts) / (TWO * w);
 
   // Return with success
   return 0;
@@ -1124,7 +1143,7 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // ff routine to compute the fast portion of the ODE RHS.
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts        = (Options*)user_data;
+  Options* opts        = static_cast<Options*>(user_data);
   const sunrealtype u  = NV_Ith_S(y, 0);
   const sunrealtype v  = NV_Ith_S(y, 1);
   const sunrealtype w  = NV_Ith_S(y, 2);
@@ -1137,13 +1156,13 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ 0   0   0 ] [(u^2-p-2)/(2u)] +  [      0       ]
   //   [ 0   0   0 ] [(v^2-q-2)/(2v)]    [      0       ]
   //   [ e -be  al ] [(w^2-r-2)/(2w)]    [ rdot(t)/(2w) ]
-  tmp1              = (-TWO + u * u - p(t, opts)) / (TWO * u);
-  tmp2              = (-TWO + v * v - q(t, opts)) / (TWO * v);
-  tmp3              = (-TWO + w * w - r(t, opts)) / (TWO * w);
+  tmp1              = (-TWO + u * u - p(t, *opts)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, *opts)) / (TWO * v);
+  tmp3              = (-TWO + w * w - r(t, *opts)) / (TWO * w);
   NV_Ith_S(ydot, 0) = ZERO;
   NV_Ith_S(ydot, 1) = ZERO;
   NV_Ith_S(ydot, 2) = e * tmp1 - be * tmp2 + al * tmp3 +
-                      rdot(t, opts) / (TWO * w);
+                      rdot(t, *opts) / (TWO * w);
 
   // Return with success
   return 0;
@@ -1152,7 +1171,7 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fm routine to compute the intermediate portion of the ODE RHS.
 static int fm(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts        = (Options*)user_data;
+  Options* opts        = static_cast<Options*>(user_data);
   const sunrealtype u  = NV_Ith_S(y, 0);
   const sunrealtype v  = NV_Ith_S(y, 1);
   const sunrealtype w  = NV_Ith_S(y, 2);
@@ -1165,12 +1184,12 @@ static int fm(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ 0   0   0 ] [(u^2-p-2)/(2u)] +  [      0       ]
   //   [ e  al  be ] [(v^2-q-2)/(2v)]    [ qdot(t)/(2v) ]
   //   [ 0   0   0 ] [(w^2-r-2)/(2w)]    [      0       ]
-  tmp1              = (-TWO + u * u - p(t, opts)) / (TWO * u);
-  tmp2              = (-TWO + v * v - q(t, opts)) / (TWO * v);
-  tmp3              = (-TWO + w * w - r(t, opts)) / (TWO * w);
+  tmp1              = (-TWO + u * u - p(t, *opts)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, *opts)) / (TWO * v);
+  tmp3              = (-TWO + w * w - r(t, *opts)) / (TWO * w);
   NV_Ith_S(ydot, 0) = ZERO;
   NV_Ith_S(ydot, 1) = e * tmp1 + al * tmp2 + be * tmp3 +
-                      qdot(t, opts) / (TWO * v);
+                      qdot(t, *opts) / (TWO * v);
   NV_Ith_S(ydot, 2) = ZERO;
 
   return 0;
@@ -1179,7 +1198,7 @@ static int fm(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fme routine to compute the explicit intermediate portion of the ODE RHS.
 static int fme(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts       = static_cast<Options*>(user_data);
   const sunrealtype v = NV_Ith_S(y, 1);
 
   // fill in the RHS function:
@@ -1187,7 +1206,7 @@ static int fme(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ qdot(t)/(2v) ]
   //   [      0       ]
   NV_Ith_S(ydot, 0) = ZERO;
-  NV_Ith_S(ydot, 1) = qdot(t, opts) / (TWO * v);
+  NV_Ith_S(ydot, 1) = qdot(t, *opts) / (TWO * v);
   NV_Ith_S(ydot, 2) = ZERO;
 
   return 0;
@@ -1196,7 +1215,7 @@ static int fme(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fmi routine to compute the implicit intermediate portion of the ODE RHS.
 static int fmi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts        = (Options*)user_data;
+  Options* opts        = static_cast<Options*>(user_data);
   const sunrealtype u  = NV_Ith_S(y, 0);
   const sunrealtype v  = NV_Ith_S(y, 1);
   const sunrealtype w  = NV_Ith_S(y, 2);
@@ -1209,9 +1228,9 @@ static int fmi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ 0   0   0 ] [(u^2-p-2)/(2u)]
   //   [ e  al  be ] [(v^2-q-2)/(2v)]
   //   [ 0   0   0 ] [(w^2-r-2)/(2w)]
-  tmp1              = (-TWO + u * u - p(t, opts)) / (TWO * u);
-  tmp2              = (-TWO + v * v - q(t, opts)) / (TWO * v);
-  tmp3              = (-TWO + w * w - r(t, opts)) / (TWO * w);
+  tmp1              = (-TWO + u * u - p(t, *opts)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, *opts)) / (TWO * v);
+  tmp3              = (-TWO + w * w - r(t, *opts)) / (TWO * w);
   NV_Ith_S(ydot, 0) = ZERO;
   NV_Ith_S(ydot, 1) = e * tmp1 + al * tmp2 + be * tmp3;
   NV_Ith_S(ydot, 2) = ZERO;
@@ -1223,7 +1242,7 @@ static int fmi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fs routine to compute the slow portion of the ODE RHS.
 static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts       = static_cast<Options*>(user_data);
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
   const sunrealtype w = NV_Ith_S(y, 2);
@@ -1235,10 +1254,10 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ G   e   e ] [(u^2-p-2)/(2u)] +  [ pdot(t)/(2u) ]
   //   [ 0   0   0 ] [(v^2-q-2)/(2v)]    [      0       ]
   //   [ 0   0   0 ] [(w^2-r-2)/(2w)]    [      0       ]
-  tmp1 = (-TWO + u * u - p(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - q(t, opts)) / (TWO * v);
-  tmp3 = (-TWO + w * w - r(t, opts)) / (TWO * w);
-  NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + e * tmp3 + pdot(t, opts) / (TWO * u);
+  tmp1 = (-TWO + u * u - p(t, *opts)) / (TWO * u);
+  tmp2 = (-TWO + v * v - q(t, *opts)) / (TWO * v);
+  tmp3 = (-TWO + w * w - r(t, *opts)) / (TWO * w);
+  NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + e * tmp3 + pdot(t, *opts) / (TWO * u);
   NV_Ith_S(ydot, 1) = ZERO;
   NV_Ith_S(ydot, 2) = ZERO;
 
@@ -1248,14 +1267,14 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fse routine to compute the explicit slow portion of the ODE RHS.
 static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts       = static_cast<Options*>(user_data);
   const sunrealtype u = NV_Ith_S(y, 0);
 
   // fill in the RHS function:
   //   [ pdot(t)/(2u) ]
   //   [      0       ]
   //   [      0       ]
-  NV_Ith_S(ydot, 0) = pdot(t, opts) / (TWO * u);
+  NV_Ith_S(ydot, 0) = pdot(t, *opts) / (TWO * u);
   NV_Ith_S(ydot, 1) = ZERO;
   NV_Ith_S(ydot, 2) = ZERO;
 
@@ -1265,7 +1284,7 @@ static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fsi routine to compute the implicit slow portion of the ODE RHS.
 static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts       = static_cast<Options*>(user_data);
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
   const sunrealtype w = NV_Ith_S(y, 2);
@@ -1277,9 +1296,9 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ G   e   e ] [(u^2-p-2)/(2u)]
   //   [ 0   0   0 ] [(v^2-q-2)/(2v)]
   //   [ 0   0   0 ] [(w^2-r-2)/(2w)]
-  tmp1              = (-TWO + u * u - p(t, opts)) / (TWO * u);
-  tmp2              = (-TWO + v * v - q(t, opts)) / (TWO * v);
-  tmp3              = (-TWO + w * w - r(t, opts)) / (TWO * w);
+  tmp1              = (-TWO + u * u - p(t, *opts)) / (TWO * u);
+  tmp2              = (-TWO + v * v - q(t, *opts)) / (TWO * v);
+  tmp3              = (-TWO + w * w - r(t, *opts)) / (TWO * w);
   NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + e * tmp3;
   NV_Ith_S(ydot, 1) = ZERO;
   NV_Ith_S(ydot, 2) = ZERO;
@@ -1292,7 +1311,7 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Jm(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts       = static_cast<Options*>(user_data);
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
   const sunrealtype w = NV_Ith_S(y, 2);
@@ -1302,14 +1321,14 @@ static int Jm(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   //   [0   0   0]*[1-(u^2-p(t)-2)/(2*u^2),  0,  0] + [0,        0,         0]
   //   [e  al  be] [0,  1-(v^2-q(t)-2)/(2*v^2),  0]   [0,  -q'(t)/(2*v^2),  0]
   //   [0   0   0] [0,  0,  1-(w^2-r(t)-2)/(2*w^2)]   [0,        0,         0]
-  t11                   = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
-  t22                   = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
-  t33                   = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
+  t11                   = ONE - (u * u - p(t, *opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - q(t, *opts) - TWO) / (TWO * v * v);
+  t33                   = ONE - (w * w - r(t, *opts) - TWO) / (TWO * w * w);
   SM_ELEMENT_D(J, 0, 0) = ZERO;
   SM_ELEMENT_D(J, 0, 1) = ZERO;
   SM_ELEMENT_D(J, 0, 2) = ZERO;
   SM_ELEMENT_D(J, 1, 0) = opts->e * t11;
-  SM_ELEMENT_D(J, 1, 1) = opts->al * t22 - qdot(t, opts) / (TWO * v * v);
+  SM_ELEMENT_D(J, 1, 1) = opts->al * t22 - qdot(t, *opts) / (TWO * v * v);
   SM_ELEMENT_D(J, 1, 2) = opts->be * t33;
   SM_ELEMENT_D(J, 2, 0) = ZERO;
   SM_ELEMENT_D(J, 2, 1) = ZERO;
@@ -1323,7 +1342,7 @@ static int Jm(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Jmi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts       = static_cast<Options*>(user_data);
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
   const sunrealtype w = NV_Ith_S(y, 2);
@@ -1333,9 +1352,9 @@ static int Jmi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   //   [0   0   0]*[1-(u^2-p(t)-2)/(2*u^2),  0,  0]
   //   [e  al  be] [0,  1-(v^2-q(t)-2)/(2*v^2),  0]
   //   [0   0   0] [0,  0,  1-(w^2-r(t)-2)/(2*w^2)]
-  t11                   = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
-  t22                   = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
-  t33                   = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
+  t11                   = ONE - (u * u - p(t, *opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - q(t, *opts) - TWO) / (TWO * v * v);
+  t33                   = ONE - (w * w - r(t, *opts) - TWO) / (TWO * w * w);
   SM_ELEMENT_D(J, 0, 0) = ZERO;
   SM_ELEMENT_D(J, 0, 1) = ZERO;
   SM_ELEMENT_D(J, 0, 2) = ZERO;
@@ -1354,7 +1373,7 @@ static int Jmi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts       = static_cast<Options*>(user_data);
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
   const sunrealtype w = NV_Ith_S(y, 2);
@@ -1364,10 +1383,10 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   //   [G   e   e]*[1-(u^2-p(t)-2)/(2*u^2),  0,  0] + [-p'(t)/(2*u^2),  0,  0]
   //   [0   0   0] [0,  1-(v^2-q(t)-2)/(2*v^2),  0]   [0,               0,  0]
   //   [0   0   0] [0,  0,  1-(w^2-r(t)-2)/(2*w^2)]   [0,               0,  0]
-  t11                   = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
-  t22                   = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
-  t33                   = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
-  SM_ELEMENT_D(J, 0, 0) = opts->G * t11 - pdot(t, opts) / (TWO * u * u);
+  t11                   = ONE - (u * u - p(t, *opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - q(t, *opts) - TWO) / (TWO * v * v);
+  t33                   = ONE - (w * w - r(t, *opts) - TWO) / (TWO * w * w);
+  SM_ELEMENT_D(J, 0, 0) = opts->G * t11 - pdot(t, *opts) / (TWO * u * u);
   SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
   SM_ELEMENT_D(J, 0, 2) = opts->e * t33;
   SM_ELEMENT_D(J, 1, 0) = ZERO;
@@ -1385,7 +1404,7 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts       = (Options*)user_data;
+  Options* opts       = static_cast<Options*>(user_data);
   const sunrealtype u = NV_Ith_S(y, 0);
   const sunrealtype v = NV_Ith_S(y, 1);
   const sunrealtype w = NV_Ith_S(y, 2);
@@ -1395,9 +1414,9 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   //   [G   e   e]*[1-(u^2-p(t)-2)/(2*u^2),  0,  0]
   //   [0   0   0] [0,  1-(v^2-q(t)-2)/(2*v^2),  0]
   //   [0   0   0] [0,  0,  1-(w^2-r(t)-2)/(2*w^2)]
-  t11                   = ONE - (u * u - p(t, opts) - TWO) / (TWO * u * u);
-  t22                   = ONE - (v * v - q(t, opts) - TWO) / (TWO * v * v);
-  t33                   = ONE - (w * w - r(t, opts) - TWO) / (TWO * w * w);
+  t11                   = ONE - (u * u - p(t, *opts) - TWO) / (TWO * u * u);
+  t22                   = ONE - (v * v - q(t, *opts) - TWO) / (TWO * v * v);
+  t33                   = ONE - (w * w - r(t, *opts) - TWO) / (TWO * w * w);
   SM_ELEMENT_D(J, 0, 0) = opts->G * t11;
   SM_ELEMENT_D(J, 0, 1) = opts->e * t22;
   SM_ELEMENT_D(J, 0, 2) = opts->e * t33;
@@ -1416,52 +1435,52 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 // Private helper functions
 // -----------------------------
 
-static sunrealtype p(sunrealtype t, Options* opts) { return HALF * cos(t); }
+static sunrealtype p(sunrealtype t, const Options& opts) { return HALF * cos(t); }
 
-static sunrealtype q(sunrealtype t, Options* opts)
+static sunrealtype q(sunrealtype t, const Options& opts)
 {
-  return (cos(opts->om * t * (ONE + exp(-(t - TWO) * (t - TWO)))));
+  return (cos(opts.om * t * (ONE + exp(-(t - TWO) * (t - TWO)))));
 }
 
-static sunrealtype r(sunrealtype t, Options* opts)
+static sunrealtype r(sunrealtype t, const Options& opts)
 {
-  return (cos(opts->om * opts->om * t * (ONE + exp(-(t - THREE) * (t - THREE)))));
+  return (cos(opts.om * opts.om * t * (ONE + exp(-(t - THREE) * (t - THREE)))));
 }
 
-static sunrealtype pdot(sunrealtype t, Options* opts) { return -HALF * sin(t); }
+static sunrealtype pdot(sunrealtype t, const Options& opts) { return -HALF * sin(t); }
 
-static sunrealtype qdot(sunrealtype t, Options* opts)
+static sunrealtype qdot(sunrealtype t, const Options& opts)
 {
   const sunrealtype tTwo  = t - TWO;
   const sunrealtype eterm = exp(-tTwo * tTwo);
-  return (-sin(opts->om * t * (ONE + eterm)) * opts->om *
+  return (-sin(opts.om * t * (ONE + eterm)) * opts.om *
           (ONE + eterm * (ONE - TWO * t * tTwo)));
 }
 
-static sunrealtype rdot(sunrealtype t, Options* opts)
+static sunrealtype rdot(sunrealtype t, const Options& opts)
 {
   const sunrealtype tThree = t - THREE;
   const sunrealtype eterm  = exp(-tThree * tThree);
-  return (-sin(opts->om * opts->om * t * (ONE + eterm)) * opts->om * opts->om *
+  return (-sin(opts.om * opts.om * t * (ONE + eterm)) * opts.om * opts.om *
           (ONE + eterm * (ONE - TWO * t * tThree)));
 }
 
-static sunrealtype utrue(sunrealtype t, Options* opts)
+static sunrealtype utrue(sunrealtype t, const Options& opts)
 {
-  return (SUNRsqrt(TWO + p(t, opts)));
+  return (std::sqrt(TWO + p(t, opts)));
 }
 
-static sunrealtype vtrue(sunrealtype t, Options* opts)
+static sunrealtype vtrue(sunrealtype t, const Options& opts)
 {
-  return (SUNRsqrt(TWO + q(t, opts)));
+  return (std::sqrt(TWO + q(t, opts)));
 }
 
-static sunrealtype wtrue(sunrealtype t, Options* opts)
+static sunrealtype wtrue(sunrealtype t, const Options& opts)
 {
-  return (SUNRsqrt(TWO + r(t, opts)));
+  return (std::sqrt(TWO + r(t, opts)));
 }
 
-static int Ytrue(sunrealtype t, N_Vector y, Options* opts)
+static int Ytrue(sunrealtype t, N_Vector y, const Options& opts)
 {
   NV_Ith_S(y, 0) = utrue(t, opts);
   NV_Ith_S(y, 1) = vtrue(t, opts);
@@ -1564,19 +1583,19 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
 
   // Check inputs for validity
   //   0 < rtol < 1
-  if ((opts.rtol < ZERO) || (opts.rtol > ONE))
+  if ((opts.rtol <= ZERO) || (opts.rtol >= ONE))
   {
     std::cerr << "ERROR: rtol must be in (0,1), (" << opts.rtol << " input)\n";
     return -1;
   }
   //   0 < atol < 1
-  if ((opts.atol < ZERO) || (opts.atol > ONE))
+  if ((opts.atol <= ZERO) || (opts.atol >= ONE))
   {
     std::cerr << "ERROR: atol must be in (0,1), (" << opts.atol << " input)\n";
     return -1;
   }
   //   0 < fast_rtol < 1
-  if ((opts.fast_rtol < ZERO) || (opts.fast_rtol > ONE))
+  if ((opts.fast_rtol <= ZERO) || (opts.fast_rtol >= ONE))
   {
     std::cerr << "ERROR: fast_rtol must be in (0,1), (" << opts.fast_rtol
               << " input)\n";
@@ -1603,10 +1622,10 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
               << " input)\n";
     return -1;
   }
-  //   scontrol in [0,16]
+  //   scontrol in [0,12]
   if ((opts.scontrol < 0) || (opts.scontrol > 12))
   {
-    std::cerr << "ERROR: scontrol must be in [0,16], (" << opts.scontrol
+    std::cerr << "ERROR: scontrol must be in [0,12], (" << opts.scontrol
               << " input)\n";
     return -1;
   }
@@ -1653,174 +1672,200 @@ static void PrintSlowAdaptivity(Options opts)
   switch (opts.scontrol)
   {
   case (0):
+  {
     std::cout << "    fixed steps, hs = " << opts.hs << ", hm = " << opts.hm
               << std::endl;
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     break;
+  }
   case (1):
+  {
     std::cout
       << "    MRI-HTOL controller (using I for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (opts.k1s > -1)
+    if (!std::isnan(opts.k1s))
     {
       std::cout << "    slow/intermediate controller parameter: " << opts.k1s
                 << "\n";
     }
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
     }
     break;
+  }
   case (2):
+  {
     std::cout
       << "    MRI-HTOL controller (using PI for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
     }
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
     }
     break;
+  }
   case (3):
+  {
     std::cout
       << "    MRI-HTOL controller (using PID for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (std::min(opts.k1s, std::min(opts.k2s, opts.k3s)) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s) || std::isnan(opts.k3s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << " " << opts.k3s << "\n";
     }
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
     }
     break;
+  }
   case (4):
+  {
     std::cout
       << "    MRI-HTOL controller (using ExpGus for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
     }
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
     }
     break;
+  }
   case (5):
+  {
     std::cout
       << "    MRI-HTOL controller (using ImpGus for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
     }
-    if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
-        -1)
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       std::cout << "    HTol controller parameters: " << opts.htol_relch << " "
                 << opts.htol_minfac << " " << opts.htol_maxfac << "\n";
     }
     break;
+  }
   case (6):
+  {
     std::cout
       << "    MRI-HTOL controller (using ImExGus for H) based on order of MRI "
       << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     std::cout << "    fast error accumulation strategy = " << opts.faccum << "\n";
     break;
+  }
   case (7):
+  {
     std::cout << "    Decoupled I controller for slow time scale, based on "
                  "order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (opts.k1s > -1)
+    if (!std::isnan(opts.k1s))
     {
       std::cout << "    slow/intermediate controller parameter: " << opts.k1s
                 << "\n";
     }
     break;
+  }
   case (8):
+  {
     std::cout << "    Decoupled PI controller for slow time scale, based on "
                  "order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
     }
     break;
+  }
   case (9):
+  {
     std::cout << "    Decoupled PID controller for slow time scale, based on "
                  "order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (std::min(opts.k1s, std::min(opts.k2s, opts.k3s)) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s) || std::isnan(opts.k3s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << " " << opts.k3s << "\n";
     }
     break;
+  }
   case (10):
+  {
     std::cout << "    Decoupled ExpGus controller for slow time scale, based "
                  "on order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
     }
     break;
+  }
   case (11):
+  {
     std::cout << "    Decoupled ImpGus controller for slow time scale, based "
                  "on order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
-    if (std::min(opts.k1s, opts.k2s) > -1)
+    if (!(std::isnan(opts.k1s) || std::isnan(opts.k2s)))
     {
       std::cout << "    slow/intermediate controller parameters: " << opts.k1s
                 << " " << opts.k2s << "\n";
     }
     break;
+  }
   case (12):
+  {
     std::cout << "    Decoupled ImExGus controller for slow time scale, based "
                  "on order of MRI "
               << ((opts.slow_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    rtol = " << opts.rtol << ", atol = " << opts.atol << "\n";
     break;
   }
-  if (opts.bias > -1)
+  }
+  if (!std::isnan(opts.bias))
   {
     std::cout << "    controller bias factor: " << opts.bias << "\n";
   }
-  if (opts.slow_safety > -1)
+  if (!std::isnan(opts.slow_safety))
   {
     std::cout << "    slow step safety factor: " << opts.slow_safety << "\n";
   }
@@ -1831,73 +1876,87 @@ static void PrintFastAdaptivity(Options opts)
   switch (opts.fcontrol)
   {
   case (0):
+  {
     std::cout << "    fixed steps, hf = " << opts.hf << std::endl;
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
     break;
+  }
   case (1):
+  {
     std::cout << "    I controller for fast time scale, based on order of RK "
               << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
-    if (opts.k1f > -1)
+    if (!std::isnan(opts.k1f))
     {
       std::cout << "    fast controller parameter: " << opts.k1f << "\n";
     }
     break;
+  }
   case (2):
+  {
     std::cout << "    PI controller for fast time scale, based on order of RK "
               << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
-    if (std::min(opts.k1f, opts.k2f) > -1)
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
     {
       std::cout << "    fast controller parameters: " << opts.k1f << " "
                 << opts.k2f << "\n";
     }
     break;
+  }
   case (3):
+  {
     std::cout << "    PID controller for fast time scale, based on order of RK "
               << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
-    if (std::min(opts.k1f, std::min(opts.k2f, opts.k3f)) > -1)
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f) || std::isnan(opts.k3f)))
     {
       std::cout << "    fast controller parameters: " << opts.k1f << " "
                 << opts.k2f << " " << opts.k3f << "\n";
     }
     break;
+  }
   case (4):
+  {
     std::cout
       << "    ExpGus controller for fast time scale, based on order of RK "
       << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
-    if (std::min(opts.k1f, opts.k2f) > -1)
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
     {
       std::cout << "    fast controller parameters: " << opts.k1f << " "
                 << opts.k2f << "\n";
     }
     break;
+  }
   case (5):
+  {
     std::cout
       << "    ImpGus controller for fast time scale, based on order of RK "
       << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
-    if (std::min(opts.k1f, opts.k2f) > -1)
+    if (!(std::isnan(opts.k1f) || std::isnan(opts.k2f)))
     {
       std::cout << "    fast controller parameters: " << opts.k1f << " "
                 << opts.k2f << "\n";
     }
     break;
+  }
   case (6):
+  {
     std::cout
       << "    ImExGus controller for fast time scale, based on order of RK "
       << ((opts.fast_pq == 1) ? "method\n" : "embedding\n");
     std::cout << "    fast_rtol = " << opts.fast_rtol
               << ", atol = " << opts.atol << "\n";
     break;
+  }
   }
 }
 
