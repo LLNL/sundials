@@ -71,4 +71,4 @@ variables:
 # See Umpire for an example (export junit test reports).
 .custom_job:
   variables:
-    SPACK_DISABLE_LOCAL_CONFIG: "True"
+    SPACK_DISABLE_LOCAL_CONFIG: "true"
