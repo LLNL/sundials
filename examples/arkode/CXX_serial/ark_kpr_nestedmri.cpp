@@ -570,7 +570,8 @@ int main(int argc, char* argv[])
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     mcontrol = SUNAdaptController_MRIHTol(sunctx, mcontrol_H, mcontrol_Tol);
     if (check_ptr((void*)mcontrol, "SUNAdaptController_MRIHTol")) return 1;
-    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) || std::isnan(opts.htol_maxfac)))
+    if (!(std::isnan(opts.htol_relch) || std::isnan(opts.htol_minfac) ||
+          std::isnan(opts.htol_maxfac)))
     {
       retval = SUNAdaptController_SetParams_MRIHTol(scontrol, opts.htol_relch,
                                                     opts.htol_minfac,
@@ -863,11 +864,13 @@ int main(int argc, char* argv[])
 
   // Create intermediate stepper
   MRIStepInnerStepper intermediate_stepper = nullptr;
-  retval = MRIStepCreateMRIStepInnerStepper(mid_arkode_mem, &intermediate_stepper);
+  retval = MRIStepCreateMRIStepInnerStepper(mid_arkode_mem,
+                                            &intermediate_stepper);
   if (check_flag(retval, "MRIStepCreateMRIStepInnerStepper")) return 1;
 
   // Create MRI (slow) integrator
-  void* arkode_mem = MRIStepCreate(f_se, f_si, T0, y, intermediate_stepper, sunctx);
+  void* arkode_mem = MRIStepCreate(f_se, f_si, T0, y, intermediate_stepper,
+                                   sunctx);
   if (check_ptr((void*)arkode_mem, "MRIStepCreate")) return 1;
   MRIStepCoupling Cs = MRIStepCoupling_LoadTableByName((opts.mri_method).c_str());
   if (check_ptr((void*)Cs, "MRIStepCoupling_LoadTableByName")) return 1;
@@ -977,12 +980,15 @@ int main(int argc, char* argv[])
     verrtot += verr * verr;
     werrtot += werr * werr;
     errtot += uerr * uerr + verr * verr + werr * werr;
-    accuracy = std::max(accuracy, uerr / std::abs(opts.atol +
-                                                  opts.rtol * NV_Ith_S(yref, 0)));
-    accuracy = std::max(accuracy, verr / std::abs(opts.atol +
-                                                  opts.rtol * NV_Ith_S(yref, 1)));
-    accuracy = std::max(accuracy, werr / std::abs(opts.atol +
-                                                  opts.rtol * NV_Ith_S(yref, 2)));
+    accuracy =
+      std::max(accuracy,
+               uerr / std::abs(opts.atol + opts.rtol * NV_Ith_S(yref, 0)));
+    accuracy =
+      std::max(accuracy,
+               verr / std::abs(opts.atol + opts.rtol * NV_Ith_S(yref, 1)));
+    accuracy =
+      std::max(accuracy,
+               werr / std::abs(opts.atol + opts.rtol * NV_Ith_S(yref, 2)));
     Nout++;
 
     // Periodically output current results to screen
@@ -1435,7 +1441,10 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 // Private helper functions
 // -----------------------------
 
-static sunrealtype p(sunrealtype t, const Options& opts) { return HALF * cos(t); }
+static sunrealtype p(sunrealtype t, const Options& opts)
+{
+  return HALF * cos(t);
+}
 
 static sunrealtype q(sunrealtype t, const Options& opts)
 {
@@ -1447,7 +1456,10 @@ static sunrealtype r(sunrealtype t, const Options& opts)
   return (cos(opts.om * opts.om * t * (ONE + exp(-(t - THREE) * (t - THREE)))));
 }
 
-static sunrealtype pdot(sunrealtype t, const Options& opts) { return -HALF * sin(t); }
+static sunrealtype pdot(sunrealtype t, const Options& opts)
+{
+  return -HALF * sin(t);
+}
 
 static sunrealtype qdot(sunrealtype t, const Options& opts)
 {
