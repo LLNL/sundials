@@ -34,7 +34,7 @@
   variables:
     MPIEXEC_EXECUTABLE: "flux"
     MPIEXEC_PREFLAGS: "run"
-  extends: [.sundials_job, .job_on_tioga]
+  extends: [.custom_job, .job_on_tioga]
 
 # Builds with HIP
 tioga_rocmcc_571_no_tpls:
