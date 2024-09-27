@@ -911,7 +911,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     if (step_mem->implicit_rhs) { reset_efun = SUNFALSE; }
     if (!ark_mem->fixedstep) { reset_efun = SUNFALSE; }
     if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
-    if (ark_mem->AccumErrorType >= 0) { reset_efun = SUNFALSE; }
+    if (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE) { reset_efun = SUNFALSE; }
     if (reset_efun)
     {
       ark_mem->user_efun = SUNFALSE;
@@ -954,7 +954,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
 
     /* Ensure that if adaptivity or error accumulation is enabled, then
        method includes embedding coefficients */
-    if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0)) &&
+    if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)) &&
         (step_mem->p == 0))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
@@ -1691,7 +1691,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   t0 = ark_mem->tn;
 
   /* determine whether embedding stage is needed */
-  do_embedding = !ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0);
+  do_embedding = !ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE);
 
   /* if MRI adaptivity is enabled: reset fast accumulated error,
      and send appropriate control parameter to the fast integrator */
@@ -2300,7 +2300,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
     /* Skip the embedding if we're using fixed time-stepping and
        temporal error estimation is disabled */
-    if (ark_mem->fixedstep && embedding && (ark_mem->AccumErrorType < 0))
+    if (ark_mem->fixedstep && embedding && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE))
     {
       break;
     }
@@ -2540,7 +2540,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* if temporal error estimation is enabled: compute estimate via difference between
      step solution and embedding, store in ark_mem->tempv1, store norm in dsmPtr, and
      copy solution back to ycur */
-  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0))
+  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE))
   {
     N_VLinearSum(ONE, ytilde, -ONE, ark_mem->ycur, ark_mem->tempv1);
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
@@ -2759,7 +2759,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
       /* Skip the embedding if we're using fixed time-stepping and
          temporal error estimation is disabled */
-      if (ark_mem->fixedstep && embedding && (ark_mem->AccumErrorType < 0))
+      if (ark_mem->fixedstep && embedding && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE))
       {
         break;
       }
@@ -2852,7 +2852,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   /* if temporal error estimation is enabled: compute estimate via difference between
      step solution and embedding, store in ark_mem->tempv1, and store norm in dsmPtr */
-  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0))
+  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE))
   {
     N_VLinearSum(ONE, ytilde, -ONE, ark_mem->ycur, ark_mem->tempv1);
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
