@@ -1756,7 +1756,7 @@ the accumulated temporal error over multiple time steps.  For time-stepping modu
 compute both a solution and embedding, :math:`y_n` and :math:`\tilde{y}_n`, these may be
 combined to create a vector-valued local temporal error estimate for the current internal
 step, :math:`y_n - \tilde{y}_n`.  These local errors may be accumulated by ARKODE in a
-variety of ways, as determined by the enumerated type :c:enum:`ARK_ACCUMERROR`.  In each
+variety of ways, as determined by the enumerated type :c:enum:`ARKODE_MRIType`.  In each
 of the cases below, the accumulation is taken over all steps :math:`n\in N` since the most
 recent call to either :c:func:`ARKodeSetAccumulatedErrorType` or
 :c:func:`ARKodeResetAccumulatedError`.  The norm is taken using the tolerance-informed
@@ -1799,7 +1799,7 @@ user-specified relative solution tolerance.
    .. note::
 
       By default, ARKODE will not accumulate any local error estimates (i.e.,
-      the default *accum_type` is ``ARK_ACCUMERROR_NONE``).
+      the default *accum_type* is ``ARK_ACCUMERROR_NONE``).
 
       A non-default error accumulation strategy can be disabled by calling
       :c:func:`ARKodeSetAccumulatedErrorType` with the argument ``ARK_ACCUMERROR_NONE``.

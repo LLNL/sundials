@@ -30,18 +30,26 @@ by the table is determined by an enumerated type, :c:enum:`ARKODE_MRIType`:
 
    This may take any of the following constants:
 
-   * :enumerator:`MRISTEP_EXPLICIT` -- indicates an MRI-GARK method that
-     does not support a slow implicit operator, :math:`f^I`.
+.. c:enumerator:: MRISTEP_EXPLICIT
 
-   * :enumerator:`MRISTEP_IMPLICIT` -- indicates an MRI-GARK method that
-     does not support a slow explicit operator, :math:`f^E`.
+   An explicit MRI-GARK method (does not support a slow implicit operator, :math:`f^I`).
 
-   * :enumerator:`MRISTEP_IMEX` -- indicates an IMEX-MRK-GARK method.
+.. c:enumerator:: MRISTEP_IMPLICIT
 
-   * :enumerator:`MRISTEP_MERK` -- indicates a MERK method, that by definition
-     does not support a slow implicit operator, :math:`f^I`.
+   An implicit MRI-GARK method (does not support a slow explicit operator, :math:`f^E`).
 
-   * :enumerator:`MRISTEP_MRISR` -- indicates an IMEX-MRI-SR method.
+.. c:enumerator:: MRISTEP_IMEX
+
+   An IMEX-MRK-GARK method.
+
+.. c:enumerator:: MRISTEP_MERK
+
+   A explicit MERK method (does not support a slow implicit operator, :math:`f^I`).
+
+.. c:enumerator:: MRISTEP_MRISR
+
+   An IMEX-MRI-SR method.
+
 
 The MRI coupling tables themselves are stored in an
 :c:func:`MRIStepCoupling` object which is a pointer to a
@@ -198,6 +206,18 @@ are defined ``arkode/arkode_mristep.h``.
       For MRISTEP_MERK tables, the *G* array is not allocated.
 
       For MRISTEP_MRISR tables, the *group* array is not allocated.
+
+      When allocated, each of :math:`\Omega^{\{k\}}` and :math:`\Gamma^{\{k\}}`
+      are initialized to all zeros, so only nonzero coefficients need to be provided.
+
+      When allocated, all entries in *group* are initialized to ``-1``, indicating an unused group and/or the end of a stage group.  Users who supply a custom MRISTEP_MERK table should over-write all active stages in each group.  For example the ``ARKODE_MERK32`` method has 4 stages that are evolved in 3 groups -- the first group consists of stage 1, the second group consists of stages 2 and 4, while the third group consists of stage 3.  Thus *ngroup* should equal 3, and *group* should have non-default entries
+
+      .. code-block:: C
+
+         C->group[0][0] = 1;
+         C->group[1][0] = 2;
+         C->group[1][1] = 4;
+         C->group[2][0] = 3;
 
    .. versionchanged:: x.y.z
 
