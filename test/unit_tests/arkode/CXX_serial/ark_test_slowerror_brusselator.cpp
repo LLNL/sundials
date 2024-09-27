@@ -334,7 +334,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "ARKodeSStolerances", 1)) return 1;
   retval = ARKodeSetUserData(mristep_mem, (void*)&udata);
   if (check_retval(&retval, "ARKodeSetUserData", 1)) return 1;
-  retval = ARKodeSetAccumulatedErrorType(mristep_mem, 0);
+  retval = ARKodeSetAccumulatedErrorType(mristep_mem, ARK_ACCUMERROR_MAX);
   if (check_retval(&retval, "ARKodeSetAccumulatedErrorType", 1)) return 1;
 
   // Run test for various H values

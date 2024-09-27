@@ -350,7 +350,7 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   sunrealtype abstol        = SUN_RCONST(1.e-12);
   vector<sunrealtype> rtols = {SUN_RCONST(1.e-2), SUN_RCONST(1.e-4),
                                SUN_RCONST(1.e-6)};
-  vector<int> accum_types   = {0, 1};
+  vector<ARKAccumError> accum_types = {ARK_ACCUMERROR_MAX, ARK_ACCUMERROR_AVG};
   vector<sunrealtype> dsm(udata.Npart);
   vector<sunrealtype> dsm_est(udata.Npart);
   vector<long int> Nsteps(udata.Npart);
@@ -449,7 +449,7 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   sunrealtype hmax = (Tf - T0) / 1000;
   if (rk_type == 1) hmax = min(hmax, ONE / abs(udata.G));
   vector<sunrealtype> hvals = {hmax, hmax / 4, hmax / 16, hmax / 64};
-  vector<int> accum_types   = {0, 1};
+  vector<ARKAccumError> accum_types = {ARK_ACCUMERROR_MAX, ARK_ACCUMERROR_AVG};
   vector<sunrealtype> dsm(udata.Npart);
   vector<sunrealtype> dsm_est(udata.Npart);
   vector<long int> Nsteps(udata.Npart);
@@ -551,7 +551,7 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0,
       { // DIRK
         retval = ARKStepReInit(arkode_mem, NULL, fn, t, y);
         if (check_retval(&retval, "ARKStepReInit", 1)) return 1;
-        retval = ARKodeSetAccumulatedErrorType(arkode_mem, -1);
+        retval = ARKodeSetAccumulatedErrorType(arkode_mem, ARK_ACCUMERROR_NONE);
         if (check_retval(&retval, "ARKodeSetAccumulatedErrorType", 1)) return 1;
         retval = ARKodeSetFixedStep(arkode_mem, hvals[ih]);
         if (check_retval(&retval, "ARKodeSetFixedStep", 1)) return 1;
@@ -587,7 +587,7 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0,
       { // ERK
         retval = ERKStepReInit(arkode_mem, fn, t, y);
         if (check_retval(&retval, "ERKStepReInit", 1)) return 1;
-        retval = ARKodeSetAccumulatedErrorType(arkode_mem, -1);
+        retval = ARKodeSetAccumulatedErrorType(arkode_mem, ARK_ACCUMERROR_NONE);
         if (check_retval(&retval, "ARKodeSetAccumulatedErrorType", 1)) return 1;
         retval = ARKodeSetFixedStep(arkode_mem, hvals[ih]);
         if (check_retval(&retval, "ARKodeSetFixedStep", 1)) return 1;

@@ -191,6 +191,18 @@ typedef enum
 } ARKRelaxSolver;
 
 /* --------------------------
+ * Error Accumulation Options
+ * -------------------------- */
+
+typedef enum
+{
+  ARK_ACCUMERROR_NONE,
+  ARK_ACCUMERROR_MAX,
+  ARK_ACCUMERROR_SUM,
+  ARK_ACCUMERROR_AVG
+} ARKAccumError;
+
+/* --------------------------
  * Shared API routines
  * -------------------------- */
 
@@ -281,7 +293,7 @@ SUNDIALS_EXPORT int ARKodeSetMinStep(void* arkode_mem, sunrealtype hmin);
 SUNDIALS_EXPORT int ARKodeSetMaxStep(void* arkode_mem, sunrealtype hmax);
 SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
 SUNDIALS_EXPORT int ARKodeSetAccumulatedErrorType(void* arkode_mem,
-                                                  int accum_type);
+                                                  ARKAccumError accum_type);
 SUNDIALS_EXPORT int ARKodeResetAccumulatedError(void* arkode_mem);
 
 /* Integrate the ODE over an interval in t */

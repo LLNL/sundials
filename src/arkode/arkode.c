@@ -1511,7 +1511,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->h0u = ZERO;
 
   /* Accumulated error estimation strategy */
-  ark_mem->AccumErrorType = -1;
+  ark_mem->AccumErrorType = ARK_ACCUMERROR_NONE;
   ark_mem->AccumError     = ZERO;
 
   /* Set default values for integrator and stepper optional inputs */
@@ -2523,11 +2523,14 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
 #endif
 
   /* store this step's contribution to accumulated temporal error */
-  if (ark_mem->AccumErrorType == 0)
+  if (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)
   {
-    ark_mem->AccumError = SUNMAX(dsm, ark_mem->AccumError);
+    if (ark_mem->AccumErrorType == ARK_ACCUMERROR_MAX)
+    {
+      ark_mem->AccumError = SUNMAX(dsm, ark_mem->AccumError);
+    }
+    else { ark_mem->AccumError += dsm; }
   }
-  else if (ark_mem->AccumErrorType == 1) { ark_mem->AccumError += dsm; }
 
   /* apply user-supplied step postprocessing function (if supplied) */
   if (ark_mem->ProcessStep != NULL)

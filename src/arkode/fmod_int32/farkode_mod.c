@@ -1142,11 +1142,11 @@ SWIGEXPORT int _wrap_FARKodeSetMaxNumConstrFails(void *farg1, int const *farg2) 
 SWIGEXPORT int _wrap_FARKodeSetAccumulatedErrorType(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  int arg2 ;
+  ARKAccumError arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
+  arg2 = (ARKAccumError)(*farg2);
   result = (int)ARKodeSetAccumulatedErrorType(arg1,arg2);
   fresult = (int)(result);
   return fresult;

@@ -110,6 +110,7 @@
  *     -1:  no accumulation
  *      0:  maximum accumulation
  *      1:  additive accumulation
+ *      2:  average accumulation
  * - controller parameters: (k1s, k2s, k3s, k1f, k2f, k3f,
  *                           bias, htol_relch, htol_minfac, htol_maxfac)
  *     slow and intermediate single-rate controllers: use k1s through k3s,
@@ -433,7 +434,11 @@ int main(int argc, char* argv[])
     retval = ARKodeSetFixedStep(inner_arkode_mem, opts.hf);
     if (check_flag(retval, "ARKodeSetFixedStep")) return 1;
   }
-  retval = ARKodeSetAccumulatedErrorType(inner_arkode_mem, opts.faccum);
+  ARKAccumError acc_type = ARK_ACCUMERROR_NONE;
+  if (opts.faccum == 0) { acc_type = ARK_ACCUMERROR_MAX; }
+  if (opts.faccum == 1) { acc_type = ARK_ACCUMERROR_SUM; }
+  if (opts.faccum == 2) { acc_type = ARK_ACCUMERROR_AVG; }
+  retval = ARKodeSetAccumulatedErrorType(inner_arkode_mem, acc_type);
   if (check_flag(retval, "ARKodeSetAccumulatedErrorType")) return 1;
   retval = ARKodeSetMaxNumSteps(inner_arkode_mem, 1000000);
   if (check_flag(retval, "ARKodeSetMaxNumSteps")) return 1;
@@ -832,7 +837,7 @@ int main(int argc, char* argv[])
   if (check_flag(retval, "ARKodeSStolerances")) return 1;
   retval = ARKodeSetMaxNumSteps(mid_arkode_mem, 100000);
   if (check_flag(retval, "ARKodeSetMaxNumSteps")) return 1;
-  retval = ARKodeSetAccumulatedErrorType(mid_arkode_mem, opts.faccum);
+  retval = ARKodeSetAccumulatedErrorType(mid_arkode_mem, acc_type);
   if (check_flag(retval, "ARKodeSetAccumulatedErrorType")) return 1;
   retval = ARKodeSetUserData(mid_arkode_mem, (void*)&opts);
   if (check_flag(retval, "ARKodeSetUserData")) return 1;
@@ -1535,7 +1540,7 @@ void InputHelp()
                "(see source)\n";
   std::cout << "  --fcontrol     : fast time step controller, int in [0,6] "
                "(see source)\n";
-  std::cout << "  --faccum       : fast error accumulation type {-1,0,1}\n";
+  std::cout << "  --faccum       : fast error accumulation type {-1,0,1,2}\n";
   std::cout << "  --slow_pq      : use p (0) vs q (1) for slow/intermediate "
                "adaptivity\n";
   std::cout << "  --fast_pq      : use p (0) vs q (1) for fast adaptivity\n";

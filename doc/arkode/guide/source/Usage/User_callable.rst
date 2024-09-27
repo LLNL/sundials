@@ -1751,18 +1751,46 @@ Reset accumulated error                                     :c:func:`ARKodeReset
    .. versionadded:: 6.1.0
 
 
-.. c:function:: int ARKodeSetAccumulatedErrorType(void* arkode_mem, int accum_type)
+The two following routines are used to control algorithms that ARKODE can use to estimate
+the accumulated temporal error over multiple time steps.  For time-stepping modules that
+compute both a solution and embedding, :math:`y_n` and :math:`\tilde{y}_n`, these may be
+combined to create a vector-valued local temporal error estimate for the current internal
+step, :math:`y_n - \tilde{y}_n`.  These local errors may be accumulated by ARKODE in a
+variety of ways, as determined by the enumerated type :c:enum:`ARK_ACCUMERROR`.  In each
+of the cases below, the accumulation is taken over all steps :math:`n\in N` since the most
+recent call to either :c:func:`ARKodeSetAccumulatedErrorType` or
+:c:func:`ARKodeResetAccumulatedError`.  The norm is taken using the tolerance-informed
+error-weight vector (see :c:func:`ARKodeGetErrWeights`), and ``reltol`` is the
+user-specified relative solution tolerance.
+
+.. c:enum:: ARKAccumError
+
+   The type of error accumulation that ARKODE should use.
+
+.. c:enumerator:: ARK_ACCUMERROR_NONE
+
+   No accumulation should be performed
+
+.. c:enumerator:: ARK_ACCUMERROR_MAX
+
+   Computes :math:`\text{reltol} \max_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`
+
+.. c:enumerator:: ARK_ACCUMERROR_SUM
+
+   Computes :math:`\text{reltol} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`
+
+.. c:enumerator:: ARK_ACCUMERROR_AVG
+
+   Computes :math:`\frac{\text{reltol}}{N} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`.
+
+
+.. c:function:: int ARKodeSetAccumulatedErrorType(void* arkode_mem, ARKAccumError accum_type)
 
    Sets the strategy to use for accumulating a temporal error estimate
    over multiple time steps.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param accum_type: accumulation strategy:
-
-                      * ``-1`` -- no accumulation (default).
-                      * ``0`` -- maximum accumulation.
-                      * ``1`` -- additive accumulation.
-
+   :param accum_type: accumulation strategy.
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
@@ -1770,24 +1798,11 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    .. note::
 
-      Multiple of ARKODE's time-stepping modules compute both a solution and embedding,
-      :math:`y_n` and :math:`\tilde{y}_n`, that may be combined to create a vector-valued
-      local temporal error estimate, :math:`y_n - \tilde{y}_n`.  By default, ARKODE will
-      not accumulate these local error estimates, but accumulation can be triggered by
-      calling this function with one of two options:
+      By default, ARKODE will not accumulate any local error estimates (i.e.,
+      the default *accum_type` is ``ARK_ACCUMERROR_NONE``).
 
-      * ``0`` computes :math:`\text{reltol} \max_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`
-
-      * ``1`` computes :math:`\frac{\text{reltol}}{N} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`,
-
-      In both cases, the sum or maximum is taken over all steps :math:`n\in N` since the most
-      recent call to either :c:func:`ARKodeSetAccumulatedErrorType` or
-      :c:func:`ARKodeResetAccumulatedError`.  The norm is taken using the tolerance-informed
-      error-weight vector (see :c:func:`ARKodeGetErrWeights`), and ``reltol`` is the
-      user-specified relative solution tolerance.
-
-      Error accumulation can be disabled by calling :c:func:`ARKodeSetAccumulatedErrorType`
-      with the argument ``-1``.
+      A non-default error accumulation strategy can be disabled by calling
+      :c:func:`ARKodeSetAccumulatedErrorType` with the argument ``ARK_ACCUMERROR_NONE``.
 
    .. versionadded:: x.y.z
 

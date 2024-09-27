@@ -1999,12 +1999,9 @@ int ARKodeSetMaxConvFails(void* arkode_mem, int maxncf)
   ARKodeSetAccumulatedErrorType:
 
   This routine sets the accumulated temporal error estimation
-  strategy:
-     0 => scalar 'max' accumulation
-     1 => scalar 'mean' accumulation
-    -1 => no accumulation
+  strategy.
   ---------------------------------------------------------------*/
-int ARKodeSetAccumulatedErrorType(void* arkode_mem, int accum_type)
+int ARKodeSetAccumulatedErrorType(void* arkode_mem, ARKAccumError accum_type)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
@@ -2022,9 +2019,6 @@ int ARKodeSetAccumulatedErrorType(void* arkode_mem, int accum_type)
                     __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
   }
-
-  /* Check for valid accumulation type (set to none on illegal input) */
-  if ((accum_type < 0) || (accum_type > 1)) { accum_type = -1; }
 
   /* Store type, reset accumulated error value and counter, and return */
   ark_mem->AccumErrorType = accum_type;
@@ -2484,11 +2478,15 @@ int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
   long int steps = SUNMAX(1, ark_mem->nst - ark_mem->AccumErrorStep);
 
   /* Fill output based on error accumulation type */
-  if (ark_mem->AccumErrorType == 0)
+  if (ark_mem->AccumErrorType == ARK_ACCUMERROR_MAX)
   {
     *accum_error = ark_mem->AccumError * ark_mem->reltol;
   }
-  else if (ark_mem->AccumErrorType == 1)
+  else if (ark_mem->AccumErrorType == ARK_ACCUMERROR_SUM)
+  {
+    *accum_error = ark_mem->AccumError * ark_mem->reltol;
+  }
+  else if (ark_mem->AccumErrorType == ARK_ACCUMERROR_AVG)
   {
     *accum_error = ark_mem->AccumError * ark_mem->reltol / ((sunrealtype)steps);
   }
