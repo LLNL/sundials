@@ -23,6 +23,7 @@
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
+#include <arkode/arkode_mristep.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
@@ -287,6 +288,11 @@ typedef int (*ARKTimestepAttachMasssolFn)(
 typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
 typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
 
+/* time stepper interface functions -- forcing */
+typedef int (*ARKTimestepSetForcingFn)(void* arkode_mem, sunrealtype tshift,
+                                       sunrealtype tscale, N_Vector* f, int nvecs);
+
+
 /*===============================================================
   ARKODE interpolation module definition
   ===============================================================*/
@@ -450,6 +456,10 @@ struct ARKodeMemRec
   ARKTimestepDisableMSetup step_disablemsetup;
   ARKTimestepGetMassMemFn step_getmassmem;
   ARKMassMultFn step_mmult;
+
+  /* Time stepper module -- forcing */
+  sunbooleantype step_supports_forcing;
+  ARKTimestepSetForcingFn step_setforcing;
 
   /* N_Vector storage */
   N_Vector ewt;                 /* error weight vector                        */
@@ -651,6 +661,18 @@ int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data);
 
 ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char* imethod);
 ARKODE_ERKTableID arkButcherTableERKNameToID(const char* emethod);
+
+/* utility functions for wrapping ARKODE as an MRIStep inner stepper */
+int ark_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
+                           sunrealtype tout, N_Vector y);
+int ark_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                            N_Vector y, N_Vector f, int mode);
+int ark_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
+                          N_Vector yR);
+int ark_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                            sunrealtype* accum_error);
+int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
+int ark_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
 /* XBraid interface functions */
 int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass);

@@ -4776,3 +4776,58 @@ rescale the upcoming time step by the specified factor.  If a value
       * ``examples/arkode/C_serial/ark_heat1D_adapt.c``
 
    .. versionadded:: 6.1.0
+
+
+
+.. _ERKStep_CInterface.MRIStepInterface:
+
+Using an ARKODE solver as an MRIStep "inner" solver
+---------------------------------------------------
+
+When using an integrator from ARKODE as the inner (fast) integrator with MRIStep, the
+utility function :c:func:`ARKodeCreateMRIStepInnerStepper` should be used to
+wrap the ARKODE memory block as an :c:type:`MRIStepInnerStepper`.
+
+.. c:function:: int ARKodeCreateMRIStepInnerStepper(void *inner_arkode_mem, MRIStepInnerStepper *stepper)
+
+   Wraps an ARKODE integrator as an :c:type:`MRIStepInnerStepper` for use
+   with MRIStep.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param stepper: the :c:type:`MRIStepInnerStepper` object to create.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_FAIL: a memory allocation failed.
+   :retval ARK_STEPPER_UNSUPPORTED: the time-stepping module does not currently support use as an inner stepper.
+
+   .. note::
+
+      Currently, ARKODE integrators based on ARKStep, ERKStep, and MRIStep
+      support use as an MRIStep inner stepper.
+
+      **Example usage:**
+
+         .. code-block:: C
+
+            /* fast (inner) and slow (outer) ARKODE objects */
+            void *inner_arkode_mem = NULL;
+            void *outer_arkode_mem = NULL;
+
+            /* MRIStepInnerStepper to wrap the inner (fast) ERKStep object */
+            MRIStepInnerStepper stepper = NULL;
+
+            /* create an ERKStep/ARKStep/MRIStep object, setting fast (inner) right-hand side
+               functions and the initial condition */
+            inner_arkode_mem = *StepCreate(...);
+
+            /* configure the inner integrator */
+            retval = ARKodeSet*(inner_arkode_mem, ...);
+
+            /* create MRIStepInnerStepper wrapper for the ARKODE integrator */
+            flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
+
+            /* create an MRIStep object, setting the slow (outer) right-hand side
+               functions and the initial condition */
+            outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
+
+   .. versionadded:: 6.1.0

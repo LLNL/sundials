@@ -30,6 +30,9 @@ estimate over multiple time steps.  See the routines
 :c:func:`ARKodeSetAccumulatedErrorType`, :c:func:`ARKodeResetAccumulatedError`,
 and :c:func:`ARKodeGetAccumulatedError` for details.
 
+Added utility routine to wrap any valid ARKODE integrator for use as an MRIStep
+inner stepper object, :c:func:`ARKodeCreateMRIStepInnerStepper`.
+
 **Bug Fixes**
 
 Fixed c:func:`ARKodeResize` not using the default ``hscale`` when an argument of
@@ -52,3 +55,6 @@ was loaded in both cases.
 
 
 **Deprecation Notices**
+
+Deprecated ARKStep-specific utility routine for wrapping as an MRIStep
+inner stepper object, :c:func:`ARKStepCreateMRIStepInnerStepper`.

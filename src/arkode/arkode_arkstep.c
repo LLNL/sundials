@@ -138,8 +138,10 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_getnumnonlinsolviters     = arkStep_GetNumNonlinSolvIters;
   ark_mem->step_getnumnonlinsolvconvfails = arkStep_GetNumNonlinSolvConvFails;
   ark_mem->step_getnonlinsolvstats        = arkStep_GetNonlinSolvStats;
+  ark_mem->step_setforcing                = arkStep_SetInnerForcing;
   ark_mem->step_supports_adaptive         = SUNTRUE;
   ark_mem->step_supports_implicit         = SUNTRUE;
+  ark_mem->step_supports_forcing          = SUNTRUE;
   ark_mem->step_supports_massmatrix       = SUNTRUE;
   ark_mem->step_supports_relaxation       = SUNTRUE;
   ark_mem->step_mem                       = (void*)step_mem;
@@ -341,59 +343,6 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   return (ARK_SUCCESS);
 }
 
-/*------------------------------------------------------------------------------
-  ARKStepCreateMRIStepInnerStepper
-
-  Wraps an ARKStep memory structure as an MRIStep inner stepper.
-  ----------------------------------------------------------------------------*/
-int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
-                                     MRIStepInnerStepper* stepper)
-{
-  int retval;
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-
-  retval = arkStep_AccessARKODEStepMem(inner_arkode_mem,
-                                       "ARKStepCreateMRIStepInnerStepper",
-                                       &ark_mem, &step_mem);
-  if (retval)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The ARKStep memory pointer is NULL");
-    return ARK_ILL_INPUT;
-  }
-
-  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
-                                            arkStep_MRIStepInnerFullRhs);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval =
-    MRIStepInnerStepper_SetAccumulatedErrorGetFn(*stepper,
-                                                 arkStep_MRIStepInnerGetAccumulatedError);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval =
-    MRIStepInnerStepper_SetAccumulatedErrorResetFn(*stepper,
-                                                   arkStep_MRIStepInnerResetAccumulatedError);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetRTolFn(*stepper, arkStep_MRIStepInnerSetRTol);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARK_SUCCESS);
-}
 
 /*===============================================================
   Interface routines supplied to ARKODE
@@ -1015,7 +964,7 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
     if (step_mem->implicit) { reset_efun = SUNFALSE; }
     if (!ark_mem->fixedstep) { reset_efun = SUNFALSE; }
     if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
-    if (ark_mem->AccumErrorType >= 0) { reset_efun = SUNFALSE; }
+    if (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE) { reset_efun = SUNFALSE; }
     if (ark_mem->rwt_is_ewt &&
         (step_mem->msolve_type == SUNLINEARSOLVER_ITERATIVE))
     {
@@ -1065,7 +1014,7 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
 
     /* Ensure that if adaptivity or error accumulation is enabled, then
        method includes embedding coefficients */
-    if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0)) &&
+    if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)) &&
         (step_mem->p == 0))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
@@ -2974,7 +2923,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   }
 
   /* Compute yerr (if temporal error estimation is enabled). */
-  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType >= 0))
+  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE))
   {
     /* set arrays for fused vector operation */
     nvec = 0;
@@ -3177,163 +3126,6 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsmPtr)
 /*===============================================================
   Internal utility routines for interacting with MRIStep
   ===============================================================*/
-
-/*------------------------------------------------------------------------------
-  arkStep_MRIStepInnerEvolve
-
-  Implementation of MRIStepInnerStepperEvolveFn to advance the inner (fast)
-  ODE IVP.
-  ----------------------------------------------------------------------------*/
-
-int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
-                               SUNDIALS_MAYBE_UNUSED sunrealtype t0,
-                               sunrealtype tout, N_Vector y)
-{
-  void* arkode_mem;           /* arkode memory             */
-  sunrealtype tret;           /* return time               */
-  sunrealtype tshift, tscale; /* time normalization values */
-  N_Vector* forcing;          /* forcing vectors           */
-  int nforcing;               /* number of forcing vectors */
-  int retval;                 /* return value              */
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* get the forcing data */
-  retval = MRIStepInnerStepper_GetForcingData(stepper, &tshift, &tscale,
-                                              &forcing, &nforcing);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* set the inner forcing data */
-  retval = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, nforcing);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* set the stop time */
-  retval = ARKodeSetStopTime(arkode_mem, tout);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* evolve inner ODE */
-  retval = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-  if (retval < 0) { return (retval); }
-
-  /* disable inner forcing */
-  retval = arkStep_SetInnerForcing(arkode_mem, ZERO, ONE, NULL, 0);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARK_SUCCESS);
-}
-
-/*------------------------------------------------------------------------------
-  arkStep_MRIStepInnerFullRhs
-
-  Implementation of MRIStepInnerStepperFullRhsFn to compute the full inner
-  (fast) ODE IVP RHS.
-  ----------------------------------------------------------------------------*/
-
-int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
-                                N_Vector y, N_Vector f, int mode)
-{
-  void* arkode_mem;
-  int retval;
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (arkStep_FullRHS(arkode_mem, t, y, f, mode));
-}
-
-/*------------------------------------------------------------------------------
-  arkStep_MRIStepInnerReset
-
-  Implementation of MRIStepInnerStepperResetFn to reset the inner (fast) stepper
-  state.
-  ----------------------------------------------------------------------------*/
-
-int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
-                              N_Vector yR)
-{
-  void* arkode_mem;
-  int retval;
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARKodeReset(arkode_mem, tR, yR));
-}
-
-/*------------------------------------------------------------------------------
-  arkStep_MRIStepInnerGetAccumulatedError
-
-  Implementation of MRIStepInnerGetAccumulatedError to retrieve the accumulated
-  temporal error estimate from the inner (fast) stepper.
-  ----------------------------------------------------------------------------*/
-
-int arkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
-                                            sunrealtype* accum_error)
-{
-  void* arkode_mem;
-  int retval;
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARKodeGetAccumulatedError(arkode_mem, accum_error));
-}
-
-/*------------------------------------------------------------------------------
-  arkStep_MRIStepInnerResetAccumulatedError
-
-  Implementation of MRIStepInnerResetAccumulatedError to reset the accumulated
-  temporal error estimator in the inner (fast) stepper.
-  ----------------------------------------------------------------------------*/
-
-int arkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
-{
-  void* arkode_mem;
-  int retval;
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARKodeResetAccumulatedError(arkode_mem));
-}
-
-/*------------------------------------------------------------------------------
-  arkStep_MRIStepInnerSetRTol
-
-  Implementation of MRIStepInnerSetRTol to set a relative tolerance for the
-  upcoming evolution using the inner (fast) stepper.
-  ----------------------------------------------------------------------------*/
-
-int arkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
-{
-  void* arkode_mem;
-  ARKodeMem ark_mem;
-  int retval;
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) return (retval);
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-
-  if (rtol > ZERO)
-  {
-    ark_mem->reltol = rtol;
-    return (ARK_SUCCESS);
-  }
-  else { return (ARK_ILL_INPUT); }
-}
 
 /*------------------------------------------------------------------------------
   arkStep_ApplyForcing

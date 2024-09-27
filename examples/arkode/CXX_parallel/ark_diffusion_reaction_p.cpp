@@ -1044,8 +1044,8 @@ static int SetupMRI(SUNContext ctx, UserData* udata, N_Vector y,
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   // Wrap ARKODE as an MRIStepInnerStepper
-  flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, stepper);
-  if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) { return 1; }
+  flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, stepper);
+  if (check_flag(&flag, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   // -------------------------
   // Setup the slow integrator

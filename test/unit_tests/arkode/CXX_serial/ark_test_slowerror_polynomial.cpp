@@ -165,8 +165,8 @@ int main(int argc, char* argv[])
 
   // Create inner stepper wrapper
   MRIStepInnerStepper inner_stepper = NULL; // inner stepper
-  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1)) return 1;
+  retval = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1)) return 1;
 
   // Set up slow MRIStep integrator
   void* mristep_mem = NULL;

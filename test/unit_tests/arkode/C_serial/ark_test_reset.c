@@ -299,8 +299,8 @@ int main(void)
   if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
   retval = ARKodeSetMaxNumSteps(arkode_mem, 100);
   check_retval(&retval, "ARKodeSetMaxNumSteps", 1);
-  retval = ARKStepCreateMRIStepInnerStepper(arkode_mem, &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1))
+  retval = ARKodeCreateMRIStepInnerStepper(arkode_mem, &inner_stepper);
+  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1))
   {
     return 1;
   }

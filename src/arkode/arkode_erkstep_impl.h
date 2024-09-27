@@ -22,9 +22,6 @@
 
 #include "arkode_impl.h"
 
-/* access to MRIStepInnerStepper_Create */
-#include "arkode/arkode_mristep.h"
-
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -93,6 +90,8 @@ int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 void erkStep_Free(ARKodeMem ark_mem);
 void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
 int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
+int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
+                            sunrealtype tscale, N_Vector* f, int nvecs);
 
 /* Internal utility routines */
 int erkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
@@ -105,20 +104,6 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
 void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype t,
                           sunrealtype s, int* nvec);
-
-/* private functions for interfacing with MRIStep */
-int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
-                            sunrealtype tscale, N_Vector* f, int nvecs);
-int erkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
-                               sunrealtype tout, N_Vector y);
-int erkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
-                                N_Vector y, N_Vector f, int mode);
-int erkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
-                              N_Vector yR);
-int erkStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
-                                            sunrealtype* accum_error);
-int erkStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
-int erkStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
 /* private functions for relaxation */
 int erkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);

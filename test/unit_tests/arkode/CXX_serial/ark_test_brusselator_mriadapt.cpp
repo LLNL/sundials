@@ -381,8 +381,8 @@ int main(int argc, char* argv[])
 
   // Create inner stepper
   MRIStepInnerStepper inner_stepper = NULL; // inner stepper
-  retval = ERKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_flag(retval, "ERKStepCreateMRIStepInnerStepper")) return 1;
+  retval = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_flag(retval, "ARKodeCreateMRIStepInnerStepper")) return 1;
 
   // Create slow controller object, and select orders of accuracy as relevant
   SUNAdaptController scontrol     = NULL;

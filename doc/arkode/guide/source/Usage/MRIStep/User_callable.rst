@@ -72,18 +72,18 @@ MRIStep initialization and deallocation functions
          void *inner_arkode_mem = NULL;
          void *outer_arkode_mem = NULL;
 
-         /* MRIStepInnerStepper to wrap the inner (fast) ARKStep object */
+         /* MRIStepInnerStepper to wrap the inner (fast) ERKStep object */
          MRIStepInnerStepper stepper = NULL;
 
-         /* create an ARKStep object, setting fast (inner) right-hand side
+         /* create an ERKStep/ARKStep/MRIStep object, setting fast (inner) right-hand side
             functions and the initial condition */
-         inner_arkode_mem = ARKStepCreate(ffe, ffi, t0, y0, sunctx);
+         inner_arkode_mem = *StepCreate(...);
 
-         /* setup ARKStep */
-         . . .
+         /* configure the inner integrator */
+         retval = ARKodeSet*(inner_arkode_mem, ...);
 
-         /* create MRIStepInnerStepper wrapper for the ARKStep memory block */
-         flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
+         /* create MRIStepInnerStepper wrapper for the ARKODE integrator */
+         flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
 
          /* create an MRIStep object, setting the slow (outer) right-hand side
             functions and the initial condition */
@@ -97,6 +97,8 @@ MRIStep initialization and deallocation functions
       * ``examples/arkode/C_serial/ark_reaction_diffusion_mri.c``
       * ``examples/arkode/C_serial/ark_kpr_mri.c``
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_serial/ark_test_kpr_nestedmri.cpp``
+        (uses MRIStep within itself)
 
 
 .. c:function:: void MRIStepFree(void** arkode_mem)
@@ -2609,70 +2611,3 @@ MRIStep system resize function
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeResize` instead.
-
-
-
-
-.. _MRIStep_CInterface.MRIStepInterface:
-
-Nested multirate calculations
------------------------------
-
-It is possible to use MRIStep as an inner integrator within a slower time scale
-MRIStep integration, thereby allowing for nested multirate calculations with more than
-two time scales.  Here, the inner MRIStep integrator can be wrapped as an
-:c:type:`MRIStepInnerStepper` by calling the utility function
-:c:func:`MRIStepCreateMRIStepInnerStepper`.
-
-.. c:function:: int MRIStepCreateMRIStepInnerStepper(void *inner_arkode_mem, MRIStepInnerStepper *stepper)
-
-   Wraps an MRIStep memory block as an :c:type:`MRIStepInnerStepper` for use
-   with an outer MRIStep instance.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the inner MRIStep memory block.
-      * *stepper* -- the :c:type:`MRIStepInnerStepper` object.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_FAIL* if a memory allocation failed
-      * *ARK_ILL_INPUT* if an argument has an illegal value.
-
-   **Example usage:**
-      .. code-block:: C
-
-         /* fast, intermediate, and slow ARKODE objects */
-         void *fast_arkode_mem = NULL;
-         void *mid_arkode_mem = NULL;
-         void *outer_arkode_mem = NULL;
-
-         /* MRIStepInnerSteppers to wrap the fast ARKStep and intermediate MRIStep objects */
-         MRIStepInnerStepper faststepper = NULL;
-         MRIStepInnerStepper midstepper = NULL;
-
-         /* create an ARKStep object, setting fast (inner) right-hand side
-            functions and the initial condition */
-         fast_arkode_mem = ARKStepCreate(ffe, ffi, t0, y0, sunctx);
-
-         /* setup ARKStep */
-         . . .
-
-         /* create MRIStepInnerStepper wrapper for the ARKStep memory block */
-         flag = ARKStepCreateMRIStepInnerStepper(fast_arkode_mem, &faststepper);
-
-         /* create an MRIStep object, setting the intermediate right-hand side
-            functions and the initial condition */
-         mid_arkode_mem = MRIStepCreate(fme, fmi, t0, y0, faststepper, sunctx);
-
-         /* setup MRIStep */
-         . . .
-
-         /* create MRIStepInnerStepper wrapper for the MRIStep memory block */
-         flag = MRIStepCreateMRIStepInnerStepper(mid_arkode_mem, &midstepper);
-
-         /* create an MRIStep object, setting the slow (outer) right-hand side
-            functions and the initial condition */
-         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, midstepper, sunctx);
-
-   **Example codes:**
-      * ``examples/arkode/CXX_serial/ark_test_kpr_nestedmri.cpp``

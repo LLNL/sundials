@@ -466,8 +466,8 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
     // Create inner stepper
-    flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-    if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) { return 1; }
+    flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+    if (check_flag(&flag, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
     // -----------------------------------------------
     // Set up MRIStep slow integrator and set options

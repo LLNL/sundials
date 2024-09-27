@@ -4400,3 +4400,7 @@ wrap an ARKStep memory block as an :c:type:`MRIStepInnerStepper`.
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeCreateMRIStepInnerStepper` instead.

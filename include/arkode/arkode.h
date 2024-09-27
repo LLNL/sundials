@@ -212,6 +212,10 @@ SUNDIALS_EXPORT int ARKodeResize(void* arkode_mem, N_Vector ynew,
                                  ARKVecResizeFn resize, void* resize_data);
 SUNDIALS_EXPORT int ARKodeReset(void* arkode_mem, sunrealtype tR, N_Vector yR);
 
+/* Utility to wrap ARKODE as an MRIStepInnerStepper */
+SUNDIALS_EXPORT int ARKodeCreateMRIStepInnerStepper(void* arkode_mem,
+                                                    MRIStepInnerStepper* stepper);
+
 /* Tolerance input functions */
 SUNDIALS_EXPORT int ARKodeSStolerances(void* arkode_mem, sunrealtype reltol,
                                        sunrealtype abstol);

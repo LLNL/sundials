@@ -39,15 +39,17 @@ unchanged from the skeleton program presented in
 
 #. Create an inner stepper object to solve the fast (inner) IVP
 
-   * If using ARKStep as the fast (inner) integrator, create the ARKStep object
-     with :c:func:`ARKStepCreate` and configure the integrator as desired for
+   * If using ERKStep, ARKStep, or MRIStep as the fast (inner) integrator, create
+     the solver object with :c:func:`ERKStepCreate`,  :c:func:`ARKStepCreate`, or
+     :c:func:`MRIStepCreate`, and configure the integrator as desired for
      evolving the fast time scale. See sections :numref:`ARKODE.Usage.Skeleton`,
-     :numref:`ARKODE.Usage.OptionalInputs`, and
-     :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for details on configuring
-     ARKStep.
+     :numref:`ARKODE.Usage.OptionalInputs`, :numref:`ARKODE.Usage.ERKStep.OptionalInputs`,
+     :numref:`ARKODE.Usage.ARKStep.OptionalInputs`, and
+     :numref:`ARKODE.Usage.MRIStep.OptionalInputs` for details on configuring
+     these integrators.
 
-     Once the ARKStep object is setup, create an ``MRIStepInnerStepper`` object
-     with :c:func:`ARKStepCreateMRIStepInnerStepper`.
+     Once the ARKODE stepper object is setup, create an ``MRIStepInnerStepper`` object
+     with :c:func:`ARKodeCreateMRIStepInnerStepper`.
 
    * If supplying a user-defined fast (inner) integrator, create the
      ``MRIStepInnerStepper`` object as described in section

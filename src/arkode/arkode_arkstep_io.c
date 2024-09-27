@@ -1154,7 +1154,7 @@ int arkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return an error if local truncation error is not computed */
-  if (ark_mem->fixedstep && (ark_mem->AccumErrorType < 0))
+  if (ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE))
   {
     return (ARK_STEPPER_UNSUPPORTED);
   }
@@ -1446,6 +1446,11 @@ int arkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   Exported-but-deprecated user-callable functions.
   ===============================================================*/
 
+int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
+                                     MRIStepInnerStepper* stepper)
+{
+  return (ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, stepper));
+}
 int ARKStepResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)
 {

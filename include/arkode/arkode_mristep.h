@@ -226,9 +226,6 @@ SUNDIALS_EXPORT int MRIStepInnerStepper_GetForcingData(
   MRIStepInnerStepper stepper, sunrealtype* tshift, sunrealtype* tscale,
   N_Vector** forcing, int* nforcing);
 
-/* Utility to wrap ERKStep as an MRIStepInnerStepper */
-SUNDIALS_EXPORT int MRIStepCreateMRIStepInnerStepper(void* arkode_mem,
-                                                     MRIStepInnerStepper* stepper);
 
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines

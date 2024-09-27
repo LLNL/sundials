@@ -33,6 +33,9 @@ Added functionality to ARKODE to accumulate a temporal error
 estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorType`,
 `ARKodeResetAccumulatedError`, and `ARKodeGetAccumulatedError` for details.
 
+Added utility routine to wrap any valid ARKODE integrator for use as an MRIStep
+inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
+
 ### Bug Fixes
 
 Fixed `ARKodeResize` not using the default `hscale` when an argument of `0` was
@@ -55,6 +58,9 @@ was loaded in both cases.
 
 
 ### Deprecation Notices
+
+Deprecated ARKStep-specific utility routine for wrapping as an MRIStep
+inner stepper object, `ARKStepCreateMRIStepInnerStepper`.
 
 ## Changes to SUNDIALS in release 7.1.1
 

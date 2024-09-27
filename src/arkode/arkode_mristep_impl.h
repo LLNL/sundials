@@ -259,6 +259,8 @@ int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 int mriStep_ComputeState(ARKodeMem ark_mem, N_Vector zcor, N_Vector z);
 void mriStep_Free(ARKodeMem ark_mem);
 void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
+int mriStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
+                            sunrealtype tscale, N_Vector* f, int nvecs);
 
 /* Internal utility routines */
 int mriStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
@@ -329,19 +331,6 @@ int mriStep_ComputeInnerForcing(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int* stage_map,
                      sunrealtype* Ae_row, sunrealtype* Ai_row);
 
-/* private functions for serving as an MRIStepInnerStepper */
-int mriStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
-                            sunrealtype tscale, N_Vector* f, int nvecs);
-int mriStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
-                               sunrealtype tout, N_Vector y);
-int mriStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
-                                N_Vector y, N_Vector f, int mode);
-int mriStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
-                              N_Vector yR);
-int mriStep_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
-                                            sunrealtype* accum_error);
-int mriStep_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
-int mriStep_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
 /*===============================================================
   MRIStep SUNAdaptController wrapper module -- this is used to

@@ -233,8 +233,8 @@ int run_tests(ARKODE_MRIType type, ProblemOptions& prob_opts,
 
   // Wrap ARKStep integrator as fast integrator object
   MRIStepInnerStepper inner_stepper = nullptr;
-  flag = ARKStepCreateMRIStepInnerStepper(arkstep_mem, &inner_stepper);
-  if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) { return 1; }
+  flag = ARKodeCreateMRIStepInnerStepper(arkstep_mem, &inner_stepper);
+  if (check_flag(&flag, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   // ----------------------
   // Create slow integrator
