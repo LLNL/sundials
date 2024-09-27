@@ -214,15 +214,14 @@ Optional output functions
 ------------------------------
 
 
-.. c:function:: int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals);
+.. c:function:: int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals);
 
-   Returns the number of calls to the user's right-hand
-   side functions, :math:`f^E` and :math:`f^I` (so far).
+   Returns the number of calls to the user's right-hand side functions.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *fe_evals* -- number of calls to the user's :math:`f^E(t,y)` function.
-      * *fi_evals* -- number of calls to the user's :math:`f^I(t,y)` function.
+      * *num_rhs_fn* -- number of input  RHS functions.
+      * *f_evals* -- number of calls to the user's :math:`f(t,y)` function.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

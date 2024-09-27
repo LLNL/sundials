@@ -325,8 +325,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
 
   Returns the current number of calls to f
   ---------------------------------------------------------------*/
-int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals,
-                           long int* fi_evals)
+int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -338,8 +337,7 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
-  *fe_evals = step_mem->nfe;
-  *fi_evals = step_mem->nfi;
+  *f_evals = step_mem->nfe;
 
   return (ARK_SUCCESS);
 }

@@ -81,8 +81,7 @@ SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals,
-                                           long int* fi_evals);
+SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals);
 
 SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem,
                                                 long int* num_dom_eig_updates);
