@@ -649,9 +649,9 @@ int main(int argc, char* argv[])
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* lambda = (sunrealtype*)user_data;
-  NV_Ith_S(ydot, 0) =
-    (*lambda) * (NV_Ith_S(y, 0) - SIN(SUN_RCONST(2.0) * t)) + NV_Ith_S(y, 1) -
-    COS(SUN_RCONST(3.0) * t) + SUN_RCONST(2.0) * COS(SUN_RCONST(2.0) * t);
+  NV_Ith_S(ydot, 0) = (*lambda) * (NV_Ith_S(y, 0) - SIN(SUN_RCONST(2.0) * t)) +
+                      NV_Ith_S(y, 1) - COS(SUN_RCONST(3.0) * t) +
+                      SUN_RCONST(2.0) * COS(SUN_RCONST(2.0) * t);
   NV_Ith_S(ydot, 1) = NV_Ith_S(y, 0) - NV_Ith_S(y, 1) -
                       SIN(SUN_RCONST(2.0) * t) + COS(SUN_RCONST(3.0) * t) -
                       SUN_RCONST(3.0) * SIN(SUN_RCONST(3.0) * t);

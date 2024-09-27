@@ -708,8 +708,8 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   /* fill in the RHS function:
      [0  0]*[(-1+u^2-r(t))/(2*u)] + [         0          ]
      [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2*vtrue(t))] */
-  tmp1                        = (-ONE + u * u - r(t, rpar)) / (TWO * u);
-  tmp2                        = (-TWO + v * v - s(t, rpar)) / (TWO * v);
+  tmp1              = (-ONE + u * u - r(t, rpar)) / (TWO * u);
+  tmp2              = (-TWO + v * v - s(t, rpar)) / (TWO * v);
   NV_Ith_S(ydot, 0) = ZERO;
   NV_Ith_S(ydot, 1) = e * tmp1 - tmp2 + sdot(t, rpar) / (TWO * vtrue(t, rpar));
 
@@ -730,10 +730,10 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   /* fill in the RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
      [0 0] [(-2+v^2-s(t))/(2*v)]    [      0      ] */
-  tmp1                        = (-ONE + u * u - r(t, rpar)) / (TWO * u);
-  tmp2                        = (-TWO + v * v - s(t, rpar)) / (TWO * v);
+  tmp1              = (-ONE + u * u - r(t, rpar)) / (TWO * u);
+  tmp2              = (-TWO + v * v - s(t, rpar)) / (TWO * v);
   NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + rdot(t, rpar) / (TWO * u);
-  NV_Ith_S(ydot, 1)           = ZERO;
+  NV_Ith_S(ydot, 1) = ZERO;
 
   /* Return with success */
   return 0;
@@ -749,7 +749,7 @@ static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
      [rdot(t)/(2*u)]
      [      0      ] */
   NV_Ith_S(ydot, 0) = rdot(t, rpar) / (TWO * u);
-  NV_Ith_S(ydot, 1)           = ZERO;
+  NV_Ith_S(ydot, 1) = ZERO;
 
   /* Return with success */
   return 0;
@@ -768,10 +768,10 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   /* fill in the slow implicit RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))]
      [0 0] [(-2+v^2-s(t))/(2*v)]  */
-  tmp1                        = (-ONE + u * u - r(t, rpar)) / (TWO * u);
-  tmp2                        = (-TWO + v * v - s(t, rpar)) / (TWO * v);
+  tmp1              = (-ONE + u * u - r(t, rpar)) / (TWO * u);
+  tmp2              = (-TWO + v * v - s(t, rpar)) / (TWO * v);
   NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2;
-  NV_Ith_S(ydot, 1)           = ZERO;
+  NV_Ith_S(ydot, 1) = ZERO;
 
   /* Return with success */
   return 0;
@@ -789,8 +789,8 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   /* fill in the RHS function:
      [G e]*[(-1+u^2-r(t))/(2*u))] + [rdot(t)/(2*u)]
      [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2*vtrue(t))] */
-  tmp1                        = (-ONE + u * u - r(t, rpar)) / (TWO * u);
-  tmp2                        = (-TWO + v * v - s(t, rpar)) / (TWO * v);
+  tmp1              = (-ONE + u * u - r(t, rpar)) / (TWO * u);
+  tmp2              = (-TWO + v * v - s(t, rpar)) / (TWO * v);
   NV_Ith_S(ydot, 0) = G * tmp1 + e * tmp2 + rdot(t, rpar) / (TWO * u);
   NV_Ith_S(ydot, 1) = e * tmp1 - tmp2 + sdot(t, rpar) / (TWO * vtrue(t, rpar));
 

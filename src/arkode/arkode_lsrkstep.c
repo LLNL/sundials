@@ -30,7 +30,7 @@
   ===============================================================*/
 
 void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
-                     SUNContext sunctx)
+                        SUNContext sunctx)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -147,7 +147,7 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 }
 
 void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
-                     SUNContext sunctx)
+                        SUNContext sunctx)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -274,8 +274,7 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   Note all internal counters are set to 0 on re-initialization.
   ---------------------------------------------------------------*/
-int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
-                   N_Vector y0)
+int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -349,8 +348,7 @@ int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
 
   Note all internal counters are set to 0 on re-initialization.
   ---------------------------------------------------------------*/
-int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
-                   N_Vector y0)
+int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;

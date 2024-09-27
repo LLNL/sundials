@@ -294,15 +294,15 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   sunrealtype yd0, yd1, yd2;
 
   // fill in the RHS function: f(t,y) = V*D*Vi*y
-  yd0 = 0.25 * (5.0 * y0 + 1.0 * y1 - 3.0 * y2); // yd = Vi*y
-  yd1 = 0.25 * (2.0 * y0 + 2.0 * y1 - 2.0 * y2);
-  yd2 = 0.25 * (1.0 * y0 + 1.0 * y1 + 1.0 * y2);
-  y0  = -0.5 * yd0; //  y = D*yd
-  y1  = -0.1 * yd1;
-  y2  = lam * yd2;
-  yd0 = 1.0 * y0 - 1.0 * y1 + 1.0 * y2; // yd = V*y
-  yd1 = -1.0 * y0 + 2.0 * y1 + 1.0 * y2;
-  yd2 = 0.0 * y0 - 1.0 * y1 + 2.0 * y2;
+  yd0               = 0.25 * (5.0 * y0 + 1.0 * y1 - 3.0 * y2); // yd = Vi*y
+  yd1               = 0.25 * (2.0 * y0 + 2.0 * y1 - 2.0 * y2);
+  yd2               = 0.25 * (1.0 * y0 + 1.0 * y1 + 1.0 * y2);
+  y0                = -0.5 * yd0; //  y = D*yd
+  y1                = -0.1 * yd1;
+  y2                = lam * yd2;
+  yd0               = 1.0 * y0 - 1.0 * y1 + 1.0 * y2; // yd = V*y
+  yd1               = -1.0 * y0 + 2.0 * y1 + 1.0 * y2;
+  yd2               = 0.0 * y0 - 1.0 * y1 + 2.0 * y2;
   NV_Ith_S(ydot, 0) = yd0;
   NV_Ith_S(ydot, 1) = yd1;
   NV_Ith_S(ydot, 2) = yd2;

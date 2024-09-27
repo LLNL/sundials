@@ -102,14 +102,28 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   return (ARK_SUCCESS);
 }
 
-int LSRKStepSetMethodByName(void* arkode_mem, 
-                                              const char* emethod)
+int LSRKStepSetMethodByName(void* arkode_mem, const char* emethod)
 {
-  if (strcmp(emethod, "ARKODE_LSRK_RKC_2") == 0) {return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC_2));}
-  if (strcmp(emethod, "ARKODE_LSRK_RKL_2") == 0) {return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKL_2));}
-  if (strcmp(emethod, "ARKODE_LSRK_SSP_S_2") == 0) {return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_2));}
-  if (strcmp(emethod, "ARKODE_LSRK_SSP_S_3") == 0) {return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_3));}
-  if (strcmp(emethod, "ARKODE_LSRK_SSP_10_4") == 0) {return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_10_4));}
+  if (strcmp(emethod, "ARKODE_LSRK_RKC_2") == 0)
+  {
+    return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC_2));
+  }
+  if (strcmp(emethod, "ARKODE_LSRK_RKL_2") == 0)
+  {
+    return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKL_2));
+  }
+  if (strcmp(emethod, "ARKODE_LSRK_SSP_S_2") == 0)
+  {
+    return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_2));
+  }
+  if (strcmp(emethod, "ARKODE_LSRK_SSP_S_3") == 0)
+  {
+    return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_3));
+  }
+  if (strcmp(emethod, "ARKODE_LSRK_SSP_10_4") == 0)
+  {
+    return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_10_4));
+  }
 
   arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                   "Unknown method type");

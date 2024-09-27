@@ -305,8 +305,8 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   /* fill in the RHS function */
   NV_Ith_S(ydot, 0) = a - (w + 1.0) * u + v * u * u;
-  NV_Ith_S(ydot, 1)           = w * u - v * u * u;
-  NV_Ith_S(ydot, 2)           = (b - w) / ep - w * u;
+  NV_Ith_S(ydot, 1) = w * u - v * u * u;
+  NV_Ith_S(ydot, 2) = (b - w) / ep - w * u;
 
   return 0; /* Return with success */
 }

@@ -420,8 +420,8 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   yd1 = -SUN_RCONST(1.0) * y0 + SUN_RCONST(2.0) * y1 + SUN_RCONST(1.0) * y2;
   yd2 = SUN_RCONST(0.0) * y0 - SUN_RCONST(1.0) * y1 + SUN_RCONST(2.0) * y2;
   NV_Ith_S(ydot, 0) = yd0;
-  NV_Ith_S(ydot, 1)           = yd1;
-  NV_Ith_S(ydot, 2)           = yd2;
+  NV_Ith_S(ydot, 1) = yd1;
+  NV_Ith_S(ydot, 2) = yd2;
 
   return 0; // Return with success
 }

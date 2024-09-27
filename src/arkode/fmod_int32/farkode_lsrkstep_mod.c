@@ -205,41 +205,98 @@
 
 #include "arkode/arkode_lsrkstep.h"
 
-SWIGEXPORT void * _wrap_FLSRKStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4, void *farg5) {
+
+#include <stdlib.h>
+#ifdef _MSC_VER
+# ifndef strtoull
+#  define strtoull _strtoui64
+# endif
+# ifndef strtoll
+#  define strtoll _strtoi64
+# endif
+#endif
+
+
+typedef struct {
+    void* data;
+    size_t size;
+} SwigArrayWrapper;
+
+
+SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
+  SwigArrayWrapper result;
+  result.data = NULL;
+  result.size = 0;
+  return result;
+}
+
+SWIGEXPORT void * _wrap_FLSRKStepCreateSTS(ARKRhsFn farg1, double const *farg2, N_Vector farg3, void *farg4) {
   void * fresult ;
   ARKRhsFn arg1 = (ARKRhsFn) 0 ;
-  ARKRhsFn arg2 = (ARKRhsFn) 0 ;
-  sunrealtype arg3 ;
-  N_Vector arg4 = (N_Vector) 0 ;
-  SUNContext arg5 = (SUNContext) 0 ;
+  sunrealtype arg2 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  SUNContext arg4 = (SUNContext) 0 ;
   void *result = 0 ;
   
   arg1 = (ARKRhsFn)(farg1);
-  arg2 = (ARKRhsFn)(farg2);
-  arg3 = (sunrealtype)(*farg3);
-  arg4 = (N_Vector)(farg4);
-  arg5 = (SUNContext)(farg5);
-  result = (void *)LSRKStepCreate(arg1,arg2,arg3,arg4,arg5);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (SUNContext)(farg4);
+  result = (void *)LSRKStepCreateSTS(arg1,arg2,arg3,arg4);
   fresult = result;
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FLSRKStepReInit(void *farg1, ARKRhsFn farg2, ARKRhsFn farg3, double const *farg4, N_Vector farg5) {
+SWIGEXPORT void * _wrap_FLSRKStepCreateSSP(ARKRhsFn farg1, double const *farg2, N_Vector farg3, void *farg4) {
+  void * fresult ;
+  ARKRhsFn arg1 = (ARKRhsFn) 0 ;
+  sunrealtype arg2 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  SUNContext arg4 = (SUNContext) 0 ;
+  void *result = 0 ;
+  
+  arg1 = (ARKRhsFn)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (SUNContext)(farg4);
+  result = (void *)LSRKStepCreateSSP(arg1,arg2,arg3,arg4);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepReInitSTS(void *farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   ARKRhsFn arg2 = (ARKRhsFn) 0 ;
-  ARKRhsFn arg3 = (ARKRhsFn) 0 ;
-  sunrealtype arg4 ;
-  N_Vector arg5 = (N_Vector) 0 ;
+  sunrealtype arg3 ;
+  N_Vector arg4 = (N_Vector) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
   arg2 = (ARKRhsFn)(farg2);
-  arg3 = (ARKRhsFn)(farg3);
-  arg4 = (sunrealtype)(*farg4);
-  arg5 = (N_Vector)(farg5);
-  result = (int)LSRKStepReInit(arg1,arg2,arg3,arg4,arg5);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (N_Vector)(farg4);
+  result = (int)LSRKStepReInitSTS(arg1,arg2,arg3,arg4);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepReInitSSP(void *farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKRhsFn arg2 = (ARKRhsFn) 0 ;
+  sunrealtype arg3 ;
+  N_Vector arg4 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKRhsFn)(farg2);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (N_Vector)(farg4);
+  result = (int)LSRKStepReInitSSP(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
 }
@@ -254,6 +311,20 @@ SWIGEXPORT int _wrap_FLSRKStepSetMethod(void *farg1, int const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (ARKODE_LSRKMethodType)(*farg2);
   result = (int)LSRKStepSetMethod(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepSetMethodByName(void *farg1, SwigArrayWrapper *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (char *)(farg2->data);
+  result = (int)LSRKStepSetMethodByName(arg1,(char const *)arg2);
   fresult = (int)(result);
   return fresult;
 }

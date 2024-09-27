@@ -188,7 +188,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
-  sunrealtype u      = N_VGetArrayPointer(y)[0]; /* access current solution value */
+  sunrealtype u = N_VGetArrayPointer(y)[0]; /* access current solution value */
 
   /* fill in the RHS function: "N_VGetArrayPointer" accesses the 0th entry of ydot */
   N_VGetArrayPointer(ydot)[0] =

@@ -385,7 +385,7 @@ static int f1(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   y1 = NV_Ith_S(y, 1);
 
   NV_Ith_S(ydot, 0) = y1;
-  NV_Ith_S(ydot, 1)           = (ONE - SQR(y0)) * P1_ETA * y1 - y0;
+  NV_Ith_S(ydot, 1) = (ONE - SQR(y0)) * P1_ETA * y1 - y0;
 
   return (0);
 }
