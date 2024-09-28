@@ -44,6 +44,7 @@ set(arkode_SOURCES
     arkode_sprkstep_io.c
     arkode_sprkstep.c
     arkode_sprk.c
+    arkode_sunstepper.c
     arkode_user_controller.c
     arkode.c)
 

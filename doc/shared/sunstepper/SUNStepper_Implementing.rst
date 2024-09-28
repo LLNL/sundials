@@ -15,7 +15,7 @@
 
 .. _SUNStepper.Implementing:
 
-Implementing a SunStepper
+Implementing a SUNStepper
 =========================
 
 To create a SUNStepper implementation:

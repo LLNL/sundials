@@ -31,6 +31,7 @@
 #include <arkode/arkode_butcher.h>
 #include <stdio.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -416,6 +417,9 @@ SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveFails(void* arkode_mem,
                                                 long int* fails);
 SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveIters(void* arkode_mem,
                                                 long int* iters);
+
+/* SUNStepper functions */
+SUNDIALS_EXPORT int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper);
 
 #ifdef __cplusplus
 }

@@ -452,5 +452,5 @@ int ARKBraid_TakeStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
                       N_Vector y, int* ark_flag)
 {
   sunrealtype tret;
-  return arkStep_TryStep(arkode_mem, tstart, tstop, y, &tret, ark_flag);
+  return arkTryStep(arkode_mem, tstart, tstop, y, &tret, ark_flag);
 }
