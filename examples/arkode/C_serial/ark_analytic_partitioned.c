@@ -190,8 +190,8 @@ int main(const int argc, char* const argv[])
 
   /* Create SUNSteppers out of the integrators */
   SUNStepper steppers[2];
-  ARKStepCreateSUNStepper(linear_mem, &steppers[0]);
-  ARKStepCreateSUNStepper(nonlinear_mem, &steppers[1]);
+  ARKodeCreateSUNStepper(linear_mem, &steppers[0]);
+  ARKodeCreateSUNStepper(nonlinear_mem, &steppers[1]);
 
   /* Create the outer integrator */
   void* arkode_mem;

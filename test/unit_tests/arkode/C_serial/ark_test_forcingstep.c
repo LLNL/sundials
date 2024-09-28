@@ -67,8 +67,8 @@ static int test_forward(SUNContext ctx)
   ARKodeSStolerances(parititon_mem[1], local_tol, local_tol);
 
   SUNStepper steppers[] = {NULL, NULL};
-  ARKStepCreateSUNStepper(parititon_mem[0], &steppers[0]);
-  ARKStepCreateSUNStepper(parititon_mem[1], &steppers[1]);
+  ARKodeCreateSUNStepper(parititon_mem[0], &steppers[0]);
+  ARKodeCreateSUNStepper(parititon_mem[1], &steppers[1]);
 
   void* arkode_mem = ForcingStepCreate(steppers[0], steppers[1], t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);

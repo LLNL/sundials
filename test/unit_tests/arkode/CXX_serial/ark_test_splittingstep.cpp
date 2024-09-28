@@ -62,7 +62,7 @@ static int test_forward(sundials::Context& ctx, const int partitions)
                 (1 - std::pow(SUN_RCONST(2.0), partitions));
     ARKodeSetUserData(partition_mem[i], &lambda[i]);
     ARKodeSStolerances(partition_mem[i], local_tol, local_tol);
-    ARKStepCreateSUNStepper(partition_mem[i], &steppers[i]);
+    ARKodeCreateSUNStepper(partition_mem[i], &steppers[i]);
   }
 
   auto arkode_mem = SplittingStepCreate(steppers.data(), partitions, t0, y, ctx);
@@ -147,8 +147,8 @@ static int test_mixed_directions(const sundials::Context& ctx)
   ARKodeSStolerances(parititon_mem[1], local_tol, local_tol);
 
   SUNStepper steppers[] = {nullptr, nullptr};
-  ARKStepCreateSUNStepper(parititon_mem[0], &steppers[0]);
-  ARKStepCreateSUNStepper(parititon_mem[1], &steppers[1]);
+  ARKodeCreateSUNStepper(parititon_mem[0], &steppers[0]);
+  ARKodeCreateSUNStepper(parititon_mem[1], &steppers[1]);
 
   auto arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
@@ -246,8 +246,8 @@ static int test_resize(const sundials::Context& ctx)
   ARKodeSStolerances(parititon_mem[1], local_tol, local_tol);
 
   SUNStepper steppers[] = {nullptr, nullptr};
-  ARKStepCreateSUNStepper(parititon_mem[0], &steppers[0]);
-  ARKStepCreateSUNStepper(parititon_mem[1], &steppers[1]);
+  ARKodeCreateSUNStepper(parititon_mem[0], &steppers[0]);
+  ARKodeCreateSUNStepper(parititon_mem[1], &steppers[1]);
 
   auto arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
@@ -310,19 +310,18 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
   const auto empty_func = [](auto... args) { return 0; };
   SUNStepper_SetResetFn(stepper, empty_func);
   SUNStepper_SetStopTimeFn(stepper, empty_func);
-  SUNStepper_SetSetStepDirectionFn(stepper, empty_func);
+  SUNStepper_SetStepDirectionFn(stepper, empty_func);
   SUNStepper_SetFullRhsFn(stepper, empty_func);
   SUNStepper_SetEvolveFn(stepper,
                          [](const SUNStepper s, const sunrealtype t0,
                             const sunrealtype tout, const N_Vector y,
-                            sunrealtype* const tret, int* const stop_reason)
+                            sunrealtype* const tret)
                          {
                            void* content = nullptr;
                            SUNStepper_GetContent(s, &content);
                            const auto lam = *static_cast<sunrealtype*>(content);
                            N_VScale(std::exp(lam * (tout - t0)), y, y);
                            *tret        = tout;
-                           *stop_reason = 0;
                            return 0;
                          });
   SUNStepper_SetContent(stepper,

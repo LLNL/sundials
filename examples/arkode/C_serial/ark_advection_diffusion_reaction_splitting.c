@@ -246,8 +246,8 @@ int main(void)
   if (check_flag(&flag, "ARKStepSetTableNum", 1)) { return 1; }
 
   SUNStepper advection_stepper;
-  flag = ARKStepCreateSUNStepper(advection_mem, &advection_stepper);
-  if (check_flag(&flag, "ARKStepCreateSUNStepper", 1)) { return 1; }
+  flag = ARKodeCreateSUNStepper(advection_mem, &advection_stepper);
+  if (check_flag(&flag, "ARKodeCreateSUNStepper", 1)) { return 1; }
 
   /* Create diffusion integrator */
   void* diffusion_mem = ARKStepCreate(NULL, f_diffusion, T0, y, ctx);
@@ -275,8 +275,8 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
 
   SUNStepper diffusion_stepper;
-  flag = ARKStepCreateSUNStepper(diffusion_mem, &diffusion_stepper);
-  if (check_flag(&flag, "ARKStepCreateSUNStepper", 1)) { return 1; }
+  flag = ARKodeCreateSUNStepper(diffusion_mem, &diffusion_stepper);
+  if (check_flag(&flag, "ARKodeCreateSUNStepper", 1)) { return 1; }
 
   /* Create reaction integrator */
   void* reaction_mem = ARKStepCreate(f_reaction, NULL, T0, y, ctx);
@@ -289,8 +289,8 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetOrder", 1)) { return 1; }
 
   SUNStepper reaction_stepper;
-  flag = ARKStepCreateSUNStepper(reaction_mem, &reaction_stepper);
-  if (check_flag(&flag, "ARKStepCreateSUNStepper", 1)) { return 1; }
+  flag = ARKodeCreateSUNStepper(reaction_mem, &reaction_stepper);
+  if (check_flag(&flag, "ARKodeCreateSUNStepper", 1)) { return 1; }
 
   /* Create operator splitting integrator */
   SUNStepper steppers[] = {advection_stepper, diffusion_stepper,
