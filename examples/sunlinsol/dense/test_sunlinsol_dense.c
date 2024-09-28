@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
   int fails = 0;           /* counter for test failures  */
   sunindextype cols, rows; /* matrix columns, rows       */
   SUNLinearSolver LS;      /* solver object              */
-  SUNMatrix A, B, I;       /* test matrices              */
+  SUNMatrix A, B, K;       /* test matrices              */
   N_Vector x, y, b;        /* test vectors               */
   int print_timing;
   int print_on_fail;
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
   /* Create matrices and vectors */
   A = SUNDenseMatrix(rows, cols, sunctx);
   B = SUNDenseMatrix(rows, cols, sunctx);
-  I = SUNDenseMatrix(rows, cols, sunctx);
+  K = SUNDenseMatrix(rows, cols, sunctx);
   x = N_VNew_Serial(cols, sunctx);
   y = N_VNew_Serial(cols, sunctx);
   b = N_VNew_Serial(cols, sunctx);
@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
   j = cols - 1;
   for (k = 0; k < rows; k++)
   {
-    colj    = SUNDenseMatrix_Column(I, j);
+    colj    = SUNDenseMatrix_Column(K, j);
     colj[k] = 1;
     j       = j - 1;
   }
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
     for (j = 0; j < cols; j++)
     {
       colj    = SUNDenseMatrix_Column(A, j);
-      colIj   = SUNDenseMatrix_Column(I, j);
+      colIj   = SUNDenseMatrix_Column(K, j);
       colj[k] = colj[k] + colIj[k];
     }
   }
@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
     /* Free matrices and vectors */
     SUNMatDestroy(A);
     SUNMatDestroy(B);
-    SUNMatDestroy(I);
+    SUNMatDestroy(K);
     N_VDestroy(x);
     N_VDestroy(y);
     N_VDestroy(b);
@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   SUNMatDestroy(B);
-  SUNMatDestroy(I);
+  SUNMatDestroy(K);
   N_VDestroy(x);
   N_VDestroy(y);
   N_VDestroy(b);

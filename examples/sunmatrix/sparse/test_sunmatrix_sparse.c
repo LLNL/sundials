@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
   int mattype;                   /* matrix storage type        */
   N_Vector x, y, z;              /* test vectors               */
   sunrealtype* vecdata;          /* pointers to vector data    */
-  SUNMatrix A, B, C, D, I;       /* test matrices              */
+  SUNMatrix A, B, C, D, K;       /* test matrices              */
   sunrealtype* matdata;          /* pointer to matrix data     */
   sunindextype i, j, k, kstart, kend, N, uband, lband;
   sunindextype *colptrs, *rowindices;
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
   B = NULL;
   C = NULL;
   D = NULL;
-  I = NULL;
+  K = NULL;
 
   /* check creating sparse matrix from dense matrix */
   B = SUNDenseMatrix(5, 6, sunctx);
@@ -371,14 +371,14 @@ int main(int argc, char* argv[])
 
   SUNMatDestroy(B);
 
-  /* Create/fill I matrix */
-  I = NULL;
+  /* Create/fill K matrix */
+  K = NULL;
   if (square)
   {
-    I          = SUNSparseMatrix(matrows, matcols, matcols, mattype, sunctx);
-    matdata    = SUNSparseMatrix_Data(I);
-    colindices = SUNSparseMatrix_IndexValues(I);
-    rowptrs    = SUNSparseMatrix_IndexPointers(I);
+    K          = SUNSparseMatrix(matrows, matcols, matcols, mattype, sunctx);
+    matdata    = SUNSparseMatrix_Data(K);
+    colindices = SUNSparseMatrix_IndexValues(K);
+    rowptrs    = SUNSparseMatrix_IndexPointers(K);
     for (i = 0; i < matrows; i++)
     {
       matdata[i]    = ONE;
@@ -427,7 +427,7 @@ int main(int argc, char* argv[])
     N_VDestroy(x);
     N_VDestroy(y);
     N_VDestroy(z);
-    if (square) { SUNMatDestroy(I); }
+    if (square) { SUNMatDestroy(K); }
     return (1);
   }
   if (SUNMatMatvec(D, x, z) != 0)
@@ -440,7 +440,7 @@ int main(int argc, char* argv[])
     N_VDestroy(x);
     N_VDestroy(y);
     N_VDestroy(z);
-    if (square) { SUNMatDestroy(I); }
+    if (square) { SUNMatDestroy(K); }
     return (1);
   }
 
@@ -449,11 +449,11 @@ int main(int argc, char* argv[])
   fails += Test_SUNMatClone(A, 0);
   fails += Test_SUNMatCopy(A, 0);
   fails += Test_SUNMatZero(A, 0);
-  fails += Test_SUNMatScaleAdd(A, I, 0);
+  fails += Test_SUNMatScaleAdd(A, K, 0);
   fails += Test_SUNMatScaleAdd2(A, B, x, y, z);
   if (square)
   {
-    fails += Test_SUNMatScaleAddI(A, I, 0);
+    fails += Test_SUNMatScaleAddI(A, K, 0);
     fails += Test_SUNMatScaleAddI2(A, x, y);
   }
   fails += Test_SUNMatMatvec(A, x, y, 0);
@@ -472,7 +472,7 @@ int main(int argc, char* argv[])
     if (square)
     {
       printf("\nI =\n");
-      SUNSparseMatrix_Print(I, stdout);
+      SUNSparseMatrix_Print(K, stdout);
     }
     printf("\nx =\n");
     N_VPrint_Serial(x);
@@ -491,7 +491,7 @@ int main(int argc, char* argv[])
   SUNMatDestroy(B);
   SUNMatDestroy(C);
   SUNMatDestroy(D);
-  if (square) { SUNMatDestroy(I); }
+  if (square) { SUNMatDestroy(K); }
 
   SUNContext_Free(&sunctx);
 
@@ -727,7 +727,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
   z = N_VClone(x);
   w = N_VClone(x);
 
-  /* test 1: add I to a matrix with insufficient storage */
+  /* test 1: add K to a matrix with insufficient storage */
   failure = SUNMatCopy(A, B);
   if (failure)
   {
@@ -737,7 +737,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
     N_VDestroy(w);
     return (1);
   }
-  failure = SUNMatScaleAddI(NEG_ONE, B); /* B = I-A */
+  failure = SUNMatScaleAddI(NEG_ONE, B); /* B = K-A */
   if (failure)
   {
     printf(">>> FAILED test -- SUNMatScaleAddI returned %d \n", failure);
@@ -755,7 +755,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
     N_VDestroy(w);
     return (1);
   }
-  N_VLinearSum(ONE, x, NEG_ONE, y, w); /* B x = (I - A) x = x - Ax = x - y = w */
+  N_VLinearSum(ONE, x, NEG_ONE, y, w); /* B x = (K - A) x = x - Ax = x - y = w */
   failure = check_vector(z, w, tol);
   if (failure)
   {
@@ -775,7 +775,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
   }
   else { printf("    PASSED test -- SUNMatScaleAddI2 check 1 \n"); }
 
-  /* test 2: add I to a matrix with sufficient but misplaced
+  /* test 2: add K to a matrix with sufficient but misplaced
      storage */
   C       = SUNMatClone(A);
   failure = SUNSparseMatrix_Reallocate(C, SM_NNZ_S(A) + SM_ROWS_S(A));
@@ -789,7 +789,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
     N_VDestroy(w);
     return (1);
   }
-  failure = SUNMatScaleAddI(NEG_ONE, C); /* C = I-A */
+  failure = SUNMatScaleAddI(NEG_ONE, C); /* C = K-A */
   if (failure)
   {
     printf(">>> FAILED test -- SUNMatScaleAddI returned %d \n", failure);
@@ -830,7 +830,7 @@ int Test_SUNMatScaleAddI2(SUNMatrix A, N_Vector x, N_Vector y)
   }
   else { printf("    PASSED test -- SUNMatScaleAddI2 check 2 \n"); }
 
-  /* test 3: add I to a matrix with appropriate structure already in place */
+  /* test 3: add K to a matrix with appropriate structure already in place */
   D       = SUNMatClone(C);
   failure = SUNMatCopy(C, D);
   if (failure)

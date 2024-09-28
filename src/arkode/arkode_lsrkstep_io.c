@@ -470,13 +470,14 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->req_stages = 0; /* no stages */
 
   /* Spectral info */
-  step_mem->lambdaR      = 0;
-  step_mem->lambdaI      = 0;
-  step_mem->sprad        = 0;
-  step_mem->spr_max      = 0;
-  step_mem->spr_min      = 0;
-  step_mem->dom_eig_sfty = 1.01;
-  step_mem->dom_eig_freq = 25;
+  step_mem->dom_eig_lambda = SUN_CCONST(ZERO, ZERO);
+  step_mem->lambdaR        = ZERO;
+  step_mem->lambdaI        = ZERO;
+  step_mem->sprad          = ZERO;
+  step_mem->spr_max        = ZERO;
+  step_mem->spr_min        = ZERO;
+  step_mem->dom_eig_sfty   = 1.01;
+  step_mem->dom_eig_freq   = 25;
 
   /* Flags */
   step_mem->new_dom_eig        = SUNTRUE;

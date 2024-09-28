@@ -1,10 +1,10 @@
 
 Analytical ODE test problem with a variable Jacobian:
 The stiffness of the problem is directly proportional to
-"lambda - alpha*cos((10 - t)/10*pi)"
+"gamma - theta*cos((10 - t)/10*pi)"
 
-    lambda = -1e+06
-     alpha = 100
+    gamma  = -1e+06
+    theta  = 100
     reltol = 1.0e-08
     abstol = 1.0e-08
 
