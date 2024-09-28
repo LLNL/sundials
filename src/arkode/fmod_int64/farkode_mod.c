@@ -2265,15 +2265,14 @@ SWIGEXPORT int _wrap_FARKodeGetNumRelaxSolveIters(void *farg1, long *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FARKodeCreateSUNStepper(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FARKodeCreateSUNStepper(void *farg1, void *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   SUNStepper *arg2 = (SUNStepper *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  SWIG_check_mutable(*farg2, "SUNStepper *", "SWIGTYPE_p_SUNStepper", "ARKodeCreateSUNStepper(void *,SUNStepper *)", return 0);
-  arg2 = (SUNStepper *)(farg2->cptr);
+  arg2 = (SUNStepper *)(farg2);
   result = (int)ARKodeCreateSUNStepper(arg1,arg2);
   fresult = (int)(result);
   return fresult;

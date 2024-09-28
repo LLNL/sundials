@@ -133,9 +133,6 @@ module farkode_mristep_mod
  public :: FMRIStepGetCurrentCoupling
  public :: FMRIStepGetLastInnerStepFlag
  public :: FMRIStepInnerStepper_Create
- type, public :: SWIGTYPE_p_SUNStepper
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FMRIStepInnerStepper_CreateFromSUNStepper
  public :: FMRIStepInnerStepper_Free
  public :: FMRIStepInnerStepper_SetContent
@@ -548,8 +545,7 @@ function swigc_FMRIStepInnerStepper_CreateFromSUNStepper(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepInnerStepper_CreateFromSUNStepper") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -1968,13 +1964,13 @@ function FMRIStepInnerStepper_CreateFromSUNStepper(sunstepper, stepper) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_p_SUNStepper), intent(in) :: sunstepper
+type(C_PTR) :: sunstepper
 type(C_PTR), target, intent(inout) :: stepper
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = sunstepper%swigdata
+farg1 = sunstepper
 farg2 = c_loc(stepper)
 fresult = swigc_FMRIStepInnerStepper_CreateFromSUNStepper(farg1, farg2)
 swig_result = fresult
