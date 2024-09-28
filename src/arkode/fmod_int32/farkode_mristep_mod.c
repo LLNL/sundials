@@ -771,14 +771,13 @@ SWIGEXPORT int _wrap_FMRIStepInnerStepper_Create(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepInnerStepper_CreateFromSUNStepper(SwigClassWrapper const *farg1, void *farg2) {
+SWIGEXPORT int _wrap_FMRIStepInnerStepper_CreateFromSUNStepper(void *farg1, void *farg2) {
   int fresult ;
-  SUNStepper arg1 ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
   MRIStepInnerStepper *arg2 = (MRIStepInnerStepper *) 0 ;
   int result;
   
-  SWIG_check_nonnull(*farg1, "SUNStepper", "SWIGTYPE_p_SUNStepper", "MRIStepInnerStepper_CreateFromSUNStepper(SUNStepper,MRIStepInnerStepper *)", return 0);
-  arg1 = *(SUNStepper *)(farg1->cptr);
+  arg1 = (SUNStepper)(farg1);
   arg2 = (MRIStepInnerStepper *)(farg2);
   result = (int)MRIStepInnerStepper_CreateFromSUNStepper(arg1,arg2);
   fresult = (int)(result);
