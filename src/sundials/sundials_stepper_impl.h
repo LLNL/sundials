@@ -30,6 +30,7 @@ struct SUNStepper_Ops_
   SUNStepperFullRhsFn fullrhs;
   SUNStepperResetFn reset;
   SUNStepperSetStopTimeFn setstoptime;
+  SUNStepperSetForcingFn setforcing;
 };
 
 struct SUNStepper_
@@ -41,17 +42,8 @@ struct SUNStepper_
   /* stepper context */
   SUNContext sunctx;
 
-  /* base class data */
-  N_Vector* forcing;      /* array of forcing vectors            */
-  int nforcing;           /* number of forcing vectors active    */
-  int nforcing_allocated; /* number of forcing vectors allocated */
-  int last_flag;          /* last stepper return flag            */
-  sunrealtype tshift;     /* time normalization shift            */
-  sunrealtype tscale;     /* time normalization scaling          */
-
-  /* fused op workspace */
-  sunrealtype* fused_scalars;
-  N_Vector* fused_vectors;
+  /* last stepper return flag */
+  int last_flag;
 };
 
 #ifdef __cplusplus
