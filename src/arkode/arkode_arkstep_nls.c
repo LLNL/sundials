@@ -574,7 +574,7 @@ int arkStep_NlsResidual_MassIdent(N_Vector zcor, N_Vector r, void* arkode_mem)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
-  sunrealtype c[3];
+  sunscalartype c[3];
   N_Vector X[3];
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
@@ -610,7 +610,7 @@ int arkStep_NlsResidual_MassIdent_TrivialPredAutonomous(N_Vector zcor, N_Vector 
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval, nls_iter;
-  sunrealtype c[3];
+  sunscalartype c[3];
   N_Vector X[3];
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
@@ -687,7 +687,7 @@ int arkStep_NlsResidual_MassFixed(N_Vector zcor, N_Vector r, void* arkode_mem)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
-  sunrealtype c[3];
+  sunscalartype c[3];
   N_Vector X[3];
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
@@ -727,7 +727,7 @@ int arkStep_NlsResidual_MassFixed_TrivialPredAutonomous(N_Vector zcor, N_Vector 
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval, nls_iter;
-  sunrealtype c[3];
+  sunscalartype c[3];
   N_Vector X[3];
 
   /* access ARKodeMem and ARKodeARKStepMem structures */

@@ -17,12 +17,14 @@
 # CMakeLists.txt file for Kinsol MPI examples
 # ------------------------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
-# develop for examples excluded from 'make test' in releases.
+# Example lists are tuples "name\;args\;nodes\;tasks\;type\;scalartype" where
+# the type is develop for examples excluded from 'make test' in releases, and
+# 'scalartype' is either 'real' or 'complex' if the example should only be built
+# for a single scalar type.
 
 # Examples to build
-set(KINSOL_examples "kin_heat2D_nonlin_p.cpp\;--np 2 2\;1\;4\;exclude-single"
-                    "kin_em_p.cpp\;\;1\;2\;exclude-single")
+set(KINSOL_examples "kin_heat2D_nonlin_p.cpp\;--np 2 2\;1\;4\;exclude-single\;real"
+                    "kin_em_p.cpp\;\;1\;2\;exclude-single\;real")
 
 # Add the build target for each example
 foreach(example_tuple ${KINSOL_examples})
@@ -33,6 +35,7 @@ foreach(example_tuple ${KINSOL_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
+  list(GET example_tuple 5 example_scalartype)
 
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
@@ -40,33 +43,38 @@ foreach(example_tuple ${KINSOL_examples})
   if(NOT TARGET ${example_target})
 
     # add example source files
-    sundials_add_executable(${example_target} ${example})
+    sundials_add_executable(${example_target} ${example}
+      SCALAR_TYPE ${example_scalartype})
 
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(
-      ${example_target}
-      PRIVATE sundials_kinsol sundials_nvecparallel sundials_nvecmpiplusx
-              sundials_nvecserial MPI::MPI_CXX ${EXE_EXTRA_LINK_LIBS})
+      # libraries to link against
+      target_link_libraries(
+        ${example_target}
+        PRIVATE sundials_kinsol sundials_nvecparallel sundials_nvecmpiplusx
+                sundials_nvecserial MPI::MPI_CXX ${EXE_EXTRA_LINK_LIBS})
 
+    endif()
   endif()
 
-  # set the test name
-  if(example_args)
-    string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
-  else()
-    set(test_name ${example_target})
-  endif()
+  if(TARGET ${example})
+    # set the test name
+    if(example_args)
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+    else()
+      set(test_name ${example_target})
+    endif()
 
-  # add regression test
-  sundials_add_test(
-    ${test_name} ${example_target}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    # add regression test
+    sundials_add_test(
+      ${test_name} ${example_target}
+      TEST_ARGS ${example_args}
+      MPI_NPROCS ${number_of_tasks}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
+  endif()
 
 endforeach()
 

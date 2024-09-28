@@ -51,6 +51,11 @@ sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b)
   return (SUNRCompareTol(a, b, 10 * SUN_UNIT_ROUNDOFF));
 }
 
+sunbooleantype SUNCCompare(suncomplextype a, suncomplextype b)
+{
+  return (SUNCCompareTol(a, b, 10 * SUN_UNIT_ROUNDOFF));
+}
+
 sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
 {
   sunrealtype diff;
@@ -77,6 +82,45 @@ sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
    * !isless. The seemingly equivalent >= can have undefined behavior for NANs.
    */
   return !isless(diff, SUNMAX(10 * SUN_UNIT_ROUNDOFF, tol * norm));
+}
+
+sunbooleantype SUNCCompareTol(suncomplextype a, suncomplextype b, sunrealtype tol)
+{
+  sunrealtype diff;
+  sunrealtype norm;
+
+  /* If a and b are exactly equal.
+   * This also covers the case where a and b are both inf under IEEE 754.
+   */
+  if (a == b) { return (SUNFALSE); }
+
+  /* If a or b are NaN */
+  if (isnan(SUN_CREAL(a)) || isnan(SUN_CIMAG(a)) || isnan(SUN_CREAL(b)) ||
+      isnan(SUN_CIMAG(b)))
+  {
+    return (SUNTRUE);
+  }
+
+  /* If one of a or b are Inf (since we handled both being inf above) */
+  if (isinf(SUN_CREAL(a)) || isinf(SUN_CIMAG(a)) || isinf(SUN_CREAL(b)) ||
+      isinf(SUN_CIMAG(b)))
+  {
+    return (SUNTRUE);
+  }
+
+  diff = SUNCabs(a - b);
+  norm = SUNMIN(SUNCabs(a + b), SUN_BIG_REAL);
+
+  /* When |a + b| is very small (less than 10*SUN_UNIT_ROUNDOFF) or zero, we use an
+   * absolute difference:
+   *    |a - b| >= 10*SUN_UNIT_ROUNDOFF
+   * Otherwise we use a relative difference:
+   *    |a - b| < tol * |a + b|
+   * The choice to use |a + b| over max(a, b)
+   * is arbitrary, as is the choice to use
+   * 10*SUN_UNIT_ROUNDOFF.
+   */
+  return (diff >= SUNMAX(10 * SUN_UNIT_ROUNDOFF, tol * norm));
 }
 
 sunrealtype SUNStrToReal(const char* str)

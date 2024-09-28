@@ -17,11 +17,13 @@
 # CMakeLists.txt file for ARKODE ManyVector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is 'develop' for examples
-# excluded from 'make test' in releases
+# Example lists are tuples "name\;type\;scalartype" where the
+# type is 'develop' for examples excluded from 'make test' in
+# releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
-set(ARKODE_examples "ark_brusselator1D_manyvec\;develop")
+set(ARKODE_examples "ark_brusselator1D_manyvec\;develop\;real")
 
 # Auxiliary files to install
 set(ARKODE_extras plot_brusselator1D.py)
@@ -39,26 +41,31 @@ foreach(example_tuple ${ARKODE_examples})
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_type)
+  list(GET example_tuple 2 example_scalartype)
 
   # example source files
-  sundials_add_executable(${example} ${example}.c)
+  sundials_add_executable(${example} ${example}.c
+    SCALAR_TYPE ${example_scalartype})
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  if(TARGET ${example})
+    # folder for IDEs
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-  # add example to regression tests
-  sundials_add_test(
-    ${example} ${example}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+    # add example to regression tests
+    sundials_add_test(
+      ${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
 
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_manyvector)
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.c ${example}.out
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_manyvector)
+    endif()
   endif()
 
 endforeach(example_tuple ${ARKODE_examples})

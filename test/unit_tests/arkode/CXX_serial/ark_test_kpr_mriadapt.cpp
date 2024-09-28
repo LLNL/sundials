@@ -286,9 +286,9 @@ int main(int argc, char* argv[])
   if (check_ptr((void*)y, "N_VNew_Serial")) return 1;
   N_Vector yref = N_VNew_Serial(NEQ, refctx);
   if (check_ptr((void*)yref, "N_VNew_Serial")) return 1;
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
   if (check_ptr((void*)ydata, "N_VGetArrayPointer")) return 1;
-  sunrealtype* yrefdata = N_VGetArrayPointer(yref);
+  sunscalartype* yrefdata = N_VGetArrayPointer(yref);
   if (check_ptr((void*)yrefdata, "N_VGetArrayPointer")) return 1;
 
   // Set initial conditions
@@ -795,13 +795,14 @@ int main(int argc, char* argv[])
   sunrealtype t2    = T0;
   sunrealtype dTout = (Tf - T0) / Nt;
   sunrealtype tout  = T0 + dTout;
-  sunrealtype u, v, uerr, verr, uerrtot, verrtot, errtot, accuracy;
+  sunscalartype u, v;
+  sunrealtype uerr, verr, uerrtot, verrtot, errtot, accuracy;
   uerr = verr = uerrtot = verrtot = errtot = accuracy = ZERO;
   printf("        t           u           v       uerr      verr\n");
   printf("   ------------------------------------------------------\n");
   printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM "  %.2" ESYM
          "\n",
-         t, ydata[0], ydata[1], uerr, verr);
+         t, SUN_REAL(ydata[0]), SUN_REAL(ydata[1]), uerr, verr);
   while (Tf - t > SUN_RCONST(1.0e-8))
   {
     // reset reference solver so that it begins with identical state
@@ -847,7 +848,7 @@ int main(int argc, char* argv[])
       tout = (tout > Tf) ? Tf : tout;
       printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM
              "  %.2" ESYM "\n",
-             t, u, v, uerr, verr);
+             t, SUN_REAL(u), SUN_REAL(v), uerr, verr);
     }
   }
   printf("   ------------------------------------------------------\n");
@@ -934,12 +935,12 @@ int main(int argc, char* argv[])
 // ff routine to compute the fast portion of the ODE RHS.
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype tmp1, tmp2;
+  Options* opts         = (Options*)user_data;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [0  0]*[(-2+u^2-r(t))/(2*u)] + [     0      ]
@@ -956,12 +957,12 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fs routine to compute the slow portion of the ODE RHS.
 static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype tmp1, tmp2;
+  Options* opts         = (Options*)user_data;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-r(t))/(2*u)] + [rdot(t)/(2u)]
@@ -978,10 +979,10 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fse routine to compute the slow portion of the ODE RHS.
 static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
+  Options* opts         = (Options*)user_data;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
 
   // fill in the slow explicit RHS function:
   //   [rdot(t)/(2u)]
@@ -996,12 +997,12 @@ static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fsi routine to compute the slow portion of the ODE RHS.(currently same as fse)
 static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype tmp1, tmp2;
+  Options* opts         = (Options*)user_data;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype tmp1, tmp2;
 
   // fill in the slow implicit RHS function:
   //   [G  e]*[(-2+u^2-r(t))/(2*u)]
@@ -1017,12 +1018,12 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(ydot);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype tmp1, tmp2;
+  Options* opts         = (Options*)user_data;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  sunscalartype* dydata = N_VGetArrayPointer(ydot);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-r(t))/(2*u)] + [rdot(t)/(2u)]
@@ -1045,11 +1046,11 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype t11, t22;
+  Options* opts         = (Options*)user_data;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype t11, t22;
 
   // fill in the Jacobian:
   //   [G  e]*[1-(u^2-r(t)-2)/(2*u^2),  0] + [-r'(t)/(2*u^2),  0]
@@ -1068,11 +1069,11 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype t11, t22;
+  Options* opts         = (Options*)user_data;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype t11, t22;
 
   // fill in the Jacobian:
   //   [G  e]*[1-(u^2-r(t)-2)/(2*u^2),  0]
@@ -1091,11 +1092,11 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts       = (Options*)user_data;
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
-  sunrealtype t11, t22;
+  Options* opts         = (Options*)user_data;
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
+  sunscalartype t11, t22;
 
   // fill in the Jacobian:
   //   [G  e]*[1-(u^2-r(t)-2)/(2*u^2),  0] + [-r'(t)/(2*u^2),  0]
@@ -1144,9 +1145,9 @@ static sunrealtype vtrue(sunrealtype t, Options* opts)
 
 static int Ytrue(sunrealtype t, N_Vector y, Options* opts)
 {
-  sunrealtype* ydata = N_VGetArrayPointer(y);
-  ydata[0]           = utrue(t, opts);
-  ydata[1]           = vtrue(t, opts);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
+  ydata[0]             = utrue(t, opts);
+  ydata[1]             = vtrue(t, opts);
   return (0);
 }
 

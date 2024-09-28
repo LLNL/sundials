@@ -38,7 +38,7 @@ HYPRE parallel vector object *x*.
      sunindextype global_length;
      sunbooleantype own_data;
      sunbooleantype own_parvector;
-     sunrealtype *data;
+     sunscalartype *data;
      MPI_Comm comm;
      hypre_ParVector *x;
    };

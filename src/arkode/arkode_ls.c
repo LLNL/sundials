@@ -726,17 +726,19 @@ int ARKodeSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   }
   else if (nrmfac < ZERO)
   {
-    /* Ensure that vector support N_VDotProd */
-    if (ark_mem->tempv1->ops->nvdotprod == NULL)
+    /* Ensure that vector supports N_VDotProdComplex */
+    if (ark_mem->tempv1->ops->nvdotprodcomplex == NULL)
     {
       arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "N_VDotProd unimplemented (required for ARKodeSetLSNormFactor)");
+                      __FILE__, "N_VDotProdComplex unimplemented (required for ARKodeSetLSNormFactor)");
       return (ARKLS_ILL_INPUT);
     }
 
     /* compute factor for WRMS norm with dot product */
     N_VConst(ONE, ark_mem->tempv1);
-    arkls_mem->nrmfac = SUNRsqrt(N_VDotProd(ark_mem->tempv1, ark_mem->tempv1));
+    sunscalartype dot = ZERO;
+    SUNCheckCall(N_VDotProdComplex(ark_mem->tempv1, ark_mem->tempv1, &dot));
+    arkls_mem->nrmfac = SUNRsqrt(SUN_REAL(dot));
   }
   else
   {
@@ -1686,17 +1688,19 @@ int ARKodeSetMassLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   }
   else if (nrmfac < ZERO)
   {
-    /* Ensure that vector support N_VDotProd */
-    if (ark_mem->tempv1->ops->nvdotprod == NULL)
+    /* Ensure that vector support N_VDotProdComplex */
+    if (ark_mem->tempv1->ops->nvdotprodcomplex == NULL)
     {
       arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "N_VDotProd unimplemented (required for ARKodeSetMassLSNormFactor)");
+                      __FILE__, "N_VDotProdComplex unimplemented (required for ARKodeSetMassLSNormFactor)");
       return (ARKLS_ILL_INPUT);
     }
 
     /* compute factor for WRMS norm with dot product */
     N_VConst(ONE, ark_mem->tempv1);
-    arkls_mem->nrmfac = SUNRsqrt(N_VDotProd(ark_mem->tempv1, ark_mem->tempv1));
+    sunscalartype dot = ZERO;
+    SUNCheckCall(N_VDotProdComplex(ark_mem->tempv1, ark_mem->tempv1, &dot));
+    arkls_mem->nrmfac = SUNRsqrt(SUN_REAL(dot));
   }
   else
   {
@@ -2643,8 +2647,9 @@ int arkLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                     ARKodeMem ark_mem, ARKLsMem arkls_mem, ARKRhsFn fi,
                     N_Vector tmp1)
 {
-  sunrealtype fnorm, minInc, inc, inc_inv, yjsaved, srur, conj;
-  sunrealtype *y_data, *ewt_data, *cns_data;
+  sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;
+  sunscalartype yjsaved;
+  sunscalartype *y_data, *ewt_data, *cns_data;
   N_Vector ftemp, jthCol;
   sunindextype j, N;
   int retval = 0;
@@ -2677,19 +2682,19 @@ int arkLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     N_VSetArrayPointer(SUNDenseMatrix_Column(Jac, j), jthCol);
 
     yjsaved = y_data[j];
-    inc     = SUNMAX(srur * SUNRabs(yjsaved), minInc / ewt_data[j]);
+    inc     = SUNMAX(srur * SUNabs(yjsaved), minInc / SUN_REAL(ewt_data[j]));
 
     /* Adjust sign(inc) if y_j has an inequality constraint. */
     if (ark_mem->constraintsSet)
     {
-      conj = cns_data[j];
+      conj = SUN_REAL(cns_data[j]);
       if (SUNRabs(conj) == ONE)
       {
-        if ((yjsaved + inc) * conj < ZERO) { inc = -inc; }
+        if ((SUN_REAL(yjsaved) + inc) * conj < ZERO) { inc = -inc; }
       }
       else if (SUNRabs(conj) == TWO)
       {
-        if ((yjsaved + inc) * conj <= ZERO) { inc = -inc; }
+        if ((SUN_REAL(yjsaved) + inc) * conj <= ZERO) { inc = -inc; }
       }
     }
 
@@ -2729,8 +2734,8 @@ int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
 {
   N_Vector ftemp, ytemp;
   sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;
-  sunrealtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
-  sunrealtype* cns_data;
+  sunscalartype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
+  sunscalartype* cns_data;
   sunindextype group, i, j, width, ngroups, i1, i2;
   sunindextype N, mupper, mlower;
   int retval = 0;
@@ -2773,19 +2778,19 @@ int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     /* Increment all y_j in group */
     for (j = group - 1; j < N; j += width)
     {
-      inc = SUNMAX(srur * SUNRabs(y_data[j]), minInc / ewt_data[j]);
+      inc = SUNMAX(srur * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
 
       /* Adjust sign(inc) if yj has an inequality constraint. */
       if (ark_mem->constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((ytemp_data[j] + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(ytemp_data[j]) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((ytemp_data[j] + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(ytemp_data[j]) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 
@@ -2802,19 +2807,19 @@ int arkLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     {
       ytemp_data[j] = y_data[j];
       col_j         = SUNBandMatrix_Column(Jac, j);
-      inc           = SUNMAX(srur * SUNRabs(y_data[j]), minInc / ewt_data[j]);
+      inc = SUNMAX(srur * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
 
       /* Adjust sign(inc) as before. */
       if (ark_mem->constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((ytemp_data[j] + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(ytemp_data[j]) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((ytemp_data[j] + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(ytemp_data[j]) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 

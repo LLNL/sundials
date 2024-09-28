@@ -218,7 +218,7 @@ SUNErrCode SUNProfiler_Create(SUNComm comm, const char* title, SUNProfiler* p)
 
   /* Copy the title of the profiler (note strlen does not include terminating
      null character hence the +1) */
-  profiler->title = malloc((strlen(title) + 1) * sizeof(char));
+  profiler->title = (char*)malloc((strlen(title) + 1) * sizeof(char));
   strcpy(profiler->title, title);
 
   /* Initialize the overall timer to 0. */

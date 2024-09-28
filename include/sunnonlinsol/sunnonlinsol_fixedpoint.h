@@ -27,7 +27,7 @@
 
 #include <sundials/sundials_core.h>
 
-#include "sundials/sundials_types.h"
+#include "sundials_iterative_impl.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -47,10 +47,11 @@ struct _SUNNonlinearSolverContent_FixedPoint
   int m;                  /* number of acceleration vectors to use          */
   int* imap;              /* array of length m                              */
   sunbooleantype damping; /* flag to apply dampling in acceleration         */
-  sunrealtype beta;       /* damping parameter                               */
-  sunrealtype* R;         /* array of length m*m                            */
-  sunrealtype* gamma;     /* array of length m                              */
-  sunrealtype* cvals;     /* array of length m+1 for fused vector op        */
+  sunrealtype beta;       /* Anderson acceleration damping parameter        */
+  sunscalartype* R;       /* array of length m*m                            */
+  sunscalartype* gamma;   /* array of length m                              */
+  sunscalartype* cvals;   /* array of length m+1 for fused vector op        */
+  SUNQRData qr_data;      /* data structure needed to call SUNQR functions  */
   N_Vector* df;           /* vector array of length m                       */
   N_Vector* dg;           /* vector array of length m                       */
   N_Vector* q;            /* vector array of length m                       */

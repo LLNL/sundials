@@ -53,9 +53,9 @@ int main(int argc, char* argv[])
   flag = true_sol(ZERO, &utrue, &vtrue);
   if (check_flag(flag, "true_sol")) { return 1; }
 
-  sunrealtype* ydata = N_VGetArrayPointer(y);
-  ydata[0]           = utrue;
-  ydata[1]           = vtrue;
+  sunscalartype* ydata = N_VGetArrayPointer(y);
+  ydata[0]             = utrue;
+  ydata[1]             = vtrue;
 
   N_Vector yp = N_VNew_Serial(2, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
   flag = true_sol_p(ZERO, &uptrue, &vptrue);
   if (check_flag(flag, "true_sol")) { return 1; }
 
-  sunrealtype* ypdata = N_VGetArrayPointer(yp);
-  ypdata[0]           = uptrue;
-  ypdata[1]           = vptrue;
+  sunscalartype* ypdata = N_VGetArrayPointer(yp);
+  ypdata[0]             = uptrue;
+  ypdata[1]             = vptrue;
 
   // Create IDAS memory structure
   void* ida_mem = IDACreate(sunctx);
@@ -177,20 +177,20 @@ int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector rr, void* user_data)
   const sunrealtype c = udata[2];
   const sunrealtype d = udata[3];
 
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
 
-  sunrealtype* ypdata  = N_VGetArrayPointer(yp);
-  const sunrealtype up = ypdata[0];
-  const sunrealtype vp = ypdata[1];
+  sunscalartype* ypdata  = N_VGetArrayPointer(yp);
+  const sunscalartype up = ypdata[0];
+  const sunscalartype vp = ypdata[1];
 
-  const sunrealtype tmp1 = (-ONE + u * u - r(t)) / (TWO * u);
-  const sunrealtype tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
+  const sunscalartype tmp1 = (-ONE + u * u - r(t)) / (TWO * u);
+  const sunscalartype tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
 
-  sunrealtype* rdata = N_VGetArrayPointer(rr);
-  rdata[0]           = (a * tmp1 + b * tmp2 + rdot(t) / (TWO * u)) - up;
-  rdata[1]           = (c * tmp1 + d * tmp2 + sdot(t) / (TWO * v)) - vp;
+  sunscalartype* rdata = N_VGetArrayPointer(rr);
+  rdata[0]             = (a * tmp1 + b * tmp2 + rdot(t) / (TWO * u)) - up;
+  rdata[1]             = (c * tmp1 + d * tmp2 + sdot(t) / (TWO * v)) - vp;
 
   return 0;
 }
@@ -210,11 +210,11 @@ int J(sunrealtype t, sunrealtype cj, N_Vector y, N_Vector yp, N_Vector rr,
   const sunrealtype c = udata[2];
   const sunrealtype d = udata[3];
 
-  sunrealtype* ydata = N_VGetArrayPointer(y);
-  sunrealtype* Jdata = SUNDenseMatrix_Data(J);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* Jdata = SUNDenseMatrix_Data(J);
 
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
 
   Jdata[0] = (a / TWO + (a * (ONE + r(t)) - rdot(t)) / (TWO * u * u)) - cj;
   Jdata[1] = c / TWO + c * (ONE + r(t)) / (TWO * u * u);

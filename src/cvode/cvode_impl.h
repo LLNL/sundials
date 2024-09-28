@@ -280,7 +280,7 @@ typedef struct CVodeMemRec
                                   sizes indexed from 1 to q+1                 */
   sunrealtype cv_tq[NUM_TESTS + 1]; /* array of test quantities indexed from
                                   1 to NUM_TESTS(=5)                          */
-  sunrealtype cv_l[L_MAX]; /* coefficients of l(x) (degree q poly)        */
+  sunscalartype cv_l[L_MAX]; /* coefficients of l(x) (degree q poly)        */
 
   sunrealtype cv_rl1;    /* the scalar 1/l[1]                           */
   sunrealtype cv_gamma;  /* gamma = h * rl1                             */
@@ -451,14 +451,14 @@ typedef struct CVodeMemRec
   CVodeProjMem proj_mem;       /* projection memory structure               */
   sunbooleantype proj_enabled; /* flag indicating if projection is enabled  */
   sunbooleantype proj_applied; /* flag indicating if projection was applied */
-  sunrealtype proj_p[L_MAX];   /* coefficients of p(x) (degree q poly)      */
+  sunscalartype proj_p[L_MAX]; /* coefficients of p(x) (degree q poly)      */
 
   /*-----------------------
     Fused Vector Operations
     -----------------------*/
 
-  sunrealtype cv_cvals[L_MAX]; /* array of scalars */
-  N_Vector cv_Xvecs[L_MAX];    /* array of vectors */
+  sunscalartype cv_cvals[L_MAX]; /* array of scalars */
+  N_Vector cv_Xvecs[L_MAX];      /* array of vectors */
 
   sunbooleantype cv_usefused; /* flag indicating if CVODE specific fused kernels should be used */
 

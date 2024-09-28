@@ -182,8 +182,8 @@ int main(int argc, char* argv[])
     SUNMatDestroy(A);
   }
 
-  SUNMatrix I = SUNMatClone(A);
-  if (!I)
+  SUNMatrix K = SUNMatClone(A);
+  if (!K)
   {
     printf("Matrix creation failed\n");
     N_VDestroy(x);
@@ -204,11 +204,11 @@ int main(int argc, char* argv[])
     N_VDestroy(b);
     SUNMatDestroy(A);
     SUNMatDestroy(B);
-    SUNMatDestroy(I);
+    SUNMatDestroy(K);
   }
 
   sunrealtype* Idata =
-    (sunrealtype*)malloc(sizeof(sunrealtype) * SUNMatrix_OneMklDense_LData(I));
+    (sunrealtype*)malloc(sizeof(sunrealtype) * SUNMatrix_OneMklDense_LData(K));
   if (!Idata)
   {
     printf("Data allocation failed\n");
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
     N_VDestroy(b);
     SUNMatDestroy(A);
     SUNMatDestroy(B);
-    SUNMatDestroy(I);
+    SUNMatDestroy(K);
     free(Adata);
   }
 
@@ -261,7 +261,7 @@ int main(int argc, char* argv[])
   }
 
   SUNMatrix_OneMklDense_CopyToDevice(A, Adata);
-  SUNMatrix_OneMklDense_CopyToDevice(I, Idata);
+  SUNMatrix_OneMklDense_CopyToDevice(K, Idata);
 
   // Fill x vector with uniform random data in [0,1]
   sunrealtype* xdata = N_VGetArrayPointer(x);
@@ -289,7 +289,7 @@ int main(int argc, char* argv[])
     N_VDestroy(b);
     SUNMatDestroy(A);
     SUNMatDestroy(B);
-    SUNMatDestroy(I);
+    SUNMatDestroy(K);
     free(Adata);
     free(Idata);
     return 1;
@@ -307,7 +307,7 @@ int main(int argc, char* argv[])
     N_VDestroy(b);
     SUNMatDestroy(A);
     SUNMatDestroy(B);
-    SUNMatDestroy(I);
+    SUNMatDestroy(K);
     free(Adata);
     free(Idata);
 
@@ -343,7 +343,7 @@ int main(int argc, char* argv[])
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   SUNMatDestroy(B);
-  SUNMatDestroy(I);
+  SUNMatDestroy(K);
   N_VDestroy(x);
   N_VDestroy(y);
   N_VDestroy(b);

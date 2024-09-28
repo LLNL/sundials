@@ -84,8 +84,11 @@ static int test_forward(sundials::Context& ctx, int order, int partitions)
             << " partitions completed with an error of " << err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution,
-                                       global_tol);
+  sunbooleantype fail = SUNRCompareTol(SUN_REAL(exact_solution),
+                                       SUN_REAL(numerical_solution), global_tol) ||
+                        SUNRCompareTol(SUN_IMAG(exact_solution),
+                                       SUN_IMAG(numerical_solution), global_tol);
+
   if (fail)
   {
     std::cerr << "Error exceeded tolerance of " << global_tol << "\n";
@@ -396,7 +399,9 @@ static int test_custom_stepper(const sundials::Context& ctx, int order)
             << " completed with an error of " << err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  sunbooleantype fail = SUNRCompare(exact_solution, numerical_solution);
+  sunbooleantype fail =
+    SUNRCompare(SUN_REAL(exact_solution), SUN_REAL(numerical_solution)) ||
+    SUNRCompare(SUN_IMAG(exact_solution), SUN_IMAG(numerical_solution));
   if (fail) { std::cerr << "Error exceeded tolerance\n"; }
   std::cout << "\n";
 
@@ -477,8 +482,10 @@ static int test_reinit(const sundials::Context& ctx)
             << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution,
-                                       global_tol);
+  sunbooleantype fail = SUNRCompareTol(SUN_REAL(exact_solution),
+                                       SUN_REAL(numerical_solution), global_tol) ||
+                        SUNRCompareTol(SUN_IMAG(exact_solution),
+                                       SUN_IMAG(numerical_solution), global_tol);
   if (fail)
   {
     std::cerr << "Error exceeded tolerance of " << global_tol << "\n";

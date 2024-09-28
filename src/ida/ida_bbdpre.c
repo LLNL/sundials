@@ -587,9 +587,10 @@ static int IBBDDQJac(IBBDPrecData pdata, sunrealtype tt, sunrealtype cj,
   sunrealtype inc, inc_inv;
   int retval;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  sunrealtype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
-  sunrealtype *cnsdata = NULL, *ewtdata;
-  sunrealtype *col_j, conj, yj, ypj, ewtj;
+  sunscalartype *ydata, *ypdata, *ytempdata, *yptempdata, *grefdata, *gtempdata;
+  sunscalartype *cnsdata = NULL, *ewtdata;
+  sunscalartype *col_j, yj, ypj;
+  sunrealtype conj, ewtj;
 
   IDA_mem = (IDAMem)pdata->ida_mem;
 
@@ -634,28 +635,28 @@ static int IBBDDQJac(IBBDPrecData pdata, sunrealtype tt, sunrealtype cj,
     {
       yj   = ydata[j];
       ypj  = ypdata[j];
-      ewtj = ewtdata[j];
+      ewtj = SUN_REAL(ewtdata[j]);
 
       /* Set increment inc to yj based on rel_yy*abs(yj), with
          adjustments using ypj and ewtj if this is small, and a further
          adjustment to give it the same sign as hh*ypj. */
       inc = pdata->rel_yy *
-            SUNMAX(SUNRabs(yj),
-                   SUNMAX(SUNRabs(IDA_mem->ida_hh * ypj), ONE / ewtj));
-      if (IDA_mem->ida_hh * ypj < ZERO) { inc = -inc; }
-      inc = (yj + inc) - yj;
+            SUNMAX(SUNabs(yj),
+                   SUNMAX(SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj)), ONE / ewtj));
+      if (IDA_mem->ida_hh * SUN_REAL(ypj) < ZERO) { inc = -inc; }
+      inc = (SUN_REAL(yj) + inc) - SUN_REAL(yj);
 
       /* Adjust sign(inc) again if yj has an inequality constraint. */
       if (IDA_mem->ida_constraintsSet)
       {
-        conj = cnsdata[j];
+        conj = SUN_REAL(cnsdata[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((yj + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 
@@ -675,24 +676,24 @@ static int IBBDDQJac(IBBDPrecData pdata, sunrealtype tt, sunrealtype cj,
     {
       yj = ytempdata[j] = ydata[j];
       ypj = yptempdata[j] = ypdata[j];
-      ewtj                = ewtdata[j];
+      ewtj                = SUN_REAL(ewtdata[j]);
 
       /* Set increment inc as before .*/
       inc = pdata->rel_yy *
-            SUNMAX(SUNRabs(yj),
-                   SUNMAX(SUNRabs(IDA_mem->ida_hh * ypj), ONE / ewtj));
-      if (IDA_mem->ida_hh * ypj < ZERO) { inc = -inc; }
-      inc = (yj + inc) - yj;
+            SUNMAX(SUNabs(yj),
+                   SUNMAX(SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj)), ONE / ewtj));
+      if (IDA_mem->ida_hh * SUN_REAL(ypj) < ZERO) { inc = -inc; }
+      inc = (SUN_REAL(yj) + inc) - SUN_REAL(yj);
       if (IDA_mem->ida_constraintsSet)
       {
-        conj = cnsdata[j];
+        conj = SUN_REAL(cnsdata[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((yj + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 

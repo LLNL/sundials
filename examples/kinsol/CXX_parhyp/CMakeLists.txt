@@ -17,12 +17,15 @@
 # CMakeLists.txt file for KINSOL C++ parhyp examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
-# develop for examples excluded from 'make test' in releases
+# Example lists are tuples
+#   "name\;args\;nodes\;tasks\;type\;scalartype"
+# where the type is develop for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
-set(KINSOL_examples "kin_bratu2D_hypre_pfmg\;--np 2 2\;1\;4\;develop"
-                    "kin_heat2D_nonlin_hypre_pfmg\;--np 2 2\;1\;4\;develop")
+set(KINSOL_examples "kin_bratu2D_hypre_pfmg\;--np 2 2\;1\;4\;develop\;real"
+                    "kin_heat2D_nonlin_hypre_pfmg\;--np 2 2\;1\;4\;develop\;real")
 
 set(KINSOL_headers "kin_bratu2D_hypre_pfmg.hpp"
                    "kin_heat2D_nonlin_hypre_pfmg.hpp")
@@ -43,44 +46,50 @@ foreach(example_tuple ${KINSOL_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
+  list(GET example_tuple 5 example_scalartype)
 
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    sundials_add_executable(${example} ${example}.cpp)
+    sundials_add_executable(${example} ${example}.cpp
+      SCALAR_TYPE ${example_scalartype})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(${example} PRIVATE MPI::MPI_CXX ${SUNDIALS_LIBS}
-                                             SUNDIALS::HYPRE)
+      # libraries to link against
+      target_link_libraries(${example} PRIVATE MPI::MPI_CXX ${SUNDIALS_LIBS}
+                                               SUNDIALS::HYPRE)
+    endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  if(TARGET ${example})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example}
+      TEST_ARGS ${example_args}
+      MPI_NPROCS ${number_of_tasks}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
 
-  # find all .out files for this example
-  file(GLOB example_out ${example}*.out)
+    # find all .out files for this example
+    file(GLOB example_out ${example}*.out)
 
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cpp ${example_out}
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp)
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.cpp ${example_out}
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/CXX_parhyp)
+    endif()
   endif()
 
 endforeach(example_tuple ${KINSOL_examples})

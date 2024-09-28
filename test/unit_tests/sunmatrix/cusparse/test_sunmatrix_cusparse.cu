@@ -409,7 +409,7 @@ int main(int argc, char* argv[])
     return (-1);
   }
 
-  /* Create/fill I matrix */
+  /* Create/fill K matrix */
   dI = NULL;
   if (square)
   {
@@ -537,11 +537,11 @@ int main(int argc, char* argv[])
 /* ----------------------------------------------------------------------
   * Test the SUNMatrix_cuSparse_SetKernelExecPolicy function.
   * --------------------------------------------------------------------*/
-int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
+int Test_SetKernelExecPolicy(SUNMatrix K, int myid)
 {
   int print_all_ranks = 0;
   sunrealtype tol     = 100 * SUN_UNIT_ROUNDOFF;
-  SUNMatrix B         = SUNMatClone(I);
+  SUNMatrix B         = SUNMatClone(K);
 
   /* check cloned matrix */
   if (B == NULL)
@@ -552,7 +552,7 @@ int Test_SetKernelExecPolicy(SUNMatrix I, int myid)
   }
 
   /* copy data */
-  if (SUNMatCopy(I, B))
+  if (SUNMatCopy(K, B))
   {
     TEST_STATUS(">>> FAILED test -- SetKernelExecPolicy \n", myid);
     TEST_STATUS("    SUNMatCopy returned nonzero \n \n", myid);

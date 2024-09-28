@@ -32,9 +32,9 @@ namespace lotka_volterra {
 
 inline int ode_rhs(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
 {
-  sunrealtype* p    = (sunrealtype*)user_data;
-  sunrealtype* u    = N_VGetArrayPointer(uvec);
-  sunrealtype* udot = N_VGetArrayPointer(udotvec);
+  sunrealtype* p      = (sunrealtype*)user_data;
+  sunscalartype* u    = N_VGetArrayPointer(uvec);
+  sunscalartype* udot = N_VGetArrayPointer(udotvec);
 
   udot[0] = p[0] * u[0] - p[1] * u[0] * u[1];
   udot[1] = -p[2] * u[1] + p[3] * u[0] * u[1];
@@ -45,9 +45,9 @@ inline int ode_rhs(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_da
 inline int ode_jac(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac,
                    void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* p = (sunrealtype*)user_data;
-  sunrealtype* u = N_VGetArrayPointer(uvec);
-  sunrealtype* J = SUNDenseMatrix_Data(Jac);
+  sunrealtype* p   = (sunrealtype*)user_data;
+  sunscalartype* u = N_VGetArrayPointer(uvec);
+  sunscalartype* J = SUNDenseMatrix_Data(Jac);
 
   J[0] = p[0] - p[1] * u[1];
   J[2] = -p[1] * u[0];
@@ -60,10 +60,10 @@ inline int ode_jac(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac
 inline int ode_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
                    N_Vector udotvec, void* user_data, N_Vector tmp)
 {
-  sunrealtype* p  = (sunrealtype*)user_data;
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
-  sunrealtype* v  = N_VGetArrayPointer(vvec);
-  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
+  sunrealtype* p    = (sunrealtype*)user_data;
+  sunscalartype* u  = N_VGetArrayPointer(uvec);
+  sunscalartype* v  = N_VGetArrayPointer(vvec);
+  sunscalartype* Jv = N_VGetArrayPointer(Jvvec);
 
   Jv[0] = (p[0] - p[1] * u[1]) * v[0] + p[3] * u[1] * v[1];
   Jv[1] = -p[1] * u[0] * v[0] + (-p[2] + p[3] * u[0]) * v[1];
@@ -75,8 +75,8 @@ inline int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec,
                               SUNMatrix Jac, void* user_data, N_Vector tmp1,
                               N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* u = N_VGetArrayPointer(uvec);
-  sunrealtype* J = SUNDenseMatrix_Data(Jac);
+  sunscalartype* u = N_VGetArrayPointer(uvec);
+  sunscalartype* J = SUNDenseMatrix_Data(Jac);
 
   J[0] = u[0];
   J[1] = SUN_RCONST(0.0);
@@ -94,9 +94,9 @@ inline int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t,
                          N_Vector uvec, N_Vector udotvec, void* user_data,
                          N_Vector tmp)
 {
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
-  sunrealtype* v  = N_VGetArrayPointer(vvec);
-  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
+  sunscalartype* u  = N_VGetArrayPointer(uvec);
+  sunscalartype* v  = N_VGetArrayPointer(vvec);
+  sunscalartype* Jv = N_VGetArrayPointer(Jvvec);
 
   Jv[0] = u[0] * v[0];
   Jv[1] = -u[0] * u[1] * v[0];

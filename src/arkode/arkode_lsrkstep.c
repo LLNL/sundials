@@ -385,14 +385,15 @@ int lsrkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   /* Allocate reusable arrays for fused vector interface */
   if (step_mem->cvals == NULL)
   {
-    step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                           sizeof(sunrealtype));
+    step_mem->cvals = (sunscalartype*)calloc(step_mem->nfusedopvecs,
+                                             sizeof(*step_mem->cvals));
     if (step_mem->cvals == NULL) { return ARK_MEM_FAIL; }
     ark_mem->lrw += step_mem->nfusedopvecs;
   }
   if (step_mem->Xvecs == NULL)
   {
-    step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs, sizeof(N_Vector));
+    step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
+                                        sizeof(*step_mem->Xvecs));
     if (step_mem->Xvecs == NULL) { return ARK_MEM_FAIL; }
     ark_mem->liw += step_mem->nfusedopvecs; /* pointers */
   }
@@ -553,8 +554,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  sunrealtype* cvals = step_mem->cvals;
-  N_Vector* Xvecs    = step_mem->Xvecs;
+  sunscalartype* cvals = step_mem->cvals;
+  N_Vector* Xvecs      = step_mem->Xvecs;
 
   /* Compute dominant eigenvalue and update stats */
   if (step_mem->dom_eig_update)
@@ -862,8 +863,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  sunrealtype* cvals = step_mem->cvals;
-  N_Vector* Xvecs    = step_mem->Xvecs;
+  sunscalartype* cvals = step_mem->cvals;
+  N_Vector* Xvecs      = step_mem->Xvecs;
 
   /* Compute dominant eigenvalue and update stats */
   if (step_mem->dom_eig_update)
@@ -1142,8 +1143,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  sunrealtype* cvals = step_mem->cvals;
-  N_Vector* Xvecs    = step_mem->Xvecs;
+  sunscalartype* cvals = step_mem->cvals;
+  N_Vector* Xvecs      = step_mem->Xvecs;
 
   sunrealtype rs     = (sunrealtype)step_mem->req_stages;
   sunrealtype sm1inv = ONE / (rs - ONE);
@@ -1340,8 +1341,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  sunrealtype* cvals = step_mem->cvals;
-  N_Vector* Xvecs    = step_mem->Xvecs;
+  sunscalartype* cvals = step_mem->cvals;
+  N_Vector* Xvecs      = step_mem->Xvecs;
 
   sunrealtype rs  = (sunrealtype)step_mem->req_stages;
   sunrealtype rn  = SUNRsqrt(rs);
@@ -1624,8 +1625,8 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  sunrealtype* cvals = step_mem->cvals;
-  N_Vector* Xvecs    = step_mem->Xvecs;
+  sunscalartype* cvals = step_mem->cvals;
+  N_Vector* Xvecs      = step_mem->Xvecs;
 
   sunrealtype rs = SUN_RCONST(4.0);
   sunrealtype p5 = SUN_RCONST(0.5);
@@ -1832,8 +1833,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  sunrealtype* cvals = step_mem->cvals;
-  N_Vector* Xvecs    = step_mem->Xvecs;
+  sunscalartype* cvals = step_mem->cvals;
+  N_Vector* Xvecs      = step_mem->Xvecs;
 
   SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 0,
              ark_mem->tcur);

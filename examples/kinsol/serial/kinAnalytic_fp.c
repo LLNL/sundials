@@ -130,8 +130,8 @@ static void InputHelp(void);
 static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /* -----------------------------------------------------------------------------
- * Main program
- * ---------------------------------------------------------------------------*/
+  * Main program
+  * ---------------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
   SUNContext sunctx;
@@ -139,6 +139,7 @@ int main(int argc, char* argv[])
   UserOpt uopt   = NULL; /* user options struct */
   N_Vector u     = NULL; /* solution vector     */
   N_Vector scale = NULL; /* scaling vector      */
+  FILE* infofp   = NULL; /* KINSOL log file     */
   long int nni, nfe;     /* solver outputs      */
   sunrealtype* data;     /* vector data array   */
   void* kmem;            /* KINSOL memory       */
@@ -155,8 +156,8 @@ int main(int argc, char* argv[])
   }
 
   /* -------------------------
-   * Print problem description
-   * ------------------------- */
+    * Print problem description
+    * ------------------------- */
 
   printf("Solve the nonlinear system:\n");
   printf("    3x - cos((y-1)z) - 1/2 = 0\n");
@@ -184,8 +185,8 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "SUNContext_Create", 1)) { return (1); }
 
   /* --------------------------------------
-   * Create vectors for solution and scales
-   * -------------------------------------- */
+    * Create vectors for solution and scales
+    * -------------------------------------- */
 
   u = N_VNew_Serial(NEQ, sunctx);
   if (check_retval((void*)u, "N_VNew_Serial", 0)) { return (1); }
@@ -194,8 +195,8 @@ int main(int argc, char* argv[])
   if (check_retval((void*)scale, "N_VClone", 0)) { return (1); }
 
   /* -----------------------------------------
-   * Initialize and allocate memory for KINSOL
-   * ----------------------------------------- */
+    * Initialize and allocate memory for KINSOL
+    * ----------------------------------------- */
 
   kmem = KINCreate(sunctx);
   if (check_retval((void*)kmem, "KINCreate", 0)) { return (1); }
@@ -211,8 +212,8 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "KINInit", 1)) { return (1); }
 
   /* -------------------
-   * Set optional inputs
-   * ------------------- */
+    * Set optional inputs
+    * ------------------- */
 
   /* Specify stopping tolerance based on residual */
   retval = KINSetFuncNormTol(kmem, uopt->tol);
@@ -251,9 +252,13 @@ int main(int argc, char* argv[])
     if (check_retval(&retval, "KINSetDepthFn", 1)) { return (1); }
   }
 
+  /* Set info log file and print level */
+  infofp = fopen("kinsol.log", "w");
+  if (check_retval((void*)infofp, "fopen", 0)) { return (1); }
+
   /* -------------
-   * Initial guess
-   * ------------- */
+    * Initial guess
+    * ------------- */
 
   /* Get vector data array */
   data = N_VGetArrayPointer(u);
@@ -264,8 +269,8 @@ int main(int argc, char* argv[])
   data[2] = -PTONE;
 
   /* ----------------------------
-   * Call KINSol to solve problem
-   * ---------------------------- */
+    * Call KINSol to solve problem
+    * ---------------------------- */
 
   /* No scaling used */
   N_VConst(ONE, scale);
@@ -279,8 +284,8 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "KINSol", 1)) { return (1); }
 
   /* ------------------------------------
-   * Get solver statistics
-   * ------------------------------------ */
+    * Get solver statistics
+    * ------------------------------------ */
 
   /* get solver stats */
   retval = KINGetNumNonlinSolvIters(kmem, &nni);
@@ -294,16 +299,17 @@ int main(int argc, char* argv[])
   printf("Number of function evaluations: %6ld\n", nfe);
 
   /* ------------------------------------
-   * Print solution and check error
-   * ------------------------------------ */
+    * Print solution and check error
+    * ------------------------------------ */
 
   /* check solution */
   retval = check_ans(u, uopt->tol);
 
   /* -----------
-   * Free memory
-   * ----------- */
+    * Free memory
+    * ----------- */
 
+  fclose(infofp);
   N_VDestroy(u);
   N_VDestroy(scale);
   KINFree(&kmem);
@@ -314,19 +320,19 @@ int main(int argc, char* argv[])
 }
 
 /* -----------------------------------------------------------------------------
- * Nonlinear system
- *
- * 3x - cos((y-1)z) - 1/2 = 0
- * x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0
- * exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0
- *
- * Nonlinear fixed point function
- *
- * g1(x,y,z) = 1/3 cos((y-1)z) + 1/6
- * g2(x,y,z) = 1/9 sqrt(x^2 + sin(z) + 1.06) + 0.9
- * g3(x,y,z) = -1/20 exp(-x(y-1)) - (10 pi - 3) / 60
- *
- * ---------------------------------------------------------------------------*/
+  * Nonlinear system
+  *
+  * 3x - cos((y-1)z) - 1/2 = 0
+  * x^2 - 81(y-0.9)^2 + sin(z) + 1.06 = 0
+  * exp(-x(y-1)) + 20z + (10 pi - 3)/3 = 0
+  *
+  * Nonlinear fixed point function
+  *
+  * g1(x,y,z) = 1/3 cos((y-1)z) + 1/6
+  * g2(x,y,z) = 1/9 sqrt(x^2 + sin(z) + 1.06) + 0.9
+  * g3(x,y,z) = -1/20 exp(-x(y-1)) - (10 pi - 3) / 60
+  *
+  * ---------------------------------------------------------------------------*/
 int FPFunction(N_Vector u, N_Vector g, void* user_data)
 {
   sunrealtype* udata = NULL;
@@ -394,8 +400,8 @@ static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
 }
 
 /* -----------------------------------------------------------------------------
- * Check the solution of the nonlinear system and return PASS or FAIL
- * ---------------------------------------------------------------------------*/
+  * Check the solution of the nonlinear system and return PASS or FAIL
+  * ---------------------------------------------------------------------------*/
 static int check_ans(N_Vector u, sunrealtype tol)
 {
   sunrealtype* data = NULL;
@@ -434,8 +440,8 @@ static int check_ans(N_Vector u, sunrealtype tol)
 }
 
 /* -----------------------------------------------------------------------------
- * Set default options
- * ---------------------------------------------------------------------------*/
+  * Set default options
+  * ---------------------------------------------------------------------------*/
 static int SetDefaults(UserOpt* uopt)
 {
   /* Allocate options structure */
@@ -458,8 +464,8 @@ static int SetDefaults(UserOpt* uopt)
 }
 
 /* -----------------------------------------------------------------------------
- * Read command line inputs
- * ---------------------------------------------------------------------------*/
+  * Read command line inputs
+  * ---------------------------------------------------------------------------*/
 static int ReadInputs(int* argc, char*** argv, UserOpt uopt)
 {
   int arg_index = 1;
@@ -528,8 +534,8 @@ static int ReadInputs(int* argc, char*** argv, UserOpt uopt)
 }
 
 /* -----------------------------------------------------------------------------
- * Print command line options
- * ---------------------------------------------------------------------------*/
+  * Print command line options
+  * ---------------------------------------------------------------------------*/
 static void InputHelp(void)
 {
   printf("\n");
@@ -548,10 +554,10 @@ static void InputHelp(void)
 }
 
 /* -----------------------------------------------------------------------------
- * Check function return value
- *   opt == 0 check if returned NULL pointer
- *   opt == 1 check if returned a non-zero value
- * ---------------------------------------------------------------------------*/
+  * Check function return value
+  *   opt == 0 check if returned NULL pointer
+  *   opt == 1 check if returned a non-zero value
+  * ---------------------------------------------------------------------------*/
 static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
   int* errflag;

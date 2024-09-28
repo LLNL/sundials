@@ -281,7 +281,7 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
   int failure = 0;
   sunindextype i;
   N_Vector Xsub[2];
-  sunrealtype *x0, *x1;
+  sunscalartype *x0, *x1;
   sunindextype x0len, x1len;
 
   Xsub[0] = N_VGetSubvector_ManyVector(X, 0);

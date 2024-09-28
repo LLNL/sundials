@@ -399,7 +399,8 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   SUNFunctionBegin(S->sunctx);
 
   /* local data and shortcut variables */
-  sunrealtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
+  sunscalartype alpha, beta, omega, beta_denom, beta_num;
+  sunrealtype omega_denom, r_norm, rho;
   N_Vector r_star, r, p, q, u, Ap, vtemp;
   sunbooleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
   sunbooleantype* zeroguess;
@@ -413,7 +414,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   int status;
 
   /* local variables for fused vector operations */
-  sunrealtype cv[3];
+  sunscalartype cv[3];
   N_Vector Xv[3];
 
   /* Make local shortcuts to solver variables. */
@@ -528,13 +529,12 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
   /* Initialize beta_denom to the dot product of r0 with r0 */
 
-  beta_denom = N_VDotProd(r_star, r_star);
-  SUNCheckLastErr();
+  SUNCheckCall(N_VDotProdComplex(r_star, r_star, &beta_denom));
 
   /* Set r_norm to L2 norm of r_star = sb P1_inv r_0, and
-     return if small */
+      return if small */
 
-  *res_norm = r_norm = rho = SUNRsqrt(beta_denom);
+  *res_norm = r_norm = rho = SUNRsqrt(SUN_REAL(beta_denom));
 
   if (r_norm <= delta)
   {
@@ -660,8 +660,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
     /* Calculate alpha = <r,r_star>/<Ap,r_star> */
 
-    alpha = N_VDotProd(Ap, r_star);
-    SUNCheckLastErr();
+    SUNCheckCall(N_VDotProdComplex(r_star, Ap, &alpha));
     alpha = beta_denom / alpha;
 
     /* Update q = r - alpha*Ap = r - alpha*(sb P1_inv A P2_inv sx_inv p) */
@@ -757,11 +756,10 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
     /* Calculate omega = <u,q>/<u,u> */
 
-    omega_denom = N_VDotProd(u, u);
-    SUNCheckLastErr();
+    SUNCheckCall(N_VDotProdComplex(u, u, &omega_denom));
     if (omega_denom == ZERO) { omega_denom = ONE; }
-    omega = N_VDotProd(u, q);
-    SUNCheckLastErr();
+
+    SUNCheckCall(N_VDotProdComplex(u, q, &omega));
     omega /= omega_denom;
 
     /* Update x = x + alpha*p + omega*q */
@@ -791,8 +789,9 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
     /* Set rho = norm(r) and check convergence */
 
-    *res_norm = rho = SUNRsqrt(N_VDotProd(r, r));
-    SUNCheckLastErr();
+    sunscalartype r2 = SUN_RCONST(0.0);
+    SUNCheckCall(N_VDotProdComplex(r, r, &r2));
+    *res_norm = rho = SUNRsqrt(SUN_REAL(r2));
 
     SUNLogInfo(S->sunctx->logger, "linear-iterate",
                "cur-iter = %i, res-norm = %.16g", *nli, *res_norm);
@@ -806,8 +805,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     /* Not yet converged, continue iteration */
     /* Update beta = <rnew,r_star> / <rold,r_start> * alpha / omega */
 
-    beta_num = N_VDotProd(r, r_star);
-    SUNCheckLastErr();
+    SUNCheckCall(N_VDotProdComplex(r_star, r, &beta_num));
     beta = ((beta_num / beta_denom) * (alpha / omega));
 
     /* Update p = r + beta*(p - omega*Ap) = beta*p - beta*omega*Ap + r */

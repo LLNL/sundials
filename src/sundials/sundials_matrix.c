@@ -191,7 +191,7 @@ SUNErrCode SUNMatCopy(SUNMatrix A, SUNMatrix B)
   return (ier);
 }
 
-SUNErrCode SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatScaleAdd(sunscalartype c, SUNMatrix A, SUNMatrix B)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
@@ -200,7 +200,7 @@ SUNErrCode SUNMatScaleAdd(sunrealtype c, SUNMatrix A, SUNMatrix B)
   return (ier);
 }
 
-SUNErrCode SUNMatScaleAddI(sunrealtype c, SUNMatrix A)
+SUNErrCode SUNMatScaleAddI(sunscalartype c, SUNMatrix A)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));

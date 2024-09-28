@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ UMBC
+ * Programmer(s): Daniel Reynolds, Mustafa Aggul @ UMBC
  * Based on sundials_sptfqmr.c code, written by Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -395,10 +395,12 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   SUNFunctionBegin(S->sunctx);
 
   /* local data and shortcut variables */
-  sunrealtype alpha, tau, eta, beta, c, sigma, v_bar, omega;
-  sunrealtype rho[2];
+  sunrealtype tau, c, v_bar, omega;
+  sunscalartype alpha, beta, eta, sigma;
+  sunscalartype rho[2];
+  sunscalartype temp_scalar;
   sunrealtype r_init_norm, r_curr_norm;
-  sunrealtype temp_val;
+  sunrealtype temp_real;
   sunbooleantype preOnLeft, preOnRight, scale_x, scale_b, converged, b_ok;
   sunbooleantype* zeroguess;
   int n, m, l_max;
@@ -408,7 +410,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   sunrealtype* res_norm;
   int* nli;
   N_Vector sx, sb, r_star, q, d, v, p, *r, u, vtemp1, vtemp2, vtemp3;
-  sunrealtype cv[3];
+  sunscalartype cv[3];
   N_Vector Xv[3];
   int status = SUN_SUCCESS;
 
@@ -434,11 +436,12 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   nli       = &(SPTFQMR_CONTENT(S)->numiters);
   res_norm  = &(SPTFQMR_CONTENT(S)->resnorm);
 
-  /* Initialize counters and convergence flag */
-  temp_val = r_curr_norm = -ONE;
-  *nli                   = 0;
-  converged              = SUNFALSE;
-  b_ok                   = SUNFALSE;
+  /* Initialize variables */
+  temp_real = r_curr_norm = -ONE;
+  temp_scalar             = -ONE;
+  *nli                    = 0;
+  converged               = SUNFALSE;
+  b_ok                    = SUNFALSE;
 
   /* set sunbooleantype flags for internal solver options */
   preOnLeft  = ((SPTFQMR_CONTENT(S)->pretype == SUN_PREC_LEFT) ||
@@ -532,12 +535,11 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   /* NOTE: initialized here to reduce number of computations - avoid need
            to compute r_star^T*r_star twice, and avoid needlessly squaring
            values */
-  rho[0] = N_VDotProd(r_star, r_star);
-  SUNCheckLastErr();
+  SUNCheckCall(N_VDotProdComplex(r_star, r_star, &rho[0]));
 
   /* Compute norm of initial residual (r_0) to see if we really need
      to do anything */
-  *res_norm = r_init_norm = SUNRsqrt(rho[0]);
+  *res_norm = r_init_norm = SUNRsqrt(SUN_REAL(rho[0]));
 
   if (r_init_norm <= delta)
   {
@@ -658,8 +660,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     (*nli)++;
 
     /* sigma = r_star^T*v */
-    sigma = N_VDotProd(r_star, v);
-    SUNCheckLastErr();
+    SUNCheckCall(N_VDotProdComplex(r_star, v, &sigma));
 
     /* alpha = rho[0]/sigma */
     alpha = rho[0] / sigma;
@@ -753,18 +754,16 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
        */
       if (m == 0)
       {
-        temp_val = N_VDotProd(r[1], r[1]);
-        SUNCheckLastErr();
-        temp_val = SUNRsqrt(temp_val);
-        omega    = N_VDotProd(r[0], r[0]);
-        SUNCheckLastErr();
-        omega = SUNRsqrt(SUNRsqrt(omega) * temp_val);
+        SUNCheckCall(N_VDotProdComplex(r[1], r[1], &temp_scalar));
+        temp_real = SUNRsqrt(SUN_REAL(temp_scalar));
+        SUNCheckCall(N_VDotProdComplex(r[0], r[0], &temp_scalar));
+        omega = SUNRsqrt(SUNRsqrt(SUN_REAL(temp_scalar)) * temp_real);
         N_VLinearSum(ONE, u, SUNSQR(v_bar) * eta / alpha, d, d);
         SUNCheckLastErr();
       }
       else
       {
-        omega = temp_val;
+        omega = temp_real;
         N_VLinearSum(ONE, q, SUNSQR(v_bar) * eta / alpha, d, d);
         SUNCheckLastErr();
       }
@@ -934,9 +933,8 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         }
         N_VLinearSum(ONE, vtemp3, -ONE, vtemp2, vtemp1);
         SUNCheckLastErr();
-        r_curr_norm = N_VDotProd(vtemp1, vtemp1);
-        SUNCheckLastErr();
-        *res_norm = r_curr_norm = SUNRsqrt(r_curr_norm);
+        SUNCheckCall(N_VDotProdComplex(vtemp1, vtemp1, &temp_scalar));
+        *res_norm = r_curr_norm = SUNRsqrt(SUN_REAL(temp_scalar));
 
         /* Exit inner loop if inequality condition is satisfied
            (meaning exit if we have converged) */
@@ -959,8 +957,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     if (converged == SUNTRUE) { break; }
 
     /* rho[1] = r_star^T*r_[1] */
-    rho[1] = N_VDotProd(r_star, r[1]);
-    SUNCheckLastErr();
+    SUNCheckCall(N_VDotProdComplex(r_star, r[1], &rho[1]));
 
     /* beta = rho[1]/rho[0] */
     beta = rho[1] / rho[0];

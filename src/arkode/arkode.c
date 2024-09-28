@@ -3151,7 +3151,7 @@ int arkPredict_CutoffOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess)
   combined to form f(t_n+hj,z_j).
   ---------------------------------------------------------------*/
 int arkPredict_Bootstrap(ARKodeMem ark_mem, sunrealtype hj, sunrealtype tau,
-                         int nvec, sunrealtype* cvals, N_Vector* Xvecs,
+                         int nvec, sunscalartype* cvals, N_Vector* Xvecs,
                          N_Vector yguess)
 {
   sunrealtype a0, a1, a2;

@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 {
   int fails = 0;                   /* counter for test failures  */
   sunindextype cols, uband, lband; /* matrix columns, bandwidths */
-  SUNMatrix A, AT, I;              /* test matrices              */
+  SUNMatrix A, AT, K;              /* test matrices              */
   N_Vector x, y;                   /* test vectors               */
   int print_timing;
   sunindextype i, j, k, kstart, kend, jstart, jend;
@@ -98,12 +98,12 @@ int main(int argc, char* argv[])
   x = NULL;
   y = NULL;
   A = NULL;
-  I = NULL;
+  K = NULL;
 
   /* Create matrices and vectors */
   A  = SUNBandMatrix(cols, uband, lband, sunctx);
   AT = SUNBandMatrix(cols, lband, uband, sunctx);
-  I  = SUNBandMatrix(cols, 0, 0, sunctx);
+  K  = SUNBandMatrix(cols, 0, 0, sunctx);
   x  = N_VNew_Serial(cols, sunctx);
   y  = N_VNew_Serial(cols, sunctx);
 
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
   for (j = 0; j < cols; j++)
   {
     /* identity matrix */
-    colj    = SUNBandMatrix_Column(I, j);
+    colj    = SUNBandMatrix_Column(K, j);
     colj[0] = SUN_RCONST(1.0);
 
     /* A matrix */
@@ -156,8 +156,8 @@ int main(int argc, char* argv[])
   fails += Test_SUNMatClone(A, 0);
   fails += Test_SUNMatCopy(A, 0);
   fails += Test_SUNMatZero(A, 0);
-  fails += Test_SUNMatScaleAdd(A, I, 0);
-  fails += Test_SUNMatScaleAddI(A, I, 0);
+  fails += Test_SUNMatScaleAdd(A, K, 0);
+  fails += Test_SUNMatScaleAddI(A, K, 0);
   fails += Test_SUNMatMatvec(A, x, y, 0);
   fails += Test_SUNMatHermitianTransposeVec(A, AT, x, y, 0);
   fails += Test_SUNMatSpace(A, 0);
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
     printf("\nA^T =\n");
     SUNBandMatrix_Print(AT, stdout);
     printf("\nI =\n");
-    SUNBandMatrix_Print(I, stdout);
+    SUNBandMatrix_Print(K, stdout);
     printf("\nx =\n");
     N_VPrint_Serial(x);
     printf("\ny =\n");
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
   /* Free matrices and vectors */
   SUNMatDestroy(A);
   SUNMatDestroy(AT);
-  SUNMatDestroy(I);
+  SUNMatDestroy(K);
   N_VDestroy(x);
   N_VDestroy(y);
   SUNContext_Free(&sunctx);

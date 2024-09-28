@@ -27,6 +27,7 @@
 
 #include <kinsol/kinsol.h>
 #include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
 
 #include "sundials_iterative_impl.h"
 #include "sundials_logger_impl.h"
@@ -178,9 +179,9 @@ typedef struct KINMemRec
   N_Vector* kin_dg_aa;     /* vector array needed for AA, Broyden and NLEN    */
   N_Vector* kin_q_aa;      /* vector array needed for AA                      */
   sunrealtype kin_beta_aa; /* beta damping parameter for AA                   */
-  sunrealtype* kin_gamma_aa; /* array of size maa used in AA                    */
-  sunrealtype* kin_R_aa;   /* array of size maa*maa used in AA                */
-  sunrealtype* kin_T_aa;   /* array of size maa*maa used in AA with ICWY MGS  */
+  sunscalartype* kin_gamma_aa; /* array of size maa used in AA                    */
+  sunscalartype* kin_R_aa; /* array of size maa*maa used in AA                */
+  sunscalartype* kin_T_aa; /* array of size maa*maa used in AA with ICWY MGS  */
   long int kin_m_aa;       /* parameter for AA, Broyden or NLEN               */
   long int kin_m_aa_alloc; /* depth (m) used for AA memory allocations */
   long int kin_delay_aa;   /* number of iterations to delay AA */
@@ -199,8 +200,8 @@ typedef struct KINMemRec
                                  set for AA                                      */
   sunbooleantype kin_damping_aa; /* flag to apply damping in AA                     */
   sunbooleantype kin_dot_prod_sb; /* use single buffer dot product */
-  sunrealtype* kin_cv; /* scalar array for fused vector operations        */
-  N_Vector* kin_Xv;    /* vector array for fused vector operations        */
+  sunscalartype* kin_cv; /* scalar array for fused vector operations        */
+  N_Vector* kin_Xv;      /* vector array for fused vector operations        */
 
   /* space requirements for vector storage */
 

@@ -17,12 +17,15 @@
 # CMakeLists.txt file for the F2003 CVODES serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is 'develop' for
-# examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type\;scalartype" where
+# the type is 'develop' for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
+
 set(FCVODES_examples
-    "cvs_analytic_fp_f2003\;\;develop"
-    "cvsAdvDiff_FSA_non_f2003\;-sensi stg t\;develop"
-    "cvsAdvDiff_FSA_non_f2003\;-sensi sim t\;develop")
+    "cvs_analytic_fp_f2003\;\;develop\;real"
+    "cvsAdvDiff_FSA_non_f2003\;-sensi stg t\;develop\;real"
+    "cvsAdvDiff_FSA_non_f2003\;-sensi sim t\;develop\;real")
 
 # Specify libraries to link against
 set(CVODES_LIB sundials_fcvodes_mod)
@@ -36,6 +39,7 @@ foreach(example_tuple ${FCVODES_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalartype)
 
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
@@ -45,38 +49,44 @@ foreach(example_tuple ${FCVODES_examples})
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    sundials_add_executable(${example} ${example}.f90)
+    sundials_add_executable(${example} ${example}.f90
+      SCALAR_TYPE ${example_scalartype})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+      # libraries to link against
+      target_link_libraries(${example} ${SUNDIALS_LIBS})
+    endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  if(TARGET ${example})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
+
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
+
+    # find all .out files for this example
+    file(GLOB example_out ${example}*.out)
+
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.f90 ${example_out}
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial)
+    endif()
   endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
-
-  # find all .out files for this example
-  file(GLOB example_out ${example}*.out)
-
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.f90 ${example_out}
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/F2003_serial)
-  endif()
 endforeach(example_tuple ${FCVODES_examples})
 
 # create Makefile and CMakeLists.txt for examples

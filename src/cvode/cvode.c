@@ -2795,7 +2795,7 @@ static void cvSet(CVodeMem cv_mem)
   case CV_ADAMS: cvSetAdams(cv_mem); break;
   case CV_BDF: cvSetBDF(cv_mem); break;
   }
-  cv_mem->cv_rl1   = ONE / cv_mem->cv_l[1];
+  cv_mem->cv_rl1   = ONE / SUN_REAL(cv_mem->cv_l[1]);
   cv_mem->cv_gamma = cv_mem->cv_h * cv_mem->cv_rl1;
   if (cv_mem->cv_nst == 0) { cv_mem->cv_gammap = cv_mem->cv_gamma; }
   cv_mem->cv_gamrat = (cv_mem->cv_nst > 0) ? cv_mem->cv_gamma / cv_mem->cv_gammap
@@ -2894,7 +2894,7 @@ static void cvAdamsFinish(CVodeMem cv_mem, sunrealtype m[], sunrealtype M[],
   xi_inv = ONE / xi;
 
   cv_mem->cv_tq[2] = M[1] * M0_inv / xi;
-  cv_mem->cv_tq[5] = xi / cv_mem->cv_l[cv_mem->cv_q];
+  cv_mem->cv_tq[5] = xi / SUN_REAL(cv_mem->cv_l[cv_mem->cv_q]);
 
   if (cv_mem->cv_qwait == 1)
   {
@@ -2990,10 +2990,10 @@ static void cvSetBDF(CVodeMem cv_mem)
 
     /* j = q */
     alpha0 -= ONE / cv_mem->cv_q;
-    xistar_inv = -cv_mem->cv_l[1] - alpha0;
+    xistar_inv = -SUN_REAL(cv_mem->cv_l[1]) - alpha0;
     hsum += cv_mem->cv_tau[cv_mem->cv_q - 1];
     xi_inv     = cv_mem->cv_h / hsum;
-    alpha0_hat = -cv_mem->cv_l[1] - xi_inv;
+    alpha0_hat = -SUN_REAL(cv_mem->cv_l[1]) - xi_inv;
 
     if (cv_mem->proj_enabled)
     {
@@ -3030,12 +3030,12 @@ static void cvSetTqBDF(CVodeMem cv_mem, sunrealtype hsum, sunrealtype alpha0,
   A2               = ONE + cv_mem->cv_q * A1;
   cv_mem->cv_tq[2] = SUNRabs(A1 / (alpha0 * A2));
   cv_mem->cv_tq[5] =
-    SUNRabs(A2 * xistar_inv / (cv_mem->cv_l[cv_mem->cv_q] * xi_inv));
+    SUNRabs(A2 * xistar_inv / (SUN_REAL(cv_mem->cv_l[cv_mem->cv_q]) * xi_inv));
   if (cv_mem->cv_qwait == 1)
   {
     if (cv_mem->cv_q > 1)
     {
-      C                = xistar_inv / cv_mem->cv_l[cv_mem->cv_q];
+      C                = xistar_inv / SUN_REAL(cv_mem->cv_l[cv_mem->cv_q]);
       A3               = alpha0 + ONE / cv_mem->cv_q;
       A4               = alpha0_hat + xi_inv;
       Cpinv            = (ONE - A4 + A3) / A3;

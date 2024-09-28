@@ -494,10 +494,11 @@ static int CVBandPDQJac(CVBandPrecData pdata, sunrealtype t, N_Vector y,
                         N_Vector fy, N_Vector ftemp, N_Vector ytemp)
 {
   CVodeMem cv_mem;
-  sunrealtype fnorm, minInc, inc, inc_inv, yj, srur, conj;
+  sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;
+  sunscalartype yj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  sunrealtype *col_j, *ewt_data, *fy_data, *ftemp_data;
-  sunrealtype *y_data, *ytemp_data, *cns_data;
+  sunscalartype *col_j, *ewt_data, *fy_data, *ftemp_data;
+  sunscalartype *y_data, *ytemp_data, *cns_data;
   int retval;
 
   /* initialize cns_data to avoid compiler warning */
@@ -535,20 +536,20 @@ static int CVBandPDQJac(CVBandPrecData pdata, sunrealtype t, N_Vector y,
     /* Increment all y_j in group. */
     for (j = group - 1; j < pdata->N; j += width)
     {
-      inc = SUNMAX(srur * SUNRabs(y_data[j]), minInc / ewt_data[j]);
+      inc = SUNMAX(srur * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
       yj  = y_data[j];
 
       /* Adjust sign(inc) again if yj has an inequality constraint. */
       if (cv_mem->cv_constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((yj + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 
@@ -566,19 +567,19 @@ static int CVBandPDQJac(CVBandPrecData pdata, sunrealtype t, N_Vector y,
       yj            = y_data[j];
       ytemp_data[j] = y_data[j];
       col_j         = SUNBandMatrix_Column(pdata->savedJ, j);
-      inc           = SUNMAX(srur * SUNRabs(y_data[j]), minInc / ewt_data[j]);
+      inc = SUNMAX(srur * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
 
       /* Adjust sign(inc) as before. */
       if (cv_mem->cv_constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((yj + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 

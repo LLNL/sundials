@@ -65,7 +65,7 @@ inline int initial_condition(N_Vector y_vec, sunrealtype ecc)
 {
   if (y_vec == nullptr) { return 1; }
 
-  sunrealtype* y_data = N_VGetArrayPointer(y_vec);
+  sunscalartype* y_data = N_VGetArrayPointer(y_vec);
   if (y_data == nullptr) { return 1; }
 
   y_data[0] = one - ecc;
@@ -80,16 +80,16 @@ inline int hamiltonian(N_Vector y_vec, sunrealtype* H)
 {
   if (y_vec == nullptr || H == nullptr) { return 1; }
 
-  sunrealtype* y_data = N_VGetArrayPointer(y_vec);
+  sunscalartype* y_data = N_VGetArrayPointer(y_vec);
   if (y_data == nullptr) { return 1; }
 
-  const sunrealtype q1 = y_data[0];
-  const sunrealtype q2 = y_data[1];
-  const sunrealtype p1 = y_data[2];
-  const sunrealtype p2 = y_data[3];
+  const sunscalartype q1 = y_data[0];
+  const sunscalartype q2 = y_data[1];
+  const sunscalartype p1 = y_data[2];
+  const sunscalartype p2 = y_data[3];
 
-  const sunrealtype qTq = q1 * q1 + q2 * q2;
-  const sunrealtype pTp = p1 * p1 + p2 * p2;
+  const sunscalartype qTq = q1 * q1 + q2 * q2;
+  const sunscalartype pTp = p1 * p1 + p2 * p2;
 
   *H = half * pTp - one / std::sqrt(qTq);
 
@@ -100,13 +100,13 @@ inline int angular_momentum(N_Vector y_vec, sunrealtype* L)
 {
   if (y_vec == nullptr || L == nullptr) { return 1; }
 
-  sunrealtype* y_data = N_VGetArrayPointer(y_vec);
+  sunscalartype* y_data = N_VGetArrayPointer(y_vec);
   if (y_data == nullptr) { return 1; }
 
-  const sunrealtype q1 = y_data[0];
-  const sunrealtype q2 = y_data[1];
-  const sunrealtype p1 = y_data[2];
-  const sunrealtype p2 = y_data[3];
+  const sunscalartype q1 = y_data[0];
+  const sunscalartype q2 = y_data[1];
+  const sunscalartype p1 = y_data[2];
+  const sunscalartype p2 = y_data[3];
 
   *L = q1 * p2 - q2 * p1;
 
@@ -118,12 +118,12 @@ inline int ode_rhs_velocity(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
 {
   if (y_vec == nullptr || f_vec == nullptr) { return 1; }
 
-  sunrealtype* y_data = N_VGetArrayPointer(y_vec);
-  sunrealtype* f_data = N_VGetArrayPointer(f_vec);
+  sunscalartype* y_data = N_VGetArrayPointer(y_vec);
+  sunscalartype* f_data = N_VGetArrayPointer(f_vec);
   if (y_data == nullptr || f_data == nullptr) { return 1; }
 
-  const sunrealtype p1 = y_data[2];
-  const sunrealtype p2 = y_data[3];
+  const sunscalartype p1 = y_data[2];
+  const sunscalartype p2 = y_data[3];
 
   f_data[0] = p1;
   f_data[1] = p2;
@@ -136,12 +136,12 @@ inline int ode_rhs_force(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
 {
   if (y_vec == nullptr || f_vec == nullptr) { return 1; }
 
-  sunrealtype* y_data = N_VGetArrayPointer(y_vec);
-  sunrealtype* f_data = N_VGetArrayPointer(f_vec);
+  sunscalartype* y_data = N_VGetArrayPointer(y_vec);
+  sunscalartype* f_data = N_VGetArrayPointer(f_vec);
   if (y_data == nullptr || f_data == nullptr) { return 1; }
 
-  const sunrealtype q1 = y_data[0];
-  const sunrealtype q2 = y_data[1];
+  const sunscalartype q1 = y_data[0];
+  const sunscalartype q2 = y_data[1];
 
   const sunrealtype sqrt_qTq = std::sqrt(q1 * q1 + q2 * q2);
 

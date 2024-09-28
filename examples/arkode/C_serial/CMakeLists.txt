@@ -18,91 +18,95 @@
 # CMakeLists.txt file for ARKODE serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is 'develop' for
-# examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type\;scalartype" where
+# the type is 'develop' for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
     # tests that are always run
-    "ark_analytic.c\;\;"
+    "ark_analytic.c\;\;\;real"
+    "ark_complex.c\;\;\;complex"
+    "ark_complex_explicit.c\;\;\;complex"
     # develop tests
-    "ark_analytic.c\;arkode.scalar_tolerances 1e-6 1e-8 arkode.table_names ARKODE_ESDIRK547L2SA_7_4_5 ARKODE_ERK_NONE\;"
-    "ark_advection_diffusion_reaction_splitting.c\;\;develop"
-    "ark_analytic_lsrk.c\;\;develop"
-    "ark_analytic_lsrk_varjac.c\;\;develop"
-    "ark_analytic_lsrk_domeigest.c\;\;develop"
-    "ark_analytic_lsrk_domeigest.c\;arkid.dom_eig_est_init_preprocess_iters 1 sundomeigestimator.max_iters 1\;develop"
-    "ark_analytic_mels.c\;\;develop"
-    "ark_analytic_nonlin.c\;\;develop"
-    "ark_analytic_partitioned.c\;forcing\;develop"
-    "ark_analytic_partitioned.c\;splitting\;develop"
-    "ark_analytic_partitioned.c\;splitting ARKODE_SPLITTING_BEST_2_2_2\;develop"
-    "ark_analytic_partitioned.c\;splitting ARKODE_SPLITTING_RUTH_3_3_2\;exclude-single"
-    "ark_analytic_partitioned.c\;splitting ARKODE_SPLITTING_YOSHIDA_8_6_2\;exclude-single"
-    "ark_analytic_ssprk.c\;\;develop"
-    "ark_brusselator_1D_mri.c\;\;develop"
-    "ark_brusselator_fp.c\;\;exclude-single"
-    "ark_brusselator_mri.c\;\;develop"
-    "ark_brusselator.c\;\;develop"
-    "ark_brusselator1D_imexmri.c\;0 0.001\;exclude-single"
-    "ark_brusselator1D_imexmri.c\;2 0.001\;exclude-single"
-    "ark_brusselator1D_imexmri.c\;3 0.001\;exclude-single"
-    "ark_brusselator1D_imexmri.c\;4 0.001\;exclude-single"
-    "ark_brusselator1D_imexmri.c\;5 0.001\;exclude-single"
-    "ark_brusselator1D_imexmri.c\;6 0.001\;exclude-single"
-    "ark_brusselator1D_imexmri.c\;7 0.001\;exclude-single"
-    "ark_brusselator1D.c\;\;exclude-single"
-    "ark_conserved_exp_entropy_ark.c\;1 0\;develop"
-    "ark_conserved_exp_entropy_ark.c\;1 1\;develop"
-    "ark_conserved_exp_entropy_erk.c\;1\;develop"
-    "ark_damped_harmonic_symplectic.c\;\;exclude-single"
-    "ark_dissipated_exp_entropy.c\;1 0\;develop"
-    "ark_dissipated_exp_entropy.c\;1 1\;develop"
-    "ark_harmonic_symplectic.c\;\;exclude-single"
-    "ark_heat1D_adapt.c\;\;develop"
-    "ark_heat1D.c\;\;develop"
-    "ark_kepler.c\;--stepper ERK --step-mode adapt\;develop"
-    "ark_kepler.c\;--stepper ERK --step-mode fixed --count-orbits\;develop"
-    "ark_kepler.c\;--stepper SPRK --step-mode fixed --count-orbits --use-compensated-sums\;develop"
-    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_EULER_1_1 --tf 50 --check-order --nout 1\;exclude-single"
-    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_LEAPFROG_2_2 --tf 50 --check-order --nout 1\;exclude-single"
-    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_MCLACHLAN_2_2 --tf 50 --check-order --nout 1\;exclude-single"
-    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_MCLACHLAN_3_3 --tf 50 --check-order --nout 1\;exclude-single"
-    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_MCLACHLAN_4_4 --tf 50 --check-order --nout 1\;exclude-single"
-    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_MCLACHLAN_5_6 --tf 50 --check-order --nout 1\;exclude-single"
-    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_PSEUDO_LEAPFROG_2_2 --tf 50 --check-order --nout 1\;exclude-single"
-    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_RUTH_3_3 --tf 50 --check-order --nout 1\;exclude-single"
-    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_YOSHIDA_6_8 --tf 50 --check-order --nout 1\;exclude-single"
-    "ark_kepler.c\;\;develop"
-    "ark_kpr_mri.c\;0 1 0.005\;develop"
-    "ark_kpr_mri.c\;1 0 0.01\;develop"
-    "ark_kpr_mri.c\;1 1 0.002\;exclude-single"
-    "ark_kpr_mri.c\;2 4 0.002\;develop"
-    "ark_kpr_mri.c\;3 2 0.001\;develop"
-    "ark_kpr_mri.c\;4 3 0.001\;develop"
-    "ark_kpr_mri.c\;5 4 0.001\;develop"
-    "ark_kpr_mri.c\;6 5 0.001\;develop"
-    "ark_kpr_mri.c\;7 2 0.002\;develop"
-    "ark_kpr_mri.c\;8 3 0.001 -100 100 0.5 1\;exclude-single"
-    "ark_kpr_mri.c\;9 3 0.001 -100 100 0.5 1\;exclude-single"
-    "ark_kpr_mri.c\;10 4 0.001 -100 100 0.5 1\;exclude-single"
-    "ark_kpr_mri.c\;11 2 0.001\;develop"
-    "ark_kpr_mri.c\;12 3 0.005\;develop"
-    "ark_kpr_mri.c\;13 4 0.01\;exclude-single"
-    "ark_KrylovDemo_prec.c\;\;exclude-single"
-    "ark_KrylovDemo_prec.c\;1\;exclude-single"
-    "ark_KrylovDemo_prec.c\;2\;exclude-single"
-    "ark_lotka_volterra_ASA.c\;--check-freq 1\;develop"
-    "ark_lotka_volterra_ASA.c\;--check-freq 5\;develop"
-    "ark_onewaycouple_mri.c\;\;develop"
-    "ark_reaction_diffusion_mri.c\;\;develop"
-    "ark_robertson_constraints.c\;\;exclude-single"
-    "ark_robertson_root.c\;\;exclude-single"
-    "ark_robertson.c\;\;exclude-single"
-    "ark_twowaycouple_mri.c\;\;develop")
+    "ark_analytic.c\;arkode.scalar_tolerances 1e-6 1e-8 arkode.table_names ARKODE_ESDIRK547L2SA_7_4_5 ARKODE_ERK_NONE\;\;real"
+    "ark_advection_diffusion_reaction_splitting.c\;\;develop\;real"
+    "ark_analytic_lsrk.c\;\;develop\;real"
+    "ark_analytic_lsrk_varjac.c\;\;develop\;real"
+    "ark_analytic_lsrk_domeigest.c\;\;develop\;real"
+    "ark_analytic_lsrk_domeigest.c\;arkid.dom_eig_est_init_preprocess_iters 1 sundomeigestimator.max_iters 1\;develop\;real"
+    "ark_analytic_mels.c\;\;develop\;real"
+    "ark_analytic_nonlin.c\;\;develop\;real"
+    "ark_analytic_partitioned.c\;forcing\;develop\;real"
+    "ark_analytic_partitioned.c\;splitting\;develop\;real"
+    "ark_analytic_partitioned.c\;splitting ARKODE_SPLITTING_BEST_2_2_2\;develop\;real"
+    "ark_analytic_partitioned.c\;splitting ARKODE_SPLITTING_RUTH_3_3_2\;exclude-single\;real"
+    "ark_analytic_partitioned.c\;splitting ARKODE_SPLITTING_YOSHIDA_8_6_2\;exclude-single\;real"
+    "ark_analytic_ssprk.c\;\;develop\;real"
+    "ark_brusselator_1D_mri.c\;\;develop\;real"
+    "ark_brusselator_fp.c\;\;exclude-single\;real"
+    "ark_brusselator_mri.c\;\;develop\;real"
+    "ark_brusselator.c\;\;develop\;real"
+    "ark_brusselator1D_imexmri.c\;0 0.001\;exclude-single\;real"
+    "ark_brusselator1D_imexmri.c\;2 0.001\;exclude-single\;real"
+    "ark_brusselator1D_imexmri.c\;3 0.001\;exclude-single\;real"
+    "ark_brusselator1D_imexmri.c\;4 0.001\;exclude-single\;real"
+    "ark_brusselator1D_imexmri.c\;5 0.001\;exclude-single\;real"
+    "ark_brusselator1D_imexmri.c\;6 0.001\;exclude-single\;real"
+    "ark_brusselator1D_imexmri.c\;7 0.001\;exclude-single\;real"
+    "ark_brusselator1D.c\;\;exclude-single\;real"
+    "ark_conserved_exp_entropy_ark.c\;1 0\;develop\;real"
+    "ark_conserved_exp_entropy_ark.c\;1 1\;develop\;real"
+    "ark_conserved_exp_entropy_erk.c\;1\;develop\;real"
+    "ark_damped_harmonic_symplectic.c\;\;exclude-single\;real"
+    "ark_dissipated_exp_entropy.c\;1 0\;develop\;real"
+    "ark_dissipated_exp_entropy.c\;1 1\;develop\;real"
+    "ark_harmonic_symplectic.c\;\;exclude-single\;real"
+    "ark_heat1D_adapt.c\;\;develop\;real"
+    "ark_heat1D.c\;\;develop\;real"
+    "ark_kepler.c\;--stepper ERK --step-mode adapt\;develop\;real"
+    "ark_kepler.c\;--stepper ERK --step-mode fixed --count-orbits\;develop\;real"
+    "ark_kepler.c\;--stepper SPRK --step-mode fixed --count-orbits --use-compensated-sums\;develop\;real"
+    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_EULER_1_1 --tf 50 --check-order --nout 1\;exclude-single\;real"
+    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_LEAPFROG_2_2 --tf 50 --check-order --nout 1\;exclude-single\;real"
+    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_MCLACHLAN_2_2 --tf 50 --check-order --nout 1\;exclude-single\;real"
+    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_MCLACHLAN_3_3 --tf 50 --check-order --nout 1\;exclude-single\;real"
+    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_MCLACHLAN_4_4 --tf 50 --check-order --nout 1\;exclude-single\;real"
+    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_MCLACHLAN_5_6 --tf 50 --check-order --nout 1\;exclude-single\;real"
+    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_PSEUDO_LEAPFROG_2_2 --tf 50 --check-order --nout 1\;exclude-single\;real"
+    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_RUTH_3_3 --tf 50 --check-order --nout 1\;exclude-single\;real"
+    "ark_kepler.c\;--stepper SPRK --step-mode fixed --method ARKODE_SPRK_YOSHIDA_6_8 --tf 50 --check-order --nout 1\;exclude-single\;real"
+    "ark_kepler.c\;\;develop\;real"
+    "ark_kpr_mri.c\;0 1 0.005\;develop\;real"
+    "ark_kpr_mri.c\;1 0 0.01\;develop\;real"
+    "ark_kpr_mri.c\;1 1 0.002\;exclude-single\;real"
+    "ark_kpr_mri.c\;2 4 0.002\;develop\;real"
+    "ark_kpr_mri.c\;3 2 0.001\;develop\;real"
+    "ark_kpr_mri.c\;4 3 0.001\;develop\;real"
+    "ark_kpr_mri.c\;5 4 0.001\;develop\;real"
+    "ark_kpr_mri.c\;6 5 0.001\;develop\;real"
+    "ark_kpr_mri.c\;7 2 0.002\;develop\;real"
+    "ark_kpr_mri.c\;8 3 0.001 -100 100 0.5 1\;exclude-single\;real"
+    "ark_kpr_mri.c\;9 3 0.001 -100 100 0.5 1\;exclude-single\;real"
+    "ark_kpr_mri.c\;10 4 0.001 -100 100 0.5 1\;exclude-single\;real"
+    "ark_kpr_mri.c\;11 2 0.001\;develop\;real"
+    "ark_kpr_mri.c\;12 3 0.005\;develop\;real"
+    "ark_kpr_mri.c\;13 4 0.01\;exclude-single\;real"
+    "ark_KrylovDemo_prec.c\;\;exclude-single\;real"
+    "ark_KrylovDemo_prec.c\;1\;exclude-single\;real"
+    "ark_KrylovDemo_prec.c\;2\;exclude-single\;real"
+    "ark_lotka_volterra_ASA.c\;--check-freq 1\;develop\;real"
+    "ark_lotka_volterra_ASA.c\;--check-freq 5\;develop\;real"
+    "ark_onewaycouple_mri.c\;\;develop\;real"
+    "ark_reaction_diffusion_mri.c\;\;develop\;real"
+    "ark_robertson_constraints.c\;\;exclude-single\;real"
+    "ark_robertson_root.c\;\;exclude-single\;real"
+    "ark_robertson.c\;\;exclude-single\;real"
+    "ark_twowaycouple_mri.c\;\;develop\;real")
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND ARKODE_examples "ark_brusselator_fp.c\;1\;exclude-single")
+  list(APPEND ARKODE_examples "ark_brusselator_fp.c\;1\;exclude-single\;real")
 endif()
 
 # Auxiliary files to install
@@ -128,42 +132,42 @@ foreach(example_tuple ${ARKODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalartype)
 
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
   if(NOT TARGET ${example_target})
     # example source files
-    sundials_add_executable(${example_target} ${example})
+    sundials_add_executable(${example_target} ${example}
+      SCALAR_TYPE ${example_scalartype})
 
-    # folder for IDEs
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example_target})
+      # folder for IDEs
+      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(
-      ${example_target} sundials_arkode sundials_nvecserial
-      sundials_sundomeigestpower ${EXE_EXTRA_LINK_LIBS} ${DOMEIG_LIBRARIES})
+      # libraries to link against
+      target_link_libraries(
+        ${example_target} sundials_arkode sundials_nvecserial
+          sundials_sundomeigestpower ${EXE_EXTRA_LINK_LIBS} ${DOMEIG_LIBRARIES})
+     endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example_target})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
-  endif()
+  if(TARGET ${example_target})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example_target})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+    endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example_target}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
-
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example} ${test_name}.out
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_serial)
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example_target}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
   endif()
 
 endforeach(example_tuple ${ARKODE_examples})

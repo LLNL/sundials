@@ -24,6 +24,7 @@
 
 #include <cvodes/cvodes.h>
 #include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
 
 #include "cvodes_proj_impl.h"
@@ -390,10 +391,10 @@ typedef struct CVodeMemRec
 
   int cv_q;      /* current order                               */
   int cv_qprime; /* order to be used on the next step
-                                  qprime = q-1, q, or q+1                     */
+                    qprime = q-1, q, or q+1                     */
   int cv_next_q; /* order to be used on the next step           */
   int cv_qwait;  /* number of internal steps to wait before
-                                  considering a change in q                   */
+                    considering a change in q                   */
   int cv_L;      /* L = q + 1                                   */
 
   sunrealtype cv_hin;      /* initial step size                           */
@@ -405,11 +406,11 @@ typedef struct CVodeMemRec
   sunrealtype cv_tn;       /* current internal value of t                 */
   sunrealtype cv_tretlast; /* last value of t returned by CVode           */
 
-  sunrealtype cv_tau[L_MAX + 1];    /* array of previous q+1 successful step
-                                  sizes indexed from 1 to q+1                 */
+  sunrealtype cv_tau[L_MAX + 1];    /* array of previous q+1 successful
+                                       step sizes indexed from 1 to q+1   */
   sunrealtype cv_tq[NUM_TESTS + 1]; /* array of test quantities indexed from
-                                  1 to NUM_TESTS(=5)                          */
-  sunrealtype cv_l[L_MAX]; /* coefficients of l(x) (degree q poly)        */
+                                       1 to NUM_TESTS(=5)                 */
+  sunscalartype cv_l[L_MAX]; /* coefficients of l(x) (degree q poly)      */
 
   sunrealtype cv_rl1;    /* the scalar 1/l[1]                           */
   sunrealtype cv_gamma;  /* gamma = h * rl1                             */
@@ -661,15 +662,15 @@ typedef struct CVodeMemRec
   CVodeProjMem proj_mem;       /* projection memory structure               */
   sunbooleantype proj_enabled; /* flag indicating if projection is enabled  */
   sunbooleantype proj_applied; /* flag indicating if projection was applied */
-  sunrealtype proj_p[L_MAX];   /* coefficients of p(x) (degree q poly)      */
+  sunscalartype proj_p[L_MAX]; /* coefficients of p(x) (degree q poly)      */
 
   /*-----------------------
     Fused Vector Operations
     -----------------------*/
 
-  sunrealtype* cv_cvals; /* array of scalars */
-  N_Vector* cv_Xvecs;    /* array of vectors */
-  N_Vector* cv_Zvecs;    /* array of vectors */
+  sunscalartype* cv_cvals; /* array of scalars */
+  N_Vector* cv_Xvecs;      /* array of vectors */
+  N_Vector* cv_Zvecs;      /* array of vectors */
 
   /*----------------
     Resizing History
@@ -755,7 +756,7 @@ struct CVckpntMemRec
   sunrealtype ck_etamax;
   sunrealtype ck_tau[L_MAX + 1];
   sunrealtype ck_tq[NUM_TESTS + 1];
-  sunrealtype ck_l[L_MAX];
+  sunscalartype ck_l[L_MAX];
 
   /* Saved values */
   sunrealtype ck_saved_tq5;

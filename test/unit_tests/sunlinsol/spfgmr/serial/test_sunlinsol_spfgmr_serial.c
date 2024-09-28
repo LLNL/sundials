@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel Reynolds @ UMBC
+ * Programmer(s): Daniel Reynolds, Sylvia Amihere @ UMBC
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2025, Lawrence Livermore National Security,
@@ -37,8 +37,23 @@
 #endif
 
 /* constants */
+#define ZERO     SUN_RCONST(0.0)
+#define ONE      SUN_RCONST(1.0)
 #define FIVE     SUN_RCONST(5.0)
 #define THOUSAND SUN_RCONST(1000.0)
+
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+  #define SOMEMATRIXNUMBERd    SUN_RCONST(5.0)
+  #define SOMEMATRIXNUMBERup   SUN_RCONST(1.0)
+  #define SOMEMATRIXNUMBERlow  SUN_RCONST(1.0)
+#elif defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+#define SOMEMATRIXNUMBERd      SUN_CCONST(2.0,5.0)
+#define SOMEMATRIXNUMBERup     SUN_CCONST(-1.0,2.0)
+#define SOMEMATRIXNUMBERlow    SUN_CCONST(3.0,-4.0)
+#else
+#error \
+  "SUNDIALS scalar type not defined, report to github.com/LLNL/sundials/issues"
+#endif
 
 /* user data structure */
 typedef struct
@@ -47,6 +62,8 @@ typedef struct
   N_Vector d;     /* matrix diagonal */
   N_Vector s1;    /* scaling vectors supplied to SPFGMR */
   N_Vector s2;
+  sunscalartype up;   /* nondiagonal entries of the matrix */
+  sunscalartype low;  /* nondiagonal entries of the matrix */
 } UserData;
 
 /* private functions */
@@ -100,7 +117,7 @@ int main(int argc, char* argv[])
   UserData ProbData;   /* problem data structure    */
   int gstype, maxl, print_timing;
   sunindextype i;
-  sunrealtype* vecdata;
+  sunscalartype* vecdata;
   double tol;
   SUNContext sunctx;
 
@@ -171,13 +188,15 @@ int main(int argc, char* argv[])
   if (check_flag(ProbData.s1, "N_VNew_Serial", 0)) { return 1; }
   ProbData.s2 = N_VNew_Serial(ProbData.N, sunctx);
   if (check_flag(ProbData.s2, "N_VNew_Serial", 0)) { return 1; }
+  ProbData.up  = SOMEMATRIXNUMBERup;
+  ProbData.low = SOMEMATRIXNUMBERlow;
 
   /* Fill xhat vector with uniform random data in [1,2] */
   vecdata = N_VGetArrayPointer(xhat);
   for (i = 0; i < ProbData.N; i++) { vecdata[i] = ONE + urand(); }
 
   /* Fill Jacobi vector with matrix diagonal */
-  N_VConst(FIVE, ProbData.d);
+  N_VConst(SOMEMATRIXNUMBERd, ProbData.d);
 
   /* Create SPFGMR linear solver */
   LS = SUNLinSol_SPFGMR(x, SUN_PREC_RIGHT, maxl, sunctx);
@@ -437,7 +456,7 @@ int main(int argc, char* argv[])
 int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 {
   /* local variables */
-  sunrealtype *v, *z, *s1, *s2;
+  sunscalartype *v, *z, *s1, *s2, *diag, up, low;
   sunindextype i, N;
   UserData* ProbData;
 
@@ -451,20 +470,23 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   if (check_flag(s1, "N_VGetArrayPointer", 0)) { return 1; }
   s2 = N_VGetArrayPointer(ProbData->s2);
   if (check_flag(s2, "N_VGetArrayPointer", 0)) { return 1; }
-  N = ProbData->N;
+  N    = ProbData->N;
+  up   = ProbData->up;
+  low  = ProbData->low;
+  diag = N_VGetArrayPointer(ProbData->d);
 
   /* perform product at the left domain boundary (note: v is zero at the boundary)*/
-  z[0] = (FIVE * v[0] * s2[0] - v[1] * s2[1]) / s1[0];
+  z[0] = (diag[0] * v[0] * s2[0] - v[1] * s2[1] * up) / s1[0];
 
   /* iterate through interior of local domain, performing product */
   for (i = 1; i < N - 1; i++)
   {
-    z[i] = (-v[i - 1] * s2[i - 1] + FIVE * v[i] * s2[i] - v[i + 1] * s2[i + 1]) /
+    z[i] = (-v[i - 1] * s2[i - 1] * low + diag[i] * v[i] * s2[i] - v[i + 1] * s2[i + 1] * up) /
            s1[i];
   }
 
   /* perform product at the right domain boundary (note: v is zero at the boundary)*/
-  z[N - 1] = (-v[N - 2] * s2[N - 2] + FIVE * v[N - 1] * s2[N - 1]) / s1[N - 1];
+  z[N - 1] = (-v[N - 2] * s2[N - 2] * low + diag[N-1] * v[N - 1] * s2[N - 1]) / s1[N - 1];
 
   /* return with success */
   return 0;
@@ -477,7 +499,7 @@ int PSetup(void* Data) { return 0; }
 int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, sunrealtype tol, int lr)
 {
   /* local variables */
-  sunrealtype *r, *z, *d;
+  sunscalartype *r, *z, *d;
   sunindextype i;
   UserData* ProbData;
 
@@ -538,8 +560,9 @@ static int check_flag(void* flagvalue, const char* funcname, int opt)
 int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
   int failure = 0;
-  sunindextype i;
-  sunrealtype *Xdata, *Ydata, maxerr;
+  long int i;
+  sunscalartype *Xdata, *Ydata;
+  sunrealtype maxerr_real, maxerr_imag;
 
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);
@@ -547,18 +570,24 @@ int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
   /* check vector data */
   for (i = 0; i < problem_size; i++)
   {
-    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
+    failure += SUNCompareTol(Xdata[i], Ydata[i], tol);
   }
 
   if (failure > ZERO)
   {
-    maxerr = ZERO;
+    maxerr_real = ZERO;
+    maxerr_imag = ZERO;
     for (i = 0; i < problem_size; i++)
     {
-      maxerr = SUNMAX(SUNRabs(Xdata[i] - Ydata[i]) / SUNRabs(Xdata[i]), maxerr);
+      sunscalartype diff = Xdata[i] - Ydata[i];
+      maxerr_real = SUNMAX(SUNRabs(SUN_REAL(diff)) / SUNRabs(SUN_REAL(Xdata[i])),
+                           maxerr_real);
+      maxerr_imag = SUNMAX(SUNRabs(SUN_IMAG(diff)) / SUNRabs(SUN_IMAG(Xdata[i])),
+                           maxerr_imag);
     }
-    printf("check err failure: maxerr = %" GSYM " (tol = %" GSYM ")\n", maxerr,
-           tol);
+    printf("check err failure: maxerr = %" GSYM " + %" GSYM "i (tol = %" GSYM
+           ")\n",
+           maxerr_real, maxerr_imag, tol);
     return (1);
   }
   else { return (0); }

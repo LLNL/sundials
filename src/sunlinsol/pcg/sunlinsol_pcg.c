@@ -365,7 +365,8 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
   SUNFunctionBegin(S->sunctx);
 
   /* local data and shortcut variables */
-  sunrealtype alpha, beta, r0_norm, rho, rz, rz_old;
+  sunrealtype r0_norm, rho;
+  sunscalartype alpha, beta, rz, rz_old, ApAp;
   N_Vector r, p, z, Ap, w;
   sunbooleantype UsePrec, UseScaling, converged;
   sunbooleantype* zeroguess;
@@ -447,9 +448,9 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
     N_VScale(ONE, r, Ap);
     SUNCheckLastErr();
   }
-  rho = N_VDotProd(Ap, Ap);
+  SUNCheckCall(N_VDotProdComplex(Ap, Ap, &ApAp));
   SUNCheckLastErr();
-  *res_norm = r0_norm = rho = SUNRsqrt(rho);
+  *res_norm = r0_norm = rho = SUNRsqrt(SUN_REAL(ApAp));
 
   if (rho <= delta)
   {
@@ -487,7 +488,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
   }
 
   /* Initialize rz to <r,z> */
-  rz = N_VDotProd(r, z);
+  SUNCheckCall(N_VDotProdComplex(z, r, &rz));
   SUNCheckLastErr();
 
   /* Copy z to p */
@@ -521,7 +522,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
     }
 
     /* Calculate alpha = <r,z> / <Ap,p> */
-    alpha = N_VDotProd(Ap, p);
+    SUNCheckCall(N_VDotProdComplex(p, Ap, &alpha));
     SUNCheckLastErr();
     alpha = rz / alpha;
 
@@ -552,9 +553,9 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
       N_VScale(ONE, r, Ap);
       SUNCheckLastErr();
     }
-    rho = N_VDotProd(Ap, Ap);
+    SUNCheckCall(N_VDotProdComplex(Ap, Ap, &ApAp));
     SUNCheckLastErr();
-    *res_norm = rho = SUNRsqrt(rho);
+    *res_norm = rho = SUNRsqrt(SUN_REAL(ApAp));
 
     SUNLogInfo(S->sunctx->logger, "linear-iterate",
                "cur-iter = %i, res-norm = %.16g", *nli, *res_norm);
@@ -592,7 +593,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
 
     /* update rz */
     rz_old = rz;
-    rz     = N_VDotProd(r, z);
+    SUNCheckCall(N_VDotProdComplex(z, r, &rz));
     SUNCheckLastErr();
 
     /* Calculate beta = <r,z> / <r_old,z_old> */

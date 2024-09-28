@@ -105,7 +105,15 @@ static int arkRelaxResidualJacobian(sunrealtype relax_param,
   if (retval > 0) { return ARK_RELAX_JAC_RECV; }
 
   /* Compute relaxation residual Jacobian */
-  *relax_jac = N_VDotProd(delta_y, J_relax);
+  sunscalartype dot = ZERO;
+  SUNErrCode err    = N_VDotProdComplex(delta_y, J_relax, &dot);
+  if (err)
+  {
+    arkProcessError(ark_mem, ARK_VECTOROP_ERR, __LINE__, __func__, __FILE__,
+                    MSG_ARK_VECTOROP_ERR);
+    return (ARK_VECTOROP_ERR);
+  }
+  *relax_jac = dot;
   *relax_jac -= delta_e;
 
   return ARK_SUCCESS;

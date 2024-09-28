@@ -41,6 +41,17 @@ set(SUNDIALS_PRECISION
     CACHE STRING "${DOCSTR}" FORCE)
 
 # ---------------------------------------------------------------
+# Option to specify scalar type (sunscalartype)
+# ---------------------------------------------------------------
+
+set(DOCSTR "real or complex")
+sundials_option(SUNDIALS_SCALAR_TYPE STRING "${DOCSTR}" "REAL")
+string(TOUPPER ${SUNDIALS_SCALAR_TYPE} _upper_SUNDIALS_SCALAR_TYPE)
+set(SUNDIALS_SCALAR_TYPE
+    "${_upper_SUNDIALS_SCALAR_TYPE}"
+    CACHE STRING "${DOCSTR}" FORCE)
+
+# ---------------------------------------------------------------
 # Option to specify index type
 # ---------------------------------------------------------------
 

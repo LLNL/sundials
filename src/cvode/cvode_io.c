@@ -960,6 +960,13 @@ int CVodeSetConstraints(void* cvode_mem, N_Vector constraints)
     return (CV_SUCCESS);
   }
 
+  /* Guard against use with complex-valued sunscalartype */
+#ifdef SUNDIALS_SCALAR_TYPE_COMPLEX
+  cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__,
+                 __FILE__, "constraints are incompatible with complex-valued sunscalartype");
+  return (CV_ILL_INPUT);
+#endif
+
   /* Test if required vector ops. are defined */
 
   if (constraints->ops->nvdiv == NULL || constraints->ops->nvmaxnorm == NULL ||
