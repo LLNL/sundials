@@ -99,7 +99,6 @@ static int forcingStep_Init(const ARKodeMem ark_mem, const int init_type)
     return ARK_SUCCESS;
   }
 
-  SUNStepper_SetForcing(step_mem->stepper[1], 1, ark_mem->yn);
   ark_mem->interp_degree = 1;
 
   return ARK_SUCCESS;
@@ -172,7 +171,6 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   const SUNStepper s0    = step_mem->stepper[0];
   const sunrealtype tout = ark_mem->tn + ark_mem->h;
   sunrealtype tret       = 0;
-  int stop_reason        = 0;
 
   /* Evolve stepper 0 on its own */
   SUNErrCode err = SUNStepper_Reset(s0, ark_mem->tn, ark_mem->yn);
@@ -181,8 +179,7 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_SetStopTime(s0, tout);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
-  err = SUNStepper_Evolve(s0, ark_mem->tn, tout, ark_mem->ycur, &tret,
-                          &stop_reason);
+  err = SUNStepper_Evolve(s0, ark_mem->tn, tout, ark_mem->ycur, &tret);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   step_mem->n_stepper_evolves[0]++;
 
@@ -200,11 +197,11 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
 
   /* Write tendency (ycur - yn)/h into stepper 1 forcing */
   const sunrealtype hinv = SUN_RCONST(1.0) / ark_mem->h;
-  N_VLinearSum(hinv, ark_mem->ycur, -hinv, ark_mem->yn, s1->forcing[0]);
+  N_VLinearSum(hinv, ark_mem->ycur, -hinv, ark_mem->yn, ark_mem->tempv1);
+  err = SUNStepper_SetForcing(s1, ZERO, ZERO, &ark_mem->tempv1, 1);
 
   /* Evolve stepper 1 with the forcing */
-  err = SUNStepper_Evolve(s1, ark_mem->tn, tout, ark_mem->ycur, &tret,
-                          &stop_reason);
+  err = SUNStepper_Evolve(s1, ark_mem->tn, tout, ark_mem->ycur, &tret);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   step_mem->n_stepper_evolves[1]++;
 
