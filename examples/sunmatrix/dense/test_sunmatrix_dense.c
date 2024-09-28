@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
   sunindextype matrows, matcols; /* vector length              */
   N_Vector x, y;                 /* test vectors               */
   sunrealtype *xdata, *ydata;    /* pointers to vector data    */
-  SUNMatrix A, I;                /* test matrices              */
+  SUNMatrix A, K;                /* test matrices              */
   sunrealtype *Adata, *Idata;    /* pointers to matrix data    */
   int print_timing, square;
   sunindextype i, j, m, n;
@@ -91,14 +91,14 @@ int main(int argc, char* argv[])
   x = NULL;
   y = NULL;
   A = NULL;
-  I = NULL;
+  K = NULL;
 
   /* Create vectors and matrices */
   x = N_VNew_Serial(matcols, sunctx);
   y = N_VNew_Serial(matrows, sunctx);
   A = SUNDenseMatrix(matrows, matcols, sunctx);
-  I = NULL;
-  if (square) { I = SUNDenseMatrix(matrows, matcols, sunctx); }
+  K = NULL;
+  if (square) { K = SUNDenseMatrix(matrows, matcols, sunctx); }
 
   /* Fill matrices and vectors */
   Adata = SUNDenseMatrix_Data(A);
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 
   if (square)
   {
-    Idata = SUNDenseMatrix_Data(I);
+    Idata = SUNDenseMatrix_Data(K);
     for (i = 0, j = 0; i < matrows; i++, j++) { Idata[j * matrows + i] = ONE; }
   }
 
@@ -134,8 +134,8 @@ int main(int argc, char* argv[])
   fails += Test_SUNMatZero(A, 0);
   if (square)
   {
-    fails += Test_SUNMatScaleAdd(A, I, 0);
-    fails += Test_SUNMatScaleAddI(A, I, 0);
+    fails += Test_SUNMatScaleAdd(A, K, 0);
+    fails += Test_SUNMatScaleAddI(A, K, 0);
   }
   fails += Test_SUNMatMatvec(A, x, y, 0);
   fails += Test_SUNMatSpace(A, 0);
@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
     if (square)
     {
       printf("\nI =\n");
-      SUNDenseMatrix_Print(I, stdout);
+      SUNDenseMatrix_Print(K, stdout);
     }
     printf("\nx =\n");
     N_VPrint_Serial(x);
@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
   N_VDestroy(x);
   N_VDestroy(y);
   SUNMatDestroy(A);
-  if (square) { SUNMatDestroy(I); }
+  if (square) { SUNMatDestroy(K); }
   SUNContext_Free(&sunctx);
 
   return (fails);

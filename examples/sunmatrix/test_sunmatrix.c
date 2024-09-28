@@ -233,7 +233,7 @@ int Test_SUNMatCopy(SUNMatrix A, int myid)
  * NOTE: Sparse matrices will need additional testing for possibly
  * different sparsity patterns
  * --------------------------------------------------------------------*/
-int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
+int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix K, int myid)
 {
   int failure;
   double start_time, stop_time;
@@ -291,7 +291,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
   if (is_square(A) && SUNMatGetID(A) != SUNMATRIX_CUSPARSE &&
       SUNMatGetID(A) != SUNMATRIX_MAGMADENSE)
   {
-    /* protect A and I */
+    /* protect A and K */
     D       = SUNMatClone(A);
     failure = SUNMatCopy(A, D);
     if (failure)
@@ -301,8 +301,8 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
       SUNMatDestroy(D);
       return (1);
     }
-    C       = SUNMatClone(I);
-    failure = SUNMatCopy(I, C);
+    C       = SUNMatClone(K);
+    failure = SUNMatCopy(K, C);
     if (failure)
     {
       TEST_STATUS2(">>> FAILED test -- SUNMatCopy returned %d \n", failure, myid);
@@ -314,7 +314,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
 
     /* fill B and C */
     start_time = get_time();
-    failure    = SUNMatScaleAdd(ONE, D, I);
+    failure    = SUNMatScaleAdd(ONE, D, K);
     if (failure)
     {
       TEST_STATUS2(">>> FAILED test -- SUNMatScaleAdd returned %d \n", failure,
@@ -371,7 +371,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
  * NOTE: Sparse matrices will need additional testing for possibly
  * different sparsity patterns
  * --------------------------------------------------------------------*/
-int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
+int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix K, int myid)
 {
   int failure;
   double start_time, stop_time;
@@ -381,7 +381,7 @@ int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
   /* protect A */
   B = SUNMatClone(A);
 
-  failure = SUNMatCopy(I, B);
+  failure = SUNMatCopy(K, B);
   if (failure)
   {
     TEST_STATUS2(">>> FAILED test -- SUNMatCopy returned %d \n", failure, myid);
@@ -516,7 +516,7 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
     }
 
     start_time = get_time();
-    failure    = SUNMatMatvec(B, x, z); /* z = (3A+I)x = 3y + x */
+    failure    = SUNMatMatvec(B, x, z); /* z = (3A+K)x = 3y + x */
     sync_device(B);
     stop_time = get_time();
 
