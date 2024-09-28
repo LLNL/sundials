@@ -112,6 +112,18 @@ SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop)
   else { return SUN_ERR_NOT_IMPLEMENTED; }
 }
 
+SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift,
+                                 sunrealtype tscale, N_Vector* forcing,
+                                 int nforcing)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->setforcing)
+  {
+    return stepper->ops->setforcing(stepper, tshift, tscale, forcing, nforcing);
+  }
+  else { return SUN_ERR_NOT_IMPLEMENTED; }
+}
+
 SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
