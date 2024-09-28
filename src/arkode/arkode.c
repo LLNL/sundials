@@ -3692,8 +3692,7 @@ int ark_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set the inner forcing data */
-  retval = ark_mem->step_setforcing(ark_mem, tshift, tscale, forcing,
-                                    nforcing);
+  retval = ark_mem->step_setforcing(ark_mem, tshift, tscale, forcing, nforcing);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set the stop time */
