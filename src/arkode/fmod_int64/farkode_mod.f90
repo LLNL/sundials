@@ -243,13 +243,6 @@ module farkode_mod
  public :: FARKodeGetNumRelaxBoundFails
  public :: FARKodeGetNumRelaxSolveFails
  public :: FARKodeGetNumRelaxSolveIters
- public :: FARKBandPrecInit
- public :: FARKBandPrecGetWorkSpace
- public :: FARKBandPrecGetNumRhsEvals
- public :: FARKBBDPrecInit
- public :: FARKBBDPrecReInit
- public :: FARKBBDPrecGetWorkSpace
- public :: FARKBBDPrecGetNumGfnEvals
 
  integer, parameter :: swig_cmem_own_bit = 0
  integer, parameter :: swig_cmem_rvalue_bit = 1
@@ -258,6 +251,17 @@ module farkode_mod
   type(C_PTR), public :: cptr = C_NULL_PTR
   integer(C_INT), public :: cmemflags = 0
  end type
+ type, public :: SWIGTYPE_p_SUNStepper
+  type(SwigClassWrapper), public :: swigdata
+ end type
+ public :: FARKodeCreateSUNStepper
+ public :: FARKBandPrecInit
+ public :: FARKBandPrecGetWorkSpace
+ public :: FARKBandPrecGetNumRhsEvals
+ public :: FARKBBDPrecInit
+ public :: FARKBBDPrecReInit
+ public :: FARKBBDPrecGetWorkSpace
+ public :: FARKBBDPrecGetNumGfnEvals
  ! struct struct ARKodeButcherTableMem
  type, public :: ARKodeButcherTableMem
   type(SwigClassWrapper), public :: swigdata
@@ -1711,6 +1715,16 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeCreateSUNStepper(farg1, farg2) &
+bind(C, name="_wrap_FARKodeCreateSUNStepper") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(C_PTR), value :: farg1
+type(SwigClassWrapper) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -4649,6 +4663,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(iters(1))
 fresult = swigc_FARKodeGetNumRelaxSolveIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeCreateSUNStepper(arkode_mem, stepper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+class(SWIGTYPE_p_SUNStepper), intent(in) :: stepper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigClassWrapper) :: farg2 
+
+farg1 = arkode_mem
+farg2 = stepper%swigdata
+fresult = swigc_FARKodeCreateSUNStepper(farg1, farg2)
 swig_result = fresult
 end function
 
