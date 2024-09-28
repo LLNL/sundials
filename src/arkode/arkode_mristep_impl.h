@@ -259,7 +259,7 @@ int mriStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 int mriStep_ComputeState(ARKodeMem ark_mem, N_Vector zcor, N_Vector z);
 void mriStep_Free(ARKodeMem ark_mem);
 void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
-int mriStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
+int mriStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
                             sunrealtype tscale, N_Vector* f, int nvecs);
 
 /* Internal utility routines */

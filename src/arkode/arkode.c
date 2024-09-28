@@ -3692,7 +3692,7 @@ int ark_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* set the inner forcing data */
-  retval = ark_mem->step_setforcing(arkode_mem, tshift, tscale, forcing,
+  retval = ark_mem->step_setforcing(ark_mem, tshift, tscale, forcing,
                                     nforcing);
   if (retval != ARK_SUCCESS) { return (retval); }
 
@@ -3705,7 +3705,7 @@ int ark_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
   if (retval < 0) { return (retval); }
 
   /* disable inner forcing */
-  retval = ark_mem->step_setforcing(arkode_mem, ZERO, ONE, NULL, 0);
+  retval = ark_mem->step_setforcing(ark_mem, ZERO, ONE, NULL, 0);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   return (ARK_SUCCESS);

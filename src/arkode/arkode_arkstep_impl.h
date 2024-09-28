@@ -226,7 +226,7 @@ int arkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 int arkStep_ComputeState(ARKodeMem ark_mem, N_Vector zcor, N_Vector z);
 void arkStep_Free(ARKodeMem ark_mem);
 void arkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
-int arkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
+int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
                             sunrealtype tscale, N_Vector* f, int nvecs);
 
 /* Internal utility routines */

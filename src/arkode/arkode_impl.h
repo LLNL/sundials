@@ -289,7 +289,7 @@ typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
 typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
 
 /* time stepper interface functions -- forcing */
-typedef int (*ARKTimestepSetForcingFn)(void* arkode_mem, sunrealtype tshift,
+typedef int (*ARKTimestepSetForcingFn)(ARKodeMem ark_mem, sunrealtype tshift,
                                        sunrealtype tscale, N_Vector* f,
                                        int nvecs);
 

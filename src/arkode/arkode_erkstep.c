@@ -1263,15 +1263,14 @@ void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype t,
   methods).
   ----------------------------------------------------------------------------*/
 
-int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
+int erkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
                             sunrealtype tscale, N_Vector* forcing, int nvecs)
 {
-  ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   int retval;
 
   /* access ARKodeERKStepMem structure */
-  retval = erkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (nvecs > 0)

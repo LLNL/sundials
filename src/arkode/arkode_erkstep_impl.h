@@ -90,7 +90,7 @@ int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 void erkStep_Free(ARKodeMem ark_mem);
 void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
 int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
-int erkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
+int erkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
                             sunrealtype tscale, N_Vector* f, int nvecs);
 
 /* Internal utility routines */
