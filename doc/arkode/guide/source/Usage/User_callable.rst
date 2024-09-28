@@ -4830,4 +4830,4 @@ wrap the ARKODE memory block as an :c:type:`MRIStepInnerStepper`.
                functions and the initial condition */
             outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
 
-   .. versionadded:: 6.1.0
+   .. versionadded:: x.y.z
