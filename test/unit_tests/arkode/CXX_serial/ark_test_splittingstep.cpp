@@ -306,26 +306,27 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
 {
   SUNStepper stepper = nullptr;
   SUNStepper_Create(ctx, &stepper);
+  SUNStepper_SetContent(stepper,
+                        static_cast<void*>(const_cast<sunrealtype*>(&lambda)));
 
   const auto empty_func = [](auto... args) { return 0; };
   SUNStepper_SetResetFn(stepper, empty_func);
   SUNStepper_SetStopTimeFn(stepper, empty_func);
   SUNStepper_SetStepDirectionFn(stepper, empty_func);
   SUNStepper_SetFullRhsFn(stepper, empty_func);
-  SUNStepper_SetEvolveFn(stepper,
-                         [](const SUNStepper s, const sunrealtype t0,
-                            const sunrealtype tout, const N_Vector y,
-                            sunrealtype* const tret)
-                         {
-                           void* content = nullptr;
-                           SUNStepper_GetContent(s, &content);
-                           const auto lam = *static_cast<sunrealtype*>(content);
-                           N_VScale(std::exp(lam * (tout - t0)), y, y);
-                           *tret        = tout;
-                           return 0;
-                         });
-  SUNStepper_SetContent(stepper,
-                        static_cast<void*>(const_cast<sunrealtype*>(&lambda)));
+
+  const auto evolve = [](const SUNStepper s, const sunrealtype t0,
+                         const sunrealtype tout, const N_Vector y,
+                         sunrealtype* const tret)
+  {
+    void* content = nullptr;
+    SUNStepper_GetContent(s, &content);
+    const auto lam = *static_cast<sunrealtype*>(content);
+    N_VScale(std::exp(lam * (tout - t0)), y, y);
+    *tret = tout;
+    return 0;
+  };
+  SUNStepper_SetEvolveFn(stepper, evolve);
   return stepper;
 }
 

@@ -189,7 +189,7 @@ SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper, SUNStepperSetStopTimeFn 
 }
 
 SUNErrCode SUNStepper_SetStepDirectionFn(SUNStepper stepper,
-                                            SUNStepperSetStepDirectionFn fn)
+                                         SUNStepperSetStepDirectionFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
   stepper->ops->setstepdirection = fn;

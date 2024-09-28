@@ -124,7 +124,8 @@ static SUNErrCode arkSUNStepperSetStopTime(SUNStepper stepper, sunrealtype tstop
   return SUN_SUCCESS;
 }
 
-static SUNErrCode arkSUNStepperSetStepDirection(SUNStepper stepper, sunrealtype stepdir)
+static SUNErrCode arkSUNStepperSetStepDirection(SUNStepper stepper,
+                                                sunrealtype stepdir)
 {
   SUNFunctionBegin(stepper->sunctx);
   /* extract the ARKODE memory struct */
@@ -137,7 +138,8 @@ static SUNErrCode arkSUNStepperSetStepDirection(SUNStepper stepper, sunrealtype 
   return SUN_SUCCESS;
 }
 
-static SUNErrCode arkSUNStepperGetStepDirection(SUNStepper stepper, sunrealtype *stepdir)
+static SUNErrCode arkSUNStepperGetStepDirection(SUNStepper stepper,
+                                                sunrealtype* stepdir)
 {
   SUNFunctionBegin(stepper->sunctx);
   /* extract the ARKODE memory struct */
@@ -187,8 +189,10 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   SUNCheckCall(SUNStepper_SetFullRhsFn(*stepper, arkSUNStepperFullRhs));
   SUNCheckCall(SUNStepper_SetResetFn(*stepper, arkSUNStepperReset));
   SUNCheckCall(SUNStepper_SetStopTimeFn(*stepper, arkSUNStepperSetStopTime));
-  SUNCheckCall(SUNStepper_SetStepDirectionFn(*stepper, arkSUNStepperSetStepDirection));
-  SUNCheckCall(SUNStepper_SetGetStepDirectionFn(*stepper, arkSUNStepperGetStepDirection));
+  SUNCheckCall(
+    SUNStepper_SetStepDirectionFn(*stepper, arkSUNStepperSetStepDirection));
+  SUNCheckCall(
+    SUNStepper_SetGetStepDirectionFn(*stepper, arkSUNStepperGetStepDirection));
   SUNCheckCall(SUNStepper_SetForcingFn(*stepper, arkSUNStepperSetForcing));
 
   return ARK_SUCCESS;

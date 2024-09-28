@@ -98,11 +98,11 @@ SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetStepDirectionFn(SUNStepper stepper,
-                                    SUNStepperSetStepDirectionFn fn);
+                                         SUNStepperSetStepDirectionFn fn);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetGetStepDirectionFn(SUNStepper stepper,
-                                    SUNStepperGetStepDirectionFn fn);
+                                            SUNStepperGetStepDirectionFn fn);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,

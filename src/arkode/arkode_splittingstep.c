@@ -265,7 +265,7 @@ static int splittingStep_SequentialMethod(const ARKodeMem ark_mem,
       if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
       sunrealtype tret = 0;
-      err = SUNStepper_Evolve(stepper, t_start, t_end, y, &tret);
+      err              = SUNStepper_Evolve(stepper, t_start, t_end, y, &tret);
       if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
       step_mem->n_stepper_evolves[k]++;
