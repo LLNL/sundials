@@ -3213,7 +3213,7 @@ int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return; }
+  if (retval != ARK_SUCCESS) { return(retval); }
 
   if (nvecs > 0)
   {
