@@ -691,7 +691,7 @@ SWIGEXPORT SwigClassWrapper _wrap_FSplittingStepCoefficients_SuzukiFractal(int c
 }
 
 
-SWIGEXPORT void * _wrap_FSplittingStepCreate(SwigClassWrapper const *farg1, int const *farg2, double const *farg3, N_Vector farg4, void *farg5) {
+SWIGEXPORT void * _wrap_FSplittingStepCreate(void *farg1, int const *farg2, double const *farg3, N_Vector farg4, void *farg5) {
   void * fresult ;
   SUNStepper *arg1 = (SUNStepper *) 0 ;
   int arg2 ;
@@ -700,8 +700,7 @@ SWIGEXPORT void * _wrap_FSplittingStepCreate(SwigClassWrapper const *farg1, int 
   SUNContext arg5 = (SUNContext) 0 ;
   void *result = 0 ;
   
-  SWIG_check_mutable(*farg1, "SUNStepper *", "SWIGTYPE_p_SUNStepper", "SplittingStepCreate(SUNStepper *,int,sunrealtype,N_Vector,SUNContext)", return 0);
-  arg1 = (SUNStepper *)(farg1->cptr);
+  arg1 = (SUNStepper *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (sunrealtype)(*farg3);
   arg4 = (N_Vector)(farg4);

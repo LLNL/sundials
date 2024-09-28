@@ -93,9 +93,6 @@ module farkode_splittingstep_mod
  public :: FSplittingStepCoefficients_ThirdOrderSuzuki
  public :: FSplittingStepCoefficients_TripleJump
  public :: FSplittingStepCoefficients_SuzukiFractal
- type, public :: SWIGTYPE_p_SUNStepper
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSplittingStepCreate
  public :: FSplittingStep_SetCoefficients
  public :: FSplittingStep_GetNumEvolves
@@ -378,8 +375,7 @@ function swigc_FSplittingStepCreate(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSplittingStepCreate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -854,19 +850,19 @@ function FSplittingStepCreate(steppers, partitions, t0, y0, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-class(SWIGTYPE_p_SUNStepper), intent(in) :: steppers
+type(C_PTR), target, intent(inout) :: steppers
 integer(C_INT), intent(in) :: partitions
 real(C_DOUBLE), intent(in) :: t0
 type(N_Vector), target, intent(inout) :: y0
 type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = steppers%swigdata
+farg1 = c_loc(steppers)
 farg2 = partitions
 farg3 = t0
 farg4 = c_loc(y0)

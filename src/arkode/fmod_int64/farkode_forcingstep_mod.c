@@ -178,21 +178,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
-                        "as a reference", RETURNNULL); \
-  }
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -220,33 +205,17 @@ enum {
 
 #include "arkode/arkode_forcingstep.h"
 
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
-
-SWIGEXPORT void * _wrap_FForcingStepCreate(SwigClassWrapper const *farg1, SwigClassWrapper const *farg2, double const *farg3, N_Vector farg4, void *farg5) {
+SWIGEXPORT void * _wrap_FForcingStepCreate(void *farg1, void *farg2, double const *farg3, N_Vector farg4, void *farg5) {
   void * fresult ;
-  SUNStepper arg1 ;
-  SUNStepper arg2 ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  SUNStepper arg2 = (SUNStepper) 0 ;
   sunrealtype arg3 ;
   N_Vector arg4 = (N_Vector) 0 ;
   SUNContext arg5 = (SUNContext) 0 ;
   void *result = 0 ;
   
-  SWIG_check_nonnull(*farg1, "SUNStepper", "SWIGTYPE_p_SUNStepper", "ForcingStepCreate(SUNStepper,SUNStepper,sunrealtype,N_Vector,SUNContext)", return 0);
-  arg1 = *(SUNStepper *)(farg1->cptr);
-  SWIG_check_nonnull(*farg2, "SUNStepper", "SWIGTYPE_p_SUNStepper", "ForcingStepCreate(SUNStepper,SUNStepper,sunrealtype,N_Vector,SUNContext)", return 0);
-  arg2 = *(SUNStepper *)(farg2->cptr);
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (SUNStepper)(farg2);
   arg3 = (sunrealtype)(*farg3);
   arg4 = (N_Vector)(farg4);
   arg5 = (SUNContext)(farg5);

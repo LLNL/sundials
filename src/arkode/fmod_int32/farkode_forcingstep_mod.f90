@@ -26,17 +26,6 @@ module farkode_forcingstep_mod
  private
 
  ! DECLARATION CONSTRUCTS
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_SUNStepper
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FForcingStepCreate
  public :: FForcingStep_GetNumEvolves
 
@@ -46,9 +35,8 @@ function swigc_FForcingStepCreate(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FForcingStepCreate") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
@@ -74,20 +62,20 @@ function FForcingStepCreate(stepper1, stepper2, t0, y0, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
-type(SWIGTYPE_p_SUNStepper), intent(in) :: stepper1
-type(SWIGTYPE_p_SUNStepper), intent(in) :: stepper2
+type(C_PTR) :: stepper1
+type(C_PTR) :: stepper2
 real(C_DOUBLE), intent(in) :: t0
 type(N_Vector), target, intent(inout) :: y0
 type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
-type(SwigClassWrapper) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = stepper1%swigdata
-farg2 = stepper2%swigdata
+farg1 = stepper1
+farg2 = stepper2
 farg3 = t0
 farg4 = c_loc(y0)
 farg5 = sunctx
