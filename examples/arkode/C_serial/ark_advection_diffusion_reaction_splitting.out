@@ -8,23 +8,23 @@
         t      ||u||_rms
    ----------------------
     0.000000    0.100000
-    0.060000    0.126734
-    0.120000    0.154228
-    0.180000    0.185715
-    0.240000    0.221941
-    0.300000    0.263180
-    0.360000    0.309219
+    0.060000    0.126735
+    0.120000    0.154225
+    0.180000    0.185713
+    0.240000    0.221939
+    0.300000    0.263178
+    0.360000    0.309221
     0.420000    0.359242
-    0.480000    0.411734
-    0.540000    0.464560
-    0.600000    0.515252
-    0.660000    0.561484
-    0.720000    0.601560
+    0.480000    0.411736
+    0.540000    0.464562
+    0.600000    0.515253
+    0.660000    0.561485
+    0.720000    0.601561
     0.780000    0.634693
-    0.840000    0.660980
-    0.900000    0.681152
+    0.840000    0.660982
+    0.900000    0.681150
     0.960000    0.696244
-    1.000000    0.702992
+    1.000000    0.702991
    ----------------------
 
 Splitting Stepper Statistics:
@@ -45,42 +45,37 @@ Partition 2 evolves          = 17
 
 Advection Stepper Statistics:
 Current time                 = 1
-Steps                        = 53
-Step attempts                = 54
+Steps                        = 55
+Step attempts                = 64
 Stability limited steps      = 0
-Accuracy limited steps       = 54
-Error test fails             = 1
+Accuracy limited steps       = 64
+Error test fails             = 9
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 2.059355438929501e-06
-Last step size               = 0.008743161639560786
-Current step size            = 0.008743161639560786
-Explicit RHS fn evals        = 163
-Implicit RHS fn evals        = 0
-NLS iters                    = 0
-NLS fails                    = 0
-NLS iters per step           = 0
-LS setups                    = 0
+Last step size               = 0.004032057223863014
+Current step size            = 0.004032057223863014
+RHS fn evals                 = 185
 
 Diffusion Stepper Statistics:
 Current time                 = 1
-Steps                        = 246
+Steps                        = 247
 Step attempts                = 302
 Stability limited steps      = 0
 Accuracy limited steps       = 302
-Error test fails             = 56
+Error test fails             = 55
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 2.059355438929501e-06
-Last step size               = 0.004572821688115565
-Current step size            = 0.004572821688115565
+Last step size               = 0.006555275857754277
+Current step size            = 0.006555275857754277
 Explicit RHS fn evals        = 0
 Implicit RHS fn evals        = 1831
 NLS iters                    = 906
 NLS fails                    = 0
-NLS iters per step           = 3.682926829268293
+NLS iters per step           = 3.668016194331984
 LS setups                    = 213
-Jac fn evals                 = 73
+Jac fn evals                 = 72
 LS RHS fn evals              = 0
 Prec setup evals             = 0
 Prec solves                  = 0
@@ -89,24 +84,19 @@ LS fails                     = 0
 Jac-times setups             = 0
 Jac-times evals              = 0
 LS iters per NLS iter        = 0
-Jac evals per NLS iter       = 0.08057395143487858
+Jac evals per NLS iter       = 0.07947019867549669
 Prec evals per NLS iter      = 0
 
 Reaction Stepper Statistics:
 Current time                 = 1
-Steps                        = 38
-Step attempts                = 38
+Steps                        = 42
+Step attempts                = 49
 Stability limited steps      = 0
-Accuracy limited steps       = 38
-Error test fails             = 0
+Accuracy limited steps       = 49
+Error test fails             = 7
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.00180442856879795
 Last step size               = 0.03999999999999956
 Current step size            = 0.03999999999999956
-Explicit RHS fn evals        = 133
-Implicit RHS fn evals        = 0
-NLS iters                    = 0
-NLS fails                    = 0
-NLS iters per step           = 0
-LS setups                    = 0
+RHS fn evals                 = 166

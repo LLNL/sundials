@@ -35,6 +35,7 @@
  *---------------------------------------------------------------*/
 
 #include <arkode/arkode_arkstep.h>
+#include <arkode/arkode_erkstep.h>
 #include <arkode/arkode_splittingstep.h>
 #include <math.h>
 #include <nvector/nvector_serial.h>
@@ -234,16 +235,15 @@ int main(void)
   N_VConst(udata.u0, y);
 
   /* Create advection integrator */
-  void* advection_mem = ARKStepCreate(f_advection, NULL, T0, y, ctx);
-  if (check_flag(advection_mem, "ARKStepCreate", 0)) { return 1; }
+  void* advection_mem = ERKStepCreate(f_advection, T0, y, ctx);
+  if (check_flag(advection_mem, "ERKStepCreate", 0)) { return 1; }
 
   flag = ARKodeSetUserData(advection_mem, &udata);
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Choose a strong stability preserving method for advecton */
-  flag = ARKStepSetTableNum(advection_mem, ARKODE_DIRK_NONE,
-                            ARKODE_SHU_OSHER_3_2_3);
-  if (check_flag(&flag, "ARKStepSetTableNum", 1)) { return 1; }
+  flag = ERKStepSetTableNum(advection_mem, ARKODE_SHU_OSHER_3_2_3);
+  if (check_flag(&flag, "ERKStepSetTableNum", 1)) { return 1; }
 
   SUNStepper advection_stepper;
   flag = ARKodeCreateSUNStepper(advection_mem, &advection_stepper);
@@ -279,8 +279,8 @@ int main(void)
   if (check_flag(&flag, "ARKodeCreateSUNStepper", 1)) { return 1; }
 
   /* Create reaction integrator */
-  void* reaction_mem = ARKStepCreate(f_reaction, NULL, T0, y, ctx);
-  if (check_flag(reaction_mem, "ARKStepCreate", 0)) { return 1; }
+  void* reaction_mem = ERKStepCreate(f_reaction, T0, y, ctx);
+  if (check_flag(reaction_mem, "ERKStepCreate", 0)) { return 1; }
 
   flag = ARKodeSetUserData(reaction_mem, &udata);
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
