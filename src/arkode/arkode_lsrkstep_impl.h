@@ -70,7 +70,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype sprad;             /* spectral radius*/
   sunrealtype spr_max;           /* max spectral radius*/
   sunrealtype spr_min;           /* min spectral radius*/
-  sunrealtype dom_eig_sfty;      /* some safety factor for the user provided dom_eig*/
+  sunrealtype dom_eig_sfty; /* some safety factor for the user provided dom_eig*/
   int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
   /* Flags */

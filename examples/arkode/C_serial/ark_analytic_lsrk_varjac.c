@@ -73,7 +73,7 @@
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* User-supplied Dominated Eigenvalue Called by the Solver */
-static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, 
+static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn,
                    suncomplextype* lambda, void* user_data, N_Vector temp1,
                    N_Vector temp2, N_Vector temp3);
 
@@ -97,7 +97,7 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
-  sunrealtype gamma = SUN_RCONST(-1.0e+6); /* stiffness parameter 1*/
+  sunrealtype gamma  = SUN_RCONST(-1.0e+6); /* stiffness parameter 1*/
   sunrealtype theta  = SUN_RCONST(1.0e+2);  /* stiffness parameter 2*/
   sunrealtype UserData[2];
   UserData[0] = gamma;
@@ -232,7 +232,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype gamma = rdata[0]; /* set shortcut for stiffness parameter 1 */
-  sunrealtype theta  = rdata[1]; /* set shortcut for stiffness parameter 2 */
+  sunrealtype theta = rdata[1]; /* set shortcut for stiffness parameter 2 */
   sunrealtype u = N_VGetArrayPointer(y)[0]; /* access current solution value */
 
   /* fill in the RHS function: "N_VGetArrayPointer" accesses the 0th entry of ydot */
@@ -245,17 +245,17 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 }
 
 /* dom_eig routine to estimate the dominated eigenvalue */
-static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, 
+static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn,
                    suncomplextype* lambda, void* user_data, N_Vector temp1,
                    N_Vector temp2, N_Vector temp3)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype gamma = rdata[0]; /* set shortcut for stiffness parameter 1 */
-  sunrealtype theta  = rdata[1]; /* set shortcut for stiffness parameter 2 */
+  sunrealtype theta = rdata[1]; /* set shortcut for stiffness parameter 2 */
 
-  *lambda = (gamma - theta * COS((10 - t) / 10 * ACOS(-1))) 
-            + SUN_RCONST(0.0) * SUN_I;
-            
+  *lambda = (gamma - theta * COS((10 - t) / 10 * ACOS(-1))) +
+            SUN_RCONST(0.0) * SUN_I;
+
   return 0; /* return with success */
 }
 

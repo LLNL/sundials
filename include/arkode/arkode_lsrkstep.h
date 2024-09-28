@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn,
-                           suncomplextype* lambda, void* user_data, 
+                           suncomplextype* lambda, void* user_data,
                            N_Vector temp1, N_Vector temp2, N_Vector temp3);
 
 /* ------------------
@@ -80,7 +80,8 @@ SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals);
+SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn,
+                                           long int* f_evals);
 
 SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem,
                                                 long int* num_dom_eig_updates);

@@ -58,7 +58,7 @@
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* User-supplied Dominated Eigenvalue Called by the Solver */
-static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, 
+static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn,
                    suncomplextype* lambda, void* user_data, N_Vector temp1,
                    N_Vector temp2, N_Vector temp3);
 
@@ -82,7 +82,7 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
-  sunrealtype gamma = SUN_RCONST(-1000000.0); /* stiffness parameter */
+  sunrealtype gamma  = SUN_RCONST(-1000000.0); /* stiffness parameter */
 
   /* general problem variables */
   int flag;                /* reusable error-checking flag */
@@ -221,7 +221,7 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 }
 
 /* dom_eig routine to estimate the dominated eigenvalue */
-static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, 
+static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn,
                    suncomplextype* lambda, void* user_data, N_Vector temp1,
                    N_Vector temp2, N_Vector temp3)
 {

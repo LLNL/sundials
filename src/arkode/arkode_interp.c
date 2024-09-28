@@ -958,7 +958,8 @@ void arkInterpPrintMem_Lagrange(ARKInterp interp, FILE* outfile)
   if (interp != NULL)
   {
     fprintf(outfile, "arkode_interp (Lagrange): nmax = %i\n", LINT_NMAX(interp));
-    fprintf(outfile, "arkode_interp (Lagrange): nhist = %i\n", LINT_NHIST(interp));
+    fprintf(outfile, "arkode_interp (Lagrange): nhist = %i\n",
+            LINT_NHIST(interp));
     if (LINT_THIST(interp) != NULL)
     {
       fprintf(outfile, "arkode_interp (Lagrange): thist =");
@@ -1055,7 +1056,8 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew
   /* allocate storage for time and solution histories */
   if (LINT_THIST(interp) == NULL)
   {
-    LINT_THIST(interp) = (sunrealtype*)malloc(LINT_NMAX(interp) * sizeof(sunrealtype));
+    LINT_THIST(interp) =
+      (sunrealtype*)malloc(LINT_NMAX(interp) * sizeof(sunrealtype));
     if (LINT_THIST(interp) == NULL)
     {
       arkInterpFree(ark_mem, interp);
@@ -1084,11 +1086,18 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew
   }
 
   /* update allocated size if necessary */
-  if (LINT_NMAX(interp) > LINT_NMAXALLOC(interp)) { LINT_NMAXALLOC(interp) = LINT_NMAX(interp); }
+  if (LINT_NMAX(interp) > LINT_NMAXALLOC(interp))
+  {
+    LINT_NMAXALLOC(interp) = LINT_NMAX(interp);
+  }
 
   /* zero out history (to be safe) */
-  for (i = 0; i < LINT_NMAXALLOC(interp); i++) { LINT_TJ(interp, i) = SUN_RCONST(0.0); }
-  if (N_VConstVectorArray(LINT_NMAXALLOC(interp), SUN_RCONST(0.0), LINT_YHIST(interp)))
+  for (i = 0; i < LINT_NMAXALLOC(interp); i++)
+  {
+    LINT_TJ(interp, i) = SUN_RCONST(0.0);
+  }
+  if (N_VConstVectorArray(LINT_NMAXALLOC(interp), SUN_RCONST(0.0),
+                          LINT_YHIST(interp)))
   {
     return (ARK_VECTOROP_ERR);
   }
@@ -1130,7 +1139,7 @@ int arkInterpUpdate_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tn
 
   /* update t roundoff value */
   LINT_TROUND(interp) = FUZZ_FACTOR * ark_mem->uround *
-                   (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
+                        (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
 
   /* determine if tnew differs sufficiently from stored values */
   tdiff = SUNRabs(tnew - thist[0]);
@@ -1182,8 +1191,9 @@ int arkInterpUpdate_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tn
   fixed step sizes, otherwise the stated lower bound is only
   approximate).
   ---------------------------------------------------------------*/
-int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tau,
-                               int deriv, int degree, N_Vector yout)
+int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
+                               sunrealtype tau, int deriv, int degree,
+                               N_Vector yout)
 {
   /* local variables */
   int q, retval, i, j;
@@ -1375,7 +1385,8 @@ sunrealtype LBasisD3(ARKInterp interp, int j, sunrealtype t)
           if (k == m) { continue; }
           if (k == l) { continue; }
           if (k == i) { continue; }
-          s *= (t - LINT_TJ(interp, k)) / (LINT_TJ(interp, j) - LINT_TJ(interp, k));
+          s *= (t - LINT_TJ(interp, k)) /
+               (LINT_TJ(interp, j) - LINT_TJ(interp, k));
         }
         r += s / (LINT_TJ(interp, j) - LINT_TJ(interp, i));
       }

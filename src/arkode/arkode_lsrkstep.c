@@ -782,7 +782,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   step_mem->req_stages = SUNMAX(ss, 2);
   if (step_mem->req_stages == step_mem->stage_max_limit)
   {
-    hmax         = ark_mem->hadapt_mem->safety * SUNSQR(ss) / (onep54 * step_mem->sprad);
+    hmax = ark_mem->hadapt_mem->safety * SUNSQR(ss) / (onep54 * step_mem->sprad);
     ark_mem->eta = hmax / ark_mem->h;
     *nflagPtr    = ARK_RETRY_STEP;
     return (ARK_RETRY_STEP);
@@ -1611,9 +1611,9 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   if ((step_mem->is_ext_dom_eig))
   {
     retval = step_mem->extDomEig(ark_mem->tn, ark_mem->ycur, ark_mem->fn,
-                                 &step_mem->dom_eig_lambda,
-                                 ark_mem->user_data, ark_mem->tempv1,
-                                 ark_mem->tempv2, ark_mem->tempv3);
+                                 &step_mem->dom_eig_lambda, ark_mem->user_data,
+                                 ark_mem->tempv1, ark_mem->tempv2,
+                                 ark_mem->tempv3);
     step_mem->num_dom_eig_updates++;
     if (retval != ARK_SUCCESS)
     {
