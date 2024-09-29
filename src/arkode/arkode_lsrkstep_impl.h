@@ -44,8 +44,8 @@ typedef struct ARKodeLSRKStepMemRec
   ARKRhsFn fi;
   ARKDomEigFn extDomEig;
 
-  N_Vector* Fe; /* RHS vector storage */
-  N_Vector* Fi; /* RHS vector storage */
+  N_Vector Fe; /* RHS vector storage */
+  N_Vector Fi; /* RHS vector storage */
 
   int q; /* method order               */
   int p; /* embedding order            */

@@ -442,12 +442,31 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
   ark_mem->liw1 = liw1;
 
   /* Resize the internal vector storage */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &step_mem->Fe[0]))
+  if (step_mem->Fe != NULL)
   {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "Unable to resize vector");
-    return (ARK_MEM_FAIL);
+    if (resize == NULL)
+    {
+      N_VDestroy(step_mem->Fe);
+      step_mem->Fe = NULL;
+      step_mem->Fe = N_VClone(y0);
+      if (step_mem->Fe == NULL)
+      {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                        "Unable to resize vector");
+        return (ARK_MEM_FAIL);
+      }
+    }
+    else
+    {
+      if (resize(step_mem->Fe, y0, resize_data))
+      {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_RESIZE_FAIL);
+        return (ARK_MEM_FAIL);
+      }
+    }
+    ark_mem->lrw += lrw_diff;
+    ark_mem->liw += liw_diff;
   }
 
   return (ARK_SUCCESS);
@@ -471,7 +490,11 @@ void lsrkStep_Free(ARKodeMem ark_mem)
     /* free the RHS vectors */
     if (step_mem->Fe != NULL)
     {
-      arkFreeVec(ark_mem, &step_mem->Fe[0]);
+      N_VDestroy(step_mem->Fe);
+      step_mem->Fe = NULL;
+      ark_mem->lrw -= ark_mem->lrw1;
+      ark_mem->liw -= ark_mem->liw1;
+      
       free(step_mem->Fe);
       step_mem->Fe = NULL;
       ark_mem->liw -= 1;
@@ -604,13 +627,19 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   /*   Allocate Fe if needed */
   if (step_mem->Fe == NULL)
   {
-    step_mem->Fe = (N_Vector*)calloc(1, sizeof(N_Vector));
+    step_mem->Fe = N_VClone(ark_mem->ewt);
+    if (step_mem->Fe == NULL)
+    {
+      arkFreeVectors(ark_mem);
+      return (ARK_MEM_FAIL);
+    }
+    else
+    {
+      ark_mem->lrw += ark_mem->lrw1;
+      ark_mem->liw += ark_mem->liw1;
+    }
+    ark_mem->liw += 1; /* pointers */
   }
-  if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fe[0])))
-  {
-    return (ARK_MEM_FAIL);
-  }
-  ark_mem->liw += 1; /* pointers */
 
   /* Allocate reusable arrays for fused vector interface */
   if (step_mem->cvals == NULL)
@@ -651,7 +680,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
      ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
   If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
-  evaluating the RHS functions is necessary, we store the vector f(t,y) in Fe[0]
+  evaluating the RHS functions is necessary, we store the vector f(t,y) in Fe
   for reuse in the first stage of the subsequent time step.
 
   In ARK_FULLRHS_END mode we check if the method is "stiffly accurate" and, if
@@ -680,7 +709,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     /* compute the RHS */
     if (!(ark_mem->fn_is_current))
     {
-      retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
+      retval = step_mem->fe(t, y, step_mem->Fe, ark_mem->user_data);
       step_mem->nfe++;
       if (retval != 0)
       {
@@ -691,7 +720,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     }
 
     /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->Fe[0], f);
+    N_VScale(ONE, step_mem->Fe, f);
 
     break;
 
