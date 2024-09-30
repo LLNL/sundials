@@ -384,7 +384,7 @@ case "$testtype" in
             args_libtypes+=("static")
             args_tpls+=("OFF")
             args_suntests+=("DEV")
-            args_phase+=("BUILD")
+            args_phase+=("TEST")
         done
 
         # Basic development tests
@@ -409,7 +409,7 @@ case "$testtype" in
             args_libtypes+=("static")
             args_tpls+=("OFF")
             args_suntests+=("DEV")
-            args_phase+=("BUILD")
+            args_phase+=("TEST")
         done
 
         # More development tests
@@ -441,7 +441,7 @@ case "$testtype" in
             args_libtypes+=("static")
             args_tpls+=("OFF")
             args_suntests+=("DEV")
-            args_phase+=("BUILD")
+            args_phase+=("TEST")
         done
 
         # Even more development tests
