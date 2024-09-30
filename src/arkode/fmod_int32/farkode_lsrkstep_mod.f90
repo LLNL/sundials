@@ -171,7 +171,7 @@ bind(C, name="_wrap_FLSRKStepGetNumRhsEvals") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
+integer(C_INT), intent(in) :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
@@ -427,21 +427,21 @@ fresult = swigc_FLSRKStepSetSSPStageNum(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepGetNumRhsEvals(arkode_mem, fe_evals, fi_evals) &
+function FLSRKStepGetNumRhsEvals(arkode_mem, num_rhs_fn, f_evals) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: fe_evals
-integer(C_LONG), dimension(*), target, intent(inout) :: fi_evals
+integer(C_INT), intent(in) :: num_rhs_fn
+integer(C_LONG), dimension(*), target, intent(inout) :: f_evals
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
+integer(C_INT) :: farg2 
 type(C_PTR) :: farg3 
 
 farg1 = arkode_mem
-farg2 = c_loc(fe_evals(1))
-farg3 = c_loc(fi_evals(1))
+farg2 = num_rhs_fn
+farg3 = c_loc(f_evals(1))
 fresult = swigc_FLSRKStepGetNumRhsEvals(farg1, farg2, farg3)
 swig_result = fresult
 end function
