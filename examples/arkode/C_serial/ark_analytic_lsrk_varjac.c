@@ -254,7 +254,7 @@ static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
   sunrealtype alpha  = rdata[1]; /* set shortcut for stiffness parameter 2 */
   *lambdaR           = (lambda - alpha * COS((10 - t) / 10 *
                                              ACOS(-1))); /* access current solution value */
-  *lambdaI           = 0.0;
+  *lambdaI           = SUN_RCONST(0.0);
 
   return 0; /* return with success */
 }

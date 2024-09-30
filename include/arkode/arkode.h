@@ -73,7 +73,6 @@ extern "C" {
 #define ARK_SUCCESS      0
 #define ARK_TSTOP_RETURN 1
 #define ARK_ROOT_RETURN  2
-#define ARK_RETRY_STEP   3
 
 #define ARK_WARNING 99
 

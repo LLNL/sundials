@@ -228,7 +228,7 @@ static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
   *lambdaR           = lambda;
-  *lambdaI           = 0.0;
+  *lambdaI           = SUN_RCONST(0.0);
   return 0; /* return with success */
 }
 
