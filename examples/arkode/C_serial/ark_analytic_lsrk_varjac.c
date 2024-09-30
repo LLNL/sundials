@@ -14,22 +14,22 @@
  * Example problem:
  *
  * The following is a simple example problem that solves the ODE
- *  
- *    dy/dt = (gamma - theta*cos((10 - t)/10*pi)*y + 1/(1+t^2) 
- *          - (gamma - theta*cos((10 - t)/10*pi)*atan(t),
- * 
+ *
+ *    dy/dt = (lambda - alpha*cos((10 - t)/10*pi)*y + 1/(1+t^2)
+ *          - (lambda - alpha*cos((10 - t)/10*pi)*atan(t),
+ *
  * for t in the interval [0.0, 10.0], with an initial condition: y=0.
- * This initial value problem has the analytical solution 
- * 
+ * This initial value problem has the analytical solution
+ *
  *    y(t) = arctan(t).
  *
- * The stiffness of the problem depends on both gamma and theta together. 
- * While gamma determines the center of the stiffness parameter, 
- * the value of theta determines the radius of the interval in which 
+ * The stiffness of the problem depends on both lambda and alpha together.
+ * While lambda determines the center of the stiffness parameter,
+ * the value of alpha determines the radius of the interval in which
  * the stiffness parameter lies.
- * 
- * The value of "gamma - theta*cos((10 - t)/10*pi)" should 
- * be negative to result in a well-posed ODE; for values with magnitude 
+ *
+ * The value of "lambda - alpha*cos((10 - t)/10*pi)" should
+ * be negative to result in a well-posed ODE; for values with magnitude
  * larger than 100 the problem becomes quite stiff.
  *
  * This program solves the problem with the LSRK method.
@@ -73,8 +73,8 @@
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
 
 /* User-supplied Dominated Eigenvalue Called by the Solver */
-static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn,
-                   suncomplextype* lambda, void* user_data, N_Vector temp1,
+static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
+                   sunrealtype* lambdaI, void* user_data, N_Vector temp1,
                    N_Vector temp2, N_Vector temp3);
 
 /* Private function to check function return values */
@@ -97,11 +97,11 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
-  sunrealtype gamma  = SUN_RCONST(-1.0e+6); /* stiffness parameter 1*/
-  sunrealtype theta  = SUN_RCONST(1.0e+2);  /* stiffness parameter 2*/
+  sunrealtype lambda = SUN_RCONST(-1.0e+6); /* stiffness parameter 1*/
+  sunrealtype alpha  = SUN_RCONST(1.0e+2);  /* stiffness parameter 2*/
   sunrealtype UserData[2];
-  UserData[0] = gamma;
-  UserData[1] = theta;
+  UserData[0] = lambda;
+  UserData[1] = alpha;
 
   /* general problem variables */
   int flag;                /* reusable error-checking flag */
@@ -118,9 +118,9 @@ int main(void)
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem with a variable Jacobian:");
   printf("\nThe stiffness of the problem is directly proportional to");
-  printf("\n\"gamma - theta*cos((10 - t)/10*pi)\"\n\n");
-  printf("    gamma  = %" GSYM "\n", gamma);
-  printf("    theta  = %" GSYM "\n", theta);
+  printf("\n\"lambda - alpha*cos((10 - t)/10*pi)\"\n\n");
+  printf("    lambda = %" GSYM "\n", lambda);
+  printf("     alpha = %" GSYM "\n", alpha);
   printf("    reltol = %.1" ESYM "\n", reltol);
   printf("    abstol = %.1" ESYM "\n\n", abstol);
 
@@ -137,7 +137,7 @@ int main(void)
 
   /* Set routines */
   flag = ARKodeSetUserData(arkode_mem,
-                           (void*)&UserData); /* Pass gamma to user functions */
+                           (void*)&UserData); /* Pass lambda to user functions */
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   /* Specify tolerances */
@@ -231,30 +231,30 @@ int main(void)
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype gamma = rdata[0]; /* set shortcut for stiffness parameter 1 */
-  sunrealtype theta = rdata[1]; /* set shortcut for stiffness parameter 2 */
+  sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter 1 */
+  sunrealtype alpha  = rdata[1]; /* set shortcut for stiffness parameter 2 */
   sunrealtype u = N_VGetArrayPointer(y)[0]; /* access current solution value */
 
   /* fill in the RHS function: "N_VGetArrayPointer" accesses the 0th entry of ydot */
   N_VGetArrayPointer(ydot)[0] =
-    (gamma - theta * COS((10 - t) / 10 * ACOS(-1))) * u +
+    (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * u +
     SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
-    (gamma - theta * COS((10 - t) / 10 * ACOS(-1))) * ATAN(t);
+    (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * ATAN(t);
 
   return 0; /* return with success */
 }
 
 /* dom_eig routine to estimate the dominated eigenvalue */
-static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn,
-                   suncomplextype* lambda, void* user_data, N_Vector temp1,
+static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
+                   sunrealtype* lambdaI, void* user_data, N_Vector temp1,
                    N_Vector temp2, N_Vector temp3)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype gamma = rdata[0]; /* set shortcut for stiffness parameter 1 */
-  sunrealtype theta = rdata[1]; /* set shortcut for stiffness parameter 2 */
-
-  *lambda = (gamma - theta * COS((10 - t) / 10 * ACOS(-1))) +
-            SUN_RCONST(0.0) * SUN_I;
+  sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter 1 */
+  sunrealtype alpha  = rdata[1]; /* set shortcut for stiffness parameter 2 */
+  *lambdaR           = (lambda - alpha * COS((10 - t) / 10 *
+                                             ACOS(-1))); /* access current solution value */
+  *lambdaI           = 0.0;
 
   return 0; /* return with success */
 }

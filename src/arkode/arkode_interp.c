@@ -28,7 +28,7 @@
 #include "arkode_interp_impl.h"
 
 /*---------------------------------------------------------------
-  Section interp: generic ARKInterp functions provided by all
+  Section I: generic ARKInterp functions provided by all
   interpolation modules
   ---------------------------------------------------------------*/
 
@@ -865,7 +865,7 @@ ARKInterp arkInterpCreate_Lagrange(ARKodeMem ark_mem, int degree)
 
   This routine resizes the internal vectors.
   ---------------------------------------------------------------*/
-int arkInterpResize_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
+int arkInterpResize_Lagrange(ARKodeMem ark_mem, ARKInterp I,
                              ARKVecResizeFn resize, void* resize_data,
                              sunindextype lrw_diff, sunindextype liw_diff,
                              N_Vector y0)
@@ -873,13 +873,13 @@ int arkInterpResize_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
   int i;
 
   /* resize vectors */
-  if (interp == NULL) { return (ARK_SUCCESS); }
-  if (LINT_YHIST(interp) != NULL)
+  if (I == NULL) { return (ARK_SUCCESS); }
+  if (LINT_YHIST(I) != NULL)
   {
-    for (i = 0; i < LINT_NMAXALLOC(interp); i++)
+    for (i = 0; i < LINT_NMAXALLOC(I); i++)
     {
       if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                        &(LINT_YJ(interp, i))))
+                        &(LINT_YJ(I, i))))
       {
         return (ARK_MEM_FAIL);
       }
@@ -887,7 +887,7 @@ int arkInterpResize_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
   }
 
   /* reset active history length */
-  LINT_NHIST(interp) = 0;
+  LINT_NHIST(I) = 0;
 
   return (ARK_SUCCESS);
 }
@@ -897,51 +897,51 @@ int arkInterpResize_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
 
   This routine frees the Lagrange ARKInterp structure.
   ---------------------------------------------------------------*/
-void arkInterpFree_Lagrange(ARKodeMem ark_mem, ARKInterp interp)
+void arkInterpFree_Lagrange(ARKodeMem ark_mem, ARKInterp I)
 {
   int i;
 
   /* if interpolation structure is NULL, just return */
-  if (interp == NULL) { return; }
+  if (I == NULL) { return; }
 
   /* free content */
-  if (interp->content != NULL)
+  if (I->content != NULL)
   {
-    if (LINT_YHIST(interp) != NULL)
+    if (LINT_YHIST(I) != NULL)
     {
-      for (i = 0; i < LINT_NMAX(interp); i++)
+      for (i = 0; i < LINT_NMAX(I); i++)
       {
-        if (LINT_YJ(interp, i) != NULL)
+        if (LINT_YJ(I, i) != NULL)
         {
-          arkFreeVec(ark_mem, &(LINT_YJ(interp, i)));
-          LINT_YJ(interp, i) = NULL;
+          arkFreeVec(ark_mem, &(LINT_YJ(I, i)));
+          LINT_YJ(I, i) = NULL;
         }
       }
-      free(LINT_YHIST(interp));
-      LINT_YHIST(interp) = NULL;
+      free(LINT_YHIST(I));
+      LINT_YHIST(I) = NULL;
     }
-    if (LINT_THIST(interp) != NULL)
+    if (LINT_THIST(I) != NULL)
     {
-      free(LINT_THIST(interp));
-      LINT_THIST(interp) = NULL;
+      free(LINT_THIST(I));
+      LINT_THIST(I) = NULL;
     }
 
     /* update work space sizes */
-    ark_mem->lrw -= (LINT_NMAX(interp) + 1);
-    ark_mem->liw -= (LINT_NMAX(interp) + 2);
+    ark_mem->lrw -= (LINT_NMAX(I) + 1);
+    ark_mem->liw -= (LINT_NMAX(I) + 2);
 
-    free(interp->content);
-    interp->content = NULL;
+    free(I->content);
+    I->content = NULL;
   }
 
   /* free ops and interpolation structures */
-  if (interp->ops)
+  if (I->ops)
   {
-    free(interp->ops);
-    interp->ops = NULL;
+    free(I->ops);
+    I->ops = NULL;
   }
-  free(interp);
-  interp = NULL;
+  free(I);
+  I = NULL;
 
   return;
 }
@@ -952,39 +952,38 @@ void arkInterpFree_Lagrange(ARKodeMem ark_mem, ARKInterp interp)
   This routine outputs the Lagrange temporal interpolation memory
   structure to a specified file pointer.
   ---------------------------------------------------------------*/
-void arkInterpPrintMem_Lagrange(ARKInterp interp, FILE* outfile)
+void arkInterpPrintMem_Lagrange(ARKInterp I, FILE* outfile)
 {
   int i;
-  if (interp != NULL)
+  if (I != NULL)
   {
-    fprintf(outfile, "arkode_interp (Lagrange): nmax = %i\n", LINT_NMAX(interp));
-    fprintf(outfile, "arkode_interp (Lagrange): nhist = %i\n",
-            LINT_NHIST(interp));
-    if (LINT_THIST(interp) != NULL)
+    fprintf(outfile, "arkode_interp (Lagrange): nmax = %i\n", LINT_NMAX(I));
+    fprintf(outfile, "arkode_interp (Lagrange): nhist = %i\n", LINT_NHIST(I));
+    if (LINT_THIST(I) != NULL)
     {
       fprintf(outfile, "arkode_interp (Lagrange): thist =");
-      for (i = 0; i < LINT_NMAX(interp); i++)
+      for (i = 0; i < LINT_NMAX(I); i++)
       {
-        fprintf(outfile, "  %" RSYM, LINT_TJ(interp, i));
+        fprintf(outfile, "  %" RSYM, LINT_TJ(I, i));
       }
       fprintf(outfile, "\n");
     }
-    if (LINT_YHIST(interp) != NULL)
+    if (LINT_YHIST(I) != NULL)
     {
       fprintf(outfile, "arkode_interp (Lagrange): yhist ptrs =");
-      for (i = 0; i < LINT_NMAX(interp); i++)
+      for (i = 0; i < LINT_NMAX(I); i++)
       {
-        fprintf(outfile, "  %p", (void*)LINT_YJ(interp, i));
+        fprintf(outfile, "  %p", (void*)LINT_YJ(I, i));
       }
       fprintf(outfile, "\n");
     }
 #ifdef SUNDIALS_DEBUG_PRINTVEC
-    if (LINT_YHIST(interp) != NULL)
+    if (LINT_YHIST(I) != NULL)
     {
-      for (i = 0; i < LINT_NMAX(interp); i++)
+      for (i = 0; i < LINT_NMAX(I); i++)
       {
         fprintf(outfile, "arkode_interp (Lagrange): yhist[%i]:\n", i);
-        N_VPrintFile(LINT_YJ(interp, i), outfile);
+        N_VPrintFile(LINT_YJ(I, i), outfile);
       }
     }
 #endif
@@ -1003,7 +1002,7 @@ void arkInterpPrintMem_Lagrange(ARKInterp interp, FILE* outfile)
        been initialized,
     ARK_SUCCESS -- successful completion.
   ---------------------------------------------------------------*/
-int arkInterpSetDegree_Lagrange(ARKodeMem ark_mem, ARKInterp interp, int degree)
+int arkInterpSetDegree_Lagrange(ARKodeMem ark_mem, ARKInterp I, int degree)
 {
   if (degree > ARK_INTERP_MAX_DEGREE || degree < 0)
   {
@@ -1012,7 +1011,7 @@ int arkInterpSetDegree_Lagrange(ARKodeMem ark_mem, ARKInterp interp, int degree)
     return ARK_ILL_INPUT;
   }
 
-  LINT_NMAX(interp) = degree + 1;
+  LINT_NMAX(I) = degree + 1;
 
   return ARK_SUCCESS;
 }
@@ -1026,86 +1025,78 @@ int arkInterpSetDegree_Lagrange(ARKodeMem ark_mem, ARKInterp interp, int degree)
   3. copies current (t,y) from main ARKODE memory into history
   4. updates the 'active' history counter to 1
   ---------------------------------------------------------------*/
-int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
+int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tnew)
 {
   int i;
 
   /* check if storage has increased since the last init */
-  if (LINT_NMAX(interp) > LINT_NMAXALLOC(interp))
+  if (LINT_NMAX(I) > LINT_NMAXALLOC(I))
   {
-    if (LINT_THIST(interp) != NULL)
+    if (LINT_THIST(I) != NULL)
     {
-      free(LINT_THIST(interp));
-      LINT_THIST(interp) = NULL;
+      free(LINT_THIST(I));
+      LINT_THIST(I) = NULL;
     }
-    if (LINT_YHIST(interp) != NULL)
+    if (LINT_YHIST(I) != NULL)
     {
-      for (i = 0; i < LINT_NMAX(interp); i++)
+      for (i = 0; i < LINT_NMAX(I); i++)
       {
-        if (LINT_YJ(interp, i) != NULL)
+        if (LINT_YJ(I, i) != NULL)
         {
-          arkFreeVec(ark_mem, &(LINT_YJ(interp, i)));
-          LINT_YJ(interp, i) = NULL;
+          arkFreeVec(ark_mem, &(LINT_YJ(I, i)));
+          LINT_YJ(I, i) = NULL;
         }
       }
-      free(LINT_YHIST(interp));
-      LINT_YHIST(interp) = NULL;
+      free(LINT_YHIST(I));
+      LINT_YHIST(I) = NULL;
     }
   }
 
   /* allocate storage for time and solution histories */
-  if (LINT_THIST(interp) == NULL)
+  if (LINT_THIST(I) == NULL)
   {
-    LINT_THIST(interp) =
-      (sunrealtype*)malloc(LINT_NMAX(interp) * sizeof(sunrealtype));
-    if (LINT_THIST(interp) == NULL)
+    LINT_THIST(I) = (sunrealtype*)malloc(LINT_NMAX(I) * sizeof(sunrealtype));
+    if (LINT_THIST(I) == NULL)
     {
-      arkInterpFree(ark_mem, interp);
+      arkInterpFree(ark_mem, I);
       return (ARK_MEM_FAIL);
     }
   }
 
   /* solution history allocation */
-  if (LINT_YHIST(interp) == NULL)
+  if (LINT_YHIST(I) == NULL)
   {
-    LINT_YHIST(interp) = (N_Vector*)malloc(LINT_NMAX(interp) * sizeof(N_Vector));
-    if (LINT_YHIST(interp) == NULL)
+    LINT_YHIST(I) = (N_Vector*)malloc(LINT_NMAX(I) * sizeof(N_Vector));
+    if (LINT_YHIST(I) == NULL)
     {
-      arkInterpFree(ark_mem, interp);
+      arkInterpFree(ark_mem, I);
       return (ARK_MEM_FAIL);
     }
-    for (i = 0; i < LINT_NMAX(interp); i++)
+    for (i = 0; i < LINT_NMAX(I); i++)
     {
-      LINT_YJ(interp, i) = NULL;
-      if (!arkAllocVec(ark_mem, ark_mem->yn, &(LINT_YJ(interp, i))))
+      LINT_YJ(I, i) = NULL;
+      if (!arkAllocVec(ark_mem, ark_mem->yn, &(LINT_YJ(I, i))))
       {
-        arkInterpFree(ark_mem, interp);
+        arkInterpFree(ark_mem, I);
         return (ARK_MEM_FAIL);
       }
     }
   }
 
   /* update allocated size if necessary */
-  if (LINT_NMAX(interp) > LINT_NMAXALLOC(interp))
-  {
-    LINT_NMAXALLOC(interp) = LINT_NMAX(interp);
-  }
+  if (LINT_NMAX(I) > LINT_NMAXALLOC(I)) { LINT_NMAXALLOC(I) = LINT_NMAX(I); }
 
   /* zero out history (to be safe) */
-  for (i = 0; i < LINT_NMAXALLOC(interp); i++)
-  {
-    LINT_TJ(interp, i) = SUN_RCONST(0.0);
-  }
-  if (N_VConstVectorArray(LINT_NMAXALLOC(interp), SUN_RCONST(0.0),
-                          LINT_YHIST(interp)))
+  for (i = 0; i < LINT_NMAXALLOC(I); i++) { LINT_TJ(I, i) = SUN_RCONST(0.0); }
+  if (N_VConstVectorArray(LINT_NMAXALLOC(I), SUN_RCONST(0.0), LINT_YHIST(I)))
   {
     return (ARK_VECTOROP_ERR);
   }
 
   /* set current time and state as first entries of (t,y) history, update counter */
-  LINT_TJ(interp, 0) = tnew;
-  N_VScale(ONE, ark_mem->yn, LINT_YJ(interp, 0));
-  LINT_NHIST(interp) = 1;
+  LINT_TJ(I, 0) = tnew;
+  N_VScale(ONE, ark_mem->yn, LINT_YJ(I, 0));
+  LINT_NHIST(I) = 1;
 
   /* return with success */
   return (ARK_SUCCESS);
@@ -1122,7 +1113,7 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew
      into the first history vector
   Otherwise it just returns with success.
   ---------------------------------------------------------------*/
-int arkInterpUpdate_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew)
+int arkInterpUpdate_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tnew)
 {
   int i;
   sunrealtype tdiff;
@@ -1132,14 +1123,14 @@ int arkInterpUpdate_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tn
   N_Vector* yhist;
 
   /* set readability shortcuts */
-  nhist = LINT_NHIST(interp);
-  nmax  = LINT_NMAX(interp);
-  thist = LINT_THIST(interp);
-  yhist = LINT_YHIST(interp);
+  nhist = LINT_NHIST(I);
+  nmax  = LINT_NMAX(I);
+  thist = LINT_THIST(I);
+  yhist = LINT_YHIST(I);
 
   /* update t roundoff value */
-  LINT_TROUND(interp) = FUZZ_FACTOR * ark_mem->uround *
-                        (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
+  LINT_TROUND(I) = FUZZ_FACTOR * ark_mem->uround *
+                   (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
 
   /* determine if tnew differs sufficiently from stored values */
   tdiff = SUNRabs(tnew - thist[0]);
@@ -1147,7 +1138,7 @@ int arkInterpUpdate_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tn
   {
     tdiff = SUNMIN(tdiff, SUNRabs(tnew - thist[i]));
   }
-  if (tdiff <= LINT_TROUND(interp)) { return (ARK_SUCCESS); }
+  if (tdiff <= LINT_TROUND(I)) { return (ARK_SUCCESS); }
 
   /* shift (t,y) history arrays by one */
   ytmp = yhist[nmax - 1];
@@ -1163,7 +1154,7 @@ int arkInterpUpdate_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tn
   N_VScale(ONE, ark_mem->ycur, yhist[0]);
 
   /* update 'nhist' (first few steps) */
-  LINT_NHIST(interp) = nhist = SUNMIN(nhist + 1, nmax);
+  LINT_NHIST(I) = nhist = SUNMIN(nhist + 1, nmax);
 
   /* return with success */
   return (ARK_SUCCESS);
@@ -1191,9 +1182,8 @@ int arkInterpUpdate_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tn
   fixed step sizes, otherwise the stated lower bound is only
   approximate).
   ---------------------------------------------------------------*/
-int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
-                               sunrealtype tau, int deriv, int degree,
-                               N_Vector yout)
+int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tau,
+                               int deriv, int degree, N_Vector yout)
 {
   /* local variables */
   int q, retval, i, j;
@@ -1205,9 +1195,9 @@ int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
   N_Vector* yhist;
 
   /* set readability shortcuts */
-  nhist = LINT_NHIST(interp);
-  thist = LINT_THIST(interp);
-  yhist = LINT_YHIST(interp);
+  nhist = LINT_NHIST(I);
+  thist = LINT_THIST(I);
+  yhist = LINT_YHIST(I);
 
   /* determine polynomial degree q */
   q = SUNMAX(degree, 0);    /* respect lower bound */
@@ -1249,13 +1239,13 @@ int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
   {
     if (deriv == 0)
     {
-      a[0] = LBasis(interp, 0, tval);
-      a[1] = LBasis(interp, 1, tval);
+      a[0] = LBasis(I, 0, tval);
+      a[1] = LBasis(I, 1, tval);
     }
     else
     { /* deriv == 1 */
-      a[0] = LBasisD(interp, 0, tval);
-      a[1] = LBasisD(interp, 1, tval);
+      a[0] = LBasisD(I, 0, tval);
+      a[1] = LBasisD(I, 1, tval);
     }
     N_VLinearSum(a[0], yhist[0], a[1], yhist[1], yout);
     return (ARK_SUCCESS);
@@ -1273,19 +1263,19 @@ int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
   switch (deriv)
   {
   case (0): /* p(t) */
-    for (j = 0; j < q + 1; j++) { a[j] = LBasis(interp, j, tval); }
+    for (j = 0; j < q + 1; j++) { a[j] = LBasis(I, j, tval); }
     break;
 
   case (1): /* p'(t) */
-    for (j = 0; j < q + 1; j++) { a[j] = LBasisD(interp, j, tval); }
+    for (j = 0; j < q + 1; j++) { a[j] = LBasisD(I, j, tval); }
     break;
 
   case (2): /* p''(t) */
-    for (j = 0; j < q + 1; j++) { a[j] = LBasisD2(interp, j, tval); }
+    for (j = 0; j < q + 1; j++) { a[j] = LBasisD2(I, j, tval); }
     break;
 
   case (3): /* p'''(t) */
-    for (j = 0; j < q + 1; j++) { a[j] = LBasisD3(interp, j, tval); }
+    for (j = 0; j < q + 1; j++) { a[j] = LBasisD3(I, j, tval); }
     break;
   }
 
@@ -1297,102 +1287,101 @@ int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp interp,
 }
 
 /* Lagrange utility routines (basis functions and their derivatives) */
-sunrealtype LBasis(ARKInterp interp, int j, sunrealtype t)
+sunrealtype LBasis(ARKInterp I, int j, sunrealtype t)
 {
   int k;
   sunrealtype p = ONE;
-  for (k = 0; k < LINT_NHIST(interp); k++)
+  for (k = 0; k < LINT_NHIST(I); k++)
   {
     if (k == j) { continue; }
-    p *= (t - LINT_TJ(interp, k)) / (LINT_TJ(interp, j) - LINT_TJ(interp, k));
+    p *= (t - LINT_TJ(I, k)) / (LINT_TJ(I, j) - LINT_TJ(I, k));
   }
   return (p);
 }
 
-sunrealtype LBasisD(ARKInterp interp, int j, sunrealtype t)
+sunrealtype LBasisD(ARKInterp I, int j, sunrealtype t)
 {
   int i, k;
   sunrealtype p, q;
   p = ZERO;
-  for (i = 0; i < LINT_NHIST(interp); i++)
+  for (i = 0; i < LINT_NHIST(I); i++)
   {
     if (i == j) { continue; }
     q = ONE;
-    for (k = 0; k < LINT_NHIST(interp); k++)
+    for (k = 0; k < LINT_NHIST(I); k++)
     {
       if (k == j) { continue; }
       if (k == i) { continue; }
-      q *= (t - LINT_TJ(interp, k)) / (LINT_TJ(interp, j) - LINT_TJ(interp, k));
+      q *= (t - LINT_TJ(I, k)) / (LINT_TJ(I, j) - LINT_TJ(I, k));
     }
-    p += q / (LINT_TJ(interp, j) - LINT_TJ(interp, i));
+    p += q / (LINT_TJ(I, j) - LINT_TJ(I, i));
   }
 
   return (p);
 }
 
-sunrealtype LBasisD2(ARKInterp interp, int j, sunrealtype t)
+sunrealtype LBasisD2(ARKInterp I, int j, sunrealtype t)
 {
   int i, k, l;
   sunrealtype p, q, r;
   p = ZERO;
-  for (l = 0; l < LINT_NHIST(interp); l++)
+  for (l = 0; l < LINT_NHIST(I); l++)
   {
     if (l == j) { continue; }
     q = ZERO;
-    for (i = 0; i < LINT_NHIST(interp); i++)
+    for (i = 0; i < LINT_NHIST(I); i++)
     {
       if (i == j) { continue; }
       if (i == l) { continue; }
       r = ONE;
-      for (k = 0; k < LINT_NHIST(interp); k++)
+      for (k = 0; k < LINT_NHIST(I); k++)
       {
         if (k == j) { continue; }
         if (k == i) { continue; }
         if (k == l) { continue; }
-        r *= (t - LINT_TJ(interp, k)) / (LINT_TJ(interp, j) - LINT_TJ(interp, k));
+        r *= (t - LINT_TJ(I, k)) / (LINT_TJ(I, j) - LINT_TJ(I, k));
       }
-      q += r / (LINT_TJ(interp, j) - LINT_TJ(interp, i));
+      q += r / (LINT_TJ(I, j) - LINT_TJ(I, i));
     }
-    p += q / (LINT_TJ(interp, j) - LINT_TJ(interp, l));
+    p += q / (LINT_TJ(I, j) - LINT_TJ(I, l));
   }
 
   return (p);
 }
 
-sunrealtype LBasisD3(ARKInterp interp, int j, sunrealtype t)
+sunrealtype LBasisD3(ARKInterp I, int j, sunrealtype t)
 {
   int i, k, l, m;
   sunrealtype p, q, r, s;
   p = ZERO;
-  for (m = 0; m < LINT_NHIST(interp); m++)
+  for (m = 0; m < LINT_NHIST(I); m++)
   {
     if (m == j) { continue; }
     q = ZERO;
-    for (l = 0; l < LINT_NHIST(interp); l++)
+    for (l = 0; l < LINT_NHIST(I); l++)
     {
       if (l == j) { continue; }
       if (l == m) { continue; }
       r = ZERO;
-      for (i = 0; i < LINT_NHIST(interp); i++)
+      for (i = 0; i < LINT_NHIST(I); i++)
       {
         if (i == j) { continue; }
         if (i == m) { continue; }
         if (i == l) { continue; }
         s = ONE;
-        for (k = 0; k < LINT_NHIST(interp); k++)
+        for (k = 0; k < LINT_NHIST(I); k++)
         {
           if (k == j) { continue; }
           if (k == m) { continue; }
           if (k == l) { continue; }
           if (k == i) { continue; }
-          s *= (t - LINT_TJ(interp, k)) /
-               (LINT_TJ(interp, j) - LINT_TJ(interp, k));
+          s *= (t - LINT_TJ(I, k)) / (LINT_TJ(I, j) - LINT_TJ(I, k));
         }
-        r += s / (LINT_TJ(interp, j) - LINT_TJ(interp, i));
+        r += s / (LINT_TJ(I, j) - LINT_TJ(I, i));
       }
-      q += r / (LINT_TJ(interp, j) - LINT_TJ(interp, l));
+      q += r / (LINT_TJ(I, j) - LINT_TJ(I, l));
     }
-    p += q / (LINT_TJ(interp, j) - LINT_TJ(interp, m));
+    p += q / (LINT_TJ(I, j) - LINT_TJ(I, m));
   }
 
   return (p);

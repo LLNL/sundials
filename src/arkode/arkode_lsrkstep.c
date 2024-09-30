@@ -442,31 +442,12 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
   ark_mem->liw1 = liw1;
 
   /* Resize the internal vector storage */
-  if (step_mem->Fe != NULL)
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                    &step_mem->Fe[0]))
   {
-    if (resize == NULL)
-    {
-      N_VDestroy(step_mem->Fe);
-      step_mem->Fe = NULL;
-      step_mem->Fe = N_VClone(y0);
-      if (step_mem->Fe == NULL)
-      {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                        "Unable to resize vector");
-        return (ARK_MEM_FAIL);
-      }
-    }
-    else
-    {
-      if (resize(step_mem->Fe, y0, resize_data))
-      {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RESIZE_FAIL);
-        return (ARK_MEM_FAIL);
-      }
-    }
-    ark_mem->lrw += lrw_diff;
-    ark_mem->liw += liw_diff;
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Unable to resize vector");
+    return (ARK_MEM_FAIL);
   }
 
   return (ARK_SUCCESS);
@@ -490,11 +471,7 @@ void lsrkStep_Free(ARKodeMem ark_mem)
     /* free the RHS vectors */
     if (step_mem->Fe != NULL)
     {
-      N_VDestroy(step_mem->Fe);
-      step_mem->Fe = NULL;
-      ark_mem->lrw -= ark_mem->lrw1;
-      ark_mem->liw -= ark_mem->liw1;
-      
+      arkFreeVec(ark_mem, &step_mem->Fe[0]);
       free(step_mem->Fe);
       step_mem->Fe = NULL;
       ark_mem->liw -= 1;
@@ -627,19 +604,13 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   /*   Allocate Fe if needed */
   if (step_mem->Fe == NULL)
   {
-    step_mem->Fe = N_VClone(ark_mem->ewt);
-    if (step_mem->Fe == NULL)
-    {
-      arkFreeVectors(ark_mem);
-      return (ARK_MEM_FAIL);
-    }
-    else
-    {
-      ark_mem->lrw += ark_mem->lrw1;
-      ark_mem->liw += ark_mem->liw1;
-    }
-    ark_mem->liw += 1; /* pointers */
+    step_mem->Fe = (N_Vector*)calloc(1, sizeof(N_Vector));
   }
+  if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fe[0])))
+  {
+    return (ARK_MEM_FAIL);
+  }
+  ark_mem->liw += 1; /* pointers */
 
   /* Allocate reusable arrays for fused vector interface */
   if (step_mem->cvals == NULL)
@@ -680,7 +651,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
      ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
   If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
-  evaluating the RHS functions is necessary, we store the vector f(t,y) in Fe
+  evaluating the RHS functions is necessary, we store the vector f(t,y) in Fe[0]
   for reuse in the first stage of the subsequent time step.
 
   In ARK_FULLRHS_END mode we check if the method is "stiffly accurate" and, if
@@ -709,7 +680,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     /* compute the RHS */
     if (!(ark_mem->fn_is_current))
     {
-      retval = step_mem->fe(t, y, step_mem->Fe, ark_mem->user_data);
+      retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
       step_mem->nfe++;
       if (retval != 0)
       {
@@ -720,7 +691,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     }
 
     /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->Fe, f);
+    N_VScale(ONE, step_mem->Fe[0], f);
 
     break;
 
@@ -811,7 +782,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   step_mem->req_stages = SUNMAX(ss, 2);
   if (step_mem->req_stages == step_mem->stage_max_limit)
   {
-    hmax = ark_mem->hadapt_mem->safety * SUNSQR(ss) / (onep54 * step_mem->sprad);
+    hmax         = SUN_RCONST(0.95) * SUNSQR(ss) / (onep54 * step_mem->sprad);
     ark_mem->eta = hmax / ark_mem->h;
     *nflagPtr    = ARK_RETRY_STEP;
     return (ARK_RETRY_STEP);
@@ -1640,9 +1611,9 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   if ((step_mem->is_ext_dom_eig))
   {
     retval = step_mem->extDomEig(ark_mem->tn, ark_mem->ycur, ark_mem->fn,
-                                 &step_mem->dom_eig_lambda, ark_mem->user_data,
-                                 ark_mem->tempv1, ark_mem->tempv2,
-                                 ark_mem->tempv3);
+                                 &step_mem->lambdaR, &step_mem->lambdaI,
+                                 ark_mem->user_data, ark_mem->tempv1,
+                                 ark_mem->tempv2, ark_mem->tempv3);
     step_mem->num_dom_eig_updates++;
     if (retval != ARK_SUCCESS)
     {
@@ -1650,9 +1621,6 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
                       "Unable to estimate the dominant eigenvalue");
       return (ARK_DOMEIG_FAIL);
     }
-
-    step_mem->lambdaR = SUN_REAL(step_mem->dom_eig_lambda);
-    step_mem->lambdaI = SUN_IMAG(step_mem->dom_eig_lambda);
 
     if (step_mem->lambdaR * ark_mem->h > ZERO)
     {

@@ -44,8 +44,8 @@ typedef struct ARKodeLSRKStepMemRec
   ARKRhsFn fi;
   ARKDomEigFn extDomEig;
 
-  N_Vector Fe; /* RHS vector storage */
-  N_Vector Fi; /* RHS vector storage */
+  N_Vector* Fe; /* RHS vector storage */
+  N_Vector* Fi; /* RHS vector storage */
 
   int q; /* method order               */
   int p; /* embedding order            */
@@ -64,12 +64,11 @@ typedef struct ARKodeLSRKStepMemRec
   int nstsig; /* num of steps that successfully used dom_eig; indicates dom_eig update when 0;  */
 
   /* Spectral info */
-  suncomplextype dom_eig_lambda; /* The dominated eigenvalue*/
-  sunrealtype lambdaR;           /* Real part of the dominated eigenvalue*/
-  sunrealtype lambdaI;           /* Imaginary part of the dominated eigenvalue*/
-  sunrealtype sprad;             /* spectral radius*/
-  sunrealtype spr_max;           /* max spectral radius*/
-  sunrealtype spr_min;           /* min spectral radius*/
+  sunrealtype lambdaR;      /* Real part of the dominated eigenvalue*/
+  sunrealtype lambdaI;      /* Imaginary part of the dominated eigenvalue*/
+  sunrealtype sprad;        /* spectral radius*/
+  sunrealtype spr_max;      /* max spectral radius*/
+  sunrealtype spr_min;      /* min spectral radius*/
   sunrealtype dom_eig_sfty; /* some safety factor for the user provided dom_eig*/
   int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 

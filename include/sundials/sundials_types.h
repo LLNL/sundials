@@ -48,7 +48,6 @@
 #ifndef _SUNDIALS_TYPES_H
 #define _SUNDIALS_TYPES_H
 
-#include <complex.h>
 #include <float.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -108,39 +107,6 @@ typedef long double sunrealtype;
 #define SUN_BIG_REAL      LDBL_MAX
 #define SUN_SMALL_REAL    LDBL_MIN
 #define SUN_UNIT_ROUNDOFF LDBL_EPSILON
-
-#endif
-
-/*
- *------------------------------------------------------------------
- * Type suncomplextype
- * Macro SUN_CCONST, SUN_REAL, SUN_IMAG
- *------------------------------------------------------------------
- */
-
-#if defined(SUNDIALS_SINGLE_PRECISION)
-
-typedef float _Complex suncomplextype;
-#define SUN_CCONST(x, y) x##F + y##F* I
-#define SUN_I            (1.0f * I)
-#define SUN_REAL(z)      crealf(z)
-#define SUN_IMAG(z)      cimagf(z)
-
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-typedef double _Complex suncomplextype;
-#define SUN_CCONST(x, y) x + y* I
-#define SUN_I            (1.0 * I)
-#define SUN_REAL(z)      creal(z)
-#define SUN_IMAG(z)      cimag(z)
-
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-
-typedef long double _Complex suncomplextype;
-#define SUN_CCONST(x, y) x##L + y##L* I
-#define SUN_I            (1.0L * I)
-#define SUN_REAL(z)      creall(z)
-#define SUN_IMAG(z)      cimagl(z)
 
 #endif
 

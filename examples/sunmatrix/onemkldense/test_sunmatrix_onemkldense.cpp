@@ -158,11 +158,11 @@ int main(int argc, char* argv[])
 
   myQueue.wait_and_throw();
 
-  SUNMatrix K = NULL;
+  SUNMatrix I = NULL;
   if (square)
   {
-    K = SUNMatClone(A);
-    if (!K)
+    I = SUNMatClone(A);
+    if (!I)
     {
       printf("Matrix creation failed\n");
       N_VDestroy(x);
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
   if (square)
   {
     Idata = (sunrealtype*)malloc(sizeof(sunrealtype) *
-                                 SUNMatrix_OneMklDense_LData(K));
+                                 SUNMatrix_OneMklDense_LData(I));
     if (!Idata)
     {
       printf("Data allocation failed\n");
@@ -228,7 +228,7 @@ int main(int argc, char* argv[])
 
     myQueue.wait_and_throw();
 
-    SUNMatrix_OneMklDense_CopyToDevice(K, Idata);
+    SUNMatrix_OneMklDense_CopyToDevice(I, Idata);
   }
 
   sunrealtype* xdata = N_VGetArrayPointer(x);
@@ -263,8 +263,8 @@ int main(int argc, char* argv[])
   fails += Test_SUNMatZero(A, 0);
   if (square)
   {
-    fails += Test_SUNMatScaleAdd(A, K, 0);
-    fails += Test_SUNMatScaleAddI(A, K, 0);
+    fails += Test_SUNMatScaleAdd(A, I, 0);
+    fails += Test_SUNMatScaleAddI(A, I, 0);
   }
   fails += Test_SUNMatMatvecSetup(A, 0);
   fails += Test_SUNMatMatvec(A, x, y, 0);
@@ -281,7 +281,7 @@ int main(int argc, char* argv[])
   free(Adata);
   if (square)
   {
-    SUNMatDestroy(K);
+    SUNMatDestroy(I);
     free(Idata);
   }
   SUNMemoryHelper_Destroy(memhelper);

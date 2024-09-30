@@ -1,6 +1,6 @@
 
 Analytical ODE test problem:
-    gamma = -1e+06
+    lambda = -1e+06
    reltol = 1.0e-08
    abstol = 1.0e-08
 
@@ -39,4 +39,4 @@ Max. num. of stages allowed  = 200
 Max. spectral radius         = 1010000.00
 Min. spectral radius         = 1010000.00
 
-ACCURACY at the final time   = 1.01918e-13
+ACCURACY at the final time = 1.01918e-13
