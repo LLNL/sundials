@@ -48,7 +48,7 @@ if(NOT
       else()
         add_library(SUNDIALS::KLU ALIAS SuiteSparse::KLU)
       endif()
-    set(KLU_SUITESPARSE_TARGET ON)
+      set(KLU_SUITESPARSE_TARGET ON)
       mark_as_advanced(KLU_SUITESPARSE_TARGET)
     endif()
     return()
