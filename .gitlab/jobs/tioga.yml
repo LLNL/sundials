@@ -30,7 +30,7 @@
 # Extra jobs
 ########################
 
-.sundials_jo_on_tioga:
+.sundials_job_on_tioga:
   variables:
     MPIEXEC_EXECUTABLE: "flux"
     MPIEXEC_PREFLAGS: "run"
