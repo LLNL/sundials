@@ -44,6 +44,9 @@ repeatedly.
 Fixed compilation errors when building the Trilinos Teptra NVector with CUDA
 support.
 
+Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
+using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
+
 ### Deprecation Notices
 
 ## Changes to SUNDIALS in release 7.1.1
