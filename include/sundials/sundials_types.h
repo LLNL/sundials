@@ -54,6 +54,7 @@
 #include <float.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <complex.h>
 #include <sundials/sundials_config.h>
 
 #if SUNDIALS_MPI_ENABLED
@@ -124,6 +125,39 @@ typedef long double sunrealtype;
 #define SUN_FORMAT_E      "% ." SUN_STRING(LDBL_DIG) "Le"
 #define SUN_FORMAT_G      "%." SUN_STRING(LDBL_DIG) "Lg"
 #define SUN_FORMAT_SG     "%+." SUN_STRING(LDBL_DIG) "Lg"
+
+#endif
+
+/*
+ *------------------------------------------------------------------
+ * Type suncomplextype
+ * Macro SUN_CCONST, SUN_REAL, SUN_IMAG
+ *------------------------------------------------------------------
+ */
+
+#if defined(SUNDIALS_SINGLE_PRECISION)
+
+typedef float _Complex        suncomplextype;
+#define SUN_CCONST(x, y)      x##F + y##F * I
+#define SUN_I                 (1.0f * I)
+#define SUN_REAL(z)           crealf(z)
+#define SUN_IMAG(z)           cimagf(z)
+
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+
+typedef double _Complex       suncomplextype;
+#define SUN_CCONST(x, y)      x + y * I
+#define SUN_I                 (1.0 * I)
+#define SUN_REAL(z)           creal(z)
+#define SUN_IMAG(z)           cimag(z)
+
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+
+typedef long double _Complex  suncomplextype;
+#define SUN_CCONST(x, y)      x##L + y##L * I
+#define SUN_I                 (1.0L * I)
+#define SUN_REAL(z)           creall(z)
+#define SUN_IMAG(z)           cimagl(z)
 
 #endif
 
