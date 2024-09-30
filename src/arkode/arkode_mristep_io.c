@@ -133,22 +133,35 @@ int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
 
   Returns the current number of calls to fse and fsi
   ---------------------------------------------------------------*/
+int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, int num_rhs, long int* rhs_evals)
+{
+  SUNFunctionBegin(ark_mem->sunctx);
+  SUNAssert(num_rhs == 2, ARK_ILL_INPUT);
+  SUNAssert(rhs_evals, ARK_ILL_INPUT);
+
+  ARKodeMRIStepMem step_mem = NULL;
+
+  /* access ARKodeMRIStepMem structure */
+  int retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  rhs_evals[0] = step_mem->nfse;
+  rhs_evals[1] = step_mem->nfsi;
+
+  return ARK_SUCCESS;
+}
+
 int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
                           long int* nfsi_evals)
 {
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
+  long int rhs_evals[2];
+  int retval = ARKodeGetNumRhsEvals(arkode_mem, 2, rhs_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  /* access ARKodeMem and ARKodeMRIStepMem structures */
-  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  *nfse_evals = rhs_evals[0];
+  *nfsi_evals = rhs_evals[1];
 
-  /* get number of fse and fsi evals from step_mem */
-  *nfse_evals = step_mem->nfse;
-  *nfsi_evals = step_mem->nfsi;
-
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------

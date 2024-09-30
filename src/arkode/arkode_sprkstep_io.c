@@ -156,21 +156,34 @@ int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable* sprk_storage)
 
   Returns the current number of calls to f1 and f2
   ---------------------------------------------------------------*/
+int sprkStep_GetNumRhsEvals(ARKodeMem ark_mem, int num_rhs, long int* rhs_evals)
+{
+  SUNFunctionBegin(ark_mem->sunctx);
+  SUNAssert(num_rhs == 2, ARK_ILL_INPUT);
+  SUNAssert(rhs_evals, ARK_ILL_INPUT);
+
+  ARKodeSPRKStepMem step_mem = NULL;
+
+  /* access ARKodeSPRKStepMem structure */
+  int retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  rhs_evals[0] = step_mem->nf1;
+  rhs_evals[1] = step_mem->nf2;
+
+  return ARK_SUCCESS;
+}
+
 int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 {
-  ARKodeMem ark_mem          = NULL;
-  ARKodeSPRKStepMem step_mem = NULL;
-  int retval                 = 0;
+  long int rhs_evals[2];
+  int retval = ARKodeGetNumRhsEvals(arkode_mem, 2, rhs_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  /* access ARKodeMem and ARKodeSPRKStepMem structures */
-  retval = sprkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  *nf1 = rhs_evals[0];
+  *nf2 = rhs_evals[1];
 
-  *nf1 = step_mem->nf1;
-  *nf2 = step_mem->nf2;
-
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*===============================================================

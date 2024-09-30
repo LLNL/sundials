@@ -523,21 +523,34 @@ int ARKStepSetTableName(void* arkode_mem, const char* itable, const char* etable
 
   Returns the current number of calls to fe and fi
   ---------------------------------------------------------------*/
+int arkStep_GetNumRhsEvals(ARKodeMem ark_mem, int num_rhs, long int* rhs_evals)
+{
+  SUNFunctionBegin(ark_mem->sunctx);
+  SUNAssert(num_rhs == 2, ARK_ILL_INPUT);
+  SUNAssert(rhs_evals, ARK_ILL_INPUT);
+
+  ARKodeARKStepMem step_mem = NULL;
+
+  /* access ARKodeARKStepMem structure */
+  int retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  rhs_evals[0] = step_mem->nfe;
+  rhs_evals[1] = step_mem->nfi;
+
+  return ARK_SUCCESS;
+}
+
 int ARKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals)
 {
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
+  long int rhs_evals[2];
+  int retval = ARKodeGetNumRhsEvals(arkode_mem, 2, rhs_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  *fe_evals = rhs_evals[0];
+  *fi_evals = rhs_evals[1];
 
-  /* get values from step_mem */
-  *fe_evals = step_mem->nfe;
-  *fi_evals = step_mem->nfi;
-
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------

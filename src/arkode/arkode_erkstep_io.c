@@ -169,20 +169,28 @@ int ERKStepSetTableName(void* arkode_mem, const char* etable)
 
   Returns the current number of calls to f
   ---------------------------------------------------------------*/
+int erkStep_GetNumRhsEvals(ARKodeMem ark_mem, int num_rhs, long int* rhs_evals)
+{
+  SUNFunctionBegin(ark_mem->sunctx);
+  SUNAssert(num_rhs == 1, ARK_ILL_INPUT);
+  SUNAssert(rhs_evals, ARK_ILL_INPUT);
+
+  ARKodeERKStepMem step_mem = NULL;
+
+  /* access ARKodeERKStepMem structure */
+  int retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  rhs_evals[0] = step_mem->nfe;
+
+  return ARK_SUCCESS;
+}
+
 int ERKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
 {
-  ARKodeMem ark_mem;
-  ARKodeERKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeERKStepMem structures */
-  retval = erkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* get values from step_mem */
-  *fevals = step_mem->nfe;
-
-  return (ARK_SUCCESS);
+  int retval = ARKodeGetNumRhsEvals(arkode_mem, 1, fevals);
+  if (retval != ARK_SUCCESS) { return retval; }
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
