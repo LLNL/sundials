@@ -43,7 +43,7 @@ if(NOT
       # For static-only builds of SuiteSparse, SuiteSparse::KLU will itself be
       # an ALIAS target which can't be aliased.
       get_target_property(klu_aliased_target SuiteSparse::KLU ALIASED_TARGET)
-      if (klu_aliased_target)
+      if(klu_aliased_target)
         add_library(SUNDIALS::KLU ALIAS ${klu_aliased_target})
       else()
         add_library(SUNDIALS::KLU ALIAS SuiteSparse::KLU)
