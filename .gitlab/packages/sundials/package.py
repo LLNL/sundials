@@ -251,7 +251,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     depends_on("superlu-dist@6.3.0:", when="@5.5.0:6.3.0 +superlu-dist")
     depends_on("superlu-dist@6.1.1:", when="@:5.4.0 +superlu-dist")
     depends_on("superlu-mt+blas", when="+superlu-mt")
-    depends_on("trilinos+tpetra", when="+trilinos")
+    depends_on("trilinos+tpetra@:13", when="@:7.1.1 +trilinos")
+    depends_on("trilinos+tpetra@14:", when="@7.2.0: +trilinos")
 
     # Require that external libraries built with the same precision
     depends_on("petsc~double~complex", when="+petsc precision=single")
