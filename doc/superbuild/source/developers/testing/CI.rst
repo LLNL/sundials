@@ -13,7 +13,7 @@
 
 .. _CI:
 
-GitHub CI Testing 
+GitHub CI Testing
 =================
 
 There are two categories of CI testing that we run on GitHub via `GitHub actions <https://github.com/LLNL/sundials/actions>`_:
@@ -111,6 +111,11 @@ For information specific to the LLNL GitLab CI see:
 * `LLNL GitLab Runner Tags <https://lc.llnl.gov/gitlab/public-info/gitlab-ci/-/wikis/Gitlab-CI-Basic-Information>`_
 
 
+SUNDIALS utilizes the GitLab CI pipeline code repository shared by LLNL RADIUSS
+projects. The `docs <https://radiuss-shared-ci.readthedocs.io/en/latest/>`_ for
+the shared project should be reviewed before reading the docs below.
+
+
 CI Pipelines and Jobs
 ---------------------
 
@@ -122,6 +127,8 @@ the same stage are executed in parallel (if there are enough resources). If all
 the jobs in a stage succeed, the pipeline moves on to the next stage. If any job
 in a stage fails, the next stage is usually (see below) not executed and the
 pipeline ends early.
+
+
 
 
 CI Pipeline
@@ -278,5 +285,5 @@ To update the spack commit used for the CI:
 ``SHARED_SPACK`` CI variable set to ``ON`` and the ``SPACK_PREFIX`` variable to
 the version of spack being set in the uberenv_config.json.
 
-This will create a new spack installation and rebuild all of the specs. 
+This will create a new spack installation and rebuild all of the specs.
 

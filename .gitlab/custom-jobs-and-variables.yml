@@ -12,13 +12,6 @@ variables:
 # named so that we are sure to retrieve it and avoid collisions.
   ALLOC_NAME: ${CI_PROJECT_NAME}_ci_${CI_PIPELINE_ID}
 
-# Lassen
-# Lassen uses a different job scheduler (spectrum lsf) that does not allow
-# pre-allocation the same way slurm does. Arguments for job level allocation
-  LASSEN_JOB_ALLOC: "1 -W 60"
-# Add variables that should apply to all the jobs on a machine:
-#  LASSEN_MY_VAR: "..."
-
 # Dane
 # Arguments for top level allocation
   DANE_SHARED_ALLOC: "--exclusive --partition=pdebug --time=60 --nodes=1"
@@ -47,13 +40,10 @@ variables:
 # Should the Corona pipeline run? Set to  "ON" or "OFF" to enable/disable.
   ON_CORONA: "OFF"
 
-# Should the Quartz pipeline run? Set to  "ON" or "OFF" to enable/disable.
+# Should the Dane pipeline run? Set to  "ON" or "OFF" to enable/disable.
   ON_DANE: "ON"
 
-# Should the Lassen pipeline run? Set to "ON" or "OFF" to enable/disable.
-  ON_LASSEN: "ON"
-
-# Should the Lassen pipeline run? Set to "ON" or "OFF" to enable/disable.
+# Should the Tioga pipeline run? Set to "ON" or "OFF" to enable/disable.
   ON_TIOGA: "ON"
 
 # If "ON", then the SUNDIALS benchmark problems are run and generate profiles.
