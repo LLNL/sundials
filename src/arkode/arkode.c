@@ -1896,7 +1896,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     }
   }
 
-  /* Create default Hermite interpolation module (if needed) */
+  /* Create default interpolation module (if needed) */
   if (ark_mem->interp_type != ARK_INTERP_NONE && !(ark_mem->interp))
   {
     if (ark_mem->interp_type == ARK_INTERP_LAGRANGE)
@@ -3001,6 +3001,10 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
   ARKodeHAdaptMem hadapt_mem;
 
   if (*nflagPtr == ARK_SUCCESS) { return (ARK_SUCCESS); }
+  /* Returns with an ARK_RETRY_STEP flag happen in a step much 
+  before any algebraic solvers involve. For this reasion, we 
+  immediately return form arkCheckConvergence since it is 
+  irrelavent in an ARK_RETRY_STEP case */
   if (*nflagPtr == ARK_RETRY_STEP) { return (ARK_RETRY_STEP); }
 
   /* The nonlinear soln. failed; increment ncfn */
