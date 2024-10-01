@@ -199,11 +199,16 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   const sunrealtype hinv = SUN_RCONST(1.0) / ark_mem->h;
   N_VLinearSum(hinv, ark_mem->ycur, -hinv, ark_mem->yn, ark_mem->tempv1);
   err = SUNStepper_SetForcing(s1, ZERO, ZERO, &ark_mem->tempv1, 1);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   /* Evolve stepper 1 with the forcing */
   err = SUNStepper_Evolve(s1, ark_mem->tn, tout, ark_mem->ycur, &tret);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   step_mem->n_stepper_evolves[1]++;
+
+  /* Clear the forcing so it doesn't get included in a fullRhs call */
+  err = SUNStepper_SetForcing(s1, ZERO, ZERO, NULL, 0);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   return ARK_SUCCESS;
 }
