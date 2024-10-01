@@ -170,7 +170,7 @@ int main(void)
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0], nfeval[0]);
+  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0], nfeval[1]);
   printf("   Total linear solver setups = %li\n", nsetups);
   printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
   printf("   Total number of Jacobian evaluations = %li\n", nje);
