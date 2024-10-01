@@ -917,7 +917,6 @@ int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
 
   /* Otherwise, call a utility routine to replace the current controller object */
   return (arkReplaceAdaptController(ark_mem, C));
-
 }
 
 /*---------------------------------------------------------------
@@ -3045,7 +3044,6 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   return (ARK_SUCCESS);
 }
 
-
 /*===============================================================
   ARKODE-IO internal utility functions
   ===============================================================*/
@@ -3112,8 +3110,6 @@ int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C)
 
   return (ARK_SUCCESS);
 }
-
-
 
 /*===============================================================
   ARKODE + XBraid interface utility functions
