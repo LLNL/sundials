@@ -395,15 +395,15 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     // Output statistics
     // -----------------
 
-    long int mri_nst, mri_nfse, mri_nfsi;     // integrator
+    long int mri_nst, mri_nfseval[2];         // integrator
     long int mri_nni, mri_ncfn;               // nonlinear solver
     long int mri_nsetups, mri_nje, mri_nfeLS; // linear solver
 
     flag = ARKodeGetNumSteps(mristep_mem, &mri_nst);
     if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
-    flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
-    if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return 1; }
+    flag = ARKodeGetNumRhsEvals(mristep_mem, 2, mri_nfseval);
+    if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
 
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {
@@ -443,8 +443,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     std::cout << "   y_n         = " << ydata[0] << "\n";
     std::cout << "   Error       = " << error << "\n";
     std::cout << "   Steps       = " << mri_nst << "\n";
-    std::cout << "   Fe evals    = " << mri_nfse << "\n";
-    std::cout << "   Fi evals    = " << mri_nfsi << "\n";
+    std::cout << "   Fe evals    = " << mri_nfseval[0] << "\n";
+    std::cout << "   Fi evals    = " << mri_nfseval[1] << "\n";
 
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {
@@ -469,10 +469,10 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
       fe_evals = mri_nst * nstages_evaluated;
     }
 
-    if (mri_nfse != fe_evals)
+    if (mri_nfseval[0] != fe_evals)
     {
       numfails++;
-      std::cout << "Fe RHS evals: " << mri_nfse << " vs " << fe_evals << "\n";
+      std::cout << "Fe RHS evals: " << mri_nfseval[0] << " vs " << fe_evals << "\n";
     }
 
     long int fi_evals = 0;
@@ -481,10 +481,10 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
       fi_evals = mri_nst * nstages_evaluated + mri_nni;
     }
 
-    if (mri_nfsi != fi_evals)
+    if (mri_nfseval[1] != fi_evals)
     {
       numfails++;
-      std::cout << "Fi RHS evals: " << mri_nfsi << " vs " << fi_evals << "\n";
+      std::cout << "Fi RHS evals: " << mri_nfseval[1] << " vs " << fi_evals << "\n";
     }
 
     if (numfails) { std::cout << "Failed " << numfails << " tests\n"; }
