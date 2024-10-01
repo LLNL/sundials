@@ -42,7 +42,7 @@
  * Both the SSPRK(s,2) and SSPRK(s,3) methods allow specification of a
  * non-default number of stages.  This may be specified using the --stages S
  * input value, where S is an integer.  Note: SSPRK(s,2) requires S at least
- * 2, and SSPRK(s,3) requires S be a perfect square, with S at least 9.
+ * 2, and SSPRK(s,3) requires S be a perfect square, with S at least 4.
  *
  * Alternately, if METHOD corresponds with a valid ARKODE_ERKTableID then
  * the system will be advanced using that method in ERKStep.

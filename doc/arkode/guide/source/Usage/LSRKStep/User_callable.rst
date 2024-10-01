@@ -195,12 +195,12 @@ Allowable Method Families
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods.
 
       * ``ARKODE_LSRK_SSP_S_2``  -- ``num_of_stages`` must be greater than or equal to 2
-      * ``ARKODE_LSRK_SSP_S_3``  -- ``num_of_stages`` must be a perfect-square greater than or equal to 9
+      * ``ARKODE_LSRK_SSP_S_3``  -- ``num_of_stages`` must be a perfect-square greater than or equal to 4
       * ``ARKODE_LSRK_SSP_10_4`` -- ``num_of_stages`` cannot be modified from 10, so this function should not be called.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *num_of_stages* -- number of stages :math:`(>1)` for ``SSP(s,2)`` and :math:`(n^2 = s \geq 9)` for ``SSP(s,3)``.
+      * *num_of_stages* -- number of stages :math:`(>1)` for ``SSP(s,2)`` and :math:`(n^2 = s \geq 4)` for ``SSP(s,3)``.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

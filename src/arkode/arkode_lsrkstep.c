@@ -208,7 +208,7 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init              = lsrkStep_Init;
   ark_mem->step_fullrhs           = lsrkStep_FullRHS;
-  ark_mem->step                   = lsrkStep_TakeStepRKC;
+  ark_mem->step                   = lsrkStep_TakeStepSSPs2;
   ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
   ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
   ark_mem->step_resize            = lsrkStep_Resize;
@@ -1372,6 +1372,115 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
                  ark_mem->tempv1);
   }
+
+  /* Compute yerr (if step adaptivity enabled) */
+  if (!ark_mem->fixedstep)
+  {
+    N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->tempv1, ark_mem->tempv1);
+
+    *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
+  }
+  if (*dsmPtr <= ONE || ark_mem->fixedstep)
+  {
+    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                          ark_mem->fn, ark_mem->user_data);
+    step_mem->nfe++;
+    ark_mem->fn_is_current = SUNTRUE;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  }
+
+  return (ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  lsrkStep_TakeStepSSP43:
+
+  This routine serves the primary purpose of the LSRKStepSSP43 module:
+  it performs a single SSP43 step (with embedding).
+
+  The output variable dsmPtr should contain estimate of the
+  weighted local error if an embedding is present; otherwise it
+  should be 0.
+
+  The input/output variable nflagPtr is used to gauge convergence
+  of any algebraic solvers within the step.  As this routine
+  involves no algebraic solve, it is set to 0 (success).
+
+  The return value from this routine is:
+            0 => step completed successfully
+           >0 => step encountered recoverable failure;
+                 reduce step and retry (if possible)
+           <0 => step encountered unrecoverable failure
+  ---------------------------------------------------------------*/
+int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
+{
+  int retval;
+  ARKodeLSRKStepMem step_mem;
+
+  /* initialize algebraic solver convergence flag to success,
+     temporal error estimate to zero */
+  *nflagPtr = ARK_SUCCESS;
+  *dsmPtr   = ZERO;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  sunrealtype* cvals = step_mem->cvals;
+  N_Vector* Xvecs = step_mem->Xvecs;
+
+  sunrealtype rs = SUN_RCONST(4.0);
+  sunrealtype p5 = SUN_RCONST(0.5);
+
+  /* Call the full RHS if needed. If this is the first step then we may need to
+     evaluate or copy the RHS values from an  earlier evaluation (e.g., to
+     compute h0). For subsequent steps treat this RHS evaluation as an
+     evaluation at the end of the just completed step to potentially reuse
+     (FSAL methods) RHS evaluations from the end of the last step. */
+
+  if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
+  {
+    retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn, ark_mem->user_data);
+    step_mem->nfe++;
+    ark_mem->fn_is_current = SUNTRUE;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  }
+
+  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * p5, ark_mem->fn, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->yn, ark_mem->h / rs, ark_mem->fn, ark_mem->tempv1);
+
+  retval =
+  step_mem->fe(ark_mem->tcur + ark_mem->h * p5, ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
+  step_mem->nfe++;               
+  if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+
+  N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, step_mem->Fe, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe, ark_mem->tempv1);
+
+  retval =
+    step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
+  step_mem->nfe++;               
+  if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+
+  cvals[0] = ONE/THREE;
+  Xvecs[0] = ark_mem->ycur;
+  cvals[1] = TWO/THREE;
+  Xvecs[1] = ark_mem->yn;
+  cvals[2] = ONE/SIX * ark_mem->h;
+  Xvecs[2] = step_mem->Fe;
+
+  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs, ark_mem->ycur);
+
+  N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe, ark_mem->tempv1);
+
+  retval =
+  step_mem->fe(ark_mem->tcur + ark_mem->h * p5, ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
+  step_mem->nfe++;
+  if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+
+  N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, step_mem->Fe, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe, ark_mem->tempv1);
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)

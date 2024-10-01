@@ -259,7 +259,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_sfty)
   SSP methods:
 
       ARKODE_LSRK_SSP_S_2  -- num_of_stages must be greater than or equal to 2
-      ARKODE_LSRK_SSP_S_3  -- num_of_stages must be a perfect square greater than or equal to 9
+      ARKODE_LSRK_SSP_S_3  -- num_of_stages must be a perfect square greater than or equal to 4
       ARKODE_LSRK_SSP_10_4 -- num_of_stages must be equal to 10 - no need to call!
 
   This set routine must be called after calling LSRKStepSetMethod with an SSP method
@@ -287,12 +287,16 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
     break;
 
   case ARKODE_LSRK_SSP_S_3:
-    if (num_of_stages < 9 || (SUNRceil(SUNRsqrt(num_of_stages)) !=
+    if (num_of_stages < 4 || (SUNRceil(SUNRsqrt(num_of_stages)) !=
                               SUNRfloor(SUNRsqrt(num_of_stages))))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "num_of_stages must be a perfect square greater than or equal to 9");
+                      __FILE__, "num_of_stages must be a perfect square greater than or equal to 4");
       return (ARK_ILL_INPUT);
+    }
+    if (num_of_stages == 4)
+    {
+      ark_mem->step = lsrkStep_TakeStepSSP43;
     }
     break;
 
