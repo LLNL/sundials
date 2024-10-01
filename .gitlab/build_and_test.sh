@@ -90,19 +90,11 @@ then
     fi
 
     key_path=/usr/workspace/sundials/ci/spack_stuff/gpg_backup
-    python3 .gitlab/uberenv/uberenv.py --trust-key ${key_path}/pubring.gpg --trust-key ${key_path}/secring.gpg \
+    python3 .gitlab/uberenv/uberenv.py \
+        --trust-key ${key_path}/pubring.gpg --trust-key ${key_path}/secring.gpg \
         --spec="${spec}" "${mirror_opt[@]}" "${prefix_opt}"
-
-    # # Ensure correct CUDA module is loaded, only works for module naming
-    # # convention on Lassen. Only needed for CUDA 11 (unclear why).
-    # if [[ -n "${CUDA_SPEC}" ]]; then
-    #     cuda_version="${CUDA_SPEC##*@}"
-    #     echo "module load cuda/${cuda_version}"
-    #     module load cuda/"${cuda_version}"
-    # fi
-
-    module load cmake/3.23
 fi
+
 date
 
 # Reload the spack environment created by uberenv
