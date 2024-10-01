@@ -1412,7 +1412,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 Optional input                                              Function name                               Default
 =========================================================   ==========================================  ========
 Provide a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptController`          PID
-Adjust the method order used in the controller              :c:func:`ARKodeSetAdaptivityAdjustment`    -1
+Adjust the method order used in the controller              :c:func:`ARKodeSetAdaptivityAdjustment`     -1
 Explicit stability safety factor                            :c:func:`ARKodeSetCFLFraction`              0.5
 Time step error bias factor                                 :c:func:`ARKodeSetErrorBias`                1.5
 Bounds determining no change in step size                   :c:func:`ARKodeSetFixedStepBounds`          1.0  1.5
