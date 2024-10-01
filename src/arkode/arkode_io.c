@@ -890,8 +890,6 @@ int ARKodeSetUserData(void* arkode_mem, void* user_data)
   ---------------------------------------------------------------*/
 int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
 {
-  int retval;
-  long int lenrw, leniw;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
   {
