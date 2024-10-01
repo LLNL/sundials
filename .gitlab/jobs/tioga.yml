@@ -98,7 +98,7 @@ tioga_rocmcc_611_tpls:
       - COMPILER_SPEC: rocmcc@6.1.1
         AMDGPU_TARGET: [gfx90a]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi+magma~ginkgo+kokkos ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^ginkgo+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi+magma~ginkgo+kokkos ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
   before_script:
     - module load rocmcc/6.1.1-magic
   extends: [.sundials_job_on_tioga]
