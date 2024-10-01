@@ -466,7 +466,7 @@ static void PrintFinalStats(void* arkode_mem)
 {
   long int lenrw, leniw;
   long int lenrwLS, leniwLS;
-  long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
+  long int nst, nfeval[2], nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
 
@@ -474,8 +474,8 @@ static void PrintFinalStats(void* arkode_mem)
   check_flag(&flag, "ARKodeGetWorkSpace", 1, 0);
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1, 0);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1, 0);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1, 0);
   flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1, 0);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
@@ -501,8 +501,8 @@ static void PrintFinalStats(void* arkode_mem)
   printf("\nFinal Statistics: \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
   printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
-  printf("nst     = %5ld     nfe     = %5ld\n", nst, nfe);
-  printf("nfi     = %5ld     nfels   = %5ld\n", nfi, nfeLS);
+  printf("nst     = %5ld     nfe     = %5ld\n", nst, nfeval[0]);
+  printf("nfi     = %5ld     nfels   = %5ld\n", nfeval[1], nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n", nni, nli);
   printf("nsetups = %5ld     netf    = %5ld\n", nsetups, netf);
   printf("npe     = %5ld     nps     = %5ld\n", npe, nps);

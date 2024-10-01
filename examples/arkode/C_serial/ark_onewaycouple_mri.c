@@ -95,7 +95,7 @@ int main(void)
   sunrealtype t, tout;
   sunrealtype error = SUN_RCONST(0.0);
   int iout;
-  long int nsts, nstf, nfse, nfsi, nff, tmp;
+  long int nsts, nstf, nfseval[2], nffeval[2];
 
   /*
    * Initialization
@@ -228,19 +228,19 @@ int main(void)
   /* Get some slow integrator statistics */
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 2, nfseval);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nff, &tmp);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 2, nffeval);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");
   printf("   Steps: nsts = %li, nstf = %li\n", nsts, nstf);
-  printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nff);
+  printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[0], nffeval[0]);
 
   /* Clean up and return */
   N_VDestroy(y);                            /* Free y vector */

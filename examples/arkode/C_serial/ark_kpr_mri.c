@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
   sunrealtype hf, gamma, beta, t, tout, rpar[3];
   sunrealtype uerr, verr, uerrtot, verrtot, errtot;
   int iout;
-  long int nsts, nstf, nfse, nfsi, nff, nnif, nncf, njef, nnis, nncs, njes, tmp;
+  long int nsts, nstf, nfseval[2], nffeval[2], nnif, nncf, njef, nnis, nncs, njes;
 
   /*
    * Initialization
@@ -626,14 +626,14 @@ int main(int argc, char* argv[])
   /* Get some slow integrator statistics */
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 2, nfseval);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nff, &tmp);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 2, nffeval);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");
@@ -643,14 +643,15 @@ int main(int argc, char* argv[])
          uerrtot, verrtot, errtot);
   if (imex_slow)
   {
-    printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfse, nfsi,
-           nff);
+    printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfseval[0],
+           nfseval[1], nffeval[0]);
   }
   else if (implicit_slow)
   {
-    printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfsi, nff);
+    printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[1], nffeval[0]);
   }
-  else { printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nff); }
+  else { printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[0],
+                nffeval[0]); }
 
   /* Get/print slow integrator decoupled implicit solver statistics */
   if ((solve_type == 4) || (solve_type == 7) || (solve_type == 8) ||

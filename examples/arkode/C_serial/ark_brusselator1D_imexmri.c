@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
   FILE *FID, *UFID, *VFID, *WFID;  /* output file pointers          */
   int iout;                        /* output counter                */
   long int nsts, nstf;             /* step stats                    */
-  long int nfse, nfsi, nffe, nffi; /* RHS stats                     */
+  long int nfseval[2], nffeval[2]; /* RHS stats                     */
   long int nnif, nncf, njef, nnis, nncs, njes;
   sunindextype NEQ;         /* number of equations           */
   sunindextype i;           /* counter                       */
@@ -752,14 +752,14 @@ int main(int argc, char* argv[])
   /* Get some slow integrator statistics */
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 2, nfseval);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nffe, &nffi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 2, nffeval);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");
@@ -770,13 +770,13 @@ int main(int argc, char* argv[])
     if ((solve_type == 0) || (solve_type == 1) || (solve_type == 3) ||
         (solve_type == 5) || (solve_type == 7))
     {
-      printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfse,
-             nfsi, nffi);
+      printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfseval[0],
+             nfseval[1], nffeval[1]);
     }
     else
     {
-      printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfse,
-             nfsi, nffe);
+      printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfseval[0],
+             nfseval[1], nffeval[0]);
     }
   }
   else if (implicit_slow)
@@ -784,18 +784,18 @@ int main(int argc, char* argv[])
     if ((solve_type == 0) || (solve_type == 1) || (solve_type == 3) ||
         (solve_type == 5) || (solve_type == 7))
     {
-      printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfsi, nffi);
+      printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[1], nffeval[1]);
     }
-    else { printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfsi, nffe); }
+    else { printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[1], nffeval[0]); }
   }
   else
   {
     if ((solve_type == 0) || (solve_type == 1) || (solve_type == 3) ||
         (solve_type == 5) || (solve_type == 7))
     {
-      printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nffi);
+      printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[0], nffeval[1]);
     }
-    else { printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nffe); }
+    else { printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[0], nffeval[0]); }
   }
 
   /* Get/print slow integrator decoupled implicit solver statistics */

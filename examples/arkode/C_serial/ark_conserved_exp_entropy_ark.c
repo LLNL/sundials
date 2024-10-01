@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
   void* arkode_mem = NULL;
 
   /* ARKODE statistics */
-  long int nst, nst_a, nfe, nfi;
+  long int nst, nst_a, nfeval[2];
   long int nrf, nrbf, nre, nrje, nrnlsi, nrnlsf;
   long int nsetups, nje, nfeLS, nni, ncfn, netf;
 
@@ -340,13 +340,13 @@ int main(int argc, char* argv[])
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_flag(flag, "ARKodeGetNumErrTestFails");
 
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(flag, "ARKStepGetNumRhsEvals");
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
+  check_flag(flag, "ARKodeGetNumRhsEvals");
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
   printf("   Total number of error test failures = %li\n", netf);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
+  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0], nfeval[1]);
 
   if (implicit)
   {

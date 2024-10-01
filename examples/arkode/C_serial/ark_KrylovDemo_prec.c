@@ -637,30 +637,30 @@ static void PrintAllSpecies(N_Vector c, int ns, int mxns, sunrealtype t)
 
 static void PrintOutput(void* arkode_mem, sunrealtype t)
 {
-  long int nst, nfe, nfi, nni;
+  long int nst, nfeval[2], nni;
   int flag;
   sunrealtype hu;
 
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
   flag = ARKodeGetLastStep(arkode_mem, &hu);
   check_flag(&flag, "ARKodeGetLastStep", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("t = %10.2Le  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst, nfe,
-         nfi, nni);
+  printf("t = %10.2Le  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst,
+         nfeval[0], nfeval[1], nni);
   printf("  hu = %11.2Le\n\n", hu);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("t = %10.2e  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst, nfe,
-         nfi, nni);
+  printf("t = %10.2e  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst,
+         nfeval[0], nfeval[1], nni);
   printf("  hu = %11.2e\n\n", hu);
 #else
-  printf("t = %10.2e  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst, nfe,
-         nfi, nni);
+  printf("t = %10.2e  nst = %ld  nfe = %ld  nfi = %ld  nni = %ld", t, nst,
+         nfeval[0], nfeval[1], nni);
   printf("  hu = %11.2e\n\n", hu);
 #endif
 }
@@ -669,7 +669,7 @@ static void PrintFinalStats(void* arkode_mem)
 {
   long int lenrw, leniw;
   long int lenrwLS, leniwLS;
-  long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
+  long int nst, nfeval[2], nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
   sunrealtype avdim;
@@ -678,8 +678,8 @@ static void PrintFinalStats(void* arkode_mem)
   check_flag(&flag, "ARKodeGetWorkSpace", 1);
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
   flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
@@ -708,10 +708,10 @@ static void PrintFinalStats(void* arkode_mem)
   printf(" ARKLS real workspace length           = %4ld \n", lenrwLS);
   printf(" ARKLS integer workspace length        = %4ld \n", leniwLS);
   printf(" Number of steps                       = %4ld \n", nst);
-  printf(" Number of f-s (explicit)              = %4ld \n", nfe);
-  printf(" Number of f-s (implicit)              = %4ld \n", nfi);
+  printf(" Number of f-s (explicit)              = %4ld \n", nfeval[0]);
+  printf(" Number of f-s (implicit)              = %4ld \n", nfeval[1]);
   printf(" Number of f-s (SPGMR)                 = %4ld \n", nfeLS);
-  printf(" Number of f-s (TOTAL)                 = %4ld \n", nfe + nfeLS);
+  printf(" Number of f-s (TOTAL)                 = %4ld \n", nfeval[0] + nfeLS);
   printf(" Number of setups                      = %4ld \n", nsetups);
   printf(" Number of nonlinear iterations        = %4ld \n", nni);
   printf(" Number of linear iterations           = %4ld \n", nli);
