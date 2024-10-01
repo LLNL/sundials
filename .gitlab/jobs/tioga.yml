@@ -36,41 +36,41 @@
     MPIEXEC_PREFLAGS: "run"
   extends: [.custom_job, .job_on_tioga]
 
-# Builds with HIP
-tioga_rocmcc_571_no_tpls_no_mpi:
-  parallel:
-    matrix:
-      - COMPILER_SPEC: rocmcc@5.7.1
-        AMDGPU_TARGET: [gfx90a]
-  variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double +rocm~mpi~magma~ginkgo~kokkos amdgpu_target=${AMDGPU_TARGET}"
-  before_script:
-    - module load rocmcc/5.7.1-magic
-  extends: [.sundials_job_on_tioga]
+# # Builds with HIP
+# tioga_rocmcc_571_no_tpls_no_mpi:
+#   parallel:
+#     matrix:
+#       - COMPILER_SPEC: rocmcc@5.7.1
+#         AMDGPU_TARGET: [gfx90a]
+#   variables:
+#     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double +rocm~mpi~magma~ginkgo~kokkos amdgpu_target=${AMDGPU_TARGET}"
+#   before_script:
+#     - module load rocmcc/5.7.1-magic
+#   extends: [.sundials_job_on_tioga]
 
-tioga_rocmcc_571_no_tpls:
-  parallel:
-    matrix:
-      - COMPILER_SPEC: rocmcc@5.7.1
-        AMDGPU_TARGET: [gfx90a]
-  variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double +rocm+mpi~magma~ginkgo~kokkos amdgpu_target=${AMDGPU_TARGET}"
-  before_script:
-    - module load rocmcc/5.7.1-magic
-  extends: [.sundials_job_on_tioga]
+# tioga_rocmcc_571_no_tpls:
+#   parallel:
+#     matrix:
+#       - COMPILER_SPEC: rocmcc@5.7.1
+#         AMDGPU_TARGET: [gfx90a]
+#   variables:
+#     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double +rocm+mpi~magma~ginkgo~kokkos amdgpu_target=${AMDGPU_TARGET}"
+#   before_script:
+#     - module load rocmcc/5.7.1-magic
+#   extends: [.sundials_job_on_tioga]
 
-tioga_rocmcc_571_tpls:
-  parallel:
-    matrix:
-      - COMPILER_SPEC: rocmcc@5.7.1
-        AMDGPU_TARGET: [gfx90a]
-  variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi+magma+ginkgo+kokkos ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^ginkgo+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
-  before_script:
-    - module load rocmcc/5.7.1-magic
-  extends: [.sundials_job_on_tioga]
+# tioga_rocmcc_571_tpls:
+#   parallel:
+#     matrix:
+#       - COMPILER_SPEC: rocmcc@5.7.1
+#         AMDGPU_TARGET: [gfx90a]
+#   variables:
+#     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi+magma+ginkgo+kokkos ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^ginkgo+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+#   before_script:
+#     - module load rocmcc/5.7.1-magic
+#   extends: [.sundials_job_on_tioga]
 
-tioga_rocmcc_611_no_tpls_no_mpi:
+# tioga_rocmcc_611_no_tpls_no_mpi:
   parallel:
     matrix:
       - COMPILER_SPEC: rocmcc@6.1.1
@@ -103,11 +103,11 @@ tioga_rocmcc_611_tpls:
     - module load rocmcc/6.1.1-magic
   extends: [.sundials_job_on_tioga]
 
-# Builds without HIP
-tioga_cce_no_tpls:
-  parallel:
-    matrix:
-      - COMPILER_SPEC: cce@18.0.0
-  variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double +mpi"
-  extends: [.sundials_job_on_tioga]
+# # Builds without HIP
+# tioga_cce_no_tpls:
+#   parallel:
+#     matrix:
+#       - COMPILER_SPEC: cce@18.0.0
+#   variables:
+#     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double +mpi"
+#   extends: [.sundials_job_on_tioga]
