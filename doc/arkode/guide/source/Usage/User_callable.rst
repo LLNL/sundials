@@ -1412,7 +1412,7 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 Optional input                                              Function name                               Default
 =========================================================   ==========================================  ========
 Provide a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptController`          PID
-Adjust the method order used in the controller              :c:func:`ERKStepSetAdaptivityAdjustment`    -1
+Adjust the method order used in the controller              :c:func:`ARKodeSetAdaptivityAdjustment`    -1
 Explicit stability safety factor                            :c:func:`ARKodeSetCFLFraction`              0.5
 Time step error bias factor                                 :c:func:`ARKodeSetErrorBias`                1.5
 Bounds determining no change in step size                   :c:func:`ARKodeSetFixedStepBounds`          1.0  1.5
@@ -4784,7 +4784,7 @@ rescale the upcoming time step by the specified factor.  If a value
 
 
 
-.. _ERKStep_CInterface.MRIStepInterface:
+.. _ARKODE.Usage.MRIStepInterface:
 
 Using an ARKODE solver as an MRIStep "inner" solver
 ---------------------------------------------------
