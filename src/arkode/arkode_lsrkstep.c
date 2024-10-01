@@ -983,34 +983,22 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return (retval); }
   }
 
-  /* determine the number of required stages */
-  /* Start by finding an ss value which is for sure less than the next req_stages 
-  and still large enough to reduce the number of for iterations*/
-  int ss = SUNRfloor(
-    SUNRsqrt(TWO * SUNRabs(ark_mem->h) * step_mem->sprad + THREE) - ONE);
-  /* Increase ss values by 1 each time to find the least feasible req_stages */
-  for (; ss <= step_mem->stage_max_limit; ss++)
+  int ss = SUNRceil((SUNRsqrt(SUN_RCONST(9.0) + SUN_RCONST(8.0) * SUNRabs(ark_mem->h) * step_mem->sprad) - ONE) / TWO);
+  step_mem->req_stages = SUNMAX(2, ss);
+  if (ss >= step_mem->stage_max_limit)
   {
-    if ((SUNSQR(ss) + ss - TWO) >= TWO * (SUNRabs(ark_mem->h) * step_mem->sprad))
+    if (!ark_mem->fixedstep)
     {
-      step_mem->req_stages = SUNMAX(ss, 2);
-      break;
+      hmax = ark_mem->hadapt_mem->safety * (SUNSQR(ss) + ss - TWO) / (TWO * step_mem->sprad);
+      ark_mem->eta = hmax / ark_mem->h;
+      *nflagPtr    = ARK_RETRY_STEP;
+      return (ARK_RETRY_STEP);
     }
-    if (ss >= step_mem->stage_max_limit)
+    else
     {
-      if (!ark_mem->fixedstep)
-      {
-        hmax = ark_mem->hadapt_mem->safety * (SUNSQR(ss) + ss - TWO) / (TWO * step_mem->sprad);
-        ark_mem->eta = hmax / ark_mem->h;
-        *nflagPtr    = ARK_RETRY_STEP;
-        return (ARK_RETRY_STEP); 
-      }
-      else
-      {
-        arkProcessError(ark_mem, ARK_STEP_FIXED_SIZE_FAIL, __LINE__, __func__, __FILE__,
-                "Unable to achieve stable results: Either reduce the step size or increase the stage_max_limit");
-        return (ARK_STEP_FIXED_SIZE_FAIL);
-      }
+      arkProcessError(ark_mem, ARK_STEP_FIXED_SIZE_FAIL, __LINE__, __func__, __FILE__,
+              "Unable to achieve stable results: Either reduce the step size or increase the stage_max_limit");
+      return (ARK_STEP_FIXED_SIZE_FAIL);
     }
   }
 
