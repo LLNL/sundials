@@ -1314,8 +1314,7 @@ subroutine ARKStepStats(arkode_mem)
 
   integer(c_long) :: nsteps(1)     ! num steps
   integer(c_long) :: nst_a(1)      ! num steps attempted
-  integer(c_long) :: nfe(1)        ! num explicit function evals
-  integer(c_long) :: nfi(1)        ! num implicit function evals
+  integer(c_long) :: nfeval(2)     ! num function evals
   integer(c_long) :: nlinsetups(1) ! num linear solver setups
   integer(c_long) :: netfails(1)   ! num error test fails
 
@@ -1342,9 +1341,9 @@ subroutine ARKStepStats(arkode_mem)
     stop 1
   end if
 
-  ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+  ierr = FARKodeGetNumRhsEvals(arkode_mem, 2, nfeval)
   if (ierr /= 0) then
-    print *, 'Error in FARKStepGetNumRhsEvals, retval = ', ierr, '; halting'
+    print *, 'Error in FARKodeGetNumRhsEvals, retval = ', ierr, '; halting'
     stop 1
   end if
 
@@ -1406,8 +1405,8 @@ subroutine ARKStepStats(arkode_mem)
   print *, ' General Solver Stats:'
   print '(4x,A,i9)', 'Total internal steps taken    =', nsteps
   print '(4x,A,i9)', 'Total internal steps attempts =', nst_a
-  print '(4x,A,i9)', 'Total rhs exp function calls  =', nfe
-  print '(4x,A,i9)', 'Total rhs imp function calls  =', nfi
+  print '(4x,A,i9)', 'Total rhs exp function calls  =', nfeval(1)
+  print '(4x,A,i9)', 'Total rhs imp function calls  =', nfeval(2)
   print '(4x,A,i9)', 'Total jac function calls      =', njacevals
   print '(4x,A,i9)', 'Total mass function calls     =', nmassevals
   print '(4x,A,i9)', 'Num lin solver setup calls    =', nlinsetups

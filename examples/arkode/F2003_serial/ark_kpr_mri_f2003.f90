@@ -601,8 +601,8 @@ program main
   real(c_double), allocatable :: Af(:, :), bf(:), cf(:), df(:) ! Arrays for fast Butcher table, NOTE: must be in row-major order
   real(c_double), allocatable :: As(:, :), bs(:), cs(:), ds(:) ! Arrays for slow Butcher table, NOTE: must be in row-major order
   integer(c_int) :: iout, argc, argi
-  integer(c_long) :: nsts(1), nstf(1), nfse(1), nfsi(1), nff(1)
-  integer(c_long) :: nnif(1), nncf(1), njef(1), nnis(1), nncs(1), njes(1), tmp(1)
+  integer(c_long) :: nsts(1), nstf(1), nfseval(2), nffeval(2)
+  integer(c_long) :: nnif(1), nncf(1), njef(1), nnis(1), nncs(1), njes(1)
   character(len=32), dimension(:), allocatable :: argv
 
   !
@@ -1057,22 +1057,22 @@ program main
 
   ! Get some slow integrator statistics
   retval = FARKodeGetNumSteps(arkode_mem, nsts)
-  retval = FMRIStepGetNumRhsEvals(arkode_mem, nfse, nfsi)
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 2, nfseval)
 
   ! Get some fast integrator statistics
   retval = FARKodeGetNumSteps(inner_arkode_mem, nstf)
-  retval = FARKStepGetNumRhsEvals(inner_arkode_mem, nff, tmp)
+  retval = FARKodeGetNumRhsEvals(inner_arkode_mem, 2, nffeval)
 
   ! Print some final statistics
   print *, "Final Solver Statistics:"
   print '(A, I7, A, I7)', "   Steps: nsts = ", nsts, ", nstf = ", nstf
   print '(A, E10.3, A, E10.3, A, E10.3)', "   u error = ", uerrtot, ", v error = ", verrtot, ", total error = ", errtot
   if (imex_slow) then
-    print '(A, I7, A, I7, A, I7)', "   Total RHS evals: Fse = ", nfse(1), ", Fsi = ", nfsi(1), ", Ff = ", nff(1)
+    print '(A, I7, A, I7, A, I7)', "   Total RHS evals: Fse = ", nfseval(1), ", Fsi = ", nfseval(2), ", Ff = ", nffeval(1)
   else if (implicit_slow) then
-    print '(A, I7, A, I7)', "   Total RHS evals: Fs = ", nfsi(1), ", Ff = ", nff(1)
+    print '(A, I7, A, I7)', "   Total RHS evals: Fs = ", nfseval(2), ", Ff = ", nffeval(1)
   else
-    print '(A, I7, A, I7)', "   Total RHS evals: Fs = ", nfse(1), ", Ff = ", nff(1)
+    print '(A, I7, A, I7)', "   Total RHS evals: Fs = ", nfseval(1), ", Ff = ", nffeval(1)
   end if
 
   ! Get/print slow integrator decoupled implicit solver statistics
