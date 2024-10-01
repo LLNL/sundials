@@ -785,20 +785,6 @@ SWIGEXPORT int _wrap_FMRIStepSetPostInnerFn(void *farg1, MRIStepPostInnerFn farg
 }
 
 
-SWIGEXPORT int _wrap_FMRIStepSetAdaptController(void *farg1, SUNAdaptController farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  SUNAdaptController arg2 = (SUNAdaptController) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (SUNAdaptController)(farg2);
-  result = (int)MRIStepSetAdaptController(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FMRIStepGetNumRhsEvals(void *farg1, long *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

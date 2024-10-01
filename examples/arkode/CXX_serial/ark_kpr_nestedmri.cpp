@@ -843,8 +843,8 @@ int main(int argc, char* argv[])
   if (check_flag(retval, "ARKodeSetUserData")) return 1;
   if (opts.scontrol != 0)
   {
-    retval = MRIStepSetAdaptController(mid_arkode_mem, mcontrol);
-    if (check_flag(retval, "MRIStepSetAdaptController")) return 1;
+    retval = ARKodeSetAdaptController(mid_arkode_mem, mcontrol);
+    if (check_flag(retval, "ARKodeSetAdaptController")) return 1;
     if (opts.set_h0 != 0)
     {
       retval = ARKodeSetInitStep(mid_arkode_mem, opts.hm);
@@ -901,8 +901,8 @@ int main(int argc, char* argv[])
   if (check_flag(retval, "ARKodeSetUserData")) return 1;
   if (opts.scontrol != 0)
   {
-    retval = MRIStepSetAdaptController(arkode_mem, scontrol);
-    if (check_flag(retval, "MRIStepSetAdaptController")) return 1;
+    retval = ARKodeSetAdaptController(arkode_mem, scontrol);
+    if (check_flag(retval, "ARKodeSetAdaptController")) return 1;
     if (opts.set_h0 != 0)
     {
       retval = ARKodeSetInitStep(arkode_mem, opts.hs);

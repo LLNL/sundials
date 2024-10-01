@@ -224,6 +224,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                             int* nflagPtr);
 int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
+int mriStep_SetAdaptController(ARKodeMem ark_mem, SUNAdaptController C);
 int mriStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int mriStep_SetDefaults(ARKodeMem ark_mem);
 int mriStep_SetOrder(ARKodeMem ark_mem, int ord);
@@ -356,7 +357,7 @@ typedef struct _mriStepControlContent
 #define MRICONTROL_A(C) (((mriStepControlContent)(C->content))->ark_mem)
 #define MRICONTROL_S(C) (((mriStepControlContent)(C->content))->step_mem)
 
-SUNAdaptController SUNAdaptController_MRIStep(void* arkode_mem,
+SUNAdaptController SUNAdaptController_MRIStep(ARKodeMem ark_mem,
                                               SUNAdaptController C);
 SUNAdaptController_Type SUNAdaptController_GetType_MRIStep(SUNAdaptController C);
 SUNErrCode SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C,

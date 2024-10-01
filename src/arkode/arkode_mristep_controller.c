@@ -30,12 +30,11 @@
   MRIStep SUNAdaptController wrapper functions
   --------------------------------------------*/
 
-SUNAdaptController SUNAdaptController_MRIStep(void* arkode_mem,
+SUNAdaptController SUNAdaptController_MRIStep(ARKodeMem ark_mem,
                                               SUNAdaptController CMRI)
 {
   SUNAdaptController C;
   mriStepControlContent content;
-  ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
 
@@ -48,7 +47,7 @@ SUNAdaptController SUNAdaptController_MRIStep(void* arkode_mem,
   }
 
   /* Return with failure if stepper is inaccessible */
-  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) return (NULL);
 
   /* Create an empty controller object */

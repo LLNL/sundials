@@ -909,54 +909,15 @@ int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
-  /* Remove current SUNAdaptController object
-     (delete if owned, and then nullify pointer) */
-  if (ark_mem->hadapt_mem->owncontroller &&
-      (ark_mem->hadapt_mem->hcontroller != NULL))
+  /* If the stepper has provided a custom function, then call it and return */
+  if (ark_mem->step_setadaptcontroller)
   {
-    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                      &leniw);
-    if (retval == SUN_SUCCESS)
-    {
-      ark_mem->liw -= leniw;
-      ark_mem->lrw -= lenrw;
-    }
-
-    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
-    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUN_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptController_Destroy failure");
-      return (ARK_MEM_FAIL);
-    }
+    return (ark_mem->step_setadaptcontroller(ark_mem, C));
   }
-  ark_mem->hadapt_mem->hcontroller = NULL;
 
-  /* On NULL-valued input, create default SUNAdaptController object */
-  if (C == NULL)
-  {
-    C = SUNAdaptController_PID(ark_mem->sunctx);
-    if (C == NULL)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptControllerPID allocation failure");
-      return (ARK_MEM_FAIL);
-    }
-    ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  }
-  else { ark_mem->hadapt_mem->owncontroller = SUNFALSE; }
+  /* Otherwise, call a utility routine to replace the current controller object */
+  return (arkReplaceAdaptController(ark_mem, C));
 
-  /* Attach new SUNAdaptController object */
-  retval = SUNAdaptController_Space(C, &lenrw, &leniw);
-  if (retval == SUN_SUCCESS)
-  {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
-  }
-  ark_mem->hadapt_mem->hcontroller = C;
-
-  return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------
@@ -3083,6 +3044,76 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
 
   return (ARK_SUCCESS);
 }
+
+
+/*===============================================================
+  ARKODE-IO internal utility functions
+  ===============================================================*/
+
+/*---------------------------------------------------------------
+  arkReplaceAdaptController
+
+  Replaces the current SUNAdaptController time step controller
+  object. If a NULL-valued SUNAdaptController is input, the
+  default will be re-enabled.
+  ---------------------------------------------------------------*/
+int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C)
+{
+  int retval;
+  long int lenrw, leniw;
+  SUNAdaptController_Type Ctype;
+
+  /* Remove current SUNAdaptController object
+     (delete if owned, and then nullify pointer) */
+  if (ark_mem->hadapt_mem->owncontroller &&
+      (ark_mem->hadapt_mem->hcontroller != NULL))
+  {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
+
+    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "SUNAdaptController_Destroy failure");
+      return (ARK_MEM_FAIL);
+    }
+  }
+  ark_mem->hadapt_mem->hcontroller = NULL;
+
+  /* On NULL-valued input, create default SUNAdaptController object */
+  if (C == NULL)
+  {
+    C = SUNAdaptController_PID(ark_mem->sunctx);
+    if (C == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "SUNAdaptControllerPID allocation failure");
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+  }
+  else { ark_mem->hadapt_mem->owncontroller = SUNFALSE; }
+
+  /* Attach new SUNAdaptController object */
+  retval = SUNAdaptController_Space(C, &lenrw, &leniw);
+  if (retval == SUN_SUCCESS)
+  {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+  ark_mem->hadapt_mem->hcontroller = C;
+
+  return (ARK_SUCCESS);
+}
+
+
 
 /*===============================================================
   ARKODE + XBraid interface utility functions

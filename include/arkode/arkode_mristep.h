@@ -190,8 +190,6 @@ SUNDIALS_EXPORT int MRIStepSetPreInnerFn(void* arkode_mem,
                                          MRIStepPreInnerFn prefn);
 SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void* arkode_mem,
                                           MRIStepPostInnerFn postfn);
-SUNDIALS_EXPORT int MRIStepSetAdaptController(void* arkode_mem,
-                                              SUNAdaptController C);
 
 /* Optional output functions */
 SUNDIALS_EXPORT int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,

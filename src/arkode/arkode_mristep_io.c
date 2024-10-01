@@ -124,32 +124,6 @@ int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
-  MRIStepSetAdaptController:
-
-  Specifies a temporal adaptivity controller for MRIStep to use.
-  If a non-MRI controller is provided, this just passes that
-  through to arkSetAdaptController.  However, if an MRI
-  controller is provided, then this wraps that inside a
-  "SUNAdaptController_MRIStep" wrapper, which will properly
-  interact with the fast integration module.
-  ---------------------------------------------------------------*/
-int MRIStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
-{
-  /* Retrieve the controller type */
-  SUNAdaptController_Type ctype = SUNAdaptController_GetType(C);
-
-  /* If this does not have MRI type, then just pass to ARKODE */
-  if (ctype != SUN_ADAPTCONTROLLER_MRI_TOL)
-  {
-    return (ARKodeSetAdaptController(arkode_mem, C));
-  }
-
-  /* Create the mriStepControl wrapper, and pass that to ARKODE */
-  SUNAdaptController Cwrapper = SUNAdaptController_MRIStep(arkode_mem, C);
-  return (ARKodeSetAdaptController(arkode_mem, Cwrapper));
-}
-
 /*===============================================================
   Exported optional output functions.
   ===============================================================*/
@@ -222,6 +196,32 @@ int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag)
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  mriStep_SetAdaptController:
+
+  Specifies a temporal adaptivity controller for MRIStep to use.
+  If a non-MRI controller is provided, this just passes that
+  through to arkReplaceAdaptController.  However, if an MRI
+  controller is provided, then this wraps that inside a
+  "SUNAdaptController_MRIStep" wrapper, which will properly
+  interact with the fast integration module.
+  ---------------------------------------------------------------*/
+int mriStep_SetAdaptController(ARKodeMem ark_mem, SUNAdaptController C)
+{
+  /* Retrieve the controller type */
+  SUNAdaptController_Type ctype = SUNAdaptController_GetType(C);
+
+  /* If this does not have MRI type, then just pass to ARKODE */
+  if (ctype != SUN_ADAPTCONTROLLER_MRI_TOL)
+  {
+    return (arkReplaceAdaptController(ark_mem, C));
+  }
+
+  /* Create the mriStepControl wrapper, and pass that to ARKODE */
+  SUNAdaptController Cwrapper = SUNAdaptController_MRIStep(ark_mem, C);
+  return (arkReplaceAdaptController(ark_mem, Cwrapper));
+}
 
 /*---------------------------------------------------------------
   mriStep_SetUserData:

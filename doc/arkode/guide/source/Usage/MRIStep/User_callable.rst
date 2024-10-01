@@ -181,54 +181,6 @@ MRIStep tolerance specification functions
 
 
 
-.. _ARKODE.Usage.MRIStep.StepAdaptivity:
-
-Multirate temporal adaptivity specification functions
-------------------------------------------------------
-
-As described in Section :numref:`ARKODE.Mathematics.MultirateAdaptivity`, MRIStep
-supports additional forms of temporal adaptivity due to its evolution of multiple
-time scales.
-
-For the simplest form of multirate temporal adaptivity, corresponding to
-"decoupled" multirate control, users should merely specify a single-rate
-controller to MRIStep using the :c:func:`ARKodeSetAdaptController` function.
-The time step controller for the inner integrator may be specified independently.
-
-However, specification of the :math:`h^S-Tol` type of multirate controller requires
-an additional step.  First, a SUNAdaptController with :c:type:`SUNAdaptController_Type` type
-``SUN_ADAPTCONTROLLER_MRI_TOL`` should be constructed, following the documentation in
-Section :numref:`SUNAdaptController.MRIHTol`.  This controller should then be passed as an
-input to the MRIStep function :c:func:`MRIStepSetAdaptController`, as follows.
-
-
-.. c:function:: int MRIStepSetAdaptController(void* arkode_mem, SUNAdaptController C)
-
-   Sets a user-supplied multirate time-step controller object.
-
-   :param arkode_mem: pointer to the MRIStep memory block.
-   :param C: user-supplied time adaptivity controller.  If ``NULL`` then this routine
-             will just call :c:func:`ARKodeSetAdaptController` to specify that the
-             default ARKODE controller should be created.
-
-   :retval ARK_SUCCESS: the function exited successfully.
-   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
-   :retval ARK_MEM_FAIL: *C* was ``NULL`` and a default controller could not be allocated.
-
-   .. note::
-
-      If the input *C* has :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_MRI_TOL``
-      then this creates an MRIStep-specific adaptivity controller that couples the slow and fast
-      time scales, and that leverages *C* to perform multirate temporal adaptivity.
-
-      If *C* has :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_H``
-      or ``SUN_ADAPTCONTROLLER_NONE`` then this routine merely passes *C* to the ARKODE-level
-      routine :c:func:`ARKodeSetAdaptController`.
-
-  .. versionadded:: x.y.z
-
-
-
 
 .. _ARKODE.Usage.MRIStep.LinearSolvers:
 
