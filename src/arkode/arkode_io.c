@@ -3057,7 +3057,6 @@ int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C)
 {
   int retval;
   long int lenrw, leniw;
-  SUNAdaptController_Type Ctype;
 
   /* Remove current SUNAdaptController object
      (delete if owned, and then nullify pointer) */
