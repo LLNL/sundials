@@ -1151,13 +1151,6 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
     }
   }
 
-  // /* Save initial condition as first checkpoint if this is not an adjoint integration */
-  // if (!ark_mem->do_adjoint && ark_mem->checkpoint_scheme)
-  // {
-  //   SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme, -1, 0,
-  //                                           ark_mem->tcur, ark_mem->ycur);
-  // }
-
   /* set appropriate TakeStep routine based on problem configuration */
   if (ark_mem->do_adjoint) { ark_mem->step = arkStep_TakeStep_ERK_Adjoint; }
   else { ark_mem->step = arkStep_TakeStep_Z; }
@@ -2264,7 +2257,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
           if (SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, t0, tf,
                                              checkpoint))
           {
-            return (ARK_RHSFUNC_FAIL);
+            return (ARK_ADJ_RECOMPUTE_FAIL);
           }
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
           SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -2279,14 +2272,13 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
       }
       if (errcode != SUN_SUCCESS)
       {
-        fprintf(stderr, ">>> errcode = %d, %s\n", errcode, SUNGetErrMsg(errcode));
         return (ARK_RHSFUNC_FAIL);
       }
     }
     else if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   }
 
-  // TODO(CJB): need a better way to throw away step solution checkpoint
+  /* Throw away the step solution */
   sunrealtype checkpoint_t = 0.0;
   N_Vector checkpoint      = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
   SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,

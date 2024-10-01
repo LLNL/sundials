@@ -139,8 +139,9 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
   SUNFunctionBegin(adj_stepper->sunctx);
 
   SUNErrCode retcode = SUN_SUCCESS;
-  SUNStepper fwd_stepper = adj_stepper->fwd_sunstepper;
+
   sunrealtype fwd_t      = t0;
+  SUNStepper fwd_stepper = adj_stepper->fwd_sunstepper;
   SUNCheckCall(SUNStepper_Reset(fwd_stepper, t0, y0, start_idx));
 
   SUNCheckCall(
@@ -154,6 +155,7 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
 
   if (fwd_stepper->last_flag < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
   else if (fwd_stepper->last_flag > 0) { retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP; }
+  fprintf(stderr, ">>> last_flag=%d\n", fwd_stepper->last_flag);
 
   SUNCheckCall(
     SUNAdjointCheckpointScheme_EnableDense(adj_stepper->checkpoint_scheme, 0));

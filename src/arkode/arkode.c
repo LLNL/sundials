@@ -2691,6 +2691,10 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, __LINE__, __func__, __FILE__,
                     "The relaxation Jacobian failed unrecoverably");
     break;
+  case ARK_ADJ_RECOMPUTE_FAIL:
+    arkProcessError(ark_mem, ARK_ADJ_RECOMPUTE_FAIL, __LINE__, __func__, __FILE__,
+                    "The forward recomputation of step failed unrecoverably");
+    break;
   default:
     /* This return should never happen */
     arkProcessError(ark_mem, ARK_UNRECOGNIZED_ERROR, __LINE__, __func__, __FILE__,

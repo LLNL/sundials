@@ -142,6 +142,8 @@ extern "C" {
 
 #define ARK_STEPPER_UNSUPPORTED -48
 
+#define ARK_ADJ_RECOMPUTE_FAIL -49
+
 #define ARK_UNRECOGNIZED_ERROR -99
 
 /* ------------------------------
