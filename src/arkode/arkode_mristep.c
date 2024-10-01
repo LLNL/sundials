@@ -2846,10 +2846,8 @@ int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
   sunrealtype tret;
-  int stop_reason;
   sunstepper->ops->setstoptime(sunstepper, tout);
-  stepper->last_flag = sunstepper->ops->evolve(sunstepper, t0, tout, y, &tret,
-                                               &stop_reason);
+  stepper->last_flag = sunstepper->ops->evolve(sunstepper, t0, tout, y, &tret);
   return stepper->last_flag;
 }
 

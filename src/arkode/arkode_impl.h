@@ -292,6 +292,11 @@ typedef int (*ARKTimestepAttachMasssolFn)(
 typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
 typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
 
+/* time stepper interface functions -- forcing */
+typedef int (*ARKTimestepSetForcingFn)(ARKodeMem ark_mem, sunrealtype tshift,
+                                       sunrealtype tscale, N_Vector* f,
+                                       int nvecs);
+
 /*===============================================================
   ARKODE interpolation module definition
   ===============================================================*/
@@ -455,6 +460,10 @@ struct ARKodeMemRec
   ARKTimestepDisableMSetup step_disablemsetup;
   ARKTimestepGetMassMemFn step_getmassmem;
   ARKMassMultFn step_mmult;
+
+  /* Time stepper module -- forcing */
+  sunbooleantype step_supports_forcing;
+  ARKTimestepSetForcingFn step_setforcing;
 
   /* N_Vector storage */
   N_Vector ewt;                 /* error weight vector                        */
@@ -657,6 +666,9 @@ int arkFreeSUNStepperForcing(SUNStepper stepper);
 
 ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char* imethod);
 ARKODE_ERKTableID arkButcherTableERKNameToID(const char* emethod);
+
+int arkTryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
+               N_Vector y, sunrealtype* tret, int* ark_flag);
 
 /* XBraid interface functions */
 int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass);

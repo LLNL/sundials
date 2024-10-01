@@ -64,18 +64,6 @@ module farkode_arkstep_mod
  public :: FARKStepGetCurrentButcherTables
  public :: FARKStepGetTimestepperStats
  public :: FARKStepCreateMRIStepInnerStepper
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_SUNStepper
-  type(SwigClassWrapper), public :: swigdata
- end type
- public :: FARKStepCreateSUNStepper
  public :: FARKStepResize
  public :: FARKStepReset
  public :: FARKStepSStolerances
@@ -359,16 +347,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKStepCreateSUNStepper(farg1, farg2) &
-bind(C, name="_wrap_FARKStepCreateSUNStepper") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2072,22 +2050,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(stepper)
 fresult = swigc_FARKStepCreateMRIStepInnerStepper(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKStepCreateSUNStepper(arkode_mem, stepper) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-class(SWIGTYPE_p_SUNStepper), intent(in) :: stepper
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
-
-farg1 = arkode_mem
-farg2 = stepper%swigdata
-fresult = swigc_FARKStepCreateSUNStepper(farg1, farg2)
 swig_result = fresult
 end function
 

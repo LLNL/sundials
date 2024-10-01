@@ -102,10 +102,6 @@ SUNDIALS_EXPORT int ARKStepGetTimestepperStats(
 SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void* arkode_mem,
                                                      MRIStepInnerStepper* stepper);
 
-/* SUNStepper interface functions */
-SUNDIALS_EXPORT int ARKStepCreateSUNStepper(void* arkode_mem,
-                                            SUNStepper* stepper);
-
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines
  * -------------------------------------------------------------------------- */
