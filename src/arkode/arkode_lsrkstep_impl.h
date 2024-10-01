@@ -53,24 +53,24 @@ typedef struct ARKodeLSRKStepMemRec
   ARKODE_LSRKMethodType LSRKmethod;
 
   /* Counters and stats*/
-  long int nfe;                 /* num fe calls       */
-  long int dom_eig_nfe;         /* num fe calls for spectral dom_eig      */
+  long int nfe;               /* num fe calls       */
+  long int dom_eig_nfe;       /* num fe calls for spectral dom_eig      */
   long int dom_eig_num_evals; /* num of dom_eig computations   */
-  int stage_max;                /* num of max stages used      */
-  int stage_max_limit;          /* max allowed num of stages     */
+  int stage_max;              /* num of max stages used      */
+  int stage_max_limit;        /* max allowed num of stages     */
   int dom_eig_nst; /* num of steps that successfully used dom_eig; indicates dom_eig update when 0;  */
 
   /* Spectral info */
   sunrealtype lambdaR;         /* Real part of the dominated eigenvalue*/
   sunrealtype lambdaI;         /* Imaginary part of the dominated eigenvalue*/
   sunrealtype spectral_radius; /* spectral radius*/
-  sunrealtype spectral_radius_max;         /* max spectral radius*/
-  sunrealtype spectral_radius_min;         /* min spectral radius*/
-  sunrealtype dom_eig_safety;    /* some safety factor for the user provided dom_eig*/
+  sunrealtype spectral_radius_max; /* max spectral radius*/
+  sunrealtype spectral_radius_min; /* min spectral radius*/
+  sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
   int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
   /* Flags */
-  sunbooleantype dom_eig_update;    /* flag indicating new dom_eig is needed */
+  sunbooleantype dom_eig_update; /* flag indicating new dom_eig is needed */
   sunbooleantype const_Jac;      /* flag indicating Jacobian is constant */
   sunbooleantype dom_eig_is_current; /* SUNTRUE if dom_eig has been evaluated at tn */
   sunbooleantype is_SSP;             /* flag indicating SSP method*/

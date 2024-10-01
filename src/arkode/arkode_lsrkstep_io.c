@@ -148,13 +148,13 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   /* set the dom_eig routine pointer, and update relevant flags */
   if (dom_eig != NULL)
   {
-    step_mem->dom_eig_fn     = dom_eig;
+    step_mem->dom_eig_fn = dom_eig;
 
     return (ARK_SUCCESS);
   }
   else
   {
-    step_mem->dom_eig_fn     = NULL;
+    step_mem->dom_eig_fn = NULL;
 
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Internal dom_eig is not supported yet!");
@@ -474,11 +474,11 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->spectral_radius     = 0;
   step_mem->spectral_radius_max = 0;
   step_mem->spectral_radius_min = 0;
-  step_mem->dom_eig_safety        = 1.01;
+  step_mem->dom_eig_safety      = 1.01;
   step_mem->dom_eig_freq        = 25;
 
   /* Flags */
-  step_mem->dom_eig_update        = SUNTRUE;
+  step_mem->dom_eig_update     = SUNTRUE;
   step_mem->const_Jac          = SUNFALSE;
   step_mem->dom_eig_is_current = SUNFALSE;
   step_mem->is_SSP             = SUNFALSE;
@@ -545,8 +545,10 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     fprintf(outfile, "Max. num. of stages allowed  = %d\n",
             step_mem->stage_max_limit);
 
-    fprintf(outfile, "Max. spectral radius         = %.2f\n", step_mem->spectral_radius_max);
-    fprintf(outfile, "Min. spectral radius         = %.2f\n", step_mem->spectral_radius_min);
+    fprintf(outfile, "Max. spectral radius         = %.2f\n",
+            step_mem->spectral_radius_max);
+    fprintf(outfile, "Min. spectral radius         = %.2f\n",
+            step_mem->spectral_radius_min);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
