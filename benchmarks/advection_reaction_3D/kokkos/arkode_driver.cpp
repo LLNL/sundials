@@ -55,7 +55,7 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   int retval;                 /* reusable error-checking flag */
   int iout;                   /* output counter               */
   long int nst, nst_a, netf;  /* step stats                   */
-  long int nfe, nfi;          /* RHS stats                    */
+  long int nfeval[2];         /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
 
@@ -189,8 +189,8 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
   retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
@@ -210,7 +210,7 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   {
     printf("\nFinal Solver Statistics (for processor 0):\n");
     printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-    printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi + udata->nnlfi);
+    printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0], nfeval[1] + udata->nnlfi);
     printf("   Total number of error test failures = %li\n", netf);
     printf("   Total number of nonlinear solver convergence failures = %li\n",
            ncnf);
@@ -242,7 +242,7 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   int retval;                 /* reusable error-checking flag */
   int iout;                   /* output counter               */
   long int nst, nst_a, netf;  /* step stats                   */
-  long int nfe, nfi;          /* RHS stats                    */
+  long int nfeval[2];         /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
 
@@ -392,8 +392,8 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
   retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
@@ -413,7 +413,7 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   {
     printf("\nFinal Solver Statistics (for processor 0):\n");
     printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-    printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi + udata->nnlfi);
+    printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0], nfeval[1] + udata->nnlfi);
     printf("   Total number of error test failures = %li\n", netf);
     printf("   Total number of nonlinear solver convergence failures = %li\n",
            ncnf);
@@ -516,8 +516,8 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
-  retval = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
-  check_retval(&retval, "ERKStepGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
 
