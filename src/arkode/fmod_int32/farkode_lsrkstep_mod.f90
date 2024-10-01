@@ -395,18 +395,18 @@ fresult = swigc_FLSRKStepSetMaxNumStages(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepSetDomEigSafetyFactor(arkode_mem, dom_eig_sfty) &
+function FLSRKStepSetDomEigSafetyFactor(arkode_mem, dom_eig_safety) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-real(C_DOUBLE), intent(in) :: dom_eig_sfty
+real(C_DOUBLE), intent(in) :: dom_eig_safety
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 
 farg1 = arkode_mem
-farg2 = dom_eig_sfty
+farg2 = dom_eig_safety
 fresult = swigc_FLSRKStepSetDomEigSafetyFactor(farg1, farg2)
 swig_result = fresult
 end function
@@ -446,18 +446,18 @@ fresult = swigc_FLSRKStepGetNumRhsEvals(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FLSRKStepGetNumDomEigUpdates(arkode_mem, num_dom_eig_updates) &
+function FLSRKStepGetNumDomEigUpdates(arkode_mem, dom_eig_num_evals) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: num_dom_eig_updates
+integer(C_LONG), dimension(*), target, intent(inout) :: dom_eig_num_evals
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = c_loc(num_dom_eig_updates(1))
+farg2 = c_loc(dom_eig_num_evals(1))
 fresult = swigc_FLSRKStepGetNumDomEigUpdates(farg1, farg2)
 swig_result = fresult
 end function

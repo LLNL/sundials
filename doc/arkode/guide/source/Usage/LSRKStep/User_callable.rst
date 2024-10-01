@@ -176,18 +176,18 @@ Allowable Method Families
    set to :math:`\sqrt{reltol/(10 uround)}` where :math:`uround` is unit roundoff.
 
 
-.. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_sfty);
+.. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety);
 
    Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.  This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring a sufficient number of stages for the method to be stable.  This input is only used for RKC and RKL methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *dom_eig_sfty* -- safety factor :math:`(\ge 1)`.
+      * *dom_eig_safety* -- safety factor :math:`(\ge 1)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``dom_eig_sfty < 1``)
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``dom_eig_safety < 1``)
 
 
 .. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
@@ -228,13 +228,13 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
-.. c:function:: int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* num_dom_eig_updates);
+.. c:function:: int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* dom_eig_num_evals);
 
    Returns the number of dominant eigenvalue evaluations (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *num_dom_eig_updates* -- number of calls to the user's ``dom_eig`` function.
+      * *dom_eig_num_evals* -- number of calls to the user's ``dom_eig`` function.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

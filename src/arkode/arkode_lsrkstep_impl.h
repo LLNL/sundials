@@ -41,11 +41,9 @@ typedef struct ARKodeLSRKStepMemRec
 {
   /* LSRK problem specification */
   ARKRhsFn fe;
-  ARKRhsFn fi;
-  ARKDomEigFn extDomEig;
+  ARKDomEigFn dom_eig_fn;
 
   N_Vector Fe; /* RHS vector storage */
-  N_Vector Fi; /* RHS vector storage */
 
   int q; /* method order               */
   int p; /* embedding order            */
@@ -56,25 +54,23 @@ typedef struct ARKodeLSRKStepMemRec
 
   /* Counters and stats*/
   long int nfe;                 /* num fe calls       */
-  long int nfi;                 /* num fi calls       */
   long int dom_eig_nfe;         /* num fe calls for spectral dom_eig      */
-  long int num_dom_eig_updates; /* num of dom_eig computations   */
+  long int dom_eig_num_evals; /* num of dom_eig computations   */
   int stage_max;                /* num of max stages used      */
   int stage_max_limit;          /* max allowed num of stages     */
-  int nstsig; /* num of steps that successfully used dom_eig; indicates dom_eig update when 0;  */
+  int dom_eig_nst; /* num of steps that successfully used dom_eig; indicates dom_eig update when 0;  */
 
   /* Spectral info */
-  sunrealtype lambdaR;      /* Real part of the dominated eigenvalue*/
-  sunrealtype lambdaI;      /* Imaginary part of the dominated eigenvalue*/
-  sunrealtype sprad;        /* spectral radius*/
-  sunrealtype spr_max;      /* max spectral radius*/
-  sunrealtype spr_min;      /* min spectral radius*/
-  sunrealtype dom_eig_sfty; /* some safety factor for the user provided dom_eig*/
+  sunrealtype lambdaR;         /* Real part of the dominated eigenvalue*/
+  sunrealtype lambdaI;         /* Imaginary part of the dominated eigenvalue*/
+  sunrealtype spectral_radius; /* spectral radius*/
+  sunrealtype spectral_radius_max;         /* max spectral radius*/
+  sunrealtype spectral_radius_min;         /* min spectral radius*/
+  sunrealtype dom_eig_safety;    /* some safety factor for the user provided dom_eig*/
   int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
   /* Flags */
-  sunbooleantype is_ext_dom_eig; /* flag indicating user provided dom_eig */
-  sunbooleantype new_dom_eig;    /* flag indicating new dom_eig is needed */
+  sunbooleantype dom_eig_update;    /* flag indicating new dom_eig is needed */
   sunbooleantype const_Jac;      /* flag indicating Jacobian is constant */
   sunbooleantype dom_eig_is_current; /* SUNTRUE if dom_eig has been evaluated at tn */
   sunbooleantype is_SSP;             /* flag indicating SSP method*/

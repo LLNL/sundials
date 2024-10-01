@@ -148,15 +148,13 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   /* set the dom_eig routine pointer, and update relevant flags */
   if (dom_eig != NULL)
   {
-    step_mem->is_ext_dom_eig = SUNTRUE;
-    step_mem->extDomEig      = dom_eig;
+    step_mem->dom_eig_fn     = dom_eig;
 
     return (ARK_SUCCESS);
   }
   else
   {
-    step_mem->is_ext_dom_eig = SUNFALSE;
-    step_mem->extDomEig      = NULL;
+    step_mem->dom_eig_fn     = NULL;
 
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Internal dom_eig is not supported yet!");
@@ -231,7 +229,7 @@ int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
 /*---------------------------------------------------------------
   LSRKStepSetDomEigSafetyFactor sets the safety factor for the DomEigs.
   ---------------------------------------------------------------*/
-int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_sfty)
+int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -242,14 +240,14 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_sfty)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (dom_eig_sfty < SUN_RCONST(1.0))
+  if (dom_eig_safety < SUN_RCONST(1.0))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "dom_eig_sfty must be greater than or equal to 1");
+                    "dom_eig_safety must be greater than or equal to 1");
     return (ARK_ILL_INPUT);
   }
 
-  step_mem->dom_eig_sfty = dom_eig_sfty;
+  step_mem->dom_eig_safety = dom_eig_safety;
 
   return (ARK_SUCCESS);
 }
@@ -348,7 +346,7 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals)
 
   Returns the number of dominant eigenvalue updates
   ---------------------------------------------------------------*/
-int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* num_dom_eig_updates)
+int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* dom_eig_num_evals)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -360,7 +358,7 @@ int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* num_dom_eig_updates)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
-  *num_dom_eig_updates = step_mem->num_dom_eig_updates;
+  *dom_eig_num_evals = step_mem->dom_eig_num_evals;
 
   return (ARK_SUCCESS);
 }
@@ -471,16 +469,16 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->req_stages = 0; /* no stages */
 
   /* Spectral info */
-  step_mem->lambdaR      = 0;
-  step_mem->lambdaI      = 0;
-  step_mem->sprad        = 0;
-  step_mem->spr_max      = 0;
-  step_mem->spr_min      = 0;
-  step_mem->dom_eig_sfty = 1.01;
-  step_mem->dom_eig_freq = 25;
+  step_mem->lambdaR             = 0;
+  step_mem->lambdaI             = 0;
+  step_mem->spectral_radius     = 0;
+  step_mem->spectral_radius_max = 0;
+  step_mem->spectral_radius_min = 0;
+  step_mem->dom_eig_safety        = 1.01;
+  step_mem->dom_eig_freq        = 25;
 
   /* Flags */
-  step_mem->new_dom_eig        = SUNTRUE;
+  step_mem->dom_eig_update        = SUNTRUE;
   step_mem->const_Jac          = SUNFALSE;
   step_mem->dom_eig_is_current = SUNFALSE;
   step_mem->is_SSP             = SUNFALSE;
@@ -541,27 +539,27 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     fprintf(outfile, "RHS fn evals for Dom. Eigs.  = %ld\n",
             step_mem->dom_eig_nfe);
     fprintf(outfile, "Number of dom_eig updates    = %ld\n",
-            step_mem->num_dom_eig_updates);
+            step_mem->dom_eig_num_evals);
     fprintf(outfile, "Avr. num. of stages used     = %.2f\n", avg_stage);
     fprintf(outfile, "Max. num. of stages used     = %d\n", step_mem->stage_max);
     fprintf(outfile, "Max. num. of stages allowed  = %d\n",
             step_mem->stage_max_limit);
 
-    fprintf(outfile, "Max. spectral radius         = %.2f\n", step_mem->spr_max);
-    fprintf(outfile, "Min. spectral radius         = %.2f\n", step_mem->spr_min);
+    fprintf(outfile, "Max. spectral radius         = %.2f\n", step_mem->spectral_radius_max);
+    fprintf(outfile, "Min. spectral radius         = %.2f\n", step_mem->spectral_radius_min);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
     fprintf(outfile, ",RHS fn evals for Dom. Eigs.,%ld", step_mem->dom_eig_nfe);
     fprintf(outfile, ",Number of dom_eig update calls,%ld",
-            step_mem->num_dom_eig_updates);
+            step_mem->dom_eig_num_evals);
     fprintf(outfile, ",Avr. num. of stages used,%.2f", avg_stage);
     fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
     fprintf(outfile, ",Max. num. of stages allowed,%d",
             step_mem->stage_max_limit);
 
-    fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->spr_max);
-    fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->spr_min);
+    fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->spectral_radius_max);
+    fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->spectral_radius_min);
     fprintf(outfile, "\n");
     break;
   default:

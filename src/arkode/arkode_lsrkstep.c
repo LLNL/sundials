@@ -116,19 +116,17 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
-  step_mem->fi = NULL;
 
   /* Initialize all the counters */
   step_mem->nfe                 = 0;
-  step_mem->nfi                 = 0;
   step_mem->dom_eig_nfe         = 0;
   step_mem->stage_max           = 0;
-  step_mem->num_dom_eig_updates = 0;
+  step_mem->dom_eig_num_evals   = 0;
   step_mem->stage_max_limit     = (int)SUNRround(
     SUNRsqrt(ark_mem->reltol / (SUN_RCONST(10.0) * ark_mem->uround)));
   step_mem->stage_max_limit =
     (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
-  step_mem->nstsig = 0;
+  step_mem->dom_eig_nst = 0;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
@@ -231,19 +229,17 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
-  step_mem->fi = NULL;
 
   /* Initialize all the counters */
   step_mem->nfe                 = 0;
-  step_mem->nfi                 = 0;
   step_mem->dom_eig_nfe         = 0;
   step_mem->stage_max           = 0;
-  step_mem->num_dom_eig_updates = 0;
+  step_mem->dom_eig_num_evals   = 0;
   step_mem->stage_max_limit =
     (int)SUNRround(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround)));
   step_mem->stage_max_limit =
     (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
-  step_mem->nstsig = 0;
+  step_mem->dom_eig_nst = 0;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
@@ -309,7 +305,6 @@ int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
-  step_mem->fi = NULL;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
@@ -322,14 +317,13 @@ int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
 
   /* Initialize all the counters, flags and stats */
   step_mem->nfe                 = 0;
-  step_mem->nfi                 = 0;
   step_mem->dom_eig_nfe         = 0;
-  step_mem->num_dom_eig_updates = 0;
+  step_mem->dom_eig_num_evals   = 0;
   step_mem->stage_max           = 0;
-  step_mem->spr_max             = 0;
-  step_mem->spr_min             = 0;
-  step_mem->nstsig              = 0;
-  step_mem->new_dom_eig         = SUNTRUE;
+  step_mem->spectral_radius_max = 0;
+  step_mem->spectral_radius_min = 0;
+  step_mem->dom_eig_nst         = 0;
+  step_mem->dom_eig_update         = SUNTRUE;
   step_mem->dom_eig_is_current  = SUNFALSE;
 
   return (ARK_SUCCESS);
@@ -383,7 +377,6 @@ int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
-  step_mem->fi = NULL;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
@@ -396,14 +389,13 @@ int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
 
   /* Initialize all the counters, flags and stats */
   step_mem->nfe                 = 0;
-  step_mem->nfi                 = 0;
   step_mem->dom_eig_nfe         = 0;
-  step_mem->num_dom_eig_updates = 0;
+  step_mem->dom_eig_num_evals   = 0;
   step_mem->stage_max           = 0;
-  step_mem->spr_max             = 0;
-  step_mem->spr_min             = 0;
-  step_mem->nstsig              = 0;
-  step_mem->new_dom_eig         = SUNTRUE;
+  step_mem->spectral_radius_max = 0;
+  step_mem->spectral_radius_min = 0;
+  step_mem->dom_eig_nst         = 0;
+  step_mem->dom_eig_update         = SUNTRUE;
   step_mem->dom_eig_is_current  = SUNFALSE;
 
   return (ARK_SUCCESS);
@@ -506,7 +498,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 
   /* output integer quantities */
   fprintf(outfile, "LSRKStep: req_stages          = %i\n", step_mem->req_stages);
-  fprintf(outfile, "LSRKStep: nstsig              = %i\n", step_mem->nstsig);
+  fprintf(outfile, "LSRKStep: dom_eig_nst         = %i\n", step_mem->dom_eig_nst);
   fprintf(outfile, "LSRKStep: stage_max           = %i\n", step_mem->stage_max);
   fprintf(outfile, "LSRKStep: stage_max_limit     = %i\n",
           step_mem->stage_max_limit);
@@ -517,22 +509,20 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "LSRKStep: nfe                 = %li\n", step_mem->nfe);
   fprintf(outfile, "LSRKStep: dom_eig_nfe         = %li\n",
           step_mem->dom_eig_nfe);
-  fprintf(outfile, "LSRKStep: num_dom_eig_updates = %li\n",
-          step_mem->num_dom_eig_updates);
+  fprintf(outfile, "LSRKStep: dom_eig_num_evals   = %li\n",
+          step_mem->dom_eig_num_evals);
 
   /* output sunrealtype quantities */
   fprintf(outfile, "LSRKStep: dom_eig             = %f + i%f\n",
           step_mem->lambdaR, step_mem->lambdaI);
-  fprintf(outfile, "LSRKStep: sprad               = %f\n", step_mem->sprad);
-  fprintf(outfile, "LSRKStep: spr_max             = %f\n", step_mem->spr_max);
-  fprintf(outfile, "LSRKStep: spr_min             = %f\n", step_mem->spr_min);
-  fprintf(outfile, "LSRKStep: dom_eig_sfty        = %f\n",
-          step_mem->dom_eig_sfty);
+  fprintf(outfile, "LSRKStep: spectral_radius     = %f\n", step_mem->spectral_radius);
+  fprintf(outfile, "LSRKStep: spectral_radius_max = %f\n", step_mem->spectral_radius_max);
+  fprintf(outfile, "LSRKStep: spectral_radius_min = %f\n", step_mem->spectral_radius_min);
+  fprintf(outfile, "LSRKStep: dom_eig_safety        = %f\n",
+          step_mem->dom_eig_safety);
 
   /* output sunbooleantype quantities */
-  fprintf(outfile, "LSRKStep: is_ext_dom_eig      = %d\n",
-          step_mem->is_ext_dom_eig);
-  fprintf(outfile, "LSRKStep: new_dom_eig         = %d\n", step_mem->new_dom_eig);
+  fprintf(outfile, "LSRKStep: dom_eig_update         = %d\n", step_mem->dom_eig_update);
   fprintf(outfile, "LSRKStep: dom_eig_is_current  = %d\n",
           step_mem->dom_eig_is_current);
 
@@ -769,22 +759,22 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   Xvecs = step_mem->Xvecs;
 
   /* Compute dominant eigenvalue and update stats */
-  if (step_mem->new_dom_eig)
+  if (step_mem->dom_eig_update)
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
     if (retval != ARK_SUCCESS) { return (retval); }
-    step_mem->num_dom_eig_updates++;
+    step_mem->dom_eig_num_evals++;
   }
 
   /* determine the number of required stages */
-  int ss = SUNRceil(SUNRsqrt(onep54 * SUNRabs(ark_mem->h) * step_mem->sprad));
+  int ss = SUNRceil(SUNRsqrt(onep54 * SUNRabs(ark_mem->h) * step_mem->spectral_radius));
   step_mem->req_stages = SUNMAX(ss, 2);
   if (step_mem->req_stages >= step_mem->stage_max_limit)
   {
     if (!ark_mem->fixedstep)
     {
       hmax = ark_mem->hadapt_mem->safety * SUNSQR(ss) /
-             (onep54 * step_mem->sprad);
+             (onep54 * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
       return (ARK_RETRY_STEP);
@@ -991,7 +981,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   Xvecs = step_mem->Xvecs;
 
   /* Compute dominant eigenvalue and update stats */
-  if (step_mem->new_dom_eig)
+  if (step_mem->dom_eig_update)
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
     if (retval != ARK_SUCCESS) { return (retval); }
@@ -999,16 +989,14 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   int ss =
     SUNRceil((SUNRsqrt(SUN_RCONST(9.0) + SUN_RCONST(8.0) * SUNRabs(ark_mem->h) *
-                                           step_mem->sprad) -
-              ONE) /
-             TWO);
+                  step_mem->spectral_radius) - ONE) / TWO);
   step_mem->req_stages = SUNMAX(2, ss);
   if (ss >= step_mem->stage_max_limit)
   {
     if (!ark_mem->fixedstep)
     {
       hmax = ark_mem->hadapt_mem->safety * (SUNSQR(ss) + ss - TWO) /
-             (TWO * step_mem->sprad);
+             (TWO * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
       return (ARK_RETRY_STEP);
@@ -1763,13 +1751,11 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
 {
   int retval = SUN_SUCCESS;
 
-  if ((step_mem->is_ext_dom_eig))
-  {
-    retval = step_mem->extDomEig(ark_mem->tn, ark_mem->ycur, ark_mem->fn,
-                                 &step_mem->lambdaR, &step_mem->lambdaI,
-                                 ark_mem->user_data, ark_mem->tempv1,
-                                 ark_mem->tempv2, ark_mem->tempv3);
-    step_mem->num_dom_eig_updates++;
+    retval = step_mem->dom_eig_fn(ark_mem->tn, ark_mem->ycur, ark_mem->fn,
+                                  &step_mem->lambdaR, &step_mem->lambdaI,
+                                  ark_mem->user_data, ark_mem->tempv1,
+                                  ark_mem->tempv2, ark_mem->tempv3);
+    step_mem->dom_eig_num_evals++;
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
@@ -1791,28 +1777,21 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
       return (ARK_DOMEIG_FAIL);
     }
 
-    step_mem->lambdaR *= step_mem->dom_eig_sfty;
-    step_mem->lambdaI *= step_mem->dom_eig_sfty;
-    step_mem->sprad =
-      SUNRsqrt(SUNSQR(step_mem->lambdaR) + SUNSQR(step_mem->lambdaI));
-  }
-  else
-  {
-    arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
-                    "Internal dom_eig is not supported yet!");
-    return (ARK_DOMEIG_FAIL);
-  }
+    step_mem->lambdaR *= step_mem->dom_eig_safety;
+    step_mem->lambdaI *= step_mem->dom_eig_safety;
+    step_mem->spectral_radius = SUNRsqrt(SUNSQR(step_mem->lambdaR) + SUNSQR(step_mem->lambdaI));
+
   step_mem->dom_eig_is_current = SUNTRUE;
 
-  step_mem->spr_max = (step_mem->sprad > step_mem->spr_max) ? step_mem->sprad
-                                                            : step_mem->spr_max;
+  step_mem->spectral_radius_max = (step_mem->spectral_radius > step_mem->spectral_radius_max) ? step_mem->spectral_radius
+                                                            : step_mem->spectral_radius_max;
 
-  if (step_mem->sprad < step_mem->spr_min || ark_mem->nst == 0)
+  if (step_mem->spectral_radius < step_mem->spectral_radius_min || ark_mem->nst == 0)
   {
-    step_mem->spr_min = step_mem->sprad;
+    step_mem->spectral_radius_min = step_mem->spectral_radius;
   }
 
-  step_mem->new_dom_eig = SUNFALSE;
+  step_mem->dom_eig_update = SUNFALSE;
 
   return retval;
 }
@@ -1833,14 +1812,14 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
     ark_mem->fn_is_current = SUNTRUE;
 
     step_mem->dom_eig_is_current = (step_mem->const_Jac == SUNTRUE);
-    step_mem->nstsig      = (step_mem->nstsig + 1) % step_mem->dom_eig_freq;
-    step_mem->new_dom_eig = SUNFALSE;
-    if (step_mem->nstsig == 0)
+    step_mem->dom_eig_nst      = (step_mem->dom_eig_nst + 1) % step_mem->dom_eig_freq;
+    step_mem->dom_eig_update = SUNFALSE;
+    if (step_mem->dom_eig_nst == 0)
     {
-      step_mem->new_dom_eig = !step_mem->dom_eig_is_current;
+      step_mem->dom_eig_update = !step_mem->dom_eig_is_current;
     }
   }
-  else { step_mem->new_dom_eig = !step_mem->dom_eig_is_current; }
+  else { step_mem->dom_eig_update = !step_mem->dom_eig_is_current; }
 }
 
 /*===============================================================
