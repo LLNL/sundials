@@ -2627,7 +2627,7 @@ static int OutputStatsIMEX(void* arkode_mem, UserData* udata)
   cout << "  Steps            = " << nst << endl;
   cout << "  Step attempts    = " << nst_a << endl;
   cout << "  Error test fails = " << netf << endl;
-  if (udata->reaction) { cout << "  RHS reaction     = " << nfe << endl; }
+  if (udata->reaction) { cout << "  RHS reaction     = " << nfeval[0] << endl; }
   if (udata->diffusion)
   {
     cout << "  RHS diffusion    = " << nfeval[1] << endl;
