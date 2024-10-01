@@ -294,10 +294,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
                       __FILE__, "num_of_stages must be a perfect square greater than or equal to 4");
       return (ARK_ILL_INPUT);
     }
-    if (num_of_stages == 4)
-    {
-      ark_mem->step = lsrkStep_TakeStepSSP43;
-    }
+    if (num_of_stages == 4) { ark_mem->step = lsrkStep_TakeStepSSP43; }
     break;
 
   case ARKODE_LSRK_SSP_10_4:
