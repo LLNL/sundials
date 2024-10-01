@@ -737,7 +737,7 @@ LSRKStep -- Low-Storage Runge--Kutta methods
 ============================================
 
 The LSRKStep time-stepping module in ARKODE supports a variety of so-called
-"low-storage" Runge--Kutta methods, :cite:p:`VSH:04, MBA:14, K:08, FCS:22`.  This category includes traditional explicit 
+"low-storage" Runge--Kutta (LSRK) methods, :cite:p:`VSH:04, MBA:14, K:08, FCS:22`.  This category includes traditional explicit 
 fixed-step and low-storage Runge--Kutta methods, adaptive  
 low-storage Runge--Kutta methods, and others.  These are characterized by coefficient tables
 that have an exploitable structure, such that their implementation does not require

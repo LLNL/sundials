@@ -51,9 +51,6 @@ foreach(example_tuple ${ARKODE_examples})
     target_link_libraries(${example_target} sundials_arkode sundials_nvecserial
                           sundials_nvecmanyvector ${EXE_EXTRA_LINK_LIBS})
 
-    if(BUILD_CVODE)
-      target_link_libraries(${example_target} sundials_cvode)
-    endif()
   endif()
 
   # check if example args are provided and set the test name

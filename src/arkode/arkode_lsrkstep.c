@@ -116,7 +116,7 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
-  step_mem->fi = rhs;
+  step_mem->fi = NULL;
 
   /* Initialize all the counters */
   step_mem->nfe                 = 0;
@@ -125,7 +125,7 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   step_mem->stage_max           = 0;
   step_mem->num_dom_eig_updates = 0;
   step_mem->stage_max_limit =
-    (int)SUNRround(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround)));
+    (int)SUNRround(SUNRsqrt(ark_mem->reltol / (SUN_RCONST(10.0) * ark_mem->uround)));
   step_mem->stage_max_limit =
     (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
   step_mem->nstsig = 0;
@@ -196,8 +196,7 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   }
 
   /* Allocate ARKodeLSRKStepMem structure, and initialize to zero */
-  step_mem = NULL;
-  step_mem = (ARKodeLSRKStepMem)malloc(sizeof(struct ARKodeLSRKStepMemRec));
+  step_mem = (ARKodeLSRKStepMem)calloc(1, sizeof(*step_mem));
   if (step_mem == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -205,7 +204,6 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
     ARKodeFree((void**)&ark_mem);
     return (NULL);
   }
-  memset(step_mem, 0, sizeof(struct ARKodeLSRKStepMemRec));
 
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init              = lsrkStep_Init;
@@ -233,7 +231,7 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
-  step_mem->fi = rhs;
+  step_mem->fi = NULL;
 
   /* Initialize all the counters */
   step_mem->nfe                 = 0;
@@ -258,7 +256,7 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   }
 
   /* Specify preferred interpolation type */
-  ark_mem->interp_type = ARK_INTERP_LAGRANGE;
+  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ((void*)ark_mem);
 }
@@ -311,7 +309,7 @@ int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
-  step_mem->fi = rhs;
+  step_mem->fi = NULL;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
@@ -385,7 +383,7 @@ int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
-  step_mem->fi = rhs;
+  step_mem->fi = NULL;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
@@ -501,11 +499,6 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 {
   ARKodeLSRKStepMem step_mem;
   int retval;
-
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  /* output vector quantities - required allocations*/
-
-#endif
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -760,7 +753,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   Xvecs = step_mem->Xvecs;
 
   /* Compute dominant eigenvalue and update stats */
-  if ((step_mem->new_dom_eig))
+  if (step_mem->new_dom_eig)
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
     if (retval != ARK_SUCCESS) { return (retval); }
@@ -977,7 +970,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   Xvecs = step_mem->Xvecs;
 
   /* Compute dominant eigenvalue and update stats */
-  if ((step_mem->new_dom_eig))
+  if (step_mem->new_dom_eig)
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
     if (retval != ARK_SUCCESS) { return (retval); }
@@ -1152,7 +1145,6 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
-
   ARKodeLSRKStepMem step_mem;
 
   /* initialize algebraic solver convergence flag to success,
@@ -1164,11 +1156,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  sunrealtype* cvals;
-  N_Vector* Xvecs;
-
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
+  sunrealtype* cvals = step_mem->cvals;
+  N_Vector* Xvecs = step_mem->Xvecs;
 
   sunrealtype rs     = (sunrealtype)step_mem->req_stages;
   sunrealtype sm1inv = ONE / (rs - ONE);
@@ -1283,7 +1272,6 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
-
   ARKodeLSRKStepMem step_mem;
 
   /* initialize algebraic solver convergence flag to success,
@@ -1295,11 +1283,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  sunrealtype* cvals;
-  N_Vector* Xvecs;
-
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
+  sunrealtype* cvals = step_mem->cvals;
+  N_Vector* Xvecs = step_mem->Xvecs;
 
   sunrealtype rs  = (sunrealtype)step_mem->req_stages;
   sunrealtype rn  = SUNRsqrt(rs);
@@ -1430,7 +1415,6 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
-
   ARKodeLSRKStepMem step_mem;
 
   /* initialize algebraic solver convergence flag to success,
@@ -1444,11 +1428,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  sunrealtype* cvals;
-  N_Vector* Xvecs;
-
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
+  sunrealtype* cvals = step_mem->cvals;
+  N_Vector* Xvecs = step_mem->Xvecs;
 
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
@@ -1655,7 +1636,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
                       "lambdaR*h must be nonpositive");
       return (ARK_DOMEIG_FAIL);
     }
-    else if (step_mem->lambdaR == 0 && SUNRabs(step_mem->lambdaI) > 0)
+    else if (step_mem->lambdaR == SUN_RCONST(0.0) && SUNRabs(step_mem->lambdaI) > SUN_RCONST(0.0))
     {
       arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                       "DomEig cannot be purely imaginary");

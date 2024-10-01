@@ -173,7 +173,7 @@ Allowable Method Families
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``stage_max_limit < 2``)
 
 .. note:: If LSRKStepSetMaxNumStages routine is not called, then the default stage_max_limit is
-   set to \sqrt(reltol/(10uround)).
+   set to :math:`\sqrt{reltol/(10 uround)}` where :math:`uround` is unit roundoff.
 
 
 .. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_sfty);
@@ -320,13 +320,13 @@ vector.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL*  if the LSRKStep memory was ``NULL``
-      * *ARK_MEM_FAIL*  if memory allocation failed
-      * *ARK_NO_MALLOC*  if memory allocation failed
-      * *ARK_CONTROLLER_ERR*  if unable to reset error controller object
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
+      * *ARK_MEM_FAIL* if memory allocation failed
+      * *ARK_NO_MALLOC* if memory allocation failed
+      * *ARK_CONTROLLER_ERR* if unable to reset error controller object
       * *ARK_ILL_INPUT* if an argument had an illegal value.
 
-   **Notes:**
+   .. note::
       All previously set options are retained but may be updated by calling
       the appropriate "Set" functions.
 

@@ -1,6 +1,5 @@
 .. ----------------------------------------------------------------
-   Programmer(s): Daniel R. Reynolds @ SMU
-                  David J. Gardner @ LLNL
+   Programmer(s): Mustafa Aggul @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
    Copyright (c) 2002-2024, Lawrence Livermore National Security
@@ -18,7 +17,7 @@
 User-supplied functions
 =============================
 
-Currently, there is only one user-supplied function for LSRKStep (in addition to the :c:type:`ARKRhsFn` arguments that define the IVP).
+In addition to the required :c:type:`ARKRhsFn` arguments that define the IVP, RKL and RKC methods additionally require an :c:type:`ARKDomEigFn`: function to estimate the dominant eigenvalue.
 
 
 

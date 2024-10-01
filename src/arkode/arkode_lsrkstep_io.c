@@ -541,8 +541,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
             step_mem->dom_eig_nfe);
     fprintf(outfile, "Number of dom_eig updates    = %ld\n",
             step_mem->num_dom_eig_updates);
-    fprintf(outfile, "Avr. num. of stages taken    = %.2f\n", avg_stage);
-    fprintf(outfile, "Max. num. of stages taken    = %d\n", step_mem->stage_max);
+    fprintf(outfile, "Avr. num. of stages used     = %.2f\n", avg_stage);
+    fprintf(outfile, "Max. num. of stages used     = %d\n", step_mem->stage_max);
     fprintf(outfile, "Max. num. of stages allowed  = %d\n",
             step_mem->stage_max_limit);
 
@@ -554,8 +554,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     fprintf(outfile, ",RHS fn evals for Dom. Eigs.,%ld", step_mem->dom_eig_nfe);
     fprintf(outfile, ",Number of dom_eig update calls,%ld",
             step_mem->num_dom_eig_updates);
-    fprintf(outfile, ",Avr. num. of stages taken,%.2f", avg_stage);
-    fprintf(outfile, ",Max. num. of stages taken,%d", step_mem->stage_max);
+    fprintf(outfile, ",Avr. num. of stages used,%.2f", avg_stage);
+    fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
     fprintf(outfile, ",Max. num. of stages allowed,%d",
             step_mem->stage_max_limit);
 
@@ -591,11 +591,11 @@ int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
   {
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-    fprintf(outfile, "Current stages taken         = %d\n", step_mem->req_stages);
+    fprintf(outfile, "Current stages used          = %d\n", step_mem->req_stages);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, ",Current stages taken,%d", step_mem->req_stages);
+    fprintf(outfile, ",Current stages used,%d", step_mem->req_stages);
 
     fprintf(outfile, "\n");
     break;
