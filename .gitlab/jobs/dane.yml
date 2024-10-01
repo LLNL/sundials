@@ -42,7 +42,7 @@ dane_clang_tpls:
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos+kokkos-kernels+trilinos ^openblas"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos+kokkos-kernels~trilinos ^openblas"
   extends: .sundials_job_on_dane
 
 dane_gcc_tpls:
@@ -52,7 +52,7 @@ dane_gcc_tpls:
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos+kokkos-kernels+trilinos ^openblas"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos+kokkos-kernels~trilinos ^openblas"
   extends: .sundials_job_on_dane
 
 dane_intel_tpls:
@@ -62,5 +62,5 @@ dane_intel_tpls:
         INDEX_SPEC: [~int64]
         PRECISION_SPEC: [double]
   variables:
-    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos+kokkos-kernels+trilinos ^openblas"
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos+kokkos-kernels~trilinos ^openblas"
   extends: .sundials_job_on_dane
