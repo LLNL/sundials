@@ -1435,8 +1435,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
    Sets a user-supplied time-step controller object.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param C: user-supplied time adaptivity controller.  If ``NULL`` then the PID controller
-             will be created (see :numref:`SUNAdaptController.Soderlind`).
+   :param C: user-supplied time adaptivity controller.
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -1446,6 +1445,8 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    .. note::
 
+      If *C* is ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.Soderlind`).
+
       This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Not all time-stepping modules are compatible with all types of :c:type:`SUNAdaptController`
@@ -1453,7 +1454,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_H``, only MRIStep supports
       inputs with type ``SUN_ADAPTCONTROLLER_MRI_TOL``.
 
-  .. versionadded:: 6.1.0
+   .. versionadded:: 6.1.0
 
 
 .. c:function:: int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust)
