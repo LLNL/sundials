@@ -444,11 +444,11 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
   /* Resize the internal vector storage */
   if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
                     &step_mem->Fe))
-      {
-        arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                        "Unable to resize vector");
-        return (ARK_MEM_FAIL);
-      }
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Unable to resize vector");
+    return (ARK_MEM_FAIL);
+  }
 
   return (ARK_SUCCESS);
 }
@@ -469,10 +469,7 @@ void lsrkStep_Free(ARKodeMem ark_mem)
     step_mem = (ARKodeLSRKStepMem)ark_mem->step_mem;
 
     /* free the RHS vectors */
-    if (step_mem->Fe != NULL)
-    {
-      arkFreeVec(ark_mem, &step_mem->Fe);
-    }
+    if (step_mem->Fe != NULL) { arkFreeVec(ark_mem, &step_mem->Fe); }
 
     /* free the reusable arrays for fused vector interface */
     if (step_mem->cvals != NULL)
@@ -600,10 +597,10 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   /* Allocate ARK RHS vector memory, update storage requirements */
   /*   Allocate Fe if needed */
   if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fe)))
-    {
-      return (ARK_MEM_FAIL);
-    }
-    ark_mem->liw += 1; /* pointers */
+  {
+    return (ARK_MEM_FAIL);
+  }
+  ark_mem->liw += 1; /* pointers */
 
   /* Allocate reusable arrays for fused vector interface */
   if (step_mem->cvals == NULL)
@@ -775,17 +772,20 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   step_mem->req_stages = SUNMAX(ss, 2);
   if (step_mem->req_stages >= step_mem->stage_max_limit)
   {
-    if(!ark_mem->fixedstep)
+    if (!ark_mem->fixedstep)
     {
-      hmax         = ark_mem->hadapt_mem->safety * SUNSQR(ss) / (onep54 * step_mem->sprad);
+      hmax = ark_mem->hadapt_mem->safety * SUNSQR(ss) /
+             (onep54 * step_mem->sprad);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
       return (ARK_RETRY_STEP);
     }
     else
     {
-      arkProcessError(ark_mem, ARK_STEP_FIXED_SIZE_FAIL, __LINE__, __func__, __FILE__,
-              "Poor step size and stage_max_limit combination: Either reduce the step size or increase the stage_max_limit");
+      arkProcessError(ark_mem, ARK_STEP_FIXED_SIZE_FAIL, __LINE__, __func__,
+                      __FILE__,
+                      "Poor step size and stage_max_limit combination: Either "
+                      "reduce the step size or increase the stage_max_limit");
       return (ARK_STEP_FIXED_SIZE_FAIL);
     }
   }
@@ -983,21 +983,28 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return (retval); }
   }
 
-  int ss = SUNRceil((SUNRsqrt(SUN_RCONST(9.0) + SUN_RCONST(8.0) * SUNRabs(ark_mem->h) * step_mem->sprad) - ONE) / TWO);
+  int ss =
+    SUNRceil((SUNRsqrt(SUN_RCONST(9.0) + SUN_RCONST(8.0) * SUNRabs(ark_mem->h) *
+                                           step_mem->sprad) -
+              ONE) /
+             TWO);
   step_mem->req_stages = SUNMAX(2, ss);
   if (ss >= step_mem->stage_max_limit)
   {
     if (!ark_mem->fixedstep)
     {
-      hmax = ark_mem->hadapt_mem->safety * (SUNSQR(ss) + ss - TWO) / (TWO * step_mem->sprad);
+      hmax = ark_mem->hadapt_mem->safety * (SUNSQR(ss) + ss - TWO) /
+             (TWO * step_mem->sprad);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
       return (ARK_RETRY_STEP);
     }
     else
     {
-      arkProcessError(ark_mem, ARK_STEP_FIXED_SIZE_FAIL, __LINE__, __func__, __FILE__,
-              "Unable to achieve stable results: Either reduce the step size or increase the stage_max_limit");
+      arkProcessError(ark_mem, ARK_STEP_FIXED_SIZE_FAIL, __LINE__, __func__,
+                      __FILE__,
+                      "Unable to achieve stable results: Either reduce the "
+                      "step size or increase the stage_max_limit");
       return (ARK_STEP_FIXED_SIZE_FAIL);
     }
   }
@@ -1216,8 +1223,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                  ark_mem->tempv1);
   }
   /* Evaluate the last stage for j = step_mem->req_stages */
-  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur, ark_mem->tempv2,
-                        ark_mem->user_data);
+  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                        ark_mem->tempv2, ark_mem->user_data);
   step_mem->nfe++;
   if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 

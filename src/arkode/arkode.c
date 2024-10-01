@@ -3004,7 +3004,7 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
   /* Returns with an ARK_RETRY_STEP flag happen in a step much 
   before any algebraic solvers involve. For this reasion, we 
   immediately return form arkCheckConvergence since it is 
-  irrelavent in an ARK_RETRY_STEP case */
+  irrelevant in an ARK_RETRY_STEP case */
   if (*nflagPtr == ARK_RETRY_STEP) { return (ARK_RETRY_STEP); }
 
   /* The nonlinear soln. failed; increment ncfn */

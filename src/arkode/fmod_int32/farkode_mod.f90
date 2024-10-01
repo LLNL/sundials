@@ -44,7 +44,6 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: ARK_TSTOP_RETURN = 1_C_INT
  integer(C_INT), parameter, public :: ARK_ROOT_RETURN = 2_C_INT
- integer(C_INT), parameter, public :: ARK_RETRY_STEP = 3_C_INT
  integer(C_INT), parameter, public :: ARK_WARNING = 99_C_INT
  integer(C_INT), parameter, public :: ARK_TOO_MUCH_WORK = -1_C_INT
  integer(C_INT), parameter, public :: ARK_TOO_MUCH_ACC = -2_C_INT
@@ -96,6 +95,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_CONTROLLER_ERR = -47_C_INT
  integer(C_INT), parameter, public :: ARK_STEPPER_UNSUPPORTED = -48_C_INT
  integer(C_INT), parameter, public :: ARK_DOMEIG_FAIL = -49_C_INT
+ integer(C_INT), parameter, public :: ARK_STEP_FIXED_SIZE_FAIL = -50_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)
