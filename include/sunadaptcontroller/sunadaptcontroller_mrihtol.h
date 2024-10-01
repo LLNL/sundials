@@ -28,7 +28,7 @@ extern "C" {
  * MRI H+tolerance implementation of SUNAdaptController
  * -------------------------------------------- */
 
-struct _SUNAdaptControllerContent_MRIHTol
+struct SUNAdaptControllerContent_MRIHTol_
 {
   SUNAdaptController HControl;
   SUNAdaptController TolControl;
@@ -37,7 +37,7 @@ struct _SUNAdaptControllerContent_MRIHTol
   sunrealtype inner_max_tolfac;
 };
 
-typedef struct _SUNAdaptControllerContent_MRIHTol* SUNAdaptControllerContent_MRIHTol;
+typedef struct SUNAdaptControllerContent_MRIHTol_* SUNAdaptControllerContent_MRIHTol;
 
 /* ------------------
  * Exported Functions

@@ -97,7 +97,7 @@ SUNAdaptController class, and defines its *content* field as:
 
 .. code-block:: c
 
-   struct _SUNAdaptControllerContent_MRIHTol
+   struct SUNAdaptControllerContent_MRIHTol
    {
      SUNAdaptController HControl;
      SUNAdaptController TolControl;
