@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
   cout << "   Return time = " << t << "\n";
   cout << "   Internal final time = " << tcur << "\n";
   cout << "   Internal solver steps = " << ark_nst << "\n";
-  cout << "   Total RHS evals:  Fe = " << ark_nfe << ",  Fi = " << ark_nfi
+  cout << "   Total RHS evals:  Fe = " << ark_nfeval[0] << ",  Fi = " << ark_nfeval[1]
        << "\n";
   cout << "   Total number of nonlinear iterations = " << ark_nni << "\n";
   cout << "   Total number of nonlinear solver convergence failures = "
