@@ -2707,15 +2707,15 @@ static int OutputFastStats(void* arkode_mem, UserData* udata)
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nJv;
+  long int nst, nst_a, netf, nfeval[2], nni, ncfn, nli, nlcf, nsetups, nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
@@ -2735,7 +2735,7 @@ static int OutputFastStats(void* arkode_mem, UserData* udata)
   cout << "  Steps            = " << nst << endl;
   cout << "  Step attempts    = " << nst_a << endl;
   cout << "  Error test fails = " << netf << endl;
-  cout << "  RHS evals        = " << nfi << endl;
+  cout << "  RHS evals        = " << nfeval[1] << endl;
   cout << "  NLS iters        = " << nni << endl;
   cout << "  NLS fails        = " << ncfn << endl;
   cout << "  LS iters         = " << nli << endl;
@@ -2775,11 +2775,11 @@ static int OutputSlowStats(void* arkode_mem, UserData* udata)
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nJv;
+  long int nst, nfeval[2], nni, ncfn, nli, nlcf, nsetups, nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
-  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
@@ -2797,7 +2797,7 @@ static int OutputSlowStats(void* arkode_mem, UserData* udata)
   cout << setprecision(6);
 
   cout << "  Steps            = " << nst << endl;
-  cout << "  RHS evals        = " << nfi << endl;
+  cout << "  RHS evals        = " << nfeval[1] << endl;
   cout << "  NLS iters        = " << nni << endl;
   cout << "  NLS fails        = " << ncfn << endl;
   cout << "  LS iters         = " << nli << endl;

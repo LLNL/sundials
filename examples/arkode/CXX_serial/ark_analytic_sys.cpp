@@ -234,13 +234,13 @@ int main()
   fclose(UFID);
 
   // Print some final statistics
-  long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
+  long int nst, nst_a, nfeval[2], nsetups, nje, nfeLS, nni, ncfn, netf;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
   flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
@@ -257,7 +257,7 @@ int main()
   cout << "\nFinal Solver Statistics:\n";
   cout << "   Internal solver steps = " << nst << " (attempted = " << nst_a
        << ")\n";
-  cout << "   Total RHS evals:  Fe = " << nfe << ",  Fi = " << nfi << "\n";
+  cout << "   Total RHS evals:  Fe = " << nfeval[0] << ",  Fi = " << nfeval[1] << "\n";
   cout << "   Total linear solver setups = " << nsetups << "\n";
   cout << "   Total RHS evals for setting up the linear system = " << nfeLS
        << "\n";

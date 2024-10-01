@@ -570,13 +570,13 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   fclose(UFID);
 
   // Get integrator statistics
-  long int nst, nst_a, nfe, nfi, nni, nnc, nje, nsetups, netf, nmset, nms, nMv;
+  long int nst, nst_a, nfeval[2], nni, nnc, nje, nsetups, netf, nmset, nms, nMv;
   retval = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_retval(&retval, "ARKodeGetNumSteps", 1)) { return 1; }
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   if (check_retval(&retval, "ARKodeGetNumStepAttempts", 1)) { return 1; }
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_retval(&retval, "ARKStepGetNumRhsEvals", 1)) { return 1; }
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
+  if (check_retval(&retval, "ARKodeGetNumRhsEvals", 1)) { return 1; }
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_retval(&retval, "ARKodeGetNumErrTestFails", 1)) { return 1; }
   retval = ARKodeGetNumMassSetups(arkode_mem, &nmset);
@@ -604,7 +604,7 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   cout << "   Internal solver steps = " << nst << " (attempted = " << nst_a
        << ")\n";
   cout << "   Total number of error test failures = " << netf << endl;
-  cout << "   Total RHS evals:  Fe = " << nfe << ",  Fi = " << nfi << endl;
+  cout << "   Total RHS evals:  Fe = " << nfeval[0] << ",  Fi = " << nfeval[1] << endl;
   cout << "   Total mass matrix setups = " << nmset << endl;
   cout << "   Total mass matrix solves = " << nms << endl;
   cout << "   Total mass times evals = " << nMv << endl;
