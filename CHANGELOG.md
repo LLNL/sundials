@@ -56,6 +56,8 @@ Fixed loading the default IMEX-MRI method if `ARKodeSetOrder` is used to specify
 a third or fourth order method. Previously, the default second order method
 was loaded in both cases.
 
+Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
+using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
 
 ### Deprecation Notices
 
