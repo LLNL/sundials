@@ -94,7 +94,7 @@ static SUNErrCode arkSUNStepperFullRhs(SUNStepper stepper, sunrealtype t,
   ----------------------------------------------------------------------------*/
 
 static SUNErrCode arkSUNStepperReset(SUNStepper stepper, sunrealtype tR,
-                                     N_Vector yR)
+                                     N_Vector yR, int64_t ckptIdxR)
 {
   SUNFunctionBegin(stepper->sunctx);
   /* extract the ARKODE memory struct */
@@ -103,6 +103,8 @@ static SUNErrCode arkSUNStepperReset(SUNStepper stepper, sunrealtype tR,
 
   stepper->last_flag = ARKodeReset(arkode_mem, tR, yR);
   if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
+
+  ((ARKodeMem)arkode_mem)->checkpoint_step_idx = ckptIdxR;
 
   return SUN_SUCCESS;
 }

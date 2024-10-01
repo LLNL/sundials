@@ -3576,20 +3576,20 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
 
   /* SUNAdjointStepper will own the SUNSteppers and destroy them */
   SUNStepper fwd_stepper;
-  retval = ARKStepCreateSUNStepper(arkode_mem, &fwd_stepper);
+  retval = ARKodeCreateSUNStepper(arkode_mem, &fwd_stepper);
   if (retval)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "ARKStepCreateSUNStepper failed");
+                    "ARKodeCreateSUNStepper failed");
     return retval;
   }
 
   SUNStepper adj_stepper;
-  retval = ARKStepCreateSUNStepper(arkode_mem_adj, &adj_stepper);
+  retval = ARKodeCreateSUNStepper(arkode_mem_adj, &adj_stepper);
   if (retval)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "ARKStepCreateSUNStepper failed");
+                    "ARKodeCreateSUNStepper failed");
     return retval;
   }
 
