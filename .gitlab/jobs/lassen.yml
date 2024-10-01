@@ -50,7 +50,7 @@ lassen_gcc_cuda_tpls:
       - COMPILER_SPEC: [gcc@8.3.1]
         CUDA_SPEC: [cuda@12.0.0+allow-unsupported-compilers]
   variables:
-      SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda+raja+magma+superlu-dist+lapack~petsc+hypre+ginkgo+kokkos~kokkos-kernels~trilinos ^openblas cuda_arch=70 ^ginkgo+cuda cuda_arch=70 ^hypre~cuda ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^kokkos+wrapper ^${CUDA_SPEC}"
+      SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double ~int64 +mpi+openmp+cuda+raja+magma+superlu-dist+lapack~petsc+hypre+ginkgo+kokkos~kokkos-kernels~trilinos cuda_arch=70 ^openblas ^ginkgo+cuda cuda_arch=70 ^hypre~cuda ^superlu-dist+cuda cuda_arch=70 ^magma+cuda cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^kokkos+wrapper ^${CUDA_SPEC}"
   extends: [.sundials_job_on_lassen]
 
 # # Benchmark job
