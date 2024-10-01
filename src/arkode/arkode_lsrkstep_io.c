@@ -389,7 +389,7 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
 /*---------------------------------------------------------------
   LSRKStepGetAverageStageNum:
 
-  Returns the average number of stages taken
+  Returns the average number of stages used
   ---------------------------------------------------------------*/
 int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* avg_stage)
 {

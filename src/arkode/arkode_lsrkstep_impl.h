@@ -59,7 +59,7 @@ typedef struct ARKodeLSRKStepMemRec
   long int nfi;                 /* num fi calls       */
   long int dom_eig_nfe;         /* num fe calls for spectral dom_eig      */
   long int num_dom_eig_updates; /* num of dom_eig computations   */
-  int stage_max;                /* num of max stages taken      */
+  int stage_max;                /* num of max stages used      */
   int stage_max_limit;          /* max allowed num of stages     */
   int nstsig; /* num of steps that successfully used dom_eig; indicates dom_eig update when 0;  */
 

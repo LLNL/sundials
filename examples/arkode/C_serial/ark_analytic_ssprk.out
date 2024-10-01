@@ -31,6 +31,6 @@ Initial step size            = 1.930101110942615e-10
 Last step size               = 0.02575789911873572
 Current step size            = 0.02575789911873572
 RHS fn evals                 = 10028
-Current stages taken         = 9
+Current stages used          = 9
 
 ACCURACY at the final time = 2.3602e-09
