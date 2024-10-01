@@ -176,8 +176,7 @@ program driver
   real(c_double) :: t(1), dTout, tout
   integer(c_long) :: nst(1)      ! number of time steps
   integer(c_long) :: nst_a(1)    ! number of step attempts
-  integer(c_long) :: nfe(1)      ! number of explicit RHS evals
-  integer(c_long) :: nfi(1)      ! number of implicit RHS evals
+  integer(c_long) :: nfeval(2)   ! number of RHS evals
   integer(c_long) :: netf(1)     ! number of error test fails
   integer(c_long) :: nni(1)      ! number of nonlinear iters
   integer(c_long) :: ncfn(1)     ! number of nonlinear convergence fails
@@ -360,14 +359,14 @@ program driver
         call MPI_Abort(comm, 1, ierr)
       end if
 
-      retval = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+      retval = FARKodeGetNumRhsEvals(arkode_mem, 2, nfeval)
       if (retval /= 0) then
-        print *, "Error: FARKStepGetNumRhsEvals returned ", retval
+        print *, "Error: FARKodeGetNumRhsEvals returned ", retval
         call MPI_Abort(comm, 1, ierr)
       end if
 
       ! print solution stats and update internal time
-      if (outproc) write (6, '(3x,f10.6,4(3x,i6))') t, nst, nst_a, nfe, nfi
+      if (outproc) write (6, '(3x,f10.6,4(3x,i6))') t, nst, nst_a, nfeval(1), nfeval(2)
       tout = min(tout + dTout, Tf)
 
     end do
@@ -406,9 +405,9 @@ program driver
       call MPI_Abort(comm, 1, ierr)
     end if
 
-    retval = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+    retval = FARKodeGetNumRhsEvals(arkode_mem, 2, nfeval)
     if (retval /= 0) then
-      print *, "Error: FARKStepGetNumRhsEvals returned ", retval
+      print *, "Error: FARKodeGetNumRhsEvals returned ", retval
       call MPI_Abort(comm, 1, ierr)
     end if
 
@@ -486,8 +485,8 @@ program driver
       write (6, *) "Final Solver Statistics:"
       write (6, '(2(A,i6),A)') "   Internal solver steps = ", nst, &
         " (attempted = ", nst_a, ")"
-      write (6, '(A,i6)') "   Total explicit RHS evals = ", nfe
-      write (6, '(A,i6)') "   Total implicit RHS evals = ", nfi
+      write (6, '(A,i6)') "   Total explicit RHS evals = ", nfeval(1)
+      write (6, '(A,i6)') "   Total implicit RHS evals = ", nfeval(2)
       write (6, '(A,i6)') "   Total preconditioner setups = ", npre
       write (6, '(A,i6)') "   Total preconditioner solves = ", npsol
       write (6, '(A,i6)') "   Total nonlinear iterations  = ", nni

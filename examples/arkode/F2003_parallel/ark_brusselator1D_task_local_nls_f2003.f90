@@ -1185,8 +1185,7 @@ subroutine EvolveProblemIMEX(sunvec_y)
   integer(c_int)  :: retval     ! ARKODE return value
   integer(c_long) :: nst(1)     ! number of time steps
   integer(c_long) :: nst_a(1)   ! number of step attempts
-  integer(c_long) :: nfe(1)     ! number of explicit RHS evals
-  integer(c_long) :: nfi(1)     ! number of implicit RHS evals
+  integer(c_long) :: nfeval(2)  ! number of RHS evals
   integer(c_long) :: netf(1)    ! number of error test fails
   integer(c_long) :: nni(1)     ! number of nonlinear iters
   integer(c_long) :: ncfn(1)    ! number of convergence fails
@@ -1362,9 +1361,9 @@ subroutine EvolveProblemIMEX(sunvec_y)
     call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 2, nfeval)
   if (retval /= 0) then
-    print *, "Error: FARKStepGetNumRhsEvals returned ", retval
+    print *, "Error: FARKodeGetNumRhsEvals returned ", retval
     call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -1419,8 +1418,8 @@ subroutine EvolveProblemIMEX(sunvec_y)
 
     if (global) then
 
-      print "(2x,A,i0)", "RHS evals Fe     = ", nfe
-      print "(2x,A,i0)", "RHS evals Fi     = ", nfi
+      print "(2x,A,i0)", "RHS evals Fe     = ", nfeval(1)
+      print "(2x,A,i0)", "RHS evals Fi     = ", nfeval(2)
       print "(2x,A,i0)", "NLS iters        = ", nni
       print "(2x,A,i0)", "LS iters         = ", nli
       print "(2x,A,i0)", "P setups         = ", npre
@@ -1428,8 +1427,8 @@ subroutine EvolveProblemIMEX(sunvec_y)
 
     else
 
-      print "(2x,A,i0)", "RHS evals Fe     = ", nfe
-      print "(2x,A,i0)", "RHS evals Fi     = ", nfi + nnlfi
+      print "(2x,A,i0)", "RHS evals Fe     = ", nfeval(1)
+      print "(2x,A,i0)", "RHS evals Fi     = ", nfeval(2) + nnlfi
 
     end if
 
@@ -1586,9 +1585,9 @@ subroutine EvolveProblemExplicit(sunvec_y)
     call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FERKStepGetNumRhsEvals(arkode_mem, nfe)
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 1, nfe)
   if (retval /= 0) then
-    print *, "Error: FERKStepGetNumRhsEvals returned ", retval
+    print *, "Error: FARKodeGetNumRhsEvals returned ", retval
     call MPI_Abort(comm, 1, ierr)
   end if
 
