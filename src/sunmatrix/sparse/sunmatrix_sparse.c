@@ -624,13 +624,14 @@ SUNErrCode SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B)
 SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
-  const sunindextype N = SM_SPARSETYPE_S(A) == CSC_MAT ? SM_COLUMNS_S(A) : SM_ROWS_S(A);
+  const sunindextype N = SM_SPARSETYPE_S(A) == CSC_MAT ? SM_COLUMNS_S(A)
+                                                       : SM_ROWS_S(A);
 
-  sunindextype * Ap = SM_INDEXPTRS_S(A);
+  sunindextype* Ap = SM_INDEXPTRS_S(A);
   SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
-  sunindextype * Ai = SM_INDEXVALS_S(A);
+  sunindextype* Ai = SM_INDEXVALS_S(A);
   SUNAssert(Ai, SUN_ERR_ARG_CORRUPT);
-  sunrealtype * Ax = SM_DATA_S(A);
+  sunrealtype* Ax = SM_DATA_S(A);
   SUNAssert(Ax, SUN_ERR_ARG_CORRUPT);
 
   sunindextype newvals = 0;
@@ -644,7 +645,8 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
       {
         found = SUNTRUE;
         Ax[i] = ONE + c * Ax[i];
-      } else { Ax[i] *= c; }
+      }
+      else { Ax[i] *= c; }
     }
     /* if no diagonal found, increment necessary storage counter */
     if (!found) { newvals++; }
@@ -654,21 +656,20 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
    * diagonal elements that need to be added (of which there are newvals). Now,
    * we allocate additional storage if needed */
   const sunindextype new_nnz = Ap[N] + newvals;
-  if (new_nnz > SM_NNZ_S(A)) {
+  if (new_nnz > SM_NNZ_S(A))
+  {
     SUNCheckCall(SUNSparseMatrix_Reallocate(A, new_nnz));
     Ap = SM_INDEXPTRS_S(A);
     Ai = SM_INDEXVALS_S(A);
     Ax = SM_DATA_S(A);
   }
 
-  for (sunindextype j = N - 1; j >= 0 && newvals > 0; j--) {
+  for (sunindextype j = N - 1; j >= 0 && newvals > 0; j--)
+  {
     sunbooleantype found = SUNFALSE;
     for (sunindextype i = Ap[j + 1] - 1; i >= Ap[j]; i--)
     {
-      if (Ai[i] == j)
-      {
-        found = SUNTRUE;
-      }
+      if (Ai[i] == j) { found = SUNTRUE; }
 
       /* Shift elements to make room for diagonal elements */
       Ai[i + newvals] = Ai[i];
@@ -676,7 +677,8 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
     }
 
     Ap[j + 1] += newvals;
-    if (!found) {
+    if (!found)
+    {
       /* This column (row) needs a diagonal element added */
       newvals--;
       Ai[Ap[j] + newvals] = j;
