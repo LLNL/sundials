@@ -667,7 +667,7 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
     Ax = SM_DATA_S(A);
   }
 
-  for (sunindextype j = N - 1; j >= 0 && newvals > 0; j--)
+  for (sunindextype j = N - 1; newvals > 0; j--)
   {
     sunbooleantype found = SUNFALSE;
     for (sunindextype i = Ap[j + 1] - 1; i >= Ap[j]; i--)
