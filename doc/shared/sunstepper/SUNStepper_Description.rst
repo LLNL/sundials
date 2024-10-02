@@ -171,7 +171,8 @@ Stepping Functions
       the forcing, :math:`t_{\text{scale}}`.
    :param forcing: a pointer to an array of forcing vectors,
       :math:`\widehat{f}_k`.
-   :param nforcing: the number of forcing vectors, :math:`n_{\text{forcing}}`.
+   :param nforcing: the number of forcing vectors, :math:`n_{\text{forcing}}`. A
+      value of 0 effectively eliminates the forcing term.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
    .. note::
@@ -216,12 +217,12 @@ function to get and set a separate flag associated with a stepper.
 
 .. c:function:: SUNErrCode SUNStepper_SetLastFlag(SUNStepper stepper, int last_flag)
 
-   This function set a flag than can be used by sunstepper implementations to
+   This function sets a flag than can be used by sunstepper implementations to
    indicate warnings or errors that occurred during an operation, e.g.,
    :c:func:`SUNStepper_Evolve`.
 
    :param stepper: the stepper object.
-   :param last_flag: A pointer to where the flag value will be written.
+   :param last_flag: the flag value.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 .. c:function:: SUNErrCode SUNStepper_GetLastFlag(SUNStepper stepper, int *last_flag)

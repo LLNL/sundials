@@ -4693,8 +4693,8 @@ rescale the upcoming time step by the specified factor.  If a value
 Using an ARKODE solver as a SUNStepper
 --------------------------------------
 
-The utility function :c:func:`ARKodeCreateSUNStepper` can be used to wrap an
-ARKStep memory block as a :c:type:`SUNStepper`.
+The utility function :c:func:`ARKodeCreateSUNStepper` wraps an ARKODE memory
+block as a :c:type:`SUNStepper`.
 
 .. c:function:: int ARKodeCreateSUNStepper(void *inner_arkode_mem, SUNStepper *stepper)
 

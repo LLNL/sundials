@@ -99,7 +99,7 @@ Creating and Destroying an Object
 
       SUNStepper sunstepper = NULL;
       SUNStepper_Create(ctx, &sunstepper);
-      /* Attach content and function to the SUNStepper... */
+      /* Attach content and functions to the SUNStepper... */
 
       MRIStepInnerStepper inner_stepper = NULL;
       flag = MRIStepInnerStepper_Create(sunstepper, &inner_stepper);
