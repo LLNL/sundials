@@ -2823,10 +2823,7 @@ int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper)
   if (stepper == NULL) { return ARK_ILL_INPUT; }
   if (stepper->ops == NULL) { return ARK_ILL_INPUT; }
 
-  if (stepper->ops->evolve && stepper->ops->reset && stepper->ops->fullrhs)
-  {
-    return ARK_SUCCESS;
-  }
+  if (stepper->ops->evolve) { return ARK_SUCCESS; }
   else { return ARK_ILL_INPUT; }
 }
 
