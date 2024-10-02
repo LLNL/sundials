@@ -2,6 +2,7 @@
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner @ LLNL
+ *                Steven B. Roberts @ LLNL
  * Based on code sundials_sparse.c by: Carol Woodward and
  *     Slaven Peles @ LLNL, and Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
