@@ -626,6 +626,8 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
   SUNFunctionBegin(A->sunctx);
   const sunindextype N = SM_SPARSETYPE_S(A) == CSC_MAT ? SM_COLUMNS_S(A)
                                                        : SM_ROWS_S(A);
+  const sunindextype M = SM_SPARSETYPE_S(A) == CSC_MAT ? SM_ROWS_S(A)
+                                                       : SM_COLUMNS_S(A);
 
   sunindextype* Ap = SM_INDEXPTRS_S(A);
   SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
@@ -648,8 +650,9 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
       }
       else { Ax[i] *= c; }
     }
-    /* if no diagonal found, increment necessary storage counter */
-    if (!found) { newvals++; }
+    /* If no diagonal element found and the current column (row) can actually
+     * contain a diagonal element, increment the storage counter */
+    if (!found && j < M) { newvals++; }
   }
 
   /* At this point, A has the correctly updated values except for any new
@@ -677,7 +680,7 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
     }
 
     Ap[j + 1] += newvals;
-    if (!found)
+    if (!found && j < M)
     {
       /* This column (row) needs a diagonal element added */
       newvals--;
