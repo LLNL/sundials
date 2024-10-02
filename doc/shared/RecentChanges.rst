@@ -3,9 +3,13 @@
 **New Features and Enhancements**
 
 Added the :c:type:`SUNStepper` base class to represent a generic solution
-procedure for IVPs. This is used by the SplittingStep and ForcingStep modules of
-ARKODE. A SUNStepper can be created from an ARKstep memory block with the new
-function :c:func:`ARKodeCreateSUNStepper`.
+procedure for IVPs. This is used by the
+:ref:`SplittingStep <ARKODE.Usage.SplittingStep>` and
+:ref:`ForcingStep <ARKODE.Usage.ForcingStep>` modules of ARKODE. A SUNStepper
+can be created from an ARKODE memory block with the new function
+:c:func:`ARKodeCreateSUNStepper`. To enable interoperability with
+:c:type:`MRIStepInnerStepper`, the function
+:c:func:`MRIStepInnerStepper_CreateFromSUNStepper` was added.
 
 The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
 ``70`` and is now determined automatically by CMake. The previous default was
