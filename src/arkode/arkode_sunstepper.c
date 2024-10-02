@@ -52,22 +52,6 @@ static SUNErrCode arkSUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
   return arkSUNStepperEvolveHelper(stepper, t0, tout, y, tret, ARK_ONE_STEP);
 }
 
-static SUNErrCode arkSUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
-                                       sunrealtype tout, N_Vector y,
-                                       sunrealtype* tret)
-{
-  SUNFunctionBegin(stepper->sunctx);
-  /* extract the ARKODE memory struct */
-  void* arkode_mem;
-  SUNCheckCall(SUNStepper_GetContent(stepper, &arkode_mem));
-
-  /* try to evolve inner ODE */
-  stepper->last_flag = arkTryStep(arkode_mem, t0, tout, y, tret, NULL);
-  if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
-
-  return SUN_SUCCESS;
-}
-
 /*------------------------------------------------------------------------------
   Implementation of SUNStepperFullRhsFn to compute the full inner
   (fast) ODE IVP RHS.
@@ -162,9 +146,6 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   err = SUNStepper_SetOneStepFn(*stepper, arkSUNStepperOneStep);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
-
-  err = SUNStepper_SetTryStepFn(*stepper, arkSUNStepperTryStep);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   err = SUNStepper_SetFullRhsFn(*stepper, arkSUNStepperFullRhs);

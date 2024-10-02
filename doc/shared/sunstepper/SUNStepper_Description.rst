@@ -124,18 +124,6 @@ Stepping Functions
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector vout, sunrealtype* tret)
-
-   TODO(SBR): Someone more familiar with this method should write this summary
-
-   :param stepper: the stepper object.
-   :param t0: the initial time for the integration.
-   :param tout: the final time for the integration.
-   :param vout: on output, the state after a single internal step.
-   :param tret: the final time corresponding to the output value *vout*.
-   :return: A :c:type:`SUNErrCode` indicating success or failure.
-
-
 .. c:function:: SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR)
 
    This function resets the stepper state to the provided independent variable
@@ -266,16 +254,6 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_SetTryStepFn(SUNStepper stepper, SUNStepperTryStepFn fn)
-
-   This function attaches a :c:type:`SUNStepperTryStepFn` function to a
-   :c:type:`SUNStepper` object.
-
-   :param stepper: a stepper object.
-   :param fn: the :c:type:`SUNStepperTryStepFn` function to attach.
-   :return: A :c:type:`SUNErrCode` indicating success or failure.
-
-
 .. c:function:: SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn)
 
    This function attaches a :c:type:`SUNStepperFullRhsFn` function to a
@@ -335,12 +313,6 @@ abstract base class.
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_OneStep`.
-
-
-.. c:type:: SUNErrCode (*SUNStepperTryStepFn)(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
-
-   This type represents a function with the signature of
-   :c:func:`SUNStepper_TryStep`.
 
 
 .. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, int mode)
