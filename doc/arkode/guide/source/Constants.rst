@@ -538,7 +538,7 @@ contains the ARKODE output constants.
    | :index:`ARK_STEPPER_UNSUPPORTED`    | -48  | An operation was not supported by the current              |
    |                                     |      | time-stepping module.                                      |
    +-------------------------------------+------+------------------------------------------------------------+
-   | :index:`ARK_ADJ_RECOMPUTE_FAIL`     | -49  | An occurred recomputing steps during the adjoint           |
+   | :index:`ARK_ADJ_RECOMPUTE_FAIL`     | -50  | An occurred recomputing steps during the adjoint           |
    |                                     |      | integration.                                               |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
