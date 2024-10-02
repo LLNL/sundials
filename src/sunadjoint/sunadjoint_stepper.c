@@ -64,8 +64,8 @@ SUNErrCode SUNAdjointStepper_Create(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
-                                    sunrealtype tf)
+SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector y0, sunrealtype t0,
+                                    N_Vector sf, sunrealtype tf)
 {
   SUNFunctionBegin(adj->sunctx);
   adj->tf         = tf;
@@ -79,6 +79,7 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
   adj->nrecompute = 0;
   adj->nst        = 0;
   SUNStepper_Reset(adj->adj_sunstepper, tf, sf, 0);
+  SUNStepper_Reset(adj->fwd_sunstepper, t0, y0, 0);
   return SUN_SUCCESS;
 }
 
@@ -154,8 +155,12 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
   adj_stepper->nrecompute++;
 
   if (fwd_stepper->last_flag < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
-  else if (fwd_stepper->last_flag > 0) { retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP; }
-  fprintf(stderr, ">>> last_flag=%d\n", fwd_stepper->last_flag);
+  else if (fwd_stepper->last_flag > 1)
+  {
+     /* if last_flags is not a successful (0) or tstop (1) return,
+        we do not have a way to handle it */
+     retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP;
+  }
 
   SUNCheckCall(
     SUNAdjointCheckpointScheme_EnableDense(adj_stepper->checkpoint_scheme, 0));

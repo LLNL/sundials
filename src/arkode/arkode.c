@@ -1368,6 +1368,9 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
        and/or the stepper initialization function in arkInitialSetup */
     ark_mem->call_fullrhs = SUNFALSE;
 
+    /* Adjoint related */
+    ark_mem->checkpoint_step_idx = 0;
+
     /* Indicate that initialization has not been done before */
     ark_mem->initialized = SUNFALSE;
   }

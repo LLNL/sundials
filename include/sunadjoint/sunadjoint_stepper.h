@@ -57,7 +57,8 @@ SUNErrCode SUNAdjointStepper_Create(
   SUNContext sunctx, SUNAdjointStepper* adj_stepper);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf,
+SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector y0,
+                                    sunrealtype t0, N_Vector sf,
                                     sunrealtype tf);
 
 SUNDIALS_EXPORT

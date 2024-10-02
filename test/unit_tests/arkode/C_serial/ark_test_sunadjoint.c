@@ -369,7 +369,7 @@ int main(int argc, char* argv[])
   }
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
-  SUNAdjointStepper_ReInit(adj_stepper, sf, tf);
+  SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
   SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
   SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, jvp, parameter_jvp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
@@ -389,7 +389,7 @@ int main(int argc, char* argv[])
   }
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
-  SUNAdjointStepper_ReInit(adj_stepper, sf, tf);
+  SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
   SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, NULL, NULL);
   SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, vjp, parameter_vjp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
