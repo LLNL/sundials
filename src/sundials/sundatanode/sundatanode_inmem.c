@@ -464,9 +464,6 @@ SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node)
 /* This function is the callback provided to the child hashmap as the destroy function. */
 static void sunDataNodeFreeKeyValue(SUNDIALS_MAYBE_UNUSED SUNHashMapKeyValue* kv_ptr)
 {
-  // if (!kv_ptr || !(*kv_ptr)) { return; }
-  // SUNDataNode value = (SUNDataNode)(*kv_ptr)->value;
-  // SUNDataNode_Destroy_InMem(&value);
   /* Do nothing. We want the user of the class to have to call SUNDataNode_Destroy
      for each SUNDataNode, even child nodes.*/
   return;
@@ -475,8 +472,6 @@ static void sunDataNodeFreeKeyValue(SUNDIALS_MAYBE_UNUSED SUNHashMapKeyValue* kv
 /* This function is the callback provided to the child stlvector as the destroy function. */
 static void sunDataNodeFreeValue(SUNDIALS_MAYBE_UNUSED SUNDataNode* nodeptr)
 {
-  // if (!nodeptr || !(*nodeptr)) { return; }
-  // SUNDataNode_Destroy_InMem(nodeptr);
   /* Do nothing. We want the user of the class to have to call SUNDataNode_Destroy
      for each SUNDataNode, even child nodes.*/
   return;
