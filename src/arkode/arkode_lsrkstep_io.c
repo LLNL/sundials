@@ -515,11 +515,11 @@ int lsrkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
 }
 
 /*---------------------------------------------------------------
-  lsrkStep_PrintAllStats:
+  lsrkSTSStep_PrintAllStats:
 
   Prints integrator statistics for STS methods
   ---------------------------------------------------------------*/
-int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
+int lsrkSTSStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
 {
   ARKodeLSRKStepMem step_mem;
   int retval;
@@ -536,8 +536,6 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   {
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-    fprintf(outfile, "RHS fn evals for Dom. Eigs.  = %ld\n",
-            step_mem->dom_eig_nfe);
     fprintf(outfile, "Number of dom_eig updates    = %ld\n",
             step_mem->dom_eig_num_evals);
     fprintf(outfile, "Avr. num. of stages used     = %.2f\n", avg_stage);
@@ -552,7 +550,6 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, ",RHS fn evals for Dom. Eigs.,%ld", step_mem->dom_eig_nfe);
     fprintf(outfile, ",Number of dom_eig update calls,%ld",
             step_mem->dom_eig_num_evals);
     fprintf(outfile, ",Avr. num. of stages used,%.2f", avg_stage);
@@ -592,12 +589,13 @@ int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
   {
   case SUN_OUTPUTFORMAT_TABLE:
     fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-    fprintf(outfile, "Current stages used          = %d\n", step_mem->req_stages);
+    fprintf(outfile, "Dom eig fn evals             = %ld\n", step_mem->dom_eig_num_evals);
+    fprintf(outfile, "Number of stages used        = %d\n", step_mem->req_stages);
     break;
   case SUN_OUTPUTFORMAT_CSV:
     fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, ",Current stages used,%d", step_mem->req_stages);
-
+    fprintf(outfile, ",Dom eig fn evals,%ld", step_mem->dom_eig_num_evals);
+    fprintf(outfile, ",Number of stages used,%d", step_mem->req_stages);
     fprintf(outfile, "\n");
     break;
   default:
@@ -628,23 +626,19 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   {
   case ARKODE_LSRK_RKC_2:
     fprintf(fp, "LSRKStep RKC time step module parameters:\n");
-    fprintf(fp, "  Method order %i\n", 2);
     break;
   case ARKODE_LSRK_RKL_2:
     fprintf(fp, "LSRKStep RKL time step module parameters:\n");
-    fprintf(fp, "  Method order %i\n", 2);
     break;
   case ARKODE_LSRK_SSP_S_2:
     fprintf(fp, "LSRKStep SSP(s,2) time step module parameters:\n");
-    fprintf(fp, "  Method order %i\n", 2);
     break;
   case ARKODE_LSRK_SSP_S_3:
     fprintf(fp, "LSRKStep SSP(s,3) time step module parameters:\n");
-    fprintf(fp, "  Method order %i\n", 3);
     break;
   case ARKODE_LSRK_SSP_10_4:
     fprintf(fp, "LSRKStep SSP(10,4) time step module parameters:\n");
-    fprintf(fp, "  Method order %i\n", 4);
+    
     break;
 
   default:
@@ -652,6 +646,38 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
                     "Invalid method option.");
     return (ARK_ILL_INPUT);
   }
+
+  fprintf(fp, "  Method order %i\n", step_mem->q);
+  fprintf(fp, "  Embedding order %i\n", step_mem->p);
+
+  switch (step_mem->is_SSP)
+  {
+  case SUNTRUE:
+    fprintf(fp, "  Number of stages used = %i\n", step_mem->req_stages);
+    break;
+  case SUNFALSE:
+    fprintf(fp, "  Maximum number of stages used = %i\n", step_mem->stage_max);
+    fprintf(fp, "  Num of steps that successfully used dom eig = %i\n", step_mem->dom_eig_nst);
+    fprintf(fp, "  Current real part of the dom eig = %.2f\n", step_mem->lambdaR);
+    fprintf(fp, "  Current imag part of the dom eig = %.2f\n", step_mem->lambdaI);
+    fprintf(fp, "  Current spectral radius = %.2f\n", step_mem->spectral_radius);
+    fprintf(fp, "  Current number of required stages = %i\n", step_mem->req_stages);
+    fprintf(fp, "  Maximum spectral radius = %.2f\n", step_mem->spectral_radius_max);
+    fprintf(fp, "  Minimum spectral radius = %.2f\n", step_mem->spectral_radius_min);
+    fprintf(fp, "  Safety factor for the dom eig = %.2f\n", step_mem->dom_eig_safety);
+    fprintf(fp, "  Max num of successful steps before new dom eig update = %i\n", step_mem->dom_eig_freq);
+    fprintf(fp, "  Fixed num of steps before new dom eig update = %i\n", step_mem->dom_eig_freq);
+    fprintf(fp, "  Flag to indicate new dom eig is needed = %d\n", step_mem->dom_eig_update);
+    fprintf(fp, "  Flag to indicate Jacobian is constant = %d\n", step_mem->const_Jac);
+    fprintf(fp, "  Flag to indicate dom eig is current = %d\n", step_mem->dom_eig_is_current);
+    fprintf(fp, "  Flag to indicate dom eig is current = %d\n", step_mem->dom_eig_is_current);
+    break;
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid method type.");
+    return (ARK_ILL_INPUT);
+  }
+
   fprintf(fp, "\n");
 
   return (ARK_SUCCESS);

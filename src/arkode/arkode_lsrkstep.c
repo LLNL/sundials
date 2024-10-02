@@ -94,11 +94,11 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ark_mem->step_init              = lsrkStep_Init;
   ark_mem->step_fullrhs           = lsrkStep_FullRHS;
   ark_mem->step                   = lsrkStep_TakeStepRKC;
-  ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
+  ark_mem->step_printallstats     = lsrkSTSStep_PrintAllStats;
   ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
   ark_mem->step_resize            = lsrkStep_Resize;
   ark_mem->step_free              = lsrkStep_Free;
-  ark_mem->step_printmem          = lsrkStep_PrintMem;
+  ark_mem->step_printmem          = lsrkStep_PrintMem; 
   ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
   ark_mem->step_getestlocalerrors = lsrkStep_GetEstLocalErrors;
   ark_mem->step_mem               = (void*)step_mem;
@@ -119,7 +119,6 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   /* Initialize all the counters */
   step_mem->nfe               = 0;
-  step_mem->dom_eig_nfe       = 0;
   step_mem->stage_max         = 0;
   step_mem->dom_eig_num_evals = 0;
   step_mem->stage_max_limit   = (int)SUNRround(
@@ -127,6 +126,7 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   step_mem->stage_max_limit =
     (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
   step_mem->dom_eig_nst = 0;
+  step_mem->is_SSP == SUNFALSE;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
@@ -207,7 +207,7 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ark_mem->step_init              = lsrkStep_Init;
   ark_mem->step_fullrhs           = lsrkStep_FullRHS;
   ark_mem->step                   = lsrkStep_TakeStepSSPs2;
-  ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
+  ark_mem->step_printallstats     = lsrkSTSStep_PrintAllStats;
   ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
   ark_mem->step_resize            = lsrkStep_Resize;
   ark_mem->step_free              = lsrkStep_Free;
@@ -232,7 +232,6 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 
   /* Initialize all the counters */
   step_mem->nfe               = 0;
-  step_mem->dom_eig_nfe       = 0;
   step_mem->stage_max         = 0;
   step_mem->dom_eig_num_evals = 0;
   step_mem->stage_max_limit =
@@ -240,6 +239,7 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   step_mem->stage_max_limit =
     (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
   step_mem->dom_eig_nst = 0;
+  step_mem->is_SSP = SUNTRUE;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
@@ -317,7 +317,6 @@ int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
 
   /* Initialize all the counters, flags and stats */
   step_mem->nfe                 = 0;
-  step_mem->dom_eig_nfe         = 0;
   step_mem->dom_eig_num_evals   = 0;
   step_mem->stage_max           = 0;
   step_mem->spectral_radius_max = 0;
@@ -389,7 +388,6 @@ int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
 
   /* Initialize all the counters, flags and stats */
   step_mem->nfe                 = 0;
-  step_mem->dom_eig_nfe         = 0;
   step_mem->dom_eig_num_evals   = 0;
   step_mem->stage_max           = 0;
   step_mem->spectral_radius_max = 0;
@@ -496,39 +494,76 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return; }
 
-  /* output integer quantities */
-  fprintf(outfile, "LSRKStep: req_stages          = %i\n", step_mem->req_stages);
-  fprintf(outfile, "LSRKStep: dom_eig_nst         = %i\n", step_mem->dom_eig_nst);
-  fprintf(outfile, "LSRKStep: stage_max           = %i\n", step_mem->stage_max);
-  fprintf(outfile, "LSRKStep: stage_max_limit     = %i\n",
-          step_mem->stage_max_limit);
-  fprintf(outfile, "LSRKStep: dom_eig_freq        = %i\n",
-          step_mem->dom_eig_freq);
+  /* print integrator parameters to file */
+  switch (step_mem->LSRKmethod)
+  {
+  case ARKODE_LSRK_RKC_2:
+    fprintf(outfile, "LSRKStep RKC time step module parameters:\n");
+    break;
+  case ARKODE_LSRK_RKL_2:
+    fprintf(outfile, "LSRKStep RKL time step module parameters:\n");
+    break;
+  case ARKODE_LSRK_SSP_S_2:
+    fprintf(outfile, "LSRKStep SSP(s,2) time step module parameters:\n");
+    break;
+  case ARKODE_LSRK_SSP_S_3:
+    fprintf(outfile, "LSRKStep SSP(s,3) time step module parameters:\n");
+    break;
+  case ARKODE_LSRK_SSP_10_4:
+    fprintf(outfile, "LSRKStep SSP(10,4) time step module parameters:\n");
+    break;
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid method option.");
+    return (ARK_ILL_INPUT);
+  }
 
-  /* output long integer quantities */
-  fprintf(outfile, "LSRKStep: nfe                 = %li\n", step_mem->nfe);
-  fprintf(outfile, "LSRKStep: dom_eig_nfe         = %li\n",
-          step_mem->dom_eig_nfe);
-  fprintf(outfile, "LSRKStep: dom_eig_num_evals   = %li\n",
-          step_mem->dom_eig_num_evals);
+  fprintf(outfile, "Method order %i\n", step_mem->q);
+  fprintf(outfile, "Embedding order %i\n", step_mem->p);
 
-  /* output sunrealtype quantities */
-  fprintf(outfile, "LSRKStep: dom_eig             = %f + i%f\n",
-          step_mem->lambdaR, step_mem->lambdaI);
-  fprintf(outfile, "LSRKStep: spectral_radius     = %f\n",
-          step_mem->spectral_radius);
-  fprintf(outfile, "LSRKStep: spectral_radius_max = %f\n",
-          step_mem->spectral_radius_max);
-  fprintf(outfile, "LSRKStep: spectral_radius_min = %f\n",
-          step_mem->spectral_radius_min);
-  fprintf(outfile, "LSRKStep: dom_eig_safety        = %f\n",
-          step_mem->dom_eig_safety);
+  switch (step_mem->is_SSP)
+  {
+  case SUNTRUE:
+    fprintf(outfile, "Number of stages used = %i\n", step_mem->req_stages);
+    break;
+  case SUNFALSE:
+    /* output integer quantities */
+    fprintf(outfile, "LSRKStep: req_stages          = %i\n", step_mem->req_stages);
+    fprintf(outfile, "LSRKStep: dom_eig_nst         = %i\n", step_mem->dom_eig_nst);
+    fprintf(outfile, "LSRKStep: stage_max           = %i\n", step_mem->stage_max);
+    fprintf(outfile, "LSRKStep: stage_max_limit     = %i\n",
+            step_mem->stage_max_limit);
+    fprintf(outfile, "LSRKStep: dom_eig_freq        = %i\n",
+            step_mem->dom_eig_freq);
 
-  /* output sunbooleantype quantities */
-  fprintf(outfile, "LSRKStep: dom_eig_update         = %d\n",
-          step_mem->dom_eig_update);
-  fprintf(outfile, "LSRKStep: dom_eig_is_current  = %d\n",
-          step_mem->dom_eig_is_current);
+    /* output long integer quantities */
+    fprintf(outfile, "LSRKStep: nfe                 = %li\n", step_mem->nfe);
+    fprintf(outfile, "LSRKStep: dom_eig_num_evals   = %li\n",
+            step_mem->dom_eig_num_evals);
+
+    /* output sunrealtype quantities */
+    fprintf(outfile, "LSRKStep: dom_eig             = %f + i%f\n",
+            step_mem->lambdaR, step_mem->lambdaI);
+    fprintf(outfile, "LSRKStep: spectral_radius     = %f\n",
+            step_mem->spectral_radius);
+    fprintf(outfile, "LSRKStep: spectral_radius_max = %f\n",
+            step_mem->spectral_radius_max);
+    fprintf(outfile, "LSRKStep: spectral_radius_min = %f\n",
+            step_mem->spectral_radius_min);
+    fprintf(outfile, "LSRKStep: dom_eig_safety      = %f\n",
+            step_mem->dom_eig_safety);
+
+    /* output sunbooleantype quantities */
+    fprintf(outfile, "LSRKStep: dom_eig_update      = %d\n",
+            step_mem->dom_eig_update);
+    fprintf(outfile, "LSRKStep: dom_eig_is_current  = %d\n",
+            step_mem->dom_eig_is_current);
+    break;
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid method type.");
+    return (ARK_ILL_INPUT);
+  }
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */

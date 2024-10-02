@@ -54,7 +54,6 @@ typedef struct ARKodeLSRKStepMemRec
 
   /* Counters and stats*/
   long int nfe;               /* num fe calls       */
-  long int dom_eig_nfe;       /* num fe calls for spectral dom_eig      */
   long int dom_eig_num_evals; /* num of dom_eig computations   */
   int stage_max;              /* num of max stages used      */
   int stage_max_limit;        /* max allowed num of stages     */
@@ -98,7 +97,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                             int* nflagPtr);
 int lsrkStep_SetDefaults(ARKodeMem ark_mem);
-int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
+int lsrkSTSStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
 int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
                               SUNOutputFormat fmt);
 int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
