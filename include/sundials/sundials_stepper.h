@@ -34,22 +34,22 @@ typedef int (*SUNJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
 typedef _SUNDIALS_STRUCT_ SUNStepper_* SUNStepper;
 
 typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype t0,
-                                         sunrealtype tout, N_Vector y,
+                                         sunrealtype tout, N_Vector vout,
                                          sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0,
-                                          sunrealtype tout, N_Vector y,
+                                          sunrealtype tout, N_Vector vout,
                                           sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperTryStepFn)(SUNStepper stepper, sunrealtype t0,
-                                          sunrealtype tout, N_Vector y,
+                                          sunrealtype tout, N_Vector vout,
                                           sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
-                                          N_Vector y, N_Vector f, int mode);
+                                          N_Vector v, N_Vector f);
 
 typedef SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR,
-                                        N_Vector yR);
+                                        N_Vector vR);
 
 typedef SUNErrCode (*SUNStepperSetStopTimeFn)(SUNStepper stepper,
                                               sunrealtype tstop);
@@ -66,10 +66,39 @@ SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Destroy(SUNStepper* stepper);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,
+                             sunrealtype tout, N_Vector vout, sunrealtype* tret);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
+                              sunrealtype tout, N_Vector vout, sunrealtype* tret);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
+                              sunrealtype tout, N_Vector vout, sunrealtype* tret);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift,
+                                 sunrealtype tscale, N_Vector* forcing,
+                                 int nforcing);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetContent(SUNStepper stepper, void* content);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_GetContent(SUNStepper stepper, void** content);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_SetLastFlag(SUNStepper stepper, int last_flag);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_GetLastFlag(SUNStepper stepper, int* last_flag);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn);
@@ -92,29 +121,6 @@ SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper,
 
 SUNDIALS_EXPORT SUNErrCode SUNStepper_SetForcingFn(SUNStepper stepper,
                                                    SUNStepperSetForcingFn fn);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,
-                             sunrealtype tout, N_Vector y, sunrealtype* tret);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift,
-                                 sunrealtype tscale, N_Vector* forcing,
-                                 int nforcing);
 
 #ifdef __cplusplus
 }

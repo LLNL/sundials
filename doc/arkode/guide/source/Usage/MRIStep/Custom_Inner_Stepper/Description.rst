@@ -79,6 +79,34 @@ Creating and Destroying an Object
       for details on how to attach member data and method function pointers.
 
 
+.. c:function:: int MRIStepInnerStepper_CreateFromSUNStepper(SUNStepper sunstepper, MRIStepInnerStepper* stepper)
+
+   This utility function wraps a :c:type:`SUNStepper` as an
+   :c:type:`MRIStepInnerStepper`.
+
+   **Arguments:**
+      * ``sunctx`` -- the SUNDIALS simulation context.
+      * ``sunstepper`` -- the c:type:`SUNStepper` to wrap.
+      * ``stepper`` -- a pointer to an MRI inner stepper object.
+
+   **Return value:**
+      * ARK_SUCCESS if successful
+      * ARK_MEM_FAIL if a memory allocation error occurs
+
+   **Example usage:**
+
+   .. code-block:: C
+
+      SUNStepper sunstepper = NULL;
+      SUNStepper_Create(ctx, &sunstepper);
+      /* Attach content and function to the SUNStepper... */
+
+      MRIStepInnerStepper inner_stepper = NULL;
+      flag = MRIStepInnerStepper_Create(sunstepper, &inner_stepper);
+
+   .. versionadded:: x.y.z
+
+
 .. c:function:: int MRIStepInnerStepper_Free(MRIStepInnerStepper *stepper)
 
    This function destroys an :c:type:`MRIStepInnerStepper` object.
