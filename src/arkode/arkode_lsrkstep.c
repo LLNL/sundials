@@ -796,6 +796,22 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   step_mem->stage_max = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepRKC",
+                     "start-stage",
+                     "step = %li, stage = 0, h = %" RSYM ", tcur = %" RSYM,
+                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#endif
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepRKC",
+                     "stage", "z_0(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepRKC",
+                     "stage RHS", "F(:) =", "");
+  N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
      compute h0). For subsequent steps treat this RHS evaluation as an
@@ -852,12 +868,25 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     nu   = -bj / bjm2;
     mus  = mu * w1 / w0;
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepRKC", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, j, ark_mem->h, ark_mem->tcur + ark_mem->h * thjm1);
+#endif
+
     /* Use the ycur array for temporary storage here */
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h * thjm1, ark_mem->tempv2,
                           ark_mem->ycur, ark_mem->user_data);
     step_mem->nfe++;
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepRKC", "stage RHS", "F_%i(:) =", j);
+    N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+#endif
 
     cvals[0] = mus * ark_mem->h;
     Xvecs[0] = ark_mem->ycur;
@@ -873,6 +902,14 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
                                   ark_mem->ycur);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * thjm1, ark_mem->ycur,
+                                     ark_mem->user_data);
+      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    }
 
     thj = mu * thjm1 + nu * thjm2 + mus * (ONE - ajm1);
 
@@ -937,6 +974,19 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
     lsrkStep_DomEigUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepRKC",
+                     "updated solution", "ycur(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+#endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepRKC",
+                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
+#endif
+
   return (ARK_SUCCESS);
 }
 
@@ -1020,6 +1070,22 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   step_mem->stage_max = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepRKL",
+                     "start-stage",
+                     "step = %li, stage = 0, h = %" RSYM ", tcur = %" RSYM,
+                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#endif
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepRKL",
+                     "stage", "z_0(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepRKL",
+                     "stage RHS", "F(:) =", "");
+  N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
      compute h0). For subsequent steps treat this RHS evaluation as an
@@ -1060,12 +1126,25 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     mus  = w1 * mu;
     cj   = temj * w1 / FOUR;
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepRKL", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, j, ark_mem->h, ark_mem->tcur + ark_mem->h * cjm1);
+#endif
+
     /* Use the ycur array for temporary storage here */
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h * cjm1, ark_mem->tempv2,
                           ark_mem->ycur, ark_mem->user_data);
     step_mem->nfe++;
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepRKL", "stage RHS", "F_%i(:) =", j);
+    N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+#endif
 
     cvals[0] = mus * ark_mem->h;
     Xvecs[0] = ark_mem->ycur;
@@ -1081,6 +1160,14 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
                                   ark_mem->ycur);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * cjm1, ark_mem->ycur,
+                                     ark_mem->user_data);
+      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    }
 
     /* Shift the data for the next stage */
     if (j < step_mem->req_stages)
@@ -1136,6 +1223,19 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
     lsrkStep_DomEigUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepRKL",
+                     "updated solution", "ycur(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+#endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepRKL",
+                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
+#endif
+
   return (ARK_SUCCESS);
 }
 
@@ -1193,6 +1293,22 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     bt3 = (rs - ONE) / (rs * rs);
   }
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSPs2",
+                     "start-stage",
+                     "step = %li, stage = 0, h = %" RSYM ", tcur = %" RSYM,
+                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#endif
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSPs2",
+                     "stage", "z_0(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSPs2",
+                     "stage RHS", "F(:) =", "");
+  N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
      compute h0). For subsequent steps treat this RHS evaluation as an
@@ -1215,6 +1331,14 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   /* Evaluate stages j = 2,...,step_mem->req_stages - 1 */
   for (int j = 2; j < step_mem->req_stages; j++)
   {
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs2", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, j, ark_mem->h, ark_mem->tcur + ((sunrealtype)j - ONE) * sm1inv * ark_mem->h);
+#endif
+
     retval =
       step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE) * sm1inv * ark_mem->h,
                    ark_mem->ycur, ark_mem->tempv2, ark_mem->user_data);
@@ -1222,17 +1346,45 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
 
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs2", "stage RHS", "F_%i(:) =", j);
+    N_VPrintFile(ark_mem->tempv2, ARK_LOGGER->debug_fp);
+#endif
+
     N_VLinearSum(ONE, ark_mem->ycur, sm1inv * ark_mem->h, ark_mem->tempv2,
                  ark_mem->ycur);
     N_VLinearSum(ONE, ark_mem->tempv1, bt2 * ark_mem->h, ark_mem->tempv2,
                  ark_mem->tempv1);
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - ONE) * sm1inv * ark_mem->h, 
+                                     ark_mem->ycur, ark_mem->user_data);
+      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    }
   }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs2", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, step_mem->req_stages, ark_mem->h, ark_mem->tcur + ark_mem->h);
+#endif
+
   /* Evaluate the last stage for j = step_mem->req_stages */
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                         ark_mem->tempv2, ark_mem->user_data);
   step_mem->nfe++;
   if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   if (retval > 0) { return (RHSFUNC_RECVR); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs2", "stage RHS", "F_%i(:) =", step_mem->req_stages);
+    N_VPrintFile(ark_mem->tempv2, ARK_LOGGER->debug_fp);
+#endif
 
   cvals[0] = ONE / (sm1inv * rs);
   Xvecs[0] = ark_mem->ycur;
@@ -1246,6 +1398,14 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   N_VLinearSum(ONE, ark_mem->tempv1, bt3 * ark_mem->h, ark_mem->tempv2,
                ark_mem->tempv1);
+
+  /* apply user-supplied stage postprocessing function (if supplied) */
+  if (ark_mem->ProcessStage != NULL)
+  {
+    retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h, 
+                                   ark_mem->ycur, ark_mem->user_data);
+    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+  }
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
@@ -1263,6 +1423,18 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
   }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSPs2",
+                     "updated solution", "ycur(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+#endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSPs2",
+                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
+#endif
 
   return (ARK_SUCCESS);
 }
@@ -1309,6 +1481,22 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   sunrealtype rat = ONE / (rs - rn);
   int in          = (int)SUNRround(rn);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSPs3",
+                     "start-stage",
+                     "step = %li, stage = 0, h = %" RSYM ", tcur = %" RSYM,
+                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#endif
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSPs3",
+                     "stage", "z_0(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSPs3",
+                     "stage RHS", "F(:) =", "");
+  N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
      compute h0). For subsequent steps treat this RHS evaluation as an
@@ -1331,6 +1519,14 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   /* Evaluate stages j = 2,...,step_mem->req_stages */
   for (int j = 2; j <= (int)((in - 1) * (in - 2) / 2); j++)
   {
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs3", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, j, ark_mem->h, ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h);
+#endif
+
     retval =
       step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h,
                    ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
@@ -1338,15 +1534,39 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
 
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS", "F_%i(:) =", j);
+    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
     N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, step_mem->Fe,
                  ark_mem->ycur);
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
                  ark_mem->tempv1);
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h, 
+                                    ark_mem->ycur, ark_mem->user_data);
+      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    }
   }
+
   N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
+  
   for (int j = ((in - 1) * (in - 2) / 2 + 1); j <= (int)(in * (in + 1) / 2 - 1);
        j++)
   {
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs3", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, j, ark_mem->h, ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h);
+#endif
+
     retval =
       step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h,
                    ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
@@ -1354,17 +1574,45 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
 
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS", "F_%i(:) =", j);
+    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
     N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, step_mem->Fe,
                  ark_mem->ycur);
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
                  ark_mem->tempv1);
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h, 
+                                    ark_mem->ycur, ark_mem->user_data);
+      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    }
   }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs3", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, (int)(in * (in + 1) / 2), ark_mem->h, ark_mem->tcur + rat * (rn * (rn + ONE) / TWO - ONE) * ark_mem->h);
+#endif
+
   retval = step_mem->fe(ark_mem->tcur +
                           rat * (rn * (rn + ONE) / TWO - ONE) * ark_mem->h,
                         ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
   step_mem->nfe++;
   if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   if (retval > 0) { return (RHSFUNC_RECVR); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS", "F_%i(:) =", (int)(in * (in + 1) / 2);
+    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
 
   cvals[0] = (rn - ONE) / (TWO * rn - ONE);
   Xvecs[0] = ark_mem->ycur;
@@ -1379,8 +1627,24 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
                ark_mem->tempv1);
 
+  /* apply user-supplied stage postprocessing function (if supplied) */
+  if (ark_mem->ProcessStage != NULL)
+  {
+    retval = ark_mem->ProcessStage(ark_mem->tcur + rat * (rn * (rn + ONE) / TWO - ONE) * ark_mem->h, 
+                                   ark_mem->ycur, ark_mem->user_data);
+    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+  }
+
   for (int j = (in * (in + 1) / 2 + 1); j <= step_mem->req_stages; j++)
   {
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs3", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, j, ark_mem->h, ark_mem->tcur + ((sunrealtype)j - rn - ONE) * rat * ark_mem->h);
+#endif
+
     retval = step_mem->fe(ark_mem->tcur +
                             ((sunrealtype)j - rn - ONE) * rat * ark_mem->h,
                           ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
@@ -1388,10 +1652,24 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
 
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS", "F_%i(:) =", j;
+    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
     N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, step_mem->Fe,
                  ark_mem->ycur);
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
                  ark_mem->tempv1);
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - rn - ONE) * rat * ark_mem->h, 
+                                    ark_mem->ycur, ark_mem->user_data);
+      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    }
   }
 
   /* Compute yerr (if step adaptivity enabled) */
@@ -1410,6 +1688,18 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
   }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSPs3",
+                     "updated solution", "ycur(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+#endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSPs3",
+                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
+#endif
 
   return (ARK_SUCCESS);
 }
@@ -1454,6 +1744,22 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   sunrealtype rs = SUN_RCONST(4.0);
   sunrealtype p5 = SUN_RCONST(0.5);
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSP43",
+                     "start-stage",
+                     "step = %li, stage = 0, h = %" RSYM ", tcur = %" RSYM,
+                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#endif
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSP43",
+                     "stage", "z_0(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSP43",
+                     "stage RHS", "F(:) =", "");
+  N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
      compute h0). For subsequent steps treat this RHS evaluation as an
@@ -1473,21 +1779,63 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * p5, ark_mem->fn, ark_mem->ycur);
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h / rs, ark_mem->fn, ark_mem->tempv1);
 
+  /* apply user-supplied stage postprocessing function (if supplied) */
+  if (ark_mem->ProcessStage != NULL)
+  {
+    retval = ark_mem->ProcessStage(ark_mem->tn, 
+                                  ark_mem->ycur, ark_mem->user_data);
+    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+  }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP43", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, 2, ark_mem->h, ark_mem->tcur + ark_mem->h * p5);
+#endif
+
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h * p5, ark_mem->ycur,
                         step_mem->Fe, ark_mem->user_data);
   step_mem->nfe++;
   if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   if (retval > 0) { return (RHSFUNC_RECVR); }
 
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 2;
+    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
   N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, step_mem->Fe, ark_mem->ycur);
   N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
                ark_mem->tempv1);
+
+  /* apply user-supplied stage postprocessing function (if supplied) */
+  if (ark_mem->ProcessStage != NULL)
+  {
+    retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * p5, 
+                                  ark_mem->ycur, ark_mem->user_data);
+    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+  }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP43", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, 3, ark_mem->h, ark_mem->tcur + ark_mem->h);
+#endif
 
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur, step_mem->Fe,
                         ark_mem->user_data);
   step_mem->nfe++;
   if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   if (retval > 0) { return (RHSFUNC_RECVR); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 3;
+    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
 
   cvals[0] = ONE / THREE;
   Xvecs[0] = ark_mem->ycur;
@@ -1502,15 +1850,44 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
                ark_mem->tempv1);
 
+  /* apply user-supplied stage postprocessing function (if supplied) */
+  if (ark_mem->ProcessStage != NULL)
+  {
+    retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h, 
+                                  ark_mem->ycur, ark_mem->user_data);
+    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+  }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP43", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, 4, ark_mem->h, ark_mem->tcur + ark_mem->h * p5);
+#endif
+
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h * p5, ark_mem->ycur,
                         step_mem->Fe, ark_mem->user_data);
   step_mem->nfe++;
   if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   if (retval > 0) { return (RHSFUNC_RECVR); }
 
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 4;
+    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
   N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, step_mem->Fe, ark_mem->ycur);
   N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
                ark_mem->tempv1);
+
+  /* apply user-supplied stage postprocessing function (if supplied) */
+  if (ark_mem->ProcessStage != NULL)
+  {
+    retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * p5,
+                                  ark_mem->ycur, ark_mem->user_data);
+    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+  }
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
@@ -1528,6 +1905,18 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
   }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSP43",
+                     "updated solution", "ycur(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+#endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSP43",
+                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
+#endif
 
   return (ARK_SUCCESS);
 }
@@ -1571,6 +1960,22 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   sunrealtype* cvals = step_mem->cvals;
   N_Vector* Xvecs    = step_mem->Xvecs;
 
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSP104",
+                     "start-stage",
+                     "step = %li, stage = 0, h = %" RSYM ", tcur = %" RSYM,
+                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
+#endif
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSP104",
+                     "stage", "z_0(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSP104",
+                     "stage RHS", "F(:) =", "");
+  N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
      compute h0). For subsequent steps treat this RHS evaluation as an
@@ -1597,6 +2002,14 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   /* Evaluate stages j = 2,...,step_mem->req_stages */
   for (int j = 2; j <= 5; j++)
   {
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP104", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, j, ark_mem->h, ark_mem->tcur + ((sunrealtype)j - ONE) * onesixth * ark_mem->h);
+#endif
+
     retval = step_mem->fe(ark_mem->tcur +
                             ((sunrealtype)j - ONE) * onesixth * ark_mem->h,
                           ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
@@ -1604,12 +2017,26 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
 
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", j;
+    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
+
     N_VLinearSum(ONE, ark_mem->ycur, onesixth * ark_mem->h, step_mem->Fe,
                  ark_mem->ycur);
     if (j == 4)
     {
       N_VLinearSum(ONE, ark_mem->tempv1, SUN_RCONST(0.3) * ark_mem->h,
                    step_mem->Fe, ark_mem->tempv1);
+    }
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - ONE) * onesixth * ark_mem->h,
+                                    ark_mem->ycur, ark_mem->user_data);
+      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
     }
   }
   N_VLinearSum(SUN_RCONST(1.0) / SUN_RCONST(25.0), ark_mem->tempv2,
@@ -1619,12 +2046,26 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                ark_mem->ycur, ark_mem->ycur);
   for (int j = 6; j <= 9; j++)
   {
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP104", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, j, ark_mem->h, ark_mem->tcur + ((sunrealtype)j - FOUR) * onesixth * ark_mem->h);
+#endif
+
     retval = step_mem->fe(ark_mem->tcur +
                             ((sunrealtype)j - FOUR) * onesixth * ark_mem->h,
                           ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
     step_mem->nfe++;
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", j;
+    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
 
     N_VLinearSum(ONE, ark_mem->ycur, onesixth * ark_mem->h, step_mem->Fe,
                  ark_mem->ycur);
@@ -1639,13 +2080,34 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       N_VLinearSum(ONE, ark_mem->tempv1, SUN_RCONST(0.3) * ark_mem->h,
                    step_mem->Fe, ark_mem->tempv1);
     }
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - FOUR) * onesixth * ark_mem->h,
+                                    ark_mem->ycur, ark_mem->user_data);
+      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    }
   }
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP104", "start-stage",
+                       "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
+                       ark_mem->nst, 10, ark_mem->h, ark_mem->tcur + ark_mem->h);
+#endif
 
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur, step_mem->Fe,
                         ark_mem->user_data);
   step_mem->nfe++;
   if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   if (retval > 0) { return (RHSFUNC_RECVR); }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", 10;
+    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+#endif
 
   cvals[0] = SUN_RCONST(0.6);
   Xvecs[0] = ark_mem->ycur;
@@ -1656,6 +2118,14 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
   retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
                                 ark_mem->ycur);
+
+  /* apply user-supplied stage postprocessing function (if supplied) */
+  if (ark_mem->ProcessStage != NULL)
+  {
+    retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h,
+                                  ark_mem->ycur, ark_mem->user_data);
+    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+  }
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
@@ -1673,6 +2143,18 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (RHSFUNC_RECVR); }
   }
+
+#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSP104",
+                     "updated solution", "ycur(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
+#endif
+
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::lsrkStep_TakeStepSSP104",
+                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
+#endif
 
   return (ARK_SUCCESS);
 }
