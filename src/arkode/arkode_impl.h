@@ -661,8 +661,6 @@ int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
 int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
                            sunrealtype adapt_params[3]);
 int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data);
-int arkAllocSUNStepperForcing(SUNStepper stepper, int count, N_Vector tmpl);
-int arkFreeSUNStepperForcing(SUNStepper stepper);
 
 ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char* imethod);
 ARKODE_ERKTableID arkButcherTableERKNameToID(const char* emethod);

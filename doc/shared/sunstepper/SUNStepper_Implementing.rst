@@ -36,7 +36,8 @@ To create a SUNStepper implementation:
 
    Note that all member functions are passed the :c:type:`SUNStepper` object and
    the stepper-specific content can, if necessary, be retrieved using
-   :c:func:`SUNStepper_GetContent`.
+   :c:func:`SUNStepper_GetContent`. Stepper-specific warnings and errors can be
+   recorded with :c:func:`SUNStepper_SetLastFlag`.
 
 #. In the user code, before creating the outer memory structure that uses the
    :c:type:`SUNStepper`, e.g., with :c:func:`SplittingStepCreate` or

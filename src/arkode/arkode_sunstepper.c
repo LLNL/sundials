@@ -74,7 +74,7 @@ static SUNErrCode arkSUNStepperTryStep(SUNStepper stepper, sunrealtype t0,
   ----------------------------------------------------------------------------*/
 
 static SUNErrCode arkSUNStepperFullRhs(SUNStepper stepper, sunrealtype t,
-                                       N_Vector y, N_Vector f, int mode)
+                                       N_Vector y, N_Vector f)
 {
   SUNFunctionBegin(stepper->sunctx);
   /* extract the ARKODE memory struct */
@@ -82,7 +82,7 @@ static SUNErrCode arkSUNStepperFullRhs(SUNStepper stepper, sunrealtype t,
   SUNCheckCall(SUNStepper_GetContent(stepper, &arkode_mem));
   ARKodeMem ark_mem = (ARKodeMem)arkode_mem;
 
-  stepper->last_flag = ark_mem->step_fullrhs(ark_mem, t, y, f, mode);
+  stepper->last_flag = ark_mem->step_fullrhs(ark_mem, t, y, f, ARK_FULLRHS_OTHER);
   if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
 
   return SUN_SUCCESS;
@@ -156,16 +156,32 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   }
   ARKodeMem ark_mem = (ARKodeMem)arkode_mem;
 
-  SUNFunctionBegin(ark_mem->sunctx);
-  SUNCheckCall(SUNStepper_Create(ark_mem->sunctx, stepper));
-  SUNCheckCall(SUNStepper_SetContent(*stepper, arkode_mem));
-  SUNCheckCall(SUNStepper_SetEvolveFn(*stepper, arkSUNStepperEvolve));
-  SUNCheckCall(SUNStepper_SetOneStepFn(*stepper, arkSUNStepperOneStep));
-  SUNCheckCall(SUNStepper_SetTryStepFn(*stepper, arkSUNStepperTryStep));
-  SUNCheckCall(SUNStepper_SetFullRhsFn(*stepper, arkSUNStepperFullRhs));
-  SUNCheckCall(SUNStepper_SetResetFn(*stepper, arkSUNStepperReset));
-  SUNCheckCall(SUNStepper_SetStopTimeFn(*stepper, arkSUNStepperSetStopTime));
-  SUNCheckCall(SUNStepper_SetForcingFn(*stepper, arkSUNStepperSetForcing));
+  SUNErrCode err = SUNStepper_Create(ark_mem->sunctx, stepper);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetContent(*stepper, arkode_mem);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetEvolveFn(*stepper, arkSUNStepperEvolve);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetOneStepFn(*stepper, arkSUNStepperOneStep);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetTryStepFn(*stepper, arkSUNStepperTryStep);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetFullRhsFn(*stepper, arkSUNStepperFullRhs);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetResetFn(*stepper, arkSUNStepperReset);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetStopTimeFn(*stepper, arkSUNStepperSetStopTime);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetForcingFn(*stepper, arkSUNStepperSetForcing);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   return ARK_SUCCESS;
 }

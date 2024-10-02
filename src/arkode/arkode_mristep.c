@@ -2631,13 +2631,25 @@ int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper* stepper)
 int MRIStepInnerStepper_CreateFromSUNStepper(SUNStepper sunstepper,
                                              MRIStepInnerStepper* stepper)
 {
-  MRIStepInnerStepper_Create(sunstepper->sunctx, stepper);
-  MRIStepInnerStepper_SetContent(*stepper, sunstepper);
-  MRIStepInnerStepper_SetEvolveFn(*stepper, mriStepInnerStepper_EvolveSUNStepper);
-  MRIStepInnerStepper_SetFullRhsFn(*stepper,
-                                   mriStepInnerStepper_FullRhsSUNStepper);
-  MRIStepInnerStepper_SetResetFn(*stepper, mriStepInnerStepper_ResetSUNStepper);
-  return (ARK_SUCCESS);
+  int retval = MRIStepInnerStepper_Create(sunstepper->sunctx, stepper);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  retval = MRIStepInnerStepper_SetContent(*stepper, sunstepper);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper,
+                                           mriStepInnerStepper_EvolveSUNStepper);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
+                                            mriStepInnerStepper_FullRhsSUNStepper);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  retval = MRIStepInnerStepper_SetResetFn(*stepper,
+                                          mriStepInnerStepper_ResetSUNStepper);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  return ARK_SUCCESS;
 }
 
 int MRIStepInnerStepper_Free(MRIStepInnerStepper* stepper)
@@ -2867,10 +2879,10 @@ int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
 
 int mriStepInnerStepper_FullRhsSUNStepper(MRIStepInnerStepper stepper,
                                           sunrealtype t, N_Vector y, N_Vector f,
-                                          int mode)
+                                          SUNDIALS_MAYBE_UNUSED int mode)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
-  stepper->last_flag    = sunstepper->ops->fullrhs(sunstepper, t, y, f, mode);
+  stepper->last_flag    = sunstepper->ops->fullrhs(sunstepper, t, y, f);
   return stepper->last_flag;
 }
 

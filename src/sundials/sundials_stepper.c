@@ -13,6 +13,7 @@
 SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
 {
   SUNFunctionBegin(sunctx);
+  SUNCheck(stepper_ptr, SUN_ERR_ARG_CORRUPT);
 
   SUNStepper stepper = malloc(sizeof(*stepper));
   SUNAssert(stepper, SUN_ERR_MALLOC_FAIL);
@@ -39,11 +40,12 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
 
 SUNErrCode SUNStepper_Destroy(SUNStepper* stepper_ptr)
 {
-  SUNFunctionBegin((*stepper_ptr)->sunctx);
-
-  free((*stepper_ptr)->ops);
-  free(*stepper_ptr);
-  *stepper_ptr = NULL;
+  if (stepper_ptr != NULL)
+  {
+    free((*stepper_ptr)->ops);
+    free(*stepper_ptr);
+    *stepper_ptr = NULL;
+  }
 
   return SUN_SUCCESS;
 }
@@ -92,6 +94,28 @@ SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->setstoptime)
+  {
+    return stepper->ops->setstoptime(stepper, tstop);
+  }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift,
+                                 sunrealtype tscale, N_Vector* forcing,
+                                 int nforcing)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->setforcing)
+  {
+    return stepper->ops->setforcing(stepper, tshift, tscale, forcing, nforcing);
+  }
+  else { return SUN_ERR_NOT_IMPLEMENTED; }
+}
+
 SUNErrCode SUNStepper_SetContent(SUNStepper stepper, void* content)
 {
   SUNFunctionBegin(stepper->sunctx);
@@ -106,26 +130,18 @@ SUNErrCode SUNStepper_GetContent(SUNStepper stepper, void** content)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop)
+SUNErrCode SUNStepper_SetLastFlag(SUNStepper stepper, int last_flag)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->setstoptime)
-  {
-    return stepper->ops->setstoptime(stepper, tstop);
-  }
-  else { return SUN_ERR_NOT_IMPLEMENTED; }
+  stepper->last_flag = last_flag;
+  return SUN_SUCCESS;
 }
 
-SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift,
-                                 sunrealtype tscale, N_Vector* forcing,
-                                 int nforcing)
+SUNErrCode SUNStepper_GetLastFlag(SUNStepper stepper, int* last_flag)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->setforcing)
-  {
-    return stepper->ops->setforcing(stepper, tshift, tscale, forcing, nforcing);
-  }
-  else { return SUN_ERR_NOT_IMPLEMENTED; }
+  *last_flag = stepper->last_flag;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn)

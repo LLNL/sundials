@@ -2697,6 +2697,9 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
   case ARK_ADJ_RECOMPUTE_FAIL:
     arkProcessError(ark_mem, ARK_ADJ_RECOMPUTE_FAIL, __LINE__, __func__, __FILE__,
                     "The forward recomputation of step failed unrecoverably");
+  case ARK_SUNSTEPPER_ERR:
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "An inner SUNStepper error occurred");
     break;
   default:
     /* This return should never happen */
