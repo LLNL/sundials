@@ -16,10 +16,9 @@
 #include <nvector/nvector_serial.h>
 #include <string>
 #include <sundials/sundials_core.hpp>
+#include <limits.h>
 
 #include "sundials_hashmap_impl.h"
-
-const size_t init_capacity = 2;
 
 // Helper function to free memory for value
 static void freeKeyValue(SUNHashMapKeyValue* ptr)
@@ -33,7 +32,7 @@ class SUNHashMapTest : public testing::Test
 protected:
   SUNHashMap map;
 
-  virtual void SetUp() override
+  virtual void SetUp(size_t init_capacity)
   {
     SUNHashMap_New(init_capacity, freeKeyValue, &map);
   }
@@ -43,11 +42,14 @@ protected:
 
 TEST_F(SUNHashMapTest, CapacityWorks)
 {
-  EXPECT_EQ(init_capacity, SUNHashMap_Capacity(map));
+  SetUp(1);
+  EXPECT_EQ(1, SUNHashMap_Capacity(map));
 }
 
 TEST_F(SUNHashMapTest, InsertAndGetWorks)
 {
+  SetUp(1);
+
   SUNErrCode err  = SUN_SUCCESS;
   const char* key = "test_key";
   int value       = 42;
@@ -62,35 +64,10 @@ TEST_F(SUNHashMapTest, InsertAndGetWorks)
   EXPECT_EQ(value, *((int*)retrieved_value));
 }
 
-TEST_F(SUNHashMapTest, InsertAndGetTwiceWorks)
-{
-  SUNErrCode err   = SUN_SUCCESS;
-  const char* key1 = "test_key1";
-  const char* key2 = "test_key2";
-  int value1       = 42;
-  int value2       = 43;
-
-  err = SUNHashMap_Insert(map, key1, &value1);
-  ASSERT_EQ(err, 0);
-
-  err = SUNHashMap_Insert(map, key2, &value2);
-  ASSERT_EQ(err, 0);
-
-  // Ensure resize happened
-  ASSERT_EQ(SUNHashMap_Capacity(map), 2);
-
-  void* retrieved_value;
-  err = SUNHashMap_GetValue(map, key1, &retrieved_value);
-  ASSERT_EQ(err, 0);
-  EXPECT_EQ(value1, *((int*)retrieved_value));
-
-  err = SUNHashMap_GetValue(map, key2, &retrieved_value);
-  ASSERT_EQ(err, 0);
-  EXPECT_EQ(value2, *((int*)retrieved_value));
-}
-
 TEST_F(SUNHashMapTest, InsertRequiringResizeWorks)
 {
+  SetUp(2);
+
   SUNErrCode err   = SUN_SUCCESS;
   const char* key1 = "test_key1";
   const char* key2 = "test_key2";
@@ -128,6 +105,8 @@ TEST_F(SUNHashMapTest, InsertRequiringResizeWorks)
 
 TEST_F(SUNHashMapTest, InsertDuplicateKeyFails)
 {
+  SetUp(1);
+
   int err;
 
   // Insert same key twice (should overwrite)
@@ -138,11 +117,13 @@ TEST_F(SUNHashMapTest, InsertDuplicateKeyFails)
   err = SUNHashMap_Insert(map, key, &value1);
   ASSERT_EQ(err, 0);
   err = SUNHashMap_Insert(map, key, &value2);
-  ASSERT_EQ(err, 3 /* size + 1*/);
+  ASSERT_EQ(err, SIZE_MAX - 1);
 }
 
 TEST_F(SUNHashMapTest, RemoveWorks)
 {
+  SetUp(2);
+
   int err;
 
   // Insert a key-value pair
@@ -160,5 +141,5 @@ TEST_F(SUNHashMapTest, RemoveWorks)
   // Check if key is gone
   void* retrieved_value;
   err = SUNHashMap_GetValue(map, key, &retrieved_value);
-  ASSERT_EQ(err, -2);
+  ASSERT_EQ(err, SIZE_MAX-1);
 }
