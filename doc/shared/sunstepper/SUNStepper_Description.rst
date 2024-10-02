@@ -50,6 +50,11 @@ to derived class method implementations.
 Creating and Destroying an Object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+In additional to creating an empty :c:type:`SUNStepper` using
+:c:func:`SUNStepper_Create` described below, there is the
+:c:func:`ARKodeCreateSUNStepper` function to construct a :c:type:`SUNStepper`
+from an ARKODE integrator.
+
 .. c:function:: SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper *stepper)
 
    This function creates a :c:type:`SUNStepper` object to which a user should
