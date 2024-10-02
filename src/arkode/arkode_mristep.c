@@ -2858,9 +2858,18 @@ int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
   sunrealtype tret;
-  sunstepper->ops->setstoptime(sunstepper, tout);
-  stepper->last_flag = sunstepper->ops->evolve(sunstepper, t0, tout, y, &tret);
-  return stepper->last_flag;
+
+  SUNErrCode err = sunstepper->ops->setstoptime(sunstepper, tout);
+  if (err != SUN_SUCCESS) {
+    stepper->last_flag = sunstepper->last_flag;
+    return ARK_SUNSTEPPER_ERR;
+  }
+
+  err = sunstepper->ops->evolve(sunstepper, t0, tout, y, &tret);
+  stepper->last_flag = sunstepper->last_flag;
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  return ARK_SUCCESS;
 }
 
 /* Compute the full RHS for inner (fast) time scale TODO(DJG): This function can
@@ -2882,8 +2891,10 @@ int mriStepInnerStepper_FullRhsSUNStepper(MRIStepInnerStepper stepper,
                                           SUNDIALS_MAYBE_UNUSED int mode)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
-  stepper->last_flag    = sunstepper->ops->fullrhs(sunstepper, t, y, f);
-  return stepper->last_flag;
+  SUNErrCode err = sunstepper->ops->fullrhs(sunstepper, t, y, f);
+  stepper->last_flag = sunstepper->last_flag;
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  return ARK_SUCCESS;
 }
 
 /* Reset the inner (fast) stepper state */
@@ -2915,8 +2926,10 @@ int mriStepInnerStepper_ResetSUNStepper(MRIStepInnerStepper stepper,
                                         sunrealtype tR, N_Vector yR)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
-  stepper->last_flag    = sunstepper->ops->reset(sunstepper, tR, yR);
-  return stepper->last_flag;
+  SUNErrCode err = sunstepper->ops->reset(sunstepper, tR, yR);
+  stepper->last_flag = sunstepper->last_flag;
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  return ARK_SUCCESS;
 }
 
 /* Allocate MRI forcing and fused op workspace vectors if necessary */

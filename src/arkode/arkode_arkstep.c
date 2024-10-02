@@ -345,10 +345,10 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   return (ARK_SUCCESS);
 }
 
-/*------------------------------------------------------------------------------	
+/*------------------------------------------------------------------------------
   ARKStepCreateMRIStepInnerStepper
 
-  Wraps an ARKStep memory structure as an MRIStep inner stepper.	
+  Wraps an ARKStep memory structure as an MRIStep inner stepper.
   ----------------------------------------------------------------------------*/
 int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
                                      MRIStepInnerStepper* stepper)
