@@ -3143,26 +3143,26 @@ int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
                                        &ark_mem, &step_mem);
   if (retval)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(inner_arkode_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "The ARKStep memory pointer is NULL");
     return ARK_ILL_INPUT;
   }
 
   retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
                                             arkStep_MRIStepInnerFullRhs);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   return (ARK_SUCCESS);
 }
@@ -3337,9 +3337,9 @@ int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARKSTEP_NO_MEM);
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   step_mem = (ARKodeARKStepMem)ark_mem->step_mem;
 
