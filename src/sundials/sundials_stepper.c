@@ -27,7 +27,6 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
 
   stepper->ops->evolve      = NULL;
   stepper->ops->onestep     = NULL;
-  stepper->ops->trystep     = NULL;
   stepper->ops->fullrhs     = NULL;
   stepper->ops->reset       = NULL;
   stepper->ops->setstoptime = NULL;
@@ -72,17 +71,6 @@ SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret)
-{
-  SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->trystep)
-  {
-    return stepper->ops->trystep(stepper, t0, tout, y, tret);
-  }
-  return SUN_ERR_NOT_IMPLEMENTED;
-}
-
 SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
                             int64_t ckptIdxR)
 {
@@ -113,7 +101,7 @@ SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift,
   {
     return stepper->ops->setforcing(stepper, tshift, tscale, forcing, nforcing);
   }
-  else { return SUN_ERR_NOT_IMPLEMENTED; }
+  return SUN_ERR_NOT_IMPLEMENTED;
 }
 
 SUNErrCode SUNStepper_SetContent(SUNStepper stepper, void* content)
@@ -155,13 +143,6 @@ SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
   stepper->ops->onestep = fn;
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNStepper_SetTryStepFn(SUNStepper stepper, SUNStepperTryStepFn fn)
-{
-  SUNFunctionBegin(stepper->sunctx);
-  stepper->ops->trystep = fn;
   return SUN_SUCCESS;
 }
 

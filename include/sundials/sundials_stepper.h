@@ -19,11 +19,6 @@
 extern "C" {
 #endif
 
-/* TryStep step result flags */
-// #define SUNSTEPPER_TRYSTEP_FAILED  (-1)
-// #define SUNSTEPPER_TRYSTEP_SUCCESS (+0)
-// #define SUNSTEPPER_TRYSTEP_ADAPT   (+1)
-
 typedef int (*SUNJacFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                         void* user_data, N_Vector tmp1, N_Vector tmp2,
                         N_Vector tmp3);
@@ -38,10 +33,6 @@ typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype t0,
                                          sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0,
-                                          sunrealtype tout, N_Vector vout,
-                                          sunrealtype* tret);
-
-typedef SUNErrCode (*SUNStepperTryStepFn)(SUNStepper stepper, sunrealtype t0,
                                           sunrealtype tout, N_Vector vout,
                                           sunrealtype* tret);
 
@@ -74,10 +65,6 @@ SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
                               sunrealtype tout, N_Vector vout, sunrealtype* tret);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector vout, sunrealtype* tret);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR, int64_t ckptIdxR);
 
 SUNDIALS_EXPORT
@@ -105,9 +92,6 @@ SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetTryStepFn(SUNStepper stepper, SUNStepperTryStepFn fn);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn);
