@@ -38,8 +38,8 @@ typedef struct SUNStlVectorTtype_s* SUNStlVectorTtype;
 
 struct SUNStlVectorTtype_s
 {
-  size_t size;
-  size_t capacity;
+  int64_t size;
+  int64_t capacity;
   TTYPE* values;
   void (*destroyValue)(TTYPE*);
 };
@@ -52,7 +52,7 @@ struct SUNStlVectorTtype_s
 #define GROWTH_FACTOR 1.5
 
 static inline SUNStlVectorTtype MAKE_NAME(SUNStlVectorTtype,
-                                          New)(size_t init_capacity,
+                                          New)(int64_t init_capacity,
                                                void (*destroyValue)(TTYPE*))
 {
   SUNStlVectorTtype self =
@@ -71,7 +71,7 @@ static inline sunbooleantype MAKE_NAME(SUNStlVectorTtype,
 }
 
 static inline void MAKE_NAME(SUNStlVectorTtype, Resize)(SUNStlVectorTtype self,
-                                                        size_t new_capacity)
+                                                        int64_t new_capacity)
 {
   if (new_capacity <= self->capacity) return;
   TTYPE* new_values = (TTYPE*)realloc(self->values, sizeof(TTYPE) * new_capacity);
@@ -83,7 +83,8 @@ static inline void MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype self)
 {
   if (self->size == self->capacity)
   {
-    size_t new_capacity = (size_t)(ceil(((double)self->capacity) * GROWTH_FACTOR));
+    int64_t new_capacity =
+      (int64_t)(ceil(((double)self->capacity) * GROWTH_FACTOR));
     MAKE_NAME(SUNStlVectorTtype, Resize)(self, new_capacity);
   }
 }
@@ -99,7 +100,7 @@ static inline void MAKE_NAME(SUNStlVectorTtype,
 }
 
 static inline TTYPE* MAKE_NAME(SUNStlVectorTtype, At)(SUNStlVectorTtype self,
-                                                      size_t index)
+                                                      int64_t index)
 {
   if (index >= self->size)
   {
@@ -110,7 +111,7 @@ static inline TTYPE* MAKE_NAME(SUNStlVectorTtype, At)(SUNStlVectorTtype self,
 }
 
 static inline void MAKE_NAME(SUNStlVectorTtype, Set)(SUNStlVectorTtype self,
-                                                     size_t index, TTYPE element)
+                                                     int64_t index, TTYPE element)
 {
   if (index >= self->size)
   {
@@ -129,12 +130,12 @@ static inline void MAKE_NAME(SUNStlVectorTtype, PopBack)(SUNStlVectorTtype self)
 }
 
 static inline void MAKE_NAME(SUNStlVectorTtype, Erase)(SUNStlVectorTtype self,
-                                                       size_t index)
+                                                       int64_t index)
 {
   static TTYPE nullish;
   if (self->size == 0) return;
   MAKE_NAME(SUNStlVectorTtype, Set)(self, index, nullish);
-  for (size_t i = index; i < self->size - 1; i++)
+  for (int64_t i = index; i < self->size - 1; i++)
   {
     self->values[i]     = self->values[i + 1];
     self->values[i + 1] = nullish;
@@ -142,12 +143,13 @@ static inline void MAKE_NAME(SUNStlVectorTtype, Erase)(SUNStlVectorTtype self,
   self->size -= 1;
 }
 
-static inline size_t MAKE_NAME(SUNStlVectorTtype, Size)(SUNStlVectorTtype self)
+static inline int64_t MAKE_NAME(SUNStlVectorTtype, Size)(SUNStlVectorTtype self)
 {
   return self->size;
 }
 
-static inline size_t MAKE_NAME(SUNStlVectorTtype, Capacity)(SUNStlVectorTtype self)
+static inline int64_t MAKE_NAME(SUNStlVectorTtype,
+                                Capacity)(SUNStlVectorTtype self)
 {
   return self->capacity;
 }
@@ -161,7 +163,7 @@ static inline void MAKE_NAME(SUNStlVectorTtype,
 
   SUNStlVectorTtype self = *self_ptr;
 
-  for (size_t i = 0; i < MAKE_NAME(SUNStlVectorTtype, Size)(self); i++)
+  for (int64_t i = 0; i < MAKE_NAME(SUNStlVectorTtype, Size)(self); i++)
   {
     self->destroyValue(&(self->values[i]));
     self->values[i] = nullish;

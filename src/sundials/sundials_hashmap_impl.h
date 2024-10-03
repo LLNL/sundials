@@ -42,34 +42,34 @@ typedef struct SUNHashMap_* SUNHashMap;
 
 struct SUNHashMap_
 {
-  size_t capacity; /* max number of entries */
+  int64_t capacity; /* max number of entries */
   void (*destroyKeyValue)(SUNHashMapKeyValue*);
   SUNStlVector_SUNHashMapKeyValue buckets;
 };
 
-SUNErrCode SUNHashMap_New(size_t capacity,
+SUNErrCode SUNHashMap_New(int64_t capacity,
                           void (*destroyValue)(SUNHashMapKeyValue* value_ptr),
                           SUNHashMap* map);
 
-size_t SUNHashMap_Capacity(SUNHashMap map);
+int64_t SUNHashMap_Capacity(SUNHashMap map);
 
 SUNErrCode SUNHashMap_Destroy(SUNHashMap* map);
 
-size_t SUNHashMap_Iterate(SUNHashMap map, size_t start,
-                          size_t (*yieldfn)(size_t, SUNHashMapKeyValue,
-                                            const void*),
-                          const void* ctx);
+int64_t SUNHashMap_Iterate(SUNHashMap map, int64_t start,
+                           int64_t (*yieldfn)(int64_t, SUNHashMapKeyValue,
+                                              const void*),
+                           const void* ctx);
 
-size_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value);
+int64_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value);
 
-size_t SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value);
+int64_t SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value);
 
-size_t SUNHashMap_Remove(SUNHashMap map, const char* key, void** value);
+int64_t SUNHashMap_Remove(SUNHashMap map, const char* key, void** value);
 
 SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
                            int (*compar)(const void*, const void*));
 
-SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size);
+SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, int64_t value_size);
 
 SUNErrCode SUNHashMap_PrintKeys(SUNHashMap map, FILE* file);
 
