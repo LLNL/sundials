@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+#define STAGE_MAX_LIMIT 1000000
+
 typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn,
                            sunrealtype* lambdaR, sunrealtype* lambdaI,
                            void* user_data, N_Vector temp1, N_Vector temp2,
@@ -89,8 +91,6 @@ SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem,
 
 SUNDIALS_EXPORT int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
 
-SUNDIALS_EXPORT int LSRKStepGetAverageStageNum(void* arkode_mem,
-                                               sunrealtype* avg_stage);
 
 #ifdef __cplusplus
 }

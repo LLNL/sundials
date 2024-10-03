@@ -50,21 +50,18 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   {
   case ARKODE_LSRK_RKC_2:
     ark_mem->step          = lsrkStep_TakeStepRKC;
-    step_mem->LSRKmethod   = ARKODE_LSRK_RKC_2;
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
   case ARKODE_LSRK_RKL_2:
     ark_mem->step          = lsrkStep_TakeStepRKL;
-    step_mem->LSRKmethod   = ARKODE_LSRK_RKL_2;
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
   case ARKODE_LSRK_SSP_S_2:
     ark_mem->step               = lsrkStep_TakeStepSSPs2;
-    step_mem->LSRKmethod        = ARKODE_LSRK_SSP_S_2;
     step_mem->is_SSP            = SUNTRUE;
     step_mem->req_stages        = 10;
     step_mem->nfusedopvecs      = 3;
@@ -73,7 +70,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     break;
   case ARKODE_LSRK_SSP_S_3:
     ark_mem->step               = lsrkStep_TakeStepSSPs3;
-    step_mem->LSRKmethod        = ARKODE_LSRK_SSP_S_3;
     step_mem->is_SSP            = SUNTRUE;
     step_mem->req_stages        = 9;
     step_mem->nfusedopvecs      = 3;
@@ -82,7 +78,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     break;
   case ARKODE_LSRK_SSP_10_4:
     ark_mem->step               = lsrkStep_TakeStepSSP104;
-    step_mem->LSRKmethod        = ARKODE_LSRK_SSP_10_4;
     step_mem->is_SSP            = SUNTRUE;
     step_mem->req_stages        = 10;
     step_mem->nfusedopvecs      = 3;
@@ -95,6 +90,8 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
                     "Invalid method option.");
     return (ARK_ILL_INPUT);
   }
+
+  step_mem->LSRKmethod = method;
 
   return (ARK_SUCCESS);
 }
@@ -163,7 +160,7 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   LSRKStepSetDomEigFrequency sets dom_eig computation frequency -
   Dominated Eigenvalue is recomputed after "nsteps" successful steps.
 
-    nsteps = 0 refers to Constant Jacobian
+    nsteps = 0 refers to constant dominant eigenvalue
   ---------------------------------------------------------------*/
 int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
 {
@@ -327,6 +324,20 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals)
   ARKodeLSRKStepMem step_mem;
   int retval;
 
+  if (num_rhs_fn < 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "num_rhs_fn must be greater than or equal to 1");
+    return (ARK_ILL_INPUT);
+  }
+
+  if (f_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "f_evals cannot be NULL");
+    return (ARK_ILL_INPUT);
+  }
+
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
@@ -348,6 +359,13 @@ int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* dom_eig_num_evals)
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
   int retval;
+
+  if (dom_eig_num_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "dom_eig_num_evals cannot be NULL");
+    return (ARK_ILL_INPUT);
+  }
 
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
@@ -371,6 +389,13 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
   ARKodeLSRKStepMem step_mem;
   int retval;
 
+  if (stage_max == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "stage_max cannot be NULL");
+    return (ARK_ILL_INPUT);
+  }
+
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
@@ -378,29 +403,6 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
 
   /* get values from step_mem */
   *stage_max = step_mem->stage_max;
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  LSRKStepGetAverageStageNum:
-
-  Returns the average number of stages used
-  ---------------------------------------------------------------*/
-int LSRKStepGetAverageStageNum(void* arkode_mem, sunrealtype* avg_stage)
-{
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* get values from step_mem */
-  *avg_stage = ((sunrealtype)step_mem->nfe) /
-               ((sunrealtype)ark_mem->nst_attempts);
 
   return (ARK_SUCCESS);
 }

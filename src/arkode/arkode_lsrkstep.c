@@ -206,12 +206,12 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
       return;
   }
 
-  fprintf(outfile, "Method order                  = %i\n", step_mem->q);
-  fprintf(outfile, "Embedding order               = %i\n", step_mem->p);
+  fprintf(outfile, "LSRKStep: q                   = %i\n", step_mem->q);
+  fprintf(outfile, "LSRKStep: p                   = %i\n", step_mem->p);
 
   if (step_mem->is_SSP)
   {
-    fprintf(outfile, "Number of stages used         = %i\n", step_mem->req_stages);
+    fprintf(outfile, "LSRKStep: req_stages          = %i\n", step_mem->req_stages);
     fprintf(outfile, "LSRKStep: nfe                 = %li\n", step_mem->nfe);
   }
   else if (!step_mem->is_SSP)
@@ -2136,10 +2136,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNCont
   step_mem->nfe               = 0;
   step_mem->stage_max         = 0;
   step_mem->dom_eig_num_evals = 0;
-  step_mem->stage_max_limit   = (int)SUNRround(
-    SUNRsqrt(ark_mem->reltol / (SUN_RCONST(10.0) * ark_mem->uround)));
-  step_mem->stage_max_limit =
-    (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
+  step_mem->stage_max_limit = STAGE_MAX_LIMIT;
   step_mem->dom_eig_nst = 0;
   step_mem->is_SSP = SUNFALSE;
 
