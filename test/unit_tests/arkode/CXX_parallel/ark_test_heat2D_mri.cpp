@@ -342,8 +342,8 @@ int main(int argc, char* argv[])
   {
     cout << "\nARKStep Solver Statistics:\n";
     cout << "   Internal solver steps = " << ark_nst << "\n";
-    cout << "   Total RHS evals:  Fe = " << ark_nfeval[0] << ",  Fi = " << ark_nfeval[1]
-         << "\n";
+    cout << "   Total RHS evals:  Fe = " << ark_nfeval[0]
+         << ",  Fi = " << ark_nfeval[1] << "\n";
     cout << "   Total linear solver setups = " << ark_nsetups << "\n";
     cout << "   Total linear iterations = " << ark_nli << "\n";
     cout << "   Total number of Jacobian-vector products = " << ark_nJv << "\n";
@@ -415,7 +415,8 @@ int main(int argc, char* argv[])
     numfails += 1;
     if (outproc)
     {
-      cout << "  RHS evals error: " << ark_nfeval[1] << " vs " << mri_nfseval[1] << "\n";
+      cout << "  RHS evals error: " << ark_nfeval[1] << " vs " << mri_nfseval[1]
+           << "\n";
     }
   }
   if (ark_nsetups != mri_nsetups)

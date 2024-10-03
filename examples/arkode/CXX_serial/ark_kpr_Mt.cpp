@@ -604,7 +604,8 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   cout << "   Internal solver steps = " << nst << " (attempted = " << nst_a
        << ")\n";
   cout << "   Total number of error test failures = " << netf << endl;
-  cout << "   Total RHS evals:  Fe = " << nfeval[0] << ",  Fi = " << nfeval[1] << endl;
+  cout << "   Total RHS evals:  Fe = " << nfeval[0] << ",  Fi = " << nfeval[1]
+       << endl;
   cout << "   Total mass matrix setups = " << nmset << endl;
   cout << "   Total mass matrix solves = " << nms << endl;
   cout << "   Total mass times evals = " << nMv << endl;

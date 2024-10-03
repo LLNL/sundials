@@ -125,8 +125,7 @@ int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps,
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void SPRKStepFree(void** arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRhsEvals instead")
-int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1,
-                           long int* nf2);
+int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2);
 
 #ifdef __cplusplus
 }

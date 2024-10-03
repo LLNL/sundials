@@ -210,7 +210,8 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   {
     printf("\nFinal Solver Statistics (for processor 0):\n");
     printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-    printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0], nfeval[1] + udata->nnlfi);
+    printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0],
+           nfeval[1] + udata->nnlfi);
     printf("   Total number of error test failures = %li\n", netf);
     printf("   Total number of nonlinear solver convergence failures = %li\n",
            ncnf);
@@ -413,7 +414,8 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   {
     printf("\nFinal Solver Statistics (for processor 0):\n");
     printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-    printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0], nfeval[1] + udata->nnlfi);
+    printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0],
+           nfeval[1] + udata->nnlfi);
     printf("   Total number of error test failures = %li\n", netf);
     printf("   Total number of nonlinear solver convergence failures = %li\n",
            ncnf);

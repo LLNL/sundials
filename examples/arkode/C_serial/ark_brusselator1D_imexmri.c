@@ -770,13 +770,13 @@ int main(int argc, char* argv[])
     if ((solve_type == 0) || (solve_type == 1) || (solve_type == 3) ||
         (solve_type == 5) || (solve_type == 7))
     {
-      printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfseval[0],
-             nfseval[1], nffeval[1]);
+      printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n",
+             nfseval[0], nfseval[1], nffeval[1]);
     }
     else
     {
-      printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n", nfseval[0],
-             nfseval[1], nffeval[0]);
+      printf("   Total RHS evals:  Fse = %li, Fsi = %li,  Ff = %li\n",
+             nfseval[0], nfseval[1], nffeval[0]);
     }
   }
   else if (implicit_slow)
@@ -784,18 +784,28 @@ int main(int argc, char* argv[])
     if ((solve_type == 0) || (solve_type == 1) || (solve_type == 3) ||
         (solve_type == 5) || (solve_type == 7))
     {
-      printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[1], nffeval[1]);
+      printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[1],
+             nffeval[1]);
     }
-    else { printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[1], nffeval[0]); }
+    else
+    {
+      printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[1],
+             nffeval[0]);
+    }
   }
   else
   {
     if ((solve_type == 0) || (solve_type == 1) || (solve_type == 3) ||
         (solve_type == 5) || (solve_type == 7))
     {
-      printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[0], nffeval[1]);
+      printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[0],
+             nffeval[1]);
     }
-    else { printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[0], nffeval[0]); }
+    else
+    {
+      printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[0],
+             nffeval[0]);
+    }
   }
 
   /* Get/print slow integrator decoupled implicit solver statistics */

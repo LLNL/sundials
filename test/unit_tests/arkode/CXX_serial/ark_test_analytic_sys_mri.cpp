@@ -100,8 +100,8 @@ int main(int argc, char* argv[])
   sunrealtype t, tcur;
   long int ark_nst, ark_nfeval[2], ark_nsetups, ark_nje, ark_nfeLS, ark_nni,
     ark_ncfn;
-  long int mri_nst, mri_nfseval[2], mri_nsetups, mri_nje, mri_nfeLS,
-    mri_nni, mri_ncfn;
+  long int mri_nst, mri_nfseval[2], mri_nsetups, mri_nje, mri_nfeLS, mri_nni,
+    mri_ncfn;
 
   // if an argument supplied, set fixedpoint (otherwise use SUNFALSE)
   fixedpoint = SUNFALSE;
@@ -262,8 +262,8 @@ int main(int argc, char* argv[])
   cout << "   Return time = " << t << "\n";
   cout << "   Internal final time = " << tcur << "\n";
   cout << "   Internal solver steps = " << ark_nst << "\n";
-  cout << "   Total RHS evals:  Fe = " << ark_nfeval[0] << ",  Fi = " << ark_nfeval[1]
-       << "\n";
+  cout << "   Total RHS evals:  Fe = " << ark_nfeval[0]
+       << ",  Fi = " << ark_nfeval[1] << "\n";
   cout << "   Total number of nonlinear iterations = " << ark_nni << "\n";
   cout << "   Total number of nonlinear solver convergence failures = "
        << ark_ncfn << "\n";
@@ -327,7 +327,8 @@ int main(int argc, char* argv[])
   if (!Compare(ark_nfeval[1], mri_nfseval[1], ONE))
   {
     numfails += 1;
-    cout << "  RHS evals error: " << ark_nfeval[1] << " vs " << mri_nfseval[1] << "\n";
+    cout << "  RHS evals error: " << ark_nfeval[1] << " vs " << mri_nfseval[1]
+         << "\n";
   }
   if (!Compare(ark_nni, mri_nni, ONE))
   {

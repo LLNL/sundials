@@ -257,7 +257,8 @@ int main()
   cout << "\nFinal Solver Statistics:\n";
   cout << "   Internal solver steps = " << nst << " (attempted = " << nst_a
        << ")\n";
-  cout << "   Total RHS evals:  Fe = " << nfeval[0] << ",  Fi = " << nfeval[1] << "\n";
+  cout << "   Total RHS evals:  Fe = " << nfeval[0] << ",  Fi = " << nfeval[1]
+       << "\n";
   cout << "   Total linear solver setups = " << nsetups << "\n";
   cout << "   Total RHS evals for setting up the linear system = " << nfeLS
        << "\n";

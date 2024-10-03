@@ -472,7 +472,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     if (mri_nfseval[0] != fe_evals)
     {
       numfails++;
-      std::cout << "Fe RHS evals: " << mri_nfseval[0] << " vs " << fe_evals << "\n";
+      std::cout << "Fe RHS evals: " << mri_nfseval[0] << " vs " << fe_evals
+                << "\n";
     }
 
     long int fi_evals = 0;
@@ -484,7 +485,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     if (mri_nfseval[1] != fi_evals)
     {
       numfails++;
-      std::cout << "Fi RHS evals: " << mri_nfseval[1] << " vs " << fi_evals << "\n";
+      std::cout << "Fi RHS evals: " << mri_nfseval[1] << " vs " << fi_evals
+                << "\n";
     }
 
     if (numfails) { std::cout << "Failed " << numfails << " tests\n"; }

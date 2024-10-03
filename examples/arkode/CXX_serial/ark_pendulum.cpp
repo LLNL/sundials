@@ -308,7 +308,8 @@ int main(int argc, char* argv[])
   std::cout << "  Internal solver steps = " << nst << " (attempted = " << nst_a
             << ")\n";
   std::cout << "  Total number of error test failures = " << netf << "\n";
-  std::cout << "  Total RHS evals:  Fe = " << nfeval[0] << ",  Fi = " << nfeval[1] << "\n";
+  std::cout << "  Total RHS evals:  Fe = " << nfeval[0]
+            << ",  Fi = " << nfeval[1] << "\n";
 
   if (implicit)
   {

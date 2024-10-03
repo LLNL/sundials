@@ -2593,7 +2593,8 @@ static int OutputStatsIMEX(void* arkode_mem, UserData* udata)
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfeval[2], nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nst, nst_a, netf, nfeval[2], nni, ncfn, nli, nlcf, nsetups, nfi_ls,
+    nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
