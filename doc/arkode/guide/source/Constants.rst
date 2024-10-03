@@ -562,7 +562,7 @@ contains the ARKODE output constants.
    | :index:`ARK_STEPPER_UNSUPPORTED`    | -48  | An operation was not supported by the current              |
    |                                     |      | time-stepping module.                                      |
    +-------------------------------------+------+------------------------------------------------------------+
-   | :index:`ARK_SUNSTEPPER_ERR`         | -49  | An error occurred in the SUNStepper module                 |
+   | :index:`ARK_SUNSTEPPER_ERR`         | -49  | An error occurred in the SUNStepper module.                |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
