@@ -45,7 +45,7 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
      ARKStep.
 
      Once the ARKStep object is setup, create a :c:type:`SUNStepper` object with
-     :c:func:`ARKStepCreateSUNStepper`.
+     :c:func:`ARKodeCreateSUNStepper`.
 
    * If supplying a user-defined inner integrator, create the
      :c:type:`SUNStepper` object as described in section

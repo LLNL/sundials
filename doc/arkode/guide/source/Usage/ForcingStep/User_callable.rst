@@ -71,8 +71,8 @@ ForcingStep initialization functions
          . . .
 
          /* create SUNStepper wrappers for the ARKStep memory blocks */
-         flag = ARKStepCreateSUNStepper(partition_mem[0], &stepper[0]);
-         flag = ARKStepCreateSUNStepper(partition_mem[1], &stepper[1]);
+         flag = ARKodeCreateSUNStepper(partition_mem[0], &stepper[0]);
+         flag = ARKodeCreateSUNStepper(partition_mem[1], &stepper[1]);
 
          /* create a ForcingStep object */
          arkode_mem = ForcingStepCreate(steppers[0], steppers[1], t0, y0, sunctx);

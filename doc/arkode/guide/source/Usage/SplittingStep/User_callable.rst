@@ -71,8 +71,8 @@ SplittingStep initialization functions
          . . .
 
          /* create SUNStepper wrappers for the ARKStep memory blocks */
-         flag = ARKStepCreateSUNStepper(partition_mem[0], &stepper[0]);
-         flag = ARKStepCreateSUNStepper(partition_mem[1], &stepper[1]);
+         flag = ARKodeCreateSUNStepper(partition_mem[0], &stepper[0]);
+         flag = ARKodeCreateSUNStepper(partition_mem[1], &stepper[1]);
 
          /* create a SplittingStep object with two partitions */
          arkode_mem = SplittingStepCreate(steppers, 2, t0, y0, sunctx);
