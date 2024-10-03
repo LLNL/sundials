@@ -38,19 +38,18 @@ ForcingStep initialization functions
    This function allocates and initializes memory for a problem to be solved
    using the ForcingStep time-stepping module in ARKODE.
 
-   **Arguments:**
-      * *stepper1* -- a :c:type:`SUNStepper` to integrate partition one.
-      * *stepper2* -- a :c:type:`SUNStepper` to integrate partition two
-        including the forcing from partition one.
-      * *t0* -- the initial value of :math:`t`.
-      * *y0* -- the initial condition vector :math:`y(t_0)`.
-      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
+   :param stepper1: A :c:type:`SUNStepper` to integrate partition one.
+   :param stepper2: A :c:type:`SUNStepper` to integrate partition two
+      including the forcing from partition one.
+   :param t0: The initial value of :math:`t`.
+   :param y0: The initial condition vector :math:`y(t_0)`.
+   :param sunctx: The :c:type:`SUNContext` object (see
+      :numref:`SUNDIALS.SUNContext`)
 
-   **Return value:**
-      If successful, a pointer to initialized problem memory of type ``void*``,
-      to be passed to all user-facing ForcingStep routines listed below. If
-      unsuccessful, a ``NULL`` pointer will be returned, and an error message
-      will be printed to ``stderr``.
+   :return: If successful, a pointer to initialized problem memory of type
+      ``void*``, to be passed to all user-facing ForcingStep routines listed
+      below. If unsuccessful, a ``NULL`` pointer will be returned, and an error
+      message will be printed to ``stderr``.
 
    **Example usage:**
 
@@ -94,21 +93,13 @@ Optional output functions
    Returns the number of times the :c:type:`SUNStepper` for the given partition
    index has been evolved (so far).
 
-   **Arguments:**
-
-   * *arkode_mem* -- pointer to the ForcingStep memory block.
-
-   * *partition* -- index of the partition (0 or 1) or a negative number to
+   :param arkode_mem: pointer to the ForcingStep memory block.
+   :param partition: index of the partition (0 or 1) or a negative number to
      indicate the total number across both partitions.
+   :param evolves: number of :c:type:`SUNStepper` evolves.
 
-   * *evolves* -- number of :c:type:`SUNStepper` evolves.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the ForcingStep memory was ``NULL``
-
-   * *ARK_ILL_INPUT* if *partition* was out of bounds
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the ForcingStep memory was ``NULL``
+   :retval ARK_ILL_INPUT: if *partition* was out of bounds
    
    .. versionadded:: x.y.z

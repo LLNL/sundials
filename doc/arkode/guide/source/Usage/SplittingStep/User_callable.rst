@@ -38,19 +38,17 @@ SplittingStep initialization functions
    This function allocates and initializes memory for a problem to be solved
    using the SplittingStep time-stepping module in ARKODE.
 
-   **Arguments:**
-      * *steppers* -- an array of :c:type:`SUNStepper` with one for each
-        partition of the IVP.
-      * *partitions* -- the number :math:`P > 1` of partitions in the IVP.
-      * *t0* -- the initial value of :math:`t`.
-      * *y0* -- the initial condition vector :math:`y(t_0)`.
-      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
+   :param steppers: an array of :c:type:`SUNStepper` with one for each
+      partition of the IVP.
+   :param partitions: the number :math:`P > 1` of partitions in the IVP.
+   :param t0: the initial value of :math:`t`.
+   :param y0: the initial condition vector :math:`y(t_0)`.
+   :param sunctx: the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
-   **Return value:**
-      If successful, a pointer to initialized problem memory of type ``void*``,
-      to be passed to all user-facing SplittingStep routines listed below. If
-      unsuccessful, a ``NULL`` pointer will be returned, and an error message
-      will be printed to ``stderr``.
+   :return: If successful, a pointer to initialized problem memory of type
+      ``void*``, to be passed to all user-facing SplittingStep routines listed
+      below. If unsuccessful, a ``NULL`` pointer will be returned, and an error
+      message will be printed to ``stderr``.
 
    **Example usage:**
 
@@ -91,19 +89,12 @@ Optional inputs for IVP method selection
 
    Specifies a customized set of coefficients for the operator splitting method.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the SplittingStep memory block.
+   :param coefficients: the splitting coefficients for the method.
 
-   * *arkode_mem* -- pointer to the SplittingStep memory block.
-
-   * *coefficients* -- the splitting coefficients for the method.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the SplittingStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SplittingStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    **Notes:**
 
@@ -129,22 +120,14 @@ Optional output functions
    Returns the number of times the :c:type:`SUNStepper` for the given partition
    index has been evolved (so far).
 
-   **Arguments:**
+   :param arkode_mem: pointer to the SplittingStep memory block.
+   :param partition: index of the partition between 0 and :math:`P - 1` or a
+      negative number to indicate the total number across all
+      partitions.
+   :param evolves: number of :c:type:`SUNStepper` evolves.
 
-   * *arkode_mem* -- pointer to the SplittingStep memory block.
-
-   * *partition* -- index of the partition between 0 and :math:`P - 1` or a
-     negative number to indicate the total number across all
-     partitions.
-
-   * *evolves* -- number of :c:type:`SUNStepper` evolves.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the SplittingStep memory was ``NULL``
-
-   * *ARK_ILL_INPUT* if *partition* was out of bounds
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the SplittingStep memory was ``NULL``
+   :retval ARK_ILL_INPUT: if *partition* was out of bounds
    
    .. versionadded:: x.y.z
