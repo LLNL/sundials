@@ -156,7 +156,8 @@ int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable* sprk_storage)
 
   Returns the current number of calls to f1 and f2
   ---------------------------------------------------------------*/
-int sprkStep_GetNumRhsEvals(ARKodeMem ark_mem, int num_rhs, long int* rhs_evals)
+int sprkStep_GetNumRhsEvals(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED int num_rhs,
+                            long int* rhs_evals)
 {
   SUNFunctionBegin(ark_mem->sunctx);
   SUNAssert(num_rhs == 2, ARK_ILL_INPUT);

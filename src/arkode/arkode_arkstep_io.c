@@ -523,7 +523,8 @@ int ARKStepSetTableName(void* arkode_mem, const char* itable, const char* etable
 
   Returns the current number of calls to fe and fi
   ---------------------------------------------------------------*/
-int arkStep_GetNumRhsEvals(ARKodeMem ark_mem, int num_rhs, long int* rhs_evals)
+int arkStep_GetNumRhsEvals(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED int num_rhs,
+                           long int* rhs_evals)
 {
   SUNFunctionBegin(ark_mem->sunctx);
   SUNAssert(num_rhs == 2, ARK_ILL_INPUT);

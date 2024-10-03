@@ -133,7 +133,8 @@ int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
 
   Returns the current number of calls to fse and fsi
   ---------------------------------------------------------------*/
-int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, int num_rhs, long int* rhs_evals)
+int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED int num_rhs,
+                           long int* rhs_evals)
 {
   SUNFunctionBegin(ark_mem->sunctx);
   SUNAssert(num_rhs == 2, ARK_ILL_INPUT);

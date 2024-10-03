@@ -169,7 +169,8 @@ int ERKStepSetTableName(void* arkode_mem, const char* etable)
 
   Returns the current number of calls to f
   ---------------------------------------------------------------*/
-int erkStep_GetNumRhsEvals(ARKodeMem ark_mem, int num_rhs, long int* rhs_evals)
+int erkStep_GetNumRhsEvals(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED int num_rhs,
+                           long int* rhs_evals)
 {
   SUNFunctionBegin(ark_mem->sunctx);
   SUNAssert(num_rhs == 1, ARK_ILL_INPUT);
