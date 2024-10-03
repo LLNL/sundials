@@ -3491,7 +3491,7 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
                    * For SPRKStep, ``0`` corresponds to :math:`f_1(t,p)` and
                      ``1`` to :math:`f_2(t,q)`
 
-                   For methods with more than one right-hand side function, a
+                   A
                    negative index will return the sum of the evaluations for
                    each partition.
 
