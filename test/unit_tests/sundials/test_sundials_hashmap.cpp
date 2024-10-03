@@ -38,6 +38,9 @@ protected:
   }
 
   virtual void TearDown() override { SUNHashMap_Destroy(&map); }
+
+private:
+  using testing::Test::SetUp; /* silence warning from SetUp override */
 };
 
 TEST_F(SUNHashMapTest, CapacityWorks)
