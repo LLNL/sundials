@@ -181,15 +181,9 @@ int sprkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
 
   switch (partition_index)
   {
-  case 0:
-    *rhs_evals = step_mem->nf1;
-    break;
-  case 1:
-    *rhs_evals = step_mem->nf2;
-    break;
-  default:
-    *rhs_evals = step_mem->nf1 + step_mem->nf2;
-    break;
+  case 0: *rhs_evals = step_mem->nf1; break;
+  case 1: *rhs_evals = step_mem->nf2; break;
+  default: *rhs_evals = step_mem->nf1 + step_mem->nf2; break;
   }
 
   return ARK_SUCCESS;

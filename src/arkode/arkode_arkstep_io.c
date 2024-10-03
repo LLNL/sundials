@@ -548,15 +548,9 @@ int arkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
 
   switch (partition_index)
   {
-  case 0:
-    *rhs_evals = step_mem->nfe;
-    break;
-  case 1:
-    *rhs_evals = step_mem->nfi;
-    break;
-  default:
-    *rhs_evals = step_mem->nfe + step_mem->nfi;
-    break;
+  case 0: *rhs_evals = step_mem->nfe; break;
+  case 1: *rhs_evals = step_mem->nfi; break;
+  default: *rhs_evals = step_mem->nfe + step_mem->nfi; break;
   }
 
   return ARK_SUCCESS;

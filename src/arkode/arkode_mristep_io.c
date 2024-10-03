@@ -158,15 +158,9 @@ int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
 
   switch (partition_index)
   {
-  case 0:
-    *rhs_evals = step_mem->nfse;
-    break;
-  case 1:
-    *rhs_evals = step_mem->nfsi;
-    break;
-  default:
-    *rhs_evals = step_mem->nfse + step_mem->nfsi;
-    break;
+  case 0: *rhs_evals = step_mem->nfse; break;
+  case 1: *rhs_evals = step_mem->nfsi; break;
+  default: *rhs_evals = step_mem->nfse + step_mem->nfsi; break;
   }
 
   return ARK_SUCCESS;
