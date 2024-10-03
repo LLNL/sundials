@@ -2004,7 +2004,8 @@ int ARKodeSetMaxConvFails(void* arkode_mem, int maxncf)
 
   Returns the current number of RHS evaluations
   ---------------------------------------------------------------*/
-int ARKodeGetNumRhsEvals(void* arkode_mem, int num_rhs, long int* num_rhs_evals)
+int ARKodeGetNumRhsEvals(void* arkode_mem, int partition_index,
+                         long int* num_rhs_evals)
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
@@ -2018,7 +2019,8 @@ int ARKodeGetNumRhsEvals(void* arkode_mem, int num_rhs, long int* num_rhs_evals)
   /* Call stepper routine (if provided) */
   if (ark_mem->step_getnumrhsevals)
   {
-    return ark_mem->step_getnumrhsevals(arkode_mem, num_rhs, num_rhs_evals);
+    return ark_mem->step_getnumrhsevals(arkode_mem, partition_index,
+                                        num_rhs_evals);
   }
   else
   {

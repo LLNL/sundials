@@ -131,23 +131,43 @@ int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
 /*---------------------------------------------------------------
   MRIStepGetNumRhsEvals:
 
-  Returns the current number of calls to fse and fsi
+  Returns the current number of RHS calls
   ---------------------------------------------------------------*/
-int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED int num_rhs,
+int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
                            long int* rhs_evals)
 {
-  SUNFunctionBegin(ark_mem->sunctx);
-  SUNAssert(num_rhs == 2, ARK_ILL_INPUT);
-  SUNAssert(rhs_evals, ARK_ILL_INPUT);
-
   ARKodeMRIStepMem step_mem = NULL;
 
   /* access ARKodeMRIStepMem structure */
   int retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  rhs_evals[0] = step_mem->nfse;
-  rhs_evals[1] = step_mem->nfsi;
+  if (rhs_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "rhs_evals is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  if (partition_index > 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid partition index");
+    return ARK_ILL_INPUT;
+  }
+
+  switch (partition_index)
+  {
+  case 0:
+    *rhs_evals = step_mem->nfse;
+    break;
+  case 1:
+    *rhs_evals = step_mem->nfsi;
+    break;
+  default:
+    *rhs_evals = step_mem->nfse + step_mem->nfsi;
+    break;
+  }
 
   return ARK_SUCCESS;
 }
@@ -155,12 +175,13 @@ int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED int num_rhs,
 int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
                           long int* nfsi_evals)
 {
-  long int rhs_evals[2];
-  int retval = ARKodeGetNumRhsEvals(arkode_mem, 2, rhs_evals);
+  int retval = ARK_SUCCESS;
+
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, nfse_evals);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  *nfse_evals = rhs_evals[0];
-  *nfsi_evals = rhs_evals[1];
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, nfsi_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
   return ARK_SUCCESS;
 }

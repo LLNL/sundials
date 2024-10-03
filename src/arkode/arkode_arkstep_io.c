@@ -521,35 +521,56 @@ int ARKStepSetTableName(void* arkode_mem, const char* itable, const char* etable
 /*---------------------------------------------------------------
   ARKStepGetNumRhsEvals:
 
-  Returns the current number of calls to fe and fi
+  Returns the current number of calls
   ---------------------------------------------------------------*/
-int arkStep_GetNumRhsEvals(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED int num_rhs,
+int arkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
                            long int* rhs_evals)
 {
-  SUNFunctionBegin(ark_mem->sunctx);
-  SUNAssert(num_rhs == 2, ARK_ILL_INPUT);
-  SUNAssert(rhs_evals, ARK_ILL_INPUT);
-
   ARKodeARKStepMem step_mem = NULL;
 
   /* access ARKodeARKStepMem structure */
   int retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  rhs_evals[0] = step_mem->nfe;
-  rhs_evals[1] = step_mem->nfi;
+  if (rhs_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "rhs_evals is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  if (partition_index > 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid partition index");
+    return ARK_ILL_INPUT;
+  }
+
+  switch (partition_index)
+  {
+  case 0:
+    *rhs_evals = step_mem->nfe;
+    break;
+  case 1:
+    *rhs_evals = step_mem->nfi;
+    break;
+  default:
+    *rhs_evals = step_mem->nfe + step_mem->nfi;
+    break;
+  }
 
   return ARK_SUCCESS;
 }
 
 int ARKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals)
 {
-  long int rhs_evals[2];
-  int retval = ARKodeGetNumRhsEvals(arkode_mem, 2, rhs_evals);
+  int retval = ARK_SUCCESS;
+
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, fe_evals);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  *fe_evals = rhs_evals[0];
-  *fi_evals = rhs_evals[1];
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, fi_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
   return ARK_SUCCESS;
 }

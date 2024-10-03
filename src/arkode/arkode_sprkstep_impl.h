@@ -83,7 +83,8 @@ int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                     sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 void sprkStep_Free(ARKodeMem ark_mem);
 void sprkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
-int sprkStep_GetNumRhsEvals(ARKodeMem ark_mem, int num_rhs, long int* rhs_evals);
+int sprkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                            long int* rhs_evals);
 
 /* Internal utility routines */
 int sprkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,

@@ -154,35 +154,56 @@ int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable* sprk_storage)
 /*---------------------------------------------------------------
   SPRKStepGetNumRhsEvals:
 
-  Returns the current number of calls to f1 and f2
+  Returns the current number of RHS calls
   ---------------------------------------------------------------*/
-int sprkStep_GetNumRhsEvals(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED int num_rhs,
+int sprkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
                             long int* rhs_evals)
 {
-  SUNFunctionBegin(ark_mem->sunctx);
-  SUNAssert(num_rhs == 2, ARK_ILL_INPUT);
-  SUNAssert(rhs_evals, ARK_ILL_INPUT);
-
   ARKodeSPRKStepMem step_mem = NULL;
 
   /* access ARKodeSPRKStepMem structure */
   int retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  rhs_evals[0] = step_mem->nf1;
-  rhs_evals[1] = step_mem->nf2;
+  if (rhs_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "rhs_evals is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  if (partition_index > 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid partition index");
+    return ARK_ILL_INPUT;
+  }
+
+  switch (partition_index)
+  {
+  case 0:
+    *rhs_evals = step_mem->nf1;
+    break;
+  case 1:
+    *rhs_evals = step_mem->nf2;
+    break;
+  default:
+    *rhs_evals = step_mem->nf1 + step_mem->nf2;
+    break;
+  }
 
   return ARK_SUCCESS;
 }
 
 int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 {
-  long int rhs_evals[2];
-  int retval = ARKodeGetNumRhsEvals(arkode_mem, 2, rhs_evals);
+  int retval = ARK_SUCCESS;
+
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, nf1);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  *nf1 = rhs_evals[0];
-  *nf2 = rhs_evals[1];
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, nf2);
+  if (retval != ARK_SUCCESS) { return retval; }
 
   return ARK_SUCCESS;
 }

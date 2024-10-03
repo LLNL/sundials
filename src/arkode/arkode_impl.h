@@ -224,7 +224,7 @@ typedef void (*ARKTimestepFree)(ARKodeMem ark_mem);
 typedef void (*ARKTimestepPrintMem)(ARKodeMem ark_mem, FILE* outfile);
 typedef int (*ARKTimestepSetDefaults)(ARKodeMem ark_mem);
 typedef int (*ARKTimestepSetOrder)(ARKodeMem ark_mem, int maxord);
-typedef int (*ARKTimestepGetNumRhsEvals)(ARKodeMem ark_mem, int num_rhs,
+typedef int (*ARKTimestepGetNumRhsEvals)(ARKodeMem ark_mem, int partition_index,
                                          long int* num_rhs_evals);
 
 /* time stepper interface functions -- temporal adaptivity */
