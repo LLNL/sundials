@@ -97,7 +97,7 @@ SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift,
   {
     return stepper->ops->setforcing(stepper, tshift, tscale, forcing, nforcing);
   }
-  else { return SUN_ERR_NOT_IMPLEMENTED; }
+  return SUN_ERR_NOT_IMPLEMENTED;
 }
 
 SUNErrCode SUNStepper_SetContent(SUNStepper stepper, void* content)
