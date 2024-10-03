@@ -33,113 +33,9 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
                         SUNContext sunctx)
 {
   ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  sunbooleantype nvectorOK;
-  int retval;
 
-  /* Check that rhs is supplied */
-  if (rhs == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_F);
-    return (NULL);
-  }
-
-  /* Check for legal input parameters */
-  if (y0 == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_Y0);
-    return (NULL);
-  }
-
-  if (!sunctx)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_SUNCTX);
-    return (NULL);
-  }
-
-  /* Test if all required vector operations are implemented */
-  nvectorOK = lsrkStep_CheckNVector(y0);
-  if (!nvectorOK)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
-    return (NULL);
-  }
-
-  /* Create ark_mem structure and set default values */
-  ark_mem = arkCreate(sunctx);
-  if (ark_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (NULL);
-  }
-
-  /* Allocate ARKodeLSRKStepMem structure, and initialize to zero */
-  step_mem = NULL;
-  step_mem = (ARKodeLSRKStepMem)malloc(sizeof(struct ARKodeLSRKStepMemRec));
-  if (step_mem == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_ARKMEM_FAIL);
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-  memset(step_mem, 0, sizeof(struct ARKodeLSRKStepMemRec));
-
-  /* Attach step_mem structure and function pointers to ark_mem */
-  ark_mem->step_init              = lsrkStep_Init;
-  ark_mem->step_fullrhs           = lsrkStep_FullRHS;
-  ark_mem->step                   = lsrkStep_TakeStepRKC;
-  ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
-  ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
-  ark_mem->step_resize            = lsrkStep_Resize;
-  ark_mem->step_free              = lsrkStep_Free;
-  ark_mem->step_printmem          = lsrkStep_PrintMem;
-  ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
-  ark_mem->step_getestlocalerrors = lsrkStep_GetEstLocalErrors;
-  ark_mem->step_mem               = (void*)step_mem;
-  ark_mem->step_supports_adaptive = SUNTRUE;
-
-  /* Set default values for optional inputs */
-  retval = lsrkStep_SetDefaults((void*)ark_mem);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Error setting default solver options");
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-
-  /* Copy the input parameters into ARKODE state */
-  step_mem->fe = rhs;
-
-  /* Initialize all the counters */
-  step_mem->nfe               = 0;
-  step_mem->stage_max         = 0;
-  step_mem->dom_eig_num_evals = 0;
-  step_mem->stage_max_limit   = (int)SUNRround(
-    SUNRsqrt(ark_mem->reltol / (SUN_RCONST(10.0) * ark_mem->uround)));
-  step_mem->stage_max_limit =
-    (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
-  step_mem->dom_eig_nst = 0;
-  step_mem->is_SSP == SUNFALSE;
-
-  /* Initialize main ARKODE infrastructure */
-  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to initialize main ARKODE infrastructure");
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-
-  /* Specify preferred interpolation type */
-  ark_mem->interp_type = ARK_INTERP_LAGRANGE;
+  ark_mem = lsrkStep_Create_Commons(rhs, t0, y0, sunctx);
+  ark_mem->step    = lsrkStep_TakeStepRKC;
 
   return ((void*)ark_mem);
 }
@@ -148,111 +44,9 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
                         SUNContext sunctx)
 {
   ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  sunbooleantype nvectorOK;
-  int retval;
 
-  /* Check that rhs is supplied */
-  if (rhs == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_F);
-    return (NULL);
-  }
-
-  /* Check for legal input parameters */
-  if (y0 == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_Y0);
-    return (NULL);
-  }
-
-  if (!sunctx)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_SUNCTX);
-    return (NULL);
-  }
-
-  /* Test if all required vector operations are implemented */
-  nvectorOK = lsrkStep_CheckNVector(y0);
-  if (!nvectorOK)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
-    return (NULL);
-  }
-
-  /* Create ark_mem structure and set default values */
-  ark_mem = arkCreate(sunctx);
-  if (ark_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (NULL);
-  }
-
-  /* Allocate ARKodeLSRKStepMem structure, and initialize to zero */
-  step_mem = (ARKodeLSRKStepMem)calloc(1, sizeof(*step_mem));
-  if (step_mem == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_ARKMEM_FAIL);
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-
-  /* Attach step_mem structure and function pointers to ark_mem */
-  ark_mem->step_init              = lsrkStep_Init;
-  ark_mem->step_fullrhs           = lsrkStep_FullRHS;
-  ark_mem->step                   = lsrkStep_TakeStepSSPs2;
-  ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
-  ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
-  ark_mem->step_resize            = lsrkStep_Resize;
-  ark_mem->step_free              = lsrkStep_Free;
-  ark_mem->step_printmem          = lsrkStep_PrintMem;
-  ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
-  ark_mem->step_getestlocalerrors = lsrkStep_GetEstLocalErrors;
-  ark_mem->step_mem               = (void*)step_mem;
-  ark_mem->step_supports_adaptive = SUNTRUE;
-
-  /* Set default values for optional inputs */
-  retval = lsrkStep_SetDefaults((void*)ark_mem);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Error setting default solver options");
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-
-  /* Copy the input parameters into ARKODE state */
-  step_mem->fe = rhs;
-
-  /* Initialize all the counters */
-  step_mem->nfe               = 0;
-  step_mem->stage_max         = 0;
-  step_mem->dom_eig_num_evals = 0;
-  step_mem->stage_max_limit =
-    (int)SUNRround(SUNRsqrt(ark_mem->reltol / (10.0 * ark_mem->uround)));
-  step_mem->stage_max_limit =
-    (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
-  step_mem->dom_eig_nst = 0;
-  step_mem->is_SSP = SUNTRUE;
-
-  /* Initialize main ARKODE infrastructure */
-  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to initialize main ARKODE infrastructure");
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-
-  /* Specify preferred interpolation type */
-  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
+  ark_mem = lsrkStep_Create_Commons(rhs, t0, y0, sunctx);
+  ark_mem->step    = lsrkStep_TakeStepSSPs2;
 
   return ((void*)ark_mem);
 }
@@ -2350,6 +2144,118 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
     }
   }
   else { step_mem->dom_eig_update = !step_mem->dom_eig_is_current; }
+}
+
+void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  sunbooleantype nvectorOK;
+  int retval;
+
+  /* Check that rhs is supplied */
+  if (rhs == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_F);
+    return (NULL);
+  }
+
+  /* Check for legal input parameters */
+  if (y0 == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
+    return (NULL);
+  }
+
+  if (!sunctx)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_SUNCTX);
+    return (NULL);
+  }
+
+  /* Test if all required vector operations are implemented */
+  nvectorOK = lsrkStep_CheckNVector(y0);
+  if (!nvectorOK)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_BAD_NVECTOR);
+    return (NULL);
+  }
+
+  /* Create ark_mem structure and set default values */
+  ark_mem = arkCreate(sunctx);
+  if (ark_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (NULL);
+  }
+
+  /* Allocate ARKodeLSRKStepMem structure, and initialize to zero */
+  step_mem = (ARKodeLSRKStepMem)calloc(1, sizeof(*step_mem));
+  if (step_mem == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_ARKMEM_FAIL);
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+
+  /* Attach step_mem structure and function pointers to ark_mem */
+  ark_mem->step_init              = lsrkStep_Init;
+  ark_mem->step_fullrhs           = lsrkStep_FullRHS;
+  ark_mem->step                   = lsrkStep_TakeStepRKC;
+  ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
+  ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
+  ark_mem->step_resize            = lsrkStep_Resize;
+  ark_mem->step_free              = lsrkStep_Free;
+  ark_mem->step_printmem          = lsrkStep_PrintMem;
+  ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
+  ark_mem->step_getestlocalerrors = lsrkStep_GetEstLocalErrors;
+  ark_mem->step_mem               = (void*)step_mem;
+  ark_mem->step_supports_adaptive = SUNTRUE;
+
+  /* Set default values for optional inputs */
+  retval = lsrkStep_SetDefaults((void*)ark_mem);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Error setting default solver options");
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+
+  /* Copy the input parameters into ARKODE state */
+  step_mem->fe = rhs;
+
+  /* Initialize all the counters */
+  step_mem->nfe               = 0;
+  step_mem->stage_max         = 0;
+  step_mem->dom_eig_num_evals = 0;
+  step_mem->stage_max_limit   = (int)SUNRround(
+    SUNRsqrt(ark_mem->reltol / (SUN_RCONST(10.0) * ark_mem->uround)));
+  step_mem->stage_max_limit =
+    (step_mem->stage_max_limit > 2) ? step_mem->stage_max_limit : 2;
+  step_mem->dom_eig_nst = 0;
+  step_mem->is_SSP = SUNFALSE;
+
+  /* Initialize main ARKODE infrastructure */
+  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to initialize main ARKODE infrastructure");
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+
+  /* Specify preferred interpolation type */
+  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
+
+  return ((void*)ark_mem);
 }
 
 /*===============================================================
