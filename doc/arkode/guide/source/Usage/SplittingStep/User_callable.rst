@@ -96,15 +96,15 @@ Optional inputs for IVP method selection
    :retval ARK_MEM_NULL: if the SplittingStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Notes:**
+   .. note::
 
-   For a description of the :c:type:`SplittingStepCoefficients` type and related
-   functions for creating splitting coefficients see
-   :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients`.
+      For a description of the :c:type:`SplittingStepCoefficients` type and related
+      functions for creating splitting coefficients see
+      :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients`.
 
-   **Warning:**
+   .. warning::
 
-   This should not be used with :c:func:`ARKodeSetOrder`.
+      This should not be used with :c:func:`ARKodeSetOrder`.
    
    .. versionadded:: x.y.z
 
