@@ -78,7 +78,7 @@ static int test_forward(SUNContext ctx)
   ARKodeEvolve(arkode_mem, tf, y, &tret, ARK_NORMAL);
 
   const sunrealtype exact_solution     = SUN_RCONST(2.0);
-  const sunrealtype numerical_solution = NV_Ith_S(y, 0);
+  const sunrealtype numerical_solution = N_VGetArrayPointer(y)[0];
   if (SUNRCompareTol(exact_solution, numerical_solution, global_tol))
   {
     const sunrealtype err = numerical_solution - exact_solution;

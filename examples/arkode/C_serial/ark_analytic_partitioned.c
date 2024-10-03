@@ -79,10 +79,10 @@ static N_Vector exact_sol(const N_Vector y0, const sunrealtype tf,
                           const UserData* const user_data)
 {
   N_Vector sol             = N_VClone(y0);
-  const sunrealtype y0_val = NV_Ith_S(y0, 0);
+  const sunrealtype y0_val = N_VGetArrayPointer(y0)[0];
   const sunrealtype lambda = user_data->lambda;
-  NV_Ith_S(sol, 0)         = lambda * y0_val /
-                     (y0_val - (y0_val - lambda) * SUNRexp(lambda * tf));
+  N_VGetArrayPointer(sol)[0] =
+    lambda * y0_val / (y0_val - (y0_val - lambda) * SUNRexp(lambda * tf));
   return sol;
 }
 
