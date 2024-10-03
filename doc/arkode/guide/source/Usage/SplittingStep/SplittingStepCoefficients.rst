@@ -118,13 +118,9 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    see
    :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients.Coefficients`.
 
-
-   **Arguments:**
-      * ``method`` -- the splitting coefficients identifier.
-
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * A ``NULL`` pointer if *method* was invalid or an allocation error occurred.
+   :param method: the splitting coefficients identifier.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if *method* was invalid or an allocation error occurred.
    
    .. versionadded:: x.y.z
 
@@ -136,14 +132,9 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    current set of splitting coefficients and their corresponding name, see
    :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients.Coefficients`.
 
-
-   **Arguments:**
-      * ``method`` -- the splitting coefficients identifier.
-
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * A ``NULL`` pointer if *method* was invalid, *method* was
-        ``"ARKODE_SPLITTING_NONE"``, or an allocation error occurred.
+   :param method: the splitting coefficients identifier.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if *method* was invalid or an allocation error occurred.
 
    .. note::
 
@@ -159,12 +150,9 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    their corresponding name, see
    :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients.Coefficients`.
 
-   **Arguments:**
-      * *method* -- the splitting coefficients identifier.
-
-   **Return value:**
-      * The name associated with *method*.
-      * ``NULL`` pointer if *method* was invalid.
+   :param method: the splitting coefficients identifier.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if *method* was invalid or an allocation error occurred.
    
    .. versionadded:: x.y.z
 
@@ -177,12 +165,10 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       y_n = L_h(y_{n-1}) = \left( \phi^P_{h} \circ \phi^{P-1}_{h}
       \circ \dots \circ \phi^1_{h} \right) (y_{n-1}).
 
-   **Arguments:**
-      * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
-
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * ``NULL`` if ``partitions`` was invalid or an allocation error occurred.
+   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if *partitions* was invalid or an allocation error
+      occurred.
    
    .. versionadded:: x.y.z
 
@@ -197,12 +183,10 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    where :math:`L_h` is the Lie-Trotter splitting and
    :math:`L^*_h = L^{-1}_{-h}` is its adjoint.
 
-   **Arguments:**
-      * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
-
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * ``NULL`` if ``partitions`` was invalid or an allocation error occurred.
+   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if *partitions* was invalid or an allocation error
+      occurred.
    
    .. versionadded:: x.y.z
 
@@ -215,12 +199,10 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       y_n = \phi^1_h(y_{n-1}) + \phi^2_h(y_{n-1}) + \dots + \phi^P(y_{n-1}) +
       (1 - p) y_{n-1}.
 
-   **Arguments:**
-      * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
-
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * ``NULL`` if ``partitions`` was invalid or an allocation error occurred.
+   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if *partitions* was invalid or an allocation error
+      occurred.
    
    .. versionadded:: x.y.z
 
@@ -235,13 +217,11 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    where :math:`L_h` is the Lie-Trotter splitting and
    :math:`L^*_h = L^{-1}_{-h}` is its adjoint.
-   
-   **Arguments:**
-      * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
 
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * ``NULL`` if ``partitions`` was invalid or an allocation error occurred.
+   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if *partitions* was invalid or an allocation error
+      occurred.
    
    .. versionadded:: x.y.z
 
@@ -257,13 +237,11 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    where :math:`L_h` is the Lie-Trotter splitting and
    :math:`L^*_h = L^{-1}_{-h}` is its adjoint. The parameters
    :math:`p_1, \dots, p_5` are selected to give third order.
-   
-   **Arguments:**
-      * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
 
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * ``NULL`` if ``partitions`` was invalid or an allocation error occurred.
+   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if *partitions* was invalid or an allocation error
+      occurred.
    
    .. versionadded:: x.y.z
 
@@ -283,15 +261,12 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    
    where :math:`S` is the Strang splitting and parameter :math:`\gamma_1` is
    selected to increase the order by two each recursion.
-   
-   **Arguments:**
-      * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
-      * *order* -- A positive even number for the method order of accuracy.
 
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * ``NULL`` if ``partitions`` or ``order`` was invalid or an allocation
-        error occurred.
+   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :param order: A positive even number for the method order of accuracy.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if an argument was invalid or an allocation error
+      occurred.
    
    .. versionadded:: x.y.z
 
@@ -312,15 +287,12 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    
    where :math:`S` is the Strang splitting and parameter :math:`\gamma_1` is
    selected to increase the order by two each recursion.
-   
-   **Arguments:**
-      * *partitions* -- The number :math:`P > 1` of partitions in the IVP.
-      * *order* -- A positive even number for the method order of accuracy.
 
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * ``NULL`` if ``partitions`` or ``order`` was invalid or an allocation
-        error occurred.
+   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :param order: A positive even number for the method order of accuracy.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if an argument was invalid or an allocation error
+      occurred.
    
    .. versionadded:: x.y.z
 
@@ -329,16 +301,13 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    Allocates an empty SplittingStepCoefficients.
 
-   **Arguments:**
-      * *sequential_methods* -- The number :math:`r` of sequential methods
-        combined to produce the overall operator splitting solution.
-      * *stages* -- The number :math:`s` of stages.
-      * *partitions* -- The number :math:`P` of partitions in the IVP.
-
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * A ``NULL`` pointer if *sequential_methods*, *stages* or *partitions* was
-        invalid or an allocation error occurred.
+   :param sequential_methods: The number :math:`r` of sequential methods
+      combined to produce the overall operator splitting solution.
+   :param stages: The number :math:`s` of stages.
+   :param partitions: The number :math:`P` of partitions in the IVP.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if an argument was invalid or an allocation error
+      occurred.
    
    .. versionadded:: x.y.z
 
@@ -347,26 +316,24 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    Allocates a SplittingStepCoefficients and fills it with the given values.
 
-   **Arguments:**
-      * *sequential_methods* -- The number :math:`r` of sequential methods
-        combined to produce the overall operator splitting solution.
-      * *stages* -- The number :math:`s` of stages.
-      * *partitions* -- The number :math:`P` of partitions in the IVP.
-      * *order* -- The method order of accuracy.
-      * *alpha* -- An array of length ``sequential_methods`` containing the
-        weight of each sequential method used to produce the overall operator
-        splitting solution.
-      * *beta* -- An array of length
-        ``sequential_methods * (stages+1) * partitions`` containing the time nodes
-        of the inner integrations in the order
+   :param sequential_methods: The number :math:`r` of sequential methods
+      combined to produce the overall operator splitting solution.
+   :param stages: The number :math:`s` of stages.
+   :param partitions: The number :math:`P` of partitions in the IVP.
+   :param order: The method order of accuracy.
+   :param alpha: An array of length ``sequential_methods`` containing the
+      weight of each sequential method used to produce the overall operator
+      splitting solution.
+   :param beta: An array of length
+      ``sequential_methods * (stages+1) * partitions`` containing the time nodes
+      of the inner integrations in the order
 
-        .. math::
-           \beta_{1,0,1}, \dots, \beta_{1,0,P}, \beta_{1,1,1}, \dots, \beta_{1,1,P}, \dots, \beta_{2,0,1}, \dots, \beta_{r,s,P}.
+      .. math::
+         \beta_{1,0,1}, \dots, \beta_{1,0,P}, \beta_{1,1,1}, \dots, \beta_{1,1,P}, \dots, \beta_{2,0,1}, \dots, \beta_{r,s,P}.
 
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * A ``NULL`` pointer if an argument was invalid or an allocation error
-        occurred.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if an argument was invalid or an allocation error
+      occurred.
    
    .. versionadded:: x.y.z
 
@@ -375,12 +342,9 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    Creates copy of the given splitting coefficients.
 
-   **Arguments:**
-      * ``coefficients`` -- The splitting coefficients to copy.
-
-   **Return value:**
-      * A :c:type:`SplittingStepCoefficients` structure if successful.
-      * A ``NULL`` pointer if an allocation error occurred.
+   :param coefficients: The splitting coefficients to copy.
+   :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
+      ``NULL`` pointer if an allocation error occurred.
    
    .. versionadded:: x.y.z
 
@@ -389,8 +353,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    Deallocate the splitting coefficients memory.
 
-   **Arguments:**
-      * ``coefficients`` -- The splitting coefficients.
+   :param coefficients: The splitting coefficients.
    
    .. versionadded:: x.y.z
 
@@ -399,9 +362,8 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    Write the splitting coefficients to the provided file pointer.
 
-   **Arguments:**
-      * ``coefficients`` -- The splitting coefficients.
-      * ``outfile`` -- Pointer to use for printing the splitting coefficients.
+   :param coefficients: The splitting coefficients.
+   :param outfile: Pointer to use for printing the splitting coefficients.
 
    .. note::
 
@@ -422,7 +384,7 @@ references for each in the table below. We use the naming convention
 
 .. code-block:: text
 
-   <name>_<stages>_<order>_<partitions>
+   ARKODE_SPLITTING_<name>_<stages>_<order>_<partitions>
 
 Each of the splitting coefficients that are packaged with SplittingStep are
 specified by a unique ID having type:
