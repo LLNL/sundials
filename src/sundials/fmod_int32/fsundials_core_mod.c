@@ -2928,26 +2928,6 @@ SWIGEXPORT int _wrap_FSUNStepper_SetForcingFn(void *farg1, SUNStepperSetForcingF
 }
 
 
-SWIGEXPORT int _wrap_FSUNStepper_TryStep(void *farg1, double const *farg2, double const *farg3, N_Vector farg4, double *farg5) {
-  int fresult ;
-  SUNStepper arg1 = (SUNStepper) 0 ;
-  sunrealtype arg2 ;
-  sunrealtype arg3 ;
-  N_Vector arg4 = (N_Vector) 0 ;
-  sunrealtype *arg5 = (sunrealtype *) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNStepper)(farg1);
-  arg2 = (sunrealtype)(*farg2);
-  arg3 = (sunrealtype)(*farg3);
-  arg4 = (N_Vector)(farg4);
-  arg5 = (sunrealtype *)(farg5);
-  result = (SUNErrCode)SUNStepper_TryStep(arg1,arg2,arg3,arg4,arg5);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSUNStepper_SetStepDirection(void *farg1, double const *farg2) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;

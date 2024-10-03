@@ -129,10 +129,6 @@ SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
                               sunrealtype tout, N_Vector y, sunrealtype* tret);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_TryStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR);
 
 SUNDIALS_EXPORT

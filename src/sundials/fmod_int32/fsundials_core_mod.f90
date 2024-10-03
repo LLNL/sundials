@@ -562,7 +562,6 @@ module fsundials_core_mod
  public :: FSUNStepper_SetStepDirectionFn
  public :: FSUNStepper_SetGetStepDirectionFn
  public :: FSUNStepper_SetForcingFn
- public :: FSUNStepper_TryStep
  public :: FSUNStepper_SetStepDirection
  public :: FSUNStepper_GetStepDirection
 
@@ -2240,18 +2239,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNStepper_TryStep(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FSUNStepper_TryStep") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-real(C_DOUBLE), intent(in) :: farg2
-real(C_DOUBLE), intent(in) :: farg3
-type(C_PTR), value :: farg4
-type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -5342,31 +5329,6 @@ type(C_FUNPTR) :: farg2
 farg1 = stepper
 farg2 = fn
 fresult = swigc_FSUNStepper_SetForcingFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNStepper_TryStep(stepper, t0, tout, y, tret) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-real(C_DOUBLE), intent(in) :: t0
-real(C_DOUBLE), intent(in) :: tout
-type(N_Vector), target, intent(inout) :: y
-real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-real(C_DOUBLE) :: farg2 
-real(C_DOUBLE) :: farg3 
-type(C_PTR) :: farg4 
-type(C_PTR) :: farg5 
-
-farg1 = stepper
-farg2 = t0
-farg3 = tout
-farg4 = c_loc(y)
-farg5 = c_loc(tret(1))
-fresult = swigc_FSUNStepper_TryStep(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
