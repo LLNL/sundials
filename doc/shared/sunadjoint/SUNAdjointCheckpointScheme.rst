@@ -188,7 +188,7 @@ The diagram below illustrates how checkpoints are stored with this scheme:
 
 The SUNAdjointCheckpointScheme_Basic module has the following user-callable functions:
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, uint64_t interval, uint64_t estimate, sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval, int64_t estimate, sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
 
    Creates a new `SUNAdjointCheckpointScheme` object that checkpoints at a fixed interval.
 

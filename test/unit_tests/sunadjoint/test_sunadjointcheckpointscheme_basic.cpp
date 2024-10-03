@@ -137,8 +137,8 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, CreateWorks)
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs = NULL;
 
-  uint64_t interval                 = 1;
-  uint64_t estimate                 = 1;
+  int64_t interval                  = 1;
+  int64_t estimate                  = 1;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
@@ -155,8 +155,8 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, SingleStageWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  uint64_t interval                 = 1;
-  uint64_t estimate                 = 10;
+  int64_t interval                  = 1;
+  int64_t estimate                  = 10;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
@@ -175,8 +175,8 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStageWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  uint64_t interval                 = 1;
-  uint64_t estimate                 = 100;
+  int64_t interval                  = 1;
+  int64_t estimate                  = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
@@ -195,8 +195,8 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  uint64_t interval                 = 1;
-  uint64_t estimate                 = 100;
+  int64_t interval                  = 1;
+  int64_t estimate                  = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
@@ -215,8 +215,8 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsTwoStagesWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  uint64_t interval                 = 1;
-  uint64_t estimate                 = 100;
+  int64_t interval                  = 1;
+  int64_t estimate                  = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
@@ -235,8 +235,8 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, SingleStageWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  uint64_t interval                 = 1;
-  uint64_t estimate                 = 100;
+  int64_t interval                  = 1;
+  int64_t estimate                  = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
@@ -255,8 +255,8 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStagesWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  uint64_t interval                 = 1;
-  uint64_t estimate                 = 100;
+  int64_t interval                  = 1;
+  int64_t estimate                  = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
@@ -275,8 +275,8 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  uint64_t interval                 = 1;
-  uint64_t estimate                 = 100;
+  int64_t interval                  = 1;
+  int64_t estimate                  = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
@@ -295,8 +295,8 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsTwoStagesWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  uint64_t interval                 = 1;
-  uint64_t estimate                 = 100;
+  int64_t interval                  = 1;
+  int64_t estimate                  = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
@@ -316,8 +316,8 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, CanStillInsertAfterDeleting)
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
   sunrealtype tout                  = 0.0;
-  uint64_t interval                 = 1;
-  uint64_t estimate                 = 100;
+  int64_t interval                  = 1;
+  int64_t estimate                  = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 

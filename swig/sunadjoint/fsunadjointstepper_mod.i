@@ -26,9 +26,7 @@
 %import "../sundials/fsundials_core_mod.i"
 %import "../sunadjoint/fsunadjointcheckpointscheme_mod.i"
 
-%fortran_struct(SUNAdjointStepper_);
-%typemap(ctype) SUNAdjointStepper_* "SUNAdjointStepper";
-%rename(SUNAdjointStepper) SUNAdjointStepper_;
+%apply void* { SUNAdjointStepper };
 
 // Process and wrap functions in the following files
 %include  "sunadjoint/sunadjoint_stepper.h"

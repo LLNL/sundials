@@ -36,7 +36,7 @@ struct SUNAdjointStepper_
   SUNJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
 
   /* counters */
-  uint64_t nst, njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp,
+  int64_t nst, njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp,
     nrecompute;
 
   void* user_data;

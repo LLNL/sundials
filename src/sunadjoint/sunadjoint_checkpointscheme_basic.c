@@ -28,8 +28,8 @@
 struct SUNAdjointCheckpointScheme_Basic_Content_
 {
   SUNMemoryHelper mem_helper;
-  uint64_t backup_interval;
-  uint64_t interval;
+  int64_t backup_interval;
+  int64_t interval;
   sunbooleantype save_stages;
   sunbooleantype keep;
   SUNDataIOMode io_mode;
@@ -47,8 +47,8 @@ typedef struct SUNAdjointCheckpointScheme_Basic_Content_*
 #define PROPERTY(S, prop) (GET_CONTENT(S)->prop)
 
 SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
-  SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, uint64_t interval,
-  uint64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
+  SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval,
+  int64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
   SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
 {
   SUNFunctionBegin(sunctx);

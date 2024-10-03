@@ -56,8 +56,8 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 integer(C_INT), intent(in) :: farg1
 type(SwigClassWrapper) :: farg2
-integer(C_UINT64_T), intent(in) :: farg3
-integer(C_UINT64_T), intent(in) :: farg4
+integer(C_INT64_T), intent(in) :: farg3
+integer(C_INT64_T), intent(in) :: farg4
 integer(C_INT), intent(in) :: farg5
 integer(C_INT), intent(in) :: farg6
 type(C_PTR), value :: farg7
@@ -153,8 +153,8 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(SUNDataIOMode), intent(in) :: io_mode
 type(SWIGTYPE_p_SUNMemoryHelper), intent(in) :: mem_helper
-integer(C_UINT64_T), intent(in) :: interval
-integer(C_UINT64_T), intent(in) :: estimate
+integer(C_INT64_T), intent(in) :: interval
+integer(C_INT64_T), intent(in) :: estimate
 integer(C_INT), intent(in) :: save_stages
 integer(C_INT), intent(in) :: keep
 type(C_PTR) :: sunctx
@@ -162,8 +162,8 @@ type(C_PTR), target, intent(inout) :: check_scheme_ptr
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(SwigClassWrapper) :: farg2 
-integer(C_UINT64_T) :: farg3 
-integer(C_UINT64_T) :: farg4 
+integer(C_INT64_T) :: farg3 
+integer(C_INT64_T) :: farg4 
 integer(C_INT) :: farg5 
 integer(C_INT) :: farg6 
 type(C_PTR) :: farg7 

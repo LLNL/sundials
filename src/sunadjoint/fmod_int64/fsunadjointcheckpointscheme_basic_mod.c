@@ -237,12 +237,12 @@ SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
     return result;
 }
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Basic(int const *farg1, SwigClassWrapper const *farg2, uint64_t const *farg3, uint64_t const *farg4, int const *farg5, int const *farg6, void *farg7, void *farg8) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Basic(int const *farg1, SwigClassWrapper const *farg2, int64_t const *farg3, int64_t const *farg4, int const *farg5, int const *farg6, void *farg7, void *farg8) {
   int fresult ;
   SUNDataIOMode arg1 ;
   SUNMemoryHelper arg2 ;
-  uint64_t arg3 ;
-  uint64_t arg4 ;
+  int64_t arg3 ;
+  int64_t arg4 ;
   int arg5 ;
   int arg6 ;
   SUNContext arg7 = (SUNContext) 0 ;
@@ -250,10 +250,10 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Basic(int const *farg1, 
   SUNErrCode result;
   
   arg1 = (SUNDataIOMode)(*farg1);
-  SWIG_check_nonnull(*farg2, "SUNMemoryHelper", "SWIGTYPE_p_SUNMemoryHelper", "SUNAdjointCheckpointScheme_Create_Basic(SUNDataIOMode,SUNMemoryHelper,uint64_t,uint64_t,int,int,SUNContext,SUNAdjointCheckpointScheme *)", return 0);
+  SWIG_check_nonnull(*farg2, "SUNMemoryHelper", "SWIGTYPE_p_SUNMemoryHelper", "SUNAdjointCheckpointScheme_Create_Basic(SUNDataIOMode,SUNMemoryHelper,int64_t,int64_t,int,int,SUNContext,SUNAdjointCheckpointScheme *)", return 0);
   arg2 = *(SUNMemoryHelper *)(farg2->cptr);
-  arg3 = (uint64_t)(*farg3);
-  arg4 = (uint64_t)(*farg4);
+  arg3 = (int64_t)(*farg3);
+  arg4 = (int64_t)(*farg4);
   arg5 = (int)(*farg5);
   arg6 = (int)(*farg6);
   arg7 = (SUNContext)(farg7);

@@ -352,7 +352,7 @@ not adhere to all of these rules.
 #. Conversely, never use ``sunindextype`` for variables that are not specifically related to
    the dimensions of a vector, matrix, etc.. E.g., if you have a variable that
    represents the number of integer "words" allocated in a workspace do not use
-   ``sunindextype`` for it. Instead use the appropriate integer type (e.g., ``uint64_t``) directly.
+   ``sunindextype`` for it. Instead use the appropriate integer type (e.g., ``int64_t``) directly.
    Do not use ``sunindextype`` for counters either.
 
 #. ``SUNLogger`` statements must be in the format:
@@ -373,6 +373,11 @@ not adhere to all of these rules.
    utility to understand that the payload is an array.
 
    .. code-block:: c
+
+#. Do not use unsigned integer types except for ``size_t`` when the value you are storing
+   is a memory size. Unsigned integer types must never be used in parts of the
+   SUNDIALS API that will be interfaced to Fortran since the Fortran standard does
+   not include unsigned integers. 
 
 .. _Style.Formatting:
 

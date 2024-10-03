@@ -26,8 +26,8 @@ extern "C" {
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
-  SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, uint64_t interval,
-  uint64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
+  SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval,
+  int64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
   SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr);
 
 SUNDIALS_EXPORT

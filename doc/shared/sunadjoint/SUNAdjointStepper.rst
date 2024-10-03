@@ -80,35 +80,35 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
       Jacobian-times-vector function pointer to evaluate :math:`v^T(df/dp)`.
 
-   .. c:member:: uint64_t nst
+   .. c:member:: int64_t nst
 
       Holds the count of the number of backwards steps taken.
 
-   .. c:member:: uint64_t njeval
+   .. c:member:: int64_t njeval
 
       Holds the count of the number of :math:`df/dy` evaluations.
 
-   .. c:member:: uint64_t njpeval
+   .. c:member:: int64_t njpeval
 
       Holds the count of the number of :math:`df/dp` evaluations.
 
-   .. c:member:: uint64_t njtimesv
+   .. c:member:: int64_t njtimesv
 
       Holds the count of the number of :math:`(df/dy)^T v` evaluations.
 
-   .. c:member:: uint64_t njptimesv
+   .. c:member:: int64_t njptimesv
 
       Holds the count of the number of :math:`(df/dp)^T v` evaluations.
 
-   .. c:member:: uint64_t nvtimesj
+   .. c:member:: int64_t nvtimesj
 
       Holds the count of the number of :math:`v^T(df/dy)` evaluations.
 
-   .. c:member:: uint64_t nvtimesjp
+   .. c:member:: int64_t nvtimesjp
 
       Holds the count of the number of :math:`v^T(df/dp)` evaluations.
 
-   .. c:member:: uint64_t nrecompute
+   .. c:member:: int64_t nrecompute
 
    .. c:member:: void* user_data
 

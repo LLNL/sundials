@@ -27,35 +27,6 @@ module fsunadjointstepper_mod
  private
 
  ! DECLARATION CONSTRUCTS
- ! struct struct SUNAdjointStepper_
- type, bind(C), public :: SUNAdjointStepper
-  type(C_PTR), public :: adj_sunstepper
-  type(C_PTR), public :: fwd_sunstepper
-  type(C_PTR), public :: checkpoint_scheme
-  real(C_DOUBLE), public :: tf
-  integer(C_INT64_T), public :: step_idx
-  integer(C_INT64_T), public :: final_step_idx
-  type(C_PTR), public :: Jac
-  type(C_PTR), public :: JacP
-  type(C_FUNPTR), public :: JacFn
-  type(C_FUNPTR), public :: JacPFn
-  type(C_FUNPTR), public :: JvpFn
-  type(C_FUNPTR), public :: JPvpFn
-  type(C_FUNPTR), public :: vJpFn
-  type(C_FUNPTR), public :: vJPpFn
-  integer(C_UINT64_T), public :: nst
-  integer(C_UINT64_T), public :: njeval
-  integer(C_UINT64_T), public :: njpeval
-  integer(C_UINT64_T), public :: njtimesv
-  integer(C_UINT64_T), public :: njptimesv
-  integer(C_UINT64_T), public :: nvtimesj
-  integer(C_UINT64_T), public :: nvtimesjp
-  integer(C_UINT64_T), public :: nrecompute
-  type(C_PTR), public :: user_data
-  type(C_PTR), public :: content
-  type(C_PTR), public :: sunctx
- end type SUNAdjointStepper
- public :: FSUNAdjointStepper_Create
 
  integer, parameter :: swig_cmem_own_bit = 0
  integer, parameter :: swig_cmem_rvalue_bit = 1
@@ -64,6 +35,68 @@ module fsunadjointstepper_mod
   type(C_PTR), public :: cptr = C_NULL_PTR
   integer(C_INT), public :: cmemflags = 0
  end type
+ ! struct struct SUNAdjointStepper_
+ type, public :: SUNAdjointStepper_
+  type(SwigClassWrapper), public :: swigdata
+ contains
+  procedure :: set_adj_sunstepper => swigf_SUNAdjointStepper__adj_sunstepper_set
+  procedure :: get_adj_sunstepper => swigf_SUNAdjointStepper__adj_sunstepper_get
+  procedure :: set_fwd_sunstepper => swigf_SUNAdjointStepper__fwd_sunstepper_set
+  procedure :: get_fwd_sunstepper => swigf_SUNAdjointStepper__fwd_sunstepper_get
+  procedure :: set_checkpoint_scheme => swigf_SUNAdjointStepper__checkpoint_scheme_set
+  procedure :: get_checkpoint_scheme => swigf_SUNAdjointStepper__checkpoint_scheme_get
+  procedure :: set_tf => swigf_SUNAdjointStepper__tf_set
+  procedure :: get_tf => swigf_SUNAdjointStepper__tf_get
+  procedure :: set_step_idx => swigf_SUNAdjointStepper__step_idx_set
+  procedure :: get_step_idx => swigf_SUNAdjointStepper__step_idx_get
+  procedure :: set_final_step_idx => swigf_SUNAdjointStepper__final_step_idx_set
+  procedure :: get_final_step_idx => swigf_SUNAdjointStepper__final_step_idx_get
+  procedure :: set_Jac => swigf_SUNAdjointStepper__Jac_set
+  procedure :: get_Jac => swigf_SUNAdjointStepper__Jac_get
+  procedure :: set_JacP => swigf_SUNAdjointStepper__JacP_set
+  procedure :: get_JacP => swigf_SUNAdjointStepper__JacP_get
+  procedure :: set_JacFn => swigf_SUNAdjointStepper__JacFn_set
+  procedure :: get_JacFn => swigf_SUNAdjointStepper__JacFn_get
+  procedure :: set_JacPFn => swigf_SUNAdjointStepper__JacPFn_set
+  procedure :: get_JacPFn => swigf_SUNAdjointStepper__JacPFn_get
+  procedure :: set_JvpFn => swigf_SUNAdjointStepper__JvpFn_set
+  procedure :: get_JvpFn => swigf_SUNAdjointStepper__JvpFn_get
+  procedure :: set_JPvpFn => swigf_SUNAdjointStepper__JPvpFn_set
+  procedure :: get_JPvpFn => swigf_SUNAdjointStepper__JPvpFn_get
+  procedure :: set_vJpFn => swigf_SUNAdjointStepper__vJpFn_set
+  procedure :: get_vJpFn => swigf_SUNAdjointStepper__vJpFn_get
+  procedure :: set_vJPpFn => swigf_SUNAdjointStepper__vJPpFn_set
+  procedure :: get_vJPpFn => swigf_SUNAdjointStepper__vJPpFn_get
+  procedure :: set_nst => swigf_SUNAdjointStepper__nst_set
+  procedure :: get_nst => swigf_SUNAdjointStepper__nst_get
+  procedure :: set_njeval => swigf_SUNAdjointStepper__njeval_set
+  procedure :: get_njeval => swigf_SUNAdjointStepper__njeval_get
+  procedure :: set_njpeval => swigf_SUNAdjointStepper__njpeval_set
+  procedure :: get_njpeval => swigf_SUNAdjointStepper__njpeval_get
+  procedure :: set_njtimesv => swigf_SUNAdjointStepper__njtimesv_set
+  procedure :: get_njtimesv => swigf_SUNAdjointStepper__njtimesv_get
+  procedure :: set_njptimesv => swigf_SUNAdjointStepper__njptimesv_set
+  procedure :: get_njptimesv => swigf_SUNAdjointStepper__njptimesv_get
+  procedure :: set_nvtimesj => swigf_SUNAdjointStepper__nvtimesj_set
+  procedure :: get_nvtimesj => swigf_SUNAdjointStepper__nvtimesj_get
+  procedure :: set_nvtimesjp => swigf_SUNAdjointStepper__nvtimesjp_set
+  procedure :: get_nvtimesjp => swigf_SUNAdjointStepper__nvtimesjp_get
+  procedure :: set_nrecompute => swigf_SUNAdjointStepper__nrecompute_set
+  procedure :: get_nrecompute => swigf_SUNAdjointStepper__nrecompute_get
+  procedure :: set_user_data => swigf_SUNAdjointStepper__user_data_set
+  procedure :: get_user_data => swigf_SUNAdjointStepper__user_data_get
+  procedure :: set_content => swigf_SUNAdjointStepper__content_set
+  procedure :: get_content => swigf_SUNAdjointStepper__content_get
+  procedure :: set_sunctx => swigf_SUNAdjointStepper__sunctx_set
+  procedure :: get_sunctx => swigf_SUNAdjointStepper__sunctx_get
+  procedure :: release => swigf_release_SUNAdjointStepper_
+  procedure, private :: swigf_SUNAdjointStepper__op_assign__
+  generic :: assignment(=) => swigf_SUNAdjointStepper__op_assign__
+ end type SUNAdjointStepper_
+ interface SUNAdjointStepper_
+  module procedure swigf_create_SUNAdjointStepper_
+ end interface
+ public :: FSUNAdjointStepper_Create
  public :: FSUNAdjointStepper_ReInit
  public :: FSUNAdjointStepper_Evolve
  public :: FSUNAdjointStepper_OneStep
@@ -77,6 +110,454 @@ module fsunadjointstepper_mod
 
 ! WRAPPER DECLARATIONS
 interface
+subroutine swigc_SUNAdjointStepper__adj_sunstepper_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__adj_sunstepper_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__adj_sunstepper_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__adj_sunstepper_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__fwd_sunstepper_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__fwd_sunstepper_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__fwd_sunstepper_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__fwd_sunstepper_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__checkpoint_scheme_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__checkpoint_scheme_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__checkpoint_scheme_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__checkpoint_scheme_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__tf_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__tf_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__tf_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__tf_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+real(C_DOUBLE) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__step_idx_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__step_idx_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__step_idx_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__step_idx_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__final_step_idx_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__final_step_idx_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__final_step_idx_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__final_step_idx_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__Jac_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__Jac_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__Jac_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__Jac_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__JacP_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__JacP_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__JacP_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__JacP_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__JacFn_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__JacFn_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__JacFn_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__JacFn_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__JacPFn_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__JacPFn_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__JacPFn_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__JacPFn_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__JvpFn_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__JvpFn_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__JvpFn_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__JvpFn_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__JPvpFn_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__JPvpFn_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__JPvpFn_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__JPvpFn_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__vJpFn_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__vJpFn_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__vJpFn_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__vJpFn_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__vJPpFn_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__vJPpFn_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__vJPpFn_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__vJPpFn_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_FUNPTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__nst_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__nst_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__nst_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__nst_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__njeval_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__njeval_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__njeval_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__njeval_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__njpeval_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__njpeval_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__njpeval_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__njpeval_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__njtimesv_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__njtimesv_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__njtimesv_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__njtimesv_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__njptimesv_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__njptimesv_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__njptimesv_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__njptimesv_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__nvtimesj_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__nvtimesj_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__nvtimesj_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__nvtimesj_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__nvtimesjp_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__nvtimesjp_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__nvtimesjp_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__nvtimesjp_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__nrecompute_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__nrecompute_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__nrecompute_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__nrecompute_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__user_data_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__user_data_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__user_data_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__user_data_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__content_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__content_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__content_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__content_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__sunctx_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__sunctx_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__sunctx_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__sunctx_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+type(C_PTR) :: fresult
+end function
+
+function swigc_new_SUNAdjointStepper_() &
+bind(C, name="_wrap_new_SUNAdjointStepper_") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: fresult
+end function
+
+subroutine swigc_delete_SUNAdjointStepper_(farg1) &
+bind(C, name="_wrap_delete_SUNAdjointStepper_")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper), intent(inout) :: farg1
+end subroutine
+
+subroutine swigc_SUNAdjointStepper__op_assign__(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__op_assign__")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper), intent(inout) :: farg1
+type(SwigClassWrapper) :: farg2
+end subroutine
+
 function swigc_FSUNAdjointStepper_Create(farg1, farg2, farg3, farg4, farg5, farg6, farg7, farg8) &
 bind(C, name="_wrap_FSUNAdjointStepper_Create") &
 result(fresult)
@@ -96,8 +577,7 @@ function swigc_FSUNAdjointStepper_ReInit(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNAdjointStepper_ReInit") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
@@ -109,8 +589,7 @@ function swigc_FSUNAdjointStepper_Evolve(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNAdjointStepper_Evolve") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
@@ -122,8 +601,7 @@ function swigc_FSUNAdjointStepper_OneStep(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNAdjointStepper_OneStep") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
@@ -135,8 +613,7 @@ function swigc_FSUNAdjointStepper_RecomputeFwd(farg1, farg2, farg3, farg4, farg5
 bind(C, name="_wrap_FSUNAdjointStepper_RecomputeFwd") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 integer(C_INT64_T), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
@@ -148,8 +625,7 @@ function swigc_FSUNAdjointStepper_SetJacFn(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNAdjointStepper_SetJacFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
 type(C_PTR), value :: farg3
 type(C_FUNPTR), value :: farg4
@@ -161,8 +637,7 @@ function swigc_FSUNAdjointStepper_SetJacTimesVecFn(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNAdjointStepper_SetJacTimesVecFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
 type(C_FUNPTR), value :: farg3
 integer(C_INT) :: fresult
@@ -172,8 +647,7 @@ function swigc_FSUNAdjointStepper_SetVecTimesJacFn(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNAdjointStepper_SetVecTimesJacFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
 type(C_FUNPTR), value :: farg3
 integer(C_INT) :: fresult
@@ -183,8 +657,7 @@ function swigc_FSUNAdjointStepper_SetUserData(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_SetUserData") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
@@ -193,8 +666,7 @@ function swigc_FSUNAdjointStepper_PrintAllStats(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNAdjointStepper_PrintAllStats") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 integer(C_INT), intent(in) :: farg3
 integer(C_INT) :: fresult
@@ -213,6 +685,668 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
+subroutine swigf_SUNAdjointStepper__adj_sunstepper_set(self, adj_sunstepper)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: adj_sunstepper
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = adj_sunstepper
+call swigc_SUNAdjointStepper__adj_sunstepper_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__adj_sunstepper_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__adj_sunstepper_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__fwd_sunstepper_set(self, fwd_sunstepper)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: fwd_sunstepper
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = fwd_sunstepper
+call swigc_SUNAdjointStepper__fwd_sunstepper_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__fwd_sunstepper_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__fwd_sunstepper_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__checkpoint_scheme_set(self, checkpoint_scheme)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(SUNAdjointCheckpointScheme), target, intent(inout) :: checkpoint_scheme
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = c_loc(checkpoint_scheme)
+call swigc_SUNAdjointStepper__checkpoint_scheme_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__checkpoint_scheme_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SUNAdjointCheckpointScheme), pointer :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__checkpoint_scheme_get(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+subroutine swigf_SUNAdjointStepper__tf_set(self, tf)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+real(C_DOUBLE), intent(in) :: tf
+type(SwigClassWrapper) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = self%swigdata
+farg2 = tf
+call swigc_SUNAdjointStepper__tf_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__tf_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+real(C_DOUBLE) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+real(C_DOUBLE) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__tf_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__step_idx_set(self, step_idx)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T), intent(in) :: step_idx
+type(SwigClassWrapper) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = self%swigdata
+farg2 = step_idx
+call swigc_SUNAdjointStepper__step_idx_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__step_idx_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__step_idx_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__final_step_idx_set(self, final_step_idx)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T), intent(in) :: final_step_idx
+type(SwigClassWrapper) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = self%swigdata
+farg2 = final_step_idx
+call swigc_SUNAdjointStepper__final_step_idx_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__final_step_idx_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__final_step_idx_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__Jac_set(self, jac)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(SUNMatrix), target, intent(inout) :: jac
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = c_loc(jac)
+call swigc_SUNAdjointStepper__Jac_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__Jac_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SUNMatrix), pointer :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__Jac_get(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+subroutine swigf_SUNAdjointStepper__JacP_set(self, jacp)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(SUNMatrix), target, intent(inout) :: jacp
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = c_loc(jacp)
+call swigc_SUNAdjointStepper__JacP_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__JacP_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(SUNMatrix), pointer :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__JacP_get(farg1)
+call c_f_pointer(fresult, swig_result)
+end function
+
+subroutine swigf_SUNAdjointStepper__JacFn_set(self, jacfn)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR), intent(in), value :: jacfn
+type(SwigClassWrapper) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = jacfn
+call swigc_SUNAdjointStepper__JacFn_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__JacFn_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_FUNPTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__JacFn_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__JacPFn_set(self, jacpfn)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR), intent(in), value :: jacpfn
+type(SwigClassWrapper) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = jacpfn
+call swigc_SUNAdjointStepper__JacPFn_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__JacPFn_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_FUNPTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__JacPFn_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__JvpFn_set(self, jvpfn)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR), intent(in), value :: jvpfn
+type(SwigClassWrapper) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = jvpfn
+call swigc_SUNAdjointStepper__JvpFn_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__JvpFn_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_FUNPTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__JvpFn_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__JPvpFn_set(self, jpvpfn)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR), intent(in), value :: jpvpfn
+type(SwigClassWrapper) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = jpvpfn
+call swigc_SUNAdjointStepper__JPvpFn_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__JPvpFn_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_FUNPTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__JPvpFn_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__vJpFn_set(self, vjpfn)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR), intent(in), value :: vjpfn
+type(SwigClassWrapper) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = vjpfn
+call swigc_SUNAdjointStepper__vJpFn_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__vJpFn_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_FUNPTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__vJpFn_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__vJPpFn_set(self, vjppfn)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR), intent(in), value :: vjppfn
+type(SwigClassWrapper) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = vjppfn
+call swigc_SUNAdjointStepper__vJPpFn_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__vJPpFn_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_FUNPTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_FUNPTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__vJPpFn_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__nst_set(self, nst)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T), intent(in) :: nst
+type(SwigClassWrapper) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = self%swigdata
+farg2 = nst
+call swigc_SUNAdjointStepper__nst_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__nst_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__nst_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__njeval_set(self, njeval)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T), intent(in) :: njeval
+type(SwigClassWrapper) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = self%swigdata
+farg2 = njeval
+call swigc_SUNAdjointStepper__njeval_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__njeval_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__njeval_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__njpeval_set(self, njpeval)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T), intent(in) :: njpeval
+type(SwigClassWrapper) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = self%swigdata
+farg2 = njpeval
+call swigc_SUNAdjointStepper__njpeval_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__njpeval_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__njpeval_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__njtimesv_set(self, njtimesv)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T), intent(in) :: njtimesv
+type(SwigClassWrapper) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = self%swigdata
+farg2 = njtimesv
+call swigc_SUNAdjointStepper__njtimesv_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__njtimesv_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__njtimesv_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__njptimesv_set(self, njptimesv)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T), intent(in) :: njptimesv
+type(SwigClassWrapper) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = self%swigdata
+farg2 = njptimesv
+call swigc_SUNAdjointStepper__njptimesv_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__njptimesv_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__njptimesv_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__nvtimesj_set(self, nvtimesj)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T), intent(in) :: nvtimesj
+type(SwigClassWrapper) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = self%swigdata
+farg2 = nvtimesj
+call swigc_SUNAdjointStepper__nvtimesj_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__nvtimesj_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__nvtimesj_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__nvtimesjp_set(self, nvtimesjp)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T), intent(in) :: nvtimesjp
+type(SwigClassWrapper) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = self%swigdata
+farg2 = nvtimesjp
+call swigc_SUNAdjointStepper__nvtimesjp_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__nvtimesjp_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__nvtimesjp_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__nrecompute_set(self, nrecompute)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T), intent(in) :: nrecompute
+type(SwigClassWrapper) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = self%swigdata
+farg2 = nrecompute
+call swigc_SUNAdjointStepper__nrecompute_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__nrecompute_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT64_T) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT64_T) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__nrecompute_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__user_data_set(self, user_data)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: user_data
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = user_data
+call swigc_SUNAdjointStepper__user_data_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__user_data_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__user_data_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__content_set(self, content)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: content
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = content
+call swigc_SUNAdjointStepper__content_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__content_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__content_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__sunctx_set(self, sunctx)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: sunctx
+type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = self%swigdata
+farg2 = sunctx
+call swigc_SUNAdjointStepper__sunctx_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__sunctx_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+type(C_PTR) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__sunctx_get(farg1)
+swig_result = fresult
+end function
+
+function swigf_create_SUNAdjointStepper_() &
+result(self)
+use, intrinsic :: ISO_C_BINDING
+type(SUNAdjointStepper_) :: self
+type(SwigClassWrapper) :: fresult 
+
+fresult = swigc_new_SUNAdjointStepper_()
+self%swigdata = fresult
+end function
+
+subroutine swigf_release_SUNAdjointStepper_(self)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(inout) :: self
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+if (btest(farg1%cmemflags, swig_cmem_own_bit)) then
+call swigc_delete_SUNAdjointStepper_(farg1)
+endif
+farg1%cptr = C_NULL_PTR
+farg1%cmemflags = 0
+self%swigdata = farg1
+end subroutine
+
+subroutine swigf_SUNAdjointStepper__op_assign__(self, other)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(inout) :: self
+type(SUNAdjointStepper_), intent(in) :: other
+type(SwigClassWrapper) :: farg1 
+type(SwigClassWrapper) :: farg2 
+
+farg1 = self%swigdata
+farg2 = other%swigdata
+call swigc_SUNAdjointStepper__op_assign__(farg1, farg2)
+self%swigdata = farg1
+end subroutine
+
 function FSUNAdjointStepper_Create(fwd_sunstepper, adj_sunstepper, final_step_idx, sf, tf, checkpoint_scheme, sunctx, &
   adj_stepper) &
 result(swig_result)
@@ -252,19 +1386,19 @@ function FSUNAdjointStepper_ReInit(adj, y0, t0, sf, tf) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(SUNAdjointStepper), intent(in) :: adj
+type(C_PTR) :: adj
 type(N_Vector), target, intent(inout) :: y0
 real(C_DOUBLE), intent(in) :: t0
 type(N_Vector), target, intent(inout) :: sf
 real(C_DOUBLE), intent(in) :: tf
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 real(C_DOUBLE) :: farg3 
 type(C_PTR) :: farg4 
 real(C_DOUBLE) :: farg5 
 
-farg1 = adj%swigdata
+farg1 = adj
 farg2 = c_loc(y0)
 farg3 = t0
 farg4 = c_loc(sf)
@@ -277,19 +1411,19 @@ function FSUNAdjointStepper_Evolve(adj_stepper, tout, sens, tret, stop_reason) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(SUNAdjointStepper), intent(in) :: adj_stepper
+type(C_PTR) :: adj_stepper
 real(C_DOUBLE), intent(in) :: tout
 type(N_Vector), target, intent(inout) :: sens
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
 integer(C_INT), dimension(*), target, intent(inout) :: stop_reason
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
 type(C_PTR) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = adj_stepper%swigdata
+farg1 = adj_stepper
 farg2 = tout
 farg3 = c_loc(sens)
 farg4 = c_loc(tret(1))
@@ -302,19 +1436,19 @@ function FSUNAdjointStepper_OneStep(adj_stepper, tout, sens, tret, stop_reason) 
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(SUNAdjointStepper), intent(in) :: adj_stepper
+type(C_PTR) :: adj_stepper
 real(C_DOUBLE), intent(in) :: tout
 type(N_Vector), target, intent(inout) :: sens
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
 integer(C_INT), dimension(*), target, intent(inout) :: stop_reason
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
 type(C_PTR) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = adj_stepper%swigdata
+farg1 = adj_stepper
 farg2 = tout
 farg3 = c_loc(sens)
 farg4 = c_loc(tret(1))
@@ -327,19 +1461,19 @@ function FSUNAdjointStepper_RecomputeFwd(adj_stepper, start_idx, t0, tf, y0) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(SUNAdjointStepper), intent(in) :: adj_stepper
+type(C_PTR) :: adj_stepper
 integer(C_INT64_T), intent(in) :: start_idx
 real(C_DOUBLE), intent(in) :: t0
 real(C_DOUBLE), intent(in) :: tf
 type(N_Vector), target, intent(inout) :: y0
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 integer(C_INT64_T) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = adj_stepper%swigdata
+farg1 = adj_stepper
 farg2 = start_idx
 farg3 = t0
 farg4 = tf
@@ -352,19 +1486,19 @@ function FSUNAdjointStepper_SetJacFn(arg0, jacfn, jac, jacpfn, jp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(SUNAdjointStepper), intent(in) :: arg0
+type(C_PTR) :: arg0
 type(C_FUNPTR), intent(in), value :: jacfn
 type(SUNMatrix), target, intent(inout) :: jac
 type(C_FUNPTR), intent(in), value :: jacpfn
 type(SUNMatrix), target, intent(inout) :: jp
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_FUNPTR) :: farg2 
 type(C_PTR) :: farg3 
 type(C_FUNPTR) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = arg0%swigdata
+farg1 = arg0
 farg2 = jacfn
 farg3 = c_loc(jac)
 farg4 = jacpfn
@@ -377,15 +1511,15 @@ function FSUNAdjointStepper_SetJacTimesVecFn(arg0, jvp, jpvp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(SUNAdjointStepper), intent(in) :: arg0
+type(C_PTR) :: arg0
 type(C_FUNPTR), intent(in), value :: jvp
 type(C_FUNPTR), intent(in), value :: jpvp
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_FUNPTR) :: farg2 
 type(C_FUNPTR) :: farg3 
 
-farg1 = arg0%swigdata
+farg1 = arg0
 farg2 = jvp
 farg3 = jpvp
 fresult = swigc_FSUNAdjointStepper_SetJacTimesVecFn(farg1, farg2, farg3)
@@ -396,15 +1530,15 @@ function FSUNAdjointStepper_SetVecTimesJacFn(arg0, vjp, vjpp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(SUNAdjointStepper), intent(in) :: arg0
+type(C_PTR) :: arg0
 type(C_FUNPTR), intent(in), value :: vjp
 type(C_FUNPTR), intent(in), value :: vjpp
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_FUNPTR) :: farg2 
 type(C_FUNPTR) :: farg3 
 
-farg1 = arg0%swigdata
+farg1 = arg0
 farg2 = vjp
 farg3 = vjpp
 fresult = swigc_FSUNAdjointStepper_SetVecTimesJacFn(farg1, farg2, farg3)
@@ -415,13 +1549,13 @@ function FSUNAdjointStepper_SetUserData(arg0, user_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(SUNAdjointStepper), intent(in) :: arg0
+type(C_PTR) :: arg0
 type(C_PTR) :: user_data
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
-farg1 = arg0%swigdata
+farg1 = arg0
 farg2 = user_data
 fresult = swigc_FSUNAdjointStepper_SetUserData(farg1, farg2)
 swig_result = fresult
@@ -431,15 +1565,15 @@ function FSUNAdjointStepper_PrintAllStats(adj_stepper, outfile, fmt) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-class(SUNAdjointStepper), intent(in) :: adj_stepper
+type(C_PTR) :: adj_stepper
 type(C_PTR) :: outfile
 integer(SUNOutputFormat), intent(in) :: fmt
 integer(C_INT) :: fresult 
-type(SwigClassWrapper) :: farg1 
+type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 integer(C_INT) :: farg3 
 
-farg1 = adj_stepper%swigdata
+farg1 = adj_stepper
 farg2 = outfile
 farg3 = fmt
 fresult = swigc_FSUNAdjointStepper_PrintAllStats(farg1, farg2, farg3)
