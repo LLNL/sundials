@@ -98,10 +98,10 @@ int main(int argc, char* argv[])
   int numfails;
   sunbooleantype fixedpoint;
   sunrealtype t, tcur;
-  long int ark_nst, ark_nfeval[2], ark_nsetups, ark_nje, ark_nfeLS, ark_nni,
+  long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nje, ark_nfeLS, ark_nni,
     ark_ncfn;
-  long int mri_nst, mri_nfseval[2], mri_nsetups, mri_nje, mri_nfeLS, mri_nni,
-    mri_ncfn;
+  long int mri_nst, mri_nfse, mri_nfsi, mri_nsetups, mri_nje, mri_nfeLS,
+    mri_nni, mri_ncfn;
 
   // if an argument supplied, set fixedpoint (otherwise use SUNFALSE)
   fixedpoint = SUNFALSE;
@@ -243,8 +243,8 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeGetCurrentTime", 1)) { return 1; }
   flag = ARKodeGetNumSteps(arkstep_mem, &ark_nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
-  flag = ARKodeGetNumRhsEvals(arkstep_mem, 2, ark_nfeval);
-  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKStepGetNumRhsEvals(arkstep_mem, &ark_nfe, &ark_nfi);
+  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvIters(arkstep_mem, &ark_nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkstep_mem, &ark_ncfn);
@@ -262,8 +262,8 @@ int main(int argc, char* argv[])
   cout << "   Return time = " << t << "\n";
   cout << "   Internal final time = " << tcur << "\n";
   cout << "   Internal solver steps = " << ark_nst << "\n";
-  cout << "   Total RHS evals:  Fe = " << ark_nfeval[0]
-       << ",  Fi = " << ark_nfeval[1] << "\n";
+  cout << "   Total RHS evals:  Fe = " << ark_nfe << ",  Fi = " << ark_nfi
+       << "\n";
   cout << "   Total number of nonlinear iterations = " << ark_nni << "\n";
   cout << "   Total number of nonlinear solver convergence failures = "
        << ark_ncfn << "\n";
@@ -284,8 +284,8 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeGetCurrentTime", 1)) { return 1; }
   flag = ARKodeGetNumSteps(mristep_mem, &mri_nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
-  flag = ARKodeGetNumRhsEvals(mristep_mem, 2, mri_nfseval);
-  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+  flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
+  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvIters(mristep_mem, &mri_nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvConvFails(mristep_mem, &mri_ncfn);
@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
   cout << "   Return time = " << t << "\n";
   cout << "   Internal final time = " << tcur << "\n";
   cout << "   Internal solver steps = " << mri_nst << "\n";
-  cout << "   Total RHS evals:  Fs = " << mri_nfseval[1] << "\n";
+  cout << "   Total RHS evals:  Fs = " << mri_nfsi << "\n";
   cout << "   Total number of nonlinear iterations = " << mri_nni << "\n";
   cout << "   Total number of nonlinear solver convergence failures = "
        << mri_ncfn << "\n";
@@ -324,11 +324,10 @@ int main(int argc, char* argv[])
     cout << "  Internal solver steps error: " << ark_nst << " vs " << mri_nst
          << "\n";
   }
-  if (!Compare(ark_nfeval[1], mri_nfseval[1], ONE))
+  if (!Compare(ark_nfi, mri_nfsi, ONE))
   {
     numfails += 1;
-    cout << "  RHS evals error: " << ark_nfeval[1] << " vs " << mri_nfseval[1]
-         << "\n";
+    cout << "  RHS evals error: " << ark_nfi << " vs " << mri_nfsi << "\n";
   }
   if (!Compare(ark_nni, mri_nni, ONE))
   {

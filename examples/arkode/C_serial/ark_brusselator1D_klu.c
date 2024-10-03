@@ -138,7 +138,7 @@ int main(void)
   sunrealtype tout  = T0 + dTout;
   sunrealtype u, v, w;
   int iout;
-  long int nst, nst_a, nfeval[2], nsetups, nje, nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn, netf;
 
   /* Create the SUNDIALS context object for this simulation */
   SUNContext ctx;
@@ -314,8 +314,8 @@ int main(void)
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
   flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
@@ -329,7 +329,7 @@ int main(void)
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0], nfeval[1]);
+  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
   printf("   Total linear solver setups = %li\n", nsetups);
   printf("   Total number of Jacobian evaluations = %li\n", nje);
   printf("   Total number of nonlinear iterations = %li\n", nni);

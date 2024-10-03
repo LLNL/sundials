@@ -452,8 +452,8 @@ int check_rhs_evals(void* erkstep_mem, long int nfe_expected)
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
   long int nfe;
-  flag = ARKodeGetNumRhsEvals(erkstep_mem, 1, &nfe);
-  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+  flag = ERKStepGetNumRhsEvals(erkstep_mem, &nfe);
+  if (check_flag(&flag, "ERKStepGetNumRhsEvals", 1)) { return 1; }
 
   std::cout << "Fe RHS evals:\n"
             << "  actual:   " << nfe << "\n"

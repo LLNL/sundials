@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
   FILE *FID, *UFID, *VFID, *WFID;           /* output file pointers           */
   int iout;                                 /* output counter                 */
   long int nsts, nstf, nstf_a, netf;        /* step stats                     */
-  long int nfseval[2], nffeval[2];          /* RHS stats                      */
+  long int nfse, nfsi, nffe, nffi;          /* RHS stats                      */
   long int nsetups, nje, nfeLS;             /* linear solver stats            */
   long int nni, ncfn;                       /* nonlinear solver stats         */
   sunindextype NEQ;                         /* number of equations            */
@@ -349,16 +349,16 @@ int main(int argc, char* argv[])
   /* Get some slow integrator statistics */
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = ARKodeGetNumRhsEvals(arkode_mem, 2, nfseval);
-  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
+  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
+  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = ARKodeGetNumStepAttempts(inner_arkode_mem, &nstf_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1);
-  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 2, nffeval);
-  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
+  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nffe, &nffi);
+  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
   retval = ARKodeGetNumLinSolvSetups(inner_arkode_mem, &nsetups);
   check_retval(&retval, "ARKodeGetNumLinSolvSetups", 1);
   retval = ARKodeGetNumErrTestFails(inner_arkode_mem, &netf);
@@ -376,7 +376,7 @@ int main(int argc, char* argv[])
   printf("\nFinal Solver Statistics:\n");
   printf("   Slow Steps: nsts = %li\n", nsts);
   printf("   Fast Steps: nstf = %li (attempted = %li)\n", nstf, nstf_a);
-  printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfseval[0], nffeval[1]);
+  printf("   Total RHS evals:  Fs = %li,  Ff = %li\n", nfse, nffi);
   printf("   Total number of fast error test failures = %li\n", netf);
   printf("   Total linear solver setups = %li\n", nsetups);
   printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);

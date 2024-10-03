@@ -234,20 +234,21 @@ subroutine ARKStepStats(arkode_mem)
   integer(c_int)  :: ierr         ! error flag
   integer(c_long) :: nsteps(1)    ! num steps
   integer(c_long) :: nst_a(1)     ! num steps attempted
-  integer(c_long) :: nfeval(2)    ! num function evals
+  integer(c_long) :: nfe(1)       ! num explicit function evals
+  integer(c_long) :: nfi(1)       ! num implicit function evals
   integer(c_long) :: netfails(1)  ! num error test fails
 
   !======= Internals ============
 
   ierr = FARKodeGetNumSteps(arkode_mem, nsteps)
   ierr = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
-  ierr = FARKodeGetNumRhsEvals(arkode_mem, 2, nfeval)
+  ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
   ierr = FARKodeGetNumErrTestFails(arkode_mem, netfails)
 
   print *, ' '
   print *, 'Final Solver Statistics:'
   print '(4x,2(A,i4),A)', 'Internal solver steps = ', nsteps(1), ', (attempted = ', nst_a(1), ')'
-  print '(4x,A,i5)', 'Total RHS evals = ', nfeval(1)
+  print '(4x,A,i5)', 'Total RHS evals = ', nfe(1)
   print '(4x,A,i5)', 'Total number of error test failures =', netfails(1)
 
   return

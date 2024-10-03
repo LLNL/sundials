@@ -2593,16 +2593,15 @@ static int OutputStatsIMEX(void* arkode_mem, UserData* udata)
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfeval[2], nni, ncfn, nli, nlcf, nsetups, nfi_ls,
-    nJv;
+  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
-  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
 
   if (udata->diffusion)
   {
@@ -2628,10 +2627,10 @@ static int OutputStatsIMEX(void* arkode_mem, UserData* udata)
   cout << "  Steps            = " << nst << endl;
   cout << "  Step attempts    = " << nst_a << endl;
   cout << "  Error test fails = " << netf << endl;
-  if (udata->reaction) { cout << "  RHS reaction     = " << nfeval[0] << endl; }
+  if (udata->reaction) { cout << "  RHS reaction     = " << nfe << endl; }
   if (udata->diffusion)
   {
-    cout << "  RHS diffusion    = " << nfeval[1] << endl;
+    cout << "  RHS diffusion    = " << nfi << endl;
     cout << "  NLS iters        = " << nni << endl;
     cout << "  NLS fails        = " << ncfn << endl;
     cout << "  LS iters         = " << nli << endl;
@@ -2676,11 +2675,11 @@ static int OutputStatsMRI(void* arkode_mem, MRIStepInnerStepper stepper,
   int flag;
 
   // Get slow integrator and solver stats
-  long int nsts, nfseval[2], nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nsts, nfse, nfsi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nsts);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
-  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfseval);
-  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
+  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
+  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
@@ -2702,7 +2701,7 @@ static int OutputStatsMRI(void* arkode_mem, MRIStepInnerStepper stepper,
   cout << endl << "Slow Integrator:" << endl;
 
   cout << "  Steps            = " << nsts << endl;
-  cout << "  RHS diffusion    = " << nfseval[1] << endl;
+  cout << "  RHS diffusion    = " << nfsi << endl;
   cout << "  NLS iters        = " << nni << endl;
   cout << "  NLS fails        = " << ncfn << endl;
   cout << "  LS iters         = " << nli << endl;
@@ -2737,7 +2736,7 @@ static int OutputStatsMRI(void* arkode_mem, MRIStepInnerStepper stepper,
   void* inner_arkode_mem;
   MRIStepInnerStepper_GetContent(stepper, &inner_arkode_mem);
 
-  long int nstf, nstf_a, netff, nffeval[2];
+  long int nstf, nstf_a, netff, nffe, nffi;
 
   flag = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
@@ -2745,14 +2744,14 @@ static int OutputStatsMRI(void* arkode_mem, MRIStepInnerStepper stepper,
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(inner_arkode_mem, &netff);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = ARKodeGetNumRhsEvals(inner_arkode_mem, 2, nffeval);
-  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKStepGetNumRhsEvals(inner_arkode_mem, &nffe, &nffi);
+  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
 
   cout << "Fast Integrator:" << endl;
   cout << "  Steps            = " << nstf << endl;
   cout << "  Step attempts    = " << nstf_a << endl;
   cout << "  Error test fails = " << netff << endl;
-  cout << "  RHS reaction     = " << nffeval[0] << endl;
+  cout << "  RHS reaction     = " << nffe << endl;
 
   return 0;
 }
@@ -2764,11 +2763,11 @@ static int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper stepper,
   int flag;
 
   // Get slow integrator and solver stats
-  long int nsts, nfseval[2], nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nsts, nfse, nfsi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nsts);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
-  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfseval);
-  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
+  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
+  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
@@ -2790,7 +2789,7 @@ static int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper stepper,
   cout << endl << "Slow Integrator:" << endl;
 
   cout << "  Steps            = " << nsts << endl;
-  cout << "  RHS diffusion    = " << nfseval[1] << endl;
+  cout << "  RHS diffusion    = " << nfsi << endl;
   cout << "  NLS iters        = " << nni << endl;
   cout << "  NLS fails        = " << ncfn << endl;
   cout << "  LS iters         = " << nli << endl;

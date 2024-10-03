@@ -288,7 +288,7 @@ int main(int argc, char* argv[])
    * ------------ */
 
   // ARKODE statistics
-  long int nst, nst_a, netf, nfeval[2];
+  long int nst, nst_a, netf, nfe, nfi;
 
   // Get final statistics on how the solve progressed
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
@@ -300,16 +300,15 @@ int main(int argc, char* argv[])
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_flag(flag, "ARKodeGetNumErrTestFails");
 
-  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
-  check_flag(flag, "ARKodeGetNumRhsEvals");
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(flag, "ARKStepGetNumRhsEvals");
 
   std::cout << std::endl;
   std::cout << "Final Solver Statistics:\n";
   std::cout << "  Internal solver steps = " << nst << " (attempted = " << nst_a
             << ")\n";
   std::cout << "  Total number of error test failures = " << netf << "\n";
-  std::cout << "  Total RHS evals:  Fe = " << nfeval[0]
-            << ",  Fi = " << nfeval[1] << "\n";
+  std::cout << "  Total RHS evals:  Fe = " << nfe << ",  Fi = " << nfi << "\n";
 
   if (implicit)
   {

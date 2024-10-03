@@ -865,24 +865,24 @@ int check_rhs_evals(rk_type r_type, void* arkstep_mem, long int nfe_expected,
   flag = ARKodeGetNumSteps(arkstep_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
-  long int nfeval[2];
-  flag = ARKodeGetNumRhsEvals(arkstep_mem, 2, nfeval);
-  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+  long int nfe, nfi;
+  flag = ARKStepGetNumRhsEvals(arkstep_mem, &nfe, &nfi);
+  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return 1; }
 
   if (r_type == rk_type::expl || r_type == rk_type::imex)
   {
     std::cout << "Fe RHS evals:\n"
-              << "  actual:   " << nfeval[0] << "\n"
+              << "  actual:   " << nfe << "\n"
               << "  expected: " << nfe_expected << "\n";
   }
   if (r_type == rk_type::impl || r_type == rk_type::imex)
   {
     std::cout << "Fi RHS evals:\n"
-              << "  actual:   " << nfeval[1] << "\n"
+              << "  actual:   " << nfi << "\n"
               << "  expected: " << nfi_expected << "\n";
   }
 
-  if (nfeval[0] != nfe_expected || nfeval[1] != nfi_expected)
+  if (nfe != nfe_expected || nfi != nfi_expected)
   {
     std::cout << ">>> Check failed <<<" << std::endl;
     return 1;

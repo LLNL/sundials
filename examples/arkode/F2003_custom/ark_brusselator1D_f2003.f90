@@ -419,7 +419,8 @@ subroutine ARKStepStats(arkode_mem)
 
   integer(c_long) :: nsteps(1)     ! num steps
   integer(c_long) :: nst_a(1)      ! num steps attempted
-  integer(c_long) :: nfeval(2)     ! num function evals
+  integer(c_long) :: nfe(1)        ! num explicit function evals
+  integer(c_long) :: nfi(1)        ! num implicit function evals
   integer(c_long) :: nfeLS(1)      ! num RHS evals to setup linear solver
   integer(c_long) :: nlinsetups(1) ! num linear solver setups
   integer(c_long) :: nje(1)        ! num Jacobian evaluations
@@ -432,7 +433,7 @@ subroutine ARKStepStats(arkode_mem)
 
   ierr = FARKodeGetNumSteps(arkode_mem, nsteps)
   ierr = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
-  ierr = FARKodeGetNumRhsEvals(arkode_mem, 2, nfeval)
+  ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
   ierr = FARKodeGetNumLinRhsEvals(arkode_mem, nfeLS)
   ierr = FARKodeGetNumLinSolvSetups(arkode_mem, nlinsetups)
   ierr = FARKodeGetNumJacEvals(arkode_mem, nje)
@@ -444,7 +445,7 @@ subroutine ARKStepStats(arkode_mem)
   print *, ' '
   print *, 'Final Solver Statistics:'
   print '(4x,2(A,i9),A)', 'Internal solver steps = ', nsteps(1), ', (attempted = ', nst_a(1), ')'
-  print '(4x,2(A,i9))', 'Total RHS evals: Fe = ', nfeval(1), ',  Fi = ', nfeval(2)
+  print '(4x,2(A,i9))', 'Total RHS evals: Fe = ', nfe(1), ',  Fi = ', nfi(1)
   print '(4x,A,i9)', 'Total linear solver setups    =', nlinsetups(1)
   print '(4x,A,i9)', 'Total RHS evals for setting up the linear system =', nfeLS(1)
   print '(4x,A,i9)', 'Total number of Jacobian evaluations =', nje(1)

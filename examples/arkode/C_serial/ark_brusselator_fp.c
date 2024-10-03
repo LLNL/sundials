@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
   FILE* UFID;
   sunrealtype t, tout;
   int iout;
-  long int nst, nst_a, nfeval[2], nni, ncfn, netf;
+  long int nst, nst_a, nfe, nfi, nni, ncfn, netf;
 
   /* read inputs */
   if (argc == 2) { monitor = atoi(argv[1]); }
@@ -249,8 +249,8 @@ int main(int argc, char* argv[])
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
@@ -260,7 +260,7 @@ int main(int argc, char* argv[])
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0], nfeval[1]);
+  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
   printf("   Total number of fixed-point iterations = %li\n", nni);
   printf("   Total number of nonlinear solver convergence failures = %li\n",
          ncfn);

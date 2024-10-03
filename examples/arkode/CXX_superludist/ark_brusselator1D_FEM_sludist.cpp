@@ -192,7 +192,7 @@ int main(int argc, char* argv[])
   FILE *FID, *UFID, *VFID, *WFID;
   sunrealtype h, z, t, dTout, tout, u, v, w, pi;
   int iout;
-  long int nst, nst_a, nfeval[2], nsetups, nje, nni, ncfn;
+  long int nst, nst_a, nfe, nfi, nsetups, nje, nni, ncfn;
   long int netf, nmset, nms, nMv;
 
   MPI_Init(&argc, &argv);
@@ -575,8 +575,8 @@ int main(int argc, char* argv[])
   check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1);
-  retval = ARKodeGetNumRhsEvals(arkode_mem, 2, nfeval);
-  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
+  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
   retval = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_retval(&retval, "ARKodeGetNumLinSolvSetups", 1);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
@@ -596,7 +596,7 @@ int main(int argc, char* argv[])
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfeval[0], nfeval[1]);
+  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
   printf("   Total mass matrix setups = %li\n", nmset);
   printf("   Total mass matrix solves = %li\n", nms);
   printf("   Total mass times evals = %li\n", nMv);

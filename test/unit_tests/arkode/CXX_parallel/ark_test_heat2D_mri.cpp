@@ -130,9 +130,9 @@ int main(int argc, char* argv[])
   int numfails;
   sunbooleantype linear;
   sunrealtype t;
-  long int ark_nst, ark_nfeval[2], ark_nsetups, ark_nli, ark_nJv, ark_nlcf,
+  long int ark_nst, ark_nfe, ark_nfi, ark_nsetups, ark_nli, ark_nJv, ark_nlcf,
     ark_nni, ark_ncfn, ark_npe, ark_nps;
-  long int mri_nst, mri_nfseval[2], mri_nsetups, mri_nli, mri_nJv, mri_nlcf,
+  long int mri_nst, mri_nfse, mri_nfsi, mri_nsetups, mri_nli, mri_nJv, mri_nlcf,
     mri_nni, mri_ncfn, mri_npe, mri_nps;
 
   // general problem variables
@@ -320,8 +320,8 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
   flag = ARKodeGetNumSteps(arkstep_mem, &ark_nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
-  flag = ARKodeGetNumRhsEvals(arkstep_mem, 2, ark_nfeval);
-  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKStepGetNumRhsEvals(arkstep_mem, &ark_nfe, &ark_nfi);
+  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return 1; }
   flag = ARKodeGetNumLinSolvSetups(arkstep_mem, &ark_nsetups);
   if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvIters(arkstep_mem, &ark_nni);
@@ -342,8 +342,8 @@ int main(int argc, char* argv[])
   {
     cout << "\nARKStep Solver Statistics:\n";
     cout << "   Internal solver steps = " << ark_nst << "\n";
-    cout << "   Total RHS evals:  Fe = " << ark_nfeval[0]
-         << ",  Fi = " << ark_nfeval[1] << "\n";
+    cout << "   Total RHS evals:  Fe = " << ark_nfe << ",  Fi = " << ark_nfi
+         << "\n";
     cout << "   Total linear solver setups = " << ark_nsetups << "\n";
     cout << "   Total linear iterations = " << ark_nli << "\n";
     cout << "   Total number of Jacobian-vector products = " << ark_nJv << "\n";
@@ -363,8 +363,8 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
   flag = ARKodeGetNumSteps(mristep_mem, &mri_nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
-  flag = ARKodeGetNumRhsEvals(mristep_mem, 2, mri_nfseval);
-  if (check_flag(&flag, "ARkodeGetNumRhsEvals", 1)) { return 1; }
+  flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
+  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return 1; }
   flag = ARKodeGetNumLinSolvSetups(mristep_mem, &mri_nsetups);
   if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvIters(mristep_mem, &mri_nni);
@@ -385,7 +385,7 @@ int main(int argc, char* argv[])
   {
     cout << "\nMRIStep Solver Statistics:\n";
     cout << "   Internal solver steps = " << mri_nst << "\n";
-    cout << "   Total RHS evals:  Fe = " << mri_nfseval[1] << "\n";
+    cout << "   Total RHS evals:  Fe = " << mri_nfsi << "\n";
     cout << "   Total linear solver setups = " << mri_nsetups << "\n";
     cout << "   Total linear iterations = " << mri_nli << "\n";
     cout << "   Total number of Jacobian-vector products = " << mri_nJv << "\n";
@@ -410,13 +410,12 @@ int main(int argc, char* argv[])
            << "\n";
     }
   }
-  if (ark_nfeval[1] != mri_nfseval[1])
+  if (ark_nfi != mri_nfsi)
   {
     numfails += 1;
     if (outproc)
     {
-      cout << "  RHS evals error: " << ark_nfeval[1] << " vs " << mri_nfseval[1]
-           << "\n";
+      cout << "  RHS evals error: " << ark_nfi << " vs " << mri_nfsi << "\n";
     }
   }
   if (ark_nsetups != mri_nsetups)

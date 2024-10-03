@@ -672,7 +672,8 @@ program driver
   real(c_double) :: t(1), dTout, tout, urms
   integer(c_long) :: nst(1)     ! number of time steps
   integer(c_long) :: nst_a(1)   ! number of step attempts
-  integer(c_long) :: nfeval(2)  ! number of RHS evals
+  integer(c_long) :: nfe(1)     ! number of explicit RHS evals
+  integer(c_long) :: nfi(1)     ! number of implicit RHS evals
   integer(c_long) :: netf(1)    ! number of error test fails
   integer(c_long) :: nni(1)     ! number of nonlinear iters
   integer(c_long) :: ncfn(1)    ! number of convergence fails
@@ -883,9 +884,9 @@ program driver
     call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKodeGetNumRhsEvals(arkode_mem, 2, nfeval)
+  retval = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
   if (retval /= 0) then
-    print *, "Error: FARKodeGetNumRhsEvals returned ", retval
+    print *, "Error: FARKStepGetNumRhsEvals returned ", retval
     call MPI_Abort(comm, 1, ierr)
   end if
 
@@ -931,7 +932,7 @@ program driver
     write (6, *) "Final Solver Statistics:"
     write (6, '(2(A,i6),A)') "   Internal solver steps = ", nst, &
       " (attempted = ", nst_a, ")"
-    write (6, '(A,i6,A,i6)') "   Total RHS evals:  Fe = ", nfeval(1), ",  Fi = ", nfeval(2)
+    write (6, '(A,i6,A,i6)') "   Total RHS evals:  Fe = ", nfe, ",  Fi = ", nfi
     write (6, '(A,i6)') "   Total linear iterations = ", nli
     write (6, '(A,i6)') "   Total number of Preconditioner setups = ", npre
     write (6, '(A,i6)') "   Total number of Preconditioner solves = ", npsol
