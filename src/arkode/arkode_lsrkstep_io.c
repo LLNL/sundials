@@ -66,7 +66,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step               = lsrkStep_TakeStepSSPs2;
     step_mem->LSRKmethod        = ARKODE_LSRK_SSP_S_2;
     step_mem->is_SSP            = SUNTRUE;
-    ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->req_stages        = 10;
     step_mem->nfusedopvecs      = 3;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
@@ -76,7 +75,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step               = lsrkStep_TakeStepSSPs3;
     step_mem->LSRKmethod        = ARKODE_LSRK_SSP_S_3;
     step_mem->is_SSP            = SUNTRUE;
-    ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->req_stages        = 9;
     step_mem->nfusedopvecs      = 3;
     step_mem->q = ark_mem->hadapt_mem->q = 3;
@@ -86,7 +84,6 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     ark_mem->step               = lsrkStep_TakeStepSSP104;
     step_mem->LSRKmethod        = ARKODE_LSRK_SSP_10_4;
     step_mem->is_SSP            = SUNTRUE;
-    ark_mem->step_printallstats = lsrkSSPStep_PrintAllStats;
     step_mem->req_stages        = 10;
     step_mem->nfusedopvecs      = 3;
     step_mem->q = ark_mem->hadapt_mem->q = 4;
@@ -515,11 +512,11 @@ int lsrkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
 }
 
 /*---------------------------------------------------------------
-  lsrkSTSStep_PrintAllStats:
+  lsrkStep_PrintAllStats:
 
   Prints integrator statistics for STS methods
   ---------------------------------------------------------------*/
-int lsrkSTSStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
+int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
 {
   ARKodeLSRKStepMem step_mem;
   int retval;
@@ -528,79 +525,69 @@ int lsrkSTSStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat 
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* compute the average number of stages */
-  sunrealtype avg_stage = ((sunrealtype)step_mem->nfe) /
-                          ((sunrealtype)ark_mem->nst_attempts);
-
-  switch (fmt)
+  if (step_mem->is_SSP)
   {
-  case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-    fprintf(outfile, "Number of dom_eig updates    = %ld\n",
-            step_mem->dom_eig_num_evals);
-    fprintf(outfile, "Avr. num. of stages used     = %.2f\n", avg_stage);
-    fprintf(outfile, "Max. num. of stages used     = %d\n", step_mem->stage_max);
-    fprintf(outfile, "Max. num. of stages allowed  = %d\n",
-            step_mem->stage_max_limit);
-
-    fprintf(outfile, "Max. spectral radius         = %.2f\n",
-            step_mem->spectral_radius_max);
-    fprintf(outfile, "Min. spectral radius         = %.2f\n",
-            step_mem->spectral_radius_min);
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, ",Number of dom_eig update calls,%ld",
-            step_mem->dom_eig_num_evals);
-    fprintf(outfile, ",Avr. num. of stages used,%.2f", avg_stage);
-    fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
-    fprintf(outfile, ",Max. num. of stages allowed,%d",
-            step_mem->stage_max_limit);
-
-    fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->spectral_radius_max);
-    fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->spectral_radius_min);
-    fprintf(outfile, "\n");
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return (ARK_ILL_INPUT);
+    switch (fmt)
+    {
+    case SUN_OUTPUTFORMAT_TABLE:
+      fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
+      fprintf(outfile, "Number of stages used        = %d\n", step_mem->req_stages);
+      break;
+    case SUN_OUTPUTFORMAT_CSV:
+      fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
+      fprintf(outfile, ",Number of stages used,%d", step_mem->req_stages);
+      fprintf(outfile, "\n");
+      break;
+    default:
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Invalid formatting option.");
+      return (ARK_ILL_INPUT);
+    }
   }
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  lsrkSSPStep_PrintAllStats:
-
-  Prints integrator statistics for SSP methods
-  ---------------------------------------------------------------*/
-int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
-                              SUNOutputFormat fmt)
-{
-  ARKodeLSRKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeLSRKStepMem structure */
-  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  switch (fmt)
+  else if (!step_mem->is_SSP)
   {
-  case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-    fprintf(outfile, "Dom eig fn evals             = %ld\n", step_mem->dom_eig_num_evals);
-    fprintf(outfile, "Number of stages used        = %d\n", step_mem->req_stages);
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, ",Dom eig fn evals,%ld", step_mem->dom_eig_num_evals);
-    fprintf(outfile, ",Number of stages used,%d", step_mem->req_stages);
-    fprintf(outfile, "\n");
-    break;
-  default:
+    /* compute the average number of stages */
+    sunrealtype avg_stage = ((sunrealtype)step_mem->nfe) /
+                            ((sunrealtype)ark_mem->nst_attempts);
+    switch (fmt)
+    {
+    case SUN_OUTPUTFORMAT_TABLE:
+      fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
+      fprintf(outfile, "Number of dom_eig updates    = %ld\n",
+              step_mem->dom_eig_num_evals);
+      fprintf(outfile, "Avr. num. of stages used     = %.2f\n", avg_stage);
+      fprintf(outfile, "Max. num. of stages used     = %d\n", step_mem->stage_max);
+      fprintf(outfile, "Max. num. of stages allowed  = %d\n",
+              step_mem->stage_max_limit);
+
+      fprintf(outfile, "Max. spectral radius         = %.2f\n",
+              step_mem->spectral_radius_max);
+      fprintf(outfile, "Min. spectral radius         = %.2f\n",
+              step_mem->spectral_radius_min);
+      break;
+    case SUN_OUTPUTFORMAT_CSV:
+      fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
+      fprintf(outfile, ",Number of dom_eig update calls,%ld",
+              step_mem->dom_eig_num_evals);
+      fprintf(outfile, ",Avr. num. of stages used,%.2f", avg_stage);
+      fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
+      fprintf(outfile, ",Max. num. of stages allowed,%d",
+              step_mem->stage_max_limit);
+
+      fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->spectral_radius_max);
+      fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->spectral_radius_min);
+      fprintf(outfile, "\n");
+      break;
+    default:
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Invalid formatting option.");
+      return (ARK_ILL_INPUT);
+    }
+  }
+  else
+  {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
+                    "Invalid method type.");
     return (ARK_ILL_INPUT);
   }
 

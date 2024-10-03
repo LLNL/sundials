@@ -94,11 +94,11 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ark_mem->step_init              = lsrkStep_Init;
   ark_mem->step_fullrhs           = lsrkStep_FullRHS;
   ark_mem->step                   = lsrkStep_TakeStepRKC;
-  ark_mem->step_printallstats     = lsrkSTSStep_PrintAllStats;
+  ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
   ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
   ark_mem->step_resize            = lsrkStep_Resize;
   ark_mem->step_free              = lsrkStep_Free;
-  ark_mem->step_printmem          = lsrkStep_PrintMem; 
+  ark_mem->step_printmem          = lsrkStep_PrintMem;
   ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
   ark_mem->step_getestlocalerrors = lsrkStep_GetEstLocalErrors;
   ark_mem->step_mem               = (void*)step_mem;
@@ -207,7 +207,7 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ark_mem->step_init              = lsrkStep_Init;
   ark_mem->step_fullrhs           = lsrkStep_FullRHS;
   ark_mem->step                   = lsrkStep_TakeStepSSPs2;
-  ark_mem->step_printallstats     = lsrkSTSStep_PrintAllStats;
+  ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
   ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
   ark_mem->step_resize            = lsrkStep_Resize;
   ark_mem->step_free              = lsrkStep_Free;
@@ -494,39 +494,40 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return; }
 
-  /* print integrator parameters to file */
+  /* print integrator memory to file */
   switch (step_mem->LSRKmethod)
   {
-  case ARKODE_LSRK_RKC_2:
-    fprintf(outfile, "LSRKStep RKC time step module parameters:\n");
-    break;
-  case ARKODE_LSRK_RKL_2:
-    fprintf(outfile, "LSRKStep RKL time step module parameters:\n");
-    break;
-  case ARKODE_LSRK_SSP_S_2:
-    fprintf(outfile, "LSRKStep SSP(s,2) time step module parameters:\n");
-    break;
-  case ARKODE_LSRK_SSP_S_3:
-    fprintf(outfile, "LSRKStep SSP(s,3) time step module parameters:\n");
-    break;
-  case ARKODE_LSRK_SSP_10_4:
-    fprintf(outfile, "LSRKStep SSP(10,4) time step module parameters:\n");
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid method option.");
-    return (ARK_ILL_INPUT);
+    case ARKODE_LSRK_RKC_2:
+      fprintf(outfile, "LSRKStep RKC time step module memory:\n");
+      break;
+    case ARKODE_LSRK_RKL_2:
+      fprintf(outfile, "LSRKStep RKL time step module memory:\n");
+      break;
+    case ARKODE_LSRK_SSP_S_2:
+      fprintf(outfile, "LSRKStep SSP(s,2) time step module memory:\n");
+      break;
+    case ARKODE_LSRK_SSP_S_3:
+      fprintf(outfile, "LSRKStep SSP(s,3) time step module memory:\n");
+      break;
+    case ARKODE_LSRK_SSP_10_4:
+      fprintf(outfile, "LSRKStep SSP(10,4) time step module memory:\n");
+      break;
+    default:
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Invalid method option.");
+      return;
   }
 
-  fprintf(outfile, "Method order %i\n", step_mem->q);
-  fprintf(outfile, "Embedding order %i\n", step_mem->p);
+  fprintf(outfile, "Method order                  = %i\n", step_mem->q);
+  fprintf(outfile, "Embedding order               = %i\n", step_mem->p);
 
-  switch (step_mem->is_SSP)
+  if (step_mem->is_SSP)
   {
-  case SUNTRUE:
-    fprintf(outfile, "Number of stages used = %i\n", step_mem->req_stages);
-    break;
-  case SUNFALSE:
+    fprintf(outfile, "Number of stages used         = %i\n", step_mem->req_stages);
+    fprintf(outfile, "LSRKStep: nfe                 = %li\n", step_mem->nfe);
+  }
+  else if (!step_mem->is_SSP)
+  {
     /* output integer quantities */
     fprintf(outfile, "LSRKStep: req_stages          = %i\n", step_mem->req_stages);
     fprintf(outfile, "LSRKStep: dom_eig_nst         = %i\n", step_mem->dom_eig_nst);
@@ -558,11 +559,12 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
             step_mem->dom_eig_update);
     fprintf(outfile, "LSRKStep: dom_eig_is_current  = %d\n",
             step_mem->dom_eig_is_current);
-    break;
-  default:
+  }
+  else
+  {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid method type.");
-    return (ARK_ILL_INPUT);
+    return;
   }
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC

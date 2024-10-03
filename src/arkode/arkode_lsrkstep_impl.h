@@ -97,9 +97,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                             int* nflagPtr);
 int lsrkStep_SetDefaults(ARKodeMem ark_mem);
-int lsrkSTSStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
-int lsrkSSPStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
-                              SUNOutputFormat fmt);
+int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
 int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
 int lsrkStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR);
 int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
