@@ -3473,7 +3473,8 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
 .. c:function:: int ARKodeGetNumRhsEvals(void* arkode_mem, int num_rhs, long int* num_rhs_evals)
 
    Returns the number of calls to the user's right-hand side function(s)
-   (so far).
+   (so far). For implicit methods or methods with an implicit partition, these
+   counts do not include calls made by a linear solver or preconditioner.
 
    :param arkode_mem: pointer to the ERKStep memory block.
    :param num_rhs: the number of right-hand side functions:
