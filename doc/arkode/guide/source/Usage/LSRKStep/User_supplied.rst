@@ -17,7 +17,9 @@
 User-supplied functions
 =============================
 
-In addition to the required :c:type:`ARKRhsFn` arguments that define the IVP, RKL and RKC methods additionally require an :c:type:`ARKDomEigFn`: function to estimate the dominant eigenvalue.
+In addition to the required :c:type:`ARKRhsFn` arguments that define the IVP,
+RKL and RKC methods additionally require an :c:type:`ARKDomEigFn`: function to
+estimate the dominant eigenvalue.
 
 
 
@@ -27,12 +29,16 @@ In addition to the required :c:type:`ARKRhsFn` arguments that define the IVP, RK
 The dominant eigenvalue estimation
 ----------------------------------
 
-When running LSRKStep with either the RKC or RKL methods, the user must supply a dominant eigenvalue estimation function of type :c:type:`ARKDomEigFn`:
+When running LSRKStep with either the RKC or RKL methods, the user must supply
+a dominant eigenvalue estimation function of type :c:type:`ARKDomEigFn`:
 
-.. c:type:: int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data, N_Vector temp1, N_Vector temp2, N_Vector temp3);
+.. c:type:: int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn, 
+               sunrealtype* lambdaR, sunrealtype* lambdaI, void* user_data, 
+               N_Vector temp1, N_Vector temp2, N_Vector temp3);
 
-   These functions compute the dominant eigenvalue of the Jacobian of the ODE right-hand side for a given
-   value of the independent variable :math:`t` and state vector :math:`y`.
+   These functions compute the dominant eigenvalue of the Jacobian of the ODE 
+   right-hand side for a given value of the independent variable :math:`t` and 
+   state vector :math:`y`.
 
    :param t: the current value of the independent variable.
    :param y: the current value of the dependent variable vector.
@@ -45,4 +51,5 @@ When running LSRKStep with either the RKC or RKL methods, the user must supply a
                 variables of type ``N_Vector`` which can be used by an
                 ARKDomEigFn as temporary storage or work space.
 
-   :return: An *ARKDomEigFn* should return 0 if successful and any nonzero for a failure.
+   :return: An *ARKDomEigFn* should return 0 if successful and any nonzero 
+   for a failure.

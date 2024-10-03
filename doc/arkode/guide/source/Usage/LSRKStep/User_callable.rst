@@ -39,7 +39,8 @@ LSRKStep initialization functions
 ---------------------------------
 
 
-.. c:function:: void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx);
+.. c:function:: void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, 
+                                        N_Vector y0, SUNContext sunctx);
 
    This function allocates and initializes memory for a problem to
    be solved using the LSRKStep time-stepping module in ARKODE.
@@ -85,7 +86,8 @@ Optional input functions
 
 .. c:function:: int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
 
-   This function selects the LSRK method that should be used.  The list of allowable values for this input is below.
+   This function selects the LSRK method that should be used.  The list of allowable 
+   values for this input is below.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -150,7 +152,8 @@ Allowable Method Families
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *nsteps* -- the dominant eigenvalue re-computation update frequency.  A value ``nsteps = 0`` indicates that the dominant eigenvalue will not change throughout the simulation.
+      * *nsteps* -- the dominant eigenvalue re-computation update frequency.  A value ``nsteps = 0`` 
+      indicates that the dominant eigenvalue will not change throughout the simulation.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -178,7 +181,10 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety);
 
-   Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.  This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring a sufficient number of stages for the method to be stable.  This input is only used for RKC and RKL methods.
+   Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.  
+   This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring 
+   a sufficient number of stages for the method to be stable.  This input is only used for RKC 
+   and RKL methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -259,37 +265,37 @@ LSRKStep re-initialization function
 -------------------------------------
 
 To reinitialize the LSRKStep module for the solution of a new problem,
-where a prior call to :c:func:`LSRKStepCreateSTS` or :c:func:`LSRKStepCreateSSP` has been made, the
-user must call the function :c:func:`LSRKStepReInitSTS()` or :c:func:`LSRKStepReInitSSP()`, accordingly.  The new
-problem must have the same size as the previous one.  This routine
-retains the current settings for all LSRKstep module options and
-performs the same input checking and initializations that are done in
-:c:func:`LSRKStepCreateSTS` or :c:func:`LSRKStepCreateSSP`, but it performs no memory allocation as it
-assumes that the existing internal memory is sufficient for the new
-problem.  A call to this re-initialization routine deletes the
-solution history that was stored internally during the previous
-integration, and deletes any previously-set *tstop* value specified via a
-call to :c:func:`ARKodeSetStopTime()`.  Following a successful call to
-:c:func:`LSRKStepReInitSTS()` or :c:func:`LSRKStepReInitSSP()`, call :c:func:`ARKodeEvolve()` again for the
-solution of the new problem.
+where a prior call to :c:func:`LSRKStepCreateSTS` or :c:func:`LSRKStepCreateSSP` 
+has been made, the user must call the function :c:func:`LSRKStepReInitSTS()` 
+or :c:func:`LSRKStepReInitSSP()`, accordingly.  The new problem must have 
+the same size as the previous one.  This routine retains the current settings 
+for all LSRKstep module options and performs the same input checking and 
+initializations that are done in :c:func:`LSRKStepCreateSTS` or 
+:c:func:`LSRKStepCreateSSP`, but it performs no memory allocation as it
+assumes that the existing internal memory is sufficient for the new problem.  
+A call to this re-initialization routine deletes the solution history that 
+was stored internally during the previous integration, and deletes any 
+previously-set *tstop* value specified via a call to 
+:c:func:`ARKodeSetStopTime()`.  Following a successful call to
+:c:func:`LSRKStepReInitSTS()` or :c:func:`LSRKStepReInitSSP()`, 
+call :c:func:`ARKodeEvolve()` again for the solution of the new problem.
 
-One important use of the :c:func:`LSRKStepReInitSTS()` and :c:func:`LSRKStepReInitSSP()` function is in the
-treating of jump discontinuities in the RHS function.  Except in cases
-of fairly small jumps, it is usually more efficient to stop at each
-point of discontinuity and restart the integrator with a readjusted
-ODE model, using a call to this routine.  To stop when the location
-of the discontinuity is known, simply make that location a value of
-``tout``.  To stop when the location of the discontinuity is
-determined by the solution, use the rootfinding feature.  In either
-case, it is critical that the RHS function *not* incorporate the
-discontinuity, but rather have a smooth extension over the
-discontinuity, so that the step across it (and subsequent rootfinding,
-if used) can be done efficiently.  Then use a switch within the RHS
-function (communicated through ``user_data``) that can be flipped
-between the stopping of the integration and the restart, so that the
-restarted problem uses the new values (which have jumped).  Similar
-comments apply if there is to be a jump in the dependent variable
-vector.
+One important use of the :c:func:`LSRKStepReInitSTS()` and 
+:c:func:`LSRKStepReInitSSP()` function is in the treating of jump 
+discontinuities in the RHS function.  Except in cases of fairly small 
+jumps, it is usually more efficient to stop at each point of discontinuity 
+and restart the integrator with a readjusted ODE model, using a call to this 
+routine.  To stop when the location of the discontinuity is known, simply 
+make that location a value of ``tout``.  To stop when the location of 
+the discontinuity is determined by the solution, use the rootfinding feature.  
+In either case, it is critical that the RHS function *not* incorporate the
+discontinuity, but rather have a smooth extension over the discontinuity, 
+so that the step across it (and subsequent rootfinding, if used) can be done 
+efficiently.  Then use a switch within the RHS function (communicated through 
+``user_data``) that can be flipped between the stopping of the integration 
+and the restart, so that the restarted problem uses the new values (which 
+have jumped).  Similar comments apply if there is to be a jump in the 
+dependent variable vector.
 
 
 .. c:function:: int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0);

@@ -127,7 +127,7 @@ int main(void)
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx); /* Create serial vector for solution */
   if (check_flag((void*)y, "N_VNew_Serial", 0)) { return 1; }
-  N_VConst(y, SUN_RCONST(0.0)); /* Specify initial condition */
+  N_VConst(SUN_RCONST(0.0), y); /* Specify initial condition */
 
   /* Call LSRKStepCreateSTS to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the initial time
@@ -210,6 +210,11 @@ int main(void)
   FID  = fopen("ark_analytic_nonlin_stats.csv", "w");
   flag = ARKodePrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
   fclose(FID);
+
+  long int* f_evals;
+  LSRKStepGetNumRhsEvals(arkode_mem, 1, &f_evals);
+  printf("f_evals = ", f_evals);
+
 
   /* check the solution error */
   flag = check_ans(y, t, reltol, abstol);

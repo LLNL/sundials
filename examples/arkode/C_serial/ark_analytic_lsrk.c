@@ -105,7 +105,7 @@ int main(void)
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx); /* Create serial vector for solution */
   if (check_flag((void*)y, "N_VNew_Serial", 0)) { return 1; }
-  N_VConst(y, SUN_RCONST(0.0)); /* Specify initial condition */
+  N_VConst(SUN_RCONST(0.0), y); /* Specify initial condition */
 
   /* Call LSRKStepCreateSTS to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the initial time

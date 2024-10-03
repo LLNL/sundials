@@ -257,7 +257,8 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
-
+  fprintf(outfile, "LSRKStep: Fe:\n");
+  N_VPrintFile(step_mem->Fe, outfile);
 #endif
 }
 
