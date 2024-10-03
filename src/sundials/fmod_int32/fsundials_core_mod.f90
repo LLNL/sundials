@@ -2122,13 +2122,14 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNStepper_Reset(farg1, farg2, farg3) &
+function swigc_FSUNStepper_Reset(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNStepper_Reset") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT64_T), intent(in) :: farg4
 integer(C_INT) :: fresult
 end function
 
@@ -5082,22 +5083,25 @@ fresult = swigc_FSUNStepper_OneStep(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FSUNStepper_Reset(stepper, tr, vr) &
+function FSUNStepper_Reset(stepper, tr, vr, ckptidxr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: tr
 type(N_Vector), target, intent(inout) :: vr
+integer(C_INT64_T), intent(in) :: ckptidxr
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
+integer(C_INT64_T) :: farg4 
 
 farg1 = stepper
 farg2 = tr
 farg3 = c_loc(vr)
-fresult = swigc_FSUNStepper_Reset(farg1, farg2, farg3)
+farg4 = ckptidxr
+fresult = swigc_FSUNStepper_Reset(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 

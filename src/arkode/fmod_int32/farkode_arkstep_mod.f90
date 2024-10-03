@@ -203,6 +203,14 @@ module farkode_arkstep_mod
  public :: FARKStepGetLinReturnFlagName
  public :: FARKStepFree
  public :: FARKStepPrintMem
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
  type, public :: SWIGTYPE_p_SUNAdjointStepper
   type(SwigClassWrapper), public :: swigdata
  end type

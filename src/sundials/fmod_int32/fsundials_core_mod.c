@@ -2726,17 +2726,19 @@ SWIGEXPORT int _wrap_FSUNStepper_OneStep(void *farg1, double const *farg2, doubl
 }
 
 
-SWIGEXPORT int _wrap_FSUNStepper_Reset(void *farg1, double const *farg2, N_Vector farg3) {
+SWIGEXPORT int _wrap_FSUNStepper_Reset(void *farg1, double const *farg2, N_Vector farg3, int64_t const *farg4) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
+  int64_t arg4 ;
   SUNErrCode result;
   
   arg1 = (SUNStepper)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
-  result = (SUNErrCode)SUNStepper_Reset(arg1,arg2,arg3);
+  arg4 = (int64_t)(*farg4);
+  result = (SUNErrCode)SUNStepper_Reset(arg1,arg2,arg3,arg4);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
