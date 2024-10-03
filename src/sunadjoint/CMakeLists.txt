@@ -22,3 +22,8 @@ sundials_add_library(
   LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES sundials_sunmemsys_obj
   INCLUDE_SUBDIR sunadjoint)
+
+# Add F2003 module if the interface is enabled
+if(BUILD_FORTRAN_MODULE_INTERFACE)
+  add_subdirectory("fmod_int${SUNDIALS_INDEX_SIZE}")
+endif()

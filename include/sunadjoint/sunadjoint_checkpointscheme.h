@@ -22,8 +22,8 @@
 extern "C" {
 #endif
 
-typedef struct SUNAdjointCheckpointScheme_Ops_* SUNAdjointCheckpointScheme_Ops;
-typedef struct SUNAdjointCheckpointScheme_* SUNAdjointCheckpointScheme;
+typedef _SUNDIALS_STRUCT_ SUNAdjointCheckpointScheme_Ops_* SUNAdjointCheckpointScheme_Ops;
+typedef _SUNDIALS_STRUCT_ SUNAdjointCheckpointScheme_* SUNAdjointCheckpointScheme;
 
 struct SUNAdjointCheckpointScheme_Ops_
 {
