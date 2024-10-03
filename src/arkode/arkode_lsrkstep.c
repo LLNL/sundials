@@ -64,62 +64,9 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ---------------------------------------------------------------*/
 int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0)
 {
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
   int retval;
-
-  /* access ARKodeLSRKStepMem structure */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* Check if ark_mem was allocated */
-  if (ark_mem->MallocDone == SUNFALSE)
-  {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MALLOC);
-    return (ARK_NO_MALLOC);
-  }
-
-  /* Check that rhs is supplied */
-  if (rhs == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_F);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Check for legal input parameters */
-  if (y0 == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_Y0);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Copy the input parameters into ARKODE state */
-  step_mem->fe = rhs;
-
-  /* Initialize main ARKODE infrastructure */
-  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to initialize main ARKODE infrastructure");
-    return (retval);
-  }
-
-  /* Initialize all the counters, flags and stats */
-  step_mem->nfe                 = 0;
-  step_mem->dom_eig_num_evals   = 0;
-  step_mem->stage_max           = 0;
-  step_mem->spectral_radius_max = 0;
-  step_mem->spectral_radius_min = 0;
-  step_mem->dom_eig_nst         = 0;
-  step_mem->dom_eig_update      = SUNTRUE;
-  step_mem->dom_eig_is_current  = SUNFALSE;
-
-  return (ARK_SUCCESS);
+  retval = lsrkStep_ReInit_Commons(arkode_mem, rhs, t0, y0);
+  return (retval);
 }
 
 /*---------------------------------------------------------------
@@ -135,62 +82,9 @@ int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
   ---------------------------------------------------------------*/
 int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0)
 {
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
   int retval;
-
-  /* access ARKodeLSRKStepMem structure */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* Check if ark_mem was allocated */
-  if (ark_mem->MallocDone == SUNFALSE)
-  {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MALLOC);
-    return (ARK_NO_MALLOC);
-  }
-
-  /* Check that rhs is supplied */
-  if (rhs == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_F);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Check for legal input parameters */
-  if (y0 == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_Y0);
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Copy the input parameters into ARKODE state */
-  step_mem->fe = rhs;
-
-  /* Initialize main ARKODE infrastructure */
-  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to initialize main ARKODE infrastructure");
-    return (retval);
-  }
-
-  /* Initialize all the counters, flags and stats */
-  step_mem->nfe                 = 0;
-  step_mem->dom_eig_num_evals   = 0;
-  step_mem->stage_max           = 0;
-  step_mem->spectral_radius_max = 0;
-  step_mem->spectral_radius_min = 0;
-  step_mem->dom_eig_nst         = 0;
-  step_mem->dom_eig_update      = SUNTRUE;
-  step_mem->dom_eig_is_current  = SUNFALSE;
-
-  return (ARK_SUCCESS);
+  retval = lsrkStep_ReInit_Commons(arkode_mem, rhs, t0, y0);
+  return (retval);
 }
 
 /*===============================================================
@@ -2146,6 +2040,13 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
   else { step_mem->dom_eig_update = !step_mem->dom_eig_is_current; }
 }
 
+/*---------------------------------------------------------------
+  lsrkStep_Create_Commons:
+
+  A submodule for creating the common features of 
+  LSRKStepCreateSTS and LSRKStepCreateSSP.
+  ---------------------------------------------------------------*/
+
 void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 {
   ARKodeMem ark_mem;
@@ -2256,6 +2157,73 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNCont
   ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ((void*)ark_mem);
+}
+
+/*---------------------------------------------------------------
+  lsrkStep_ReInit_Commons:
+
+  A submodule designed to reinitialize the common features of 
+  LSRKStepCreateSTS and LSRKStepCreateSSP.
+  ---------------------------------------------------------------*/
+
+int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE)
+  {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
+    return (ARK_NO_MALLOC);
+  }
+
+  /* Check that rhs is supplied */
+  if (rhs == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_F);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Check for legal input parameters */
+  if (y0 == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Copy the input parameters into ARKODE state */
+  step_mem->fe = rhs;
+
+  /* Initialize main ARKODE infrastructure */
+  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to initialize main ARKODE infrastructure");
+    return (retval);
+  }
+
+  /* Initialize all the counters, flags and stats */
+  step_mem->nfe                 = 0;
+  step_mem->dom_eig_num_evals   = 0;
+  step_mem->stage_max           = 0;
+  step_mem->spectral_radius_max = 0;
+  step_mem->spectral_radius_min = 0;
+  step_mem->dom_eig_nst         = 0;
+  step_mem->dom_eig_update      = SUNTRUE;
+  step_mem->dom_eig_is_current  = SUNFALSE;
+
+  return (ARK_SUCCESS);
 }
 
 /*===============================================================

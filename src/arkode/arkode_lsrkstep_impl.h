@@ -87,6 +87,7 @@ typedef struct ARKodeLSRKStepMemRec
 
 /* Interface routines supplied to ARKODE */
 void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx);
+int lsrkStep_ReInit_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx);
 int lsrkStep_Init(ARKodeMem ark_mem, int init_type);
 int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode);
