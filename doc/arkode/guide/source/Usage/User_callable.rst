@@ -3478,7 +3478,7 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    not include calls made by a linear solver or preconditioner.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param num_rhs: the right-hand side partition index:
+   :param num_partition: the right-hand side partition index:
 
                    * For ERKStep, ``0`` corresponds to :math:`f(t,y)`
 
@@ -3499,8 +3499,8 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: if ``arkode_mem`` was ``NULL``.
-   :retval ARK_ILL_INPUT: if ``num_rhs`` was invalid for the stepper or
-                          ``num_rhs_evals`` as ``NULL``
+   :retval ARK_ILL_INPUT: if ``num_partiton`` was invalid for the stepper or
+                          ``num_rhs_evals`` was ``NULL``
 
    .. versionadded:: x.y.z
 
