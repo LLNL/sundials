@@ -39,8 +39,7 @@ LSRKStep initialization functions
 ---------------------------------
 
 
-.. c:function:: void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, 
-                                        N_Vector y0, SUNContext sunctx);
+.. c:function:: void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx);
 
    This function allocates and initializes memory for a problem to
    be solved using the LSRKStep time-stepping module in ARKODE.
@@ -104,12 +103,26 @@ Allowable Method Families
 
 .. c:enum:: ARKODE_LSRKMethodType
 
-   * ``ARKODE_LSRK_RKC_2`` -- Runge--Kutta--Chebyshev
-   * ``ARKODE_LSRK_RKL_2`` -- Runge--Kutta--Legendre
-   * ``ARKODE_LSRK_SSP_S_2`` -- SSP(s,2) -- 2nd order, s-stage
-   * ``ARKODE_LSRK_SSP_S_3`` -- SSP(s,3) -- 3rd order, s-stage
-   * ``ARKODE_LSRK_SSP_10_4`` -- SSP(10,4) -- 4th order, 10-stage
+   .. c:enumerator:: ARKODE_LSRK_RKC_2
 
+      Second order Runge--Kutta--Chebyshev method
+
+   .. c:enumerator:: ARKODE_LSRK_RKL_2
+
+      Second order Runge--Kutta--Legendre method 
+
+   .. c:enumerator:: ARKODE_LSRK_SSP_S_2
+
+      Second order, s-stage SSP(s,2) method 
+
+   .. c:enumerator:: ARKODE_LSRK_SSP_S_3
+
+      Third order, s-stage SSP(s,3) method 
+
+   .. c:enumerator:: ARKODE_LSRK_SSP_10_4
+
+      Fourth order, 10-stage SSP(10,4) method
+      
 
 .. c:function:: int LSRKStepSetMethodByName(void* arkode_mem, const char* emethod);
 
@@ -152,8 +165,7 @@ Allowable Method Families
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *nsteps* -- the dominant eigenvalue re-computation update frequency.  A value ``nsteps = 0`` 
-      indicates that the dominant eigenvalue will not change throughout the simulation.
+      * *nsteps* -- the dominant eigenvalue re-computation update frequency.  A value  ``nsteps = 0``  indicates that the dominant eigenvalue will not change throughout the simulation.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -194,6 +206,23 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``dom_eig_safety < 1``)
+
+
+.. c:function:: int LSRKStepSetReTryContractionFactor(void* arkode_mem, sunrealtype retry_contraction_fac);
+
+   Specifies a contraction factor for the next step size after an ``ARK_RETRY_STEP`` return. This is relevant 
+   in situations where stable results cannot be achieved with the current step size and ``stage_max_limit``. 
+   In such cases, the stepper returns with a recoverable flag before any costly operations, allowing ``ARKODE`` 
+   to assign a new contracted step size to ensure that the required stages remain below the ``stage_max_limit``.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *retry_contraction_fac* -- safety factor :math:`(< 1)`.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``retry_contraction_fac > 1``)
 
 
 .. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);

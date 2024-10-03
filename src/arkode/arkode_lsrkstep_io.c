@@ -247,6 +247,32 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 }
 
 /*---------------------------------------------------------------
+  LSRKStepSetReTryContractionFactor sets the retry contraction factor for the step size.
+  ---------------------------------------------------------------*/
+int LSRKStepSetReTryContractionFactor(void* arkode_mem, sunrealtype retry_contraction_fac)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if (retry_contraction_fac >= SUN_RCONST(1.0))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "retry_contraction_fac must be less than 1");
+    return (ARK_ILL_INPUT);
+  }
+
+  step_mem->retry_contraction_fac = retry_contraction_fac;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
   LSRKStepSetSSPStageNum sets the number of stages in the following
   SSP methods:
 
@@ -468,13 +494,14 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->req_stages = 0; /* no stages */
 
   /* Spectral info */
-  step_mem->lambdaR             = 0;
-  step_mem->lambdaI             = 0;
-  step_mem->spectral_radius     = 0;
-  step_mem->spectral_radius_max = 0;
-  step_mem->spectral_radius_min = 0;
-  step_mem->dom_eig_safety      = 1.01;
-  step_mem->dom_eig_freq        = 25;
+  step_mem->lambdaR               = 0;
+  step_mem->lambdaI               = 0;
+  step_mem->spectral_radius       = 0;
+  step_mem->spectral_radius_max   = 0;
+  step_mem->spectral_radius_min   = 0;
+  step_mem->dom_eig_safety        = SUN_RCONST(1.01);
+  step_mem->retry_contraction_fac = SUN_RCONST(0.90);
+  step_mem->dom_eig_freq          = 25;
 
   /* Flags */
   step_mem->dom_eig_update     = SUNTRUE;

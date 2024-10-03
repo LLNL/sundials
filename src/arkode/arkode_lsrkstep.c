@@ -217,35 +217,37 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   else if (!step_mem->is_SSP)
   {
     /* output integer quantities */
-    fprintf(outfile, "LSRKStep: req_stages          = %i\n", step_mem->req_stages);
-    fprintf(outfile, "LSRKStep: dom_eig_nst         = %i\n", step_mem->dom_eig_nst);
-    fprintf(outfile, "LSRKStep: stage_max           = %i\n", step_mem->stage_max);
-    fprintf(outfile, "LSRKStep: stage_max_limit     = %i\n",
+    fprintf(outfile, "LSRKStep: req_stages            = %i\n", step_mem->req_stages);
+    fprintf(outfile, "LSRKStep: dom_eig_nst           = %i\n", step_mem->dom_eig_nst);
+    fprintf(outfile, "LSRKStep: stage_max             = %i\n", step_mem->stage_max);
+    fprintf(outfile, "LSRKStep: stage_max_limit       = %i\n",
             step_mem->stage_max_limit);
-    fprintf(outfile, "LSRKStep: dom_eig_freq        = %i\n",
+    fprintf(outfile, "LSRKStep: dom_eig_freq          = %i\n",
             step_mem->dom_eig_freq);
 
     /* output long integer quantities */
-    fprintf(outfile, "LSRKStep: nfe                 = %li\n", step_mem->nfe);
-    fprintf(outfile, "LSRKStep: dom_eig_num_evals   = %li\n",
+    fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
+    fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
             step_mem->dom_eig_num_evals);
 
     /* output sunrealtype quantities */
-    fprintf(outfile, "LSRKStep: dom_eig             = %f + i%f\n",
+    fprintf(outfile, "LSRKStep: dom_eig               = %f + i%f\n",
             step_mem->lambdaR, step_mem->lambdaI);
-    fprintf(outfile, "LSRKStep: spectral_radius     = %f\n",
+    fprintf(outfile, "LSRKStep: spectral_radius       = %f\n",
             step_mem->spectral_radius);
-    fprintf(outfile, "LSRKStep: spectral_radius_max = %f\n",
+    fprintf(outfile, "LSRKStep: spectral_radius_max   = %f\n",
             step_mem->spectral_radius_max);
-    fprintf(outfile, "LSRKStep: spectral_radius_min = %f\n",
+    fprintf(outfile, "LSRKStep: spectral_radius_min   = %f\n",
             step_mem->spectral_radius_min);
-    fprintf(outfile, "LSRKStep: dom_eig_safety      = %f\n",
+    fprintf(outfile, "LSRKStep: dom_eig_safety        = %f\n",
             step_mem->dom_eig_safety);
+    fprintf(outfile, "LSRKStep: retry_contraction_fac = %f\n",
+            step_mem->retry_contraction_fac);
 
     /* output sunbooleantype quantities */
-    fprintf(outfile, "LSRKStep: dom_eig_update      = %d\n",
+    fprintf(outfile, "LSRKStep: dom_eig_update        = %d\n",
             step_mem->dom_eig_update);
-    fprintf(outfile, "LSRKStep: dom_eig_is_current  = %d\n",
+    fprintf(outfile, "LSRKStep: dom_eig_is_current    = %d\n",
             step_mem->dom_eig_is_current);
   }
   else
@@ -504,7 +506,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     if (!ark_mem->fixedstep)
     {
-      hmax = ark_mem->hadapt_mem->safety * SUNSQR(ss) /
+      hmax = step_mem->retry_contraction_fac * SUNSQR(ss) /
              (onep54 * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
