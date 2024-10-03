@@ -3470,6 +3470,44 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    .. versionadded:: 6.1.0
 
 
+.. c:function:: int ARKodeGetNumRhsEvals(void* arkode_mem, int num_rhs, long int* num_rhs_evals)
+
+   Returns the number of calls to the user's right-hand side function(s)
+   (so far).
+
+   :param arkode_mem: pointer to the ERKStep memory block.
+   :param num_rhs: the number of right-hand side functions:
+
+                   * ``1`` for ERKStep
+
+                   * ``2`` for ARKStep, MRIStep, and SPRKStep
+
+   :param num_rhs_evals: the output array of length ``num_rhs`` to fill with the
+                         number of calls to the user's right-hand side
+                         function(s):
+
+                         * ``num_rhs_evals[0]`` is the number of calls to:
+
+                           * :math:`f(t,y)` with ERKStep
+
+                           * :math:`f^E(t,y)` with ARKStep or MRIStep
+
+                           * :math:`f_1(t,p)` with SPRKStep
+
+                         * ``num_rhs_evals[1]`` is the number of calls to:
+
+                           * :math:`f^I(t,y)` with ARKStep or MRIStep
+
+                           * :math:`f_2(t,q)` with SPRKStep
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: if ``arkode_mem`` was ``NULL``.
+   :retval ARK_ILL_INPUT: if ``num_rhs`` was invalid for the stepper or
+                          ``num_rhs_evals`` as ``NULL``
+
+   .. versionadded:: x.y.z
+
+
 .. c:function:: int ARKodeGetNumErrTestFails(void* arkode_mem, long int* netfails)
 
    Returns the number of local error test failures that

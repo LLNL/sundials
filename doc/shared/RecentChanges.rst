@@ -39,3 +39,7 @@ Fixed a CMake configuration issue related to aliasing an ``ALIAS`` target when
 using ``ENABLE_KLU=ON`` in combination with a static-only build of SuiteSparse.
 
 **Deprecation Notices**
+
+The ARKODE stepper specific function to retrieve the number of right-hand side
+function evaluations have been deprecated. Use :c:func:`ARKodeGetNumRhsEvals`
+instead.
