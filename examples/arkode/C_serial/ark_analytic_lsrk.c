@@ -105,7 +105,7 @@ int main(void)
   /* Initialize data structures */
   y = N_VNew_Serial(NEQ, ctx); /* Create serial vector for solution */
   if (check_flag((void*)y, "N_VNew_Serial", 0)) { return 1; }
-  N_VGetArrayPointer(y)[0] = SUN_RCONST(0.0); /* Specify initial condition */
+  N_VConst(y, SUN_RCONST(0.0)); /* Specify initial condition */
 
   /* Call LSRKStepCreateSTS to initialize the ARK timestepper module and
      specify the right-hand side function in y'=f(t,y), the initial time
@@ -140,7 +140,7 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Specify safety factor for user provided dom_eig */
-  flag = LSRKStepSetDomEigSafetyFactor(arkode_mem, 1.01);
+  flag = LSRKStepSetDomEigSafetyFactor(arkode_mem, SUN_RCONST(1.01));
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
   /* Specify the Runge--Kutta--Legendre LSRK method */
@@ -160,23 +160,23 @@ int main(void)
   tout = T0 + dTout;
   printf("        t           u\n");
   printf("   ---------------------\n");
-  while (Tf - t > 1.0e-15)
+  while (Tf - t > SUN_RCONST(1.0e-15))
   {
     flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
     if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
     printf("  %10.6" FSYM "  %10.6" FSYM "\n", t,
            N_VGetArrayPointer(y)[0]); /* access/print solution */
     fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", t, N_VGetArrayPointer(y)[0]);
-    if (flag >= 0)
-    { /* successful solve: update time */
-      tout += dTout;
-      tout = (tout > Tf) ? Tf : tout;
-    }
-    else
-    { /* unsuccessful solve: break */
-      fprintf(stderr, "Solver failure, stopping integration\n");
-      break;
-    }
+    if (flag < 0)
+	  { /* unsuccessful solve: break */
+	    fprintf(stderr, "Solver failure, stopping integration\n");
+	    break;
+	  }
+	  else
+	  { /* successful solve: update time */
+	    tout += dTout;
+	    tout = (tout > Tf) ? Tf : tout;
+	  }
   }
   printf("   ---------------------\n");
   fclose(UFID);
