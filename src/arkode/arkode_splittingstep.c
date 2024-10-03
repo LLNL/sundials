@@ -185,8 +185,7 @@ static int splittingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  retval = step_mem->steppers[0]->ops->fullrhs(step_mem->steppers[0], t, y, f,
-                                               ARK_FULLRHS_OTHER);
+  retval = step_mem->steppers[0]->ops->fullrhs(step_mem->steppers[0], t, y, f);
   if (retval != 0)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -197,8 +196,7 @@ static int splittingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
   for (int i = 1; i < step_mem->partitions; i++)
   {
     retval = step_mem->steppers[i]->ops->fullrhs(step_mem->steppers[i], t, y,
-                                                 ark_mem->tempv1,
-                                                 ARK_FULLRHS_OTHER);
+                                                 ark_mem->tempv1);
     if (retval != 0)
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
