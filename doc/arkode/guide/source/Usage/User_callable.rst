@@ -3165,6 +3165,7 @@ Name of constant associated with a return flag         :c:func:`ARKodeGetReturnF
 No. of explicit stability-limited steps                :c:func:`ARKodeGetNumExpSteps`
 No. of accuracy-limited steps                          :c:func:`ARKodeGetNumAccSteps`
 No. of attempted steps                                 :c:func:`ARKodeGetNumStepAttempts`
+No. of RHS evaluations                                 :c:func:`ARKodeGetNumRhsEvals`
 No. of local error test failures that have occurred    :c:func:`ARKodeGetNumErrTestFails`
 No. of failed steps due to a nonlinear solver failure  :c:func:`ARKodeGetNumStepSolveFails`
 Estimated local truncation error vector                :c:func:`ARKodeGetEstLocalErrors`
@@ -3470,36 +3471,31 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    .. versionadded:: 6.1.0
 
 
-.. c:function:: int ARKodeGetNumRhsEvals(void* arkode_mem, int num_rhs, long int* num_rhs_evals)
+.. c:function:: int ARKodeGetNumRhsEvals(void* arkode_mem, int partition_index, long int* num_rhs_evals)
 
-   Returns the number of calls to the user's right-hand side function(s)
-   (so far). For implicit methods or methods with an implicit partition, these
-   counts do not include calls made by a linear solver or preconditioner.
+   Returns the number of calls to the user's right-hand side function (so far).
+   For implicit methods or methods with an implicit partition, the count does
+   not include calls made by a linear solver or preconditioner.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param num_rhs: the number of right-hand side functions:
+   :param num_rhs: the right-hand side partition index:
 
-                   * ``1`` for ERKStep
+                   * For ERKStep, ``0`` corresponds to :math:`f(t,y)`
 
-                   * ``2`` for ARKStep, MRIStep, and SPRKStep
+                   * For ARKStep, ``0`` corresponds to :math:`f^E(t,y)` and
+                     ``1`` to :math:`f^I(t,y)`
 
-   :param num_rhs_evals: the output array of length ``num_rhs`` to fill with the
-                         number of calls to the user's right-hand side
-                         function(s):
+                   * For MRIStep, ``0`` corresponds to :math:`f^E(t,y)` and
+                     ``1`` to :math:`f^I(t,y)`
 
-                         * ``num_rhs_evals[0]`` is the number of calls to:
+                   * For SPRKStep, ``0`` corresponds to :math:`f_1(t,p)` and
+                     ``1`` to :math:`f_2(t,q)`
 
-                           * :math:`f(t,y)` with ERKStep
+                   For methods with more than one right-hand side function, a
+                   negative index will return the sum of the evaluations for
+                   each partition.
 
-                           * :math:`f^E(t,y)` with ARKStep or MRIStep
-
-                           * :math:`f_1(t,p)` with SPRKStep
-
-                         * ``num_rhs_evals[1]`` is the number of calls to:
-
-                           * :math:`f^I(t,y)` with ARKStep or MRIStep
-
-                           * :math:`f_2(t,q)` with SPRKStep
+   :param num_rhs_evals: the number of right-hand side evaluations.
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: if ``arkode_mem`` was ``NULL``.
