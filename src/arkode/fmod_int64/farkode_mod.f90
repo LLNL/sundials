@@ -3392,12 +3392,12 @@ fresult = swigc_FARKodeComputeState(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FARKodeGetNumRhsEvals(arkode_mem, num_rhs, num_rhs_evals) &
+function FARKodeGetNumRhsEvals(arkode_mem, partition_index, num_rhs_evals) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: num_rhs
+integer(C_INT), intent(in) :: partition_index
 integer(C_LONG), dimension(*), target, intent(inout) :: num_rhs_evals
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -3405,7 +3405,7 @@ integer(C_INT) :: farg2
 type(C_PTR) :: farg3 
 
 farg1 = arkode_mem
-farg2 = num_rhs
+farg2 = partition_index
 farg3 = c_loc(num_rhs_evals(1))
 fresult = swigc_FARKodeGetNumRhsEvals(farg1, farg2, farg3)
 swig_result = fresult
