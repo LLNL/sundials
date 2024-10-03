@@ -56,11 +56,15 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(
   sunindextype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(check_scheme->sunctx);
+  SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
+
   if (check_scheme->ops->shouldWeSave)
   {
+    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return check_scheme->ops->shouldWeSave(check_scheme, step_num, stage_num, t,
                                            yes_or_no);
   }
+  SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
@@ -69,11 +73,15 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(
   sunindextype stage_num, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(check_scheme->sunctx);
+  SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
+
   if (check_scheme->ops->shouldWeDelete)
   {
+    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return check_scheme->ops->shouldWeDelete(check_scheme, step_num, stage_num,
                                              yes_or_no);
   }
+  SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
@@ -82,11 +90,14 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector(
   sunindextype stage_num, sunrealtype t, N_Vector state)
 {
   SUNFunctionBegin(check_scheme->sunctx);
+  SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
   if (check_scheme->ops->insertVector)
   {
+    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return check_scheme->ops->insertVector(check_scheme, step_num, stage_num, t,
                                            state);
   }
+  SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
@@ -95,11 +106,14 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
   sunindextype stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
 {
   SUNFunctionBegin(check_scheme->sunctx);
+  SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
   if (check_scheme->ops->loadVector)
   {
+    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return check_scheme->ops->loadVector(check_scheme, step_num, stage_num,
                                          peek, out, tout);
   }
+  SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
@@ -108,11 +122,14 @@ SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(
   sunindextype stage_num, N_Vector* out)
 {
   SUNFunctionBegin(check_scheme->sunctx);
+  SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
   if (check_scheme->ops->removeVector)
   {
+    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return check_scheme->ops->removeVector(check_scheme, step_num, stage_num,
                                            out);
   }
+  SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
@@ -120,10 +137,13 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy(
   SUNAdjointCheckpointScheme* check_scheme_ptr)
 {
   SUNFunctionBegin((*check_scheme_ptr)->sunctx);
+  SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
   if ((*check_scheme_ptr)->ops->destroy)
   {
+    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return (*check_scheme_ptr)->ops->destroy(check_scheme_ptr);
   }
+  SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
@@ -131,9 +151,12 @@ SUNErrCode SUNAdjointCheckpointScheme_EnableDense(
   SUNAdjointCheckpointScheme check_scheme, sunbooleantype on_or_off)
 {
   SUNFunctionBegin(check_scheme->sunctx);
+  SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
   if (check_scheme->ops->enableDense)
   {
+    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return check_scheme->ops->enableDense(check_scheme, on_or_off);
   }
+  SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
   return SUN_ERR_NOT_IMPLEMENTED;
 }

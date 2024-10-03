@@ -235,6 +235,7 @@ int main(int argc, char* argv[])
   SUNAdjointCheckpointScheme_Destroy(&checkpoint_scheme);
   SUNAdjointStepper_Destroy(&adj_stepper);
   ARKodeFree(&arkode_mem);
+  SUNContext_Free(&sunctx);
 
   return 0;
 }
