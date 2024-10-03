@@ -10,14 +10,14 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include <sunadjoint/sunadjoint_stepper.h>
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
+#include <sunadjoint/sunadjoint_stepper.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_stepper.h>
 #include "sundials/sundials_types.h"
-#include "sundials_stepper_impl.h"
 #include "sundials_macros.h"
+#include "sundials_stepper_impl.h"
 
 SUNErrCode SUNAdjointStepper_Create(
   SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper, int64_t final_step_idx,
@@ -64,8 +64,8 @@ SUNErrCode SUNAdjointStepper_Create(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector y0, sunrealtype t0,
-                                    N_Vector sf, sunrealtype tf)
+SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector y0,
+                                    sunrealtype t0, N_Vector sf, sunrealtype tf)
 {
   SUNFunctionBegin(adj->sunctx);
   adj->tf         = tf;
@@ -118,8 +118,8 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
 
   SUNErrCode retcode = SUN_SUCCESS;
   sunrealtype t      = adj_stepper->tf;
-  SUNCheckCall(SUNStepper_OneStep(adj_sunstepper, adj_stepper->tf, tout, sens,
-                                  &t));
+  SUNCheckCall(
+    SUNStepper_OneStep(adj_sunstepper, adj_stepper->tf, tout, sens, &t));
   *stop_reason = adj_sunstepper->last_flag;
 
   adj_stepper->step_idx--;
@@ -150,16 +150,15 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
 
   SUNCheckCall(SUNStepper_SetStopTime(fwd_stepper, tf));
 
-  SUNCheckCall(SUNStepper_Evolve(fwd_stepper, t0, tf, y0,
-                                 &fwd_t));
+  SUNCheckCall(SUNStepper_Evolve(fwd_stepper, t0, tf, y0, &fwd_t));
   adj_stepper->nrecompute++;
 
   if (fwd_stepper->last_flag < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
   else if (fwd_stepper->last_flag > 1)
   {
-     /* if last_flags is not a successful (0) or tstop (1) return,
+    /* if last_flags is not a successful (0) or tstop (1) return,
         we do not have a way to handle it */
-     retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP;
+    retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP;
   }
 
   SUNCheckCall(

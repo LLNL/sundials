@@ -65,7 +65,8 @@ SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
                               sunrealtype tout, N_Vector vout, sunrealtype* tret);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR, int64_t ckptIdxR);
+SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR,
+                            int64_t ckptIdxR);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop);

@@ -67,11 +67,13 @@ static sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 static void parse_args(int argc, char* argv[], ProgramArgs* args);
 static void print_help(int argc, char* argv[], int exit_code);
 static int check_retval(void* retval_ptr, const char* funcname, int opt);
-static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data);
+static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec,
+                          void* user_data);
 static int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-        N_Vector udotvec, void* user_data, N_Vector tmp);
-static int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-                  N_Vector udotvec, void* user_data, N_Vector tmp);
+               N_Vector udotvec, void* user_data, N_Vector tmp);
+static int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t,
+                         N_Vector uvec, N_Vector udotvec, void* user_data,
+                         N_Vector tmp);
 static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p);
 static void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p);
 
@@ -236,7 +238,6 @@ int main(int argc, char* argv[])
 
   return 0;
 }
-
 
 int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
 {

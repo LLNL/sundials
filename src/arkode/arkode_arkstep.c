@@ -2311,10 +2311,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
           return arkStep_TakeStep_ERK_Adjoint(ark_mem, dsmPtr, nflagPtr);
         }
       }
-      if (errcode != SUN_SUCCESS)
-      {
-        return (ARK_RHSFUNC_FAIL);
-      }
+      if (errcode != SUN_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
     }
     else if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
   }

@@ -41,7 +41,8 @@ typedef struct
 
 static sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 
-static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
+static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec,
+                          void* user_data)
 {
   sunrealtype* p    = (sunrealtype*)user_data;
   sunrealtype* u    = N_VGetArrayPointer(uvec);
@@ -54,7 +55,7 @@ static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* 
 }
 
 static int jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac,
-             void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+                    void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   sunrealtype* p = (sunrealtype*)user_data;
   sunrealtype* u = N_VGetArrayPointer(uvec);
@@ -69,7 +70,7 @@ static int jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Ja
 }
 
 static int jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-        N_Vector udotvec, void* user_data, N_Vector tmp)
+               N_Vector udotvec, void* user_data, N_Vector tmp)
 {
   sunrealtype* p  = (sunrealtype*)user_data;
   sunrealtype* u  = N_VGetArrayPointer(uvec);
@@ -83,7 +84,7 @@ static int jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
 }
 
 static int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-        N_Vector udotvec, void* user_data, N_Vector tmp)
+               N_Vector udotvec, void* user_data, N_Vector tmp)
 {
   sunrealtype* p  = (sunrealtype*)user_data;
   sunrealtype* u  = N_VGetArrayPointer(uvec);
@@ -97,8 +98,8 @@ static int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
 }
 
 static int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec,
-                       SUNMatrix Jac, void* user_data, N_Vector tmp1,
-                       N_Vector tmp2, N_Vector tmp3)
+                              SUNMatrix Jac, void* user_data, N_Vector tmp1,
+                              N_Vector tmp2, N_Vector tmp3)
 {
   if (user_data != params) { return -1; }
 
@@ -117,8 +118,9 @@ static int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec,
   return 0;
 }
 
-static int parameter_jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-                  N_Vector udotvec, void* user_data, N_Vector tmp)
+static int parameter_jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t,
+                         N_Vector uvec, N_Vector udotvec, void* user_data,
+                         N_Vector tmp)
 {
   if (user_data != params) { return -1; }
 
@@ -134,8 +136,9 @@ static int parameter_jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector 
   return 0;
 }
 
-static int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-                  N_Vector udotvec, void* user_data, N_Vector tmp)
+static int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t,
+                         N_Vector uvec, N_Vector udotvec, void* user_data,
+                         N_Vector tmp)
 {
   if (user_data != params) { return -1; }
 
@@ -151,7 +154,8 @@ static int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector 
   return 0;
 }
 
-static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
+static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
+                 sunrealtype t)
 {
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* dg = N_VGetArrayPointer(dgvec);
@@ -160,7 +164,8 @@ static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtyp
   dg[1] = u[0] + u[1];
 }
 
-static void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtype t)
+static void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
+                 sunrealtype t)
 {
   sunrealtype* dg = N_VGetArrayPointer(dgvec);
 
@@ -171,9 +176,9 @@ static void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p, sunrealtyp
 }
 
 static int forward_solution(SUNContext sunctx, void* arkode_mem,
-                     SUNAdjointCheckpointScheme checkpoint_scheme,
-                     const sunrealtype t0, const sunrealtype tf,
-                     const sunrealtype dt, N_Vector u)
+                            SUNAdjointCheckpointScheme checkpoint_scheme,
+                            const sunrealtype t0, const sunrealtype tf,
+                            const sunrealtype dt, N_Vector u)
 {
   int retval = 0;
 
@@ -202,8 +207,9 @@ static int forward_solution(SUNContext sunctx, void* arkode_mem,
 }
 
 static int adjoint_solution(SUNContext sunctx, SUNAdjointStepper adj_stepper,
-                     SUNAdjointCheckpointScheme checkpoint_scheme,
-                     const sunrealtype tf, const sunrealtype tout, N_Vector sf)
+                            SUNAdjointCheckpointScheme checkpoint_scheme,
+                            const sunrealtype tf, const sunrealtype tout,
+                            N_Vector sf)
 {
   int stop_reason = 0;
   sunrealtype t   = tf;

@@ -235,7 +235,7 @@ size_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   if (kvp != NULL)
   {
     /* Determine if key is actually a duplicate (not allowed) */
-    if (!strcmp(key, kvp->key)) { return SIZE_MAX-1; }
+    if (!strcmp(key, kvp->key)) { return SIZE_MAX - 1; }
 
     /* OK, it was a real collision, so find the next open spot */
     retval = SUNHashMap_Iterate(map, idx + 1, sunHashMapLinearProbeInsert, NULL);
@@ -258,7 +258,7 @@ size_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   kvp = (SUNHashMapKeyValue)malloc(sizeof(*kvp));
 
   /* Copy the original_key so that the hashmap owns it */
-  size_t len     = strlen(key)+1;
+  size_t len     = strlen(key) + 1;
   char* key_copy = malloc(sizeof(*key) * len);
   strcpy(key_copy, key);
 
@@ -275,7 +275,7 @@ static size_t sunHashMapLinearProbeGet(size_t idx, SUNHashMapKeyValue kv,
                                        const void* key)
 {
   /* target key cannot be NULL */
-  if (key == NULL) { return SIZE_MAX-1; }
+  if (key == NULL) { return SIZE_MAX - 1; }
 
   /* find the matching entry */
   if (kv == NULL)
@@ -331,12 +331,10 @@ size_t SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
   }
 
   /* Return a reference to the value only */
-  SUNHashMapKeyValue* kvp_ptr = SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
-  if (kvp_ptr) {
-    *value = (*kvp_ptr)->value;
-  } else {
-    return SIZE_MAX-1;
-  }
+  SUNHashMapKeyValue* kvp_ptr = SUNStlVector_SUNHashMapKeyValue_At(map->buckets,
+                                                                   idx);
+  if (kvp_ptr) { *value = (*kvp_ptr)->value; }
+  else { return SIZE_MAX - 1; }
 
   return (0);
 }

@@ -43,7 +43,7 @@ static bool compare_vectors(N_Vector expected, N_Vector actual)
 }
 
 static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
-                            int stages, bool test_load = false)
+                                   int stages, bool test_load = false)
 {
   N_Vector state  = N_VNew_Serial(10, cs->sunctx);
   N_Vector loaded = N_VClone(state);

@@ -53,13 +53,13 @@ static int check_retval(void* retval_ptr, const char* funcname, int opt);
 static sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
 
 static int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-        void* user_data);
+               void* user_data);
 
 static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec,
                           void* user_data);
 
-static int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-                  void* user_data);
+static int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t,
+                         N_Vector uvec, void* user_data);
 
 static void dgdu(N_Vector uvec, N_Vector dgvec);
 
@@ -213,8 +213,7 @@ int main(int argc, char* argv[])
 }
 
 /* Function to compute the ODE right-hand side */
-int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec,
-                          void* user_data)
+int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
 {
   sunrealtype* p    = (sunrealtype*)user_data;
   sunrealtype* u    = N_VGetArrayPointer(uvec);
@@ -274,8 +273,8 @@ void dgdu(N_Vector uvec, N_Vector dgvec)
 /* Function to compute the adjoint ODE right-hand side:
     -mu^T (df/du)
  */
-int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
-                       N_Vector ldotvec, void* user_data)
+int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec, N_Vector ldotvec,
+                void* user_data)
 {
   vjp(lvec, ldotvec, t, uvec, user_data);
   N_VScale(-1.0, ldotvec, ldotvec);
@@ -286,8 +285,8 @@ int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec,
 /* Function to compute the quadrature right-hand side:
     mu^T (df/dp)
  */
-int quad_rhs(sunrealtype t, N_Vector uvec, N_Vector muvec,
-                    N_Vector qBdotvec, void* user_dataB)
+int quad_rhs(sunrealtype t, N_Vector uvec, N_Vector muvec, N_Vector qBdotvec,
+             void* user_dataB)
 {
   parameter_vjp(muvec, qBdotvec, t, uvec, user_dataB);
   return 0;

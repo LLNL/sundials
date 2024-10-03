@@ -13,10 +13,10 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <iostream>
+#include <limits.h>
 #include <nvector/nvector_serial.h>
 #include <string>
 #include <sundials/sundials_core.hpp>
-#include <limits.h>
 
 #include "sundials_hashmap_impl.h"
 
@@ -141,5 +141,5 @@ TEST_F(SUNHashMapTest, RemoveWorks)
   // Check if key is gone
   void* retrieved_value;
   err = SUNHashMap_GetValue(map, key, &retrieved_value);
-  ASSERT_EQ(err, SIZE_MAX-1);
+  ASSERT_EQ(err, SIZE_MAX - 1);
 }
