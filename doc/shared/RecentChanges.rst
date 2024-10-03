@@ -20,12 +20,13 @@ which should ease building SUNDIALS with LAPACK libraries that require setting
 specific linker flags e.g., MKL.
 
 **Bug Fixes**
-Fixed a `bug <https://github.com/LLNL/sundials/issues/581>`_ in 
-:c:func:`SUNMatScaleAddI_Sparse` which caused out of bounds writes unless
-``indexvals`` were in ascending order for each row/column.
 
-Fixed c:func:`ARKodeResize` not using the default ``hscale`` when an argument of
-``0`` was provided.
+Fixed a `bug <https://github.com/LLNL/sundials/issues/581>`__ in the sparse
+matrix implementation of :c:func:`SUNMatScaleAddI` which caused out of bounds
+writes unless ``indexvals`` were in ascending order for each row/column.
+
+Fixed :c:func:`ARKodeResize` not using the default ``hscale`` when an argument
+of ``0`` was provided.
 
 Fixed the loading of ARKStep's default first order explicit method.
 
