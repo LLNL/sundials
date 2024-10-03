@@ -25,8 +25,8 @@ generic solution procedure for IVPs of the form
    \dot{v}(t) = f(t, v) + r(t), \qquad v(t_0) = v_0,
    :label: SUNStepper_IVP
 
-on an interval :math:`t \in [t_0, t_f]`. The forcing term, :math:`r_i(t)`, is
-given by
+on an interval :math:`t \in [t_0, t_f]`. The time dependent forcing term,
+:math:`r_i(t)`, is given by
 
 .. math::
    r(t) = \sum_{k = 0}^{n_{\text{forcing}}}

@@ -345,6 +345,47 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   return (ARK_SUCCESS);
 }
 
+/*------------------------------------------------------------------------------
+  ARKStepCreateMRIStepInnerStepper
+
+  Wraps an ARKStep memory structure as an MRIStep inner stepper.
+  ----------------------------------------------------------------------------*/
+int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
+                                     MRIStepInnerStepper* stepper)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+
+  retval = arkStep_AccessARKODEStepMem(inner_arkode_mem,
+                                       "ARKStepCreateMRIStepInnerStepper",
+                                       &ark_mem, &step_mem);
+  if (retval)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The ARKStep memory pointer is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
+                                            arkStep_MRIStepInnerFullRhs);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
+
 /*===============================================================
   Interface routines supplied to ARKODE
   ===============================================================*/
@@ -3121,51 +3162,9 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   return (ARK_SUCCESS);
 }
 
-/*---------------------------------------------------------------
-  Utility routines for interfacing with MRIStep
-  ---------------------------------------------------------------*/
-
-/*------------------------------------------------------------------------------
-  ARKStepCreateMRIStepInnerStepper
-
-  Wraps an ARKStep memory structure as an MRIStep inner stepper.
-  ----------------------------------------------------------------------------*/
-
-int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
-                                     MRIStepInnerStepper* stepper)
-{
-  int retval;
-  ARKodeMem ark_mem         = NULL;
-  ARKodeARKStepMem step_mem = NULL;
-
-  retval = arkStep_AccessARKODEStepMem(inner_arkode_mem,
-                                       "ARKStepCreateMRIStepInnerStepper",
-                                       &ark_mem, &step_mem);
-  if (retval)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The ARKStep memory pointer is NULL");
-    return ARK_ILL_INPUT;
-  }
-
-  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
-                                            arkStep_MRIStepInnerFullRhs);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARK_SUCCESS);
-}
+/*===============================================================
+  Internal utility routines for interacting with MRIStep
+  ===============================================================*/
 
 /*------------------------------------------------------------------------------
   arkStep_MRIStepInnerEvolve
@@ -3337,9 +3336,9 @@ int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem == NULL)
   {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARKSTEP_NO_MEM);
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   step_mem = (ARKodeARKStepMem)ark_mem->step_mem;
 

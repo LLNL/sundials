@@ -3,9 +3,12 @@ name: Checks - spelling
 on:
   pull_request:
   workflow_dispatch:
+  issue_comment:
+    types: [created]
 
 jobs:
   spelling_check:
+    if: ${{ github.event_name != 'issue_comment' || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/autofix')) }}
     runs-on: ubuntu-latest
     steps:
       - name: Install python3-pip
@@ -20,9 +23,17 @@ jobs:
         run: codespell --version
 
       - name: Check out repository code
+        if: github.event_name != 'issue_comment'
         uses: actions/checkout@v4
         with:
           submodules: true
+
+      - name: Check out repository code
+        if: github.event_name == 'issue_comment'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
+          fetch-depth: 0
 
       - name: Run codespell
         run: |
@@ -36,9 +47,50 @@ jobs:
         run: /usr/bin/git diff > spelling.patch
 
       - name: Archive diff as a patch if we failed
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: spelling.patch
           path: |
             ${{ github.workspace }}/spelling.patch
+
+  apply_spelling:
+    if: ${{ always() && contains(join(needs.*.result, ','), 'failure') && (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/autofix')) }}
+    needs: spelling_check
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the GitHub created reference for the PR.
+      # The only way to do this is by using the "issue" number
+      # but that is really the PR number in this context.
+      # This is due to using an `issue_comment` event which
+      # is due to the GitHub Actions API that does not have
+      # a `pull_request_comment` event or something similar.
+      # This leaves us in a detached head state which is corrected
+      # in `apply-style/checkout.sh`
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
+          fetch-depth: 0
+
+      - name: Checkout the right git ref
+        run: ./.github/actions/apply-style/checkout.sh
+
+      - name: Download the git diff from spelling_check
+        uses: actions/download-artifact@v4
+        with:
+          name: spelling.patch
+
+      - name: Apply patch
+        run: |
+          git apply spelling.patch
+          rm spelling.patch
+
+      - name: Commit fixes
+        run: |
+          git config user.name "format-robot"
+          git config user.email "no-reply@llnl.gov"
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -am 'apply spelling updates'
+            git push
+          fi

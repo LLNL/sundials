@@ -650,14 +650,8 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
                            sunrealtype adapt_params[3]);
 int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data);
 
-int arkAllocSUNStepperForcing(SUNStepper stepper, int count, N_Vector tmpl);
-int arkFreeSUNStepperForcing(SUNStepper stepper);
-
 ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char* imethod);
 ARKODE_ERKTableID arkButcherTableERKNameToID(const char* emethod);
-
-int arkTryStep(void* arkode_mem, sunrealtype tstart, sunrealtype tstop,
-               N_Vector y, sunrealtype* tret, int* ark_flag);
 
 /* XBraid interface functions */
 int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass);
