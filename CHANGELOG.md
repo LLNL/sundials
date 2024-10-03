@@ -25,6 +25,12 @@ specific linker flags e.g., MKL.
 
 ### Bug Fixes
 
+Removed error floors from the SUNAdaptController implementations which could
+unnecessarily limit the time size growth, particularly after the first step.
+
+On the first two time steps, the Soderlind controller uses an I controller
+instead of omitting unavailable terms.
+
 Fixed `ARKodeResize` not using the default `hscale` when an argument of `0` was
 provided.
 
