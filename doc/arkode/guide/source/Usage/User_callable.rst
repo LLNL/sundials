@@ -3476,7 +3476,7 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    (so far). For implicit methods or methods with an implicit partition, these
    counts do not include calls made by a linear solver or preconditioner.
 
-   :param arkode_mem: pointer to the ERKStep memory block.
+   :param arkode_mem: pointer to the ARKODE memory block.
    :param num_rhs: the number of right-hand side functions:
 
                    * ``1`` for ERKStep
