@@ -29,9 +29,9 @@ presented in :numref:`ARKODE.Mathematics.MRIStep` can be equivalently written as
 
 .. math::
    r_i(t) =
-   \sum\limits_{k \geq 0} \hat{\omega}^{\{k\}}_i \tau^k
+   \sum\limits_{k \geq 1} \hat{\omega}_{i,k} \tau^{k-1}
    +
-   \sum\limits_{k \geq 0} \hat{\gamma}^{\{k\}}_i \tau^k
+   \sum\limits_{k \geq 1} \hat{\gamma}_{i,k} \tau^{k-1}
    :label: ARKODE_MRI_forcing_poly
 
 where :math:`\tau = (t - t_{n,i-1}^S)/(h^S \Delta c_i^S)` is the normalized time
@@ -40,11 +40,11 @@ with :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)`, the slow stage times a
 vectors are
 
 .. math::
-   \hat{\omega}^{\{k\}}_i = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^{i-1}
-   \omega^{\{k\}}_{i,j}  f^E(t_{n,j}^S, z_j)
+   \hat{\omega}_{i,k} = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^{i-1}
+   \Omega_{i,j,k} f^E(t_{n,j}^S, z_j)
    \quad\text{and}\quad
-   \hat{\gamma}^{\{k\}}_i = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i
-   \gamma^{\{k\}}_{i,j}  f^I(t_{n,j}^S, z_j).
+   \hat{\gamma}_{i,k} = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i
+   \Gamma_{i,j,k} f^I(t_{n,j}^S, z_j).
    :label: ARKODE_MRI_forcing_coefficients
 
 The MERK and IMEX-MRI-SR methods included in MRIStep compute the forcing polynomial

@@ -300,7 +300,7 @@ data necessary to construct the inner (fast) forcing polynomial.
    This function provides access to data necessary to compute the forcing term
    :eq:`ARKODE_MRI_forcing_poly`. This includes the shift and scaling factors for the
    normalized time :math:`\tau = (t - t_{n,i-1}^S)/(h^S \Delta c_i^S)` and the
-   array of polynomial coefficient vectors :math:`\hat{\gamma}^{\{k\}}_i`.
+   array of polynomial coefficient vectors :math:`\hat{\gamma}^{i,k}`.
 
    :param stepper: an inner stepper object.
    :param tshift: the time shift to apply to the current time when computing the
@@ -308,7 +308,7 @@ data necessary to construct the inner (fast) forcing polynomial.
    :param tscale: the time scaling to apply to the current time when computing
         the forcing, :math:`h^S \Delta c_i^S`.
    :param forcing: a pointer to an array of forcing vectors,
-        :math:`\hat{\gamma}^{\{k\}}_i`.
+        :math:`\hat{\gamma}_{i,k}`.
    :param nforcing: the number of forcing vectors.
 
    :retval ARK_SUCCESS: if successful

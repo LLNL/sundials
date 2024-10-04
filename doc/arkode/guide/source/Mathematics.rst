@@ -1371,30 +1371,26 @@ based on the type of mass-matrix supplied by the user.
   have the residual
 
   .. math::
-     G(z_i) \equiv z_i - h^S \left(\sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}\right)
+     G(z_i) \equiv z_i - h^S \left(\sum_{k\geq 1} \frac{\Gamma_{i,i,k}}{k}\right)
      f^I(t_{n,i}^S, z_i) - a_i = 0
      :label: ARKODE_IMEX-MRI-GARK_Residual
 
   where
 
   .. math::
-     a_i \equiv z_{i-1} + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 0}
-     \frac{\gamma_{i,j}^{\{k\}}}{k+1}\right)f^I(t_{n,j}^S, z_j),
+     a_i \equiv z_{i-1} + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 1}
+     \frac{\Gamma_{i,j,k}}{k}\right)f^I(t_{n,j}^S, z_j).
 
-  and the tables :math:`\Omega^{\{k\}}` and :math:`\Gamma^{\{k\}}` store the slow-to-fast coupling
-  coefficients for the explicit and implicit components, respectively.  Similarly, IMEX-MRI-SR
-  methods have the residual
+  IMEX-MRI-SR methods have the residual
 
   .. math::
-     G(z_i) \equiv z_i - h^S \gamma_{i,i} f^I(t_{n,i}^S, z_i) - a_i = 0
+     G(z_i) \equiv z_i - h^S \Gamma_{i,i} f^I(t_{n,i}^S, z_i) - a_i = 0
      :label: ARKODE_IMEX-MRI-SR_Residual
 
   where
 
   .. math::
-     a_i \equiv z_{i-1} + h^S \sum_{j=1}^{i-1} \gamma_{i,j} f^I(t_{n,j}^S, z_j),
-
-  and where the table :math:`\Gamma` stores the slow implicit stage coefficients.
+     a_i \equiv z_{i-1} + h^S \sum_{j=1}^{i-1} \Gamma_{i,j} f^I(t_{n,j}^S, z_j).
 
 
 Upon solving for :math:`z_i`, method stages must store
@@ -1453,7 +1449,7 @@ within ARKStep, or
 .. math::
    {\mathcal A}(t,z) \approx I - \gamma J(t,z), \quad
    J(t,z) = \frac{\partial f^I(t,z)}{\partial z}, \quad\text{and}\quad
-   \gamma = h^S \sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}
+   \gamma = h^S \sum_{k\geq 1} \frac{\Gamma_{i,i,k}}{k}
    :label: ARKODE_NewtonMatrix_MRIStep
 
 within MRIStep.
@@ -1548,7 +1544,7 @@ or
 .. math::
    \tilde{\mathcal A}(\tilde{t},\tilde{z}) \approx I - \tilde{\gamma} J(\tilde{t},\tilde{z}),
    \quad\text{and}\quad
-   \tilde{\gamma} = \tilde{h} \sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}\quad\text{(MRIStep)}.
+   \tilde{\gamma} = \tilde{h} \sum_{k\geq 1} \frac{\Gamma_{i,i,k}}{k}\quad\text{(MRIStep)}.
    :label: ARKODE_modified_NewtonMatrix_MRI
 
 Here, the solution :math:`\tilde{z}`, time :math:`\tilde{t}`, and step

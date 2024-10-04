@@ -65,8 +65,8 @@ The MRI coupling tables themselves are stored in an
    As described in :numref:`ARKODE.Mathematics.MRIStep`, the coupling from the
    slow time scale to the fast time scale is encoded by a vector of slow
    stage time abscissae, :math:`c^S \in \mathbb{R}^{s+1}` and a set of coupling
-   matrices :math:`\Gamma^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` and
-   :math:`\Omega^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}`.
+   tensors :math:`\Gamma\in\mathbb{R}^{(s+1)\times(s+1)\times k}` and
+   :math:`\Omega\in\mathbb{R}^{(s+1)\times(s+1)\times k}`.
 
    .. c:member:: ARKODE_MRIType type
 
@@ -74,9 +74,9 @@ The MRI coupling tables themselves are stored in an
 
    .. c:member:: int nmat
 
-      The number of coupling matrices :math:`\Omega^{\{k\}}` for the
-      slow-nonstiff terms and/or :math:`\Gamma^{\{k\}}` for the slow-stiff terms
-      in :eq:`ARKODE_IVP_two_rate`.
+      The value of :math:`k` above i.e., number of coupling matrices in
+      :math:`\Omega` for the slow-nonstiff terms and/or in :math:`\Gamma` for
+      the slow-stiff terms in :eq:`ARKODE_IVP_two_rate`.
 
    .. c:member:: int stages
 
@@ -98,13 +98,13 @@ The MRI coupling tables themselves are stored in an
    .. c:member:: sunrealtype*** W
 
       A three-dimensional array with dimensions ``[nmat][stages+1][stages]``
-      containing the method's :math:`\Omega^{\{k\}}` coupling matrices for the
+      containing the method's :math:`\Omega` coupling coefficients for the
       slow-nonstiff (explicit) terms in :eq:`ARKODE_IVP_two_rate`.
 
    .. c:member:: sunrealtype*** G
 
       A three-dimensional array with dimensions ``[nmat][stages+1][stages]``
-      containing the method's :math:`\Gamma^{\{k\}}` coupling matrices for the
+      containing the method's :math:`\Gamma` coupling coefficients for the
       slow-stiff (implicit) terms in :eq:`ARKODE_IVP_two_rate`.
 
    .. c:member:: int ngroup
@@ -186,8 +186,9 @@ are defined ``arkode/arkode_mristep.h``.
 
    Allocates an empty MRIStepCoupling table.
 
-   :param nmat: number of :math:`\Omega^{\{k\}}` and/or :math:`\Gamma^{\{k\}}`
-        matrices in the coupling table.
+   :param nmat: the value of :math:`k` i.e., number of number of coupling
+      matrices in :math:`\Omega` for the slow-nonstiff terms and/or in
+      :math:`\Gamma` for the slow-stiff terms in :eq:`ARKODE_IVP_two_rate`.
    :param stages: number of stages in the coupling table.
    :param type: the type of MRI method the table will encode.
 
@@ -229,15 +230,16 @@ are defined ``arkode/arkode_mristep.h``.
 
    Allocates a coupling table and fills it with the given values.
 
-   :param nmat: number of :math:`\Omega^{\{k\}}` and/or :math:`\Gamma^{\{k\}}`
-                matrices in the coupling table.
+   :param nmat: the value of :math:`k` i.e., number of number of coupling
+      matrices in :math:`\Omega` for the slow-nonstiff terms and/or in
+      :math:`\Gamma` for the slow-stiff terms in :eq:`ARKODE_IVP_two_rate`.
    :param stages: number of stages in the method.
    :param q: global order of accuracy for the method.
    :param p: global order of accuracy for the embedded method.
-   :param W: array of coefficients defining the explicit coupling matrices
-             :math:`\Omega^{\{k\}}`. If the slow method is implicit pass ``NULL``.
-   :param G: array of coefficients defining the implicit coupling matrices
-             :math:`\Gamma^{\{k\}}`. If the slow method is explicit pass ``NULL``.
+   :param W: array of values defining the explicit coupling coefficients
+             :math:`\Omega`. If the slow method is implicit pass ``NULL``.
+   :param G: array of values defining the implicit coupling coefficients
+             :math:`\Gamma`. If the slow method is explicit pass ``NULL``.
    :param c: array of slow abscissae for the MRI method. The entries should be
              stored as a 1D array of length ``stages``.
 
@@ -289,7 +291,8 @@ are defined ``arkode/arkode_mristep.h``.
 
       .. math::
 
-         \omega_{i,j}^{\{0\}} \;\text{or}\; \gamma_{i,j}^{\{0\}} = \begin{cases}
+         \Omega_{i,j,1} \;\text{or}\; \Gamma_{i,j,1} =
+         \begin{cases}
          0, & \text{if}\; i=1,\\
          A_{i,j}-A_{i-1,j}, & \text{if}\; 2\le i\le s,\\
          b_{j}-A_{s,j}, & \text{if}\; i= s+1.
@@ -299,13 +302,13 @@ are defined ``arkode/arkode_mristep.h``.
 
       .. math::
 
-         \tilde{\omega}_{i,j}^{\{0\}} \;\text{or}\; \tilde{\gamma}_{i,j}^{\{0\}} = \tilde{b}_{j}-A_{s,j}.
+         \tilde{\Omega}_{i,j,1} \;\text{or}\; \tilde{\Gamma}_{i,j,1} = \tilde{b}_{j}-A_{s,j}.
 
-      We note that only one of :math:`\Omega^{\{0\}}` or :math:`\Gamma^{\{0\}}` will
-      be filled in.  If *B* corresponded to an explicit method, then this routine
-      fills :math:`\Omega^{\{0\}}`; if *B* is diagonally-implicit, then this routine
+      We note that only one of :math:`\Omega` or :math:`\Gamma` will
+      be filled in. If *B* corresponded to an explicit method, then this routine
+      fills :math:`\Omega`; if *B* is diagonally-implicit, then this routine
       inserts redundant "padding" stages to ensure a solve-decoupled structure and
-      then uses the above formula to fill :math:`\Gamma^{\{0\}}`.
+      then uses the above formula to fill :math:`\Gamma`.
 
       For general slow tables with at least second-order accuracy, the MIS method will
       be second order.  However, if the slow table is at least third order and
