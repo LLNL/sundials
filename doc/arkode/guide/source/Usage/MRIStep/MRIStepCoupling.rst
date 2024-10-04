@@ -399,12 +399,12 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
            for each order when using adaptive time stepping is marked with a circle
            (:math:`^\circ`).  The "Slow RHS Calls" column corresponds to the number of
            calls to the slow right-hand side function, :math:`f^E`, per time step.
-           Note :math:`^\vee`: although all MERK methods were derived in :cite:p:`Luan:20`
+           Note A: although all MERK methods were derived in Luan et al. (2020)
            under an assumption that the fast time scale is linear in the solution, in
-           :cite:p:`Fish:24` it was proven that they also satisfy all nonlinear order
+           Fish et al. (2024) it was proven that they also satisfy all nonlinear order
            conditions up through their linear order.  The lone exception is MERK54, where
            it was only proven to satisfy all nonlinear conditions up to order 4, since
-           :cite:p:`Fish:24` did not establish the formulas for the order 5 conditions.
+           Fish et al. (2024) did not establish the formulas for the order 5 conditions.
            All our numerical tests to date have shown MERK54 to achieve fifth order for
            nonlinear problems, and so we conjecture that it also satisfies the nonlinear
            fifth order conditions.
@@ -423,7 +423,7 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
    :index:`ARKODE_MERK32`                  3                   2                3               :cite:p:`Luan:20`
    :index:`ARKODE_MRI_GARK_ERK45a`         :math:`4^{*\circ}`  3                5               :cite:p:`Sandu:19`
    :index:`ARKODE_MERK43`                  4                   3                6               :cite:p:`Luan:20`
-   :index:`ARKODE_MERK54`                  :math:`5^{\vee}`    4                10              :cite:p:`Luan:20`
+   :index:`ARKODE_MERK54`                  :math:`5^{A}`       4                10              :cite:p:`Luan:20`
    ======================================  ==================  ===============  ==============  =====================
 
 
