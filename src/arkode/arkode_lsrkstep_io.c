@@ -214,10 +214,7 @@ int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
   {
     step_mem->stage_max_limit = STAGE_MAX_LIMIT_DEFAULT;
   }
-  else
-  {
-    step_mem->stage_max_limit = stage_max_limit;
-  }
+  else { step_mem->stage_max_limit = stage_max_limit; }
 
   return (ARK_SUCCESS);
 }
@@ -250,7 +247,6 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 
   return (ARK_SUCCESS);
 }
-
 
 /*---------------------------------------------------------------
   LSRKStepSetSSPStageNum sets the number of stages in the following
@@ -475,13 +471,13 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->req_stages = 0; /* no stages */
 
   /* Spectral info */
-  step_mem->lambdaR               = 0;
-  step_mem->lambdaI               = 0;
-  step_mem->spectral_radius       = 0;
-  step_mem->spectral_radius_max   = 0;
-  step_mem->spectral_radius_min   = 0;
-  step_mem->dom_eig_safety        = DOM_EIG_SAFETY_DEFAULT;
-  step_mem->dom_eig_freq          = DOM_EIG_FREQ_DEFAULT;
+  step_mem->lambdaR             = 0;
+  step_mem->lambdaI             = 0;
+  step_mem->spectral_radius     = 0;
+  step_mem->spectral_radius_max = 0;
+  step_mem->spectral_radius_min = 0;
+  step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
+  step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
 
   /* Flags */
   step_mem->dom_eig_update     = SUNTRUE;

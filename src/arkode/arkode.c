@@ -871,7 +871,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     for (;;)
     {
       /* increment attempt counters */
-      if(kflag != ARK_RETRY_STEP)
+      if (kflag != ARK_RETRY_STEP)
       {
         attempts++;
         ark_mem->nst_attempts++;
