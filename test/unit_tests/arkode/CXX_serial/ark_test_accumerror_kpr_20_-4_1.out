@@ -28,6 +28,26 @@ Fixed-step runs:
   h 0.005  rk_type 1  order 4  acc 1  t 4.5  dsm 7.15711e-11  dsm_est 1.1807e-08  nsteps 50
   h 0.005  rk_type 1  order 4  acc 1  t 4.75  dsm 3.79788e-11  dsm_est 3.66885e-09  nsteps 50
   h 0.005  rk_type 1  order 4  acc 1  t 5  dsm 4.13058e-11  dsm_est 1.68612e-09  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 0.25  dsm 5.99625e-11  dsm_est 6.92498e-08  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 0.5  dsm 1.42974e-10  dsm_est 3.44716e-07  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 0.75  dsm 2.42719e-10  dsm_est 1.11167e-06  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 1  dsm 6.83162e-10  dsm_est 3.96873e-07  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 1.25  dsm 3.14281e-09  dsm_est 9.51778e-06  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 1.5  dsm 4.52762e-09  dsm_est 4.8884e-06  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 1.75  dsm 4.7305e-10  dsm_est 1.58084e-05  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 2  dsm 1.22724e-09  dsm_est 3.22447e-06  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 2.25  dsm 2.1725e-10  dsm_est 1.37158e-06  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 2.5  dsm 1.44845e-10  dsm_est 5.71622e-07  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 2.75  dsm 1.45894e-10  dsm_est 2.89412e-07  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 3  dsm 2.11123e-10  dsm_est 2.24322e-07  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 3.25  dsm 2.34671e-10  dsm_est 1.10202e-07  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 3.5  dsm 1.99557e-10  dsm_est 2.70653e-08  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 3.75  dsm 1.51624e-10  dsm_est 2.01726e-08  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 4  dsm 9.7978e-11  dsm_est 4.76316e-08  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 4.25  dsm 3.36113e-11  dsm_est 1.20904e-07  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 4.5  dsm 7.15711e-11  dsm_est 3.7071e-07  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 4.75  dsm 3.79788e-11  dsm_est 8.7779e-08  nsteps 50
+  h 0.005  rk_type 1  order 4  acc 2  t 5  dsm 4.13058e-11  dsm_est 6.13145e-08  nsteps 50
   h 0.005  rk_type 1  order 4  acc 3  t 0.25  dsm 5.99625e-11  dsm_est 1.385e-09  nsteps 50
   h 0.005  rk_type 1  order 4  acc 3  t 0.5  dsm 1.42974e-10  dsm_est 6.89431e-09  nsteps 50
   h 0.005  rk_type 1  order 4  acc 3  t 0.75  dsm 2.42719e-10  dsm_est 2.22335e-08  nsteps 50
@@ -88,6 +108,26 @@ Fixed-step runs:
   h 0.00125  rk_type 1  order 4  acc 1  t 4.5  dsm 2.44986e-13  dsm_est 4.62152e-11  nsteps 200
   h 0.00125  rk_type 1  order 4  acc 1  t 4.75  dsm 1.41286e-13  dsm_est 1.51237e-11  nsteps 200
   h 0.00125  rk_type 1  order 4  acc 1  t 5  dsm 1.73009e-13  dsm_est 6.57848e-12  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 0.25  dsm 2.30499e-13  dsm_est 1.08204e-09  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 0.5  dsm 5.68219e-13  dsm_est 5.40888e-09  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 0.75  dsm 9.09327e-13  dsm_est 1.7413e-08  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 1  dsm 2.66412e-12  dsm_est 6.10198e-09  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 1.25  dsm 1.30178e-11  dsm_est 1.49252e-07  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 1.5  dsm 1.73534e-11  dsm_est 7.5991e-08  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 1.75  dsm 3.44384e-12  dsm_est 2.47716e-07  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 2  dsm 4.73982e-12  dsm_est 4.99807e-08  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 2.25  dsm 8.24836e-13  dsm_est 2.14752e-08  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 2.5  dsm 5.58183e-13  dsm_est 8.93029e-09  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 2.75  dsm 5.66294e-13  dsm_est 4.52416e-09  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 3  dsm 8.06614e-13  dsm_est 3.502e-09  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 3.25  dsm 8.98387e-13  dsm_est 1.71624e-09  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 3.5  dsm 7.63217e-13  dsm_est 4.19654e-10  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 3.75  dsm 5.78309e-13  dsm_est 3.14069e-10  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 4  dsm 3.75531e-13  dsm_est 7.43405e-10  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 4.25  dsm 1.33194e-13  dsm_est 1.89465e-09  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 4.5  dsm 2.44986e-13  dsm_est 5.80293e-09  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 4.75  dsm 1.41286e-13  dsm_est 1.36602e-09  nsteps 200
+  h 0.00125  rk_type 1  order 4  acc 2  t 5  dsm 1.73009e-13  dsm_est 9.5065e-10  nsteps 200
   h 0.00125  rk_type 1  order 4  acc 3  t 0.25  dsm 2.30499e-13  dsm_est 5.41022e-12  nsteps 200
   h 0.00125  rk_type 1  order 4  acc 3  t 0.5  dsm 5.68219e-13  dsm_est 2.70444e-11  nsteps 200
   h 0.00125  rk_type 1  order 4  acc 3  t 0.75  dsm 9.09327e-13  dsm_est 8.70648e-11  nsteps 200
@@ -148,6 +188,26 @@ Fixed-step runs:
   h 0.0003125  rk_type 1  order 4  acc 1  t 4.5  dsm 1.57233e-14  dsm_est 1.80608e-13  nsteps 801
   h 0.0003125  rk_type 1  order 4  acc 1  t 4.75  dsm 1.39902e-13  dsm_est 5.98529e-14  nsteps 801
   h 0.0003125  rk_type 1  order 4  acc 1  t 5  dsm 7.63042e-14  dsm_est 2.56897e-14  nsteps 801
+  h 0.0003125  rk_type 1  order 4  acc 2  t 0.25  dsm 9.97977e-16  dsm_est 1.6907e-11  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 0.5  dsm 7.34738e-15  dsm_est 8.45809e-11  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 0.75  dsm 1.89479e-14  dsm_est 2.72242e-10  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 1  dsm 6.41345e-15  dsm_est 9.49565e-11  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 1.25  dsm 1.49538e-13  dsm_est 2.33397e-09  nsteps 801
+  h 0.0003125  rk_type 1  order 4  acc 2  t 1.5  dsm 1.0257e-13  dsm_est 1.18555e-09  nsteps 801
+  h 0.0003125  rk_type 1  order 4  acc 2  t 1.75  dsm 4.74681e-14  dsm_est 3.87341e-09  nsteps 801
+  h 0.0003125  rk_type 1  order 4  acc 2  t 2  dsm 3.28771e-14  dsm_est 7.79395e-10  nsteps 801
+  h 0.0003125  rk_type 1  order 4  acc 2  t 2.25  dsm 2.08777e-13  dsm_est 3.3572e-10  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 2.5  dsm 1.03256e-14  dsm_est 1.39527e-10  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 2.75  dsm 1.44079e-14  dsm_est 7.06925e-11  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 3  dsm 6.86653e-14  dsm_est 5.47055e-11  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 3.25  dsm 4.56716e-14  dsm_est 2.67951e-11  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 3.5  dsm 1.14798e-14  dsm_est 6.54805e-12  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 3.75  dsm 1.10427e-14  dsm_est 4.9065e-12  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 4  dsm 5.31806e-14  dsm_est 1.16127e-11  nsteps 800
+  h 0.0003125  rk_type 1  order 4  acc 2  t 4.25  dsm 2.08119e-13  dsm_est 2.96268e-11  nsteps 801
+  h 0.0003125  rk_type 1  order 4  acc 2  t 4.5  dsm 1.57233e-14  dsm_est 9.07089e-11  nsteps 801
+  h 0.0003125  rk_type 1  order 4  acc 2  t 4.75  dsm 1.39902e-13  dsm_est 2.13237e-11  nsteps 801
+  h 0.0003125  rk_type 1  order 4  acc 2  t 5  dsm 7.63042e-14  dsm_est 1.48242e-11  nsteps 801
   h 0.0003125  rk_type 1  order 4  acc 3  t 0.25  dsm 9.97977e-16  dsm_est 2.11337e-14  nsteps 800
   h 0.0003125  rk_type 1  order 4  acc 3  t 0.5  dsm 7.34738e-15  dsm_est 1.05726e-13  nsteps 800
   h 0.0003125  rk_type 1  order 4  acc 3  t 0.75  dsm 1.89479e-14  dsm_est 3.40303e-13  nsteps 800
@@ -208,6 +268,26 @@ Fixed-step runs:
   h 7.8125e-05  rk_type 1  order 4  acc 1  t 4.5  dsm 1.64627e-14  dsm_est 7.11037e-16  nsteps 3201
   h 7.8125e-05  rk_type 1  order 4  acc 1  t 4.75  dsm 1.39177e-13  dsm_est 2.35957e-16  nsteps 3201
   h 7.8125e-05  rk_type 1  order 4  acc 1  t 5  dsm 7.51104e-14  dsm_est 1.00425e-16  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 0.25  dsm 1.20076e-14  dsm_est 2.64165e-13  nsteps 3200
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 0.5  dsm 6.92895e-14  dsm_est 1.32181e-12  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 0.75  dsm 7.1887e-14  dsm_est 4.25372e-12  nsteps 3200
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 1  dsm 5.29714e-14  dsm_est 1.48185e-12  nsteps 3200
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 1.25  dsm 4.54758e-13  dsm_est 3.64743e-11  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 1.5  dsm 1.61784e-13  dsm_est 1.85159e-11  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 1.75  dsm 1.4649e-13  dsm_est 6.05314e-11  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 2  dsm 6.85301e-14  dsm_est 1.2171e-11  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 2.25  dsm 3.74507e-13  dsm_est 5.24549e-12  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 2.5  dsm 1.92671e-14  dsm_est 2.18076e-12  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 2.75  dsm 1.93516e-14  dsm_est 1.10503e-12  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 3  dsm 1.23711e-13  dsm_est 8.55102e-13  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 3.25  dsm 8.16997e-14  dsm_est 4.18589e-13  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 3.5  dsm 1.95956e-14  dsm_est 1.02298e-13  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 3.75  dsm 2.16401e-14  dsm_est 7.6628e-14  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 4  dsm 9.37664e-14  dsm_est 1.81659e-13  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 4.25  dsm 2.10442e-13  dsm_est 4.62687e-13  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 4.5  dsm 1.64627e-14  dsm_est 1.42144e-12  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 4.75  dsm 1.39177e-13  dsm_est 3.32669e-13  nsteps 3201
+  h 7.8125e-05  rk_type 1  order 4  acc 2  t 5  dsm 7.51104e-14  dsm_est 2.32583e-13  nsteps 3201
   h 7.8125e-05  rk_type 1  order 4  acc 3  t 0.25  dsm 1.20076e-14  dsm_est 8.25514e-17  nsteps 3200
   h 7.8125e-05  rk_type 1  order 4  acc 3  t 0.5  dsm 6.92895e-14  dsm_est 4.12935e-16  nsteps 3201
   h 7.8125e-05  rk_type 1  order 4  acc 3  t 0.75  dsm 7.1887e-14  dsm_est 1.32929e-15  nsteps 3200

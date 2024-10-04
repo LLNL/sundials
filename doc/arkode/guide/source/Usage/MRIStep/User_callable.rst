@@ -651,13 +651,11 @@ Optional inputs for MRIStep
    :math:`t` equals the specified ``tstop`` (instead of merely copying the
    internal solution :math:`y_n`).
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *interp* -- flag indicating to use interpolation (1) or copy (0).
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param interp: flag indicating to use interpolation (1) or copy (0).
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
    .. versionadded:: 5.6.0
 

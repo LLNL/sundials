@@ -1773,6 +1773,9 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     ark_mem->hadapt_mem->nst_acc = 0;
     ark_mem->hadapt_mem->nst_exp = 0;
 
+    /* Accumulated error estimate */
+    ark_mem->AccumError = ZERO;
+
     /* Indicate that calling the full RHS function is not required, this flag is
        updated to SUNTRUE by the interpolation module initialization function
        and/or the stepper initialization function in arkInitialSetup */

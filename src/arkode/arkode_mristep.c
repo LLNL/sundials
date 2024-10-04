@@ -1310,9 +1310,6 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     step_mem->inner_control = ONE;
   }
 
-  /* /\* Signal to shared arkode module that fullrhs is required after each step *\/ */
-  /* /\* TO-DO: verify whether this is actually required *\/ */
-  /* ark_mem->call_fullrhs = SUNTRUE; */
   return (ARK_SUCCESS);
 }
 
@@ -4460,12 +4457,7 @@ int mriStepInnerStepper_GetError(MRIStepInnerStepper stepper,
     stepper->last_flag = stepper->ops->geterror(stepper, accum_error);
     return stepper->last_flag;
   }
-  else
-  {
-    /* assume stepper provides exact solution */
-    *accum_error = SUN_RCONST(0.0);
-    return ARK_SUCCESS;
-  }
+  else { return ARK_INNERSTEP_FAIL; }
 }
 
 /* Resets the inner (fast) stepper accumulated error */

@@ -82,12 +82,12 @@ SUNAdaptController SUNAdaptController_MRIStep(ARKodeMem ark_mem,
   return (C);
 }
 
-int SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C, sunrealtype H,
-                                            int P, sunrealtype DSM,
-                                            sunrealtype* Hnew)
+SUNErrCode SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C,
+                                                   sunrealtype H, int P,
+                                                   sunrealtype DSM,
+                                                   sunrealtype* Hnew)
 {
   /* Shortcuts to ARKODE and MRIStep memory */
-  int retval;
   ARKodeMem ark_mem         = MRICONTROL_A(C);
   ARKodeMRIStepMem step_mem = MRICONTROL_S(C);
   if ((ark_mem == NULL) || (step_mem == NULL)) { return SUN_ERR_MEM_FAIL; }
@@ -96,15 +96,14 @@ int SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C, sunrealtype H,
   step_mem->inner_dsm = SUNMAX(step_mem->inner_dsm, INNER_MIN_DSM);
 
   /* Estimate slow stepsize from MRI controller */
-  retval = SUNAdaptController_EstimateStepTol(MRICONTROL_C(C), H,
-                                              step_mem->inner_control, P, DSM,
-                                              step_mem->inner_dsm, Hnew,
-                                              &(step_mem->inner_control_new));
-  return retval;
+  return SUNAdaptController_EstimateStepTol(MRICONTROL_C(C), H,
+                                            step_mem->inner_control, P, DSM,
+                                            step_mem->inner_dsm, Hnew,
+                                            &(step_mem->inner_control_new));
 }
 
-int SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C, sunrealtype H,
-                                       sunrealtype DSM)
+SUNErrCode SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C,
+                                              sunrealtype H, sunrealtype DSM)
 {
   /* Shortcuts to ARKODE and MRIStep memory */
   ARKodeMem ark_mem         = MRICONTROL_A(C);
@@ -112,10 +111,9 @@ int SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C, sunrealtype H,
   if ((ark_mem == NULL) || (step_mem == NULL)) { return SUN_ERR_MEM_FAIL; }
 
   /* Update MRI controller */
-  int retval;
-  retval = SUNAdaptController_UpdateMRITol(MRICONTROL_C(C), H,
-                                           step_mem->inner_control, DSM,
-                                           step_mem->inner_dsm);
+  SUNErrCode retval = SUNAdaptController_UpdateMRITol(MRICONTROL_C(C), H,
+                                                      step_mem->inner_control,
+                                                      DSM, step_mem->inner_dsm);
   if (retval != SUN_SUCCESS) { return (retval); }
 
   /* Update inner controller parameter to most-recent prediction */

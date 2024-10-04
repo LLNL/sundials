@@ -374,7 +374,8 @@ int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return an error if local truncation error is not computed */
-  if (ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE))
+  if ((ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE)) ||
+      (step_mem->p <= 0))
   {
     return (ARK_STEPPER_UNSUPPORTED);
   }

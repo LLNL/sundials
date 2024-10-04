@@ -1017,7 +1017,7 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
     /* Ensure that if adaptivity or error accumulation is enabled, then
        method includes embedding coefficients */
     if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)) &&
-        (step_mem->p == 0))
+        (step_mem->p <= 0))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                       __FILE__, "Temporal error estimation cannot be performed without embedding coefficients");

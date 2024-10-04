@@ -27,6 +27,26 @@ Adaptive-step runs:
   rtol 0.01  rk_type 0  order 5  acc 1  t 9  dsm 0.00058073  dsm_est 4.52926e-06  nsteps 6
   rtol 0.01  rk_type 0  order 5  acc 1  t 9.5  dsm 6.70214e-05  dsm_est 2.50118e-06  nsteps 6
   rtol 0.01  rk_type 0  order 5  acc 1  t 10  dsm 0.000490488  dsm_est 4.64334e-06  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 0.5  dsm 7.48644e-05  dsm_est 5.4592e-05  nsteps 9
+  rtol 0.01  rk_type 0  order 5  acc 2  t 1  dsm 0.000110257  dsm_est 2.23312e-06  nsteps 5
+  rtol 0.01  rk_type 0  order 5  acc 2  t 1.5  dsm 0.00132404  dsm_est 2.37777e-06  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 2  dsm 0.00110273  dsm_est 8.17396e-07  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 2.5  dsm 6.10485e-05  dsm_est 3.28054e-07  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 3  dsm 0.000275174  dsm_est 6.76339e-07  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 3.5  dsm 0.00032811  dsm_est 1.69526e-06  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 4  dsm 7.35974e-05  dsm_est 4.93897e-07  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 4.5  dsm 0.000394423  dsm_est 1.74465e-06  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 5  dsm 4.44693e-05  dsm_est 4.91596e-07  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 5.5  dsm 0.000153383  dsm_est 6.90221e-07  nsteps 5
+  rtol 0.01  rk_type 0  order 5  acc 2  t 6  dsm 0.00039377  dsm_est 4.6301e-06  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 6.5  dsm 0.000506258  dsm_est 1.7875e-06  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 7  dsm 0.00148699  dsm_est 7.28369e-05  nsteps 12
+  rtol 0.01  rk_type 0  order 5  acc 2  t 7.5  dsm 0.000435975  dsm_est 0.000234031  nsteps 4
+  rtol 0.01  rk_type 0  order 5  acc 2  t 8  dsm 0.000824606  dsm_est 2.56036e-05  nsteps 7
+  rtol 0.01  rk_type 0  order 5  acc 2  t 8.5  dsm 0.00100819  dsm_est 1.09812e-05  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 9  dsm 0.00058073  dsm_est 4.93642e-06  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 9.5  dsm 6.70214e-05  dsm_est 2.55332e-06  nsteps 6
+  rtol 0.01  rk_type 0  order 5  acc 2  t 10  dsm 0.000490488  dsm_est 4.66143e-06  nsteps 6
   rtol 0.01  rk_type 0  order 5  acc 3  t 0.5  dsm 7.48644e-05  dsm_est 6.06577e-06  nsteps 9
   rtol 0.01  rk_type 0  order 5  acc 3  t 1  dsm 0.000110257  dsm_est 4.46624e-07  nsteps 5
   rtol 0.01  rk_type 0  order 5  acc 3  t 1.5  dsm 0.00132404  dsm_est 3.96295e-07  nsteps 6
@@ -67,6 +87,26 @@ Adaptive-step runs:
   rtol 0.0001  rk_type 0  order 5  acc 1  t 9  dsm 1.10466e-05  dsm_est 2.02617e-08  nsteps 4
   rtol 0.0001  rk_type 0  order 5  acc 1  t 9.5  dsm 1.12334e-05  dsm_est 1.10517e-07  nsteps 4
   rtol 0.0001  rk_type 0  order 5  acc 1  t 10  dsm 9.05222e-07  dsm_est 1.64841e-08  nsteps 4
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 0.5  dsm 1.9124e-05  dsm_est 5.71969e-06  nsteps 13
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 1  dsm 1.46639e-06  dsm_est 2.99989e-08  nsteps 3
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 1.5  dsm 1.49779e-06  dsm_est 2.89735e-08  nsteps 3
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 2  dsm 2.48711e-06  dsm_est 5.35748e-08  nsteps 3
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 2.5  dsm 8.68487e-07  dsm_est 1.05987e-08  nsteps 3
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 3  dsm 4.6854e-06  dsm_est 3.58967e-08  nsteps 4
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 3.5  dsm 4.86491e-06  dsm_est 1.53193e-08  nsteps 4
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 4  dsm 9.38226e-06  dsm_est 1.14771e-09  nsteps 3
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 4.5  dsm 3.64804e-06  dsm_est 8.14332e-10  nsteps 3
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 5  dsm 1.20837e-06  dsm_est 1.18132e-08  nsteps 3
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 5.5  dsm 1.96373e-05  dsm_est 1.51402e-08  nsteps 3
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 6  dsm 6.78601e-06  dsm_est 8.14402e-08  nsteps 4
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 6.5  dsm 3.28653e-05  dsm_est 1.13828e-07  nsteps 8
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 7  dsm 1.0851e-05  dsm_est 4.33597e-06  nsteps 17
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 7.5  dsm 8.11463e-06  dsm_est 2.04239e-07  nsteps 13
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 8  dsm 1.12113e-05  dsm_est 6.62221e-08  nsteps 7
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 8.5  dsm 7.59151e-06  dsm_est 8.67008e-08  nsteps 5
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 9  dsm 1.10466e-05  dsm_est 3.06823e-08  nsteps 4
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 9.5  dsm 1.12334e-05  dsm_est 1.36785e-07  nsteps 4
+  rtol 0.0001  rk_type 0  order 5  acc 2  t 10  dsm 9.05222e-07  dsm_est 3.2806e-08  nsteps 4
   rtol 0.0001  rk_type 0  order 5  acc 3  t 0.5  dsm 1.9124e-05  dsm_est 4.39976e-07  nsteps 13
   rtol 0.0001  rk_type 0  order 5  acc 3  t 1  dsm 1.46639e-06  dsm_est 9.99964e-09  nsteps 3
   rtol 0.0001  rk_type 0  order 5  acc 3  t 1.5  dsm 1.49779e-06  dsm_est 9.65784e-09  nsteps 3
@@ -107,6 +147,26 @@ Adaptive-step runs:
   rtol 1e-06  rk_type 0  order 5  acc 1  t 9  dsm 1.33343e-07  dsm_est 8.70204e-09  nsteps 7
   rtol 1e-06  rk_type 0  order 5  acc 1  t 9.5  dsm 1.44237e-07  dsm_est 1.59014e-08  nsteps 6
   rtol 1e-06  rk_type 0  order 5  acc 1  t 10  dsm 1.34853e-07  dsm_est 2.74315e-08  nsteps 6
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 0.5  dsm 1.88136e-07  dsm_est 3.10757e-07  nsteps 20
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 1  dsm 3.6815e-08  dsm_est 2.85172e-09  nsteps 5
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 1.5  dsm 3.46973e-08  dsm_est 3.53495e-09  nsteps 7
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 2  dsm 2.15722e-07  dsm_est 6.21173e-09  nsteps 7
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 2.5  dsm 9.55646e-08  dsm_est 1.95849e-09  nsteps 7
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 3  dsm 1.61192e-07  dsm_est 1.42375e-08  nsteps 5
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 3.5  dsm 4.89781e-08  dsm_est 5.44995e-09  nsteps 5
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 4  dsm 2.89671e-09  dsm_est 2.05845e-10  nsteps 5
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 4.5  dsm 1.33856e-07  dsm_est 1.4524e-10  nsteps 4
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 5  dsm 1.14768e-07  dsm_est 3.97399e-09  nsteps 5
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 5.5  dsm 3.35877e-07  dsm_est 5.39098e-09  nsteps 7
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 6  dsm 3.66079e-07  dsm_est 4.54425e-09  nsteps 9
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 6.5  dsm 1.18284e-06  dsm_est 1.43453e-08  nsteps 13
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 7  dsm 6.15151e-07  dsm_est 3.71172e-07  nsteps 32
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 7.5  dsm 7.6586e-08  dsm_est 1.05078e-08  nsteps 17
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 8  dsm 4.14322e-07  dsm_est 1.80819e-09  nsteps 13
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 8.5  dsm 2.50606e-07  dsm_est 1.87833e-08  nsteps 9
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 9  dsm 1.33343e-07  dsm_est 1.22048e-08  nsteps 7
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 9.5  dsm 1.44237e-07  dsm_est 3.40516e-08  nsteps 6
+  rtol 1e-06  rk_type 0  order 5  acc 2  t 10  dsm 1.34853e-07  dsm_est 3.35247e-08  nsteps 6
   rtol 1e-06  rk_type 0  order 5  acc 3  t 0.5  dsm 1.88136e-07  dsm_est 1.55378e-08  nsteps 20
   rtol 1e-06  rk_type 0  order 5  acc 3  t 1  dsm 3.6815e-08  dsm_est 5.70344e-10  nsteps 5
   rtol 1e-06  rk_type 0  order 5  acc 3  t 1.5  dsm 3.46973e-08  dsm_est 5.04993e-10  nsteps 7

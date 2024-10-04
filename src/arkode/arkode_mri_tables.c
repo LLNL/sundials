@@ -268,26 +268,17 @@ MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p,
     /* non-embedded method:  coupling coefficient 1D arrays have
        length nmat * stages * stages, with each stages * stages
        matrix stored in C (row-major) order */
-    if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
+    for (k = 0; k < nmat; k++)
     {
-      for (k = 0; k < nmat; k++)
+      for (i = 0; i < stages; i++)
       {
-        for (i = 0; i < stages; i++)
+        for (j = 0; j < stages; j++)
         {
-          for (j = 0; j < stages; j++)
+          if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
           {
             MRIC->W[k][i][j] = W[stages * (stages * k + i) + j];
           }
-        }
-      }
-    }
-    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
-    {
-      for (k = 0; k < nmat; k++)
-      {
-        for (i = 0; i < stages; i++)
-        {
-          for (j = 0; j < stages; j++)
+          if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
           {
             MRIC->G[k][i][j] = G[stages * (stages * k + i) + j];
           }
@@ -300,26 +291,17 @@ MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p,
     /* embedded method:  coupling coefficient 1D arrays have
        length nmat * (stages+1) * stages, with each (stages+1) * stages
        matrix stored in C (row-major) order */
-    if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
+    for (k = 0; k < nmat; k++)
     {
-      for (k = 0; k < nmat; k++)
+      for (i = 0; i <= stages; i++)
       {
-        for (i = 0; i <= stages; i++)
+        for (j = 0; j < stages; j++)
         {
-          for (j = 0; j < stages; j++)
+          if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
           {
             MRIC->W[k][i][j] = W[(stages + 1) * (stages * k + i) + j];
           }
-        }
-      }
-    }
-    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
-    {
-      for (k = 0; k < nmat; k++)
-      {
-        for (i = 0; i <= stages; i++)
-        {
-          for (j = 0; j < stages; j++)
+          if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
           {
             MRIC->G[k][i][j] = G[(stages + 1) * (stages * k + i) + j];
           }
@@ -788,7 +770,7 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
 int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
 {
   int i, j;
-  sunrealtype Gabs, cdiff, Gabsrow, Wabsrow;
+  sunbooleantype Gdiag, Grow, Wrow, cdiff;
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   if ((is < 1) || (is > MRIC->stages)) { return ARK_INVALID_TABLE; }
@@ -802,16 +784,15 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
   /* separately handle an embedding "stage" from normal stages */
   if (is < MRIC->stages)
   { /* normal */
-    /* sum of stage diagonal entries across implicit tables */
-    Gabs = Gabsrow = Wabsrow = ZERO;
+    Gdiag = Grow = Wrow = cdiff = SUNFALSE;
     if (MRIC->G)
     {
       for (i = 0; i < MRIC->nmat; i++)
       {
-        Gabs += SUNRabs(MRIC->G[i][is][is]);
+        Gdiag = Gdiag || (SUNRabs(MRIC->G[i][is][is]) > tol);
         for (j = 0; j < MRIC->stages; j++)
         {
-          Gabsrow += SUNRabs(MRIC->G[i][is][j]);
+          Grow = Grow || (SUNRabs(MRIC->G[i][is][j]) > tol);
         }
       }
     }
@@ -821,25 +802,24 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
       {
         for (j = 0; j < MRIC->stages; j++)
         {
-          Wabsrow += SUNRabs(MRIC->W[i][is][j]);
+          Wrow = Wrow || (SUNRabs(MRIC->W[i][is][j]) > tol);
         }
       }
     }
 
     /* abscissae difference */
-    cdiff = MRIC->c[is] - MRIC->c[is - 1];
+    cdiff = (SUNRabs(MRIC->c[is] - MRIC->c[is - 1]) > tol);
   }
   else
   { /* embedding */
-    Gabs = Gabsrow = Wabsrow = ZERO;
     if (MRIC->G)
     {
       for (i = 0; i < MRIC->nmat; i++)
       {
-        Gabs += SUNRabs(MRIC->G[i][is][is - 1]);
+        Gdiag = Gdiag || (SUNRabs(MRIC->G[i][is][is - 1]) > tol);
         for (j = 0; j < MRIC->stages; j++)
         {
-          Gabsrow += SUNRabs(MRIC->G[i][is][j]);
+          Grow = Grow || (SUNRabs(MRIC->G[i][is][j]) > tol);
         }
       }
     }
@@ -849,21 +829,21 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
       {
         for (j = 0; j < MRIC->stages; j++)
         {
-          Wabsrow += SUNRabs(MRIC->W[i][is][j]);
+          Wrow = Wrow || (SUNRabs(MRIC->W[i][is][j]) > tol);
         }
       }
     }
-    cdiff = MRIC->c[is - 1] - MRIC->c[is - 2];
+    cdiff = (SUNRabs(MRIC->c[is - 1] - MRIC->c[is - 2]) > tol);
   }
 
   /* make determination */
-  if ((Gabs <= tol) && (Gabsrow <= tol) && (Wabsrow <= tol) && (cdiff <= tol))
+  if (!(Gdiag || Grow || Wrow || cdiff))
   { /* stiffly-accurate stage */
     return (MRISTAGE_STIFF_ACC);
   }
-  if (Gabs > tol)
+  if (Gdiag)
   { /* DIRK */
-    if (cdiff > tol)
+    if (cdiff)
     { /* Fast */
       return (MRISTAGE_DIRK_FAST);
     }
@@ -871,7 +851,7 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
   }
   else
   { /* ERK */
-    if (cdiff > tol)
+    if (cdiff)
     { /* Fast */
       return (MRISTAGE_ERK_FAST);
     }

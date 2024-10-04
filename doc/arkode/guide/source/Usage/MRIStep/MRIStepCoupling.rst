@@ -70,42 +70,42 @@ The MRI coupling tables themselves are stored in an
 
    .. c:member:: ARKODE_MRIType type
 
-      Flag indicating the type of MRI method encoded by this table,
+      Flag indicating the type of MRI method encoded by this table.
 
    .. c:member:: int nmat
 
       The number of coupling matrices :math:`\Omega^{\{k\}}` for the
       slow-nonstiff terms and/or :math:`\Gamma^{\{k\}}` for the slow-stiff terms
-      in :eq:`ARKODE_IVP_two_rate`,
+      in :eq:`ARKODE_IVP_two_rate`.
 
    .. c:member:: int stages
 
-      The number of abscissae i.e., :math:`s+1` above
+      The number of abscissae i.e., :math:`s+1` above.
 
    .. c:member:: int q
 
-      The method order of accuracy
+      The method order of accuracy.
 
    .. c:member:: int p
 
-      The embedding order of accuracy
+      The embedding order of accuracy.
 
    .. c:member:: sunrealtype* c
 
       An array of length ``[stages]`` containing the slow abscissae :math:`c^S`
-      for the method
+      for the method.
 
    .. c:member:: sunrealtype*** W
 
       A three-dimensional array with dimensions ``[nmat][stages+1][stages]``
       containing the method's :math:`\Omega^{\{k\}}` coupling matrices for the
-      slow-nonstiff (explicit) terms in :eq:`ARKODE_IVP_two_rate`
+      slow-nonstiff (explicit) terms in :eq:`ARKODE_IVP_two_rate`.
 
    .. c:member:: sunrealtype*** G
 
       A three-dimensional array with dimensions ``[nmat][stages+1][stages]``
       containing the method's :math:`\Gamma^{\{k\}}` coupling matrices for the
-      slow-stiff (implicit) terms in :eq:`ARKODE_IVP_two_rate`
+      slow-stiff (implicit) terms in :eq:`ARKODE_IVP_two_rate`.
 
    .. c:member:: int ngroup
 

@@ -369,11 +369,11 @@ member functions:
    :param tout: the final time for the inner (fast) integration.
    :param v: on input the state at time *t0* and, on output, the state at time *tout*.
 
-   :return: An :c:type:`MRIStepInnerEvolveFn` should return 0 if successful, a positive
-            value if a recoverable error occurred, or a negative value if it failed
-            unrecoverably.
+   :return value: An :c:type:`MRIStepInnerEvolveFn` should return 0 if successful, a positive
+        value if a recoverable error occurred, or a negative value if it failed
+        unrecoverably.
 
-   .. note:: 
+   .. note::
 
       An example of this is in ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``.
 
@@ -401,11 +401,11 @@ following member functions:
         * ``ARK_FULLRHS_END``   -- called at the end of a successful step
         * ``ARK_FULLRHS_OTHER`` -- called elsewhere e.g., for dense output
 
-   :return: An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed
-      unrecoverably.
+   :return value: An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, a positive
+        value if a recoverable error occurred, or a negative value if it failed
+        unrecoverably.
 
-   .. note:: 
+   .. note::
 
       An example of this is in ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``.
 
@@ -422,9 +422,9 @@ following member functions:
    :param tR: the value of the independent variable :math:`t_R`.
    :param vR: the value of the dependent variable vector :math:`v(t_R)`.
 
-   :return: An :c:type:`MRIStepInnerResetFn` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed
-      unrecoverably.
+   :return value: An :c:type:`MRIStepInnerResetFn` should return 0 if successful, a positive
+        value if a recoverable error occurred, or a negative value if it failed
+        unrecoverably.
 
    .. note::
 
@@ -441,8 +441,8 @@ following member functions:
    :param stepper: the inner stepper object.
    :param accum_error: estimation of the accumulated solution error.
 
-   :return: An :c:type:`MRIStepInnerGetAccumulatedError` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed unrecoverably.
+   :return value: An :c:type:`MRIStepInnerGetAccumulatedError` should return 0 if successful, a positive
+        value if a recoverable error occurred, or a negative value if it failed unrecoverably.
 
    .. note::
 
@@ -464,8 +464,8 @@ following member functions:
 
    :param stepper: the inner stepper object.
 
-   :return: An :c:type:`MRIStepInnerResetAccumulatedError` should return 0 if successful, a positive`
-      value if a recoverable error occurred, or a negative value if it failed unrecoverably.
+   :return value: An :c:type:`MRIStepInnerResetAccumulatedError` should return 0 if successful, a positive`
+        value if a recoverable error occurred, or a negative value if it failed unrecoverably.
 
    .. note::
 
@@ -491,12 +491,12 @@ following member functions:
    :param stepper: the inner stepper object.
    :param rtol: relative tolerance to use on the upcoming solve.
 
-   :return: An :c:type:`MRIStepInnerSetRTol` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed
-      unrecoverably.
+   :return value: An :c:type:`MRIStepInnerSetRTol` should return 0 if successful, a positive
+        value if a recoverable error occurred, or a negative value if it failed
+        unrecoverably.
 
    .. note::
-      
+
       This function is only called when multirate temporal adaptivity has been enabled
       using a :c:type:`SUNAdaptController` module having type ``SUNDIALS_CONTROL_MRI_TOL``.
 

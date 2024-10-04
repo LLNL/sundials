@@ -198,43 +198,43 @@ int main(int argc, char* argv[])
   if (check_flag((void*)arkode_mem, "ERKStepCreate", 0)) return 1;
 
   /* Specify tolerances */
-  flag = ERKStepSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ERKStepSStolerances", 1)) return 1;
+  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
   /* Set stop time */
-  flag = ERKStepSetStopTime(arkode_mem, Tf);
-  if (check_flag(&flag, "ERKStepSetStopTime", 1)) return 1;
+  flag = ARKodeSetStopTime(arkode_mem, Tf);
+  if (check_flag(&flag, "ARKodeSetStopTime", 1)) return 1;
 
   /* Set max steps before output */
-  flag = ERKStepSetMaxNumSteps(arkode_mem, mxsteps);
-  if (check_flag(&flag, "ERKStepSetMaxNumSteps", 1)) return 1;
+  flag = ARKodeSetMaxNumSteps(arkode_mem, mxsteps);
+  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return 1;
 
   /* Set forcing */
   flag = erkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, order + 1);
   if (check_flag(&flag, "erkStep_SetInnerForcing", 1)) return 1;
 
   /* Integrate the problem */
-  flag = ERKStepEvolve(arkode_mem, Tf, y, &tret, ARK_NORMAL);
+  flag = ARKodeEvolve(arkode_mem, Tf, y, &tret, ARK_NORMAL);
 
   /* check for errors */
   if (flag < 0)
   {
-    fprintf(stderr, "ERKStep failure, flag = %d\n", flag);
+    fprintf(stderr, "ARKodeEvolve failure, flag = %d\n", flag);
     return 1;
   }
 
   /* get some integrator stats */
-  flag = ERKStepGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ERKStepGetNumSteps", 1);
+  flag = ARKodeGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKodeGetNumSteps", 1);
 
-  flag = ERKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ERKStepGetNumStepAttempts", 1);
+  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
 
   printf("Stats:\n");
   printf("Steps = %li (attempted = %li)\n\n", nst, nst_a);
 
   /* Free integrator memory */
-  ERKStepFree(&arkode_mem);
+  ARKodeFree(&arkode_mem);
   arkode_mem = NULL;
 
   /* print solution */
