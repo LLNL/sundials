@@ -176,7 +176,7 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
 
   if (nsteps < 0)
   {
-    step_mem->dom_eig_freq = 25;
+    step_mem->dom_eig_freq = DOM_EIG_FREQ_DEFAULT;
     step_mem->const_Jac    = SUNFALSE;
   }
 
@@ -222,6 +222,7 @@ int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
 
 /*---------------------------------------------------------------
   LSRKStepSetDomEigSafetyFactor sets the safety factor for the DomEigs.
+  Calling this function with dom_eig_safety < 0 resets the default value
   ---------------------------------------------------------------*/
 int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 {
@@ -236,12 +237,12 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 
   if (dom_eig_safety < SUN_RCONST(1.0))
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "dom_eig_safety must be greater than or equal to 1");
-    return (ARK_ILL_INPUT);
+    step_mem->dom_eig_safety = DOM_EIG_SAFETY_DEFAULT;
   }
-
-  step_mem->dom_eig_safety = dom_eig_safety;
+  else
+  {
+    step_mem->dom_eig_safety = dom_eig_safety;
+  }
 
   return (ARK_SUCCESS);
 }
@@ -540,9 +541,9 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->spectral_radius       = 0;
   step_mem->spectral_radius_max   = 0;
   step_mem->spectral_radius_min   = 0;
-  step_mem->dom_eig_safety        = SUN_RCONST(1.01);
-  step_mem->retry_contraction_fac = SUN_RCONST(0.90);
-  step_mem->dom_eig_freq          = 25;
+  step_mem->dom_eig_safety        = DOM_EIG_SAFETY_DEFAULT;
+  step_mem->retry_contraction_fac = RETRY_CONTRACTION_FAC_DEFAULT;
+  step_mem->dom_eig_freq          = DOM_EIG_FREQ_DEFAULT;
 
   /* Flags */
   step_mem->dom_eig_update     = SUNTRUE;

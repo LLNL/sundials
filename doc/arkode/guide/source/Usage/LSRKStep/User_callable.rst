@@ -197,7 +197,7 @@ Allowable Method Families
    Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.  
    This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring 
    a sufficient number of stages for the method to be stable.  This input is only used for RKC 
-   and RKL methods.
+   and RKL methods. Calling this function with ``dom_eig_safety < 1`` resets the default value
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -206,7 +206,6 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``dom_eig_safety < 1``)
 
 
 .. c:function:: int LSRKStepSetReTryContractionFactor(void* arkode_mem, sunrealtype retry_contraction_fac);
@@ -230,7 +229,7 @@ Allowable Method Families
 
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods. Thus, 
    this set routine must be called after calling LSRKStepSetMethod with an SSPRK method.
-   Calling this function with num_of_stages =< 0 resets the default value
+   Calling this function with ``num_of_stages =< 0`` resets the default value
 
 
       * ``ARKODE_LSRK_SSP_S_2``  -- ``num_of_stages`` must be greater than or equal to 2
