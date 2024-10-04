@@ -1297,7 +1297,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS",
                        "F_%i(:) =", j);
-    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+    N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
     N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, step_mem->Fe,
@@ -1339,7 +1339,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS",
                        "F_%i(:) =", j);
-    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+    N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
     N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, step_mem->Fe,
@@ -1376,7 +1376,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS", "F_%i(:) =", (int)(in * (in + 1) / 2);
-    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+    N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
   cvals[0] = (rn - ONE) / (TWO * rn - ONE);
@@ -1424,7 +1424,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS", "F_%i(:) =", j;
-    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+    N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
     N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, step_mem->Fe,
@@ -1574,7 +1574,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 2;
-    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+    N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
   N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, step_mem->Fe, ark_mem->ycur);
@@ -1607,7 +1607,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 3;
-    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+    N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
   cvals[0] = ONE / THREE;
@@ -1649,7 +1649,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 4;
-    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+    N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
   N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, step_mem->Fe, ark_mem->ycur);
@@ -1797,7 +1797,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", j;
-    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+    N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
     N_VLinearSum(ONE, ark_mem->ycur, onesixth * ark_mem->h, step_mem->Fe,
@@ -1843,7 +1843,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", j;
-    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+    N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
     N_VLinearSum(ONE, ark_mem->ycur, onesixth * ark_mem->h, step_mem->Fe,
@@ -1886,7 +1886,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", 10;
-    N_VPrintFile(ark_mem->Fe, ARK_LOGGER->debug_fp);
+    N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
   cvals[0] = SUN_RCONST(0.6);
