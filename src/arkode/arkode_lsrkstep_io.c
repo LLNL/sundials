@@ -248,6 +248,12 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 
 /*---------------------------------------------------------------
   LSRKStepSetReTryContractionFactor sets the retry contraction factor for the step size.
+
+  retry_contraction_fac specifies a contraction factor for the next step size after an ARK_RETRY_STEP return. 
+  This is relevant in situations where stable results cannot be achieved with the current step size and stage_max_limit. 
+  In such cases, the stepper returns with a recoverable flag before any costly operations, allowing ARKODE 
+  to reassign a new contracted step size to ensure that the required stages remain below the stage_max_limit.
+
   ---------------------------------------------------------------*/
 int LSRKStepSetReTryContractionFactor(void* arkode_mem, sunrealtype retry_contraction_fac)
 {
@@ -400,6 +406,40 @@ int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* dom_eig_num_evals)
 
   /* get values from step_mem */
   *dom_eig_num_evals = step_mem->dom_eig_num_evals;
+
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  LSRKStepGetNumRetiredSteps:
+
+  Returns the number of retired steps
+
+  Step retries occur when stepper retruns with an ARK_RETRY_STEP flag. This is relevant in situations where 
+  stable results cannot be achieved with the current step size and stage_max_limit. In such cases, the stepper 
+  returns with a recoverable flag before any costly operations, allowing ARKODE to reassign a new contracted 
+  step size to ensure that the required stages remain below the stage_max_limit.
+  ---------------------------------------------------------------*/
+int LSRKStepGetNumRetiredSteps(void* arkode_mem, long int* num_of_retries)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  if (num_of_retries == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "num_of_retries cannot be NULL");
+    return (ARK_ILL_INPUT);
+  }
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* get values from step_mem */
+  *num_of_retries = step_mem->num_of_retries;
 
   return (ARK_SUCCESS);
 }
@@ -584,6 +624,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
       fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
       fprintf(outfile, "Number of dom_eig updates    = %ld\n",
               step_mem->dom_eig_num_evals);
+      fprintf(outfile, "Number of retried steps      = %ld\n",
+              step_mem->num_of_retries);
       fprintf(outfile, "Avr. num. of stages used     = %.2f\n", avg_stage);
       fprintf(outfile, "Max. num. of stages used     = %d\n", step_mem->stage_max);
       fprintf(outfile, "Max. num. of stages allowed  = %d\n",
@@ -598,6 +640,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
       fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
       fprintf(outfile, ",Number of dom_eig update calls,%ld",
               step_mem->dom_eig_num_evals);
+      fprintf(outfile, ",Number of retried steps,%ld",
+              step_mem->num_of_retries);
       fprintf(outfile, ",Avr. num. of stages used,%.2f", avg_stage);
       fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
       fprintf(outfile, ",Max. num. of stages allowed,%d",

@@ -211,11 +211,6 @@ int main(void)
   flag = ARKodePrintAllStats(arkode_mem, FID, SUN_OUTPUTFORMAT_CSV);
   fclose(FID);
 
-  long int* f_evals;
-  LSRKStepGetNumRhsEvals(arkode_mem, 1, &f_evals);
-  printf("f_evals = ", f_evals);
-
-
   /* check the solution error */
   flag = check_ans(y, t, reltol, abstol);
   flag = compute_error(y, t);

@@ -276,6 +276,24 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
+.. c:function:: LSRKStepGetNumRetiredSteps(void* arkode_mem, long int* num_of_retries);
+
+  Returns the number of retired steps (so far).
+
+  Step retries occur when stepper returns with an ARK_RETRY_STEP flag. This is relevant in situations where 
+  stable results cannot be achieved with the current step size and stage_max_limit. In such cases, the stepper 
+  returns with a recoverable flag before any costly operations, allowing ARKODE to reassign a new contracted 
+  step size to ensure that the required stages remain below the stage_max_limit.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *num_of_retries* -- number of retried steps.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
+
+
 .. c:function:: int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
 
    Returns the max number of stages used in any single step (so far).

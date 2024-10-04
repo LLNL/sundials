@@ -229,6 +229,8 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
     fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
             step_mem->dom_eig_num_evals);
+    fprintf(outfile, "LSRKStep: num_of_retries        = %li\n",
+            step_mem->num_of_retries);
 
     /* output sunrealtype quantities */
     fprintf(outfile, "LSRKStep: dom_eig               = %f + i%f\n",
@@ -510,6 +512,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
              (onep54 * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
+      step_mem->num_of_retries++;
       return (ARK_RETRY_STEP);
     }
     else
@@ -784,6 +787,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
              (TWO * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
+      step_mem->num_of_retries++;
       return (ARK_RETRY_STEP);
     }
     else
@@ -2139,6 +2143,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNCont
   step_mem->nfe               = 0;
   step_mem->stage_max         = 0;
   step_mem->dom_eig_num_evals = 0;
+  step_mem->num_of_retries    = 0;
   step_mem->stage_max_limit = STAGE_MAX_LIMIT;
   step_mem->dom_eig_nst = 0;
   step_mem->is_SSP = SUNFALSE;

@@ -55,6 +55,7 @@ typedef struct ARKodeLSRKStepMemRec
   /* Counters and stats*/
   long int nfe;               /* num fe calls       */
   long int dom_eig_num_evals; /* num of dom_eig computations   */
+  long int num_of_retries;    /* num retried steps       */
   int stage_max;              /* num of max stages used      */
   int stage_max_limit;        /* max allowed num of stages     */
   int dom_eig_nst; /* num of steps that successfully used dom_eig; indicates dom_eig update when 0;  */
