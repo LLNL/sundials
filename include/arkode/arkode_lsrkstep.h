@@ -95,6 +95,8 @@ SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn,
 SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem,
                                                 long int* dom_eig_num_evals);
 
+SUNDIALS_EXPORT int LSRKStepGetNumRetiredSteps(void* arkode_mem, long int* num_of_retries);
+
 SUNDIALS_EXPORT int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
 
 #ifdef __cplusplus
