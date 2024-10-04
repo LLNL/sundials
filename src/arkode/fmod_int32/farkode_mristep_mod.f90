@@ -80,7 +80,7 @@ module farkode_mristep_mod
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_2 = ARKODE_MRI_GARK_ERK22b
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_3 = ARKODE_MIS_KW3
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_4 = ARKODE_MRI_GARK_ERK45a
- integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22a
+ integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22b
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_4_AD = ARKODE_MRI_GARK_ERK45a
  integer(C_INT), parameter, public :: MRISTEP_DEFAULT_EXPL_5_AD = ARKODE_MERK54
