@@ -413,8 +413,8 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
    Table name                              Method Order        Embedding Order  Slow RHS Calls  Reference
    ======================================  ==================  ===============  ==============  =====================
    :index:`ARKODE_MRI_GARK_FORWARD_EULER`  :math:`1^*`         --               1
-   :index:`ARKODE_MRI_GARK_ERK22a`         :math:`2^{\circ}`   1                2               :cite:p:`Sandu:19`
-   :index:`ARKODE_MRI_GARK_ERK22b`         :math:`2^*`         1                2               :cite:p:`Sandu:19`
+   :index:`ARKODE_MRI_GARK_ERK22a`         2                   1                2               :cite:p:`Sandu:19`
+   :index:`ARKODE_MRI_GARK_ERK22b`         :math:`2^{*\circ}`  1                2               :cite:p:`Sandu:19`
    :index:`ARKODE_MRI_GARK_RALSTON2`       2                   1                2               :cite:p:`Roberts:22`
    :index:`ARKODE_MERK21`                  2                   1                2               :cite:p:`Luan:20`
    :index:`ARKODE_MIS_KW3`                 :math:`3^*`         --               3               :cite:p:`Schlegel:09`
