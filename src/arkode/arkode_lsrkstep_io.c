@@ -390,6 +390,11 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals)
   ARKodeLSRKStepMem step_mem;
   int retval;
 
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
   if (num_rhs_fn < 1)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -403,11 +408,6 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals)
                     "f_evals cannot be NULL");
     return (ARK_ILL_INPUT);
   }
-
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
   *f_evals = step_mem->nfe;
@@ -426,17 +426,17 @@ int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* dom_eig_num_evals)
   ARKodeLSRKStepMem step_mem;
   int retval;
 
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
   if (dom_eig_num_evals == NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "dom_eig_num_evals cannot be NULL");
     return (ARK_ILL_INPUT);
   }
-
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
   *dom_eig_num_evals = step_mem->dom_eig_num_evals;
@@ -460,17 +460,17 @@ int LSRKStepGetNumRetiredSteps(void* arkode_mem, long int* num_of_retries)
   ARKodeLSRKStepMem step_mem;
   int retval;
 
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
   if (num_of_retries == NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "num_of_retries cannot be NULL");
     return (ARK_ILL_INPUT);
   }
-
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
   *num_of_retries = step_mem->num_of_retries;
@@ -489,17 +489,17 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
   ARKodeLSRKStepMem step_mem;
   int retval;
 
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
   if (stage_max == NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "stage_max cannot be NULL");
     return (ARK_ILL_INPUT);
   }
-
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
 
   /* get values from step_mem */
   *stage_max = step_mem->stage_max;
@@ -522,7 +522,6 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeLSRKStepMem step_mem;
   int retval;
-  long int lenrw, leniw;
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
