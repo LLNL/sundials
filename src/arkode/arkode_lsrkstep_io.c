@@ -494,41 +494,6 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* Remove current SUNAdaptController object, and replace with "PI" */
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
-    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                      &leniw);
-    if (retval == SUN_SUCCESS)
-    {
-      ark_mem->liw -= leniw;
-      ark_mem->lrw -= lenrw;
-    }
-    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
-    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUN_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptController_Destroy failure");
-      return (ARK_MEM_FAIL);
-    }
-  }
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
-  if (ark_mem->hadapt_mem->hcontroller == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptControllerPI allocation failure");
-    return (ARK_MEM_FAIL);
-  }
-  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
-  {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
-  }
-
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for LSRKStep use) */
   step_mem->req_stages = 0; /* no stages */
@@ -549,15 +514,6 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->dom_eig_is_current = SUNFALSE;
   step_mem->is_SSP             = SUNFALSE;
 
-  ark_mem->hadapt_mem->adjust = 0;               /* set default adjustment */
-  ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
-  ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
-  ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
-
-  (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(1.2));
-  (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(0.8), -SUN_RCONST(0.31));
   return (ARK_SUCCESS);
 }
 
