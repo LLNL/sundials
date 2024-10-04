@@ -281,7 +281,7 @@ program driver
     call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKodepGetNumRhsEvals(arkode_mem, 0, nfe)
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 0, nfe)
   if (retval /= 0) then
     print *, "Error: FARKodeGetNumRhsEvals returned ", retval
     call MPI_Abort(comm, 1, ierr)
