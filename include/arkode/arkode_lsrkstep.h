@@ -24,6 +24,9 @@ extern "C" {
 #endif
 
 #define STAGE_MAX_LIMIT 1000000
+#define DOM_EIG_SAFETY_DEFAULT SUN_RCONST(1.01)
+#define DOM_EIG_FREQ_DEFAULT 25
+#define RETRY_CONTRACTION_FAC_DEFAULT SUN_RCONST(0.90)
 
 typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn,
                            sunrealtype* lambdaR, sunrealtype* lambdaI,

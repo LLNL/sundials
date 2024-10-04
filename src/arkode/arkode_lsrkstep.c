@@ -319,6 +319,15 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   }
   ark_mem->liw += 1; /* pointers */
 
+  
+  /* Check if user has provided dom_eig_fn */
+  if (!step_mem->is_SSP && step_mem->dom_eig_fn == NULL)
+  {
+    arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    "STS methods require a user provided dominant eigenvalue function");
+    return (ARK_DOMEIG_FAIL);
+  }
+
   /* Allocate reusable arrays for fused vector interface */
   if (step_mem->cvals == NULL)
   {
@@ -2138,6 +2147,9 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNCont
 
   /* Copy the input parameters into ARKODE state */
   step_mem->fe = rhs;
+
+  /* Set NULL for dom_eig_fn */
+  step_mem->dom_eig_fn = NULL;
 
   /* Initialize all the counters */
   step_mem->nfe               = 0;
