@@ -279,7 +279,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-      arkode_mem = LSRKStepCreateSTS(diffusion, nullptr, ZERO, u, ctx);
+      arkode_mem = LSRKStepCreateSTS(diffusion, ZERO, u, ctx);
       if (check_flag((void*)arkode_mem, "LSRKStepCreateSTS", 0)) { return 1; }
     }
 
