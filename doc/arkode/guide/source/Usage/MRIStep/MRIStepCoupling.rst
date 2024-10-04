@@ -208,10 +208,17 @@ are defined ``arkode/arkode_mristep.h``.
 
       For MRISTEP_MRISR tables, the *group* array is not allocated.
 
-      When allocated, each of :math:`\Omega^{\{k\}}` and :math:`\Gamma^{\{k\}}`
+      When allocated, both :math:`\Omega` and :math:`\Gamma`
       are initialized to all zeros, so only nonzero coefficients need to be provided.
 
-      When allocated, all entries in *group* are initialized to ``-1``, indicating an unused group and/or the end of a stage group.  Users who supply a custom MRISTEP_MERK table should over-write all active stages in each group.  For example the ``ARKODE_MERK32`` method has 4 stages that are evolved in 3 groups -- the first group consists of stage 1, the second group consists of stages 2 and 4, while the third group consists of stage 3.  Thus *ngroup* should equal 3, and *group* should have non-default entries
+      When allocated, all entries in *group* are initialized to ``-1``,
+      indicating an unused group and/or the end of a stage group.  Users who
+      supply a custom MRISTEP_MERK table should over-write all active stages in
+      each group.  For example the ``ARKODE_MERK32`` method has 4 stages that
+      are evolved in 3 groups -- the first group consists of stage 1, the second
+      group consists of stages 2 and 4, while the third group consists of
+      stage 3.  Thus *ngroup* should equal 3, and *group* should have
+      non-default entries
 
       .. code-block:: C
 
