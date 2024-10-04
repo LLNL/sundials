@@ -1963,7 +1963,7 @@ int ARKodeSetAccumulatedErrorType(void* arkode_mem, ARKAccumError accum_type)
 {
   int retval = ARKodeResetAccumulatedError(arkode_mem);
   if (retval != ARK_SUCCESS) { return retval; }
-  ((ARKodeMem) arkode_mem)->AccumErrorType = accum_type;
+  ((ARKodeMem)arkode_mem)->AccumErrorType = accum_type;
   return (ARK_SUCCESS);
 }
 
