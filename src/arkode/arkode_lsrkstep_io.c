@@ -286,7 +286,9 @@ int LSRKStepSetReTryContractionFactor(void* arkode_mem, sunrealtype retry_contra
       ARKODE_LSRK_SSP_S_3  -- num_of_stages must be a perfect square greater than or equal to 4
       ARKODE_LSRK_SSP_10_4 -- num_of_stages must be equal to 10 - no need to call!
 
-  This set routine must be called after calling LSRKStepSetMethod with an SSP method
+   Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by 
+   SSPRK methods. Thus, this set routine must be called after calling LSRKStepSetMethod with an 
+   SSPRK method. Calling this function with num_of_stages =< 0 resets the default value
   ---------------------------------------------------------------*/
 int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
 {
@@ -299,44 +301,78 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  switch (step_mem->LSRKmethod)
+  if(!step_mem->is_SSP)
   {
-  case ARKODE_LSRK_SSP_S_2:
-    if (num_of_stages < 2)
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "num_of_stages must be greater than or equal to 2");
-      return (ARK_ILL_INPUT);
-    }
-    break;
-
-  case ARKODE_LSRK_SSP_S_3:
-    if (num_of_stages < 4 || (SUNRceil(SUNRsqrt(num_of_stages)) !=
-                              SUNRfloor(SUNRsqrt(num_of_stages))))
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "num_of_stages must be a perfect square greater than or equal to 4");
-      return (ARK_ILL_INPUT);
-    }
-    if (num_of_stages == 4) { ark_mem->step = lsrkStep_TakeStepSSP43; }
-    break;
-
-  case ARKODE_LSRK_SSP_10_4:
-    if (num_of_stages != 10)
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "SSP10_4 method has a prefixed num_of_stages = 10");
-      return (ARK_ILL_INPUT);
-    }
-    break;
-
-  default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Call LSRKStepSetMethod to declare SSP method type first!");
+                    "Call this function only for SSP methods: Use LSRKStepSetMethod to declare SSP method type first!");
     return (ARK_ILL_INPUT);
-    break;
   }
-  step_mem->req_stages = num_of_stages;
+
+  if(num_of_stages <= 0)
+  {
+    switch (step_mem->LSRKmethod)
+    {
+    case ARKODE_LSRK_SSP_S_2:
+      step_mem->req_stages = 10;
+      break;
+
+    case ARKODE_LSRK_SSP_S_3:
+      step_mem->req_stages = 9;
+      break;
+
+    case ARKODE_LSRK_SSP_10_4:
+      step_mem->req_stages = 10;
+      break;
+
+    default:
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Call LSRKStepSetMethod to declare SSP method type first!");
+      return (ARK_ILL_INPUT);
+      break;
+    }
+    return (ARK_SUCCESS);
+  }
+  else
+  {
+    switch (step_mem->LSRKmethod)
+    {
+    case ARKODE_LSRK_SSP_S_2:
+      if (num_of_stages < 2)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "num_of_stages must be greater than or equal to 2, or set it less than or equal to 0 to reset the default value");
+        return (ARK_ILL_INPUT);
+      }
+      break;
+
+    case ARKODE_LSRK_SSP_S_3:
+      if (num_of_stages < 4 || (SUNRceil(SUNRsqrt(num_of_stages)) !=
+                                SUNRfloor(SUNRsqrt(num_of_stages))))
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                        __FILE__, "num_of_stages must be a perfect square greater than or equal to 4, or set it less than or equal to 0 to reset the default value");
+        return (ARK_ILL_INPUT);
+      }
+      if (num_of_stages == 4) { ark_mem->step = lsrkStep_TakeStepSSP43; }
+      break;
+
+    case ARKODE_LSRK_SSP_10_4:
+      if (num_of_stages != 10)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "SSP10_4 method has a prefixed num_of_stages = 10");
+        return (ARK_ILL_INPUT);
+      }
+      break;
+
+    default:
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Call LSRKStepSetMethod to declare SSP method type first!");
+      return (ARK_ILL_INPUT);
+      break;
+    }
+    step_mem->req_stages = num_of_stages;
+  }
 
   return (ARK_SUCCESS);
 }
