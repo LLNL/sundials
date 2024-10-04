@@ -1961,27 +1961,9 @@ int ARKodeSetMaxConvFails(void* arkode_mem, int maxncf)
   ---------------------------------------------------------------*/
 int ARKodeSetAccumulatedErrorType(void* arkode_mem, ARKAccumError accum_type)
 {
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-
-  /* Guard against use for non-adaptive time stepper modules */
-  if (!ark_mem->step_supports_adaptive)
-  {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
-                    __FILE__, "time-stepping module does not support temporal adaptivity");
-    return (ARK_STEPPER_UNSUPPORTED);
-  }
-
-  /* Store type, reset accumulated error value and counter, and return */
-  ark_mem->AccumErrorType = accum_type;
-  ark_mem->AccumErrorStep = ark_mem->nst;
-  ark_mem->AccumError     = ZERO;
+  int retval = ARKodeResetAccumulatedError(arkode_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+  ((ARKodeMem) arkode_mem)->AccumErrorType = accum_type;
   return (ARK_SUCCESS);
 }
 
