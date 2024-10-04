@@ -189,15 +189,15 @@ int main(void)
            N_VGetArrayPointer(y)[0]); /* access/print solution */
     fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", t, N_VGetArrayPointer(y)[0]);
     if (flag < 0)
-	  { /* unsuccessful solve: break */
-	    fprintf(stderr, "Solver failure, stopping integration\n");
-	    break;
-	  }
-	  else
-	  { /* successful solve: update time */
-	    tout += dTout;
-	    tout = (tout > Tf) ? Tf : tout;
-	  }
+    { /* unsuccessful solve: break */
+      fprintf(stderr, "Solver failure, stopping integration\n");
+      break;
+    }
+    else
+    { /* successful solve: update time */
+      tout += dTout;
+      tout = (tout > Tf) ? Tf : tout;
+    }
   }
   printf("   ---------------------\n");
   fclose(UFID);

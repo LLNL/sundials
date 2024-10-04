@@ -61,26 +61,26 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
   case ARKODE_LSRK_SSP_S_2:
-    ark_mem->step               = lsrkStep_TakeStepSSPs2;
-    step_mem->is_SSP            = SUNTRUE;
-    step_mem->req_stages        = 10;
-    step_mem->nfusedopvecs      = 3;
+    ark_mem->step          = lsrkStep_TakeStepSSPs2;
+    step_mem->is_SSP       = SUNTRUE;
+    step_mem->req_stages   = 10;
+    step_mem->nfusedopvecs = 3;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 1;
     break;
   case ARKODE_LSRK_SSP_S_3:
-    ark_mem->step               = lsrkStep_TakeStepSSPs3;
-    step_mem->is_SSP            = SUNTRUE;
-    step_mem->req_stages        = 9;
-    step_mem->nfusedopvecs      = 3;
+    ark_mem->step          = lsrkStep_TakeStepSSPs3;
+    step_mem->is_SSP       = SUNTRUE;
+    step_mem->req_stages   = 9;
+    step_mem->nfusedopvecs = 3;
     step_mem->q = ark_mem->hadapt_mem->q = 3;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
   case ARKODE_LSRK_SSP_10_4:
-    ark_mem->step               = lsrkStep_TakeStepSSP104;
-    step_mem->is_SSP            = SUNTRUE;
-    step_mem->req_stages        = 10;
-    step_mem->nfusedopvecs      = 3;
+    ark_mem->step          = lsrkStep_TakeStepSSP104;
+    step_mem->is_SSP       = SUNTRUE;
+    step_mem->req_stages   = 10;
+    step_mem->nfusedopvecs = 3;
     step_mem->q = ark_mem->hadapt_mem->q = 4;
     step_mem->p = ark_mem->hadapt_mem->p = 3;
     break;
@@ -239,10 +239,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
   {
     step_mem->dom_eig_safety = DOM_EIG_SAFETY_DEFAULT;
   }
-  else
-  {
-    step_mem->dom_eig_safety = dom_eig_safety;
-  }
+  else { step_mem->dom_eig_safety = dom_eig_safety; }
 
   return (ARK_SUCCESS);
 }
@@ -256,7 +253,8 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
   to reassign a new contracted step size to ensure that the required stages remain below the stage_max_limit.
 
   ---------------------------------------------------------------*/
-int LSRKStepSetReTryContractionFactor(void* arkode_mem, sunrealtype retry_contraction_fac)
+int LSRKStepSetReTryContractionFactor(void* arkode_mem,
+                                      sunrealtype retry_contraction_fac)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -302,32 +300,27 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if(!step_mem->is_SSP)
+  if (!step_mem->is_SSP)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Call this function only for SSP methods: Use LSRKStepSetMethod to declare SSP method type first!");
+                    "Call this function only for SSP methods: Use "
+                    "LSRKStepSetMethod to declare SSP method type first!");
     return (ARK_ILL_INPUT);
   }
 
-  if(num_of_stages <= 0)
+  if (num_of_stages <= 0)
   {
     switch (step_mem->LSRKmethod)
     {
-    case ARKODE_LSRK_SSP_S_2:
-      step_mem->req_stages = 10;
-      break;
+    case ARKODE_LSRK_SSP_S_2: step_mem->req_stages = 10; break;
 
-    case ARKODE_LSRK_SSP_S_3:
-      step_mem->req_stages = 9;
-      break;
+    case ARKODE_LSRK_SSP_S_3: step_mem->req_stages = 9; break;
 
-    case ARKODE_LSRK_SSP_10_4:
-      step_mem->req_stages = 10;
-      break;
+    case ARKODE_LSRK_SSP_10_4: step_mem->req_stages = 10; break;
 
     default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "Call LSRKStepSetMethod to declare SSP method type first!");
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "Call LSRKStepSetMethod to declare SSP method type first!");
       return (ARK_ILL_INPUT);
       break;
     }
@@ -341,7 +334,9 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
       if (num_of_stages < 2)
       {
         arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                        "num_of_stages must be greater than or equal to 2, or set it less than or equal to 0 to reset the default value");
+                        "num_of_stages must be greater than or equal to 2, or "
+                        "set it less than or equal to 0 to reset the default "
+                        "value");
         return (ARK_ILL_INPUT);
       }
       break;
@@ -350,8 +345,10 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
       if (num_of_stages < 4 || (SUNRceil(SUNRsqrt(num_of_stages)) !=
                                 SUNRfloor(SUNRsqrt(num_of_stages))))
       {
-        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                        __FILE__, "num_of_stages must be a perfect square greater than or equal to 4, or set it less than or equal to 0 to reset the default value");
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "num_of_stages must be a perfect square greater than "
+                        "or equal to 4, or set it less than or equal to 0 to "
+                        "reset the default value");
         return (ARK_ILL_INPUT);
       }
       if (num_of_stages == 4) { ark_mem->step = lsrkStep_TakeStepSSP43; }
@@ -367,8 +364,8 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
       break;
 
     default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "Call LSRKStepSetMethod to declare SSP method type first!");
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "Call LSRKStepSetMethod to declare SSP method type first!");
       return (ARK_ILL_INPUT);
       break;
     }
@@ -593,7 +590,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     {
     case SUN_OUTPUTFORMAT_TABLE:
       fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-      fprintf(outfile, "Number of stages used        = %d\n", step_mem->req_stages);
+      fprintf(outfile, "Number of stages used        = %d\n",
+              step_mem->req_stages);
       break;
     case SUN_OUTPUTFORMAT_CSV:
       fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
@@ -620,7 +618,8 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
       fprintf(outfile, "Number of retried steps      = %ld\n",
               step_mem->num_of_retries);
       fprintf(outfile, "Avr. num. of stages used     = %.2f\n", avg_stage);
-      fprintf(outfile, "Max. num. of stages used     = %d\n", step_mem->stage_max);
+      fprintf(outfile, "Max. num. of stages used     = %d\n",
+              step_mem->stage_max);
       fprintf(outfile, "Max. num. of stages allowed  = %d\n",
               step_mem->stage_max_limit);
 
@@ -633,15 +632,16 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
       fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
       fprintf(outfile, ",Number of dom_eig update calls,%ld",
               step_mem->dom_eig_num_evals);
-      fprintf(outfile, ",Number of retried steps,%ld",
-              step_mem->num_of_retries);
+      fprintf(outfile, ",Number of retried steps,%ld", step_mem->num_of_retries);
       fprintf(outfile, ",Avr. num. of stages used,%.2f", avg_stage);
       fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
       fprintf(outfile, ",Max. num. of stages allowed,%d",
               step_mem->stage_max_limit);
 
-      fprintf(outfile, ",Max. spectral radius,%.2f", step_mem->spectral_radius_max);
-      fprintf(outfile, ",Min. spectral radius,%.2f", step_mem->spectral_radius_min);
+      fprintf(outfile, ",Max. spectral radius,%.2f",
+              step_mem->spectral_radius_max);
+      fprintf(outfile, ",Min. spectral radius,%.2f",
+              step_mem->spectral_radius_min);
       fprintf(outfile, "\n");
       break;
     default:
@@ -691,7 +691,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
     break;
   case ARKODE_LSRK_SSP_10_4:
     fprintf(fp, "LSRKStep SSP(10,4) time step module parameters:\n");
-    
+
     break;
 
   default:
@@ -710,20 +710,31 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
     break;
   case SUNFALSE:
     fprintf(fp, "  Maximum number of stages used = %i\n", step_mem->stage_max);
-    fprintf(fp, "  Num of steps that successfully used dom eig = %i\n", step_mem->dom_eig_nst);
+    fprintf(fp, "  Num of steps that successfully used dom eig = %i\n",
+            step_mem->dom_eig_nst);
     fprintf(fp, "  Current real part of the dom eig = %.2f\n", step_mem->lambdaR);
     fprintf(fp, "  Current imag part of the dom eig = %.2f\n", step_mem->lambdaI);
     fprintf(fp, "  Current spectral radius = %.2f\n", step_mem->spectral_radius);
-    fprintf(fp, "  Current number of required stages = %i\n", step_mem->req_stages);
-    fprintf(fp, "  Maximum spectral radius = %.2f\n", step_mem->spectral_radius_max);
-    fprintf(fp, "  Minimum spectral radius = %.2f\n", step_mem->spectral_radius_min);
-    fprintf(fp, "  Safety factor for the dom eig = %.2f\n", step_mem->dom_eig_safety);
-    fprintf(fp, "  Max num of successful steps before new dom eig update = %i\n", step_mem->dom_eig_freq);
-    fprintf(fp, "  Fixed num of steps before new dom eig update = %i\n", step_mem->dom_eig_freq);
-    fprintf(fp, "  Flag to indicate new dom eig is needed = %d\n", step_mem->dom_eig_update);
-    fprintf(fp, "  Flag to indicate Jacobian is constant = %d\n", step_mem->const_Jac);
-    fprintf(fp, "  Flag to indicate dom eig is current = %d\n", step_mem->dom_eig_is_current);
-    fprintf(fp, "  Flag to indicate dom eig is current = %d\n", step_mem->dom_eig_is_current);
+    fprintf(fp, "  Current number of required stages = %i\n",
+            step_mem->req_stages);
+    fprintf(fp, "  Maximum spectral radius = %.2f\n",
+            step_mem->spectral_radius_max);
+    fprintf(fp, "  Minimum spectral radius = %.2f\n",
+            step_mem->spectral_radius_min);
+    fprintf(fp, "  Safety factor for the dom eig = %.2f\n",
+            step_mem->dom_eig_safety);
+    fprintf(fp, "  Max num of successful steps before new dom eig update = %i\n",
+            step_mem->dom_eig_freq);
+    fprintf(fp, "  Fixed num of steps before new dom eig update = %i\n",
+            step_mem->dom_eig_freq);
+    fprintf(fp, "  Flag to indicate new dom eig is needed = %d\n",
+            step_mem->dom_eig_update);
+    fprintf(fp, "  Flag to indicate Jacobian is constant = %d\n",
+            step_mem->const_Jac);
+    fprintf(fp, "  Flag to indicate dom eig is current = %d\n",
+            step_mem->dom_eig_is_current);
+    fprintf(fp, "  Flag to indicate dom eig is current = %d\n",
+            step_mem->dom_eig_is_current);
     break;
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,

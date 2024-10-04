@@ -29,7 +29,7 @@ module farkode_lsrkstep_mod
  integer(C_INT), parameter, public :: STAGE_MAX_LIMIT = 1000000_C_INT
  real(C_DOUBLE), parameter, public :: DOM_EIG_SAFETY_DEFAULT = 1.01_C_DOUBLE
  integer(C_INT), parameter, public :: DOM_EIG_FREQ_DEFAULT = 25_C_INT
- real(C_DOUBLE), parameter, public :: RETRY_CONTRACTION_FAC_DEFAULT = 0.90_C_DOUBLE
+ real(C_DOUBLE), parameter, public :: RETRY_CONTRACTION_FAC_DEFAULT = 0.9_C_DOUBLE
  ! typedef enum ARKODE_LSRKMethodType
  enum, bind(c)
   enumerator :: ARKODE_LSRK_RKC_2 = 0
