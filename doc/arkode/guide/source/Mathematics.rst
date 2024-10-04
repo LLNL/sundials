@@ -604,111 +604,168 @@ an identity mass matrix, :math:`M(t)=I`. The slow time scale may consist of only
 nonstiff terms (:math:`f^I \equiv 0`), only stiff terms (:math:`f^E \equiv 0`),
 or both nonstiff and stiff terms.
 
-For cases with only a single slow right-hand side function (i.e.,
-:math:`f^E \equiv 0` or :math:`f^I \equiv 0`), MRIStep provides multirate
-infinitesimal step (MIS) :cite:p:`Schlegel:09, Schlegel:12a, Schlegel:12b`,
-multirate infinitesimal GARK (MRI-GARK) :cite:p:`Sandu:19`, and
-multirate exponential Runge--Kutta (MERK) :cite:p:`Luan:20` methods. For
-problems with an additively split slow right-hand side, MRIStep
-provides implicit-explicit MRI-GARK (IMEX-MRI-GARK)
-:cite:p:`ChiRen:21` and implicit-explicit multirate infinitesimal stage-restart
-(IMEX-MRI-SR) :cite:p:`Fish:24` methods.  Generally, the slow (outer) method for each
-family derives from an :math:`s` stage single-rate method: MIS and MRI-GARK methods
-derive from explicit or diagonally-implicit Runge--Kutta methods, MERK methods derive
-from exponential Runge--Kutta methods, while IMEX-MRI-GARK and IMEX-MRI-SR methods
-derive from additive Runge--Kutta methods. In each case, the "infinitesimal" nature
-of the multirate methods derives from the fact that slow stages are computed by solving
-a set of auxiliary ODEs with a fast (inner) time integration method.  Generally speaking,
-an :math:`s`-stage method from of each family adheres to the following algorithm for a
-single step:
+For cases with only a single slow right-hand side function (i.e., :math:`f^E
+\equiv 0` or :math:`f^I \equiv 0`), MRIStep provides multirate infinitesimal
+step (MIS) :cite:p:`Schlegel:09, Schlegel:12a, Schlegel:12b`, first through
+fourth order multirate infinitesimal GARK (MRI-GARK) :cite:p:`Sandu:19`, and
+second through fifth order multirate exponential Runge--Kutta (MERK)
+:cite:p:`Luan:20` methods. For problems with an additively split slow right-hand
+side, MRIStep provides first through fourth order implicit-explicit MRI-GARK
+(IMEX-MRI-GARK) :cite:p:`ChiRen:21` and second through fourth order
+implicit-explicit multirate infinitesimal stage-restart (IMEX-MRI-SR)
+:cite:p:`Fish:24` methods. For a complete list of the methods available in
+MRIStep see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`. Additionally,
+users may supply their own method by defining and attaching a coupling table,
+see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling` for more information.
+
+Generally, the slow (outer) method for each family derives from an :math:`s`
+stage single-rate method: MIS and MRI-GARK methods derive from explicit or
+diagonally-implicit Runge--Kutta methods, MERK methods derive from exponential
+Runge--Kutta methods, while IMEX-MRI-GARK and IMEX-MRI-SR methods derive from
+additive Runge--Kutta methods. In each case, the "infinitesimal" nature of the
+multirate methods derives from the fact that slow stages are computed by solving
+a set of auxiliary ODEs with a fast (inner) time integration method. Generally
+speaking, an :math:`s`-stage method from of each family adheres to the following
+algorithm for a single step:
 
 #. Set :math:`z_1 = y_{n-1}`.
 
-#. For :math:`i = 2,\ldots,s` do:
+#. For :math:`i = 2,\ldots,s`, compute the stage solutions, :math:`z_i`, by
+   evolving the fast IVP
 
-   #. Either
+   .. math::
+      {v}_i'(t) = f^F(t, v_i) + r_i(t) \quad\text{for}\quad t \in [t_{0,i},t_{F,i}] \quad\text{with}\quad v_i(t_{0,i}) = v_{0,i}
+      :label: MRI_fast_IVP
 
-      #. evolve a fast IVP
+   and setting :math:`z_i = v(t_{F,i})`, and/or performing a standard explicit,
+   diagonally-implicit, or additive Runge--Kutta stage update,
 
-         .. math::
-            {v}_i'(t) = f^F(t, v_i) + r_i(t) \quad\text{for}\quad t \in [t_{0,i},t_{F,i}] \quad\text{with}\quad v_i(t_{0,i}) = v_{0,i}
-            :label: MRI_fast_IVP
-
-         and let :math:`z_i = v(t_{F,i})`, or
-
-      #. perform a standard explicit, diagonally-implicit, or additive Runge--Kutta stage update,
-
-         .. math::
-            z_i - \gamma_{i,i} h^S f^I(t_{n-1}+c_i^S h^s, z_i) = a_i.
-            :label: MRI_implicit_solve
+   .. math::
+      z_i - \theta_{i,i} h^S f^I(t_{n-1}+c_i^S h^S, z_i) = a_i.
+      :label: MRI_implicit_solve
 
 #. Set :math:`y_{n} = z_{s}`.
 
-#. (Optional embedded solution) either
+#. If the method has an embedding, compute the embedded solution,
+   :math:`\tilde{y}`, by evolving the fast IVP
 
-   #. evolve a fast IVP
+   .. math::
+      \tilde{v}'(t) = f^F(t, \tilde{v}) + \tilde{r}(t) \quad\text{for}\quad t \in [\tilde{t}_{0},\tilde{t}_{F}] \quad\text{with}\quad \tilde{v}(\tilde{t}_{0}) = \tilde{v}_{0}
+      :label: MRI_embedding_fast_IVP
 
-      .. math::
-         \tilde{v}'(t) = f^F(t, \tilde{v}) + \tilde{r}(t) \quad\text{for}\quad t \in [\tilde{t}_{0},\tilde{t}_{F}] \quad\text{with}\quad \tilde{v}(\tilde{t}_{0}) = \tilde{v}_{0}
-         :label: MRI_embedding_fast_IVP
+   and setting :math:`\tilde{y}_{n} = \tilde{v}(\tilde{t}_{F})`, and/or
+   performing a standard explicit, diagonally-implicit, or additive Runge--Kutta
+   stage update,
 
-      and let :math:`\tilde{y}_{n} = \tilde{v}(\tilde{t}_{F})`, or
+   .. math::
+      \tilde{y}_n - \tilde{\theta} h^S f^I(t_n, \tilde{y}_n) = \tilde{a}.
+      :label: MRI_embedding_implicit_solve
 
-   #. perform a standard explicit, diagonally-implicit, or additive Runge--Kutta stage update,
-
-      .. math::
-         \tilde{y}_n - \tilde{\gamma} h^S f^I(t_n, \tilde{y}_n) = \tilde{a}.
-         :label: MRI_embedding_implicit_solve
-
-.. note::
-
-   **MIS**, **MRI-GARK** and **IMEX-MRI-GARK** methods follow the above pattern, with non-overlapping
-   fast IVP time intervals :math:`[t_{0,i},t_{F,i}] = [t_{n-1}+c_{i-1}h^S, t_{n-1}+c_ih^S]` and
-   :math:`[\tilde{t}_{0},\tilde{t}_{F}] = [t_{n-1}+c_{s-1}h^S, t_{n}]`, and initial conditions
-   :math:`v_{0,i}=z_{i-1}` and :math:`\tilde{v}_0=z_{s-1}`.
-
-   **MERK** and **IMEX-MRI-SR** methods evolve the fast IVPs :eq:`MRI_fast_IVP` and :eq:`MRI_embedding_fast_IVP`
-   on overlapping time intervals :math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n-1}+c_i h^S]` and
-   :math:`[\tilde{t}_{0},\tilde{t}_{F}] = [t_{n-1}, t_{n}]`, using initial conditions
-   :math:`v_{0,i}=y_{n-1}` and :math:`\tilde{v}_0=y_{n-1}`.
-
-   **MERK** methods never include the stage updates :eq:`MRI_implicit_solve` or
-   :eq:`MRI_embedding_implicit_solve`.
-
-   **IMEX-MRI-SR** methods perform *both* the fast IVP evolution (:eq:`MRI_fast_IVP` or
-   :eq:`MRI_embedding_fast_IVP`) *and* stage update (:eq:`MRI_implicit_solve`
-   or :eq:`MRI_embedding_implicit_solve`) in every stage (but typically have far fewer
-   stages than implicit MRI-GARK or IMEX-MRI-GARK methods).
-
-
-The specific aspects of the fast IVP forcing function (:math:`r_i(t)` or :math:`\tilde{r}(t)`)
-and Runge--Kutta stage coefficients and data (:math:`\gamma_{i,i}`, :math:`\tilde{\gamma}`,
-:math:`a_i` and :math:`\tilde{a}`), are determined by the method family (MRI-GARK, MERK, etc.).
-Generally, however, the forcing functions and Runge--Kutta stage update data, :math:`r_i(t)`,
-:math:`\tilde{r}(t)`, :math:`a_i` and :math:`\tilde{a}`, are constructed using evaluations of
-the slow RHS functions :math:`f^E` and :math:`f^I` at preceding stages, :math:`z_j`.
-For specific details, please see the references for each method family listed above.
-
-The fast (inner) IVP solves can be carried out using either the ARKStep module
-(allowing for explicit, implicit, or ImEx treatments of the fast time scale with
-fixed or adaptive steps), or a user-defined integration method (see section
+Whether a fast IVP evolution or a stage update (or both) is needed depends on
+the method family (MRI-GARK, MERK, etc.). The specific aspects of the fast IVP
+forcing function (:math:`r_i(t)` or :math:`\tilde{r}(t)`), the interval over
+which the IVP must be evolved (:math:`[t_{0,i},t_{F,i}])`, the Runge--Kutta
+coefficients (:math:`\theta_{i,i}` and :math:`\tilde{\theta}`), and the
+Runge--Kutta data (:math:`a_i` and :math:`\tilde{a}`), are also determined by
+the method family. Generally, the forcing functions and data, are constructed
+using evaluations of the slow RHS functions, :math:`f^E` and :math:`f^I`, at
+preceding stages, :math:`z_j`. The fast IVP solves can be carried out using any
+valid ARKODE integrator or a user-defined integration method (see section
 :numref:`ARKODE.Usage.MRIStep.CustomInnerStepper`).
 
+Below we summarize the details for each method family. For additional
+information, please see the references listed above.
+
+
+MIS, MRI-GARK, and IMEX-MRI-GARK Methods
+----------------------------------------
+
+The methods in IMEX-MRI-GARK family, which includes MIS and MRI-GARK methods,
+are defined by a vector of slow stage time abscissae, :math:`c^S \in
+\mathbb{R}^{s+1}`, and a set of coupling tensors,
+:math:`\Omega\in\mathbb{R}^{(s+1)\times(s+1)\times k}` and
+:math:`\Gamma\in\mathbb{R}^{(s+1)\times(s+1)\times k}`, that specify the
+slow-to-fast coupling for the explicit and implicit components, respectively.
+
+The fast stage IVPs, :eq:`MRI_fast_IVP`, are evolved over non-overlapping
+intervals :math:`[t_{0,i},t_{F,i}] = [t_{n-1}+c_{i-1}h^S, t_{n-1}+c_ih^S]` with
+the initial condition :math:`v_{0,i}=z_{i-1}`. The fast IVP forcing function is
+given by
+
+.. math::
+   r_i(t) = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^{i-1} \omega_{i,j}(\tau) f^E(t_{n,j}^I, z_j)
+   + \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i \gamma_{i,j}(\tau) f^I(t_{n,j}^I, z_j)
+
+where :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)`, :math:`\tau = (t -
+t_{n,i-1}^S)/(h^S \Delta c_i^S)` is the normalized time, the coefficients
+:math:`\omega_{i,j}` and :math:`\gamma_{i,j}` are polynomials in time of degree
+:math:`k` given by
+
+.. math::
+   \omega_{i,j}(\tau) = \sum_{k\geq 1} \Omega_{i,j,k} \, \tau^{k-1}
+   \quad\text{and}\quad
+   \gamma_{i,j}(\tau) = \sum_{k\geq 1} \Gamma_{i,j,k} \, \tau^{k-1}.
+   :label: ARKODE_MRI_coupling
+
+When the slow abscissa are repeated, i.e. :math:`\Delta c_i^S = 0`, the fast IVP
+can be rescaled and integrated analytically leading to the Runge--Kutta update
+:eq:`MRI_implicit_solve` instead of the fast IVP evolution. In this case the
+stage is computed as
+
+.. math::
+   z_i = z_{i-1}
+   + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 1}
+     \frac{\Omega_{i,j,k}}{k}\right) f^E(t_{n,j}^S, z_j)
+   + h^S \sum_{j=1}^i \left(\sum_{k\geq 1}
+     \frac{\Gamma_{i,j,k}}{k}\right) f^I(t_{n,j}^S, z_j).
+   :label: ARKODE_MRI_delta_c_zero
+
+Similarly, the embedded solution IVP, :eq:`MRI_embedding_fast_IVP`, is evolved
+over the interval :math:`[\tilde{t}_{0},\tilde{t}_{F}] = [t_{n-1}+c_{s-1}h^S, t_{n}]`
+with the initial condition :math:`\tilde{v}_0=z_{s-1}`.
+
 As with standard ARK and DIRK methods, implicitness at the slow time scale is
-characterized by nonzero coefficient values :math:`\gamma_{i,i}` or :math:`\tilde{\gamma}`.
+characterized by nonzero values on or above the diagonal of the :math:`k`
+matrices in :math:`\Gamma`. Typically, MRI-GARK and IMEX-MRI-GARK methods are at
+most diagonally-implicit (i.e., :math:`\Gamma_{i,j,k}=0` for all :math:`k` and
+:math:`j>i`). Furthermore, diagonally-implicit stages are characterized as being
+"solve-decoupled" if :math:`\Delta c_i^S = 0` when :math:`\Gamma_{i,i,k} \ne 0`,
+in which case the stage is computed as standard ARK or DIRK update. Alternately,
+a diagonally-implicit stage :math:`i` is considered "solve-coupled" if
+:math:`\Delta c^S_i \, \Gamma_{i,j,k} \ne 0`, in which
+case the stage solution :math:`z_i` is *both* an input to :math:`r_i(t)` and the
+result of time-evolution of the fast IVP, necessitating an implicit solve that
+is coupled to the fast evolution. At present, only "solve-decoupled"
+diagonally-implicit MRI-GARK and IMEX-MRI-GARK methods are supported.
 
-For problems with only a slow-nonstiff term (:math:`f^I \equiv 0`), MRIStep
-provides first through fourth order explicit MRI-GARK methods, as well as explicit MERK methods
-of orders two through five. In cases with only a slow-stiff term (:math:`f^E \equiv 0`), MRIStep
-supplies first through fourth order implicit MRI-GARK methods. For applications
-with both stiff and nonstiff slow terms, MRIStep implements first through fourth
-order IMEX-MRI-GARK methods, as well as IMEX-MRI-SR methods of orders two through four. We note
-that ImEx methods may also be applied to problems with simpler structure through specification of
-either :math:`f^I=0` or :math:`f^E=0`. For a complete list of the methods available in
-MRIStep see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`. Additionally, users
-may supply their own method by defining and attaching a coupling table, see
-:numref:`ARKODE.Usage.MRIStep.MRIStepCoupling` for more information.
 
+IMEX-MRI-SR Methods
+-------------------
+
+The IMEX-MRI-SR family of methods perform *both* the fast IVP evolution,
+:eq:`MRI_fast_IVP` or :eq:`MRI_embedding_fast_IVP`, *and* stage update,
+:eq:`MRI_implicit_solve` or :eq:`MRI_embedding_implicit_solve`, in every stage
+(but these methods typically have far fewer stages than implicit MRI-GARK or
+IMEX-MRI-GARK methods).
+
+These methods evolve the fast IVPs, :eq:`MRI_fast_IVP` and
+:eq:`MRI_embedding_fast_IVP`, on overlapping time intervals
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n-1}+c_i h^S]` and
+:math:`[\tilde{t}_{0},\tilde{t}_{F}] = [t_{n-1}, t_{n}]`, using initial
+conditions :math:`v_{0,i}=y_{n-1}` and :math:`\tilde{v}_0=y_{n-1}`.
+
+
+MERK Methods
+------------
+
+MERK family of methods never include the stage updates, :eq:`MRI_implicit_solve`
+or :eq:`MRI_embedding_implicit_solve`.
+
+These methods evolve the fast IVPs, :eq:`MRI_fast_IVP` and
+:eq:`MRI_embedding_fast_IVP`, on overlapping time intervals
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n-1}+c_i h^S]` and
+:math:`[\tilde{t}_{0},\tilde{t}_{F}] = [t_{n-1}, t_{n}]`, using initial
+conditions :math:`v_{0,i}=y_{n-1}` and :math:`\tilde{v}_0=y_{n-1}`.
 
 
 .. _ARKODE.Mathematics.Error.Norm:
