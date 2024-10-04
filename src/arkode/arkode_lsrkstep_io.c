@@ -160,7 +160,8 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   LSRKStepSetDomEigFrequency sets dom_eig computation frequency -
   Dominated Eigenvalue is recomputed after "nsteps" successful steps.
 
-    nsteps = 0 refers to constant dominant eigenvalue
+  nsteps = 0 refers to constant dominant eigenvalue
+  nsteps < 0 resets the default value 25 and sets nonconstant dominant eigenvalue
   ---------------------------------------------------------------*/
 int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
 {
@@ -175,9 +176,8 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
 
   if (nsteps < 0)
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "nsteps must be greater than or equal to 0");
-    return (ARK_ILL_INPUT);
+    step_mem->dom_eig_freq = 25;
+    step_mem->const_Jac    = SUNFALSE;
   }
 
   if (nsteps == 0)

@@ -170,7 +170,8 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``nsteps < 0``)
+
+.. note::  The default value is 25 as recommended in :cite:p:`VSH:04`.  An input ``nsteps < 0`` will reset to this default while ``nsteps = 0`` refers to constant dominant eigenvalue.
 
 
 .. c:function:: int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit);
@@ -279,7 +280,7 @@ Optional output functions
       * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
 
 
-.. c:function:: LSRKStepGetNumRetiredSteps(void* arkode_mem, long int* num_of_retries);
+.. c:function:: int LSRKStepGetNumRetiredSteps(void* arkode_mem, long int* num_of_retries);
 
   Returns the number of retired steps (so far).
 
