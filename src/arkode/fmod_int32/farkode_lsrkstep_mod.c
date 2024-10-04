@@ -386,6 +386,20 @@ SWIGEXPORT int _wrap_FLSRKStepSetDomEigSafetyFactor(void *farg1, double const *f
 }
 
 
+SWIGEXPORT int _wrap_FLSRKStepSetReTryContractionFactor(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (int)LSRKStepSetReTryContractionFactor(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FLSRKStepSetSSPStageNum(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -439,20 +453,6 @@ SWIGEXPORT int _wrap_FLSRKStepGetMaxNumStages(void *farg1, int *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (int *)(farg2);
   result = (int)LSRKStepGetMaxNumStages(arg1,arg2);
-  fresult = (int)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FLSRKStepGetAverageStageNum(void *farg1, double *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  sunrealtype *arg2 = (sunrealtype *) 0 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (sunrealtype *)(farg2);
-  result = (int)LSRKStepGetAverageStageNum(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

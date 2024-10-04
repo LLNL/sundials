@@ -26,6 +26,10 @@ module farkode_lsrkstep_mod
  private
 
  ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: STAGE_MAX_LIMIT = 1000000_C_INT
+ real(C_DOUBLE), parameter, public :: DOM_EIG_SAFETY_DEFAULT = 1.01_C_DOUBLE
+ integer(C_INT), parameter, public :: DOM_EIG_FREQ_DEFAULT = 25_C_INT
+ real(C_DOUBLE), parameter, public :: RETRY_CONTRACTION_FAC_DEFAULT = 0.90_C_DOUBLE
  ! typedef enum ARKODE_LSRKMethodType
  enum, bind(c)
   enumerator :: ARKODE_LSRK_RKC_2 = 0
@@ -50,11 +54,11 @@ module farkode_lsrkstep_mod
  public :: FLSRKStepSetDomEigFrequency
  public :: FLSRKStepSetMaxNumStages
  public :: FLSRKStepSetDomEigSafetyFactor
+ public :: FLSRKStepSetReTryContractionFactor
  public :: FLSRKStepSetSSPStageNum
  public :: FLSRKStepGetNumRhsEvals
  public :: FLSRKStepGetNumDomEigUpdates
  public :: FLSRKStepGetMaxNumStages
- public :: FLSRKStepGetAverageStageNum
 
 ! WRAPPER DECLARATIONS
 interface
@@ -157,6 +161,15 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FLSRKStepSetReTryContractionFactor(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetReTryContractionFactor") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FLSRKStepSetSSPStageNum(farg1, farg2) &
 bind(C, name="_wrap_FLSRKStepSetSSPStageNum") &
 result(fresult)
@@ -187,15 +200,6 @@ end function
 
 function swigc_FLSRKStepGetMaxNumStages(farg1, farg2) &
 bind(C, name="_wrap_FLSRKStepGetMaxNumStages") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FLSRKStepGetAverageStageNum(farg1, farg2) &
-bind(C, name="_wrap_FLSRKStepGetAverageStageNum") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -379,18 +383,18 @@ fresult = swigc_FLSRKStepSetDomEigFrequency(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepSetMaxNumStages(arkode_mem, stage_max_limit) &
+function FLSRKStepSetMaxNumStages(arkode_mem, stage_max_limit1) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_INT), intent(in) :: stage_max_limit
+integer(C_INT), intent(in) :: stage_max_limit1
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
 farg1 = arkode_mem
-farg2 = stage_max_limit
+farg2 = stage_max_limit1
 fresult = swigc_FLSRKStepSetMaxNumStages(farg1, farg2)
 swig_result = fresult
 end function
@@ -408,6 +412,22 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = dom_eig_safety
 fresult = swigc_FLSRKStepSetDomEigSafetyFactor(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepSetReTryContractionFactor(arkode_mem, retry_contraction_fac) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: retry_contraction_fac
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = retry_contraction_fac
+fresult = swigc_FLSRKStepSetReTryContractionFactor(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -475,22 +495,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(stage_max(1))
 fresult = swigc_FLSRKStepGetMaxNumStages(farg1, farg2)
-swig_result = fresult
-end function
-
-function FLSRKStepGetAverageStageNum(arkode_mem, avg_stage) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-real(C_DOUBLE), dimension(*), target, intent(inout) :: avg_stage
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(avg_stage(1))
-fresult = swigc_FLSRKStepGetAverageStageNum(farg1, farg2)
 swig_result = fresult
 end function
 

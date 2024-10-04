@@ -287,7 +287,7 @@ int LSRKStepSetReTryContractionFactor(void* arkode_mem, sunrealtype retry_contra
       ARKODE_LSRK_SSP_S_3  -- num_of_stages must be a perfect square greater than or equal to 4
       ARKODE_LSRK_SSP_10_4 -- num_of_stages must be equal to 10 - no need to call!
 
-   Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by 
+   Sets the number of stages, s in SSP(s, p) methods. This input is only utilized by 
    SSPRK methods. Thus, this set routine must be called after calling LSRKStepSetMethod with an 
    SSPRK method. Calling this function with num_of_stages =< 0 resets the default value
   ---------------------------------------------------------------*/
@@ -452,7 +452,7 @@ int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* dom_eig_num_evals)
 
   Returns the number of retired steps
 
-  Step retries occur when stepper retruns with an ARK_RETRY_STEP flag. This is relevant in situations where 
+  Step retries occur when stepper returns with an ARK_RETRY_STEP flag. This is relevant in situations where 
   stable results cannot be achieved with the current step size and stage_max_limit. In such cases, the stepper 
   returns with a recoverable flag before any costly operations, allowing ARKODE to reassign a new contracted 
   step size to ensure that the required stages remain below the stage_max_limit.
