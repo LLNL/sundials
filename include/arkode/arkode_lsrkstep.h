@@ -23,11 +23,6 @@
 extern "C" {
 #endif
 
-#define STAGE_MAX_LIMIT               1000000
-#define DOM_EIG_SAFETY_DEFAULT        SUN_RCONST(1.01)
-#define DOM_EIG_FREQ_DEFAULT          25
-#define RETRY_CONTRACTION_FAC_DEFAULT SUN_RCONST(0.9)
-
 typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn,
                            sunrealtype* lambdaR, sunrealtype* lambdaI,
                            void* user_data, N_Vector temp1, N_Vector temp2,
@@ -82,9 +77,6 @@ SUNDIALS_EXPORT int LSRKStepSetMaxNumStages(void* arkode_mem,
 SUNDIALS_EXPORT int LSRKStepSetDomEigSafetyFactor(void* arkode_mem,
                                                   sunrealtype dom_eig_safety);
 
-SUNDIALS_EXPORT int LSRKStepSetReTryContractionFactor(
-  void* arkode_mem, sunrealtype retry_contraction_fac);
-
 SUNDIALS_EXPORT int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
 
 /* Optional output functions */
@@ -94,9 +86,6 @@ SUNDIALS_EXPORT int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn,
 
 SUNDIALS_EXPORT int LSRKStepGetNumDomEigUpdates(void* arkode_mem,
                                                 long int* dom_eig_num_evals);
-
-SUNDIALS_EXPORT int LSRKStepGetNumRetiredSteps(void* arkode_mem,
-                                               long int* num_of_retries);
 
 SUNDIALS_EXPORT int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
 

@@ -871,8 +871,11 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     for (;;)
     {
       /* increment attempt counters */
-      attempts++;
-      ark_mem->nst_attempts++;
+      if(kflag != ARK_RETRY_STEP)
+      {
+        attempts++;
+        ark_mem->nst_attempts++;
+      }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::ARKodeEvolve",

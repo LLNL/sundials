@@ -26,6 +26,10 @@
 extern "C" {
 #endif
 
+#define STAGE_MAX_LIMIT_DEFAULT       1000000
+#define DOM_EIG_SAFETY_DEFAULT        SUN_RCONST(1.01)
+#define DOM_EIG_FREQ_DEFAULT          25
+
 /*===============================================================
   LSRK time step module data structure
   ===============================================================*/
@@ -55,7 +59,6 @@ typedef struct ARKodeLSRKStepMemRec
   /* Counters and stats*/
   long int nfe;               /* num fe calls       */
   long int dom_eig_num_evals; /* num of dom_eig computations   */
-  long int num_of_retries;    /* num retried steps       */
   int stage_max;              /* num of max stages used      */
   int stage_max_limit;        /* max allowed num of stages     */
   int dom_eig_nst; /* num of steps that successfully used dom_eig; indicates dom_eig update when 0;  */
@@ -67,7 +70,6 @@ typedef struct ARKodeLSRKStepMemRec
   sunrealtype spectral_radius_max; /* max spectral radius*/
   sunrealtype spectral_radius_min; /* min spectral radius*/
   sunrealtype dom_eig_safety; /* some safety factor for the user provided dom_eig*/
-  sunrealtype retry_contraction_fac; /* some factor to contract the stepsize in a retry step*/
   int dom_eig_freq; /* indicates dom_eig update after dom_eig_freq successful steps*/
 
   /* Flags */

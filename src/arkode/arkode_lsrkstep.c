@@ -233,8 +233,6 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
     fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
             step_mem->dom_eig_num_evals);
-    fprintf(outfile, "LSRKStep: num_of_retries        = %li\n",
-            step_mem->num_of_retries);
 
     /* output sunrealtype quantities */
     fprintf(outfile, "LSRKStep: dom_eig               = %f + i%f\n",
@@ -247,8 +245,6 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
             step_mem->spectral_radius_min);
     fprintf(outfile, "LSRKStep: dom_eig_safety        = %f\n",
             step_mem->dom_eig_safety);
-    fprintf(outfile, "LSRKStep: retry_contraction_fac = %f\n",
-            step_mem->retry_contraction_fac);
 
     /* output sunbooleantype quantities */
     fprintf(outfile, "LSRKStep: dom_eig_update        = %d\n",
@@ -515,16 +511,16 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* determine the number of required stages */
   int ss =
     SUNRceil(SUNRsqrt(onep54 * SUNRabs(ark_mem->h) * step_mem->spectral_radius));
-  step_mem->req_stages = SUNMAX(ss, 2);
-  if (step_mem->req_stages >= step_mem->stage_max_limit)
+  ss = SUNMAX(ss, 2);
+  step_mem->req_stages = SUNMIN(ss, step_mem->stage_max_limit);
+  if (step_mem->req_stages == step_mem->stage_max_limit)
   {
     if (!ark_mem->fixedstep)
     {
-      hmax = step_mem->retry_contraction_fac * SUNSQR(ss) /
+      hmax = ark_mem->hadapt_mem->safety * SUNSQR(step_mem->req_stages) /
              (onep54 * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
-      step_mem->num_of_retries++;
       return (ARK_RETRY_STEP);
     }
     else
@@ -792,18 +788,19 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   int ss =
     SUNRceil((SUNRsqrt(SUN_RCONST(9.0) + SUN_RCONST(8.0) * SUNRabs(ark_mem->h) *
                                            step_mem->spectral_radius) -
-              ONE) /
-             TWO);
-  step_mem->req_stages = SUNMAX(2, ss);
-  if (ss >= step_mem->stage_max_limit)
+              ONE) / TWO);
+
+  ss = SUNMAX(ss, 2);
+  step_mem->req_stages = SUNMIN(ss, step_mem->stage_max_limit);
+
+  if (step_mem->req_stages == step_mem->stage_max_limit)
   {
     if (!ark_mem->fixedstep)
     {
-      hmax = ark_mem->hadapt_mem->safety * (SUNSQR(ss) + ss - TWO) /
+      hmax = ark_mem->hadapt_mem->safety * (SUNSQR(step_mem->req_stages) + step_mem->req_stages - TWO) /
              (TWO * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
-      step_mem->num_of_retries++;
       return (ARK_RETRY_STEP);
     }
     else
@@ -1375,7 +1372,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS", "F_%i(:) =", (int)(in * (in + 1) / 2);
+                       "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS", "F_%i(:) =", (int)(in * (in + 1) / 2));
     N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1423,7 +1420,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS", "F_%i(:) =", j;
+                       "ARKODE::lsrkStep_TakeStepSSPs3", "stage RHS", "F_%i(:) =", j);
     N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1573,7 +1570,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 2;
+                       "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 2);
     N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1606,7 +1603,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 3;
+                       "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 3);
     N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1648,7 +1645,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 4;
+                       "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F_%i(:) =", 4);
     N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1796,7 +1793,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", j;
+                       "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", j);
     N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1842,7 +1839,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", j;
+                       "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", j);
     N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1885,7 +1882,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", 10;
+                       "ARKODE::lsrkStep_TakeStepSSP104", "stage RHS", "F_%i(:) =", 10);
     N_VPrintFile(step_mem->Fe, ARK_LOGGER->debug_fp);
 #endif
 
@@ -2092,7 +2089,11 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
       step_mem->dom_eig_update = !step_mem->dom_eig_is_current;
     }
   }
-  else { step_mem->dom_eig_update = !step_mem->dom_eig_is_current; }
+  else 
+  {
+    step_mem->dom_eig_update = !step_mem->dom_eig_is_current; 
+    step_mem->dom_eig_nst = 0;
+  }
 }
 
 /*---------------------------------------------------------------
@@ -2195,8 +2196,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   step_mem->nfe               = 0;
   step_mem->stage_max         = 0;
   step_mem->dom_eig_num_evals = 0;
-  step_mem->num_of_retries    = 0;
-  step_mem->stage_max_limit   = STAGE_MAX_LIMIT;
+  step_mem->stage_max_limit   = STAGE_MAX_LIMIT_DEFAULT;
   step_mem->dom_eig_nst       = 0;
   step_mem->is_SSP            = SUNFALSE;
 

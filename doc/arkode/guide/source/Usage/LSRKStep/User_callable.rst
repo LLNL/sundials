@@ -171,7 +171,8 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-.. note::  The default value is 25 as recommended in :cite:p:`VSH:04`.  An input ``nsteps < 0`` will reset to this default while ``nsteps = 0`` refers to constant dominant eigenvalue.
+.. note:: If LSRKStepSetDomEigFrequency routine is not called, then the default ``nsteps`` is set to :math:`25` as recommended in :cite:p:`VSH:04`. 
+   Calling this function with ``nsteps < 0`` resets the default value while ``nsteps = 0`` refers to constant dominant eigenvalue.
 
 
 .. c:function:: int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit);
@@ -181,15 +182,14 @@ Allowable Method Families
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *stage_max_limit* -- maximum allowed number of stages :math:`(>1)`.
+      * *stage_max_limit* -- maximum allowed number of stages :math:`(>=2)` and :math:`(<=10000)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``stage_max_limit < 2``)
 
-.. note:: If LSRKStepSetMaxNumStages routine is not called, then the default stage_max_limit is
-   set to :math:`\sqrt{reltol/(10 uround)}` where :math:`uround` is unit roundoff.
+.. note:: If LSRKStepSetMaxNumStages routine is not called, then the default ``stage_max_limit`` is
+   set to :math:`200`. Calling this function with ``stage_max_limit < 2`` or ``stage_max_limit > 10000`` resets the default value.
 
 
 .. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety);
@@ -197,7 +197,7 @@ Allowable Method Families
    Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.  
    This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring 
    a sufficient number of stages for the method to be stable.  This input is only used for RKC 
-   and RKL methods. Calling this function with ``dom_eig_safety < 1`` resets the default value
+   and RKL methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -207,30 +207,14 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-
-.. c:function:: int LSRKStepSetReTryContractionFactor(void* arkode_mem, sunrealtype retry_contraction_fac);
-
-   Specifies a contraction factor for the next step size after an ``ARK_RETRY_STEP`` return. This is relevant 
-   in situations where stable results cannot be achieved with the current step size and ``stage_max_limit``. 
-   In such cases, the stepper returns with a recoverable flag before any costly operations, allowing ``ARKODE`` 
-   to assign a new contracted step size to ensure that the required stages remain below the ``stage_max_limit``.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *retry_contraction_fac* -- safety factor :math:`(< 1)`.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``retry_contraction_fac > 1``)
+.. note:: If LSRKStepSetDomEigSafetyFactor routine is not called, then the default ``dom_eig_safety`` is
+   set to :math:`1.01`. Calling this function with ``dom_eig_safety < 1`` resets the default value.
 
 
 .. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
 
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods. Thus, 
    this set routine must be called after calling LSRKStepSetMethod with an SSPRK method.
-   Calling this function with ``num_of_stages =< 0`` resets the default value
-
 
       * ``ARKODE_LSRK_SSP_S_2``  -- ``num_of_stages`` must be greater than or equal to 2
       * ``ARKODE_LSRK_SSP_S_3``  -- ``num_of_stages`` must be a perfect-square greater than or equal to 4
@@ -243,8 +227,14 @@ Allowable Method Families
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. ``num_of_stages < 2``)
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. SSP method is not declared)
 
+.. note:: If LSRKStepSetSSPStageNum routine is not called, then the default ``num_of_stages`` is
+   set. Calling this function with ``num_of_stages <= 0`` resets the default values:  
+   
+   * ``num_of_stages = 10`` for ``ARKODE_LSRK_SSP_S_2``
+   * ``num_of_stages = 9`` for ``ARKODE_LSRK_SSP_S_3``
+   * ``num_of_stages = 10`` for ``ARKODE_LSRK_SSP_10_4``
 
 .. _ARKODE.Usage.LSRKStep.OptionalOutputs:
 
@@ -273,24 +263,6 @@ Optional output functions
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
       * *dom_eig_num_evals* -- number of calls to the user's ``dom_eig`` function.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
-
-
-.. c:function:: int LSRKStepGetNumRetiredSteps(void* arkode_mem, long int* num_of_retries);
-
-  Returns the number of retired steps (so far).
-
-  Step retries occur when stepper returns with an ARK_RETRY_STEP flag. This is relevant in situations where 
-  stable results cannot be achieved with the current step size and stage_max_limit. In such cases, the stepper 
-  returns with a recoverable flag before any costly operations, allowing ARKODE to reassign a new contracted 
-  step size to ensure that the required stages remain below the stage_max_limit.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *num_of_retries* -- number of retried steps.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

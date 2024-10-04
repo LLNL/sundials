@@ -35,12 +35,11 @@ Initial step size            = 1.930101110942615e-10
 Last step size               = 0.02203090645841201
 Current step size            = 0.02203090645841201
 RHS fn evals                 = 150638
-Number of dom_eig updates    = 138
-Number of retried steps      = 0
+Number of dom_eig updates    = 136
 Avr. num. of stages used     = 91.13
 Max. num. of stages used     = 187
 Max. num. of stages allowed  = 200
-Max. spectral radius         = 1010101.00
+Max. spectral radius         = 1010099.74
 Min. spectral radius         = 1009899.00
 
 ACCURACY at the final time   = 1.54099e-13
