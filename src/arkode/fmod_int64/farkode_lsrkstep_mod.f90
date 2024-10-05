@@ -28,11 +28,11 @@ module farkode_lsrkstep_mod
  ! DECLARATION CONSTRUCTS
  ! typedef enum ARKODE_LSRKMethodType
  enum, bind(c)
-  enumerator :: ARKODE_LSRK_RKC_2 = 0
-  enumerator :: ARKODE_LSRK_RKL_2 = 1
-  enumerator :: ARKODE_LSRK_SSP_S_2 = 3
-  enumerator :: ARKODE_LSRK_SSP_S_3 = 4
-  enumerator :: ARKODE_LSRK_SSP_10_4 = 5
+  enumerator :: ARKODE_LSRK_RKC_2
+  enumerator :: ARKODE_LSRK_RKL_2
+  enumerator :: ARKODE_LSRK_SSP_S_2
+  enumerator :: ARKODE_LSRK_SSP_S_3
+  enumerator :: ARKODE_LSRK_SSP_10_4
  end enum
  integer, parameter, public :: ARKODE_LSRKMethodType = kind(ARKODE_LSRK_RKC_2)
  public :: ARKODE_LSRK_RKC_2, ARKODE_LSRK_RKL_2, ARKODE_LSRK_SSP_S_2, ARKODE_LSRK_SSP_S_3, ARKODE_LSRK_SSP_10_4

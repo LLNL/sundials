@@ -237,9 +237,13 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   /* fill in the RHS function: "N_VGetArrayPointer" accesses the 0th entry of ydot */
   N_VGetArrayPointer(ydot)[0] =
-    (lambda - alpha * COS((SUN_RCONST(10.0) - t) / SUN_RCONST(10.0) * ACOS(SUN_RCONST(-1.0)))) * u +
+    (lambda - alpha * COS((SUN_RCONST(10.0) - t) / SUN_RCONST(10.0) *
+                          ACOS(SUN_RCONST(-1.0)))) *
+      u +
     SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
-    (lambda - alpha * COS((SUN_RCONST(10.0) - t) / SUN_RCONST(10.0) * ACOS(SUN_RCONST(-1.0)))) * ATAN(t);
+    (lambda - alpha * COS((SUN_RCONST(10.0) - t) / SUN_RCONST(10.0) *
+                          ACOS(SUN_RCONST(-1.0)))) *
+      ATAN(t);
 
   return 0; /* return with success */
 }
@@ -252,9 +256,11 @@ static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter 1 */
   sunrealtype alpha  = rdata[1]; /* set shortcut for stiffness parameter 2 */
-  *lambdaR           = (lambda - alpha * COS((SUN_RCONST(10.0) - t) / SUN_RCONST(10.0) *
-                                             ACOS(SUN_RCONST(-1.0)))); /* access current solution value */
-  *lambdaI           = SUN_RCONST(0.0);
+  *lambdaR =
+    (lambda -
+     alpha * COS((SUN_RCONST(10.0) - t) / SUN_RCONST(10.0) *
+                 ACOS(SUN_RCONST(-1.0)))); /* access current solution value */
+  *lambdaI = SUN_RCONST(0.0);
 
   return 0; /* return with success */
 }

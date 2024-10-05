@@ -658,8 +658,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (j < step_mem->req_stages)
     {
       /* To avoid two data copies we swap ARKODE's tempv1 and tempv2 pointers*/
-      N_Vector temp = ark_mem->tempv1; 
-      ark_mem->tempv1 = ark_mem->tempv2; 
+      N_Vector temp   = ark_mem->tempv1;
+      ark_mem->tempv1 = ark_mem->tempv2;
       ark_mem->tempv2 = temp;
 
       N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
@@ -919,8 +919,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (j < step_mem->req_stages)
     {
       /* To avoid two data copies we swap ARKODE's tempv1 and tempv2 pointers*/
-      N_Vector temp = ark_mem->tempv1; 
-      ark_mem->tempv1 = ark_mem->tempv2; 
+      N_Vector temp   = ark_mem->tempv1;
+      ark_mem->tempv1 = ark_mem->tempv2;
       ark_mem->tempv2 = temp;
 
       N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
@@ -1028,7 +1028,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   /* Embedding coefficients differ when req_stages == 2 */
   if (step_mem->req_stages == 2)
   {
-    bt1 = SUN_RCONST(0.694021459207626); // due to https://doi.org/10.1016/j.cam.2022.114325 pg 5
+    bt1 = SUN_RCONST(
+      0.694021459207626); // due to https://doi.org/10.1016/j.cam.2022.114325 pg 5
     bt3 = ONE - bt1;
   }
   else
@@ -1073,7 +1074,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   N_VLinearSum(ONE, ark_mem->yn, sm1inv * ark_mem->h, ark_mem->fn, ark_mem->ycur);
   if (!ark_mem->fixedstep)
   {
-    N_VLinearSum(ONE, ark_mem->yn, bt1 * ark_mem->h, ark_mem->fn, ark_mem->tempv1);
+    N_VLinearSum(ONE, ark_mem->yn, bt1 * ark_mem->h, ark_mem->fn,
+                 ark_mem->tempv1);
   }
 
   /* Evaluate stages j = 2,...,step_mem->req_stages - 1 */
@@ -1107,7 +1109,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (!ark_mem->fixedstep)
     {
       N_VLinearSum(ONE, ark_mem->tempv1, bt2 * ark_mem->h, ark_mem->tempv2,
-                 ark_mem->tempv1);
+                   ark_mem->tempv1);
     }
 
     /* apply user-supplied stage postprocessing function (if supplied) */
@@ -1151,11 +1153,11 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
                                 ark_mem->ycur);
-    if (!ark_mem->fixedstep)
-    {
-      N_VLinearSum(ONE, ark_mem->tempv1, bt3 * ark_mem->h, ark_mem->tempv2,
-                   ark_mem->tempv1);
-    }
+  if (!ark_mem->fixedstep)
+  {
+    N_VLinearSum(ONE, ark_mem->tempv1, bt3 * ark_mem->h, ark_mem->tempv2,
+                 ark_mem->tempv1);
+  }
 
   /* apply user-supplied stage postprocessing function (if supplied) */
   if (ark_mem->ProcessStage != NULL)
@@ -1267,7 +1269,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * rat, ark_mem->fn, ark_mem->ycur);
   if (!ark_mem->fixedstep)
   {
-    N_VLinearSum(ONE, ark_mem->yn, ark_mem->h / rs, ark_mem->fn, ark_mem->tempv1);    
+    N_VLinearSum(ONE, ark_mem->yn, ark_mem->h / rs, ark_mem->fn, ark_mem->tempv1);
   }
 
   /* Evaluate stages j = 2,...,step_mem->req_stages */
@@ -1315,8 +1317,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
 
-  for (int j = ((in - 1) * (in - 2) / 2 + 1); j <= (in * (in + 1) / 2 - 1);
-       j++)
+  for (int j = ((in - 1) * (in - 2) / 2 + 1); j <= (in * (in + 1) / 2 - 1); j++)
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1390,11 +1391,11 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
                                 ark_mem->ycur);
-    if (!ark_mem->fixedstep)
-    {
-      N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
-                   ark_mem->tempv1);
-    }
+  if (!ark_mem->fixedstep)
+  {
+    N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
+                 ark_mem->tempv1);
+  }
 
   /* apply user-supplied stage postprocessing function (if supplied) */
   if (ark_mem->ProcessStage != NULL)
@@ -1585,7 +1586,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   if (!ark_mem->fixedstep)
   {
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, step_mem->Fe,
-               ark_mem->tempv1);
+                 ark_mem->tempv1);
   }
 
   /* apply user-supplied stage postprocessing function (if supplied) */
