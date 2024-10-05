@@ -28,7 +28,7 @@
  * the value of alpha determines the radius of the interval in which
  * the stiffness parameter lies.
  *
- * The value of "lambda - alpha*cos((10 - t)/10*pi)" should
+ * The value of lambda - alpha*cos((10 - t)/10*pi) should
  * be negative to result in a well-posed ODE; for values with magnitude
  * larger than 100 the problem becomes quite stiff.
  *
@@ -97,8 +97,8 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
-  sunrealtype lambda = SUN_RCONST(-1.0e+6); /* stiffness parameter 1*/
-  sunrealtype alpha  = SUN_RCONST(1.0e+2);  /* stiffness parameter 2*/
+  sunrealtype lambda = SUN_RCONST(-1.0e+6); /* stiffness parameter 1 */
+  sunrealtype alpha  = SUN_RCONST(1.0e+2);  /* stiffness parameter 2 */
   sunrealtype UserData[2];
   UserData[0] = lambda;
   UserData[1] = alpha;
@@ -237,9 +237,9 @@ static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 
   /* fill in the RHS function: "N_VGetArrayPointer" accesses the 0th entry of ydot */
   N_VGetArrayPointer(ydot)[0] =
-    (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * u +
+    (lambda - alpha * COS((SUN_RCONST(10.0) - t) / SUN_RCONST(10.0) * ACOS(SUN_RCONST(-1.0)))) * u +
     SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
-    (lambda - alpha * COS((10 - t) / 10 * ACOS(-1))) * ATAN(t);
+    (lambda - alpha * COS((SUN_RCONST(10.0) - t) / SUN_RCONST(10.0) * ACOS(SUN_RCONST(-1.0)))) * ATAN(t);
 
   return 0; /* return with success */
 }
@@ -252,8 +252,8 @@ static int dom_eig(sunrealtype t, N_Vector y, N_Vector fn, sunrealtype* lambdaR,
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter 1 */
   sunrealtype alpha  = rdata[1]; /* set shortcut for stiffness parameter 2 */
-  *lambdaR           = (lambda - alpha * COS((10 - t) / 10 *
-                                             ACOS(-1))); /* access current solution value */
+  *lambdaR           = (lambda - alpha * COS((SUN_RCONST(10.0) - t) / SUN_RCONST(10.0) *
+                                             ACOS(SUN_RCONST(-1.0)))); /* access current solution value */
   *lambdaI           = SUN_RCONST(0.0);
 
   return 0; /* return with success */

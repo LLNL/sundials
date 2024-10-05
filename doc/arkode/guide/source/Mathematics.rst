@@ -780,6 +780,7 @@ The SSPRK methods in ARKODE use the following Shu--Osher representation :cite:p:
    y_{n+1} &= z_s.
    :label: ARKODE_SSP
 
+The coefficients of Shu--Osher representation is not uniquely determined by Butcher table :cite:p:`SR:02`.
 In particular, the methods SSP(s,2), SSP(s,3), and SSP(10,4) implemented herein and presented in 
 :cite:p:`K:08` have "almost" all zero coefficients appearing in :math:`\alpha_{i,i-1}` and 
 :math:`\beta_{i,i-1}`. This feature facilitates their implementation in a low-storage manner. The 
