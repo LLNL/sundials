@@ -543,16 +543,12 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   }
   else if (!step_mem->is_SSP)
   {
-    /* compute the average number of stages */
-    sunrealtype avg_stage = ((sunrealtype)step_mem->nfe) /
-                            ((sunrealtype)ark_mem->nst_attempts);
     switch (fmt)
     {
     case SUN_OUTPUTFORMAT_TABLE:
       fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
       fprintf(outfile, "Number of dom_eig updates    = %ld\n",
               step_mem->dom_eig_num_evals);
-      fprintf(outfile, "Avr. num. of stages used     = %.2f\n", avg_stage);
       fprintf(outfile, "Max. num. of stages used     = %d\n",
               step_mem->stage_max);
       fprintf(outfile, "Max. num. of stages allowed  = %d\n",
@@ -567,7 +563,6 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
       fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
       fprintf(outfile, ",Number of dom_eig update calls,%ld",
               step_mem->dom_eig_num_evals);
-      fprintf(outfile, ",Avr. num. of stages used,%.2f", avg_stage);
       fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
       fprintf(outfile, ",Max. num. of stages allowed,%d",
               step_mem->stage_max_limit);

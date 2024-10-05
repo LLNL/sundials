@@ -393,7 +393,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   case ARK_FULLRHS_START:
 
     /* compute the RHS */
-    if (!(ark_mem->fn_is_current))
+    if (!ark_mem->fn_is_current)
     {
       retval = step_mem->fe(t, y, step_mem->Fe, ark_mem->user_data);
       step_mem->nfe++;
@@ -557,7 +557,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
+  if (!ark_mem->fn_is_current && ark_mem->initsetup)
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -658,12 +658,9 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (j < step_mem->req_stages)
     {
       /* To avoid two data copies we swap ARKODE's tempv1 and tempv2 pointers*/
-      N_Vector* ptrtempv1 = &(ark_mem->tempv1);
-      N_Vector* ptrtempv2 = &(ark_mem->tempv2);
-
-      N_Vector temp = *ptrtempv2;
-      *ptrtempv2    = *ptrtempv1;
-      *ptrtempv1    = temp;
+      N_Vector temp = ark_mem->tempv1; 
+      ark_mem->tempv1 = ark_mem->tempv2; 
+      ark_mem->tempv2 = temp;
 
       N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
 
@@ -839,7 +836,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
+  if (!ark_mem->fn_is_current && ark_mem->initsetup)
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -922,12 +919,9 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (j < step_mem->req_stages)
     {
       /* To avoid two data copies we swap ARKODE's tempv1 and tempv2 pointers*/
-      N_Vector* ptrtempv1 = &(ark_mem->tempv1);
-      N_Vector* ptrtempv2 = &(ark_mem->tempv2);
-
-      N_Vector temp = *ptrtempv2;
-      *ptrtempv2    = *ptrtempv1;
-      *ptrtempv1    = temp;
+      N_Vector temp = ark_mem->tempv1; 
+      ark_mem->tempv1 = ark_mem->tempv2; 
+      ark_mem->tempv2 = temp;
 
       N_VScale(ONE, ark_mem->ycur, ark_mem->tempv2);
 
@@ -1034,7 +1028,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   /* Embedding coefficients differ when req_stages == 2 */
   if (step_mem->req_stages == 2)
   {
-    bt1 = SUN_RCONST(0.694021459207626);
+    bt1 = SUN_RCONST(0.694021459207626); // due to https://doi.org/10.1016/j.cam.2022.114325 pg 5
     bt3 = ONE - bt1;
   }
   else
@@ -1066,7 +1060,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current))
+  if (!ark_mem->fn_is_current)
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -1260,7 +1254,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current))
+  if (!ark_mem->fn_is_current)
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -1542,7 +1536,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current))
+  if (!ark_mem->fn_is_current)
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -1768,7 +1762,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current))
+  if (!ark_mem->fn_is_current)
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -2139,7 +2133,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
     return NULL;
   }
 
-  if (!sunctx)
+  if (sunctx == NULL)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_SUNCTX);
