@@ -314,13 +314,13 @@ user-callable function with one exception. As :external+sphinx:rst:dir:`c:type`
 does not currently support the ``param``, ``retval``, and ``returns`` fields,
 these sections must be manually created. The style that follows is chosen to
 reflect that of ``param``, ``retval``, and ``returns`` fields as much as
-possible. Function parameters should listed under a boldface "Parameters:"
+possible. Function parameters should be listed under a boldface "Parameters:"
 section with the parameters in boldface and separated from their description by
 an en-dash. As user-supplied functions typically return a ``int``, but specific
 values are not required, a description of how the return value is interpreted
 should be given under a boldface "Returns:" section (skipping a line and
 indenting 2 spaces). If specific return values are required, these should
-documented similarly to the function parameters and listed under a boldface
+be documented similarly to the function parameters and listed under a boldface
 "Return values:" section. For example,
 
 .. code-block:: rst
@@ -344,7 +344,7 @@ documented similarly to the function parameters and listed under a boldface
 
 .. code-block:: rst
 
-   .. c:type:: int (*FooFn)(param_type p1, param_type p2)
+   .. c:type:: int (*BarFn)(param_type p1, param_type p2)
 
       Brief description of what the user-provided function should do.
 
