@@ -1066,7 +1066,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
+  if (!(ark_mem->fn_is_current))
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -1178,15 +1178,6 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
-  if (*dsmPtr <= ONE || ark_mem->fixedstep)
-  {
-    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                          ark_mem->fn, ark_mem->user_data);
-    step_mem->nfe++;
-    ark_mem->fn_is_current = SUNTRUE;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
-  }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1269,7 +1260,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
+  if (!(ark_mem->fn_is_current))
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -1471,15 +1462,6 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
-  if (*dsmPtr <= ONE || ark_mem->fixedstep)
-  {
-    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                          ark_mem->fn, ark_mem->user_data);
-    step_mem->nfe++;
-    ark_mem->fn_is_current = SUNTRUE;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
-  }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1560,7 +1542,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
+  if (!(ark_mem->fn_is_current))
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -1706,15 +1688,6 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
-  if (*dsmPtr <= ONE || ark_mem->fixedstep)
-  {
-    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                          ark_mem->fn, ark_mem->user_data);
-    step_mem->nfe++;
-    ark_mem->fn_is_current = SUNTRUE;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
-  }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1795,7 +1768,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
      evaluation at the end of the just completed step to potentially reuse
      (FSAL methods) RHS evaluations from the end of the last step. */
 
-  if (!(ark_mem->fn_is_current) && ark_mem->initsetup)
+  if (!(ark_mem->fn_is_current))
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -1956,15 +1929,6 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->tempv1, ark_mem->tempv1);
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
-  }
-  if (*dsmPtr <= ONE || ark_mem->fixedstep)
-  {
-    retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                          ark_mem->fn, ark_mem->user_data);
-    step_mem->nfe++;
-    ark_mem->fn_is_current = SUNTRUE;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
   }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
