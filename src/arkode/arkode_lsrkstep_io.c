@@ -44,7 +44,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   switch (method)
   {
@@ -88,35 +88,35 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid method option.");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   step_mem->LSRKmethod = method;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 int LSRKStepSetMethodByName(void* arkode_mem, const char* emethod)
 {
   if (strcmp(emethod, "ARKODE_LSRK_RKC_2") == 0)
   {
-    return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC_2));
+    return LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC_2);
   }
   if (strcmp(emethod, "ARKODE_LSRK_RKL_2") == 0)
   {
-    return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKL_2));
+    return LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKL_2);
   }
   if (strcmp(emethod, "ARKODE_LSRK_SSP_S_2") == 0)
   {
-    return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_2));
+    return LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_2);
   }
   if (strcmp(emethod, "ARKODE_LSRK_SSP_S_3") == 0)
   {
-    return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_3));
+    return LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_3);
   }
   if (strcmp(emethod, "ARKODE_LSRK_SSP_10_4") == 0)
   {
-    return (LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_10_4));
+    return LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_10_4);
   }
 
   arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -139,14 +139,14 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* set the dom_eig routine pointer, and update relevant flags */
   if (dom_eig != NULL)
   {
     step_mem->dom_eig_fn = dom_eig;
 
-    return (ARK_SUCCESS);
+    return ARK_SUCCESS;
   }
   else
   {
@@ -154,7 +154,7 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
 
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Internal dom_eig is not supported yet!");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 }
 
@@ -174,7 +174,7 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (nsteps < 0)
   {
@@ -193,7 +193,7 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
     step_mem->const_Jac    = SUNFALSE;
   }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -208,7 +208,7 @@ int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (stage_max_limit < 2 || stage_max_limit > 10000)
   {
@@ -216,7 +216,7 @@ int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
   }
   else { step_mem->stage_max_limit = stage_max_limit; }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -237,7 +237,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (dom_eig_safety < SUN_RCONST(1.0))
   {
@@ -245,7 +245,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
   }
   else { step_mem->dom_eig_safety = dom_eig_safety; }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -271,14 +271,14 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (!step_mem->is_SSP)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Call this function only for SSP methods: Use "
                     "LSRKStepSetMethod to declare SSP method type first!");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   if (num_of_stages <= 0)
@@ -294,10 +294,10 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                       __FILE__, "Call LSRKStepSetMethod to declare SSP method type first!");
-      return (ARK_ILL_INPUT);
+      return ARK_ILL_INPUT;
       break;
     }
-    return (ARK_SUCCESS);
+    return ARK_SUCCESS;
   }
   else
   {
@@ -310,7 +310,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
                         "num_of_stages must be greater than or equal to 2, or "
                         "set it less than or equal to 0 to reset the default "
                         "value");
-        return (ARK_ILL_INPUT);
+        return ARK_ILL_INPUT;
       }
       break;
 
@@ -322,7 +322,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
                         "num_of_stages must be a perfect square greater than "
                         "or equal to 4, or set it less than or equal to 0 to "
                         "reset the default value");
-        return (ARK_ILL_INPUT);
+        return ARK_ILL_INPUT;
       }
       if (num_of_stages == 4) { ark_mem->step = lsrkStep_TakeStepSSP43; }
       break;
@@ -332,20 +332,20 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
       {
         arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                         "SSP10_4 method has a prefixed num_of_stages = 10");
-        return (ARK_ILL_INPUT);
+        return ARK_ILL_INPUT;
       }
       break;
 
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                       __FILE__, "Call LSRKStepSetMethod to declare SSP method type first!");
-      return (ARK_ILL_INPUT);
+      return ARK_ILL_INPUT;
       break;
     }
     step_mem->req_stages = num_of_stages;
   }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*===============================================================
@@ -366,26 +366,26 @@ int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals)
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (num_rhs_fn < 1)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "num_rhs_fn must be greater than or equal to 1");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   if (f_evals == NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "f_evals cannot be NULL");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   /* get values from step_mem */
   *f_evals = step_mem->nfe;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -402,19 +402,19 @@ int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* dom_eig_num_evals)
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (dom_eig_num_evals == NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "dom_eig_num_evals cannot be NULL");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   /* get values from step_mem */
   *dom_eig_num_evals = step_mem->dom_eig_num_evals;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -431,19 +431,19 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
   /* access ARKodeMem and ARKodeLSRKStepMem structures */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (stage_max == NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "stage_max cannot be NULL");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   /* get values from step_mem */
   *stage_max = step_mem->stage_max;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*===============================================================
@@ -464,7 +464,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* Set default values for integrator optional inputs
      (overwrite some adaptivity params for LSRKStep use) */
@@ -485,7 +485,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->dom_eig_is_current = SUNFALSE;
   step_mem->is_SSP             = SUNFALSE;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -497,14 +497,14 @@ int lsrkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
   int retval;
   ARKodeLSRKStepMem step_mem;
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* return an error if local truncation error is not computed */
-  if (ark_mem->fixedstep) { return (ARK_STEPPER_UNSUPPORTED); }
+  if (ark_mem->fixedstep) { return ARK_STEPPER_UNSUPPORTED; }
 
   /* otherwise, copy local truncation error vector to output */
   N_VScale(ONE, ark_mem->tempv1, ele);
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -519,7 +519,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (step_mem->is_SSP)
   {
@@ -538,7 +538,7 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Invalid formatting option.");
-      return (ARK_ILL_INPUT);
+      return ARK_ILL_INPUT;
     }
   }
   else if (!step_mem->is_SSP)
@@ -581,17 +581,17 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Invalid formatting option.");
-      return (ARK_ILL_INPUT);
+      return ARK_ILL_INPUT;
     }
   }
   else
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid method type.");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -606,7 +606,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* print integrator parameters to file */
   switch (step_mem->LSRKmethod)
@@ -631,7 +631,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid method option.");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   fprintf(fp, "  Method order %i\n", step_mem->q);
@@ -673,12 +673,12 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid method type.");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   fprintf(fp, "\n");
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*===============================================================

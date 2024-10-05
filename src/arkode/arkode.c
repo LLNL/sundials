@@ -870,7 +870,10 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     nflag                                                    = FIRST_CALL;
     for (;;)
     {
-      /* increment attempt counters */
+      /* increment attempt counters
+      Returns with an ARK_RETRY_STEP flag happen in a step much 
+      before any computations involve. For this reason, we do not
+      count this return as an attempt. */
       if (kflag != ARK_RETRY_STEP)
       {
         attempts++;
@@ -3005,7 +3008,7 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
 
   if (*nflagPtr == ARK_SUCCESS) { return (ARK_SUCCESS); }
   /* Returns with an ARK_RETRY_STEP flag happen in a step much 
-  before any algebraic solvers involve. For this reasion, we 
+  before any algebraic solvers involve. For this reason, we
   immediately return form arkCheckConvergence since it is 
   irrelevant in an ARK_RETRY_STEP case */
   if (*nflagPtr == ARK_RETRY_STEP) { return (ARK_RETRY_STEP); }

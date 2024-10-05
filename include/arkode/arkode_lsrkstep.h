@@ -34,11 +34,11 @@ typedef int (*ARKDomEigFn)(sunrealtype t, N_Vector y, N_Vector fn,
 
 typedef enum
 {
-  ARKODE_LSRK_RKC_2    = 0, /* ensure enum is int */
-  ARKODE_LSRK_RKL_2    = 1,
-  ARKODE_LSRK_SSP_S_2  = 3,
-  ARKODE_LSRK_SSP_S_3  = 4,
-  ARKODE_LSRK_SSP_10_4 = 5
+  ARKODE_LSRK_RKC_2,
+  ARKODE_LSRK_RKL_2,
+  ARKODE_LSRK_SSP_S_2,
+  ARKODE_LSRK_SSP_S_3,
+  ARKODE_LSRK_SSP_10_4
 } ARKODE_LSRKMethodType;
 
 /* -------------------

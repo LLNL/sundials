@@ -37,7 +37,7 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ark_mem       = lsrkStep_Create_Commons(rhs, t0, y0, sunctx);
   ark_mem->step = lsrkStep_TakeStepRKC;
 
-  return ((void*)ark_mem);
+  return (void*)ark_mem;
 }
 
 void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
@@ -48,7 +48,7 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ark_mem       = lsrkStep_Create_Commons(rhs, t0, y0, sunctx);
   ark_mem->step = lsrkStep_TakeStepSSPs2;
 
-  return ((void*)ark_mem);
+  return (void*)ark_mem;
 }
 
 /*---------------------------------------------------------------
@@ -66,7 +66,7 @@ int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
 {
   int retval;
   retval = lsrkStep_ReInit_Commons(arkode_mem, rhs, t0, y0);
-  return (retval);
+  return retval;
 }
 
 /*---------------------------------------------------------------
@@ -84,7 +84,7 @@ int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
 {
   int retval;
   retval = lsrkStep_ReInit_Commons(arkode_mem, rhs, t0, y0);
-  return (retval);
+  return retval;
 }
 
 /*===============================================================
@@ -107,7 +107,7 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* Determine change in vector sizes */
   lrw1 = liw1 = 0;
@@ -123,10 +123,10 @@ int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to resize vector");
-    return (ARK_MEM_FAIL);
+    return ARK_MEM_FAIL;
   }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -288,12 +288,12 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* immediately return if resize or reset */
   if (init_type == RESIZE_INIT || init_type == RESET_INIT)
   {
-    return (ARK_SUCCESS);
+    return ARK_SUCCESS;
   }
   /* enforce use of arkEwtSmallReal if using a fixed step size
      and an internal error weight function */
@@ -308,14 +308,14 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   if (ark_mem->step == lsrkStep_TakeStepRKC)
   {
     retval = LSRKStepSetMethod(ark_mem, ARKODE_LSRK_RKC_2);
-    if (retval != ARK_SUCCESS) { return (retval); }
+    if (retval != ARK_SUCCESS) { return retval; }
   }
 
   /* Allocate ARK RHS vector memory, update storage requirements */
   /*   Allocate Fe if needed */
   if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fe)))
   {
-    return (ARK_MEM_FAIL);
+    return ARK_MEM_FAIL;
   }
   ark_mem->liw += 1; /* pointers */
 
@@ -324,7 +324,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   {
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__,
                     __FILE__, "STS methods require a user provided dominant eigenvalue function");
-    return (ARK_DOMEIG_FAIL);
+    return ARK_DOMEIG_FAIL;
   }
 
   /* Allocate reusable arrays for fused vector interface */
@@ -332,20 +332,20 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   {
     step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
                                            sizeof(sunrealtype));
-    if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
+    if (step_mem->cvals == NULL) { return ARK_MEM_FAIL; }
     ark_mem->lrw += step_mem->nfusedopvecs;
   }
   if (step_mem->Xvecs == NULL)
   {
     step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs, sizeof(N_Vector));
-    if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
+    if (step_mem->Xvecs == NULL) { return ARK_MEM_FAIL; }
     ark_mem->liw += step_mem->nfusedopvecs; /* pointers */
   }
 
   /* Signal to shared arkode module that full RHS evaluations are required */
   ark_mem->call_fullrhs = SUNTRUE;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*------------------------------------------------------------------------------
@@ -385,7 +385,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* perform RHS functions contingent on 'mode' argument */
   switch (mode)
@@ -401,13 +401,13 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
       {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                         MSG_ARK_RHSFUNC_FAILED, t);
-        return (ARK_RHSFUNC_FAIL);
+        return ARK_RHSFUNC_FAIL;
       }
       if (retval > 0)
       {
         arkProcessError(ark_mem, RHSFUNC_RECVR, __LINE__, __func__, __FILE__,
                         MSG_ARK_RHSFUNC_REPTD, t);
-        return (RHSFUNC_RECVR);
+        return RHSFUNC_RECVR;
       }
     }
 
@@ -431,13 +431,13 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_RHSFUNC_FAILED, t);
-      return (ARK_RHSFUNC_FAIL);
+      return ARK_RHSFUNC_FAIL;
     }
     if (retval > 0)
     {
       arkProcessError(ark_mem, RHSFUNC_RECVR, __LINE__, __func__, __FILE__,
                       MSG_ARK_RHSFUNC_REPTD, t);
-      return (RHSFUNC_RECVR);
+      return RHSFUNC_RECVR;
     }
 
     break;
@@ -446,10 +446,10 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     /* return with RHS failure if unknown mode is passed */
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                     "Unknown full RHS mode");
-    return (ARK_RHSFUNC_FAIL);
+    return ARK_RHSFUNC_FAIL;
   }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -495,7 +495,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
@@ -504,7 +504,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (step_mem->dom_eig_update)
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
-    if (retval != ARK_SUCCESS) { return (retval); }
+    if (retval != ARK_SUCCESS) { return retval; }
     step_mem->dom_eig_num_evals++;
   }
 
@@ -521,7 +521,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
              (onep54 * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
-      return (ARK_RETRY_STEP);
+      return ARK_RETRY_STEP;
     }
     else
     {
@@ -529,7 +529,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                       __FILE__,
                       "Poor step size and stage_max_limit combination: Either "
                       "reduce the step size or increase the stage_max_limit");
-      return (ARK_STEP_FIXED_SIZE_FAIL);
+      return ARK_STEP_FIXED_SIZE_FAIL;
     }
   }
 
@@ -563,8 +563,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           ark_mem->user_data);
     step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
   }
 
   w0 = (ONE + TWO / (c13 * SUNSQR((sunrealtype)(step_mem->req_stages))));
@@ -619,8 +619,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h * thjm1, ark_mem->tempv2,
                           ark_mem->ycur, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -642,14 +642,14 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
     retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
                                   ark_mem->ycur);
-    if (retval != 0) { return (ARK_VECTOROP_ERR); }
+    if (retval != 0) { return ARK_VECTOROP_ERR; }
 
     /* apply user-supplied stage postprocessing function (if supplied) */
     if (ark_mem->ProcessStage != NULL)
     {
       retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * thjm1,
                                      ark_mem->ycur, ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
 
     thj = mu * thjm1 + nu * thjm2 + mus * (ONE - ajm1);
@@ -686,8 +686,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                           ark_mem->tempv2, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
     /* Estimate the local error and compute its weighted RMS norm */
     cvals[0] = p8;
@@ -700,7 +700,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     Xvecs[3] = ark_mem->tempv2;
 
     retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv1);
-    if (retval != 0) { return (ARK_VECTOROP_ERR); }
+    if (retval != 0) { return ARK_VECTOROP_ERR; }
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
     lsrkStep_DomEigUpdateLogic(ark_mem, step_mem, *dsmPtr);
@@ -710,8 +710,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                           ark_mem->tempv2, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
     lsrkStep_DomEigUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
@@ -730,7 +730,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                      ark_mem->h, *dsmPtr);
 #endif
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -773,7 +773,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
@@ -782,7 +782,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (step_mem->dom_eig_update)
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
-    if (retval != ARK_SUCCESS) { return (retval); }
+    if (retval != ARK_SUCCESS) { return retval; }
   }
 
   int ss =
@@ -803,7 +803,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
              (TWO * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
-      return (ARK_RETRY_STEP);
+      return ARK_RETRY_STEP;
     }
     else
     {
@@ -811,7 +811,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                       __FILE__,
                       "Unable to achieve stable results: Either reduce the "
                       "step size or increase the stage_max_limit");
-      return (ARK_STEP_FIXED_SIZE_FAIL);
+      return ARK_STEP_FIXED_SIZE_FAIL;
     }
   }
 
@@ -845,8 +845,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           ark_mem->user_data);
     step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
   }
 
   w1 = FOUR / ((step_mem->req_stages + TWO) * (step_mem->req_stages - ONE));
@@ -885,8 +885,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h * cjm1, ark_mem->tempv2,
                           ark_mem->ycur, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -908,14 +908,14 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
     retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
                                   ark_mem->ycur);
-    if (retval != 0) { return (ARK_VECTOROP_ERR); }
+    if (retval != 0) { return ARK_VECTOROP_ERR; }
 
     /* apply user-supplied stage postprocessing function (if supplied) */
     if (ark_mem->ProcessStage != NULL)
     {
       retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * cjm1,
                                      ark_mem->ycur, ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
 
     /* Shift the data for the next stage */
@@ -943,8 +943,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                           ark_mem->tempv2, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
     /* Estimate the local error and compute its weighted RMS norm */
     cvals[0] = p8;
@@ -957,7 +957,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     Xvecs[3] = ark_mem->tempv2;
 
     retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv1);
-    if (retval != 0) { return (ARK_VECTOROP_ERR); }
+    if (retval != 0) { return ARK_VECTOROP_ERR; }
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
     lsrkStep_DomEigUpdateLogic(ark_mem, step_mem, *dsmPtr);
@@ -967,8 +967,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                           ark_mem->tempv2, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
     lsrkStep_DomEigUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
@@ -987,7 +987,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                      ark_mem->h, *dsmPtr);
 #endif
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -1022,7 +1022,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   sunrealtype* cvals = step_mem->cvals;
   N_Vector* Xvecs    = step_mem->Xvecs;
@@ -1072,8 +1072,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                           ark_mem->user_data);
     step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
   }
 
   N_VLinearSum(ONE, ark_mem->yn, sm1inv * ark_mem->h, ark_mem->fn, ark_mem->ycur);
@@ -1098,8 +1098,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
       step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE) * sm1inv * ark_mem->h,
                    ark_mem->ycur, ark_mem->tempv2, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1122,7 +1122,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
       retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - ONE) *
                                                        sm1inv * ark_mem->h,
                                      ark_mem->ycur, ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
   }
 
@@ -1138,8 +1138,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                         ark_mem->tempv2, ark_mem->user_data);
   step_mem->nfe++;
-  if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-  if (retval > 0) { return (RHSFUNC_RECVR); }
+  if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+  if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1168,7 +1168,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                                    ark_mem->user_data);
-    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
   /* Compute yerr (if step adaptivity enabled) */
@@ -1193,7 +1193,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->h, *dsmPtr);
 #endif
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -1228,7 +1228,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   sunrealtype* cvals = step_mem->cvals;
   N_Vector* Xvecs    = step_mem->Xvecs;
@@ -1266,8 +1266,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                           ark_mem->user_data);
     step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
   }
 
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * rat, ark_mem->fn, ark_mem->ycur);
@@ -1291,8 +1291,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
       step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h,
                    ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1315,7 +1315,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
       retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - ONE) *
                                                        rat * ark_mem->h,
                                      ark_mem->ycur, ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
   }
 
@@ -1336,8 +1336,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
       step_mem->fe(ark_mem->tcur + ((sunrealtype)j - ONE) * rat * ark_mem->h,
                    ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1360,7 +1360,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
       retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - ONE) *
                                                        rat * ark_mem->h,
                                      ark_mem->ycur, ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
   }
 
@@ -1377,8 +1377,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                           rat * (rn * (rn + ONE) / TWO - ONE) * ark_mem->h,
                         ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
   step_mem->nfe++;
-  if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-  if (retval > 0) { return (RHSFUNC_RECVR); }
+  if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+  if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1409,7 +1409,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
       ark_mem->ProcessStage(ark_mem->tcur +
                               rat * (rn * (rn + ONE) / TWO - ONE) * ark_mem->h,
                             ark_mem->ycur, ark_mem->user_data);
-    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
   for (int j = (in * (in + 1) / 2 + 1); j <= step_mem->req_stages; j++)
@@ -1427,8 +1427,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                             ((sunrealtype)j - rn - ONE) * rat * ark_mem->h,
                           ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1451,7 +1451,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
       retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - rn - ONE) *
                                                        rat * ark_mem->h,
                                      ark_mem->ycur, ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
   }
 
@@ -1477,7 +1477,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->h, *dsmPtr);
 #endif
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -1512,7 +1512,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   sunrealtype* cvals = step_mem->cvals;
   N_Vector* Xvecs    = step_mem->Xvecs;
@@ -1548,8 +1548,8 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                           ark_mem->user_data);
     step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
   }
 
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * p5, ark_mem->fn, ark_mem->ycur);
@@ -1563,7 +1563,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     retval = ark_mem->ProcessStage(ark_mem->tn, ark_mem->ycur,
                                    ark_mem->user_data);
-    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -1577,8 +1577,8 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h * p5, ark_mem->ycur,
                         step_mem->Fe, ark_mem->user_data);
   step_mem->nfe++;
-  if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-  if (retval > 0) { return (RHSFUNC_RECVR); }
+  if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+  if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1599,7 +1599,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * p5,
                                    ark_mem->ycur, ark_mem->user_data);
-    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -1612,8 +1612,8 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur, step_mem->Fe,
                         ark_mem->user_data);
   step_mem->nfe++;
-  if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-  if (retval > 0) { return (RHSFUNC_RECVR); }
+  if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+  if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1642,7 +1642,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                                    ark_mem->user_data);
-    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -1656,8 +1656,8 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h * p5, ark_mem->ycur,
                         step_mem->Fe, ark_mem->user_data);
   step_mem->nfe++;
-  if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-  if (retval > 0) { return (RHSFUNC_RECVR); }
+  if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+  if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1678,7 +1678,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * p5,
                                    ark_mem->ycur, ark_mem->user_data);
-    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
   /* Compute yerr (if step adaptivity enabled) */
@@ -1703,7 +1703,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->h, *dsmPtr);
 #endif
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -1740,7 +1740,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   sunrealtype* cvals = step_mem->cvals;
   N_Vector* Xvecs    = step_mem->Xvecs;
@@ -1774,8 +1774,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                           ark_mem->user_data);
     step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
   }
 
   N_VScale(ONE, ark_mem->yn, ark_mem->tempv2);
@@ -1804,8 +1804,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                             ((sunrealtype)j - ONE) * onesixth * ark_mem->h,
                           ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1828,7 +1828,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - ONE) *
                                                        onesixth * ark_mem->h,
                                      ark_mem->ycur, ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
   }
   N_VLinearSum(SUN_RCONST(1.0) / SUN_RCONST(25.0), ark_mem->tempv2,
@@ -1851,8 +1851,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                             ((sunrealtype)j - FOUR) * onesixth * ark_mem->h,
                           ark_mem->ycur, step_mem->Fe, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-    if (retval > 0) { return (RHSFUNC_RECVR); }
+    if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+    if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1881,7 +1881,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - FOUR) *
                                                        onesixth * ark_mem->h,
                                      ark_mem->ycur, ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
   }
 
@@ -1895,8 +1895,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur, step_mem->Fe,
                         ark_mem->user_data);
   step_mem->nfe++;
-  if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
-  if (retval > 0) { return (RHSFUNC_RECVR); }
+  if (retval < 0) { return ARK_RHSFUNC_FAIL; }
+  if (retval > 0) { return RHSFUNC_RECVR; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1920,7 +1920,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   {
     retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                                    ark_mem->user_data);
-    if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
   /* Compute yerr (if step adaptivity enabled) */
@@ -1945,7 +1945,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                      ark_mem->h, *dsmPtr);
 #endif
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*===============================================================
@@ -1966,7 +1966,7 @@ int lsrkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   *ark_mem = (ARKodeMem)arkode_mem;
 
@@ -1975,10 +1975,10 @@ int lsrkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
   {
     arkProcessError(*ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_LSRKSTEP_NO_MEM);
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   *step_mem = (ARKodeLSRKStepMem)(*ark_mem)->step_mem;
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -1995,10 +1995,10 @@ int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
   {
     arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_LSRKSTEP_NO_MEM);
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   *step_mem = (ARKodeLSRKStepMem)ark_mem->step_mem;
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -2014,9 +2014,9 @@ sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl)
       (tmpl->ops->nvscale == NULL) || (tmpl->ops->nvwrmsnorm == NULL) ||
       (tmpl->ops->nvspace == NULL))
   {
-    return (SUNFALSE);
+    return SUNFALSE;
   }
-  return (SUNTRUE);
+  return SUNTRUE;
 }
 
 /*---------------------------------------------------------------
@@ -2038,21 +2038,21 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   {
     arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                     "Unable to estimate the dominant eigenvalue");
-    return (ARK_DOMEIG_FAIL);
+    return ARK_DOMEIG_FAIL;
   }
 
   if (step_mem->lambdaR * ark_mem->h > ZERO)
   {
     arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                     "lambdaR*h must be nonpositive");
-    return (ARK_DOMEIG_FAIL);
+    return ARK_DOMEIG_FAIL;
   }
   else if (step_mem->lambdaR == SUN_RCONST(0.0) &&
            SUNRabs(step_mem->lambdaI) > SUN_RCONST(0.0))
   {
     arkProcessError(NULL, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
                     "DomEig cannot be purely imaginary");
-    return (ARK_DOMEIG_FAIL);
+    return ARK_DOMEIG_FAIL;
   }
 
   step_mem->lambdaR *= step_mem->dom_eig_safety;
@@ -2128,7 +2128,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_F);
-    return (NULL);
+    return NULL;
   }
 
   /* Check for legal input parameters */
@@ -2136,14 +2136,14 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
-    return (NULL);
+    return NULL;
   }
 
   if (!sunctx)
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_SUNCTX);
-    return (NULL);
+    return NULL;
   }
 
   /* Test if all required vector operations are implemented */
@@ -2152,7 +2152,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_NVECTOR);
-    return (NULL);
+    return NULL;
   }
 
   /* Create ark_mem structure and set default values */
@@ -2161,7 +2161,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
-    return (NULL);
+    return NULL;
   }
 
   /* Allocate ARKodeLSRKStepMem structure, and initialize to zero */
@@ -2171,7 +2171,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_ARKMEM_FAIL);
     ARKodeFree((void**)&ark_mem);
-    return (NULL);
+    return NULL;
   }
 
   /* Attach step_mem structure and function pointers to ark_mem */
@@ -2195,7 +2195,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Error setting default solver options");
     ARKodeFree((void**)&ark_mem);
-    return (NULL);
+    return NULL;
   }
 
   /* Copy the input parameters into ARKODE state */
@@ -2219,13 +2219,13 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
     ARKodeFree((void**)&ark_mem);
-    return (NULL);
+    return NULL;
   }
 
   /* Specify preferred interpolation type */
   ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
-  return ((void*)ark_mem);
+  return (void*)ark_mem;
 }
 
 /*---------------------------------------------------------------
@@ -2245,14 +2245,14 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   /* access ARKodeLSRKStepMem structure */
   retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                         &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* Check if ark_mem was allocated */
   if (ark_mem->MallocDone == SUNFALSE)
   {
     arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MALLOC);
-    return (ARK_NO_MALLOC);
+    return ARK_NO_MALLOC;
   }
 
   /* Check that rhs is supplied */
@@ -2260,7 +2260,7 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_F);
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   /* Check for legal input parameters */
@@ -2268,7 +2268,7 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   /* Copy the input parameters into ARKODE state */
@@ -2280,7 +2280,7 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
-    return (retval);
+    return retval;
   }
 
   /* Initialize all the counters, flags and stats */
@@ -2293,7 +2293,7 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   step_mem->dom_eig_update      = SUNTRUE;
   step_mem->dom_eig_is_current  = SUNFALSE;
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*===============================================================
