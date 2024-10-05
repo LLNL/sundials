@@ -138,9 +138,10 @@ function followed by any information on its usage. When describing the function
 parameters use ``:param <name>:``. If the function returns a specific set of
 SUNDIALS error codes, describe the possible return values using ``:retval
 <value>:`` for each value. Otherwise, use a single ``:returns:`` item to
-describe the result of the function. Below we give two examples, the first
-returns an error code (int) while the second is a constructor that returns an
-object (pointer).
+describe the result of the function. If the function returns ``void``, a return
+entry should not be included. Below we give two examples, the first returns an
+error code (int) while the second is a constructor that returns an object
+(pointer).
 
 .. code-block:: rst
 
@@ -319,9 +320,11 @@ section with the parameters in boldface and separated from their description by
 an en-dash. As user-supplied functions typically return a ``int``, but specific
 values are not required, a description of how the return value is interpreted
 should be given under a boldface "Returns:" section (skipping a line and
-indenting 2 spaces). If specific return values are required, these should
-be documented similarly to the function parameters and listed under a boldface
-"Return values:" section. For example,
+indenting 2 spaces). If specific return values are required, these should be
+documented similarly to the function parameters and listed under a boldface
+"Return values:" section. If the function returns ``void``, a return section
+should not be included. Below we give, two examples describing user-supplied
+functions.
 
 .. code-block:: rst
 
