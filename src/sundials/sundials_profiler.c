@@ -287,7 +287,10 @@ SUNErrCode SUNProfiler_End(SUNProfiler p, const char* name)
   {
     sunStopTiming(p->overhead);
     if (ier == SUNHASHMAP_ERROR) { return SUN_ERR_PROFILER_MAPGET; }
-    if (ier == SUNHASHMAP_KEYNOTFOUND) { return SUN_ERR_PROFILER_MAPKEYNOTFOUND; }
+    if (ier == SUNHASHMAP_KEYNOTFOUND)
+    {
+      return SUN_ERR_PROFILER_MAPKEYNOTFOUND;
+    }
   }
 
   sunStopTiming(timer);
