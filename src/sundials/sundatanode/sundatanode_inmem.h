@@ -42,16 +42,16 @@ struct SUNDataNode_InMemImpl_
   // Properties for Object nodes (nodes that are a collection of named nodes)
   const char* name;
   SUNHashMap named_children;
-  sundataindex_t num_named_children;
+  sundataindex num_named_children;
 
   // Properties for a List node (nodes that are a collection of anonymous nodes)
   SUNStlVector_SUNDataNode anon_children;
 };
 
-SUNErrCode SUNDataNode_CreateList_InMem(sundataindex_t init_size,
+SUNErrCode SUNDataNode_CreateList_InMem(sundataindex init_size,
                                         SUNContext sunctx, SUNDataNode* node_out);
 
-SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex_t init_size,
+SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex init_size,
                                           SUNContext sunctx,
                                           SUNDataNode* node_out);
 
@@ -77,15 +77,14 @@ SUNErrCode SUNDataNode_AddNamedChild_InMem(SUNDataNode parent_node,
                                            const char* name,
                                            SUNDataNode child_node);
 
-SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode self,
-                                      sundataindex_t index,
+SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode self, sundataindex index,
                                       SUNDataNode* child_node);
 
 SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode self,
                                            const char* name,
                                            SUNDataNode* child_node);
 
-SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex_t index,
+SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex index,
                                          SUNDataNode* child_node);
 
 SUNErrCode SUNDataNode_RemoveNamedChild_InMem(SUNDataNode self, const char* name,

@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-typedef sunindextype sundataindex_t;
+typedef int64_t sundataindex;
 
 typedef enum
 {
@@ -48,11 +48,11 @@ struct SUNDataNode_Ops_
   SUNErrCode (*addChild)(SUNDataNode, SUNDataNode child_node);
   SUNErrCode (*addNamedChild)(SUNDataNode, const char* name,
                               SUNDataNode child_node);
-  SUNErrCode (*getChild)(const SUNDataNode, sundataindex_t index,
+  SUNErrCode (*getChild)(const SUNDataNode, sundataindex index,
                          SUNDataNode* child_node);
   SUNErrCode (*getNamedChild)(const SUNDataNode, const char* name,
                               SUNDataNode* child_node);
-  SUNErrCode (*removeChild)(SUNDataNode, sundataindex_t index,
+  SUNErrCode (*removeChild)(SUNDataNode, sundataindex index,
                             SUNDataNode* child_node);
   SUNErrCode (*removeNamedChild)(const SUNDataNode, const char* name,
                                  SUNDataNode* child_node);
@@ -84,12 +84,12 @@ SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
-                                  sundataindex_t num_elements,
-                                  SUNContext sunctx, SUNDataNode* node_out);
+                                  sundataindex num_elements, SUNContext sunctx,
+                                  SUNDataNode* node_out);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
-                                    sundataindex_t num_elements,
+                                    sundataindex num_elements,
                                     SUNContext sunctx, SUNDataNode* node_out);
 
 SUNDIALS_EXPORT
@@ -110,7 +110,7 @@ SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode self, const char* name,
                                      SUNDataNode child_node);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex_t index,
+SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex index,
                                 SUNDataNode* child_node);
 
 SUNDIALS_EXPORT
@@ -118,7 +118,7 @@ SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode self, const char* name,
                                      SUNDataNode* child_node);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex_t index,
+SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex index,
                                    SUNDataNode* child_node);
 
 SUNDIALS_EXPORT

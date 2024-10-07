@@ -78,7 +78,7 @@ static void sunDataNodeInMem_DestroyEmpty(SUNDataNode* node)
 static void sunDataNodeFreeKeyValue(SUNHashMapKeyValue* kv_ptr);
 static void sunDataNodeFreeValue(SUNDataNode* nodeptr);
 
-SUNErrCode SUNDataNode_CreateList_InMem(sundataindex_t init_size,
+SUNErrCode SUNDataNode_CreateList_InMem(sundataindex init_size,
                                         SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
@@ -93,7 +93,7 @@ SUNErrCode SUNDataNode_CreateList_InMem(sundataindex_t init_size,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex_t init_size,
+SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex init_size,
                                           SUNContext sunctx,
                                           SUNDataNode* node_out)
 {
@@ -194,8 +194,7 @@ SUNErrCode SUNDataNode_AddNamedChild_InMem(SUNDataNode self, const char* name,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode self,
-                                      sundataindex_t index,
+SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode self, sundataindex index,
                                       SUNDataNode* child_node)
 {
   SUNFunctionBegin(self->sunctx);
@@ -237,7 +236,7 @@ SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode self,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex_t index,
+SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex index,
                                          SUNDataNode* child_node)
 {
   SUNFunctionBegin(self->sunctx);

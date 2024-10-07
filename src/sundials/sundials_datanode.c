@@ -68,8 +68,8 @@ SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
 }
 
 SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
-                                  sundataindex_t num_elements,
-                                  SUNContext sunctx, SUNDataNode* node_out)
+                                  sundataindex num_elements, SUNContext sunctx,
+                                  SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
 
@@ -91,7 +91,7 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
 }
 
 SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
-                                    sundataindex_t num_elements,
+                                    sundataindex num_elements,
                                     SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
@@ -196,7 +196,7 @@ SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode self, const char* name,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex_t index,
+SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex index,
                                 SUNDataNode* child_node)
 {
   SUNFunctionBegin(self->sunctx);
@@ -247,7 +247,7 @@ SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode self, const char* name
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex_t index,
+SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex index,
                                    SUNDataNode* child_node)
 {
   SUNFunctionBegin(self->sunctx);
