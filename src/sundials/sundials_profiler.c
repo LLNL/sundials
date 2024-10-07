@@ -246,7 +246,7 @@ SUNErrCode SUNProfiler_Free(SUNProfiler* p)
 
 SUNErrCode SUNProfiler_Begin(SUNProfiler p, const char* name)
 {
-  SUNErrCode ier;
+  int64_t ier;
   sunTimerStruct* timer = NULL;
 
   if (!p) { return SUN_ERR_ARG_CORRUPT; }
@@ -261,8 +261,8 @@ SUNErrCode SUNProfiler_Begin(SUNProfiler p, const char* name)
     {
       sunTimerStructFree(timer);
       sunStopTiming(p->overhead);
-      if (ier == -1) { return SUN_ERR_PROFILER_MAPINSERT; }
-      if (ier == -2) { return SUN_ERR_PROFILER_MAPFULL; }
+      if (ier == SUNHASHMAP_ERROR) { return SUN_ERR_PROFILER_MAPINSERT; }
+      if (ier == SUNHASHMAP_DUPLICATE) { return SUN_ERR_PROFILER_MAPFULL; }
     }
   }
 
@@ -275,7 +275,7 @@ SUNErrCode SUNProfiler_Begin(SUNProfiler p, const char* name)
 
 SUNErrCode SUNProfiler_End(SUNProfiler p, const char* name)
 {
-  SUNErrCode ier;
+  int64_t ier;
   sunTimerStruct* timer;
 
   if (!p) { return SUN_ERR_ARG_CORRUPT; }
@@ -286,8 +286,8 @@ SUNErrCode SUNProfiler_End(SUNProfiler p, const char* name)
   if (ier)
   {
     sunStopTiming(p->overhead);
-    if (ier == -1) { return SUN_ERR_PROFILER_MAPGET; }
-    if (ier == -2) { return SUN_ERR_PROFILER_MAPKEYNOTFOUND; }
+    if (ier == SUNHASHMAP_ERROR) { return SUN_ERR_PROFILER_MAPGET; }
+    if (ier == SUNHASHMAP_KEYNOTFOUND) { return SUN_ERR_PROFILER_MAPKEYNOTFOUND; }
   }
 
   sunStopTiming(timer);
@@ -364,7 +364,7 @@ SUNErrCode SUNProfiler_Reset(SUNProfiler p)
 
 SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
 {
-  SUNErrCode ier             = 0;
+  int64_t ier                = 0;
   int rank                   = 0;
   sunTimerStruct* timer      = NULL;
   SUNHashMapKeyValue* sorted = NULL;
@@ -378,8 +378,8 @@ SUNErrCode SUNProfiler_Print(SUNProfiler p, FILE* fp)
   SUNDIALS_MARK_BEGIN(p, SUNDIALS_ROOT_TIMER);
 
   ier = SUNHashMap_GetValue(p->map, SUNDIALS_ROOT_TIMER, (void**)&timer);
-  if (ier == -1) { return SUN_ERR_PROFILER_MAPGET; }
-  if (ier == -2) { return SUN_ERR_PROFILER_MAPKEYNOTFOUND; }
+  if (ier == SUNHASHMAP_ERROR) { return SUN_ERR_PROFILER_MAPGET; }
+  if (ier == SUNHASHMAP_KEYNOTFOUND) { return SUN_ERR_PROFILER_MAPKEYNOTFOUND; }
   p->sundials_time = timer->elapsed;
 
 #if SUNDIALS_MPI_ENABLED

@@ -27,6 +27,10 @@
 extern "C" {
 #endif
 
+#define SUNHASHMAP_ERROR -99
+#define SUNHASHMAP_KEYNOTFOUND  -1
+#define SUNHASHMAP_DUPLICATE  -2
+
 typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
 
 struct SUNHashMapKeyValue_
