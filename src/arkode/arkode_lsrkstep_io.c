@@ -315,8 +315,8 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
       break;
 
     case ARKODE_LSRK_SSP_S_3:
-      if (num_of_stages < 4 || (SUNRceil(SUNRsqrt(num_of_stages)) !=
-                                SUNRfloor(SUNRsqrt(num_of_stages))))
+      if (num_of_stages < 4 || ((int)SUNIceil(SUNRsqrt(num_of_stages)) !=
+                                (int)SUNIfloor(SUNRsqrt(num_of_stages))))
       {
         arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                         "num_of_stages must be a perfect square greater than "

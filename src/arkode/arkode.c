@@ -735,6 +735,10 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     - loop over attempts at a new step:
       * try to take step (via time stepper module),
         handle solver convergence or other failures
+      * if the stepper requests ARK_RETRY_STEP, we 
+        retry the step without accumulating failures.
+        A stepper should never request this multiple 
+        times in a row.
       * perform constraint-handling (if selected)
       * check temporal error
       * if all of the above pass, complete step by
