@@ -64,7 +64,7 @@ from an ARKODE integrator.
    :param stepper: a pointer to a stepper object.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-   Usage:
+   **Example usage:**
 
    .. code-block:: C
 
