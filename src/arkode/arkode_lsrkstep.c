@@ -509,8 +509,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   /* determine the number of required stages */
-  int ss =
-    (int)SUNIceil(SUNRsqrt(onep54 * SUNRabs(ark_mem->h) * step_mem->spectral_radius));
+  int ss = (int)SUNIceil(
+    SUNRsqrt(onep54 * SUNRabs(ark_mem->h) * step_mem->spectral_radius));
   ss                   = SUNMAX(ss, 2);
   step_mem->req_stages = SUNMIN(ss, step_mem->stage_max_limit);
   if (step_mem->req_stages == step_mem->stage_max_limit)
@@ -782,9 +782,11 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return retval; }
   }
 
-  int ss =
-    (int)SUNIceil((SUNRsqrt(SUN_RCONST(9.0) + SUN_RCONST(8.0) * SUNRabs(ark_mem->h) *
-                                          step_mem->spectral_radius) - ONE) / TWO);
+  int ss = (int)SUNIceil(
+    (SUNRsqrt(SUN_RCONST(9.0) + SUN_RCONST(8.0) * SUNRabs(ark_mem->h) *
+                                  step_mem->spectral_radius) -
+     ONE) /
+    TWO);
 
   ss                   = SUNMAX(ss, 2);
   step_mem->req_stages = SUNMIN(ss, step_mem->stage_max_limit);

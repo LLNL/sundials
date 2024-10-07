@@ -59,9 +59,9 @@ extern "C" {
  * 
  * SUNIceil calls the appropriate version of ceil and returns sunindextype
  * 
- * SUNIfloor calls the appropriate version of ceil and returns sunindextype
+ * SUNIfloor calls the appropriate version of floor and returns sunindextype
  * 
- * SUNIround calls the appropriate version of ceil and returns sunindextype
+ * SUNIround calls the appropriate version of round and returns sunindextype
  * -----------------------------------------------------------------
  */
 
