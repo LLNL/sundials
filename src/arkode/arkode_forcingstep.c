@@ -391,7 +391,7 @@ int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves
 {
   ARKodeMem ark_mem             = NULL;
   ARKodeForcingStepMem step_mem = NULL;
-  int retval = forcingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+  const int retval = forcingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                                &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 

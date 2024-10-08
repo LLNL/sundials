@@ -185,25 +185,17 @@ static int splittingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
   const int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  SUNErrCode err = step_mem->steppers[0]->ops->fullrhs(step_mem->steppers[0], t, y, f);
-  if (err != SUN_SUCCESS)
+  for (int i = 0; i < step_mem->partitions; i++)
   {
-    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_RHSFUNC_FAILED, t);
-    return ARK_RHSFUNC_FAIL;
-  }
-
-  for (int i = 1; i < step_mem->partitions; i++)
-  {
-    err = step_mem->steppers[i]->ops->fullrhs(step_mem->steppers[i], t, y,
-                                                 ark_mem->tempv1);
+    const SUNErrCode err = step_mem->steppers[i]->ops->fullrhs(step_mem->steppers[i], t, y,
+                                                 i == 0 ? f : ark_mem->tempv1);
     if (err != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_RHSFUNC_FAILED, t);
       return ARK_RHSFUNC_FAIL;
     }
-    N_VLinearSum(ONE, f, ONE, ark_mem->tempv1, f);
+    if (i > 0) { N_VLinearSum(ONE, f, ONE, ark_mem->tempv1, f); }
   }
 
   return ARK_SUCCESS;
