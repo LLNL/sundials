@@ -1313,7 +1313,7 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
   if (stepdir == ZERO) { return ARK_SUCCESS; }
 
   retval = ARKodeGetStepDirection(arkode_mem, &h);
-  if (retval != SUN_SUCCESS) { return retval; }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   // TODO(SBR): use SUNRcopysign once merged from other PR
   // if (SUNRcopysign(h, stepdir) == h) {
@@ -1332,8 +1332,8 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
   ark_mem->hin = ark_mem->fixedstep ? -h : ZERO;
 
   /* Reset error controller (e.g., error and step size history) */
-  retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
-  if (retval != SUN_SUCCESS) { return (ARK_CONTROLLER_ERR); }
+  SUNErrCode err = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
+  if (err != SUN_SUCCESS) { return (ARK_CONTROLLER_ERR); }
 
   return ARK_SUCCESS;
 }
