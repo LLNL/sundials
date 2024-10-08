@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
   N_Vector vecs[NSPECIES];
   for (int i = 0; i < NSPECIES; i++)
   {
-    vecs[i] = N_VNew_Serial(udata.nx, ctx); // rho (density)
+    vecs[i] = N_VNew_Serial((sunindextype)udata.nx, ctx); // rho (density)
     if (check_ptr(vecs[i], "N_VNew_Serial")) { return 1; }
   }
   N_Vector y = N_VNew_ManyVector(NSPECIES, vecs, ctx);
@@ -563,7 +563,7 @@ int SetIC(N_Vector y, EulerData& udata)
 
   for (long int i = 0; i < udata.nx; i++)
   {
-    sunrealtype xloc = (i + HALF) * udata.dx + udata.xl;
+    sunrealtype xloc = ((sunrealtype)i + HALF) * udata.dx + udata.xl;
     if (xloc < HALF)
     {
       rho[i] = rhoL;

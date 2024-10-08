@@ -323,7 +323,7 @@ extern "C" {
  * -----------------------------------------------------------------
  * Function : SUNIfloor
  * -----------------------------------------------------------------
- * Usage : sunrealtype floor_x;
+ * Usage : sunindextype floor_x;
  *         floor_x = SUNIfloor(x);
  * -----------------------------------------------------------------
  * SUNIfloor(x) returns the largest sunindextype value not greater than x.
@@ -347,10 +347,10 @@ extern "C" {
  * -----------------------------------------------------------------
  * Function : SUNIround
  * -----------------------------------------------------------------
- * Usage : sunrealtype round_x;
+ * Usage : sunindextype round_x;
  *         round_x = SUNIround(x);
  * -----------------------------------------------------------------
- * SUNIround(x) returns the nearest integer value to x (in floating-point format), 
+ * SUNIround(x) returns the nearest sunindextype value to x, 
  * rounding halfway cases away from zero, regardless of the current rounding mode.
  * -----------------------------------------------------------------
  */

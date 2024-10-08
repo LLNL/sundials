@@ -215,10 +215,10 @@ Allowable Method Families
 
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods. Thus, 
    this set routine must be called after calling LSRKStepSetMethod with an SSPRK method.
-
-      * ``ARKODE_LSRK_SSP_S_2``  -- ``num_of_stages`` must be greater than or equal to 2
-      * ``ARKODE_LSRK_SSP_S_3``  -- ``num_of_stages`` must be a perfect-square greater than or equal to 4
-      * ``ARKODE_LSRK_SSP_10_4`` -- ``num_of_stages`` cannot be modified from 10, so this function should not be called.
+   
+* :c:enumerator:`ARKODE_LSRK_SSP_S_2`  -- ``num_of_stages`` must be greater than or equal to 2
+* :c:enumerator:`ARKODE_LSRK_SSP_S_3`  -- ``num_of_stages`` must be a perfect-square greater than or equal to 9
+* :c:enumerator:`ARKODE_LSRK_SSP_10_4` -- ``num_of_stages`` cannot be modified from 10, so this function should not be called.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -232,9 +232,9 @@ Allowable Method Families
 .. note:: If LSRKStepSetSSPStageNum routine is not called, then the default ``num_of_stages`` is
    set. Calling this function with ``num_of_stages <= 0`` resets the default values:  
    
-   * ``num_of_stages = 10`` for ``ARKODE_LSRK_SSP_S_2``
-   * ``num_of_stages = 9`` for ``ARKODE_LSRK_SSP_S_3``
-   * ``num_of_stages = 10`` for ``ARKODE_LSRK_SSP_10_4``
+   * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_S_2`
+   * ``num_of_stages = 9`` for :c:enumerator:`ARKODE_LSRK_SSP_S_3`
+   * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_10_4`
 
 .. _ARKODE.Usage.LSRKStep.OptionalOutputs:
 
@@ -361,13 +361,13 @@ dependent variable vector.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL*  if the LSRKStep memory was ``NULL``
-      * *ARK_MEM_FAIL*  if memory allocation failed
-      * *ARK_NO_MALLOC*  if memory allocation failed
-      * *ARK_CONTROLLER_ERR*  if unable to reset error controller object
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
+      * *ARK_MEM_FAIL* if memory allocation failed
+      * *ARK_NO_MALLOC* if memory allocation failed
+      * *ARK_CONTROLLER_ERR* if unable to reset error controller object
       * *ARK_ILL_INPUT* if an argument had an illegal value.
 
-   **Notes:**
+   .. note::
       All previously set options are retained but may be updated by calling
       the appropriate "Set" functions.
 

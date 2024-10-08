@@ -379,7 +379,7 @@ static int ReadInputs(std::vector<std::string>& args, EulerData& udata,
   find_arg(args, "--nout", uopts.nout);
 
   // Recompute mesh spacing and [re]allocate flux array
-  udata.dx = (udata.xr - udata.xl) / (udata.nx);
+  udata.dx = (udata.xr - udata.xl) / ((sunrealtype)udata.nx);
   if (udata.flux) { delete[] udata.flux; }
   udata.flux = new sunrealtype[NSPECIES * (udata.nx + 1)];
 
@@ -476,11 +476,11 @@ static int WriteOutput(sunrealtype t, N_Vector y, EulerData& udata,
     N_Vector my        = N_VGetSubvector_ManyVector(y, 2);
     N_Vector mz        = N_VGetSubvector_ManyVector(y, 3);
     N_Vector et        = N_VGetSubvector_ManyVector(y, 4);
-    sunrealtype rhorms = sqrt(N_VDotProd(rho, rho) / udata.nx);
-    sunrealtype mxrms  = sqrt(N_VDotProd(mx, mx) / udata.nx);
-    sunrealtype myrms  = sqrt(N_VDotProd(my, my) / udata.nx);
-    sunrealtype mzrms  = sqrt(N_VDotProd(mz, mz) / udata.nx);
-    sunrealtype etrms  = sqrt(N_VDotProd(et, et) / udata.nx);
+    sunrealtype rhorms = sqrt(N_VDotProd(rho, rho) / (sunrealtype)udata.nx);
+    sunrealtype mxrms  = sqrt(N_VDotProd(mx, mx) / (sunrealtype)udata.nx);
+    sunrealtype myrms  = sqrt(N_VDotProd(my, my) / (sunrealtype)udata.nx);
+    sunrealtype mzrms  = sqrt(N_VDotProd(mz, mz) / (sunrealtype)udata.nx);
+    sunrealtype etrms  = sqrt(N_VDotProd(et, et) / (sunrealtype)udata.nx);
     std::cout << std::setprecision(2) << "  " << t << std::setprecision(5)
               << "  " << rhorms << "  " << mxrms << "  " << myrms << "  "
               << mzrms << "  " << etrms << std::endl;

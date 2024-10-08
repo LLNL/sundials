@@ -479,13 +479,11 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
-  sunrealtype* cvals;
   sunrealtype hmax, w0, w1, temp1, temp2, arg, bjm1, bjm2, mus, thjm1, thjm2,
     zjm1, zjm2, dzjm1, dzjm2, d2zjm1, d2zjm2, zj, dzj, d2zj, bj, ajm1, mu, nu,
     thj;
   const sunrealtype onep54 = SUN_RCONST(1.54), c13 = SUN_RCONST(13.0),
                     p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
-  N_Vector* Xvecs;
   ARKodeLSRKStepMem step_mem;
 
   /* initialize algebraic solver convergence flag to success,
@@ -497,8 +495,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
+  sunrealtype* cvals = step_mem->cvals;
+  N_Vector* Xvecs = step_mem->Xvecs;
 
   /* Compute dominant eigenvalue and update stats */
   if (step_mem->dom_eig_update)
@@ -513,7 +511,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     SUNRsqrt(onep54 * SUNRabs(ark_mem->h) * step_mem->spectral_radius));
   ss                   = SUNMAX(ss, 2);
   step_mem->req_stages = SUNMIN(ss, step_mem->stage_max_limit);
-  if (step_mem->req_stages == step_mem->stage_max_limit)
+  if (step_mem->req_stages >= step_mem->stage_max_limit)
   {
     if (!ark_mem->fixedstep)
     {
@@ -757,10 +755,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 {
   int retval;
-  sunrealtype* cvals;
   sunrealtype hmax, w1, bjm1, bjm2, mus, bj, ajm1, cjm1, temj, cj, mu, nu;
   const sunrealtype p8 = SUN_RCONST(0.8), p4 = SUN_RCONST(0.4);
-  N_Vector* Xvecs;
   ARKodeLSRKStepMem step_mem;
 
   /* initialize algebraic solver convergence flag to success,
@@ -772,8 +768,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  cvals = step_mem->cvals;
-  Xvecs = step_mem->Xvecs;
+  sunrealtype* cvals = step_mem->cvals;
+  N_Vector* Xvecs = step_mem->Xvecs;
 
   /* Compute dominant eigenvalue and update stats */
   if (step_mem->dom_eig_update)
@@ -791,7 +787,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   ss                   = SUNMAX(ss, 2);
   step_mem->req_stages = SUNMIN(ss, step_mem->stage_max_limit);
 
-  if (step_mem->req_stages == step_mem->stage_max_limit)
+  if (step_mem->req_stages >= step_mem->stage_max_limit)
   {
     if (!ark_mem->fixedstep)
     {
