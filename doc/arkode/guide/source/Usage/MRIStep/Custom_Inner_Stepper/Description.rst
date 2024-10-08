@@ -84,14 +84,12 @@ Creating and Destroying an Object
    This utility function wraps a :c:type:`SUNStepper` as an
    :c:type:`MRIStepInnerStepper`.
 
-   **Arguments:**
-      * ``sunctx`` -- the SUNDIALS simulation context.
-      * ``sunstepper`` -- the c:type:`SUNStepper` to wrap.
-      * ``stepper`` -- a pointer to an MRI inner stepper object.
+   :param sunctx: the SUNDIALS simulation context.
+   :param sunstepper: the c:type:`SUNStepper` to wrap.
+   :param stepper: a pointer to an MRI inner stepper object.
 
-   **Return value:**
-      * ARK_SUCCESS if successful
-      * ARK_MEM_FAIL if a memory allocation error occurs
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_FAIL: if a memory allocation error occurs
 
    **Example usage:**
 

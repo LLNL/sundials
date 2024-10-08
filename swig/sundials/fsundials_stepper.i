@@ -18,7 +18,6 @@
 #include "sundials/sundials_stepper.h"
 %}
 
-// TODO(SBR): Can someone confirm this is correct
 %apply void* { SUNStepper };
 
 // Process and wrap functions in the following files
