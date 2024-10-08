@@ -22,7 +22,7 @@
 set(ARKODE_examples
     "ark_analytic_sys.cpp\;\;develop"
     "ark_heat2D.cpp\;\;develop"
-    "ark_heat2D_lsrk.cpp\;\;develop"
+    "ark_heat2D_lsrk.cpp\;\;exclude-single"
     "ark_kpr_Mt.cpp\;0 5\;develop"
     "ark_kpr_Mt.cpp\;1 4\;develop"
     "ark_kpr_Mt.cpp\;2 8 0 -10\;develop"

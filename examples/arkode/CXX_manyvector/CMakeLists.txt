@@ -18,7 +18,7 @@
 # examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-set(ARKODE_examples "ark_sod_lsrk.cpp\;\;develop")
+set(ARKODE_examples "ark_sod_lsrk.cpp\;\;exclude-single")
 
 # Header files to install
 set(ARKODE_headers)

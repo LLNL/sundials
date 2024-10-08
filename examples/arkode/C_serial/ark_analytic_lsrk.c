@@ -80,9 +80,19 @@ int main(void)
   sunrealtype Tf     = SUN_RCONST(10.0);   /* final time */
   sunrealtype dTout  = SUN_RCONST(1.0);    /* time between outputs */
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
+  sunrealtype lambda = SUN_RCONST(-1000000.0); /* stiffness parameter */
+
+#if defined(SUNDIALS_DOUBLE_PRECISION)
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-8);
-  sunrealtype lambda = SUN_RCONST(-1000000.0); /* stiffness parameter */
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+  sunrealtype reltol = SUN_RCONST(1.0e-4); /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-8);
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+  sunrealtype reltol = SUN_RCONST(1.0e-12); /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-12);
+#endif
+
 
   /* general problem variables */
   int flag;                /* reusable error-checking flag */
