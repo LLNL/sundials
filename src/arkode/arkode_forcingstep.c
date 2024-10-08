@@ -143,7 +143,7 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
   }
 
   const SUNStepper s1 = step_mem->stepper[1];
-  err              = s1->ops->fullrhs(s1, t, y, f);
+  err                 = s1->ops->fullrhs(s1, t, y, f);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -391,8 +391,8 @@ int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves
 {
   ARKodeMem ark_mem             = NULL;
   ARKodeForcingStepMem step_mem = NULL;
-  const int retval = forcingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                               &step_mem);
+  const int retval = forcingStep_AccessARKODEStepMem(arkode_mem, __func__,
+                                                     &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
   if (partition >= PARTITIONS)
