@@ -76,10 +76,10 @@ static int compute_error(N_Vector y, sunrealtype t);
 int main(void)
 {
   /* general problem parameters */
-  sunrealtype T0     = SUN_RCONST(0.0);        /* initial time */
-  sunrealtype Tf     = SUN_RCONST(10.0);       /* final time */
-  sunrealtype dTout  = SUN_RCONST(1.0);        /* time between outputs */
-  sunindextype NEQ   = 1;                      /* number of dependent vars. */
+  sunrealtype T0    = SUN_RCONST(0.0);  /* initial time */
+  sunrealtype Tf    = SUN_RCONST(10.0); /* final time */
+  sunrealtype dTout = SUN_RCONST(1.0);  /* time between outputs */
+  sunindextype NEQ  = 1;                /* number of dependent vars. */
 
 #if defined(SUNDIALS_DOUBLE_PRECISION)
   sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
