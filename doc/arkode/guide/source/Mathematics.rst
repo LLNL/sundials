@@ -2146,7 +2146,7 @@ large number of parameters. With the adjoint method we solve the adjoint ODEs fo
 \in \mathbb{R}^N` and :math:`\mu(t) \in \mathbb{R}^{N_s}`:
 
 .. math::
-   \lambda'(t) &= -f_y^T(t, y, p) \lambda,\quad \lambda(t_F) = g_y^T(y(t_f), p) \\
+   \lambda'(t) &= -f_y^T(t, y, p) \lambda,\quad \lambda(t_F) = g_y^T(y(t_f), p), \\
    \mu'(t) &= -f_p^T(t, y, p) \mu,\quad \mu(t_F) = g_p^T(y(t_f), p), \quad t_f \geq t \geq t_0. \\
    :label: ARKODE_ADJOINT_ODE
 
@@ -2161,8 +2161,8 @@ to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1
 .. math::
    \Lambda_i &= h_n f_y^T(t_{n,i}, z_i) \left(b_i \lambda_{n+1} + \sum_{j=i+1}^s a_{j,i}
    \Lambda_j \right), \quad \quad i = s, \dots, 1,\\
-   \nu_i     &= h_n f_p^T(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{ji} \Lambda_j \right) \\
-   \lambda_n &= \lambda_{n+1} + \sum_{j=1}^{s} \Lambda_j \\
+   \nu_i     &= h_n f_p^T(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{ji} \Lambda_j \right), \\
+   \lambda_n &= \lambda_{n+1} + \sum_{j=1}^{s} \Lambda_j, \\
    \mu_n     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
    :label: ARKODE_ERK_ADJOINT
 

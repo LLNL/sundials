@@ -48,7 +48,7 @@ struct SUNStlVectorTtype_s
 // The new capacity is GROWTH_FACTOR*current_capacity.
 // Some std::vector implementations use 2, but 1.5 will be more conservative in terms
 // of the memory usage but yields a larger constant factor in terms of the
-// amorirtized constant time complexity.
+// amortized constant time complexity.
 #define GROWTH_FACTOR 1.5
 
 static inline SUNStlVectorTtype MAKE_NAME(SUNStlVectorTtype,

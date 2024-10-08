@@ -62,8 +62,8 @@
         "SUNStepper stopped without successfully reaching the requested "      \
         "output time when solving the adjoint system")                         \
   ENTRY(SUN_ERR_ADJOINT_STEPPERINVALIDSTOP,                                    \
-        "SUNStepper stopped with a stop_reason not supported by adjoint "      \
-        "solver")                                                              \
+        "SUNStepper stopped with a stop_reason not supported by the "          \
+        "adjoint solver")                                                      \
   ENTRY(SUN_ERR_CHECKPOINT_NOT_FOUND,                                          \
         "the requested checkpoint was not found")                              \
                                                                                \
