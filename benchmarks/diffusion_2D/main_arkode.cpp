@@ -700,6 +700,7 @@ void UserOptions::print()
     {
     case (ARKODE_LSRK_RKC_2): cout << " method = RKC_2 " << endl; break;
     case (ARKODE_LSRK_RKL_2): cout << " method = RKL_2 " << endl; break;
+    default: cout << " ERROR: illegal lsrkmethod " << endl;
     }
     cout << " --------------------------------- " << endl;
   }
