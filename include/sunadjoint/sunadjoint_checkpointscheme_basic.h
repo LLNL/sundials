@@ -32,28 +32,28 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunrealtype t, sunbooleantype* yes_or_no);
+  SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
+  sunrealtype t, sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunrealtype t, N_Vector state);
+  SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
+  sunrealtype t, N_Vector state);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunbooleantype* yes_or_no);
+  SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
+  sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, N_Vector* out);
+  SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
+  N_Vector* out);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout);
+  SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
+  sunbooleantype peek, N_Vector* out, sunrealtype* tout);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(

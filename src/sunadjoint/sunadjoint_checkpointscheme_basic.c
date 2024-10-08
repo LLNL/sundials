@@ -88,7 +88,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(
-  SUNAdjointCheckpointScheme self, sunindextype step_num, sunindextype stage_num,
+  SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
   SUNDIALS_MAYBE_UNUSED sunrealtype t, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
@@ -105,8 +105,8 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
-  SUNAdjointCheckpointScheme self, sunindextype step_num,
-  sunindextype stage_num, sunrealtype t, N_Vector state)
+  SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
+  sunrealtype t, N_Vector state)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -153,7 +153,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
-  SUNAdjointCheckpointScheme self, sunindextype step_num, sunindextype stage_num,
+  SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
   sunbooleantype peek, N_Vector* loaded_state, sunrealtype* t)
 {
   SUNFunctionBegin(self->sunctx);

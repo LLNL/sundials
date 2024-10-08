@@ -53,7 +53,7 @@ TEST_F(SUNHashMapTest, InsertAndGetWorks)
 {
   SetUp(1);
 
-  SUNErrCode err  = SUN_SUCCESS;
+  int64_t err     = 0;
   const char* key = "test_key";
   int value       = 42;
 
@@ -71,7 +71,7 @@ TEST_F(SUNHashMapTest, InsertRequiringResizeWorks)
 {
   SetUp(2);
 
-  SUNErrCode err   = SUN_SUCCESS;
+  int64_t err      = 0;
   const char* key1 = "test_key1";
   const char* key2 = "test_key2";
   const char* key3 = "test_key3";
@@ -110,7 +110,7 @@ TEST_F(SUNHashMapTest, InsertDuplicateKeyFails)
 {
   SetUp(1);
 
-  int err;
+  int64_t err;
 
   // Insert same key twice (should overwrite)
   const char* key = "test_key";
@@ -127,7 +127,7 @@ TEST_F(SUNHashMapTest, RemoveWorks)
 {
   SetUp(2);
 
-  int err;
+  int64_t err;
 
   // Insert a key-value pair
   const char* key = "test_key";

@@ -12,6 +12,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -470,13 +471,20 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
 
   sunTimerStruct** values = NULL;
 
-  int64_t map_size = SUNHashMap_Capacity(p->map);
+  /* MPI restricts us to int, but the hashmap allows int64_t. 
+     We add a check here to make sure that the capacity does
+     not exceed an int, although it is unlikely we ever will. */
+  if (SUNHashMap_Capacity(p->map) > INT_MAX)
+  {
+    return SUN_ERR_PROFILER_MAPFULL;
+  }
+  int map_size = (int)SUNHashMap_Capacity(p->map);
 
   /* Extract the elapsed times from the hash map */
   SUNHashMap_Values(p->map, (void***)&values, sizeof(sunTimerStruct));
   sunTimerStruct* reduced =
     (sunTimerStruct*)malloc(map_size * sizeof(sunTimerStruct));
-  for (int64_t i = 0; i < map_size; ++i) { reduced[i] = *values[i]; }
+  for (int i = 0; i < map_size; ++i) { reduced[i] = *values[i]; }
 
   /* Register MPI datatype for sunTimerStruct */
   MPI_Datatype tmp_type, MPI_sunTimerStruct;

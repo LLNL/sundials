@@ -52,8 +52,8 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
+  SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
+  sunrealtype t, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
@@ -69,8 +69,8 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunbooleantype* yes_or_no)
+  SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
+  sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
@@ -86,8 +86,8 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunrealtype t, N_Vector state)
+  SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
+  sunrealtype t, N_Vector state)
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
@@ -102,8 +102,8 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
+  SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
+  sunbooleantype peek, N_Vector* out, sunrealtype* tout)
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
@@ -118,8 +118,8 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(
-  SUNAdjointCheckpointScheme check_scheme, sunindextype step_num,
-  sunindextype stage_num, N_Vector* out)
+  SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
+  N_Vector* out)
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
