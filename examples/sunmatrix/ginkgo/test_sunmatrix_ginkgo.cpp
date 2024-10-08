@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
 #endif
 #elif defined(USE_HIP)
 #if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 7)
-  auto gko_exec { gko::HipExecutor::create(0, gko::OmpExecutor::create()) }
+  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create())};
 #else
   auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), true)};
 #endif
