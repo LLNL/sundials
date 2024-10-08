@@ -496,7 +496,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (retval != ARK_SUCCESS) { return retval; }
 
   sunrealtype* cvals = step_mem->cvals;
-  N_Vector* Xvecs = step_mem->Xvecs;
+  N_Vector* Xvecs    = step_mem->Xvecs;
 
   /* Compute dominant eigenvalue and update stats */
   if (step_mem->dom_eig_update)
@@ -769,7 +769,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (retval != ARK_SUCCESS) { return retval; }
 
   sunrealtype* cvals = step_mem->cvals;
-  N_Vector* Xvecs = step_mem->Xvecs;
+  N_Vector* Xvecs    = step_mem->Xvecs;
 
   /* Compute dominant eigenvalue and update stats */
   if (step_mem->dom_eig_update)
