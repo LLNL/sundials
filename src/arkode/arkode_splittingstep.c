@@ -34,7 +34,7 @@ static int splittingStep_AccessStepMem(const ARKodeMem ark_mem,
   {
     arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
                     "Time step module memory is NULL.");
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   *step_mem = (ARKodeSplittingStepMem)ark_mem->step_mem;
   return ARK_SUCCESS;
@@ -54,7 +54,7 @@ static int splittingStep_AccessARKODEStepMem(void* const arkode_mem,
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   *ark_mem = (ARKodeMem)arkode_mem;
 
@@ -131,7 +131,7 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
 {
   ARKodeSplittingStepMem step_mem = NULL;
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* immediately return if resize or reset */
   if (init_type == RESIZE_INIT || init_type == RESET_INIT)
@@ -182,26 +182,26 @@ static int splittingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
                                  SUNDIALS_MAYBE_UNUSED const int mode)
 {
   ARKodeSplittingStepMem step_mem = NULL;
-  int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  const int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  retval = step_mem->steppers[0]->ops->fullrhs(step_mem->steppers[0], t, y, f);
-  if (retval != 0)
+  SUNErrCode err = step_mem->steppers[0]->ops->fullrhs(step_mem->steppers[0], t, y, f);
+  if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_RHSFUNC_FAILED, t);
-    return (ARK_RHSFUNC_FAIL);
+    return ARK_RHSFUNC_FAIL;
   }
 
   for (int i = 1; i < step_mem->partitions; i++)
   {
-    retval = step_mem->steppers[i]->ops->fullrhs(step_mem->steppers[i], t, y,
+    err = step_mem->steppers[i]->ops->fullrhs(step_mem->steppers[i], t, y,
                                                  ark_mem->tempv1);
-    if (retval != 0)
+    if (err != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_RHSFUNC_FAILED, t);
-      return (ARK_RHSFUNC_FAIL);
+      return ARK_RHSFUNC_FAIL;
     }
     N_VLinearSum(ONE, f, ONE, ark_mem->tempv1, f);
   }
@@ -281,7 +281,7 @@ static int splittingStep_TakeStep(const ARKodeMem ark_mem,
 {
   ARKodeSplittingStepMem step_mem = NULL;
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   *nflagPtr = ARK_SUCCESS; /* No algebraic solver */
   *dsmPtr   = ZERO;        /* No error estimate */
@@ -320,7 +320,7 @@ static int splittingStep_PrintAllStats(const ARKodeMem ark_mem,
   // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
   ARKodeSplittingStepMem step_mem = NULL;
   const int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   switch (fmt)
   {
@@ -341,7 +341,7 @@ static int splittingStep_PrintAllStats(const ARKodeMem ark_mem,
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid formatting option.");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   return ARK_SUCCESS;
@@ -354,7 +354,7 @@ static int splittingStep_WriteParameters(const ARKodeMem ark_mem, FILE* const fp
 {
   ARKodeSplittingStepMem step_mem = NULL;
   const int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   fprintf(fp, "SplittingStep time step module parameters:\n  Method order %i\n\n",
           step_mem->order);
@@ -412,7 +412,7 @@ static int splittingStep_SetOrder(const ARKodeMem ark_mem, const int order)
 {
   ARKodeSplittingStepMem step_mem = NULL;
   const int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* set user-provided value, or default, depending on argument */
   step_mem->order = order <= 0 ? 1 : order;
@@ -432,7 +432,7 @@ static int splittingStep_SetDefaults(const ARKodeMem ark_mem)
 {
   ARKodeSplittingStepMem step_mem = NULL;
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   retval = splittingStep_SetOrder(ark_mem, 0);
   if (retval != ARK_SUCCESS) { return retval; }
@@ -487,7 +487,7 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_NVECTOR);
-    return (NULL);
+    return NULL;
   }
 
   /* Create ark_mem structure and set default values */
@@ -496,7 +496,7 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
-    return (NULL);
+    return NULL;
   }
 
   const ARKodeSplittingStepMem step_mem =
@@ -551,7 +551,7 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Error setting default solver options");
     ARKodeFree((void**)&ark_mem);
-    return (NULL);
+    return NULL;
   }
 
   /* Initialize main ARKODE infrastructure */
@@ -561,7 +561,7 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
     ARKodeFree((void**)&ark_mem);
-    return (NULL);
+    return NULL;
   }
 
   return ark_mem;
@@ -577,7 +577,7 @@ int SplittingStep_SetCoefficients(void* const arkode_mem,
   ARKodeSplittingStepMem step_mem = NULL;
   const int retval = splittingStep_AccessARKODEStepMem(arkode_mem, __func__,
                                                        &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (coefficients == NULL)
   {
@@ -600,7 +600,7 @@ int SplittingStep_SetCoefficients(void* const arkode_mem,
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                     "Failed to copy splitting coefficients");
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
 
   return ARK_SUCCESS;
@@ -613,7 +613,7 @@ int SplittingStep_GetNumEvolves(void* const arkode_mem, const int partition,
   ARKodeSplittingStepMem step_mem = NULL;
   int retval = splittingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                                  &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (partition >= step_mem->partitions)
   {

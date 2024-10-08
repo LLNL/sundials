@@ -33,7 +33,7 @@ static int forcingStep_AccessStepMem(const ARKodeMem ark_mem,
   {
     arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, fname, __FILE__,
                     "Time step module memory is NULL.");
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   *step_mem = (ARKodeForcingStepMem)ark_mem->step_mem;
   return ARK_SUCCESS;
@@ -53,7 +53,7 @@ static int forcingStep_AccessARKODEStepMem(void* const arkode_mem,
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, fname, __FILE__,
                     MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   *ark_mem = (ARKodeMem)arkode_mem;
 
@@ -83,7 +83,7 @@ static int forcingStep_Init(const ARKodeMem ark_mem, const int init_type)
 {
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   /* assume fixed outer step size */
   if (!ark_mem->fixedstep)
@@ -130,25 +130,25 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
                                SUNDIALS_MAYBE_UNUSED const int mode)
 {
   ARKodeForcingStepMem step_mem = NULL;
-  int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  const int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
 
   const SUNStepper s0 = step_mem->stepper[0];
-  retval              = s0->ops->fullrhs(s0, t, y, ark_mem->tempv1);
-  if (retval != 0)
+  SUNErrCode err      = s0->ops->fullrhs(s0, t, y, ark_mem->tempv1);
+  if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_RHSFUNC_FAILED, t);
-    return (ARK_RHSFUNC_FAIL);
+    return ARK_RHSFUNC_FAIL;
   }
 
   const SUNStepper s1 = step_mem->stepper[1];
-  retval              = s1->ops->fullrhs(s1, t, y, f);
-  if (retval != 0)
+  err              = s1->ops->fullrhs(s1, t, y, f);
+  if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_RHSFUNC_FAILED, t);
-    return (ARK_RHSFUNC_FAIL);
+    return ARK_RHSFUNC_FAIL;
   }
   N_VLinearSum(SUN_RCONST(1.0), f, SUN_RCONST(1.0), ark_mem->tempv1, f);
 
@@ -163,7 +163,7 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
 {
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   *nflagPtr = ARK_SUCCESS; /* No algebraic solver */
   *dsmPtr   = ZERO;        /* No error estimate */
@@ -222,7 +222,7 @@ static int forcingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outfil
   // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
   ARKodeForcingStepMem step_mem = NULL;
   const int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   switch (fmt)
   {
@@ -243,7 +243,7 @@ static int forcingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outfil
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid formatting option.");
-    return (ARK_ILL_INPUT);
+    return ARK_ILL_INPUT;
   }
 
   return ARK_SUCCESS;
@@ -327,7 +327,7 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_NVECTOR);
-    return (NULL);
+    return NULL;
   }
 
   /* Create ark_mem structure and set default values */
@@ -336,7 +336,7 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
-    return (NULL);
+    return NULL;
   }
 
   const ARKodeForcingStepMem step_mem =
@@ -371,7 +371,7 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Error setting default solver options");
     ARKodeFree((void**)&ark_mem);
-    return (NULL);
+    return NULL;
   }
 
   /* Initialize main ARKODE infrastructure */
@@ -381,7 +381,7 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "Unable to initialize main ARKODE infrastructure");
     ARKodeFree((void**)&ark_mem);
-    return (NULL);
+    return NULL;
   }
 
   return ark_mem;
@@ -393,7 +393,7 @@ int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
                                                &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  if (retval != ARK_SUCCESS) { return retval; }
 
   if (partition >= PARTITIONS)
   {
