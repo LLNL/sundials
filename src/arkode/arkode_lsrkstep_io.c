@@ -485,6 +485,28 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->dom_eig_is_current = SUNFALSE;
   step_mem->is_SSP             = SUNFALSE;
 
+  /* Remove current SUNAdaptController object if exists, 
+  and replace with the ARKODE-default "PID" */
+  if (ark_mem->hadapt_mem->owncontroller)
+  {
+    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "SUNAdaptController_Destroy failure");
+      return (ARK_MEM_FAIL);
+    }
+  }
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
+  if (ark_mem->hadapt_mem->hcontroller == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "SUNAdaptControllerPID allocation failure");
+    return (ARK_MEM_FAIL);
+  }
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+
   return ARK_SUCCESS;
 }
 
