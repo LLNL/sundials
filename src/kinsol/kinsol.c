@@ -2836,8 +2836,7 @@ static int KINFP(KINMem kin_mem)
   ret    = CONTINUE_ITERATIONS;
   tolfac = ONE;
 
-  SUNLogExtraDebugVec(KIN_LOGGER, __func__, "begin",
-                      "u_0(:) =", kin_mem->kin_uu, "");
+  SUNLogExtraDebugVec(KIN_LOGGER, "begin", "u_0(:) =", kin_mem->kin_uu, "");
 
   /* initialize iteration count */
   kin_mem->kin_nni = 0;
@@ -2852,7 +2851,7 @@ static int KINFP(KINMem kin_mem)
                                kin_mem->kin_user_data);
     kin_mem->kin_nfe++;
 
-    SUNLogExtraDebugVec(KIN_LOGGER, __func__, "while-loop-before-compute-new",
+    SUNLogExtraDebugVec(KIN_LOGGER, "while-loop-before-compute-new",
                         "G_%ld(:) =", kin_mem->kin_fval, kin_mem->kin_nni - 1);
 
     if (retval < 0)
@@ -2904,7 +2903,7 @@ static int KINFP(KINMem kin_mem)
       else { tolfac = ONE; }
     }
 
-    SUNLogExtraDebugVec(KIN_LOGGER, __func__, "while-loop-after-compute-new",
+    SUNLogExtraDebugVec(KIN_LOGGER, "while-loop-after-compute-new",
                         "u_%ld(:) =", kin_mem->kin_unew, kin_mem->kin_nni);
 
     /* compute change between iterations */

@@ -348,9 +348,9 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   scale_x = (sx != NULL);
   scale_b = (sb != NULL);
 
-  SUNLogInfo(S->sunctx->logger, __func__, "linear-solver", "solver = spbcgs", "");
+  SUNLogInfo(S->sunctx->logger, "linear-solver", "solver = spbcgs", "");
 
-  SUNLogInfo(S->sunctx->logger, __func__, "begin-linear-iterate", "", "");
+  SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "", "");
 
   /* Check for unsupported use case */
   if (preOnRight && !(*zeroguess))
@@ -358,7 +358,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
 
-    SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+    SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                "status = failed unsupported configuration", "");
 
     return SUN_ERR_ARG_INCOMPATIBLE;
@@ -386,7 +386,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       LASTFLAG(S) = (status < 0) ? SUNLS_ATIMES_FAIL_UNREC
                                  : SUNLS_ATIMES_FAIL_REC;
 
-      SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                  "status = failed matvec, retval = %d", status);
 
       return (LASTFLAG(S));
@@ -406,7 +406,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                  : SUNLS_PSOLVE_FAIL_REC;
 
-      SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                  "status = failed preconditioner solve, retval = %d", status);
 
       return (LASTFLAG(S));
@@ -444,13 +444,13 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUN_SUCCESS;
 
-    SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+    SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                "cur-iter = 0, res-norm = %.16g, status = success", *res_norm);
 
     return (LASTFLAG(S));
   }
 
-  SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+  SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
              "cur-iter = 0, res-norm = %.16g, status = continue", *res_norm);
 
   /* Copy r_star to r and p */
@@ -471,7 +471,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
   for (l = 0; l < l_max; l++)
   {
-    SUNLogInfo(S->sunctx->logger, __func__, "begin-linear-iterate", "", "");
+    SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "", "");
 
     (*nli)++;
 
@@ -503,7 +503,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                    : SUNLS_PSOLVE_FAIL_REC;
 
-        SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+        SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                    "status = failed preconditioner solve, retval = %d", status);
 
         return (LASTFLAG(S));
@@ -519,7 +519,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       LASTFLAG(S) = (status < 0) ? SUNLS_ATIMES_FAIL_UNREC
                                  : SUNLS_ATIMES_FAIL_REC;
 
-      SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                  "status = failed matvec, retval = ", status);
 
       return (LASTFLAG(S));
@@ -536,7 +536,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                    : SUNLS_PSOLVE_FAIL_REC;
 
-        SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+        SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                    "status = failed preconditioner solve, retval = %d", status);
 
         return (LASTFLAG(S));
@@ -600,7 +600,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                    : SUNLS_PSOLVE_FAIL_REC;
 
-        SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+        SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                    "status = failed preconditioner solve, retval = %d", status);
 
         return (LASTFLAG(S));
@@ -616,7 +616,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       LASTFLAG(S) = (status < 0) ? SUNLS_ATIMES_FAIL_UNREC
                                  : SUNLS_ATIMES_FAIL_REC;
 
-      SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                  "status = failed matvec, retval = %d", status);
 
       return (LASTFLAG(S));
@@ -633,7 +633,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                    : SUNLS_PSOLVE_FAIL_REC;
 
-        SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+        SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                    "status = failed preconditioner solve, retval = %d", status);
 
         return (LASTFLAG(S));
@@ -697,7 +697,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     *res_norm = rho = SUNRsqrt(N_VDotProd(r, r));
     SUNCheckLastErr();
 
-    SUNLogInfo(S->sunctx->logger, __func__, "linear-iterate",
+    SUNLogInfo(S->sunctx->logger, "linear-iterate",
                "cur-iter = %i, res-norm = %.16g", *nli, *res_norm);
 
     if (rho <= delta)
@@ -728,8 +728,8 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     /* update beta_denom for next iteration */
     beta_denom = beta_num;
 
-    SUNLogInfoIf(l < l_max - 1, S->sunctx->logger, __func__,
-                 "end-linear-iterate", "status = continue", "");
+    SUNLogInfoIf(l < l_max - 1, S->sunctx->logger, "end-linear-iterate",
+                 "status = continue", "");
   }
 
   /* Main loop finished */
@@ -752,7 +752,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                    : SUNLS_PSOLVE_FAIL_REC;
 
-        SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+        SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                    "status = failed preconditioner solve, retval = %d", status);
 
         return (LASTFLAG(S));
@@ -764,14 +764,13 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     *zeroguess = SUNFALSE;
     if (converged == SUNTRUE)
     {
-      SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
-                 "status = success", "");
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate", "status = success", "");
 
       LASTFLAG(S) = SUN_SUCCESS;
     }
     else
     {
-      SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                  "status = failed residual reduced", "");
 
       LASTFLAG(S) = SUNLS_RES_REDUCED;
@@ -783,7 +782,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_CONV_FAIL;
 
-    SUNLogInfo(S->sunctx->logger, __func__, "end-linear-iterate",
+    SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                "status = failed max iterations", "");
 
     return (LASTFLAG(S));

@@ -3318,7 +3318,7 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
     deltar = arkls_mem->eplifac * eRNrm;
     bnorm  = N_VWrmsNorm(b, ark_mem->rwt);
 
-    SUNLogInfo(ARK_LOGGER, __func__, "begin-linear-solve",
+    SUNLogInfo(ARK_LOGGER, "begin-linear-solve",
                "iterative = 1, b-norm = %.16g, b-tol = %.16g, res-tol = %.16g",
                bnorm, deltar, deltar * arkls_mem->nrmfac);
 
@@ -3327,8 +3327,8 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
       if (mnewt > 0) { N_VConst(ZERO, b); }
       arkls_mem->last_flag = ARKLS_SUCCESS;
 
-      SUNLogInfo(ARK_LOGGER, __func__, "end-linear-solve",
-                 "status = success small rhs", "");
+      SUNLogInfo(ARK_LOGGER, "end-linear-solve", "status = success small rhs",
+                 "");
 
       return (arkls_mem->last_flag);
     }
@@ -3339,7 +3339,7 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   {
     delta = bnorm = ZERO;
 
-    SUNLogInfo(ARK_LOGGER, __func__, "begin-linear-solve", "iterative = 0", "");
+    SUNLogInfo(ARK_LOGGER, "begin-linear-solve", "iterative = 0", "");
   }
 
   /* Set scaling vectors for LS to use (if applicable) */
@@ -3353,7 +3353,7 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
                       "Error in call to SUNLinSolSetScalingVectors");
       arkls_mem->last_flag = ARKLS_SUNLS_FAIL;
 
-      SUNLogInfo(ARK_LOGGER, __func__, "end-linear-solve",
+      SUNLogInfo(ARK_LOGGER, "end-linear-solve",
                  "status = failed set scaling vectors", "");
 
       return (arkls_mem->last_flag);
@@ -3388,8 +3388,8 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   retval = SUNLinSolSetZeroGuess(arkls_mem->LS, SUNTRUE);
   if (retval != SUN_SUCCESS)
   {
-    SUNLogInfo(ARK_LOGGER, __func__, "end-linear-solve",
-               "status = failed set zero guess", "");
+    SUNLogInfo(ARK_LOGGER, "end-linear-solve", "status = failed set zero guess",
+               "");
     return (-1);
   }
 
@@ -3407,7 +3407,7 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
       arkProcessError(ark_mem, arkls_mem->last_flag, __LINE__, __func__,
                       __FILE__, MSG_LS_JTSETUP_FAILED);
 
-      SUNLogInfo(ARK_LOGGER, __func__, "end-linear-solve",
+      SUNLogInfo(ARK_LOGGER, "end-linear-solve",
                  "status = failed J-times setup", "");
       return (arkls_mem->last_flag);
     }
@@ -3454,10 +3454,10 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   /* Interpret solver return value  */
   arkls_mem->last_flag = retval;
 
-  SUNLogInfoIf(retval == SUN_SUCCESS, ARK_LOGGER, __func__, "end-linear-solve",
+  SUNLogInfoIf(retval == SUN_SUCCESS, ARK_LOGGER, "end-linear-solve",
                "status = success, iters = %i, p-solves = %i, resnorm = %.16g",
                nli_inc, (int)(arkls_mem->nps - nps_inc), resnorm);
-  SUNLogInfoIf(retval != SUN_SUCCESS, ARK_LOGGER, __func__,
+  SUNLogInfoIf(retval != SUN_SUCCESS, ARK_LOGGER,
                "end-linear-solve", "status = failed, retval = %i, iters = %i, p-solves = %i, resnorm = %.16g",
                retval, nli_inc, (int)(arkls_mem->nps - nps_inc), resnorm);
 
@@ -3802,15 +3802,14 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
   {
     delta = arkls_mem->eplifac * nlscoef * arkls_mem->nrmfac;
 
-    SUNLogInfo(ARK_LOGGER, __func__, "begin-mass-linear-solve",
+    SUNLogInfo(ARK_LOGGER, "begin-mass-linear-solve",
                "iterative = 1, res-tol = %.16g", delta);
   }
   else
   {
     delta = ZERO;
 
-    SUNLogInfo(ARK_LOGGER, __func__, "begin-mass-linear-solve", "iterative = 0",
-               "");
+    SUNLogInfo(ARK_LOGGER, "begin-mass-linear-solve", "iterative = 0", "");
   }
 
   /* Set initial guess x = 0 for LS */
@@ -3827,7 +3826,7 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
                       "Error in call to SUNLinSolSetScalingVectors");
       arkls_mem->last_flag = ARKLS_SUNLS_FAIL;
 
-      SUNLogInfo(ARK_LOGGER, __func__, "end-mass-linear-solve",
+      SUNLogInfo(ARK_LOGGER, "end-mass-linear-solve",
                  "status = failed set scaling vectors", "");
       return (arkls_mem->last_flag);
     }
@@ -3861,7 +3860,7 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
   retval = SUNLinSolSetZeroGuess(arkls_mem->LS, SUNTRUE);
   if (retval != SUN_SUCCESS)
   {
-    SUNLogInfo(ARK_LOGGER, __func__, "end-mass-linear-solve",
+    SUNLogInfo(ARK_LOGGER, "end-mass-linear-solve",
                "status = failed set zero guess", "");
     return (-1);
   }
@@ -3893,11 +3892,10 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
   arkls_mem->nli += nli_inc;
   if (retval != SUN_SUCCESS) { arkls_mem->ncfl++; }
 
-  SUNLogInfoIf(retval == SUN_SUCCESS, ARK_LOGGER, __func__,
-               "end-mass-linear-solve",
+  SUNLogInfoIf(retval == SUN_SUCCESS, ARK_LOGGER, "end-mass-linear-solve",
                "status = success, iters = %i, p-solves = %i, res-norm = %.16g",
                nli_inc, (int)(arkls_mem->nps - nps_inc), resnorm);
-  SUNLogInfoIf(retval != SUN_SUCCESS, ARK_LOGGER, __func__,
+  SUNLogInfoIf(retval != SUN_SUCCESS, ARK_LOGGER,
                "end-mass-linear-solve", "status = failed, retval = %i, iters = %i, p-solves = %i, res-norm = %.16g",
                retval, nli_inc, (int)(arkls_mem->nps - nps_inc), resnorm);
 

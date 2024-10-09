@@ -6,6 +6,9 @@ Using Ex-MRI method
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.001
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+1.2247448713915889e+00
+1.7320508075688772e+00
+
 [DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
 1.1719990452195032e-16
 0.0000000000000000e+00
@@ -788,6 +791,9 @@ Using Ex-MRI method
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.001
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+1.2247447693295430e+00
+1.7319930735042126e+00
+
 [DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
 -2.0412412826749547e-04
 0.0000000000000000e+00
@@ -1115,6 +1121,9 @@ Using Ex-MRI method
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.002
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+1.2247444631434115e+00
+1.7318198828576150e+00
+
 [DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
 -4.0824815447279339e-04
 0.0000000000000000e+00

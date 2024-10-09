@@ -7,6 +7,9 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.001
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+1.2247448713915889e+00
+1.7320508075688772e+00
+
 [DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
 -0.0000000000000000e+00
 0.0000000000000000e+00
@@ -499,7 +502,10 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.001381168840186244
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-1.8971386607453142e-11
+-1.0968442598846551e-05
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
 1.2247448713726174e+00
 1.7320398391262783e+00
@@ -724,7 +730,10 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.003729401476593421
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-3.5324396569906511e-08
+-2.9758000027690912e-05
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
 1.2247448360671924e+00
 1.7320210495688495e+00
@@ -858,7 +867,10 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.007204341456067922
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-1.3024355617993035e-07
+-5.7734064670356133e-05
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
 1.2247447411480328e+00
 1.7319930735042068e+00
@@ -885,6 +897,9 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.001
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+1.2247447693109426e+00
+1.7319930735042068e+00
+
 [DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
 -2.0412412822468201e-04
 0.0000000000000000e+00
@@ -1013,7 +1028,10 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.007673490841823296
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-8.8999322153602641e-08
+-6.1294880038920141e-05
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
 1.2247446803116204e+00
 1.7319317786241679e+00
@@ -1147,7 +1165,10 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.01409326137946229
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-1.8189698061615481e-07
+-1.1265062870036147e-04
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
 1.2247445874139620e+00
 1.7318804228755065e+00
@@ -1281,7 +1302,10 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.02163921128613955
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-3.3441450778033596e-07
+-1.7319064661780459e-04
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
 1.2247444348964347e+00
 1.7318198828575890e+00
@@ -1308,6 +1332,9 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.002
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+1.2247444630593312e+00
+1.7318198828575890e+00
+
 [DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
 -4.0824815440909770e-04
 0.0000000000000000e+00
@@ -1436,7 +1463,10 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.01396408830693848
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-1.7797958485633952e-07
+-1.1160905705809299e-04
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
 1.2247442850797463e+00
 1.7317082738005309e+00
@@ -1570,7 +1600,10 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.02445379030807663
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-3.2846939891931796e-07
+-1.9552072392059472e-04
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
 1.2247441345899321e+00
 1.7316243621336684e+00
@@ -1704,7 +1737,10 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.0360687584086095
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-5.3858518292645864e-07
+-2.8861258410861623e-04
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
 1.2247439244741483e+00
 1.7315312702734804e+00

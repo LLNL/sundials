@@ -2504,7 +2504,7 @@ static int IDAStep(IDAMem IDA_mem)
 
   for (;;)
   {
-    SUNLogInfo(IDA_LOGGER, __func__, "begin-step-attempt",
+    SUNLogInfo(IDA_LOGGER, "begin-step-attempt",
                "step = %li, tn = %" RSYM ", h = %" RSYM ", q = %d",
                IDA_mem->ida_nst + 1, IDA_mem->ida_tn, IDA_mem->ida_hh,
                IDA_mem->ida_kk);
@@ -2554,14 +2554,13 @@ static int IDAStep(IDAMem IDA_mem)
       kflag = IDAHandleNFlag(IDA_mem, nflag, err_k, err_km1, &(IDA_mem->ida_ncfn),
                              &ncf, &(IDA_mem->ida_netf), &nef);
 
-      SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER, __func__,
-                   "end-step-attempt",
+      SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER, "end-step-attempt",
                    "status = failed error test, dsm = %" RSYM ", kflag = %i",
                    ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
 
       SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS, IDA_LOGGER,
-                   __func__, "end-step-attempt",
-                   "status = failed solve, kflag = %i", kflag);
+                   "end-step-attempt", "status = failed solve, kflag = %i",
+                   kflag);
 
       /* exit on nonrecoverable failure */
       if (kflag != PREDICT_AGAIN) { return (kflag); }
@@ -2576,8 +2575,7 @@ static int IDAStep(IDAMem IDA_mem)
 
   } /* end loop */
 
-  SUNLogInfo(IDA_LOGGER, __func__, "end-step-attempt",
-             "status = success, dsm = %" RSYM,
+  SUNLogInfo(IDA_LOGGER, "end-step-attempt", "status = success, dsm = %" RSYM,
              ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk]);
 
   /* Nonlinear system solve and error test were both successful;
@@ -2748,7 +2746,7 @@ static int IDANls(IDAMem IDA_mem)
     if (retval > 0) { return (IDA_NLS_SETUP_RECVR); }
   }
 
-  SUNLogInfo(IDA_LOGGER, __func__, "begin-nonlinear-solve", "tol = %.16g",
+  SUNLogInfo(IDA_LOGGER, "begin-nonlinear-solve", "tol = %.16g",
              IDA_mem->ida_epsNewt);
 
   /* solve the nonlinear system */
@@ -2766,7 +2764,7 @@ static int IDANls(IDAMem IDA_mem)
   /* return if nonlinear solver failed */
   if (retval != SUN_SUCCESS)
   {
-    SUNLogInfo(IDA_LOGGER, __func__, "end-nonlinear-solve",
+    SUNLogInfo(IDA_LOGGER, "end-nonlinear-solve",
                "status = failed, flag = %i, iters = %li", retval, nni_inc);
     return (retval);
   }
@@ -2777,8 +2775,8 @@ static int IDANls(IDAMem IDA_mem)
   N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, IDA_mem->ida_ee,
                IDA_mem->ida_yp);
 
-  SUNLogInfo(IDA_LOGGER, __func__, "end-nonlinear-solve",
-             "status = success, iters = %li", nni_inc);
+  SUNLogInfo(IDA_LOGGER, "end-nonlinear-solve", "status = success, iters = %li",
+             nni_inc);
 
   /* If otherwise successful, check and enforce inequality constraints. */
 
@@ -2882,7 +2880,7 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
   *err_k  = IDA_mem->ida_sigma[IDA_mem->ida_kk] * enorm_k;
   terr_k  = (IDA_mem->ida_kk + 1) * (*err_k);
 
-  SUNLogDebug(IDA_LOGGER, __func__, "estimate-error-order-k",
+  SUNLogDebug(IDA_LOGGER, "estimate-error-order-k",
               "err_k = %" RSYM ", terr_k = %" RSYM, *err_k, terr_k);
 
   IDA_mem->ida_knew = IDA_mem->ida_kk;
@@ -2897,7 +2895,7 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
     *err_km1  = IDA_mem->ida_sigma[IDA_mem->ida_kk - 1] * enorm_km1;
     terr_km1  = IDA_mem->ida_kk * (*err_km1);
 
-    SUNLogDebug(IDA_LOGGER, __func__, "estimate-error-order-km1",
+    SUNLogDebug(IDA_LOGGER, "estimate-error-order-km1",
                 "err_km1 = %" RSYM ", terr_km1 = %" RSYM, *err_km1, terr_km1);
 
     if (IDA_mem->ida_kk > 2)
@@ -2910,7 +2908,7 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
       err_km2   = IDA_mem->ida_sigma[IDA_mem->ida_kk - 2] * enorm_km2;
       terr_km2  = (IDA_mem->ida_kk - 1) * err_km2;
 
-      SUNLogDebug(IDA_LOGGER, __func__, "estimate-error-order-km2",
+      SUNLogDebug(IDA_LOGGER, "estimate-error-order-km2",
                   "err_km2 = %" RSYM ", terr_km2 = %" RSYM, err_km2, terr_km2);
 
       /* Decrease order if errors are reduced */
@@ -2929,11 +2927,10 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
     }
   }
 
-  SUNLogDebug(IDA_LOGGER, __func__, "new-order", "kk = %i, knew = %i",
-              IDA_mem->ida_kk, IDA_mem->ida_knew);
+  SUNLogDebug(IDA_LOGGER, "new-order", "kk = %i, knew = %i", IDA_mem->ida_kk,
+              IDA_mem->ida_knew);
 
-  SUNLogDebug(IDA_LOGGER, __func__, "error-estimate", "ck_enorm_k = %" RSYM,
-              ck * enorm_k);
+  SUNLogDebug(IDA_LOGGER, "error-estimate", "ck_enorm_k = %" RSYM, ck * enorm_k);
 
   /* Perform error test */
   if (ck * enorm_k > ONE) { return (ERROR_TEST_FAIL); }
@@ -3090,7 +3087,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-      SUNLogDebug(IDA_LOGGER, __func__, "first-error-test_fail",
+      SUNLogDebug(IDA_LOGGER, "first-error-test_fail",
                   "kk = %i, eta = %" RSYM ", h = %" RSYM, IDA_mem->ida_kk,
                   IDA_mem->ida_eta, IDA_mem->ida_hh);
 
@@ -3106,7 +3103,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-      SUNLogDebug(IDA_LOGGER, __func__, "second-error-test-fail",
+      SUNLogDebug(IDA_LOGGER, "second-error-test-fail",
                   "kk = %i, eta = %" RSYM ", h = %" RSYM, IDA_mem->ida_kk,
                   IDA_mem->ida_eta, IDA_mem->ida_hh);
 
@@ -3121,7 +3118,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-      SUNLogDebug(IDA_LOGGER, __func__, "error-test-fail",
+      SUNLogDebug(IDA_LOGGER, "error-test-fail",
                   "kk = %i, eta = %" RSYM ", h = %" RSYM, IDA_mem->ida_kk,
                   IDA_mem->ida_eta, IDA_mem->ida_hh);
 
@@ -3240,7 +3237,7 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
         if (terr_kp1 >= HALF * terr_k) { action = MAINTAIN; }
         else { action = RAISE; }
 
-        SUNLogDebug(IDA_LOGGER, __func__, "order-selection-raise",
+        SUNLogDebug(IDA_LOGGER, "order-selection-raise",
                     "terr_k = %" RSYM ", terr_kp1 = %" RSYM, terr_k, terr_kp1);
       }
       else
@@ -3250,7 +3247,7 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
         else if (terr_kp1 >= terr_k) { action = MAINTAIN; }
         else { action = RAISE; }
 
-        SUNLogDebug(IDA_LOGGER, __func__, "order-selection-rasie-or-lower",
+        SUNLogDebug(IDA_LOGGER, "order-selection-rasie-or-lower",
                     "terr_km1 = %" RSYM ", terr_k = %" RSYM
                     ", terr_kp1 = %" RSYM,
                     terr_km1, terr_k, terr_kp1);
@@ -3299,7 +3296,7 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
     }
     IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-    SUNLogDebug(IDA_LOGGER, __func__, "new-step-and-order",
+    SUNLogDebug(IDA_LOGGER, "new-step-and-order",
                 "knew = %i, err_knew = %" RSYM ", eta = %" RSYM
                 ", hnew = %" RSYM,
                 IDA_mem->ida_kk, err_knew, IDA_mem->ida_eta, IDA_mem->ida_hh);

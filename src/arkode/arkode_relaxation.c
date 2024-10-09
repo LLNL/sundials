@@ -122,7 +122,7 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
     retval = arkRelaxResidual(relax_mem->relax_param, &(relax_mem->res), ark_mem);
     if (retval) { return retval; }
 
-    SUNLogExtraDebug(ARK_LOGGER, __func__, "residual",
+    SUNLogExtraDebug(ARK_LOGGER, "residual",
                      "iter = %i, relax_param = %" RSYM ", residual = %" RSYM, i,
                      relax_mem->relax_param, relax_mem->res);
 
@@ -344,13 +344,13 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
                                  &(relax_mem->delta_e));
   if (retval) { return retval; }
 
-  SUNLogExtraDebug(ARK_LOGGER, __func__, "compute delta e", "delta_e = %" RSYM,
+  SUNLogExtraDebug(ARK_LOGGER, "compute delta e", "delta_e = %" RSYM,
                    relax_mem->delta_e);
 
   /* Get the change in state (delta_y = tempv2) */
   N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv2);
 
-  SUNLogExtraDebugVec(ARK_LOGGER, __func__, "compute delta y",
+  SUNLogExtraDebugVec(ARK_LOGGER, "compute delta y",
                       "delta_y(:) =", ark_mem->tempv2, "");
 
   /* Store the current relaxation function value */
@@ -360,7 +360,7 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
   if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
 
-  SUNLogExtraDebug(ARK_LOGGER, __func__, "compute old e", "e_old = %" RSYM,
+  SUNLogExtraDebug(ARK_LOGGER, "compute old e", "e_old = %" RSYM,
                    relax_mem->e_old);
 
   /* Initial guess for relaxation parameter */
@@ -896,7 +896,7 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout)
   N_VLinearSum(relax_val, ark_mem->ycur, (ONE - relax_val), ark_mem->yn,
                ark_mem->ycur);
 
-  SUNLogDebug(ARK_LOGGER, __func__, "relaxation",
+  SUNLogDebug(ARK_LOGGER, "relaxation",
               "relaxation parameter = %" RSYM ", relaxed h = %" RSYM
               ", relaxed error = %" RSYM,
               relax_val, ark_mem->h, *dsm_inout);

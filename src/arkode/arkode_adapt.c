@@ -143,7 +143,7 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   }
   if (h_cfl <= ZERO) { h_cfl = SUN_RCONST(1.0e30) * SUNRabs(hcur); }
 
-  SUNLogDebug(ARK_LOGGER, __func__, "new-step-before-bounds",
+  SUNLogDebug(ARK_LOGGER, "new-step-before-bounds",
               "h_acc = %" RSYM ", h_cfl = %" RSYM, h_acc, h_cfl);
 
   /* enforce safety factors */
@@ -156,7 +156,7 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   /* enforce minimum bound time step reduction */
   h_acc = int_dir * SUNMAX(SUNRabs(h_acc), SUNRabs(hadapt_mem->etamin * hcur));
 
-  SUNLogDebug(ARK_LOGGER, __func__, "new-step-after-max-min-bounds",
+  SUNLogDebug(ARK_LOGGER, "new-step-after-max-min-bounds",
               "h_acc = %" RSYM ", h_cfl = %" RSYM, h_acc, h_cfl);
 
   /* increment the relevant step counter, set desired step */
@@ -183,7 +183,7 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   /* enforce maximum time step size */
   ark_mem->eta /= SUNMAX(ONE, SUNRabs(hcur) * ark_mem->hmax_inv * ark_mem->eta);
 
-  SUNLogDebug(ARK_LOGGER, __func__, "new-step-eta", "eta = %" RSYM, ark_mem->eta);
+  SUNLogDebug(ARK_LOGGER, "new-step-eta", "eta = %" RSYM, ark_mem->eta);
 
   return (retval);
 }

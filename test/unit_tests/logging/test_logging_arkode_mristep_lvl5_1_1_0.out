@@ -8,6 +8,9 @@ Using GMRES iterative linear solver
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.001
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+1.2247448713915889e+00
+1.7320508075688772e+00
+
 [DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
 1.1719990452195032e-16
 0.0000000000000000e+00
@@ -509,7 +512,10 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkLsSolve][end-linear-solve] status = success small rhs
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-2.9641005420688385e-08
+-6.4149904805965718e-06
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
 1.2247448417505835e+00
 1.7320443925783966e+00
@@ -743,7 +749,10 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkLsSolve][end-linear-solve] status = success small rhs
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-8.8261555664408316e-08
+-2.5659825403367982e-05
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
 1.2247447831300333e+00
 1.7320251477434738e+00
@@ -886,7 +895,10 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkLsSolve][end-linear-solve] status = success small rhs
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-1.0206180734277936e-07
+-5.7734064650372139e-05
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
 1.2247447693297815e+00
 1.7319930735042268e+00
@@ -898,6 +910,9 @@ Using GMRES iterative linear solver
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.001
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+1.2247447693297815e+00
+1.7319930735042268e+00
+
 [DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
 -2.0412412873733736e-04
 0.0000000000000000e+00
@@ -1035,7 +1050,10 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkLsSolve][end-linear-solve] status = success small rhs
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-9.7682254961199432e-08
+-4.4902941340518851e-05
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
 1.2247446716475265e+00
 1.7319481705628863e+00
@@ -1178,7 +1196,10 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkLsSolve][end-linear-solve] status = success small rhs
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-2.2434355129501485e-07
+-1.0263358871687166e-04
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
 1.2247445449862302e+00
 1.7318904399155099e+00
@@ -1321,7 +1342,10 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkLsSolve][end-linear-solve] status = success small rhs
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-3.0618350816911757e-07
+-1.7319064658360969e-04
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
 1.2247444631462734e+00
 1.7318198828576432e+00
@@ -1333,6 +1357,9 @@ Using GMRES iterative linear solver
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
 [INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.002
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+1.2247444631462734e+00
+1.7318198828576432e+00
+
 [DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
 -4.0824816018169901e-04
 0.0000000000000000e+00
@@ -1470,7 +1497,10 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkLsSolve][end-linear-solve] status = success small rhs
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-1.6572327087728307e-07
+-8.3381910630286882e-05
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
 1.2247442974230025e+00
 1.7317365009470129e+00
@@ -1613,7 +1643,10 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkLsSolve][end-linear-solve] status = success small rhs
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-3.6042450720410523e-07
+-1.7958682238572449e-04
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
 1.2247441027217663e+00
 1.7316402960352575e+00
@@ -1756,7 +1789,10 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkLsSolve][end-linear-solve] status = success small rhs
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
-[DEBUG][rank 0][ARKODE::mriStep_Nls][correction] zcor(:) =
+[DEBUG][rank 0][mriStep_Nls][correction] zcor(:) =
+-5.1030245465525719e-07
+-2.8861258403534151e-04
+
 [DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
 1.2247439528438187e+00
 1.7315312702736079e+00

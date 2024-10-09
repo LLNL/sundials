@@ -1671,7 +1671,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
     deltar = cvls_mem->eplifac * cv_mem->cv_tq[4];
     bnorm  = N_VWrmsNorm(b, weight);
 
-    SUNLogInfo(CV_LOGGER, __func__, "begin-linear-solve",
+    SUNLogInfo(CV_LOGGER, "begin-linear-solve",
                "iterative = 1, b-norm = %.16g, b-tol = %.16g, res-tol = %.16g",
                bnorm, deltar, deltar * cvls_mem->nrmfac);
 
@@ -1680,8 +1680,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
       if (curiter > 0) { N_VConst(ZERO, b); }
       cvls_mem->last_flag = CVLS_SUCCESS;
 
-      SUNLogInfo(CV_LOGGER, __func__, "end-linear-solve",
-                 "status = success small rhs", "");
+      SUNLogInfo(CV_LOGGER, "end-linear-solve", "status = success small rhs", "");
 
       return (cvls_mem->last_flag);
     }
@@ -1692,7 +1691,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   {
     delta = ZERO;
 
-    SUNLogInfo(CV_LOGGER, __func__, "begin-linear-solve", "iterative = 0", "");
+    SUNLogInfo(CV_LOGGER, "begin-linear-solve", "iterative = 0", "");
   }
 
   /* Set vectors ycur and fcur for use by the Atimes and Psolve
@@ -1710,7 +1709,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
                      "Error in calling SUNLinSolSetScalingVectors");
       cvls_mem->last_flag = CVLS_SUNLS_FAIL;
 
-      SUNLogInfo(CV_LOGGER, __func__, "end-linear-solve",
+      SUNLogInfo(CV_LOGGER, "end-linear-solve",
                  "status = failed set scaling vectors", "");
 
       return (cvls_mem->last_flag);
@@ -1745,8 +1744,8 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   retval = SUNLinSolSetZeroGuess(cvls_mem->LS, SUNTRUE);
   if (retval != SUN_SUCCESS)
   {
-    SUNLogInfo(CV_LOGGER, __func__, "end-linear-solve",
-               "status = failed set zero guess", "");
+    SUNLogInfo(CV_LOGGER, "end-linear-solve", "status = failed set zero guess",
+               "");
     return (-1);
   }
 
@@ -1764,8 +1763,8 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
       cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
                      MSG_LS_JTSETUP_FAILED);
 
-      SUNLogInfo(CV_LOGGER, __func__, "end-linear-solve",
-                 "status = failed J-times setup", "");
+      SUNLogInfo(CV_LOGGER, "end-linear-solve", "status = failed J-times setup",
+                 "");
       return (cvls_mem->last_flag);
     }
   }
@@ -1800,10 +1799,10 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   /* Interpret solver return value  */
   cvls_mem->last_flag = retval;
 
-  SUNLogInfoIf(retval == SUN_SUCCESS, CV_LOGGER, __func__, "end-linear-solve",
+  SUNLogInfoIf(retval == SUN_SUCCESS, CV_LOGGER, "end-linear-solve",
                "status = success, iters = %i, p-solves = %i, res-norm = %.16g",
                nli_inc, (int)(cvls_mem->nps - nps_inc), resnorm);
-  SUNLogInfoIf(retval != SUN_SUCCESS, CV_LOGGER, __func__,
+  SUNLogInfoIf(retval != SUN_SUCCESS, CV_LOGGER,
                "end-linear-solve", "status = failed, retval = %i, iters = %i, p-solves = %i, res-norm = %.16g",
                retval, nli_inc, (int)(cvls_mem->nps - nps_inc), resnorm);
 

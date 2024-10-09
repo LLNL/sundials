@@ -1461,14 +1461,14 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   {
     tol = idals_mem->nrmfac * idals_mem->eplifac * IDA_mem->ida_epsNewt;
 
-    SUNLogInfo(IDA_LOGGER, __func__, "begin-linear-solve",
+    SUNLogInfo(IDA_LOGGER, "begin-linear-solve",
                "iterative = 1, res-tol = %.16g", tol);
   }
   else
   {
     tol = ZERO;
 
-    SUNLogInfo(IDA_LOGGER, __func__, "begin-linear-solve", "iterative = 0", "");
+    SUNLogInfo(IDA_LOGGER, "begin-linear-solve", "iterative = 0", "");
   }
 
   /* Set vectors ycur, ypcur and rcur for use by the Atimes and
@@ -1487,7 +1487,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
                       "Error in calling SUNLinSolSetScalingVectors");
       idals_mem->last_flag = IDALS_SUNLS_FAIL;
 
-      SUNLogInfo(IDA_LOGGER, __func__, "end-linear-solve",
+      SUNLogInfo(IDA_LOGGER, "end-linear-solve",
                  "status = failed set scaling vectors", "");
 
       return (idals_mem->last_flag);
@@ -1522,8 +1522,8 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   retval = SUNLinSolSetZeroGuess(idals_mem->LS, SUNTRUE);
   if (retval != SUN_SUCCESS)
   {
-    SUNLogInfo(IDA_LOGGER, __func__, "end-linear-solve",
-               "status = failed set zero guess", "");
+    SUNLogInfo(IDA_LOGGER, "end-linear-solve", "status = failed set zero guess",
+               "");
     return (-1);
   }
 
@@ -1542,7 +1542,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       MSG_LS_JTSETUP_FAILED);
 
-      SUNLogInfo(IDA_LOGGER, __func__, "end-linear-solve",
+      SUNLogInfo(IDA_LOGGER, "end-linear-solve",
                  "status = failed J-times setup", "");
       return (idals_mem->last_flag);
     }
@@ -1588,10 +1588,10 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   /* Interpret solver return value  */
   idals_mem->last_flag = retval;
 
-  SUNLogInfoIf(retval == SUN_SUCCESS, IDA_LOGGER, __func__, "end-linear-solve",
+  SUNLogInfoIf(retval == SUN_SUCCESS, IDA_LOGGER, "end-linear-solve",
                "status = success, iters = %i, p-solves = %i, res-norm = %.16g",
                nli_inc, (int)(idals_mem->nps - nps_inc), resnorm);
-  SUNLogInfoIf(retval != SUN_SUCCESS, IDA_LOGGER, __func__,
+  SUNLogInfoIf(retval != SUN_SUCCESS, IDA_LOGGER,
                "end-linear-solve", "status = failed, retval = %i, iters = %i, p-solves = %i, res-norm = %.16g",
                retval, nli_inc, (int)(idals_mem->nps - nps_inc), resnorm);
 
