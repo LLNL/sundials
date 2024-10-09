@@ -402,8 +402,8 @@ can run:
    The output of ``clang-format`` is sensitive to the ``clang-format`` version. We recommend
    that you use version ``17.0.4``, which can be installed from source or with Spack. Alternatively,
    when you open a pull request on GitHub, an action will run ``clang-format`` on the code. If any
-   formatting is required, the action will fail and produce a git patch artifact that you can download
-   (from the job artifacts section) and apply with ``git apply``.
+   formatting is required, the action will fail. Commenting with the magic keyword ``/autofix`` will
+   kick off a GitHub action which will automatically apply the formatting changes needed.
 
 If clang-format breaks lines in a way that is unreadable, use ``//`` to break the line. For example,
 sometimes (mostly in C++ code) you may have code like this:
