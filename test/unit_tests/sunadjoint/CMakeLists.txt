@@ -23,7 +23,8 @@ if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
     add_executable(${test} ${test}.cpp)
     target_link_libraries(
       ${test} PRIVATE sundials_core sundials_adjoint sundials_nvecserial
-                      sundials_nvecmanyvector GTest::gtest_main GTest::gmock)
+                      sundials_nvecmanyvector sundials_sunmemsys
+                      GTest::gtest_main GTest::gmock)
 
     gtest_discover_tests(${test})
   endforeach()

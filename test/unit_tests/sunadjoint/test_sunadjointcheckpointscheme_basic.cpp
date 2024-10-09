@@ -12,17 +12,13 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <nvector/nvector_serial.h>
-#include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
-#include <sundials/sundials_core.h>
 #include <sys/types.h>
 
-#include "sunadjoint/sunadjoint_checkpointscheme.h"
-#include "sundials/sundials_errors.h"
-#include "sundials/sundials_memory.h"
-#include "sundials/sundials_nvector.h"
-#include "sundials/sundials_types.h"
-#include "sunmemory/sunmemory_system.h"
+#include <nvector/nvector_serial.h>
+#include <sunadjoint/sunadjoint_checkpointscheme.h>
+#include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
+#include <sundials/sundials_core.h>
+#include <sunmemory/sunmemory_system.h>
 
 static bool compare_vectors(N_Vector expected, N_Vector actual)
 {

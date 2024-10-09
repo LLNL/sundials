@@ -84,6 +84,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
   SUNAdjointCheckpointScheme, int64_t step_num, int64_t stage_num,
   sunbooleantype peek, N_Vector* out, sunrealtype* tout);
 
+SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme,
                                                    int64_t step_num,
                                                    int64_t stage_num,
