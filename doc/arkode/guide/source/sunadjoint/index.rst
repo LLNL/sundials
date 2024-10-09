@@ -17,7 +17,7 @@
 Adjoint Sensitivity Analysis
 ############################
 
-.. versionadded:: x.x.x
+.. versionadded:: x.y.z
 
 The ``SUNAdjoint`` API consists of a few customizable modules that provide a framework for adjoint
 sensitivity analysis (ASA). The API itself does not implement ASA, but it provides a common

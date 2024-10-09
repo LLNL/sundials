@@ -1410,7 +1410,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
-   .. versionadded:: x.x.x
+   .. versionadded:: x.y.z
 
 .. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, long int step_index)
 
@@ -1424,7 +1424,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
-   .. versionadded:: x.x.x
+   .. versionadded:: x.y.z
 
 
 .. _ARKODE.Usage.ARKodeAdaptivityInputTable:
