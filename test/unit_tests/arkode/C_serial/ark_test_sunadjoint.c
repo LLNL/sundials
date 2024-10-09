@@ -39,7 +39,8 @@ typedef struct
   sunbooleantype keep_checks;
 } ProgramArgs;
 
-static sunrealtype params[4] = {1.5, 1.0, 3.0, 1.0};
+static sunrealtype params[4] = {SUN_RCONST(1.5), SUN_RCONST(1.0),
+                                SUN_RCONST(3.0), SUN_RCONST(1.0)};
 
 static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec,
                           void* user_data)
@@ -107,12 +108,12 @@ static int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec,
   sunrealtype* J = SUNDenseMatrix_Data(Jac);
 
   J[0] = u[0];
-  J[1] = 0.0;
+  J[1] = SUN_RCONST(0.0);
   J[2] = -u[0] * u[1];
-  J[3] = 0.0;
-  J[4] = 0.0;
+  J[3] = SUN_RCONST(0.0);
+  J[4] = SUN_RCONST(0.0);
   J[5] = -u[1];
-  J[6] = 0.0;
+  J[6] = SUN_RCONST(0.0);
   J[7] = u[0] * u[1];
 
   return 0;
@@ -272,8 +273,8 @@ int main(int argc, char* argv[])
   SUNContext_PushErrHandler(sunctx, SUNAbortErrHandlerFn, NULL);
 
   ProgramArgs args;
-  args.tf          = 1.0;
-  args.dt          = 1e-4;
+  args.tf          = SUN_RCONST(1.0);
+  args.dt          = SUN_RCONST(1e-4);
   args.order       = 4;
   args.save_stages = SUNTRUE;
   args.keep_checks = SUNTRUE;
@@ -286,14 +287,14 @@ int main(int argc, char* argv[])
 
   sunindextype neq = 2;
   N_Vector u       = N_VNew_Serial(neq, sunctx);
-  N_VConst(1.0, u);
+  N_VConst(SUN_RCONST(1.0), u);
 
   //
   // Create the ARKODE stepper that will be used for the forward evolution.
   //
 
   const sunrealtype dt = args.dt;
-  sunrealtype t0       = 0.0;
+  sunrealtype t0       = SUN_RCONST(0.0);
   sunrealtype tf       = args.tf;
   const int nsteps     = (int)ceil(((tf - t0) / dt + 1));
   const int order      = args.order;
@@ -367,7 +368,7 @@ int main(int argc, char* argv[])
   printf("\n-- Redo adjoint problem using JVP --\n\n");
   if (!keep_check)
   {
-    N_VConst(1.0, u);
+    N_VConst(SUN_RCONST(1.0), u);
     printf("Initial condition:\n");
     N_VPrint(u);
     ARKStepReInit(arkode_mem, lotka_volterra, NULL, t0, u);
@@ -387,7 +388,7 @@ int main(int argc, char* argv[])
   printf("\n-- Redo adjoint problem using VJP --\n\n");
   if (!keep_check)
   {
-    N_VConst(1.0, u);
+    N_VConst(SUN_RCONST(1.0), u);
     printf("Initial condition:\n");
     N_VPrint(u);
     ARKStepReInit(arkode_mem, lotka_volterra, NULL, t0, u);

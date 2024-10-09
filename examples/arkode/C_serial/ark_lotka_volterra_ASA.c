@@ -85,8 +85,8 @@ int main(int argc, char* argv[])
   SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
   ProgramArgs args;
-  args.tf          = 10.0;
-  args.dt          = 1e-3;
+  args.tf          = SUN_RCONST(10.0);
+  args.dt          = SUN_RCONST(1e-3);
   args.order       = 4;
   args.save_stages = SUNTRUE;
   args.keep_checks = SUNTRUE;
@@ -100,15 +100,15 @@ int main(int argc, char* argv[])
   sunindextype neq = 2;
   N_Vector u       = N_VNew_Serial(neq, sunctx);
   N_Vector u0      = N_VClone(u);
-  N_VConst(1.0, u0);
-  N_VConst(1.0, u);
+  N_VConst(SUN_RCONST(1.0), u0);
+  N_VConst(SUN_RCONST(1.0), u);
 
   //
   // Create the ARKODE stepper that will be used for the forward evolution.
   //
 
   const sunrealtype dt = args.dt;
-  sunrealtype t0       = 0.0;
+  sunrealtype t0       = SUN_RCONST(0.0);
   sunrealtype tf       = args.tf;
   const int nsteps     = (int)ceil(((tf - t0) / dt + 1));
   const int order      = args.order;
@@ -211,12 +211,6 @@ int main(int argc, char* argv[])
   int stop_reason = 0;
   retval = SUNAdjointStepper_Evolve(adj_stepper, t0, sf, &tret, &stop_reason);
   if (check_retval(&retval, "SUNAdjointStepper_Evolve", 1)) { return 1; }
-
-  // // Compute gradient w.r.t. parameters:
-  // N_Vector tmp = N_VClone(sensp);
-  // parameter_vjp(sensp, tmp, tret, u0, NULL, (void*)params, NULL);
-  // N_VLinearSum(1.0, sensp, 1.0, tmp, sensp);
-  // N_VDestroy(tmp);
 
   printf("Adjoint Solution:\n");
   N_VPrint(sf);
