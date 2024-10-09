@@ -658,7 +658,8 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
     fprintf(fp, "  Number of stages used = %i\n", step_mem->req_stages);
     break;
   case SUNFALSE:
-    fprintf(fp, "  Maximum number of stages allowed = %i\n", step_mem->stage_max_limit);
+    fprintf(fp, "  Maximum number of stages allowed = %i\n",
+            step_mem->stage_max_limit);
     fprintf(fp, "  Maximum number of stages used = %i\n", step_mem->stage_max);
     fprintf(fp, "  Num of steps that successfully used dom eig = %i\n",
             step_mem->dom_eig_nst);
