@@ -2174,6 +2174,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init              = lsrkStep_Init;
   ark_mem->step_fullrhs           = lsrkStep_FullRHS;
+  ark_mem->step                   = lsrkStep_TakeStepRKC;
   ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
   ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
   ark_mem->step_resize            = lsrkStep_Resize;
