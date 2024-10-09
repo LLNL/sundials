@@ -304,10 +304,16 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     ark_mem->e_data    = ark_mem;
   }
 
-  /* Set the default stepper */
+  /* If the user did not call LSRKStepSetMethod, then do this
+     automatically for the default methods */
   if (ark_mem->step == lsrkStep_TakeStepRKC)
   {
     retval = LSRKStepSetMethod(ark_mem, ARKODE_LSRK_RKC_2);
+    if (retval != ARK_SUCCESS) { return retval; }
+  }
+  if (ark_mem->step == lsrkStep_TakeStepSSPs2)
+  {
+    retval = LSRKStepSetMethod(ark_mem, ARKODE_LSRK_SSP_S_2);
     if (retval != ARK_SUCCESS) { return retval; }
   }
 
@@ -470,9 +476,9 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
             0 => step completed successfully
            >0 => step encountered recoverable failure;
                  reduce step and retry (if possible)
-                 ARK_RETRY_STEP indicates that the required stage 
-                 number has reached the stage_max_limit with the 
-                 current value of h. The step is then returned to 
+                 ARK_RETRY_STEP indicates that the required stage
+                 number has reached the stage_max_limit with the
+                 current value of h. The step is then returned to
                  adjust the step size.
            <0 => step encountered unrecoverable failure
   ---------------------------------------------------------------*/
@@ -746,9 +752,9 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
             0 => step completed successfully
            >0 => step encountered recoverable failure;
                  reduce step and retry (if possible)
-                 ARK_RETRY_STEP indicates that the required stage 
-                 number has reached the stage_max_limit with the 
-                 current value of h. The step is then returned to 
+                 ARK_RETRY_STEP indicates that the required stage
+                 number has reached the stage_max_limit with the
+                 current value of h. The step is then returned to
                  adjust the step size.
            <0 => step encountered unrecoverable failure
   ---------------------------------------------------------------*/
@@ -2102,7 +2108,7 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
 /*---------------------------------------------------------------
   lsrkStep_Create_Commons:
 
-  A submodule for creating the common features of 
+  A submodule for creating the common features of
   LSRKStepCreateSTS and LSRKStepCreateSSP.
   ---------------------------------------------------------------*/
 
@@ -2168,7 +2174,6 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init              = lsrkStep_Init;
   ark_mem->step_fullrhs           = lsrkStep_FullRHS;
-  ark_mem->step                   = lsrkStep_TakeStepRKC;
   ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
   ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
   ark_mem->step_resize            = lsrkStep_Resize;
@@ -2222,7 +2227,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 /*---------------------------------------------------------------
   lsrkStep_ReInit_Commons:
 
-  A submodule designed to reinitialize the common features of 
+  A submodule designed to reinitialize the common features of
   LSRKStepCreateSTS and LSRKStepCreateSSP.
   ---------------------------------------------------------------*/
 
