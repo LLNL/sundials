@@ -63,7 +63,8 @@ typedef struct
   sunbooleantype keep_checks;
 } ProgramArgs;
 
-static sunrealtype params[4] = {SUN_RCONST(1.5), SUN_RCONST(1.0), SUN_RCONST(3.0), SUN_RCONST(1.0)};
+static sunrealtype params[4] = {SUN_RCONST(1.5), SUN_RCONST(1.0),
+                                SUN_RCONST(3.0), SUN_RCONST(1.0)};
 static void parse_args(int argc, char* argv[], ProgramArgs* args);
 static void print_help(int argc, char* argv[], int exit_code);
 static int check_retval(void* retval_ptr, const char* funcname, int opt);

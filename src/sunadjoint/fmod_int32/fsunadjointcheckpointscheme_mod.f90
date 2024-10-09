@@ -66,8 +66,8 @@ bind(C, name="_wrap_FSUNAdjointCheckpointScheme_ShouldWeSave") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT32_T), intent(in) :: farg2
-integer(C_INT32_T), intent(in) :: farg3
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
@@ -78,8 +78,8 @@ bind(C, name="_wrap_FSUNAdjointCheckpointScheme_ShouldWeDelete") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT32_T), intent(in) :: farg2
-integer(C_INT32_T), intent(in) :: farg3
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
 type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
@@ -89,8 +89,8 @@ bind(C, name="_wrap_FSUNAdjointCheckpointScheme_InsertVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT32_T), intent(in) :: farg2
-integer(C_INT32_T), intent(in) :: farg3
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
@@ -101,8 +101,8 @@ bind(C, name="_wrap_FSUNAdjointCheckpointScheme_LoadVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT32_T), intent(in) :: farg2
-integer(C_INT32_T), intent(in) :: farg3
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
 integer(C_INT), intent(in) :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR), value :: farg6
@@ -114,8 +114,8 @@ bind(C, name="_wrap_FSUNAdjointCheckpointScheme_RemoveVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT32_T), intent(in) :: farg2
-integer(C_INT32_T), intent(in) :: farg3
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
 type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
@@ -163,14 +163,14 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
-integer(C_INT32_T), intent(in) :: step_num
-integer(C_INT32_T), intent(in) :: stage_num
+integer(C_INT64_T), intent(in) :: step_num
+integer(C_INT64_T), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT32_T) :: farg2 
-integer(C_INT32_T) :: farg3 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
@@ -188,13 +188,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
-integer(C_INT32_T), intent(in) :: step_num
-integer(C_INT32_T), intent(in) :: stage_num
+integer(C_INT64_T), intent(in) :: step_num
+integer(C_INT64_T), intent(in) :: stage_num
 integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT32_T) :: farg2 
-integer(C_INT32_T) :: farg3 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
 type(C_PTR) :: farg4 
 
 farg1 = c_loc(arg0)
@@ -210,14 +210,14 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
-integer(C_INT32_T), intent(in) :: step_num
-integer(C_INT32_T), intent(in) :: stage_num
+integer(C_INT64_T), intent(in) :: step_num
+integer(C_INT64_T), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 type(N_Vector), target, intent(inout) :: state
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT32_T) :: farg2 
-integer(C_INT32_T) :: farg3 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
@@ -235,15 +235,15 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
-integer(C_INT32_T), intent(in) :: step_num
-integer(C_INT32_T), intent(in) :: stage_num
+integer(C_INT64_T), intent(in) :: step_num
+integer(C_INT64_T), intent(in) :: stage_num
 integer(C_INT), intent(in) :: peek
 type(C_PTR) :: out
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tout
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT32_T) :: farg2 
-integer(C_INT32_T) :: farg3 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
 integer(C_INT) :: farg4 
 type(C_PTR) :: farg5 
 type(C_PTR) :: farg6 
@@ -263,13 +263,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
-integer(C_INT32_T), intent(in) :: step_num
-integer(C_INT32_T), intent(in) :: stage_num
+integer(C_INT64_T), intent(in) :: step_num
+integer(C_INT64_T), intent(in) :: stage_num
 type(C_PTR) :: out
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT32_T) :: farg2 
-integer(C_INT32_T) :: farg3 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
 type(C_PTR) :: farg4 
 
 farg1 = c_loc(arg0)
