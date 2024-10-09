@@ -19,6 +19,7 @@
 /.pydevproject
 .vscode
 compile_commands.json
+.clangd
 
 # custom test environment setup script
 /test/env/env.sh
