@@ -200,7 +200,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
-.. c:function:: SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper adj_stepper, SUNJacTimesFn Jvp, SUNJacTimesFn JPvp)
+.. c:function:: SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper adj_stepper, SUNJacTimesFn Jvp, SUNJacTimesFn JPvp)
 
 
    Sets the function pointers to evaluate :math:`(df/dy)^T v`  and :math:`(df/dp)^T v`

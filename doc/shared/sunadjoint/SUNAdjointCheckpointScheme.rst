@@ -44,7 +44,7 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 
 .. c:struct:: SUNAdjointCheckpointScheme_Ops_
 
-. c:type:: struct SUNAdjointCheckpointScheme_Ops_
+.. c:type:: struct SUNAdjointCheckpointScheme_Ops_
 
    .. c:member:: SUNErrCode (*shouldWeSave)(SUNAdjointCheckpointScheme, sunindextype step_num, sunindextype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
@@ -60,15 +60,15 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 
    .. c:member:: SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme, sunindextype step_num, sunindextype stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
 
-      Function pointer to load a checkpoint state represented as a `N_Vector`.
+      Function pointer to load a checkpoint state represented as a :c:type:`N_Vector`.
 
    .. c:member:: SUNErrCode (*removeVector)(SUNAdjointCheckpointScheme, sunindextype step_num, sunindextype stage_num, N_Vector* out)
 
-      Function pointer to remove a checkpoint state represented as a `N_Vector`.
+      Function pointer to remove a checkpoint state represented as a :c:type:`N_Vector`.
 
    .. c:member:: SUNErrCode (*destroy)(SUNAdjointCheckpointScheme*)
 
-      Function pointer to destroy and free the memory for the `SUNAdjointCheckpointScheme` object.
+      Function pointer to destroy and free the memory for the :c:type:`SUNAdjointCheckpointScheme` object.
 
    .. c:member:: SUNErrCode (*enableDense)(SUNAdjointCheckpointScheme, sunbooleantype on_or_off)
 
@@ -158,7 +158,7 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
    Enables or disables dense checkpointing (checkpointing every step/stage).
 
    :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
-   :param on_or_off: if true, dense checkpointing will be turned on, ifalse it will be turned off.
+   :param on_or_off: if true, dense checkpointing will be turned on, if false it will be turned off.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
@@ -190,7 +190,7 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval, int64_t estimate, sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
 
-   Creates a new `SUNAdjointCheckpointScheme` object that checkpoints at a fixed interval.
+   Creates a new :c:type:`SUNAdjointCheckpointScheme` object that checkpoints at a fixed interval.
 
    :param io_mode: The IO mode used for storing the checkpoints.
    :param mem_helper: Memory helper for managing memory.
@@ -198,9 +198,9 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param estimate: An estimate of the total number of checkpoints needed.
    :param save_stages: If using a multistage method, should stages be saved with the step.
    :param keep: Keep data stored even after it is not needed anymore.
-   :param sunctx: The SUNContext for the simulation.
+   :param sunctx: The :c:type:`SUNContext` for the simulation.
    :param check_scheme_ptr: Pointer to the newly constructed object.
-   :return: A `SUNErrCode` indicating success or failure.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
@@ -211,7 +211,7 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param stage_num: The current stage number (only nonzero for multistage methods).
    :param t: The current time.
    :param yes_or_no: On output, will be 1 if you should save, 0 otherwise.
-   :return: A `SUNErrCode` indicating success or failure.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(SUNAdjointCheckpointScheme check_scheme, sunindextype step_num, sunindextype stage_num, sunrealtype t, N_Vector state)
 

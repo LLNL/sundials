@@ -2143,7 +2143,7 @@ for which we would like to compute the gradients :math:`\partial g(y(t_f),p)/\pa
 and/or :math:`\partial g(y(t_f),p)/\partial p`. The adjoint method is one approach to obtaining the
 gradients that is particularly efficient when there are relatively few functionals and a
 large number of parameters. With the adjoint method we solve the adjoint ODEs for :math:`\lambda(t)
-\in \mathbb{R}^N` and :math:`\mu(t) \in \mathbb{R}^{N_s}`:
+\in \mathbb{R}^N` and :math:`\mu(t) \in \mathbb{R}^{N_p}`:
 
 .. math::
    \lambda'(t) &= -f_y^T(t, y, p) \lambda,\quad \lambda(t_F) = g_y^T(y(t_f), p), \\
@@ -2151,8 +2151,8 @@ large number of parameters. With the adjoint method we solve the adjoint ODEs fo
    :label: ARKODE_ADJOINT_ODE
 
 (For a detailed derivation see :cite:p:`hager2000runge,sanduDiscrete2006`). Here :math:`f_y \equiv
-\partial f/\partial y` is the Jacobian with respect to the dependent variable and :math:`f_p \equiv
-\partial f/\partial p` is the Jacobian with respect to the parameters. The ARKStep module in ARKODE
+\partial f/\partial y \in \mathbb{R}^{N \times N}` is the Jacobian with respect to the dependent variable and :math:`f_p \equiv
+\partial f/\partial p \in \mathbb{R}^{N \times N_p}` is the Jacobian with respect to the parameters. The ARKStep module in ARKODE
 provides adjoint sensitivity analysis based on the *discrete* formulation, i.e., given an s-stage explicit
 Runge--Kutta method (as in :eq:`ARKODE_ERK`, but without the embedding), the discrete adjoint
 to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1}` and
@@ -2170,7 +2170,7 @@ After completing integration from :math:`t_n` all the way to :math:`t_0` using t
 formulation, the gradients are
 
 .. math::
-   \frac{\partial g}{\partial y_{(t_0)}} = \lambda_0, \quad
+   \frac{\partial g}{\partial y(t_0)} = \lambda_0, \quad
    \frac{\partial g}{\partial p} = \mu_0 + \lambda_0 \left(\frac{\partial y(t_0)}{\partial p} \right).
 
 For more information on performing discrete adjoint sensitivity analysis see, :numref:`ARKODE.Usage.ARKStep.ASA`.
@@ -2184,7 +2184,7 @@ sometimes used -- the *continuous* adjoint method. In the continuous approach, w
 sensitivity equations directly from the model and then we integrate them with a time integration
 method. This is the approach implemented in the SUNDIALS :ref:`CVODES <CVODES.Mathematics.ASA>` and
 :ref:`IDAS <IDAS.Mathematics.ASA>` packages. In the *discrete* approach, the model equations are
-discretized with the time integration method first, and then we derive the adjoints of the
+discretized with the time integration method first, and then we derive the sensitivities of the
 discretized equations. It is understood that the continuous adjoint method can be problematic in the
 context of optimization problems because the continuous adjoint method provides an approximation to
 the gradient of a continuous cost function while the optimizer is expecting the gradient of the

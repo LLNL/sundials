@@ -7,8 +7,7 @@ The previous sections discuss using ARKStep for the integration of forward ODE m
 This section discusses how to use ARKStep for adjoint sensitivity analysis as introduced
 in :numref:`ARKODE.Mathematics.ASA`. To use ARKStep for ASA, users simply setup the forward
 integration as usual (following :numref:`ARKODE.Usage.Skeleton`) with one exception:
-a :c:type:`SUNAdjointCheckpointScheme` object must be provided to the forward ARKStep stepper
-creating a :c:type:`SUNAdjointCheckpointScheme` object and then calling
+a :c:type:`SUNAdjointCheckpointScheme` object must be created and passed to
 :c:func:`ARKodeSetAdjointCheckpointScheme` before the call to the :c:func:`ARKodeEvolve`
 function. After the forward model integration code, a :c:type:`SUNAdjointStepper` object
 can be created for the adjoint model integration by calling :c:func:`ARKStepCreateAdjointStepper`.
