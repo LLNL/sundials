@@ -349,13 +349,16 @@ SUNErrCode SUNProfiler_Reset(SUNProfiler p)
   sunResetTiming(p->overhead);
   sunStartTiming(p->overhead);
 
-  // /* Reset all timers */
-  // for (i = 0; i < SUNHashMap_Capacity(p->map); i++)
-  // {
-  //   if (!(p->map->buckets[i])) { continue; }
-  //   timer = p->map->buckets[i]->value;
-  //   if (timer) { sunResetTiming(timer); }
-  // }
+  /* Reset all timers */
+  for (int64_t i = 0; i < SUNHashMap_Capacity(p->map); i++)
+  {
+    SUNHashMapKeyValue* kvp =
+      SUNStlVector_SUNHashMapKeyValue_At(p->map->buckets, i);
+
+    if (!kvp || !(*kvp)) { continue; }
+    sunTimerStruct* timer = (*kvp)->value;
+    if (timer) { sunResetTiming(timer); }
+  }
 
   /* Reset the overall timer. */
   p->sundials_time = 0.0;
@@ -471,7 +474,7 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
 
   sunTimerStruct** values = NULL;
 
-  /* MPI restricts us to int, but the hashmap allows int64_t. 
+  /* MPI restricts us to int, but the hashmap allows int64_t.
      We add a check here to make sure that the capacity does
      not exceed an int, although it is unlikely we ever will. */
   if (SUNHashMap_Capacity(p->map) > INT_MAX)
