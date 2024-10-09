@@ -1032,6 +1032,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     bt1 = SUN_RCONST(
       0.694021459207626); // due to https://doi.org/10.1016/j.cam.2022.114325 pg 5
+    bt2 = ZERO;
     bt3 = ONE - bt1;
   }
   else
