@@ -127,7 +127,7 @@ int LSRKStepSetMethodByName(void* arkode_mem, const char* emethod)
 
 /*---------------------------------------------------------------
   LSRKStepSetDomEigFn specifies the dom_eig function.
-  Specifies the dominant eigenvalue approximation routine to be used for determining 
+  Specifies the dominant eigenvalue approximation routine to be used for determining
   the number of stages that will be used by either the RKC or RKL methods.
   ---------------------------------------------------------------*/
 int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
@@ -221,11 +221,11 @@ int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
 
 /*---------------------------------------------------------------
   LSRKStepSetDomEigSafetyFactor sets the safety factor for the DomEigs.
-  Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.  
-  This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring 
-  a sufficient number of stages for the method to be stable.  This input is only used for RKC 
+  Specifies a safety factor to use for the result of the dominant eigenvalue estimation function.
+  This value is used to scale the magnitude of the dominant eigenvalue, in the hope of ensuring
+  a sufficient number of stages for the method to be stable.  This input is only used for RKC
   and RKL methods.
-  
+
   Calling this function with dom_eig_safety < 0 resets the default value
   ---------------------------------------------------------------*/
 int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
@@ -256,10 +256,10 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
       ARKODE_LSRK_SSP_S_3  -- num_of_stages must be a perfect square greater than or equal to 4
       ARKODE_LSRK_SSP_10_4 -- num_of_stages must be equal to 10 - no need to call!
 
-   Sets the number of stages, s in SSP(s, p) methods. This input is only utilized by 
-   SSPRK methods. Thus, this set routine must be called after calling LSRKStepSetMethod with an 
-   SSPRK method. 
-   
+   Sets the number of stages, s in SSP(s, p) methods. This input is only utilized by
+   SSPRK methods. Thus, this set routine must be called after calling LSRKStepSetMethod with an
+   SSPRK method.
+
    Calling this function with num_of_stages =< 0 resets the default value.
   ---------------------------------------------------------------*/
 int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
@@ -485,7 +485,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->dom_eig_is_current = SUNFALSE;
   step_mem->is_SSP             = SUNFALSE;
 
-  /* Remove current SUNAdaptController object if exists, 
+  /* Remove current SUNAdaptController object if exists,
   and replace with the ARKODE-default "PID" */
   if (ark_mem->hadapt_mem->owncontroller)
   {
@@ -575,7 +575,6 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
               step_mem->stage_max);
       fprintf(outfile, "Max. num. of stages allowed  = %d\n",
               step_mem->stage_max_limit);
-
       fprintf(outfile, "Max. spectral radius         = %.2f\n",
               step_mem->spectral_radius_max);
       fprintf(outfile, "Min. spectral radius         = %.2f\n",
@@ -588,7 +587,6 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
       fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
       fprintf(outfile, ",Max. num. of stages allowed,%d",
               step_mem->stage_max_limit);
-
       fprintf(outfile, ",Max. spectral radius,%.2f",
               step_mem->spectral_radius_max);
       fprintf(outfile, ",Min. spectral radius,%.2f",
@@ -660,6 +658,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
     fprintf(fp, "  Number of stages used = %i\n", step_mem->req_stages);
     break;
   case SUNFALSE:
+    fprintf(fp, "  Maximum number of stages allowed = %i\n", step_mem->stage_max_limit);
     fprintf(fp, "  Maximum number of stages used = %i\n", step_mem->stage_max);
     fprintf(fp, "  Num of steps that successfully used dom eig = %i\n",
             step_mem->dom_eig_nst);
@@ -676,14 +675,10 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
             step_mem->dom_eig_safety);
     fprintf(fp, "  Max num of successful steps before new dom eig update = %i\n",
             step_mem->dom_eig_freq);
-    fprintf(fp, "  Fixed num of steps before new dom eig update = %i\n",
-            step_mem->dom_eig_freq);
     fprintf(fp, "  Flag to indicate new dom eig is needed = %d\n",
             step_mem->dom_eig_update);
     fprintf(fp, "  Flag to indicate Jacobian is constant = %d\n",
             step_mem->const_Jac);
-    fprintf(fp, "  Flag to indicate dom eig is current = %d\n",
-            step_mem->dom_eig_is_current);
     fprintf(fp, "  Flag to indicate dom eig is current = %d\n",
             step_mem->dom_eig_is_current);
     break;
