@@ -56,7 +56,7 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 
    .. c:member:: SUNErrCode (*insertVector)(SUNAdjointCheckpointScheme, sunindextype step_num, sunindextype stage_num, sunrealtype t, N_Vector state)
 
-      Function pointer to insert a checkpoint state represented as a `N_Vector`.
+      Function pointer to insert a checkpoint state represented as a :c:type:`N_Vector`.
 
    .. c:member:: SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme, sunindextype step_num, sunindextype stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
 
