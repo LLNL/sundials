@@ -13,11 +13,16 @@
  * -----------------------------------------------------------------
  * Implementation of a resizable container similar to a std::vector.
  * The values can be anything but data must be contiguous.
- #
- # To use the StlVector, first define TTYPE with your data type
- # before including this header. If you need StlVectors that hold
- # different types in the same file, then define TTYPE for the first,
- # include this header, then repeat.
+ *
+ * To use the StlVector, first define TTYPE with your data type
+ * before including this header. The name of the class for your data
+ * type will then be SUNStlVector_TTYPE and functions will be
+ * SUNStlVector_TTYPE_<function>. E.g.
+ *   #define TTYPE int
+ *   #include "sunstl_vector.h'
+ *   SUNStlVector_int_New(10, destroyIntFn);
+ * If you need StlVectors that hold different types in the same file,
+ * then define TTYPE for the first, include this header, then repeat.
  * -----------------------------------------------------------------*/
 
 #include <stdlib.h>
