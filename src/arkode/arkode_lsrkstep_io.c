@@ -663,9 +663,12 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
     fprintf(fp, "  Maximum number of stages used = %i\n", step_mem->stage_max);
     fprintf(fp, "  Num of steps that successfully used dom eig = %i\n",
             step_mem->dom_eig_nst);
-    fprintf(fp, "  Current real part of the dom eig = %" RSYM "\n", step_mem->lambdaR);
-    fprintf(fp, "  Current imag part of the dom eig = %" RSYM "\n", step_mem->lambdaI);
-    fprintf(fp, "  Current spectral radius = %" RSYM "\n", step_mem->spectral_radius);
+    fprintf(fp, "  Current real part of the dom eig = %" RSYM "\n",
+            step_mem->lambdaR);
+    fprintf(fp, "  Current imag part of the dom eig = %" RSYM "\n",
+            step_mem->lambdaI);
+    fprintf(fp, "  Current spectral radius = %" RSYM "\n",
+            step_mem->spectral_radius);
     fprintf(fp, "  Current number of required stages = %i\n",
             step_mem->req_stages);
     fprintf(fp, "  Maximum spectral radius = %" RSYM "\n",
