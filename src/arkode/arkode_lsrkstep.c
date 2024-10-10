@@ -2213,7 +2213,6 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   step_mem->dom_eig_num_evals = 0;
   step_mem->stage_max_limit   = STAGE_MAX_LIMIT_DEFAULT;
   step_mem->dom_eig_nst       = 0;
-  step_mem->is_SSP            = SUNFALSE;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);

@@ -50,12 +50,14 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   {
   case ARKODE_LSRK_RKC_2:
     ark_mem->step          = lsrkStep_TakeStepRKC;
+    step_mem->is_SSP       = SUNFALSE;
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     break;
   case ARKODE_LSRK_RKL_2:
     ark_mem->step          = lsrkStep_TakeStepRKL;
+    step_mem->is_SSP       = SUNFALSE;
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
@@ -471,11 +473,11 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->req_stages = 0; /* no stages */
 
   /* Spectral info */
-  step_mem->lambdaR             = 0;
-  step_mem->lambdaI             = 0;
-  step_mem->spectral_radius     = 0;
-  step_mem->spectral_radius_max = 0;
-  step_mem->spectral_radius_min = 0;
+  step_mem->lambdaR             = ZERO;
+  step_mem->lambdaI             = ZERO;
+  step_mem->spectral_radius     = ZERO;
+  step_mem->spectral_radius_max = ZERO;
+  step_mem->spectral_radius_min = ZERO;
   step_mem->dom_eig_safety      = DOM_EIG_SAFETY_DEFAULT;
   step_mem->dom_eig_freq        = DOM_EIG_FREQ_DEFAULT;
 
