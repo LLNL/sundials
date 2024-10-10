@@ -38,6 +38,10 @@ inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
 
 ### Bug Fixes
 
+Fixed a [bug](https://github.com/LLNL/sundials/issues/581) in the sparse matrix
+implementation of `SUNMatScaleAddI` which caused out of bounds writes unless
+`indexvals` were in ascending order for each row/column.
+
 Fixed `ARKodeResize` not using the default `hscale` when an argument of `0` was
 provided.
 
