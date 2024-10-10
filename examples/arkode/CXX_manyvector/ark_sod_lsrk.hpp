@@ -371,6 +371,7 @@ static int ReadInputs(std::vector<std::string>& args, EulerData& udata,
 
   // Integrator options
   find_arg(args, "--integrator", uopts.integrator);
+  find_arg(args, "--stages", uopts.stages);
   find_arg(args, "--rtol", uopts.rtol);
   find_arg(args, "--atol", uopts.atol);
   find_arg(args, "--fixed_h", uopts.fixed_h);

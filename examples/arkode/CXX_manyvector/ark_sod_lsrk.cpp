@@ -106,21 +106,15 @@ int main(int argc, char* argv[])
     if (check_ptr(arkode_mem, "LSRKStepCreateSSP")) { return 1; }
 
     // Select SSPRK method type
-    ARKODE_LSRKMethodType mtype;
-    if (uopts.integrator == "ARKODE_LSRK_SSP_S_2")
+    flag = LSRKStepSetMethodByName(arkode_mem, uopts.integrator.c_str());
+    if (check_flag(flag, "LSRKStepSetMethodByName")) { return 1; }
+
+    // Select number of SSPRK stages
+    if (uopts.stages > 0)
     {
-      mtype = ARKODE_LSRK_SSP_S_2;
+      flag = LSRKStepSetSSPStageNum(arkode_mem, uopts.stages);
+      if (check_flag(flag, "LSRKStepSetSSPStageNum")) { return 1; }
     }
-    else if (uopts.integrator == "ARKODE_LSRK_SSP_S_3")
-    {
-      mtype = ARKODE_LSRK_SSP_S_3;
-    }
-    else if (uopts.integrator == "ARKODE_LSRK_SSP_10_4")
-    {
-      mtype = ARKODE_LSRK_SSP_10_4;
-    }
-    flag = LSRKStepSetMethod(arkode_mem, mtype);
-    if (check_flag(flag, "LSRKStepSetMethod")) { return 1; }
   }
   else
   { // Setup ERKStep

@@ -33,9 +33,18 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
                         SUNContext sunctx)
 {
   ARKodeMem ark_mem;
+  int retval;
 
-  ark_mem       = lsrkStep_Create_Commons(rhs, t0, y0, sunctx);
-  ark_mem->step = lsrkStep_TakeStepRKC;
+  /* Create shared LSRKStep memory structure */
+  ark_mem = lsrkStep_Create_Commons(rhs, t0, y0, sunctx);
+
+  /* set default ARKODE_LSRK_RKC_2 method */
+  retval = LSRKStepSetMethod((void*) ark_mem, ARKODE_LSRK_RKC_2);
+  if (retval != ARK_SUCCESS)
+  {
+    lsrkStep_Free(ark_mem);
+    return NULL;
+  }
 
   return (void*)ark_mem;
 }
@@ -44,9 +53,18 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
                         SUNContext sunctx)
 {
   ARKodeMem ark_mem;
+  int retval;
 
-  ark_mem       = lsrkStep_Create_Commons(rhs, t0, y0, sunctx);
-  ark_mem->step = lsrkStep_TakeStepSSPs2;
+  /* Create shared LSRKStep memory structure */
+  ark_mem = lsrkStep_Create_Commons(rhs, t0, y0, sunctx);
+
+  /* set default ARKODE_LSRK_SSP_S_2 method */
+  retval = LSRKStepSetMethod((void*) ark_mem, ARKODE_LSRK_SSP_S_2);
+  if (retval != ARK_SUCCESS)
+  {
+    lsrkStep_Free(ark_mem);
+    return NULL;
+  }
 
   return (void*)ark_mem;
 }
@@ -302,19 +320,6 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     ark_mem->user_efun = SUNFALSE;
     ark_mem->efun      = arkEwtSetSmallReal;
     ark_mem->e_data    = ark_mem;
-  }
-
-  /* If the user did not call LSRKStepSetMethod, then do this
-     automatically for the default methods */
-  if (ark_mem->step == lsrkStep_TakeStepRKC)
-  {
-    retval = LSRKStepSetMethod(ark_mem, ARKODE_LSRK_RKC_2);
-    if (retval != ARK_SUCCESS) { return retval; }
-  }
-  if (ark_mem->step == lsrkStep_TakeStepSSPs2)
-  {
-    retval = LSRKStepSetMethod(ark_mem, ARKODE_LSRK_SSP_S_2);
-    if (retval != ARK_SUCCESS) { return retval; }
   }
 
   /* Allocate ARK RHS vector memory, update storage requirements */
