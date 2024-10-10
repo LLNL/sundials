@@ -235,15 +235,15 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
             step_mem->dom_eig_num_evals);
 
     /* output sunrealtype quantities */
-    fprintf(outfile, "LSRKStep: dom_eig               = %f + i%f\n",
+    fprintf(outfile, "LSRKStep: dom_eig               = %" RSYM " + i%" RSYM "\n",
             step_mem->lambdaR, step_mem->lambdaI);
-    fprintf(outfile, "LSRKStep: spectral_radius       = %f\n",
+    fprintf(outfile, "LSRKStep: spectral_radius       = %" RSYM "\n",
             step_mem->spectral_radius);
-    fprintf(outfile, "LSRKStep: spectral_radius_max   = %f\n",
+    fprintf(outfile, "LSRKStep: spectral_radius_max   = %" RSYM "\n",
             step_mem->spectral_radius_max);
-    fprintf(outfile, "LSRKStep: spectral_radius_min   = %f\n",
+    fprintf(outfile, "LSRKStep: spectral_radius_min   = %" RSYM "\n",
             step_mem->spectral_radius_min);
-    fprintf(outfile, "LSRKStep: dom_eig_safety        = %f\n",
+    fprintf(outfile, "LSRKStep: dom_eig_safety        = %" RSYM "\n",
             step_mem->dom_eig_safety);
 
     /* output sunbooleantype quantities */

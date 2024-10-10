@@ -575,9 +575,9 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
               step_mem->stage_max);
       fprintf(outfile, "Max. num. of stages allowed  = %d\n",
               step_mem->stage_max_limit);
-      fprintf(outfile, "Max. spectral radius         = %.2f\n",
+      fprintf(outfile, "Max. spectral radius         = %" RSYM "\n",
               step_mem->spectral_radius_max);
-      fprintf(outfile, "Min. spectral radius         = %.2f\n",
+      fprintf(outfile, "Min. spectral radius         = %" RSYM "\n",
               step_mem->spectral_radius_min);
       break;
     case SUN_OUTPUTFORMAT_CSV:
@@ -587,9 +587,9 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
       fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
       fprintf(outfile, ",Max. num. of stages allowed,%d",
               step_mem->stage_max_limit);
-      fprintf(outfile, ",Max. spectral radius,%.2f",
+      fprintf(outfile, ",Max. spectral radius,%" RSYM "",
               step_mem->spectral_radius_max);
-      fprintf(outfile, ",Min. spectral radius,%.2f",
+      fprintf(outfile, ",Min. spectral radius,%" RSYM "",
               step_mem->spectral_radius_min);
       fprintf(outfile, "\n");
       break;
@@ -663,16 +663,16 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
     fprintf(fp, "  Maximum number of stages used = %i\n", step_mem->stage_max);
     fprintf(fp, "  Num of steps that successfully used dom eig = %i\n",
             step_mem->dom_eig_nst);
-    fprintf(fp, "  Current real part of the dom eig = %.2f\n", step_mem->lambdaR);
-    fprintf(fp, "  Current imag part of the dom eig = %.2f\n", step_mem->lambdaI);
-    fprintf(fp, "  Current spectral radius = %.2f\n", step_mem->spectral_radius);
+    fprintf(fp, "  Current real part of the dom eig = %" RSYM "\n", step_mem->lambdaR);
+    fprintf(fp, "  Current imag part of the dom eig = %" RSYM "\n", step_mem->lambdaI);
+    fprintf(fp, "  Current spectral radius = %" RSYM "\n", step_mem->spectral_radius);
     fprintf(fp, "  Current number of required stages = %i\n",
             step_mem->req_stages);
-    fprintf(fp, "  Maximum spectral radius = %.2f\n",
+    fprintf(fp, "  Maximum spectral radius = %" RSYM "\n",
             step_mem->spectral_radius_max);
-    fprintf(fp, "  Minimum spectral radius = %.2f\n",
+    fprintf(fp, "  Minimum spectral radius = %" RSYM "\n",
             step_mem->spectral_radius_min);
-    fprintf(fp, "  Safety factor for the dom eig = %.2f\n",
+    fprintf(fp, "  Safety factor for the dom eig = %" RSYM "\n",
             step_mem->dom_eig_safety);
     fprintf(fp, "  Max num of successful steps before new dom eig update = %i\n",
             step_mem->dom_eig_freq);

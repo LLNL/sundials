@@ -81,8 +81,8 @@ int main(void)
   sunrealtype abstol = SUN_RCONST(1.0e-8);
   sunrealtype lambda = SUN_RCONST(-10.0); /* stiffness parameter */
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-  sunrealtype reltol = SUN_RCONST(1.0e-12); /* tolerances */
-  sunrealtype abstol = SUN_RCONST(1.0e-12);
+  sunrealtype reltol = SUN_RCONST(1.0e-8); /* tolerances */
+  sunrealtype abstol = SUN_RCONST(1.0e-8);
   sunrealtype lambda = SUN_RCONST(-10.0); /* stiffness parameter */
 #endif
 
