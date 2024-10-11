@@ -58,11 +58,11 @@ void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
   else if (lvl == SUN_LOGLEVEL_INFO) { prefix = (char*)"INFO"; }
   else if (lvl == SUN_LOGLEVEL_ERROR) { prefix = (char*)"ERROR"; }
 
-  msg_length = sunsnprintf(NULL, 0, "[%s][rank %d][%s][%s] %s\n", prefix, rank,
-                           scope, label, formatted_txt);
+  msg_length = snprintf(NULL, 0, "[%s][rank %d][%s][%s] %s\n", prefix, rank,
+                        scope, label, formatted_txt);
   *log_msg   = (char*)malloc(msg_length + 1);
-  sunsnprintf(*log_msg, msg_length + 1, "[%s][rank %d][%s][%s] %s\n", prefix,
-              rank, scope, label, formatted_txt);
+  snprintf(*log_msg, msg_length + 1, "[%s][rank %d][%s][%s] %s\n", prefix,
+           rank, scope, label, formatted_txt);
   free(formatted_txt);
 }
 
