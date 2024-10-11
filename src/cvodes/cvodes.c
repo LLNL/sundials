@@ -6609,7 +6609,7 @@ static void cvPredict(CVodeMem cv_mem)
                                       ONE, cv_mem->cv_znQS[j],
                                       cv_mem->cv_znQS[j - 1]);
         SUNLogExtraDebugVecArray(CV_LOGGER, "quad-sensi",
-                                 "znQS_%d(:) = ", cv_mem->cv_znQS[0],
+                                 "znQS_%d(:) =", cv_mem->cv_znQS[0],
                                  cv_mem->cv_Ns);
       }
     }
