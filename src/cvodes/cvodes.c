@@ -6593,7 +6593,7 @@ static void cvPredict(CVodeMem cv_mem)
                                       ONE, cv_mem->cv_znS[j],
                                       cv_mem->cv_znS[j - 1]);
         SUNLogExtraDebugVecArray(CV_LOGGER, "sensi",
-                                 "znS_%d(:) = ", cv_mem->cv_znS[0],
+                                 "znS_%d(:) =", cv_mem->cv_znS[0],
                                  cv_mem->cv_Ns);
       }
     }
