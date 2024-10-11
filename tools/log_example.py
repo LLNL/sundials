@@ -58,7 +58,7 @@ def main():
 
     parser.add_argument('--save', type=str, nargs='?', const='fig.pdf',
                         default=None, metavar='FILE_NAME',
-                        help='''Save figure to file''')
+                        help='Save figure to file')
 
     # parse command line args
     args = parser.parse_args()
