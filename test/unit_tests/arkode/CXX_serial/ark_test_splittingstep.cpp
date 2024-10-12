@@ -383,20 +383,10 @@ static int test_custom_stepper(const sundials::Context& ctx)
   return 0;
 }
 
-/* Error handling function which prints the error and exits the program */
-static void err_fn(const int line, const char* const func,
-                   const char* const file, const char* const msg,
-                   const SUNErrCode err_code, void* const, const SUNContext)
-{
-  std::cerr << "Error at line " << line << " of " << func << " in " << file
-            << ": " << msg << "\n";
-  exit(err_code);
-}
-
 int main()
 {
   sundials::Context ctx;
-  SUNContext_PushErrHandler(ctx, err_fn, nullptr);
+  SUNContext_PushErrHandler(ctx, SUNAbortErrHandlerFn, nullptr);
 
   int errors = 0;
 

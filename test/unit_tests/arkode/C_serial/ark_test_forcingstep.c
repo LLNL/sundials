@@ -98,15 +98,6 @@ static int test_forward(SUNContext ctx)
   return 0;
 }
 
-/* Error handling function which prints the error and exits the program */
-static void err_fn(const int line, const char* const func, const char* const file,
-                   const char* const msg, const SUNErrCode err_code,
-                   void* const err_user_data, const SUNContext ctx)
-{
-  fprintf(stderr, "Error at line %i of %s in %s: %s\n", line, func, file, msg);
-  exit(err_code);
-}
-
 int main()
 {
   SUNContext ctx = NULL;
@@ -117,7 +108,7 @@ int main()
     return 1;
   }
 
-  err = SUNContext_PushErrHandler(ctx, err_fn, NULL);
+  err = SUNContext_PushErrHandler(ctx, SUNAbortErrHandlerFn, NULL);
   if (err != SUN_SUCCESS)
   {
     fprintf(stderr, "Failed to add error handler\n");
