@@ -157,8 +157,10 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   err = SUNStepper_SetStopTimeFn(*stepper, arkSUNStepperSetStopTime);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
-  err = SUNStepper_SetForcingFn(*stepper, arkSUNStepperSetForcing);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (ark_mem->step_setforcing) {
+    err = SUNStepper_SetForcingFn(*stepper, arkSUNStepperSetForcing);
+    if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  }
 
   return ARK_SUCCESS;
 }
