@@ -100,7 +100,7 @@ Creating and Destroying an Object
       /* Attach content and functions to the SUNStepper... */
 
       MRIStepInnerStepper inner_stepper = NULL;
-      flag = MRIStepInnerStepper_Create(sunstepper, &inner_stepper);
+      flag = MRIStepInnerStepper_CreateFromSUNStepper(sunstepper, &inner_stepper);
 
    .. versionadded:: x.y.z
 
