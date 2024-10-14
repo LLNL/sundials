@@ -32,7 +32,19 @@ set(ARKODE_unit_tests
     "ark_test_interp\;-1000000"
     "ark_test_mass\;"
     "ark_test_reset\;"
-    "ark_test_tstop\;")
+    "ark_test_tstop\;"
+    "ark_test_sunadjoint\;--check-freq 1\;"
+    "ark_test_sunadjoint\;--check-freq 2\;"
+    "ark_test_sunadjoint\;--check-freq 5\;"
+    "ark_test_sunadjoint\;--check-freq 1 --no-stages\;"
+    "ark_test_sunadjoint\;--check-freq 2 --no-stages\;"
+    "ark_test_sunadjoint\;--check-freq 5 --no-stages\;"
+    "ark_test_sunadjoint\;--check-freq 1 --dont-keep\;"
+    "ark_test_sunadjoint\;--check-freq 2 --dont-keep\;"
+    "ark_test_sunadjoint\;--check-freq 5 --dont-keep\;"
+    "ark_test_sunadjoint\;--check-freq 1 --dont-keep --no-stages\;"
+    "ark_test_sunadjoint\;--check-freq 2 --dont-keep --no-stages\;"
+    "ark_test_sunadjoint\;--check-freq 5 --dont-keep --no-stages\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${ARKODE_unit_tests})
@@ -63,11 +75,13 @@ foreach(test_tuple ${ARKODE_unit_tests})
       $<TARGET_OBJECTS:sundials_arkode_obj>
       sundials_sunmemsys_obj
       sundials_nvecserial_obj
+      sundials_nvecmanyvector_obj
       sundials_sunlinsolband_obj
       sundials_sunlinsoldense_obj
       sundials_sunnonlinsolnewton_obj
       sundials_sunadaptcontrollerimexgus_obj
       sundials_sunadaptcontrollersoderlind_obj
+      sundials_adjoint_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

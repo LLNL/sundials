@@ -540,6 +540,9 @@ contains the ARKODE output constants.
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_SUNSTEPPER_ERR`         | -49  | An error occurred in the SUNStepper module.                |
    +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_ADJ_RECOMPUTE_FAIL`     | -50  | An occurred recomputing steps during the adjoint           |
+   |                                     |      | integration.                                               |
+   +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
    |                                                                                                         |

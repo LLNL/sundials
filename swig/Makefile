@@ -28,10 +28,11 @@ SUNMATRIX=band dense sparse
 SUNLINSOL=band dense lapackdense klu spbcgs spfgmr spgmr sptfqmr pcg
 SUNNONLINSOL=newton fixedpoint
 SUNADAPTCONTROLLER=imexgus soderlind
+SUNADJOINT=fsunadjointstepper_mod fsunadjointcheckpointscheme_mod fsunadjointcheckpointscheme_basic_mod
 
 INCLUDES=-I../include
 
-.PHONY: .SETINT64 .SETINT32 all all32 all64 modules core arkode cvode cvodes ida idas kinsol nvector mpimanyvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller clean
+.PHONY: .SETINT64 .SETINT32 all all32 all64 modules core arkode cvode cvodes ida idas kinsol nvector mpimanyvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller sunadjoint clean
 
 .SETINT32:
 	$(eval INT_SIZE=32)
@@ -45,7 +46,7 @@ all32: .SETINT32 modules
 
 all64: .SETINT64 modules
 
-modules: core arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller
+modules: core arkode cvode cvodes ida idas kinsol nvector sunmatrix sunlinsol sunnonlinsol sunadaptcontroller sunadjoint
 
 core: $(CORE:%:sundials/%.i)
 	@for i in ${CORE} ; do \
@@ -65,7 +66,7 @@ cvode: $(CVODE:%:cvode/%.i)
 		${SWIG} -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/cvode/fmod_int${INT_SIZE} -o ../src/cvode/fmod_int${INT_SIZE}/$${i}.c ${INCLUDES} cvode/$${i}.i; \
 	done
 
-cvodes: $(CVODE:%:cvodes/%.i)
+cvodes: $(CVODES:%:cvodes/%.i)
 	@for i in ${CVODES} ; do \
 		set -x; \
 		${SWIG} -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/cvodes/fmod_int${INT_SIZE} -o ../src/cvodes/fmod_int${INT_SIZE}/$${i}.c ${INCLUDES} cvodes/$${i}.i; \
@@ -121,6 +122,12 @@ sunadaptcontroller: $(SUNADAPTCONTROLLER:%:sunadaptcontroller/fsunadaptcontrolle
 	@for i in ${SUNADAPTCONTROLLER} ; do \
 		set -x; \
 		${SWIG} -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/sunadaptcontroller/$${i}/fmod_int${INT_SIZE} -o ../src/sunadaptcontroller/$${i}/fmod_int${INT_SIZE}/fsunadaptcontroller_$${i}_mod.c ${INCLUDES} sunadaptcontroller/fsunadaptcontroller_$${i}_mod.i; \
+	done
+
+sunadjoint: $(SUNADJOINT:%:sunadjoint/%.i)
+	@for i in ${SUNADJOINT} ; do \
+		set -x; \
+		${SWIG} -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/sunadjoint/fmod_int${INT_SIZE} -o ../src/sunadjoint/fmod_int${INT_SIZE}/$${i}.c ${INCLUDES} sunadjoint/$${i}.i; \
 	done
 
 clean:
