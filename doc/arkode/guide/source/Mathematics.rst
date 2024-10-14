@@ -61,13 +61,15 @@ for interpolated solution output.  We then discuss the current suite
 of time-stepping modules supplied with ARKODE, including the ARKStep
 module for :ref:`additive Runge--Kutta methods <ARKODE.Mathematics.ARK>`,
 the ERKStep module that is optimized for :ref:`explicit Runge--Kutta
-methods <ARKODE.Mathematics.ERK>`, and the MRIStep module for :ref:`multirate
-infinitesimal step (MIS), multirate infinitesimal GARK (MRI-GARK), and
-implicit-explicit MRI-GARK (IMEX-MRI-GARK) methods <ARKODE.Mathematics.MRIStep>`.
-We then discuss the :ref:`adaptive temporal error controllers
-<ARKODE.Mathematics.Adaptivity>` shared by the time-stepping modules, including
-discussion of our choice of norms for measuring errors within various components
-of the solver.
+methods <ARKODE.Mathematics.ERK>`, SplittingStep for :ref:`operator splitting
+methods <ARKODE.Mathematics.SplittingStep>`, ForcingStep for :ref:`a forcing
+method <ARKODE.Mathematics.ForcingStep>`, and the MRIStep module for
+:ref:`multirate infinitesimal step (MIS), multirate infinitesimal GARK
+(MRI-GARK), and implicit-explicit MRI-GARK (IMEX-MRI-GARK) methods
+<ARKODE.Mathematics.MRIStep>`. We then discuss the :ref:`adaptive temporal error
+controllers <ARKODE.Mathematics.Adaptivity>` shared by the time-stepping
+modules, including discussion of our choice of norms for measuring errors within
+various components of the solver.
 
 We then discuss the nonlinear and linear solver strategies used by
 ARKODE for solving implicit algebraic systems that arise in computing each
@@ -570,6 +572,110 @@ using a fixed time-step size.
 .. However, it is possible for a user to provide a
 .. problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
 .. The `ark_kepler.c` example demonstrates an implementation of such controller.
+
+
+.. _ARKODE.Mathematics.SplittingStep:
+
+SplittingStep -- Operator splitting methods
+================================================
+
+The SplittingStep time-stepping module in ARKODE is designed for IVPs of the
+form
+
+.. math::
+   \dot{y} = f_1(t,y) + f_2(t,y) + \dots + f_P(t,y), \qquad y(t_0) = y_0,
+
+with :math:`P > 1` additive partitions. Operator splitting methods, such as
+those implemented in SplittingStep, allow each partition to be integrated
+separately, possibly with different numerical integrators or exact solution
+procedures. Coupling is only performed though initial conditions which are
+passed from the flow of one partition to the next.
+
+The following algorithmic procedure is used in the Splitting-Step module:
+
+#. For :math:`i = 1, \dots, r` do:
+
+   #. Set :math:`y_{n, i} = y_{n - 1}`.
+
+   #. For :math:`j = 0, \dots, s` do:
+
+      #. For :math:`k = 1, \dots, P` do:
+
+         #. Let :math:`t_{\text{start}} = t_{n-1} + \beta_{i,j-1,k} h_n` and
+            :math:`t_{\text{end}} = t_{n-1} + \beta_{i,j,k} h_n`.
+
+         #. Let :math:`v(t_{\text{start}}) = y_{n,i}`.
+
+         #. For :math:`t \in [t_{\text{start}}, t_{\text{end}}]` solve
+            :math:`\dot{v} = f_{k}(t, v)`.
+
+         #. Set :math:`y_{n, i} = v(t_{\text{end}})`.
+
+#. Set :math:`y_n = \sum_{i=1}^r \alpha_i y_{n,i}`
+
+Here, :math:`s` denotes the number of stages, while :math:`r` denotes the number
+of sequential methods within the overall operator splitting scheme. The
+sequential methods have independent flows which are linearly combined to produce
+the next step. The real coefficients :math:`\alpha_i` and :math:`\beta_{i,j,k}`
+determine the particular scheme and properties such as the order of accuracy.
+
+An alternative representation of the SplittingStep solution is
+
+.. math::
+   y_n = \sum_{i=1}^P \alpha_i \left( \phi^P_{\gamma_{i,1,P} h} \circ
+   \phi^{P-1}_{\gamma_{i,1,P-1} h} \circ \dots \circ \phi^1_{\gamma_{i,1,1} h}
+   \circ \phi^P_{\gamma_{i,2,P} h} \circ \dots \circ \phi^P_{\gamma_{i,s,P} h}
+   \circ \dots \circ \phi^1_{\gamma_{i,s,1} h} \right),
+   (y_{n-1})
+
+where :math:`\gamma_{i,j,k} = \beta_{i,j,k} - \beta_{i,j-1,k}` and
+:math:`\phi^k_{h}` is the flow map for partition :math:`k`:
+
+.. math::
+   \phi^k_{h}(y_{n_1}) = v(t_n),
+   \quad \begin{cases}
+      v(t_{n-1}) = y_{n-1}, \\ \dot{v} = f_k(t, v).
+   \end{cases}
+
+SplittingStep provides standard operator splitting methods such as Lie-Trotter
+and Strang splitting, as well as schemes of arbitrarily high order.
+Alternatively, users may construct their own coefficients (see
+:numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients`). Generally,
+methods of order three and higher with real coefficients require backward
+integration, i.e., there exist negative :math:`\gamma_{i,j,k}` coefficients.
+Currently, a fixed time step must be specified for the outer SplittingStep, but
+inner integrators are free to use adaptive time steps.
+
+
+.. _ARKODE.Mathematics.ForcingStep:
+
+ForcingStep -- Forcing method
+=============================
+
+The ForcingStep time-stepping module in ARKODE is designed for IVPs of the form
+
+.. math::
+   \dot{y} = f_1(t,y) + f_2(t,y), \qquad y(t_0) = y_0,
+
+with two additive partitions. One step of the forcing method implemented in
+ForcingStep is given by
+
+.. math::
+   v_1(t_{n-1}) &= y_{n-1}, \\
+   \dot{v}_1 &= f_1(t, v_1), \\
+   f_1^* &= \frac{v_1(t_n) - y_{n-1}}{h_n}, \\
+   v_2(t_{n-1}) &= y_{n-1}, \\
+   \dot{v}_2 &= f_1^* + f_2(t, v_2), \\
+   y_n &= v_2(t_n).
+
+Like a Lie-Trotter method from SplittingStep, the partitions are evolved through
+a sequence of inner IVPs which can be solved with an arbitrary integrator or
+exact solution procedure. However, the IVP for partition two includes a
+"forcing" or "tendency" term :math:`f_1^*` to strengthen the coupling. This
+coupling leads to a first order method provided :math:`v_1` and :math:`v_2` are
+integrated to at least first order accuracy. Currently, a fixed time step must
+be specified for the outer ForcingStep, but inner integrators are free to use
+adaptive time steps.
 
 
 .. _ARKODE.Mathematics.MRIStep:

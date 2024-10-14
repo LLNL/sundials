@@ -22,6 +22,15 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
+int SUNIpowerI(int base, int exponent)
+{
+  int i;
+  int prod = 1;
+
+  for (i = 1; i <= exponent; i++) { prod *= base; }
+  return (prod);
+}
+
 sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 {
   int i, expt;

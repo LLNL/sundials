@@ -41,7 +41,8 @@ set(unit_tests
     "ark_test_dahlquist_mri.cpp\;1"
     "ark_test_butcher.cpp\;"
     "ark_test_getjac.cpp\;"
-    "ark_test_getjac_mri.cpp\;")
+    "ark_test_getjac_mri.cpp\;"
+    "ark_test_splittingstep.cpp\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
