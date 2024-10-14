@@ -191,7 +191,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   SUNAssert(!callLSetup || (callLSetup && NEWTON_CONTENT(NLS)->LSetup),
             SUN_ERR_ARG_CORRUPT);
 
-  SUNLogInfo(NLS->sunctx->logger, "nonlinear-solver", "solver = Newton", "");
+  SUNLogInfo(NLS->sunctx->logger, "nonlinear-solver", "solver = Newton");
 
   /* set local shortcut variables */
   delta = NEWTON_CONTENT(NLS)->delta;
@@ -209,7 +209,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
        Perform Newton iteration */
   for (;;)
   {
-    SUNLogInfo(NLS->sunctx->logger, "begin-nonlinear-iterate", "", "");
+    SUNLogInfo(NLS->sunctx->logger, "begin-nonlinear-iterate", "");
 
     /* initialize current iteration counter for this solve attempt */
     NEWTON_CONTENT(NLS)->curiter = 0;
@@ -259,7 +259,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       if (retval == SUN_SUCCESS)
       {
         SUNLogInfo(NLS->sunctx->logger, "end-nonlinear-iterate",
-                   "status = success", "");
+                   "status = success");
         NEWTON_CONTENT(NLS)->jcur = SUNFALSE;
         return SUN_SUCCESS;
       }
@@ -275,8 +275,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       }
 
       SUNLogInfo(NLS->sunctx->logger, "end-nonlinear-iterate",
-                 "status = continue", "");
-      SUNLogInfo(NLS->sunctx->logger, "begin-nonlinear-iterate", "", "");
+                 "status = continue");
+      SUNLogInfo(NLS->sunctx->logger, "begin-nonlinear-iterate", "");
 
       /* compute the nonlinear residual, store in delta */
       retval = NEWTON_CONTENT(NLS)->Sys(ycor, delta, mem);
@@ -300,7 +300,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       SUNCheckLastErr();
 
       SUNLogInfo(NLS->sunctx->logger, "end-nonlinear-iterate",
-                 "status = continue", "");
+                 "status = continue");
 
       continue;
     }

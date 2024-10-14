@@ -3339,7 +3339,7 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
   {
     delta = bnorm = ZERO;
 
-    SUNLogInfo(ARK_LOGGER, "begin-linear-solve", "iterative = 0", "");
+    SUNLogInfo(ARK_LOGGER, "begin-linear-solve", "iterative = 0");
   }
 
   /* Set scaling vectors for LS to use (if applicable) */
@@ -3354,7 +3354,7 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
       arkls_mem->last_flag = ARKLS_SUNLS_FAIL;
 
       SUNLogInfo(ARK_LOGGER, "end-linear-solve",
-                 "status = failed set scaling vectors", "");
+                 "status = failed set scaling vectors");
 
       return (arkls_mem->last_flag);
     }
@@ -3407,8 +3407,7 @@ int arkLsSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype tnow, N_Vector ynow,
       arkProcessError(ark_mem, arkls_mem->last_flag, __LINE__, __func__,
                       __FILE__, MSG_LS_JTSETUP_FAILED);
 
-      SUNLogInfo(ARK_LOGGER, "end-linear-solve",
-                 "status = failed J-times setup", "");
+      SUNLogInfo(ARK_LOGGER, "end-linear-solve", "status = failed J-times setup");
       return (arkls_mem->last_flag);
     }
   }
@@ -3809,7 +3808,7 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
   {
     delta = ZERO;
 
-    SUNLogInfo(ARK_LOGGER, "begin-mass-linear-solve", "iterative = 0", "");
+    SUNLogInfo(ARK_LOGGER, "begin-mass-linear-solve", "iterative = 0");
   }
 
   /* Set initial guess x = 0 for LS */
@@ -3827,7 +3826,7 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
       arkls_mem->last_flag = ARKLS_SUNLS_FAIL;
 
       SUNLogInfo(ARK_LOGGER, "end-mass-linear-solve",
-                 "status = failed set scaling vectors", "");
+                 "status = failed set scaling vectors");
       return (arkls_mem->last_flag);
     }
 
@@ -3861,7 +3860,7 @@ int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef)
   if (retval != SUN_SUCCESS)
   {
     SUNLogInfo(ARK_LOGGER, "end-mass-linear-solve",
-               "status = failed set zero guess", "");
+               "status = failed set zero guess");
     return (-1);
   }
 

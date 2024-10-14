@@ -1835,7 +1835,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                         "implicit RHS", "Fi_%i(:) =", step_mem->Fi[0], 0);
   SUNLogExtraDebugVecIf(is_start == 1 && step_mem->explicit, ARK_LOGGER,
                         "explicit RHS", "Fe_%i(:) =", step_mem->Fe[0], 0);
-  SUNLogInfoIf(is_start == 1, ARK_LOGGER, "end-stage", "status = success", "");
+  SUNLogInfoIf(is_start == 1, ARK_LOGGER, "end-stage", "status = success");
 
   /* loop over internal stages to the step */
   for (is = is_start; is < step_mem->stages; is++)
@@ -2070,7 +2070,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       }
     }
 
-    SUNLogInfo(ARK_LOGGER, "end-stage", "status = success", "");
+    SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
 
   } /* loop over stages */
 

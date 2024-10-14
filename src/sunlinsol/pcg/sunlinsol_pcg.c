@@ -311,9 +311,9 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
   /* If preconditioning, check if psolve has been set */
   SUNAssert(!UsePrec || psolve, SUN_ERR_ARG_CORRUPT);
 
-  SUNLogInfo(S->sunctx->logger, "linear-solver", "solver = pcg", "");
+  SUNLogInfo(S->sunctx->logger, "linear-solver", "solver = pcg");
 
-  SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "", "");
+  SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "");
 
   /* Set r to initial residual r_0 = b - A*x_0 */
   if (*zeroguess)
@@ -331,7 +331,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
                                  : SUNLS_ATIMES_FAIL_REC;
 
       SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
-                 "status = failed matvec", "");
+                 "status = failed matvec");
 
       return (LASTFLAG(S));
     }
@@ -404,7 +404,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
   /* Begin main iteration loop */
   for (l = 0; l < l_max; l++)
   {
-    SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "", "");
+    SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "");
 
     /* increment counter */
     (*nli)++;
@@ -418,7 +418,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
                                  : SUNLS_ATIMES_FAIL_REC;
 
       SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
-                 "status = failed matvec", "");
+                 "status = failed matvec");
 
       return (LASTFLAG(S));
     }
@@ -482,7 +482,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
                                    : SUNLS_PSOLVE_FAIL_REC;
 
         SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
-                   "status = failed preconditioner solve", "");
+                   "status = failed preconditioner solve");
 
         return (LASTFLAG(S));
       }
@@ -505,28 +505,28 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
     N_VLinearSum(ONE, z, beta, p, p);
     SUNCheckLastErr();
 
-    SUNLogInfo(S->sunctx->logger, "end-linear-iterate", "status = continue", "");
+    SUNLogInfo(S->sunctx->logger, "end-linear-iterate", "status = continue");
   }
 
   /* Main loop finished, return with result */
   *zeroguess = SUNFALSE;
   if (converged == SUNTRUE)
   {
-    SUNLogInfo(S->sunctx->logger, "end-linear-iterate", "status = success", "");
+    SUNLogInfo(S->sunctx->logger, "end-linear-iterate", "status = success");
 
     LASTFLAG(S) = SUN_SUCCESS;
   }
   else if (rho < r0_norm)
   {
     SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
-               "status = failed residual reduced", "");
+               "status = failed residual reduced");
 
     LASTFLAG(S) = SUNLS_RES_REDUCED;
   }
   else
   {
     SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
-               "status = failed max iterations", "");
+               "status = failed max iterations");
 
     LASTFLAG(S) = SUNLS_CONV_FAIL;
   }

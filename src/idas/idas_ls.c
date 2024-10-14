@@ -1509,7 +1509,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   {
     tol = ZERO;
 
-    SUNLogInfo(IDA_LOGGER, "begin-linear-solve", "iterative = 0", "");
+    SUNLogInfo(IDA_LOGGER, "begin-linear-solve", "iterative = 0");
   }
 
   /* Set vectors ycur, ypcur and rcur for use by the Atimes and
@@ -1529,7 +1529,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
       idals_mem->last_flag = IDALS_SUNLS_FAIL;
 
       SUNLogInfo(IDA_LOGGER, "end-linear-solve",
-                 "status = failed set scaling vectors", "");
+                 "status = failed set scaling vectors");
 
       return (idals_mem->last_flag);
     }
@@ -1583,8 +1583,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       MSG_LS_JTSETUP_FAILED);
 
-      SUNLogInfo(IDA_LOGGER, "end-linear-solve",
-                 "status = failed J-times setup", "");
+      SUNLogInfo(IDA_LOGGER, "end-linear-solve", "status = failed J-times setup");
       return (idals_mem->last_flag);
     }
   }

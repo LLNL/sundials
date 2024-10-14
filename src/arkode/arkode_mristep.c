@@ -1498,7 +1498,7 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                         "Fse_0(:) =", step_mem->Fse[0], "");
   SUNLogExtraDebugVecIf(step_mem->implicit_rhs, ARK_LOGGER, "slow implicit RHS",
                         "Fsi_0(:) =", step_mem->Fsi[0], "");
-  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success", "");
+  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
 
   /* The first stage is the previous time-step solution, so its RHS
      is the [already-computed] slow RHS from the start of the step */
@@ -1620,7 +1620,7 @@ int mriStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
     } /* compute slow RHS */
 
-    SUNLogInfo(ARK_LOGGER, "end-stage", "status = success", "");
+    SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
 
   } /* loop over stages */
 
@@ -2013,7 +2013,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
     if (retval != 0) { return (ARK_OUTERTOINNER_FAIL); }
   }
 
-  SUNLogInfo(ARK_LOGGER, "begin-fast-steps", "", "");
+  SUNLogInfo(ARK_LOGGER, "begin-fast-steps", "");
 
   /* advance inner method in time */
   retval = mriStepInnerStepper_Evolve(step_mem->stepper, t0, ark_mem->tcur,
@@ -2021,7 +2021,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem, int is)
 
   SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-fast-steps",
                "status = failed, retval = %i", retval);
-  SUNLogInfoIf(retval == 0, ARK_LOGGER, "end-fast-steps", "status = success", "");
+  SUNLogInfoIf(retval == 0, ARK_LOGGER, "end-fast-steps", "status = success");
 
   if (retval != 0) { return (ARK_INNERSTEP_FAIL); }
 

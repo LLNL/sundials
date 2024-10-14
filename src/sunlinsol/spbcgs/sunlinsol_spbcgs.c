@@ -348,9 +348,9 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   scale_x = (sx != NULL);
   scale_b = (sb != NULL);
 
-  SUNLogInfo(S->sunctx->logger, "linear-solver", "solver = spbcgs", "");
+  SUNLogInfo(S->sunctx->logger, "linear-solver", "solver = spbcgs");
 
-  SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "", "");
+  SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "");
 
   /* Check for unsupported use case */
   if (preOnRight && !(*zeroguess))
@@ -359,7 +359,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     LASTFLAG(S) = SUN_ERR_ARG_INCOMPATIBLE;
 
     SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
-               "status = failed unsupported configuration", "");
+               "status = failed unsupported configuration");
 
     return SUN_ERR_ARG_INCOMPATIBLE;
   }
@@ -471,7 +471,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
   for (l = 0; l < l_max; l++)
   {
-    SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "", "");
+    SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "");
 
     (*nli)++;
 
@@ -729,7 +729,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     beta_denom = beta_num;
 
     SUNLogInfoIf(l < l_max - 1, S->sunctx->logger, "end-linear-iterate",
-                 "status = continue", "");
+                 "status = continue");
   }
 
   /* Main loop finished */
@@ -764,14 +764,14 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     *zeroguess = SUNFALSE;
     if (converged == SUNTRUE)
     {
-      SUNLogInfo(S->sunctx->logger, "end-linear-iterate", "status = success", "");
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate", "status = success");
 
       LASTFLAG(S) = SUN_SUCCESS;
     }
     else
     {
       SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
-                 "status = failed residual reduced", "");
+                 "status = failed residual reduced");
 
       LASTFLAG(S) = SUNLS_RES_REDUCED;
     }
@@ -783,7 +783,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     LASTFLAG(S) = SUNLS_CONV_FAIL;
 
     SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
-               "status = failed max iterations", "");
+               "status = failed max iterations");
 
     return (LASTFLAG(S));
   }

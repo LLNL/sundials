@@ -1680,7 +1680,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
       if (curiter > 0) { N_VConst(ZERO, b); }
       cvls_mem->last_flag = CVLS_SUCCESS;
 
-      SUNLogInfo(CV_LOGGER, "end-linear-solve", "status = success small rhs", "");
+      SUNLogInfo(CV_LOGGER, "end-linear-solve", "status = success small rhs");
 
       return (cvls_mem->last_flag);
     }
@@ -1691,7 +1691,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
   {
     delta = ZERO;
 
-    SUNLogInfo(CV_LOGGER, "begin-linear-solve", "iterative = 0", "");
+    SUNLogInfo(CV_LOGGER, "begin-linear-solve", "iterative = 0");
   }
 
   /* Set vectors ycur and fcur for use by the Atimes and Psolve
@@ -1710,7 +1710,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ynow,
       cvls_mem->last_flag = CVLS_SUNLS_FAIL;
 
       SUNLogInfo(CV_LOGGER, "end-linear-solve",
-                 "status = failed set scaling vectors", "");
+                 "status = failed set scaling vectors");
 
       return (cvls_mem->last_flag);
     }

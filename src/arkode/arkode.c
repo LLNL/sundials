@@ -930,7 +930,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (ark_mem->fixedstep)
       {
         ark_mem->eta = ONE;
-        SUNLogInfo(ARK_LOGGER, "end-step-attempt", "status = success", "");
+        SUNLogInfo(ARK_LOGGER, "end-step-attempt", "status = success");
         break;
       }
 
@@ -951,7 +951,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       {
         ark_mem->last_kflag = kflag;
         kflag               = ARK_SUCCESS;
-        SUNLogInfo(ARK_LOGGER, "end-step-attempt", "status = success", "");
+        SUNLogInfo(ARK_LOGGER, "end-step-attempt", "status = success");
         break;
       }
 

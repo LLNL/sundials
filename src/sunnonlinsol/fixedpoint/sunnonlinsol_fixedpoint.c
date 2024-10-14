@@ -182,7 +182,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
   /* check that all required function pointers have been set */
   SUNAssert(FP_CONTENT(NLS)->Sys && FP_CONTENT(NLS)->CTest, SUN_ERR_ARG_CORRUPT);
 
-  SUNLogInfo(NLS->sunctx->logger, "nonlinear-solver", "solver = Fixed-Point", "");
+  SUNLogInfo(NLS->sunctx->logger, "nonlinear-solver", "solver = Fixed-Point");
 
   /* set local shortcut variables */
   yprev = FP_CONTENT(NLS)->yprev;
@@ -201,7 +201,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
        FP_CONTENT(NLS)->curiter < FP_CONTENT(NLS)->maxiters;
        FP_CONTENT(NLS)->curiter++)
   {
-    SUNLogInfo(NLS->sunctx->logger, "begin-nonlinear-iterate", "", "");
+    SUNLogInfo(NLS->sunctx->logger, "begin-nonlinear-iterate", "");
 
     /* update previous solution guess */
     N_VScale(ONE, ycor, yprev);
@@ -251,7 +251,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
     if (retval == 0)
     {
       SUNLogInfo(NLS->sunctx->logger, "end-nonlinear-iterate",
-                 "status = success", "");
+                 "status = success");
       return SUN_SUCCESS;
     }
 
@@ -267,11 +267,11 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS,
 
     SUNLogInfoIf(FP_CONTENT(NLS)->curiter < FP_CONTENT(NLS)->maxiters - 1,
                  NLS->sunctx->logger, "end-nonlinear-iterate",
-                 "status = continue", "");
+                 "status = continue");
   }
 
   SUNLogInfo(NLS->sunctx->logger, "end-nonlinear-iterate",
-             "status = failed max iterations", "");
+             "status = failed max iterations");
 
   /* if we've reached this point, then we exhausted the iteration limit;
      increment the convergence failure count and return */
