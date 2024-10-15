@@ -165,10 +165,10 @@ int main(int argc, char* argv[])
   }
 
   /* Create inner stepper */
-  retval = ARKStepCreateMRIStepInnerStepper(arkode_inner_mem, &inner_stepper);
+  retval = ARKodeCreateMRIStepInnerStepper(arkode_inner_mem, &inner_stepper);
   if (retval)
   {
-    fprintf(stderr, "ARKStepCreateMRIStepInnerStepper returned %i", retval);
+    fprintf(stderr, "ARKodeCreateMRIStepInnerStepper returned %i", retval);
     return 1;
   }
 

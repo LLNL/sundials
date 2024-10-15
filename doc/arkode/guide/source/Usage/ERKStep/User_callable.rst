@@ -650,7 +650,7 @@ Optional inputs for ERKStep
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
 
    .. versionadded:: 5.6.0
 
@@ -1783,9 +1783,9 @@ Main solver optional output functions
 
          typedef struct ARKodeButcherTableMem {
 
-           int q;           /* method order of accuracy       */
-           int p;           /* embedding order of accuracy    */
-           int stages;      /* number of stages               */
+           int q;              /* method order of accuracy       */
+           int p;              /* embedding order of accuracy    */
+           int stages;         /* number of stages               */
            sunrealtype **A;    /* Butcher table coefficients     */
            sunrealtype *c;     /* canopy node coefficients       */
            sunrealtype *b;     /* root node coefficients         */
@@ -1877,7 +1877,7 @@ Main solver optional output functions
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+      * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
    .. versionadded:: 5.3.0
 

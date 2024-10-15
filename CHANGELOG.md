@@ -23,6 +23,19 @@ The build system has been updated to utilize the CMake LAPACK imported target
 which should ease building SUNDIALS with LAPACK libraries that require setting
 specific linker flags e.g., MKL.
 
+Added support for multirate time step adaptivity controllers, based on the
+recently introduced `SUNAdaptController` base class, to ARKODE's MRIStep module.
+As a part of this, we added embeddings for existing MRI-GARK methods, as well as
+support for embedded MERK and IMEX-MRI-SR methods.  Added new default MRI methods
+for temporally adaptive versus fixed-step runs.
+
+Added functionality to ARKODE to accumulate a temporal error
+estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorType`,
+`ARKodeResetAccumulatedError`, and `ARKodeGetAccumulatedError` for details.
+
+Added utility routine to wrap any valid ARKODE integrator for use as an MRIStep
+inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
+
 ### Bug Fixes
 
 Fixed a [bug](https://github.com/LLNL/sundials/issues/581) in the sparse matrix
@@ -43,10 +56,17 @@ repeatedly.
 Fixed compilation errors when building the Trilinos Teptra NVector with CUDA
 support.
 
+Fixed loading the default IMEX-MRI method if `ARKodeSetOrder` is used to specify
+a third or fourth order method. Previously, the default second order method
+was loaded in both cases.
+
 Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
 using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
 
 ### Deprecation Notices
+
+Deprecated ARKStep-specific utility routine for wrapping as an MRIStep
+inner stepper object, `ARKStepCreateMRIStepInnerStepper`.
 
 The ARKODE stepper specific functions to retrieve the number of right-hand side
 function evaluations have been deprecated. Use `ARKodeGetNumRhsEvals` instead.

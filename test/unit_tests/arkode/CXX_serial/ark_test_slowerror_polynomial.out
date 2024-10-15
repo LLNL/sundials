@@ -1,0 +1,9 @@
+
+Slow error estimation test (polynomial ODE problem):
+    problem parameters:  a = 1,  b = 1,  c = 1
+    MRI method: ARKODE_MRI_GARK_ERK22a (explicit)
+       H  0.01000    dsm  8.17e+02    dsm_est  4.93e+05    dsm_anal  8.17e+02    dsm_est_anal  4.93e+05
+       H  0.00500    dsm  1.03e+02    dsm_est  1.23e+05    dsm_anal  1.03e+02    dsm_est_anal  1.23e+05
+       H  0.00250    dsm  1.29e+01    dsm_est  3.09e+04    dsm_anal  1.29e+01    dsm_est_anal  3.09e+04
+       H  0.00125    dsm  1.61e+00    dsm_est  7.73e+03    dsm_anal  1.61e+00    dsm_est_anal  7.73e+03
+       H  0.00063    dsm  2.01e-01    dsm_est  1.93e+03    dsm_anal  2.01e-01    dsm_est_anal  1.93e+03
