@@ -575,8 +575,10 @@ int main(int argc, char* argv[])
   check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1);
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
   retval = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_retval(&retval, "ARKodeGetNumLinSolvSetups", 1);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
