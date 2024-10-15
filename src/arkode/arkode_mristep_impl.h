@@ -219,6 +219,8 @@ int mriStep_SetMaxNonlinIters(ARKodeMem ark_mem, int maxcor);
 int mriStep_SetNonlinConvCoef(ARKodeMem ark_mem, sunrealtype nlscoef);
 int mriStep_SetStagePredictFn(ARKodeMem ark_mem, ARKStagePredictFn PredictStage);
 int mriStep_SetDeduceImplicitRhs(ARKodeMem ark_mem, sunbooleantype deduce);
+int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals);
 int mriStep_GetCurrentGamma(ARKodeMem ark_mem, sunrealtype* gamma);
 int mriStep_GetNonlinearSystemData(ARKodeMem ark_mem, sunrealtype* tcur,
                                    N_Vector* zpred, N_Vector* z, N_Vector* Fi,

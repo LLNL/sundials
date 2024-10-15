@@ -402,8 +402,11 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     flag = ARKodeGetNumSteps(mristep_mem, &mri_nst);
     if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
-    flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
-    if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return 1; }
+    flag = ARKodeGetNumRhsEvals(mristep_mem, 0, &mri_nfse);
+    if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+
+    flag = ARKodeGetNumRhsEvals(mristep_mem, 1, &mri_nfsi);
+    if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
 
     if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
     {

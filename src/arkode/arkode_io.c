@@ -2002,6 +2002,38 @@ int ARKodeSetMaxConvFails(void* arkode_mem, int maxncf)
 /*---------------------------------------------------------------
   ARKodeGetNumStepAttempts:
 
+  Returns the current number of RHS evaluations
+  ---------------------------------------------------------------*/
+int ARKodeGetNumRhsEvals(void* arkode_mem, int partition_index,
+                         long int* num_rhs_evals)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Call stepper routine (if provided) */
+  if (ark_mem->step_getnumrhsevals)
+  {
+    return ark_mem->step_getnumrhsevals(arkode_mem, partition_index,
+                                        num_rhs_evals);
+  }
+  else
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
+                    "time-stepping module does not support this function");
+    return ARK_STEPPER_UNSUPPORTED;
+  }
+}
+
+/*---------------------------------------------------------------
+  ARKodeGetNumStepAttempts:
+
    Returns the current number of steps attempted by the solver
   ---------------------------------------------------------------*/
 int ARKodeGetNumStepAttempts(void* arkode_mem, long int* nstep_attempts)

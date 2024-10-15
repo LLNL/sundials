@@ -267,8 +267,6 @@ subroutine ARKStepStats(arkode_mem)
 
   integer(c_long) :: nsteps(1)     ! num steps
   integer(c_long) :: nst_a(1)      ! num steps attempted
-  integer(c_long) :: nfe(1)        ! num explicit function evals
-  integer(c_long) :: nfi(1)        ! num implicit function evals
   integer(c_long) :: nfevals(1)    ! num function evals
   integer(c_long) :: nlinsetups(1) ! num linear solver setups
   integer(c_long) :: netfails(1)   ! num error test fails
@@ -296,12 +294,11 @@ subroutine ARKStepStats(arkode_mem)
     stop 1
   end if
 
-  ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+  ierr = FARKodeGetNumRhsEvals(arkode_mem, -1, nfevals)
   if (ierr /= 0) then
-    print *, 'Error in FARKStepGetNumRhsEvals, retval = ', ierr, '; halting'
+    print *, 'Error in FARKodeGetNumRhsEvals, retval = ', ierr, '; halting'
     stop 1
   end if
-  nfevals = nfe + nfi
 
   ierr = FARKodeGetActualInitStep(arkode_mem, hinused)
   if (ierr /= 0) then

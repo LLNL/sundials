@@ -48,6 +48,9 @@ using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
 
 ### Deprecation Notices
 
+The ARKODE stepper specific functions to retrieve the number of right-hand side
+function evaluations have been deprecated. Use `ARKodeGetNumRhsEvals` instead.
+
 ## Changes to SUNDIALS in release 7.1.1
 
 ### Bug Fixes

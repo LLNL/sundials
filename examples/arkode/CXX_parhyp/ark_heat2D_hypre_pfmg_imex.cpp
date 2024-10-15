@@ -2740,8 +2740,10 @@ static int OutputStats(void* arkode_mem, UserData* udata)
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
@@ -2761,7 +2763,8 @@ static int OutputStats(void* arkode_mem, UserData* udata)
   cout << "  Steps            = " << nst << endl;
   cout << "  Step attempts    = " << nst_a << endl;
   cout << "  Error test fails = " << netf << endl;
-  cout << "  RHS evals        = " << nfi << endl;
+  cout << "  Fe RHS evals     = " << nfe << endl;
+  cout << "  Fi RHS evals     = " << nfi << endl;
   cout << "  NLS iters        = " << nni << endl;
   cout << "  NLS fails        = " << ncfn << endl;
   cout << "  LS iters         = " << nli << endl;

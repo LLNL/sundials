@@ -521,23 +521,52 @@ int ARKStepSetTableName(void* arkode_mem, const char* itable, const char* etable
 /*---------------------------------------------------------------
   ARKStepGetNumRhsEvals:
 
-  Returns the current number of calls to fe and fi
+  Returns the current number of calls
   ---------------------------------------------------------------*/
+int arkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals)
+{
+  ARKodeARKStepMem step_mem = NULL;
+
+  /* access ARKodeARKStepMem structure */
+  int retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (rhs_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "rhs_evals is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  if (partition_index > 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid partition index");
+    return ARK_ILL_INPUT;
+  }
+
+  switch (partition_index)
+  {
+  case 0: *rhs_evals = step_mem->nfe; break;
+  case 1: *rhs_evals = step_mem->nfi; break;
+  default: *rhs_evals = step_mem->nfe + step_mem->nfi; break;
+  }
+
+  return ARK_SUCCESS;
+}
+
 int ARKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals)
 {
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
+  int retval = ARK_SUCCESS;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, fe_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  /* get values from step_mem */
-  *fe_evals = step_mem->nfe;
-  *fi_evals = step_mem->nfi;
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, fi_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------

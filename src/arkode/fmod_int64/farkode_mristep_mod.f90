@@ -129,7 +129,6 @@ module farkode_mristep_mod
  public :: FMRIStepSetCoupling
  public :: FMRIStepSetPreInnerFn
  public :: FMRIStepSetPostInnerFn
- public :: FMRIStepGetNumRhsEvals
  public :: FMRIStepGetCurrentCoupling
  public :: FMRIStepGetLastInnerStepFlag
  public :: FMRIStepInnerStepper_Create
@@ -226,6 +225,7 @@ module farkode_mristep_mod
  public :: FMRIStepGetLinReturnFlagName
  public :: FMRIStepFree
  public :: FMRIStepPrintMem
+ public :: FMRIStepGetNumRhsEvals
 
 ! WRAPPER DECLARATIONS
 interface
@@ -500,16 +500,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FMRIStepGetNumRhsEvals(farg1, farg2, farg3) &
-bind(C, name="_wrap_FMRIStepGetNumRhsEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -1402,6 +1392,16 @@ type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
 end subroutine
 
+function swigc_FMRIStepGetNumRhsEvals(farg1, farg2, farg3) &
+bind(C, name="_wrap_FMRIStepGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 end interface
 
 
@@ -1880,25 +1880,6 @@ type(C_FUNPTR) :: farg2
 farg1 = arkode_mem
 farg2 = postfn
 fresult = swigc_FMRIStepSetPostInnerFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FMRIStepGetNumRhsEvals(arkode_mem, nfse_evals, nfsi_evals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nfse_evals
-integer(C_LONG), dimension(*), target, intent(inout) :: nfsi_evals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = c_loc(nfse_evals(1))
-farg3 = c_loc(nfsi_evals(1))
-fresult = swigc_FMRIStepGetNumRhsEvals(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
@@ -3511,6 +3492,25 @@ farg1 = arkode_mem
 farg2 = outfile
 call swigc_FMRIStepPrintMem(farg1, farg2)
 end subroutine
+
+function FMRIStepGetNumRhsEvals(arkode_mem, nfse_evals, nfsi_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nfse_evals
+integer(C_LONG), dimension(*), target, intent(inout) :: nfsi_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = c_loc(nfse_evals(1))
+farg3 = c_loc(nfsi_evals(1))
+fresult = swigc_FMRIStepGetNumRhsEvals(farg1, farg2, farg3)
+swig_result = fresult
+end function
 
 
 end module

@@ -131,6 +131,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setmaxnonliniters         = mriStep_SetMaxNonlinIters;
   ark_mem->step_setnonlinconvcoef         = mriStep_SetNonlinConvCoef;
   ark_mem->step_setstagepredictfn         = mriStep_SetStagePredictFn;
+  ark_mem->step_getnumrhsevals            = mriStep_GetNumRhsEvals;
   ark_mem->step_getnumlinsolvsetups       = mriStep_GetNumLinSolvSetups;
   ark_mem->step_getcurrentgamma           = mriStep_GetCurrentGamma;
   ark_mem->step_getnonlinearsystemdata    = mriStep_GetNonlinearSystemData;

@@ -1739,6 +1739,9 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
 
 .. c:function:: int ERKStepGetNumErrTestFails(void* arkode_mem, long int* netfails)

@@ -243,8 +243,10 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeGetCurrentTime", 1)) { return 1; }
   flag = ARKodeGetNumSteps(arkstep_mem, &ark_nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
-  flag = ARKStepGetNumRhsEvals(arkstep_mem, &ark_nfe, &ark_nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKodeGetNumRhsEvals(arkstep_mem, 0, &ark_nfe);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKodeGetNumRhsEvals(arkstep_mem, 1, &ark_nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvIters(arkstep_mem, &ark_nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkstep_mem, &ark_ncfn);
@@ -284,8 +286,10 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeGetCurrentTime", 1)) { return 1; }
   flag = ARKodeGetNumSteps(mristep_mem, &mri_nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
-  flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
-  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKodeGetNumRhsEvals(mristep_mem, 0, &mri_nfse);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKodeGetNumRhsEvals(mristep_mem, 1, &mri_nfsi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvIters(mristep_mem, &mri_nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvConvFails(mristep_mem, &mri_ncfn);

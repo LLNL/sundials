@@ -44,7 +44,6 @@ module farkode_erkstep_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FERKStepSetTableName
- public :: FERKStepGetNumRhsEvals
  public :: FERKStepGetCurrentButcherTable
  public :: FERKStepGetTimestepperStats
  public :: FERKStepResize
@@ -130,6 +129,7 @@ module farkode_erkstep_mod
  public :: FERKStepGetNumRelaxBoundFails
  public :: FERKStepGetNumRelaxSolveFails
  public :: FERKStepGetNumRelaxSolveIters
+ public :: FERKStepGetNumRhsEvals
 
 ! WRAPPER DECLARATIONS
 interface
@@ -180,15 +180,6 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
 type(C_PTR), value :: farg1
 type(SwigArrayWrapper) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FERKStepGetNumRhsEvals(farg1, farg2) &
-bind(C, name="_wrap_FERKStepGetNumRhsEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -985,6 +976,15 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FERKStepGetNumRhsEvals(farg1, farg2) &
+bind(C, name="_wrap_FERKStepGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 end interface
 
 
@@ -1098,22 +1098,6 @@ type(SwigArrayWrapper) :: farg2
 farg1 = arkode_mem
 call SWIG_string_to_chararray(etable, farg2_chars, farg2)
 fresult = swigc_FERKStepSetTableName(farg1, farg2)
-swig_result = fresult
-end function
-
-function FERKStepGetNumRhsEvals(arkode_mem, nfevals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nfevals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(nfevals(1))
-fresult = swigc_FERKStepGetNumRhsEvals(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -2559,6 +2543,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(iters(1))
 fresult = swigc_FERKStepGetNumRelaxSolveIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FERKStepGetNumRhsEvals(arkode_mem, nfevals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nfevals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(nfevals(1))
+fresult = swigc_FERKStepGetNumRhsEvals(farg1, farg2)
 swig_result = fresult
 end function
 

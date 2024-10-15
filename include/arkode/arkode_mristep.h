@@ -160,8 +160,6 @@ SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void* arkode_mem,
                                           MRIStepPostInnerFn postfn);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
-                                          long int* nfsi_evals);
 SUNDIALS_EXPORT int MRIStepGetCurrentCoupling(void* arkode_mem,
                                               MRIStepCoupling* MRIC);
 SUNDIALS_EXPORT int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag);
@@ -370,6 +368,9 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void MRIStepFree(void** arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintMem instead")
 void MRIStepPrintMem(void* arkode_mem, FILE* outfile);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRhsEvals instead")
+int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
+                          long int* nfsi_evals);
 
 #ifdef __cplusplus
 }

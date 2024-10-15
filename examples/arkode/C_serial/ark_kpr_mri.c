@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
   sunrealtype hf, gamma, beta, t, tout, rpar[3];
   sunrealtype uerr, verr, uerrtot, verrtot, errtot;
   int iout;
-  long int nsts, nstf, nfse, nfsi, nff, nnif, nncf, njef, nnis, nncs, njes, tmp;
+  long int nsts, nstf, nfse, nfsi, nff, nnif, nncf, njef, nnis, nncs, njes;
 
   /*
    * Initialization
@@ -626,14 +626,16 @@ int main(int argc, char* argv[])
   /* Get some slow integrator statistics */
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfse);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfsi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nff, &tmp);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 0, &nff);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");

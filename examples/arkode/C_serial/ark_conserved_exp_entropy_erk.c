@@ -300,8 +300,8 @@ int main(int argc, char* argv[])
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_flag(flag, "ARKodeGetNumErrTestFails");
 
-  flag = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
-  check_flag(flag, "ERKStepGetNumRhsEvals");
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_flag(flag, "ARKodeGetNumRhsEvals");
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
