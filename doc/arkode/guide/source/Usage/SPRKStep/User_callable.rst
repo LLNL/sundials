@@ -784,6 +784,9 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
 
 .. c:function:: int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable *sprk_table)
