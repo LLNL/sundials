@@ -510,8 +510,8 @@ or :c:func:`MRIStepSetInterpolateStopTime`.
 
 Added the second order IMEX method from :cite:p:`giraldo2013implicit` as the
 default second order IMEX method in ARKStep. The explicit table is given by
-``ARKODE_ARK2_ERK_3_1_2`` (see :ref:`Butcher.ARK2_ERK`) and the implicit
-table by ``ARKODE_ARK2_DIRK_3_1_2`` (see :ref:`Butcher.ARK2_DIRK`).
+:c:enumerator:`ARKODE_ARK2_ERK_3_1_2` and the implicit table by
+:c:enumerator:`ARKODE_ARK2_DIRK_3_1_2`.
 
 Updated the F2003 utility routines :c:func:`SUNDIALSFileOpen` and
 :c:func:`SUNDIALSFileClose` to support user specification of ``stdout`` and
