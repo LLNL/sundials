@@ -63,7 +63,7 @@ warnings), setting ``SUNLOGGER_INFO_FILENAME`` will do nothing.
 
 .. warning::
 
-   A non-default logger should be created and attach to the context object prior
+   A non-default logger should be created and attached to the context object prior
    to any other SUNDIALS calls in order to capture all log events.
 
 Error or warning logs are a single line output with an error or warning message
@@ -316,8 +316,8 @@ setting the CMake option :cmakeop:`SUNDIALS_LOGGING_LEVEL` to the desired
 logging level. When running a program with SUNDIALS logging enabled, a default
 logger is created and attached to the :c:type:`SUNContext` instance at creation.
 Environment variables or run-time functions can be used to determine where the
-logging output is written. For example, consider the CVODE Roberts example, we
-can direct the informational output to the file ``sun.log`` as follows
+logging output is written. For example, consider the CVODE Roberts example, where
+we can direct the informational output to the file ``sun.log`` as follows
 
 .. code-block::
 

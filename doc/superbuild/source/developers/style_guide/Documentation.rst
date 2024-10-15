@@ -328,7 +328,7 @@ boldface "Returns:" section (skipping a line and indenting 2 spaces). If
 specific return values are required, these should be documented similarly to the
 function parameters and listed under a boldface "Return values:" section. If the
 function returns ``void``, a return section should not be included. Below we
-give, two examples describing user-supplied functions.
+give two examples describing user-supplied functions.
 
 .. code-block:: rst
 
