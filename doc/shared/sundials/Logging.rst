@@ -66,15 +66,21 @@ warnings), setting ``SUNLOGGER_INFO_FILENAME`` will do nothing.
    A non-default logger should be created and attach to the context object prior
    to any other SUNDIALS calls in order to capture all log events.
 
-All logging messages are either a single line output with a comma-separated list
-of key-value pairs of the form
+Error or warning logs are a single line output with an error or warning message
+
+.. code-block:: text
+
+   [level][rank][scope][label] message describing the error or warning
+
+Informational or debugging logs are either a single line output with a
+comma-separated list of key-value pairs of the form
 
 .. code-block:: text
 
    [level][rank][scope][label] key1 = value, key2 = value
 
 or multiline output with one value per line for keys corresponding to a vector
-e.g.,
+or array e.g.,
 
 .. code-block:: text
 
@@ -83,7 +89,8 @@ e.g.,
    y[1]
    ...
 
-The values in brackets have the following meaning:
+In the example log outputs above, the values in brackets have the following
+meaning:
 
 * ``level`` is the log level of the message and will be ``ERROR``, ``WARNING``,
   ``INFO``, or ``DEBUG``
