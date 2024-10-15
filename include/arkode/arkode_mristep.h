@@ -261,7 +261,7 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetLinear instead")
 int MRIStepSetLinear(void* arkode_mem, int timedepend);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinear instead")
 int MRIStepSetNonlinear(void* arkode_mem);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepSetMaxARKodes instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMaxNumSteps instead")
 int MRIStepSetMaxNumSteps(void* arkode_mem, long int mxsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinCRDown instead")
 int MRIStepSetNonlinCRDown(void* arkode_mem, sunrealtype crdown);
@@ -285,7 +285,7 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetStopTime instead")
 int MRIStepSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeClearStopTime instead")
 int MRIStepClearStopTime(void* arkode_mem);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepSetFiARKode instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetFixedStep instead")
 int MRIStepSetFixedStep(void* arkode_mem, sunrealtype hsfixed);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRootDirection instead")
 int MRIStepSetRootDirection(void* arkode_mem, int* rootdir);
@@ -293,7 +293,7 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNoInactiveRootWarn instead")
 int MRIStepSetNoInactiveRootWarn(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetUserData instead")
 int MRIStepSetUserData(void* arkode_mem, void* user_data);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepSetPostprocARKodeFn instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetPostprocessStepFn instead")
 int MRIStepSetPostprocessStepFn(void* arkode_mem, ARKPostProcessFn ProcessStep);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetPostprocessStageFn instead")
 int MRIStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage);
@@ -332,9 +332,9 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumLinSolvSetups instead")
 int MRIStepGetNumLinSolvSetups(void* arkode_mem, long int* nlinsetups);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetWorkSpace instead")
 int MRIStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetARKodes instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumSteps instead")
 int MRIStepGetNumSteps(void* arkode_mem, long int* nssteps);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetLARKode instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLastStep instead")
 int MRIStepGetLastStep(void* arkode_mem, sunrealtype* hlast);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetCurrentTime instead")
 int MRIStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur);
@@ -373,13 +373,13 @@ int MRIStepGetNumNonlinSolvConvFails(void* arkode_mem, long int* nnfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNonlinSolvStats instead")
 int MRIStepGetNonlinSolvStats(void* arkode_mem, long int* nniters,
                               long int* nnfails);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetARKodeSolveFails instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumStepSolveFails instead")
 int MRIStepGetNumStepSolveFails(void* arkode_mem, long int* nncfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJac instead")
 int MRIStepGetJac(void* arkode_mem, SUNMatrix* J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacTime instead")
 int MRIStepGetJacTime(void* arkode_mem, sunrealtype* t_J);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetJacARKodes instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacNumSteps instead")
 int MRIStepGetJacNumSteps(void* arkode_mem, long* nst_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLinWorkSpace instead")
 int MRIStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS,
