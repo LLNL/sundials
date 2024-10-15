@@ -50,42 +50,6 @@
   comma when no additional arguments are needed.
 */
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_ERROR
-#define SUNLogError(logger, label, /* msg_txt, */...)             \
-  SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_ERROR, __func__, label, \
-                     /* msg_txt, */ __VA_ARGS__)
-#define SUNLogErrorIf(condition, logger, label, /* msg_txt, */...)    \
-  do {                                                                \
-    if ((condition))                                                  \
-    {                                                                 \
-      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_ERROR, __func__, label, \
-                         /* msg_txt, */ __VA_ARGS__);                 \
-    }                                                                 \
-  }                                                                   \
-  while (0)
-#else
-#define SUNLogError(logger, label, /* msg_txt, */...)
-#define SUNLogErrorIf(condition, logger, label, /* msg_txt, */...)
-#endif
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
-#define SUNLogWarning(logger, label, /* msg_txt, */...)             \
-  SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_WARNING, __func__, label, \
-                     /* msg_txt, */ __VA_ARGS__)
-#define SUNLogWarningIf(condition, logger, label, /* msg_txt, */...)    \
-  do {                                                                  \
-    if ((condition))                                                    \
-    {                                                                   \
-      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_WARNING, __func__, label, \
-                         /* msg_txt, */ __VA_ARGS__);                   \
-    }                                                                   \
-  }                                                                     \
-  while (0)
-#else
-#define SUNLogWarning(logger, label, /* msg_txt, */...)
-#define SUNLogWarningIf(condition, logger, label, /* msg_txt, */...)
-#endif
-
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
 #define SUNLogInfo(logger, label, /* msg_txt, */...)             \
   SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_INFO, __func__, label, \
