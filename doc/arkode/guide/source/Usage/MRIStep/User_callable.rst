@@ -1894,6 +1894,9 @@ Main solver optional output functions
 
    * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
 
 .. c:function:: int MRIStepGetNumStepSolveFails(void* arkode_mem, long int* ncnf)

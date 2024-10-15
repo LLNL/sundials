@@ -360,9 +360,15 @@ program driver
         call MPI_Abort(comm, 1, ierr)
       end if
 
-      retval = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+      retval = FARKodeGetNumRhsEvals(arkode_mem, 0, nfe)
       if (retval /= 0) then
-        print *, "Error: FARKStepGetNumRhsEvals returned ", retval
+        print *, 'Error in FARKodeGetNumRhsEvals, retval = ', retval, '; halting'
+        call MPI_Abort(comm, 1, ierr)
+      end if
+
+      retval = FARKodeGetNumRhsEvals(arkode_mem, 1, nfi)
+      if (retval /= 0) then
+        print *, 'Error in FARKodeGetNumRhsEvals, retval = ', retval, '; halting'
         call MPI_Abort(comm, 1, ierr)
       end if
 
@@ -406,9 +412,15 @@ program driver
       call MPI_Abort(comm, 1, ierr)
     end if
 
-    retval = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+    retval = FARKodeGetNumRhsEvals(arkode_mem, 0, nfe)
     if (retval /= 0) then
-      print *, "Error: FARKStepGetNumRhsEvals returned ", retval
+      print *, 'Error in FARKodeGetNumRhsEvals, retval = ', retval, '; halting'
+      call MPI_Abort(comm, 1, ierr)
+    end if
+
+    retval = FARKodeGetNumRhsEvals(arkode_mem, 1, nfi)
+    if (retval /= 0) then
+      print *, 'Error in FARKodeGetNumRhsEvals, retval = ', retval, '; halting'
       call MPI_Abort(comm, 1, ierr)
     end if
 
