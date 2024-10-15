@@ -64,3 +64,7 @@ using ``ENABLE_KLU=ON`` in combination with a static-only build of SuiteSparse.
 
 Deprecated ARKStep-specific utility routine for wrapping as an MRIStep
 inner stepper object, :c:func:`ARKStepCreateMRIStepInnerStepper`.
+
+The ARKODE stepper specific functions to retrieve the number of right-hand side
+function evaluations have been deprecated. Use :c:func:`ARKodeGetNumRhsEvals`
+instead.

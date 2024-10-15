@@ -313,6 +313,8 @@ SUNDIALS_EXPORT int ARKodeComputeState(void* arkode_mem, N_Vector zcor,
                                        N_Vector z);
 
 /* Optional output functions (general) */
+SUNDIALS_EXPORT int ARKodeGetNumRhsEvals(void* arkode_mem, int partition_index,
+                                         long int* num_rhs_evals);
 SUNDIALS_EXPORT int ARKodeGetNumStepAttempts(void* arkode_mem,
                                              long int* step_attempts);
 SUNDIALS_EXPORT int ARKodeGetWorkSpace(void* arkode_mem, long int* lenrw,

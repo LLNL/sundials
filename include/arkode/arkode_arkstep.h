@@ -86,8 +86,6 @@ SUNDIALS_EXPORT int ARKStepSetTableName(void* arkode_mem, const char* itable,
                                         const char* etable);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int ARKStepGetNumRhsEvals(void* arkode_mem, long int* nfe_evals,
-                                          long int* nfi_evals);
 SUNDIALS_EXPORT int ARKStepGetCurrentButcherTables(void* arkode_mem,
                                                    ARKodeButcherTable* Bi,
                                                    ARKodeButcherTable* Be);
@@ -429,7 +427,9 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxSolveFails instead")
 int ARKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxSolveIters instead")
 int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters);
-
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRhsEvals instead")
+int ARKStepGetNumRhsEvals(void* arkode_mem, long int* nfe_evals,
+                          long int* nfi_evals);
 #ifdef __cplusplus
 }
 #endif

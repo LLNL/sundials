@@ -175,6 +175,7 @@ module farkode_mod
  public :: FARKodeEvolve
  public :: FARKodeGetDky
  public :: FARKodeComputeState
+ public :: FARKodeGetNumRhsEvals
  public :: FARKodeGetNumStepAttempts
  public :: FARKodeGetWorkSpace
  public :: FARKodeGetNumSteps
@@ -1054,6 +1055,16 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetNumRhsEvals(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKodeGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
 type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
@@ -3471,6 +3482,25 @@ farg1 = arkode_mem
 farg2 = c_loc(zcor)
 farg3 = c_loc(z)
 fresult = swigc_FARKodeComputeState(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FARKodeGetNumRhsEvals(arkode_mem, partition_index, num_rhs_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_INT), intent(in) :: partition_index
+integer(C_LONG), dimension(*), target, intent(inout) :: num_rhs_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = partition_index
+farg3 = c_loc(num_rhs_evals(1))
+fresult = swigc_FARKodeGetNumRhsEvals(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
