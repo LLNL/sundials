@@ -33,16 +33,16 @@
 #endif
 
 /*
-  In the logging macros below the message text (msg_txt) is not explicitly
-  included as a macro parameter and instead inserted by __VA_ARGS__. This allows
-  us to omit adding an empty string for the optional arguments when the message
-  does not include format specifiers e.g.,
+  In the variadic logging macros below, the message text (msg_txt) is not
+  explicitly included as a macro parameter and instead inserted by
+  __VA_ARGS__. This allows us to omit adding an empty string for the optional
+  arguments when the message does not include format specifiers e.g.,
 
-  SUNLogInfo(logger, "label", "message without format specifiers");
+  SUNLogInfo(logger, "label", "message");
 
   instead of
 
-  SUNLogInfo(logger, "label", "message without format specifiers", "");
+  SUNLogInfo(logger, "label", "message", "");
 
   Without this workaround, an orphaned comma is placed end of the argument list
   if the empty string is not included. Note the C23 standard adds __VA_OPT__
@@ -135,24 +135,24 @@
     }                                                                   \
   }                                                                     \
   while (0)
-#define SUNLogExtraDebugVec(logger, label, msg_txt, vec, ...)                \
-  do {                                                                       \
-    SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, __func__, label, msg_txt, \
-                       __VA_ARGS__);                                         \
-    N_VPrintFile(vec, logger->debug_fp);                                     \
-  }                                                                          \
+#define SUNLogExtraDebugVec(logger, label, vec, /*msg_txt, */...)   \
+  do {                                                              \
+    SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, __func__, label, \
+                       /* msg_txt, */ __VA_ARGS__);                 \
+    N_VPrintFile(vec, logger->debug_fp);                            \
+  }                                                                 \
   while (0)
-#define SUNLogExtraDebugVecIf(condition, logger, label, msg_txt, vec, ...)     \
-  do {                                                                         \
-    if ((condition))                                                           \
-    {                                                                          \
-      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, __func__, label, msg_txt, \
-                         __VA_ARGS__);                                         \
-      N_VPrintFile(vec, logger->debug_fp);                                     \
-    }                                                                          \
-  }                                                                            \
+#define SUNLogExtraDebugVecIf(condition, logger, label, vec, /* msg_txt, */...) \
+  do {                                                                          \
+    if ((condition))                                                            \
+    {                                                                           \
+      SUNLogger_QueueMsg(logger, SUN_LOGLEVEL_DEBUG, __func__, label,           \
+                         /* msg_txt, */ __VA_ARGS__);                           \
+      N_VPrintFile(vec, logger->debug_fp);                                      \
+    }                                                                           \
+  }                                                                             \
   while (0)
-#define SUNLogExtraDebugVecArray(logger, label, msg_txt, vecs, nvecs)          \
+#define SUNLogExtraDebugVecArray(logger, label, nvecs, vecs, msg_txt)          \
   do {                                                                         \
     for (int vi = 0; vi < (nvecs); ++vi)                                       \
     {                                                                          \
@@ -165,9 +165,9 @@
 #else
 #define SUNLogExtraDebug(logger, label, /* msg_txt, */...)
 #define SUNLogExtraDebugIf(condition, logger, label, /* msg_txt, */...)
-#define SUNLogExtraDebugVec(logger, label, msg_txt, vec, ...)
-#define SUNLogExtraDebugVecIf(condition, logger, label, msg_txt, vec, ...)
-#define SUNLogExtraDebugVecArray(logger, label, msg_txt, vecs, nvecs)
+#define SUNLogExtraDebugVec(logger, label, vec, /* msg_txt, */...)
+#define SUNLogExtraDebugVecIf(condition, logger, label, vec, /* msg_txt, */...)
+#define SUNLogExtraDebugVecArray(logger, label, nvecs, vecs, msg_txt)
 #endif
 
 struct SUNLogger_

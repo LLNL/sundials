@@ -6567,7 +6567,7 @@ static void cvPredict(CVodeMem cv_mem)
     }
   }
 
-  SUNLogExtraDebugVec(CV_LOGGER, "forward", "zn_0(:) =", cv_mem->cv_zn[0], "");
+  SUNLogExtraDebugVec(CV_LOGGER, "forward", cv_mem->cv_zn[0], "zn_0(:) =");
 
   if (cv_mem->cv_quadr)
   {
@@ -6580,7 +6580,7 @@ static void cvPredict(CVodeMem cv_mem)
       }
     }
 
-    SUNLogExtraDebugVec(CV_LOGGER, "quad", "znQ_0(:) =", cv_mem->cv_znQ[0], "");
+    SUNLogExtraDebugVec(CV_LOGGER, "quad", cv_mem->cv_znQ[0], "znQ_0(:) =");
   }
 
   if (cv_mem->cv_sensi)
@@ -6592,8 +6592,8 @@ static void cvPredict(CVodeMem cv_mem)
         (void)N_VLinearSumVectorArray(cv_mem->cv_Ns, ONE, cv_mem->cv_znS[j - 1],
                                       ONE, cv_mem->cv_znS[j],
                                       cv_mem->cv_znS[j - 1]);
-        SUNLogExtraDebugVecArray(CV_LOGGER, "sensi",
-                                 "znS_%d(:) =", cv_mem->cv_znS[0], cv_mem->cv_Ns);
+        SUNLogExtraDebugVecArray(CV_LOGGER, "sensi", cv_mem->cv_Ns,
+                                 cv_mem->cv_znS[0], "znS_%d(:) =");
       }
     }
   }
@@ -6607,9 +6607,8 @@ static void cvPredict(CVodeMem cv_mem)
         (void)N_VLinearSumVectorArray(cv_mem->cv_Ns, ONE, cv_mem->cv_znQS[j - 1],
                                       ONE, cv_mem->cv_znQS[j],
                                       cv_mem->cv_znQS[j - 1]);
-        SUNLogExtraDebugVecArray(CV_LOGGER, "quad-sensi",
-                                 "znQS_%d(:) =", cv_mem->cv_znQS[0],
-                                 cv_mem->cv_Ns);
+        SUNLogExtraDebugVecArray(CV_LOGGER, "quad-sensi", cv_mem->cv_Ns,
+                                 cv_mem->cv_znQS[0], "znQS_%d(:) =");
       }
     }
   }

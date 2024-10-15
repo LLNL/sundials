@@ -1830,11 +1830,11 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                "stage = %i, implicit = %i, tcur = %" RSYM, 0, implicit_stage,
                ark_mem->tcur);
   SUNLogExtraDebugVecIf(is_start == 1, ARK_LOGGER, "explicit stage",
-                        "z_%i(:) =", ark_mem->ycur, 0);
+                        ark_mem->ycur, "z_0(:) =");
   SUNLogExtraDebugVecIf(is_start == 1 && step_mem->implicit, ARK_LOGGER,
-                        "implicit RHS", "Fi_%i(:) =", step_mem->Fi[0], 0);
+                        "implicit RHS", step_mem->Fi[0], "Fi_0(:) =");
   SUNLogExtraDebugVecIf(is_start == 1 && step_mem->explicit, ARK_LOGGER,
-                        "explicit RHS", "Fe_%i(:) =", step_mem->Fe[0], 0);
+                        "explicit RHS", step_mem->Fe[0], "Fe_0(:) =");
   SUNLogInfoIf(is_start == 1, ARK_LOGGER, "end-stage", "status = success");
 
   /* loop over internal stages to the step */
@@ -1899,8 +1899,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       }
     }
 
-    SUNLogExtraDebugVec(ARK_LOGGER, "predictor", "zpred(:) =", step_mem->zpred,
-                        "");
+    SUNLogExtraDebugVec(ARK_LOGGER, "predictor", step_mem->zpred, "zpred(:) =");
 
     /* set up explicit data for evaluation of ARK stage (store in sdata) */
     retval = arkStep_StageSetup(ark_mem, implicit_stage);
@@ -1911,8 +1910,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       return (retval);
     }
 
-    SUNLogExtraDebugVec(ARK_LOGGER, "rhs data", "sdata(:) =", step_mem->sdata,
-                        "");
+    SUNLogExtraDebugVec(ARK_LOGGER, "rhs data", step_mem->sdata, "sdata(:) =");
 
     /* perform implicit solve if required */
     if (implicit_stage)
@@ -1927,8 +1925,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         return (TRY_AGAIN);
       }
 
-      SUNLogExtraDebugVec(ARK_LOGGER, "implicit stage",
-                          "z_%i(:) =", ark_mem->ycur, is);
+      SUNLogExtraDebugVec(ARK_LOGGER, "implicit stage", ark_mem->ycur,
+                          "z_%i(:) =", is);
 
       /* otherwise no implicit solve is needed */
     }
@@ -1952,8 +1950,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
          or updated in prev. block) */
       N_VLinearSum(ONE, ark_mem->yn, ONE, step_mem->sdata, ark_mem->ycur);
 
-      SUNLogExtraDebugVec(ARK_LOGGER, "explicit stage",
-                          "z_%i(:) =", ark_mem->ycur, is);
+      SUNLogExtraDebugVec(ARK_LOGGER, "explicit stage", ark_mem->ycur,
+                          "z_%i(:) =", is);
     }
 
     /* apply user-supplied stage postprocessing function (if supplied) */
@@ -1985,8 +1983,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                               ark_mem->user_data);
         step_mem->nfi++;
 
-        SUNLogExtraDebugVec(ARK_LOGGER, "implicit RHS",
-                            "Fi_%i(:) =", step_mem->Fi[is], is);
+        SUNLogExtraDebugVec(ARK_LOGGER, "implicit RHS", step_mem->Fi[is],
+                            "Fi_%i(:) =", is);
         SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-stage",
                      "status = failed implicit rhs eval, retval = %i", retval);
 
@@ -2015,8 +2013,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                        -ONE / step_mem->gamma, step_mem->sdata, step_mem->Fi[is]);
         }
 
-        SUNLogExtraDebugVec(ARK_LOGGER, "implicit RHS",
-                            "Fi_%i(:) =", step_mem->Fi[is], is);
+        SUNLogExtraDebugVec(ARK_LOGGER, "implicit RHS", step_mem->Fi[is],
+                            "Fi_%i(:) =", is);
       }
     }
 
@@ -2027,8 +2025,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                             ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
       step_mem->nfe++;
 
-      SUNLogExtraDebugVec(ARK_LOGGER, "explicit RHS",
-                          "Fe_%i(:) =", step_mem->Fe[is], is);
+      SUNLogExtraDebugVec(ARK_LOGGER, "explicit RHS", step_mem->Fe[is],
+                          "Fe_%i(:) =", is);
       SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-stage",
                    "status = failed explicit rhs eval, retval = %i", retval);
 
@@ -2045,8 +2043,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         *nflagPtr = step_mem->msolve((void*)ark_mem, step_mem->Fi[is],
                                      step_mem->nlscoef);
 
-        SUNLogExtraDebugVec(ARK_LOGGER, "M^{-1} implicit RHS",
-                            "Fi_%i(:) =", step_mem->Fi[is], is);
+        SUNLogExtraDebugVec(ARK_LOGGER, "M^{-1} implicit RHS", step_mem->Fi[is],
+                            "Fi_%i(:) =", is);
 
         if (*nflagPtr != ARK_SUCCESS)
         {
@@ -2059,8 +2057,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       {
         *nflagPtr = step_mem->msolve((void*)ark_mem, step_mem->Fe[is],
                                      step_mem->nlscoef);
-        SUNLogExtraDebugVec(ARK_LOGGER, "M^{-1} explicit RHS",
-                            "Fe_%i(:) =", step_mem->Fe[is], is);
+        SUNLogExtraDebugVec(ARK_LOGGER, "M^{-1} explicit RHS", step_mem->Fe[is],
+                            "Fe_%i(:) =", is);
         if (*nflagPtr != ARK_SUCCESS)
         {
           SUNLogInfo(ARK_LOGGER, "end-stage",
@@ -2085,8 +2083,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (*nflagPtr < 0) { return (*nflagPtr); }
   if (*nflagPtr > 0) { return (TRY_AGAIN); }
 
-  SUNLogExtraDebugVec(ARK_LOGGER, "updated solution",
-                      "ycur(:) =", ark_mem->ycur, "");
+  SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
 
   return (ARK_SUCCESS);
 }

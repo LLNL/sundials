@@ -663,7 +663,7 @@ To log extra debugging messages use the following macros:
 
    .. versionadded:: x.y.z
 
-.. c:macro:: SUNLogExtraDebugVec(logger, label, msg_txt, vec, ...)
+.. c:macro:: SUNLogExtraDebugVec(logger, label, vec, msg_txt, ...)
 
    When extra debugging logging is enabled with
    :cmakeop:`SUNDIALS_LOGGING_LEVEL`, this function-like macro expands to a call
@@ -672,13 +672,13 @@ To log extra debugging messages use the following macros:
 
    :param logger: the :c:type:`SUNLogger`
    :param label: the ``const char*`` message label
-   :param msg_txt: the ``const char*`` message text
    :param vec: the ``N_Vector`` to print
+   :param msg_txt: the ``const char*`` message text
    :param ...: the format string arguments
 
    .. versionadded:: x.y.z
 
-.. c:macro:: SUNLogExtraDebugVecIf(condition, logger, label, msg_txt, vec, ...)
+.. c:macro:: SUNLogExtraDebugVecIf(condition, logger, label, vec, msg_txt, ...)
 
    When extra debugging logging is enabled with
    :cmakeop:`SUNDIALS_LOGGING_LEVEL`, this function-like macro expands to a
@@ -689,11 +689,11 @@ To log extra debugging messages use the following macros:
                      should be queued.
    :param logger: the :c:type:`SUNLogger`
    :param label: the ``const char*`` message label
-   :param msg_txt: the ``const char*`` message text
    :param vec: the ``N_Vector`` to print
+   :param msg_txt: the ``const char*`` message text
    :param ...: the format string arguments
 
-.. c:macro:: SUNLogExtraDebugVecArray(logger, label, msg_txt, vecs, nvecs)
+.. c:macro:: SUNLogExtraDebugVecArray(logger, label, nvecs, vecs, msg_txt)
 
    When extra debugging logging is enabled with
    :cmakeop:`SUNDIALS_LOGGING_LEVEL`, this function-like macro expands to a loop
@@ -702,9 +702,9 @@ To log extra debugging messages use the following macros:
 
    :param logger: the :c:type:`SUNLogger`
    :param label: the ``const char*`` message label
-   :param msg_txt: the ``const char*`` message text
-   :param vecs: the ``N_Vector`` to print
    :param nvecs: the ``int`` number of vectors to print
+   :param vecs: the ``N_Vector`` to print
+   :param msg_txt: the ``const char*`` message text
 
    .. warning::
 

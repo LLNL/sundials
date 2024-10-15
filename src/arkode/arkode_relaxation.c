@@ -350,8 +350,8 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   /* Get the change in state (delta_y = tempv2) */
   N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv2);
 
-  SUNLogExtraDebugVec(ARK_LOGGER, "compute delta y",
-                      "delta_y(:) =", ark_mem->tempv2, "");
+  SUNLogExtraDebugVec(ARK_LOGGER, "compute delta y", ark_mem->tempv2,
+                      "delta_y(:) =");
 
   /* Store the current relaxation function value */
   retval = relax_mem->relax_fn(ark_mem->yn, &(relax_mem->e_old),

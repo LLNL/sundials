@@ -628,8 +628,8 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = 0, tcur = %" RSYM,
              ark_mem->tcur);
-  SUNLogExtraDebugVec(ARK_LOGGER, "stage", "z_0(:) =", ark_mem->ycur, "");
-  SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", "F_0(:) =", step_mem->F[0], "");
+  SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->ycur, "z_0(:) =");
+  SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->F[0], "F_0(:) =");
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
 
   /* Call the full RHS if needed. If this is the first step then we may need to
@@ -696,8 +696,8 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                          ark_mem->user_data);
     step_mem->nfe++;
 
-    SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", "F_%i(:) =", step_mem->F[is],
-                        is);
+    SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->F[is],
+                        "F_%i(:) =", is);
     SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-stage",
                  "status = failed rhs eval, retval = %i", retval);
 
@@ -712,8 +712,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   retval = erkStep_ComputeSolutions(ark_mem, dsmPtr);
   if (retval < 0) { return (retval); }
 
-  SUNLogExtraDebugVec(ARK_LOGGER, "updated solution",
-                      "ycur(:) =", ark_mem->ycur, "");
+  SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
 
   return (ARK_SUCCESS);
 }

@@ -426,7 +426,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
                              ark_mem->ewt, step_mem->nlscoef, callLSetup,
                              ark_mem);
 
-  SUNLogExtraDebugVec(ARK_LOGGER, "correction", "zcor(:) =", step_mem->zcor, "");
+  SUNLogExtraDebugVec(ARK_LOGGER, "correction", step_mem->zcor, "zcor(:) =");
 
   /* increment counters */
   (void)SUNNonlinSolGetNumIters(step_mem->NLS, &nls_iters_inc);
