@@ -241,6 +241,18 @@ Allowable Method Families
 Optional output functions
 ------------------------------
 
+.. c:function:: int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* dom_eig_num_evals);
+
+   Returns the number of dominant eigenvalue evaluations (so far).
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *dom_eig_num_evals* -- number of calls to the user's ``dom_eig`` function.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
+
 
 .. c:function:: int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
 
