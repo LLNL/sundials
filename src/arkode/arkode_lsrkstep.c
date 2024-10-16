@@ -476,7 +476,6 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   return ARK_SUCCESS;
 }
 
-
 /*---------------------------------------------------------------
   lsrkStep_TakeStepRKC:
 
@@ -1964,7 +1963,6 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
   return ARK_SUCCESS;
 }
-
 
 /*---------------------------------------------------------------
   lsrkStep_Resize:
