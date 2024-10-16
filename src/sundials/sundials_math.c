@@ -34,22 +34,6 @@ sunrealtype SUNRpowerI(sunrealtype base, int exponent)
   return (prod);
 }
 
-sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
-{
-  if (base <= SUN_RCONST(0.0)) { return (SUN_RCONST(0.0)); }
-
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-  return (pow(base, exponent));
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return (powf(base, exponent));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return (powl(base, exponent));
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
-}
-
 sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b)
 {
   return (SUNRCompareTol(a, b, 10 * SUN_UNIT_ROUNDOFF));

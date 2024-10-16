@@ -1507,6 +1507,8 @@ int ARKStepSetDefaults(void* arkode_mem)
 
 int ARKStepSetOptimalParams(void* arkode_mem)
 {
+  /* TODO: do we need to do something here? This is deprecated with no
+   * ARKodeSetOptimalParams to replace it */
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;

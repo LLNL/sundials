@@ -35,6 +35,7 @@ Improved the efficiency of default ARKODE methods with the following changes:
 |                    | ``ARKODE_ARK548L2SA_DIRK_8_4_5``    | ``ARKODE_ARK548L2SAb_DIRK_8_4_5``    |
 +--------------------+-------------------------------------+--------------------------------------+
 
+Added new temporal adaptivity controller utility constructors, :c:func:`SUNAdaptController_H0211`, :c:func:`SUNAdaptController_H211`, and :c:func:`SUNAdaptController_H312`.
 
 The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
 ``70`` and is now determined automatically by CMake. The previous default was
@@ -54,6 +55,13 @@ which should ease building SUNDIALS with LAPACK libraries that require setting
 specific linker flags e.g., MKL.
 
 **Bug Fixes**
+
+Removed error floors from the SUNAdaptController implementations which could
+unnecessarily limit the time size growth, particularly after the first step.
+
+On the first two time steps, the
+:ref:`Soderlind controller <SUNAdaptController.Soderlind>` uses an I controller
+instead of omitting unavailable terms.
 
 Fixed c:func:`ARKodeResize` not using the default ``hscale`` when an argument of
 ``0`` was provided.

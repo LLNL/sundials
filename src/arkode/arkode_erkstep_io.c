@@ -321,11 +321,6 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
     ark_mem->lrw += lenrw;
   }
 
-  /* Update some controller parameters */
-  (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(1.2));
-  (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
-                                        SUN_RCONST(0.8), -SUN_RCONST(0.31));
   return (ARK_SUCCESS);
 }
 

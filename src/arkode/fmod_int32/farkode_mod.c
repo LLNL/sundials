@@ -869,6 +869,20 @@ SWIGEXPORT int _wrap_FARKodeSetAdaptController(void *farg1, SUNAdaptController f
 }
 
 
+SWIGEXPORT int _wrap_FARKodeSetAdaptControllerByName(void *farg1, SwigArrayWrapper *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (char *)(farg2->data);
+  result = (int)ARKodeSetAdaptControllerByName(arg1,(char const *)arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeSetAdaptivityAdjustment(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

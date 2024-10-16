@@ -259,6 +259,8 @@ SUNDIALS_EXPORT int ARKodeSetStagePredictFn(void* arkode_mem,
 /* Optional input functions (temporal adaptivity) */
 SUNDIALS_EXPORT int ARKodeSetAdaptController(void* arkode_mem,
                                              SUNAdaptController C);
+SUNDIALS_EXPORT int ARKodeSetAdaptControllerByName(void* arkode_mem,
+                                                   const char* cname);
 SUNDIALS_EXPORT int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust);
 SUNDIALS_EXPORT int ARKodeSetCFLFraction(void* arkode_mem, sunrealtype cfl_frac);
 SUNDIALS_EXPORT int ARKodeSetErrorBias(void* arkode_mem, sunrealtype bias);
