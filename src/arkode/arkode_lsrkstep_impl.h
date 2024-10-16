@@ -107,7 +107,6 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 int lsrkStep_SetDefaults(ARKodeMem ark_mem);
 int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
 int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
-int lsrkStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR);
 int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                     sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 void lsrkStep_Free(ARKodeMem ark_mem);
@@ -121,9 +120,9 @@ int lsrkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                  ARKodeMem* ark_mem, ARKodeLSRKStepMem* step_mem);
 int lsrkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                            ARKodeLSRKStepMem* step_mem);
+sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl);
 void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
                                 sunrealtype dsm);
-sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl);
 int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem);
 
 /*===============================================================

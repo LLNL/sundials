@@ -355,39 +355,6 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  lsrkStep_GetNumRhsEvals:
-
-  Returns the current number of RHS calls
-  ---------------------------------------------------------------*/
-int lsrkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
-                            long int* rhs_evals)
-{
-  ARKodeLSRKStepMem step_mem = NULL;
-
-  /* access ARKodeLSRKStepMem structure */
-  int retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return retval; }
-
-  if (rhs_evals == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "rhs_evals is NULL");
-    return ARK_ILL_INPUT;
-  }
-
-  if (partition_index > 0)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid partition index");
-    return ARK_ILL_INPUT;
-  }
-
-  *rhs_evals = step_mem->nfe;
-
-  return ARK_SUCCESS;
-}
-
-/*---------------------------------------------------------------
   LSRKStepGetNumDomEigUpdates:
 
   Returns the number of dominant eigenvalue updates
@@ -506,25 +473,6 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   }
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;
 
-  return ARK_SUCCESS;
-}
-
-/*---------------------------------------------------------------
-  lsrkStep_GetEstLocalErrors: Returns the current local truncation
-  error estimate vector
-  ---------------------------------------------------------------*/
-int lsrkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
-{
-  int retval;
-  ARKodeLSRKStepMem step_mem;
-  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return retval; }
-
-  /* return an error if local truncation error is not computed */
-  if (ark_mem->fixedstep) { return ARK_STEPPER_UNSUPPORTED; }
-
-  /* otherwise, copy local truncation error vector to output */
-  N_VScale(ONE, ark_mem->tempv1, ele);
   return ARK_SUCCESS;
 }
 
@@ -693,6 +641,58 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 
   fprintf(fp, "\n");
 
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
+  lsrkStep_GetNumRhsEvals:
+
+  Returns the current number of RHS calls
+  ---------------------------------------------------------------*/
+int lsrkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                            long int* rhs_evals)
+{
+  ARKodeLSRKStepMem step_mem = NULL;
+
+  /* access ARKodeLSRKStepMem structure */
+  int retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (rhs_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "rhs_evals is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  if (partition_index > 0)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid partition index");
+    return ARK_ILL_INPUT;
+  }
+
+  *rhs_evals = step_mem->nfe;
+
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
+  lsrkStep_GetEstLocalErrors: Returns the current local truncation
+  error estimate vector
+  ---------------------------------------------------------------*/
+int lsrkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
+{
+  int retval;
+  ARKodeLSRKStepMem step_mem;
+  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  /* return an error if local truncation error is not computed */
+  if (ark_mem->fixedstep) { return ARK_STEPPER_UNSUPPORTED; }
+
+  /* otherwise, copy local truncation error vector to output */
+  N_VScale(ONE, ark_mem->tempv1, ele);
   return ARK_SUCCESS;
 }
 

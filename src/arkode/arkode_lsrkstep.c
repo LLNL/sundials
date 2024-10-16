@@ -110,178 +110,191 @@ int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  lsrkStep_Resize:
+  lsrkStep_Create_Commons:
 
-  This routine resizes the memory within the LSRKStep module.
+  A submodule for creating the common features of
+  LSRKStepCreateSTS and LSRKStepCreateSSP.
   ---------------------------------------------------------------*/
-int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
-                    SUNDIALS_MAYBE_UNUSED sunrealtype hscale,
-                    SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize,
-                    void* resize_data)
+
+void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
+                              SUNContext sunctx)
 {
+  ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
-  sunindextype lrw1, liw1, lrw_diff, liw_diff;
+  sunbooleantype nvectorOK;
   int retval;
 
-  /* access ARKodeLSRKStepMem structure */
-  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return retval; }
+  /* Check that rhs is supplied */
+  if (rhs == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_F);
+    return NULL;
+  }
 
-  /* Determine change in vector sizes */
-  lrw1 = liw1 = 0;
-  if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
-  lrw_diff      = lrw1 - ark_mem->lrw1;
-  liw_diff      = liw1 - ark_mem->liw1;
-  ark_mem->lrw1 = lrw1;
-  ark_mem->liw1 = liw1;
+  /* Check for legal input parameters */
+  if (y0 == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
+    return NULL;
+  }
 
-  /* Resize the internal vector storage */
-  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
-                    &step_mem->Fe))
+  if (sunctx == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_SUNCTX);
+    return NULL;
+  }
+
+  /* Test if all required vector operations are implemented */
+  nvectorOK = lsrkStep_CheckNVector(y0);
+  if (!nvectorOK)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_BAD_NVECTOR);
+    return NULL;
+  }
+
+  /* Create ark_mem structure and set default values */
+  ark_mem = arkCreate(sunctx);
+  if (ark_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return NULL;
+  }
+
+  /* Allocate ARKodeLSRKStepMem structure, and initialize to zero */
+  step_mem = (ARKodeLSRKStepMem)calloc(1, sizeof(*step_mem));
+  if (step_mem == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "Unable to resize vector");
-    return ARK_MEM_FAIL;
+                    MSG_ARK_ARKMEM_FAIL);
+    ARKodeFree((void**)&ark_mem);
+    return NULL;
   }
 
-  return ARK_SUCCESS;
-}
+  /* Attach step_mem structure and function pointers to ark_mem */
+  ark_mem->step_init              = lsrkStep_Init;
+  ark_mem->step_fullrhs           = lsrkStep_FullRHS;
+  ark_mem->step                   = lsrkStep_TakeStepRKC;
+  ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
+  ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
+  ark_mem->step_resize            = lsrkStep_Resize;
+  ark_mem->step_free              = lsrkStep_Free;
+  ark_mem->step_printmem          = lsrkStep_PrintMem;
+  ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
+  ark_mem->step_getnumrhsevals    = lsrkStep_GetNumRhsEvals;
+  ark_mem->step_getestlocalerrors = lsrkStep_GetEstLocalErrors;
+  ark_mem->step_mem               = (void*)step_mem;
+  ark_mem->step_supports_adaptive = SUNTRUE;
 
-/*---------------------------------------------------------------
-  lsrkStep_Free frees all LSRKStep memory.
-  ---------------------------------------------------------------*/
-void lsrkStep_Free(ARKodeMem ark_mem)
-{
-  ARKodeLSRKStepMem step_mem;
-
-  /* nothing to do if ark_mem is already NULL */
-  if (ark_mem == NULL) { return; }
-
-  /* conditional frees on non-NULL LSRKStep module */
-  if (ark_mem->step_mem != NULL)
+  /* Set default values for optional inputs */
+  retval = lsrkStep_SetDefaults((void*)ark_mem);
+  if (retval != ARK_SUCCESS)
   {
-    step_mem = (ARKodeLSRKStepMem)ark_mem->step_mem;
-
-    /* free the RHS vectors */
-    if (step_mem->Fe != NULL) { arkFreeVec(ark_mem, &step_mem->Fe); }
-
-    /* free the reusable arrays for fused vector interface */
-    if (step_mem->cvals != NULL)
-    {
-      free(step_mem->cvals);
-      step_mem->cvals = NULL;
-      ark_mem->lrw -= step_mem->nfusedopvecs;
-    }
-    if (step_mem->Xvecs != NULL)
-    {
-      free(step_mem->Xvecs);
-      step_mem->Xvecs = NULL;
-      ark_mem->liw -= step_mem->nfusedopvecs;
-    }
-
-    /* free the time stepper module itself */
-    free(ark_mem->step_mem);
-    ark_mem->step_mem = NULL;
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Error setting default solver options");
+    ARKodeFree((void**)&ark_mem);
+    return NULL;
   }
+
+  /* Copy the input parameters into ARKODE state */
+  step_mem->fe = rhs;
+
+  /* Set NULL for dom_eig_fn */
+  step_mem->dom_eig_fn = NULL;
+
+  /* Initialize all the counters */
+  step_mem->nfe               = 0;
+  step_mem->stage_max         = 0;
+  step_mem->dom_eig_num_evals = 0;
+  step_mem->stage_max_limit   = STAGE_MAX_LIMIT_DEFAULT;
+  step_mem->dom_eig_nst       = 0;
+
+  /* Initialize main ARKODE infrastructure */
+  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to initialize main ARKODE infrastructure");
+    ARKodeFree((void**)&ark_mem);
+    return NULL;
+  }
+
+  /* Specify preferred interpolation type */
+  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
+
+  return (void*)ark_mem;
 }
 
 /*---------------------------------------------------------------
-  lsrkStep_PrintMem:
+  lsrkStep_ReInit_Commons:
 
-  This routine outputs the memory from the LSRKStep structure to
-  a specified file pointer (useful when debugging).
+  A submodule designed to reinitialize the common features of
+  LSRKStepCreateSTS and LSRKStepCreateSSP.
   ---------------------------------------------------------------*/
-void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
+
+int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
+                            N_Vector y0)
 {
+  ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
   int retval;
 
   /* access ARKodeLSRKStepMem structure */
-  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return; }
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  /* print integrator memory to file */
-  switch (step_mem->LSRKmethod)
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE)
   {
-  case ARKODE_LSRK_RKC_2:
-    fprintf(outfile, "LSRKStep RKC time step module memory:\n");
-    break;
-  case ARKODE_LSRK_RKL_2:
-    fprintf(outfile, "LSRKStep RKL time step module memory:\n");
-    break;
-  case ARKODE_LSRK_SSP_S_2:
-    fprintf(outfile, "LSRKStep SSP(s,2) time step module memory:\n");
-    break;
-  case ARKODE_LSRK_SSP_S_3:
-    fprintf(outfile, "LSRKStep SSP(s,3) time step module memory:\n");
-    break;
-  case ARKODE_LSRK_SSP_10_4:
-    fprintf(outfile, "LSRKStep SSP(10,4) time step module memory:\n");
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid method option.");
-    return;
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
+    return ARK_NO_MALLOC;
   }
 
-  fprintf(outfile, "LSRKStep: q                   = %i\n", step_mem->q);
-  fprintf(outfile, "LSRKStep: p                   = %i\n", step_mem->p);
-
-  if (step_mem->is_SSP)
-  {
-    fprintf(outfile, "LSRKStep: req_stages          = %i\n",
-            step_mem->req_stages);
-    fprintf(outfile, "LSRKStep: nfe                 = %li\n", step_mem->nfe);
-  }
-  else if (!step_mem->is_SSP)
-  {
-    /* output integer quantities */
-    fprintf(outfile, "LSRKStep: req_stages            = %i\n",
-            step_mem->req_stages);
-    fprintf(outfile, "LSRKStep: dom_eig_nst           = %i\n",
-            step_mem->dom_eig_nst);
-    fprintf(outfile, "LSRKStep: stage_max             = %i\n",
-            step_mem->stage_max);
-    fprintf(outfile, "LSRKStep: stage_max_limit       = %i\n",
-            step_mem->stage_max_limit);
-    fprintf(outfile, "LSRKStep: dom_eig_freq          = %i\n",
-            step_mem->dom_eig_freq);
-
-    /* output long integer quantities */
-    fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
-    fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
-            step_mem->dom_eig_num_evals);
-
-    /* output sunrealtype quantities */
-    fprintf(outfile, "LSRKStep: dom_eig               = %" RSYM " + i%" RSYM "\n",
-            step_mem->lambdaR, step_mem->lambdaI);
-    fprintf(outfile, "LSRKStep: spectral_radius       = %" RSYM "\n",
-            step_mem->spectral_radius);
-    fprintf(outfile, "LSRKStep: spectral_radius_max   = %" RSYM "\n",
-            step_mem->spectral_radius_max);
-    fprintf(outfile, "LSRKStep: spectral_radius_min   = %" RSYM "\n",
-            step_mem->spectral_radius_min);
-    fprintf(outfile, "LSRKStep: dom_eig_safety        = %" RSYM "\n",
-            step_mem->dom_eig_safety);
-
-    /* output sunbooleantype quantities */
-    fprintf(outfile, "LSRKStep: dom_eig_update        = %d\n",
-            step_mem->dom_eig_update);
-    fprintf(outfile, "LSRKStep: dom_eig_is_current    = %d\n",
-            step_mem->dom_eig_is_current);
-  }
-  else
+  /* Check that rhs is supplied */
+  if (rhs == NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid method type.");
-    return;
+                    MSG_ARK_NULL_F);
+    return ARK_ILL_INPUT;
   }
 
-#ifdef SUNDIALS_DEBUG_PRINTVEC
-  /* output vector quantities */
-  fprintf(outfile, "LSRKStep: Fe:\n");
-  N_VPrintFile(step_mem->Fe, outfile);
-#endif
+  /* Check for legal input parameters */
+  if (y0 == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_Y0);
+    return ARK_ILL_INPUT;
+  }
+
+  /* Copy the input parameters into ARKODE state */
+  step_mem->fe = rhs;
+
+  /* Initialize main ARKODE infrastructure */
+  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to initialize main ARKODE infrastructure");
+    return retval;
+  }
+
+  /* Initialize all the counters, flags and stats */
+  step_mem->nfe                 = 0;
+  step_mem->dom_eig_num_evals   = 0;
+  step_mem->stage_max           = 0;
+  step_mem->spectral_radius_max = 0;
+  step_mem->spectral_radius_min = 0;
+  step_mem->dom_eig_nst         = 0;
+  step_mem->dom_eig_update      = SUNTRUE;
+  step_mem->dom_eig_is_current  = SUNFALSE;
+
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -462,6 +475,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 
   return ARK_SUCCESS;
 }
+
 
 /*---------------------------------------------------------------
   lsrkStep_TakeStepRKC:
@@ -1951,6 +1965,182 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   return ARK_SUCCESS;
 }
 
+
+/*---------------------------------------------------------------
+  lsrkStep_Resize:
+
+  This routine resizes the memory within the LSRKStep module.
+  ---------------------------------------------------------------*/
+int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
+                    SUNDIALS_MAYBE_UNUSED sunrealtype hscale,
+                    SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize,
+                    void* resize_data)
+{
+  ARKodeLSRKStepMem step_mem;
+  sunindextype lrw1, liw1, lrw_diff, liw_diff;
+  int retval;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  /* Determine change in vector sizes */
+  lrw1 = liw1 = 0;
+  if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
+  lrw_diff      = lrw1 - ark_mem->lrw1;
+  liw_diff      = liw1 - ark_mem->liw1;
+  ark_mem->lrw1 = lrw1;
+  ark_mem->liw1 = liw1;
+
+  /* Resize the internal vector storage */
+  if (!arkResizeVec(ark_mem, resize, resize_data, lrw_diff, liw_diff, y0,
+                    &step_mem->Fe))
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Unable to resize vector");
+    return ARK_MEM_FAIL;
+  }
+
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
+  lsrkStep_Free frees all LSRKStep memory.
+  ---------------------------------------------------------------*/
+void lsrkStep_Free(ARKodeMem ark_mem)
+{
+  ARKodeLSRKStepMem step_mem;
+
+  /* nothing to do if ark_mem is already NULL */
+  if (ark_mem == NULL) { return; }
+
+  /* conditional frees on non-NULL LSRKStep module */
+  if (ark_mem->step_mem != NULL)
+  {
+    step_mem = (ARKodeLSRKStepMem)ark_mem->step_mem;
+
+    /* free the RHS vectors */
+    if (step_mem->Fe != NULL) { arkFreeVec(ark_mem, &step_mem->Fe); }
+
+    /* free the reusable arrays for fused vector interface */
+    if (step_mem->cvals != NULL)
+    {
+      free(step_mem->cvals);
+      step_mem->cvals = NULL;
+      ark_mem->lrw -= step_mem->nfusedopvecs;
+    }
+    if (step_mem->Xvecs != NULL)
+    {
+      free(step_mem->Xvecs);
+      step_mem->Xvecs = NULL;
+      ark_mem->liw -= step_mem->nfusedopvecs;
+    }
+
+    /* free the time stepper module itself */
+    free(ark_mem->step_mem);
+    ark_mem->step_mem = NULL;
+  }
+}
+
+/*---------------------------------------------------------------
+  lsrkStep_PrintMem:
+
+  This routine outputs the memory from the LSRKStep structure to
+  a specified file pointer (useful when debugging).
+  ---------------------------------------------------------------*/
+void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
+{
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeLSRKStepMem structure */
+  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return; }
+
+  /* print integrator memory to file */
+  switch (step_mem->LSRKmethod)
+  {
+  case ARKODE_LSRK_RKC_2:
+    fprintf(outfile, "LSRKStep RKC time step module memory:\n");
+    break;
+  case ARKODE_LSRK_RKL_2:
+    fprintf(outfile, "LSRKStep RKL time step module memory:\n");
+    break;
+  case ARKODE_LSRK_SSP_S_2:
+    fprintf(outfile, "LSRKStep SSP(s,2) time step module memory:\n");
+    break;
+  case ARKODE_LSRK_SSP_S_3:
+    fprintf(outfile, "LSRKStep SSP(s,3) time step module memory:\n");
+    break;
+  case ARKODE_LSRK_SSP_10_4:
+    fprintf(outfile, "LSRKStep SSP(10,4) time step module memory:\n");
+    break;
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid method option.");
+    return;
+  }
+
+  fprintf(outfile, "LSRKStep: q                   = %i\n", step_mem->q);
+  fprintf(outfile, "LSRKStep: p                   = %i\n", step_mem->p);
+
+  if (step_mem->is_SSP)
+  {
+    fprintf(outfile, "LSRKStep: req_stages          = %i\n",
+            step_mem->req_stages);
+    fprintf(outfile, "LSRKStep: nfe                 = %li\n", step_mem->nfe);
+  }
+  else if (!step_mem->is_SSP)
+  {
+    /* output integer quantities */
+    fprintf(outfile, "LSRKStep: req_stages            = %i\n",
+            step_mem->req_stages);
+    fprintf(outfile, "LSRKStep: dom_eig_nst           = %i\n",
+            step_mem->dom_eig_nst);
+    fprintf(outfile, "LSRKStep: stage_max             = %i\n",
+            step_mem->stage_max);
+    fprintf(outfile, "LSRKStep: stage_max_limit       = %i\n",
+            step_mem->stage_max_limit);
+    fprintf(outfile, "LSRKStep: dom_eig_freq          = %i\n",
+            step_mem->dom_eig_freq);
+
+    /* output long integer quantities */
+    fprintf(outfile, "LSRKStep: nfe                   = %li\n", step_mem->nfe);
+    fprintf(outfile, "LSRKStep: dom_eig_num_evals     = %li\n",
+            step_mem->dom_eig_num_evals);
+
+    /* output sunrealtype quantities */
+    fprintf(outfile, "LSRKStep: dom_eig               = %" RSYM " + i%" RSYM "\n",
+            step_mem->lambdaR, step_mem->lambdaI);
+    fprintf(outfile, "LSRKStep: spectral_radius       = %" RSYM "\n",
+            step_mem->spectral_radius);
+    fprintf(outfile, "LSRKStep: spectral_radius_max   = %" RSYM "\n",
+            step_mem->spectral_radius_max);
+    fprintf(outfile, "LSRKStep: spectral_radius_min   = %" RSYM "\n",
+            step_mem->spectral_radius_min);
+    fprintf(outfile, "LSRKStep: dom_eig_safety        = %" RSYM "\n",
+            step_mem->dom_eig_safety);
+
+    /* output sunbooleantype quantities */
+    fprintf(outfile, "LSRKStep: dom_eig_update        = %d\n",
+            step_mem->dom_eig_update);
+    fprintf(outfile, "LSRKStep: dom_eig_is_current    = %d\n",
+            step_mem->dom_eig_is_current);
+  }
+  else
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid method type.");
+    return;
+  }
+
+#ifdef SUNDIALS_DEBUG_PRINTVEC
+  /* output vector quantities */
+  fprintf(outfile, "LSRKStep: Fe:\n");
+  N_VPrintFile(step_mem->Fe, outfile);
+#endif
+}
+
 /*===============================================================
   Internal utility routines
   ===============================================================*/
@@ -2023,6 +2213,36 @@ sunbooleantype lsrkStep_CheckNVector(N_Vector tmpl)
 }
 
 /*---------------------------------------------------------------
+  lsrkStep_DomEigUpdateLogic:
+
+  This routine checks if the step is accepted or not and reassigns
+  the dom_eig update flags accordingly.
+  ---------------------------------------------------------------*/
+
+void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
+                                sunrealtype dsm)
+{
+  if (dsm <= ONE)
+  {
+    N_VScale(ONE, ark_mem->tempv2, ark_mem->fn);
+    ark_mem->fn_is_current = SUNTRUE;
+
+    step_mem->dom_eig_is_current = (step_mem->const_Jac == SUNTRUE);
+    step_mem->dom_eig_nst = (step_mem->dom_eig_nst + 1) % step_mem->dom_eig_freq;
+    step_mem->dom_eig_update = SUNFALSE;
+    if (step_mem->dom_eig_nst == 0)
+    {
+      step_mem->dom_eig_update = !step_mem->dom_eig_is_current;
+    }
+  }
+  else
+  {
+    step_mem->dom_eig_update = !step_mem->dom_eig_is_current;
+    step_mem->dom_eig_nst    = 0;
+  }
+}
+
+/*---------------------------------------------------------------
   lsrkStep_ComputeNewDomEig:
 
   This routine computes new dom_eig and returns SUN_SUCCESS.
@@ -2079,224 +2299,6 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
   step_mem->dom_eig_update = SUNFALSE;
 
   return retval;
-}
-
-/*---------------------------------------------------------------
-  lsrkStep_DomEigUpdateLogic:
-
-  This routine checks if the step is accepted or not and reassigns
-  the dom_eig update flags accordingly.
-  ---------------------------------------------------------------*/
-
-void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
-                                sunrealtype dsm)
-{
-  if (dsm <= ONE)
-  {
-    N_VScale(ONE, ark_mem->tempv2, ark_mem->fn);
-    ark_mem->fn_is_current = SUNTRUE;
-
-    step_mem->dom_eig_is_current = (step_mem->const_Jac == SUNTRUE);
-    step_mem->dom_eig_nst = (step_mem->dom_eig_nst + 1) % step_mem->dom_eig_freq;
-    step_mem->dom_eig_update = SUNFALSE;
-    if (step_mem->dom_eig_nst == 0)
-    {
-      step_mem->dom_eig_update = !step_mem->dom_eig_is_current;
-    }
-  }
-  else
-  {
-    step_mem->dom_eig_update = !step_mem->dom_eig_is_current;
-    step_mem->dom_eig_nst    = 0;
-  }
-}
-
-/*---------------------------------------------------------------
-  lsrkStep_Create_Commons:
-
-  A submodule for creating the common features of
-  LSRKStepCreateSTS and LSRKStepCreateSSP.
-  ---------------------------------------------------------------*/
-
-void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
-                              SUNContext sunctx)
-{
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  sunbooleantype nvectorOK;
-  int retval;
-
-  /* Check that rhs is supplied */
-  if (rhs == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_F);
-    return NULL;
-  }
-
-  /* Check for legal input parameters */
-  if (y0 == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_Y0);
-    return NULL;
-  }
-
-  if (sunctx == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_SUNCTX);
-    return NULL;
-  }
-
-  /* Test if all required vector operations are implemented */
-  nvectorOK = lsrkStep_CheckNVector(y0);
-  if (!nvectorOK)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
-    return NULL;
-  }
-
-  /* Create ark_mem structure and set default values */
-  ark_mem = arkCreate(sunctx);
-  if (ark_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return NULL;
-  }
-
-  /* Allocate ARKodeLSRKStepMem structure, and initialize to zero */
-  step_mem = (ARKodeLSRKStepMem)calloc(1, sizeof(*step_mem));
-  if (step_mem == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_ARKMEM_FAIL);
-    ARKodeFree((void**)&ark_mem);
-    return NULL;
-  }
-
-  /* Attach step_mem structure and function pointers to ark_mem */
-  ark_mem->step_init              = lsrkStep_Init;
-  ark_mem->step_fullrhs           = lsrkStep_FullRHS;
-  ark_mem->step                   = lsrkStep_TakeStepRKC;
-  ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
-  ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
-  ark_mem->step_resize            = lsrkStep_Resize;
-  ark_mem->step_free              = lsrkStep_Free;
-  ark_mem->step_printmem          = lsrkStep_PrintMem;
-  ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
-  ark_mem->step_getnumrhsevals    = lsrkStep_GetNumRhsEvals;
-  ark_mem->step_getestlocalerrors = lsrkStep_GetEstLocalErrors;
-  ark_mem->step_mem               = (void*)step_mem;
-  ark_mem->step_supports_adaptive = SUNTRUE;
-
-  /* Set default values for optional inputs */
-  retval = lsrkStep_SetDefaults((void*)ark_mem);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Error setting default solver options");
-    ARKodeFree((void**)&ark_mem);
-    return NULL;
-  }
-
-  /* Copy the input parameters into ARKODE state */
-  step_mem->fe = rhs;
-
-  /* Set NULL for dom_eig_fn */
-  step_mem->dom_eig_fn = NULL;
-
-  /* Initialize all the counters */
-  step_mem->nfe               = 0;
-  step_mem->stage_max         = 0;
-  step_mem->dom_eig_num_evals = 0;
-  step_mem->stage_max_limit   = STAGE_MAX_LIMIT_DEFAULT;
-  step_mem->dom_eig_nst       = 0;
-
-  /* Initialize main ARKODE infrastructure */
-  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to initialize main ARKODE infrastructure");
-    ARKodeFree((void**)&ark_mem);
-    return NULL;
-  }
-
-  /* Specify preferred interpolation type */
-  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
-
-  return (void*)ark_mem;
-}
-
-/*---------------------------------------------------------------
-  lsrkStep_ReInit_Commons:
-
-  A submodule designed to reinitialize the common features of
-  LSRKStepCreateSTS and LSRKStepCreateSSP.
-  ---------------------------------------------------------------*/
-
-int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
-                            N_Vector y0)
-{
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeLSRKStepMem structure */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
-  if (retval != ARK_SUCCESS) { return retval; }
-
-  /* Check if ark_mem was allocated */
-  if (ark_mem->MallocDone == SUNFALSE)
-  {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MALLOC);
-    return ARK_NO_MALLOC;
-  }
-
-  /* Check that rhs is supplied */
-  if (rhs == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_F);
-    return ARK_ILL_INPUT;
-  }
-
-  /* Check for legal input parameters */
-  if (y0 == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_Y0);
-    return ARK_ILL_INPUT;
-  }
-
-  /* Copy the input parameters into ARKODE state */
-  step_mem->fe = rhs;
-
-  /* Initialize main ARKODE infrastructure */
-  retval = arkInit(arkode_mem, t0, y0, FIRST_INIT);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Unable to initialize main ARKODE infrastructure");
-    return retval;
-  }
-
-  /* Initialize all the counters, flags and stats */
-  step_mem->nfe                 = 0;
-  step_mem->dom_eig_num_evals   = 0;
-  step_mem->stage_max           = 0;
-  step_mem->spectral_radius_max = 0;
-  step_mem->spectral_radius_min = 0;
-  step_mem->dom_eig_nst         = 0;
-  step_mem->dom_eig_update      = SUNTRUE;
-  step_mem->dom_eig_is_current  = SUNFALSE;
-
-  return ARK_SUCCESS;
 }
 
 /*===============================================================
