@@ -355,37 +355,34 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  LSRKStepGetNumRhsEvals:
+  lsrkStep_GetNumRhsEvals:
 
-  Returns the current number of calls to f
+  Returns the current number of RHS calls
   ---------------------------------------------------------------*/
-int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals)
+int lsrkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals)
 {
-  ARKodeMem ark_mem;
-  ARKodeLSRKStepMem step_mem;
-  int retval;
+  ARKodeLSRKStepMem step_mem = NULL;
 
-  /* access ARKodeMem and ARKodeLSRKStepMem structures */
-  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
-                                        &step_mem);
+  /* access ARKodeLSRKStepMem structure */
+  int retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  if (num_rhs_fn < 1)
+  if (rhs_evals == NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "num_rhs_fn must be greater than or equal to 1");
+                    "rhs_evals is NULL");
     return ARK_ILL_INPUT;
   }
 
-  if (f_evals == NULL)
+  if (partition_index > 0)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "f_evals cannot be NULL");
+                    "Invalid partition index");
     return ARK_ILL_INPUT;
   }
 
-  /* get values from step_mem */
-  *f_evals = step_mem->nfe;
+  *rhs_evals = step_mem->nfe;
 
   return ARK_SUCCESS;
 }

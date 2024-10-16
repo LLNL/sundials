@@ -2187,6 +2187,7 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ark_mem->step_free              = lsrkStep_Free;
   ark_mem->step_printmem          = lsrkStep_PrintMem;
   ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
+  ark_mem->step_getnumrhsevals    = lsrkStep_GetNumRhsEvals;
   ark_mem->step_getestlocalerrors = lsrkStep_GetEstLocalErrors;
   ark_mem->step_mem               = (void*)step_mem;
   ark_mem->step_supports_adaptive = SUNTRUE;

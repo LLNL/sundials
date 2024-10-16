@@ -165,7 +165,7 @@ int ERKStepSetTableName(void* arkode_mem, const char* etable)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ERKStepGetNumRhsEvals:
+  erkStep_GetNumRhsEvals:
 
   Returns the current number of RHS calls
   ---------------------------------------------------------------*/

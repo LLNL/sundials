@@ -242,33 +242,6 @@ Optional output functions
 ------------------------------
 
 
-.. c:function:: int LSRKStepGetNumRhsEvals(void* arkode_mem, int num_rhs_fn, long int* f_evals);
-
-   Returns the number of calls to the user's right-hand side functions.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *num_rhs_fn* -- number of input  RHS functions.
-      * *f_evals* -- number of calls to the user's :math:`f(t,y)` function.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
-
-
-.. c:function:: int LSRKStepGetNumDomEigUpdates(void* arkode_mem, long int* dom_eig_num_evals);
-
-   Returns the number of dominant eigenvalue evaluations (so far).
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *dom_eig_num_evals* -- number of calls to the user's ``dom_eig`` function.
-
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the LSRKStep memory was ``NULL``
-
-
 .. c:function:: int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max);
 
    Returns the max number of stages used in any single step (so far).
