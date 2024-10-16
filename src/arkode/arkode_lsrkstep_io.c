@@ -360,7 +360,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
   Returns the current number of RHS calls
   ---------------------------------------------------------------*/
 int lsrkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
-                           long int* rhs_evals)
+                            long int* rhs_evals)
 {
   ARKodeLSRKStepMem step_mem = NULL;
 
