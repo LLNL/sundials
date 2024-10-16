@@ -1073,8 +1073,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       :c:func:`ARKodeSetMinReduction`,
       :c:func:`ARKodeSetSafetyFactor`,
       :c:func:`ARKodeSetSmallNumEFails`,
-      :c:func:`ARKodeSetStabilityFn`, and
-      :c:func:`ARKodeSetAdaptController`
+      :c:func:`ARKodeSetStabilityFn`,
+      :c:func:`ARKodeSetAdaptController`, and
+      :c:func:`ARKodeSetAdaptControllerByName`
       will be ignored, since temporal adaptivity is disabled.
 
       If both :c:func:`ARKodeSetFixedStep` and
@@ -1414,7 +1415,8 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 Optional input                                              Function name                               Default
 =========================================================   ==========================================  ========
 Provide a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptController`          PID
-Adjust the method order used in the controller              :c:func:`ERKStepSetAdaptivityAdjustment`    -1
+Specify a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptControllerByName`    PID
+Adjust the method order used in the controller              :c:func:`ARKodeSetAdaptivityAdjustment`     -1
 Explicit stability safety factor                            :c:func:`ARKodeSetCFLFraction`              0.5
 Time step error bias factor                                 :c:func:`ARKodeSetErrorBias`                1.5
 Bounds determining no change in step size                   :c:func:`ARKodeSetFixedStepBounds`          1.0  1.5
@@ -1449,6 +1451,34 @@ Explicit stability function                                 :c:func:`ARKodeSetSt
       This is only compatible with time-stepping modules that support temporal adaptivity.
 
   .. versionadded:: 6.1.0
+
+
+.. c:function:: int ARKodeSetAdaptControllerByName(void* arkode_mem, const char* cname)
+
+   Sets a user-supplied time-step controller object by name.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param cname: name of the time adaptivity controller to use.  Allowable values
+                 currently include ``"Soderlind"``, ``"PID"``, ``"PI"``, ``"I"``,
+                 ``"ExpGus"``, ``"ImpGus"``, ``"H0211"``, ``"H211"``, ``"H312"``. For
+                 information on these options, see :numref:`SUNAdaptController.Soderlind`.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_ILL_INPUT: *cname* did not match an allowed value.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
+                                    by the current time-stepping module.
+
+   .. note::
+
+      This is only compatible with time-stepping modules that support temporal adaptivity.
+
+      It is not possible to adjust the internal controller parameters when using this
+      function.  Users who wish to adjust these parameters should create and configure
+      the :c:type:`SUNAdaptController` object manually, and then call
+      :c:func:`ARKodeSetAdaptController`.
+
+  .. versionadded:: x.y.z
 
 
 .. c:function:: int ARKodeSetAdaptivityAdjustment(void* arkode_mem, int adjust)

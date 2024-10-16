@@ -23,6 +23,7 @@
 #include <iostream>
 #include <limits>
 #include <sstream>
+#include <string>
 #include <vector>
 
 // Include desired integrators, vectors, linear solvers, and nonlinear solvers
@@ -145,13 +146,13 @@ struct UserOptions
   sunrealtype etamx1_fast = ZERO;
 
   int maxsteps      = 10000; // max steps between outputs
-  int controller    = -1;    // step size adaptivity method
+  string controller = "PID"; // step size adaptivity method
   int predictor     = 0;     // predictor for nonlinear systems
   int ls_setup_freq = 0;     // linear solver setup frequency
 
-  int controller_fast    = -1; // fast step size adaptivity method
-  int predictor_fast     = 0;  // predictor for fast nonlinear systems
-  int ls_setup_freq_fast = 0;  // fast linear solver setup frequency
+  string controller_fast = "PID"; // fast step size adaptivity method
+  int predictor_fast     = 0;     // predictor for fast nonlinear systems
+  int ls_setup_freq_fast = 0;     // fast linear solver setup frequency
 
   bool linear = false; // signal that the problem is linearly implicit
 
@@ -242,16 +243,15 @@ int J_adv_diff_react(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 // Integrator setup functions
 int SetupERK(SUNContext ctx, UserData& udata, UserOptions& uopts, N_Vector y,
-             SUNAdaptController* C, void** arkode_mem);
+             void** arkode_mem);
 
 int SetupARK(SUNContext ctx, UserData& udata, UserOptions& uopts, N_Vector y,
-             SUNMatrix* A, SUNLinearSolver* LS, SUNAdaptController* C,
-             void** arkode_mem);
+             SUNMatrix* A, SUNLinearSolver* LS, void** arkode_mem);
 
 int SetupMRIARK(SUNContext ctx, UserData& udata, UserOptions& uopts, N_Vector y,
                 SUNMatrix* A, SUNLinearSolver* LS, SUNMatrix* A_fast,
-                SUNLinearSolver* LS_fast, SUNAdaptController* C_fast,
-                MRIStepInnerStepper* fast_mem, void** arkode_mem);
+                SUNLinearSolver* LS_fast, MRIStepInnerStepper* fast_mem,
+                void** arkode_mem);
 
 int SetupMRICVODE(SUNContext ctx, UserData& udata, UserOptions& uopts,
                   N_Vector y, SUNMatrix* A, SUNLinearSolver* LS,
@@ -596,10 +596,10 @@ static void InputHelp()
   cout << "  --atol_fast <real>       : MRI fast absolute tolerance\n";
   cout << "  --fixed_h <real>         : fixed step size\n";
   cout << "  --fixed_h_fast <real>    : MRI fast fixed step size\n";
-  cout << "  --controller <int>       : time step adaptivity\n";
+  cout << "  --controller <name>      : time step adaptivity\n";
   cout << "  --predictor <int>        : nonlinear solver predictor\n";
   cout << "  --lssetupfreq <int>      : LS setup frequency\n";
-  cout << "  --controller_fast <int>  : MRI fast time step adaptivity\n";
+  cout << "  --controller_fast <name> : MRI fast time step adaptivity\n";
   cout << "  --predictor_fast <int>   : MRI fast nonlinear solver predictor\n";
   cout << "  --lssetupfreq_fast <int> : MRI fast LS setup frequency\n";
   cout << "  --maxsteps <int>         : max steps between outputs\n";
@@ -659,6 +659,16 @@ inline void find_arg(vector<string>& args, const string key, bool& dest,
   {
     dest = store;
     args.erase(it);
+  }
+}
+
+inline void find_arg(vector<string>& args, const string key, string& dest)
+{
+  auto it = find(args.cbegin(), args.cend(), key);
+  if (it != args.end())
+  {
+    dest = move(*(it + 1));
+    args.erase(it, it + 2);
   }
 }
 
@@ -1036,22 +1046,7 @@ static int PrintSetup(UserData& udata, UserOptions& uopts)
   cout << "  rtol             = " << uopts.rtol << endl;
   cout << "  atol             = " << uopts.atol << endl;
   cout << "  fixed h          = " << uopts.fixed_h << endl;
-  if (uopts.controller <= 0) { cout << "  controller       = PID" << endl; }
-  else if (uopts.controller == 1) { cout << "  controller       = PI" << endl; }
-  else if (uopts.controller == 2) { cout << "  controller       = I" << endl; }
-  else if (uopts.controller == 3)
-  {
-    cout << "  controller       = explicit Gustafsson" << endl;
-  }
-  else if (uopts.controller == 4)
-  {
-    cout << "  controller       = implicit Gustafsson" << endl;
-  }
-  else if (uopts.controller == 5)
-  {
-    cout << "  controller       = IMEX Gustafsson" << endl;
-  }
-  else { cout << "  controller       = " << uopts.controller << endl; }
+  cout << "  controller       = " << uopts.controller << endl;
   if (uopts.integrator > 0)
   {
     if (uopts.predictor == 0)
@@ -1082,31 +1077,7 @@ static int PrintSetup(UserData& udata, UserOptions& uopts)
     cout << "  atol             = " << uopts.atol_fast << endl;
     cout << "  order            = " << uopts.order_fast << endl;
     cout << "  fixed h          = " << uopts.fixed_h_fast << endl;
-    if (uopts.controller_fast <= 0)
-    {
-      cout << "  controller       = PID" << endl;
-    }
-    else if (uopts.controller_fast == 1)
-    {
-      cout << "  controller       = PI" << endl;
-    }
-    else if (uopts.controller_fast == 2)
-    {
-      cout << "  controller       = I" << endl;
-    }
-    else if (uopts.controller_fast == 3)
-    {
-      cout << "  controller       = explicit Gustafsson" << endl;
-    }
-    else if (uopts.controller_fast == 4)
-    {
-      cout << "  controller       = implicit Gustafsson" << endl;
-    }
-    else if (uopts.controller_fast == 5)
-    {
-      cout << "  controller       = IMEX Gustafsson" << endl;
-    }
-    else { cout << "  controller       = " << uopts.controller_fast << endl; }
+    cout << "  fast controller  = PID" << uopts.controller_fast << endl;
     if (uopts.predictor_fast == 0)
     {
       cout << "  predictor        = trivial" << endl;

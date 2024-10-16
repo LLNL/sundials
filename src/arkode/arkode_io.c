@@ -960,6 +960,73 @@ int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
 }
 
 /*---------------------------------------------------------------
+  ARKodeSetAdaptControllerByName:
+
+  Specifies a SUNAdaptController time step controller object by
+  its name.
+  ---------------------------------------------------------------*/
+int ARKodeSetAdaptControllerByName(void* arkode_mem, const char* cname)
+{
+  int retval;
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Create new controller based on the name */
+  SUNAdaptController C = NULL;
+  if (strcmp(cname, "Soderlind") == 0)
+  {
+    C = SUNAdaptController_Soderlind(ark_mem->sunctx);
+  }
+  if (strcmp(cname, "PID") == 0)
+  {
+    C = SUNAdaptController_PID(ark_mem->sunctx);
+  }
+  if (strcmp(cname, "PI") == 0) { C = SUNAdaptController_PI(ark_mem->sunctx); }
+  if (strcmp(cname, "I") == 0) { C = SUNAdaptController_I(ark_mem->sunctx); }
+  if (strcmp(cname, "ExpGus") == 0)
+  {
+    C = SUNAdaptController_ExpGus(ark_mem->sunctx);
+  }
+  if (strcmp(cname, "ImpGus") == 0)
+  {
+    C = SUNAdaptController_ImpGus(ark_mem->sunctx);
+  }
+  if (strcmp(cname, "H0211") == 0)
+  {
+    C = SUNAdaptController_H0211(ark_mem->sunctx);
+  }
+  if (strcmp(cname, "H211") == 0)
+  {
+    C = SUNAdaptController_H211(ark_mem->sunctx);
+  }
+  if (strcmp(cname, "H312") == 0)
+  {
+    C = SUNAdaptController_H312(ark_mem->sunctx);
+  }
+  if (C == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Unknown controller");
+    return ARK_ILL_INPUT;
+  }
+
+  /* Send controller to be used by ARKODE */
+  retval = ARKodeSetAdaptController(arkode_mem, C);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  /* Update controller ownership flag */
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
   ARKodeSetMaxNumSteps:
 
   Specifies the maximum number of integration steps
