@@ -413,7 +413,7 @@ macros are the same as those used for documenting user-callable functions (see
 :ref:`Style.Documentation.UserCallable`) with one exception. As
 :external+sphinx:rst:dir:`c:macro` does not include the parameter types, the
 types should be included in the parameter descriptions when relevant i.e., when
-the macro is a wrapper to function (see :c:macro:`SUNLogError`). For example,
+the macro is a wrapper to function (see :c:macro:`SUNLogInfo`). For example,
 
 .. code-block:: rst
 
