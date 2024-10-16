@@ -60,7 +60,6 @@ module farkode_arkstep_mod
   integer(C_SIZE_T), public :: size = 0
  end type
  public :: FARKStepSetTableName
- public :: FARKStepGetNumRhsEvals
  public :: FARKStepGetCurrentButcherTables
  public :: FARKStepGetTimestepperStats
  public :: FARKStepCreateMRIStepInnerStepper
@@ -218,6 +217,7 @@ module farkode_arkstep_mod
  public :: FARKStepGetNumRelaxBoundFails
  public :: FARKStepGetNumRelaxSolveFails
  public :: FARKStepGetNumRelaxSolveIters
+ public :: FARKStepGetNumRhsEvals
 
 ! WRAPPER DECLARATIONS
 interface
@@ -299,16 +299,6 @@ import :: swigarraywrapper
 type(C_PTR), value :: farg1
 type(SwigArrayWrapper) :: farg2
 type(SwigArrayWrapper) :: farg3
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKStepGetNumRhsEvals(farg1, farg2, farg3) &
-bind(C, name="_wrap_FARKStepGetNumRhsEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -1772,6 +1762,16 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKStepGetNumRhsEvals(farg1, farg2, farg3) &
+bind(C, name="_wrap_FARKStepGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 end interface
 
 
@@ -1946,25 +1946,6 @@ farg1 = arkode_mem
 call SWIG_string_to_chararray(itable, farg2_chars, farg2)
 call SWIG_string_to_chararray(etable, farg3_chars, farg3)
 fresult = swigc_FARKStepSetTableName(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
-function FARKStepGetNumRhsEvals(arkode_mem, nfe_evals, nfi_evals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nfe_evals
-integer(C_LONG), dimension(*), target, intent(inout) :: nfi_evals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = c_loc(nfe_evals(1))
-farg3 = c_loc(nfi_evals(1))
-fresult = swigc_FARKStepGetNumRhsEvals(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
@@ -4618,6 +4599,25 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(iters(1))
 fresult = swigc_FARKStepGetNumRelaxSolveIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKStepGetNumRhsEvals(arkode_mem, nfe_evals, nfi_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nfe_evals
+integer(C_LONG), dimension(*), target, intent(inout) :: nfi_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = c_loc(nfe_evals(1))
+farg3 = c_loc(nfi_evals(1))
+fresult = swigc_FARKStepGetNumRhsEvals(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
