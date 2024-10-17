@@ -406,7 +406,7 @@ sunrealtype* adapt_mesh(N_Vector y, sunindextype* Nnew, UserData udata)
     ydd = Y[i - 1] - TWO * Y[i] + Y[i + 1];
 
     /* check for refinement */
-    if (fabs(ydd) > udata->refine_tol)
+    if (SUNRabs(ydd) > udata->refine_tol)
     {
       marks[i - 1] = 1;
       marks[i]     = 1;

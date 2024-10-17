@@ -2,6 +2,7 @@
  * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner @ LLNL
+ *                Steven B. Roberts @ LLNL
  * Based on code sundials_sparse.c by: Carol Woodward and
  *     Slaven Peles @ LLNL, and Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
@@ -614,234 +615,72 @@ SUNErrCode SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B)
 
 SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
 {
-  sunindextype j, i, p, nz, newvals, M, N, cend, nw;
-  sunbooleantype newmat, found;
-  sunindextype *w, *Ap, *Ai, *Cp, *Ci;
-  sunrealtype *x, *Ax, *Cx;
-  SUNMatrix C;
   SUNFunctionBegin(A->sunctx);
+  const sunindextype N = SM_SPARSETYPE_S(A) == CSC_MAT ? SM_COLUMNS_S(A)
+                                                       : SM_ROWS_S(A);
+  const sunindextype M = SM_SPARSETYPE_S(A) == CSC_MAT ? SM_ROWS_S(A)
+                                                       : SM_COLUMNS_S(A);
 
-  /* store shortcuts to matrix dimensions (M is inner dimension, N is outer) */
-  if (SM_SPARSETYPE_S(A) == CSC_MAT)
-  {
-    M = SM_ROWS_S(A);
-    N = SM_COLUMNS_S(A);
-  }
-  else
-  {
-    M = SM_COLUMNS_S(A);
-    N = SM_ROWS_S(A);
-  }
-
-  /* access data arrays from A */
-  Ap = NULL;
-  Ai = NULL;
-  Ax = NULL;
-  Ap = SM_INDEXPTRS_S(A);
+  sunindextype* Ap = SM_INDEXPTRS_S(A);
   SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
-  Ai = SM_INDEXVALS_S(A);
+  sunindextype* Ai = SM_INDEXVALS_S(A);
   SUNAssert(Ai, SUN_ERR_ARG_CORRUPT);
-  Ax = SM_DATA_S(A);
+  sunrealtype* Ax = SM_DATA_S(A);
   SUNAssert(Ax, SUN_ERR_ARG_CORRUPT);
 
-  /* determine if A: contains values on the diagonal (so I can just be added
-     in); if not, then increment counter for extra storage that should be
-     required. */
-  newvals = 0;
-  for (j = 0; j < SUNMIN(M, N); j++)
+  sunindextype newvals = 0;
+  for (sunindextype j = 0; j < N; j++)
   {
     /* scan column (row if CSR) of A, searching for diagonal value */
-    found = SUNFALSE;
-    for (i = Ap[j]; i < Ap[j + 1]; i++)
+    sunbooleantype found = SUNFALSE;
+    for (sunindextype i = Ap[j]; i < Ap[j + 1]; i++)
     {
       if (Ai[i] == j)
       {
         found = SUNTRUE;
-        break;
+        Ax[i] = ONE + c * Ax[i];
       }
+      else { Ax[i] *= c; }
     }
-    /* if no diagonal found, increment necessary storage counter */
-    if (!found) { newvals += 1; }
+    /* If no diagonal element found and the current column (row) can actually
+     * contain a diagonal element, increment the storage counter */
+    if (!found && j < M) { newvals++; }
   }
 
-  /* If extra nonzeros required, check whether matrix has sufficient storage
-     space for new nonzero entries  (so I can be inserted into existing storage)
-   */
-  newmat = SUNFALSE; /* no reallocation needed */
-  if (newvals > (SM_NNZ_S(A) - Ap[N])) { newmat = SUNTRUE; }
-
-  /* perform operation based on existing/necessary structure */
-
-  /*   case 1: A already contains a diagonal */
-  if (newvals == 0)
+  /* At this point, A has the correctly updated values except for any new
+   * diagonal elements that need to be added (of which there are newvals). Now,
+   * we allocate additional storage if needed */
+  const sunindextype new_nnz = Ap[N] + newvals;
+  if (new_nnz > SM_NNZ_S(A))
   {
-    /* iterate through columns, adding 1.0 to diagonal */
-    for (j = 0; j < SUNMIN(M, N); j++)
-    {
-      for (i = Ap[j]; i < Ap[j + 1]; i++)
-      {
-        if (Ai[i] == j) { Ax[i] = ONE + c * Ax[i]; }
-        else { Ax[i] = c * Ax[i]; }
-      }
-    }
-
-    /*   case 2: A has sufficient storage, but does not already contain a
-     * diagonal */
+    SUNCheckCall(SUNSparseMatrix_Reallocate(A, new_nnz));
+    Ap = SM_INDEXPTRS_S(A);
+    Ai = SM_INDEXVALS_S(A);
+    Ax = SM_DATA_S(A);
   }
-  else if (!newmat)
+
+  for (sunindextype j = N - 1; newvals > 0; j--)
   {
-    /* create work arrays for nonzero row (column) indices and values in a
-     * single column (row) */
-    w = (sunindextype*)malloc(M * sizeof(sunindextype));
-    SUNAssert(w, SUN_ERR_MALLOC_FAIL);
-    x = (sunrealtype*)malloc(M * sizeof(sunrealtype));
-    SUNAssert(x, SUN_ERR_MALLOC_FAIL);
-
-    /* determine storage location where last column (row) should end */
-    nz = Ap[N] + newvals;
-
-    /* store pointer past last column (row) from original A,
-       and store updated value in revised A */
-    cend  = Ap[N];
-    Ap[N] = nz;
-
-    /* iterate through columns (rows) backwards */
-    for (j = N - 1; j >= 0; j--)
+    sunbooleantype found = SUNFALSE;
+    for (sunindextype i = Ap[j + 1] - 1; i >= Ap[j]; i--)
     {
-      /* reset diagonal entry, in case it's not in A */
-      x[j] = ZERO;
+      if (Ai[i] == j) { found = SUNTRUE; }
 
-      /* iterate down column (row) of A, collecting nonzeros */
-      for (p = Ap[j], i = 0; p < cend; p++, i++)
-      {
-        w[i]     = Ai[p];     /* collect row (column) index */
-        x[Ai[p]] = c * Ax[p]; /* collect/scale value */
-      }
-
-      /* NNZ in this column (row) */
-      nw = cend - Ap[j];
-
-      /* add identity to this column (row) */
-      if (j < M) { x[j] += ONE; /* update value */ }
-
-      /* fill entries of A with this column's (row's) data */
-      /* fill entries past diagonal */
-      for (i = nw - 1; i >= 0 && w[i] > j; i--)
-      {
-        Ai[--nz] = w[i];
-        Ax[nz]   = x[w[i]];
-      }
-      /* fill diagonal if applicable */
-      if (i < 0 /* empty or insert at front */ ||
-          w[i] != j /* insert behind front */)
-      {
-        Ai[--nz] = j;
-        Ax[nz]   = x[j];
-      }
-      /* fill entries before diagonal */
-      for (; i >= 0; i--)
-      {
-        Ai[--nz] = w[i];
-        Ax[nz]   = x[w[i]];
-      }
-
-      /* store ptr past this col (row) from orig A, update value for new A */
-      cend  = Ap[j];
-      Ap[j] = nz;
+      /* Shift elements to make room for diagonal elements */
+      Ai[i + newvals] = Ai[i];
+      Ax[i + newvals] = Ax[i];
     }
 
-    /* clean up */
-    free(w);
-    free(x);
-
-    /*   case 3: A must be reallocated with sufficient storage */
-  }
-  else
-  {
-    /* create work array for nonzero values in a single column (row) */
-    x = (sunrealtype*)malloc(M * sizeof(sunrealtype));
-
-    /* create new matrix for sum */
-    C = SUNSparseMatrix(SM_ROWS_S(A), SM_COLUMNS_S(A), Ap[N] + newvals,
-                        SM_SPARSETYPE_S(A), A->sunctx);
-    SUNCheckLastErr();
-
-    /* access data from CSR structures (return if failure) */
-    Cp = NULL;
-    Ci = NULL;
-    Cx = NULL;
-    Cp = SM_INDEXPTRS_S(C);
-    SUNAssert(Cp, SUN_ERR_ARG_CORRUPT);
-    Ci = SM_INDEXVALS_S(C);
-    SUNAssert(Ci, SUN_ERR_ARG_CORRUPT);
-    Cx = SM_DATA_S(C);
-    SUNAssert(Cx, SUN_ERR_ARG_CORRUPT);
-
-    /* initialize total nonzero count */
-    nz = 0;
-
-    /* iterate through columns (rows for CSR) */
-    for (j = 0; j < N; j++)
+    Ap[j + 1] += newvals;
+    if (!found && j < M)
     {
-      /* set current column (row) pointer to current # nonzeros */
-      Cp[j] = nz;
-
-      /* reset diagonal entry, in case it's not in A */
-      x[j] = ZERO;
-
-      /* iterate down column (along row) of A, collecting nonzeros */
-      for (p = Ap[j]; p < Ap[j + 1]; p++)
-      {
-        x[Ai[p]] = c * Ax[p]; /* collect/scale value */
-      }
-
-      /* add identity to this column (row) */
-      if (j < M) { x[j] += ONE; /* update value */ }
-
-      /* fill entries of C with this column's (row's) data */
-      /* fill entries before diagonal */
-      for (p = Ap[j]; p < Ap[j + 1] && Ai[p] < j; p++)
-      {
-        Ci[nz]   = Ai[p];
-        Cx[nz++] = x[Ai[p]];
-      }
-      /* fill diagonal if applicable */
-      if (p >= Ap[j + 1] /* empty or insert at end */ ||
-          Ai[p] != j /* insert before end */)
-      {
-        Ci[nz]   = j;
-        Cx[nz++] = x[j];
-      }
-      /* fill entries past diagonal */
-      for (; p < Ap[j + 1]; p++)
-      {
-        Ci[nz]   = Ai[p];
-        Cx[nz++] = x[Ai[p]];
-      }
+      /* This column (row) needs a diagonal element added */
+      newvals--;
+      Ai[Ap[j] + newvals] = j;
+      Ax[Ap[j] + newvals] = ONE;
     }
-
-    /* indicate end of data */
-    Cp[N] = nz;
-
-    /* update A's structure with C's values; nullify C's pointers */
-    SM_NNZ_S(A) = SM_NNZ_S(C);
-
-    if (SM_DATA_S(A)) { free(SM_DATA_S(A)); }
-    SM_DATA_S(A) = SM_DATA_S(C);
-    SM_DATA_S(C) = NULL;
-
-    if (SM_INDEXVALS_S(A)) { free(SM_INDEXVALS_S(A)); }
-    SM_INDEXVALS_S(A) = SM_INDEXVALS_S(C);
-    SM_INDEXVALS_S(C) = NULL;
-
-    if (SM_INDEXPTRS_S(A)) { free(SM_INDEXPTRS_S(A)); }
-    SM_INDEXPTRS_S(A) = SM_INDEXPTRS_S(C);
-    SM_INDEXPTRS_S(C) = NULL;
-
-    /* clean up */
-    SUNMatDestroy_Sparse(C);
-    free(x);
   }
+
   return SUN_SUCCESS;
 }
 

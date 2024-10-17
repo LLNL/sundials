@@ -129,6 +129,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setmaxnonliniters         = arkStep_SetMaxNonlinIters;
   ark_mem->step_setnonlinconvcoef         = arkStep_SetNonlinConvCoef;
   ark_mem->step_setstagepredictfn         = arkStep_SetStagePredictFn;
+  ark_mem->step_getnumrhsevals            = arkStep_GetNumRhsEvals;
   ark_mem->step_getnumlinsolvsetups       = arkStep_GetNumLinSolvSetups;
   ark_mem->step_getcurrentgamma           = arkStep_GetCurrentGamma;
   ark_mem->step_getestlocalerrors         = arkStep_GetEstLocalErrors;
@@ -2222,7 +2223,7 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
       itable = ARKSTEP_DEFAULT_ARK_ITABLE_5;
       break;
     default: /* no available method, set default */
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+      arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                       "No ImEx method at requested order, using q=5.");
       etable = ARKSTEP_DEFAULT_ARK_ETABLE_5;
       itable = ARKSTEP_DEFAULT_ARK_ITABLE_5;
@@ -2241,7 +2242,7 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
     case (4): itable = ARKSTEP_DEFAULT_DIRK_4; break;
     case (5): itable = ARKSTEP_DEFAULT_DIRK_5; break;
     default: /* no available method, set default */
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+      arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                       "No implicit method at requested order, using q=5.");
       itable = ARKSTEP_DEFAULT_DIRK_5;
       break;
@@ -2263,7 +2264,7 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
     case (8): etable = ARKSTEP_DEFAULT_ERK_8; break;
     case (9): etable = ARKSTEP_DEFAULT_ERK_9; break;
     default: /* no available method, set default */
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+      arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                       "No explicit method at requested order, using q=9.");
       etable = ARKSTEP_DEFAULT_ERK_9;
       break;

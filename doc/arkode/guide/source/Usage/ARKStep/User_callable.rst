@@ -3155,6 +3155,9 @@ Main solver optional output functions
       The *nfi_evals* value does not account for calls made to
       :math:`f^I` by a linear solver or preconditioner module.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
 
 .. c:function:: int ARKStepGetNumErrTestFails(void* arkode_mem, long int* netfails)

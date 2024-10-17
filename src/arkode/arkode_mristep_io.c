@@ -131,24 +131,53 @@ int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
 /*---------------------------------------------------------------
   MRIStepGetNumRhsEvals:
 
-  Returns the current number of calls to fse and fsi
+  Returns the current number of RHS calls
   ---------------------------------------------------------------*/
+int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals)
+{
+  ARKodeMRIStepMem step_mem = NULL;
+
+  /* access ARKodeMRIStepMem structure */
+  int retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (rhs_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "rhs_evals is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  if (partition_index > 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid partition index");
+    return ARK_ILL_INPUT;
+  }
+
+  switch (partition_index)
+  {
+  case 0: *rhs_evals = step_mem->nfse; break;
+  case 1: *rhs_evals = step_mem->nfsi; break;
+  default: *rhs_evals = step_mem->nfse + step_mem->nfsi; break;
+  }
+
+  return ARK_SUCCESS;
+}
+
 int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
                           long int* nfsi_evals)
 {
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
+  int retval = ARK_SUCCESS;
 
-  /* access ARKodeMem and ARKodeMRIStepMem structures */
-  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, nfse_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  /* get number of fse and fsi evals from step_mem */
-  *nfse_evals = step_mem->nfse;
-  *nfsi_evals = step_mem->nfsi;
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, nfsi_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -231,6 +260,7 @@ int mriStep_SetUserData(ARKodeMem ark_mem, void* user_data)
 int mriStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeMRIStepMem step_mem;
+  sunindextype lenrw, leniw;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
@@ -248,15 +278,27 @@ int mriStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->nlscoef        = NLSCOEF;  /* nonlinear tolerance coefficient */
   step_mem->crdown         = CRDOWN; /* nonlinear convergence estimate coeff. */
   step_mem->rdiv           = RDIV;   /* nonlinear divergence tolerance */
-  step_mem->dgmax    = DGMAX; /* max gamma change before recomputing J or P */
-  step_mem->msbp     = MSBP;  /* max steps between updates to J or P */
-  step_mem->stages   = 0;     /* no stages */
-  step_mem->istage   = 0;     /* current stage index */
-  step_mem->MRIC     = NULL;  /* no slow->fast coupling */
-  step_mem->NLS      = NULL;  /* no nonlinear solver object */
-  step_mem->jcur     = SUNFALSE;
-  step_mem->convfail = ARK_NO_FAILURES;
-  step_mem->stage_predict = NULL; /* no user-supplied stage predictor */
+  step_mem->dgmax          = DGMAX;  /* max gamma change to recompute J or P */
+  step_mem->msbp           = MSBP;   /* max steps between updating J or P */
+  step_mem->stages         = 0;      /* no stages */
+  step_mem->istage         = 0;      /* current stage index */
+  step_mem->jcur           = SUNFALSE;
+  step_mem->convfail       = ARK_NO_FAILURES;
+  step_mem->stage_predict  = NULL; /* no user-supplied stage predictor */
+
+  /* Remove pre-existing nonlinear solver object */
+  if (step_mem->NLS && step_mem->ownNLS) { SUNNonlinSolFree(step_mem->NLS); }
+  step_mem->NLS = NULL;
+
+  /* Remove pre-existing coupling table */
+  if (step_mem->MRIC)
+  {
+    MRIStepCoupling_Space(step_mem->MRIC, &leniw, &lenrw);
+    ark_mem->lrw -= lenrw;
+    ark_mem->liw -= leniw;
+    MRIStepCoupling_Free(step_mem->MRIC);
+  }
+  step_mem->MRIC = NULL;
   return (ARK_SUCCESS);
 }
 

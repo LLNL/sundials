@@ -93,12 +93,14 @@ using EXEC_POLICY                = RAJA::hip_exec<512, false>;
 constexpr auto LocalNvector      = N_VNew_Hip;
 constexpr auto CopyVecFromDevice = N_VCopyFromDevice_Hip;
 
-#else
+#elif USE_SERIAL_NVEC
 #define NVECTOR_ID_STRING "Serial"
 using EXEC_POLICY           = RAJA::seq_exec;
 constexpr auto LocalNvector = N_VNew_Serial;
 #define CopyVecFromDevice(v)
 
+#else
+#error "Unknown backend"
 #endif // USE_RAJA_NVEC
 
 #ifdef USE_CUDA_OR_HIP
@@ -332,8 +334,10 @@ int EvolveProblemIMEX(SUNContext ctx, N_Vector y, UserData* udata,
   check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1);
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1);
   retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
@@ -441,8 +445,8 @@ int EvolveProblemExplicit(SUNContext ctx, N_Vector y, UserData* udata,
   check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1);
-  retval = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
-  check_retval(&retval, "ERKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1);
 
@@ -1355,9 +1359,11 @@ int EnableFusedVectorOps(N_Vector y)
 #elif defined(USE_OMPDEV_NVEC)
   retval = N_VEnableFusedOps_OpenMPDEV(N_VGetLocalVector_MPIPlusX(y), 1);
   if (check_retval(&retval, "N_VEnableFusedOps_OpenMPDEV", 1)) return (-1);
-#else
+#elif defined(USE_SERIAL_NVEC)
   retval = N_VEnableFusedOps_Serial(N_VGetLocalVector_MPIPlusX(y), 1);
   if (check_retval(&retval, "N_VEnableFusedOps_Serial", 1)) { return (-1); }
+#else
+#error "Unknown backend"
 #endif
 
   return (0);
@@ -1562,11 +1568,13 @@ int SetupProblem(int argc, char* argv[], UserData* udata, UserOptions* uopt,
 
   udata->Erecv = (double*)omp_target_alloc(udata->nvar * sizeof(double), dev);
   if (check_retval((void*)udata->Erecv, "omp_target_alloc", 0)) return 1;
-#else
+#elif defined(USE_SERIAL_NVEC)
   udata->Wsend = new double[udata->nvar];
   udata->Wrecv = new double[udata->nvar];
   udata->Esend = new double[udata->nvar];
   udata->Erecv = new double[udata->nvar];
+#else
+#error "Unknown backend"
 #endif
 
   /* Create the solution masks */
@@ -1670,11 +1678,13 @@ UserData::~UserData()
   omp_target_free(Wrecv);
   omp_target_free(Esend);
   omp_target_free(Erecv);
-#else
+#elif USE_SERIAL_NVEC
   delete[] Wsend;
   delete[] Wrecv;
   delete[] Esend;
   delete[] Erecv;
+#else
+#error "Unknown backend"
 #endif
 
   /* close output streams */

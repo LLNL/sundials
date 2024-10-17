@@ -27,7 +27,7 @@
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_types.h>
 
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 #include <time.h>
 #include <unistd.h>
 #endif
@@ -610,7 +610,7 @@ int Test_SUNMatSpace(SUNMatrix A, int myid)
  * Private functions
  * ====================================================================*/
 
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 time_t base_time_tv_sec = 0; /* Base time; makes time values returned
                                 by get_time easier to read when
                                 printed since they will be zero
@@ -622,7 +622,7 @@ void SetTiming(int onoff)
 {
   print_time = onoff;
 
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
   struct timespec spec;
   clock_gettime(CLOCK_MONOTONIC, &spec);
   base_time_tv_sec = spec.tv_sec;
@@ -636,7 +636,7 @@ void SetPrintAllRanks(int onoff) { print_all_ranks = onoff; }
  * --------------------------------------------------------------------*/
 static double get_time(void)
 {
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
   struct timespec spec;
   clock_gettime(CLOCK_MONOTONIC, &spec);
   double time = (double)(spec.tv_sec - base_time_tv_sec) +

@@ -44,7 +44,7 @@
 /* all tests need a SUNContext */
 SUNContext sunctx = NULL;
 
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
                                        by get_time easier to read when
                                        printed since they will be zero
@@ -5989,7 +5989,7 @@ int Test_N_VBufUnpack(N_Vector x, sunindextype local_length, int myid)
 
 void SetTiming(int onoff, int myid)
 {
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
   struct timespec spec;
   clock_gettime(CLOCK_MONOTONIC, &spec);
   base_time_tv_sec = spec.tv_sec;
@@ -6012,7 +6012,7 @@ void SetTiming(int onoff, int myid)
 static double get_time(void)
 {
   double time;
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
   struct timespec spec;
   clock_gettime(CLOCK_MONOTONIC, &spec);
   time = (double)(spec.tv_sec - base_time_tv_sec) +

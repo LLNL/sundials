@@ -59,7 +59,7 @@ foreach(example_tuple ${sunlinsol_lapackdense_examples})
     # libraries to link against
     target_link_libraries(
       ${example} sundials_nvecserial sundials_sunmatrixdense
-      sundials_sunlinsollapackdense ${LAPACK_LIBRARIES} ${EXE_EXTRA_LINK_LIBS})
+      sundials_sunlinsollapackdense ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name

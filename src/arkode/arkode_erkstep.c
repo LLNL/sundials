@@ -102,6 +102,7 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   ark_mem->step_setdefaults         = erkStep_SetDefaults;
   ark_mem->step_setrelaxfn          = erkStep_SetRelaxFn;
   ark_mem->step_setorder            = erkStep_SetOrder;
+  ark_mem->step_getnumrhsevals      = erkStep_GetNumRhsEvals;
   ark_mem->step_getestlocalerrors   = erkStep_GetEstLocalErrors;
   ark_mem->step_supports_adaptive   = SUNTRUE;
   ark_mem->step_supports_relaxation = SUNTRUE;
@@ -842,7 +843,7 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
   case (8): etable = ERKSTEP_DEFAULT_8; break;
   case (9): etable = ERKSTEP_DEFAULT_9; break;
   default: /* no available method, set default */
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                     "No explicit method at requested order, using q=9.");
     etable = ERKSTEP_DEFAULT_9;
     break;

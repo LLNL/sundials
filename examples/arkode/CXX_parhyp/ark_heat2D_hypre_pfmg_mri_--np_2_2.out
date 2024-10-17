@@ -56,7 +56,8 @@
 
 Final slow integrator statistics:
   Steps            = 1000
-  RHS evals        = 7355
+  Fe RHS evals     = 4000
+  Fi RHS evals     = 7355
   NLS iters        = 3355
   NLS fails        = 0
   LS iters         = 10603

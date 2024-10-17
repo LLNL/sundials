@@ -167,22 +167,39 @@ int ERKStepSetTableName(void* arkode_mem, const char* etable)
 /*---------------------------------------------------------------
   ERKStepGetNumRhsEvals:
 
-  Returns the current number of calls to f
+  Returns the current number of RHS calls
   ---------------------------------------------------------------*/
+int erkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals)
+{
+  ARKodeERKStepMem step_mem = NULL;
+
+  /* access ARKodeERKStepMem structure */
+  int retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (rhs_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "rhs_evals is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  if (partition_index > 0)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid partition index");
+    return ARK_ILL_INPUT;
+  }
+
+  *rhs_evals = step_mem->nfe;
+
+  return ARK_SUCCESS;
+}
+
 int ERKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
 {
-  ARKodeMem ark_mem;
-  ARKodeERKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeERKStepMem structures */
-  retval = erkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* get values from step_mem */
-  *fevals = step_mem->nfe;
-
-  return (ARK_SUCCESS);
+  return ARKodeGetNumRhsEvals(arkode_mem, 0, fevals);
 }
 
 /*---------------------------------------------------------------
@@ -259,23 +276,42 @@ int erkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
 int erkStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeERKStepMem step_mem;
-  int retval;
+  sunindextype Blrw, Bliw;
   long int lenrw, leniw;
+  int retval;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  /* Remove current SUNAdaptController object, and replace with "PI" */
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
+  /* Set default values for integrator optional inputs */
+  step_mem->q      = Q_DEFAULT;                  /* method order */
+  step_mem->p      = 0;                          /* embedding order */
+  step_mem->stages = 0;                          /* no stages */
+  ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
+  ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
+  ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
+
+  /* Remove pre-existing Butcher table */
+  if (step_mem->B)
   {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
+    ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+    ark_mem->liw -= Bliw;
+    ark_mem->lrw -= Blrw;
+    ARKodeButcherTable_Free(step_mem->B);
   }
+  step_mem->B = NULL;
+
+  /* Remove current SUNAdaptController object, and replace with "PI" */
   if (ark_mem->hadapt_mem->owncontroller)
   {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUN_SUCCESS)
@@ -302,15 +338,7 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
     ark_mem->lrw += lenrw;
   }
 
-  /* Set default values for integrator optional inputs
-     (overwrite some adaptivity params for ERKStep use) */
-  step_mem->q      = Q_DEFAULT;                  /* method order */
-  step_mem->p      = 0;                          /* embedding order */
-  step_mem->stages = 0;                          /* no stages */
-  step_mem->B      = NULL;                       /* no Butcher table */
-  ark_mem->hadapt_mem->etamxf = SUN_RCONST(0.3); /* max change on error-failed step */
-  ark_mem->hadapt_mem->safety = SUN_RCONST(0.99); /* step adaptivity safety factor  */
-  ark_mem->hadapt_mem->growth = SUN_RCONST(25.0); /* step adaptivity growth factor */
+  /* Update some controller parameters */
   (void)SUNAdaptController_SetErrorBias(ark_mem->hadapt_mem->hcontroller,
                                         SUN_RCONST(1.2));
   (void)SUNAdaptController_SetParams_PI(ark_mem->hadapt_mem->hcontroller,
