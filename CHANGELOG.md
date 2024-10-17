@@ -25,6 +25,10 @@ specific linker flags e.g., MKL.
 
 ### Bug Fixes
 
+Fixed a [bug](https://github.com/LLNL/sundials/issues/581) in the sparse matrix
+implementation of `SUNMatScaleAddI` which caused out of bounds writes unless
+`indexvals` were in ascending order for each row/column.
+
 Fixed `ARKodeResize` not using the default `hscale` when an argument of `0` was
 provided.
 
@@ -39,7 +43,13 @@ repeatedly.
 Fixed compilation errors when building the Trilinos Teptra NVector with CUDA
 support.
 
+Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
+using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
+
 ### Deprecation Notices
+
+The ARKODE stepper specific functions to retrieve the number of right-hand side
+function evaluations have been deprecated. Use `ARKodeGetNumRhsEvals` instead.
 
 ## Changes to SUNDIALS in release 7.1.1
 
