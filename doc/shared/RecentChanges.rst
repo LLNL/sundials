@@ -2,6 +2,20 @@
 
 **New Features and Enhancements**
 
+The following DIRK schemes now have coefficients accurate to quad precision:
+
+* ``ARKODE_BILLINGTON_3_3_2``
+
+* ``ARKODE_KVAERNO_4_2_3``
+
+* ``ARKODE_CASH_5_2_4``
+
+* ``ARKODE_CASH_5_3_4``
+
+* ``ARKODE_KVAERNO_5_3_4``
+
+* ``ARKODE_KVAERNO_7_4_5``
+
 The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
 ``70`` and is now determined automatically by CMake. The previous default was
 only valid for Volta GPUs while the automatically selected value will vary
