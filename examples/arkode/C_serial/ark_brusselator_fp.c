@@ -249,8 +249,10 @@ int main(int argc, char* argv[])
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
