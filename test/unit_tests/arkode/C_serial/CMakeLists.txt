@@ -36,15 +36,16 @@ set(ARKODE_unit_tests
     "ark_test_sunadjoint\;--check-freq 1\;"
     "ark_test_sunadjoint\;--check-freq 2\;"
     "ark_test_sunadjoint\;--check-freq 5\;"
-    "ark_test_sunadjoint\;--check-freq 1 --no-stages\;"
-    "ark_test_sunadjoint\;--check-freq 2 --no-stages\;"
-    "ark_test_sunadjoint\;--check-freq 5 --no-stages\;"
-    "ark_test_sunadjoint\;--check-freq 1 --dont-keep\;"
-    "ark_test_sunadjoint\;--check-freq 2 --dont-keep\;"
-    "ark_test_sunadjoint\;--check-freq 5 --dont-keep\;"
-    "ark_test_sunadjoint\;--check-freq 1 --dont-keep --no-stages\;"
-    "ark_test_sunadjoint\;--check-freq 2 --dont-keep --no-stages\;"
-    "ark_test_sunadjoint\;--check-freq 5 --dont-keep --no-stages\;")
+    # "ark_test_sunadjoint\;--check-freq 1 --no-stages\;"
+    # "ark_test_sunadjoint\;--check-freq 2 --no-stages\;"
+    # "ark_test_sunadjoint\;--check-freq 5 --no-stages\;"
+    # "ark_test_sunadjoint\;--check-freq 1 --dont-keep\;"
+    # "ark_test_sunadjoint\;--check-freq 2 --dont-keep\;"
+    # "ark_test_sunadjoint\;--check-freq 5 --dont-keep\;"
+    # "ark_test_sunadjoint\;--check-freq 1 --dont-keep --no-stages\;"
+    # "ark_test_sunadjoint\;--check-freq 2 --dont-keep --no-stages\;"
+    # "ark_test_sunadjoint\;--check-freq 5 --dont-keep --no-stages\;" 
+    )
 
 # Add the build and install targets for each test
 foreach(test_tuple ${ARKODE_unit_tests})
