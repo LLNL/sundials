@@ -42,6 +42,10 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
          The size of the data allocated.
 
+      .. c:member:: size_t stride;
+         
+         The stride of the data.
+
 .. c:function:: SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
 
    This function returns an empty ``SUNMemory`` object.
@@ -112,6 +116,10 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
          The function implementing :c:func:`SUNMemoryHelper_Alloc`
 
+      .. c:member:: SUNErrCode (*alloc)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size, size_t stride, SUNMemoryType mem_type, void* queue)
+
+         The function implementing :c:func:`SUNMemoryHelper_AllocStrided`
+
       .. c:member:: SUNErrCode (*dealloc)(SUNMemoryHelper, SUNMemory mem, void* queue)
 
          The function implementing :c:func:`SUNMemoryHelper_Dealloc`
@@ -161,6 +169,33 @@ must define:
    * ``helper`` -- the ``SUNMemoryHelper`` object.
    * ``memptr`` -- pointer to the allocated ``SUNMemory``.
    * ``mem_size`` -- the size in bytes of the ``ptr``.
+   * ``mem_type`` -- the ``SUNMemoryType`` of the ``ptr``.
+   * ``queue`` -- typically a handle for an object representing an alternate
+     execution stream (e.g., a CUDA/HIP stream or SYCL queue), but it can
+     also be any implementation specific data.
+
+   **Returns:**
+
+   * A new :c:type:`SUNMemory` object.
+
+
+.. c:function:: SUNMemory SUNMemoryHelper_AllocStrided(SUNMemoryHelper helper, \
+                                                       SUNMemory* memptr, \
+                                                       size_t mem_size, size_t stride, \
+                                                       SUNMemoryType mem_type, \
+                                                       void* queue)
+
+   Allocates a ``SUNMemory`` object whose ``ptr`` field is allocated for
+   ``mem_size`` bytes and is of type ``mem_type``. The new object will have
+   ownership of ``ptr`` and will be deallocated when
+   :c:func:`SUNMemoryHelper_Dealloc` is called.
+
+   **Arguments:**
+
+   * ``helper`` -- the ``SUNMemoryHelper`` object.
+   * ``memptr`` -- pointer to the allocated ``SUNMemory``.
+   * ``mem_size`` -- the size in bytes of the ``ptr``.
+   * ``stride`` -- the stride of the memory in bytes
    * ``mem_type`` -- the ``SUNMemoryType`` of the ``ptr``.
    * ``queue`` -- typically a handle for an object representing an alternate
      execution stream (e.g., a CUDA/HIP stream or SYCL queue), but it can

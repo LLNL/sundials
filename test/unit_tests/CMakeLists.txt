@@ -23,6 +23,7 @@ if(ENABLE_ALL_WARNINGS)
 endif()
 
 add_subdirectory(sundials)
+add_subdirectory(sunadjoint)
 
 if(BUILD_ARKODE)
   add_subdirectory(arkode)

@@ -79,10 +79,12 @@ endif()
 add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 
 set(sundials_SOURCES
+    sundatanode/sundatanode_inmem.c
     sundials_adaptcontroller.c
     sundials_band.c
     sundials_context.c
     sundials_dense.c
+    sundials_datanode.c
     sundials_direct.c
     sundials_errors.c
     sundials_futils.c

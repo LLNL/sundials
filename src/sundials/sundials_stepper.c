@@ -71,10 +71,14 @@ SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
+SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
+                            int64_t ckptIdxR)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->reset) { return stepper->ops->reset(stepper, tR, yR); }
+  if (stepper->ops->reset)
+  {
+    return stepper->ops->reset(stepper, tR, yR, ckptIdxR);
+  }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
