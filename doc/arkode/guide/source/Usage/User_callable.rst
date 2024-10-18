@@ -4736,4 +4736,9 @@ block as a :c:type:`SUNStepper`.
    :retval ARK_MEM_FAIL: a memory allocation failed.
    :retval ARK_SUNSTEPPER_ERR: the :c:type:`SUNStepper` initialization failed.
 
+   .. warning::
+      Currently, ``stepper`` will be equipped with an implementation for the
+      :c:func:`SUNStepper_SetForcing` function only if ``inner_arkode_mem`` is
+      an ARKStep integrator.
+
    .. versionadded:: x.y.z
