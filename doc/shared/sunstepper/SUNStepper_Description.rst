@@ -346,3 +346,16 @@ abstract base class.
    This type represents a function with the signature of
    :c:func:`SUNStepper_SetForcing`.
 
+.. _SUNStepper.Description.UserSupplied:
+
+User-Supplied Function Types
+----------------------------
+
+This section describes the functions that users may supply.
+
+.. c:type:: int (*SUNJacFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, \
+                            void* user_data, N_Vector tmp1, N_Vector tmp2, \
+                            N_Vector tmp3);
+
+.. c:type:: int (*SUNJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, \
+                                 N_Vector fy, void* user_data, N_Vector tmp);                  

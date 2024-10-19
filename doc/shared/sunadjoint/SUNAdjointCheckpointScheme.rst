@@ -19,6 +19,8 @@ The :c:type:`SUNAdjointCheckpointScheme` base class provides an interface for ch
 states during forward integration and accessing them as needed during the backwards integration
 of the adjoint model.
 
+.. c:enum:: SUNDataIOMode
+
 A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 :c:struct:`SUNAdjointCheckpointScheme_` structure:
 
@@ -44,25 +46,23 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 
 .. c:struct:: SUNAdjointCheckpointScheme_Ops_
 
-.. c:type:: struct SUNAdjointCheckpointScheme_Ops_
-
-   .. c:member:: SUNErrCode (*shouldWeSave)(SUNAdjointCheckpointScheme, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
+   .. c:member:: SUNErrCode (*shouldWeSave)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
       Function pointer to determine if a checkpoint should be saved at the current timestep.
 
-   .. c:member:: SUNErrCode (*shouldWeDelete)(SUNAdjointCheckpointScheme, int64_t step_num, int64_t stage_num, sunbooleantype* yes_or_no)
+   .. c:member:: SUNErrCode (*shouldWeDelete)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunbooleantype* yes_or_no)
 
       Function pointer to determine if a checkpoint should be deleted at the current timestep.
 
-   .. c:member:: SUNErrCode (*insertVector)(SUNAdjointCheckpointScheme, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector state)
+   .. c:member:: SUNErrCode (*insertVector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector state)
 
       Function pointer to insert a checkpoint state represented as a :c:type:`N_Vector`.
 
-   .. c:member:: SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme, int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
+   .. c:member:: SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
 
       Function pointer to load a checkpoint state represented as a :c:type:`N_Vector`.
 
-   .. c:member:: SUNErrCode (*removeVector)(SUNAdjointCheckpointScheme, int64_t step_num, int64_t stage_num, N_Vector* out)
+   .. c:member:: SUNErrCode (*removeVector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, N_Vector* out)
 
       Function pointer to remove a checkpoint state represented as a :c:type:`N_Vector`.
 
@@ -70,7 +70,7 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 
       Function pointer to destroy and free the memory for the :c:type:`SUNAdjointCheckpointScheme` object.
 
-   .. c:member:: SUNErrCode (*enableDense)(SUNAdjointCheckpointScheme, sunbooleantype on_or_off)
+   .. c:member:: SUNErrCode (*enableDense)(SUNAdjointCheckpointScheme cs, sunbooleantype on_or_off)
 
       Function pointer to enable or disable dense checkpointing, saving all steps.
 

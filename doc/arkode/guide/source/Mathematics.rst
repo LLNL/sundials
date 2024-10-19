@@ -2134,27 +2134,71 @@ Adjoint Sensitivity Analysis
 ============================
 
 Consider :eq:`ARKODE_IVP_simple_explicit`, but where the ODE also depends on some parameters
-:math:`p` (that is, we have :math:`f(t,y,p)`). Now, suppose we have a functional,
+:math:`p` (that is, we have :math:`f(t,y,p)`). Now, suppose we have a functional :math:`g(y(t_f),p)`
+for which we would like to compute the gradients :math:`\partial g(y(t_f),p)/\partial y(t_0)`
+and/or :math:`\partial g(y(t_f),p)/\partial p`.  This most often arises in the form of an
+optimization problem such as
 
 .. math::
-   g(y(t_f),p),
+   \min_{\xi} \bar{\Psi}(\xi) = g(y(t_f), p)
+   :label: ARKODE_OPTIMIZATION_PROBLEM
 
-for which we would like to compute the gradients :math:`\partial g(y(t_f),p)/\partial y(t_0)`
-and/or :math:`\partial g(y(t_f),p)/\partial p`. The adjoint method is one approach to obtaining the
-gradients that is particularly efficient when there are relatively few functionals and a
-large number of parameters. With the adjoint method we solve the adjoint ODEs for :math:`\lambda(t)
-\in \mathbb{R}^N` and :math:`\mu(t) \in \mathbb{R}^{N_p}`:
+where :math:`\xi \subset \{y(t_0), p\}`. The adjoint method is one approach to obtaining the
+gradients that is particularly efficient when there are relatively few functionals and a large
+number of parameters. While :ref:`CVODES <CVODES.Mathematics.ASA>` and
+:ref:`IDAS <IDAS.Mathematics.ASA>` *continuous* adjoint methods
+(differentiate-then-discretize), ARKODE provides *discrete* adjoint methods
+(discretize-then-differentiate). For the continuous approach, we derive and solve the adjoint ODE
+backwards in time
 
 .. math::
    \lambda'(t) &= -f_y^T(t, y, p) \lambda,\quad \lambda(t_F) = g_y^T(y(t_f), p), \\
-   \mu'(t) &= -f_p^T(t, y, p) \mu,\quad \mu(t_F) = g_p^T(y(t_f), p), \quad t_f \geq t \geq t_0. \\
-   :label: ARKODE_ADJOINT_ODE
+   \mu'(t) &= -f_p^T(t, y, p) \mu,\quad \mu(t_F) = g_p^T(y(t_f), p), \quad t_f \geq t \geq t_0, \\
+   :label: ARKODE_CONTINUOUS_ADJOINT_ODE
 
-(For a detailed derivation see :cite:p:`hager2000runge,sanduDiscrete2006`). Here :math:`f_y \equiv
-\partial f/\partial y \in \mathbb{R}^{N \times N}` is the Jacobian with respect to the dependent variable and :math:`f_p \equiv
-\partial f/\partial p \in \mathbb{R}^{N \times N_p}` is the Jacobian with respect to the parameters. The ARKStep module in ARKODE
-provides adjoint sensitivity analysis based on the *discrete* formulation, i.e., given an s-stage explicit
-Runge--Kutta method (as in :eq:`ARKODE_ERK`, but without the embedding), the discrete adjoint
+where :math:`\lambda(t) \in \mathbb{R}^N`, :math:`\mu(t) \in \mathbb{R}^{N_s}`
+:math:`f_y \equiv \partial f/\partial y \in \mathbb{R}^{N \times N}` is the Jacobian with respect to the dependent variable,
+and :math:`f_p \equiv \partial f/\partial p \in \mathbb{R}^{N \times N_s}` is the Jacobian with respect to the parameters
+(:math:`N` is the size of the original ODE, :math:`N_s` is the number of parameters).
+When solved with a numerical time integation scheme, the solution to the continuous adjoint ODE
+are numerical approximations of the continuous adjoint sensitivities
+
+.. math::
+   \lambda(t_0) \approx  g_y^T(y(t_0), p),\quad \mu(t_0) \approx g_p^T(y(t_0), p)
+   :label: ARKODE_CONTINUOUS_ADJOINT_SOLUTION
+
+For the discrete adjoint approach, we first numerically discretize the original ODE :eq:`ARKODE_IVP_simple_explicit`.
+In the context of ARKODE, this is done with a one-step time integration scheme :math:`\varphi` so that
+
+.. math::
+   y_0 = y(t_0),\quad y_n = \varphi_n(y_{n-1}).
+   :label: ARKODE_DISCRETE_ODE
+
+Reformulating the optimization problem for the discrete case, we have
+
+.. math::
+   \min_{\xi} \Psi(\xi) = g(y_n, p)
+   :label: ARKODE_DISCRETE_OPTIMIZATION_PROBLEM
+
+The gradients of :eq:`ARKODE_DISCRETE_OPTIMIZATION_PROBLEM` can be computed using the transposed chain
+rule backwards in time to obtain the discete adjoint variables :math:`\lambda_n, \lambda_{n-1}, \cdots, \lambda_0`
+and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`,
+
+.. math::
+   \lambda_n &= g_y^T(y_n, p), \quad \lambda_k = 0, \quad k = n - 1, \cdots 0, \\
+   \lambda_{\ell} &= \lambda_{\ell} + \left( \frac{\partial \varphi_k}{\partial y_{\ell}} (y_{k-1}) \right)^T \lambda_k,\quad \ell = k-1, \cdots, 0, \quad  k = n, \cdots 0. \\
+   \mu_n &= g_p^T(y_n, p), \quad \mu_k = 0, \quad k = n - 1, \cdots 0, \\
+   \mu_{\ell} &= \mu_{\ell} + \left( \frac{\partial \varphi_k}{\partial p} (y_{k-1}) \right)^T \mu_k,\quad \ell = k-1, \cdots, 0, \quad  k = n, \cdots 0.
+   :label: ARKODE_DISCRETE_ADJOINT
+
+The solution of the discrete adjoint equations :eq:`ARKODE_DISCRETE_ADJOINT` is the sensitivitrwes of the discrete cost function
+:eq:`ARKODE_DISCRETE_OPTIMIZATION_PROBLEM` with respect to changes in the discretized ODE :eq:`ARKODE_DISCRETE_ODE`.
+
+.. math::
+   \lambda_0 = g_y^T(y_0, p), \quad \mu_0 = g_p^T(y_0, p).
+   :label: ARKODE_DISCRETE_ADJOINT_SOLUTION
+
+Given an s-stage explicit Runge--Kutta method (as in :eq:`ARKODE_ERK`, but without the embedding), the discrete adjoint
 to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1}` and
 :math:`\mu_{n+1}` is given by
 
@@ -2166,33 +2210,25 @@ to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1
    \mu_n     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
    :label: ARKODE_ERK_ADJOINT
 
-After completing integration from :math:`t_n` all the way to :math:`t_0` using the discrete adjoint
-formulation, the gradients are
+For more information on performing discrete adjoint sensitivity analysis using ARKODE see, 
+:numref:`ARKODE.Usage.ARKStep.ASA`.
 
-.. math::
-   \frac{\partial g}{\partial y(t_0)} = \lambda_0, \quad
-   \frac{\partial g}{\partial p} = \mu_0 + \lambda_0 \left(\frac{\partial y(t_0)}{\partial p} \right).
-
-For more information on performing discrete adjoint sensitivity analysis see, :numref:`ARKODE.Usage.ARKStep.ASA`.
+For a detailed derivation of the discrete adjoint methods see :cite:p:`hager2000runge,sanduDiscrete2006`. 
+For a detailed derivation of the continuous adjoint method see :ref:`CVODES <CVODES.Mathematics.ASA>`,
+or :cite:p:`CLPS:03`.
 
 
 Discrete vs. Continuous Adjoint Method
 --------------------------------------
 
-We note that in addition to the discrete adjoint approach, there is a second adjoint method that is
-sometimes used -- the *continuous* adjoint method. In the continuous approach, we derive the
-sensitivity equations directly from the model and then we integrate them with a time integration
-method. This is the approach implemented in the SUNDIALS :ref:`CVODES <CVODES.Mathematics.ASA>` and
-:ref:`IDAS <IDAS.Mathematics.ASA>` packages. In the *discrete* approach, the model equations are
-discretized with the time integration method first, and then we derive the sensitivities of the
-discretized equations. It is understood that the continuous adjoint method can be problematic in the
-context of optimization problems because the continuous adjoint method provides an approximation to
-the gradient of a continuous cost function while the optimizer is expecting the gradient of the
-discrete cost function. The discrepancy means that the optimizer can fail to converge further once
-it is near a local minimum :cite:p:`giles2000introduction`. On the other hand, the discrete adjoint
-method provides the exact gradient of the discrete cost function allowing the optimizer to fully
-converge. Consequently, the discrete adjoint method is often preferable in optimization despite its
-own drawbacks -- such as its (relatively) increased memory usage and the possible introduction of
+It is understood that the continuous adjoint method can be problematic in the context of
+optimization problems because the continuous adjoint method provides an approximation to the
+gradient of a continuous cost function while the optimizer is expecting the gradient of the discrete
+cost function. The discrepancy means that the optimizer can fail to converge further once it is near
+a local minimum :cite:p:`giles2000introduction`. On the other hand, the discrete adjoint method
+provides the exact gradient of the discrete cost function allowing the optimizer to fully converge.
+Consequently, the discrete adjoint method is often preferable in optimization despite its own
+drawbacks -- such as its (relatively) increased memory usage and the possible introduction of
 unphysical computational modes :cite:p:`sirkes1997finite`. This is not to say that the discrete
 adjoint approach is always the better choice over the continuous adjoint approach in optimization.
 Computational efficiency and stability of one approach over the other can be both problem and method

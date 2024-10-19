@@ -43,7 +43,7 @@ adjoint sensitivity analysis with methods with ARKStep.
 .. c:function:: int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
 
    Creates a :c:type:`SUNAdjointStepper` object compatible with the provided ARKStep instance for
-   integrating the adjoint sensitivity system :eq:`ARKODE_ADJOINT_ODE`.
+   integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
 
    :param arkode_mem: a pointer to the ARKStep memory block.
    :param sf: the sensitivity vector holding the adjoint system terminal condition.
