@@ -812,6 +812,7 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
   }
   else
   { /* embedding */
+    Gdiag = Grow = Wrow = cdiff = SUNFALSE;
     if (MRIC->G)
     {
       for (i = 0; i < MRIC->nmat; i++)
