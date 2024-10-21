@@ -1419,7 +1419,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
    this index during recomputations of missing states during the backward adjoint integration.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param checkpoint_scheme: the checkpoint scheme to use
+   :param step_idx: the step to insert the next checkpoint at.
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
