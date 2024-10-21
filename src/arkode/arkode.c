@@ -135,7 +135,7 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
     }
   }
 
-  /* Determining change in vector sizes */
+  /* Determine change in vector sizes */
   lrw1 = liw1 = 0;
   if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
   lrw_diff      = lrw1 - ark_mem->lrw1;
@@ -701,6 +701,9 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     if (itask == ARK_NORMAL) { ark_mem->root_mem->toutc = tout; }
     ark_mem->root_mem->taskc = itask;
   }
+
+  /* store copy of tout, in case it is required for stepper initialization */
+  ark_mem->tout = tout;
 
   /* perform first-step-specific initializations:
      - initialize tret values to initialization time
@@ -1348,6 +1351,66 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   if (ark_mem->step_printmem) { ark_mem->step_printmem(ark_mem, outfile); }
 }
 
+/*------------------------------------------------------------------------------
+  ARKodeCreateMRIStepInnerStepper
+
+  Wraps an ARKODE integrator as an MRIStep inner stepper.
+  ----------------------------------------------------------------------------*/
+
+int ARKodeCreateMRIStepInnerStepper(void* inner_arkode_mem,
+                                    MRIStepInnerStepper* stepper)
+{
+  ARKodeMem ark_mem;
+  int retval;
+
+  /* Check if ark_mem exists */
+  if (inner_arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)inner_arkode_mem;
+
+  /* return with an error if the ARKODE solver does not support forcing */
+  if (!ark_mem->step_supports_forcing)
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support forcing");
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+
+  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, ark_MRIStepInnerEvolve);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper, ark_MRIStepInnerFullRhs);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetResetFn(*stepper, ark_MRIStepInnerReset);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval =
+    MRIStepInnerStepper_SetAccumulatedErrorGetFn(*stepper,
+                                                 ark_MRIStepInnerGetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval =
+    MRIStepInnerStepper_SetAccumulatedErrorResetFn(*stepper,
+                                                   ark_MRIStepInnerResetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetRTolFn(*stepper, ark_MRIStepInnerSetRTol);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
+
 /*===============================================================
   Private internal functions
   ===============================================================*/
@@ -1431,6 +1494,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_setstagepredictfn         = NULL;
   ark_mem->step_getnumrhsevals            = NULL;
   ark_mem->step_getnumlinsolvsetups       = NULL;
+  ark_mem->step_setadaptcontroller        = NULL;
   ark_mem->step_getestlocalerrors         = NULL;
   ark_mem->step_getcurrentgamma           = NULL;
   ark_mem->step_getnonlinearsystemdata    = NULL;
@@ -1507,6 +1571,10 @@ ARKodeMem arkCreate(SUNContext sunctx)
   /* Initial step size has not been determined yet */
   ark_mem->h   = ZERO;
   ark_mem->h0u = ZERO;
+
+  /* Accumulated error estimation strategy */
+  ark_mem->AccumErrorType = ARK_ACCUMERROR_NONE;
+  ark_mem->AccumError     = ZERO;
 
   /* Set default values for integrator and stepper optional inputs */
   iret = ARKodeSetDefaults(ark_mem);
@@ -1706,6 +1774,9 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     ark_mem->hadapt_mem->nst_acc = 0;
     ark_mem->hadapt_mem->nst_exp = 0;
 
+    /* Accumulated error estimate */
+    ark_mem->AccumError = ZERO;
+
     /* Indicate that calling the full RHS function is not required, this flag is
        updated to SUNTRUE by the interpolation module initialization function
        and/or the stepper initialization function in arkInitialSetup */
@@ -1780,6 +1851,39 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
   sunrealtype tout_hin, rh, htmp;
   sunbooleantype conOK;
 
+  /* If using a built-in routine for error/residual weights with abstol==0,
+     ensure that N_VMin is available */
+  if ((!ark_mem->user_efun) && (ark_mem->atolmin0) && (!ark_mem->yn->ops->nvmin))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VMin unimplemented (required by error-weight function)");
+    return (ARK_ILL_INPUT);
+  }
+  if ((!ark_mem->user_rfun) && (!ark_mem->rwt_is_ewt) && (ark_mem->Ratolmin0) &&
+      (!ark_mem->yn->ops->nvmin))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VMin unimplemented (required by residual-weight function)");
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Load initial error weights */
+  retval = ark_mem->efun(ark_mem->yn, ark_mem->ewt, ark_mem->e_data);
+  if (retval != 0)
+  {
+    if (ark_mem->itol == ARK_WF)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_ARK_EWT_FAIL);
+    }
+    else
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_ARK_BAD_EWT);
+    }
+    return (ARK_ILL_INPUT);
+  }
+
   /* Set up the time stepper module */
   if (ark_mem->step_init == NULL)
   {
@@ -1795,27 +1899,35 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     return (retval);
   }
 
+  /* Load initial residual weights */
+  if (ark_mem->rwt_is_ewt)
+  { /* update pointer to ewt */
+    ark_mem->rwt = ark_mem->ewt;
+  }
+  else
+  {
+    retval = ark_mem->rfun(ark_mem->yn, ark_mem->rwt, ark_mem->r_data);
+    if (retval != 0)
+    {
+      if (ark_mem->itol == ARK_WF)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        MSG_ARK_RWT_FAIL);
+      }
+      else
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        MSG_ARK_BAD_RWT);
+      }
+      return (ARK_ILL_INPUT);
+    }
+  }
+
   /* Check that user has supplied an initial step size if fixedstep mode is on */
   if ((ark_mem->fixedstep) && (ark_mem->hin == ZERO))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Fixed step mode enabled, but no step size set");
-    return (ARK_ILL_INPUT);
-  }
-
-  /* If using a built-in routine for error/residual weights with abstol==0,
-     ensure that N_VMin is available */
-  if ((!ark_mem->user_efun) && (ark_mem->atolmin0) && (!ark_mem->yn->ops->nvmin))
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "N_VMin unimplemented (required by error-weight function)");
-    return (ARK_ILL_INPUT);
-  }
-  if ((!ark_mem->user_rfun) && (!ark_mem->rwt_is_ewt) && (ark_mem->Ratolmin0) &&
-      (!ark_mem->yn->ops->nvmin))
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "N_VMin unimplemented (required by residual-weight function)");
     return (ARK_ILL_INPUT);
   }
 
@@ -1839,47 +1951,6 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_ARK_Y0_FAIL_CONSTR);
-      return (ARK_ILL_INPUT);
-    }
-  }
-
-  /* Load initial error weights */
-  retval = ark_mem->efun(ark_mem->yn, ark_mem->ewt, ark_mem->e_data);
-  if (retval != 0)
-  {
-    if (ark_mem->itol == ARK_WF)
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_ARK_EWT_FAIL);
-    }
-    else
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_ARK_BAD_EWT);
-    }
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Load initial residual weights */
-  if (ark_mem->rwt_is_ewt)
-  { /* update pointer to ewt */
-    ark_mem->rwt = ark_mem->ewt;
-  }
-  else
-  {
-    retval = ark_mem->rfun(ark_mem->yn, ark_mem->rwt, ark_mem->r_data);
-    if (retval != 0)
-    {
-      if (ark_mem->itol == ARK_WF)
-      {
-        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RWT_FAIL);
-      }
-      else
-      {
-        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                        MSG_ARK_BAD_RWT);
-      }
       return (ARK_ILL_INPUT);
     }
   }
@@ -1970,9 +2041,20 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     /* Estimate initial h if not set */
     if (ark_mem->h == ZERO)
     {
-      /* Again, temporarily set h for estimating an optimal value */
+      /* If necessary, temporarily set h as it is used to compute the tolerance
+         in a potential mass matrix solve when computing the full rhs */
       ark_mem->h = SUNRabs(tout - ark_mem->tcur);
-      if (ark_mem->h == ZERO) { ark_mem->h = ONE; }
+      if (ark_mem->h == ZERO) ark_mem->h = ONE;
+
+      /* Call fullrhs if needed */
+      if (!(ark_mem->fn_is_current))
+      {
+        retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
+                                       ark_mem->fn, ARK_FULLRHS_START);
+        if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
+        ark_mem->fn_is_current = SUNTRUE;
+      }
+
       /* Estimate the first step size */
       tout_hin = tout;
       if (ark_mem->tstopset &&
@@ -1980,7 +2062,9 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       {
         tout_hin = ark_mem->tstop;
       }
-      hflag = arkHin(ark_mem, tout_hin);
+      hflag = arkHin(ark_mem, ark_mem->tcur, tout_hin, ark_mem->yn, ark_mem->fn,
+                     ark_mem->ycur, ark_mem->tempv1, ark_mem->tempv2,
+                     ark_mem->step_fullrhs, &ark_mem->h);
       if (hflag != ARK_SUCCESS)
       {
         istate = arkHandleFailure(ark_mem, hflag);
@@ -2280,7 +2364,9 @@ int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
   Finally, we apply a bias (0.5) and verify that h0 is within
   bounds.
   ---------------------------------------------------------------*/
-int arkHin(ARKodeMem ark_mem, sunrealtype tout)
+int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
+           N_Vector fcur, N_Vector ytmp, N_Vector temp1, N_Vector temp2,
+           ARKTimestepFullRHSFn rhs, sunrealtype* h)
 {
   int retval, sign, count1, count2;
   sunrealtype tdiff, tdist, tround, hlb, hub;
@@ -2288,39 +2374,26 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
   sunbooleantype hgOK;
 
   /* If tout is too close to tn, give up */
-  if ((tdiff = tout - ark_mem->tcur) == ZERO) { return (ARK_TOO_CLOSE); }
+  if ((tdiff = tout - tcur) == ZERO) { return (ARK_TOO_CLOSE); }
 
   sign   = (tdiff > ZERO) ? 1 : -1;
   tdist  = SUNRabs(tdiff);
-  tround = ark_mem->uround * SUNMAX(SUNRabs(ark_mem->tcur), SUNRabs(tout));
+  tround = ark_mem->uround * SUNMAX(SUNRabs(tcur), SUNRabs(tout));
 
   if (tdist < TWO * tround) { return (ARK_TOO_CLOSE); }
-
-  /* call full RHS if needed */
-  if (!(ark_mem->fn_is_current))
-  {
-    /* NOTE: The step size (h) is used in setting the tolerance in a potential
-       mass matrix solve when computing the full RHS. Before calling arkHin, h
-       is set to |tout - tcur| or 1 and so we do not need to guard against
-       h == 0 here before calling the full RHS. */
-    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
-                                   ark_mem->fn, ARK_FULLRHS_START);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
-    ark_mem->fn_is_current = SUNTRUE;
-  }
 
   /* Set lower and upper bounds on h0, and take geometric mean
      as first trial value.
      Exit with this value if the bounds cross each other. */
   hlb = H0_LBFACTOR * tround;
-  hub = arkUpperBoundH0(ark_mem, tdist);
+  hub = arkUpperBoundH0(ark_mem, tdist, ycur, fcur, temp1, temp2);
 
   hg = SUNRsqrt(hlb * hub);
 
   if (hub < hlb)
   {
-    if (sign == -1) { ark_mem->h = -hg; }
-    else { ark_mem->h = hg; }
+    if (sign == -1) { *h = -hg; }
+    else { *h = hg; }
     return (ARK_SUCCESS);
   }
 
@@ -2334,7 +2407,8 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
     for (count2 = 1; count2 <= H0_ITERS; count2++)
     {
       hgs    = hg * sign;
-      retval = arkYddNorm(ark_mem, hgs, &yddnrm);
+      retval = arkYddNorm(ark_mem, hgs, tcur, ycur, fcur, ytmp, temp1, rhs,
+                          &yddnrm);
       /* If f() failed unrecoverably, give up */
       if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
       /* If successful, we can use ydd */
@@ -2389,7 +2463,7 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
   if (h0 < hlb) { h0 = hlb; }
   if (h0 > hub) { h0 = hub; }
   if (sign == -1) { h0 = -h0; }
-  ark_mem->h = h0;
+  *h = h0;
 
   return (ARK_SUCCESS);
 }
@@ -2399,24 +2473,24 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
 
   This routine sets an upper bound on abs(h0) based on
   tdist = tn - t0 and the values of y[i]/y'[i].
+
+  It is assumed that the input f equals y', and that
+  temp1 and temp2 may be modified as desired.
   ---------------------------------------------------------------*/
-sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist)
+sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist, N_Vector y,
+                            N_Vector f, N_Vector temp1, N_Vector temp2)
 {
   sunrealtype hub_inv, hub;
-  N_Vector temp1, temp2;
 
   /* Bound based on |y0|/|y0'| -- allow at most an increase of
    * H0_UBFACTOR in y0 (based on a forward Euler step). The weight
    * factor is used as a safeguard against zero components in y0. */
-  temp1 = ark_mem->tempv1;
-  temp2 = ark_mem->tempv2;
-
-  N_VAbs(ark_mem->yn, temp2);
-  ark_mem->efun(ark_mem->yn, temp1, ark_mem->e_data);
+  N_VAbs(y, temp2);
+  ark_mem->efun(y, temp1, ark_mem->e_data);
   N_VInv(temp1, temp1);
   N_VLinearSum(H0_UBFACTOR, temp2, ONE, temp1, temp1);
 
-  N_VAbs(ark_mem->fn, temp2);
+  N_VAbs(f, temp2);
 
   N_VDiv(temp2, temp1, temp1);
   hub_inv = N_VMaxNorm(temp1);
@@ -2436,28 +2510,32 @@ sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist)
 
   This routine computes an estimate of the second derivative of y
   using a difference quotient, and returns its WRMS norm.
+
+  It is assumed that the input f equals y'(t), that ycur can
+  be modified as desired, but upon return to equal y, and that
+  temp1 may be modified as desired.
   ---------------------------------------------------------------*/
-int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype* yddnrm)
+int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t, N_Vector y,
+               N_Vector f, N_Vector ycur, N_Vector temp1,
+               ARKTimestepFullRHSFn rhs, sunrealtype* yddnrm)
 {
   int retval;
 
   /* increment y with a multiple of f */
-  N_VLinearSum(hg, ark_mem->fn, ONE, ark_mem->yn, ark_mem->ycur);
+  N_VLinearSum(hg, f, ONE, y, ycur);
 
   /* compute y', via the ODE RHS routine */
-  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + hg, ark_mem->ycur,
-                                 ark_mem->tempv1, ARK_FULLRHS_OTHER);
-  if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
+  retval = rhs(ark_mem, t + hg, ycur, temp1, ARK_FULLRHS_OTHER);
+  if (retval != 0) return (ARK_RHSFUNC_FAIL);
 
   /* difference new f and original f to estimate y'' */
-  N_VLinearSum(ONE / hg, ark_mem->tempv1, -ONE / hg, ark_mem->fn,
-               ark_mem->tempv1);
+  N_VLinearSum(ONE / hg, temp1, -ONE / hg, f, temp1);
 
   /* reset ycur to equal yn (unnecessary?) */
-  N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
+  N_VScale(ONE, y, ycur);
 
   /* compute norm of y'' */
-  *yddnrm = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
+  *yddnrm = N_VWrmsNorm(temp1, ark_mem->ewt);
 
   return (ARK_SUCCESS);
 }
@@ -2508,6 +2586,16 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
                      "end-step", "step = %li, h = %" RSYM ", tcur = %" RSYM,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
+
+  /* store this step's contribution to accumulated temporal error */
+  if (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)
+  {
+    if (ark_mem->AccumErrorType == ARK_ACCUMERROR_MAX)
+    {
+      ark_mem->AccumError = SUNMAX(dsm, ark_mem->AccumError);
+    }
+    else { ark_mem->AccumError += dsm; }
+  }
 
   /* apply user-supplied step postprocessing function (if supplied) */
   if (ark_mem->ProcessStep != NULL)
@@ -2985,6 +3073,7 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
 {
   ARKodeHAdaptMem hadapt_mem;
 
+  /* If nonlinear solver succeeded, return with ARK_SUCCESS */
   if (*nflagPtr == ARK_SUCCESS) { return (ARK_SUCCESS); }
 
   /* The nonlinear soln. failed; increment ncfn */
@@ -3566,6 +3655,182 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
   free(msg);
 
   return;
+}
+
+/*---------------------------------------------------------------
+  Utility routines for ARKODE to serve as an MRIStepInnerStepper
+  ---------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerEvolve
+
+  Implementation of MRIStepInnerStepperEvolveFn to advance the inner (fast)
+  ODE IVP.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
+                           SUNDIALS_MAYBE_UNUSED sunrealtype t0,
+                           sunrealtype tout, N_Vector y)
+{
+  void* arkode_mem; /* arkode memory             */
+  ARKodeMem ark_mem;
+  sunrealtype tret;           /* return time               */
+  sunrealtype tshift, tscale; /* time normalization values */
+  N_Vector* forcing;          /* forcing vectors           */
+  int nforcing;               /* number of forcing vectors */
+  int retval;                 /* return value              */
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* get the forcing data */
+  retval = MRIStepInnerStepper_GetForcingData(stepper, &tshift, &tscale,
+                                              &forcing, &nforcing);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* set the inner forcing data */
+  retval = ark_mem->step_setforcing(ark_mem, tshift, tscale, forcing, nforcing);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* set the stop time */
+  retval = ARKodeSetStopTime(arkode_mem, tout);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* evolve inner ODE */
+  retval = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+  if (retval < 0) { return (retval); }
+
+  /* disable inner forcing */
+  retval = ark_mem->step_setforcing(ark_mem, ZERO, ONE, NULL, 0);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
+}
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerFullRhs
+
+  Implementation of MRIStepInnerStepperFullRhsFn to compute the full inner
+  (fast) ODE IVP RHS.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                            N_Vector y, N_Vector f, int mode)
+{
+  void* arkode_mem; /* arkode memory */
+  ARKodeMem ark_mem;
+  int retval; /* return value  */
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  return (ark_mem->step_fullrhs(arkode_mem, t, y, f, mode));
+}
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerReset
+
+  Implementation of MRIStepInnerStepperResetFn to reset the inner (fast) stepper
+  state.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR, N_Vector yR)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARKodeReset(arkode_mem, tR, yR));
+}
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerGetAccumulatedError
+
+  Implementation of MRIStepInnerGetAccumulatedError to retrieve the accumulated
+  temporal error estimate from the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                        sunrealtype* accum_error)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARKodeGetAccumulatedError(arkode_mem, accum_error));
+}
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerResetAccumulatedError
+
+  Implementation of MRIStepInnerResetAccumulatedError to reset the accumulated
+  temporal error estimator in the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
+{
+  void* arkode_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARKodeResetAccumulatedError(arkode_mem));
+}
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerSetRTol
+
+  Implementation of MRIStepInnerSetRTol to set a relative tolerance for the
+  upcoming evolution using the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
+{
+  void* arkode_mem;
+  ARKodeMem ark_mem;
+  int retval;
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  if (rtol > ZERO)
+  {
+    ark_mem->reltol = rtol;
+    return (ARK_SUCCESS);
+  }
+  else { return (ARK_ILL_INPUT); }
 }
 
 /*===============================================================

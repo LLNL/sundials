@@ -227,6 +227,32 @@ int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag)
   ===============================================================*/
 
 /*---------------------------------------------------------------
+  mriStep_SetAdaptController:
+
+  Specifies a temporal adaptivity controller for MRIStep to use.
+  If a non-MRI controller is provided, this just passes that
+  through to arkReplaceAdaptController.  However, if an MRI
+  controller is provided, then this wraps that inside a
+  "SUNAdaptController_MRIStep" wrapper, which will properly
+  interact with the fast integration module.
+  ---------------------------------------------------------------*/
+int mriStep_SetAdaptController(ARKodeMem ark_mem, SUNAdaptController C)
+{
+  /* Retrieve the controller type */
+  SUNAdaptController_Type ctype = SUNAdaptController_GetType(C);
+
+  /* If this does not have MRI type, then just pass to ARKODE */
+  if (ctype != SUN_ADAPTCONTROLLER_MRI_TOL)
+  {
+    return (arkReplaceAdaptController(ark_mem, C));
+  }
+
+  /* Create the mriStepControl wrapper, and pass that to ARKODE */
+  SUNAdaptController Cwrapper = SUNAdaptController_MRIStep(ark_mem, C);
+  return (arkReplaceAdaptController(ark_mem, Cwrapper));
+}
+
+/*---------------------------------------------------------------
   mriStep_SetUserData:
 
   Passes user-data pointer to attached linear solver module.
@@ -622,6 +648,29 @@ int mriStep_GetCurrentGamma(ARKodeMem ark_mem, sunrealtype* gamma)
   if (retval != ARK_SUCCESS) { return (retval); }
   *gamma = step_mem->gamma;
   return (retval);
+}
+
+/*---------------------------------------------------------------
+  mriStep_GetEstLocalErrors: Returns the current local truncation
+  error estimate vector
+  ---------------------------------------------------------------*/
+int mriStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
+{
+  int retval;
+  ARKodeMRIStepMem step_mem;
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* return an error if local truncation error is not computed */
+  if ((ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE)) ||
+      (step_mem->p <= 0))
+  {
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+
+  /* otherwise, copy local truncation error vector to output */
+  N_VScale(ONE, ark_mem->tempv1, ele);
+  return (ARK_SUCCESS);
 }
 
 /*---------------------------------------------------------------

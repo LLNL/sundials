@@ -36,8 +36,10 @@ typedef enum
 {
   MRISTEP_EXPLICIT,
   MRISTEP_IMPLICIT,
-  MRISTEP_IMEX
-} MRISTEP_METHOD_TYPE;
+  MRISTEP_IMEX,
+  MRISTEP_MERK,
+  MRISTEP_MRISR
+} ARKODE_MRIType;
 
 typedef enum
 {
@@ -62,14 +64,26 @@ typedef enum
   ARKODE_IMEX_MRI_GARK_EULER,
   ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL,
   ARKODE_IMEX_MRI_GARK_MIDPOINT,
-  ARKODE_MAX_MRI_NUM = ARKODE_IMEX_MRI_GARK_MIDPOINT,
+  ARKODE_MERK21,
+  ARKODE_MERK32,
+  ARKODE_MERK43,
+  ARKODE_MERK54,
+  ARKODE_IMEX_MRI_SR21,
+  ARKODE_IMEX_MRI_SR32,
+  ARKODE_IMEX_MRI_SR43,
+  ARKODE_MAX_MRI_NUM = ARKODE_IMEX_MRI_SR43
 } ARKODE_MRITableID;
 
-/* Default MRI coupling tables for each order */
+/* Default MRI coupling tables for each order and type */
 static const int MRISTEP_DEFAULT_EXPL_1 = ARKODE_MRI_GARK_FORWARD_EULER;
 static const int MRISTEP_DEFAULT_EXPL_2 = ARKODE_MRI_GARK_ERK22b;
 static const int MRISTEP_DEFAULT_EXPL_3 = ARKODE_MIS_KW3;
 static const int MRISTEP_DEFAULT_EXPL_4 = ARKODE_MRI_GARK_ERK45a;
+
+static const int MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22b;
+static const int MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a;
+static const int MRISTEP_DEFAULT_EXPL_4_AD = ARKODE_MRI_GARK_ERK45a;
+static const int MRISTEP_DEFAULT_EXPL_5_AD = ARKODE_MERK54;
 
 static const int MRISTEP_DEFAULT_IMPL_SD_1 = ARKODE_MRI_GARK_BACKWARD_EULER;
 static const int MRISTEP_DEFAULT_IMPL_SD_2 = ARKODE_MRI_GARK_IRK21a;
@@ -80,6 +94,10 @@ static const int MRISTEP_DEFAULT_IMEX_SD_1 = ARKODE_IMEX_MRI_GARK_EULER;
 static const int MRISTEP_DEFAULT_IMEX_SD_2 = ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL;
 static const int MRISTEP_DEFAULT_IMEX_SD_3 = ARKODE_IMEX_MRI_GARK3b;
 static const int MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_GARK4;
+
+static const int MRISTEP_DEFAULT_IMEX_SD_2_AD = ARKODE_IMEX_MRI_SR21;
+static const int MRISTEP_DEFAULT_IMEX_SD_3_AD = ARKODE_IMEX_MRI_SR32;
+static const int MRISTEP_DEFAULT_IMEX_SD_4_AD = ARKODE_IMEX_MRI_SR43;
 
 /* ------------------------------------
  * MRIStep Inner Stepper Function Types
@@ -94,18 +112,32 @@ typedef int (*MRIStepInnerFullRhsFn)(MRIStepInnerStepper stepper, sunrealtype t,
 typedef int (*MRIStepInnerResetFn)(MRIStepInnerStepper stepper, sunrealtype tR,
                                    N_Vector yR);
 
+typedef int (*MRIStepInnerGetAccumulatedError)(MRIStepInnerStepper stepper,
+                                               sunrealtype* accum_error);
+
+typedef int (*MRIStepInnerResetAccumulatedError)(MRIStepInnerStepper stepper);
+
+typedef int (*MRIStepInnerSetFixedStep)(MRIStepInnerStepper stepper,
+                                        sunrealtype h);
+
+typedef int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol);
+
 /*---------------------------------------------------------------
   MRI coupling data structure and associated utility routines
   ---------------------------------------------------------------*/
 struct MRIStepCouplingMem
 {
-  int nmat;         /* number of MRI coupling matrices                   */
-  int stages;       /* size of coupling matrices (stages * stages)       */
-  int q;            /* method order of accuracy                          */
-  int p;            /* embedding order of accuracy                       */
-  sunrealtype* c;   /* stage abscissae                                   */
-  sunrealtype*** W; /* explicit coupling matrices [nmat][stages][stages] */
-  sunrealtype*** G; /* implicit coupling matrices [nmat][stages][stages] */
+  ARKODE_MRIType type; /* flag to encode the MRI method type          */
+  int nmat;            /* number of MRI coupling matrices                     */
+  int stages;          /* size of coupling matrices ((stages+1) * stages)     */
+  int q;               /* method order of accuracy                            */
+  int p;               /* embedding order of accuracy                         */
+  sunrealtype* c;      /* stage abscissae                                     */
+  sunrealtype*** W;    /* explicit coupling matrices [nmat][stages+1][stages] */
+  sunrealtype*** G;    /* implicit coupling matrices [nmat][stages+1][stages] */
+
+  int ngroup;  /* number of stage groups (MERK-specific)              */
+  int** group; /* stages to integrate together (MERK-specific)        */
 };
 
 typedef _SUNDIALS_STRUCT_ MRIStepCouplingMem* MRIStepCoupling;
@@ -118,7 +150,7 @@ SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_LoadTableByName(const char* meth
 
 /* Utility routines to allocate/free/output coupling table structures */
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
-                                                      MRISTEP_METHOD_TYPE type);
+                                                      ARKODE_MRIType type);
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages,
                                                        int q, int p,
                                                        sunrealtype* W,
@@ -178,6 +210,12 @@ SUNDIALS_EXPORT int MRIStepInnerStepper_SetFullRhsFn(MRIStepInnerStepper stepper
                                                      MRIStepInnerFullRhsFn fn);
 SUNDIALS_EXPORT int MRIStepInnerStepper_SetResetFn(MRIStepInnerStepper stepper,
                                                    MRIStepInnerResetFn fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetAccumulatedErrorGetFn(
+  MRIStepInnerStepper stepper, MRIStepInnerGetAccumulatedError fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetAccumulatedErrorResetFn(
+  MRIStepInnerStepper stepper, MRIStepInnerResetAccumulatedError fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetRTolFn(MRIStepInnerStepper stepper,
+                                                  MRIStepInnerSetRTol fn);
 SUNDIALS_EXPORT int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper,
                                                    sunrealtype t, N_Vector f);
 SUNDIALS_EXPORT int MRIStepInnerStepper_GetForcingData(

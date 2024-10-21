@@ -23,6 +23,7 @@
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
+#include <arkode/arkode_mristep.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
@@ -229,6 +230,7 @@ typedef int (*ARKTimestepGetNumRhsEvals)(ARKodeMem ark_mem, int partition_index,
 
 /* time stepper interface functions -- temporal adaptivity */
 typedef int (*ARKTimestepGetEstLocalErrors)(ARKodeMem ark_mem, N_Vector ele);
+typedef int (*ARKSetAdaptControllerFn)(ARKodeMem ark_mem, SUNAdaptController C);
 
 /* time stepper interface functions -- relaxation */
 typedef int (*ARKTimestepSetRelaxFn)(ARKodeMem ark_mem, ARKRelaxFn rfn,
@@ -288,6 +290,11 @@ typedef int (*ARKTimestepAttachMasssolFn)(
   sunbooleantype time_dep, SUNLinearSolver_Type msolve_type, void* mass_mem);
 typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
 typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
+
+/* time stepper interface functions -- forcing */
+typedef int (*ARKTimestepSetForcingFn)(ARKodeMem ark_mem, sunrealtype tshift,
+                                       sunrealtype tscale, N_Vector* f,
+                                       int nvecs);
 
 /*===============================================================
   ARKODE interpolation module definition
@@ -412,6 +419,7 @@ struct ARKodeMemRec
 
   /* Time stepper module -- temporal adaptivity */
   sunbooleantype step_supports_adaptive;
+  ARKSetAdaptControllerFn step_setadaptcontroller;
   ARKTimestepGetEstLocalErrors step_getestlocalerrors;
 
   /* Time stepper module -- relaxation */
@@ -454,6 +462,10 @@ struct ARKodeMemRec
   ARKTimestepGetMassMemFn step_getmassmem;
   ARKMassMultFn step_mmult;
 
+  /* Time stepper module -- forcing */
+  sunbooleantype step_supports_forcing;
+  ARKTimestepSetForcingFn step_setforcing;
+
   /* N_Vector storage */
   N_Vector ewt;                 /* error weight vector                        */
   N_Vector rwt;                 /* residual weight vector                     */
@@ -493,7 +505,8 @@ struct ARKodeMemRec
                                   overtake tstop */
   sunrealtype eta;            /* eta = hprime / h                         */
   sunrealtype tcur;           /* current internal value of t
-                                  (changes with each stage)                */
+                                  (changes with each stage)               */
+  sunrealtype tout;           /* user's requested output time             */
   sunrealtype tretlast;       /* value of tret last returned by ARKODE    */
   sunbooleantype fixedstep;   /* flag to disable temporal adaptivity      */
   ARKodeHAdaptMem hadapt_mem; /* time step adaptivity structure           */
@@ -527,6 +540,9 @@ struct ARKodeMemRec
   sunrealtype terr;  /* error in tn for compensated sums            */
   sunrealtype hold;  /* last successful h value used                */
   sunrealtype tolsf; /* tolerance scale factor (suggestion to user) */
+  ARKAccumError AccumErrorType; /* accumulated error estimation type      */
+  long int AccumErrorStep; /* time step of last accumulated error reset   */
+  sunrealtype AccumError;  /* accumulated error estimate                  */
   sunbooleantype VabstolMallocDone;
   sunbooleantype VRabstolMallocDone;
   sunbooleantype MallocDone;
@@ -613,9 +629,14 @@ sunbooleantype arkCheckNvector(N_Vector tmpl);
 int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout);
 int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
                  sunrealtype* tret, int itask, int* ier);
-int arkHin(ARKodeMem ark_mem, sunrealtype tout);
-sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist);
-int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype* yddnrm);
+int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
+           N_Vector fcur, N_Vector ytmp, N_Vector temp1, N_Vector temp2,
+           ARKTimestepFullRHSFn rhs, sunrealtype* h);
+sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist, N_Vector y,
+                            N_Vector f, N_Vector temp1, N_Vector temp2);
+int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t, N_Vector y,
+               N_Vector f, N_Vector ycur, N_Vector temp1,
+               ARKTimestepFullRHSFn rhs, sunrealtype* yddnrm);
 
 int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm);
 int arkHandleFailure(ARKodeMem ark_mem, int flag);
@@ -639,12 +660,25 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
                        ARKodeHAdaptMem* hadapt_mem);
 
+int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C);
 int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
                            sunrealtype adapt_params[3]);
 int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data);
 
 ARKODE_DIRKTableID arkButcherTableDIRKNameToID(const char* imethod);
 ARKODE_ERKTableID arkButcherTableERKNameToID(const char* emethod);
+
+/* utility functions for wrapping ARKODE as an MRIStep inner stepper */
+int ark_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
+                           sunrealtype tout, N_Vector y);
+int ark_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                            N_Vector y, N_Vector f, int mode);
+int ark_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
+                          N_Vector yR);
+int ark_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                        sunrealtype* accum_error);
+int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
+int ark_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
 /* XBraid interface functions */
 int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass);
