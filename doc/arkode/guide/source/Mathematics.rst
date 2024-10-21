@@ -2171,7 +2171,7 @@ For the discrete adjoint approach, we first numerically discretize the original 
 In the context of ARKODE, this is done with a one-step time integration scheme :math:`\varphi` so that
 
 .. math::
-   y_0 = y(t_0),\quad y_n = \varphi_n(y_{n-1}).
+   y_0 = y(t_0),\quad y_n = \varphi^n(y_{n-1}).
    :label: ARKODE_DISCRETE_ODE
 
 Reformulating the optimization problem for the discrete case, we have
@@ -2185,10 +2185,9 @@ rule backwards in time to obtain the discete adjoint variables :math:`\lambda_n,
 and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`,
 
 .. math::
-   \lambda_n &= g_y^T(y_n, p), \quad \lambda_k = 0, \quad k = n - 1, \cdots 0, \\
-   \lambda_{\ell} &= \lambda_{\ell} + \left( \frac{\partial \varphi_k}{\partial y_{\ell}} (y_{k-1}) \right)^T \lambda_k,\quad \ell = k-1, \cdots, 0, \quad  k = n, \cdots 0. \\
-   \mu_n &= g_p^T(y_n, p), \quad \mu_k = 0, \quad k = n - 1, \cdots 0, \\
-   \mu_{\ell} &= \mu_{\ell} + \left( \frac{\partial \varphi_k}{\partial p} (y_{k-1}) \right)^T \mu_k,\quad \ell = k-1, \cdots, 0, \quad  k = n, \cdots 0.
+   \lambda_n &= g_y^T(y_n, p), \quad \lambda_k = \left(\varphi^k_y(y_k, p)\right)^T \lambda_{k+1} \\
+   \mu_n     &= g_p^T(y_n, p), \quad \mu_k     = \mu_{k+1} + \left(\varphi^k_p(y_k, p)\right)^T \lambda_{k+1},
+    \quad k = n - 1, \cdots, 0.
    :label: ARKODE_DISCRETE_ADJOINT
 
 The solution of the discrete adjoint equations :eq:`ARKODE_DISCRETE_ADJOINT` is the sensitivities of the discrete cost function
