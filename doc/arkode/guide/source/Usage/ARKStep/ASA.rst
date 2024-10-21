@@ -5,7 +5,7 @@ Adjoint Sensitivity Analysis
 
 The previous sections discuss using ARKStep for the integration of forward ODE models.
 This section discusses how to use ARKStep for adjoint sensitivity analysis as introduced
-in :numref:`ARKODE.Mathematics.ASA`. To use ARKStep for ASA, users simply setup the forward
+in :numref:`ARKODE.Mathematics.ASA`. To use ARKStep for adjoint sensitivity analysis (ASA), users simply setup the forward
 integration as usual (following :numref:`ARKODE.Usage.Skeleton`) with one exception:
 a :c:type:`SUNAdjointCheckpointScheme` object must be created and passed to
 :c:func:`ARKodeSetAdjointCheckpointScheme` before the call to the :c:func:`ARKodeEvolve`
