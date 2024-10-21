@@ -90,6 +90,7 @@ TEST_F(SUNErrConditionTest, LastErrConditionPersists)
   N_VCloneEmptyVectorArray(-1, v); // -1 is an out of range argument
   SUNErrCode err = SUNContext_PeekLastError(sunctx);
   EXPECT_EQ(err, SUN_ERR_ARG_OUTOFRANGE);
+
   N_Vector* arr = N_VCloneEmptyVectorArray(1, v);
   EXPECT_FALSE(arr);
   err = SUNContext_GetLastError(sunctx);

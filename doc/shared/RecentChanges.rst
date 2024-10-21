@@ -3,9 +3,13 @@
 **New Features and Enhancements**
 
 Added the :c:type:`SUNStepper` base class to represent a generic solution
-procedure for IVPs. This is used by the
-:ref:`SplittingStep <ARKODE.Usage.SplittingStep>` and
-:ref:`ForcingStep <ARKODE.Usage.ForcingStep>` modules of ARKODE. A SUNStepper
+procedure for IVPs. 
+
+.. This is used by the
+.. :ref:`SplittingStep <ARKODE.Usage.SplittingStep>` and
+.. :ref:`ForcingStep <ARKODE.Usage.ForcingStep>` modules of ARKODE. 
+
+A SUNStepper
 can be created from an ARKODE memory block with the new function
 :c:func:`ARKodeCreateSUNStepper`. To enable interoperability with
 :c:type:`MRIStepInnerStepper`, the function

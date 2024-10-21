@@ -78,14 +78,18 @@ static SUNErrCode arkSUNStepperFullRhs(SUNStepper stepper, sunrealtype t,
   ----------------------------------------------------------------------------*/
 
 static SUNErrCode arkSUNStepperReset(SUNStepper stepper, sunrealtype tR,
-                                     N_Vector yR)
+                                     N_Vector yR, int64_t ckptIdxR)
 {
   SUNFunctionBegin(stepper->sunctx);
+
   /* extract the ARKODE memory struct */
   void* arkode_mem;
   SUNCheckCall(SUNStepper_GetContent(stepper, &arkode_mem));
 
   stepper->last_flag = ARKodeReset(arkode_mem, tR, yR);
+  if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
+
+  stepper->last_flag = ARKodeSetAdjointCheckpointIndex(arkode_mem, ckptIdxR);
   if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
 
   return SUN_SUCCESS;
