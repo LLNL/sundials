@@ -3429,7 +3429,6 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   N_Vector Lambda_part     = N_VGetSubvector_ManyVector(sens_partial_stage, 0);
   N_Vector Lambda          = N_VGetSubvector_ManyVector(sens_complete_stage, 0);
-  N_Vector nu              = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
   N_Vector checkpoint      = N_VClone(Lambda_part);
   sunrealtype checkpoint_t = SUN_RCONST(0.0);
 
@@ -3465,6 +3464,10 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   if (adj_stepper->JacPFn)
   {
+    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2) {
+      return -1;
+    }
+    N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
     adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP, user_data, NULL,
                         NULL, NULL);
     adj_stepper->njpeval++;
@@ -3475,6 +3478,10 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   }
   else if (adj_stepper->JPvpFn)
   {
+    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2) {
+      return -1;
+    }
+    N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
     adj_stepper->JPvpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
     adj_stepper->njptimesv++;
   }
