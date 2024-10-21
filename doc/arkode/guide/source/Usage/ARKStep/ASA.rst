@@ -49,7 +49,7 @@ adjoint sensitivity analysis with methods with ARKStep.
    :param sf: the sensitivity vector holding the adjoint system terminal condition.
       This must be an instance of the ManyVector ``N_Vector`` implementation with at
       least one subvector (depending on if sensitivities to parameters should be computed).
-      The first subvector must be :math:`\partial g/\partial y |_{t=t_f} \in \mathbb{R}^N`. If sensitivities to parameters should be computed, then the second subvector must be :math:`\partial g / \partial p |_{t=t_f} \in \mathbb{R}^d`.
+      The first subvector must be :math:`\partial g_y(y(t_f)) \in \mathbb{R}^N`. If sensitivities to parameters should be computed, then the second subvector must be :math:`g_p(y(t_f), p) \in \mathbb{R}^{N_s}`.
    :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
 
    :return:
