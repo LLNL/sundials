@@ -2191,7 +2191,7 @@ and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`,
    \mu_{\ell} &= \mu_{\ell} + \left( \frac{\partial \varphi_k}{\partial p} (y_{k-1}) \right)^T \mu_k,\quad \ell = k-1, \cdots, 0, \quad  k = n, \cdots 0.
    :label: ARKODE_DISCRETE_ADJOINT
 
-The solution of the discrete adjoint equations :eq:`ARKODE_DISCRETE_ADJOINT` is the sensitivitrwes of the discrete cost function
+The solution of the discrete adjoint equations :eq:`ARKODE_DISCRETE_ADJOINT` is the sensitivities of the discrete cost function
 :eq:`ARKODE_DISCRETE_OPTIMIZATION_PROBLEM` with respect to changes in the discretized ODE :eq:`ARKODE_DISCRETE_ODE`.
 
 .. math::
@@ -2210,10 +2210,10 @@ to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1
    \mu_n     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
    :label: ARKODE_ERK_ADJOINT
 
-For more information on performing discrete adjoint sensitivity analysis using ARKODE see, 
+For more information on performing discrete adjoint sensitivity analysis using ARKODE see,
 :numref:`ARKODE.Usage.ARKStep.ASA`.
 
-For a detailed derivation of the discrete adjoint methods see :cite:p:`hager2000runge,sanduDiscrete2006`. 
+For a detailed derivation of the discrete adjoint methods see :cite:p:`hager2000runge,sanduDiscrete2006`.
 For a detailed derivation of the continuous adjoint method see :ref:`CVODES <CVODES.Mathematics.ASA>`,
 or :cite:p:`CLPS:03`.
 
