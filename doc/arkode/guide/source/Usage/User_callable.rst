@@ -1412,7 +1412,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
 
    .. versionadded:: x.y.z
 
-.. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, long int step_index)
+.. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, int64_t step_index)
 
    Specifies the step index (that is step number) to insert the next checkpoint at.
    This is incremented along with the step count, but it is useful to be able to reset

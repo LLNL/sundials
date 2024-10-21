@@ -569,7 +569,7 @@ struct ARKodeMemRec
 
   /* Checkpointing data */
   SUNAdjointCheckpointScheme checkpoint_scheme;
-  long int checkpoint_step_idx; /* the step number for checkpointing */
+  int64_t checkpoint_step_idx; /* the step number for checkpointing */
 
   /* XBraid interface variables */
   sunbooleantype force_pass; /* when true the step attempt loop will ignore the
