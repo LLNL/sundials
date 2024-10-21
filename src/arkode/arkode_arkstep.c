@@ -2207,18 +2207,18 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   N_Vector lambda_np1           = N_VGetSubvector_ManyVector(sens_np1, 0);
   N_Vector* stage_values        = step_mem->Fe;
 
-  // /* determine if method has fsal property */
-  // sunbooleantype fsal = (SUNRabs(step_mem->Be->A[0][0]) == ZERO) &&
-  //                       ARKodeButcherTable_IsStifflyAccurate(step_mem->Be);
+  /* determine if method has fsal property */
+  sunbooleantype fsal = (SUNRabs(step_mem->Be->A[0][0]) == ZERO) &&
+                        ARKodeButcherTable_IsStifflyAccurate(step_mem->Be);
 
   /* Loop over stages */
   for (int is = step_mem->stages - 1; is >= 0; --is)
   {
-    // if (fsal && is == step_mem->stages - 1)
-    // {
-    //   N_VConst(SUN_RCONST(0.0), stage_values[is]);
-    //   continue;
-    // }
+    if (fsal && is == step_mem->stages - 1)
+    {
+      N_VConst(SUN_RCONST(0.0), stage_values[is]);
+      continue;
+    }
 
     /* which stage is being processed -- needed for loading checkpoints */
     ark_mem->adj_stage_idx = is;
