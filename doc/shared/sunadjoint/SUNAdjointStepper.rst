@@ -129,6 +129,15 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    int64_t final_step_idx, N_Vector sf, sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme, \
    SUNContext sunctx, SUNAdjointStepper* adj_stepper)
 
+   Creates the ``SUNAdjointStepper`` object needed to solve the adjoint problem.
+
+   :param fwd_sunstepper: The :c:type:`SUNStepper` to be used for forward computations of the original ODE.
+   :param adj_sunstepper: The :c:type:`SUNStepper` to be usef for the backward integration of the adjoint ODE.
+   :param final_step_idx: The index (step number) of the step corresponding to ``t_f`` for the forward ODE.
+   :param sf: The terminal condition for the adjoint ODE.
+   :param tf: The terminal time for the forward ODE and (which is the initial time for the adjoint ODE).
+   :param checkpoint_scheme: The :c:type:`SUNAdjointCheckpointScheme` object that determines the checkpointing strategy to use. This should be the same scheme provided to the forward integrator/stepper.
+   :param sunctx: The :c:type:`SUNContext` for the simulation context.
 
 
 .. c:function:: SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf, sunrealtype tf)
@@ -136,8 +145,8 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    Reinitializes the adjoint stepper to solve a new problem of the same size.
 
    :param adj_stepper: The adjoint solver object.
+   :param sf: The terminal condition vector of sensitivity solutions :math:`dg/dy_0`` and :math:`dg/dp`.
    :param tf: The time to start integrating the adjoint system from.
-   :param sf: The terminal condition vector of sensitivity solutions dg/dy0 and dg/dp.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
