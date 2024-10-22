@@ -618,8 +618,8 @@ MRIStep see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`. Additionally,
 users may supply their own method by defining and attaching a coupling table,
 see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling` for more information.
 
-Generally, the slow (outer) method for each family derives from an :math:`s`
-stage single-rate method: MIS and MRI-GARK methods derive from explicit or
+Generally, the slow (outer) method for each family derives from a single-rate
+method: MIS and MRI-GARK methods derive from explicit or
 diagonally-implicit Runge--Kutta methods, MERK methods derive from exponential
 Runge--Kutta methods, while IMEX-MRI-GARK and IMEX-MRI-SR methods derive from
 additive Runge--Kutta methods. In each case, the "infinitesimal" nature of the
@@ -829,8 +829,7 @@ time-steppers) is their adaptive control of local truncation error (LTE).
 At every step, we estimate the local error, and ensure that it
 satisfies tolerance conditions.  If this local error test fails, then
 the step is recomputed with a reduced step size.  To this end, the
-majority of Runge--Kutta methods packaged within both the ARKStep and
-ERKStep modules, as well as many of the MRI methods packaged within MRIStep,
+majority of the Runge--Kutta methods and many of the MRI methods in ARKODE
 admit an embedded solution :math:`\tilde{y}_n`, as shown in
 equations :eq:`ARKODE_ARK`, :eq:`ARKODE_ERK`, and
 :eq:`MRI_embedding_fast_IVP`-:eq:`MRI_embedding_implicit_solve`.  Generally,
@@ -993,7 +992,7 @@ step size, :math:`h^S`, and the other that adapts the fast time scale step size,
 methods should work well for multirate problems where the time scales are somewhat
 decoupled, and that errors introduced at one scale do not "pollute" the other.
 
-The second category of controllers that we provide are :math:`h^S-Tol` multirate
+The second category of controllers that we provide are :math:`h^S`-:math:`Tol` multirate
 controllers.  The basic idea is that an adaptive time integration method will
 attempt to adapt step sizes to control the *local error* within each step to
 achieve a requested tolerance.  However, MRI methods must ask an adaptive "inner"
@@ -1001,9 +1000,9 @@ solver to produce the stage solutions :math:`v_i(t_{F,i})` and
 :math:`\tilde{v}(\tilde{t}_{F})`, that result from sub-stepping over intervals
 :math:`[t_{0,i},t_{F,i}]` or :math:`[\tilde{t}_{0},\tilde{t}_{F}]`, respectively.
 Local errors within the inner integrator may accumulate, resulting in an overall
-inner solver error :math:`\varepsilon^f_n` that exceeds the requested tolerance.
+inner solver error :math:`\varepsilon^F_n` that exceeds the requested tolerance.
 If that inner solver can produce *both* :math:`v_i(t_{F,i})` and
-an estimation of the accumulated error, :math:`\varepsilon^f_{n,approx}`, then the
+an estimation of the accumulated error, :math:`\varepsilon^F_{n,approx}`, then the
 tolerances provided to that inner solver can be adjusted accordingly to
 ensure stage solutions that are within the overall tolerances requested of the outer
 MRI method.
@@ -1012,7 +1011,7 @@ To this end, we assume that the inner solver will provide accumulated errors
 over each fast interval having the form
 
 .. math::
-   \varepsilon^f_{n} = c(t_n) h^S_n \left(\text{RTOL}_n^f\right),
+   \varepsilon^F_{n} = c(t_n) h^S_n \left(\text{RTOL}_n^F\right),
    :label: fast_error_accumulation_assumption
 
 where :math:`c(t)` is independent of the tolerance or step size, but may vary in time.
@@ -1023,125 +1022,26 @@ size :math:`h_n` has order :math:`p`, i.e.,
    LTE_n = c(t_n) (h_n)^{p+1},
 
 to predict candidate values :math:`h_{n+1}`.  We may therefore repurpose an existing
-single-scale controller to predict candidate values :math:`\text{RTOL}^f_{n+1}` by
+single-scale controller to predict candidate values :math:`\text{RTOL}^F_{n+1}` by
 supplying an "order" :math:`p=0` and a "control parameter"
-:math:`h_n=\left(\text{RTOL}_n^f\right)`.
+:math:`h_n=\left(\text{RTOL}_n^F\right)`.
 
-Thus to construct an :math:`h^S-Tol` controller, we require three separate single-rate
+Thus to construct an :math:`h^S`-:math:`Tol` controller, we require three separate single-rate
 adaptivity controllers:
 
 * scontrol-H -- this is a single-rate controller that adapts :math:`h^S_n` within the
   slow integrator to achieve user-requested solution tolerances.
 
-* scontrol-Tol -- this is a single-rate controller that adapts :math:`\text{RTOL}^f_n`
+* scontrol-Tol -- this is a single-rate controller that adapts :math:`\text{RTOL}^F_n`
   using the strategy described above.
 
 * fcontrol -- this adapts time steps :math:`h^F` within the fast integrator to achieve
-  the current tolerance, :math:`\text{RTOL}^f_n`.
+  the current tolerance, :math:`\text{RTOL}^F_n`.
 
-We note that both the decoupled and :math:`h^S-Tol` controller families may be used in
+We note that both the decoupled and :math:`h^S`-:math:`Tol` controller families may be used in
 multirate calculations with an arbitrary number of time scales, since these focus on only
 one scale at a time, or on how a given time scale relates to the next-faster scale.
 
-
-.. _ARKODE.Mathematics.MultirateInitialSteps:
-
-Initial multirate step size estimation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Before time step adaptivity can be accomplished, an initial step must be taken.  As is
-typical with adaptive methods, the first step should be chosen conservatively to ensure
-that it succeeds both in its internal solver algorithms, and its eventual temporal error
-test.  However, if this initial step is too conservative then its computational cost will
-essentially be wasted.  We thus strive to construct a conservative step that will succeed
-while also progressing toward the eventual solution.
-
-In MRI methods, initial time step selection is complicated by the fact that not only must
-an initial slow step size, :math:`h_0^S`, be chosen, but a smaller initial step,
-:math:`h_0^F`, must also be selected.  Additionally, it is typically assumed that within
-MRI methods, evaluation of :math:`f^S` is significantly more costly than evaluation of
-:math:`f^f`, and thus we wish to construct these initial steps accordingly.
-
-Before examining MRI initial time step estimation, we first summarize two common
-approaches to initial step size selection.  To this end, consider a simple
-single-time-scale ODE,
-
-.. math::
-   y'(t) = f(t,y), \quad y(t_0) = y_0
-   :label: IVP_single
-
-For this, we may consider two Taylor series expansions of :math:`y(t_0+h^S)` around the
-initial time,
-
-.. math::
-    y(t_0+h^S) = y_0 + h^S f(t_0,y_0) + \frac{(h^S)^2}{2} \frac{\mathrm d}{\mathrm dt} f(t_0+\tau,y_0+\eta),\\
-    :label: TSExp1
-
-and
-
-.. math::
-   y(t_0+h^S) = y_0 + h^S f(t_0+\tau,y_0+\eta),
-   :label: TSExp0
-
-where :math:`t_0+\tau` is between :math:`t_0` and :math:`t_0+h^S`, and :math:`y_0+\eta`
-is on the line segment connecting :math:`y_0` and :math:`y(t_0+h^S)`.
-
-Initial step size estimation based on the first-order Taylor expansion :eq:`TSExp1`
-typically attempts to determine a step size such that an explicit Euler method
-for :eq:`IVP_single` would be sufficiently accurate, i.e.,
-
-.. math::
-   \|y(t_0+h^S_0) - \left(y_0 + h^S_0 f(t_0,y_0)\right)\| \approx \left\|\frac{(h^S)^2}{2} \frac{\mathrm d}{\mathrm dt} f(t_0,y_0)\right\| < 1,
-
-where we have assumed that :math:`y(t)` is sufficiently differentiable, and that the
-norms include user-specified tolerances such that an error with norm less than one is
-deemed "acceptable."  Satisfying this inequality with a value of :math:`\frac12` and
-solving for :math:`h^S_0`, we have
-
-.. math::
-   |h^S_0| = \frac{1}{\left\|\frac{\mathrm d}{\mathrm dt} f(t_0,y_0)\right\|^{1/2}}.
-
-Finally, by estimating the time derivative via use of finite-differences,
-
-.. math::
-   \frac{\mathrm d}{\mathrm dt} f(t_0,y_0) \approx \frac{1}{\delta t} \left(f(t_0+\delta t,y_0+\delta t f(t_0,y_0)) - f(t_0,y_0)\right),
-
-we obtain
-
-.. math::
-   |h^S_0| = \frac{(\delta t)^{1/2}}{\|f(t_0+\delta t,y_0+\delta t f(t_0,y_0)) - f(t_0,y_0)\|^{1/2}}.
-   :label: H0_TSExp1
-
-Initial step size estimation based on the simpler Taylor expansion :eq:`TSExp0`
-instead assumes that the first calculated time step should be "close" to the
-initial state,
-
-.. math::
-   &\|y(t_0+h^S_0) - y_0 \| \approx \left\|h^S_0 f(t_0,y_0)\right\| < 1,\\
-   \Rightarrow\quad&\\
-   &|h^S_0| = \frac{1}{2\left\| f(t_0,y_0)\right\|},
-   :label: H0_TSExp0
-
-where we again satisfy the inequality with a value of :math:`\frac12`.
-
-Comparing the two estimates :eq:`H0_TSExp0` and :eq:`H0_TSExp1`, we see that the
-former has double the number of :math:`f` evaluations, but that it has a less
-conservative estimate of :math:`h^S_0`, particularly since we expect any valid
-time integration method to have at least :math:`\mathcal{O}(h^S)` accuracy.
-
-Under an assumption that conservative steps will be selected for both time scales,
-the error arising from temporal coupling between the slow and fast methods may be
-negligible.  Thus, we estimate initial values of :math:`h^S_0` and :math:`h^F_0`
-independently.  Due to our assumed higher cost of :math:`f^s`, then for the slow
-time scale we employ the initial estimate :eq:`H0_TSExp0` for :math:`h^S_0` using
-:math:`f = f^s`.  Since the function :math:`f^f` is assumed to be cheaper, we
-instead apply the estimate :eq:`H0_TSExp1` for :math:`h^F_0` using :math:`f=f^f`,
-and enforce an upper bound :math:`|h^F_0| \le \frac{|h^S_0|}{10}`.
-
-.. note::
-
-   If the fast integrator does not supply its "full RHS function" :math:`f^f`
-   for the MRI method to call, then we simply initialize :math:`h^F_0 = \frac{h^S_0}{100}`.
 
 .. _ARKODE.Mathematics.MultirateFastError:
 
@@ -1150,33 +1050,146 @@ Fast temporal error estimation
 
 MRI temporal adaptivity requires estimation of the temporal errors that
 arise at *both* the slow and fast time scales, which we denote here as
-:math:`\varepsilon^s` and :math:`\varepsilon^f`, respectively.  While the
-slow error may be estimated as :math:`\varepsilon^s = \|y_n - \tilde{y}_n\|`,
-non-intrusive approaches for estimating :math:`\varepsilon^f` are more
+:math:`\varepsilon^S` and :math:`\varepsilon^F`, respectively.  While the
+slow error may be estimated as :math:`\varepsilon^S = \|y_n - \tilde{y}_n\|`,
+non-intrusive approaches for estimating :math:`\varepsilon^F` are more
 challenging.  ARKODE provides two strategies to help provide this estimate, both
-of which assume that at each sub-step of the fast integrator :math:`t_{n,m}`, the
-method computes an estimate of the local temporal error, :math:`\varepsilon^f_{n,m}`
-(this typically results from its own time step solution and embedding), and that
-the fast integrator itself is temporally adaptive.  In this case, we assume that the
+of which assume the fast integrator is temporally adaptive and, at each of its
+:math:`m` steps to reach :math:`t_n`, computes an estimate of the local
+temporal error, :math:`\varepsilon^F_{n,m}`. In this case, we assume that the
 fast integrator was run with the same absolute tolerances as the slow integrator, but
 that it may have used a potentially different relative solution tolerance,
-:math:`\text{RTOL}^f`.  The fast integrator then accumulates these local error
-estimates using either a "maximum accumulation: strategy,
+:math:`\text{RTOL}^F`.  The fast integrator then accumulates these local error
+estimates using either a "maximum accumulation" strategy,
 
 .. math::
-   \varepsilon^f_{max} = \text{RTOL}^f \max_{m\in M} \|\varepsilon^f_{n,m}\|_{WRMS},
+   \varepsilon^F_{max} = \text{RTOL}^F \max_{m\in M} \|\varepsilon^F_{n,m}\|_{WRMS},
    :label: maximum_accumulation
 
 or using an "averaged accumulation" strategy,
 
 .. math::
-   \varepsilon^f_{avg} = \frac{\text{RTOL}^f}{|M|} \sum_{m\in M} \|\varepsilon^f_{n,m}\|_{WRMS},
+   \varepsilon^F_{avg} = \frac{\text{RTOL}^F}{|M|} \sum_{m\in M} \|\varepsilon^F_{n,m}\|_{WRMS},
    :label: average_accumulation
 
 where the norm is taken using the tolerance-informed error-weight vector.  In
 both cases, the sum or the maximum is taken over the set of all steps :math:`M`
 since the fast error accumulator has been reset.
 
+
+
+.. _ARKODE.Mathematics.InitialStep:
+
+Initial step size estimation
+==============================
+
+Before time step adaptivity can be accomplished, an initial step must be taken.  These
+values may always be provided by the user; however, if these are not provided then
+ARKODE will estimate a suitable choice.  Typically
+with adaptive methods, the first step should be chosen conservatively to ensure
+that it succeeds both in its internal solver algorithms, and its eventual temporal error
+test.  However, if this initial step is too conservative then its computational cost will
+essentially be wasted.  We thus strive to construct a conservative step that will succeed
+while also progressing toward the eventual solution.
+
+Before commenting on the specifics of ARKODE, we first summarize two common
+approaches to initial step size selection.  To this end, consider a simple
+single-time-scale ODE,
+
+.. math::
+   y'(t) = f(t,y), \quad y(t_0) = y_0
+   :label: IVP_single
+
+For this, we may consider two Taylor series expansions of :math:`y(t_0+h)` around the
+initial time,
+
+.. math::
+    y(t_0+h) = y_0 + h f(t_0,y_0) + \frac{h^2}{2} \frac{\mathrm d}{\mathrm dt} f(t_0+\tau,y_0+\eta),\\
+    :label: TSExp1
+
+and
+
+.. math::
+   y(t_0+h) = y_0 + h f(t_0+\tau,y_0+\eta),
+   :label: TSExp0
+
+where :math:`t_0+\tau` is between :math:`t_0` and :math:`t_0+h`, and :math:`y_0+\eta`
+is on the line segment connecting :math:`y_0` and :math:`y(t_0+h)`.
+
+Initial step size estimation based on the first-order Taylor expansion :eq:`TSExp1`
+typically attempts to determine a step size such that an explicit Euler method
+for :eq:`IVP_single` would be sufficiently accurate, i.e.,
+
+.. math::
+   \|y(t_0+h_0) - \left(y_0 + h_0 f(t_0,y_0)\right)\| \approx \left\|\frac{h^2}{2} \frac{\mathrm d}{\mathrm dt} f(t_0,y_0)\right\| < 1,
+
+where we have assumed that :math:`y(t)` is sufficiently differentiable, and that the
+norms include user-specified tolerances such that an error with norm less than one is
+deemed "acceptable."  Satisfying this inequality with a value of :math:`\frac12` and
+solving for :math:`h_0`, we have
+
+.. math::
+   |h_0| = \frac{1}{\left\|\frac{\mathrm d}{\mathrm dt} f(t_0,y_0)\right\|^{1/2}}.
+
+Finally, by estimating the time derivative with finite-differences,
+
+.. math::
+   \frac{\mathrm d}{\mathrm dt} f(t_0,y_0) \approx \frac{1}{\delta t} \left(f(t_0+\delta t,y_0+\delta t f(t_0,y_0)) - f(t_0,y_0)\right),
+
+we obtain
+
+.. math::
+   |h_0| = \frac{{\delta t}^{1/2}}{\|f(t_0+\delta t,y_0+\delta t f(t_0,y_0)) - f(t_0,y_0)\|^{1/2}}.
+   :label: H0_TSExp1
+
+Initial step size estimation based on the simpler Taylor expansion :eq:`TSExp0`
+instead assumes that the first calculated time step should be "close" to the
+initial state,
+
+.. math::
+   \|y(t_0+h_0) - y_0 \| \approx \left\|h_0 f(t_0,y_0)\right\| < 1,
+
+where we again satisfy the inequality with a value of :math:`\frac12` to obtain
+
+.. math::
+   |h_0| = \frac{1}{2\left\| f(t_0,y_0)\right\|},
+   :label: H0_TSExp0
+
+
+
+Comparing the two estimates :eq:`H0_TSExp0` and :eq:`H0_TSExp1`, we see that the
+former has double the number of :math:`f` evaluations, but that it has a less
+conservative estimate of :math:`h_0`, particularly since we expect any valid
+time integration method to have at least :math:`\mathcal{O}(h)` accuracy.
+
+Of these two approaches, for calculations at a single time scale (e.g., using ARKStep),
+formula :eq:`H0_TSExp1` is used, due to its more aggressive estimate for :math:`h_0`.
+
+
+.. _ARKODE.Mathematics.MultirateInitialSteps:
+
+Initial multirate step sizes
+------------------------------
+
+In MRI methods, initial time step selection is complicated by the fact that not only must
+an initial slow step size, :math:`h_0^S`, be chosen, but a smaller initial step,
+:math:`h_0^F`, must also be selected.  Additionally, it is typically assumed that within
+MRI methods, evaluation of :math:`f^S` is significantly more costly than evaluation of
+:math:`f^F`, and thus we wish to construct these initial steps accordingly.
+
+Under an assumption that conservative steps will be selected for both time scales,
+the error arising from temporal coupling between the slow and fast methods may be
+negligible.  Thus, we estimate initial values of :math:`h^S_0` and :math:`h^F_0`
+independently.  Due to our assumed higher cost of :math:`f^S`, then for the slow
+time scale we employ the initial estimate :eq:`H0_TSExp0` for :math:`h^S_0` using
+:math:`f = f^S`.  Since the function :math:`f^F` is assumed to be cheaper, we
+instead apply the estimate :eq:`H0_TSExp1` for :math:`h^F_0` using :math:`f=f^F`,
+and enforce an upper bound :math:`|h^F_0| \le \frac{|h^S_0|}{10}`.
+
+.. note::
+
+   If the fast integrator does not supply its "full RHS function" :math:`f^F`
+   for the MRI method to call, then we simply initialize :math:`h^F_0 = \frac{h^S_0}{100}`.
 
 
 
@@ -1242,7 +1255,7 @@ Here the explicit stability step factor :math:`c>0` (often called the
 Fixed time stepping
 ===================
 
-While the ARKStep, ERKStep and MRIStep time-stepping modules are
+While most of the time-stepping modules are
 designed for tolerance-based time step adaptivity, they additionally support a
 "fixed-step" mode. This mode is typically used for debugging
 purposes, for verification against hand-coded methods, or for
@@ -1262,8 +1275,7 @@ information.  In this mode, all internal time step adaptivity is disabled:
    size by default.
 
 .. note::
-   Any methods that do not provide embedding coefficients (ERK, DIRK, ARK,
-   or MRI) are required to be run in fixed-step mode.
+   Any methods that do not provide an embedding are required to be run in fixed-step mode.
 
 
 Additional information on this mode is provided in the section
@@ -1300,9 +1312,6 @@ Nonlinear solver methods
 
 
 Methods with an implicit partition require solving implicit systems of the form
-:eq:`ARKODE_IVP_implicit` in ARKStep, and the implicit slow stages
-:eq:`MRI_implicit_solve` or :eq:`MRI_embedding_implicit_solve` in MRIStep,
-an implicit system
 
 .. math::
    G(z_i) = 0.
