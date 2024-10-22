@@ -568,9 +568,15 @@ subroutine PrintFinalStats(arkode_mem)
     stop 1
   end if
 
-  retval = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 0, nfe)
   if (retval /= 0) then
-    print *, 'Error in FARKStepGetNumRhsEvals, retval = ', retval, '; halting'
+    print *, 'Error in FARKodeGetNumRhsEvals, retval = ', retval, '; halting'
+    stop 1
+  end if
+
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 1, nfi)
+  if (retval /= 0) then
+    print *, 'Error in FARKodeGetNumRhsEvals, retval = ', retval, '; halting'
     stop 1
   end if
 

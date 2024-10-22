@@ -2,6 +2,20 @@
 
 **New Features and Enhancements**
 
+The following DIRK schemes now have coefficients accurate to quad precision:
+
+* ``ARKODE_BILLINGTON_3_3_2``
+
+* ``ARKODE_KVAERNO_4_2_3``
+
+* ``ARKODE_CASH_5_2_4``
+
+* ``ARKODE_CASH_5_3_4``
+
+* ``ARKODE_KVAERNO_5_3_4``
+
+* ``ARKODE_KVAERNO_7_4_5``
+
 The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
 ``70`` and is now determined automatically by CMake. The previous default was
 only valid for Volta GPUs while the automatically selected value will vary
@@ -21,8 +35,12 @@ specific linker flags e.g., MKL.
 
 **Bug Fixes**
 
-Fixed c:func:`ARKodeResize` not using the default ``hscale`` when an argument of
-``0`` was provided.
+Fixed a `bug <https://github.com/LLNL/sundials/issues/581>`__ in the sparse
+matrix implementation of :c:func:`SUNMatScaleAddI` which caused out of bounds
+writes unless ``indexvals`` were in ascending order for each row/column.
+
+Fixed :c:func:`ARKodeResize` not using the default ``hscale`` when an argument
+of ``0`` was provided.
 
 Fixed the loading of ARKStep's default first order explicit method.
 
@@ -39,3 +57,7 @@ Fixed a CMake configuration issue related to aliasing an ``ALIAS`` target when
 using ``ENABLE_KLU=ON`` in combination with a static-only build of SuiteSparse.
 
 **Deprecation Notices**
+
+The ARKODE stepper specific functions to retrieve the number of right-hand side
+function evaluations have been deprecated. Use :c:func:`ARKodeGetNumRhsEvals`
+instead.
