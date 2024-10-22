@@ -1047,10 +1047,10 @@ int main(int argc, char* argv[])
   check_flag(retval, "ERKStepGetNumRhsEvals");
 
   // Print some final statistics
-  uerrtot = std::sqrt(uerrtot / nsts);
-  verrtot = std::sqrt(verrtot / nsts);
-  werrtot = std::sqrt(werrtot / nsts);
-  errtot  = std::sqrt(errtot / nsts / 3);
+  uerrtot = std::sqrt(uerrtot / (sunrealtype) nsts);
+  verrtot = std::sqrt(verrtot / (sunrealtype) nsts);
+  werrtot = std::sqrt(werrtot / (sunrealtype) nsts);
+  errtot  = std::sqrt(errtot / SUN_RCONST(3.0) / (sunrealtype) nsts);
   std::cout << "\nFinal Solver Statistics:\n";
   std::cout << "   Slow steps = " << nsts << "  (attempts = " << natts
             << ",  fails = " << netfs << ")\n";
@@ -1074,10 +1074,12 @@ int main(int argc, char* argv[])
     retval = ARKodeGetNumJacEvals(arkode_mem, &njes);
     check_flag(retval, "ARKodeGetNumJacEvals");
     std::cout << "   Slow Newton iters = " << nnis << std::endl;
-    std::cout << "   Slow Newton iters/attempt = " << nnis/natts << std::endl;
+    std::cout << "   Slow Newton iters/attempt = "
+              << (sunrealtype) nnis/natts << std::endl;
     std::cout << "   Slow Newton conv fails = " << nncs << std::endl;
     std::cout << "   Slow Jacobian evals = " << njes << std::endl;
-    std::cout << "   Slow Jacobian evals/Newton = " << njes/nnis << std::endl;
+    std::cout << "   Slow Jacobian evals/Newton = "
+              << (sunrealtype) njes/nnis << std::endl;
   }
 
   // Get/print intermediate integrator implicit solver statistics
@@ -1089,10 +1091,12 @@ int main(int argc, char* argv[])
     retval = ARKodeGetNumJacEvals(mid_arkode_mem, &njem);
     check_flag(retval, "ARKodeGetNumJacEvals");
     std::cout << "   Intermediate Newton iters = " << nnim << std::endl;
-    std::cout << "   Intermediate Newton iters/attempt = " << nnim/nattm << std::endl;
+    std::cout << "   Intermediate Newton iters/attempt = "
+              << (sunrealtype) nnim/nattm << std::endl;
     std::cout << "   Intermediate Newton conv fails = " << nncm << std::endl;
     std::cout << "   Intermediate Jacobian evals = " << njem << std::endl;
-    std::cout << "   Intermediate Jacobian evals/Newton = " << njem/nnim << std::endl;
+    std::cout << "   Intermediate Jacobian evals/Newton = "
+              << (sunrealtype) njem/nnim << std::endl;
   }
 
   // Clean up and return
