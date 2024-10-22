@@ -521,11 +521,11 @@ To log informational messages use the following macros:
    :c:func:`SUNLogger_QueueMsg` to log an informational message. Otherwise, this
    expands to nothing.
 
-   :param logger: the :c:type:`SUNLogger` to handle the message
-   :param label: the ``const char*`` message label
+   :param logger: the :c:type:`SUNLogger` to handle the message.
+   :param label: the ``const char*`` message label.
    :param msg_txt: the ``const char*`` message text, may contain format
-                   specifiers
-   :param ...: the arguments for format specifiers in ``msg_txt``
+                   specifiers.
+   :param ...: the arguments for format specifiers in ``msg_txt``.
 
 .. c:macro:: SUNLogInfoIf(condition, logger, label, msg_txt, ...)
 
@@ -535,11 +535,11 @@ To log informational messages use the following macros:
 
    :param condition: a boolean expression that determines if the log message
                      should be queued.
-   :param logger: the :c:type:`SUNLogger` to handle the message
-   :param label: the ``const char*`` message label
-   :param msg_txt: the ``const char*`` message text, may contain format
-                   specifiers
-   :param ...: the arguments for format specifiers in ``msg_txt``
+   :param logger: the :c:type:`SUNLogger` to handle the message.
+   :param label: the ``const char*`` message label.
+   :param msg_txt: the ``const char*`` message text, may contain format.
+                   specifiers.
+   :param ...: the arguments for format specifiers in ``msg_txt``.
 
 To log debugging messages use the following macros:
 
@@ -549,11 +549,11 @@ To log debugging messages use the following macros:
    :c:func:`SUNLogger_QueueMsg` to log a debug message. Otherwise, this expands
    to nothing.
 
-   :param logger: the :c:type:`SUNLogger` to handle the message
-   :param label: the ``const char*`` message label
-   :param msg_txt: the ``const char*`` message text, may contain format
-                   specifiers
-   :param ...: the arguments for format specifiers in ``msg_txt``
+   :param logger: the :c:type:`SUNLogger` to handle the message.
+   :param label: the ``const char*`` message label.
+   :param msg_txt: the ``const char*`` message text, may contain format.
+                   specifiers.
+   :param ...: the arguments for format specifiers in ``msg_txt``.
 
 .. c:macro:: SUNLogDebugIf(condition, logger, label, msg_txt, ...)
 
@@ -563,11 +563,11 @@ To log debugging messages use the following macros:
 
    :param condition: a boolean expression that determines if the log message
                      should be queued.
-   :param logger: the :c:type:`SUNLogger` to handle the message
-   :param label: the ``const char*`` message label
-   :param msg_txt: the ``const char*`` message text, may contain format
-                   specifiers
-   :param ...: the arguments for format specifiers in ``msg_txt``
+   :param logger: the :c:type:`SUNLogger` to handle the message.
+   :param label: the ``const char*`` message label.
+   :param msg_txt: the ``const char*`` message text, may contain format.
+                   specifiers.
+   :param ...: the arguments for format specifiers in ``msg_txt``.
 
 To log extra debugging messages use the following macros:
 
@@ -577,11 +577,11 @@ To log extra debugging messages use the following macros:
    :c:func:`SUNLogger_QueueMsg` to log a debug message. Otherwise, this expands
    to nothing.
 
-   :param logger: the :c:type:`SUNLogger` to handle the message
-   :param label: the ``const char*`` message label
+   :param logger: the :c:type:`SUNLogger` to handle the message.
+   :param label: the ``const char*`` message label.
    :param msg_txt: the ``const char*`` message text, may contain format
-                   specifiers
-   :param ...: the arguments for format specifiers in ``msg_txt``
+                   specifiers.
+   :param ...: the arguments for format specifiers in ``msg_txt``.
 
 .. c:macro:: SUNLogExtraDebugIf(condition, logger, label, msg_txt, ...)
 
@@ -591,11 +591,11 @@ To log extra debugging messages use the following macros:
 
    :param condition: a boolean expression that determines if the log message
                      should be queued.
-   :param logger: the :c:type:`SUNLogger` to handle the message
-   :param label: the ``const char*`` message label
+   :param logger: the :c:type:`SUNLogger` to handle the message.
+   :param label: the ``const char*`` message label.
    :param msg_txt: the ``const char*`` message text, may contain format
-                   specifiers
-   :param ...: the arguments for format specifiers in ``msg_txt``
+                   specifiers.
+   :param ...: the arguments for format specifiers in ``msg_txt``.
 
 .. c:macro:: SUNLogExtraDebugVec(logger, label, vec, msg_txt, ...)
 
@@ -603,12 +603,12 @@ To log extra debugging messages use the following macros:
    :c:func:`SUNLogger_QueueMsg` and :c:func:`N_VPrintFile` to log a debug
    message and output the vector data. Otherwise, this expands to nothing.
 
-   :param logger: the :c:type:`SUNLogger` to handle the message
-   :param label: the ``const char*`` message label
-   :param vec: the ``N_Vector`` to print
+   :param logger: the :c:type:`SUNLogger` to handle the message.
+   :param label: the ``const char*`` message label.
+   :param vec: the ``N_Vector`` to print.
    :param msg_txt: the ``const char*`` message text, may contain format
-                   specifiers
-   :param ...: the arguments for format specifiers in ``msg_txt``
+                   specifiers.
+   :param ...: the arguments for format specifiers in ``msg_txt``.
 
 .. c:macro:: SUNLogExtraDebugVecIf(condition, logger, label, vec, msg_txt, ...)
 
@@ -618,12 +618,12 @@ To log extra debugging messages use the following macros:
 
    :param condition: a boolean expression that determines if the log message
                      should be queued.
-   :param logger: the :c:type:`SUNLogger` to handle the message
-   :param label: the ``const char*`` message label
-   :param vec: the ``N_Vector`` to print
+   :param logger: the :c:type:`SUNLogger` to handle the message.
+   :param label: the ``const char*`` message label.
+   :param vec: the ``N_Vector`` to print.
    :param msg_txt: the ``const char*`` message text, may contain format
-                   specifiers
-   :param ...: the arguments for format specifiers in ``msg_txt``
+                   specifiers.
+   :param ...: the arguments for format specifiers in ``msg_txt``.
 
 .. c:macro:: SUNLogExtraDebugVecArray(logger, label, nvecs, vecs, msg_txt)
 
@@ -632,12 +632,12 @@ To log extra debugging messages use the following macros:
    the vector array to log a debug message and output the vector data.
    Otherwise, this expands to nothing.
 
-   :param logger: the :c:type:`SUNLogger` to handle the message
-   :param label: the ``const char*`` message label
-   :param nvecs: the ``int`` number of vectors to print
-   :param vecs: the ``N_Vector*`` (vector array) to print
+   :param logger: the :c:type:`SUNLogger` to handle the message.
+   :param label: the ``const char*`` message label.
+   :param nvecs: the ``int`` number of vectors to print.
+   :param vecs: the ``N_Vector*`` (vector array) to print.
    :param msg_txt: the ``const char*`` message text, must contain a format
-                   specifier for the vector array index
+                   specifier for the vector array index.
 
    .. warning::
 
