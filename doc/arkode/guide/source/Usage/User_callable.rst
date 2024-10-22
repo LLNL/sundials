@@ -790,6 +790,8 @@ the user has set a stop time (with a call to the optional input function
    :retval ARK_MASSSETUP_FAIL: the mass matrix solver's setup routine failed.
    :retval ARK_MASSSOLVE_FAIL: the mass matrix solver's solve routine failed.
    :retval ARK_VECTOROP_ERR: a vector operation error occurred.
+   :retval ARK_DOMEIG_FAIL: the dominant eigenvalue function failed. It is either 
+                            not provided or returns an illegal value.
 
    .. note::
 

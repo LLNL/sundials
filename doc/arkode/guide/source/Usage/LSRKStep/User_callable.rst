@@ -214,11 +214,11 @@ Allowable Method Families
 .. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
 
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods. Thus, 
-   this set routine must be called after calling LSRKStepSetMethod with an SSPRK method.
+   this set routine must be called after calling :c:func:`LSRKStepSetMethod` with an SSPRK method.
    
-* :c:enumerator:`ARKODE_LSRK_SSP_S_2`  -- ``num_of_stages`` must be greater than or equal to 2
-* :c:enumerator:`ARKODE_LSRK_SSP_S_3`  -- ``num_of_stages`` must be a perfect-square greater than or equal to 9
-* :c:enumerator:`ARKODE_LSRK_SSP_10_4` -- ``num_of_stages`` cannot be modified from 10, so this function should not be called.
+   * :c:enumerator:`ARKODE_LSRK_SSP_S_2`  -- ``num_of_stages`` must be greater than or equal to 2
+   * :c:enumerator:`ARKODE_LSRK_SSP_S_3`  -- ``num_of_stages`` must be a perfect-square greater than or equal to 4
+   * :c:enumerator:`ARKODE_LSRK_SSP_10_4` -- ``num_of_stages`` cannot be modified from 10, so this function should not be called.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.

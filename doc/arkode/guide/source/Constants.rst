@@ -557,6 +557,9 @@ contains the ARKODE output constants.
    | :index:`ARK_STEPPER_UNSUPPORTED`    | -48  | An operation was not supported by the current              |
    |                                     |      | time-stepping module.                                      |
    +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_DOMEIG_FAIL`            | -49  | The dominant eigenvalue function failed. It is either not  |
+   |                                     |      | provided or returns an illegal value.                      |
+   +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
    |                                                                                                         |

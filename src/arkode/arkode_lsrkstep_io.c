@@ -317,6 +317,9 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
       break;
 
     case ARKODE_LSRK_SSP_S_3:
+      /* The SSP3 method differs significantly when s = 4. Therefore, the case 
+      where num_of_stages = 4 is considered separately to avoid unnecessary 
+      boolean checks and improve computational efficiency. */
       if (num_of_stages < 4 || ((int)SUNIceil(SUNRsqrt(num_of_stages)) !=
                                 (int)SUNIfloor(SUNRsqrt(num_of_stages))))
       {

@@ -527,7 +527,6 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     retval = lsrkStep_ComputeNewDomEig(ark_mem, step_mem);
     if (retval != ARK_SUCCESS) { return retval; }
-    step_mem->dom_eig_num_evals++;
   }
 
   /* determine the number of required stages */
