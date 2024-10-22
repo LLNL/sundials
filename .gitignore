@@ -75,3 +75,6 @@ uberenv_libs
 
 # swig
 /swig/swig
+
+# tools
+/tools/suntools/__pycache__
