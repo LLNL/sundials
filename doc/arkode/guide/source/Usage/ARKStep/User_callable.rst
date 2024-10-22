@@ -35,6 +35,11 @@ ARKStep supports *all categories*:
 * non-identity mass matrices
 * relaxation Runge--Kutta methods
 
+ARKStep also has forcing function support when converted to a
+:c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
+:c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
+for additional details.
+
 
 .. _ARKODE.Usage.ARKStep.Initialization:
 
@@ -3155,6 +3160,9 @@ Main solver optional output functions
       The *nfi_evals* value does not account for calls made to
       :math:`f^I` by a linear solver or preconditioner module.
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
 
 .. c:function:: int ARKStepGetNumErrTestFails(void* arkode_mem, long int* netfails)

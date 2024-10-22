@@ -50,7 +50,7 @@ to derived class method implementations.
 Creating and Destroying an Object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In additional to creating an empty :c:type:`SUNStepper` using
+In addition to creating an empty :c:type:`SUNStepper` using
 :c:func:`SUNStepper_Create` described below, there is the
 :c:func:`ARKodeCreateSUNStepper` function to construct a :c:type:`SUNStepper`
 from an ARKODE integrator.
@@ -198,7 +198,7 @@ Attaching and Accessing the Content Pointer
 Handling Warnings and Errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-An implementation of a :c:type:`SUNStepper` may have system of warning and error
+An implementation of a :c:type:`SUNStepper` may have a system of warning and error
 handling that cannot be encoded as a :c:type:`SUNErrCode` which is the return
 type of all :c:type:`SUNStepper` functions. Therefore, we provide the following
 function to get and set a separate flag associated with a stepper.

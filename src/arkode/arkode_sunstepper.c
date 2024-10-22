@@ -191,8 +191,17 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   err = SUNStepper_SetGetStepDirectionFn(*stepper, arkSUNStepperGetStepDirection);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
-  err = SUNStepper_SetForcingFn(*stepper, arkSUNStepperSetForcing);
+  err = SUNStepper_SetStepDirectionFn(*stepper, arkSUNStepperSetStepDirection);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetGetStepDirectionFn(*stepper, arkSUNStepperGetStepDirection);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  if (ark_mem->step_setforcing != NULL)
+  {
+    err = SUNStepper_SetForcingFn(*stepper, arkSUNStepperSetForcing);
+    if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  }
 
   return ARK_SUCCESS;
 }

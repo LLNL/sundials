@@ -125,6 +125,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   ark_mem->step_free            = sprkStep_Free;
   ark_mem->step_setdefaults     = sprkStep_SetDefaults;
   ark_mem->step_setorder        = sprkStep_SetOrder;
+  ark_mem->step_getnumrhsevals  = sprkStep_GetNumRhsEvals;
   ark_mem->step_mem             = (void*)step_mem;
 
   /* Set default values for optional inputs */

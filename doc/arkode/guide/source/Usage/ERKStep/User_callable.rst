@@ -33,6 +33,10 @@ ERKStep supports the following categories:
 * temporal adaptivity
 * relaxation Runge--Kutta methods
 
+ERKStep does not have forcing function support when converted to a
+:c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
+:c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
+for additional details.
 
 
 .. _ARKODE.Usage.ERKStep.Initialization:
@@ -1739,6 +1743,9 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
 
 .. c:function:: int ERKStepGetNumErrTestFails(void* arkode_mem, long int* netfails)

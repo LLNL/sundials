@@ -1207,6 +1207,22 @@ SWIGEXPORT int _wrap_FARKodeComputeState(void *farg1, N_Vector farg2, N_Vector f
 }
 
 
+SWIGEXPORT int _wrap_FARKodeGetNumRhsEvals(void *farg1, int const *farg2, long *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  long *arg3 = (long *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (int)(*farg2);
+  arg3 = (long *)(farg3);
+  result = (int)ARKodeGetNumRhsEvals(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeGetNumStepAttempts(void *farg1, long *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;

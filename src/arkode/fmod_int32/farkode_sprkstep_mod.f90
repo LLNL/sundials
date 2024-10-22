@@ -44,7 +44,6 @@ module farkode_sprkstep_mod
  end type
  public :: FSPRKStepSetMethodName
  public :: FSPRKStepGetCurrentMethod
- public :: FSPRKStepGetNumRhsEvals
  public :: FSPRKStepReset
  public :: FSPRKStepRootInit
  public :: FSPRKStepSetRootDirection
@@ -74,6 +73,7 @@ module farkode_sprkstep_mod
  public :: FSPRKStepWriteParameters
  public :: FSPRKStepGetStepStats
  public :: FSPRKStepFree
+ public :: FSPRKStepGetNumRhsEvals
 
 ! WRAPPER DECLARATIONS
 interface
@@ -135,16 +135,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSPRKStepGetNumRhsEvals(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSPRKStepGetNumRhsEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -421,6 +411,16 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 end subroutine
 
+function swigc_FSPRKStepGetNumRhsEvals(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSPRKStepGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 end interface
 
 
@@ -556,25 +556,6 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(sprk_storage)
 fresult = swigc_FSPRKStepGetCurrentMethod(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSPRKStepGetNumRhsEvals(arkode_mem, nf1, nf2) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_LONG), dimension(*), target, intent(inout) :: nf1
-integer(C_LONG), dimension(*), target, intent(inout) :: nf2
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
-
-farg1 = arkode_mem
-farg2 = c_loc(nf1(1))
-farg3 = c_loc(nf2(1))
-fresult = swigc_FSPRKStepGetNumRhsEvals(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
@@ -1076,6 +1057,25 @@ type(C_PTR) :: farg1
 farg1 = c_loc(arkode_mem)
 call swigc_FSPRKStepFree(farg1)
 end subroutine
+
+function FSPRKStepGetNumRhsEvals(arkode_mem, nf1, nf2) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: nf1
+integer(C_LONG), dimension(*), target, intent(inout) :: nf2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = c_loc(nf1(1))
+farg3 = c_loc(nf2(1))
+fresult = swigc_FSPRKStepGetNumRhsEvals(farg1, farg2, farg3)
+swig_result = fresult
+end function
 
 
 end module
