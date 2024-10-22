@@ -62,7 +62,8 @@ ARKODE initialization and deallocation functions
 ------------------------------------------------------
 
 For functions to create an ARKODE stepper instance see :c:func:`ARKStepCreate`,
-:c:func:`ERKStepCreate`, :c:func:`MRIStepCreate`, or :c:func:`SPRKStepCreate`.
+:c:func:`ERKStepCreate`, :c:func:`ForcingStepCreate`, :c:func:`MRIStepCreate`,
+:c:func:`SplittingStepCreate`, or :c:func:`SPRKStepCreate`.
 
 .. c:function:: void ARKodeFree(void** arkode_mem)
 
