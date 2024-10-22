@@ -143,7 +143,6 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setforcing                = mriStep_SetInnerForcing;
   ark_mem->step_supports_adaptive         = SUNTRUE;
   ark_mem->step_supports_implicit         = SUNTRUE;
-  ark_mem->step_supports_forcing          = SUNTRUE;
   ark_mem->step_mem                       = (void*)step_mem;
 
   /* Set default values for optional inputs */

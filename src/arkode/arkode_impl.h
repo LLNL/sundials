@@ -463,7 +463,6 @@ struct ARKodeMemRec
   ARKMassMultFn step_mmult;
 
   /* Time stepper module -- forcing */
-  sunbooleantype step_supports_forcing;
   ARKTimestepSetForcingFn step_setforcing;
 
   /* N_Vector storage */

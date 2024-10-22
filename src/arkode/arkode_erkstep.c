@@ -107,7 +107,6 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   ark_mem->step_setforcing          = erkStep_SetInnerForcing;
   ark_mem->step_supports_adaptive   = SUNTRUE;
   ark_mem->step_supports_relaxation = SUNTRUE;
-  ark_mem->step_supports_forcing    = SUNTRUE;
   ark_mem->step_mem                 = (void*)step_mem;
 
   /* Set default values for optional inputs */

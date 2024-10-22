@@ -1373,7 +1373,7 @@ int ARKodeCreateMRIStepInnerStepper(void* inner_arkode_mem,
   ark_mem = (ARKodeMem)inner_arkode_mem;
 
   /* return with an error if the ARKODE solver does not support forcing */
-  if (!ark_mem->step_supports_forcing)
+  if (ark_mem->step_setforcing == NULL)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not support forcing");
