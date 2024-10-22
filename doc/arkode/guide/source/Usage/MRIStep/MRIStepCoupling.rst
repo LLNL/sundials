@@ -213,7 +213,7 @@ are defined ``arkode/arkode_mristep.h``.
 
       When allocated, all entries in *group* are initialized to ``-1``,
       indicating an unused group and/or the end of a stage group.  Users who
-      supply a custom MRISTEP_MERK table should over-write all active stages in
+      supply a custom MRISTEP_MERK table should overwrite all active stages in
       each group.  For example the ``ARKODE_MERK32`` method has 4 stages that
       are evolved in 3 groups -- the first group consists of stage 1, the second
       group consists of stages 2 and 4, while the third group consists of
@@ -237,7 +237,7 @@ are defined ``arkode/arkode_mristep.h``.
 .. c:function:: MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p, sunrealtype *W, sunrealtype *G, sunrealtype *c)
 
    Allocates a coupling table and fills it with the given values.
-   
+
    This routine can only be used to create coupling tables with type
    ``MRISTEP_EXPLICIT``, ``MRISTEP_IMPLICIT``, or  ``MRISTEP_IMEX``.  The
    routine determines the relevant type based on whether either of the
@@ -282,58 +282,57 @@ are defined ``arkode/arkode_mristep.h``.
    Creates an MRI coupling table for a traditional MIS method based on the slow
    Butcher table *B*.
 
+   The :math:`s`-stage slow Butcher table must have an explicit first stage
+   (i.e., :math:`c_1=0` and :math:`A_{1,j}=0` for :math:`1\le j\le s`),
+   sorted abscissae (i.e., :math:`c_{i} \ge c_{i-1}` for :math:`2\le i\le s`),
+   and a final abscissa value :math:`c_s \le 1`.  In this case, the
+   :math:`(s+1)`-stage coupling table is computed as
+
+   .. math::
+
+      \Omega_{i,j,1} \;\text{or}\; \Gamma_{i,j,1} =
+      \begin{cases}
+      0, & \text{if}\; i=1,\\
+      A_{i,j}-A_{i-1,j}, & \text{if}\; 2\le i\le s,\\
+      b_{j}-A_{s,j}, & \text{if}\; i= s+1.
+      \end{cases}
+
+   and the embedding coefficients (if applicable) are computed as
+
+   .. math::
+
+      \tilde{\Omega}_{i,j,1} \;\text{or}\; \tilde{\Gamma}_{i,j,1} = \tilde{b}_{j}-A_{s,j}.
+
+   We note that only one of :math:`\Omega` or :math:`\Gamma` will
+   be filled in. If *B* corresponded to an explicit method, then this routine
+   fills :math:`\Omega`; if *B* is diagonally-implicit, then this routine
+   inserts redundant "padding" stages to ensure a solve-decoupled structure and
+   then uses the above formula to fill :math:`\Gamma`.
+
+   For general slow tables with at least second-order accuracy, the MIS method will
+   be second order.  However, if the slow table is at least third order and
+   additionally satisfies
+
+   .. math::
+
+      \sum_{i=2}^s (c_i-c_{i-1})(\mathbf{e}_i+\mathbf{e}_{i-1})^T A c + (1-c_s) \left(\frac12 + \mathbf{e}_s^T A c\right) = \frac13,
+
+   where :math:`\mathbf{e}_j` corresponds to the :math:`j`-th column from the
+   :math:`s \times s` identity matrix, then the overall MIS method will be third order.
+
+   As a result, the values of *q* and *p* may differ from the method and
+   embedding orders of accuracy for the Runge--Kutta method encoded in *B*,
+   which is why these arguments should be supplied separately.
+
+   If *p>0* is input, then the table *B* must include embedding coefficients.
+
+
    :param B: the :c:type:`ARKodeButcherTable` for the "slow" MIS method.
    :param q: the overall order of the MIS/MRI method.
    :param p: the overall order of the MIS/MRI embedding.
 
    :returns: An :c:type:`MRIStepCoupling` structure if successful.
              A ``NULL`` pointer if an allocation error occurred.
-
-   .. note::
-
-      The :math:`s`-stage slow Butcher table must have an explicit first stage
-      (i.e., :math:`c_1=0` and :math:`A_{1,j}=0` for :math:`1\le j\le s`),
-      sorted abscissae (i.e., :math:`c_{i} \ge c_{i-1}` for :math:`2\le i\le s`),
-      and a final abscissa value :math:`c_s \le 1`.  In this case, the
-      :math:`(s+1)`-stage coupling table is computed as
-
-      .. math::
-
-         \Omega_{i,j,1} \;\text{or}\; \Gamma_{i,j,1} =
-         \begin{cases}
-         0, & \text{if}\; i=1,\\
-         A_{i,j}-A_{i-1,j}, & \text{if}\; 2\le i\le s,\\
-         b_{j}-A_{s,j}, & \text{if}\; i= s+1.
-         \end{cases}
-
-      and the embedding coefficients (if applicable) are computed as
-
-      .. math::
-
-         \tilde{\Omega}_{i,j,1} \;\text{or}\; \tilde{\Gamma}_{i,j,1} = \tilde{b}_{j}-A_{s,j}.
-
-      We note that only one of :math:`\Omega` or :math:`\Gamma` will
-      be filled in. If *B* corresponded to an explicit method, then this routine
-      fills :math:`\Omega`; if *B* is diagonally-implicit, then this routine
-      inserts redundant "padding" stages to ensure a solve-decoupled structure and
-      then uses the above formula to fill :math:`\Gamma`.
-
-      For general slow tables with at least second-order accuracy, the MIS method will
-      be second order.  However, if the slow table is at least third order and
-      additionally satisfies
-
-      .. math::
-
-         \sum_{i=2}^s (c_i-c_{i-1})(\mathbf{e}_i+\mathbf{e}_{i-1})^T A c + (1-c_s) \left(\frac12 + \mathbf{e}_s^T A c\right) = \frac13,
-
-      where :math:`\mathbf{e}_j` corresponds to the :math:`j`-th column from the
-      :math:`s \times s` identity matrix, then the overall MIS method will be third order.
-
-      As a result, the values of *q* and *p* may differ from the method and
-      embedding orders of accuracy for the Runge--Kutta method encoded in *B*,
-      which is why these arguments should be supplied separately.
-
-      If *p>0* is input, then the table *B* must include embedding coefficients.
 
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_Copy(MRIStepCoupling C)
@@ -405,20 +404,7 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
 
 
 
-.. table:: Explicit MRIStep coupling tables. The default method for each order when using
-           fixed step sizes is marked with an asterisk (:math:`^*`); the default method
-           for each order when using adaptive time stepping is marked with a circle
-           (:math:`^\circ`).  The "Slow RHS Calls" column corresponds to the number of
-           calls to the slow right-hand side function, :math:`f^E`, per time step.
-           Note A: although all MERK methods were derived in Luan et al. (2020)
-           under an assumption that the fast time scale is linear in the solution, in
-           Fish et al. (2024) it was proven that they also satisfy all nonlinear order
-           conditions up through their linear order.  The lone exception is MERK54, where
-           it was only proven to satisfy all nonlinear conditions up to order 4, since
-           Fish et al. (2024) did not establish the formulas for the order 5 conditions.
-           All our numerical tests to date have shown MERK54 to achieve fifth order for
-           nonlinear problems, and so we conjecture that it also satisfies the nonlinear
-           fifth order conditions.
+.. table:: Explicit MRIStep coupling tables.
 
    ======================================  ==================  ===============  ==============  =====================
    Table name                              Method Order        Embedding Order  Slow RHS Calls  Reference
@@ -436,6 +422,23 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
    :index:`ARKODE_MERK43`                  4                   3                6               :cite:p:`Luan:20`
    :index:`ARKODE_MERK54`                  :math:`5^{A}`       4                10              :cite:p:`Luan:20`
    ======================================  ==================  ===============  ==============  =====================
+
+
+Notes regarding the above table:
+
+#. The default method for each order when using fixed step sizes is marked with an asterisk (:math:`^*`).
+
+#. The default method for each order when using adaptive time stepping is marked with a circle (:math:`^\circ`).
+
+#. The "Slow RHS Calls" column corresponds to the number of calls to the slow right-hand side function,
+   :math:`f^E`, per time step.
+
+#. Note A: although all MERK methods were derived in :cite:p:`Luan:20` under an assumption that the fast time
+   scale is linear in the solution, in :cite:p:`Fish:24` it was proven that they also satisfy all nonlinear
+   order conditions up through their linear order.  The lone exception is MERK54, where it was only proven to
+   satisfy all nonlinear conditions up to order 4, since :cite:p:`Fish:24` did not establish the formulas for
+   the order 5 conditions.  All our numerical tests to date have shown MERK54 to achieve fifth order for
+   nonlinear problems, and so we conjecture that it also satisfies the nonlinear fifth order conditions.
 
 
 .. table:: Diagonally-implicit, solve-decoupled MRI-GARK coupling tables. The default
