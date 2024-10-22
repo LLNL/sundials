@@ -1757,37 +1757,41 @@ Reset accumulated error                                     :c:func:`ARKodeReset
    .. versionadded:: 6.1.0
 
 
-The two following routines are used to control algorithms that ARKODE can use to estimate
+The following routines are used to control algorithms that ARKODE can use to estimate
 the accumulated temporal error over multiple time steps.  For time-stepping modules that
 compute both a solution and embedding, :math:`y_n` and :math:`\tilde{y}_n`, these may be
 combined to create a vector-valued local temporal error estimate for the current internal
 step, :math:`y_n - \tilde{y}_n`.  These local errors may be accumulated by ARKODE in a
-variety of ways, as determined by the enumerated type :c:enum:`ARKODE_MRIType`.  In each
-of the cases below, the accumulation is taken over all steps :math:`n\in N` since the most
-recent call to either :c:func:`ARKodeSetAccumulatedErrorType` or
-:c:func:`ARKodeResetAccumulatedError`.  The norm is taken using the tolerance-informed
+variety of ways, as determined by the enumerated type :c:enum:`ARKAccumError`.  In each
+of the cases below, the accumulation is taken over all steps since the most recent
+call to either :c:func:`ARKodeSetAccumulatedErrorType` or 
+:c:func:`ARKodeResetAccumulatedError`. Below the set :math:`\mathcal{S}` contains
+the indices of the steps since the last call to either of the aforementioned functions.
+The norm is taken using the tolerance-informed
 error-weight vector (see :c:func:`ARKodeGetErrWeights`), and ``reltol`` is the
 user-specified relative solution tolerance.
 
 .. c:enum:: ARKAccumError
 
    The type of error accumulation that ARKODE should use.
+   
+   .. versionadded:: x.y.z
 
-.. c:enumerator:: ARK_ACCUMERROR_NONE
+   .. c:enumerator:: ARK_ACCUMERROR_NONE
 
-   No accumulation should be performed
+      No accumulation should be performed
 
-.. c:enumerator:: ARK_ACCUMERROR_MAX
+   .. c:enumerator:: ARK_ACCUMERROR_MAX
 
-   Computes :math:`\text{reltol} \max_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`
+      Computes :math:`\text{reltol} \max_{i \in \mathcal{S}} \|y_i - \tilde{y}_i\|_{WRMS}`
 
-.. c:enumerator:: ARK_ACCUMERROR_SUM
+   .. c:enumerator:: ARK_ACCUMERROR_SUM
 
-   Computes :math:`\text{reltol} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`
+      Computes :math:`\text{reltol} \sum_{i \in \mathcal{S}} \|y_i - \tilde{y}_i\|_{WRMS}`
 
-.. c:enumerator:: ARK_ACCUMERROR_AVG
+   .. c:enumerator:: ARK_ACCUMERROR_AVG
 
-   Computes :math:`\frac{\text{reltol}}{N} \sum_{n\in N} \|y_n - \tilde{y}_n\|_{WRMS}`.
+      Computes :math:`\frac{\text{reltol}}{|\mathcal{S}|} \sum_{i \in \mathcal{S}} \|y_i - \tilde{y}_i\|_{WRMS}`.
 
 
 .. c:function:: int ARKodeSetAccumulatedErrorType(void* arkode_mem, ARKAccumError accum_type)
@@ -1797,6 +1801,7 @@ user-specified relative solution tolerance.
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param accum_type: accumulation strategy.
+
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
@@ -4845,29 +4850,29 @@ wrap the ARKODE memory block as an :c:type:`MRIStepInnerStepper`.
       Currently, ARKODE integrators based on ARKStep, ERKStep, and MRIStep
       support use as an MRIStep inner stepper.
 
-      **Example usage:**
+   **Example usage:**
 
-         .. code-block:: C
+      .. code-block:: C
 
-            /* fast (inner) and slow (outer) ARKODE objects */
-            void *inner_arkode_mem = NULL;
-            void *outer_arkode_mem = NULL;
+         /* fast (inner) and slow (outer) ARKODE objects */
+         void *inner_arkode_mem = NULL;
+         void *outer_arkode_mem = NULL;
 
-            /* MRIStepInnerStepper to wrap the inner (fast) ERKStep object */
-            MRIStepInnerStepper stepper = NULL;
+         /* MRIStepInnerStepper to wrap the inner (fast) object */
+         MRIStepInnerStepper stepper = NULL;
 
-            /* create an ERKStep/ARKStep/MRIStep object, setting fast (inner) right-hand side
-               functions and the initial condition */
-            inner_arkode_mem = *StepCreate(...);
+         /* create an ARKODE object, setting fast (inner) right-hand side
+            functions and the initial condition */
+         inner_arkode_mem = *StepCreate(...);
 
-            /* configure the inner integrator */
-            retval = ARKodeSet*(inner_arkode_mem, ...);
+         /* configure the inner integrator */
+         retval = ARKodeSet*(inner_arkode_mem, ...);
 
-            /* create MRIStepInnerStepper wrapper for the ARKODE integrator */
-            flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
+         /* create MRIStepInnerStepper wrapper for the ARKODE integrator */
+         flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
 
-            /* create an MRIStep object, setting the slow (outer) right-hand side
-               functions and the initial condition */
-            outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
+         /* create an MRIStep object, setting the slow (outer) right-hand side
+            functions and the initial condition */
+         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
 
    .. versionadded:: x.y.z

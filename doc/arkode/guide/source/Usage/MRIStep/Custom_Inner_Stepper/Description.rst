@@ -19,15 +19,14 @@ The MRIStepInnerStepper Class
 
 As with other SUNDIALS classes, the :c:type:`MRIStepInnerStepper` abstract base
 class is implemented using a C structure containing a ``content`` pointer to the
-derived class member data and a structure of function pointers wherein the
-derived class implements the base class virtual methods.
-The :c:type:`MRIStepInnerStepper` type is defined in ``include/arkode/arkode.h`` as
+derived class member data and a structure of function pointers (vtable) to the
+derived class implementations of the base class virtual methods.
 
 .. c:type:: MRIStepInnerStepper
 
    An object for solving the fast (inner) ODE in an MRI method.
 
-The actual definitions of the ``_MRIStepInnerStepper`` structure and the
+The actual definitions of the structure and the
 corresponding operations structure are kept private to allow for the object
 internals to change without impacting user code. The following sections describe
 the base (:numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods`)
@@ -238,6 +237,8 @@ Setting Member Functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
+   
+   .. versionadded: x.y.z
 
 
 .. c:function:: int MRIStepInnerStepper_SetAccumulatedErrorResetFn(MRIStepInnerStepper stepper, MRIStepInnerResetAccumulatedError fn)
@@ -250,6 +251,8 @@ Setting Member Functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
+      
+   .. versionadded: x.y.z
 
 
 .. c:function:: int MRIStepInnerStepper_SetRTolFn(MRIStepInnerStepper stepper, MRIStepInnerSetRTol fn)
@@ -262,6 +265,8 @@ Setting Member Functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
+      
+   .. versionadded: x.y.z
 
 
 
@@ -364,18 +369,20 @@ member functions:
    This function advances the state vector *v* for the inner (fast) ODE system
    from time *t0* to time *tout*.
 
-   :param stepper: the inner stepper object.
-   :param t0: the initial time for the inner (fast) integration.
-   :param tout: the final time for the inner (fast) integration.
-   :param v: on input the state at time *t0* and, on output, the state at time *tout*.
+   **Arguments:**
+      * *stepper* -- the inner stepper object.
+      * *t0* -- the initial time for the inner (fast) integration.
+      * *tout* -- the final time for the inner (fast) integration.
+      * *v* -- on input the state at time *t0* and, on output, the state at time
+        *tout*.
 
-   :return value: An :c:type:`MRIStepInnerEvolveFn` should return 0 if successful, a positive
-        value if a recoverable error occurred, or a negative value if it failed
-        unrecoverably.
+   **Return value:**
+      An :c:type:`MRIStepInnerEvolveFn` should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if it failed
+      unrecoverably.
 
-   .. note::
-
-      An example of this is in ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``.
+   **Example codes:**
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 Optional Member Functions
 """""""""""""""""""""""""
@@ -389,26 +396,26 @@ following member functions:
    ODE, :math:`f^F(t,v)` in :eq:`ARKODE_MRI_IVP` for a given value of the independent
    variable *t* and state vector *y*.
 
-   :param stepper: the inner stepper object.
-   :param t: the current value of the independent variable.
-   :param y: the current value of the dependent variable vector.
-   :param f: the output vector that forms a portion the ODE right-hand side,
+   **Arguments:**
+      * *stepper* -- the inner stepper object.
+      * *t* -- the current value of the independent variable.
+      * *y* -- the current value of the dependent variable vector.
+      * *f* -- the output vector that forms a portion the ODE right-hand side,
         :math:`f^F(t,y)` in :eq:`ARKODE_IVP_two_rate`.
-   :param mode: a flag indicating the purpose for which the right-hand side
+      * *mode* -- a flag indicating the purpose for which the right-hand side
         function evaluation is called.
 
         * ``ARK_FULLRHS_START`` -- called at the beginning of the simulation
         * ``ARK_FULLRHS_END``   -- called at the end of a successful step
         * ``ARK_FULLRHS_OTHER`` -- called elsewhere e.g., for dense output
 
-   :return value: An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, a positive
-        value if a recoverable error occurred, or a negative value if it failed
-        unrecoverably.
+   **Return value:**
+      An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if it failed
+      unrecoverably.
 
-   .. note::
-
-      An example of this is in ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``.
-
+   **Example codes:**
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
    .. versionchanged:: v5.7.0
 
       Supplying a full right-hand side function was made optional.
@@ -417,37 +424,44 @@ following member functions:
 
    This function resets the inner (fast) stepper state to the provided
    independent variable value and dependent variable vector.
+   
+   If provided, the :c:type:`MRIStepInnerResetFn` function will be called
+   *before* a call to :c:type:`MRIStepInnerEvolveFn` when the state was
+   updated at the slow timescale.
 
-   :param stepper: the inner stepper object.
-   :param tR: the value of the independent variable :math:`t_R`.
-   :param vR: the value of the dependent variable vector :math:`v(t_R)`.
+   **Arguments:**
+      * *stepper* -- the inner stepper object.
+      * *tR* -- the value of the independent variable :math:`t_R`.
+      * *vR* -- the value of the dependent variable vector :math:`v(t_R)`.
 
-   :return value: An :c:type:`MRIStepInnerResetFn` should return 0 if successful, a positive
-        value if a recoverable error occurred, or a negative value if it failed
-        unrecoverably.
+   **Return value:**
+      An :c:type:`MRIStepInnerResetFn` should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if it failed
+      unrecoverably.
 
    .. note::
 
-      If provided, the :c:type:`MRIStepInnerResetFn` function will always be called
-      *before* the function :c:type:`MRIStepInnerEvolveFn` is first called.
 
-      An example of this is in ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``.
+   **Example codes:**
+      * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 
 .. c:type:: int (*MRIStepInnerGetAccumulatedError)(MRIStepInnerStepper stepper, sunrealtype* accum_error)
 
    This function returns an estimate of the accumulated solution error arising from the inner stepper.
 
-   :param stepper: the inner stepper object.
-   :param accum_error: estimation of the accumulated solution error.
+   **Arguments:**
+      * *stepper* -- the inner stepper object.
+      * *accum_error* -- estimation of the accumulated solution error.
 
-   :return value: An :c:type:`MRIStepInnerGetAccumulatedError` should return 0 if successful, a positive
-        value if a recoverable error occurred, or a negative value if it failed unrecoverably.
+   **Return value:**
+      An :c:type:`MRIStepInnerGetAccumulatedError` should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if it failed unrecoverably.
 
    .. note::
 
       This function is only called when multirate temporal adaptivity has been enabled,
-      using a :c:type:`SUNAdaptController` module having type ``SUNDIALS_CONTROL_MRI_TOL``.
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL`.
 
       If provided, the :c:type:`MRIStepInnerGetAccumulatedError` function will always
       be called *after* a preceding call to the :c:type:`MRIStepInnerResetAccumulatedError`
@@ -462,15 +476,17 @@ following member functions:
 
    This function resets the inner stepper's accumulated solution error to zero.
 
-   :param stepper: the inner stepper object.
+   **Arguments:**
+      * *stepper* -- the inner stepper object.
 
-   :return value: An :c:type:`MRIStepInnerResetAccumulatedError` should return 0 if successful, a positive`
-        value if a recoverable error occurred, or a negative value if it failed unrecoverably.
+   **Return value:**
+      An :c:type:`MRIStepInnerResetAccumulatedError` should return 0 if successful, a positive`
+      value if a recoverable error occurred, or a negative value if it failed unrecoverably.
 
    .. note::
 
       This function is only called when multirate temporal adaptivity has been enabled,
-      using a :c:type:`SUNAdaptController` module having type ``SUNDIALS_CONTROL_MRI_TOL``.
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL`.
 
       The :c:type:`MRIStepInnerResetAccumulatedError` function will always be called
       *before* any calls to the :c:type:`MRIStepInnerGetAccumulatedError` function.
@@ -488,17 +504,18 @@ following member functions:
 
    This function accepts a relative tolerance for the inner stepper to use in its upcoming adaptive solve.
 
-   :param stepper: the inner stepper object.
-   :param rtol: relative tolerance to use on the upcoming solve.
+   **Arguments:**
+      * *stepper* -- the inner stepper object.
+      * *rtol* -- relative tolerance to use on the upcoming solve.
 
-   :return value: An :c:type:`MRIStepInnerSetRTol` should return 0 if successful, a positive
-        value if a recoverable error occurred, or a negative value if it failed
-        unrecoverably.
+   **Return value:**
+      An :c:type:`MRIStepInnerSetRTol` should return 0 if successful, a positive`
+      value if a recoverable error occurred, or a negative value if it failed unrecoverably.
 
    .. note::
 
       This function is only called when multirate temporal adaptivity has been enabled
-      using a :c:type:`SUNAdaptController` module having type ``SUNDIALS_CONTROL_MRI_TOL``.
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL`.
 
       It is assumed that if the inner stepper supports absolute tolerances as well, then
       these have been set up directly by the user to indicate the "noise" level for

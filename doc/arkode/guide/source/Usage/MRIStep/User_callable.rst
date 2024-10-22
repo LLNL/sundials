@@ -59,10 +59,10 @@ MRIStep initialization and deallocation functions
                    time scale.
    :param sunctx: the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
-   :return value: If successful, a pointer to initialized problem memory of type ``void*``, to
-                  be passed to all user-facing MRIStep routines listed below.  If unsuccessful,
-                  a ``NULL`` pointer will be returned, and an error message will be printed to
-                  ``stderr``.
+   :returns: If successful, a pointer to initialized problem memory of type ``void*``, to
+             be passed to all user-facing MRIStep routines listed below.  If unsuccessful,
+             a ``NULL`` pointer will be returned, and an error message will be printed to
+             ``stderr``.
 
    **Example usage:**
 
@@ -72,10 +72,10 @@ MRIStep initialization and deallocation functions
          void *inner_arkode_mem = NULL;
          void *outer_arkode_mem = NULL;
 
-         /* MRIStepInnerStepper to wrap the inner (fast) ERKStep object */
+         /* MRIStepInnerStepper to wrap the inner (fast) object */
          MRIStepInnerStepper stepper = NULL;
 
-         /* create an ERKStep/ARKStep/MRIStep object, setting fast (inner) right-hand side
+         /* create an ARKODE object, setting fast (inner) right-hand side
             functions and the initial condition */
          inner_arkode_mem = *StepCreate(...);
 
@@ -108,7 +108,6 @@ MRIStep initialization and deallocation functions
 
    :param arkode_mem: pointer to the MRIStep memory block.
 
-   :return value:  None
 
    .. deprecated:: 6.1.0
 
@@ -873,7 +872,7 @@ Optional inputs for implicit stage solves
    Specifies the method to use for predicting implicit solutions.
 
    :param arkode_mem: pointer to the MRIStep memory block.
-   :param method:
+   :param method: the predictor method
 
                   * 0 is the trivial predictor,
 
@@ -1703,9 +1702,9 @@ Main solver optional output functions
                * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
                  of key and value pairs e.g., ``key1,value1,key2,value2,...``
 
-   :retval ARK_SUCCESS: -- if the output was successfully.
-   :retval CV_MEM_NULL: -- if the MRIStep memory was ``NULL``.
-   :retval CV_ILL_INPUT: -- if an invalid formatting option was provided.
+   :retval ARK_SUCCESS: if the output was successfully.
+   :retval CV_MEM_NULL: if the MRIStep memory was ``NULL``.
+   :retval CV_ILL_INPUT: if an invalid formatting option was provided.
 
    .. note::
 
@@ -1727,8 +1726,7 @@ Main solver optional output functions
 
    :param flag: a return flag from an MRIStep function.
 
-   :return value: The return value is a string containing the name of
-                  the corresponding constant.
+   :returns: A string containing the name of the corresponding constant.
 
    .. deprecated:: 6.1.0
 
@@ -2312,11 +2310,11 @@ Linear solver interface optional output functions
 
    :param lsflag: a return flag from an ARKLS function.
 
-   :return value:  The return value is a string containing the name of
-                   the corresponding constant. If using the ``SUNLINSOL_DENSE``
-                   or ``SUNLINSOL_BAND`` modules, then if  1 :math:`\le` `lsflag`
-                   :math:`\le n` (LU factorization failed), this routine returns
-                   "NONE".
+   :returns:  The return value is a string containing the name of
+              the corresponding constant. If using the ``SUNLINSOL_DENSE``
+              or ``SUNLINSOL_BAND`` modules, then if  1 :math:`\le` `lsflag`
+              :math:`\le n` (LU factorization failed), this routine returns
+              "NONE".
 
    .. deprecated:: 6.1.0
 
