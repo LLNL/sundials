@@ -641,8 +641,10 @@ algorithm for a single step:
    diagonally-implicit, or additive Runge--Kutta stage update,
 
    .. math::
-      z_i - \theta_{i,i} h^S f^I(t_{n-1}+c_i^S h^S, z_i) = a_i.
+      z_i - \theta_{i,i} h^S f^I(t_{n,i}^S, z_i) = a_i.
       :label: MRI_implicit_solve
+
+   where :math:`t_{n,j}^S = t_{n-1}*h^S c^S_j`.
 
 #. Set :math:`y_{n} = z_{s}`.
 
@@ -682,19 +684,19 @@ MIS, MRI-GARK, and IMEX-MRI-GARK Methods
 
 The methods in IMEX-MRI-GARK family, which includes MIS and MRI-GARK methods,
 are defined by a vector of slow stage time abscissae, :math:`c^S \in
-\mathbb{R}^{s+1}`, and a set of coupling tensors,
-:math:`\Omega\in\mathbb{R}^{(s+1)\times(s+1)\times k}` and
-:math:`\Gamma\in\mathbb{R}^{(s+1)\times(s+1)\times k}`, that specify the
+\mathbb{R}^{s}`, and a set of coupling tensors,
+:math:`\Omega\in\mathbb{R}^{(s+1)\times s \times k}` and
+:math:`\Gamma\in\mathbb{R}^{(s+1)\times s \times k}`, that specify the
 slow-to-fast coupling for the explicit and implicit components, respectively.
 
 The fast stage IVPs, :eq:`MRI_fast_IVP`, are evolved over non-overlapping
-intervals :math:`[t_{0,i},t_{F,i}] = [t_{n-1}+c_{i-1}h^S, t_{n-1}+c_ih^S]` with
+intervals :math:`[t_{0,i},t_{F,i}] = [t_{n,i-1}^S, t_{n,i}^S]` with
 the initial condition :math:`v_{0,i}=z_{i-1}`. The fast IVP forcing function is
 given by
 
 .. math::
-   r_i(t) = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^{i-1} \omega_{i,j}(\tau) f^E(t_{n,j}^I, z_j)
-   + \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i \gamma_{i,j}(\tau) f^I(t_{n,j}^I, z_j)
+   r_i(t) = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^{i-1} \omega_{i,j}(\tau) f^E(t_{n,j}^S, z_j)
+   + \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i \gamma_{i,j}(\tau) f^I(t_{n,j}^S, z_j)
 
 where :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)`, :math:`\tau = (t -
 t_{n,i-1}^S)/(h^S \Delta c_i^S)` is the normalized time, the coefficients
@@ -721,7 +723,7 @@ stage is computed as
    :label: ARKODE_MRI_delta_c_zero
 
 Similarly, the embedded solution IVP, :eq:`MRI_embedding_fast_IVP`, is evolved
-over the interval :math:`[\tilde{t}_{0},\tilde{t}_{F}] = [t_{n-1}+c_{s-1}h^S, t_{n}]`
+over the interval :math:`[\tilde{t}_{0},\tilde{t}_{F}] = [t_{n,s-1}^S, t_{n}]`
 with the initial condition :math:`\tilde{v}_0=z_{s-1}`.
 
 As with standard ARK and DIRK methods, implicitness at the slow time scale is
@@ -746,26 +748,87 @@ The IMEX-MRI-SR family of methods perform *both* the fast IVP evolution,
 :eq:`MRI_fast_IVP` or :eq:`MRI_embedding_fast_IVP`, *and* stage update,
 :eq:`MRI_implicit_solve` or :eq:`MRI_embedding_implicit_solve`, in every stage
 (but these methods typically have far fewer stages than implicit MRI-GARK or
-IMEX-MRI-GARK methods).
+IMEX-MRI-GARK methods).  These methods are defined by a vector of slow stage
+time abscissae :math:`c^S \in \mathbb{R}^{s}`, a set of coupling tensors
+:math:`\Omega\in\mathbb{R}^{(s+1)\times s\times k}`, and a Butcher table of
+slow-implicit coefficients, :math:`\Gamma\in\mathbb{R}^{(s+1) \times s}`.
 
-These methods evolve the fast IVPs, :eq:`MRI_fast_IVP` and
-:eq:`MRI_embedding_fast_IVP`, on overlapping time intervals
-:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n-1}+c_i h^S]` and
-:math:`[\tilde{t}_{0},\tilde{t}_{F}] = [t_{n-1}, t_{n}]`, using initial
-conditions :math:`v_{0,i}=y_{n-1}` and :math:`\tilde{v}_0=y_{n-1}`.
+The fast stage IVPs, :eq:`MRI_fast_IVP`, are evolved on overlapping
+intervals :math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n,i}^S]` with
+the initial condition :math:`v_{0,i}=y_{n-1}`. The fast IVP forcing function is
+given by
+
+.. math::
+   r_i(t) = \frac{1}{c_i^S} \sum\limits_{j=1}^{i-1} \omega_{i,j}(\tau) \left( f^E(t_{n,j}^S, z_j) + f^I(t_{n,j}^S, z_j)\right),
+   :label: IMEXMRISR_forcing
+
+where :math:`\tau = (t - t_n)/(h^S c_i^S)` is the normalized time, and the coefficients
+:math:`\omega_{i,j}` are polynomials in time of degree :math:`k` that are also given by
+:eq:`ARKODE_MRI_coupling`.  The solution of these fast IVPs defines an intermediate stage
+solution, :math:`\tilde{z}_i`.
+
+The implicit solve that follows each fast IVP must solve the algebraic equation for :math:`z_i`
+
+.. math::
+   z_i = \tilde{z}_i + h^S \sum_{j=1}^{i} \gamma_{i,j} f^I(t_{n,j}^S, z_j).
+   :label: ARKODE_MRISR_implicit
+
+We note that IMEX-MRI-SR methods are solve-decoupled by construction, and thus the structure
+of a given stage never needs to be deduced based on :math:`\Delta c_i^S`.  However, ARKODE
+still checks the value of :math:`\gamma_{i,i}`, since if it zero then the stage update
+equation :eq:`ARKODE_MRISR_implicit` simplifes to a simple explicit Runge--Kutta-like stage
+update.
+
+The overall time step solution is given by the final internal stage solution,
+i.e., :math:`y_{n} = z_{s}`.  The embedded solution is computing using the above
+algorithm for stage index :math:`s+1`, under the definition that :math:`c_{s+1}^S=1`
+(and thus the fast IVP portion is evolved over the full time step,
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n}]`).
+
 
 
 MERK Methods
 ------------
 
-MERK family of methods never include the stage updates, :eq:`MRI_implicit_solve`
-or :eq:`MRI_embedding_implicit_solve`.
+The MERK family of methods are only defined for multirate applications that
+are explicit at the slow time scale, i.e., :math:`f^I=0`, but otherwise they are
+nearly identical to IMEX-MRI-SR methods.  Specifically, like IMEX-MRI-SR methods,
+these evolve the fast IVPs
+:eq:`MRI_fast_IVP` and :eq:`MRI_embedding_fast_IVP` over the intervals
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n,i}^S]` and
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n}]`, respectively, and begin
+with the initial condition :math:`v_{0,i}=y_{n-1}`.  Furthermore, the fast IVP
+forcing functions are given by :eq:`IMEXMRISR_forcing` with :math:`f^I=0`.
+As MERK-based applications lack the implicit slow operator, they do not require
+the solution of implicit algebraic equations.
 
-These methods evolve the fast IVPs, :eq:`MRI_fast_IVP` and
-:eq:`MRI_embedding_fast_IVP`, on overlapping time intervals
-:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n-1}+c_i h^S]` and
-:math:`[\tilde{t}_{0},\tilde{t}_{F}] = [t_{n-1}, t_{n}]`, using initial
-conditions :math:`v_{0,i}=y_{n-1}` and :math:`\tilde{v}_0=y_{n-1}`.
+However, unlike other MRI families, MERK methods were designed to admit a useful
+efficiency improvement.  Since each fast IVP begins with the same initial condition,
+:math:`v_{0,i}=y_{n-1}`, if multiple stages share the same forcing function
+:math:`r_i(t)`, then they may be "grouped" together.  This is achieved by sorting the
+final IVP solution time for each stage, :math:`t_{n,i}^S`, and then evolving the inner
+solver to each of these stage times in order, storing the corresponding inner solver
+solutions at these times as the stages :math:`z_i`.  For example, the
+:index:`ARKODE_MERK54` method involves 11 stages, that may be combined into 5 distinct
+groups.  The fourth group contains stages 7, 8, 9, and the embedding, corresponding to
+the :math:`c_i^S` values :math:`7/10`, :math:`1/2`, :math:`2/3`, and :math:`1`.
+Sorting these, a single fast IVP for this group must be evolved over the interval
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n}]`, first pausing at :math:`t_{n-1}+\frac12 h^S`
+to store :math:`z_8`, then pausing at :math:`t_{n-1}+\frac{2}{3} h^S` to store
+:math:`z_9`, then pausing at :math:`t_{n-1}+\frac{7}{10} h^S` to store :math:`z_7`,
+and finally finishing the IVP solve to :math:`t_{n-1}+h^S` to obtain :math:`\tilde{y}_n`.
+
+.. note::
+
+   Although all MERK methods were derived in :cite:p:`Luan:20` under an assumption that
+   the fast function :math:`f^F(t,y)` is linear in :math:`y`, in :cite:p:`Fish:24` it
+   was proven that MERK methods also satisfy all nonlinear order conditions up through
+   their linear order.  The lone exception is :index:`ARKODE_MERK54`, where it was only
+   proven to satisfy all nonlinear conditions up to order 4 (since :cite:p:`Fish:24` did
+   not establish the formulas for the order 5 conditions).  All our numerical tests to
+   date have shown :index:`ARKODE_MERK54` to achieve fifth order for nonlinear problems,
+   and so we conjecture that it also satisfies the nonlinear fifth order conditions.
+
 
 
 .. _ARKODE.Mathematics.Error.Norm:

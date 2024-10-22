@@ -237,7 +237,7 @@ Setting Member Functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
-   
+
    .. versionadded: x.y.z
 
 
@@ -251,7 +251,7 @@ Setting Member Functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
-      
+
    .. versionadded: x.y.z
 
 
@@ -265,7 +265,7 @@ Setting Member Functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
-      
+
    .. versionadded: x.y.z
 
 
@@ -416,6 +416,7 @@ following member functions:
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+
    .. versionchanged:: v5.7.0
 
       Supplying a full right-hand side function was made optional.
@@ -424,7 +425,7 @@ following member functions:
 
    This function resets the inner (fast) stepper state to the provided
    independent variable value and dependent variable vector.
-   
+
    If provided, the :c:type:`MRIStepInnerResetFn` function will be called
    *before* a call to :c:type:`MRIStepInnerEvolveFn` when the state was
    updated at the slow timescale.
@@ -438,9 +439,6 @@ following member functions:
       An :c:type:`MRIStepInnerResetFn` should return 0 if successful, a positive
       value if a recoverable error occurred, or a negative value if it failed
       unrecoverably.
-
-   .. note::
-
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
