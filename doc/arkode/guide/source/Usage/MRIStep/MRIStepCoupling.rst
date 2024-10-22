@@ -28,27 +28,27 @@ by the table is determined by an enumerated type, :c:enum:`ARKODE_MRIType`:
 
 .. c:enum:: ARKODE_MRIType
 
-   This may take any of the following constants:
+   The MRI method family encoded by a :c:type:`MRIStepCoupling` table
 
-.. c:enumerator:: MRISTEP_EXPLICIT
+   .. c:enumerator:: MRISTEP_EXPLICIT
 
-   An explicit MRI-GARK method (does not support a slow implicit operator, :math:`f^I`).
+      An explicit MRI-GARK method (does not support a slow implicit operator, :math:`f^I`).
 
-.. c:enumerator:: MRISTEP_IMPLICIT
+   .. c:enumerator:: MRISTEP_IMPLICIT
 
-   An implicit MRI-GARK method (does not support a slow explicit operator, :math:`f^E`).
+      An implicit MRI-GARK method (does not support a slow explicit operator, :math:`f^E`).
 
-.. c:enumerator:: MRISTEP_IMEX
+   .. c:enumerator:: MRISTEP_IMEX
 
-   An IMEX-MRK-GARK method.
+      An IMEX-MRK-GARK method.
 
-.. c:enumerator:: MRISTEP_MERK
+   .. c:enumerator:: MRISTEP_MERK
 
-   A explicit MERK method (does not support a slow implicit operator, :math:`f^I`).
+      A explicit MERK method (does not support a slow implicit operator, :math:`f^I`).
 
-.. c:enumerator:: MRISTEP_MRISR
+   .. c:enumerator:: MRISTEP_MRISR
 
-   An IMEX-MRI-SR method.
+      An IMEX-MRI-SR method.
 
 
 The MRI coupling tables themselves are stored in an
@@ -141,7 +141,7 @@ are defined ``arkode/arkode_mristep.h``.
    +-------------------------------------------+--------------------------------------------------------------------+
    | :c:func:`MRIStepCoupling_Create`          | Create a new MRIStepCoupling table from coefficients               |
    +-------------------------------------------+--------------------------------------------------------------------+
-   | :c:func:`MRIStepCoupling_MIStoMRI`        | Create a new MRIStepCoupling table from a slow Butcher table       |
+   | :c:func:`MRIStepCoupling_MIStoMRI`        | Create a new MRIStepCoupling table from a Butcher table            |
    +-------------------------------------------+--------------------------------------------------------------------+
    | :c:func:`MRIStepCoupling_Copy`            | Create a copy of a MRIStepCoupling table                           |
    +-------------------------------------------+--------------------------------------------------------------------+
@@ -161,7 +161,7 @@ are defined ``arkode/arkode_mristep.h``.
 
    :param method: the coupling table identifier.
 
-   :return value:  An :c:type:`MRIStepCoupling` structure if successful. A ``NULL``
+   :returns:  An :c:type:`MRIStepCoupling` structure if successful. A ``NULL``
                    pointer if *method* was invalid or an allocation error occurred.
 
 
@@ -173,9 +173,9 @@ are defined ``arkode/arkode_mristep.h``.
 
    :param method: the coupling table name.
 
-   :return value: An :c:type:`MRIStepCoupling` structure if successful.
-                  A ``NULL`` pointer if *method* was invalid, *method* was
-                  ``"ARKODE_MRI_NONE"``, or an allocation error occurred.
+   :returns: An :c:type:`MRIStepCoupling` structure if successful.
+             A ``NULL`` pointer if *method* was invalid, *method* was
+             ``"ARKODE_MRI_NONE"``, or an allocation error occurred.
 
    .. note::
 
@@ -192,21 +192,21 @@ are defined ``arkode/arkode_mristep.h``.
    :param stages: number of stages in the coupling table.
    :param type: the type of MRI method the table will encode.
 
-   :return value: An :c:type:`MRIStepCoupling` structure if successful.
-                  A ``NULL`` pointer if *stages* or *type* was invalid or an allocation error
-                  occurred.
+   :returns: An :c:type:`MRIStepCoupling` structure if successful.
+             A ``NULL`` pointer if *stages* or *type* was invalid or an allocation error
+             occurred.
 
    .. note::
 
-      For MRISTEP_EXPLICIT tables, the *G* and *group* arrays are not allocated.
+      For :c:enumerator:`MRISTEP_EXPLICIT` tables, the *G* and *group* arrays are not allocated.
 
-      For MRISTEP_IMPLICIT tables, the *W* and *group* arrays are not allocated.
+      For :c:enumerator:`MRISTEP_IMPLICIT` tables, the *W* and *group* arrays are not allocated.
 
-      For MRISTEP_IMEX tables, the *group* array is not allocated.
+      For :c:enumerator:`MRISTEP_IMEX` tables, the *group* array is not allocated.
 
-      For MRISTEP_MERK tables, the *G* array is not allocated.
+      For :c:enumerator:`MRISTEP_MERK` tables, the *G* array is not allocated.
 
-      For MRISTEP_MRISR tables, the *group* array is not allocated.
+      For :c:enumerator:`MRISTEP_MRISR` tables, the *group* array is not allocated.
 
       When allocated, both :math:`\Omega` and :math:`\Gamma`
       are initialized to all zeros, so only nonzero coefficients need to be provided.
@@ -237,6 +237,25 @@ are defined ``arkode/arkode_mristep.h``.
 .. c:function:: MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p, sunrealtype *W, sunrealtype *G, sunrealtype *c)
 
    Allocates a coupling table and fills it with the given values.
+   
+   This routine can only be used to create coupling tables with type
+   ``MRISTEP_EXPLICIT``, ``MRISTEP_IMPLICIT``, or  ``MRISTEP_IMEX``.  The
+   routine determines the relevant type based on whether either of the
+   arguments *W* and *G* are ``NULL``.  Users who wish to create MRI
+   methods of type ``MRISTEP_MERK`` or ``MRISTEP_MRISR`` must currently
+   do so manually.
+
+   The assumed size of the input arrays *W* and *G* depends on the
+   input value for the embedding order of accuracy, *p*.
+
+   * Non-embedded methods should be indicated by an input *p=0*, in which
+     case *W* and/or *G* should have entries stored as a 1D array of size
+     ``nmat * stages * stages``, in row-major order.
+
+   * Embedded methods should be indicated by an input *p>0*, in which
+     case *W* and/or *G* should have entries stored as a 1D array of size
+     ``nmat * (stages+1) * stages``, in row-major order.  The additional
+     "row" is assumed to hold the embedding coefficients.
 
    :param nmat: the value of :math:`k` i.e., number of number of coupling
       matrices in :math:`\Omega` for the slow-nonstiff terms and/or in
@@ -251,30 +270,11 @@ are defined ``arkode/arkode_mristep.h``.
    :param c: array of slow abscissae for the MRI method. The entries should be
              stored as a 1D array of length ``stages``.
 
-   :return value:  An :c:type:`MRIStepCoupling` structure if successful.
-                   A ``NULL`` pointer if ``stages`` was invalid, an allocation error occurred,
-                   or the input data arrays are inconsistent with the method type.
+   :returns:  An :c:type:`MRIStepCoupling` structure if successful.
+              A ``NULL`` pointer if ``stages`` was invalid, an allocation error occurred,
+              or the input data arrays are inconsistent with the method type.
 
    .. note::
-
-      This routine can only be used to create coupling tables with type
-      ``MRISTEP_EXPLICIT``, ``MRISTEP_IMPLICIT``, or  ``MRISTEP_IMEX``.  The
-      routine determines the relevant type based on whether either of the
-      arguments *W* and *G* are ``NULL``.  Users who wish to create MRI
-      methods of type ``MRISTEP_MERK`` or ``MRISTEP_MRISR`` must currently
-      do so manually.
-
-      The assumed size of the input arrays *W* and *G* depends on the
-      input value for the embedding order of accuracy, *p*.
-
-      * Non-embedded methods should be indicated by an input *p=0*, in which
-        case *W* and/or *G* should have entries stored as a 1D array of size
-        ``nmat * stages * stages``, in row-major order.
-
-      * Embedded methods should be indicated by an input *p>0*, in which
-        case *W* and/or *G* should have entries stored as a 1D array of size
-        ``nmat * (stages+1) * stages``, in row-major order.  The additional
-        "row" is assumed to hold the embedding coefficients.
 
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
@@ -286,8 +286,8 @@ are defined ``arkode/arkode_mristep.h``.
    :param q: the overall order of the MIS/MRI method.
    :param p: the overall order of the MIS/MRI embedding.
 
-   :return value: An :c:type:`MRIStepCoupling` structure if successful.
-                  A ``NULL`` pointer if an allocation error occurred.
+   :returns: An :c:type:`MRIStepCoupling` structure if successful.
+             A ``NULL`` pointer if an allocation error occurred.
 
    .. note::
 
@@ -342,8 +342,8 @@ are defined ``arkode/arkode_mristep.h``.
 
    :param C: the coupling table to copy.
 
-   :return value: An :c:type:`MRIStepCoupling` structure if successful.
-                  A ``NULL`` pointer if an allocation error occurred.
+   :returns: An :c:type:`MRIStepCoupling` structure if successful.
+             A ``NULL`` pointer if an allocation error occurred.
 
 
 .. c:function:: void MRIStepCoupling_Space(MRIStepCoupling C, sunindextype *liw, sunindextype *lrw)

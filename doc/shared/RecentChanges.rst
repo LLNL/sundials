@@ -34,7 +34,7 @@ which should ease building SUNDIALS with LAPACK libraries that require setting
 specific linker flags e.g., MKL.
 
 Added support for multirate time step adaptivity controllers, based on the
-recently introduced `SUNAdaptController` base class, to ARKODE's MRIStep module.
+recently introduced :c:type:`SUNAdaptController` base class, to ARKODE's MRIStep module.
 As a part of this, we added embeddings for existing MRI-GARK methods, as well as
 support for embedded MERK and IMEX-MRI-SR methods.  Added new default MRI methods
 for temporally adaptive versus fixed-step runs.
@@ -44,7 +44,7 @@ estimate over multiple time steps.  See the routines
 :c:func:`ARKodeSetAccumulatedErrorType`, :c:func:`ARKodeResetAccumulatedError`,
 and :c:func:`ARKodeGetAccumulatedError` for details.
 
-Added utility routine to wrap any valid ARKODE integrator for use as an MRIStep
+Added a utility routine to wrap any valid ARKODE integrator for use as an MRIStep
 inner stepper object, :c:func:`ARKodeCreateMRIStepInnerStepper`.
 
 **Bug Fixes**
@@ -76,8 +76,9 @@ using ``ENABLE_KLU=ON`` in combination with a static-only build of SuiteSparse.
 
 **Deprecation Notices**
 
-Deprecated ARKStep-specific utility routine for wrapping as an MRIStep
-inner stepper object, :c:func:`ARKStepCreateMRIStepInnerStepper`.
+Deprecated the ARKStep-specific utility routine for wrapping an ARKStep instance
+as an MRIStep inner stepper object, :c:func:`ARKStepCreateMRIStepInnerStepper`. Use
+:c:func:`ARKodeCreateMRIStepInnerStepper` instead.
 
 The ARKODE stepper specific functions to retrieve the number of right-hand side
 function evaluations have been deprecated. Use :c:func:`ARKodeGetNumRhsEvals`

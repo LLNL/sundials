@@ -41,7 +41,7 @@ Added functionality to ARKODE to accumulate a temporal error
 estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorType`,
 `ARKodeResetAccumulatedError`, and `ARKodeGetAccumulatedError` for details.
 
-Added utility routine to wrap any valid ARKODE integrator for use as an MRIStep
+Added a utility routine to wrap any valid ARKODE integrator for use as an MRIStep
 inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
 
 ### Bug Fixes
@@ -73,8 +73,9 @@ using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
 
 ### Deprecation Notices
 
-Deprecated ARKStep-specific utility routine for wrapping as an MRIStep
-inner stepper object, `ARKStepCreateMRIStepInnerStepper`.
+Deprecated the ARKStep-specific utility routine for wrapping an ARKStep instance
+as an MRIStep inner stepper object, `ARKStepCreateMRIStepInnerStepper`. Use
+`ARKodeCreateMRIStepInnerStepper` instead.
 
 The ARKODE stepper specific functions to retrieve the number of right-hand side
 function evaluations have been deprecated. Use `ARKodeGetNumRhsEvals` instead.
