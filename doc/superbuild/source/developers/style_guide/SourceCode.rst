@@ -521,7 +521,7 @@ To log informational messages use the following macros:
    :c:func:`SUNLogger_QueueMsg` to log an informational message. Otherwise, this
    expands to nothing.
 
-   :param logger: the :c:type:`SUNLogger`
+   :param logger: the :c:type:`SUNLogger` to handle the message
    :param label: the ``const char*`` message label
    :param msg_txt: the ``const char*`` message text, may contain format
                    specifiers
@@ -535,7 +535,7 @@ To log informational messages use the following macros:
 
    :param condition: a boolean expression that determines if the log message
                      should be queued.
-   :param logger: the :c:type:`SUNLogger`
+   :param logger: the :c:type:`SUNLogger` to handle the message
    :param label: the ``const char*`` message label
    :param msg_txt: the ``const char*`` message text, may contain format
                    specifiers
@@ -549,7 +549,7 @@ To log debugging messages use the following macros:
    :c:func:`SUNLogger_QueueMsg` to log a debug message. Otherwise, this expands
    to nothing.
 
-   :param logger: the :c:type:`SUNLogger`
+   :param logger: the :c:type:`SUNLogger` to handle the message
    :param label: the ``const char*`` message label
    :param msg_txt: the ``const char*`` message text, may contain format
                    specifiers
@@ -563,7 +563,7 @@ To log debugging messages use the following macros:
 
    :param condition: a boolean expression that determines if the log message
                      should be queued.
-   :param logger: the :c:type:`SUNLogger`
+   :param logger: the :c:type:`SUNLogger` to handle the message
    :param label: the ``const char*`` message label
    :param msg_txt: the ``const char*`` message text, may contain format
                    specifiers
@@ -577,7 +577,7 @@ To log extra debugging messages use the following macros:
    :c:func:`SUNLogger_QueueMsg` to log a debug message. Otherwise, this expands
    to nothing.
 
-   :param logger: the :c:type:`SUNLogger`
+   :param logger: the :c:type:`SUNLogger` to handle the message
    :param label: the ``const char*`` message label
    :param msg_txt: the ``const char*`` message text, may contain format
                    specifiers
@@ -591,7 +591,7 @@ To log extra debugging messages use the following macros:
 
    :param condition: a boolean expression that determines if the log message
                      should be queued.
-   :param logger: the :c:type:`SUNLogger`
+   :param logger: the :c:type:`SUNLogger` to handle the message
    :param label: the ``const char*`` message label
    :param msg_txt: the ``const char*`` message text, may contain format
                    specifiers
@@ -603,7 +603,7 @@ To log extra debugging messages use the following macros:
    :c:func:`SUNLogger_QueueMsg` and :c:func:`N_VPrintFile` to log a debug
    message and output the vector data. Otherwise, this expands to nothing.
 
-   :param logger: the :c:type:`SUNLogger`
+   :param logger: the :c:type:`SUNLogger` to handle the message
    :param label: the ``const char*`` message label
    :param vec: the ``N_Vector`` to print
    :param msg_txt: the ``const char*`` message text, may contain format
@@ -618,7 +618,7 @@ To log extra debugging messages use the following macros:
 
    :param condition: a boolean expression that determines if the log message
                      should be queued.
-   :param logger: the :c:type:`SUNLogger`
+   :param logger: the :c:type:`SUNLogger` to handle the message
    :param label: the ``const char*`` message label
    :param vec: the ``N_Vector`` to print
    :param msg_txt: the ``const char*`` message text, may contain format
@@ -632,7 +632,7 @@ To log extra debugging messages use the following macros:
    the vector array to log a debug message and output the vector data.
    Otherwise, this expands to nothing.
 
-   :param logger: the :c:type:`SUNLogger`
+   :param logger: the :c:type:`SUNLogger` to handle the message
    :param label: the ``const char*`` message label
    :param nvecs: the ``int`` number of vectors to print
    :param vecs: the ``N_Vector*`` (vector array) to print
