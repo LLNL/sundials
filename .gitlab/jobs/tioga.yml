@@ -103,5 +103,5 @@ tioga_rocmcc_620_benchmark:
         CALIPER_DIR: /usr/workspace/sundials/califiles
   variables:
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 build_type=Release precision=double scheduler=lsf caliper-dir=${CALIPER_DIR} ~int64 +benchmarks+profiling+caliper+adiak+mpi+openmp+cuda+raja cuda_arch=70 ^raja+cuda~openmp~examples~exercises cuda_arch=70 ^caliper+adiak+cuda cuda_arch=70 ^${CUDA_SPEC}"
-    ON_TIOGA: OFF # turn this job off for now
+    ON_TIOGA: "OFF" # turn this job off for now
   extends: [.sundials_job_on_tioga]
