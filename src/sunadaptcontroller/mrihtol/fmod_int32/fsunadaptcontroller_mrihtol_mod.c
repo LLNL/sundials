@@ -448,16 +448,16 @@ SWIGEXPORT void _wrap_SUNAdaptControllerContent_MRIHTol__op_assign__(SwigClassWr
 }
 
 
-SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_MRIHTol(void *farg1, SUNAdaptController farg2, SUNAdaptController farg3) {
+SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_MRIHTol(SUNAdaptController farg1, SUNAdaptController farg2, void *farg3) {
   SUNAdaptController fresult ;
-  SUNContext arg1 = (SUNContext) 0 ;
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   SUNAdaptController arg2 = (SUNAdaptController) 0 ;
-  SUNAdaptController arg3 = (SUNAdaptController) 0 ;
+  SUNContext arg3 = (SUNContext) 0 ;
   SUNAdaptController result;
   
-  arg1 = (SUNContext)(farg1);
+  arg1 = (SUNAdaptController)(farg1);
   arg2 = (SUNAdaptController)(farg2);
-  arg3 = (SUNAdaptController)(farg3);
+  arg3 = (SUNContext)(farg3);
   result = (SUNAdaptController)SUNAdaptController_MRIHTol(arg1,arg2,arg3);
   fresult = result;
   return fresult;

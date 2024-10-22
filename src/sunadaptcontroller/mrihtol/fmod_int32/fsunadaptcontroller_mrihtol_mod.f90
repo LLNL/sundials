@@ -460,21 +460,21 @@ call swigc_SUNAdaptControllerContent_MRIHTol__op_assign__(farg1, farg2)
 self%swigdata = farg1
 end subroutine
 
-function FSUNAdaptController_MRIHTol(sunctx, hcontrol, tolcontrol) &
+function FSUNAdaptController_MRIHTol(hcontrol, tolcontrol, sunctx) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNAdaptController), pointer :: swig_result
-type(C_PTR) :: sunctx
 type(SUNAdaptController), target, intent(inout) :: hcontrol
 type(SUNAdaptController), target, intent(inout) :: tolcontrol
+type(C_PTR) :: sunctx
 type(C_PTR) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 type(C_PTR) :: farg3 
 
-farg1 = sunctx
-farg2 = c_loc(hcontrol)
-farg3 = c_loc(tolcontrol)
+farg1 = c_loc(hcontrol)
+farg2 = c_loc(tolcontrol)
+farg3 = sunctx
 fresult = swigc_FSUNAdaptController_MRIHTol(farg1, farg2, farg3)
 call c_f_pointer(fresult, swig_result)
 end function
