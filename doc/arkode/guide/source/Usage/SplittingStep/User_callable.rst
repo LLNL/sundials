@@ -39,7 +39,8 @@ SplittingStep initialization functions
    using the SplittingStep time-stepping module in ARKODE.
 
    :param steppers: an array of :c:type:`SUNStepper` with one for each
-      partition of the IVP.
+      partition of the IVP. All :c:type:`SUNStepper` operations are required to
+      be implemented except :c:func:`SUNStepper_SetForcing`.
    :param partitions: the number :math:`P > 1` of partitions in the IVP.
    :param t0: the initial value of :math:`t`.
    :param y0: the initial condition vector :math:`y(t_0)`.
