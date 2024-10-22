@@ -41,6 +41,11 @@ typedef enum
   MRISTEP_MRISR
 } ARKODE_MRIType;
 
+/* Alias to account for the changed enum name above */
+typedef ARKODE_MRIType MRISTEP_METHOD_TYPE;
+
+/* MRI coupling table IDs */
+
 typedef enum
 {
   ARKODE_MRI_NONE    = -1, /* ensure enum is signed int */
