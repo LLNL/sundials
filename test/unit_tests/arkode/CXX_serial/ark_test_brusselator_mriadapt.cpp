@@ -575,7 +575,7 @@ int main(int argc, char* argv[])
     scontrol_Tol = SUNAdaptController_ImExGus(sunctx);
     if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_ImExGus (slow Tol)"))
       return 1;
-    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tolsunctx);
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol,sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)

@@ -948,10 +948,10 @@ int main(int argc, char* argv[])
   printf("   "
          "---------------------------------------------------------------------"
          "-------\n");
-  printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.2" ESYM
-  while (Tf - t > SUN_RCONST(1.0e-8))
+  printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM
+         "   %.2" ESYM "   %.2" ESYM "   %.2" ESYM "\n",
          t, ydata[0], ydata[1], ydata[2], uerr, verr, werr);
-  while (Tf - t > SUN_RCONST(1.0e-8))  
+  while (Tf - t > SUN_RCONST(1.0e-8))
   {
     // reset reference solver so that it begins with identical state
     retval = ARKodeReset(arkode_ref, t, y);
@@ -1050,7 +1050,7 @@ int main(int argc, char* argv[])
   uerrtot = std::sqrt(uerrtot / nsts);
   verrtot = std::sqrt(verrtot / nsts);
   werrtot = std::sqrt(werrtot / nsts);
-  errtot  = std::sqrt(errtot / nsts / 3);  
+  errtot  = std::sqrt(errtot / nsts / 3);
   std::cout << "\nFinal Solver Statistics:\n";
   std::cout << "   Slow steps = " << nsts << "  (attempts = " << natts
             << ",  fails = " << netfs << ")\n";
@@ -1294,7 +1294,7 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fse routine to compute the explicit slow portion of the ODE RHS.
 static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts.        = static_cast<Options*>(user_data);
+  Options* opts         = static_cast<Options*>(user_data);
   sunrealtype* ydata    = N_VGetArrayPointer(y);
   sunrealtype* ydotdata = N_VGetArrayPointer(ydot);
   const sunrealtype u   = ydata[0];
