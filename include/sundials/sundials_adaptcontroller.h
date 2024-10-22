@@ -34,7 +34,7 @@ extern "C" {
  * SUNAdaptController types:
  *    NONE - empty controller (does nothing)
  *    H    - controls a single-rate step size
- *    MRI_TOL - controls slow and fast relative tolerances
+ *    MRI_H_TOL - controls slow step and fast relative tolerances
  * ----------------------------------------------------------------- */
 
 typedef enum

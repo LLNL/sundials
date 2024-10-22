@@ -28,7 +28,7 @@ set(ARKODE_examples
     "ark_kpr_Mt.cpp\;0 4 1\;develop"
     "ark_kpr_Mt.cpp\;0 -4\;exclude-single"
     "ark_kpr_Mt.cpp\;1 -5\;exclude-single"
-    "ark_kpr_Mt.cpp\;2 -5 0 -10\;exclude-single"
+    "ark_kpr_Mt.cpp\;2 -5 0 -10\;develop"
     "ark_kpr_Mt.cpp\;1 -3 0 -10 0\;exclude-single"
     "ark_kpr_Mt.cpp\;0 3 0 -10 0\;develop"
     "ark_kpr_Mt.cpp\;2 4 0 -10 0\;develop"

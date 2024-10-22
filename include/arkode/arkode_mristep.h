@@ -122,8 +122,6 @@ typedef int (*MRIStepInnerGetAccumulatedError)(MRIStepInnerStepper stepper,
 
 typedef int (*MRIStepInnerResetAccumulatedError)(MRIStepInnerStepper stepper);
 
-typedef int (*MRIStepInnerSetFixedStep)(MRIStepInnerStepper stepper,
-                                        sunrealtype h);
 
 typedef int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol);
 

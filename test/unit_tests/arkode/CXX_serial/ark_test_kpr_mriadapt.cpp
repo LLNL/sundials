@@ -413,7 +413,7 @@ int main(int argc, char* argv[])
       retval = SUNAdaptController_SetParams_I(scontrol_Tol, opts.k1s);
       if (check_flag(retval, "SUNAdaptController_SetParams_I")) return 1;
     }
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)
@@ -447,7 +447,7 @@ int main(int argc, char* argv[])
       retval = SUNAdaptController_SetParams_PI(scontrol_Tol, opts.k1s, opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_PI")) return 1;
     }
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)
@@ -483,7 +483,7 @@ int main(int argc, char* argv[])
                                                 opts.k2s, opts.k3s);
       if (check_flag(retval, "SUNAdaptController_SetParams_PID")) return 1;
     }
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)
@@ -520,7 +520,7 @@ int main(int argc, char* argv[])
                                                    opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_ExpGus")) return 1;
     }
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)
@@ -557,7 +557,7 @@ int main(int argc, char* argv[])
                                                    opts.k2s);
       if (check_flag(retval, "SUNAdaptController_SetParams_ImpGus")) return 1;
     }
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)
@@ -585,7 +585,7 @@ int main(int argc, char* argv[])
     scontrol_Tol = SUNAdaptController_ImExGus(sunctx);
     if (check_ptr((void*)scontrol_Tol, "SUNAdaptController_ImExGus (slow Tol)"))
       return 1;
-    scontrol = SUNAdaptController_MRIHTol(sunctx, scontrol_H, scontrol_Tol);
+    scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
     if (check_ptr((void*)scontrol, "SUNAdaptController_MRIHTol")) return 1;
     if (std::min(opts.htol_relch, std::min(opts.htol_minfac, opts.htol_maxfac)) >
         -1)

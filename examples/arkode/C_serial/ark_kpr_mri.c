@@ -64,6 +64,7 @@
  *   $ ark_kpr_mri slow_type fast_type h G w e deduce_rhs
  * Not all arguments are required, but these must be omitted from
  * end-to-beginning, i.e. any one of
+ *   $ ark_kpr_mri slow_type fast_type h G w e deduce_rhs
  *   $ ark_kpr_mri slow_type fast_type h G w e
  *   $ ark_kpr_mri slow_type fast_type h G w
  *   $ ark_kpr_mri slow_type fast_type h G
@@ -189,8 +190,8 @@ int main(int argc, char* argv[])
     printf("  ark_kpr_mri slow_type fast_type h G w e deduce_rhs");
     return (-1);
   }
-  slow_type = (sunindextype)atol(argv[1]);
-  fast_type = (sunindextype)atol(argv[2]);
+  slow_type = atoi(argv[1]);  
+  fast_type = atoi(argv[2]); 
   if (argc > 3) { hs = SUNStrToReal(argv[3]); }
   if (argc > 4) { G = SUNStrToReal(argv[4]); }
   if (argc > 5) { w = SUNStrToReal(argv[5]); }
@@ -211,7 +212,7 @@ int main(int argc, char* argv[])
   }
   if ((fast_type < 0) || (fast_type > 5))
   {
-    printf("ERROR: fast_type be an integer in [0,3] \n");
+    printf("ERROR: fast_type be an integer in [0,5] \n");  
     return (-1);
   }
   if ((slow_type == 0) && (fast_type == 0))
@@ -344,10 +345,6 @@ int main(int argc, char* argv[])
     printf("    fast solver: none\n");
     no_fast = SUNTRUE;
     break;
-  case (3):
-    printf("    fast solver: erk-3-3\n");
-    explicit_fast = SUNTRUE;
-    break;
   case (1):
     printf("    fast solver: esdirk-3-3\n");
     implicit_fast = SUNTRUE;
@@ -355,12 +352,16 @@ int main(int argc, char* argv[])
     abstol        = 1e-11;
     printf("      reltol = %.2" ESYM ",  abstol = %.2" ESYM "\n", reltol, abstol);
     break;
-  case (4):
-    printf("    fast solver: erk-4-4\n");
-    explicit_fast = SUNTRUE;
-    break;
   case (2):
     printf("    fast solver: ARKODE_HEUN_EULER_2_1_2\n");
+    explicit_fast = SUNTRUE;
+    break;
+  case (3):
+    printf("    fast solver: erk-3-3\n");
+    explicit_fast = SUNTRUE;
+    break;
+  case (4):
+    printf("    fast solver: erk-4-4\n");
     explicit_fast = SUNTRUE;
     break;
   case (5):
@@ -432,22 +433,6 @@ int main(int argc, char* argv[])
   switch (fast_type)
   {
   case (0):
-  case (3):
-    B = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
-    B->A[1][0] = SUN_RCONST(0.5);
-    B->A[2][0] = -ONE;
-    B->A[2][1] = TWO;
-    B->b[0]    = ONE / SUN_RCONST(6.0);
-    B->b[1]    = TWO / SUN_RCONST(3.0);
-    B->b[2]    = ONE / SUN_RCONST(6.0);
-    B->d[1]    = ONE;
-    B->c[1]    = SUN_RCONST(0.5);
-    B->c[2]    = ONE;
-    B->q       = 3;
-    B->p       = 2;
-    retval     = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
-    if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
     break;
   case (1):
     B = ARKodeButcherTable_Alloc(3, SUNFALSE);
@@ -468,6 +453,29 @@ int main(int argc, char* argv[])
     retval     = ARKStepSetTables(inner_arkode_mem, 3, 0, B, NULL);
     if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
     break;
+  case (2):
+    B = ARKodeButcherTable_LoadERK(ARKODE_HEUN_EULER_2_1_2);
+    if (check_retval((void*)B, "ARKodeButcherTable_LoadERK", 0)) { return 1; }
+    retval = ARKStepSetTables(inner_arkode_mem, 2, 1, NULL, B);
+    if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
+    break;
+  case (3):
+    B = ARKodeButcherTable_Alloc(3, SUNTRUE);
+    if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
+    B->A[1][0] = SUN_RCONST(0.5);
+    B->A[2][0] = -ONE;
+    B->A[2][1] = TWO;
+    B->b[0]    = ONE / SUN_RCONST(6.0);
+    B->b[1]    = TWO / SUN_RCONST(3.0);
+    B->b[2]    = ONE / SUN_RCONST(6.0);
+    B->d[1]    = ONE;
+    B->c[1]    = SUN_RCONST(0.5);
+    B->c[2]    = ONE;
+    B->q       = 3;
+    B->p       = 2;
+    retval     = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
+    if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
+    break;
   case (4):
     B = ARKodeButcherTable_Alloc(4, SUNFALSE);
     if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
@@ -483,12 +491,6 @@ int main(int argc, char* argv[])
     B->c[3]    = ONE;
     B->q       = 4;
     retval     = ARKStepSetTables(inner_arkode_mem, 4, 0, NULL, B);
-    if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
-    break;
-  case (2):
-    B = ARKodeButcherTable_LoadERK(ARKODE_HEUN_EULER_2_1_2);
-    if (check_retval((void*)B, "ARKodeButcherTable_LoadERK", 0)) { return 1; }
-    retval = ARKStepSetTables(inner_arkode_mem, 2, 1, NULL, B);
     if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
     break;
   case (5):

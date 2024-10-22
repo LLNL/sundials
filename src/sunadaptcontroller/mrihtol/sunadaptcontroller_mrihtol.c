@@ -55,9 +55,9 @@
  * Function to create a new MRIHTol controller
  */
 
-SUNAdaptController SUNAdaptController_MRIHTol(SUNContext sunctx,
-                                              SUNAdaptController HControl,
-                                              SUNAdaptController TolControl)
+SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
+                                              SUNAdaptController TolControl,
+                                              SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 

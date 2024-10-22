@@ -129,14 +129,14 @@ relevant to a :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL` controller listed in
 also provides the following additional user-callable routines:
 
 
-.. c:function:: SUNAdaptController SUNAdaptController_MRIHTol(SUNContext sunctx, SUNAdaptController HControl, SUNAdaptController TolControl)
+.. c:function:: SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl, SUNAdaptController TolControl, SUNContext sunctx)
 
    This constructor creates and allocates memory for a SUNAdaptController_MRIHTol
    object, and inserts its default parameters.
 
-   :param sunctx: the current :c:type:`SUNContext` object.
    :param HControl: the slow time step adaptivity controller object.
    :param TolControl: the inner solver tolerance factor adaptivity controller object.
+   :param sunctx: the current :c:type:`SUNContext` object.
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
 
