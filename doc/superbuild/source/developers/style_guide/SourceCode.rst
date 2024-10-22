@@ -355,6 +355,8 @@ not adhere to all of these rules.
    ``sunindextype`` for it. Instead use the appropriate integer type (e.g., ``uint64_t``) directly.
    Do not use ``sunindextype`` for counters either.
 
+#. Follow the logging style detailed in :ref:`Style.Logging`.
+
 
 .. _Style.Formatting:
 
@@ -443,6 +445,8 @@ There are other scenarios (e.g., a function call with a lot of parameters) where
 
 .. See the clang-tidy documentation for more details.
 
+
+.. _Style.Logging:
 
 Logging
 -------
