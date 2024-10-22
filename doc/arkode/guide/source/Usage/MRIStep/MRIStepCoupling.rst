@@ -229,7 +229,8 @@ are defined ``arkode/arkode_mristep.h``.
 
    .. versionchanged:: x.y.z
 
-      In previous releases, this function did not include the *type* argument.
+      In previous releases, this final argument had type ``MRISTEP_METHOD_TYPE``.  That has now
+      been aliased to ``ARKODE_MRIType`` for backwards compatibility.
 
 
 

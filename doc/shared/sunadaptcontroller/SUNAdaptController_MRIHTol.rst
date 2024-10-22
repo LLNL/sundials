@@ -41,11 +41,11 @@ results from two types of error:
 #. "Fast" errors introduced through calls to the next-fastest ("inner") solver,
    :math:`\varepsilon^f_{n}`.  If this inner solver is called to evolve IVPs over
    time intervals :math:`[t_{0,i}, t_{F,i}]` with a relative tolerance
-   :math:`\text{reltol}_n^f`, then it will result in accumulated errors over these
+   :math:`\text{RTOL}_n^f`, then it will result in accumulated errors over these
    intervals of the form
 
    .. math::
-      \varepsilon^f_{n} = c(t_n) \left(\text{reltol}_n^f\right) \left(t_{F,i}-t_{0,i}\right),
+      \varepsilon^f_{n} = c(t_n) \left(\text{RTOL}_n^f\right) \left(t_{F,i}-t_{0,i}\right),
 
    where :math:`c(t)` is independent of the tolerance or subinterval width but may vary in
    time, or equivalently,
@@ -54,10 +54,10 @@ results from two types of error:
       \varepsilon^f_{n} = \kappa(t_n) \left(\text{tolfac}_n^f\right),
       :label: inner_solver_assumption
 
-   where :math:`\text{reltol}_n^f = \text{reltol}^s \text{tolfac}_n^f`,
-   :math:`\text{reltol}^s` is the relative tolerance that was supplied to the
+   where :math:`\text{RTOL}_n^f = \text{RTOL}^s \text{tolfac}_n^f`,
+   :math:`\text{RTOL}^s` is the relative tolerance that was supplied to the
    current time scale solver, and where
-   :math:`\kappa(t_n) = c(t_n) \text{reltol}^s \left(t_{F,i}-t_{0,i}\right)` is
+   :math:`\kappa(t_n) = c(t_n) \text{RTOL}^s \left(t_{F,i}-t_{0,i}\right)` is
    independent of the relative tolerance factor, :math:`\text{tolfac}_n^f`.
 
 Single-rate controllers are constructed to adapt a single parameter, e.g.,
@@ -112,7 +112,7 @@ These entries of the *content* field contain the following information:
   the current step size, :math:`h^s_n`.
 
 * ``TolControl`` - single time-scale SUNAdaptController object to adapt
-  the inner solver relative tolerance factor, :math:`\text{reltol}^f_n`.
+  the inner solver relative tolerance factor, :math:`\text{RTOL}^f_n`.
 
 * ``inner_max_relch`` - the parameter :math:`\text{max}_{relch}` above.
 

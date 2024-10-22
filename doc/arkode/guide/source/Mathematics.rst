@@ -1012,21 +1012,20 @@ To this end, we assume that the inner solver will provide accumulated errors
 over each fast interval having the form
 
 .. math::
-   \varepsilon^f_{n} = c(t_n) \left(\text{reltol}_n^f\right) \left(t_{F,i}-t_{0,i}\right),
+   \varepsilon^f_{n} = c(t_n) h^S_n \left(\text{RTOL}_n^f\right),
    :label: fast_error_accumulation_assumption
 
-where :math:`c(t)` is independent of the tolerance or subinterval width, but may vary in time.
+where :math:`c(t)` is independent of the tolerance or step size, but may vary in time.
 Single-scale adaptive controllers assume that the local error at a step :math:`n` with step
-size :math:`h^S` has order :math:`p`, i.e.,
+size :math:`h_n` has order :math:`p`, i.e.,
 
 .. math::
-   LTE_n = c(t_n) (h^S)^{p+1},
+   LTE_n = c(t_n) (h_n)^{p+1},
 
-to predict candidate values :math:`h^S_{n+1}`.  We may therefore repurpose an existing
-single-scale controller to predict candidate values :math:`\text{reltol}^f_{n+1}` by
+to predict candidate values :math:`h_{n+1}`.  We may therefore repurpose an existing
+single-scale controller to predict candidate values :math:`\text{RTOL}^f_{n+1}` by
 supplying an "order" :math:`p=0` and a "control parameter"
-:math:`h^S_n=\left(\text{reltol}_n^f\right) \left(t_{F,i}-t_{0,i}\right)`, and scaling
-the output by the subinterval width.
+:math:`h_n=\left(\text{RTOL}_n^f\right)`.
 
 Thus to construct an :math:`h^S-Tol` controller, we require three separate single-rate
 adaptivity controllers:
@@ -1034,11 +1033,11 @@ adaptivity controllers:
 * scontrol-H -- this is a single-rate controller that adapts :math:`h^S_n` within the
   slow integrator to achieve user-requested solution tolerances.
 
-* scontrol-Tol -- this is a single-rate controller that adapts :math:`\text{reltol}^f_n`
+* scontrol-Tol -- this is a single-rate controller that adapts :math:`\text{RTOL}^f_n`
   using the strategy described above.
 
 * fcontrol -- this adapts time steps :math:`h^F` within the fast integrator to achieve
-  the current tolerance, :math:`\text{reltol}^f_n`.
+  the current tolerance, :math:`\text{RTOL}^f_n`.
 
 We note that both the decoupled and :math:`h^S-Tol` controller families may be used in
 multirate calculations with an arbitrary number of time scales, since these focus on only
@@ -1161,17 +1160,17 @@ method computes an estimate of the local temporal error, :math:`\varepsilon^f_{n
 the fast integrator itself is temporally adaptive.  In this case, we assume that the
 fast integrator was run with the same absolute tolerances as the slow integrator, but
 that it may have used a potentially different relative solution tolerance,
-:math:`\text{reltol}^f`.  The fast integrator then accumulates these local error
+:math:`\text{RTOL}^f`.  The fast integrator then accumulates these local error
 estimates using either a "maximum accumulation: strategy,
 
 .. math::
-   \varepsilon^f_{max} = \text{reltol}^f \max_{m\in M} \|\varepsilon^f_{n,m}\|_{WRMS},
+   \varepsilon^f_{max} = \text{RTOL}^f \max_{m\in M} \|\varepsilon^f_{n,m}\|_{WRMS},
    :label: maximum_accumulation
 
 or using an "averaged accumulation" strategy,
 
 .. math::
-   \varepsilon^f_{avg} = \frac{\text{reltol}^f}{|M|} \sum_{m\in M} \|\varepsilon^f_{n,m}\|_{WRMS},
+   \varepsilon^f_{avg} = \frac{\text{RTOL}^f}{|M|} \sum_{m\in M} \|\varepsilon^f_{n,m}\|_{WRMS},
    :label: average_accumulation
 
 where the norm is taken using the tolerance-informed error-weight vector.  In
@@ -1300,18 +1299,17 @@ Nonlinear solver methods
 ------------------------------------
 
 
-For the DIRK and ARK methods corresponding to :eq:`ARKODE_IMEX_IVP` and
+Methods with an implicit partition require solving implicit systems of the form
 :eq:`ARKODE_IVP_implicit` in ARKStep, and the implicit slow stages
 :eq:`MRI_implicit_solve` or :eq:`MRI_embedding_implicit_solve` in MRIStep,
 an implicit system
 
 .. math::
-   G(z_i) = 0
+   G(z_i) = 0.
    :label: ARKODE_Residual
 
-must be solved for each implicit stage :math:`z_i`.  In order to
-maximize solver efficiency, we define this root-finding problem differently
-based on the type of mass-matrix supplied by the user.
+In order to maximize solver efficiency, we define this root-finding problem
+differently based on the type of mass-matrix supplied by the user.
 
 * In the case that :math:`M=I` within ARKStep, we define the residual as
 

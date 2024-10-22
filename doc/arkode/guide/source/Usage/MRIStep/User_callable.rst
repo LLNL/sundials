@@ -1704,8 +1704,8 @@ Main solver optional output functions
                  of key and value pairs e.g., ``key1,value1,key2,value2,...``
 
    :retval ARK_SUCCESS: -- if the output was successfully.
-   :retval CV_MEM_NULL: -- if the MRIStep memory was ``NULL``.
-   :retval CV_ILL_INPUT: -- if an invalid formatting option was provided.
+   :retval ARK_MEM_NULL: -- if the MRIStep memory was ``NULL``.
+   :retval ARK_ILL_INPUT: -- if an invalid formatting option was provided.
 
    .. note::
 
