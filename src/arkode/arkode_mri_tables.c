@@ -69,7 +69,7 @@ MRIStepCoupling MRIStepCoupling_LoadTableByName(const char* method)
 /*---------------------------------------------------------------
   Routine to allocate an empty MRIStepCoupling structure
   ---------------------------------------------------------------*/
-MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages, ARKODE_MRIType type)
+MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages, MRISTEP_METHOD_TYPE type)
 {
   int i, j;
   sunbooleantype hasOmegas, hasGammas;
@@ -234,7 +234,7 @@ MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages, int q, int p,
                                        sunrealtype* c)
 {
   int i, j, k;
-  ARKODE_MRIType type;
+  MRISTEP_METHOD_TYPE type;
   MRIStepCoupling MRIC = NULL;
 
   /* Check for legal inputs */
@@ -322,7 +322,7 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
   sunbooleantype padding;
   sunrealtype Asum;
   sunrealtype*** C;
-  ARKODE_MRIType type;
+  MRISTEP_METHOD_TYPE type;
   MRIStepCoupling MRIC;
 
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
@@ -459,7 +459,7 @@ MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
 MRIStepCoupling MRIStepCoupling_Copy(MRIStepCoupling MRIC)
 {
   int i, j, k, nmat, stages;
-  ARKODE_MRIType type;
+  MRISTEP_METHOD_TYPE type;
   MRIStepCoupling MRICcopy;
 
   /* Check for legal input */

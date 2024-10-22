@@ -93,7 +93,7 @@ static int Ji(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int check_flag(void* flagvalue, const std::string funcname, int opt);
 
 // Test drivers
-static int run_tests(ARKODE_MRIType type, ProblemOptions& prob_opts,
+static int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
                      ProblemData& prob_data, SUNContext ctx);
 
 // -----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
 // Test drivers
 // -----------------------------------------------------------------------------
 
-int run_tests(ARKODE_MRIType type, ProblemOptions& prob_opts,
+int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
               ProblemData& prob_data, SUNContext sunctx)
 {
   // Reusable error-checking flag

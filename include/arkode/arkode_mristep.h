@@ -39,13 +39,9 @@ typedef enum
   MRISTEP_IMEX,
   MRISTEP_MERK,
   MRISTEP_MRISR
-} ARKODE_MRIType;
-
-/* Alias to account for the changed enum name above */
-typedef ARKODE_MRIType MRISTEP_METHOD_TYPE;
+} MRISTEP_METHOD_TYPE;
 
 /* MRI coupling table IDs */
-
 typedef enum
 {
   ARKODE_MRI_NONE    = -1, /* ensure enum is signed int */
@@ -130,14 +126,14 @@ typedef int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol
   ---------------------------------------------------------------*/
 struct MRIStepCouplingMem
 {
-  ARKODE_MRIType type; /* flag to encode the MRI method type          */
-  int nmat;            /* number of MRI coupling matrices                     */
-  int stages;          /* size of coupling matrices ((stages+1) * stages)     */
-  int q;               /* method order of accuracy                            */
-  int p;               /* embedding order of accuracy                         */
-  sunrealtype* c;      /* stage abscissae                                     */
-  sunrealtype*** W;    /* explicit coupling matrices [nmat][stages+1][stages] */
-  sunrealtype*** G;    /* implicit coupling matrices [nmat][stages+1][stages] */
+  MRISTEP_METHOD_TYPE type; /* flag to encode the MRI method type                  */
+  int nmat;                 /* number of MRI coupling matrices                     */
+  int stages;               /* size of coupling matrices ((stages+1) * stages)     */
+  int q;                    /* method order of accuracy                            */
+  int p;                    /* embedding order of accuracy                         */
+  sunrealtype* c;           /* stage abscissae                                     */
+  sunrealtype*** W;         /* explicit coupling matrices [nmat][stages+1][stages] */
+  sunrealtype*** G;         /* implicit coupling matrices [nmat][stages+1][stages] */
 
   int ngroup;  /* number of stage groups (MERK-specific)              */
   int** group; /* stages to integrate together (MERK-specific)        */
@@ -153,7 +149,7 @@ SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_LoadTableByName(const char* meth
 
 /* Utility routines to allocate/free/output coupling table structures */
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
-                                                      ARKODE_MRIType type);
+                                                      MRISTEP_METHOD_TYPE type);
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages,
                                                        int q, int p,
                                                        sunrealtype* W,

@@ -24,9 +24,9 @@ supply a custom set of slow-to-fast time scale coupling coefficients by
 constructing a coupling table and attaching it with
 :c:func:`MRIStepSetCoupling`. A given MRI coupling table can encode any of
 the MRI methods supported by MRIStep.  The family of MRI method encoded
-by the table is determined by an enumerated type, :c:enum:`ARKODE_MRIType`:
+by the table is determined by an enumerated type, :c:enum:`MRISTEP_METHOD_TYPE`:
 
-.. c:enum:: ARKODE_MRIType
+.. c:enum:: MRISTEP_METHOD_TYPE
 
    The MRI method family encoded by a :c:type:`MRIStepCoupling` table
 
@@ -68,7 +68,7 @@ The MRI coupling tables themselves are stored in an
    tensors :math:`\Gamma\in\mathbb{R}^{(s+1)\times(s+1)\times k}` and
    :math:`\Omega\in\mathbb{R}^{(s+1)\times(s+1)\times k}`.
 
-   .. c:member:: ARKODE_MRIType type
+   .. c:member:: MRISTEP_METHOD_TYPE type
 
       Flag indicating the type of MRI method encoded by this table.
 
@@ -182,7 +182,7 @@ are defined ``arkode/arkode_mristep.h``.
       This function is case sensitive.
 
 
-.. c:function:: MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages, ARKODE_MRIType type)
+.. c:function:: MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages, MRISTEP_METHOD_TYPE type)
 
    Allocates an empty MRIStepCoupling table.
 
@@ -229,8 +229,7 @@ are defined ``arkode/arkode_mristep.h``.
 
    .. versionchanged:: x.y.z
 
-      In previous releases, this final argument had type ``MRISTEP_METHOD_TYPE``.  That has now
-      been aliased to ``ARKODE_MRIType`` for backwards compatibility.
+      This function now supports a broader range of MRI method types.
 
 
 
