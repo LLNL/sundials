@@ -26,7 +26,7 @@ module farkode_mristep_mod
  private
 
  ! DECLARATION CONSTRUCTS
- ! typedef enum ARKODE_MRIType
+ ! typedef enum MRISTEP_METHOD_TYPE
  enum, bind(c)
   enumerator :: MRISTEP_EXPLICIT
   enumerator :: MRISTEP_IMPLICIT
@@ -34,7 +34,7 @@ module farkode_mristep_mod
   enumerator :: MRISTEP_MERK
   enumerator :: MRISTEP_MRISR
  end enum
- integer, parameter, public :: ARKODE_MRIType = kind(MRISTEP_EXPLICIT)
+ integer, parameter, public :: MRISTEP_METHOD_TYPE = kind(MRISTEP_EXPLICIT)
  public :: MRISTEP_EXPLICIT, MRISTEP_IMPLICIT, MRISTEP_IMEX, MRISTEP_MERK, MRISTEP_MRISR
  ! typedef enum ARKODE_MRITableID
  enum, bind(c)
@@ -1514,7 +1514,7 @@ contains
 subroutine swigf_MRIStepCouplingMem_type_set(self, type)
 use, intrinsic :: ISO_C_BINDING
 class(MRIStepCouplingMem), intent(in) :: self
-integer(ARKODE_MRIType), intent(in) :: type
+integer(MRISTEP_METHOD_TYPE), intent(in) :: type
 type(SwigClassWrapper) :: farg1 
 integer(C_INT) :: farg2 
 
@@ -1526,7 +1526,7 @@ end subroutine
 function swigf_MRIStepCouplingMem_type_get(self) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-integer(ARKODE_MRIType) :: swig_result
+integer(MRISTEP_METHOD_TYPE) :: swig_result
 class(MRIStepCouplingMem), intent(in) :: self
 integer(C_INT) :: fresult 
 type(SwigClassWrapper) :: farg1 
@@ -1849,7 +1849,7 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: nmat
 integer(C_INT), intent(in) :: stages
-integer(ARKODE_MRIType), intent(in) :: type
+integer(MRISTEP_METHOD_TYPE), intent(in) :: type
 type(C_PTR) :: fresult 
 integer(C_INT) :: farg1 
 integer(C_INT) :: farg2 

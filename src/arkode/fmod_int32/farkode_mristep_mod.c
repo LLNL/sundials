@@ -310,11 +310,11 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 SWIGEXPORT void _wrap_MRIStepCouplingMem_type_set(SwigClassWrapper const *farg1, int const *farg2) {
   struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
-  ARKODE_MRIType arg2 ;
+  MRISTEP_METHOD_TYPE arg2 ;
   
   SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::type", return );
   arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
-  arg2 = (ARKODE_MRIType)(*farg2);
+  arg2 = (MRISTEP_METHOD_TYPE)(*farg2);
   if (arg1) (arg1)->type = arg2;
 }
 
@@ -322,11 +322,11 @@ SWIGEXPORT void _wrap_MRIStepCouplingMem_type_set(SwigClassWrapper const *farg1,
 SWIGEXPORT int _wrap_MRIStepCouplingMem_type_get(SwigClassWrapper const *farg1) {
   int fresult ;
   struct MRIStepCouplingMem *arg1 = (struct MRIStepCouplingMem *) 0 ;
-  ARKODE_MRIType result;
+  MRISTEP_METHOD_TYPE result;
   
   SWIG_check_mutable_nonnull(*farg1, "struct MRIStepCouplingMem *", "MRIStepCouplingMem", "MRIStepCouplingMem::type", return 0);
   arg1 = (struct MRIStepCouplingMem *)(farg1->cptr);
-  result = (ARKODE_MRIType) ((arg1)->type);
+  result = (MRISTEP_METHOD_TYPE) ((arg1)->type);
   fresult = (int)(result);
   return fresult;
 }
@@ -607,12 +607,12 @@ SWIGEXPORT void * _wrap_FMRIStepCoupling_Alloc(int const *farg1, int const *farg
   void * fresult ;
   int arg1 ;
   int arg2 ;
-  ARKODE_MRIType arg3 ;
+  MRISTEP_METHOD_TYPE arg3 ;
   MRIStepCoupling result;
   
   arg1 = (int)(*farg1);
   arg2 = (int)(*farg2);
-  arg3 = (ARKODE_MRIType)(*farg3);
+  arg3 = (MRISTEP_METHOD_TYPE)(*farg3);
   result = (MRIStepCoupling)MRIStepCoupling_Alloc(arg1,arg2,arg3);
   fresult = result;
   return fresult;
