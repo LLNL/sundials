@@ -60,14 +60,15 @@ of the ARKODE infrastructure, including its usage modes and approaches
 for interpolated solution output.  We then discuss the current suite
 of time-stepping modules supplied with ARKODE, including the ARKStep
 module for :ref:`additive Runge--Kutta methods <ARKODE.Mathematics.ARK>`,
-the ERKStep module that is optimized for :ref:`explicit Runge--Kutta
-methods <ARKODE.Mathematics.ERK>`, SplittingStep for :ref:`operator splitting
-methods <ARKODE.Mathematics.SplittingStep>`, ForcingStep for :ref:`a forcing
-method <ARKODE.Mathematics.ForcingStep>`, and the MRIStep module for
-:ref:`multirate infinitesimal step (MIS), multirate infinitesimal GARK
-(MRI-GARK), and implicit-explicit MRI-GARK (IMEX-MRI-GARK) methods
-<ARKODE.Mathematics.MRIStep>`. We then discuss the :ref:`adaptive temporal error
-controllers <ARKODE.Mathematics.Adaptivity>` shared by the time-stepping
+the ERKStep module that is optimized for :ref:`explicit Runge--Kutta methods
+<ARKODE.Mathematics.ERK>`, ForcingStep for :ref:`a forcing method
+<ARKODE.Mathematics.ForcingStep>`, MRIStep for :ref:`multirate infinitesimal
+step (MIS), multirate infinitesimal GARK (MRI-GARK), and implicit-explicit
+MRI-GARK (IMEX-MRI-GARK) methods <ARKODE.Mathematics.MRIStep>`, SplittingStep
+for :ref:`operator splitting methods <ARKODE.Mathematics.SplittingStep>`, and
+SPRKStep for :ref:`symplectic partitioned Runge--Kutta methods
+<ARKODE.Mathematics.SPRKStep>`. We then discuss the :ref:`adaptive temporal
+error controllers <ARKODE.Mathematics.Adaptivity>` shared by the time-stepping
 modules, including discussion of our choice of norms for measuring errors within
 various components of the solver.
 
