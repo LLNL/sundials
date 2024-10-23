@@ -135,6 +135,12 @@ typedef long double sunrealtype;
  *------------------------------------------------------------------
  */
 
+#if defined(WIN32) || defined(_WIN32)
+
+
+
+#else
+
 #if defined(SUNDIALS_SINGLE_PRECISION)
 
 typedef float _Complex        suncomplextype;
@@ -158,6 +164,8 @@ typedef long double _Complex  suncomplextype;
 #define SUN_I                 (1.0L * I)
 #define SUN_REAL(z)           creall(z)
 #define SUN_IMAG(z)           cimagl(z)
+
+#endif
 
 #endif
 

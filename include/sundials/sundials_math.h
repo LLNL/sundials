@@ -50,6 +50,12 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
+#if defined(WIN32) || defined(_WIN32)
+
+
+
+#else
+
 #ifndef SUNCCONJ
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCCONJ(x) (conj((x)))
@@ -61,6 +67,8 @@ extern "C" {
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
+#endif
+
 #endif
 
 /*
@@ -113,7 +121,7 @@ extern "C" {
 #endif
 
 #ifndef SUNCSQR
-#define SUNCSQR(A) ((A) * SUNCONJ(A))
+#define SUNCSQR(A) ((A) * SUNCCONJ(A))
 #endif
 
 /*
@@ -152,6 +160,12 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
+#if defined(WIN32) || defined(_WIN32)
+
+
+
+#else
+
 #ifndef SUNCsqrt
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCsqrt(x) (csqrt((x)))
@@ -163,6 +177,8 @@ extern "C" {
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
+#endif
+
 #endif
 
 /*
@@ -200,6 +216,12 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
+#if defined(WIN32) || defined(_WIN32)
+
+
+
+#else
+
 #ifndef SUNCabs
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCabs(x) (cabs((x)))
@@ -211,6 +233,8 @@ extern "C" {
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
+#endif
+
 #endif
 
 /*
@@ -248,6 +272,12 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
+#if defined(WIN32) || defined(_WIN32)
+
+
+
+#else
+
 #ifndef SUNCexp
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCexp(x) (cexp((x)))
@@ -259,6 +289,8 @@ extern "C" {
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
+#endif
+
 #endif
 
 /*
@@ -297,6 +329,12 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
+#if defined(WIN32) || defined(_WIN32)
+
+
+
+#else
+
 #ifndef SUNCceil
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCceil(x) (ceil((SUN_REAL(x))))
@@ -308,6 +346,8 @@ extern "C" {
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
+#endif
+
 #endif
 
 /*
