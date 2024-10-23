@@ -114,7 +114,7 @@ typedef long double sunrealtype;
 /*
  *------------------------------------------------------------------
  * Type suncomplextype
- * Macro SUN_CCONST, SUN_REAL, SUN_IMAG
+ * Macros SUN_CCONST, SUN_I
  *------------------------------------------------------------------
  */
 
@@ -125,8 +125,6 @@ typedef _Fcomplex             suncomplextype;
 #else
 typedef float _Complex        suncomplextype;
 #endif
-#define SUN_CCONST(x, y)      (x##F + y##F * I)
-#define SUN_I                 (1.0f * I)
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
@@ -135,8 +133,6 @@ typedef _Dcomplex             suncomplextype;
 #else
 typedef double _Complex       suncomplextype;
 #endif
-#define SUN_CCONST(x, y)      (x + y * I)
-#define SUN_I                 (1.0 * I)
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 typedef _Lcomplex             suncomplextype;
@@ -144,10 +140,12 @@ typedef _Lcomplex             suncomplextype;
 #else
 typedef long double _Complex  suncomplextype;
 #ndif
-#define SUN_CCONST(x, y)      (x##L + y##L * I)
-#define SUN_I                 (1.0L * I)
 
 #endif
+
+#define SUN_CCONST(x, y)   (SUN_RCONST(x) + SUN_RCONST(y) * I)
+#define SUN_I              (SUN_RCONST(1.0) * I)
+
 
 /*
  *------------------------------------------------------------------
