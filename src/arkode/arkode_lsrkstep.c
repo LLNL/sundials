@@ -1100,8 +1100,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   /* apply user-supplied stage postprocessing function (if supplied) */
   if (ark_mem->ProcessStage != NULL)
   {
-    retval = ark_mem->ProcessStage(ark_mem->tn,
-                                   ark_mem->ycur, ark_mem->user_data);
+    retval = ark_mem->ProcessStage(ark_mem->tn, ark_mem->ycur,
+                                   ark_mem->user_data);
     if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
@@ -1809,11 +1809,11 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   /* apply user-supplied stage postprocessing function (if supplied) */
   if (ark_mem->ProcessStage != NULL)
   {
-    retval = ark_mem->ProcessStage(ark_mem->tn,
-                                   ark_mem->ycur, ark_mem->user_data);
+    retval = ark_mem->ProcessStage(ark_mem->tn, ark_mem->ycur,
+                                   ark_mem->user_data);
     if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
-  
+
   /* Evaluate stages j = 2,...,step_mem->req_stages */
   for (int j = 2; j <= 5; j++)
   {
