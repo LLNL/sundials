@@ -53,7 +53,7 @@ variables:
 # Used in script/gitlab/build_and_test.sh script.
 # TODO: add a clean-up mechanism.
   BUILD_ROOT: ${CI_PROJECT_DIR}
-  SPACK_REF: "79ad6f6b48303b455d892a99dee7bbc927ca75d0"
+  SPACK_REF: "594a376c521cc746978571b1181a47bbcff30a21"
 
 ##### SHARED_CI CONFIGURATION
 # Required information about GitHub repository
