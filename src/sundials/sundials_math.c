@@ -64,6 +64,12 @@ sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 
 suncomplextype SUNCpowerC(suncomplextype base, suncomplextype exponent)
 {
+#if defined(WIN32) || defined(_WIN32)
+
+
+
+#else
+
 #if defined(SUNDIALS_DOUBLE_PRECISION)
   return (cpow(base, exponent));
 #elif defined(SUNDIALS_SINGLE_PRECISION)
@@ -73,6 +79,8 @@ suncomplextype SUNCpowerC(suncomplextype base, suncomplextype exponent)
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+
 #endif
 }
 
