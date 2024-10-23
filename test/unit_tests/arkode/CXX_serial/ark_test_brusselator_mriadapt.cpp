@@ -265,9 +265,11 @@ int main(int argc, char* argv[])
   if (check_ptr((void*)yref, "N_VNew_Serial")) return 1;
 
   // Set initial conditions
-  NV_Ith_S(y, 0) = SUN_RCONST(1.2);
-  NV_Ith_S(y, 1) = SUN_RCONST(3.1);
-  NV_Ith_S(y, 2) = SUN_RCONST(3.0);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* yrefdata = N_VGetArrayPointer(yref);
+  ydata[0] = SUN_RCONST(1.2);
+  ydata[1] = SUN_RCONST(3.1);
+  ydata[2] = SUN_RCONST(3.0);
   N_VScale(ONE, y, yref);
 
   // Create and configure reference solver object
@@ -672,7 +674,7 @@ int main(int argc, char* argv[])
          "----\n");
   printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.1" ESYM
          "   %.1" ESYM "   %.1" ESYM "\n",
-         t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), NV_Ith_S(y, 2), uerr, verr, werr);
+         t, ydata[0], ydata[1], ydata[2], uerr, verr, werr);
   int Nout = 0;
   while (Tf - t > 1.0e-8)
   {
@@ -700,22 +702,22 @@ int main(int argc, char* argv[])
     }
 
     // access/print solution and error
-    u    = NV_Ith_S(y, 0);
-    v    = NV_Ith_S(y, 1);
-    w    = NV_Ith_S(y, 2);
-    uerr = SUNRabs(NV_Ith_S(yref, 0) - u);
-    verr = SUNRabs(NV_Ith_S(yref, 1) - v);
-    werr = SUNRabs(NV_Ith_S(yref, 2) - w);
+    u    = ydata[0];
+    v    = ydata[1];
+    w    = ydata[2];
+    uerr = SUNRabs(yrefdata[0] - u);
+    verr = SUNRabs(yrefdata[1] - v);
+    werr = SUNRabs(yrefdata[2] - w);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     werrtot += werr * werr;
     errtot += uerr * uerr + verr * verr + werr * werr;
     accuracy = std::max(accuracy, uerr / SUNRabs(opts.atol +
-                                                 opts.rtol * NV_Ith_S(yref, 0)));
+                                                 opts.rtol * yrefdata[0]));
     accuracy = std::max(accuracy, verr / SUNRabs(opts.atol +
-                                                 opts.rtol * NV_Ith_S(yref, 1)));
+                                                 opts.rtol * yrefdata[1]));
     accuracy = std::max(accuracy, werr / SUNRabs(opts.atol +
-                                                 opts.rtol * NV_Ith_S(yref, 2)));
+                                                 opts.rtol * yrefdata[2]));
     Nout++;
 
     // Periodically output current results to screen
@@ -816,12 +818,14 @@ int main(int argc, char* argv[])
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype w = NV_Ith_S(y, 2);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype w = ydata[2];
 
   // fill in the RHS function:
-  NV_Ith_S(ydot, 0) = ZERO;
-  NV_Ith_S(ydot, 1) = ZERO;
-  NV_Ith_S(ydot, 2) = (opts->b - w) / opts->ep;
+  dydata[0] = ZERO;
+  dydata[1] = ZERO;
+  dydata[2] = (opts->b - w) / opts->ep;
 
   // Return with success
   return 0;
@@ -831,14 +835,16 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
-  const sunrealtype w = NV_Ith_S(y, 2);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
+  const sunrealtype w = ydata[2];
 
   // fill in the RHS function:
-  NV_Ith_S(ydot, 0) = opts->a - (w + ONE) * u + v * u * u;
-  NV_Ith_S(ydot, 1) = w * u - v * u * u;
-  NV_Ith_S(ydot, 2) = -w * u;
+  dydata[0] = opts->a - (w + ONE) * u + v * u * u;
+  dydata[1] = w * u - v * u * u;
+  dydata[2] = -w * u;
 
   // Return with success
   return 0;
@@ -848,13 +854,15 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
 
   // fill in the RHS function:
-  NV_Ith_S(ydot, 0) = opts->a + v * u * u;
-  NV_Ith_S(ydot, 1) = -v * u * u;
-  NV_Ith_S(ydot, 2) = ZERO;
+  dydata[0] = opts->a + v * u * u;
+  dydata[1] = -v * u * u;
+  dydata[2] = ZERO;
 
   // Return with success
   return 0;
@@ -863,13 +871,15 @@ static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fsi routine to compute the slow portion of the ODE RHS.(currently same as fse)
 static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype w = NV_Ith_S(y, 2);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype u = ydata[0];
+  const sunrealtype w = ydata[2];
 
   // fill in the RHS function:
-  NV_Ith_S(ydot, 0) = -(w + ONE) * u;
-  NV_Ith_S(ydot, 1) = w * u;
-  NV_Ith_S(ydot, 2) = -w * u;
+  dydata[0] = -(w + ONE) * u;
+  dydata[1] = w * u;
+  dydata[2] = -w * u;
 
   // Return with success
   return 0;
@@ -878,14 +888,16 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
-  const sunrealtype w = NV_Ith_S(y, 2);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
+  const sunrealtype w = ydata[2];
 
   // fill in the RHS function:
-  NV_Ith_S(ydot, 0) = opts->a - (w + ONE) * u + v * u * u;
-  NV_Ith_S(ydot, 1) = w * u - v * u * u;
-  NV_Ith_S(ydot, 2) = (opts->b - w) / opts->ep - w * u;
+  dydata[0] = opts->a - (w + ONE) * u + v * u * u;
+  dydata[1] = w * u - v * u * u;
+  dydata[2] = (opts->b - w) / opts->ep - w * u;
 
   // Return with success
   return 0;
@@ -900,9 +912,10 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
-  const sunrealtype w = NV_Ith_S(y, 2);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
+  const sunrealtype w = ydata[2];
 
   // fill in the Jacobian:
   SM_ELEMENT_D(J, 0, 0) = -(w + ONE) + TWO * u * v;
@@ -924,8 +937,9 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype w = NV_Ith_S(y, 2);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype w = ydata[2];
 
   // fill in the Jacobian:
   SM_ELEMENT_D(J, 0, 0) = -(w + ONE);
@@ -948,9 +962,10 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
-  const sunrealtype w = NV_Ith_S(y, 2);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
+  const sunrealtype w = ydata[2];
 
   // fill in the Jacobian:
   SM_ELEMENT_D(J, 0, 0) = -(w + ONE) + TWO * u * v;
