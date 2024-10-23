@@ -5,8 +5,14 @@ inputs:
   precision:
     description: SUNDIALS_PRECISION
     required: true
+  scalar:
+    description: SUNDIALS_SCALAR_TYPE
+    required: true
   indexsize:
     description: SUNDIALS_INDEX_SIZE
+    required: true
+  tpls:
+    description: "enable/disable TPLs"
     required: true
 
 runs:
@@ -26,5 +32,11 @@ runs:
       run: |
         git config --global --add safe.directory $GITHUB_WORKSPACE
         cd test
-        ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --sunrealtype ${{ inputs.precision }} --indexsize ${{ inputs.indexsize }}
+        ./test_driver.sh \
+        --testtype CUSTOM \
+        --env env/docker.sh \
+        --tpls ${{ inputs.tpls }} \
+        --sunrealtype ${{ inputs.precision }} \
+        --sunscalartype ${{ inputs.scalar }} \
+        --indexsize ${{ inputs.indexsize }}
       shell: bash
