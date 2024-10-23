@@ -29,12 +29,63 @@
 extern "C" {
 #endif
 
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNCREAL, SUNCIMAG, SUNREAL, SUNIMAG
+ * -----------------------------------------------------------------
+ * Usage : sunscalartype x;
+ *         suncomplextype z;
+ *         sunrealtype real_x, imag_x, real_z, imag_z;
+ *         real_z = SUNCREAL(z);
+ *         imag_z = SUNCIMAG(z);
+ *         real_x = SUNREAL(x);
+ *         real_x = SUNREAL(x);
+ * -----------------------------------------------------------------
+ * SUNCREAL and SUNCIMAG return the real and imaginary components of
+ *   their suncomplextype arguments, respectively.
+ * If sunscalartype is complex, then SUNREAL and SUNIMAG just call
+ *   SUNCREAL and SUNCIMAG.
+ * If sunscalartype is real, then SUNREAL just returns its argument
+ *   and SUNIMAG returns zero.
+ * -----------------------------------------------------------------
+ */
 
-  /*** NOTE(DRR): For now, I've added complex-specific definitions
-       of all functions in this file (denoted as "SUNCxxx", e.g., SUNCsqrt
-       and SUNCMIN).  Should these instead REPLACE the real-valued
-       functions?  ***/
+#ifndef SUNCREAL
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUN_CREAL(z)      (crealf(z))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUN_CREAL(z)      (creal(z))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUN_CREAL(z)      (creall(z))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
 
+#ifndef SUNCIMAG
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUN_CIMAG(z)      (cimagf(z))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUN_CIMAG(z)      (cimag(z))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUN_CIMAG(z)      (cimagl(z))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUN_REAL(z)     (z)
+#define SUN_IMAG(z)     SUN_RCONST(0.0)
+#elif defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+#define SUN_REAL(z)     SUN_CREAL(z)
+#define SUN_IMAG(z)     SUN_CIMAG(z)
+#else
+#error                                                                  \
+  "SUNDIALS scalar type not defined, report to github.com/LLNL/sundials/issues"
+#endif
 
 /*
  * -----------------------------------------------------------------
@@ -84,13 +135,15 @@ extern "C" {
  * -----------------------------------------------------------------
  * Macros
  * -----------------------------------------------------------------
- * SUNRMIN(A,B) returns the minimum of the real numbers A and B
- * SUNCMIN(A,B) returns the whichever of A and B has minimum real part
- * SUNMIN(A,B) uses whichever of the above is mapped to sunscalartype
+ * SUNMIN(A,B) returns the minimum of A and B
+ * SUNCMIN(A,B) returns whichever of A and B has minimum real part
+ * SUNSMIN(A,B) uses SUNMIN if sunscalartype is real, and SUNCMIN if
+ *   sunscalartype is complex
  *
- * SUNRMAX(A,B) returns the maximum of the real numbers A and B
+ * SUNMAX(A,B) returns the maximum of A and B
  * SUNCMAX(A,B) returns whichever of A and B has maximum real part
- * SUNMAX(A,B) uses whichever of the above is mapped to sunscalartype
+ * SUNSMAX(A,B) uses SUNMAX if sunscalartype is real, and SUNCMAX if
+ *   sunscalartype is complex
  *
  * SUNRSQR(A) returns A^2
  * SUNCSQR(A) returns A*conj(A)
@@ -114,35 +167,35 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#ifndef SUNRMIN
-#define SUNRMIN(A, B) ((A) < (B) ? (A) : (B))
+#ifndef SUNMIN
+#define SUNMIN(A, B) ((A) < (B) ? (A) : (B))
 #endif
 
 #ifndef SUNCMIN
 #define SUNCMIN(A, B) ((SUN_REAL(A)) < (SUN_REAL(B)) ? (A) : (B))
 #endif
 
-#ifndef SUNMIN
+#ifndef SUNSMIN
 #if defined(SUNDIALS_SCALAR_TYPE_REAL)
-#define SUNMIN(A, B) SUNRMIN(A, B)
+#define SUNSMIN(A, B) SUNMIN(A, B)
 #else
-#define SUNMIN(A, B) SUNCMIN(A, B)
+#define SUNSMIN(A, B) SUNCMIN(A, B)
 #endif
 #endif
 
-#ifndef SUNRMAX
-#define SUNRMAX(A, B) ((A) > (B) ? (A) : (B))
+#ifndef SUNMAX
+#define SUNMAX(A, B) ((A) > (B) ? (A) : (B))
 #endif
 
 #ifndef SUNCMAX
 #define SUNCMAX(A, B) ((SUN_REAL(A)) > (SUN_REAL(B)) ? (A) : (B))
 #endif
 
-#ifndef SUNMAX
+#ifndef SUNSMAX
 #if defined(SUNDIALS_SCALAR_TYPE_REAL)
-#define SUNMAX(A, B) SUNRMAX(A, B)
+#define SUNSMAX(A, B) SUNMAX(A, B)
 #else
-#define SUNMAX(A, B) SUNCMAX(A, B)
+#define SUNSMAX(A, B) SUNCMAX(A, B)
 #endif
 #endif
 
