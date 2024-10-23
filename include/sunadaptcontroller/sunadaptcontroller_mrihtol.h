@@ -44,9 +44,9 @@ typedef struct SUNAdaptControllerContent_MRIHTol_* SUNAdaptControllerContent_MRI
  * ------------------ */
 
 SUNDIALS_EXPORT
-SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,  
-                                              SUNAdaptController TolControl,  
-                                              SUNContext sunctx);  
+SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
+                                              SUNAdaptController TolControl,
+                                              SUNContext sunctx);
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
                                                 sunrealtype inner_max_relch,

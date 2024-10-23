@@ -776,7 +776,7 @@ The implicit solve that follows each fast IVP must solve the algebraic equation 
 We note that IMEX-MRI-SR methods are solve-decoupled by construction, and thus the structure
 of a given stage never needs to be deduced based on :math:`\Delta c_i^S`.  However, ARKODE
 still checks the value of :math:`\gamma_{i,i}`, since if it zero then the stage update
-equation :eq:`ARKODE_MRISR_implicit` simplifes to a simple explicit Runge--Kutta-like stage
+equation :eq:`ARKODE_MRISR_implicit` simplifies to a simple explicit Runge--Kutta-like stage
 update.
 
 The overall time step solution is given by the final internal stage solution,

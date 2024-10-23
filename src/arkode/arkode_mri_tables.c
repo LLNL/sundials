@@ -69,7 +69,8 @@ MRIStepCoupling MRIStepCoupling_LoadTableByName(const char* method)
 /*---------------------------------------------------------------
   Routine to allocate an empty MRIStepCoupling structure
   ---------------------------------------------------------------*/
-MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages, MRISTEP_METHOD_TYPE type)
+MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
+                                      MRISTEP_METHOD_TYPE type)
 {
   int i, j;
   sunbooleantype hasOmegas, hasGammas;
