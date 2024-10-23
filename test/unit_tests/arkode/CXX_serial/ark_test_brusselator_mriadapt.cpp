@@ -675,16 +675,13 @@ int main(int argc, char* argv[])
   printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.1" ESYM
          "   %.1" ESYM "   %.1" ESYM "\n",
          t, ydata[0], ydata[1], ydata[2], uerr, verr, werr);
-  int Nout = 0;
-  while (Tf - t > 1.0e-8)
+  while (Tf - t > SUN_RCONST(1.0e-8))
   {
     // reset reference solver so that it begins with identical state
     retval = ARKodeReset(arkode_ref, t, y);
 
     // evolve solution in one-step mode
-    retval = ARKodeSetStopTime(arkode_mem, tout);
-    if (check_flag(retval, "ARKodeSetStopTime")) return 1;
-    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_ONE_STEP);
+    retval = ARKodeEvolve(arkode_mem, Tf, y, &t, ARK_ONE_STEP);
     if (retval < 0)
     {
       printf("ARKodeEvolve error (%i)\n", retval);
@@ -694,7 +691,7 @@ int main(int argc, char* argv[])
     // evolve reference solver to same time in "normal" mode
     retval = ARKodeSetStopTime(arkode_ref, t);
     if (check_flag(retval, "ARKodeSetStopTime")) return 1;
-    retval = ARKodeEvolve(arkode_ref, t, yref, &t2, ARK_NORMAL);
+    retval = ARKodeEvolve(arkode_ref, Tf, yref, &t2, ARK_NORMAL);
     if (retval < 0)
     {
       printf("ARKodeEvolve reference solution error (%i)\n", retval);
@@ -705,20 +702,19 @@ int main(int argc, char* argv[])
     u    = ydata[0];
     v    = ydata[1];
     w    = ydata[2];
-    uerr = SUNRabs(yrefdata[0] - u);
-    verr = SUNRabs(yrefdata[1] - v);
-    werr = SUNRabs(yrefdata[2] - w);
+    uerr = std::abs(yrefdata[0] - u);
+    verr = std::abs(yrefdata[1] - v);
+    werr = std::abs(yrefdata[2] - w);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     werrtot += werr * werr;
     errtot += uerr * uerr + verr * verr + werr * werr;
-    accuracy = std::max(accuracy, uerr / SUNRabs(opts.atol +
-                                                 opts.rtol * yrefdata[0]));
-    accuracy = std::max(accuracy, verr / SUNRabs(opts.atol +
-                                                 opts.rtol * yrefdata[1]));
-    accuracy = std::max(accuracy, werr / SUNRabs(opts.atol +
-                                                 opts.rtol * yrefdata[2]));
-    Nout++;
+    accuracy = std::max(accuracy, uerr / std::abs(opts.atol +
+                                                  opts.rtol * yrefdata[0]));
+    accuracy = std::max(accuracy, verr / std::abs(opts.atol +
+                                                  opts.rtol * yrefdata[1]));
+    accuracy = std::max(accuracy, werr / std::abs(opts.atol +
+                                                  opts.rtol * yrefdata[2]));
 
     // Periodically output current results to screen
     if (t >= tout)
@@ -730,10 +726,6 @@ int main(int argc, char* argv[])
              t, u, v, w, uerr, verr, werr);
     }
   }
-  uerrtot = SUNRsqrt(uerrtot / Nt);
-  verrtot = SUNRsqrt(verrtot / Nt);
-  werrtot = SUNRsqrt(werrtot / Nt);
-  errtot  = SUNRsqrt(errtot / Nt / 3);
   printf("   "
          "---------------------------------------------------------------------"
          "----\n");
@@ -767,6 +759,10 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Print some final statistics
+  uerrtot = std::sqrt(uerrtot / (sunrealtype)nsts);
+  verrtot = std::sqrt(verrtot / (sunrealtype)nsts);
+  werrtot = std::sqrt(werrtot / (sunrealtype)nsts);
+  errtot  = std::sqrt(errtot / SUN_RCONST(3.0) / (sunrealtype)nsts);
   std::cout << "\nFinal Solver Statistics:\n";
   std::cout << "   Slow steps = " << nsts << "  (attempts = " << natts
             << ",  fails = " << netfs << ")\n";
