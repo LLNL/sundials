@@ -83,11 +83,13 @@ then
     mirror_opt=""
     buildcache="/usr/workspace/sundials/ci/spack_stuff/build_caches/${SPACK_REF}"
 
-    if [[ -d "${buildcache}" ]]
+    if [[ ! -d "${buildcache}" ]]
     then
-        chmod g+rwx -R $buildcache
-        mirror_opt=("--mirror=${buildcache}" "--mirror-autopush")
+        mkdir "${buildcache}"
     fi
+
+    chmod g+rwx -R $buildcache
+    mirror_opt=("--mirror=${buildcache}" "--mirror-autopush")
 
     key_path=/usr/workspace/sundials/ci/spack_stuff/gpg_backup
     python3 .gitlab/uberenv/uberenv.py \
