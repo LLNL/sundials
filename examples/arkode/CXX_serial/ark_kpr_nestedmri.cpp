@@ -1074,12 +1074,12 @@ int main(int argc, char* argv[])
     retval = ARKodeGetNumJacEvals(arkode_mem, &njes);
     check_flag(retval, "ARKodeGetNumJacEvals");
     std::cout << "   Slow Newton iters = " << nnis << std::endl;
-    std::cout << "   Slow Newton iters/attempt = " << (sunrealtype)nnis / natts
-              << std::endl;
+    std::cout << "   Slow Newton iters/attempt = "
+              << (sunrealtype)nnis / (sunrealtype)natts << std::endl;
     std::cout << "   Slow Newton conv fails = " << nncs << std::endl;
     std::cout << "   Slow Jacobian evals = " << njes << std::endl;
-    std::cout << "   Slow Jacobian evals/Newton = " << (sunrealtype)njes / nnis
-              << std::endl;
+    std::cout << "   Slow Jacobian evals/Newton = "
+              << (sunrealtype)njes / (sunrealtype)nnis << std::endl;
   }
 
   // Get/print intermediate integrator implicit solver statistics
@@ -1092,11 +1092,11 @@ int main(int argc, char* argv[])
     check_flag(retval, "ARKodeGetNumJacEvals");
     std::cout << "   Intermediate Newton iters = " << nnim << std::endl;
     std::cout << "   Intermediate Newton iters/attempt = "
-              << (sunrealtype)nnim / nattm << std::endl;
+              << (sunrealtype)nnim / (sunrealtype)nattm << std::endl;
     std::cout << "   Intermediate Newton conv fails = " << nncm << std::endl;
     std::cout << "   Intermediate Jacobian evals = " << njem << std::endl;
     std::cout << "   Intermediate Jacobian evals/Newton = "
-              << (sunrealtype)njem / nnim << std::endl;
+              << (sunrealtype)njem / (sunrealtype)nnim << std::endl;
   }
 
   // Clean up and return
