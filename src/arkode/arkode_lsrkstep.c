@@ -451,17 +451,11 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     /* call f */
     retval = step_mem->fe(t, y, f, ark_mem->user_data);
     step_mem->nfe++;
-    if (retval < 0)
+    if (retval != 0)
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_RHSFUNC_FAILED, t);
       return ARK_RHSFUNC_FAIL;
-    }
-    if (retval > 0)
-    {
-      arkProcessError(ark_mem, RHSFUNC_RECVR, __LINE__, __func__, __FILE__,
-                      MSG_ARK_RHSFUNC_REPTD, t);
-      return RHSFUNC_RECVR;
     }
 
     break;
@@ -542,6 +536,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
              (onep54 * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
+      ark_mem->hadapt_mem->nst_exp++;
       return ARK_RETRY_STEP;
     }
     else
@@ -826,6 +821,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
              (TWO * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
+      ark_mem->hadapt_mem->nst_exp++;
       return ARK_RETRY_STEP;
     }
     else

@@ -3423,7 +3423,9 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
 .. c:function:: int ARKodeGetNumExpSteps(void* arkode_mem, long int* expsteps)
 
    Returns the cumulative number of stability-limited steps
-   taken by the solver (so far).
+   taken by the solver (so far). If the combination of the maximum number of stages 
+   and the current time step size in the LSRKStep module will not allow for a stable 
+   step, the counter also accounts for such returns.
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param expsteps: number of stability-limited steps taken in the solver.

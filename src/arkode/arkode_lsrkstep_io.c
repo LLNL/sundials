@@ -200,6 +200,11 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
 
 /*---------------------------------------------------------------
   LSRKStepSetMaxNumStages sets the maximum number of stages allowed.
+  If the combination of the maximum number of stages and the current 
+  time step size in the LSRKStep module does not allow for a stable 
+  step, the step routine returns to ARKODE for an updated (refined) 
+  step size. The number of such returns is tracked in a counter, 
+  which can be accessed using ARKodeGetNumExpSteps.
   ---------------------------------------------------------------*/
 int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
 {
