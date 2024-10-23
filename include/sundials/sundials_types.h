@@ -157,6 +157,21 @@ typedef long double _Complex  suncomplextype;
 
 /*
  *------------------------------------------------------------------
+ * Type sunscalartype
+ *------------------------------------------------------------------
+ */
+
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+typedef sunrealtype sunscalartype;
+#elif defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+typedef suncomplextype sunscalartype;
+#else
+#error                                                                  \
+  "SUNDIALS scalar type not defined, report to github.com/LLNL/sundials/issues"
+#endif
+
+/*
+ *------------------------------------------------------------------
  * Type : sunindextype
  *------------------------------------------------------------------
  * Defines integer type to be used for vector and matrix indices.
