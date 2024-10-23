@@ -47,12 +47,6 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#if defined(WIN32) || defined(_WIN32)
-
-
-
-#else
-
 #ifndef SUNCCONJ
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCCONJ(x) (conj((x)))
@@ -64,8 +58,6 @@ extern "C" {
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
-#endif
-
 #endif
 
 /*
@@ -155,12 +147,6 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#if defined(WIN32) || defined(_WIN32)
-
-
-
-#else
-
 #ifndef SUNCsqrt
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCsqrt(x) (csqrt((x)))
@@ -172,8 +158,6 @@ extern "C" {
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
-#endif
-
 #endif
 
 /*
@@ -211,12 +195,6 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#if defined(WIN32) || defined(_WIN32)
-
-
-
-#else
-
 #ifndef SUNCabs
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCabs(x) (cabs((x)))
@@ -228,8 +206,6 @@ extern "C" {
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
-#endif
-
 #endif
 
 /*
@@ -267,12 +243,6 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#if defined(WIN32) || defined(_WIN32)
-
-
-
-#else
-
 #ifndef SUNCexp
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCexp(x) (cexp((x)))
@@ -284,8 +254,6 @@ extern "C" {
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
-#endif
-
 #endif
 
 /*
@@ -324,12 +292,6 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#if defined(WIN32) || defined(_WIN32)
-
-
-
-#else
-
 #ifndef SUNCceil
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCceil(x) (ceil((SUN_REAL(x))))
@@ -341,8 +303,6 @@ extern "C" {
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
-#endif
-
 #endif
 
 /*
@@ -402,7 +362,18 @@ SUNDIALS_EXPORT sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT suncomplextype SUNCpowerC(suncomplextype base, suncomplextype exponent);
+#ifndef SUNCpowerC
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNCpowerC(base,exponent) (cpow(base, exponent))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNCpowerC(base,exponent) (cpowf(base, exponent))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNCpowerC(base,exponent) (cpowl(base, exponent))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
 
 /*
  * -----------------------------------------------------------------

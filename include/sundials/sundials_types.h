@@ -118,15 +118,13 @@ typedef long double sunrealtype;
  *------------------------------------------------------------------
  */
 
-#if defined(WIN32) || defined(_WIN32)
-
-
-
-#else
-
 #if defined(SUNDIALS_SINGLE_PRECISION)
 
+#if defined(WIN32) || defined(_WIN32)
+typedef _Fcomplex             suncomplextype;
+#else
 typedef float _Complex        suncomplextype;
+#endif
 #define SUN_CCONST(x, y)      (x##F + y##F * I)
 #define SUN_I                 (1.0f * I)
 #define SUN_REAL(z)           crealf(z)
@@ -134,21 +132,26 @@ typedef float _Complex        suncomplextype;
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
+#if defined(WIN32) || defined(_WIN32)
+typedef _Dcomplex             suncomplextype;
+#else
 typedef double _Complex       suncomplextype;
+#endif
 #define SUN_CCONST(x, y)      (x + y * I)
 #define SUN_I                 (1.0 * I)
 #define SUN_REAL(z)           creal(z)
 #define SUN_IMAG(z)           cimag(z)
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-
+typedef _Lcomplex             suncomplextype;
+#if defined(WIN32) || defined(_WIN32)
+#else
 typedef long double _Complex  suncomplextype;
+#ndif
 #define SUN_CCONST(x, y)      (x##L + y##L * I)
 #define SUN_I                 (1.0L * I)
 #define SUN_REAL(z)           creall(z)
 #define SUN_IMAG(z)           cimagl(z)
-
-#endif
 
 #endif
 

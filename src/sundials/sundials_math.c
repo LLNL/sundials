@@ -62,28 +62,6 @@ sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
 #endif
 }
 
-suncomplextype SUNCpowerC(suncomplextype base, suncomplextype exponent)
-{
-#if defined(WIN32) || defined(_WIN32)
-
-
-
-#else
-
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-  return (cpow(base, exponent));
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return (cpowf(base, exponent));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return (cpowl(base, exponent));
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
-
-#endif
-}
-
 sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b)
 {
   return (SUNRCompareTol(a, b, 10 * SUN_UNIT_ROUNDOFF));
