@@ -1,0 +1,151 @@
+Forward solution with 2 partitions passed with these stats:
+Current time                 = 1.000000000000001
+Steps                        = 125
+Step attempts                = 125
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.008
+Last step size               = 0.008
+Current step size            = 0.008
+Partition 0 evolves          = 375
+Partition 1 evolves          = 375
+
+Forward solution with 3 partitions passed with these stats:
+Current time                 = 1.000000000000001
+Steps                        = 125
+Step attempts                = 125
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.008
+Last step size               = 0.008
+Current step size            = 0.008
+Partition 0 evolves          = 375
+Partition 1 evolves          = 625
+Partition 2 evolves          = 375
+
+Forward solution with 4 partitions passed with these stats:
+Current time                 = 1.000000000000001
+Steps                        = 125
+Step attempts                = 125
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.008
+Last step size               = 0.008
+Current step size            = 0.008
+Partition 0 evolves          = 375
+Partition 1 evolves          = 625
+Partition 2 evolves          = 625
+Partition 3 evolves          = 375
+
+Forward solution with 5 partitions passed with these stats:
+Current time                 = 1.000000000000001
+Steps                        = 125
+Step attempts                = 125
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.008
+Last step size               = 0.008
+Current step size            = 0.008
+Partition 0 evolves          = 375
+Partition 1 evolves          = 625
+Partition 2 evolves          = 625
+Partition 3 evolves          = 625
+Partition 4 evolves          = 375
+
+Forward solution with 6 partitions passed with these stats:
+Current time                 = 1.000000000000001
+Steps                        = 125
+Step attempts                = 125
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.008
+Last step size               = 0.008
+Current step size            = 0.008
+Partition 0 evolves          = 375
+Partition 1 evolves          = 625
+Partition 2 evolves          = 625
+Partition 3 evolves          = 625
+Partition 4 evolves          = 625
+Partition 5 evolves          = 375
+
+Forward solution with 7 partitions passed with these stats:
+Current time                 = 1.000000000000001
+Steps                        = 125
+Step attempts                = 125
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.008
+Last step size               = 0.008
+Current step size            = 0.008
+Partition 0 evolves          = 375
+Partition 1 evolves          = 625
+Partition 2 evolves          = 625
+Partition 3 evolves          = 625
+Partition 4 evolves          = 625
+Partition 5 evolves          = 625
+Partition 6 evolves          = 375
+
+Mixed direction solution passed with these stats:
+Current time                 = -0.0009800000000017288
+Steps                        = 2279
+Step attempts                = 2279
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = -0.00123
+Last step size               = -0.00123
+Current step size            = -0.00123
+Partition 0 evolves          = 6837
+Partition 1 evolves          = 6837
+
+Resized solution passed with these stats:
+Current time                 = 1.004
+Steps                        = 126
+Step attempts                = 126
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.008
+Last step size               = 0.008
+Current step size            = 0.008
+Partition 0 evolves          = 252
+Partition 1 evolves          = 252
+
+Custom SUNStepper passed with these stats:
+Current time                 = 1.1
+Steps                        = 11
+Step attempts                = 11
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.1
+Last step size               = 0.1
+Current step size            = 0.1
+Partition 0 evolves          = 286
+Partition 1 evolves          = 275
+
+Success

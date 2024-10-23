@@ -4,7 +4,14 @@
 
 ### Major Features
 
+Added an operator splitting module, SplittingStep, and forcing method module,
+ForcingStep, to ARKODE. These modules support a broad range of operator-split
+time integration methods for multiphysics applications.
+
 ### New Features and Enhancements
+
+Added the `ARKodeSetStepDirection` and `ARKodeGetStepDirection` functions to
+change and query the direction of integration.
 
 Added the `SUNStepper` base class to represent a generic solution procedure for
 IVPs. This is used by the SplittingStep and ForcingStep modules of ARKODE. A

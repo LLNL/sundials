@@ -108,6 +108,20 @@ static SUNErrCode arkSUNStepperSetStopTime(SUNStepper stepper, sunrealtype tstop
   return SUN_SUCCESS;
 }
 
+static SUNErrCode arkSUNStepperSetStepDirection(SUNStepper stepper,
+                                                sunrealtype stepdir)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  /* extract the ARKODE memory struct */
+  void* arkode_mem;
+  SUNCheckCall(SUNStepper_GetContent(stepper, &arkode_mem));
+
+  stepper->last_flag = ARKodeSetStepDirection(arkode_mem, stepdir);
+  if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
+
+  return SUN_SUCCESS;
+}
+
 static SUNErrCode arkSUNStepperSetForcing(SUNStepper stepper, sunrealtype tshift,
                                           sunrealtype tscale, N_Vector* forcing,
                                           int nforcing)
@@ -155,6 +169,9 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   err = SUNStepper_SetStopTimeFn(*stepper, arkSUNStepperSetStopTime);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetStepDirectionFn(*stepper, arkSUNStepperSetStepDirection);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   if (ark_mem->step_setforcing != NULL)

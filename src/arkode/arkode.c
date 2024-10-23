@@ -1443,7 +1443,6 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_supports_implicit         = SUNFALSE;
   ark_mem->step_supports_massmatrix       = SUNFALSE;
   ark_mem->step_supports_relaxation       = SUNFALSE;
-  ark_mem->step_supports_forcing          = SUNFALSE;
 
   /* Initialize root finding variables */
   ark_mem->root_mem = NULL;
