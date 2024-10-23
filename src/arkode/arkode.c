@@ -1437,11 +1437,13 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_getnumnonlinsolviters     = NULL;
   ark_mem->step_getnumnonlinsolvconvfails = NULL;
   ark_mem->step_getnonlinsolvstats        = NULL;
+  ark_mem->step_setforcing                = NULL;
   ark_mem->step_mem                       = NULL;
   ark_mem->step_supports_adaptive         = SUNFALSE;
   ark_mem->step_supports_implicit         = SUNFALSE;
   ark_mem->step_supports_massmatrix       = SUNFALSE;
   ark_mem->step_supports_relaxation       = SUNFALSE;
+  ark_mem->step_supports_forcing          = SUNFALSE;
 
   /* Initialize root finding variables */
   ark_mem->root_mem = NULL;
@@ -2669,6 +2671,10 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
   case ARK_RELAX_JAC_FAIL:
     arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, __LINE__, __func__, __FILE__,
                     "The relaxation Jacobian failed unrecoverably");
+    break;
+  case ARK_SUNSTEPPER_ERR:
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "An inner SUNStepper error occurred");
     break;
   default:
     /* This return should never happen */

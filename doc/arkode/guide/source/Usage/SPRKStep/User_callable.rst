@@ -30,6 +30,11 @@ SPRKStep supports only the basic set of user-callable functions, and
 does not support any of the restricted groups (time adaptivity, implicit
 solvers, etc.).
 
+SPRKStep does not have forcing function support when converted to a
+:c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
+:c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
+for additional details.
+
 
 .. _ARKODE.Usage.SPRKStep.Initialization:
 
