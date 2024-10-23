@@ -62,64 +62,122 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Macros
+ * Function : SUNCONJ
  * -----------------------------------------------------------------
- * SUNMIN(A,B) returns the minimum of A and B
- * SUNCMIN(A,B) returns the whichever of A and B has minimum real part
- *
- * SUNMAX(A,B) returns the maximum of A and B
- * SUNCMAX(A,B) returns whichever of A and B has maximum real part
- *
- * SUNSQR(A) returns A^2
- * SUNCSQR(A) returns A*conj(A)
- *
- * SUNRsqrt calls the appropriate version of sqrt
- * SUNCsqrt calls the appropriate version of csqrt
- *
- * SUNRabs calls the appropriate version of abs
- * SUNCabs calls the appropriate version of cabs
- *
- * SUNRexp calls the appropriate version of exp
- * SUNCexp calls the appropriate version of cexp
- *
- * SUNRceil calls the appropriate version of ceil
- * SUNCceil calls the appropriate version of ceil on the real part of the argument
+ * Usage : sunscalartype sqrt_x;
+ *         sqrt_x = SUNCONJ(x);
+ * -----------------------------------------------------------------
+ * SUNCONJ(x) returns the complex conjugate of x if x is complex;
+ * if x is real then it does nothing.
  * -----------------------------------------------------------------
  */
 
-#ifndef SUNMIN
-#define SUNMIN(A, B) ((A) < (B) ? (A) : (B))
+#ifndef SUNCONJ
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNCONJ(x) (x)
+#else
+#define SUNCONJ(x) SUNCCONJ(x)
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Macros
+ * -----------------------------------------------------------------
+ * SUNRMIN(A,B) returns the minimum of the real numbers A and B
+ * SUNCMIN(A,B) returns the whichever of A and B has minimum real part
+ * SUNMIN(A,B) uses whichever of the above is mapped to sunscalartype
+ *
+ * SUNRMAX(A,B) returns the maximum of the real numbers A and B
+ * SUNCMAX(A,B) returns whichever of A and B has maximum real part
+ * SUNMAX(A,B) uses whichever of the above is mapped to sunscalartype
+ *
+ * SUNRSQR(A) returns A^2
+ * SUNCSQR(A) returns A*conj(A)
+ * SUNSQR(A) uses whichever of the above is mapped to sunscalartype
+ *
+ * SUNRsqrt calls the appropriate version of sqrt (real numbers)
+ * SUNCsqrt calls the appropriate version of csqrt
+ * SUNsqrt uses whichever of the above is mapped to sunrealtype
+ *
+ * SUNRabs calls the appropriate version of abs (real numbers)
+ * SUNCabs calls the appropriate version of cabs
+ * SUNabs uses whichever of the above is mapped to sunrealtype
+ *
+ * SUNRexp calls the appropriate version of exp (real numbers)
+ * SUNCexp calls the appropriate version of cexp
+ * SUNexp uses whichever of the above is mapped to sunrealtype
+ *
+ * SUNRceil calls the appropriate version of ceil (real numbers)
+ * SUNCceil calls the appropriate version of ceil on the real part of the argument
+ * SUNceil uses whichever of the above is mapped to sunrealtype
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRMIN
+#define SUNRMIN(A, B) ((A) < (B) ? (A) : (B))
 #endif
 
 #ifndef SUNCMIN
 #define SUNCMIN(A, B) ((SUN_REAL(A)) < (SUN_REAL(B)) ? (A) : (B))
 #endif
 
-#ifndef SUNMAX
-#define SUNMAX(A, B) ((A) > (B) ? (A) : (B))
+#ifndef SUNMIN
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNMIN(A, B) SUNRMIN(A, B)
+#else
+#define SUNMIN(A, B) SUNCMIN(A, B)
+#endif
+#endif
+
+#ifndef SUNRMAX
+#define SUNRMAX(A, B) ((A) > (B) ? (A) : (B))
 #endif
 
 #ifndef SUNCMAX
 #define SUNCMAX(A, B) ((SUN_REAL(A)) > (SUN_REAL(B)) ? (A) : (B))
 #endif
 
-#ifndef SUNSQR
-#define SUNSQR(A) ((A) * (A))
+#ifndef SUNMAX
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNMAX(A, B) SUNRMAX(A, B)
+#else
+#define SUNMAX(A, B) SUNCMAX(A, B)
+#endif
+#endif
+
+#ifndef SUNRSQR
+#define SUNRSQR(A) ((A) * (A))
 #endif
 
 #ifndef SUNCSQR
 #define SUNCSQR(A) ((A) * SUNCCONJ(A))
 #endif
 
+#ifndef SUNSQR
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNSQR(A) SUNRSQR(A)
+#else
+#define SUNSQR(A) SUNCSQR(A)
+#endif
+#endif
+
+
 /*
  * -----------------------------------------------------------------
- * Function : SUNRsqrt
+ * Function : SUNRsqrt, SUNCsqrt, and SUNsqrt
  * -----------------------------------------------------------------
  * Usage : sunrealtype sqrt_x;
  *         sqrt_x = SUNRsqrt(x);
+ *         suncomplextype sqrt_y;
+ *         sqrt_y = SUNCsqrt(y);
+ *         sunscalartype sqrt_z;
+ *         sqrt_z = SUNsqrt(z);
  * -----------------------------------------------------------------
  * SUNRsqrt(x) returns the square root of x. If x < ZERO, then
  * SUNRsqrt returns ZERO.
+ * SUNCsqrt(y) returns the complex square root of x.
+ * SUNsqrt(z) uses whichever of the above is mapped to sunscalartype
  * -----------------------------------------------------------------
  */
 
@@ -136,17 +194,6 @@ extern "C" {
 #endif
 #endif
 
-/*
- * -----------------------------------------------------------------
- * Function : SUNCsqrt
- * -----------------------------------------------------------------
- * Usage : suncomplextype sqrt_x;
- *         sqrt_x = SUNCsqrt(x);
- * -----------------------------------------------------------------
- * SUNCsqrt(x) returns the complex square root of x.
- * -----------------------------------------------------------------
- */
-
 #ifndef SUNCsqrt
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCsqrt(x) (csqrt((x)))
@@ -160,14 +207,28 @@ extern "C" {
 #endif
 #endif
 
+#ifndef SUNsqrt
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNsqrt(x) SUNRsqrt(x)
+#else
+#define SUNsqrt(x) SUNCsqrt(x)
+#endif
+#endif
+
 /*
  * -----------------------------------------------------------------
- * Function : SUNRabs
+ * Function : SUNRabs, SUNCabs, SUNabs
  * -----------------------------------------------------------------
  * Usage : sunrealtype abs_x;
  *         abs_x = SUNRabs(x);
+ *         suncomplextype abs_y;
+ *         abs_y = SUNCabs(y);
+ *         sunscalartype abs_z;
+ *         abs_z = SUNabs(z);
  * -----------------------------------------------------------------
  * SUNRabs(x) returns the absolute value of x.
+ * SUNCabs(x) returns the complex absolute value of x.
+ * SUNabs(x) uses whichever of the above is mapped to sunscalartype.
  * -----------------------------------------------------------------
  */
 
@@ -184,17 +245,6 @@ extern "C" {
 #endif
 #endif
 
-/*
- * -----------------------------------------------------------------
- * Function : SUNCabs
- * -----------------------------------------------------------------
- * Usage : suncomplextype abs_x;
- *         abs_x = SUNCabs(x);
- * -----------------------------------------------------------------
- * SUNCabs(x) returns the complex absolute value of x.
- * -----------------------------------------------------------------
- */
-
 #ifndef SUNCabs
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCabs(x) (cabs((x)))
@@ -208,14 +258,30 @@ extern "C" {
 #endif
 #endif
 
+#ifndef SUNabs
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNabs(x) SUNRabs(x)
+#else
+#define SUNabs(x) SUNCabs(x)
+#endif
+#endif
+
 /*
  * -----------------------------------------------------------------
- * Function : SUNRexp
+ * Function : SUNRexp, SUNCexp, SUNexp
  * -----------------------------------------------------------------
  * Usage : sunrealtype exp_x;
  *         exp_x = SUNRexp(x);
+ *         suncomplextype exp_y;
+ *         exp_y = SUNCexp(y);
+ *         sunscalartype exp_z;
+ *         exp_z = SUNexp(z);
  * -----------------------------------------------------------------
- * SUNRexp(x) returns e^x (base-e exponential function).
+ * SUNRexp(x) returns e^x (base-e exponential function) for
+ * real-valued x.
+ * SUNCexp(y) returns e^y (base-e exponential function) for
+ * complex-valued y.
+ * SUNexp(z) uses whichever of the above is mapped to sunscalartype.
  * -----------------------------------------------------------------
  */
 
@@ -232,17 +298,6 @@ extern "C" {
 #endif
 #endif
 
-/*
- * -----------------------------------------------------------------
- * Function : SUNCexp
- * -----------------------------------------------------------------
- * Usage : suncomplextype exp_x;
- *         exp_x = SUNCexp(x);
- * -----------------------------------------------------------------
- * SUNCexp(x) returns e^x (base-e exponential function).
- * -----------------------------------------------------------------
- */
-
 #ifndef SUNCexp
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCexp(x) (cexp((x)))
@@ -256,14 +311,29 @@ extern "C" {
 #endif
 #endif
 
+#ifndef SUNexp
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNexp(x) SUNRexp(x)
+#else
+#define SUNexp(x) SUNCexp(x)
+#endif
+#endif
+
 /*
  * -----------------------------------------------------------------
- * Function : SUNRceil
+ * Function : SUNRceil, SUNCceil, SUNceil
  * -----------------------------------------------------------------
  * Usage : sunrealtype ceil_x;
  *         ceil_x = SUNRceil(x);
+ *         suncomplextype ceil_y;
+ *         ceil_y = SUNCceil(y);
+ *         sunscalartype ceil_z;
+ *         ceil_z = SUNceil(z);
  * -----------------------------------------------------------------
  * SUNRceil(x) returns the smallest integer value not less than x.
+ * SUNCceil(x) returns the smallest integer value not less than the
+ * real part of x.
+ * SUNceil(z) uses whichever of the above is mapped to sunscalartype.
  * -----------------------------------------------------------------
  */
 
@@ -280,18 +350,6 @@ extern "C" {
 #endif
 #endif
 
-/*
- * -----------------------------------------------------------------
- * Function : SUNCceil
- * -----------------------------------------------------------------
- * Usage : suncomplextype ceil_x;
- *         ceil_x = SUNCceil(x);
- * -----------------------------------------------------------------
- * SUNCceil(x) returns the smallest integer value not less than the
- * real part of x.
- * -----------------------------------------------------------------
- */
-
 #ifndef SUNCceil
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNCceil(x) (ceil((SUN_REAL(x))))
@@ -305,62 +363,66 @@ extern "C" {
 #endif
 #endif
 
+#ifndef SUNceil
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNceil(x) SUNRceil(x)
+#else
+#define SUNceil(x) SUNCceil(x)
+#endif
+#endif
+
 /*
  * -----------------------------------------------------------------
- * Function : SUNRpowerI
+ * Function : SUNRpowerI, SUNCpowerI, SUNpowerI
  * -----------------------------------------------------------------
  * Usage : int exponent;
- *         sunrealtype base, ans;
- *         ans = SUNRpowerI(base,exponent);
+ *         sunrealtype rbase, rans;
+ *         rans = SUNRpowerI(rbase,exponent);
+ *         suncomplextype cbase, cans;
+ *         cans = SUNCpowerI(cbase,exponent);
+ *         sunscalartype base, ans;
+ *         ans = SUNpowerI(base,exponent);
  * -----------------------------------------------------------------
- * SUNRpowerI returns the value of base^exponent, where base is of type
- * sunrealtype and exponent is of type int.
+ * SUNRpowerI returns the value of base^exponent, where base is of
+ * type sunrealtype and exponent is of type int.
+ * SUNCpowerI returns the value of base^exponent, where base is of
+ * type suncomplextype and exponent is of type int.
+ * SUNpowerI uses whichever of the above is mapped to sunscalartype.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT sunrealtype SUNRpowerI(sunrealtype base, int exponent);
-
-/*
- * -----------------------------------------------------------------
- * Function : SUNCpowerI
- * -----------------------------------------------------------------
- * Usage : int exponent;
- *         suncomplextype base, ans;
- *         ans = SUNCpowerI(base,exponent);
- * -----------------------------------------------------------------
- * SUNCpowerI returns the value of base^exponent, where base is of type
- * suncomplextype and exponent is of type int.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT suncomplextype SUNCpowerI(suncomplextype base, int exponent);
 
+#ifndef SUNpowerI
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNpowerI(base,exponent) SUNRpowerI(base,exponent)
+#else
+#define SUNpowerI(base,exponent) SUNCpowerI(base,exponent)
+#endif
+#endif
+
 /*
  * -----------------------------------------------------------------
- * Function : SUNRpowerR
+ * Function : SUNRpowerR, SUNCpowerC, SUNpower
  * -----------------------------------------------------------------
- * Usage : sunrealtype base, exponent, ans;
- *         ans = SUNRpowerR(base,exponent);
+ * Usage : sunrealtype rbase, rexponent, rans;
+ *         rans = SUNRpowerR(rbase,rexponent);
+ *         suncomplextype cbase, cexponent, cans;
+ *         cans = SUNRpowerR(cbase,cexponent);
+ *         sunscalartype base, exponent, ans;
+ *         ans = SUNpower(base,exponent);
  * -----------------------------------------------------------------
  * SUNRpowerR returns the value of base^exponent, where both base and
  * exponent are of type sunrealtype. If base < ZERO, then SUNRpowerR
  * returns ZERO.
+ * SUNCpowerC returns the value of base^exponent, where both base and
+ * exponent are of type suncomplextype.
+ * SUNpower uses whichever of the above is mapped to sunscalartype.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
-
-/*
- * -----------------------------------------------------------------
- * Function : SUNCpowerC
- * -----------------------------------------------------------------
- * Usage : suncomplextype base, exponent, ans;
- *         ans = SUNCpowerC(base,exponent);
- * -----------------------------------------------------------------
- * SUNCpowerR returns the value of base^exponent, where both base and
- * exponent are of type suncomplextype.
- * -----------------------------------------------------------------
- */
 
 #ifndef SUNCpowerC
 #if defined(SUNDIALS_DOUBLE_PRECISION)
@@ -375,79 +437,85 @@ SUNDIALS_EXPORT sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
 #endif
 #endif
 
+#ifndef SUNpower
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNpower(base,exponent) SUNRpowerR(base,exponent)
+#else
+#define SUNpower(base,exponent) SUNCpowerC(base,exponent)
+#endif
+#endif
+
 /*
  * -----------------------------------------------------------------
- * Function : SUNRCompare
+ * Function : SUNRCompare, SUNCCompare, SUNCompare
  * -----------------------------------------------------------------
  * Usage : int isNotEqual;
- *         sunrealtype a, b;
- *         isNotEqual = SUNRCompare(a, b);
+ *         sunrealtype ra, rb;
+ *         isNotEqual = SUNRCompare(ra, rb);
+ *         suncomplextype ca, cb;
+ *         isNotEqual = SUNCCompare(ca, cb);
+ *         sunscalartype a, b;
+ *         isNotEqual = SUNCompare(a, b);
  * -----------------------------------------------------------------
- * SUNRCompare returns 0 if the relative difference of a and b is
+ * These functions return 0 if the relative difference of a and b is
  * less than or equal to 10*machine epsilon. If the relative
  * difference is greater than 10*machine epsilon, it returns 1. The
  * function handles the case where a or b are near zero as well as
  * the case where a or b are inf/nan.
+ * SUNRCompare is designed for real-valued inputs.
+ * SUNCCompare is designed for complex-valued inputs.
+ * SUNCompare uses whichever of the above is mapped to sunscalartype.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b);
-
-/*
- * -----------------------------------------------------------------
- * Function : SUNCCompare
- * -----------------------------------------------------------------
- * Usage : int isNotEqual;
- *         suncomplextype a, b;
- *         isNotEqual = SUNCCompare(a, b);
- * -----------------------------------------------------------------
- * SUNCCompare returns 0 if the relative difference of a and b is
- * less than or equal to 10*machine epsilon. If the relative
- * difference is greater than 10*machine epsilon, it returns 1. The
- * function handles the case where a or b are near zero as well as
- * the case where a or b are inf/nan.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT sunbooleantype SUNCCompare(suncomplextype a, suncomplextype b);
 
+#ifndef SUNCompare
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNCompare(a,b) SUNRCompare(a,b)
+#else
+#define SUNCompare(a,b) SUNCCompare(a,b)
+#endif
+#endif
+
 /*
  * -----------------------------------------------------------------
- * Function : SUNRCompareTol
+ * Function : SUNRCompareTol, SUNCompareTol, SUNCompareTol
  * -----------------------------------------------------------------
  * Usage : int isNotEqual;
- *         sunrealtype a, b, tol;
- *         isNotEqual = SUNRCompareTol(a, b, tol);
+ *         sunrealtype tol;
+ *         sunrealtype ra, rb;
+ *         isNotEqual = SUNRCompareTol(ra, rb, tol);
+ *         suncomplextype ca, cb;
+ *         isNotEqual = SUNRCompareTol(ca, cb, tol);
+ *         sunscalartype a, b;
+ *         isNotEqual = SUNCompareTol(a, b, tol);
  * -----------------------------------------------------------------
- * SUNRCompareTol returns 0 if the relative difference of a and b is
+ * These return 0 if the relative difference of a and b is
  * less than or equal to the provided tolerance. If the relative
  * difference is greater than the tolerance, it returns 1. The
  * function handles the case where a or b are near zero as well as
  * the case where a or b are inf/nan.
+ * SUNRCompareTol is designed for real-valued inputs.
+ * SUNCCompareTol is designed for complex-valued inputs.
+ * SUNCompareTol uses whichever of the above is mapped to
+ * sunscalartype.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b,
                                               sunrealtype tol);
-
-/*
- * -----------------------------------------------------------------
- * Function : SUNCCompareTol
- * -----------------------------------------------------------------
- * Usage : int isNotEqual;
- *         suncomplextype a, b, tol;
- *         isNotEqual = SUNCCompareTol(a, b, tol);
- * -----------------------------------------------------------------
- * SUNCCompareTol returns 0 if the relative difference of a and b is
- * less than or equal to the provided tolerance. If the relative
- * difference is greater than the tolerance, it returns 1. The
- * function handles the case where a or b are near zero as well as
- * the case where a or b are inf/nan.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT sunbooleantype SUNCCompareTol(suncomplextype a, suncomplextype b,
                                               sunrealtype tol);
+
+#ifndef SUNCompareTol
+#if defined(SUNDIALS_SCALAR_TYPE_REAL)
+#define SUNCompareTol(a,b) SUNRCompareTol(a,b,tol)
+#else
+#define SUNCompareTol(a,b) SUNCCompareTol(a,b,tol)
+#endif
+#endif
 
 /*
  * -----------------------------------------------------------------
