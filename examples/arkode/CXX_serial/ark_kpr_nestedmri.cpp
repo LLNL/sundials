@@ -1021,8 +1021,10 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumStepAttempts");
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netfs);
   check_flag(retval, "ARKodeGetNumErrTestFails");
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_flag(retval, "MRIStepGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfse);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfsi);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Get some intermediate integrator statistics
   long int nstm, nattm, netfm, nfme, nfmi;
@@ -1032,8 +1034,10 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumStepAttempts");
   retval = ARKodeGetNumErrTestFails(mid_arkode_mem, &netfm);
   check_flag(retval, "ARKodeGetNumErrTestFails");
-  retval = MRIStepGetNumRhsEvals(mid_arkode_mem, &nfme, &nfmi);
-  check_flag(retval, "MRIStepGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(mid_arkode_mem, 0, &nfme);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(mid_arkode_mem, 1, &nfmi);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Get some fast integrator statistics
   long int nstf, nattf, netff, nff;
@@ -1043,8 +1047,8 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumStepAttempts");
   retval = ARKodeGetNumErrTestFails(inner_arkode_mem, &netff);
   check_flag(retval, "ARKodeGetNumErrTestFails");
-  retval = ERKStepGetNumRhsEvals(inner_arkode_mem, &nff);
-  check_flag(retval, "ERKStepGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 0, &nff);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Print some final statistics
   uerrtot = std::sqrt(uerrtot / (sunrealtype)nsts);
