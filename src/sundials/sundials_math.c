@@ -42,7 +42,7 @@ suncomplextype SUNCpowerI(suncomplextype base, int exponent)
   prod = SUN_CCONST(1.0,0.0);
   expt = abs(exponent);
   for (i = 1; i <= expt; i++) { prod *= base; }
-  if (exponent < 0) { prod = SUN_CCONST(1.0) / prod; }
+  if (exponent < 0) { prod = SUN_CCONST(1.0,0.0) / prod; }
   return (prod);
 }
 

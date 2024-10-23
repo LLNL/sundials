@@ -38,22 +38,22 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Function : SUNCONJ
+ * Function : SUNCCONJ
  * -----------------------------------------------------------------
  * Usage : suncomplextype sqrt_x;
- *         sqrt_x = SUNCONJ(x);
+ *         sqrt_x = SUNCCONJ(x);
  * -----------------------------------------------------------------
- * SUNCONJ(x) returns the complex conjugate of x.
+ * SUNCCONJ(x) returns the complex conjugate of x.
  * -----------------------------------------------------------------
  */
 
-#ifndef SUNCONJ
+#ifndef SUNCCONJ
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNCONJ(x) (conj((x)))
+#define SUNCCONJ(x) (conj((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNCONJ(x) (conjf((x)))
+#define SUNCCONJ(x) (conjf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNCONJ(x) (conjl((x)))
+#define SUNCCONJ(x) (conjl((x)))
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
