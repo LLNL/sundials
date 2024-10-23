@@ -30,7 +30,6 @@ struct SUNStepper_Ops_
   SUNStepperResetFn reset;
   SUNStepperSetStopTimeFn setstoptime;
   SUNStepperSetStepDirectionFn setstepdirection;
-  SUNStepperGetStepDirectionFn getstepdirection;
   SUNStepperSetForcingFn setforcing;
 };
 

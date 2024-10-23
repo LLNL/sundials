@@ -156,17 +156,6 @@ Stepping Functions
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_GetStepDirection(SUNStepper stepper, sunrealtype* stepdir)
-
-   This function provides the direction of integration that will be used on the
-   next internal step.
-
-   :param stepper: the stepper object.
-   :param stepdir: a positive number if integrating forward, a negative number
-      if integrating backward, or zero if the direction has not been set.
-   :return: A :c:type:`SUNErrCode` indicating success or failure.
-
-
 .. c:function:: SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift, sunrealtype tscale, N_Vector* forcing, int nforcing)
    
    This function sets the data necessary to compute the forcing term
@@ -316,16 +305,6 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_SetGetStepDirectionFn(SUNStepper stepper, SUNStepperGetStepDirectionFn fn)
-
-   This function attaches a :c:type:`SUNStepperGetStepDirectionFn` function to a
-   :c:type:`SUNStepper` object.
-
-   :param stepper: a stepper object.
-   :param fn: the :c:type:`SUNStepperGetStepDirectionFn` function to attach.
-   :return: A :c:type:`SUNErrCode` indicating success or failure.
-
-
 .. c:function:: SUNErrCode SUNStepper_SetForcingFn(SUNStepper stepper, SUNStepperSetForcingFn fn)
 
    This function attaches a :c:type:`SUNStepperSetForcingFn` function to a
@@ -387,12 +366,6 @@ abstract base class.
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_SetStepDirection`.
-
-
-.. c:type:: SUNErrCode (*SUNStepperGetStepDirectionFn)(SUNStepper stepper, sunrealtype* stepdir)
-
-   This type represents a function with the signature of
-   :c:func:`SUNStepper_GetStepDirection`.
 
 
 .. c:type:: SUNErrCode (*SUNStepperSetForcingFn)(SUNStepper stepper, sunrealtype tshift, sunrealtype tscale, N_Vector* forcing, int nforcing)
