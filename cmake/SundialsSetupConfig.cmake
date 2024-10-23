@@ -23,6 +23,10 @@
 string(TOUPPER ${SUNDIALS_PRECISION} SUNDIALS_PRECISION)
 set(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 
+# prepare substitution variable SCALAR_TYPE for sundials_config.h
+string(TOUPPER ${SUNDIALS_SCALAR_TYPE} SUNDIALS_SCALAR_TYPE)
+set(SCALAR_TYPE "#define SUNDIALS_SCALAR_TYPE_${SUNDIALS_SCALAR_TYPE} 1")
+
 # prepare substitution variable INDEX_TYPE for sundials_config.h
 set(INDEX_TYPE "#define SUNDIALS_INT${SUNDIALS_INDEX_SIZE}_T 1")
 

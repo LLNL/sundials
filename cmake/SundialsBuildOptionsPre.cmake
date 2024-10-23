@@ -37,6 +37,16 @@ force_variable(SUNDIALS_PRECISION STRING "${DOCSTR}"
                ${_upper_SUNDIALS_PRECISION})
 
 # ---------------------------------------------------------------
+# Option to specify scalar type (sunscalartype)
+# ---------------------------------------------------------------
+
+set(DOCSTR "real or complex")
+sundials_option(SUNDIALS_SCALAR_TYPE STRING "${DOCSTR}" "REAL")
+string(TOUPPER ${SUNDIALS_PRECISION} _upper_SUNDIALS_PRECISION)
+force_variable(SUNDIALS_PRECISION STRING "${DOCSTR}"
+               ${_upper_SUNDIALS_PRECISION})
+
+# ---------------------------------------------------------------
 # Option to specify index type
 # ---------------------------------------------------------------
 

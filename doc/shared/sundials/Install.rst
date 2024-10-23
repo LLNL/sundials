@@ -1183,6 +1183,13 @@ illustration only.
 
    Default: ``double``
 
+.. cmakeoption:: SUNDIALS_SCALAR_TYPE
+
+   Specify if scalar data used in SUNDIALS packages and class implementations,
+   is ``real`` or ``complex`` valued.
+
+   Default: ``real``
+
 .. cmakeoption:: SUNDIALS_MATH_LIBRARY
 
    The standard C math library (e.g., ``libm``) to link with.

@@ -71,6 +71,13 @@
  */
 @PRECISION_LEVEL@
 
+/* Define the SUNDIALS data scalar type 'sunscalartype'
+ * as either real or complex:
+ *     #define SUNDIALS_SCALAR_TYPE_REAL 1
+ *     #define SUNDIALS_SCALAR_TYPE_COMPLEX 1
+ */
+@SCALAR_TYPE@
+
 /* Define type of vector indices in SUNDIALS 'sunindextype'.
  * Depending on user choice of index type, one of the following
  * two macros will be defined:
