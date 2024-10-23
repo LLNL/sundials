@@ -64,11 +64,17 @@ help ()
             all      -- create all possible tarballs
 
         --sunrealtype TYPE
-            Real type precision to use in a custom test. TYPE must be one of:
+            Precision to use in a custom test. TYPE must be one of:
 
             double   -- (default) use double precision
             single   -- use single precision
             extended -- use extended precision
+
+        --sunscalartype TYPE
+            Scalar type to use in a custom test. TYPE must be one of:
+
+            real     -- (default) use real values
+            complex  -- use complex values
 
         --indexsize SIZE
             Index size to use in a custom test. SIZE must be one of:
@@ -143,6 +149,7 @@ testjobs=0
 testtype="CUSTOM"
 tarball="NONE"
 sunrealtype="double"
+sunscalartype="real"
 indexsize="64"
 libtype="both"
 tpls="OFF"
@@ -233,6 +240,22 @@ while [[ $# -gt 0 ]]; do
                     ;;
                 *)
                     echo "ERROR: Invalid real type option $sunrealtype"
+                    help
+                    exit 1;;
+            esac
+            shift 2;;
+
+        --sunscalartype)
+            sunscalartype=$2
+            case "$sunscalartype" in
+                REAL|Real|real)
+                    sunscalartype=real
+                    ;;
+                COMPLEX|Complex|complex)
+                    sunscalartype=complex
+                    ;;
+                *)
+                    echo "ERROR: Invalid scalar type option $sunscalartype"
                     help
                     exit 1;;
             esac
@@ -467,6 +490,7 @@ case "$testtype" in
     CUSTOM)
         # Use default or user defined values
         args_realtypes+=("${sunrealtype}")
+        args_scalartypes+=("${sunscalartype}")
         args_indexsizes+=("${indexsize}")
         args_libtypes+=("${libtype}")
         args_tpls+=("${tpls}")
@@ -499,6 +523,7 @@ if [ "$tarball" != NONE ]; then
     # case the environment needs to be setup to build the documentation in the
     # tarscript e.g., activates a Python virtual environment.
     env_config=("${args_realtypes[0]}"
+                "${args_scalartypes[0]}"
                 "${args_indexsizes[0]}"
                 "${args_libtypes[0]}"
                 "${args_tpls[0]}"
@@ -583,6 +608,7 @@ for ((j=0;j<ntestdirs;j++)); do
         # ---------------------
 
         env_config=("${args_realtypes[i]}"
+                    "${args_scalartypes[i]}"
                     "${args_indexsizes[i]}"
                     "${args_libtypes[i]}"
                     "${args_tpls[i]}"

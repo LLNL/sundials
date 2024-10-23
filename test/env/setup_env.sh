@@ -43,20 +43,22 @@ echo "./setup_env.sh $*" | tee -a setup_env.log
 if [ "$#" -lt 5 ]; then
     echo "ERROR: missing required inputs"
     echo "  1) real type    : [single|double|extended]"
-    echo "  2) index size   : [32|64]"
-    echo "  3) library type : [static|shared|both]"
-    echo "  4) TPL status   : [ON|OFF]"
-    echo "  5) test type    : [STD|DEV]"
+    echo "  2) scalar type  : [real|complex]"
+    echo "  3) index size   : [32|64]"
+    echo "  4) library type : [static|shared|both]"
+    echo "  5) TPL status   : [ON|OFF]"
+    echo "  6) test type    : [STD|DEV]"
     return 1
 fi
 
 # These values should not be overridden by the environment script and may be
 # referenced as appropriate to load TPLs
 export SUNDIALS_PRECISION="$1"
-export SUNDIALS_INDEX_SIZE="$2"
-export SUNDIALS_LIBRARY_TYPE="$3"
-export SUNDIALS_TPLS="$4"
-export SUNDIALS_TEST_TYPE="$5"
+export SUNDIALS_SCALAR_TYPE="$2"
+export SUNDIALS_INDEX_SIZE="$3"
+export SUNDIALS_LIBRARY_TYPE="$4"
+export SUNDIALS_TPLS="$5"
+export SUNDIALS_TEST_TYPE="$6"
 
 # Remove parsed inputs, the remainder are passed to the environment script
 shift 5

@@ -465,6 +465,18 @@ def main():
         choices=["single", "double", "extended"],
     )
 
+    # scalar type
+    add_arg(
+        group,
+        "--scalartype",
+        "SUNDIALS_SCALAR_TYPE",
+        "SUNDIALS_SCALAR_TYPE",
+        "real",
+        "STRING",
+        "scalar type",
+        choices=["real", "complex"],
+    )
+
     # monitoring
     add_arg(
         group,
