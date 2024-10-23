@@ -560,10 +560,8 @@ module fsundials_core_mod
  public :: FSUNStepper_SetResetFn
  public :: FSUNStepper_SetStopTimeFn
  public :: FSUNStepper_SetStepDirectionFn
- public :: FSUNStepper_SetGetStepDirectionFn
  public :: FSUNStepper_SetForcingFn
  public :: FSUNStepper_SetStepDirection
- public :: FSUNStepper_GetStepDirection
 
 ! WRAPPER DECLARATIONS
 interface
@@ -2224,15 +2222,6 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNStepper_SetGetStepDirectionFn(farg1, farg2) &
-bind(C, name="_wrap_FSUNStepper_SetGetStepDirectionFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FSUNStepper_SetForcingFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNStepper_SetForcingFn") &
 result(fresult)
@@ -2248,15 +2237,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNStepper_GetStepDirection(farg1, farg2) &
-bind(C, name="_wrap_FSUNStepper_GetStepDirection") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -5300,22 +5280,6 @@ fresult = swigc_FSUNStepper_SetStepDirectionFn(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNStepper_SetGetStepDirectionFn(stepper, fn) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = stepper
-farg2 = fn
-fresult = swigc_FSUNStepper_SetGetStepDirectionFn(farg1, farg2)
-swig_result = fresult
-end function
-
 function FSUNStepper_SetForcingFn(stepper, fn) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -5345,22 +5309,6 @@ real(C_DOUBLE) :: farg2
 farg1 = stepper
 farg2 = stepdir
 fresult = swigc_FSUNStepper_SetStepDirection(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNStepper_GetStepDirection(stepper, stepdir) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: stepper
-real(C_DOUBLE), dimension(*), target, intent(inout) :: stepdir
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = stepper
-farg2 = c_loc(stepdir(1))
-fresult = swigc_FSUNStepper_GetStepDirection(farg1, farg2)
 swig_result = fresult
 end function
 
