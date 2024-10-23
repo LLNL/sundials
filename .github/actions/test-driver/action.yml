@@ -5,6 +5,9 @@ inputs:
   precision:
     description: SUNDIALS_PRECISION
     required: true
+  scalar:
+    description: SUNDIALS_SCALAR_TYPE
+    required: true
   indexsize:
     description: SUNDIALS_INDEX_SIZE
     required: true
@@ -34,5 +37,6 @@ runs:
         --env env/docker.sh \
         --tpls ${{ inputs.tpls }} \
         --sunrealtype ${{ inputs.precision }} \
+        --sunscalartype ${{ inputs.scalar }} \
         --indexsize ${{ inputs.indexsize }}
       shell: bash
