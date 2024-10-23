@@ -29,8 +29,8 @@ on an interval :math:`t \in [t_0, t_f]`. The time dependent forcing term,
 :math:`r_i(t)`, is given by
 
 .. math::
-   r(t) = \sum_{k = 0}^{n_{\text{forcing}}}
-   \frac{t - t_{\text{shift}}}{t_{\text{scale}}} \widehat{f}_k.
+   r(t) = \sum_{k = 0}^{n_{\text{forcing}}-1}
+   \left( \frac{t - t_{\text{shift}}}{t_{\text{scale}}} \right)^{k} \widehat{f}_k.
    :label: SUNStepper_forcing
 
 :c:type:`SUNStepper` provides an abstraction over SUNDIALS integrators, custom

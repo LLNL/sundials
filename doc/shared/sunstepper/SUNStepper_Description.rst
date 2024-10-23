@@ -22,7 +22,7 @@ The SUNStepper API
 
 As with other SUNDIALS classes, the :c:type:`SUNStepper` abstract base class is
 implemented using a C structure containing a ``content`` pointer to the derived
-class member data and a structure of function pointers the derived class
+class member data and a structure of function pointers to the derived class
 implementations of the virtual methods.
 
 .. c:type:: SUNStepper
@@ -70,7 +70,7 @@ from an ARKODE integrator.
 
       /* create an instance of the base class */
       SUNStepper stepper = NULL;
-      SUNErrCode err = SUNStepper_Create(&stepper);
+      SUNErrCode err = SUNStepper_Create(sunctx, &stepper);
 
    .. note::
 
@@ -105,7 +105,7 @@ Stepping Functions
 
    :param stepper: the stepper object.
    :param t0: the initial time for the integration.
-   :param tout: the final time for the integration.
+   :param tout: the time to evolve towards.
    :param vout: on output, the state at time *tout*.
    :param tret: the final time corresponding to the output value *vout*.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
@@ -205,7 +205,7 @@ function to get and set a separate flag associated with a stepper.
 
 .. c:function:: SUNErrCode SUNStepper_SetLastFlag(SUNStepper stepper, int last_flag)
 
-   This function sets a flag than can be used by sunstepper implementations to
+   This function sets a flag that can be used by :c:type:`SUNStepper` implementations to
    indicate warnings or errors that occurred during an operation, e.g.,
    :c:func:`SUNStepper_Evolve`.
 
@@ -215,7 +215,7 @@ function to get and set a separate flag associated with a stepper.
 
 .. c:function:: SUNErrCode SUNStepper_GetLastFlag(SUNStepper stepper, int *last_flag)
 
-   This function provides the last value of the flag used by the sunstepper
+   This function provides the last value of the flag used by the :c:type:`SUNStepper`
    implementation to indicate warnings or errors that occurred during an
    operation, e.g., :c:func:`SUNStepper_Evolve`.
 
@@ -324,7 +324,7 @@ abstract base class.
    :param stepper: the stepper object.
    :param t: the current value of the independent variable.
    :param v: the current value of the dependent variable vector.
-   :param f: the output vector for the ODE right-hand side, :math:`f(t, v)`,
+   :param f: the output vector for the ODE right-hand side, :math:`f(t, v) + r(t)`,
       in :eq:`SUNStepper_IVP`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
