@@ -89,8 +89,8 @@ help ()
             shared -- build shared libraries
             both   -- build static and shared libraries
 
-        --tpls
-            Enable external third-party libraries in a custom test.
+        --tpls ON/OFF
+            Enable or disable external third-party libraries in a custom test.
 
         --suntesttype TYPE
             SUNDIALS test type for a custom test. TYPE must be one of:
@@ -132,7 +132,7 @@ help ()
 
         $0
         $0 --testtype release --buildjobs 4
-        $0 --phase CONFIG --indexsize 32 --tpls --env env/default.sh
+        $0 --phase CONFIG --indexsize 32 --tpls ON --env env/default.sh
 
 EOF
 }
@@ -293,8 +293,20 @@ while [[ $# -gt 0 ]]; do
             shift 2;;
 
         --tpls)
-            tpls="ON"
-            shift;;
+            tpls=$2
+            case "$tpls" in
+                ON|On|on)
+                    tpls=ON
+                    ;;
+                OFF|Off|off)
+                    tpls=OFF
+                    ;;
+                *)
+                    echo "ERROR: Invalid tpl option $tpl"
+                    help
+                    exit 1;;
+            esac
+            shift 2;;
 
         --suntesttype)
             suntesttype=$2
