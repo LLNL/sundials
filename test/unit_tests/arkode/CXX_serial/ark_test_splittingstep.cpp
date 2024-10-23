@@ -79,7 +79,7 @@ static int test_forward(sundials::Context& ctx, const int partitions)
   {
     const auto err = numerical_solution - exact_solution;
     std::cerr << "Forward solution with " << partitions
-              << " partitions failed with an error of" << err << "\n";
+              << " partitions failed with an error of " << err << "\n";
     return 1;
   }
   else
@@ -309,7 +309,7 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
   SUNStepper_SetContent(stepper,
                         static_cast<void*>(const_cast<sunrealtype*>(&lambda)));
 
-  const auto empty_func = [](auto... args) { return 0; };
+  const auto empty_func = [](auto...) { return 0; };
   SUNStepper_SetResetFn(stepper, empty_func);
   SUNStepper_SetStopTimeFn(stepper, empty_func);
   SUNStepper_SetStepDirectionFn(stepper, empty_func);
@@ -323,7 +323,7 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
     SUNStepper_GetContent(s, &content);
     const auto lam = *static_cast<sunrealtype*>(content);
     N_VScale(std::exp(lam * (tout - t0)), y, y);
-    *tret = tout;
+    // *tret = tout;
     return 0;
   };
   SUNStepper_SetEvolveFn(stepper, evolve);
@@ -366,7 +366,7 @@ static int test_custom_stepper(const sundials::Context& ctx)
   if (SUNRCompare(exact_solution, numerical_solution))
   {
     const auto err = numerical_solution - exact_solution;
-    std::cerr << "Custom SUNStepper failed with an error of" << err << "\n";
+    std::cerr << "Custom SUNStepper failed with an error of " << err << "\n";
     return 1;
   }
   else
