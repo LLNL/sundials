@@ -886,9 +886,9 @@ program main
   end if
 
   ! Create inner stepper */
-  retval = FARKStepCreateMRIStepInnerStepper(inner_arkode_mem, inner_stepper)
+  retval = FARKodeCreateMRIStepInnerStepper(inner_arkode_mem, inner_stepper)
   if (retval /= 0) then
-    print *, 'ERROR: FARKStepCreateMRIStepInnerStepper failed'
+    print *, 'ERROR: FARKodeCreateMRIStepInnerStepper failed'
     stop 1
   end if
 

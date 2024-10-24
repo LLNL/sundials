@@ -604,129 +604,231 @@ an identity mass matrix, :math:`M(t)=I`. The slow time scale may consist of only
 nonstiff terms (:math:`f^I \equiv 0`), only stiff terms (:math:`f^E \equiv 0`),
 or both nonstiff and stiff terms.
 
-For cases with only a single slow right-hand side function (i.e.,
-:math:`f^E \equiv 0` or :math:`f^I \equiv 0`), MRIStep provides fixed-slow-step
-multirate infinitesimal step (MIS) :cite:p:`Schlegel:09, Schlegel:12a,
-Schlegel:12b` and multirate infinitesimal GARK (MRI-GARK) :cite:p:`Sandu:19`
-methods. For problems with an additively split slow right-hand side MRIStep
-provides fixed-slow-step implicit-explicit MRI-GARK (IMEX-MRI-GARK)
-:cite:p:`ChiRen:21` methods.  The slow (outer) method derives from an :math:`s`
-stage Runge--Kutta method for MIS and MRI-GARK methods or an additive Runge--Kutta
-method for IMEX-MRI-GARK methods. In either case, the stage values and the new
-solution are computed by solving an auxiliary ODE with a fast (inner) time
-integration method. This corresponds to the following algorithm for a single
-step:
+For cases with only a single slow right-hand side function (i.e., :math:`f^E
+\equiv 0` or :math:`f^I \equiv 0`), MRIStep provides multirate infinitesimal
+step (MIS) :cite:p:`Schlegel:09, Schlegel:12a, Schlegel:12b`, first through
+fourth order multirate infinitesimal GARK (MRI-GARK) :cite:p:`Sandu:19`, and
+second through fifth order multirate exponential Runge--Kutta (MERK)
+:cite:p:`Luan:20` methods. For problems with an additively split slow right-hand
+side, MRIStep provides first through fourth order implicit-explicit MRI-GARK
+(IMEX-MRI-GARK) :cite:p:`ChiRen:21` and second through fourth order
+implicit-explicit multirate infinitesimal stage-restart (IMEX-MRI-SR)
+:cite:p:`Fish:24` methods. For a complete list of the methods available in
+MRIStep see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`. Additionally,
+users may supply their own method by defining and attaching a coupling table,
+see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling` for more information.
+
+Generally, the slow (outer) method for each family derives from a single-rate
+method: MIS and MRI-GARK methods derive from explicit or
+diagonally-implicit Runge--Kutta methods, MERK methods derive from exponential
+Runge--Kutta methods, while IMEX-MRI-GARK and IMEX-MRI-SR methods derive from
+additive Runge--Kutta methods. In each case, the "infinitesimal" nature of the
+multirate methods derives from the fact that slow stages are computed by solving
+a set of auxiliary ODEs with a fast (inner) time integration method. Generally
+speaking, an :math:`s`-stage method from of each family adheres to the following
+algorithm for a single step:
 
 #. Set :math:`z_1 = y_{n-1}`.
 
-#. For :math:`i = 2,\ldots,s+1` do:
+#. For :math:`i = 2,\ldots,s`, compute the stage solutions, :math:`z_i`, by
+   evolving the fast IVP
 
-   #. Let :math:`t_{n,i-1}^S = t_{n-1} + c_{i-1}^S h^S` and
-      :math:`v(t_{n,i-1}^S) = z_{i-1}`.
+   .. math::
+      {v}_i'(t) = f^F(t, v_i) + r_i(t) \quad\text{for}\quad t \in [t_{0,i},t_{F,i}] \quad\text{with}\quad v_i(t_{0,i}) = v_{0,i}
+      :label: MRI_fast_IVP
 
-   #. Let :math:`r_i(t) =
-      \frac{1}{\Delta c_i^S}
-      \sum\limits_{j=1}^{i-1} \omega_{i,j}(\tau) f^E(t_{n,j}^I, z_j) +
-      \frac{1}{\Delta c_i^S}
-      \sum\limits_{j=1}^i \gamma_{i,j}(\tau) f^I(t_{n,j}^I, z_j)`
-      where :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)` and the
-      normalized time is :math:`\tau = (t - t_{n,i-1}^S)/(h^S \Delta c_i^S)`.
+   and setting :math:`z_i = v(t_{F,i})`, and/or performing a standard explicit,
+   diagonally-implicit, or additive Runge--Kutta stage update,
 
-   #. For :math:`t \in [t_{n,i-1}^S, t_{n,i}^S]` solve
-      :math:`\dot{v}(t) = f^F(t, v) + r_i(t)`.
+   .. math::
+      z_i - \theta_{i,i} h^S f^I(t_{n,i}^S, z_i) = a_i.
+      :label: MRI_implicit_solve
 
-   #. Set :math:`z_i = v(t_{n,i}^S)`.
+   where :math:`t_{n,j}^S = t_{n-1}*h^S c^S_j`.
 
-#. Set :math:`y_{n} = z_{s+1}`.
+#. Set :math:`y_{n} = z_{s}`.
 
-The fast (inner) IVP solve can be carried out using either the ARKStep module
-(allowing for explicit, implicit, or ImEx treatments of the fast time scale with
-fixed or adaptive steps), or a user-defined integration method (see section
+#. If the method has an embedding, compute the embedded solution,
+   :math:`\tilde{y}`, by evolving the fast IVP
+
+   .. math::
+      \tilde{v}'(t) = f^F(t, \tilde{v}) + \tilde{r}(t) \quad\text{for}\quad t \in [\tilde{t}_{0},\tilde{t}_{F}] \quad\text{with}\quad \tilde{v}(\tilde{t}_{0}) = \tilde{v}_{0}
+      :label: MRI_embedding_fast_IVP
+
+   and setting :math:`\tilde{y}_{n} = \tilde{v}(\tilde{t}_{F})`, and/or
+   performing a standard explicit, diagonally-implicit, or additive Runge--Kutta
+   stage update,
+
+   .. math::
+      \tilde{y}_n - \tilde{\theta} h^S f^I(t_n, \tilde{y}_n) = \tilde{a}.
+      :label: MRI_embedding_implicit_solve
+
+Whether a fast IVP evolution or a stage update (or both) is needed depends on
+the method family (MRI-GARK, MERK, etc.). The specific aspects of the fast IVP
+forcing function (:math:`r_i(t)` or :math:`\tilde{r}(t)`), the interval over
+which the IVP must be evolved (:math:`[t_{0,i},t_{F,i}])`, the Runge--Kutta
+coefficients (:math:`\theta_{i,i}` and :math:`\tilde{\theta}`), and the
+Runge--Kutta data (:math:`a_i` and :math:`\tilde{a}`), are also determined by
+the method family. Generally, the forcing functions and data, are constructed
+using evaluations of the slow RHS functions, :math:`f^E` and :math:`f^I`, at
+preceding stages, :math:`z_j`. The fast IVP solves can be carried out using any
+valid ARKODE integrator or a user-defined integration method (see section
 :numref:`ARKODE.Usage.MRIStep.CustomInnerStepper`).
 
-The final abscissa is :math:`c^S_{s+1}=1` and the coefficients
-:math:`\omega_{i,j}` and :math:`\gamma_{i,j}` are polynomials in time that
-dictate the couplings from the slow to the fast time scale; these can be
-expressed as in :cite:p:`ChiRen:21` and :cite:p:`Sandu:19` as
+Below we summarize the details for each method family. For additional
+information, please see the references listed above.
+
+
+MIS, MRI-GARK, and IMEX-MRI-GARK Methods
+----------------------------------------
+
+The methods in IMEX-MRI-GARK family, which includes MIS and MRI-GARK methods,
+are defined by a vector of slow stage time abscissae, :math:`c^S \in
+\mathbb{R}^{s}`, and a set of coupling tensors,
+:math:`\Omega\in\mathbb{R}^{(s+1)\times s \times k}` and
+:math:`\Gamma\in\mathbb{R}^{(s+1)\times s \times k}`, that specify the
+slow-to-fast coupling for the explicit and implicit components, respectively.
+
+The fast stage IVPs, :eq:`MRI_fast_IVP`, are evolved over non-overlapping
+intervals :math:`[t_{0,i},t_{F,i}] = [t_{n,i-1}^S, t_{n,i}^S]` with
+the initial condition :math:`v_{0,i}=z_{i-1}`. The fast IVP forcing function is
+given by
 
 .. math::
-   \omega_{i,j}(\tau) = \sum_{k\geq 0} \omega_{i,j}^{\{k\}} \tau^k
+   r_i(t) = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^{i-1} \omega_{i,j}(\tau) f^E(t_{n,j}^S, z_j)
+   + \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i \gamma_{i,j}(\tau) f^I(t_{n,j}^S, z_j)
+
+where :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)`, :math:`\tau = (t -
+t_{n,i-1}^S)/(h^S \Delta c_i^S)` is the normalized time, the coefficients
+:math:`\omega_{i,j}` and :math:`\gamma_{i,j}` are polynomials in time of degree
+:math:`k` given by
+
+.. math::
+   \omega_{i,j}(\tau) = \sum_{k\geq 1} \Omega_{i,j,k} \, \tau^{k-1}
    \quad\text{and}\quad
-   \gamma_{i,j}(\tau) = \sum_{k\geq 0} \gamma_{i,j}^{\{k\}} \tau^k,
+   \gamma_{i,j}(\tau) = \sum_{k\geq 1} \Gamma_{i,j,k} \, \tau^{k-1}.
    :label: ARKODE_MRI_coupling
 
-and where the tables :math:`\Omega^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` and
-:math:`\Gamma^{\{k\}}\in\mathbb{R}^{(s+1)\times(s+1)}` define the slow-to-fast
-coupling for the explicit and implicit components respectively.
-
-For traditional MIS methods, the coupling coefficients are uniquely defined
-based on a slow Butcher table :math:`(A^S,b^S,c^S)` having an explicit first
-stage (i.e., :math:`c^S_1=0` and :math:`A^S_{1,j}=0` for :math:`1\le j\le s`),
-sorted abscissae (i.e., :math:`c^S_{i} \ge c^S_{i-1}` for :math:`2\le i\le s`),
-and the final abscissa is :math:`c^S_s \leq 1`. With these properties met, the
-coupling coefficients for an explicit-slow method are given as
-
-.. math::
-   \omega_{i,j}^{\{0\}} = \begin{cases}
-   0, & \text{if}\; i=1,\\
-   A^S_{i,j} - A^S_{i-1,j}, & \text{if}\; 2\le i\le s,\\
-   b^S_j - A^S_{s,j}, & \text{if}\; i=s+1.
-   \end{cases}
-   :label: ARKODE_MIS_to_MRI
-
-For general slow tables :math:`(A^S,b^S,c^S)` with at least second-order
-accuracy, the corresponding MIS method will be second order. However, if this
-slow table is at least third order and satisfies the additional condition
-
-.. math::
-   \sum_{i=2}^{s} \left(c_i^S-c_{i-1}^S\right)
-   \left(\mathbf{e}_i+\mathbf{e}_{i-1}\right)^T A^S c^S
-   + \left(1-c_{s}^S\right) \left( \frac12+\mathbf{e}_{s}^T A^S c^S \right)
-   = \frac13,
-   :label: ARKODE_MIS_order3
-
-where :math:`\mathbf{e}_j` corresponds to the :math:`j`-th column from the
-:math:`s \times s` identity matrix, then the overall MIS method will be third
-order.
-
-In the above algorithm, when the slow (outer) method has repeated abscissa, i.e.
-:math:`\Delta c_i^S = 0` for stage :math:`i`, the fast (inner) IVP can be
-rescaled and integrated analytically. In this case the stage is computed as
+When the slow abscissa are repeated, i.e. :math:`\Delta c_i^S = 0`, the fast IVP
+can be rescaled and integrated analytically leading to the Runge--Kutta update
+:eq:`MRI_implicit_solve` instead of the fast IVP evolution. In this case the
+stage is computed as
 
 .. math::
    z_i = z_{i-1}
-   + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 0}
-     \frac{\omega_{i,j}^{\{k\}}}{k+1}\right) f^E(t_{n,j}^S, z_j)
-   + h^S \sum_{j=1}^i \left(\sum_{k\geq 0}
-     \frac{\gamma_{i,j}^{\{k\}}}{k+1}\right) f^I(t_{n,j}^S, z_j),
+   + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 1}
+     \frac{\Omega_{i,j,k}}{k}\right) f^E(t_{n,j}^S, z_j)
+   + h^S \sum_{j=1}^i \left(\sum_{k\geq 1}
+     \frac{\Gamma_{i,j,k}}{k}\right) f^I(t_{n,j}^S, z_j).
    :label: ARKODE_MRI_delta_c_zero
 
-which corresponds to a standard ARK, DIRK, or ERK stage computation depending on
-whether the summations over :math:`k` are zero or nonzero.
+Similarly, the embedded solution IVP, :eq:`MRI_embedding_fast_IVP`, is evolved
+over the interval :math:`[\tilde{t}_{0},\tilde{t}_{F}] = [t_{n,s-1}^S, t_{n}]`
+with the initial condition :math:`\tilde{v}_0=z_{s-1}`.
 
 As with standard ARK and DIRK methods, implicitness at the slow time scale is
-characterized by nonzero values on or above the diagonal of the matrices
-:math:`\Gamma^{\{k\}}`. Typically, MRI-GARK and IMEX-MRI-GARK methods are at
-most diagonally-implicit (i.e., :math:`\gamma_{i,j}^{\{k\}}=0` for all
+characterized by nonzero values on or above the diagonal of the :math:`k`
+matrices in :math:`\Gamma`. Typically, MRI-GARK and IMEX-MRI-GARK methods are at
+most diagonally-implicit (i.e., :math:`\Gamma_{i,j,k}=0` for all :math:`k` and
 :math:`j>i`). Furthermore, diagonally-implicit stages are characterized as being
-"solve-decoupled" if :math:`\Delta c_i^S = 0` when :math:`\gamma_{i,i}^{\{k\}} \ne 0`,
+"solve-decoupled" if :math:`\Delta c_i^S = 0` when :math:`\Gamma_{i,i,k} \ne 0`,
 in which case the stage is computed as standard ARK or DIRK update. Alternately,
 a diagonally-implicit stage :math:`i` is considered "solve-coupled" if
-:math:`\Delta c^S_i \gamma_{i,j}^{\{k\}} \ne 0`, in which
-case the stage solution :math:`z_i` is *both* an input to :math:`r(t)` and the
+:math:`\Delta c^S_i \, \Gamma_{i,j,k} \ne 0`, in which
+case the stage solution :math:`z_i` is *both* an input to :math:`r_i(t)` and the
 result of time-evolution of the fast IVP, necessitating an implicit solve that
-is coupled to the fast (inner) solver. At present, only "solve-decoupled"
+is coupled to the fast evolution. At present, only "solve-decoupled"
 diagonally-implicit MRI-GARK and IMEX-MRI-GARK methods are supported.
 
-For problems with only a slow-nonstiff term (:math:`f^I \equiv 0`), MRIStep
-provides third and fourth order explicit MRI-GARK methods. In cases with only a
-slow-stiff term (:math:`f^E \equiv 0`), MRIStep supplies second, third, and
-fourth order implicit solve-decoupled MRI-GARK methods. For applications
-with both stiff and nonstiff slow terms, MRIStep implements third and fourth
-order IMEX-MRI-GARK methods. For a complete list of the methods available in
-MRIStep see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling.Tables`. Additionally, users
-may supply their own method by defining and attaching a coupling table, see
-:numref:`ARKODE.Usage.MRIStep.MRIStepCoupling` for more information.
+
+IMEX-MRI-SR Methods
+-------------------
+
+The IMEX-MRI-SR family of methods perform *both* the fast IVP evolution,
+:eq:`MRI_fast_IVP` or :eq:`MRI_embedding_fast_IVP`, *and* stage update,
+:eq:`MRI_implicit_solve` or :eq:`MRI_embedding_implicit_solve`, in every stage
+(but these methods typically have far fewer stages than implicit MRI-GARK or
+IMEX-MRI-GARK methods).  These methods are defined by a vector of slow stage
+time abscissae :math:`c^S \in \mathbb{R}^{s}`, a set of coupling tensors
+:math:`\Omega\in\mathbb{R}^{(s+1)\times s\times k}`, and a Butcher table of
+slow-implicit coefficients, :math:`\Gamma\in\mathbb{R}^{(s+1) \times s}`.
+
+The fast stage IVPs, :eq:`MRI_fast_IVP`, are evolved on overlapping
+intervals :math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n,i}^S]` with
+the initial condition :math:`v_{0,i}=y_{n-1}`. The fast IVP forcing function is
+given by
+
+.. math::
+   r_i(t) = \frac{1}{c_i^S} \sum\limits_{j=1}^{i-1} \omega_{i,j}(\tau) \left( f^E(t_{n,j}^S, z_j) + f^I(t_{n,j}^S, z_j)\right),
+   :label: IMEXMRISR_forcing
+
+where :math:`\tau = (t - t_n)/(h^S c_i^S)` is the normalized time, and the coefficients
+:math:`\omega_{i,j}` are polynomials in time of degree :math:`k` that are also given by
+:eq:`ARKODE_MRI_coupling`.  The solution of these fast IVPs defines an intermediate stage
+solution, :math:`\tilde{z}_i`.
+
+The implicit solve that follows each fast IVP must solve the algebraic equation for :math:`z_i`
+
+.. math::
+   z_i = \tilde{z}_i + h^S \sum_{j=1}^{i} \gamma_{i,j} f^I(t_{n,j}^S, z_j).
+   :label: ARKODE_MRISR_implicit
+
+We note that IMEX-MRI-SR methods are solve-decoupled by construction, and thus the structure
+of a given stage never needs to be deduced based on :math:`\Delta c_i^S`.  However, ARKODE
+still checks the value of :math:`\gamma_{i,i}`, since if it zero then the stage update
+equation :eq:`ARKODE_MRISR_implicit` simplifies to a simple explicit Runge--Kutta-like stage
+update.
+
+The overall time step solution is given by the final internal stage solution,
+i.e., :math:`y_{n} = z_{s}`.  The embedded solution is computing using the above
+algorithm for stage index :math:`s+1`, under the definition that :math:`c_{s+1}^S=1`
+(and thus the fast IVP portion is evolved over the full time step,
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n}]`).
+
+
+
+MERK Methods
+------------
+
+The MERK family of methods are only defined for multirate applications that
+are explicit at the slow time scale, i.e., :math:`f^I=0`, but otherwise they are
+nearly identical to IMEX-MRI-SR methods.  Specifically, like IMEX-MRI-SR methods,
+these evolve the fast IVPs
+:eq:`MRI_fast_IVP` and :eq:`MRI_embedding_fast_IVP` over the intervals
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n,i}^S]` and
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n}]`, respectively, and begin
+with the initial condition :math:`v_{0,i}=y_{n-1}`.  Furthermore, the fast IVP
+forcing functions are given by :eq:`IMEXMRISR_forcing` with :math:`f^I=0`.
+As MERK-based applications lack the implicit slow operator, they do not require
+the solution of implicit algebraic equations.
+
+However, unlike other MRI families, MERK methods were designed to admit a useful
+efficiency improvement.  Since each fast IVP begins with the same initial condition,
+:math:`v_{0,i}=y_{n-1}`, if multiple stages share the same forcing function
+:math:`r_i(t)`, then they may be "grouped" together.  This is achieved by sorting the
+final IVP solution time for each stage, :math:`t_{n,i}^S`, and then evolving the inner
+solver to each of these stage times in order, storing the corresponding inner solver
+solutions at these times as the stages :math:`z_i`.  For example, the
+:index:`ARKODE_MERK54` method involves 11 stages, that may be combined into 5 distinct
+groups.  The fourth group contains stages 7, 8, 9, and the embedding, corresponding to
+the :math:`c_i^S` values :math:`7/10`, :math:`1/2`, :math:`2/3`, and :math:`1`.
+Sorting these, a single fast IVP for this group must be evolved over the interval
+:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n}]`, first pausing at :math:`t_{n-1}+\frac12 h^S`
+to store :math:`z_8`, then pausing at :math:`t_{n-1}+\frac{2}{3} h^S` to store
+:math:`z_9`, then pausing at :math:`t_{n-1}+\frac{7}{10} h^S` to store :math:`z_7`,
+and finally finishing the IVP solve to :math:`t_{n-1}+h^S` to obtain :math:`\tilde{y}_n`.
+
+.. note::
+
+   Although all MERK methods were derived in :cite:p:`Luan:20` under an assumption that
+   the fast function :math:`f^F(t,y)` is linear in :math:`y`, in :cite:p:`Fish:24` it
+   was proven that MERK methods also satisfy all nonlinear order conditions up through
+   their linear order.  The lone exception is :index:`ARKODE_MERK54`, where it was only
+   proven to satisfy all nonlinear conditions up to order 4 (since :cite:p:`Fish:24` did
+   not establish the formulas for the order 5 conditions).  All our numerical tests to
+   date have shown :index:`ARKODE_MERK54` to achieve fifth order for nonlinear problems,
+   and so we conjecture that it also satisfies the nonlinear fifth order conditions.
+
 
 
 .. _ARKODE.Mathematics.Error.Norm:
@@ -790,13 +892,14 @@ time-steppers) is their adaptive control of local truncation error (LTE).
 At every step, we estimate the local error, and ensure that it
 satisfies tolerance conditions.  If this local error test fails, then
 the step is recomputed with a reduced step size.  To this end, the
-Runge--Kutta methods packaged within both the ARKStep and ERKStep
-modules admit an embedded solution :math:`\tilde{y}_n`, as shown in
-equations :eq:`ARKODE_ARK` and :eq:`ARKODE_ERK`.  Generally, these embedded
-solutions attain a slightly lower order of accuracy than the computed
-solution :math:`y_n`.  Denoting the order of accuracy for :math:`y_n`
-as :math:`q` and for :math:`\tilde{y}_n` as :math:`p`, most of these
-embedded methods satisfy :math:`p = q-1`.  These values of :math:`q`
+majority of the Runge--Kutta methods and many of the MRI methods in ARKODE
+admit an embedded solution :math:`\tilde{y}_n`, as shown in
+equations :eq:`ARKODE_ARK`, :eq:`ARKODE_ERK`, and
+:eq:`MRI_embedding_fast_IVP`-:eq:`MRI_embedding_implicit_solve`.  Generally,
+these embedded solutions attain a slightly lower order of accuracy than the
+computed solution :math:`y_n`.  Denoting the order of accuracy for
+:math:`y_n` as :math:`q` and for :math:`\tilde{y}_n` as :math:`p`, most of
+these embedded methods satisfy :math:`p = q-1`.  These values of :math:`q`
 and :math:`p` correspond to the *global* orders of accuracy for the
 method and embedding, hence each admit local truncation errors
 satisfying :cite:p:`HWN:87`
@@ -926,6 +1029,230 @@ support has been deprecated in favor of the SUNAdaptController class,
 and will be removed in a future release.
 
 
+.. _ARKODE.Mathematics.MultirateAdaptivity:
+
+Multirate time step adaptivity (MRIStep)
+----------------------------------------
+
+Since multirate applications evolve on multiple time scales,
+MRIStep supports additional forms of temporal adaptivity.  Specifically,
+we consider time steps at two adjacent levels, :math:`h^S > h^F`, where
+:math:`h^S` is the step size used by MRIStep, and :math:`h^F` is the
+step size used to solve the corresponding fast-time-scale IVPs in
+MRIStep, :eq:`MRI_fast_IVP` and :eq:`MRI_embedding_fast_IVP`.
+
+
+.. _ARKODE.Mathematics.MultirateControllers:
+
+Multirate temporal controls
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We consider two categories of temporal controllers that may be used within MRI
+methods.  The first (and simplest), are "decoupled" controllers, that consist of
+two separate single-rate temporal controllers: one that adapts the slow time scale
+step size, :math:`h^S`, and the other that adapts the fast time scale step size,
+:math:`h^F`.  As these ignore any coupling between the two time scales, these
+methods should work well for multirate problems where the time scales are somewhat
+decoupled, and that errors introduced at one scale do not "pollute" the other.
+
+The second category of controllers that we provide are :math:`h^S`-:math:`Tol` multirate
+controllers.  The basic idea is that an adaptive time integration method will
+attempt to adapt step sizes to control the *local error* within each step to
+achieve a requested tolerance.  However, MRI methods must ask an adaptive "inner"
+solver to produce the stage solutions :math:`v_i(t_{F,i})` and
+:math:`\tilde{v}(\tilde{t}_{F})`, that result from sub-stepping over intervals
+:math:`[t_{0,i},t_{F,i}]` or :math:`[\tilde{t}_{0},\tilde{t}_{F}]`, respectively.
+Local errors within the inner integrator may accumulate, resulting in an overall
+inner solver error :math:`\varepsilon^F_n` that exceeds the requested tolerance.
+If that inner solver can produce *both* :math:`v_i(t_{F,i})` and
+an estimation of the accumulated error, :math:`\varepsilon^F_{n,approx}`, then the
+tolerances provided to that inner solver can be adjusted accordingly to
+ensure stage solutions that are within the overall tolerances requested of the outer
+MRI method.
+
+To this end, we assume that the inner solver will provide accumulated errors
+over each fast interval having the form
+
+.. math::
+   \varepsilon^F_{n} = c(t_n) h^S_n \left(\text{RTOL}_n^F\right),
+   :label: fast_error_accumulation_assumption
+
+where :math:`c(t)` is independent of the tolerance or step size, but may vary in time.
+Single-scale adaptive controllers assume that the local error at a step :math:`n` with step
+size :math:`h_n` has order :math:`p`, i.e.,
+
+.. math::
+   LTE_n = c(t_n) (h_n)^{p+1},
+
+to predict candidate values :math:`h_{n+1}`.  We may therefore repurpose an existing
+single-scale controller to predict candidate values :math:`\text{RTOL}^F_{n+1}` by
+supplying an "order" :math:`p=0` and a "control parameter"
+:math:`h_n=\left(\text{RTOL}_n^F\right)`.
+
+Thus to construct an :math:`h^S`-:math:`Tol` controller, we require three separate single-rate
+adaptivity controllers:
+
+* scontrol-H -- this is a single-rate controller that adapts :math:`h^S_n` within the
+  slow integrator to achieve user-requested solution tolerances.
+
+* scontrol-Tol -- this is a single-rate controller that adapts :math:`\text{RTOL}^F_n`
+  using the strategy described above.
+
+* fcontrol -- this adapts time steps :math:`h^F` within the fast integrator to achieve
+  the current tolerance, :math:`\text{RTOL}^F_n`.
+
+We note that both the decoupled and :math:`h^S`-:math:`Tol` controller families may be used in
+multirate calculations with an arbitrary number of time scales, since these focus on only
+one scale at a time, or on how a given time scale relates to the next-faster scale.
+
+
+.. _ARKODE.Mathematics.MultirateFastError:
+
+Fast temporal error estimation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+MRI temporal adaptivity requires estimation of the temporal errors that
+arise at *both* the slow and fast time scales, which we denote here as
+:math:`\varepsilon^S` and :math:`\varepsilon^F`, respectively.  While the
+slow error may be estimated as :math:`\varepsilon^S = \|y_n - \tilde{y}_n\|`,
+non-intrusive approaches for estimating :math:`\varepsilon^F` are more
+challenging.  ARKODE provides two strategies to help provide this estimate, both
+of which assume the fast integrator is temporally adaptive and, at each of its
+:math:`m` steps to reach :math:`t_n`, computes an estimate of the local
+temporal error, :math:`\varepsilon^F_{n,m}`. In this case, we assume that the
+fast integrator was run with the same absolute tolerances as the slow integrator, but
+that it may have used a potentially different relative solution tolerance,
+:math:`\text{RTOL}^F`.  The fast integrator then accumulates these local error
+estimates using either a "maximum accumulation" strategy,
+
+.. math::
+   \varepsilon^F_{max} = \text{RTOL}^F \max_{m\in M} \|\varepsilon^F_{n,m}\|_{WRMS},
+   :label: maximum_accumulation
+
+or using an "averaged accumulation" strategy,
+
+.. math::
+   \varepsilon^F_{avg} = \frac{\text{RTOL}^F}{|M|} \sum_{m\in M} \|\varepsilon^F_{n,m}\|_{WRMS},
+   :label: average_accumulation
+
+where the norm is taken using the tolerance-informed error-weight vector.  In
+both cases, the sum or the maximum is taken over the set of all steps :math:`M`
+since the fast error accumulator has been reset.
+
+
+
+.. _ARKODE.Mathematics.InitialStep:
+
+Initial step size estimation
+==============================
+
+Before time step adaptivity can be accomplished, an initial step must be taken.  These
+values may always be provided by the user; however, if these are not provided then
+ARKODE will estimate a suitable choice.  Typically
+with adaptive methods, the first step should be chosen conservatively to ensure
+that it succeeds both in its internal solver algorithms, and its eventual temporal error
+test.  However, if this initial step is too conservative then its computational cost will
+essentially be wasted.  We thus strive to construct a conservative step that will succeed
+while also progressing toward the eventual solution.
+
+Before commenting on the specifics of ARKODE, we first summarize two common
+approaches to initial step size selection.  To this end, consider a simple
+single-time-scale ODE,
+
+.. math::
+   y'(t) = f(t,y), \quad y(t_0) = y_0
+   :label: IVP_single
+
+For this, we may consider two Taylor series expansions of :math:`y(t_0+h)` around the
+initial time,
+
+.. math::
+    y(t_0+h) = y_0 + h f(t_0,y_0) + \frac{h^2}{2} \frac{\mathrm d}{\mathrm dt} f(t_0+\tau,y_0+\eta),\\
+    :label: TSExp1
+
+and
+
+.. math::
+   y(t_0+h) = y_0 + h f(t_0+\tau,y_0+\eta),
+   :label: TSExp0
+
+where :math:`t_0+\tau` is between :math:`t_0` and :math:`t_0+h`, and :math:`y_0+\eta`
+is on the line segment connecting :math:`y_0` and :math:`y(t_0+h)`.
+
+Initial step size estimation based on the first-order Taylor expansion :eq:`TSExp1`
+typically attempts to determine a step size such that an explicit Euler method
+for :eq:`IVP_single` would be sufficiently accurate, i.e.,
+
+.. math::
+   \|y(t_0+h_0) - \left(y_0 + h_0 f(t_0,y_0)\right)\| \approx \left\|\frac{h^2}{2} \frac{\mathrm d}{\mathrm dt} f(t_0,y_0)\right\| < 1,
+
+where we have assumed that :math:`y(t)` is sufficiently differentiable, and that the
+norms include user-specified tolerances such that an error with norm less than one is
+deemed "acceptable."  Satisfying this inequality with a value of :math:`\frac12` and
+solving for :math:`h_0`, we have
+
+.. math::
+   |h_0| = \frac{1}{\left\|\frac{\mathrm d}{\mathrm dt} f(t_0,y_0)\right\|^{1/2}}.
+
+Finally, by estimating the time derivative with finite-differences,
+
+.. math::
+   \frac{\mathrm d}{\mathrm dt} f(t_0,y_0) \approx \frac{1}{\delta t} \left(f(t_0+\delta t,y_0+\delta t f(t_0,y_0)) - f(t_0,y_0)\right),
+
+we obtain
+
+.. math::
+   |h_0| = \frac{{\delta t}^{1/2}}{\|f(t_0+\delta t,y_0+\delta t f(t_0,y_0)) - f(t_0,y_0)\|^{1/2}}.
+   :label: H0_TSExp1
+
+Initial step size estimation based on the simpler Taylor expansion :eq:`TSExp0`
+instead assumes that the first calculated time step should be "close" to the
+initial state,
+
+.. math::
+   \|y(t_0+h_0) - y_0 \| \approx \left\|h_0 f(t_0,y_0)\right\| < 1,
+
+where we again satisfy the inequality with a value of :math:`\frac12` to obtain
+
+.. math::
+   |h_0| = \frac{1}{2\left\| f(t_0,y_0)\right\|},
+   :label: H0_TSExp0
+
+
+
+Comparing the two estimates :eq:`H0_TSExp0` and :eq:`H0_TSExp1`, we see that the
+former has double the number of :math:`f` evaluations, but that it has a less
+conservative estimate of :math:`h_0`, particularly since we expect any valid
+time integration method to have at least :math:`\mathcal{O}(h)` accuracy.
+
+Of these two approaches, for calculations at a single time scale (e.g., using ARKStep),
+formula :eq:`H0_TSExp1` is used, due to its more aggressive estimate for :math:`h_0`.
+
+
+.. _ARKODE.Mathematics.MultirateInitialSteps:
+
+Initial multirate step sizes
+------------------------------
+
+In MRI methods, initial time step selection is complicated by the fact that not only must
+an initial slow step size, :math:`h_0^S`, be chosen, but a smaller initial step,
+:math:`h_0^F`, must also be selected.  Additionally, it is typically assumed that within
+MRI methods, evaluation of :math:`f^S` is significantly more costly than evaluation of
+:math:`f^F`, and thus we wish to construct these initial steps accordingly.
+
+Under an assumption that conservative steps will be selected for both time scales,
+the error arising from temporal coupling between the slow and fast methods may be
+negligible.  Thus, we estimate initial values of :math:`h^S_0` and :math:`h^F_0`
+independently.  Due to our assumed higher cost of :math:`f^S`, then for the slow
+time scale we employ the initial estimate :eq:`H0_TSExp0` for :math:`h^S_0` using
+:math:`f = f^S`.  Since the function :math:`f^F` is assumed to be cheaper, we
+instead apply the estimate :eq:`H0_TSExp1` for :math:`h^F_0` using :math:`f=f^F`,
+and enforce an upper bound :math:`|h^F_0| \le \frac{|h^S_0|}{10}`.
+
+.. note::
+
+   If the fast integrator does not supply its "full RHS function" :math:`f^F`
+   for the MRI method to call, then we simply initialize :math:`h^F_0 = \frac{h^S_0}{100}`.
 
 
 
@@ -991,10 +1318,10 @@ Here the explicit stability step factor :math:`c>0` (often called the
 Fixed time stepping
 ===================
 
-While both the ARKStep and ERKStep time-stepping modules are
+While most of the time-stepping modules are
 designed for tolerance-based time step adaptivity, they additionally support a
 "fixed-step" mode. This mode is typically used for debugging
-purposes, for verification against hand-coded Runge--Kutta methods, or for
+purposes, for verification against hand-coded methods, or for
 problems where the time steps should be chosen based on other problem-specific
 information.  In this mode, all internal time step adaptivity is disabled:
 
@@ -1011,7 +1338,7 @@ information.  In this mode, all internal time step adaptivity is disabled:
    size by default.
 
 .. note::
-   Fixed-step mode is currently required for the slow time scale in the MRIStep module.
+   Any methods that do not provide an embedding are required to be run in fixed-step mode.
 
 
 Additional information on this mode is provided in the section
@@ -1047,17 +1374,14 @@ Nonlinear solver methods
 ------------------------------------
 
 
-For the DIRK and ARK methods corresponding to :eq:`ARKODE_IMEX_IVP` and
-:eq:`ARKODE_IVP_implicit` in ARKStep, and the solve-decoupled implicit slow
-stages :eq:`ARKODE_MRI_delta_c_zero` in MRIStep, an implicit system
+Methods with an implicit partition require solving implicit systems of the form
 
 .. math::
-   G(z_i) = 0
+   G(z_i) = 0.
    :label: ARKODE_Residual
 
-must be solved for each implicit stage :math:`z_i`.  In order to
-maximize solver efficiency, we define this root-finding problem differently
-based on the type of mass-matrix supplied by the user.
+In order to maximize solver efficiency, we define this root-finding problem
+differently based on the type of mass-matrix supplied by the user.
 
 * In the case that :math:`M=I` within ARKStep, we define the residual as
 
@@ -1113,18 +1437,30 @@ based on the type of mass-matrix supplied by the user.
      As above, this form of the residual is chosen to remove excessive
      mass-matrix solves from the nonlinear solve process.
 
-* Similarly, in MRIStep (that always assumes :math:`M=I`), we have the residual
+* Similarly, in MRIStep (that always assumes :math:`M=I`), MRI-GARK and IMEX-MRI-GARK methods
+  have the residual
 
   .. math::
-     G(z_i) \equiv z_i - h^S \left(\sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}\right)
+     G(z_i) \equiv z_i - h^S \left(\sum_{k\geq 1} \frac{\Gamma_{i,i,k}}{k}\right)
      f^I(t_{n,i}^S, z_i) - a_i = 0
-     :label: ARKODE_MRIStep_Residual
+     :label: ARKODE_IMEX-MRI-GARK_Residual
 
   where
 
   .. math::
-     a_i \equiv z_{i-1} + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 0}
-     \frac{\gamma_{i,j}^{\{k\}}}{k+1}\right)f^I(t_{n,j}^S, z_j).
+     a_i \equiv z_{i-1} + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 1}
+     \frac{\Gamma_{i,j,k}}{k}\right)f^I(t_{n,j}^S, z_j).
+
+  IMEX-MRI-SR methods have the residual
+
+  .. math::
+     G(z_i) \equiv z_i - h^S \Gamma_{i,i} f^I(t_{n,i}^S, z_i) - a_i = 0
+     :label: ARKODE_IMEX-MRI-SR_Residual
+
+  where
+
+  .. math::
+     a_i \equiv z_{i-1} + h^S \sum_{j=1}^{i-1} \Gamma_{i,j} f^I(t_{n,j}^S, z_j).
 
 
 Upon solving for :math:`z_i`, method stages must store
@@ -1183,7 +1519,7 @@ within ARKStep, or
 .. math::
    {\mathcal A}(t,z) \approx I - \gamma J(t,z), \quad
    J(t,z) = \frac{\partial f^I(t,z)}{\partial z}, \quad\text{and}\quad
-   \gamma = h^S \sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}
+   \gamma = h^S \sum_{k\geq 1} \frac{\Gamma_{i,i,k}}{k}
    :label: ARKODE_NewtonMatrix_MRIStep
 
 within MRIStep.
@@ -1278,7 +1614,7 @@ or
 .. math::
    \tilde{\mathcal A}(\tilde{t},\tilde{z}) \approx I - \tilde{\gamma} J(\tilde{t},\tilde{z}),
    \quad\text{and}\quad
-   \tilde{\gamma} = \tilde{h} \sum_{k\geq 0} \frac{\gamma_{i,i}^{\{k\}}}{k+1}\quad\text{(MRIStep)}.
+   \tilde{\gamma} = \tilde{h} \sum_{k\geq 1} \frac{\Gamma_{i,i,k}}{k}\quad\text{(MRIStep)}.
    :label: ARKODE_modified_NewtonMatrix_MRI
 
 Here, the solution :math:`\tilde{z}`, time :math:`\tilde{t}`, and step

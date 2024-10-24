@@ -101,6 +101,7 @@ $tar $tarfile $distrobase/test/unit_tests/CMakeLists.txt
 $tar $tarfile $distrobase/test/unit_tests/profiling
 $tar $tarfile $distrobase/test/unit_tests/sunmemory
 $tar $tarfile $distrobase/test/unit_tests/sundials
+$tar $tarfile $distrobase/test/unit_tests/utilities
 
 echo "   --- Add external files to $tarfile"
 $tar $tarfile $distrobase/external
