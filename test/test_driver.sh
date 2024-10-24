@@ -403,6 +403,7 @@ echo "--------------------------------------------------" | tee -a suntest.log
 # ------------------------------------------------------------------------------
 
 args_realtypes=()
+args_scalartypes=()
 args_indexsizes=()
 args_libtypes=()
 args_tpls=()
@@ -418,6 +419,7 @@ case "$testtype" in
         # Test configs
         for is in 32 64; do
             args_realtypes+=("double")
+            args_scalartypes+=("real")
             args_indexsizes+=("${is}")
             args_libtypes+=("static")
             args_tpls+=("ON")
@@ -433,6 +435,7 @@ case "$testtype" in
         # Test configs
         for is in 32 64; do
             args_realtypes+=("double")
+            args_scalartypes+=("real")
             args_indexsizes+=("${is}")
             args_libtypes+=("static")
             args_tpls+=("ON")
@@ -448,6 +451,7 @@ case "$testtype" in
         # Address sanitizer tests (TPLs OFF)
         for is in 32 64; do
             args_realtypes+=("double")
+            args_scalartypes+=("real")
             args_indexsizes+=("${is}")
             args_libtypes+=("static")
             args_tpls+=("OFF")
@@ -457,19 +461,22 @@ case "$testtype" in
 
         # Test configs
         for rt in single double extended; do
-            for is in 32 64; do
-                for lt in static shared; do
-                    args_realtypes+=("${rt}")
-                    args_indexsizes+=("${is}")
-                    args_libtypes+=("${lt}")
-                    args_tpls+=("ON")
-                    # Development test output files created with double
-                    if [[ "${rt}" == "double" ]]; then
-                        args_suntests+=("DEV")
-                    else
-                        args_suntests+=("STD")
-                    fi
-                    args_phase+=("")
+            for st in real complex; do
+                for is in 32 64; do
+                    for lt in static shared; do
+                        args_realtypes+=("${rt}")
+                        args_scalartypes+=("${st}")
+                        args_indexsizes+=("${is}")
+                        args_libtypes+=("${lt}")
+                        args_tpls+=("ON")
+                        # Development test output files created with double
+                        if [[ "${rt}" == "double" ]]; then
+                            args_suntests+=("DEV")
+                        else
+                            args_suntests+=("STD")
+                        fi
+                        args_phase+=("")
+                    done
                 done
             done
         done
