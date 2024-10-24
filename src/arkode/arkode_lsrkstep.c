@@ -421,17 +421,11 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     {
       retval = step_mem->fe(t, y, step_mem->Fe, ark_mem->user_data);
       step_mem->nfe++;
-      if (retval < 0)
+      if (retval != 0)
       {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                         MSG_ARK_RHSFUNC_FAILED, t);
         return ARK_RHSFUNC_FAIL;
-      }
-      if (retval > 0)
-      {
-        arkProcessError(ark_mem, RHSFUNC_RECVR, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RHSFUNC_REPTD, t);
-        return RHSFUNC_RECVR;
       }
     }
 
@@ -2257,7 +2251,7 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
     step_mem->dom_eig_is_current = (step_mem->const_Jac == SUNTRUE);
 
     step_mem->dom_eig_update = SUNFALSE;
-    if(step_mem->dom_eig_nst + step_mem->dom_eig_freq <= ark_mem->nst_attempts)
+    if(step_mem->dom_eig_nst + step_mem->dom_eig_freq <= ark_mem->nst_attempts + 1)
     {
       step_mem->dom_eig_update = !step_mem->dom_eig_is_current;
     }
