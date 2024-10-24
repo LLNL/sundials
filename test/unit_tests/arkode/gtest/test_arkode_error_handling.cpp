@@ -10,9 +10,12 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include <arkode/arkode.h>
+// must be included first to avoid the complex macro I causing problems with the
+// variable I that in some gtest headers
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+#include <arkode/arkode.h>
 #include <sundials/sundials_core.hpp>
 
 #include "../../utilities/dumpstderr.hpp"
