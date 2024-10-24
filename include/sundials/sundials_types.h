@@ -135,11 +135,12 @@ typedef double _Complex       suncomplextype;
 #endif
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-typedef _Lcomplex             suncomplextype;
+
 #if defined(WIN32) || defined(_WIN32)
+typedef _Lcomplex             suncomplextype;
 #else
 typedef long double _Complex  suncomplextype;
-#ndif
+#endif
 
 #endif
 
