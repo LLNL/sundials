@@ -417,14 +417,16 @@ case "$testtype" in
         tarball=NONE
 
         # Test configs
-        for is in 32 64; do
-            args_realtypes+=("double")
-            args_scalartypes+=("real")
-            args_indexsizes+=("${is}")
-            args_libtypes+=("static")
-            args_tpls+=("ON")
-            args_suntests+=("DEV")
-            args_phase+=("TEST")
+        for st in real complex; do
+            for is in 32 64; do
+                args_realtypes+=("double")
+                args_scalartypes+=("${st}")
+                args_indexsizes+=("${is}")
+                args_libtypes+=("static")
+                args_tpls+=("ON")
+                args_suntests+=("DEV")
+                args_phase+=("TEST")
+            done
         done
         ;;
 
@@ -433,14 +435,16 @@ case "$testtype" in
         tarball=sundials
 
         # Test configs
-        for is in 32 64; do
-            args_realtypes+=("double")
-            args_scalartypes+=("real")
-            args_indexsizes+=("${is}")
-            args_libtypes+=("static")
-            args_tpls+=("ON")
-            args_suntests+=("DEV")
-            args_phase+=("")
+        for st in real complex; do
+            for is in 32 64; do
+                args_realtypes+=("${rt}")
+                args_scalartypes+=("${st}")
+                args_indexsizes+=("${is}")
+                args_libtypes+=("static")
+                args_tpls+=("ON")
+                args_suntests+=("STD")
+                args_phase+=("")
+            done
         done
         ;;
 
