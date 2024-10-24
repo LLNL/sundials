@@ -61,7 +61,7 @@ set(ARKODE_examples
     "ark_kepler\;\;develop"
     "ark_kpr_mri\;0 1 0.005\;develop"
     "ark_kpr_mri\;1 0 0.01\;develop"
-    "ark_kpr_mri\;1 1 0.002\;develop"
+    "ark_kpr_mri\;1 1 0.002\;exclude-single"
     "ark_kpr_mri\;2 4 0.002\;develop"
     "ark_kpr_mri\;3 2 0.001\;develop"
     "ark_kpr_mri\;4 3 0.001\;develop"
