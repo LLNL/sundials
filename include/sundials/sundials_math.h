@@ -31,15 +31,15 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Function : SUNCREAL, SUNCIMAG, SUNREAL, SUNIMAG
+ * Function : SUN_CREAL, SUN_CIMAG, SUN_REAL, SUN_IMAG
  * -----------------------------------------------------------------
  * Usage : sunscalartype x;
  *         suncomplextype z;
  *         sunrealtype real_x, imag_x, real_z, imag_z;
- *         real_z = SUNCREAL(z);
- *         imag_z = SUNCIMAG(z);
- *         real_x = SUNREAL(x);
- *         real_x = SUNREAL(x);
+ *         real_z = SUN_CREAL(z);
+ *         imag_z = SUN_CIMAG(z);
+ *         real_x = SUN_REAL(x);
+ *         real_x = SUN_REAL(x);
  * -----------------------------------------------------------------
  * SUNCREAL and SUNCIMAG return the real and imaginary components of
  *   their suncomplextype arguments, respectively.
@@ -50,7 +50,7 @@ extern "C" {
  * -----------------------------------------------------------------
  */
 
-#ifndef SUNCREAL
+#ifndef SUN_CREAL
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUN_CREAL(z)      (crealf(z))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
@@ -63,7 +63,7 @@ extern "C" {
 #endif
 #endif
 
-#ifndef SUNCIMAG
+#ifndef SUN_CIMAG
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUN_CIMAG(z)      (cimagf(z))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
