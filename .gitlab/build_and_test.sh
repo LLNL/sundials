@@ -94,7 +94,8 @@ then
     key_path=/usr/workspace/sundials/ci/spack_stuff/gpg_backup
     python3 .gitlab/uberenv/uberenv.py \
         --trust-key ${key_path}/pubring.gpg --trust-key ${key_path}/secring.gpg \
-        --spec="${spec}" "${mirror_opt[@]}" "${prefix_opt}"
+        --spec="${spec}" "${mirror_opt[@]}" "${prefix_opt}" \
+        --spack-commit="${SPACK_REF}"
 fi
 
 date
