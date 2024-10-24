@@ -604,8 +604,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* apply user-supplied stage postprocessing function (if supplied) */
   if (ark_mem->ProcessStage != NULL)
   {
-    retval = ark_mem->ProcessStage(ark_mem->tn,
-                                   ark_mem->tempv2, ark_mem->user_data);
+    retval = ark_mem->ProcessStage(ark_mem->tn, ark_mem->tempv2,
+                                   ark_mem->user_data);
     if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
@@ -883,8 +883,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* apply user-supplied stage postprocessing function (if supplied) */
   if (ark_mem->ProcessStage != NULL)
   {
-    retval = ark_mem->ProcessStage(ark_mem->tn,
-                                   ark_mem->tempv2, ark_mem->user_data);
+    retval = ark_mem->ProcessStage(ark_mem->tn, ark_mem->tempv2,
+                                   ark_mem->user_data);
     if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
   
@@ -1306,8 +1306,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   /* apply user-supplied stage postprocessing function (if supplied) */
   if (ark_mem->ProcessStage != NULL)
   {
-    retval = ark_mem->ProcessStage(ark_mem->tn,
-                                   ark_mem->ycur, ark_mem->user_data);
+    retval = ark_mem->ProcessStage(ark_mem->tn, ark_mem->ycur, 
+                                   ark_mem->user_data);
     if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
@@ -1876,8 +1876,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   /* apply user-supplied stage postprocessing function (if supplied) */
   if (ark_mem->ProcessStage != NULL)
   {
-    retval = ark_mem->ProcessStage(ark_mem->tcur + FOUR *
-                                                     onesixth * ark_mem->h,
+    retval = ark_mem->ProcessStage(ark_mem->tcur + FOUR * onesixth * ark_mem->h,
                                      ark_mem->ycur, ark_mem->user_data);
     if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
