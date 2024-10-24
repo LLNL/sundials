@@ -2255,9 +2255,9 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
     ark_mem->fn_is_current = SUNTRUE;
 
     step_mem->dom_eig_is_current = (step_mem->const_Jac == SUNTRUE);
-    step_mem->dom_eig_nst = (step_mem->dom_eig_nst + 1) % step_mem->dom_eig_freq;
+
     step_mem->dom_eig_update = SUNFALSE;
-    if (step_mem->dom_eig_nst == 0)
+    if(step_mem->dom_eig_nst + step_mem->dom_eig_freq <= ark_mem->nst_attempts)
     {
       step_mem->dom_eig_update = !step_mem->dom_eig_is_current;
     }
@@ -2265,7 +2265,6 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
   else
   {
     step_mem->dom_eig_update = !step_mem->dom_eig_is_current;
-    step_mem->dom_eig_nst    = 0;
   }
 }
 
@@ -2311,6 +2310,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     SUNRsqrt(SUNSQR(step_mem->lambdaR) + SUNSQR(step_mem->lambdaI));
 
   step_mem->dom_eig_is_current = SUNTRUE;
+  step_mem->dom_eig_nst = ark_mem->nst_attempts;
 
   step_mem->spectral_radius_max =
     (step_mem->spectral_radius > step_mem->spectral_radius_max)
