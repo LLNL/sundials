@@ -74,15 +74,15 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`N_VSpace`
 
-   .. c:member:: sunrealtype* (*nvgetarraypointer)(N_Vector)
+   .. c:member:: sunscalartype* (*nvgetarraypointer)(N_Vector)
 
       The function implementing :c:func:`N_VGetArrayPointer`
 
-   .. c:member:: sunrealtype* (*nvgetdevicearraypointer)(N_Vector)
+   .. c:member:: sunscalartype* (*nvgetdevicearraypointer)(N_Vector)
 
       The function implementing :c:func:`N_VGetDeviceArrayPointer`
 
-   .. c:member:: void (*nvsetarraypointer)(sunrealtype*, N_Vector)
+   .. c:member:: void (*nvsetarraypointer)(sunscalartype*, N_Vector)
 
       The function implementing :c:func:`N_VSetArrayPointer`
 
@@ -98,11 +98,11 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`N_VGetLocalLength`
 
-   .. c:member:: void (*nvlinearsum)(sunrealtype, N_Vector, sunrealtype, N_Vector, N_Vector)
+   .. c:member:: void (*nvlinearsum)(sunscalartype, N_Vector, sunscalartype, N_Vector, N_Vector)
 
       The function implementing :c:func:`N_VLinearSum`
 
-   .. c:member:: void (*nvconst)(sunrealtype, N_Vector)
+   .. c:member:: void (*nvconst)(sunscalartype, N_Vector)
 
       The function implementing :c:func:`N_VConst`
 
@@ -114,7 +114,7 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`N_VDiv`
 
-   .. c:member:: void (*nvscale)(sunrealtype, N_Vector, N_Vector)
+   .. c:member:: void (*nvscale)(sunscalartype, N_Vector, N_Vector)
 
       The function implementing :c:func:`N_VScale`
 
@@ -126,11 +126,11 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`N_VInv`
 
-   .. c:member:: void (*nvaddconst)(N_Vector, sunrealtype, N_Vector)
+   .. c:member:: void (*nvaddconst)(N_Vector, sunscalartype, N_Vector)
 
       The function implementing :c:func:`N_VAddConst`
 
-   .. c:member:: sunrealtype (*nvdotprod)(N_Vector, N_Vector)
+   .. c:member:: sunscalartype (*nvdotprod)(N_Vector, N_Vector)
 
       The function implementing :c:func:`N_VDotProd`
 
@@ -174,27 +174,27 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`N_VMinQuotient`
 
-   .. c:member:: SUNErrCode (*nvlinearcombination)(int, sunrealtype*, N_Vector*, N_Vector)
+   .. c:member:: SUNErrCode (*nvlinearcombination)(int, sunscalartype*, N_Vector*, N_Vector)
 
       The function implementing :c:func:`N_VLinearCombination`
 
-   .. c:member:: SUNErrCode (*nvscaleaddmulti)(int, sunrealtype*, N_Vector, N_Vector*, N_Vector*)
+   .. c:member:: SUNErrCode (*nvscaleaddmulti)(int, sunscalartype*, N_Vector, N_Vector*, N_Vector*)
 
       The function implementing :c:func:`N_VScaleAddMulti`
 
-   .. c:member:: SUNErrCode (*nvdotprodmulti)(int, N_Vector, N_Vector*, sunrealtype*)
+   .. c:member:: SUNErrCode (*nvdotprodmulti)(int, N_Vector, N_Vector*, sunscalartype*)
 
       The function implementing :c:func:`N_VDotProdMulti`
 
-   .. c:member:: SUNErrCode (*nvlinearsumvectorarray)(int, sunrealtype, N_Vector*, sunrealtype, N_Vector*, N_Vector*)
+   .. c:member:: SUNErrCode (*nvlinearsumvectorarray)(int, sunscalartype, N_Vector*, sunscalartype, N_Vector*, N_Vector*)
 
       The function implementing :c:func:`N_VLinearSumVectorArray`
 
-   .. c:member:: SUNErrCode (*nvscalevectorarray)(int, sunrealtype*, N_Vector*, N_Vector*)
+   .. c:member:: SUNErrCode (*nvscalevectorarray)(int, sunscalartype*, N_Vector*, N_Vector*)
 
       The function implementing :c:func:`N_VScaleVectorArray`
 
-   .. c:member:: SUNErrCode (*nvconstvectorarray)(int, sunrealtype, N_Vector*)
+   .. c:member:: SUNErrCode (*nvconstvectorarray)(int, sunscalartype, N_Vector*)
 
       The function implementing :c:func:`N_VConstVectorArray`
 
@@ -206,15 +206,15 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`N_VWrmsNormMaskVectorArray`
 
-   .. c:member:: SUNErrCode (*nvscaleaddmultivectorarray)(int, int, sunrealtype*, N_Vector*, N_Vector**, N_Vector**)
+   .. c:member:: SUNErrCode (*nvscaleaddmultivectorarray)(int, int, sunscalartype*, N_Vector*, N_Vector**, N_Vector**)
 
       The function implementing :c:func:`N_VScaleAddMultiVectorArray`
 
-   .. c:member:: SUNErrCode (*nvlinearcombinationvectorarray)(int, int, sunrealtype*, N_Vector**, N_Vector*)
+   .. c:member:: SUNErrCode (*nvlinearcombinationvectorarray)(int, int, sunscalartype*, N_Vector**, N_Vector*)
 
       The function implementing :c:func:`N_VLinearCombinationVectorArray`
 
-   .. c:member:: sunrealtype (*nvdotprodlocal)(N_Vector, N_Vector)
+   .. c:member:: sunscalartype (*nvdotprodlocal)(N_Vector, N_Vector)
 
       The function implementing :c:func:`N_VDotProdLocal`
 
@@ -250,11 +250,11 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`N_VWSqrSumMaskLocal`
 
-   .. c:member:: SUNErrCode (*nvdotprodmultilocal)(int, N_Vector, N_Vector*, sunrealtype*)
+   .. c:member:: SUNErrCode (*nvdotprodmultilocal)(int, N_Vector, N_Vector*, sunscalartype*)
 
       The function implementing :c:func:`N_VDotProdMultiLocal`
 
-   .. c:member:: SUNErrCode (*nvdotprodmultiallreduce)(int, N_Vector, sunrealtype*)
+   .. c:member:: SUNErrCode (*nvdotprodmultiallreduce)(int, N_Vector, sunscalartype*)
 
       The function implementing :c:func:`N_VDotProdMultiAllReduce`
 
@@ -289,7 +289,7 @@ for vectors :math:`x` and :math:`z` and a scalar :math:`c`:
 
 .. code-block:: c
 
-   void N_VScale(sunrealtype c, N_Vector x, N_Vector z) {
+   void N_VScale(sunscalartype c, N_Vector x, N_Vector z) {
       z->ops->nvscale(c, x, z);
    }
 
@@ -561,72 +561,47 @@ to be set, and that all operations are copied when cloning a vector.
 
 .. _NVectors.Description.complex:
 
-Support for complex-valued vectors
-----------------------------------
+Support for complex-valued data
+-------------------------------
 
-While SUNDIALS itself is written under an assumption of real-valued
-data, it does provide limited support for complex-valued problems.
-However, since none of the built-in NVECTOR modules supports
-complex-valued data, users must provide a custom NVECTOR
-implementation for this task.  Many of the NVECTOR routines
-described in the subsection :numref:`NVectors.Ops` naturally extend
-to complex-valued vectors; however, some do not.  To this end, we
-provide the following guidance:
+While SUNDIALS itself supports complex-valued data in its vectors, some of
+the vector routines only logically make sense for real-valued data.  Those
+vector routines, and their intended result for complex-valued data, are as
+follows:
 
 * :c:func:`N_VMin()` and :c:func:`N_VMinLocal()` should return the
   minimum of all *real* components of the vector, i.e.,
   :math:`m = \displaystyle \min_{0\le i< n} \operatorname{real}(x_i)`.
 
-* :c:func:`N_VConst()` (and similarly :c:func:`N_VConstVectorArray()`) should
-  set the real components of the vector to the input constant, and set
-  all imaginary components to zero, i.e., :math:`z_i = c + 0 j` for :math:`0\le i<n`.
-
-* :c:func:`N_VAddConst()` should only update the real components of the
-  vector with the input constant, leaving all imaginary components
-  unchanged.
-
-* :c:func:`N_VWrmsNorm()`, :c:func:`N_VWrmsNormMask()`,
-  :c:func:`N_VWSqrSumLocal()` and :c:func:`N_VWSqrSumMaskLocal()`
-  should assume that all entries of the weight vector ``w`` and the
-  mask vector ``id`` are real-valued.
-
-* :c:func:`N_VDotProd()` should mathematically return a complex number
-  for complex-valued vectors; as this is not possible with
-  SUNDIALS' current ``sunrealtype``, this routine should
-  be set to ``NULL`` in the custom NVECTOR implementation.
-
 * :c:func:`N_VCompare()`, :c:func:`N_VConstrMask()`, :c:func:`N_VMinQuotient()`,
   :c:func:`N_VConstrMaskLocal()` and :c:func:`N_VMinQuotientLocal()`
   are ill-defined due to the lack of a clear ordering in the
-  complex plane.  These routines should be set to ``NULL``
-  in the custom NVECTOR implementation.
-
+  complex plane.  Thus, the comparison operations defined therein should be
+  performed on the real components of the underlying vectors.
 
 While many SUNDIALS solver modules may be utilized on complex-valued data,
 others cannot.  Specifically, although each package's linear solver
 interface (e.g., ARKLS or CVLS) may be used on complex-valued problems,
-none of the built-in SUNMatrix or SUNLinearSolver modules will work (all
-of the direct linear solvers must store complex-valued data, and all of
-the iterative linear solvers require :c:func:`N_VDotProd`).  Hence a
-complex-valued user must provide custom linear solver modules for their
-problem.  At a minimum this will consist of a custom SUNLinearSolver
-implementation (see :numref:`SUNLinSol.API.Custom`), and optionally a
-custom SUNMatrix as well.  The user should then attach these modules as
-normal to the package's linear solver interface.
+only a subset of the built-in SUNLinearSolver modules, and currently none of
+the SUNMatrix modules, will work.  Hence a complex-valued user must
+either use one of the provided iterative linear solvers, or provide a custom
+linear solver module for their problem.  At a minimum this will consist of a
+custom SUNLinearSolver implementation (see :numref:`SUNLinSol.API.Custom`),
+and optionally a custom SUNMatrix as well.  The user should then attach these
+modules as normal to the package's linear solver interface.
 
 .. ifconfig:: package_name != 'kinsol'
 
-   Similarly, although both the
-   :ref:`SUNNonlinearSolver_Newton <SUNNonlinSol.Newton>` and
-   :ref:`SUNNonlinearSolver_FixedPoint <SUNNonlinSol.FixedPoint>` modules
+   Although both the :ref:`SUNNonlinearSolver_Newton <SUNNonlinSol.Newton>`
+   and :ref:`SUNNonlinearSolver_FixedPoint <SUNNonlinSol.FixedPoint>` modules
    may be used with any of the IVP solvers (CVODE(S), IDA(S) and ARKODE) for
    complex-valued problems, the Anderson-acceleration option with
-   SUNNonlinearSolver_FixedPoint cannot be used due to its reliance on
-   :c:func:`N_VDotProd()`.  By this same logic, the Anderson acceleration
-   feature within KINSOL will also not work with complex-valued vectors.
+   SUNNonlinearSolver_FixedPoint is currently unsupported.  Similarly, the
+   Anderson acceleration feature within KINSOL is also not currently
+   supported with complex-valued vectors.
 
-Finally, constraint-handling features of each package cannot be used
-for complex-valued data, due to the issue of
+Finally, constraint-handling features of each package can only be applied
+to the real component of complex-valued data, due to the issue of
 ordering in the complex plane discussed above with
 :c:func:`N_VCompare()`, :c:func:`N_VConstrMask()`,
 :c:func:`N_VMinQuotient()`, :c:func:`N_VConstrMaskLocal()` and

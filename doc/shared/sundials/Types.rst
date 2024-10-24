@@ -16,12 +16,16 @@ Data Types
 ==========
 
 SUNDIALS defines several data types in the header file ``sundials_types.h``.
-These types are used in the SUNDIALS API and internally in SUNDIALS. It is 
+These types are used in the SUNDIALS API and internally in SUNDIALS. It is
 not necessary to use these types in your application, but the type must
 be compatible with the SUNDIALS types in the API when calling SUNDIALS functions.
 The types that are defined are:
 
-* :c:type:`sunrealtype` -- the floating-point type used by the SUNDIALS packages
+* :c:type:`sunrealtype` -- the floating-point type used by the SUNDIALS packages for real-valued numbers
+
+* :c:type:`suncomplextype` -- the floating-point type used by the SUNDIALS packages for complex-valued numbers.
+
+* :c:type:`sunscalartype` -- the floating-point type used by the SUNDIALS packages (this is an alias for one of :c:type:`sunrealtype` and :c:type:`suncomplextype`, based on how SUNDIALS is configured
 
 * :c:type:`sunindextype` -- the integer type used for vector and matrix indices
 
@@ -29,7 +33,7 @@ The types that are defined are:
 
 * :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
 
-* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI. 
+* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI.
 
 
 Floating point types
@@ -42,11 +46,30 @@ Floating point types
    arithmetic used in the SUNDIALS solvers at the configuration stage (see
    :cmakeop:`SUNDIALS_PRECISION`).
 
+.. c:type:: suncomplextype
+
+   The type ``suncomplextype`` can be ``float _Complex``, ``double _Complex``,
+   or ``long double _Complex``, with the default being ``double _Complex``. When
+   compiling on Windows systems, these are instead set to ``_Fcomplex``, ``_Dcomplex``,
+   and ``_Lcomplex``, in line with the implementation of complex arithmetic on
+   those systems.  The user can change the precision of the arithmetic used in
+   the SUNDIALS solvers at the configuration stage (see :cmakeop:`SUNDIALS_PRECISION`).
+
+.. c:type:: sunscalartype
+
+   The type ``sunscalartype`` is aliased to either ``sunrealtype`` or
+   ``suncomplextype``, with the default being ``sunrealtype``. The user can change
+   the underlying type of floating-point numbers used in the SUNDIALS solvers at
+   the configuration stage (see :cmakeop:`SUNDIALS_SCALAR_TYPE`).
+
 Additionally, based on the current precision, ``sundials_types.h`` defines
 ``SUN_BIG_REAL`` to be the largest value representable as a ``sunrealtype``,
 ``SUN_SMALL_REAL`` to be the smallest value representable as a ``sunrealtype``, and
 ``SUN_UNIT_ROUNDOFF`` to be the difference between :math:`1.0` and the minimum
 ``sunrealtype`` greater than :math:`1.0`.
+
+The value of the imaginary number, :math:`\sqrt{-1}`, is given in the appropriate
+precision as ``SUN_I``.
 
 Within SUNDIALS, real constants are set by way of a macro called ``SUN_RCONST``. It
 is this macro that needs the ability to branch on the definition of
@@ -68,22 +91,43 @@ expands to ``1.0`` if ``sunrealtype`` is ``double``, to ``1.0F`` if ``sunrealtyp
 ``float``, or to ``1.0L`` if ``sunrealtype`` is ``long double``. SUNDIALS uses the
 ``SUN_RCONST`` macro internally to declare all of its floating-point constants.
 
-Additionally, SUNDIALS defines several macros for common mathematical functions
-*e.g.*, ``fabs``, ``sqrt``, ``exp``, etc. in ``sundials_math.h``. The macros are
-prefixed with ``SUNR`` and expand to the appropriate ``C`` function based on the
-``sunrealtype``. For example, the macro ``SUNRabs`` expands to the ``C`` function
-``fabs`` when ``sunrealtype`` is ``double``, ``fabsf`` when ``sunrealtype`` is
-``float``, and ``fabsl`` when ``sunrealtype`` is ``long double``.
+Similarly, complex-valued constants are set using the macro ``SUN_CCONST``.  This
+internally uses ``SUN_RCONST`` to set the precision of both the real and imaginary
+components of the complex constant.
 
-A user program which uses the type ``sunrealtype``, the ``SUN_RCONST`` macro, and the
-``SUNR`` mathematical function macros is precision-independent except for any
-calls to precision-specific library functions. Our example programs use
-``sunrealtype``, ``SUN_RCONST``, and the ``SUNR`` macros. Users can, however, use the
-type ``double``, ``float``, or ``long double`` in their code (assuming that this
-usage is consistent with the typedef for ``sunrealtype``) and call the appropriate
+For a given ``suncomplextype`` value, the real and imaginary components can be
+accessed using the macros ``SUN_CREAL`` and ``SUN_CIMAG``.  The complex conjugate
+of a ``suncomplextype`` number can be determined using the macro ``SUNCCONJ``.
+Corresponding macros for ``sunscalartype`` inputs are available as ``SUN_REAL``,
+``SUN_IMAG``, and ``SUNCONJ`` -- when ``sunscalartype`` is complex these macros
+are aliases for the ``suncomplextype``-specific versions, but when ``sunscalartype``
+is real-valued, then ``SUN_REAL`` and ``SUNCONJ`` return the underlying real number,
+while ``SUN_IMAG`` returns ``SUN_RCONST(0.0)``.
+
+Additionally, SUNDIALS defines several macros for common mathematical functions
+*e.g.*, ``fabs``, ``sqrt``, ``exp``, etc. in ``sundials_math.h``. The macros for
+``sunrealtype`` arguments are prefixed with ``SUNR``, the macros for ``suncomplextype``
+arguments are prefixed with ``SUNC``, and the macros for ``sunscalartype`` arguments
+are prefixed with ``SUN``.  Each of these expand to the appropriate ``C`` function
+based on the ``sunrealtype``, ``suncomplextype``, and ``sunscalartype`` precision.
+For example, the macro ``SUNRabs`` expands to the ``C`` function
+``fabs`` when ``sunrealtype`` is ``double``, ``fabsf`` when ``sunrealtype`` is
+``float``, and ``fabsl`` when ``sunrealtype`` is ``long double``.  Similarly, the
+macro ``SUNCexp`` expands to the ``C`` function ``cexp`` when ``suncomplextype`` is
+``double _Complex``, ``cexpf`` when ``suncomplextype`` is ``float _Complex``, and
+``cexpl`` when ``suncomplextype`` is ``long double _Complex``.
+
+A user program which uses the type ``sunrealtype``, ``suncomplextype``, or
+``sunscalartype``, the ``SUN_RCONST`` or ``SUN_CCONST`` macros, and the
+``SUNR``, ``SUNC``, or ``SUN`` mathematical function macros is precision-independent
+except for any calls to precision-specific library functions. Our example programs
+use these types and macros. Users can, however, use the type ``double``, ``float``,
+``long double``, ``double _Complex``, ``float _Complex``, or ``long double _Complex``
+in their code (assuming that this usage is consistent with the typedef for
+``sunrealtype`` or ``suncomplextype``) and call the appropriate
 math library functions directly. Thus, a previously existing piece of C or C++
-code can use SUNDIALS without modifying the code to use ``sunrealtype``,
-``SUN_RCONST``, or the ``SUNR`` macros so long as the SUNDIALS libraries are built
+code can use SUNDIALS without modifying the code to use the SUNDIALS
+precision-relevant types and macros so long as the SUNDIALS libraries are built
 to use the corresponding precision (see :numref:`Installation.CMake.Options`).
 
 Integer types used for indexing
@@ -171,3 +215,22 @@ MPI types
 
    A macro defined as ``0`` when SUNDIALS is built without MPI, or as
    ``MPI_COMM_NULL`` when built with MPI.
+
+.. c:macro:: SUN_SUNREALTYPE
+
+   A typedef to the MPI type that corresponds with ``sunrealtype``, i.e., this is
+   set to whichever of ``MPI_FLOAT``, ``MPI_DOUBLE``, or  ``MPI_LONG_DOUBLE`` that
+   matches the storage format for the ``sunrealtype`` type.
+
+.. c:macro:: SUN_SUNCOMPLEXTYPE
+
+   A typedef to the MPI type that corresponds with ``suncomplextype``, i.e., this is
+   set to whichever of ``MPI_C_COMPLEX``, ``MPI_C_DOUBLE_COMPLEX``, or
+   ``MPI_C_LONG_DOUBLE_COMPLEX`` that matches the storage format for the
+   ``suncomplextype`` type.
+
+.. c:macro:: SUN_SUNSCALARTYPE
+
+   A typedef to the MPI type that corresponds with ``sunscalartype``, i.e., this is
+   set to either ``MPI_SUNREALTYPE`` or ``MPI_SUNCOMPLEXTYPE`` depending on
+   the types of floating-point numbers that SUNDIALS is configured to use.

@@ -84,7 +84,7 @@ operations below.
 
    Returns storage requirements for the ``N_Vector`` *v*:
 
-   * *lrw* contains the number of ``sunrealtype`` words
+   * *lrw* contains the number of ``sunscalartype`` words
    * *liw* contains the number of integer words.
 
    This function is advisory only, for use in
@@ -99,11 +99,11 @@ operations below.
       N_VSpace(nvSpec, &lrw, &liw);
 
 
-.. c:function:: sunrealtype* N_VGetArrayPointer(N_Vector v)
+.. c:function:: sunscalartype* N_VGetArrayPointer(N_Vector v)
 
-   Returns a pointer to a ``sunrealtype`` array from the ``N_Vector``
+   Returns a pointer to a ``sunscalartype`` array from the ``N_Vector``
    *v*.  Note that this assumes that the internal data in the
-   ``N_Vector`` is a contiguous array of ``sunrealtype`` and is
+   ``N_Vector`` is a contiguous array of ``sunscalartype`` and is
    accessible from the CPU.
 
    This routine is
@@ -119,11 +119,11 @@ operations below.
       vdata = N_VGetArrayPointer(v);
 
 
-.. c:function:: sunrealtype* N_VGetDeviceArrayPointer(N_Vector v)
+.. c:function:: sunscalartype* N_VGetDeviceArrayPointer(N_Vector v)
 
-   Returns a device pointer to a ``sunrealtype`` array from the ``N_Vector``
+   Returns a device pointer to a ``sunscalartype`` array from the ``N_Vector``
    ``v``. Note that this assumes that the internal data in ``N_Vector`` is a
-   contiguous array of ``sunrealtype`` and is accessible from the device (e.g.,
+   contiguous array of ``sunscalartype`` and is accessible from the device (e.g.,
    GPU).
 
    This operation is *optional* except when using the GPU-enabled direct
@@ -136,12 +136,12 @@ operations below.
       vdata = N_VGetArrayPointer(v);
 
 
-.. c:function:: void N_VSetArrayPointer(sunrealtype* vdata, N_Vector v)
+.. c:function:: void N_VSetArrayPointer(sunscalartype* vdata, N_Vector v)
 
    Replaces the data array pointer in an ``N_Vector`` with a given
-   array of ``sunrealtype``.  Note that this assumes that the internal
+   array of ``sunscalartype``.  Note that this assumes that the internal
    data in the ``N_Vector`` is a contiguous array of
-   ``sunrealtype``. This routine is only used in the interfaces to the
+   ``sunscalartype``. This routine is only used in the interfaces to the
    dense (serial) linear solver, hence need not exist in a
    user-supplied NVECTOR module.
 
@@ -196,10 +196,10 @@ operations below.
       local_length = N_VGetLocalLength(v);
 
 
-.. c:function:: void N_VLinearSum(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y, N_Vector z)
+.. c:function:: void N_VLinearSum(sunscalartype a, N_Vector x, sunscalartype b, N_Vector y, N_Vector z)
 
    Performs the operation *z = ax + by*, where *a* and *b* are
-   ``sunrealtype`` scalars and *x* and *y* are of type ``N_Vector``:
+   ``sunscalartype`` scalars and *x* and *y* are of type ``N_Vector``:
 
    .. math::
       z_i = a x_i + b y_i, \quad i=0,\ldots,n-1.
@@ -214,9 +214,9 @@ operations below.
       N_VLinearSum(a, x, b, y, z);
 
 
-.. c:function:: void N_VConst(sunrealtype c, N_Vector z)
+.. c:function:: void N_VConst(sunscalartype c, N_Vector z)
 
-   Sets all components of the ``N_Vector`` *z* to ``sunrealtype`` *c*:
+   Sets all components of the ``N_Vector`` *z* to ``sunscalartype`` *c*:
 
    .. math::
       z_i = c, \quad i=0,\ldots,n-1.
@@ -261,9 +261,9 @@ operations below.
       N_VDiv(x, y, z);
 
 
-.. c:function:: void N_VScale(sunrealtype c, N_Vector x, N_Vector z)
+.. c:function:: void N_VScale(sunscalartype c, N_Vector x, N_Vector z)
 
-   Scales the ``N_Vector`` *x* by the ``sunrealtype`` scalar *c* and
+   Scales the ``N_Vector`` *x* by the ``sunscalartype`` scalar *c* and
    returns the result in *z*:
 
    .. math::
@@ -309,9 +309,9 @@ operations below.
       N_VInv(x, z);
 
 
-.. c:function:: void N_VAddConst(N_Vector x, sunrealtype b, N_Vector z)
+.. c:function:: void N_VAddConst(N_Vector x, sunscalartype b, N_Vector z)
 
-   Adds the ``sunrealtype`` scalar *b* to all components of *x* and
+   Adds the ``sunscalartype`` scalar *b* to all components of *x* and
    returns the result in the ``N_Vector`` *z*:
 
    .. math::
@@ -324,12 +324,15 @@ operations below.
       N_VAddConst(x, b, z);
 
 
-.. c:function:: sunrealtype N_VDotProd(N_Vector x, N_Vector z)
+.. c:function:: sunscalartype N_VDotProd(N_Vector x, N_Vector z)
 
-   Returns the value of the dot-product of the vectors *x* and *y*:
+   Returns the value of the inner-product of the vectors *x* and *y*:
 
    .. math::
-      d = \sum_{i=0}^{n-1} x_i y_i.
+      d = \sum_{i=0}^{n-1} \overline{x}_i y_i.
+
+   where :math:`\overline{x}_i` is the complex conjugate of :math:`x_i`
+   when ``sunscalartype`` is complex-valued.
 
    Usage:
 
@@ -359,7 +362,10 @@ operations below.
    with (positive) ``sunrealtype`` weight vector *w*:
 
    .. math::
-      m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}
+      m = \sqrt{\left( \sum_{i=0}^{n-1} |x_i|^2 w_i^2 \right) / n}
+
+   where :math:`|x_i|` corresponds to the magnitude of the ``sunscalartype``
+   number :math:`x_i`.
 
    Usage:
 
@@ -376,9 +382,9 @@ operations below.
    ``N_Vector`` *id*:
 
    .. math::
-      m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i H(id_i))^2 \right) / n},
+      m = \sqrt{\left( \sum_{i=0}^{n-1} |x_i|^2 (w_i H(id_i))^2 \right) / n},
 
-   where :math:`H(\alpha)=\begin{cases} 1 & \alpha>0\\ 0 & \alpha \leq 0\end{cases}`.
+   where :math:`H(\alpha)=\begin{cases} 1 & \operatorname{real}(\alpha>0\\ 0 & \operatorname{real}(\alpha) \leq 0\end{cases}`.
 
    Usage:
 
@@ -391,7 +397,7 @@ operations below.
    Returns the smallest element of the ``N_Vector`` *x*:
 
    .. math::
-      m = \min_{0\le i< n} x_i.
+      m = \min_{0\le i< n} \operatorname{real}(x_i).
 
    Usage:
 
@@ -405,7 +411,7 @@ operations below.
    *x* with ``sunrealtype`` weight vector *w*:
 
    .. math::
-      m = \sqrt{\sum_{i=0}^{n-1}\left(x_i w_i\right)^2}.
+      m = \sqrt{\sum_{i=0}^{n-1} |x_i|^2 w_i^2}.
 
    Usage:
 
@@ -469,10 +475,10 @@ operations below.
 
    .. math::
       \begin{array}{rllll}
-      x_i &>& 0 \;&\text{if}\; &c_i = 2, \\
-      x_i &\ge& 0 \;&\text{if}\; &c_i = 1, \\
-      x_i &<& 0 \;&\text{if}\; &c_i = -2, \\
-      x_i &\le& 0 \;&\text{if}\; &c_i = -1.
+      \operatorname{real}(x_i) &>& 0 \;&\text{if}\; &\operatorname{real}(c_i) = 2, \\
+      \operatorname{real}(x_i) &\ge& 0 \;&\text{if}\; &\operatorname{real}(c_i) = 1, \\
+      \operatorname{real}(x_i) &<& 0 \;&\text{if}\; &\operatorname{real}(c_i) = -2, \\
+      \operatorname{real}(x_i) &\le& 0 \;&\text{if}\; &\operatorname{real}(c_i) = -1.
       \end{array}
 
    There is no constraint on :math:`x_i` if :math:`c_i = 0`. This
@@ -494,7 +500,7 @@ operations below.
    termwise dividing the elements of *n* by the elements in *d*:
 
    .. math::
-      \min_{0\le i< n} \frac{\text{num}_i}{\text{denom}_i}.
+      \min_{0\le i< n} \operatorname{real}\left(\frac{\text{num}_i}{\text{denom}_i}\right).
 
    A zero element in *denom* will be skipped.  If no such quotients
    are found, then the large value ``SUN_BIG_REAL`` (defined in the header
@@ -524,7 +530,7 @@ the name, usage of the function, and a description of its mathematical
 operations below.
 
 
-.. c:function:: SUNErrCode N_VLinearCombination(int nv, sunrealtype* c, N_Vector* X, N_Vector z)
+.. c:function:: SUNErrCode N_VLinearCombination(int nv, sunscalartype* c, N_Vector* X, N_Vector z)
 
    This routine computes the linear combination of *nv* vectors with :math:`n` elements:
 
@@ -543,7 +549,7 @@ operations below.
       retval = N_VLinearCombination(nv, c, X, z);
 
 
-.. c:function:: SUNErrCode N_VScaleAddMulti(int nv, sunrealtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
+.. c:function:: SUNErrCode N_VScaleAddMulti(int nv, sunscalartype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
 
    This routine scales and adds one vector to *nv* vectors with :math:`n` elements:
 
@@ -561,16 +567,16 @@ operations below.
       retval = N_VScaleAddMulti(nv, c, x, Y, Z);
 
 
-.. c:function:: SUNErrCode N_VDotProdMulti(int nv, N_Vector x, N_Vector* Y, sunrealtype* d)
+.. c:function:: SUNErrCode N_VDotProdMulti(int nv, N_Vector x, N_Vector* Y, sunscalartype* d)
 
-   This routine computes the dot product of a vector with *nv* vectors
+   This routine computes the inner product of a vector with *nv* vectors
    having :math:`n` elements:
 
    .. math::
-      d_j = \sum_{i=0}^{n-1} x_i y_{j,i}, \quad j=0,\ldots,nv-1,
+      d_j = \sum_{i=0}^{n-1} \overline{x}_i y_{j,i}, \quad j=0,\ldots,nv-1,
 
    where *d* is an array of scalars containing the computed dot
-   products, *x* is a vector, and :math:`y_j` is a vector the vector
+   products, *x* is a vector, and :math:`y_j` is a vector from the vector
    array *Y*. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
@@ -596,7 +602,7 @@ operation, we give the name, usage of the function, and a description
 of its mathematical operations below.
 
 
-.. c:function:: SUNErrCode N_VLinearSumVectorArray(int nv, sunrealtype a, N_Vector X, sunrealtype b, N_Vector* Y, N_Vector* Z)
+.. c:function:: SUNErrCode N_VLinearSumVectorArray(int nv, sunscalartype a, N_Vector X, sunscalartype b, N_Vector* Y, N_Vector* Z)
 
    This routine computes the linear sum of two vector arrays of *nv* vectors with :math:`n` elements:
 
@@ -614,7 +620,7 @@ of its mathematical operations below.
       retval = N_VLinearSumVectorArray(nv, a, X, b, Y, Z);
 
 
-.. c:function:: SUNErrCode N_VScaleVectorArray(int nv, sunrealtype* c, N_Vector* X, N_Vector* Z)
+.. c:function:: SUNErrCode N_VScaleVectorArray(int nv, sunscalartype* c, N_Vector* X, N_Vector* Z)
 
    This routine scales each element in a vector of :math:`n` elements
    in a vector array of *nv* vectors by a potentially different constant:
@@ -633,7 +639,7 @@ of its mathematical operations below.
       retval = N_VScaleVectorArray(nv, c, X, Z);
 
 
-.. c:function:: SUNErrCode N_VConstVectorArray(int nv, sunrealtype c, N_Vector* Z)
+.. c:function:: SUNErrCode N_VConstVectorArray(int nv, sunscalartype c, N_Vector* Z)
 
    This routine sets each element in a vector of :math:`n` elements in
    a vector array of *nv* vectors to the same value:
@@ -657,10 +663,10 @@ of its mathematical operations below.
    vector in a vector array:
 
    .. math::
-      m_j = \left( \frac1n \sum_{i=0}^{n-1} \left(x_{j,i} w_{j,i}\right)^2\right)^{1/2}, \quad j=0,\ldots,nv-1,
+      m_j = \left( \frac1n \sum_{i=0}^{n-1} |x_{j,i}|^2 w_{j,i}^2\right)^{1/2}, \quad j=0,\ldots,nv-1,
 
    where :math:`x_j` is a vector in the vector array *X*, :math:`w_j`
-   is a weight vector in the vector array *W*, and *m* is the output
+   is a positive weight vector in the vector array *W*, and *m* is the output
    array of scalars containing the computed norms. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
@@ -676,12 +682,12 @@ of its mathematical operations below.
    each vector in a vector array:
 
    .. math::
-      m_j = \left( \frac1n \sum_{i=0}^{n-1} \left(x_{j,i} w_{j,i} H(id_i)\right)^2 \right)^{1/2}, \quad j=0,\ldots,nv-1,
+      m_j = \left( \frac1n \sum_{i=0}^{n-1} |x_{j,i}|^2 \left(w_{j,i} H(id_i)\right)^2 \right)^{1/2}, \quad j=0,\ldots,nv-1,
 
-   where :math:`H(id_i)=1` if :math:`id_i > 0` and is zero otherwise,
-   :math:`x_j` is a vector in the vector array *X*, :math:`w_j` is a
-   weight vector in the vector array *W*, *id* is the mask vector, and
-   *m* is the output array of scalars containing the computed
+   where :math:`H(id_i)=1` if :math:`\operatorname{real}(id_i) > 0` and is
+   zero otherwise, :math:`x_j` is a vector in the vector array *X*, :math:`w_j`
+   is a positive weight vector in the vector array *W*, *id* is the mask vector,
+   and *m* is the output array of scalars containing the computed
    norms. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
@@ -691,7 +697,7 @@ of its mathematical operations below.
       retval = N_VWrmsNormMaskVectorArray(nv, X, W, id, m);
 
 
-.. c:function:: SUNErrCode N_VScaleAddMultiVectorArray(int nv, int nsum, sunrealtype* c, N_Vector* X, N_Vector** YY, N_Vector** ZZ)
+.. c:function:: SUNErrCode N_VScaleAddMultiVectorArray(int nv, int nsum, sunscalartype* c, N_Vector* X, N_Vector** YY, N_Vector** ZZ)
 
    This routine scales and adds a vector array of *nv* vectors to
    *nsum* other vector arrays:
@@ -711,7 +717,7 @@ of its mathematical operations below.
       retval = N_VScaleAddMultiVectorArray(nv, nsum, c, x, YY, ZZ);
 
 
-.. c:function:: SUNErrCode N_VLinearCombinationVectorArray(int nv, int nsum, sunrealtype* c, N_Vector** XX, N_Vector* Z)
+.. c:function:: SUNErrCode N_VLinearCombinationVectorArray(int nv, int nsum, sunscalartype* c, N_Vector** XX, N_Vector* Z)
 
    This routine computes the linear combination of *nsum* vector
    arrays containing *nv* vectors:
@@ -747,13 +753,13 @@ the name, usage of the function, and a description of its mathematical
 operations below.
 
 
-.. c:function:: sunrealtype N_VDotProdLocal(N_Vector x, N_Vector y)
+.. c:function:: sunscalartype N_VDotProdLocal(N_Vector x, N_Vector y)
 
    This routine computes the MPI task-local portion of the ordinary
-   dot product of *x* and *y*:
+   inner product of *x* and *y*:
 
    .. math::
-      d=\sum_{i=0}^{n_{local}-1} x_i y_i,
+      d=\sum_{i=0}^{n_{local}-1} \overline{x}_i y_i,
 
    where :math:`n_{local}` corresponds to the number of components in
    the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
@@ -787,11 +793,11 @@ operations below.
 
 .. c:function:: sunrealtype N_VMinLocal(N_Vector x)
 
-   This routine computes the smallest element of the MPI task-local
+   This routine computes the smallest real element of the MPI task-local
    portion of the NVECTOR *x*:
 
    .. math::
-      m = \min_{0\le i< n_{local}} x_i,
+      m = \min_{0\le i< n_{local}} \operatorname{real}(x_i),
 
    where :math:`n_{local}` corresponds to the number of components in
    the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
@@ -826,10 +832,10 @@ operations below.
 .. c:function:: sunrealtype N_VWSqrSumLocal(N_Vector x, N_Vector w)
 
    This routine computes the MPI task-local portion of the weighted
-   squared sum of the NVECTOR *x* with weight vector *w*:
+   squared sum of the NVECTOR *x* with positive weight vector *w*:
 
    .. math::
-      s = \sum_{i=0}^{n_{local}-1} (x_i w_i)^2,
+      s = \sum_{i=0}^{n_{local}-1} |x_i|^2 w_i^2,
 
    where :math:`n_{local}` corresponds to the number of components in
    the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
@@ -845,16 +851,17 @@ operations below.
 .. c:function:: sunrealtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id)
 
    This routine computes the MPI task-local portion of the weighted
-   squared sum of the NVECTOR *x* with weight vector *w* built using
-   only the elements of *x* corresponding to positive elements of the NVECTOR *id*:
+   squared sum of the NVECTOR *x* with positive weight vector *w* built using
+   only the elements of *x* corresponding to positive real elements of the NVECTOR
+   *id*:
 
    .. math::
-      m = \sum_{i=0}^{n_{local}-1} (x_i w_i H(id_i))^2,
+      m = \sum_{i=0}^{n_{local}-1} |x_i|^2 (w_i H(id_i))^2,
 
    where
 
    .. math::
-      H(\alpha) = \begin{cases} 1 & \alpha > 0 \\ 0 & \alpha \leq 0 \end{cases}
+      H(\alpha) = \begin{cases} 1 & \operatorname{real}(\alpha) > 0 \\ 0 & \operatorname{real}(\alpha) \leq 0 \end{cases}
 
    and :math:`n_{local}` corresponds to the number of components in
    the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
@@ -896,10 +903,10 @@ operations below.
 
    .. math::
       \begin{array}{rllll}
-      x_i &>& 0 \;&\text{if}\; &c_i = 2, \\
-      x_i &\ge& 0 \;&\text{if}\; &c_i = 1, \\
-      x_i &<& 0 \;&\text{if}\; &c_i = -2, \\
-      x_i &\le& 0 \;&\text{if}\; &c_i = -1.
+      \operatorname{real}(x_i) &>& 0 \;&\text{if}\; &\operatorname{real}(c_i) = 2, \\
+      \operatorname{real}(x_i) &\ge& 0 \;&\text{if}\; &\operatorname{real}(c_i) = 1, \\
+      \operatorname{real}(x_i) &<& 0 \;&\text{if}\; &\operatorname{real}(c_i) = -2, \\
+      \operatorname{real}(x_i) &\le& 0 \;&\text{if}\; &\operatorname{real}(c_i) = -1.
       \end{array}
 
    for all MPI task-local components of the vectors.
@@ -919,8 +926,8 @@ operations below.
 
 .. c:function:: sunrealtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
 
-   This routine returns the minimum of the quotients obtained by
-   term-wise dividing :math:`num_i` by :math:`denom_i`, for all MPI
+   This routine returns the minimum real component of the quotients obtained
+   by term-wise dividing :math:`num_i` by :math:`denom_i`, for all MPI
    task-local components of the vectors.  A zero element in *denom*
    will be skipped. If no such quotients are found, then the large value
    ``SUN_BIG_REAL`` (defined in the header file ``sundials_types.h``)
@@ -941,19 +948,19 @@ Single Buffer Reduction Operations
 The following *optional* operations are used to combine separate reductions into
 a single MPI call by splitting the local computation and communication into
 separate functions. These operations are used in low-synchronization
-orthogonalization methods to reduce the number of MPI ``Allreduce`` calls. If a
+orthogonalization methods to reduce the number of ``MPI_Allreduce`` calls. If a
 particular NVECTOR implementation does not define these operations additional
 communication will be required.
 
-.. c:function:: SUNErrCode N_VDotProdMultiLocal(int nv, N_Vector x, N_Vector* Y, sunrealtype* d)
+.. c:function:: SUNErrCode N_VDotProdMultiLocal(int nv, N_Vector x, N_Vector* Y, sunscalartype* d)
 
-   This routine computes the MPI task-local portion of the dot product of a
+   This routine computes the MPI task-local portion of the inner product of a
    vector :math:`x` with *nv* vectors :math:`y_j`:
 
    .. math::
-      d_j = \sum_{i=0}^{n_{local}-1} x_i y_{j,i}, \quad j=0,\ldots,nv-1,
+      d_j = \sum_{i=0}^{n_{local}-1} \overline{x}_i y_{j,i}, \quad j=0,\ldots,nv-1,
 
-   where :math:`d` is an array of scalars containing the computed dot products,
+   where :math:`d` is an array of scalars containing the computed inner products,
    :math:`x` is a vector, :math:`y_j` is a vector in the vector array *Y*, and
    :math:`n_{local}` corresponds to the number of components in the vector on
    this MPI task. The operation returns a :c:type:`SUNErrCode`.
@@ -965,9 +972,9 @@ communication will be required.
       retval = N_VDotProdMultiLocal(nv, x, Y, d);
 
 
-.. c:function:: SUNErrCode N_VDotProdMultiAllReduce(int nv, N_Vector x, sunrealtype* d)
+.. c:function:: SUNErrCode N_VDotProdMultiAllReduce(int nv, N_Vector x, sunscalartype* d)
 
-   This routine combines the MPI task-local portions of the dot product of a
+   This routine combines the MPI task-local portions of the inner product of a
    vector :math:`x` with *nv* vectors:
 
    .. code-block:: c
@@ -975,7 +982,7 @@ communication will be required.
       retval = MPI_Allreduce(MPI_IN_PLACE, d, nv, MPI_SUNREALTYPE, MPI_SUM, comm)
 
    where *d* is an array of *nv* scalars containing the local contributions to
-   the dot product and *comm* is the MPI communicator associated with the vector
+   the inner products and *comm* is the MPI communicator associated with the vector
    *x*. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
