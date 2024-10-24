@@ -23,8 +23,11 @@ set(ARKODE_examples
     # tests that are always run
     "ark_analytic\;\;"
     # develop tests
+    "ark_analytic_lsrk\;\;develop"
+    "ark_analytic_lsrk_varjac\;\;develop"
     "ark_analytic_mels\;\;develop"
     "ark_analytic_nonlin\;\;develop"
+    "ark_analytic_ssprk\;\;develop"
     "ark_brusselator_1D_mri\;\;develop"
     "ark_brusselator_fp\;\;exclude-single"
     "ark_brusselator_mri\;\;develop"

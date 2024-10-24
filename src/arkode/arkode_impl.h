@@ -119,6 +119,7 @@ extern "C" {
 #define PREV_ERR_FAIL  +8
 #define RHSFUNC_RECVR  +9
 #define CONSTR_RECVR   +10
+#define ARK_RETRY_STEP +11
 
 /*---------------------------------------------------------------
   Return values for lower-level rootfinding functions

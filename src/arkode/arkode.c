@@ -735,6 +735,10 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     - loop over attempts at a new step:
       * try to take step (via time stepper module),
         handle solver convergence or other failures
+      * if the stepper requests ARK_RETRY_STEP, we 
+        retry the step without accumulating failures.
+        A stepper should never request this multiple 
+        times in a row.
       * perform constraint-handling (if selected)
       * check temporal error
       * if all of the above pass, complete step by
@@ -870,9 +874,15 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     nflag                                                    = FIRST_CALL;
     for (;;)
     {
-      /* increment attempt counters */
-      attempts++;
-      ark_mem->nst_attempts++;
+      /* increment attempt counters
+      Returns with an ARK_RETRY_STEP flag happen in a step much 
+      before any computations involve. For this reason, we do not
+      count this return as an attempt. */
+      if (kflag != ARK_RETRY_STEP)
+      {
+        attempts++;
+        ark_mem->nst_attempts++;
+      }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::ARKodeEvolve",
@@ -1884,17 +1894,23 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     }
   }
 
-  /* Create default Hermite interpolation module (if needed) */
+  /* Create default interpolation module (if needed) */
   if (ark_mem->interp_type != ARK_INTERP_NONE && !(ark_mem->interp))
   {
-    ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    if (ark_mem->interp_type == ARK_INTERP_LAGRANGE)
+    {
+      ark_mem->interp = arkInterpCreate_Lagrange(ark_mem, ark_mem->interp_degree);
+    }
+    else
+    {
+      ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    }
     if (ark_mem->interp == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to allocate interpolation module");
       return ARK_MEM_FAIL;
     }
-    ark_mem->interp_type = ARK_INTERP_HERMITE;
   }
 
   /* Fill initial interpolation data (if needed) */
@@ -2986,6 +3002,13 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
   ARKodeHAdaptMem hadapt_mem;
 
   if (*nflagPtr == ARK_SUCCESS) { return (ARK_SUCCESS); }
+  /* Returns with an ARK_RETRY_STEP flag occur at a stage well before 
+  any algebraic solvers are involved. On the other hand, 
+  the arkCheckConvergence function handles the results from algebraic 
+  solvers, which never take place with an ARK_RETRY_STEP flag. 
+  Therefore, we immediately return from arkCheckConvergence, 
+  as it is irrelevant in the case of an ARK_RETRY_STEP */
+  if (*nflagPtr == ARK_RETRY_STEP) { return (ARK_RETRY_STEP); }
 
   /* The nonlinear soln. failed; increment ncfn */
   ark_mem->ncfn++;

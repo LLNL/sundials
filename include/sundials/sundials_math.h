@@ -44,8 +44,24 @@ extern "C" {
  * SUNRabs calls the appropriate version of abs
  *
  * SUNRexp calls the appropriate version of exp
+ * 
+ * SUNRlog calls the appropriate version of log
+ * 
+ * SUNRsinh calls the appropriate version of sinh
+ * 
+ * SUNRcosh calls the appropriate version of cosh
  *
  * SUNRceil calls the appropriate version of ceil
+ * 
+ * SUNRfloor calls the appropriate version of floor
+ * 
+ * SUNRround calls the appropriate version of round
+ * 
+ * SUNIceil calls the appropriate version of ceil and returns sunindextype
+ * 
+ * SUNIfloor calls the appropriate version of floor and returns sunindextype
+ * 
+ * SUNIround calls the appropriate version of round and returns sunindextype
  * -----------------------------------------------------------------
  */
 
@@ -136,6 +152,78 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * Function : SUNRlog
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype log_x;
+ *         log_x = SUNRlog(x);
+ * -----------------------------------------------------------------
+ * SUNRlog(x) returns log(x) (base-e logarithmic function).
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRlog
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRlog(x) (log((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRlog(x) (logf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRlog(x) (logl((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRsinh
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype sinh_x;
+ *         sinh_x = SUNRsinh(x);
+ * -----------------------------------------------------------------
+ * SUNRsinh(x) returns sinh(x) (the hyperbolic sine of x).
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRsinh
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRsinh(x) (sinh((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRsinh(x) (sinhf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRsinh(x) (sinhl((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRcosh
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype cosh_x;
+ *         cosh_x = SUNRcosh(x);
+ * -----------------------------------------------------------------
+ * SUNRcosh(x) returns cosh(x) (the hyperbolic cosine of x).
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRcosh
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRcosh(x) (cosh((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRcosh(x) (coshf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRcosh(x) (coshl((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
  * Function : SUNRceil
  * -----------------------------------------------------------------
  * Usage : sunrealtype ceil_x;
@@ -152,6 +240,128 @@ extern "C" {
 #define SUNRceil(x) (ceilf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRceil(x) (ceill((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRfloor
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype floor_x;
+ *         floor_x = SUNRfloor(x);
+ * -----------------------------------------------------------------
+ * SUNRfloor(x) returns the largest integer value not greater than x.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRfloor
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRfloor(x) (floor((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRfloor(x) (floorf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRfloor(x) (floorl((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRround
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype round_x;
+ *         round_x = SUNRround(x);
+ * -----------------------------------------------------------------
+ * SUNRround(x) returns the nearest integer value to x (in floating-point format), 
+ * rounding halfway cases away from zero, regardless of the current rounding mode.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRround
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRround(x) (round((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRround(x) (roundf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRround(x) (roundl((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNIceil
+ * -----------------------------------------------------------------
+ * Usage : sunindextype ceil_x;
+ *         ceil_x = SUNIceil(x);
+ * -----------------------------------------------------------------
+ * SUNIceil(x) returns the smallest sunindextype value not less than x.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNIceil
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNIceil(x) ((sunindextype)(ceil((x)) + SUN_RCONST(0.5)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNIceil(x) ((sunindextype)(ceilf((x)) + SUN_RCONST(0.5)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNIceil(x) ((sunindextype)(ceill((x)) + SUN_RCONST(0.5)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNIfloor
+ * -----------------------------------------------------------------
+ * Usage : sunindextype floor_x;
+ *         floor_x = SUNIfloor(x);
+ * -----------------------------------------------------------------
+ * SUNIfloor(x) returns the largest sunindextype value not greater than x.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNIfloor
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNIfloor(x) ((sunindextype)(floor((x)) + SUN_RCONST(0.5)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNIfloor(x) ((sunindextype)(floorf((x)) + SUN_RCONST(0.5)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNIfloor(x) ((sunindextype)(floorl((x)) + SUN_RCONST(0.5)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNIround
+ * -----------------------------------------------------------------
+ * Usage : sunindextype round_x;
+ *         round_x = SUNIround(x);
+ * -----------------------------------------------------------------
+ * SUNIround(x) returns the nearest sunindextype value to x, 
+ * rounding halfway cases away from zero, regardless of the current rounding mode.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNIround
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNIround(x) ((sunindextype)(round((x)) + SUN_RCONST(0.5)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNIround(x) ((sunindextype)(roundf((x)) + SUN_RCONST(0.5)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNIround(x) ((sunindextype)(roundl((x)) + SUN_RCONST(0.5)))
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
