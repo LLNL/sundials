@@ -164,7 +164,7 @@ controllers, there are a few steps required when setting this up in an applicati
 
 #. *Create an inner stepper object to solve the fast (inner) IVP*
 
-#. Configure the inner stepper to use temporal adaptivity.  For exaple, when using
+#. Configure the inner stepper to use temporal adaptivity.  For example, when using
    an ARKODE inner stepper and the :c:func:`ARKodeCreateMRIStepInnerStepper`
    function, then either use its default adaptivity approach or supply a
    single-rate SUNAdaptController object, e.g.
