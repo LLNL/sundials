@@ -2598,10 +2598,7 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
     {
       ark_mem->AccumError += dsm;
     }
-    else      /* ARK_ACCUMERROR_AVG */
-    {
-      ark_mem->AccumError += (dsm * ark_mem->h);
-    }
+    else /* ARK_ACCUMERROR_AVG */ { ark_mem->AccumError += (dsm * ark_mem->h); }
   }
 
   /* apply user-supplied step postprocessing function (if supplied) */

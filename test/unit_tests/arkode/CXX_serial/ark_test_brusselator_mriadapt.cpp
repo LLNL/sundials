@@ -265,11 +265,11 @@ int main(int argc, char* argv[])
   if (check_ptr((void*)yref, "N_VNew_Serial")) return 1;
 
   // Set initial conditions
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* ydata    = N_VGetArrayPointer(y);
   sunrealtype* yrefdata = N_VGetArrayPointer(yref);
-  ydata[0] = SUN_RCONST(1.2);
-  ydata[1] = SUN_RCONST(3.1);
-  ydata[2] = SUN_RCONST(3.0);
+  ydata[0]              = SUN_RCONST(1.2);
+  ydata[1]              = SUN_RCONST(3.1);
+  ydata[2]              = SUN_RCONST(3.0);
   N_VScale(ONE, y, yref);
 
   // Create and configure reference solver object
@@ -709,12 +709,12 @@ int main(int argc, char* argv[])
     verrtot += verr * verr;
     werrtot += werr * werr;
     errtot += uerr * uerr + verr * verr + werr * werr;
-    accuracy = std::max(accuracy, uerr / std::abs(opts.atol +
-                                                  opts.rtol * yrefdata[0]));
-    accuracy = std::max(accuracy, verr / std::abs(opts.atol +
-                                                  opts.rtol * yrefdata[1]));
-    accuracy = std::max(accuracy, werr / std::abs(opts.atol +
-                                                  opts.rtol * yrefdata[2]));
+    accuracy = std::max(accuracy,
+                        uerr / std::abs(opts.atol + opts.rtol * yrefdata[0]));
+    accuracy = std::max(accuracy,
+                        verr / std::abs(opts.atol + opts.rtol * yrefdata[1]));
+    accuracy = std::max(accuracy,
+                        werr / std::abs(opts.atol + opts.rtol * yrefdata[2]));
 
     // Periodically output current results to screen
     if (t >= tout)

@@ -426,9 +426,9 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
   int retval;
   sunrealtype hpart = (Tf - T0) / udata.Npart;
   sunrealtype t;
-  N_Vector ele   = N_VClone(y);
-  N_Vector ewt   = N_VClone(y);
-  N_Vector vtemp = N_VClone(y);
+  N_Vector ele       = N_VClone(y);
+  N_Vector ewt       = N_VClone(y);
+  N_Vector vtemp     = N_VClone(y);
   sunrealtype* ydata = N_VGetArrayPointer(y);
 
   // Set storage for errors
@@ -515,8 +515,8 @@ static sunrealtype vtrue(sunrealtype t, UserData& udata)
 static int Ytrue(sunrealtype t, N_Vector y, UserData& udata)
 {
   sunrealtype* ydata = N_VGetArrayPointer(y);
-  ydata[0] = utrue(t);
-  ydata[1] = vtrue(t, udata);
+  ydata[0]           = utrue(t);
+  ydata[1]           = vtrue(t, udata);
   return (0);
 }
 

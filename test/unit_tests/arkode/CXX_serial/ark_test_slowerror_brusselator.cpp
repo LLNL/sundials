@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
   if (check_retval((void*)y, "N_VNew_Serial", 0)) return 1;
   N_Vector* yref = N_VCloneVectorArray(udata.Npart + 1, y);
   if (check_retval((void*)yref, "N_VNew_Serial", 0)) return 1;
-  sunrealtype *ydata = N_VGetArrayPointer(y);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
   if (check_retval((void*)ydata, "N_VGetArrayPointer", 0)) return 1;
   ydata[0] = u0;
   ydata[1] = v0;
@@ -282,9 +282,9 @@ int main(int argc, char* argv[])
   }
 
   // Set up fast ERKStep integrator as fifth-order adaptive method
-  ydata[0] = u0;
-  ydata[1] = v0;
-  ydata[2] = w0;
+  ydata[0]               = u0;
+  ydata[1]               = v0;
+  ydata[2]               = w0;
   void* inner_arkode_mem = ERKStepCreate(f0, T0, y, ctx);
   if (check_retval((void*)inner_arkode_mem, "ERKStepCreate", 0)) return 1;
   retval = ARKodeSetOrder(inner_arkode_mem, 5);
@@ -491,11 +491,11 @@ static int run_test(void* mristep_mem, void* arkode_ref, N_Vector y,
   int retval;
   sunrealtype hpart = (Tf - T0) / udata.Npart;
   sunrealtype t, t2;
-  N_Vector y2    = N_VClone(y);
-  N_Vector ele   = N_VClone(y);
-  N_Vector ewt   = N_VClone(y);
-  N_Vector vtemp = N_VClone(y);
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  N_Vector y2         = N_VClone(y);
+  N_Vector ele        = N_VClone(y);
+  N_Vector ewt        = N_VClone(y);
+  N_Vector vtemp      = N_VClone(y);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
   sunrealtype* y2data = N_VGetArrayPointer(y2);
 
   // Set storage for errors

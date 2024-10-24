@@ -152,12 +152,12 @@ int main(int argc, char* argv[])
   N_Vector* yref   = NULL; // empty vectors for storing reference solution
   void* arkode_mem = NULL; // empty ARKStep memory structure
   void* arkode_ref = NULL; // empty ARKStep memory structure for reference solution
-  SUNMatrix A        = NULL;        // empty matrix for solver
-  SUNLinearSolver LS = NULL;        // empty linear solver object
-  UserData udata;                   // user-data structure
-  sunrealtype* ydata    = NULL;
-  udata.ep    = SUN_RCONST(0.0004); // stiffness parameter
-  udata.Npart = 20;                 // partition size
+  SUNMatrix A        = NULL; // empty matrix for solver
+  SUNLinearSolver LS = NULL; // empty linear solver object
+  UserData udata;            // user-data structure
+  sunrealtype* ydata = NULL;
+  udata.ep           = SUN_RCONST(0.0004); // stiffness parameter
+  udata.Npart        = 20;                 // partition size
 
   //
   // Initialization
@@ -261,9 +261,9 @@ int main(int argc, char* argv[])
   if (check_retval((void*)ydata, "N_VGetArrayPointer", 0)) return 1;
 
   // Generate reference solution
-  ydata[0] = u0;
-  ydata[1] = v0;
-  ydata[2] = w0;
+  ydata[0]   = u0;
+  ydata[1]   = v0;
+  ydata[2]   = w0;
   arkode_ref = ARKStepCreate(fn, NULL, T0, y, ctx);
   if (check_retval((void*)arkode_ref, "ARKStepCreate", 0)) return 1;
   retval = ARKodeSetUserData(arkode_ref, (void*)&udata);
@@ -457,8 +457,8 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
         if (check_retval(&retval, "ARKodeGetNumSteps", 1)) break;
 
         // Compute/print solution error
-        sunrealtype* ydata    = N_VGetArrayPointer(y);
-        sunrealtype* yrefdata = N_VGetArrayPointer(yref[ipart + 1]);
+        sunrealtype* ydata     = N_VGetArrayPointer(y);
+        sunrealtype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
         const sunrealtype udsm = abs(ydata[0] - yrefdata[0]) /
                                  (abstol + rtols[irtol] * abs(yrefdata[0]));
         const sunrealtype vdsm = abs(ydata[1] - yrefdata[1]) /
@@ -555,8 +555,8 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
         if (check_retval(&retval, "ARKodeGetNumSteps", 1)) break;
 
         // Compute/print solution error
-        sunrealtype* ydata = N_VGetArrayPointer(y);
-        sunrealtype* yrefdata = N_VGetArrayPointer(yref[ipart + 1]);
+        sunrealtype* ydata     = N_VGetArrayPointer(y);
+        sunrealtype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
         const sunrealtype udsm = abs(ydata[0] - yrefdata[0]) /
                                  (abstol + reltol * abs(yrefdata[0]));
         const sunrealtype vdsm = abs(ydata[1] - yrefdata[1]) /
@@ -638,8 +638,8 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
       dsm_est[ipart] = reltol * N_VWrmsNorm(y2, ewt);
       Nsteps[ipart] += nsteps2;
 
-      sunrealtype* ydata = N_VGetArrayPointer(y);
-      sunrealtype* yrefdata = N_VGetArrayPointer(yref[ipart + 1]);
+      sunrealtype* ydata     = N_VGetArrayPointer(y);
+      sunrealtype* yrefdata  = N_VGetArrayPointer(yref[ipart + 1]);
       const sunrealtype udsm = abs(ydata[0] - yrefdata[0]) /
                                (abstol + reltol * abs(yrefdata[0]));
       const sunrealtype vdsm = abs(ydata[1] - yrefdata[1]) /

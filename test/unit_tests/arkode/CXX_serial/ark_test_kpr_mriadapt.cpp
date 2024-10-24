@@ -681,7 +681,8 @@ int main(int argc, char* argv[])
   printf("        t           u           v       uerr      verr\n");
   printf("   ------------------------------------------------------\n");
   printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM "  %.2" ESYM
-         "\n", t, ydata[0], ydata[1], uerr, verr);
+         "\n",
+         t, ydata[0], ydata[1], uerr, verr);
   while (Tf - t > SUN_RCONST(1.0e-8))
   {
     // reset reference solver so that it begins with identical state
@@ -713,10 +714,10 @@ int main(int argc, char* argv[])
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     errtot += uerr * uerr + verr * verr;
-    accuracy = std::max(accuracy, uerr / std::abs(opts.atol +
-                                                  opts.rtol * yrefdata[0]));
-    accuracy = std::max(accuracy, verr / std::abs(opts.atol +
-                                                  opts.rtol * yrefdata[1]));
+    accuracy = std::max(accuracy,
+                        uerr / std::abs(opts.atol + opts.rtol * yrefdata[0]));
+    accuracy = std::max(accuracy,
+                        verr / std::abs(opts.atol + opts.rtol * yrefdata[1]));
 
     // Periodically output current results to screen
     if (t >= tout)
@@ -843,8 +844,8 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-r(t))/(2*u)] + [rdot(t)/(2u)]
   //   [0  0] [(-2+v^2-s(t))/(2*v)]   [      0     ]
-  tmp1 = (-TWO + u * u - r(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - s(t, opts)) / (TWO * v);
+  tmp1      = (-TWO + u * u - r(t, opts)) / (TWO * u);
+  tmp2      = (-TWO + v * v - s(t, opts)) / (TWO * v);
   dydata[0] = opts->G * tmp1 + opts->e * tmp2 + rdot(t, opts) / (TWO * u);
   dydata[1] = ZERO;
 
@@ -904,8 +905,8 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-r(t))/(2*u)] + [rdot(t)/(2u)]
   //   [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2v)]
-  tmp1 = (-TWO + u * u - r(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - s(t, opts)) / (TWO * v);
+  tmp1      = (-TWO + u * u - r(t, opts)) / (TWO * u);
+  tmp2      = (-TWO + v * v - s(t, opts)) / (TWO * v);
   dydata[0] = opts->G * tmp1 + opts->e * tmp2 + rdot(t, opts) / (TWO * u);
   dydata[1] = opts->e * tmp1 - tmp2 + sdot(t, opts) / (TWO * v);
 
@@ -1022,8 +1023,8 @@ static sunrealtype vtrue(sunrealtype t, Options* opts)
 static int Ytrue(sunrealtype t, N_Vector y, Options* opts)
 {
   sunrealtype* ydata = N_VGetArrayPointer(y);
-  ydata[0] = utrue(t, opts);
-  ydata[1] = vtrue(t, opts);
+  ydata[0]           = utrue(t, opts);
+  ydata[1]           = vtrue(t, opts);
   return (0);
 }
 

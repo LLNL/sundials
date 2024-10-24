@@ -668,8 +668,8 @@ static sunrealtype vtrue(sunrealtype t, UserData& udata)
 static int Ytrue(sunrealtype t, N_Vector y, UserData& udata)
 {
   sunrealtype* ydata = N_VGetArrayPointer(y);
-  ydata[0] = utrue(t);
-  ydata[1] = vtrue(t, udata);
+  ydata[0]           = utrue(t);
+  ydata[1]           = vtrue(t, udata);
   return (0);
 }
 

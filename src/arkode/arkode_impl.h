@@ -540,8 +540,8 @@ struct ARKodeMemRec
   sunrealtype hold;  /* last successful h value used                */
   sunrealtype tolsf; /* tolerance scale factor (suggestion to user) */
   ARKAccumError AccumErrorType; /* accumulated error estimation type   */
-  sunrealtype AccumErrorStart; /* time of last accumulated error reset */
-  sunrealtype AccumError;  /* accumulated error estimate               */
+  sunrealtype AccumErrorStart;  /* time of last accumulated error reset */
+  sunrealtype AccumError;       /* accumulated error estimate               */
   sunbooleantype VabstolMallocDone;
   sunbooleantype VRabstolMallocDone;
   sunbooleantype MallocDone;

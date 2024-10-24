@@ -50,8 +50,8 @@ static int check_flag(void* flagvalue, const char* funcname, int opt);
 /* Private function to check computed solution */
 static int compute_ans(sunrealtype t, sunrealtype tshift, sunrealtype tscale,
                        N_Vector* forcing, int order, N_Vector ans);
-static int compute_error(N_Vector y, N_Vector ans, N_Vector tmp, sunrealtype rtol,
-                         sunrealtype atol);
+static int compute_error(N_Vector y, N_Vector ans, N_Vector tmp,
+                         sunrealtype rtol, sunrealtype atol);
 
 /* Main Program */
 int main(int argc, char* argv[])
@@ -352,8 +352,8 @@ static int compute_ans(sunrealtype t, sunrealtype tshift, sunrealtype tscale,
 }
 
 /* compure the weighted max norm of the difference of two vectors */
-static int compute_error(N_Vector y, N_Vector ans, N_Vector tmp, sunrealtype rtol,
-                         sunrealtype atol)
+static int compute_error(N_Vector y, N_Vector ans, N_Vector tmp,
+                         sunrealtype rtol, sunrealtype atol)
 {
   int status; /* success (0) or failure (1) flag */
   sunrealtype error;
