@@ -85,10 +85,15 @@ unchanged from the skeleton program presented in
    inputs to :c:func:`MRIStepCreate` is the ``MRIStepInnerStepper`` object for
    solving the fast (inner) IVP created in the previous step.
 
-#. Set the slow step size
-
-   Call :c:func:`ARKodeSetFixedStep()` on the MRIStep object to specify the
+#. If using fixed step sizes, then set the slow step size by calling
+   :c:func:`ARKodeSetFixedStep()` on the MRIStep object to specify the
    slow time step size.
+
+   If using adaptive slow steps, then specify the desired integration tolerances
+   as normal.  By default, MRIStep will use a "decoupled" (see
+   :numref:`ARKODE.Mathematics.MultirateControllers`) I controller (see
+   :numref:`SUNAdaptController.Soderlind`),  Alternately, create and attach a
+   multirate temporal controller (see :numref:`SUNAdaptController.MRIHTol`).
 
 #. Create and configure implicit solvers (*as appropriate*)
 

@@ -152,3 +152,60 @@ also provides the following additional user-callable routines:
    :param inner_min_tolfac: the parameter :math:`\text{tolfac}_{min}`.
    :param inner_max_tolfac: the parameter :math:`\text{tolfac}_{max}`.
    :returns: :c:type:`SUNErrCode` indicating success or failure.
+
+
+Usage
+-----
+
+Since this adaptivity controller is constructed using multiple single-rate adaptivity
+controllers, there are a few steps required when setting this up in an application
+(the steps below in *italics* correspond to the surrounding steps described in the
+:ref:`MRIStep usage skeleton <ARKODE.Usage.MRIStep.Skeleton>`.
+
+#. *Create an inner stepper object to solve the fast (inner) IVP*
+
+#. Configure the inner stepper to use temporal adaptivity.  For exaple, when using
+   an ARKODE inner stepper and the :c:func:`ARKodeCreateMRIStepInnerStepper`
+   function, then either use its default adaptivity approach or supply a
+   single-rate SUNAdaptController object, e.g.
+
+   .. code:: C
+
+      void* inner_arkode_mem = ERKStepCreate(f_f, T0, y, sunctx);
+      MRIStepInnerStepper inner_stepper = nullptr;
+      retval = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+      SUNAdaptController fcontrol = SUNAdaptController_PID(sunctx);
+      retval = ARKodeSetAdaptController(inner_arkode_mem, fcontrol);
+
+#. If using an ARKODE inner stepper, then set the desired temporal error accumulation
+   estimation strategy via a call to :c:func:`ARKodeSetAccumulatedErrorType`, e.g.,
+
+   .. code:: C
+
+      retval = ARKodeSetAccumulatedErrorType(inner_arkode_mem, ARK_ACCUMERROR_MAX);
+
+#. *Create an MRIStep object for the slow (outer) integration*
+
+#. Create single-rate controllers for both the slow step size and inner solver
+   tolerance, e.g.,
+
+   .. code:: C
+
+      SUNAdaptController scontrol_H   = SUNAdaptController_PI(sunctx);
+      SUNAdaptController scontrol_Tol = SUNAdaptController_I(sunctx);
+
+#. Create the multirate controller object, e.g.,
+
+   .. code:: C
+
+      SUNAdaptController scontrol = SUNAdaptController_MRIHTol(scontrol_H, scontrol_Tol, sunctx);
+
+#. Attach the multirate controller object to MRIStep, e.g.,
+
+   .. code:: C
+
+      retval = ARKodeSetAdaptController(arkode_mem, scontrol);
+
+An example showing the above steps is provided in
+``examples/arkode/CXX_serial/ark_kpr_nestedmri.cpp``, where multirate controller objects
+are used for both the slow and intermediate time scales in a 3-time-scale simulation.
