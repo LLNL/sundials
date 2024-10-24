@@ -156,7 +156,6 @@ int main(int argc, char* argv[])
   SUNLinearSolver LS = NULL;        // empty linear solver object
   UserData udata;                   // user-data structure
   sunrealtype* ydata    = NULL;
-  sunrealtype* yrefdata = NULL;
   udata.ep    = SUN_RCONST(0.0004); // stiffness parameter
   udata.Npart = 20;                 // partition size
 
