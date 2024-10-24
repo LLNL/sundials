@@ -114,12 +114,12 @@ sunbooleantype SUNCCompareTol(suncomplextype a, suncomplextype b, sunrealtype to
   if (a == b) { return (SUNFALSE); }
 
   /* If a or b are NaN */
-  if (isnan(SUN_REAL(a)) || isnan(SUN_IMAG(a)) ||
-      isnan(SUN_REAL(b)) || isnan(SUN_IMAG(b))) { return (SUNTRUE); }
+  if (isnan(SUN_CREAL(a)) || isnan(SUN_CIMAG(a)) ||
+      isnan(SUN_CREAL(b)) || isnan(SUN_CIMAG(b))) { return (SUNTRUE); }
 
   /* If one of a or b are Inf (since we handled both being inf above) */
-  if (isinf(SUN_REAL(a)) || isinf(SUN_IMAG(a)) ||
-      isinf(SUN_REAL(b)) || isinf(SUN_IMAG(b))) { return (SUNTRUE); }
+  if (isinf(SUN_CREAL(a)) || isinf(SUN_CIMAG(a)) ||
+      isinf(SUN_CREAL(b)) || isinf(SUN_CIMAG(b))) { return (SUNTRUE); }
 
   diff = SUNCabs(a - b);
   norm = SUNMIN(SUNCabs(a + b), SUN_BIG_REAL);
