@@ -2594,7 +2594,14 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
     {
       ark_mem->AccumError = SUNMAX(dsm, ark_mem->AccumError);
     }
-    else { ark_mem->AccumError += dsm; }
+    else if (ark_mem->AccumErrorType == ARK_ACCUMERROR_SUM)
+    {
+      ark_mem->AccumError += dsm;
+    }
+    else      /* ARK_ACCUMERROR_AVG */
+    {
+      ark_mem->AccumError += (dsm * ark_mem->h);
+    }
   }
 
   /* apply user-supplied step postprocessing function (if supplied) */
