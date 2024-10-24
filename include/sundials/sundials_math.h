@@ -52,9 +52,9 @@ extern "C" {
 
 #ifndef SUN_CREAL
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUN_CREAL(z)      (crealf(z))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
 #define SUN_CREAL(z)      (creal(z))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUN_CREAL(z)      (crealf(z))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUN_CREAL(z)      (creall(z))
 #else
@@ -65,9 +65,9 @@ extern "C" {
 
 #ifndef SUN_CIMAG
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUN_CIMAG(z)      (cimagf(z))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
 #define SUN_CIMAG(z)      (cimag(z))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUN_CIMAG(z)      (cimagf(z))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUN_CIMAG(z)      (cimagl(z))
 #else
