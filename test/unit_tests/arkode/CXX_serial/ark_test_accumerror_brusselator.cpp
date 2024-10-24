@@ -352,7 +352,7 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata     = (UserData*)user_data;
   sunrealtype* ydata  = N_VGetArrayPointer(y);
-  sunrealtype* dydata = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
   const sunrealtype u = ydata[0]; // access solution values
   const sunrealtype v = ydata[1];
   const sunrealtype w = ydata[2];
