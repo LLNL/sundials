@@ -616,7 +616,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
     fprintf(fp, "  Maximum number of stages allowed = %i\n",
             step_mem->stage_max_limit);
     fprintf(fp, "  Maximum number of stages used = %i\n", step_mem->stage_max);
-    fprintf(fp, "  Num of step when the last dom eig call happened= %i\n",
+    fprintf(fp, "  Num of step when the last dom eig call happened= %li\n",
             step_mem->dom_eig_nst);
     fprintf(fp, "  Current real part of the dom eig = %" RSYM "\n",
             step_mem->lambdaR);
