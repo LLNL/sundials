@@ -404,7 +404,7 @@ linear solve.  *All routines are optional.*
    This *optional* routine should return the storage requirements for
    the linear solver *LS*:
 
-   * *lrw* is a ``long int`` containing the number of sunrealtype words
+   * *lrw* is a ``long int`` containing the number of sunscalartype words
    * *liw* is a ``long int`` containing the number of integer words.
 
    This function is advisory only, for use by users to help determine
@@ -688,19 +688,25 @@ Compatibility of SUNLinearSolver modules
 ---------------------------------------------
 
 Not all ``SUNLinearSolver`` implementations are compatible with all
-``SUNMatrix`` and ``N_Vector`` implementations provided in SUNDIALS.
+``SUNMatrix`` and ``N_Vector`` implementations provided in SUNDIALS,
+nor are they necessarily compatible with the data type that is
+selected for :c:type:`sunscalartype`.  Generally, for any of the
+provided ``SUNLinearSolver`` modules, compatibility is assessed in
+the routine that constructs the ``SUNLinearSolver``, and if it is
+incompatible then the constructor will return a ``NULL`` pointer.
+
 More specifically, all of the SUNDIALS iterative linear solvers
 (:ref:`SPGMR <SUNLinSol.SPGMR>`, :ref:`SPFGMR <SUNLinSol.SPFGMR>`,
 :ref:`SPBCGS <SUNLinSol.SPBCGS>`, :ref:`SPTFQMR <SUNLinSol.SPTFQMR>`, and
 :ref:`PCG <SUNLinSol.PCG>`) are compatible with all of the SUNDIALS
-``N_Vector`` modules, but the matrix-based direct SUNLinSol modules
-are specifically designed to work with distinct ``SUNMatrix`` and
-``N_Vector`` modules.  In the list below, we summarize the
-compatibility of each matrix-based ``SUNLinearSolver``
-module with the various ``SUNMatrix`` and ``N_Vector`` modules.  For
-a more thorough discussion of these compatibilities, we defer to the
-documentation for each individual SUNLinSol module in the sections
-that follow.
+``N_Vector`` modules and all :c:type:`sunscalartype` configurations,
+but the matrix-based direct SUNLinSol modules are specifically designed
+to work with distinct ``SUNMatrix`` and ``N_Vector`` modules, and
+:c:type:`sunscalartype` options.  In the list below, we summarize the
+compatibility of each matrix-based ``SUNLinearSolver`` module with the
+various ``SUNMatrix`` and ``N_Vector`` modules.  For a more thorough
+discussion of these compatibilities, we defer to the documentation for
+each individual SUNLinSol module in the sections that follow.
 
 * :ref:`Dense <SUNLinSol_Dense>`
 
@@ -710,6 +716,9 @@ that follow.
     :ref:`OpenMP <NVectors.OpenMP>`, :ref:`Pthreads <NVectors.Pthreads>`,
     or user-supplied
 
+  * :c:type:`sunscalartype`: all real-valued scalars in single, double,
+    or extended precision.
+
 * :ref:`LapackDense <SUNLinSol_LapackDense>`
 
   * ``SUNMatrix``: :ref:`Dense <SUNMatrix.Dense>` or user-supplied
@@ -717,6 +726,9 @@ that follow.
   * ``N_Vector``: :ref:`Serial <NVectors.NVSerial>`,
     :ref:`OpenMP <NVectors.OpenMP>`, :ref:`Pthreads <NVectors.Pthreads>`,
     or user-supplied
+
+  * :c:type:`sunscalartype`: all real-valued scalars in single or double
+    precision.
 
 * :ref:`Band <SUNLinSol_Band>`
 
@@ -726,6 +738,9 @@ that follow.
     :ref:`OpenMP <NVectors.OpenMP>`, :ref:`Pthreads <NVectors.Pthreads>`,
     or user-supplied
 
+  * :c:type:`sunscalartype`: all real-valued scalars in single, double,
+    or extended precision.
+
 * :ref:`LapackBand <SUNLinSol_LapackBand>`
 
   * ``SUNMatrix``: :ref:`Band <SUNMatrix.Band>` or user-supplied
@@ -733,6 +748,9 @@ that follow.
   * ``N_Vector``: :ref:`Serial <NVectors.NVSerial>`,
     :ref:`OpenMP <NVectors.OpenMP>`, :ref:`Pthreads <NVectors.Pthreads>`,
     or user-supplied
+
+  * :c:type:`sunscalartype`: all real-valued scalars in single or double
+    precision.
 
 * :ref:`KLU <SUNLinSol.KLU>`
 
@@ -742,6 +760,9 @@ that follow.
     :ref:`OpenMP <NVectors.OpenMP>`, :ref:`Pthreads <NVectors.Pthreads>`,
     or user-supplied
 
+  * :c:type:`sunscalartype`: all real-valued scalars in a precision
+    that is supported by the externally-linked SuiteSparse library.
+
 * :ref:`SuperLU_MT <SUNLinSol.SuperLUMT>`
 
   * ``SUNMatrix``: :ref:`Sparse <SUNMatrix.Sparse>` or user-supplied
@@ -749,6 +770,9 @@ that follow.
   * ``N_Vector``: :ref:`Serial <NVectors.NVSerial>`,
     :ref:`OpenMP <NVectors.OpenMP>`, :ref:`Pthreads <NVectors.Pthreads>`,
     or user-supplied
+
+  * :c:type:`sunscalartype`: all real-valued scalars in a precision
+    that is supported by the externally-linked SuiteSparse library.
 
 * :ref:`SuperLU_Dist <SUNLinSol.SuperLUDIST>`
 
@@ -759,11 +783,17 @@ that follow.
     :ref:`Parallel <NVectors.NVParallel>`, :ref:`*hypre* <NVectors.ParHyp>`,
     :ref:`PETSc <NVectors.NVPETSc>`, or user-supplied
 
+  * :c:type:`sunscalartype`: all real-valued scalars in a precision
+    that is supported by the externally-linked SuiteSparse library.
+
 * :ref:`Magma Dense <SUNLinSol.MagmaDense>`
 
   * ``SUNMatrix``: :ref:`Magma Dense <SUNMatrix.MagmaDense>` or user-supplied
 
   * ``N_Vector``: :ref:`HIP <NVectors.HIP>`, :ref:`RAJA <NVectors.RAJA>`, or user-supplied
+
+  * :c:type:`sunscalartype`: all real-valued scalars in a precision
+    that is supported by the externally-linked SuiteSparse library.
 
 * :ref:`OneMKL Dense <SUNLinSol.OneMklDense>`
 
@@ -771,11 +801,17 @@ that follow.
 
   * ``N_Vector``: :ref:`SYCL <NVectors.SYCL>`, :ref:`RAJA <NVectors.RAJA>`, or user-supplied
 
+  * :c:type:`sunscalartype`: all real-valued scalars in a precision
+    that is supported by the externally-linked SuiteSparse library.
+
 * :ref:`cuSolverSp batchQR <SUNLinSol.cuSolverSp>`
 
   * ``SUNMatrix``: :ref:`cuSparse <SUNMatrix.cuSparse>` or user-supplied
 
   * ``N_Vector``: :ref:`CUDA <NVectors.CUDA>`, :ref:`RAJA <NVectors.RAJA>`, or user-supplied
+
+  * :c:type:`sunscalartype`: all real-valued scalars in a precision
+    that is supported by the externally-linked SuiteSparse library.
 
 
 
@@ -785,6 +821,9 @@ Implementing a custom SUNLinearSolver module
 --------------------------------------------------
 
 A particular implementation of the ``SUNLinearSolver`` module must:
+
+* Check compatibility with any corresponding ``SUNMatrix`` and ``N_Vector``
+  modules, and with the current :c:type:`sunscalartype` used by SUNDIALS.
 
 * Specify the *content* field of the SUNLinSol module.
 

@@ -28,19 +28,19 @@ requires a fixed amount of memory that does not increase with the
 number of allowed iterations.
 
 Unlike all of the other iterative linear solvers supplied with
-SUNDIALS, PCG should only be used on *symmetric* linear
-systems (e.g. mass matrix linear systems encountered in
+SUNDIALS, PCG should only be used on *Hermitian* linear
+systems (e.g., mass matrix linear systems encountered in
 ARKODE). As a result, the explanation of the role of scaling and
 preconditioning matrices given in general must be modified in this
 scenario.  The PCG algorithm solves a linear system :math:`Ax = b` where
-:math:`A` is a symmetric (:math:`A^T=A`), real-valued matrix.  Preconditioning is
+:math:`A` is an Hermitian (:math:`A^H=A`) matrix.  Preconditioning is
 allowed, and is applied in a symmetric fashion on both the right and
 left.  Scaling is also allowed and is applied symmetrically.  We
 denote the preconditioner and scaling matrices as follows:
 
-* :math:`P` is the preconditioner (assumed symmetric),
+* :math:`P` is the preconditioner (assumed Hermitian),
 
-* :math:`S` is a diagonal matrix of scale factors.
+* :math:`S` is a real-valued diagonal matrix of scale factors.
 
 The matrices :math:`A` and :math:`P` are not required explicitly; only routines
 that provide :math:`A` and :math:`P^{-1}` as operators are required.  The diagonal
@@ -77,7 +77,7 @@ scaled preconditioned residual:
    \Leftrightarrow\quad &\\
    &\| P^{-1} b - P^{-1} A x \|_S  <  \delta
 
-where :math:`\| v \|_S = \sqrt{v^T S^T S v}`, with an input tolerance
+where :math:`\| v \|_S = \sqrt{v^H S^T S v}`, with an input tolerance
 :math:`\delta`.
 
 .. _SUNLinSol.PCG.Usage:
@@ -130,8 +130,8 @@ The module SUNLinSol_PCG provides the following user-callable routines:
       solvers are designed to only work with left preconditioning (IDA
       and IDAS) and others with only right preconditioning (KINSOL), PCG
       should *only* be used with these packages when the linear systems
-      are known to be *symmetric*.  Since the scaling of matrix rows and
-      columns must be identical in a symmetric matrix, symmetric
+      are known to be *Hermitian*.  Since the scaling of matrix rows and
+      columns must be identical in an Hermitian matrix, symmetric
       preconditioning should work appropriately even for packages
       designed with one-sided preconditioning in mind.
 

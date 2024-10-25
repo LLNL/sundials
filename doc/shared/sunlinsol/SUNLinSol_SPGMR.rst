@@ -151,10 +151,10 @@ The SUNLinSol_SPGMR module defines the *content* field of a
      N_Vector s1;
      N_Vector s2;
      N_Vector *V;
-     sunrealtype **Hes;
-     sunrealtype *givens;
+     sunscalartype **Hes;
+     sunscalartype *givens;
      N_Vector xcor;
-     sunrealtype *yg;
+     sunscalartype *yg;
      N_Vector vtemp;
    };
 
@@ -213,7 +213,7 @@ information:
           & \ddots &   &     &      &   &        &   \\
           &        & 1 &     &      &   &        &   \\
           &        &   & c_i & -s_i &   &        &   \\
-          &        &   & s_i &  c_i &   &        &   \\
+          &        &   & \overline{s}_i &  \overline{c}_i &   &        &   \\
           &        &   &     &      & 1 &        &   \\
           &        &   &     &      &   & \ddots &   \\
           &        &   &     &      &   &        & 1\end{bmatrix},
@@ -229,7 +229,7 @@ information:
 * ``xcor`` - a vector which holds the scaled, preconditioned
   correction to the initial guess,
 
-* ``yg`` - a length :math:`(\text{maxl}+1)` array of ``sunrealtype``
+* ``yg`` - a length :math:`(\text{maxl}+1)` array of ``sunscalartype``
   values used to hold "short" vectors (e.g. :math:`y` and :math:`g`),
 
 * ``vtemp`` - temporary vector storage.
