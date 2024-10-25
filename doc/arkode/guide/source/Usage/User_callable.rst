@@ -1452,7 +1452,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       Not all time-stepping modules are compatible with all types of :c:type:`SUNAdaptController`
       objects.  While all steppers that support temporal adaptivity support controllers with
       :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_H``, only MRIStep supports
-      inputs with type ``SUN_ADAPTCONTROLLER_MRI_TOL``.
+      inputs with type ``SUN_ADAPTCONTROLLER_MRI_H_TOL``.
 
    .. versionadded:: 6.1.0
 

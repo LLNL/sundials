@@ -144,7 +144,7 @@ SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(SUNAdaptControll
 SUNAdaptController_Type SUNAdaptController_GetType_MRIHTol(
   SUNDIALS_MAYBE_UNUSED SUNAdaptController C)
 {
-  return SUN_ADAPTCONTROLLER_MRI_TOL;
+  return SUN_ADAPTCONTROLLER_MRI_H_TOL;
 }
 
 SUNErrCode SUNAdaptController_EstimateStepTol_MRIHTol(

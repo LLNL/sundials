@@ -41,7 +41,7 @@ typedef enum
 {
   SUN_ADAPTCONTROLLER_NONE,
   SUN_ADAPTCONTROLLER_H,
-  SUN_ADAPTCONTROLLER_MRI_TOL
+  SUN_ADAPTCONTROLLER_MRI_H_TOL
 } SUNAdaptController_Type;
 
 /* -----------------------------------------------------------------
@@ -64,7 +64,7 @@ struct _generic_SUNAdaptController_Ops
   SUNErrCode (*estimatestep)(SUNAdaptController C, sunrealtype h, int p,
                              sunrealtype dsm, sunrealtype* hnew);
 
-  /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_MRI_TOL type. */
+  /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_MRI_H_TOL type. */
   SUNErrCode (*estimatesteptol)(SUNAdaptController C, sunrealtype H,
                                 sunrealtype tolfac, int P, sunrealtype DSM,
                                 sunrealtype dsm, sunrealtype* Hnew,

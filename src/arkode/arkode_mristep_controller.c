@@ -41,7 +41,7 @@ SUNAdaptController SUNAdaptController_MRIStep(ARKodeMem ark_mem,
   /* Return with failure if input controller is NULL or has
      unsupported type */
   if (CMRI == NULL) { return (NULL); }
-  if (SUNAdaptController_GetType(CMRI) != SUN_ADAPTCONTROLLER_MRI_TOL)
+  if (SUNAdaptController_GetType(CMRI) != SUN_ADAPTCONTROLLER_MRI_H_TOL)
   {
     return (NULL);
   }

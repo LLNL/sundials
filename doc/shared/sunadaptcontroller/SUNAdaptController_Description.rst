@@ -144,7 +144,7 @@ following set of SUNAdaptController types:
 
    Controls a single-rate step size.
 
-.. c:enumerator:: SUN_ADAPTCONTROLLER_MRI_TOL
+.. c:enumerator:: SUN_ADAPTCONTROLLER_MRI_H_TOL
 
    Controls both a slow time step and a tolerance factor to apply on the next-faster
    time scale within a multirate simulation that has an arbitrary number of time scales.
@@ -233,7 +233,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    Estimates a slow step size and a fast tolerance multiplication factor
    for two adjacent time scales within a multirate application.
 
-   This routine is required for controllers of type :c:enumerator`SUN_ADAPTCONTROLLER_MRI_TOL`.
+   This routine is required for controllers of type :c:enumerator`SUN_ADAPTCONTROLLER_MRI_H_TOL`.
    If the current time scale has relative tolerance ``rtol``, then the
    next-faster time scale will be called with relative tolerance ``tolfac * rtol``.
    If this is not provided by the implementation, the base class method will set
@@ -310,7 +310,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
 .. c:function:: SUNErrCode SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
 
-   Notifies a controller of type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL` that a successful time step
+   Notifies a controller of type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL` that a successful time step
    was taken with slow stepsize ``H`` and fast relative tolerance factor ``tolfac``, and that the
    step had slow and fast local error factors ``DSM`` and ``dsm``, indicating that these can be
    saved for subsequent controller functions. This is typically relevant for controllers that

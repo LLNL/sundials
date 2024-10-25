@@ -124,7 +124,7 @@ The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_mrihtol.h``.
 
 The SUNAdaptController_MRIHTol class provides implementations of all operations
-relevant to a :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL` controller listed in
+relevant to a :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL` controller listed in
 :numref:`SUNAdaptController.Description.operations`. This class
 also provides the following additional user-callable routines:
 

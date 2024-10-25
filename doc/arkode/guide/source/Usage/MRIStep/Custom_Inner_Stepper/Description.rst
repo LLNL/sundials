@@ -459,7 +459,7 @@ following member functions:
    .. note::
 
       This function is only called when multirate temporal adaptivity has been enabled,
-      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL`.
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL`.
 
       If provided, the :c:type:`MRIStepInnerGetAccumulatedError` function will always
       be called *after* a preceding call to the :c:type:`MRIStepInnerResetAccumulatedError`
@@ -484,7 +484,7 @@ following member functions:
    .. note::
 
       This function is only called when multirate temporal adaptivity has been enabled,
-      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL`.
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL`.
 
       The :c:type:`MRIStepInnerResetAccumulatedError` function will always be called
       *before* any calls to the :c:type:`MRIStepInnerGetAccumulatedError` function.
@@ -513,7 +513,7 @@ following member functions:
    .. note::
 
       This function is only called when multirate temporal adaptivity has been enabled
-      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL`.
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL`.
 
       It is assumed that if the inner stepper supports absolute tolerances as well, then
       these have been set up directly by the user to indicate the "noise" level for

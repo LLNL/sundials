@@ -1258,7 +1258,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
   else
   {
     /* ensure that a compatible adaptivity controller is provided */
-    if ((adapt_type != SUN_ADAPTCONTROLLER_MRI_TOL) &&
+    if ((adapt_type != SUN_ADAPTCONTROLLER_MRI_H_TOL) &&
         (adapt_type != SUN_ADAPTCONTROLLER_H))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -1296,7 +1296,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
   }
 
   /* Perform additional setup for (H,tol) controller */
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H_TOL)
   {
     /* Verify that adaptivity type is supported by inner stepper */
     if (!mriStepInnerStepper_SupportsRTolAdaptivity(step_mem->stepper))
@@ -1701,7 +1701,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
      and send appropriate control parameter to the fast integrator */
   adapt_type     = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   need_inner_dsm = SUNFALSE;
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H_TOL)
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
@@ -2167,7 +2167,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      and send appropriate control parameter to the fast integrator */
   adapt_type     = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   need_inner_dsm = SUNFALSE;
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H_TOL)
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
@@ -2637,7 +2637,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      and send appropriate control parameter to the fast integrator */
   adapt_type     = SUNAdaptController_GetType(ark_mem->hadapt_mem->hcontroller);
   need_inner_dsm = SUNFALSE;
-  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
+  if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H_TOL)
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
@@ -3356,7 +3356,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
   if (get_inner_dsm)
   {
     /* if the fast integrator uses adaptive steps, retrieve the error estimate */
-    if (adapt_type == SUN_ADAPTCONTROLLER_MRI_TOL)
+    if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H_TOL)
     {
       retval = mriStepInnerStepper_GetError(step_mem->stepper,
                                             &(step_mem->inner_dsm));

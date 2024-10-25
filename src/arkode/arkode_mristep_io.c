@@ -242,7 +242,7 @@ int mriStep_SetAdaptController(ARKodeMem ark_mem, SUNAdaptController C)
   SUNAdaptController_Type ctype = SUNAdaptController_GetType(C);
 
   /* If this does not have MRI type, then just pass to ARKODE */
-  if (ctype != SUN_ADAPTCONTROLLER_MRI_TOL)
+  if (ctype != SUN_ADAPTCONTROLLER_MRI_H_TOL)
   {
     return (arkReplaceAdaptController(ark_mem, C));
   }
