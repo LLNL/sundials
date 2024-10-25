@@ -815,7 +815,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     /* Check for too much accuracy requested */
     nrm            = N_VWrmsNorm(ark_mem->yn, ark_mem->ewt);
     ark_mem->tolsf = ark_mem->uround * nrm;
-    if (ark_mem->tolsf > ONE)
+    if (ark_mem->tolsf > ONE && !ark_mem->fixedstep)
     {
       arkProcessError(ark_mem, ARK_TOO_MUCH_ACC, __LINE__, __func__, __FILE__,
                       MSG_ARK_TOO_MUCH_ACC, ark_mem->tcur);
