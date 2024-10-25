@@ -55,8 +55,8 @@ results from two types of error:
       :label: inner_solver_assumption
 
    where :math:`\text{RTOL}_n^F = \text{RTOL}^S \text{tolfac}_n^F`,
-   :math:`\text{RTOL}^S` is the relative tolerance that was supplied to the
-   current time scale solver, and where
+   the relative tolerance that was supplied to the current time scale
+   solver is :math:`\text{RTOL}^S`, and
    :math:`\kappa(t_n) = c(t_n) h_n^S \text{RTOL}^S` is
    independent of the relative tolerance factor, :math:`\text{tolfac}_n^F`.
 
@@ -93,32 +93,33 @@ Implementation
 --------------
 
 The SUNAdaptController_MRIHTol controller is implemented as a derived
-SUNAdaptController class, and defines its *content* field as:
+:c:type:`SUNAdaptController` class, and its *content* field is defined by
+the :c:struct:`SUNAdaptControllerContent_MRIHTol_` structure:
 
-.. code-block:: c
+.. c:struct:: SUNAdaptControllerContent_MRIHTol_
 
-   struct SUNAdaptControllerContent_MRIHTol_
-   {
-     SUNAdaptController HControl;
-     SUNAdaptController TolControl;
-     sunrealtype inner_max_relch;
-     sunrealtype inner_min_tolfac;
-     sunrealtype inner_max_tolfac;
-   };
+   The member data structure for an MRIHTol controller
 
-These entries of the *content* field contain the following information:
+   .. c:member:: SUNAdaptController HControl
 
-* ``HControl`` - single time-scale SUNAdaptController object to adapt
-  the current step size, :math:`h^S_n`.
+      A single time-scale controller to adapt the current step size, :math:`h^S_n`.
 
-* ``TolControl`` - single time-scale SUNAdaptController object to adapt
-  the inner solver relative tolerance factor, :math:`\text{RTOL}^F_n`.
+   .. c:member:: SUNAdaptController TolControl
 
-* ``inner_max_relch`` - the parameter :math:`relch_{\text{max}}` above.
+      A single time-scale controller to adapt the inner solver relative tolerance
+      factor, :math:`\text{reltol}^F_n`.
 
-* ``inner_min_tolfac`` - the parameter :math:`\text{tolfac}_{min}` above.
+   .. c:member:: sunrealtype inner_max_relch
 
-* ``inner_max_tolfac`` - the parameter :math:`\text{tolfac}_{max}` above.
+      The parameter :math:`relch_{\text{max}}` above.
+
+   .. c:member:: sunrealtype inner_min_tolfac
+
+      The parameter :math:`\text{tolfac}_{min}` above.
+
+   .. c:member:: sunrealtype inner_max_tolfac
+
+      The parameter :math:`\text{tolfac}_{max}` above.
 
 The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_mrihtol.h``.
