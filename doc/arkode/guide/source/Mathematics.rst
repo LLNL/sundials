@@ -1126,17 +1126,25 @@ that it may have used a potentially different relative solution tolerance,
 estimates using either a "maximum accumulation" strategy,
 
 .. math::
-   \varepsilon^F_{max} = \text{RTOL}^F \max_{m\in M} \|\varepsilon^F_{n,m}\|_{WRMS},
+   \varepsilon^F_{max} = \text{RTOL}^F \max_{m\in \mathcal{S}} \|\varepsilon^F_{n,m}\|_{WRMS},
+   :label: maximum_accumulation
+
+an "additive accumulation" strategy,
+
+.. math::
+   \varepsilon^F_{sum} = \text{RTOL}^F \sum_{m\in \mathcal{S}} \|\varepsilon^F_{n,m}\|_{WRMS},
    :label: maximum_accumulation
 
 or using an "averaged accumulation" strategy,
 
 .. math::
-   \varepsilon^F_{avg} = \frac{\text{RTOL}^F}{|M|} \sum_{m\in M} \|\varepsilon^F_{n,m}\|_{WRMS},
+   \varepsilon^F_{avg} = \frac{\text{RTOL}^F}{\Delta t_{\mathcal{S}}} \sum_{m\in \mathcal{S}} h_{n,m} \|\varepsilon^F_{n,m}\|_{WRMS},
    :label: average_accumulation
 
-where the norm is taken using the tolerance-informed error-weight vector.  In
-both cases, the sum or the maximum is taken over the set of all steps :math:`M`
+where :math:`h_{n,m}` is the step size that gave rise to :math:`\varepsilon^F_{n,m}`,
+:math:`\Delta t_{\mathcal{S}}` denotes the elapsed time over which :math:`\mathcal{S}`
+is taken, and the norms are taken using the tolerance-informed error-weight vector.  In
+each case, the sum or the maximum is taken over the set of all steps :math:`\mathcal{S}`
 since the fast error accumulator has been reset.
 
 
@@ -1215,7 +1223,7 @@ initial state,
 where we again satisfy the inequality with a value of :math:`\frac12` to obtain
 
 .. math::
-   |h_0| = \frac{1}{2\left\| f(t_0,y_0)\right\|},
+   |h_0| = \frac{1}{2\left\| f(t_0,y_0)\right\|}.
    :label: H0_TSExp0
 
 
@@ -1628,7 +1636,7 @@ but may be modified by the user.
 
 When using the dense and band SUNMatrix objects for the linear systems
 :eq:`ARKODE_modified_Newton_system`, the Jacobian :math:`J` may be supplied
-by a user routine, or approximated internally by finite-differences.
+by a user routine, or approximated internally with finite-differences.
 In the case of differencing, we use the standard approximation
 
 .. math::

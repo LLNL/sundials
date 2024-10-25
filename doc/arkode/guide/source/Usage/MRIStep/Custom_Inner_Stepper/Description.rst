@@ -446,7 +446,11 @@ following member functions:
 
 .. c:type:: int (*MRIStepInnerGetAccumulatedError)(MRIStepInnerStepper stepper, sunrealtype* accum_error)
 
-   This function returns an estimate of the accumulated solution error arising from the inner stepper.
+   This function returns an estimate of the accumulated solution error arising from the
+   inner stepper.   Both the :c:type:`MRIStepInnerGetAccumulatedError` and
+   :c:type:`MRIStepInnerResetAccumulatedError` functions should be provided, or not; if only
+   one is provided then MRIStep will disable multirate temporal adaptivity and call neither.
+
 
    **Arguments:**
       * *stepper* -- the inner stepper object.
@@ -465,14 +469,13 @@ following member functions:
       be called *after* a preceding call to the :c:type:`MRIStepInnerResetAccumulatedError`
       function.
 
-      Both the :c:type:`MRIStepInnerGetAccumulatedError` and
-      :c:type:`MRIStepInnerResetAccumulatedError` functions should be provided, or not; if only
-      one is provided then MRIStep will disable multirate temporal adaptivity and call neither.
-
 
 .. c:type:: int (*MRIStepInnerResetAccumulatedError)(MRIStepInnerStepper stepper)
 
    This function resets the inner stepper's accumulated solution error to zero.
+   This function performs a different role within MRIStep than the
+   :c:type:`MRIStepInnerResetFn`, and thus an implementation should make no
+   assumptions about the frequency/ordering of calls to either.
 
    **Arguments:**
       * *stepper* -- the inner stepper object.
@@ -493,14 +496,13 @@ following member functions:
       :c:type:`MRIStepInnerResetAccumulatedError` functions should be provided, or not; if only
       one is provided then MRIStep will disable multirate temporal adaptivity and call neither.
 
-      This function performs a different role within MRIStep than the
-      :c:type:`MRIStepInnerResetFn`, and thus an implementation should make no
-      assumptions about the frequency/ordering of calls to either.
-
 
 .. c:type:: int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol)
 
-   This function accepts a relative tolerance for the inner stepper to use in its upcoming adaptive solve.
+   This function accepts a relative tolerance for the inner stepper to use in its
+   upcoming adaptive solve.  It is assumed that if the inner stepper supports absolute
+   tolerances as well, then these have been set up directly by the user to indicate the
+   "noise" level for solution components.
 
    **Arguments:**
       * *stepper* -- the inner stepper object.
@@ -514,7 +516,3 @@ following member functions:
 
       This function is only called when multirate temporal adaptivity has been enabled
       using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL`.
-
-      It is assumed that if the inner stepper supports absolute tolerances as well, then
-      these have been set up directly by the user to indicate the "noise" level for
-      solution components.
