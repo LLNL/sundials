@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
     printf("ERROR: at least one of slow_type and fast_type must be nonzero\n");
     return (-1);
   }
-  if (((slow_type == 9) || (slow_type == 10)) && (fast_type == 0))
+  if ((slow_type >= 9) && (fast_type == 0))
   {
     printf("ERROR: example not configured for ImEx slow solver with no fast "
            "solver\n");
