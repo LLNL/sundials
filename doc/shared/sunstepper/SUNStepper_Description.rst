@@ -98,29 +98,27 @@ from an ARKODE integrator.
 Stepping Functions
 ^^^^^^^^^^^^^^^^^^
 
-.. c:function:: SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector vout, sunrealtype* tret)
+.. c:function:: SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
 
-   This function evolves the ODE :eq:`SUNStepper_IVP` from time *t0* to time
-   *tout* and stores the solution in *vout*.
+   This function evolves the ODE :eq:`SUNStepper_IVP` towards the time
+   ``tout`` and stores the solution at time ``tret`` in ``vret``.
 
    :param stepper: the stepper object.
-   :param t0: the initial time for the integration.
    :param tout: the time to evolve towards.
-   :param vout: on output, the state at time *tout*.
-   :param tret: the final time corresponding to the output value *vout*.
+   :param vret: on output, the state at time ``tret``.
+   :param tret: the time corresponding to the output value *vret*.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector vout, sunrealtype* tret)
+.. c:function:: SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
 
-   This function takes a single internal step starting at *t0* towards *tout*
-   and stores the next step solution in *vout*.
+   This function takes a single step towards ``tout`` and stores the solution
+   at time ``tret`` in ``vret``.
 
    :param stepper: the stepper object.
-   :param t0: the initial time for the integration.
-   :param tout: the final time for the integration.
-   :param vout: on output, the state after a single internal step.
-   :param tret: the final time corresponding to the output value *vout*.
+   :param tout: the time to step toward.
+   :param vret: on output, the state at time ``tret`` after a single step.
+   :param tret: the time corresponding to the output value *vret*.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
