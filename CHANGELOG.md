@@ -6,6 +6,18 @@
 
 ### New Features and Enhancements
 
+Added support for complex-valued data throughout SUNDIALS, including a new type,
+`suncomplextype`, that is appropriately defined based on the requested
+SUNDIALS floating-point precision.  Created a new type `sunscalartype` that can be
+configured during installation as an alias to either `sunrealtype` or
+`suncomplextype`, and that will be used in all vector data declarations.  Added
+new mathematical library functions to `sundials_math.h` for `suncomplextype`
+numbers of the configured precision (e.g., `SUN_CREAL`, `SUN_CIMAG`, `SUN_CCONJ`,
+`SUNCsqrt`, and `SUNCabs`).  Added generic `sunscalartype` mathematical functions
+(e.g., `SUN_REAL`, `SUN_IMAG`, `SUN_CONJ`, `SUNsqrt`, and `SUNabs`) that
+call either the relevant `sunrealtype` or `suncomplextype` function
+to match the configuration of the `sunscalartype` alias.
+
 The default value of `CMAKE_CUDA_ARCHITECTURES` is no longer set to `70` and is
 now determined automatically by CMake. The previous default was only valid for
 Volta GPUs while the automatically selected value will vary across compilers and
