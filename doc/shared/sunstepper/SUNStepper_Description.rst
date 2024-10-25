@@ -100,25 +100,25 @@ Stepping Functions
 
 .. c:function:: SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
 
-   This function evolves the ODE :eq:`SUNStepper_IVP` towards the time
-   ``tout`` and stores the solution at time ``tret`` in ``vret``.
+   This function evolves the ODE :eq:`SUNStepper_IVP` towards the time ``tout``
+   and stores the solution at time ``tret`` in ``vret``.
 
    :param stepper: the stepper object.
    :param tout: the time to evolve towards.
    :param vret: on output, the state at time ``tret``.
-   :param tret: the time corresponding to the output value *vret*.
+   :param tret: the time corresponding to the output value ``vret``.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. c:function:: SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
 
-   This function takes a single step towards ``tout`` and stores the solution
-   at time ``tret`` in ``vret``.
+   This function takes a single step towards ``tout`` and stores the solution at
+   time ``tret`` in ``vret``.
 
    :param stepper: the stepper object.
    :param tout: the time to step toward.
    :param vret: on output, the state at time ``tret`` after a single step.
-   :param tret: the time corresponding to the output value *vret*.
+   :param tret: the time corresponding to the output value ``vret``.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
@@ -126,7 +126,7 @@ Stepping Functions
 
    This function computes the full right-hand side function of the ODE,
    :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value of the
-   independent variable *t* and state vector *v*.
+   independent variable ``t`` and state vector ``v``.
 
    :param stepper: the stepper object.
    :param t: the current value of the independent variable.
@@ -335,7 +335,7 @@ abstract base class.
 
    This type represents a function to compute the full right-hand side function
    of the ODE, :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value
-   of the independent variable *t* and state vector *v*.
+   of the independent variable ``t`` and state vector ``v``.
 
 
 .. c:type:: SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR, N_Vector vR)
