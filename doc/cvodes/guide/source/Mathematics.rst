@@ -23,8 +23,9 @@ CVODES solves ODE initial value problems (IVPs) in real
    \dot{y} = f(t,y) \, ,\quad y(t_0) = y_0 \,
    :label: CVODES_ivp
 
-where :math:`y \in \mathbb{R}^N` and
-:math:`f: \mathbb{R} \times \mathbb{R}^N \rightarrow \mathbb{R}^N`.
+where :math:`y \in \mathbb{R}^N` or :math:`y \in \mathbb{C}^N` and
+:math:`f: \mathbb{R} \times \mathbb{R}^N \rightarrow \mathbb{R}^N` or
+:math:`f: \mathbb{R} \times \mathbb{C}^N \rightarrow \mathbb{C}^N`.
 Here we use :math:`\dot{y}` to denote :math:`\mathrm dy/\mathrm dt`. While we use
 :math:`t` to denote the independent variable, and usually this is time,
 it certainly need not be. CVODES solves both stiff and nonstiff
@@ -35,7 +36,8 @@ to the time scale of the solution itself.
 For problems :eq:`CVODES_ivp` where the analytical solution :math:`y(t)`
 satisfies an implicit constraint :math:`g(t,y)=0` (including the initial
 condition, :math:`g(t_0,y_0)=0`) for
-:math:`g(t,y): \mathbb{R} \times \mathbb{R}^N \rightarrow \mathbb{R}^{M}` with
+:math:`g(t,y): \mathbb{R} \times \mathbb{R}^N \rightarrow \mathbb{R}^{M}` or
+:math:`g(t,y): \mathbb{R} \times \mathbb{C}^N \rightarrow \mathbb{C}^{M}` with
 :math:`M<N`,  CVODES may be configured to explicitly enforce these constraints
 via solving the modified problem
 

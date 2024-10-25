@@ -24,10 +24,10 @@ IDA solves the initial-value problem (IVP) for a DAE system of the general form
    :label: IDA_DAE
 
 where :math:`y`, :math:`\dot{y}`, and :math:`F` are vectors in
-:math:`\mathbb{R}^N`, :math:`t` is the independent variable,
-:math:`\dot{y} = \mathrm dy/\mathrm dt`, and initial values :math:`y_0`,
-:math:`\dot{y}_0` are given. Often :math:`t` is time, but it certainly need not
-be.
+:math:`\mathbb{R}^N` or :math:`\mathbb{C}^N`, :math:`t` is the independent
+variable, :math:`\dot{y} = \mathrm dy/\mathrm dt`, and initial values
+:math:`y_0`, :math:`\dot{y}_0` are given. Often :math:`t` is time, but it
+certainly need not be.
 
 .. _IDA.Mathematics.ic:
 

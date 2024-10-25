@@ -24,13 +24,13 @@ IDAS solves the initial-value problem (IVP) for a DAE system of the general form
    :label: IDAS_DAE
 
 where :math:`y`, :math:`\dot{y}`, and :math:`F` are vectors in
-:math:`\mathbb{R}^N`, :math:`t` is the independent variable,
-:math:`\dot{y} = \mathrm dy/\mathrm dt`, and initial values :math:`y_0`,
+:math:`\mathbb{R}^N` or :math:`\mathbb{C}^N`, :math:`t` is the independent
+variable, :math:`\dot{y} = \mathrm dy/\mathrm dt`, and initial values :math:`y_0`,
 :math:`\dot{y}_0` are given. Often :math:`t` is time, but it certainly need not
 be.
 
 Additionally, if :eq:`IDAS_DAE` depends on some parameters
-:math:`p \in \mathbb{R}^{N_p}`, i.e.
+:math:`p \in \mathbb{R}^{N_p}` or :math:`p \in \mathbb{C}^{N_p}`, i.e.
 
 .. math::
    \begin{split} & F(t, y, \dot y , p) = 0 \\ & y(t_0) = y_0(p) \, ,~ {\dot

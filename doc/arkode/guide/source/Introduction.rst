@@ -35,10 +35,11 @@ and *MRIStep*.
    :label: ARKODE_ODE_split_linearly_implicit
 
 where :math:`t` is the independent variable, :math:`y` is the set of
-dependent variables (in :math:`\mathbb{R}^N`), :math:`M` is a
-user-specified, nonsingular operator from :math:`\mathbb{R}^N` to
-:math:`\mathbb{R}^N`, and the right-hand side function is partitioned
-into up to two components:
+dependent variables (in :math:`\mathbb{R}^N` or :math:`\mathbb{C}^N`),
+:math:`M` is a user-specified, nonsingular operator from
+:math:`\mathbb{R}^N` to :math:`\mathbb{R}^N`
+or :math:`\mathbb{C}^N \to \mathbb{C}^N`, and the right-hand side
+function is partitioned into up to two components:
 
 - :math:`f^E(t,y)` contains the "nonstiff" time scale components to be
   integrated explicitly, and
@@ -71,10 +72,14 @@ methods of orders 2-5, and adaptive ImEx methods of orders 2-5.
 *ERKStep* focuses specifically on problems posed in explicit form,
 
 .. math::
-   \dot{y} = f(t,y),  \qquad y(t_0) = y_0.
+   \dot{y} = f(t,y),  \qquad y(t_0) = y_0,
    :label: ARKODE_ODE_explicit
 
 allowing for increased computational efficiency and memory savings.
+Here agin, :math:`y:\mathbb{R}\to\mathbb{R}^N`
+or :math:`y:\times\mathbb{C}^N\to\mathbb{C}^N` and
+:math:`f:\mathbb{R}\times\mathbb{R}^N\to\mathbb{R}^N`
+or :math:`f:\mathbb{R}\times\mathbb{C}^N\to\mathbb{C}^N`.
 The algorithms used in ERKStep are adaptive- and fixed-step explicit
 Runge--Kutta methods.   As with ARKStep, the ERKStep module is packaged
 with adaptive explicit methods of orders 2-9.
@@ -89,6 +94,11 @@ with adaptive explicit methods of orders 2-9.
    \dot{q} = f_2(t,p) = \frac{\partial T(t,p)}{\partial p},
    :label: ARKODE_ODE_hamiltonian
 
+where :math:`p,q:\mathbb{R}\to\mathbb{R}^N`
+or :math:`p,q:\times\mathbb{C}^N\to\mathbb{C}^N` and
+:math:`f_1,f_2:\mathbb{R}\times\mathbb{R}^N\to\mathbb{R}^N`
+or :math:`f_1,f_2:\mathbb{R}\times\mathbb{C}^N\to\mathbb{C}^N`.
+
 allowing for conservation of quadratic invariants.
 
 *MRIStep* focuses specifically on problems posed in additive form,
@@ -100,9 +110,9 @@ allowing for conservation of quadratic invariants.
 where here the right-hand side function is additively split into three
 components:
 
-* :math:`f^E(t,y)` contains the "slow-nonstiff" components of the system
-  (this will be integrated using an explicit method and a large time step
-  :math:`h^S`),
+* :math:`f^E(t,y)` contains the "slow-nonstiff"
+  components of the system (this will be integrated using an explicit method
+  and a large time step :math:`h^S`),
 
 * :math:`f^I(t,y)` contains the "slow-stiff" components of the system
   (this will be integrated using an implicit method and a large time step
@@ -112,6 +122,8 @@ components:
   integrated using a possibly different method than the slow time scale and a
   small time step :math:`h^F \ll h^S`).
 
+Here, each function :math:`f^*:\mathbb{R}\times\mathbb{R}^N\to\mathbb{R}^N` or
+:math:`f^*:\mathbb{R}\times\mathbb{C}^N\to\mathbb{C}^N`.
 For such problems, MRIStep provides fixed-step slow step multirate infinitesimal
 step (MIS), multirate infinitesimal GARK (MRI-GARK), and implicit-explicit
 MRI-GARK (IMEX-MRI-GARK) methods, allowing for evolution of the problem

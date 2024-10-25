@@ -21,16 +21,21 @@ KINSOL solves nonlinear algebraic systems in real :math:`N`-space.
 Using Newton’s method, or the Picard iteration, one can solve
 
 .. math::
-  F(u) = 0 \, , \quad F:\mathbb{R}^N \rightarrow \mathbb{R}^N \, ,
+  F(u) = 0,
   :label: KIN_nonlinear_system
 
-given an initial guess :math:`u_0`. Using a fixed-point iteration, the convergence of which can be improved with
-Anderson acceleration, one can solve
+where :math:`F:\mathbb{R}^N \rightarrow \mathbb{R}^N` or
+:math:`F:\mathbb{C}^N \rightarrow \mathbb{C}^N`
+given an initial guess :math:`u_0`. Using a fixed-point iteration,
+the convergence of which can be improved with Anderson acceleration,
+one can solve
 
 .. math::
-  G(u) = u \, , \quad G:\mathbb{R}^N \rightarrow \mathbb{R}^N \, ,
+  G(u) = u,
   :label: KIN_fixed-point_system
 
+where :math:`G:\mathbb{R}^N \rightarrow \mathbb{R}^N`
+or :math:`G:\mathbb{C}^N \rightarrow \mathbb{C}^N`
 given an initial guess :math:`u_0`.
 
 Basic Newton iteration

@@ -19,18 +19,20 @@ Mathematical Considerations
 ===========================
 
 ARKODE solves ODE initial value problems (IVP) in :math:`\mathbb{R}^N`
-posed in the form
+or :math:`\mathbb{C}^N` posed in the form
 
 .. math::
    M(t)\, \dot{y} = f(t,y), \qquad y(t_0) = y_0.
    :label: ARKODE_IVP
 
 Here, :math:`t` is the independent variable (e.g. time), and the
-dependent variables are given by :math:`y \in \mathbb{R}^N`, where we
-use the notation :math:`\dot{y}` to denote :math:`\mathrm dy/\mathrm dt`.
+dependent variables are given by :math:`y \in \mathbb{R}^N` or
+:math:`y \in \mathbb{C}^N`, where we use the notation :math:`\dot{y}`
+to denote :math:`\mathrm dy/\mathrm dt`.
 
 For each value of :math:`t`, :math:`M(t)` is a user-specified linear
-operator from :math:`\mathbb{R}^N \to \mathbb{R}^N`.  This operator
+operator from :math:`\mathbb{R}^N \to \mathbb{R}^N` or
+:math:`\mathbb{C}^N \to \mathbb{C}^N`.  This operator
 is assumed to be nonsingular and independent of :math:`y`.  For
 standard systems of ordinary differential equations and for
 problems arising from the spatial semi-discretization of partial
