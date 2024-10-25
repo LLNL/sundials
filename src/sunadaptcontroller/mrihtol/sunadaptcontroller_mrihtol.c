@@ -82,7 +82,7 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
   C->ops->setdefaults     = SUNAdaptController_SetDefaults_MRIHTol;
   C->ops->write           = SUNAdaptController_Write_MRIHTol;
   C->ops->seterrorbias    = SUNAdaptController_SetErrorBias_MRIHTol;
-  C->ops->updatemritol    = SUNAdaptController_UpdateMRIHTol_MRIHTol;
+  C->ops->updatemrihtol   = SUNAdaptController_UpdateMRIHTol_MRIHTol;
   C->ops->space           = SUNAdaptController_Space_MRIHTol;
 
   /* Create content */

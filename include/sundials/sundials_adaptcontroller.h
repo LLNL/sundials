@@ -77,9 +77,9 @@ struct _generic_SUNAdaptController_Ops
   SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
   SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
   SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
-  SUNErrCode (*updatemritol)(SUNAdaptController C, sunrealtype H,
-                             sunrealtype tolfac, sunrealtype DSM,
-                             sunrealtype dsm);
+  SUNErrCode (*updatemrihtol)(SUNAdaptController C, sunrealtype H,
+                              sunrealtype tolfac, sunrealtype DSM,
+                              sunrealtype dsm);
   SUNErrCode (*space)(SUNAdaptController C, long int* lenrw, long int* leniw);
 };
 

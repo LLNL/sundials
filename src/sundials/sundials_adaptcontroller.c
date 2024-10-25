@@ -55,7 +55,7 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
   ops->write           = NULL;
   ops->seterrorbias    = NULL;
   ops->updateh         = NULL;
-  ops->updatemritol    = NULL;
+  ops->updatemrihtol   = NULL;
   ops->space           = NULL;
 
   /* attach ops and initialize content to NULL */
@@ -206,16 +206,16 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
   return (ier);
 }
 
-SUNErrCode SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H,
-                                           sunrealtype tolfac, sunrealtype DSM,
-                                           sunrealtype dsm)
+SUNErrCode SUNAdaptController_UpdateMRIHTol(SUNAdaptController C, sunrealtype H,
+                                            sunrealtype tolfac, sunrealtype DSM,
+                                            sunrealtype dsm)
 {
   SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
-  if (C->ops->updatemritol)
+  if (C->ops->updatemrihtol)
   {
-    ier = C->ops->updatemritol(C, H, tolfac, DSM, dsm);
+    ier = C->ops->updatemrihtol(C, H, tolfac, DSM, dsm);
   }
   return (ier);
 }
