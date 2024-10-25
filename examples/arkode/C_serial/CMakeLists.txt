@@ -73,7 +73,7 @@ set(ARKODE_examples
     "ark_kpr_mri\;10 4 0.001 -100 100 0.5 1\;exclude-single"
     "ark_kpr_mri\;11 2 0.001\;develop"
     "ark_kpr_mri\;12 3 0.005\;develop"
-    "ark_kpr_mri\;13 4 0.01\;develop"
+    "ark_kpr_mri\;13 4 0.01\;exclude-single"
     "ark_KrylovDemo_prec\;\;exclude-single"
     "ark_KrylovDemo_prec\;1\;exclude-single"
     "ark_KrylovDemo_prec\;2\;exclude-single"
