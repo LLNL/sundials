@@ -288,8 +288,6 @@ int mriStep_NlsInit(ARKodeMem ark_mem);
 int mriStep_Nls(ARKodeMem ark_mem, int nflag);
 int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
-int mriStep_FastRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
-                    int mode);
 int mriStep_Hin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
                 N_Vector fcur, sunrealtype* h);
 void mriStep_ApplyForcing(ARKodeMRIStepMem step_mem, sunrealtype t,

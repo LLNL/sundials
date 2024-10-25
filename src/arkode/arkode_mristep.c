@@ -4020,38 +4020,6 @@ int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
 }
 
 /*---------------------------------------------------------------
-  mriStep_FastRHS:
-
-  This is just a wrapper to call the fast RHS function,
-  f(t,y) = ff(t,y), with API matching ARKTimestepFullRHSFn.  This
-  is only used to determine an initial fast time-step size to use
-  when one is not specified by the user and H-H MRI time step
-  adaptivity is enabled.
-  ---------------------------------------------------------------*/
-int mriStep_FastRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
-                    SUNDIALS_MAYBE_UNUSED int mode)
-{
-  ARKodeMRIStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMRIStepMem structure */
-  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* call ff */
-  retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
-                                       ARK_FULLRHS_OTHER);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_RHSFUNC_FAILED, t);
-    return (ARK_RHSFUNC_FAIL);
-  }
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
   mriStep_Hin
 
   This routine computes a tentative initial step size h0.  This
