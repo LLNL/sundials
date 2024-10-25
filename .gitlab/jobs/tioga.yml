@@ -87,5 +87,6 @@ tioga_rocmcc_620_benchmark:
         AMDGPU_TARGET: [gfx90a]
         CALIPER_DIR: /usr/workspace/sundials/ci/performance/califiles
   variables:
+    ON_TIOGA: "OFF" # disable until we re-baseline on Tioga
     SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 build_type=Release precision=double scheduler=flux caliper-dir=${CALIPER_DIR} ~int64 +benchmarks+profiling+caliper+adiak+mpi+openmp+rocm+raja amdgpu_target=${AMDGPU_TARGET} ^raja+rocm~openmp~examples~exercises amdgpu_target=${AMDGPU_TARGET} ^caliper+adiak+rocm amdgpu_target=${AMDGPU_TARGET}"
   extends: [.sundials_job_on_tioga]
