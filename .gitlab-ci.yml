@@ -84,7 +84,7 @@ stages:
   trigger:
     include:
       - local: '.gitlab/custom-jobs-and-variables.yml'
-      - project: 'sundials/radiuss-shared-ci'
+      - project: 'sundials/radiuss-shared-ci' # https://lc.llnl.gov/gitlab/sundials/radiuss-shared-ci
         ref: 'ae1f3786591beed83abc6a0de2229f6e9532e2d4'
         file: 'pipelines/${CI_MACHINE}.yml'
       # Add your jobs
