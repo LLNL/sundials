@@ -359,10 +359,10 @@ operations below.
 .. c:function:: sunrealtype N_VWrmsNorm(N_Vector x, N_Vector w)
 
    Returns the weighted root-mean-square norm of the ``N_Vector`` *x*
-   with (positive) ``sunrealtype`` weight vector *w*:
+   with (positive, real-valued) weight vector *w*:
 
    .. math::
-      m = \sqrt{\left( \sum_{i=0}^{n-1} |x_i|^2 w_i^2 \right) / n}
+      m = \sqrt{\left( \sum_{i=0}^{n-1} |x_iw_i|^2 \right) / n}
 
    where :math:`|x_i|` corresponds to the magnitude of the ``sunscalartype``
    number :math:`x_i`.
@@ -377,12 +377,12 @@ operations below.
 .. c:function:: sunrealtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id)
 
    Returns the weighted root mean square norm of the ``N_Vector`` *x*
-   with ``sunrealtype`` weight vector *w* built using only the
-   elements of *x* corresponding to positive elements of the
+   with (positive, real-valued) weight vector *w* built using
+   only the elements of *x* corresponding to positive elements of the
    ``N_Vector`` *id*:
 
    .. math::
-      m = \sqrt{\left( \sum_{i=0}^{n-1} |x_i|^2 (w_i H(id_i))^2 \right) / n},
+      m = \sqrt{\left( \sum_{i=0}^{n-1} |x_i w_i H(id_i) |^2 \right) / n},
 
    where :math:`H(\alpha)=\begin{cases} 1 & \operatorname{real}(\alpha>0\\ 0 & \operatorname{real}(\alpha) \leq 0\end{cases}`.
 
@@ -408,7 +408,7 @@ operations below.
 .. c:function:: sunrealtype N_VWL2Norm(N_Vector x, N_Vector w)
 
    Returns the weighted Euclidean :math:`l_2` norm of the ``N_Vector``
-   *x* with ``sunrealtype`` weight vector *w*:
+   *x* with (positive, real-valued) weight vector *w*:
 
    .. math::
       m = \sqrt{\sum_{i=0}^{n-1} |x_i|^2 w_i^2}.
@@ -496,7 +496,7 @@ operations below.
 
 .. c:function:: sunrealtype N_VMinQuotient(N_Vector num, N_Vector denom)
 
-   This routine returns the minimum of the quotients obtained by
+   This routine returns the minimum real component of the quotients obtained by
    termwise dividing the elements of *n* by the elements in *d*:
 
    .. math::
@@ -832,7 +832,8 @@ operations below.
 .. c:function:: sunrealtype N_VWSqrSumLocal(N_Vector x, N_Vector w)
 
    This routine computes the MPI task-local portion of the weighted
-   squared sum of the NVECTOR *x* with positive weight vector *w*:
+   squared sum of the NVECTOR *x* with positive, real-valued weight
+   vector *w*:
 
    .. math::
       s = \sum_{i=0}^{n_{local}-1} |x_i|^2 w_i^2,
@@ -979,7 +980,7 @@ communication will be required.
 
    .. code-block:: c
 
-      retval = MPI_Allreduce(MPI_IN_PLACE, d, nv, MPI_SUNREALTYPE, MPI_SUM, comm)
+      retval = MPI_Allreduce(MPI_IN_PLACE, d, nv, MPI_SUNSCALARTYPE, MPI_SUM, comm)
 
    where *d* is an array of *nv* scalars containing the local contributions to
    the inner products and *comm* is the MPI communicator associated with the vector

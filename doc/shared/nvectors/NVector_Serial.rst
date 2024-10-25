@@ -28,7 +28,7 @@ flag *own_data* which specifies the ownership of data.
    struct _N_VectorContent_Serial {
       sunindextype length;
       sunbooleantype own_data;
-      sunrealtype *data;
+      sunscalartype *data;
    };
 
 The header file to be included when using this module is ``nvector_serial.h``.
@@ -154,7 +154,7 @@ user-callable routines:
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_Serial(sunindextype vec_length, sunrealtype* v_data, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_Serial(sunindextype vec_length, sunscalartype* v_data, SUNContext sunctx)
 
    This function creates and allocates memory for a serial vector with
    user-provided data array, *v_data*.

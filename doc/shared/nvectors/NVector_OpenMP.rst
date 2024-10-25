@@ -38,7 +38,7 @@ supplied argument in the vector constructor.
    struct _N_VectorContent_OpenMP {
      sunindextype length;
      sunbooleantype own_data;
-     sunrealtype *data;
+     sunscalartype *data;
      int num_threads;
    };
 
@@ -180,7 +180,7 @@ The module NVECTOR_OPENMP provides the following additional user-callable routin
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_OpenMP(sunindextype vec_length, sunrealtype* v_data, int num_threads, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_OpenMP(sunindextype vec_length, sunscalartype* v_data, int num_threads, SUNContext sunctx)
 
    This function creates and allocates memory for a OpenMP vector with
    user-provided data array, *v_data*.

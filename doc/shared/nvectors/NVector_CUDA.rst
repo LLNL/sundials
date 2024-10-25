@@ -72,12 +72,12 @@ provide macros to access its member variables. Instead, user should use the
 accessor functions:
 
 
-.. c:function:: sunrealtype* N_VGetHostArrayPointer_Cuda(N_Vector v)
+.. c:function:: sunscalartype* N_VGetHostArrayPointer_Cuda(N_Vector v)
 
    This function returns pointer to the vector data on the host.
 
 
-.. c:function:: sunrealtype* N_VGetDeviceArrayPointer_Cuda(N_Vector v)
+.. c:function:: sunscalartype* N_VGetDeviceArrayPointer_Cuda(N_Vector v)
 
    This function returns pointer to the vector data on the device.
 
@@ -132,14 +132,14 @@ following additional user-callable routines:
    the other constructors to create a new vector.
 
 
-.. c:function:: N_Vector N_VMake_Cuda(sunindextype vec_length, sunrealtype *h_vdata, sunrealtype *d_vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_Cuda(sunindextype vec_length, sunscalartype *h_vdata, sunscalartype *d_vdata, SUNContext sunctx)
 
 
    This function creates a CUDA ``N_Vector`` with user-supplied vector data arrays
    for the host and the device.
 
 
-.. c:function:: N_Vector N_VMakeManaged_Cuda(sunindextype vec_length, sunrealtype *vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMakeManaged_Cuda(sunindextype vec_length, sunscalartype *vdata, SUNContext sunctx)
 
    This function creates a CUDA ``N_Vector`` with a user-supplied
    managed memory data array.
@@ -180,12 +180,12 @@ The module NVECTOR_CUDA also provides the following user-callable routines:
       policies across vectors
 
 
-.. c:function:: sunrealtype* N_VCopyToDevice_Cuda(N_Vector v)
+.. c:function:: sunscalartype* N_VCopyToDevice_Cuda(N_Vector v)
 
    This function copies host vector data to the device.
 
 
-.. c:function:: sunrealtype* N_VCopyFromDevice_Cuda(N_Vector v)
+.. c:function:: sunscalartype* N_VCopyFromDevice_Cuda(N_Vector v)
 
    This function copies vector data from the device to the host.
 

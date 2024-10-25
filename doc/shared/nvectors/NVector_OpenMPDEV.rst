@@ -31,10 +31,10 @@ the ownership of host and device data arrays.
 
   struct _N_VectorContent_OpenMPDEV
   {
-    sunindextype length;
+    sunindextype    length;
     sunbooleantype  own_data;
-    sunrealtype     *host_data;
-    sunrealtype     *dev_data;
+    sunscalartype   *host_data;
+    sunscalartype   *dev_data;
   };
 
 The header file to include when using this module is ``nvector_openmpdev.h``.
@@ -144,19 +144,19 @@ user-callable routines:
    (``NULL``) data array.
 
 
-.. c:function:: N_Vector N_VMake_OpenMPDEV(sunindextype vec_length, sunrealtype *h_vdata, sunrealtype *d_vdata, SUNContext sunctx)
+.. c:function:: N_Vector N_VMake_OpenMPDEV(sunindextype vec_length, sunscalartype *h_vdata, sunscalartype *d_vdata, SUNContext sunctx)
 
    This function creates an NVECTOR_OPENMPDEV vector with user-supplied vector data
    arrays ``h_vdata`` and ``d_vdata``. This function does not allocate memory for
    data itself.
 
 
-.. c:function:: sunrealtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
+.. c:function:: sunscalartype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v)
 
    This function returns a pointer to the host data array.
 
 
-.. c:function:: sunrealtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
+.. c:function:: sunscalartype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v)
 
    This function returns a pointer to the device data array.
 
@@ -259,14 +259,14 @@ options as the vector they are cloned from while vectors created with
 .. c:function:: SUNErrCode N_VEnableScaleAddMultiVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
-  add a vector array to multiple vector arrays operation in the NVECTOR_OPENMPDEV vector. 
+  add a vector array to multiple vector arrays operation in the NVECTOR_OPENMPDEV vector.
   The return value is a :c:type:`SUNErrCode`.
 
 
 .. c:function:: SUNErrCode N_VEnableLinearCombinationVectorArray_OpenMPDEV(N_Vector v, sunbooleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
-  combination operation for vector arrays in the NVECTOR_OPENMPDEV vector. 
+  combination operation for vector arrays in the NVECTOR_OPENMPDEV vector.
   The return value is a :c:type:`SUNErrCode`.
 
 

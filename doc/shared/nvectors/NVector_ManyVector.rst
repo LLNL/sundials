@@ -149,7 +149,7 @@ the following additional user-callable routines:
       local_length = N_VGetSubvectorLocalLength_ManyVector(v, 0);
 
 
-.. c:function:: sunrealtype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v, sunindextype vec_num)
+.. c:function:: sunscalartype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v, sunindextype vec_num)
 
    This function returns the data array pointer for the *vec_num*
    subvector from the NVECTOR array.
@@ -159,7 +159,7 @@ the following additional user-callable routines:
    returned.
 
 
-.. c:function:: SUNErrCode N_VSetSubvectorArrayPointer_ManyVector(sunrealtype *v_data, N_Vector v, sunindextype vec_num)
+.. c:function:: SUNErrCode N_VSetSubvectorArrayPointer_ManyVector(sunscalartype *v_data, N_Vector v, sunindextype vec_num)
 
    This function sets the data array pointer for the *vec_num*
    subvector from the NVECTOR array.

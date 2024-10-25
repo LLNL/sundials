@@ -102,7 +102,7 @@ class.
                Vector : public sundials::impl::BaseNVector, \
                         public sundials::ConvertibleTo<N_Vector>
 
-   .. cpp:type:: view_type      = Kokkos::View<sunrealtype*, MemorySpace>;
+   .. cpp:type:: view_type      = Kokkos::View<sunscalartype*, MemorySpace>;
    .. cpp:type:: size_type      = typename view_type::size_type;
    .. cpp:type:: host_view_type = typename view_type::HostMirror;
    .. cpp:type:: memory_space   = MemorySpace;

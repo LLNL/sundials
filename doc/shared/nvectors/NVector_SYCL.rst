@@ -96,14 +96,14 @@ constructors for creating a new NVECTOR_SYCL:
    operation are launched in the provided queue.
 
 
-.. cpp:function:: N_Vector N_VMake_Sycl(sunindextype length, sunrealtype *h_vdata, sunrealtype *d_vdata, sycl::queue* Q, SUNContext sunctx)
+.. cpp:function:: N_Vector N_VMake_Sycl(sunindextype length, sunscalartype *h_vdata, sunscalartype *d_vdata, sycl::queue* Q, SUNContext sunctx)
 
    This function creates an NVECTOR_SYCL with user-supplied host and device
    data arrays. This function does not allocate memory for data itself. All
    operation are launched in the provided queue.
 
 
-.. cpp:function:: N_Vector N_VMakeManaged_Sycl(sunindextype length, sunrealtype *vdata, sycl::queue *Q, SUNContext sunctx)
+.. cpp:function:: N_Vector N_VMakeManaged_Sycl(sunindextype length, sunscalartype *vdata, sycl::queue *Q, SUNContext sunctx)
 
    This function creates an NVECTOR_SYCL with a user-supplied managed (shared)
    data array. This function does not allocate memory for data itself. All
@@ -133,22 +133,22 @@ functions given below. To ensure memory coherency, a user will need to call the
 host and device, unless managed (shared) memory is used.
 
 
-.. cpp:function:: sunrealtype* N_VGetHostArrayPointer_Sycl(N_Vector v)
+.. cpp:function:: sunscalartype* N_VGetHostArrayPointer_Sycl(N_Vector v)
 
    This function returns a pointer to the vector host data array.
 
 
-.. cpp:function:: sunrealtype* N_VGetDeviceArrayPointer_Sycl(N_Vector v)
+.. cpp:function:: sunscalartype* N_VGetDeviceArrayPointer_Sycl(N_Vector v)
 
    This function returns a pointer to the vector device data array.
 
 
-.. cpp:function:: void N_VSetHostArrayPointer_Sycl(sunrealtype* h_vdata, N_Vector v)
+.. cpp:function:: void N_VSetHostArrayPointer_Sycl(sunscalartype* h_vdata, N_Vector v)
 
    This function sets the host array pointer in the vector ``v``.
 
 
-.. cpp:function:: void N_VSetDeviceArrayPointer_Sycl(sunrealtype* d_vdata, N_Vector v)
+.. cpp:function:: void N_VSetDeviceArrayPointer_Sycl(sunscalartype* d_vdata, N_Vector v)
 
    This function sets the device array pointer in the vector ``v``.
 
