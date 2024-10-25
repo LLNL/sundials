@@ -21,10 +21,10 @@
 #include "arkode_impl.h"
 #include "sundials_macros.h"
 
-static SUNErrCode arkSUNStepperEvolveHelper(SUNStepper stepper,
-                                            SUNDIALS_MAYBE_UNUSED sunrealtype t0,
-                                            sunrealtype tout, N_Vector y,
-                                            sunrealtype* tret, int mode)
+
+static SUNErrCode arkSUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
+                                      sunrealtype tout, N_Vector y,
+                                      sunrealtype* tret)
 {
   SUNFunctionBegin(stepper->sunctx);
   /* extract the ARKODE memory struct */
@@ -32,24 +32,10 @@ static SUNErrCode arkSUNStepperEvolveHelper(SUNStepper stepper,
   SUNCheckCall(SUNStepper_GetContent(stepper, &arkode_mem));
 
   /* evolve inner ODE */
-  stepper->last_flag = ARKodeEvolve(arkode_mem, tout, y, tret, mode);
+  stepper->last_flag = ARKodeEvolve(arkode_mem, tout, y, tret, ARK_NORMAL);
   if (stepper->last_flag < 0) { return SUN_ERR_OP_FAIL; }
 
   return SUN_SUCCESS;
-}
-
-static SUNErrCode arkSUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
-                                      sunrealtype tout, N_Vector y,
-                                      sunrealtype* tret)
-{
-  return arkSUNStepperEvolveHelper(stepper, t0, tout, y, tret, ARK_NORMAL);
-}
-
-static SUNErrCode arkSUNStepperOneStep(SUNStepper stepper, sunrealtype t0,
-                                       sunrealtype tout, N_Vector y,
-                                       sunrealtype* tret)
-{
-  return arkSUNStepperEvolveHelper(stepper, t0, tout, y, tret, ARK_ONE_STEP);
 }
 
 /*------------------------------------------------------------------------------
@@ -143,9 +129,6 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   err = SUNStepper_SetEvolveFn(*stepper, arkSUNStepperEvolve);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
-
-  err = SUNStepper_SetOneStepFn(*stepper, arkSUNStepperOneStep);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   err = SUNStepper_SetFullRhsFn(*stepper, arkSUNStepperFullRhs);

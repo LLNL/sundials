@@ -333,11 +333,6 @@ abstract base class.
    :c:func:`SUNStepper_FullRhsFn`.
 
 
-   This type represents a function to compute the full right-hand side function
-   of the ODE, :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value
-   of the independent variable ``t`` and state vector ``v``.
-
-
 .. c:type:: SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR, N_Vector vR)
 
    This type represents a function with the signature of
