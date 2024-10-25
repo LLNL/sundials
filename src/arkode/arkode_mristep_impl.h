@@ -344,7 +344,7 @@ int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int* stage_map,
   rate context, leveraging MRIStep-specific knowledge of the
   slow+fast time scale relationship to CALL multi-rate controller
   functions (e.g., EstimateMRISteps, EstimateStepTol, UpdateMRIH,
-  and UpdateMRITol) provided by the underlying multi-rate
+  and UpdateMRIHTol) provided by the underlying multi-rate
   controller.
   ===============================================================*/
 

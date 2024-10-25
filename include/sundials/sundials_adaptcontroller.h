@@ -174,9 +174,9 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
    DSM and dsm, indicating that the step size, tolerance factor, or local
    error factors can be saved for subsequent controller functions. */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H,
-                                           sunrealtype tolfac, sunrealtype DSM,
-                                           sunrealtype dsm);
+SUNErrCode SUNAdaptController_UpdateMRIHTol(SUNAdaptController C, sunrealtype H,
+                                            sunrealtype tolfac, sunrealtype DSM,
+                                            sunrealtype dsm);
 
 /* Function to return the memory requirements of the controller object. */
 SUNDIALS_EXPORT

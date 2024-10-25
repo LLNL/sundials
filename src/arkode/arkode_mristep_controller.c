@@ -111,9 +111,9 @@ SUNErrCode SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C,
   if ((ark_mem == NULL) || (step_mem == NULL)) { return SUN_ERR_MEM_FAIL; }
 
   /* Update MRI controller */
-  SUNErrCode retval = SUNAdaptController_UpdateMRITol(MRICONTROL_C(C), H,
-                                                      step_mem->inner_control,
-                                                      DSM, step_mem->inner_dsm);
+  SUNErrCode retval = SUNAdaptController_UpdateMRIHTol(MRICONTROL_C(C), H,
+                                                       step_mem->inner_control,
+                                                       DSM, step_mem->inner_dsm);
   if (retval != SUN_SUCCESS) { return (retval); }
 
   /* Update inner controller parameter to most-recent prediction */

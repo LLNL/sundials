@@ -111,7 +111,7 @@ The virtual table structure is defined as
 
    .. c:member:: SUNErrCode (*updatemritol)(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
 
-      The function implementing :c:func:`SUNAdaptController_UpdateMRITol`
+      The function implementing :c:func:`SUNAdaptController_UpdateMRIHTol`
 
       .. versionadded:: x.y.z
 
@@ -308,7 +308,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
+.. c:function:: SUNErrCode SUNAdaptController_UpdateMRIHTol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
 
    Notifies a controller of type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL` that a successful time step
    was taken with slow stepsize ``H`` and fast relative tolerance factor ``tolfac``, and that the
