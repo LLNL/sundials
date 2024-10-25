@@ -526,7 +526,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: write
   type(C_FUNPTR), public :: seterrorbias
   type(C_FUNPTR), public :: updateh
-  type(C_FUNPTR), public :: updatemritol
+  type(C_FUNPTR), public :: updatemrihtol
   type(C_FUNPTR), public :: space
  end type SUNAdaptController_Ops
  ! struct struct _generic_SUNAdaptController
