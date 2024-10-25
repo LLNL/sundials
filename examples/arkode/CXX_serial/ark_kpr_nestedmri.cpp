@@ -985,9 +985,12 @@ int main(int argc, char* argv[])
     verrtot += verr * verr;
     werrtot += werr * werr;
     errtot += uerr * uerr + verr * verr + werr * werr;
-    accuracy = std::max(accuracy, uerr / std::abs(opts.atol + opts.rtol * yrefdata[0]));
-    accuracy = std::max(accuracy, verr / std::abs(opts.atol + opts.rtol * yrefdata[1]));
-    accuracy = std::max(accuracy, werr / std::abs(opts.atol + opts.rtol * yrefdata[2]));
+    accuracy = std::max(accuracy,
+                        uerr / std::abs(opts.atol + opts.rtol * yrefdata[0]));
+    accuracy = std::max(accuracy,
+                        verr / std::abs(opts.atol + opts.rtol * yrefdata[1]));
+    accuracy = std::max(accuracy,
+                        werr / std::abs(opts.atol + opts.rtol * yrefdata[2]));
 
     // Periodically output current results to screen
     if (t >= tout)
