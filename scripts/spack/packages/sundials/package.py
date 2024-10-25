@@ -694,13 +694,10 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             )
             if "scheduler=flux" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "flux run"))
-                # entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "flux run"))
             if "scheduler=slurm" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "srun"))
-                # entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "srun"))
             if "scheduler=lsf" in spec:
                 entries.append(cmake_cache_string("SUNDIALS_SCHEDULER_COMMAND", "jsrun"))
-                # entries.append(cmake_cache_string("SUNDIALS_TEST_MPIRUN_COMMAND", "jsrun"))
 
 
         return entries
@@ -723,8 +720,6 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
             entries.extend(
                 [
                     self.cache_option_from_variant("ENABLE_HIP", "rocm"),
-                    # cmake_cache_path("CMAKE_C_COMPILER", spec["llvm-amdgpu"].prefix.bin.clang),
-                    # cmake_cache_path("CMAKE_CXX_COMPILER", spec["hip"].hipcc),
                     cmake_cache_path("HIP_PATH", spec["hip"].prefix),
                     cmake_cache_path("HIP_DIR", spec["hip"].prefix.cmake),
                     cmake_cache_path("HIP_CLANG_INCLUDE_PATH", spec["llvm-amdgpu"].prefix.include),
