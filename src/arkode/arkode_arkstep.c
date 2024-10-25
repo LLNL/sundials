@@ -2061,7 +2061,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO,
                      "ARKODE::arkStep_TakeStep_Z", "end-step",
-                    "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
+                     "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
                      ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
 #endif
 

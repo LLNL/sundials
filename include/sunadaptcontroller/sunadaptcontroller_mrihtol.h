@@ -74,9 +74,9 @@ SUNDIALS_EXPORT
 int SUNAdaptController_SetErrorBias_MRIHTol(SUNAdaptController C,
                                             sunrealtype bias);
 SUNDIALS_EXPORT
-int SUNAdaptController_UpdateMRIHTol_MRIHTol(SUNAdaptController C, sunrealtype H,
-                                             sunrealtype tolfac, sunrealtype DSM,
-                                             sunrealtype dsm);
+int SUNAdaptController_UpdateMRIHTol_MRIHTol(SUNAdaptController C,
+                                             sunrealtype H, sunrealtype tolfac,
+                                             sunrealtype DSM, sunrealtype dsm);
 SUNDIALS_EXPORT
 int SUNAdaptController_Space_MRIHTol(SUNAdaptController C, long int* lenrw,
                                      long int* leniw);

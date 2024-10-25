@@ -952,8 +952,8 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     case MRISTEP_MERK: ark_mem->step = mriStep_TakeStepMERK; break;
     case MRISTEP_MRISR: ark_mem->step = mriStep_TakeStepMRISR; break;
     default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "Unknown method type");
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Unknown method type");
       return (ARK_ILL_INPUT);
     }
 
@@ -1812,7 +1812,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   {
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
                        "slow explicit RHS", "Fse_0(:) =", "")
-    N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
+      N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
   }
   if (step_mem->implicit_rhs)
   {
