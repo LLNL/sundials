@@ -58,8 +58,8 @@ SUNErrCode SUNStepper_Destroy(SUNStepper* stepper_ptr)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNStepper_Evolve(SUNStepper stepper,
-                             sunrealtype tout, N_Vector y, sunrealtype* tret)
+SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout, N_Vector y,
+                             sunrealtype* tret)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->evolve)

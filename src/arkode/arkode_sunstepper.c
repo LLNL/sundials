@@ -21,10 +21,8 @@
 #include "arkode_impl.h"
 #include "sundials_macros.h"
 
-
-static SUNErrCode arkSUNStepperEvolve(SUNStepper stepper,
-                                      sunrealtype tout, N_Vector y,
-                                      sunrealtype* tret)
+static SUNErrCode arkSUNStepperEvolve(SUNStepper stepper, sunrealtype tout,
+                                      N_Vector y, sunrealtype* tret)
 {
   SUNFunctionBegin(stepper->sunctx);
   /* extract the ARKODE memory struct */

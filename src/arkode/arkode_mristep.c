@@ -2854,8 +2854,8 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
 }
 
 int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
-                                        SUNDIALS_MAYBE_UNUSED sunrealtype t0, sunrealtype tout,
-                                         N_Vector y)
+                                         SUNDIALS_MAYBE_UNUSED sunrealtype t0,
+                                         sunrealtype tout, N_Vector y)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
   sunrealtype tret;

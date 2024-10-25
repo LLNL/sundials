@@ -28,9 +28,8 @@ typedef int (*SUNJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
 
 typedef _SUNDIALS_STRUCT_ SUNStepper_* SUNStepper;
 
-typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper,
-                                         sunrealtype tout, N_Vector vout,
-                                         sunrealtype* tret);
+typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout,
+                                         N_Vector vout, sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
                                           N_Vector v, N_Vector f);
@@ -53,8 +52,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Destroy(SUNStepper* stepper);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Evolve(SUNStepper stepper,
-                             sunrealtype tout, N_Vector vout, sunrealtype* tret);
+SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout,
+                             N_Vector vout, sunrealtype* tret);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
