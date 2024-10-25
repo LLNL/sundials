@@ -109,7 +109,7 @@ typedef struct ARKodeMRIStepMemRec
   sunrealtype nlscoef;    /* coefficient in nonlin. convergence test  */
 
   int msbp;       /* positive => max # steps between lsetup
-                             negative => call at each Newton iter     */
+                     negative => call at each Newton iter     */
   long int nstlp; /* step number of last setup call           */
 
   int maxcor;          /* max num iterations for solving the

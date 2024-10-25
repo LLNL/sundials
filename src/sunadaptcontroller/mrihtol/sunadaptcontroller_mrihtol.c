@@ -102,7 +102,7 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
   /* Attach content */
   C->content = content;
 
-  return (C);
+  return C;
 }
 
 /* -----------------------------------------------------------------

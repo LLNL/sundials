@@ -280,11 +280,7 @@ int main(int argc, char* argv[])
   }
 
   // Clean up and return
-  if (rk_type == 0)
-  { // Free integrator memory
-    ARKodeFree(&arkode_mem);
-  }
-  else { ARKodeFree(&arkode_mem); }
+  ARKodeFree(&arkode_mem);
   if (LS != NULL) SUNLinSolFree(LS); // free system linear solver
   if (A != NULL) SUNMatDestroy(A);   // free system matrix
   N_VDestroy(y);                     // Free y vector
