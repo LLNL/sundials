@@ -885,7 +885,7 @@ int mriStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
 
   With initialization types FIRST_INIT this routine:
   - sets/checks the coefficient tables to be used
-  - allocates any internal memory that depend on the MRI method
+  - allocates any internal memory that depends on the MRI method
     structure or solver options
 
   With other initialization types, this routine does nothing.
@@ -951,6 +951,10 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     case MRISTEP_IMEX: ark_mem->step = mriStep_TakeStepMRIGARK; break;
     case MRISTEP_MERK: ark_mem->step = mriStep_TakeStepMERK; break;
     case MRISTEP_MRISR: ark_mem->step = mriStep_TakeStepMRISR; break;
+    default:
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "Unknown method type");
+      return (ARK_ILL_INPUT);
     }
 
     /* Retrieve/store method and embedding orders now that tables are finalized */
@@ -961,7 +965,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     /* Ensure that if adaptivity or error accumulation is enabled, then
        method includes embedding coefficients */
     if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)) &&
-        (step_mem->p == 0))
+        (step_mem->p <= 0))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                       __FILE__, "Temporal error estimation cannot be performed without embedding coefficients");
@@ -1246,9 +1250,8 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
 
   if (ark_mem->fixedstep)
   {
-    /* Non-adaptive controller: user must have supplied initial step
-       size, and indicated fixed time stepping */
-    if ((ark_mem->hin == ZERO) || (ark_mem->fixedstep == SUNFALSE))
+    /* Fixed step sizes: user must supply the initial step size */
+    if (ark_mem->hin == ZERO)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                       __FILE__, "Timestep adaptivity disabled, but missing user-defined fixed stepsize");
@@ -1269,7 +1272,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     /* Controller provides adaptivity (at least at the slow time scale):
        - verify that the MRI method includes an embedding, and
        - estimate initial slow step size (store in ark_mem->hin) */
-    if (step_mem->MRIC->p == 0)
+    if (step_mem->MRIC->p <= 0)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                       __FILE__, "Timestep adaptivity enabled, but non-embedded MRI table specified");
@@ -1302,7 +1305,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     if (!mriStepInnerStepper_SupportsRTolAdaptivity(step_mem->stepper))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "MRI-TOL SUNAdaptController provided, but unsupported by inner stepper");
+                      __FILE__, "MRI H-TOL SUNAdaptController provided, but unsupported by inner stepper");
       return (ARK_ILL_INPUT);
     }
 
@@ -1801,23 +1804,20 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 #endif
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::mriStep_TakeStepMRIGARK", "slow stage",
-                     "z[0] =", "");
-  N_VPrintFile(ark_mem->yn, ARK_LOGGER->debug_fp);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+                     "slow stage", "z_0(:) =", "");
+  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 
   if (step_mem->explicit_rhs)
   {
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStepMRIGARK", "slow explicit RHS",
-                       "Fse[0] =", "");
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+                       "slow explicit RHS", "Fse_0(:) =", "")
     N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
   }
   if (step_mem->implicit_rhs)
   {
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStepMRIGARK", "slow implicit RHS",
-                       "Fsi[0] =", "");
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+                       "slow implicit RHS", "Fsi_0(:) =", "");
     N_VPrintFile(step_mem->Fsi[0], ARK_LOGGER->debug_fp);
   }
 #endif
@@ -1835,7 +1835,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStepMRIGARK", "start-stage",
+                       "ARKODE::mriStep_TakeStep", "start-stage",
                        "step = %li, stage = %i, stage type = %d, h = %" RSYM
                        ", tcur = %" RSYM,
                        ark_mem->nst, is, step_mem->stagetypes[is], ark_mem->h,
@@ -1873,8 +1873,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStepMRIGARK", "slow stage",
-                       "z[%i] =", is);
+                       "ARKODE::mriStep_TakeStep", "slow stage", "z_%i(:) =", is);
     N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
@@ -1941,8 +1940,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                           "ARKODE::mriStep_TakeStepMRIGARK",
-                           "slow explicit RHS", "Fse[%i] =", is);
+                           "ARKODE::mriStep_TakeStep", "slow explicit RHS",
+                           "Fse_%i(:) =", is);
         N_VPrintFile(step_mem->Fse[step_mem->stage_map[is]],
                      ARK_LOGGER->debug_fp);
 #endif
@@ -1982,8 +1981,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
         SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                           "ARKODE::mriStep_TakeStepMRIGARK",
-                           "slow implicit RHS", "Fsi[%i] =", is);
+                           "ARKODE::mriStep_TakeStep", "slow implicit RHS",
+                           "Fsi_%i(:) =", is);
         N_VPrintFile(step_mem->Fsi[step_mem->stage_map[is]],
                      ARK_LOGGER->debug_fp);
 #endif
@@ -2000,9 +1999,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   }   /* loop over stages */
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::mriStep_TakeStepMRIGARK", "updated solution",
-                     "ycur =", "");
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+                     "updated solution", "ycur(:) =", "");
   N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
 #endif
 
@@ -2086,10 +2084,9 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
   /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::mriStep_TakeStepMRIGARK", "end-step",
-                     "step = %li, t = %" RSYM ", h = %" RSYM ", dsm = %" RSYM,
-                     ark_mem->nst, ark_mem->tn, ark_mem->h, *dsmPtr);
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
+                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
+                     ark_mem->nst, ark_mem->h, *dsmPtr);
 #endif
 
   return (ARK_SUCCESS);
@@ -2705,13 +2702,10 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                      "ARKODE::mriStep_TakeStepMERK", "slow stage", "z[0] =", "");
   N_VPrintFile(ark_mem->yn, ARK_LOGGER->debug_fp);
 
-  if (step_mem->explicit_rhs)
-  {
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStepMERK", "slow explicit RHS",
-                       "Fse[0] =", "");
-    N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
-  }
+  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                     "ARKODE::mriStep_TakeStepMERK", "slow explicit RHS",
+                     "Fse[0] =", "");
+  N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
 #endif
 
   /* The first stage is the previous time-step solution, so its RHS
@@ -3488,7 +3482,7 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_StageDIRKNoFast", "predictor",
-                     "zpred =", "");
+                     "zpred(:) =", "");
   N_VPrintFile(step_mem->zpred, ARK_LOGGER->debug_fp);
 #endif
 
@@ -3504,7 +3498,7 @@ int mriStep_StageDIRKNoFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStep_StageDIRKNoFast", "rhs data",
-                     "sdata =", "");
+                     "sdata(:) =", "");
   N_VPrintFile(step_mem->sdata, ARK_LOGGER->debug_fp);
 #endif
 
@@ -3677,7 +3671,7 @@ int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
   {
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_ComputeInnerForcing", "forcing",
-                       "forcing[%i] =", k);
+                       "forcing_%i(:) =", k);
     N_VPrintFile(step_mem->stepper->forcing[k], ARK_LOGGER->debug_fp);
   }
 #endif
@@ -3957,7 +3951,7 @@ int mriStep_StageSetup(ARKodeMem ark_mem)
   ARKTimestepFullRHSFn.  This is only used to determine an
   initial slow time-step size to use when one is not specified
   by the user (i.e., mode should correspond with
-  ARK_FULLRHS_OTHER.
+  ARK_FULLRHS_START.
   ---------------------------------------------------------------*/
 int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     SUNDIALS_MAYBE_UNUSED int mode)
@@ -4389,7 +4383,7 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
   if (stepper->ops == NULL) { return ARK_ILL_INPUT; }
   if (stepper->ops->evolve == NULL) { return ARK_ILL_INPUT; }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::mriStepInnerStepper_Evolve", "start-inner-evolve",
                      "t0 = %" RSYM ", tout = %" RSYM, t0, tout);
@@ -4397,7 +4391,7 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
 
   stepper->last_flag = stepper->ops->evolve(stepper, t0, tout, y);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
                      "ARKODE::mriStepInnerStepper_Evolve", "end-inner-evolve",
                      "flag = %i", stepper->last_flag);
@@ -4670,7 +4664,7 @@ void mriStep_ApplyForcing(ARKodeMRIStepMem step_mem, sunrealtype t,
   Sets an array of coefficient vectors for a time-dependent external polynomial
   forcing term in the ODE RHS i.e., y' = f(t,y) + p(t). This function is
   primarily intended for using MRIStep as an inner integrator within another
-  [outer] instance of MRIStep, where this instance is is used to solve a
+  [outer] instance of MRIStep, where this instance is used to solve a
   modified ODE at a fast time scale. The polynomial is of the form
 
   p(t) = sum_{i = 0}^{nvecs - 1} forcing[i] * ((t - tshift) / (tscale))^i
