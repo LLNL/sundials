@@ -895,8 +895,7 @@ int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC, int* stage_map,
     /* Number of stage RHS vectors active */
     *nstages_active = MRIC->stages;
 
-    /* Check if a stage corresponds to a column of zeros for all coupling
-     * matrices by computing the column sums */
+    /* Create an identity map (all columns are non-zero) */
     for (j = 0; j < MRIC->stages; j++) { stage_map[j] = j; }
     return (ARK_SUCCESS);
   }
