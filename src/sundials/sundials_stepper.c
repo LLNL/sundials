@@ -81,6 +81,14 @@ SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
+                              N_Vector f)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->fullrhs) { return stepper->ops->fullrhs(stepper, t, v, f); }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
 SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
 {
   SUNFunctionBegin(stepper->sunctx);

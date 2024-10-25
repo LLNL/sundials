@@ -547,6 +547,7 @@ module fsundials_core_mod
  public :: FSUNStepper_Destroy
  public :: FSUNStepper_Evolve
  public :: FSUNStepper_OneStep
+ public :: FSUNStepper_FullRhs
  public :: FSUNStepper_Reset
  public :: FSUNStepper_SetStopTime
  public :: FSUNStepper_SetForcing
@@ -2096,6 +2097,17 @@ real(C_DOUBLE), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNStepper_FullRhs(farg1, farg2, farg3, farg4) &
+bind(C, name="_wrap_FSUNStepper_FullRhs") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+type(C_PTR), value :: farg3
+type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
 
@@ -5037,6 +5049,28 @@ farg3 = tout
 farg4 = c_loc(vout)
 farg5 = c_loc(tret(1))
 fresult = swigc_FSUNStepper_OneStep(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FSUNStepper_FullRhs(stepper, t, v, f) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+real(C_DOUBLE), intent(in) :: t
+type(N_Vector), target, intent(inout) :: v
+type(N_Vector), target, intent(inout) :: f
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+
+farg1 = stepper
+farg2 = t
+farg3 = c_loc(v)
+farg4 = c_loc(f)
+fresult = swigc_FSUNStepper_FullRhs(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
