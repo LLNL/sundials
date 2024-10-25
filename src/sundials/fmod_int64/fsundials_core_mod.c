@@ -2651,7 +2651,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_UpdateH(SUNAdaptController farg1, doubl
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_UpdateMRITol(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5) {
+SWIGEXPORT int _wrap_FSUNAdaptController_UpdateMRIHTol(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
@@ -2665,7 +2665,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_UpdateMRITol(SUNAdaptController farg1, 
   arg3 = (sunrealtype)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (sunrealtype)(*farg5);
-  result = (SUNErrCode)SUNAdaptController_UpdateMRITol(arg1,arg2,arg3,arg4,arg5);
+  result = (SUNErrCode)SUNAdaptController_UpdateMRIHTol(arg1,arg2,arg3,arg4,arg5);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

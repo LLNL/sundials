@@ -64,7 +64,7 @@ module fsunadaptcontroller_mrihtol_mod
  public :: FSUNAdaptController_SetDefaults_MRIHTol
  public :: FSUNAdaptController_Write_MRIHTol
  public :: FSUNAdaptController_SetErrorBias_MRIHTol
- public :: FSUNAdaptController_UpdateMRITol_MRIHTol
+ public :: FSUNAdaptController_UpdateMRIHTol_MRIHTol
  public :: FSUNAdaptController_Space_MRIHTol
 
 ! WRAPPER DECLARATIONS
@@ -271,8 +271,8 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdaptController_UpdateMRITol_MRIHTol(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FSUNAdaptController_UpdateMRITol_MRIHTol") &
+function swigc_FSUNAdaptController_UpdateMRIHTol_MRIHTol(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FSUNAdaptController_UpdateMRIHTol_MRIHTol") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -632,7 +632,7 @@ fresult = swigc_FSUNAdaptController_SetErrorBias_MRIHTol(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNAdaptController_UpdateMRITol_MRIHTol(c, h, tolfac, dsm, dsm4) &
+function FSUNAdaptController_UpdateMRIHTol_MRIHTol(c, h, tolfac, dsm, dsm4) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -653,7 +653,7 @@ farg2 = h
 farg3 = tolfac
 farg4 = dsm
 farg5 = dsm4
-fresult = swigc_FSUNAdaptController_UpdateMRITol_MRIHTol(farg1, farg2, farg3, farg4, farg5)
+fresult = swigc_FSUNAdaptController_UpdateMRIHTol_MRIHTol(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
