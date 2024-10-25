@@ -2322,11 +2322,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->explicit_rhs = SUNTRUE;
     retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, stage, ark_mem->tn,
                                          ark_mem->tn + cstage * ark_mem->h);
-    if (retval != ARK_SUCCESS)
-    {
-      *nflagPtr = CONV_FAIL;
-      break;
-    }
+    if (retval != ARK_SUCCESS) { return retval; }
     step_mem->implicit_rhs = store_imprhs;
     step_mem->explicit_rhs = store_exprhs;
 
