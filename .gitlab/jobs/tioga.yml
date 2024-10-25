@@ -38,6 +38,22 @@
 
 # --- Builds with HIP
 
+# Builds fine but non-mpi test fail to execute due to a missing so:
+# error while loading shared libraries: libpgmath.so: cannot open shared object file: No such file or directory
+# This seems like it might be an LC environment issue, so disabling the job for now.
+tioga_rocmcc_571_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: rocmcc@5.7.1
+        AMDGPU_TARGET: [gfx90a]
+  variables:
+    ON_TIOGA: "OFF" # disable until we can figure out libpgmath.so error
+    # have to use ginkgo@master because our spack version does not have ginkgo@1.8.0: yet (which seems to be needed)
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi+magma+ginkgo+kokkos ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+  before_script:
+    - module load rocmcc/5.7.1-magic
+  extends: [.sundials_job_on_tioga]
+
 tioga_rocmcc_620_tpls:
   parallel:
     matrix:
