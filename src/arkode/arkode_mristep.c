@@ -2854,7 +2854,7 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
 }
 
 int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
-                                         sunrealtype t0, sunrealtype tout,
+                                        SUNDIALS_MAYBE_UNUSED sunrealtype t0, sunrealtype tout,
                                          N_Vector y)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
@@ -2867,7 +2867,7 @@ int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
     return ARK_SUNSTEPPER_ERR;
   }
 
-  err                = sunstepper->ops->evolve(sunstepper, t0, tout, y, &tret);
+  err                = sunstepper->ops->evolve(sunstepper, tout, y, &tret);
   stepper->last_flag = sunstepper->last_flag;
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 

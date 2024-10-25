@@ -110,18 +110,6 @@ Stepping Functions
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
-
-   This function takes a single step towards ``tout`` and stores the solution at
-   time ``tret`` in ``vret``.
-
-   :param stepper: the stepper object.
-   :param tout: the time to step toward.
-   :param vret: on output, the state at time ``tret`` after a single step.
-   :param tret: the time corresponding to the output value ``vret``.
-   :return: A :c:type:`SUNErrCode` indicating success or failure.
-
-
 .. c:function:: SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f)
 
    This function computes the full right-hand side function of the ODE,
@@ -256,16 +244,6 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn)
-
-   This function attaches a :c:type:`SUNStepperOneStepFn` function to a
-   :c:type:`SUNStepper` object.
-
-   :param stepper: a stepper object.
-   :param fn: the :c:type:`SUNStepperOneStepFn` function to attach.
-   :return: A :c:type:`SUNErrCode` indicating success or failure.
-
-
 .. c:function:: SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn)
 
    This function attaches a :c:type:`SUNStepperFullRhsFn` function to a
@@ -315,16 +293,10 @@ This section describes the virtual methods defined by the :c:type:`SUNStepper`
 abstract base class.
 
 
-.. c:type:: SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
+.. c:type:: SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_Evolve`.
-
-
-.. c:type:: SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
-
-   This type represents a function with the signature of
-   :c:func:`SUNStepper_OneStep`.
 
 
 .. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f)

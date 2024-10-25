@@ -22,7 +22,7 @@
 #include "sundials_macros.h"
 
 
-static SUNErrCode arkSUNStepperEvolve(SUNStepper stepper, sunrealtype t0,
+static SUNErrCode arkSUNStepperEvolve(SUNStepper stepper,
                                       sunrealtype tout, N_Vector y,
                                       sunrealtype* tret)
 {
