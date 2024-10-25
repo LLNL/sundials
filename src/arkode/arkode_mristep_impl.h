@@ -314,9 +314,9 @@ int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
                                 N_Vector y, N_Vector f, int mode);
 int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
                               N_Vector yR);
-int mriStepInnerStepper_GetError(MRIStepInnerStepper stepper,
-                                 sunrealtype* accum_error);
-int mriStepInnerStepper_ResetError(MRIStepInnerStepper stepper);
+int mriStepInnerStepper_GetAccumulatedError(MRIStepInnerStepper stepper,
+                                            sunrealtype* accum_error);
+int mriStepInnerStepper_ResetAccumulatedError(MRIStepInnerStepper stepper);
 int mriStepInnerStepper_SetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
                                   N_Vector tmpl);

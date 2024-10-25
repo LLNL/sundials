@@ -1708,7 +1708,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
-    retval              = mriStepInnerStepper_ResetError(step_mem->stepper);
+    retval              = mriStepInnerStepper_ResetAccumulatedError(step_mem->stepper);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -2168,7 +2168,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
-    retval              = mriStepInnerStepper_ResetError(step_mem->stepper);
+    retval              = mriStepInnerStepper_ResetAccumulatedError(step_mem->stepper);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -2634,7 +2634,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
-    retval              = mriStepInnerStepper_ResetError(step_mem->stepper);
+    retval              = mriStepInnerStepper_ResetAccumulatedError(step_mem->stepper);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -3348,8 +3348,8 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
     /* if the fast integrator uses adaptive steps, retrieve the error estimate */
     if (adapt_type == SUN_ADAPTCONTROLLER_MRI_H_TOL)
     {
-      retval = mriStepInnerStepper_GetError(step_mem->stepper,
-                                            &(step_mem->inner_dsm));
+      retval = mriStepInnerStepper_GetAccumulatedError(step_mem->stepper,
+                                                       &(step_mem->inner_dsm));
       if (retval != ARK_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
@@ -4436,8 +4436,8 @@ int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
 }
 
 /* Gets the inner (fast) stepper accumulated error */
-int mriStepInnerStepper_GetError(MRIStepInnerStepper stepper,
-                                 sunrealtype* accum_error)
+int mriStepInnerStepper_GetAccumulatedError(MRIStepInnerStepper stepper,
+                                            sunrealtype* accum_error)
 {
   if (stepper == NULL) { return ARK_ILL_INPUT; }
   if (stepper->ops == NULL) { return ARK_ILL_INPUT; }
@@ -4451,7 +4451,7 @@ int mriStepInnerStepper_GetError(MRIStepInnerStepper stepper,
 }
 
 /* Resets the inner (fast) stepper accumulated error */
-int mriStepInnerStepper_ResetError(MRIStepInnerStepper stepper)
+int mriStepInnerStepper_ResetAccumulatedError(MRIStepInnerStepper stepper)
 {
   if (stepper == NULL) { return ARK_ILL_INPUT; }
   if (stepper->ops == NULL) { return ARK_ILL_INPUT; }
