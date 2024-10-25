@@ -1811,8 +1811,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   if (step_mem->explicit_rhs)
   {
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                       "slow explicit RHS", "Fse_0(:) =", "")
-      N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
+                       "slow explicit RHS", "Fse_0(:) =", "");
+    N_VPrintFile(step_mem->Fse[0], ARK_LOGGER->debug_fp);
   }
   if (step_mem->implicit_rhs)
   {
