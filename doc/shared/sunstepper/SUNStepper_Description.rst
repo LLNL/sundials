@@ -302,7 +302,7 @@ abstract base class.
 .. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f)
 
    This type represents a function with the signature of
-   :c:func:`SUNStepper_FullRhsFn`.
+   :c:func:`SUNStepper_FullRhs`.
 
 
 .. c:type:: SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR, N_Vector vR)
