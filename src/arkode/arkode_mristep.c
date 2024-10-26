@@ -1707,7 +1707,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
-    retval              = mriStepInnerStepper_ResetAccumulatedError(step_mem->stepper);
+    retval = mriStepInnerStepper_ResetAccumulatedError(step_mem->stepper);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -2159,7 +2159,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
-    retval              = mriStepInnerStepper_ResetAccumulatedError(step_mem->stepper);
+    retval = mriStepInnerStepper_ResetAccumulatedError(step_mem->stepper);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -2625,7 +2625,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     need_inner_dsm      = SUNTRUE;
     step_mem->inner_dsm = ZERO;
-    retval              = mriStepInnerStepper_ResetAccumulatedError(step_mem->stepper);
+    retval = mriStepInnerStepper_ResetAccumulatedError(step_mem->stepper);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
