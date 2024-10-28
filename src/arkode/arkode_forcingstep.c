@@ -133,8 +133,7 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
   const int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  const SUNStepper s0 = step_mem->stepper[0];
-  SUNErrCode err      = s0->ops->fullrhs(s0, t, y, ark_mem->tempv1);
+  SUNErrCode err = SUNStepper_FullRhs(step_mem->stepper[0], t, y, ark_mem->tempv1);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -142,8 +141,7 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
     return ARK_RHSFUNC_FAIL;
   }
 
-  const SUNStepper s1 = step_mem->stepper[1];
-  err                 = s1->ops->fullrhs(s1, t, y, f);
+  err = SUNStepper_FullRhs(step_mem->stepper[1], t, y, f);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -179,7 +177,7 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_SetStopTime(s0, tout);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
-  err = SUNStepper_Evolve(s0, ark_mem->tn, tout, ark_mem->ycur, &tret);
+  err = SUNStepper_Evolve(s0, tout, ark_mem->ycur, &tret);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   step_mem->n_stepper_evolves[0]++;
 
@@ -202,7 +200,7 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   /* Evolve stepper 1 with the forcing */
-  err = SUNStepper_Evolve(s1, ark_mem->tn, tout, ark_mem->ycur, &tret);
+  err = SUNStepper_Evolve(s1, tout, ark_mem->ycur, &tret);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   step_mem->n_stepper_evolves[1]++;
 

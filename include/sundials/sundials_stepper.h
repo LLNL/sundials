@@ -28,13 +28,8 @@ typedef int (*SUNJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
 
 typedef _SUNDIALS_STRUCT_ SUNStepper_* SUNStepper;
 
-typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype t0,
-                                         sunrealtype tout, N_Vector vout,
-                                         sunrealtype* tret);
-
-typedef SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0,
-                                          sunrealtype tout, N_Vector vout,
-                                          sunrealtype* tret);
+typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout,
+                                         N_Vector vout, sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
                                           N_Vector v, N_Vector f);
@@ -53,6 +48,8 @@ typedef SUNErrCode (*SUNStepperSetForcingFn)(SUNStepper stepper,
                                              sunrealtype tscale,
                                              N_Vector* forcing, int nforcing);
 
+typedef SUNErrCode (*SUNStepperDestroyFn)(SUNStepper stepper);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper);
 
@@ -60,18 +57,21 @@ SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Destroy(SUNStepper* stepper);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,
-                             sunrealtype tout, N_Vector vout, sunrealtype* tret);
+SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout,
+                             N_Vector vout, sunrealtype* tret);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector vout, sunrealtype* tret);
+SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
+                              N_Vector f);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype stepdir);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift,
@@ -94,9 +94,6 @@ SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn);
 
 SUNDIALS_EXPORT
@@ -113,27 +110,8 @@ SUNErrCode SUNStepper_SetStepDirectionFn(SUNStepper stepper,
 SUNDIALS_EXPORT SUNErrCode SUNStepper_SetForcingFn(SUNStepper stepper,
                                                    SUNStepperSetForcingFn fn);
 
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,
-                             sunrealtype tout, N_Vector y, sunrealtype* tret);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype stepdir);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift,
-                                 sunrealtype tscale, N_Vector* forcing,
-                                 int nforcing);
+SUNDIALS_EXPORT SUNErrCode SUNStepper_SetDestroyFn(SUNStepper stepper,
+                                                   SUNStepperDestroyFn fn);
 
 #ifdef __cplusplus
 }
