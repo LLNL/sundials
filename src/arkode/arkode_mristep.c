@@ -3325,7 +3325,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
     return (ARK_INNERSTEP_FAIL);
   }
 
-  /* for normal stages with MRI adaptivity enabled, get an
+  /* for normal stages (i.e., not the embedding) with MRI adaptivity enabled, get an
      estimate for the fast time scale error */
   if (get_inner_dsm)
   {
