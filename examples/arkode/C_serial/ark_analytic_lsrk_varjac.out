@@ -1,4 +1,3 @@
-
 Analytical ODE test problem with a variable Jacobian:
 The stiffness of the problem is directly proportional to
 "lambda - alpha*cos((10 - t)/10*pi)"
@@ -34,8 +33,8 @@ Inequality constraint fails  = 0
 Initial step size            = 1.930101110942615e-10
 Last step size               = 0.02203090645841201
 Current step size            = 0.02203090645841201
-RHS fn evals                 = 150638
-Number of dom_eig updates    = 65
+RHS fn evals                 = 150640
+Number of dom_eig updates    = 68
 Max. num. of stages used     = 187
 Max. num. of stages allowed  = 200
 Max. spectral radius         = 1010099.739553962

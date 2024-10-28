@@ -47,14 +47,14 @@ typedef struct ARKodeLSRKStepMemRec
   ARKRhsFn fe;
   ARKDomEigFn dom_eig_fn;
 
-  N_Vector Fe; /* RHS vector storage */
-
   int q; /* method order               */
   int p; /* embedding order            */
 
   int req_stages; /* number of requested stages   */
 
   ARKODE_LSRKMethodType LSRKmethod;
+
+  sunrealtype tnext; /* time of the next step if this step is successful*/
 
   /* Counters and stats*/
   long int nfe;               /* num fe calls       */

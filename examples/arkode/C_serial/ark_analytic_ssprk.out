@@ -1,4 +1,3 @@
-
 Analytical ODE test problem:
     lambda = -10
    reltol = 1.0e-08
@@ -30,7 +29,7 @@ Inequality constraint fails  = 0
 Initial step size            = 1.930101110942615e-10
 Last step size               = 0.02305133855414821
 Current step size            = 0.02305133855414821
-RHS fn evals                 = 9433
+RHS fn evals                 = 9435
 Number of stages used        = 9
 
 ACCURACY at the final time = 1.69688e-09
