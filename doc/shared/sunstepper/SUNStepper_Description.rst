@@ -81,7 +81,9 @@ from an ARKODE integrator.
 
 .. c:function:: SUNErrCode SUNStepper_Destroy(SUNStepper *stepper)
 
-   This function destroys a :c:type:`SUNStepper` object.
+   This function frees memory allocated by the :c:type:`SUNStepper` base class
+   and uses the function pointer optionally specified with
+   :c:type:`SUNStepper_SetDestroyFn` to free the content.
 
    :param stepper: a pointer to a stepper object.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
@@ -284,6 +286,17 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
+.. c:function:: SUNErrCode SUNStepper_SetDestroyFn(SUNStepper stepper, SUNStepperDestroyFn fn)
+
+   This function attaches a :c:type:`SUNStepperDestroyFn` function to a
+   :c:type:`SUNStepper`. The provided function is responsible for freeing any
+   memory allocated for the :c:type:`SUNStepper` content.
+
+   :param stepper: a stepper object.
+   :param fn: the :c:type:`SUNStepperDestroyFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
 .. _SUNStepper.Description.ImplMethods:
 
 Implementation Specific Methods
@@ -322,3 +335,9 @@ abstract base class.
    This type represents a function with the signature of
    :c:func:`SUNStepper_SetForcing`.
 
+
+.. c:type:: SUNErrCode (*SUNStepperDestroyFn)(SUNStepper stepper)
+
+   This type represents a function with the signature similar to
+   :c:func:`SUNStepper_Destroy` for freeing the content associated with a
+   :c:type:`SUNStepper`.

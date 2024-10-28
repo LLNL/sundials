@@ -559,6 +559,7 @@ module fsundials_core_mod
  public :: FSUNStepper_SetResetFn
  public :: FSUNStepper_SetStopTimeFn
  public :: FSUNStepper_SetForcingFn
+ public :: FSUNStepper_SetDestroyFn
 
 ! WRAPPER DECLARATIONS
 interface
@@ -2201,6 +2202,15 @@ end function
 
 function swigc_FSUNStepper_SetForcingFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNStepper_SetForcingFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNStepper_SetDestroyFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNStepper_SetDestroyFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -5223,6 +5233,22 @@ type(C_FUNPTR) :: farg2
 farg1 = stepper
 farg2 = fn
 fresult = swigc_FSUNStepper_SetForcingFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNStepper_SetDestroyFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FSUNStepper_SetDestroyFn(farg1, farg2)
 swig_result = fresult
 end function
 

@@ -50,7 +50,9 @@ SUNErrCode SUNStepper_Destroy(SUNStepper* stepper_ptr)
 {
   if (stepper_ptr != NULL)
   {
-    free((*stepper_ptr)->ops);
+    const SUNStepper_Ops ops = (*stepper_ptr)->ops;
+    if (ops && ops->destroy) { ops->destroy(*stepper_ptr); }
+    free(ops);
     free(*stepper_ptr);
     *stepper_ptr = NULL;
   }

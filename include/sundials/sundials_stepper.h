@@ -45,6 +45,8 @@ typedef SUNErrCode (*SUNStepperSetForcingFn)(SUNStepper stepper,
                                              sunrealtype tscale,
                                              N_Vector* forcing, int nforcing);
 
+typedef SUNErrCode (*SUNStepperDestroyFn)(SUNStepper stepper);
+
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper);
 
@@ -97,6 +99,9 @@ SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper,
 
 SUNDIALS_EXPORT SUNErrCode SUNStepper_SetForcingFn(SUNStepper stepper,
                                                    SUNStepperSetForcingFn fn);
+
+SUNDIALS_EXPORT SUNErrCode SUNStepper_SetDestroyFn(SUNStepper stepper,
+                                                   SUNStepperDestroyFn fn);
 
 #ifdef __cplusplus
 }

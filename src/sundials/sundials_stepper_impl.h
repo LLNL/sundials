@@ -20,16 +20,15 @@
 extern "C" {
 #endif
 
-typedef struct SUNStepper_Ops_* SUNStepper_Ops;
-
-struct SUNStepper_Ops_
+typedef struct
 {
   SUNStepperEvolveFn evolve;
   SUNStepperFullRhsFn fullrhs;
   SUNStepperResetFn reset;
   SUNStepperSetStopTimeFn setstoptime;
   SUNStepperSetForcingFn setforcing;
-};
+  SUNStepperDestroyFn destroy;
+}* SUNStepper_Ops;
 
 struct SUNStepper_
 {
