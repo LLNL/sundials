@@ -542,7 +542,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   /* Compute forcing function, if necessary. */
   if ((!ark_mem->fn_is_current && ark_mem->initsetup) ||
-      (ark_mem->tn != step_mem->tnext))
+      (step_mem->step_nst != ark_mem->nst))
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -551,8 +551,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
   }
 
-  /* Track the upcoming time level to determine whether the previous step has failed. */
-  step_mem->tnext = ark_mem->tn + ark_mem->h;
+  /* Track the number of successful steps to determine if the previous step failed. */
+  step_mem->step_nst = ark_mem->nst + 1;
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -826,7 +826,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   /* Compute forcing function, if necessary. */
   if ((!ark_mem->fn_is_current && ark_mem->initsetup) ||
-      (ark_mem->tn != step_mem->tnext))
+      (step_mem->step_nst != ark_mem->nst))
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -835,8 +835,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
   }
 
-  /* Track the upcoming time level to determine whether the previous step has failed. */
-  step_mem->tnext = ark_mem->tn + ark_mem->h;
+  /* Track the number of successful steps to determine if the previous step failed. */
+  step_mem->step_nst = ark_mem->nst + 1;
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,

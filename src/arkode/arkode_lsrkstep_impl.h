@@ -54,14 +54,13 @@ typedef struct ARKodeLSRKStepMemRec
 
   ARKODE_LSRKMethodType LSRKmethod;
 
-  sunrealtype tnext; /* time of the next step if this step is successful*/
-
   /* Counters and stats*/
   long int nfe;               /* num fe calls       */
   long int dom_eig_num_evals; /* num of dom_eig computations   */
   int stage_max;              /* num of max stages used      */
   int stage_max_limit;        /* max allowed num of stages     */
   long int dom_eig_nst; /* num of step at which the last domainant eigenvalue was computed  */
+  long int step_nst; /* The number of successful steps. */
 
   /* Spectral info */
   sunrealtype lambdaR;         /* Real part of the dominated eigenvalue*/

@@ -54,7 +54,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
-    step_mem->tnext                      = ZERO;
+    step_mem->step_nst                   = 0;
     break;
   case ARKODE_LSRK_RKL_2:
     ark_mem->step          = lsrkStep_TakeStepRKL;
@@ -62,7 +62,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
-    step_mem->tnext                      = ZERO;
+    step_mem->step_nst                   = 0;
     break;
   case ARKODE_LSRK_SSP_S_2:
     ark_mem->step          = lsrkStep_TakeStepSSPs2;
@@ -620,6 +620,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
     fprintf(fp, "  Maximum number of stages used = %i\n", step_mem->stage_max);
     fprintf(fp, "  Num of step when the last dom eig call happened= %li\n",
             step_mem->dom_eig_nst);
+    fprintf(fp, "  Num of successful steps = %li\n", step_mem->step_nst);
     fprintf(fp, "  Current real part of the dom eig = %" RSYM "\n",
             step_mem->lambdaR);
     fprintf(fp, "  Current imag part of the dom eig = %" RSYM "\n",
