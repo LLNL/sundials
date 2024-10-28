@@ -185,13 +185,25 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       if((SUNDIALS_ADD_TEST_MPI_NPROCS) AND ((MPIEXEC_EXECUTABLE)
                                              OR (SUNDIALS_TEST_MPIRUN_COMMAND)))
         if(SUNDIALS_TEST_MPIRUN_COMMAND)
-          set(RUN_COMMAND
-              "${SUNDIALS_TEST_MPIRUN_COMMAND} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
-          )
+          if(MPIEXEC_PREFLAGS)
+            set(RUN_COMMAND
+                "${SUNDIALS_TEST_MPIRUN_COMMAND} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
+            )
+          else()
+            set(RUN_COMMAND
+                "${SUNDIALS_TEST_MPIRUN_COMMAND} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
+            )
+          endif()
         elseif(MPIEXEC_EXECUTABLE)
-          set(RUN_COMMAND
-              "${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
-          )
+          if(MPIEXEC_PREFLAGS)
+            set(RUN_COMMAND
+                "${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
+            )
+          else()
+            set(RUN_COMMAND
+                "${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
+            )
+          endif()
         endif()
 
         # remove trailing white space (empty MPIEXEC_PREFLAGS) as it can cause
