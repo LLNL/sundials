@@ -306,7 +306,7 @@ This section describes the virtual methods defined by the :c:type:`SUNStepper`
 abstract base class.
 
 
-.. c:type:: SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
+.. c:type:: SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_Evolve`.
