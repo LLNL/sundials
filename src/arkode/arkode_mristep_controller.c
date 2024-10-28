@@ -97,9 +97,9 @@ SUNErrCode SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C,
 
   /* Estimate slow stepsize from MRI controller */
   return SUNAdaptController_EstimateStepTol(MRICONTROL_C(C), H,
-                                            step_mem->inner_control, P, DSM,
+                                            step_mem->inner_rtol_factor, P, DSM,
                                             step_mem->inner_dsm, Hnew,
-                                            &(step_mem->inner_control_new));
+                                            &(step_mem->inner_rtol_factor_new));
 }
 
 SUNErrCode SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C,
@@ -112,12 +112,12 @@ SUNErrCode SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C,
 
   /* Update MRI controller */
   SUNErrCode retval = SUNAdaptController_UpdateMRITol(MRICONTROL_C(C), H,
-                                                      step_mem->inner_control,
+                                                      step_mem->inner_rtol_factor,
                                                       DSM, step_mem->inner_dsm);
   if (retval != SUN_SUCCESS) { return (retval); }
 
   /* Update inner controller parameter to most-recent prediction */
-  step_mem->inner_control = step_mem->inner_control_new;
+  step_mem->inner_rtol_factor = step_mem->inner_rtol_factor_new;
 
   /* return with success*/
   return SUN_SUCCESS;

@@ -221,9 +221,9 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   step_mem->Xvecs = NULL;
 
   /* Initialize adaptivity parameters */
-  step_mem->inner_control     = ONE;
+  step_mem->inner_rtol_factor = ONE;
   step_mem->inner_dsm         = ONE;
-  step_mem->inner_control_new = ONE;
+  step_mem->inner_rtol_factor_new = ONE;
 
   /* Initialize pre and post inner evolve functions */
   step_mem->pre_inner_evolve  = NULL;
@@ -1308,7 +1308,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     }
 
     /* initialize fast stepper to use the same relative tolerance as MRIStep */
-    step_mem->inner_control = ONE;
+    step_mem->inner_rtol_factor = ONE;
   }
 
   return (ARK_SUCCESS);
@@ -1715,7 +1715,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     }
     retval =
       mriStepInnerStepper_SetRTol(step_mem->stepper,
-                                  step_mem->inner_control * ark_mem->reltol);
+                                  step_mem->inner_rtol_factor * ark_mem->reltol);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -2181,7 +2181,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
     retval =
       mriStepInnerStepper_SetRTol(step_mem->stepper,
-                                  step_mem->inner_control * ark_mem->reltol);
+                                  step_mem->inner_rtol_factor * ark_mem->reltol);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -2651,7 +2651,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
     retval =
       mriStepInnerStepper_SetRTol(step_mem->stepper,
-                                  step_mem->inner_control * ark_mem->reltol);
+                                  step_mem->inner_rtol_factor * ark_mem->reltol);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
