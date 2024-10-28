@@ -302,31 +302,51 @@ static int test_resize(const sundials::Context& ctx)
 
 /* Creates a custom SUNStepper for the linear, scalar ODE y' = lambda*y */
 static SUNStepper create_exp_stepper(const sundials::Context& ctx,
-                                     const sunrealtype& lambda)
+                                     const sunrealtype& lam, const N_Vector tmpl)
 {
   SUNStepper stepper = nullptr;
   SUNStepper_Create(ctx, &stepper);
-  SUNStepper_SetContent(stepper,
-                        static_cast<void*>(const_cast<sunrealtype*>(&lambda)));
+
+  struct Content {
+    const sunrealtype lambda;
+    sunrealtype t;
+    const N_Vector v;
+
+    static Content &from_stepper(SUNStepper s) {
+      void *content = nullptr;
+      SUNStepper_GetContent(s, &content);
+      return *static_cast<Content*>(content);
+    }
+  };
+
+  SUNStepper_SetContent(stepper, new Content{lam, 0, N_VClone(tmpl)});
+  SUNStepper_SetResetFn(stepper, [](SUNStepper s, const sunrealtype tR, const N_Vector vR) {
+    auto &content = Content::from_stepper(s);
+    content.t = tR;
+    N_VScale(1, vR, content.v);
+    return 0;
+  });
 
   const auto empty_func = [](auto...) { return 0; };
-  SUNStepper_SetResetFn(stepper, empty_func);
   SUNStepper_SetStopTimeFn(stepper, empty_func);
   SUNStepper_SetStepDirectionFn(stepper, empty_func);
   SUNStepper_SetFullRhsFn(stepper, empty_func);
 
-  const auto evolve = [](const SUNStepper s, const sunrealtype t0,
-                         const sunrealtype tout, const N_Vector y,
+  const auto evolve = [](const SUNStepper s,
+                         const sunrealtype tout, const N_Vector vret,
                          sunrealtype* const tret)
   {
-    void* content = nullptr;
-    SUNStepper_GetContent(s, &content);
-    const auto lam = *static_cast<sunrealtype*>(content);
-    N_VScale(std::exp(lam * (tout - t0)), y, y);
-    // *tret = tout;
+    const auto &content = Content::from_stepper(s);
+    N_VScale(std::exp(content.lambda * (tout - content.t)), content.v, vret);
+    *tret = tout;
     return 0;
   };
   SUNStepper_SetEvolveFn(stepper, evolve);
+
+  SUNStepper_SetDestroyFn(stepper, [](SUNStepper stepper) {
+    delete &Content::from_stepper(stepper);
+    return 0;
+  });
   return stepper;
 }
 
@@ -348,8 +368,8 @@ static int test_custom_stepper(const sundials::Context& ctx)
   const auto y           = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
-  SUNStepper steppers[] = {create_exp_stepper(ctx, lambda1),
-                           create_exp_stepper(ctx, lambda2)};
+  SUNStepper steppers[] = {create_exp_stepper(ctx, lambda1, y),
+                           create_exp_stepper(ctx, lambda2, y)};
 
   auto arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
