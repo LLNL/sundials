@@ -214,7 +214,9 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       if(MPIEXEC_POSTFLAGS)
         set(_run_args "${MPIEXEC_POSTFLAGS} ${_run_args}")
       endif()
-      if(_have_test_args OR _have_extra_test_args OR MPIEXEC_POSTFLAGS)
+      if(_have_test_args
+         OR _have_extra_test_args
+         OR MPIEXEC_POSTFLAGS)
         string(STRIP "${_run_args}" _run_args)
         list(APPEND TEST_ARGS "--runargs=\"${_run_args}\"")
         unset(_run_args)
@@ -252,8 +254,8 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
             NAME ${NAME}
             COMMAND
               ${MPI_EXEC_ARGS} ${PREFLAGS} ${MPIEXEC_NUMPROC_FLAG}
-              ${SUNDIALS_ADD_TEST_MPI_NPROCS}
-              $<TARGET_FILE:${EXECUTABLE}> ${POSTFLAGS} ${TEST_ARGS})
+              ${SUNDIALS_ADD_TEST_MPI_NPROCS} $<TARGET_FILE:${EXECUTABLE}>
+              ${POSTFLAGS} ${TEST_ARGS})
         else()
           add_test(
             NAME ${NAME}
