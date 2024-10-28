@@ -220,8 +220,8 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   step_mem->Xvecs = NULL;
 
   /* Initialize adaptivity parameters */
-  step_mem->inner_rtol_factor = ONE;
-  step_mem->inner_dsm         = ONE;
+  step_mem->inner_rtol_factor     = ONE;
+  step_mem->inner_dsm             = ONE;
   step_mem->inner_rtol_factor_new = ONE;
 
   /* Initialize pre and post inner evolve functions */
@@ -1714,9 +1714,9 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                       "Unable to reset the inner stepper error estimate");
       return (ARK_INNERSTEP_FAIL);
     }
-    retval =
-      mriStepInnerStepper_SetRTol(step_mem->stepper,
-                                  step_mem->inner_rtol_factor * ark_mem->reltol);
+    retval = mriStepInnerStepper_SetRTol(step_mem->stepper,
+                                         step_mem->inner_rtol_factor *
+                                           ark_mem->reltol);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -2167,9 +2167,9 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                       "Unable to reset the inner stepper error estimate");
       return (ARK_INNERSTEP_FAIL);
     }
-    retval =
-      mriStepInnerStepper_SetRTol(step_mem->stepper,
-                                  step_mem->inner_rtol_factor * ark_mem->reltol);
+    retval = mriStepInnerStepper_SetRTol(step_mem->stepper,
+                                         step_mem->inner_rtol_factor *
+                                           ark_mem->reltol);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
@@ -2628,9 +2628,9 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                       "Unable to reset the inner stepper error estimate");
       return (ARK_INNERSTEP_FAIL);
     }
-    retval =
-      mriStepInnerStepper_SetRTol(step_mem->stepper,
-                                  step_mem->inner_rtol_factor * ark_mem->reltol);
+    retval = mriStepInnerStepper_SetRTol(step_mem->stepper,
+                                         step_mem->inner_rtol_factor *
+                                           ark_mem->reltol);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
