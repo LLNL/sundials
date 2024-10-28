@@ -143,6 +143,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setmaxnonliniters         = arkStep_SetMaxNonlinIters;
   ark_mem->step_setnonlinconvcoef         = arkStep_SetNonlinConvCoef;
   ark_mem->step_setstagepredictfn         = arkStep_SetStagePredictFn;
+  ark_mem->step_getnumrhsevals            = arkStep_GetNumRhsEvals;
   ark_mem->step_getnumlinsolvsetups       = arkStep_GetNumLinSolvSetups;
   ark_mem->step_getcurrentgamma           = arkStep_GetCurrentGamma;
   ark_mem->step_getestlocalerrors         = arkStep_GetEstLocalErrors;
@@ -155,7 +156,6 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_supports_implicit         = SUNTRUE;
   ark_mem->step_supports_massmatrix       = SUNTRUE;
   ark_mem->step_supports_relaxation       = SUNTRUE;
-  ark_mem->step_supports_forcing          = SUNTRUE;
   ark_mem->step_mem                       = (void*)step_mem;
 
   /* Set default values for optional inputs */

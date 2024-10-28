@@ -12,31 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNStepper:
-
-#####################################
-Stepper Data Structure
-#####################################
-
-This section presents the :c:type:`SUNStepper` base class which represents a
-generic solution procedure for IVPs of the form
-
-.. math::
-   \dot{v}(t) = f(t, v) + r(t), \qquad v(t_0) = v_0,
-   :label: SUNStepper_IVP
-
-on an interval :math:`t \in [t_0, t_f]`. The time dependent forcing term,
-:math:`r_i(t)`, is given by
-
-.. math::
-   r(t) = \sum_{k = 0}^{n_{\text{forcing}}}
-   \frac{t - t_{\text{shift}}}{t_{\text{scale}}} \widehat{f}_k.
-   :label: SUNStepper_forcing
-
-:c:type:`SUNStepper` provides an abstraction over SUNDIALS integrators, custom
-integrators, exact solution procedures, or other approaches for solving
-:eq:`SUNStepper_IVP`. These are used, for example, in operator splitting and
-forcing methods to solve inner IVPs in a flexible way.
+.. include:: ../../../shared/sunstepper/SUNStepper_Structure.rst
 
 .. toctree::
    :maxdepth: 1

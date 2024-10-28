@@ -28,13 +28,8 @@ typedef int (*SUNJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
 
 typedef _SUNDIALS_STRUCT_ SUNStepper_* SUNStepper;
 
-typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype t0,
-                                         sunrealtype tout, N_Vector vout,
-                                         sunrealtype* tret);
-
-typedef SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0,
-                                          sunrealtype tout, N_Vector vout,
-                                          sunrealtype* tret);
+typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout,
+                                         N_Vector vout, sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
                                           N_Vector v, N_Vector f);
@@ -57,12 +52,12 @@ SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Destroy(SUNStepper* stepper);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,
-                             sunrealtype tout, N_Vector vout, sunrealtype* tret);
+SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout,
+                             N_Vector vout, sunrealtype* tret);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector vout, sunrealtype* tret);
+SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
+                              N_Vector f);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR,
@@ -90,9 +85,6 @@ SUNErrCode SUNStepper_GetLastFlag(SUNStepper stepper, int* last_flag);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn);

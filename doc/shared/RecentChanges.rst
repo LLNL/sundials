@@ -15,6 +15,20 @@ can be created from an ARKODE memory block with the new function
 :c:type:`MRIStepInnerStepper`, the function
 :c:func:`MRIStepInnerStepper_CreateFromSUNStepper` was added.
 
+The following DIRK schemes now have coefficients accurate to quad precision:
+
+* ``ARKODE_BILLINGTON_3_3_2``
+
+* ``ARKODE_KVAERNO_4_2_3``
+
+* ``ARKODE_CASH_5_2_4``
+
+* ``ARKODE_CASH_5_3_4``
+
+* ``ARKODE_KVAERNO_5_3_4``
+
+* ``ARKODE_KVAERNO_7_4_5``
+
 The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
 ``70`` and is now determined automatically by CMake. The previous default was
 only valid for Volta GPUs while the automatically selected value will vary
@@ -56,3 +70,7 @@ Fixed a CMake configuration issue related to aliasing an ``ALIAS`` target when
 using ``ENABLE_KLU=ON`` in combination with a static-only build of SuiteSparse.
 
 **Deprecation Notices**
+
+The ARKODE stepper specific functions to retrieve the number of right-hand side
+function evaluations have been deprecated. Use :c:func:`ARKodeGetNumRhsEvals`
+instead.

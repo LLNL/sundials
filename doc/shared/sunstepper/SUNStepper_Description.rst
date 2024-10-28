@@ -22,7 +22,7 @@ The SUNStepper API
 
 As with other SUNDIALS classes, the :c:type:`SUNStepper` abstract base class is
 implemented using a C structure containing a ``content`` pointer to the derived
-class member data and a structure of function pointers the derived class
+class member data and a structure of function pointers to the derived class
 implementations of the virtual methods.
 
 .. c:type:: SUNStepper
@@ -70,7 +70,7 @@ from an ARKODE integrator.
 
       /* create an instance of the base class */
       SUNStepper stepper = NULL;
-      SUNErrCode err = SUNStepper_Create(&stepper);
+      SUNErrCode err = SUNStepper_Create(sunctx, &stepper);
 
    .. note::
 
@@ -98,29 +98,29 @@ from an ARKODE integrator.
 Stepping Functions
 ^^^^^^^^^^^^^^^^^^
 
-.. c:function:: SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector vout, sunrealtype* tret)
+.. c:function:: SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
 
-   This function evolves the ODE :eq:`SUNStepper_IVP` from time *t0* to time
-   *tout* and stores the solution in *vout*.
+   This function evolves the ODE :eq:`SUNStepper_IVP` towards the time ``tout``
+   and stores the solution at time ``tret`` in ``vret``.
 
    :param stepper: the stepper object.
-   :param t0: the initial time for the integration.
-   :param tout: the final time for the integration.
-   :param vout: on output, the state at time *tout*.
-   :param tret: the final time corresponding to the output value *vout*.
+   :param tout: the time to evolve towards.
+   :param vret: on output, the state at time ``tret``.
+   :param tret: the time corresponding to the output value ``vret``.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector vout, sunrealtype* tret)
+.. c:function:: SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f)
 
-   This function takes a single internal step starting at *t0* towards *tout*
-   and stores the next step solution in *vout*.
+   This function computes the full right-hand side function of the ODE,
+   :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value of the
+   independent variable ``t`` and state vector ``v``.
 
    :param stepper: the stepper object.
-   :param t0: the initial time for the integration.
-   :param tout: the final time for the integration.
-   :param vout: on output, the state after a single internal step.
-   :param tret: the final time corresponding to the output value *vout*.
+   :param t: the current value of the independent variable.
+   :param v: the current value of the dependent variable vector.
+   :param f: the output vector for the ODE right-hand side,
+      :math:`f(t, v) + r(t)`, in :eq:`SUNStepper_IVP`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
@@ -205,7 +205,7 @@ function to get and set a separate flag associated with a stepper.
 
 .. c:function:: SUNErrCode SUNStepper_SetLastFlag(SUNStepper stepper, int last_flag)
 
-   This function sets a flag than can be used by sunstepper implementations to
+   This function sets a flag that can be used by :c:type:`SUNStepper` implementations to
    indicate warnings or errors that occurred during an operation, e.g.,
    :c:func:`SUNStepper_Evolve`.
 
@@ -215,7 +215,7 @@ function to get and set a separate flag associated with a stepper.
 
 .. c:function:: SUNErrCode SUNStepper_GetLastFlag(SUNStepper stepper, int *last_flag)
 
-   This function provides the last value of the flag used by the sunstepper
+   This function provides the last value of the flag used by the :c:type:`SUNStepper`
    implementation to indicate warnings or errors that occurred during an
    operation, e.g., :c:func:`SUNStepper_Evolve`.
 
@@ -241,16 +241,6 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
 
    :param stepper: a stepper object.
    :param fn: the :c:type:`SUNStepperEvolveFn` function to attach.
-   :return: A :c:type:`SUNErrCode` indicating success or failure.
-
-
-.. c:function:: SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn)
-
-   This function attaches a :c:type:`SUNStepperOneStepFn` function to a
-   :c:type:`SUNStepper` object.
-
-   :param stepper: a stepper object.
-   :param fn: the :c:type:`SUNStepperOneStepFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
@@ -303,30 +293,16 @@ This section describes the virtual methods defined by the :c:type:`SUNStepper`
 abstract base class.
 
 
-.. c:type:: SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
+.. c:type:: SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_Evolve`.
 
 
-.. c:type:: SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype t0, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
+.. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f)
 
    This type represents a function with the signature of
-   :c:func:`SUNStepper_OneStep`.
-
-
-.. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, int mode)
-
-   This type represents a function to compute the full right-hand side function
-   of the ODE, :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value
-   of the independent variable *t* and state vector *v*.
-
-   :param stepper: the stepper object.
-   :param t: the current value of the independent variable.
-   :param v: the current value of the dependent variable vector.
-   :param f: the output vector for the ODE right-hand side, :math:`f(t, v)`,
-      in :eq:`SUNStepper_IVP`.
-   :return: A :c:type:`SUNErrCode` indicating success or failure.
+   :c:func:`SUNStepper_FullRhs`.
 
 
 .. c:type:: SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR, N_Vector vR)

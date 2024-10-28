@@ -134,6 +134,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ark_mem->step_setmaxnonliniters         = mriStep_SetMaxNonlinIters;
   ark_mem->step_setnonlinconvcoef         = mriStep_SetNonlinConvCoef;
   ark_mem->step_setstagepredictfn         = mriStep_SetStagePredictFn;
+  ark_mem->step_getnumrhsevals            = mriStep_GetNumRhsEvals;
   ark_mem->step_getnumlinsolvsetups       = mriStep_GetNumLinSolvSetups;
   ark_mem->step_getcurrentgamma           = mriStep_GetCurrentGamma;
   ark_mem->step_getnonlinearsystemdata    = mriStep_GetNonlinearSystemData;
@@ -2853,8 +2854,8 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
 }
 
 int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
-                                         sunrealtype t0, sunrealtype tout,
-                                         N_Vector y)
+                                         SUNDIALS_MAYBE_UNUSED sunrealtype t0,
+                                         sunrealtype tout, N_Vector y)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
   sunrealtype tret;
@@ -2866,7 +2867,7 @@ int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
     return ARK_SUNSTEPPER_ERR;
   }
 
-  err                = sunstepper->ops->evolve(sunstepper, t0, tout, y, &tret);
+  err                = sunstepper->ops->evolve(sunstepper, tout, y, &tret);
   stepper->last_flag = sunstepper->last_flag;
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 

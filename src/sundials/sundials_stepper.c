@@ -1,4 +1,14 @@
-
+/* -----------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +36,6 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
   SUNAssert(stepper->ops, SUN_ERR_MALLOC_FAIL);
 
   stepper->ops->evolve      = NULL;
-  stepper->ops->onestep     = NULL;
   stepper->ops->fullrhs     = NULL;
   stepper->ops->reset       = NULL;
   stepper->ops->setstoptime = NULL;
@@ -49,25 +58,22 @@ SUNErrCode SUNStepper_Destroy(SUNStepper* stepper_ptr)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype t0,
-                             sunrealtype tout, N_Vector y, sunrealtype* tret)
+SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout, N_Vector y,
+                             sunrealtype* tret)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->evolve)
   {
-    return stepper->ops->evolve(stepper, t0, tout, y, tret);
+    return stepper->ops->evolve(stepper, tout, y, tret);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype t0,
-                              sunrealtype tout, N_Vector y, sunrealtype* tret)
+SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
+                              N_Vector f)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->onestep)
-  {
-    return stepper->ops->onestep(stepper, t0, tout, y, tret);
-  }
+  if (stepper->ops->fullrhs) { return stepper->ops->fullrhs(stepper, t, v, f); }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
@@ -136,13 +142,6 @@ SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
   stepper->ops->evolve = fn;
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn)
-{
-  SUNFunctionBegin(stepper->sunctx);
-  stepper->ops->onestep = fn;
   return SUN_SUCCESS;
 }
 

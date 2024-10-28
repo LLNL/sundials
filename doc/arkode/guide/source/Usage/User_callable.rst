@@ -3194,6 +3194,7 @@ Name of constant associated with a return flag         :c:func:`ARKodeGetReturnF
 No. of explicit stability-limited steps                :c:func:`ARKodeGetNumExpSteps`
 No. of accuracy-limited steps                          :c:func:`ARKodeGetNumAccSteps`
 No. of attempted steps                                 :c:func:`ARKodeGetNumStepAttempts`
+No. of RHS evaluations                                 :c:func:`ARKodeGetNumRhsEvals`
 No. of local error test failures that have occurred    :c:func:`ARKodeGetNumErrTestFails`
 No. of failed steps due to a nonlinear solver failure  :c:func:`ARKodeGetNumStepSolveFails`
 Estimated local truncation error vector                :c:func:`ARKodeGetEstLocalErrors`
@@ -3497,6 +3498,39 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
    .. versionadded:: 6.1.0
+
+
+.. c:function:: int ARKodeGetNumRhsEvals(void* arkode_mem, int partition_index, long int* num_rhs_evals)
+
+   Returns the number of calls to the user's right-hand side function (so far).
+   For implicit methods or methods with an implicit partition, the count does
+   not include calls made by a linear solver or preconditioner.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param num_partition: the right-hand side partition index:
+
+                   * For ERKStep, ``0`` corresponds to :math:`f(t,y)`
+
+                   * For ARKStep, ``0`` corresponds to :math:`f^E(t,y)` and
+                     ``1`` to :math:`f^I(t,y)`
+
+                   * For MRIStep, ``0`` corresponds to :math:`f^E(t,y)` and
+                     ``1`` to :math:`f^I(t,y)`
+
+                   * For SPRKStep, ``0`` corresponds to :math:`f_1(t,p)` and
+                     ``1`` to :math:`f_2(t,q)`
+
+                   A negative index will return the sum of the evaluations for
+                   each partition.
+
+   :param num_rhs_evals: the number of right-hand side evaluations.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: if ``arkode_mem`` was ``NULL``.
+   :retval ARK_ILL_INPUT: if ``num_partiton`` was invalid for the stepper or
+                          ``num_rhs_evals`` was ``NULL``
+
+   .. versionadded:: x.y.z
 
 
 .. c:function:: int ARKodeGetNumErrTestFails(void* arkode_mem, long int* netfails)
