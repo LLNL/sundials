@@ -14,7 +14,7 @@ variables:
 
 # Dane
 # Arguments for top level allocation
-  DANE_SHARED_ALLOC: "--exclusive --partition=pdebug --time=60 --nodes=1"
+  DANE_SHARED_ALLOC: "--exclusive --reservation=ci --time=60 --nodes=1"
 # Arguments for job level allocation
   DANE_JOB_ALLOC: "--time=55 --nodes=1 --overlap"
 # Add variables that should apply to all the jobs on a machine:
@@ -22,7 +22,7 @@ variables:
 
 # Tioga
 # Arguments for top level allocation
-  TIOGA_SHARED_ALLOC: "--exclusive --time-limit=60m --nodes=1"
+  TIOGA_SHARED_ALLOC: "--exclusive --queue pci --time-limit=60m --nodes=1"
 # Arguments for job level allocation
   TIOGA_JOB_ALLOC: "--time-limit=55m --nodes=1"
 # Add variables that should apply to all the jobs on a machine:
