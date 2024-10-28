@@ -179,8 +179,8 @@ int main(void)
   if (check_flag(&flag, "LSRKStepSetDomEigSafetyFactor", 1)) { return 1; }
 
   /* Specify the Runge--Kutta--Chebyshev LSRK method by name */
-  flag = LSRKStepSetMethodByName(arkode_mem, "ARKODE_LSRK_RKC_2");
-  if (check_flag(&flag, "LSRKStepSetMethodByName", 1)) { return 1; }
+  flag = LSRKStepSetSTSMethodByName(arkode_mem, "ARKODE_LSRK_RKC_2");
+  if (check_flag(&flag, "LSRKStepSetSTSMethodByName", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");

@@ -45,7 +45,8 @@ module farkode_lsrkstep_mod
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
  end type
- public :: FLSRKStepSetMethodByName
+ public :: FLSRKStepSetSTSMethodByName
+ public :: FLSRKStepSetSSPMethodByName
  public :: FLSRKStepSetDomEigFn
  public :: FLSRKStepSetDomEigFrequency
  public :: FLSRKStepSetMaxNumStages

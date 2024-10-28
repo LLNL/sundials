@@ -106,8 +106,8 @@ int main(int argc, char* argv[])
     if (check_ptr(arkode_mem, "LSRKStepCreateSSP")) { return 1; }
 
     // Select SSPRK method type
-    flag = LSRKStepSetMethodByName(arkode_mem, uopts.integrator.c_str());
-    if (check_flag(flag, "LSRKStepSetMethodByName")) { return 1; }
+    flag = LSRKStepSetSSPMethodByName(arkode_mem, uopts.integrator.c_str());
+    if (check_flag(flag, "LSRKStepSetSSPMethodByName")) { return 1; }
 
     // Select number of SSPRK stages
     if (uopts.stages > 0)

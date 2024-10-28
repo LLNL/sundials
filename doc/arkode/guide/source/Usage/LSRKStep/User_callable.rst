@@ -83,9 +83,9 @@ Optional input functions
 -------------------------
 
 
-.. c:function:: int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
+.. c:function:: int LSRKStepSetSTSMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
 
-   This function selects the LSRK method that should be used.  The list of allowable 
+   This function selects the LSRK STS method that should be used.  The list of allowable 
    values for this input is below.
 
    **Arguments:**
@@ -96,7 +96,25 @@ Optional input functions
       * *ARK_SUCCESS* if successful
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method type).
 
-   .. note:: If this routine is not called, then LSRKStep will use the Runge--Kutta--Chebyshev method by default.
+   .. note:: If one of these set method routines is not called, then LSRKStep will use the 
+      :c:enumerator:`ARKODE_LSRK_RKC_2` by default.
+
+
+.. c:function:: int LSRKStepSetSSPMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
+
+   This function selects the LSRK SSP method that should be used.  The list of allowable 
+   values for this input is below.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *method* -- Type of the method.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method type).
+
+   .. note:: If one of these set method routines is not called, then LSRKStep will use the 
+      :c:enumerator:`ARKODE_LSRK_SSP_S_2` by default.
 
 
 Allowable Method Families
@@ -124,9 +142,9 @@ Allowable Method Families
       Fourth order, 10-stage SSP(10,4) method
       
 
-.. c:function:: int LSRKStepSetMethodByName(void* arkode_mem, const char* emethod);
+.. c:function:: int LSRKStepSetSTSMethodByName(void* arkode_mem, const char* emethod);
 
-   This function selects the LSRK method by name.  The list of allowable values for this input is below.
+   This function selects the LSRK STS method by name.  The list of allowable values for this input is above.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -137,7 +155,23 @@ Allowable Method Families
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method type).
 
    .. note:: If one of these set method routines is not called, then LSRKStep will use the 
-      Runge--Kutta--Chebyshev method by default.
+      :c:enumerator:`ARKODE_LSRK_RKC_2` by default.
+
+
+.. c:function:: int LSRKStepSetSSPMethodByName(void* arkode_mem, const char* emethod);
+
+   This function selects the LSRK SSP method by name.  The list of allowable values for this input is above.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the LSRKStep memory block.
+      * *emethod* -- Type of the method in strings.
+
+   **Return value:**
+      * *ARK_SUCCESS* if successful
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method type).
+
+   .. note:: If one of these set method routines is not called, then LSRKStep will use the 
+      :c:enumerator:`ARKODE_LSRK_SSP_S_2` by default.
 
 
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
@@ -214,7 +248,7 @@ Allowable Method Families
 .. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
 
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods. Thus, 
-   this set routine must be called after calling :c:func:`LSRKStepSetMethod` with an SSPRK method.
+   this set routine must be called after calling :c:func:`LSRKStepSetSSPMethod` with an SSPRK method.
    
    * :c:enumerator:`ARKODE_LSRK_SSP_S_2`  -- ``num_of_stages`` must be greater than or equal to 2
    * :c:enumerator:`ARKODE_LSRK_SSP_S_3`  -- ``num_of_stages`` must be a perfect-square greater than or equal to 4

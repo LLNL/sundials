@@ -129,8 +129,8 @@ int main(void)
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   /* Specify the SSP(s,3) LSRK method */
-  flag = LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_3);
-  if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
+  flag = LSRKStepSetSSPMethod(arkode_mem, ARKODE_LSRK_SSP_S_3);
+  if (check_flag(&flag, "LSRKStepSetSSPMethod", 1)) { return 1; }
 
   /* Specify the SSP number of stages */
   flag = LSRKStepSetSSPStageNum(arkode_mem, 9);

@@ -302,7 +302,7 @@ SWIGEXPORT int _wrap_FLSRKStepReInitSSP(void *farg1, ARKRhsFn farg2, double cons
 }
 
 
-SWIGEXPORT int _wrap_FLSRKStepSetMethod(void *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FLSRKStepSetSTSMethod(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   ARKODE_LSRKMethodType arg2 ;
@@ -310,13 +310,27 @@ SWIGEXPORT int _wrap_FLSRKStepSetMethod(void *farg1, int const *farg2) {
   
   arg1 = (void *)(farg1);
   arg2 = (ARKODE_LSRKMethodType)(*farg2);
-  result = (int)LSRKStepSetMethod(arg1,arg2);
+  result = (int)LSRKStepSetSTSMethod(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FLSRKStepSetMethodByName(void *farg1, SwigArrayWrapper *farg2) {
+SWIGEXPORT int _wrap_FLSRKStepSetSSPMethod(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKODE_LSRKMethodType arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKODE_LSRKMethodType)(*farg2);
+  result = (int)LSRKStepSetSSPMethod(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepSetSTSMethodByName(void *farg1, SwigArrayWrapper *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -324,7 +338,21 @@ SWIGEXPORT int _wrap_FLSRKStepSetMethodByName(void *farg1, SwigArrayWrapper *far
   
   arg1 = (void *)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)LSRKStepSetMethodByName(arg1,(char const *)arg2);
+  result = (int)LSRKStepSetSTSMethodByName(arg1,(char const *)arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FLSRKStepSetSSPMethodByName(void *farg1, SwigArrayWrapper *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (char *)(farg2->data);
+  result = (int)LSRKStepSetMethodSSPByName(arg1,(char const *)arg2);
   fresult = (int)(result);
   return fresult;
 }

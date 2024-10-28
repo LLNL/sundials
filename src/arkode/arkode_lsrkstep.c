@@ -39,7 +39,7 @@ void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ark_mem = lsrkStep_Create_Commons(rhs, t0, y0, sunctx);
 
   /* set default ARKODE_LSRK_RKC_2 method */
-  retval = LSRKStepSetMethod((void*)ark_mem, ARKODE_LSRK_RKC_2);
+  retval = LSRKStepSetSTSMethod((void*)ark_mem, ARKODE_LSRK_RKC_2);
   if (retval != ARK_SUCCESS)
   {
     lsrkStep_Free(ark_mem);
@@ -59,7 +59,7 @@ void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ark_mem = lsrkStep_Create_Commons(rhs, t0, y0, sunctx);
 
   /* set default ARKODE_LSRK_SSP_S_2 method */
-  retval = LSRKStepSetMethod((void*)ark_mem, ARKODE_LSRK_SSP_S_2);
+  retval = LSRKStepSetSSPMethod((void*)ark_mem, ARKODE_LSRK_SSP_S_2);
   if (retval != ARK_SUCCESS)
   {
     lsrkStep_Free(ark_mem);

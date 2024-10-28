@@ -28,14 +28,11 @@
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  LSRKStepSetMethod sets method
+  LSRKStepSetSTSMethod sets method
     ARKODE_LSRK_RKC_2
     ARKODE_LSRK_RKL_2
-    ARKODE_LSRK_SSP_S_2
-    ARKODE_LSRK_SSP_S_3
-    ARKODE_LSRK_SSP_10_4
   ---------------------------------------------------------------*/
-int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
+int LSRKStepSetSTSMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -63,6 +60,49 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
     step_mem->step_nst                   = 0;
+    break;
+  case ARKODE_LSRK_SSP_S_2:
+  case ARKODE_LSRK_SSP_S_3:
+  case ARKODE_LSRK_SSP_10_4:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid method option: Call LSRKStepCreateSSP to create an SSP method first.");
+    break;
+
+  default:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid method option.");
+    return ARK_ILL_INPUT;
+  }
+
+  step_mem->LSRKmethod = method;
+
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
+  LSRKStepSetSSPMethod sets method
+    ARKODE_LSRK_SSP_S_2
+    ARKODE_LSRK_SSP_S_3
+    ARKODE_LSRK_SSP_10_4
+  ---------------------------------------------------------------*/
+
+int LSRKStepSetSSPMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
+{
+  ARKodeMem ark_mem;
+  ARKodeLSRKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeLSRKStepMem structures */
+  retval = lsrkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                        &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  switch (method)
+  {
+  case ARKODE_LSRK_RKC_2:
+  case ARKODE_LSRK_RKL_2:
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid method option: Call LSRKStepCreateSTS to create an STS method first.");
     break;
   case ARKODE_LSRK_SSP_S_2:
     ark_mem->step          = lsrkStep_TakeStepSSPs2;
@@ -100,27 +140,46 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   return ARK_SUCCESS;
 }
 
-int LSRKStepSetMethodByName(void* arkode_mem, const char* emethod)
+int LSRKStepSetSTSMethodByName(void* arkode_mem, const char* emethod)
 {
   if (strcmp(emethod, "ARKODE_LSRK_RKC_2") == 0)
   {
-    return LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKC_2);
+    return LSRKStepSetSTSMethod(arkode_mem, ARKODE_LSRK_RKC_2);
   }
   if (strcmp(emethod, "ARKODE_LSRK_RKL_2") == 0)
   {
-    return LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_RKL_2);
+    return LSRKStepSetSTSMethod(arkode_mem, ARKODE_LSRK_RKL_2);
+  }
+  if ((strcmp(emethod, "ARKODE_LSRK_SSP_S_2") == 0) || (strcmp(emethod, "ARKODE_LSRK_SSP_S_3") == 0) || (strcmp(emethod, "ARKODE_LSRK_SSP_10_4") == 0))
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                  "Invalid method option: Call LSRKStepCreateSTS to create an STS method first.");
+  }
+
+  arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                  "Unknown method type");
+
+  return ARK_ILL_INPUT;
+}
+
+int LSRKStepSetSSPMethodByName(void* arkode_mem, const char* emethod)
+{
+  if ((strcmp(emethod, "ARKODE_LSRK_RKC_2") == 0) || (strcmp(emethod, "ARKODE_LSRK_RKL_2") == 0))
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                  "Invalid method option: Call LSRKStepCreateSSP to create an SSP method first."); 
   }
   if (strcmp(emethod, "ARKODE_LSRK_SSP_S_2") == 0)
   {
-    return LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_2);
+    return LSRKStepSetSSPMethod(arkode_mem, ARKODE_LSRK_SSP_S_2);
   }
   if (strcmp(emethod, "ARKODE_LSRK_SSP_S_3") == 0)
   {
-    return LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_S_3);
+    return LSRKStepSetSSPMethod(arkode_mem, ARKODE_LSRK_SSP_S_3);
   }
   if (strcmp(emethod, "ARKODE_LSRK_SSP_10_4") == 0)
   {
-    return LSRKStepSetMethod(arkode_mem, ARKODE_LSRK_SSP_10_4);
+    return LSRKStepSetSSPMethod(arkode_mem, ARKODE_LSRK_SSP_10_4);
   }
 
   arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -266,8 +325,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
       ARKODE_LSRK_SSP_10_4 -- num_of_stages must be equal to 10 - no need to call!
 
    Sets the number of stages, s in SSP(s, p) methods. This input is only utilized by
-   SSPRK methods. Thus, this set routine must be called after calling LSRKStepSetMethod with an
-   SSPRK method.
+   SSPRK methods. Thus, this set routine must be called after calling LSRKStepSetSSPMethod.
 
    Calling this function with num_of_stages =< 0 resets the default value.
   ---------------------------------------------------------------*/
@@ -286,7 +344,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Call this function only for SSP methods: Use "
-                    "LSRKStepSetMethod to declare SSP method type first!");
+                    "LSRKStepSetSSPMethod to declare SSP method type first!");
     return ARK_ILL_INPUT;
   }
 
@@ -302,7 +360,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
 
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "Call LSRKStepSetMethod to declare SSP method type first!");
+                      __FILE__, "Call LSRKStepSetSSPMethod to declare SSP method type first!");
       return ARK_ILL_INPUT;
       break;
     }
@@ -350,7 +408,7 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
 
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "Call LSRKStepSetMethod to declare SSP method type first!");
+                      __FILE__, "Call LSRKStepSetSSPMethod to declare SSP method type first!");
       return ARK_ILL_INPUT;
       break;
     }

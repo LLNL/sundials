@@ -61,10 +61,16 @@ SUNDIALS_EXPORT int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs,
 
 /* Optional input functions -- must be called AFTER a creation routine above */
 
-SUNDIALS_EXPORT int LSRKStepSetMethod(void* arkode_mem,
+SUNDIALS_EXPORT int LSRKStepSetSTSMethod(void* arkode_mem,
                                       ARKODE_LSRKMethodType method);
 
-SUNDIALS_EXPORT int LSRKStepSetMethodByName(void* arkode_mem,
+SUNDIALS_EXPORT int LSRKStepSetSSPMethod(void* arkode_mem,
+                                      ARKODE_LSRKMethodType method);
+
+SUNDIALS_EXPORT int LSRKStepSetSTSMethodByName(void* arkode_mem,
+                                            const char* emethod);
+
+SUNDIALS_EXPORT int LSRKStepSetSSPMethodByName(void* arkode_mem,
                                             const char* emethod);
 
 SUNDIALS_EXPORT int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);

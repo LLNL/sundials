@@ -335,8 +335,8 @@ int main(int argc, char* argv[])
     else // Configure explicit STS solver
     {
       // Select LSRK method
-      flag = LSRKStepSetMethod(arkode_mem, uopts.lsrkmethod);
-      if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
+      flag = LSRKStepSetSTSMethod(arkode_mem, uopts.lsrkmethod);
+      if (check_flag(&flag, "LSRKStepSetSTSMethod", 1)) { return 1; }
 
       // Provide dominant eigenvalue function
       flag = LSRKStepSetDomEigFn(arkode_mem, dom_eig);

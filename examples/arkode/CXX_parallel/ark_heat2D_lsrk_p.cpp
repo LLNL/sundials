@@ -359,8 +359,8 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   // Select LSRK method
-  flag = LSRKStepSetMethod(arkode_mem, udata->method);
-  if (check_flag(&flag, "LSRKStepSetMethod", 1)) { return 1; }
+  flag = LSRKStepSetSTSMethod(arkode_mem, udata->method);
+  if (check_flag(&flag, "LSRKStepSetSTSMethod", 1)) { return 1; }
 
   // Select LSRK spectral radius function and options
   flag = LSRKStepSetDomEigFn(arkode_mem, eig);
