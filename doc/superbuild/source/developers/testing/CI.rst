@@ -131,17 +131,17 @@ pipeline ends early.
 Some pipelines are run automatically on new commits (after they are mirrored
 from GitHub to LC GitLab). Other pipelines, such as the benchmarking pipeline,
 are run on a schedule that is configured through the
-(`GitLab UI <https://lc.llnl.gov/gitlab/sundials/sundials/-/pipeline_schedules>`__).
+`GitLab UI <https://lc.llnl.gov/gitlab/sundials/sundials/-/pipeline_schedules>`__.
 
 Structure
 ^^^^^^^^^
 
 As previously stated, most of our code for the LC GitLab CI pipelines is sourced from
 the templates provided in the
-`radiuss-shared-ci <<https://radiuss-shared-ci.readthedocs.io/en/latest/>`__ repo.
+`radiuss-shared-ci <https://radiuss-shared-ci.readthedocs.io/en/latest/>`__ repo.
 Here we briefly outline the relevant files:
 
-The ``.gitlab_ci.yml`` file in the root of the repository is the starting point for
+The ``.gitlab-ci.yml`` file in the root of the repository is the starting point for
 defining the SUNDIALS GitLab CI pipelines. The only thing that is typically changed
 in this file is the ``SPACK_REF`` variable in the ``variables`` section (this
 is done when we update the version of Spack we use for installing dependencies).
@@ -187,7 +187,7 @@ Disabling a Job
 ^^^^^^^^^^^^^^^
 
 A job can be disabled by adding the variable ``.ON_<machine>: "OFF"`` to the ``variables:``
-section of the job. E.g.,
+section of the job, e.g.,
 
 
 .. code-block:: YAML

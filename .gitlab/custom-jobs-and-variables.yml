@@ -37,9 +37,6 @@ variables:
 # Passes --verbose to CTest when "ON".
   VERBOSE_TEST: "ON"
 
-# Should the Corona pipeline run? Set to  "ON" or "OFF" to enable/disable.
-  ON_CORONA: "OFF"
-
 # Should the Dane pipeline run? Set to  "ON" or "OFF" to enable/disable.
   ON_DANE: "ON"
 
