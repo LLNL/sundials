@@ -181,7 +181,6 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
   ark_mem->step                   = lsrkStep_TakeStepRKC;
   ark_mem->step_printallstats     = lsrkStep_PrintAllStats;
   ark_mem->step_writeparameters   = lsrkStep_WriteParameters;
-  ark_mem->step_resize            = lsrkStep_Resize;
   ark_mem->step_free              = lsrkStep_Free;
   ark_mem->step_printmem          = lsrkStep_PrintMem;
   ark_mem->step_setdefaults       = lsrkStep_SetDefaults;
@@ -825,7 +824,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #endif
 
   /* Compute forcing function, if necessary. */
-  if (!ark_mem->fn_is_current && ark_mem->initsetup || (ark_mem->tn != step_mem->tnext))
+  if ((!ark_mem->fn_is_current && ark_mem->initsetup) || (ark_mem->tn != step_mem->tnext))
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -1933,35 +1932,6 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                      "step = %li, h = %" RSYM ", dsm = %" RSYM, ark_mem->nst,
                      ark_mem->h, *dsmPtr);
 #endif
-
-  return ARK_SUCCESS;
-}
-
-/*---------------------------------------------------------------
-  lsrkStep_Resize:
-
-  This routine resizes the memory within the LSRKStep module.
-  ---------------------------------------------------------------*/
-int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
-                    SUNDIALS_MAYBE_UNUSED sunrealtype hscale,
-                    SUNDIALS_MAYBE_UNUSED sunrealtype t0, ARKVecResizeFn resize,
-                    void* resize_data)
-{
-  ARKodeLSRKStepMem step_mem;
-  sunindextype lrw1, liw1, lrw_diff, liw_diff;
-  int retval;
-
-  /* access ARKodeLSRKStepMem structure */
-  retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
-  if (retval != ARK_SUCCESS) { return retval; }
-
-  /* Determine change in vector sizes */
-  lrw1 = liw1 = 0;
-  if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
-  lrw_diff      = lrw1 - ark_mem->lrw1;
-  liw_diff      = liw1 - ark_mem->liw1;
-  ark_mem->lrw1 = lrw1;
-  ark_mem->liw1 = liw1;
 
   return ARK_SUCCESS;
 }

@@ -107,8 +107,6 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 int lsrkStep_SetDefaults(ARKodeMem ark_mem);
 int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
 int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp);
-int lsrkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
-                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 void lsrkStep_Free(ARKodeMem ark_mem);
 void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
 int lsrkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
