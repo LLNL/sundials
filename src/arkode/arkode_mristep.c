@@ -946,8 +946,8 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
     /* Attach correct TakeStep routine for this coupling table */
     switch (step_mem->MRIC->type)
     {
-    case MRISTEP_EXPLICIT:
-    case MRISTEP_IMPLICIT:
+    case MRISTEP_EXPLICIT: ark_mem->step = mriStep_TakeStepMRIGARK; break;
+    case MRISTEP_IMPLICIT: ark_mem->step = mriStep_TakeStepMRIGARK; break;
     case MRISTEP_IMEX: ark_mem->step = mriStep_TakeStepMRIGARK; break;
     case MRISTEP_MERK: ark_mem->step = mriStep_TakeStepMERK; break;
     case MRISTEP_MRISR: ark_mem->step = mriStep_TakeStepMRISR; break;
