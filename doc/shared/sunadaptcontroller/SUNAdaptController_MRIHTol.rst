@@ -146,12 +146,13 @@ also provides the following additional user-callable routines:
 
    This user-callable function provides control over the relevant parameters
    above.  This should be called *before* the time integrator is called to evolve
-   the problem.
+   the problem.  If any argument is negative, that parameter will be reset to its 
+   default value.
 
    :param C: the SUNAdaptController_MRIHTol object.
-   :param inner_max_relch: the parameter :math:`relch_{\text{max}}`.
-   :param inner_min_tolfac: the parameter :math:`\text{tolfac}_{min}`.
-   :param inner_max_tolfac: the parameter :math:`\text{tolfac}_{max}`.
+   :param inner_max_relch: the parameter :math:`relch_{\text{max}}` (must be :math:`\ge 1`).
+   :param inner_min_tolfac: the parameter :math:`\text{tolfac}_{min}` (must be :math:`> 0`).
+   :param inner_max_tolfac: the parameter :math:`\text{tolfac}_{max}` (must be :math:`>= 1`).
    :returns: :c:type:`SUNErrCode` indicating success or failure.
 
 

@@ -115,9 +115,45 @@ SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
                                                 sunrealtype inner_max_tolfac)
 {
   SUNFunctionBegin(C->sunctx);
-  if (inner_max_relch != 0) MRIHTOL_INNER_MAX_RELCH(C) = inner_max_relch;
-  if (inner_min_tolfac != 0) MRIHTOL_INNER_MIN_TOLFAC(C) = inner_min_tolfac;
-  if (inner_max_tolfac != 0) MRIHTOL_INNER_MAX_TOLFAC(C) = inner_max_tolfac;
+  if (inner_max_relch < SUN_RCONST(0.0))
+  {
+    MRIHTOL_INNER_MAX_RELCH(C) = INNER_MAX_RELCH;
+  }
+  else if (inner_max_relch < SUN_RCONST(1.0)) 
+  { 
+    return SUN_ERR_ARG_OUTOFRANGE; 
+  }
+  else
+  {
+    MRIHTOL_INNER_MAX_RELCH(C) = inner_max_relch;
+  }
+
+  if (inner_min_tolfac < SUN_RCONST(0.0))
+  {
+    MRIHTOL_INNER_MIN_TOLFAC(C) = INNER_MIN_TOLFAC;
+  }
+  else if (inner_min_tolfac == SUN_RCONST(0.0))
+  {
+    return SUN_ERR_ARG_OUTOFRANGE;
+  }
+  else 
+  {
+    MRIHTOL_INNER_MIN_TOLFAC(C) = inner_min_tolfac;
+  }
+
+  if (inner_max_tolfac < SUN_RCONST(0.0))
+  {
+    MRIHTOL_INNER_MAX_RELCH(C) = INNER_MAX_RELCH;
+  }
+  else if (inner_max_tolfac < SUN_RCONST(1.0))
+  {
+    return SUN_ERR_ARG_OUTOFRANGE;
+  }
+  else 
+  {
+    MRIHTOL_INNER_MAX_TOLFAC(C) = inner_max_tolfac;
+  }
+
   return SUN_SUCCESS;
 }
 
