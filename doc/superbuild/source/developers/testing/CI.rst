@@ -145,6 +145,10 @@ The ``.gitlab-ci.yml`` file in the root of the repository is the starting point 
 defining the SUNDIALS GitLab CI pipelines. The only thing that is typically changed
 in this file is the ``SPACK_REF`` variable in the ``variables`` section (this
 is done when we update the version of Spack we use for installing dependencies).
+Currently, we also override the `.build-and-test` job defined in this file so
+that we can pull in some files from our fork of `radiuss-shared-ci`
+(maintained `here <https://lc.llnl.gov/gitlab/sundials/radiuss-shared-ci>`__)
+instead of the upstream repository.
 
 The ``.gitlab/subscribed-pipelines.yml`` defines which machines we will test on.
 This file may be modified if you need to add a new machine to test on.
@@ -219,6 +223,7 @@ Benchmark Jobs
 ^^^^^^^^^^^^^^
 
 See :ref:`SUNDIALS Continuous Performance Testing (CPT)<CPT>` for more details.
+
 
 GitLab CI Test Script
 ---------------------
