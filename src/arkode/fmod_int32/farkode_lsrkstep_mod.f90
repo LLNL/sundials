@@ -40,12 +40,14 @@ module farkode_lsrkstep_mod
  public :: FLSRKStepCreateSSP
  public :: FLSRKStepReInitSTS
  public :: FLSRKStepReInitSSP
- public :: FLSRKStepSetMethod
+ public :: FLSRKStepSetSTSMethod
+ public :: FLSRKStepSetSSPMethod
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
  end type
- public :: FLSRKStepSetMethodByName
+ public :: FLSRKStepSetSTSMethodByName
+ public :: FLSRKStepSetSSPMethodByName
  public :: FLSRKStepSetDomEigFn
  public :: FLSRKStepSetDomEigFrequency
  public :: FLSRKStepSetMaxNumStages
@@ -100,8 +102,8 @@ type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
 
-function swigc_FLSRKStepSetMethod(farg1, farg2) &
-bind(C, name="_wrap_FLSRKStepSetMethod") &
+function swigc_FLSRKStepSetSTSMethod(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetSTSMethod") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -109,8 +111,27 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FLSRKStepSetMethodByName(farg1, farg2) &
-bind(C, name="_wrap_FLSRKStepSetMethodByName") &
+function swigc_FLSRKStepSetSSPMethod(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetSSPMethod") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepSetSTSMethodByName(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetSTSMethodByName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
+type(C_PTR), value :: farg1
+type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FLSRKStepSetSSPMethodByName(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetSSPMethodByName") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigarraywrapper
@@ -275,7 +296,7 @@ fresult = swigc_FLSRKStepReInitSSP(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FLSRKStepSetMethod(arkode_mem, method) &
+function FLSRKStepSetSTSMethod(arkode_mem, method) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -287,7 +308,23 @@ integer(C_INT) :: farg2
 
 farg1 = arkode_mem
 farg2 = method
-fresult = swigc_FLSRKStepSetMethod(farg1, farg2)
+fresult = swigc_FLSRKStepSetSTSMethod(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepSetSSPMethod(arkode_mem, method) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(ARKODE_LSRKMethodType), intent(in) :: method
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = method
+fresult = swigc_FLSRKStepSetSSPMethod(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -309,7 +346,7 @@ subroutine SWIG_string_to_chararray(string, chars, wrap)
   wrap%size = len(string)
 end subroutine
 
-function FLSRKStepSetMethodByName(arkode_mem, emethod) &
+function FLSRKStepSetSTSMethodByName(arkode_mem, emethod) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -322,7 +359,24 @@ type(SwigArrayWrapper) :: farg2
 
 farg1 = arkode_mem
 call SWIG_string_to_chararray(emethod, farg2_chars, farg2)
-fresult = swigc_FLSRKStepSetMethodByName(farg1, farg2)
+fresult = swigc_FLSRKStepSetSTSMethodByName(farg1, farg2)
+swig_result = fresult
+end function
+
+function FLSRKStepSetSSPMethodByName(arkode_mem, emethod) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+character(kind=C_CHAR, len=*), target :: emethod
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+
+farg1 = arkode_mem
+call SWIG_string_to_chararray(emethod, farg2_chars, farg2)
+fresult = swigc_FLSRKStepSetSSPMethodByName(farg1, farg2)
 swig_result = fresult
 end function
 

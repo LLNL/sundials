@@ -64,8 +64,8 @@ int LSRKStepSetSTSMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   case ARKODE_LSRK_SSP_S_2:
   case ARKODE_LSRK_SSP_S_3:
   case ARKODE_LSRK_SSP_10_4:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid method option: Call LSRKStepCreateSSP to create an SSP method first.");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Invalid method option: Call LSRKStepCreateSSP to create an SSP method first.");
     break;
 
   default:
@@ -101,8 +101,8 @@ int LSRKStepSetSSPMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
   {
   case ARKODE_LSRK_RKC_2:
   case ARKODE_LSRK_RKL_2:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid method option: Call LSRKStepCreateSTS to create an STS method first.");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Invalid method option: Call LSRKStepCreateSTS to create an STS method first.");
     break;
   case ARKODE_LSRK_SSP_S_2:
     ark_mem->step          = lsrkStep_TakeStepSSPs2;
@@ -150,10 +150,12 @@ int LSRKStepSetSTSMethodByName(void* arkode_mem, const char* emethod)
   {
     return LSRKStepSetSTSMethod(arkode_mem, ARKODE_LSRK_RKL_2);
   }
-  if ((strcmp(emethod, "ARKODE_LSRK_SSP_S_2") == 0) || (strcmp(emethod, "ARKODE_LSRK_SSP_S_3") == 0) || (strcmp(emethod, "ARKODE_LSRK_SSP_10_4") == 0))
+  if ((strcmp(emethod, "ARKODE_LSRK_SSP_S_2") == 0) ||
+      (strcmp(emethod, "ARKODE_LSRK_SSP_S_3") == 0) ||
+      (strcmp(emethod, "ARKODE_LSRK_SSP_10_4") == 0))
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                  "Invalid method option: Call LSRKStepCreateSTS to create an STS method first.");
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Invalid method option: Call LSRKStepCreateSTS to create an STS method first.");
   }
 
   arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -164,10 +166,11 @@ int LSRKStepSetSTSMethodByName(void* arkode_mem, const char* emethod)
 
 int LSRKStepSetSSPMethodByName(void* arkode_mem, const char* emethod)
 {
-  if ((strcmp(emethod, "ARKODE_LSRK_RKC_2") == 0) || (strcmp(emethod, "ARKODE_LSRK_RKL_2") == 0))
+  if ((strcmp(emethod, "ARKODE_LSRK_RKC_2") == 0) ||
+      (strcmp(emethod, "ARKODE_LSRK_RKL_2") == 0))
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                  "Invalid method option: Call LSRKStepCreateSSP to create an SSP method first."); 
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Invalid method option: Call LSRKStepCreateSSP to create an SSP method first.");
   }
   if (strcmp(emethod, "ARKODE_LSRK_SSP_S_2") == 0)
   {

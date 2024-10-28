@@ -352,7 +352,7 @@ SWIGEXPORT int _wrap_FLSRKStepSetSSPMethodByName(void *farg1, SwigArrayWrapper *
   
   arg1 = (void *)(farg1);
   arg2 = (char *)(farg2->data);
-  result = (int)LSRKStepSetMethodSSPByName(arg1,(char const *)arg2);
+  result = (int)LSRKStepSetSSPMethodByName(arg1,(char const *)arg2);
   fresult = (int)(result);
   return fresult;
 }
