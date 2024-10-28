@@ -186,11 +186,11 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
                                              OR (SUNDIALS_TEST_MPIRUN_COMMAND)))
         if(SUNDIALS_TEST_MPIRUN_COMMAND)
           set(RUN_COMMAND
-              "${SUNDIALS_TEST_MPIRUN_COMMAND} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${MPIEXEC_POSTFLAGS}"
+              "${SUNDIALS_TEST_MPIRUN_COMMAND} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
           )
         elseif(MPIEXEC_EXECUTABLE)
           set(RUN_COMMAND
-              "${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${MPIEXEC_POSTFLAGS}"
+              "${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
           )
         endif()
 
@@ -211,7 +211,10 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         set(_run_args "${_run_args} ${_extra_args}")
         unset(_extra_args)
       endif()
-      if(_have_test_args OR _have_extra_test_args)
+      if(MPIEXEC_POSTFLAGS)
+        set(_run_args "${MPIEXEC_POSTFLAGS} ${_run_args}")
+      endif()
+      if(_have_test_args OR _have_extra_test_args OR MPIEXEC_POSTFLAGS)
         string(STRIP "${_run_args}" _run_args)
         list(APPEND TEST_ARGS "--runargs=\"${_run_args}\"")
         unset(_run_args)
@@ -249,15 +252,15 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
             NAME ${NAME}
             COMMAND
               ${MPI_EXEC_ARGS} ${PREFLAGS} ${MPIEXEC_NUMPROC_FLAG}
-              ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${POSTFLAGS}
-              $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
+              ${SUNDIALS_ADD_TEST_MPI_NPROCS}
+              $<TARGET_FILE:${EXECUTABLE}> ${POSTFLAGS} ${TEST_ARGS})
         else()
           add_test(
             NAME ${NAME}
             COMMAND
               ${MPIEXEC_EXECUTABLE} ${PREFLAGS} ${MPIEXEC_NUMPROC_FLAG}
               ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${POSTFLAGS}
-              $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
+              $<TARGET_FILE:${EXECUTABLE}> ${POSTFLAGS} ${TEST_ARGS})
         endif()
       else()
         add_test(NAME ${NAME} COMMAND $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
