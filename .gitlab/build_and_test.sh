@@ -143,16 +143,6 @@ install_dir="${build_root}/install_${job_unique_id}_${hostconfig//.cmake/}"
 
 cmake_exe=`grep 'CMake executable' ${hostconfig_path} | cut -d ':' -f 2 | xargs`
 
-# If using flux, append "run" after the flux executable path
-if [[ "${MPIEXEC_EXECUTABLE}" == "flux" ]]
-then
-    MPIEXEC_EXECUTABLE="$(which ${MPIEXEC_EXECUTABLE}) run"
-    flux jobs
-    flux resource list
-else
-    MPIEXEC_EXECUTABLE="$(which ${MPIEXEC_EXECUTABLE})"
-fi
-
 # Build
 if [[ "${option}" != "--deps-only" && "${option}" != "--test-only" ]]
 then
@@ -161,6 +151,9 @@ then
     echo "~ Host-config: ${hostconfig_path}"
     echo "~ Build Dir:   ${build_dir}"
     echo "~ Project Dir: ${project_dir}"
+    echo "~ MPIEXEC_EXECUTABLE: ${MPIEXEC_EXECUTABLE}"
+    echo "~ MPIEXEC_PREFLAGS: ${MPIEXEC_PREFLAGS}"
+    echo "~ MPIEXEC_POSTFLAGS: ${MPIEXEC_POSTFLAGS}"
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -183,9 +176,9 @@ then
         $cmake_exe \
             -C "${hostconfig_path}" \
             -DCMAKE_INSTALL_PREFIX=${install_dir} \
-            -DMPIEXEC_EXECUTABLE="${MPIEXEC_EXECUTABLE}" \
-            -DMPIEXEC_PREFLAGS="${MPIEXEC_PREFLAGS}" \
-            -DMPIEXEC_POSTFLAGS="${MPIEXEC_POSTFLAGS}" \
+            -DMPIEXEC_EXECUTABLE=$(which $MPIEXEC_EXECUTABLE) \
+            -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} \
+            -DMPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS} \
             -DSUNDIALS_CALIPER_OUTPUT_DIR="${CALIPER_DIR}/Release/${hostname}/${sundials_version}" \
             "${project_dir}"
 
@@ -193,9 +186,9 @@ then
         $cmake_exe \
             -C "${hostconfig_path}" \
             -DCMAKE_INSTALL_PREFIX=${install_dir} \
-            -DMPIEXEC_EXECUTABLE="${MPIEXEC_EXECUTABLE}" \
-            -DMPIEXEC_PREFLAGS="${MPIEXEC_PREFLAGS}" \
-            -DMPIEXEC_POSTFLAGS="${MPIEXEC_POSTFLAGS}" \
+            -DMPIEXEC_EXECUTABLE=$(which $MPIEXEC_EXECUTABLE) \
+            -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} \
+            -DMPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS} \
             "${project_dir}"
     fi
 
