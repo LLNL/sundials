@@ -44,7 +44,7 @@ variables:
   LLNL_SERVICE_USER: ""
 # Use the service user workspace. Solves permission issues, stores everything
 # at the same location whoever triggers a pipeline.
-#  CUSTOM_CI_BUILDS_DIR: ""
+  CUSTOM_CI_BUILDS_DIR: "/usr/workspace/sundials/ci/.builds/"
 # Tells Gitlab to recursively update the submodules when cloning the project.
   GIT_SUBMODULE_STRATEGY: recursive
 
