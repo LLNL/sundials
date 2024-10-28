@@ -170,3 +170,10 @@ SUNErrCode SUNStepper_SetForcingFn(SUNStepper stepper, SUNStepperSetForcingFn fn
   stepper->ops->setforcing = fn;
   return SUN_SUCCESS;
 }
+
+SUNErrCode SUNStepper_SetDestroyFn(SUNStepper stepper, SUNStepperDestroyFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->destroy = fn;
+  return SUN_SUCCESS;
+}

@@ -83,7 +83,7 @@ from an ARKODE integrator.
 
    This function frees memory allocated by the :c:type:`SUNStepper` base class
    and uses the function pointer optionally specified with
-   :c:type:`SUNStepper_SetDestroyFn` to free the content.
+   :c:func:`SUNStepper_SetDestroyFn` to free the content.
 
    :param stepper: a pointer to a stepper object.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
