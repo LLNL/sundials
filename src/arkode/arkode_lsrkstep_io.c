@@ -54,7 +54,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
-    step_mem->tnext = ZERO;
+    step_mem->tnext                      = ZERO;
     break;
   case ARKODE_LSRK_RKL_2:
     ark_mem->step          = lsrkStep_TakeStepRKL;
@@ -62,7 +62,7 @@ int LSRKStepSetMethod(void* arkode_mem, ARKODE_LSRKMethodType method)
     step_mem->nfusedopvecs = 5;
     step_mem->q = ark_mem->hadapt_mem->q = 2;
     step_mem->p = ark_mem->hadapt_mem->p = 2;
-    step_mem->tnext = ZERO;
+    step_mem->tnext                      = ZERO;
     break;
   case ARKODE_LSRK_SSP_S_2:
     ark_mem->step          = lsrkStep_TakeStepSSPs2;
@@ -446,7 +446,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
      (overwrite some adaptivity params for LSRKStep use) */
   step_mem->req_stages = 0; /* no stages */
 
-/* Spectral info */
+  /* Spectral info */
   step_mem->lambdaR             = ZERO;
   step_mem->lambdaI             = ZERO;
   step_mem->spectral_radius     = ZERO;

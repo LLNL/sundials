@@ -541,7 +541,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #endif
 
   /* Compute forcing function, if necessary. */
-  if ((!ark_mem->fn_is_current && ark_mem->initsetup) || (ark_mem->tn != step_mem->tnext))
+  if ((!ark_mem->fn_is_current && ark_mem->initsetup) ||
+      (ark_mem->tn != step_mem->tnext))
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -824,7 +825,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #endif
 
   /* Compute forcing function, if necessary. */
-  if ((!ark_mem->fn_is_current && ark_mem->initsetup) || (ark_mem->tn != step_mem->tnext))
+  if ((!ark_mem->fn_is_current && ark_mem->initsetup) ||
+      (ark_mem->tn != step_mem->tnext))
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
@@ -1056,7 +1058,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   /* The method is not FSAL, and fn ​is used as storage in each step. Therefore, fn ​is computed at the beginning regardless. */
   retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
-                          ark_mem->user_data);
+                        ark_mem->user_data);
   step_mem->nfe++;
   if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
 
@@ -1250,7 +1252,6 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      "step = %li, stage = 0, h = %" RSYM ", tcur = %" RSYM,
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
-
 
   /* The method is not FSAL, and fn ​is used as storage in each step. Therefore, fn ​is computed at the beginning regardless. */
   retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
