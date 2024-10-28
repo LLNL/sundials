@@ -5008,13 +5008,13 @@ fresult = swigc_FSUNStepper_Destroy(farg1)
 swig_result = fresult
 end function
 
-function FSUNStepper_Evolve(stepper, tout, vout, tret) &
+function FSUNStepper_Evolve(stepper, tout, vret, tret) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: tout
-type(N_Vector), target, intent(inout) :: vout
+type(N_Vector), target, intent(inout) :: vret
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -5024,7 +5024,7 @@ type(C_PTR) :: farg4
 
 farg1 = stepper
 farg2 = tout
-farg3 = c_loc(vout)
+farg3 = c_loc(vret)
 farg4 = c_loc(tret(1))
 fresult = swigc_FSUNStepper_Evolve(farg1, farg2, farg3, farg4)
 swig_result = fresult

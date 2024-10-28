@@ -41,6 +41,7 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
   stepper->ops->setstoptime      = NULL;
   stepper->ops->setstepdirection = NULL;
   stepper->ops->setforcing       = NULL;
+  stepper->ops->destroy          = NULL;
 
   *stepper_ptr = stepper;
 
