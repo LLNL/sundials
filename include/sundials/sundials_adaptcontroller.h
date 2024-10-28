@@ -41,7 +41,7 @@ typedef enum
 {
   SUN_ADAPTCONTROLLER_NONE,
   SUN_ADAPTCONTROLLER_H,
-  SUN_ADAPTCONTROLLER_MRI_TOL
+  SUN_ADAPTCONTROLLER_MRI_H_TOL
 } SUNAdaptController_Type;
 
 /* -----------------------------------------------------------------
@@ -64,7 +64,7 @@ struct _generic_SUNAdaptController_Ops
   SUNErrCode (*estimatestep)(SUNAdaptController C, sunrealtype h, int p,
                              sunrealtype dsm, sunrealtype* hnew);
 
-  /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_MRI_TOL type. */
+  /* REQUIRED for controllers of SUN_ADAPTCONTROLLER_MRI_H_TOL type. */
   SUNErrCode (*estimatesteptol)(SUNAdaptController C, sunrealtype H,
                                 sunrealtype tolfac, int P, sunrealtype DSM,
                                 sunrealtype dsm, sunrealtype* Hnew,
@@ -77,9 +77,9 @@ struct _generic_SUNAdaptController_Ops
   SUNErrCode (*write)(SUNAdaptController C, FILE* fptr);
   SUNErrCode (*seterrorbias)(SUNAdaptController C, sunrealtype bias);
   SUNErrCode (*updateh)(SUNAdaptController C, sunrealtype h, sunrealtype dsm);
-  SUNErrCode (*updatemritol)(SUNAdaptController C, sunrealtype H,
-                             sunrealtype tolfac, sunrealtype DSM,
-                             sunrealtype dsm);
+  SUNErrCode (*updatemrihtol)(SUNAdaptController C, sunrealtype H,
+                              sunrealtype tolfac, sunrealtype DSM,
+                              sunrealtype dsm);
   SUNErrCode (*space)(SUNAdaptController C, long int* lenrw, long int* leniw);
 };
 
@@ -174,9 +174,9 @@ SUNErrCode SUNAdaptController_UpdateH(SUNAdaptController C, sunrealtype h,
    DSM and dsm, indicating that the step size, tolerance factor, or local
    error factors can be saved for subsequent controller functions. */
 SUNDIALS_EXPORT
-SUNErrCode SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H,
-                                           sunrealtype tolfac, sunrealtype DSM,
-                                           sunrealtype dsm);
+SUNErrCode SUNAdaptController_UpdateMRIHTol(SUNAdaptController C, sunrealtype H,
+                                            sunrealtype tolfac, sunrealtype DSM,
+                                            sunrealtype dsm);
 
 /* Function to return the memory requirements of the controller object. */
 SUNDIALS_EXPORT

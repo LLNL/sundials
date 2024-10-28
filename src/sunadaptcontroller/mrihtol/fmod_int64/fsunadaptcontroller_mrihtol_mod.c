@@ -596,7 +596,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetErrorBias_MRIHTol(SUNAdaptController
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdaptController_UpdateMRITol_MRIHTol(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5) {
+SWIGEXPORT int _wrap_FSUNAdaptController_UpdateMRIHTol_MRIHTol(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
   sunrealtype arg2 ;
@@ -610,7 +610,7 @@ SWIGEXPORT int _wrap_FSUNAdaptController_UpdateMRITol_MRIHTol(SUNAdaptController
   arg3 = (sunrealtype)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (sunrealtype)(*farg5);
-  result = (int)SUNAdaptController_UpdateMRITol_MRIHTol(arg1,arg2,arg3,arg4,arg5);
+  result = (int)SUNAdaptController_UpdateMRIHTol_MRIHTol(arg1,arg2,arg3,arg4,arg5);
   fresult = (int)(result);
   return fresult;
 }

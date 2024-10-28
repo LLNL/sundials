@@ -109,7 +109,7 @@ typedef struct ARKodeMRIStepMemRec
   sunrealtype nlscoef;    /* coefficient in nonlin. convergence test  */
 
   int msbp;       /* positive => max # steps between lsetup
-                             negative => call at each Newton iter     */
+                     negative => call at each Newton iter     */
   long int nstlp; /* step number of last setup call           */
 
   int maxcor;          /* max num iterations for solving the
@@ -288,8 +288,6 @@ int mriStep_NlsInit(ARKodeMem ark_mem);
 int mriStep_Nls(ARKodeMem ark_mem, int nflag);
 int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
-int mriStep_FastRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
-                    int mode);
 int mriStep_Hin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
                 N_Vector fcur, sunrealtype* h);
 void mriStep_ApplyForcing(ARKodeMRIStepMem step_mem, sunrealtype t,
@@ -314,9 +312,9 @@ int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
                                 N_Vector y, N_Vector f, int mode);
 int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
                               N_Vector yR);
-int mriStepInnerStepper_GetError(MRIStepInnerStepper stepper,
-                                 sunrealtype* accum_error);
-int mriStepInnerStepper_ResetError(MRIStepInnerStepper stepper);
+int mriStepInnerStepper_GetAccumulatedError(MRIStepInnerStepper stepper,
+                                            sunrealtype* accum_error);
+int mriStepInnerStepper_ResetAccumulatedError(MRIStepInnerStepper stepper);
 int mriStepInnerStepper_SetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
                                   N_Vector tmpl);
@@ -344,7 +342,7 @@ int mriStep_RKCoeffs(MRIStepCoupling MRIC, int is, int* stage_map,
   rate context, leveraging MRIStep-specific knowledge of the
   slow+fast time scale relationship to CALL multi-rate controller
   functions (e.g., EstimateMRISteps, EstimateStepTol, UpdateMRIH,
-  and UpdateMRITol) provided by the underlying multi-rate
+  and UpdateMRIHTol) provided by the underlying multi-rate
   controller.
   ===============================================================*/
 

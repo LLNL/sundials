@@ -237,7 +237,7 @@ Setting Member Functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
-   
+
    .. versionadded: x.y.z
 
 
@@ -251,7 +251,7 @@ Setting Member Functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
-      
+
    .. versionadded: x.y.z
 
 
@@ -265,7 +265,7 @@ Setting Member Functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
-      
+
    .. versionadded: x.y.z
 
 
@@ -416,6 +416,7 @@ following member functions:
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+
    .. versionchanged:: v5.7.0
 
       Supplying a full right-hand side function was made optional.
@@ -424,7 +425,7 @@ following member functions:
 
    This function resets the inner (fast) stepper state to the provided
    independent variable value and dependent variable vector.
-   
+
    If provided, the :c:type:`MRIStepInnerResetFn` function will be called
    *before* a call to :c:type:`MRIStepInnerEvolveFn` when the state was
    updated at the slow timescale.
@@ -439,16 +440,17 @@ following member functions:
       value if a recoverable error occurred, or a negative value if it failed
       unrecoverably.
 
-   .. note::
-
-
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
 
 .. c:type:: int (*MRIStepInnerGetAccumulatedError)(MRIStepInnerStepper stepper, sunrealtype* accum_error)
 
-   This function returns an estimate of the accumulated solution error arising from the inner stepper.
+   This function returns an estimate of the accumulated solution error arising from the
+   inner stepper.   Both the :c:type:`MRIStepInnerGetAccumulatedError` and
+   :c:type:`MRIStepInnerResetAccumulatedError` functions should be provided, or not; if only
+   one is provided then MRIStep will disable multirate temporal adaptivity and call neither.
+
 
    **Arguments:**
       * *stepper* -- the inner stepper object.
@@ -461,20 +463,19 @@ following member functions:
    .. note::
 
       This function is only called when multirate temporal adaptivity has been enabled,
-      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL`.
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL`.
 
       If provided, the :c:type:`MRIStepInnerGetAccumulatedError` function will always
       be called *after* a preceding call to the :c:type:`MRIStepInnerResetAccumulatedError`
       function.
 
-      Both the :c:type:`MRIStepInnerGetAccumulatedError` and
-      :c:type:`MRIStepInnerResetAccumulatedError` functions should be provided, or not; if only
-      one is provided then MRIStep will disable multirate temporal adaptivity and call neither.
-
 
 .. c:type:: int (*MRIStepInnerResetAccumulatedError)(MRIStepInnerStepper stepper)
 
    This function resets the inner stepper's accumulated solution error to zero.
+   This function performs a different role within MRIStep than the
+   :c:type:`MRIStepInnerResetFn`, and thus an implementation should make no
+   assumptions about the frequency/ordering of calls to either.
 
    **Arguments:**
       * *stepper* -- the inner stepper object.
@@ -486,7 +487,7 @@ following member functions:
    .. note::
 
       This function is only called when multirate temporal adaptivity has been enabled,
-      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL`.
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL`.
 
       The :c:type:`MRIStepInnerResetAccumulatedError` function will always be called
       *before* any calls to the :c:type:`MRIStepInnerGetAccumulatedError` function.
@@ -495,14 +496,13 @@ following member functions:
       :c:type:`MRIStepInnerResetAccumulatedError` functions should be provided, or not; if only
       one is provided then MRIStep will disable multirate temporal adaptivity and call neither.
 
-      This function performs a different role within MRIStep than the
-      :c:type:`MRIStepInnerResetFn`, and thus an implementation should make no
-      assumptions about the frequency/ordering of calls to either.
-
 
 .. c:type:: int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol)
 
-   This function accepts a relative tolerance for the inner stepper to use in its upcoming adaptive solve.
+   This function accepts a relative tolerance for the inner stepper to use in its
+   upcoming adaptive solve.  It is assumed that if the inner stepper supports absolute
+   tolerances as well, then these have been set up directly by the user to indicate the
+   "noise" level for solution components.
 
    **Arguments:**
       * *stepper* -- the inner stepper object.
@@ -515,8 +515,4 @@ following member functions:
    .. note::
 
       This function is only called when multirate temporal adaptivity has been enabled
-      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL`.
-
-      It is assumed that if the inner stepper supports absolute tolerances as well, then
-      these have been set up directly by the user to indicate the "noise" level for
-      solution components.
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL`.

@@ -1452,7 +1452,7 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       Not all time-stepping modules are compatible with all types of :c:type:`SUNAdaptController`
       objects.  While all steppers that support temporal adaptivity support controllers with
       :c:type:`SUNAdaptController_Type` type ``SUN_ADAPTCONTROLLER_H``, only MRIStep supports
-      inputs with type ``SUN_ADAPTCONTROLLER_MRI_TOL``.
+      inputs with type ``SUN_ADAPTCONTROLLER_MRI_H_TOL``.
 
    .. versionadded:: 6.1.0
 
@@ -1758,23 +1758,25 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
 
 The following routines are used to control algorithms that ARKODE can use to estimate
-the accumulated temporal error over multiple time steps.  For time-stepping modules that
-compute both a solution and embedding, :math:`y_n` and :math:`\tilde{y}_n`, these may be
-combined to create a vector-valued local temporal error estimate for the current internal
-step, :math:`y_n - \tilde{y}_n`.  These local errors may be accumulated by ARKODE in a
-variety of ways, as determined by the enumerated type :c:enum:`ARKAccumError`.  In each
-of the cases below, the accumulation is taken over all steps since the most recent
-call to either :c:func:`ARKodeSetAccumulatedErrorType` or 
+the accumulated temporal error over multiple time steps.  While these may be informational
+for users on their applications, this functionality is required when using multirate
+temporal adaptivity in MRIStep via the :ref:`SUNAdaptController_MRIHTol <SUNAdaptController.MRIHTol>`
+module.  For time-stepping modules that compute both a solution and embedding, :math:`y_n`
+and :math:`\tilde{y}_n`, these may be combined to create a vector-valued local temporal error
+estimate for the current internal step, :math:`y_n - \tilde{y}_n`.  These local errors may be
+accumulated by ARKODE in a variety of ways, as determined by the enumerated type
+:c:enum:`ARKAccumError`.  In each of the cases below, the accumulation is taken over all steps
+since the most recent call to either :c:func:`ARKodeSetAccumulatedErrorType` or
 :c:func:`ARKodeResetAccumulatedError`. Below the set :math:`\mathcal{S}` contains
 the indices of the steps since the last call to either of the aforementioned functions.
-The norm is taken using the tolerance-informed
-error-weight vector (see :c:func:`ARKodeGetErrWeights`), and ``reltol`` is the
-user-specified relative solution tolerance.
+The norm is taken using the tolerance-informed error-weight vector (see
+:c:func:`ARKodeGetErrWeights`), and ``reltol`` is the user-specified relative solution
+tolerance.
 
 .. c:enum:: ARKAccumError
 
    The type of error accumulation that ARKODE should use.
-   
+
    .. versionadded:: x.y.z
 
    .. c:enumerator:: ARK_ACCUMERROR_NONE
@@ -1783,21 +1785,29 @@ user-specified relative solution tolerance.
 
    .. c:enumerator:: ARK_ACCUMERROR_MAX
 
-      Computes :math:`\text{reltol} \max_{i \in \mathcal{S}} \|y_i - \tilde{y}_i\|_{WRMS}`
+      Computes :math:`\text{reltol} \max\limits_{i \in \mathcal{S}} \|y_i - \tilde{y}_i\|_{WRMS}`
 
    .. c:enumerator:: ARK_ACCUMERROR_SUM
 
-      Computes :math:`\text{reltol} \sum_{i \in \mathcal{S}} \|y_i - \tilde{y}_i\|_{WRMS}`
+      Computes :math:`\text{reltol} \sum\limits_{i \in \mathcal{S}} \|y_i - \tilde{y}_i\|_{WRMS}`
 
    .. c:enumerator:: ARK_ACCUMERROR_AVG
 
-      Computes :math:`\frac{\text{reltol}}{|\mathcal{S}|} \sum_{i \in \mathcal{S}} \|y_i - \tilde{y}_i\|_{WRMS}`.
+      Computes :math:`\frac{\text{reltol}}{\Delta t_{\mathcal{S}}} \sum\limits_{i \in \mathcal{S}} h_i \|y_i - \tilde{y}_i\|_{WRMS}`,
+      where :math:`h_i` is the step size used when computing :math:`y_i`, and
+      :math:`\Delta t_{\mathcal{S}}` denotes the elapsed time over which
+      :math:`\mathcal{S}` is taken.
 
 
 .. c:function:: int ARKodeSetAccumulatedErrorType(void* arkode_mem, ARKAccumError accum_type)
 
    Sets the strategy to use for accumulating a temporal error estimate
-   over multiple time steps.
+   over multiple time steps.  By default, ARKODE will not accumulate any
+   local error estimates (i.e., the default *accum_type* is ``ARK_ACCUMERROR_NONE``).
+
+   A non-default error accumulation strategy can be disabled by calling
+   :c:func:`ARKodeSetAccumulatedErrorType` with the argument ``ARK_ACCUMERROR_NONE``.
+
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param accum_type: accumulation strategy.
@@ -1806,14 +1816,6 @@ user-specified relative solution tolerance.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
                                     by the current time-stepping module.
-
-   .. note::
-
-      By default, ARKODE will not accumulate any local error estimates (i.e.,
-      the default *accum_type* is ``ARK_ACCUMERROR_NONE``).
-
-      A non-default error accumulation strategy can be disabled by calling
-      :c:func:`ARKodeSetAccumulatedErrorType` with the argument ``ARK_ACCUMERROR_NONE``.
 
    .. versionadded:: x.y.z
 

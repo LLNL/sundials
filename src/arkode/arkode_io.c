@@ -1992,8 +1992,8 @@ int ARKodeResetAccumulatedError(void* arkode_mem)
   }
 
   /* Reset value and counter, and return */
-  ark_mem->AccumErrorStep = ark_mem->nst;
-  ark_mem->AccumError     = ZERO;
+  ark_mem->AccumErrorStart = ark_mem->tn;
+  ark_mem->AccumError      = ZERO;
   return (ARK_SUCCESS);
 }
 
@@ -2447,7 +2447,7 @@ int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
 
   /* Get number of steps since last accumulated error reset
      (set floor of 1 to safeguard against division-by-zero) */
-  long int steps = SUNMAX(1, ark_mem->nst - ark_mem->AccumErrorStep);
+  sunrealtype time_interval = ark_mem->tcur - ark_mem->AccumErrorStart;
 
   /* Fill output based on error accumulation type */
   if (ark_mem->AccumErrorType == ARK_ACCUMERROR_MAX)
@@ -2460,7 +2460,7 @@ int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
   }
   else if (ark_mem->AccumErrorType == ARK_ACCUMERROR_AVG)
   {
-    *accum_error = ark_mem->AccumError * ark_mem->reltol / ((sunrealtype)steps);
+    *accum_error = ark_mem->AccumError * ark_mem->reltol / time_interval;
   }
   else
   {

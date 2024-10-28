@@ -82,7 +82,7 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
   C->ops->setdefaults     = SUNAdaptController_SetDefaults_MRIHTol;
   C->ops->write           = SUNAdaptController_Write_MRIHTol;
   C->ops->seterrorbias    = SUNAdaptController_SetErrorBias_MRIHTol;
-  C->ops->updatemritol    = SUNAdaptController_UpdateMRITol_MRIHTol;
+  C->ops->updatemrihtol   = SUNAdaptController_UpdateMRIHTol_MRIHTol;
   C->ops->space           = SUNAdaptController_Space_MRIHTol;
 
   /* Create content */
@@ -102,7 +102,7 @@ SUNAdaptController SUNAdaptController_MRIHTol(SUNAdaptController HControl,
   /* Attach content */
   C->content = content;
 
-  return (C);
+  return C;
 }
 
 /* -----------------------------------------------------------------
@@ -144,7 +144,7 @@ SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(SUNAdaptControll
 SUNAdaptController_Type SUNAdaptController_GetType_MRIHTol(
   SUNDIALS_MAYBE_UNUSED SUNAdaptController C)
 {
-  return SUN_ADAPTCONTROLLER_MRI_TOL;
+  return SUN_ADAPTCONTROLLER_MRI_H_TOL;
 }
 
 SUNErrCode SUNAdaptController_EstimateStepTol_MRIHTol(
@@ -227,11 +227,11 @@ SUNErrCode SUNAdaptController_SetErrorBias_MRIHTol(SUNAdaptController C,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdaptController_UpdateMRITol_MRIHTol(SUNAdaptController C,
-                                                   sunrealtype H,
-                                                   sunrealtype tolfac,
-                                                   sunrealtype DSM,
-                                                   sunrealtype dsm)
+SUNErrCode SUNAdaptController_UpdateMRIHTol_MRIHTol(SUNAdaptController C,
+                                                    sunrealtype H,
+                                                    sunrealtype tolfac,
+                                                    sunrealtype DSM,
+                                                    sunrealtype dsm)
 {
   SUNFunctionBegin(C->sunctx);
   SUNCheckCall(SUNAdaptController_UpdateH(MRIHTOL_CSLOW(C), H, DSM));

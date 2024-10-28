@@ -326,7 +326,7 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptControllerPI allocation failure");
+                    "SUNAdaptController_PI allocation failure");
     return (ARK_MEM_FAIL);
   }
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;

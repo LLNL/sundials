@@ -41,7 +41,7 @@ SUNAdaptController SUNAdaptController_MRIStep(ARKodeMem ark_mem,
   /* Return with failure if input controller is NULL or has
      unsupported type */
   if (CMRI == NULL) { return (NULL); }
-  if (SUNAdaptController_GetType(CMRI) != SUN_ADAPTCONTROLLER_MRI_TOL)
+  if (SUNAdaptController_GetType(CMRI) != SUN_ADAPTCONTROLLER_MRI_H_TOL)
   {
     return (NULL);
   }
@@ -111,9 +111,9 @@ SUNErrCode SUNAdaptController_UpdateH_MRIStep(SUNAdaptController C,
   if ((ark_mem == NULL) || (step_mem == NULL)) { return SUN_ERR_MEM_FAIL; }
 
   /* Update MRI controller */
-  SUNErrCode retval = SUNAdaptController_UpdateMRITol(MRICONTROL_C(C), H,
-                                                      step_mem->inner_rtol_factor,
-                                                      DSM, step_mem->inner_dsm);
+  SUNErrCode retval = SUNAdaptController_UpdateMRIHTol(MRICONTROL_C(C), H,
+                                                       step_mem->inner_rtol_factor,
+                                                       DSM, step_mem->inner_dsm);
   if (retval != SUN_SUCCESS) { return (retval); }
 
   /* Update inner controller parameter to most-recent prediction */

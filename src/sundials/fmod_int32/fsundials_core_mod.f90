@@ -511,10 +511,10 @@ module fsundials_core_mod
  enum, bind(c)
   enumerator :: SUN_ADAPTCONTROLLER_NONE
   enumerator :: SUN_ADAPTCONTROLLER_H
-  enumerator :: SUN_ADAPTCONTROLLER_MRI_TOL
+  enumerator :: SUN_ADAPTCONTROLLER_MRI_H_TOL
  end enum
  integer, parameter, public :: SUNAdaptController_Type = kind(SUN_ADAPTCONTROLLER_NONE)
- public :: SUN_ADAPTCONTROLLER_NONE, SUN_ADAPTCONTROLLER_H, SUN_ADAPTCONTROLLER_MRI_TOL
+ public :: SUN_ADAPTCONTROLLER_NONE, SUN_ADAPTCONTROLLER_H, SUN_ADAPTCONTROLLER_MRI_H_TOL
  ! struct struct _generic_SUNAdaptController_Ops
  type, bind(C), public :: SUNAdaptController_Ops
   type(C_FUNPTR), public :: gettype
@@ -526,7 +526,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: write
   type(C_FUNPTR), public :: seterrorbias
   type(C_FUNPTR), public :: updateh
-  type(C_FUNPTR), public :: updatemritol
+  type(C_FUNPTR), public :: updatemrihtol
   type(C_FUNPTR), public :: space
  end type SUNAdaptController_Ops
  ! struct struct _generic_SUNAdaptController
@@ -546,7 +546,7 @@ module fsundials_core_mod
  public :: FSUNAdaptController_Write
  public :: FSUNAdaptController_SetErrorBias
  public :: FSUNAdaptController_UpdateH
- public :: FSUNAdaptController_UpdateMRITol
+ public :: FSUNAdaptController_UpdateMRIHTol
  public :: FSUNAdaptController_Space
 
 ! WRAPPER DECLARATIONS
@@ -2051,8 +2051,8 @@ real(C_DOUBLE), intent(in) :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdaptController_UpdateMRITol(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FSUNAdaptController_UpdateMRITol") &
+function swigc_FSUNAdaptController_UpdateMRIHTol(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FSUNAdaptController_UpdateMRIHTol") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -4829,7 +4829,7 @@ fresult = swigc_FSUNAdaptController_UpdateH(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNAdaptController_UpdateMRITol(c, h, tolfac, dsm, dsm4) &
+function FSUNAdaptController_UpdateMRIHTol(c, h, tolfac, dsm, dsm4) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -4850,7 +4850,7 @@ farg2 = h
 farg3 = tolfac
 farg4 = dsm
 farg5 = dsm4
-fresult = swigc_FSUNAdaptController_UpdateMRITol(farg1, farg2, farg3, farg4, farg5)
+fresult = swigc_FSUNAdaptController_UpdateMRIHTol(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 

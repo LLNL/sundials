@@ -280,11 +280,7 @@ int main(int argc, char* argv[])
   }
 
   // Clean up and return
-  if (rk_type == 0)
-  { // Free integrator memory
-    ARKodeFree(&arkode_mem);
-  }
-  else { ARKodeFree(&arkode_mem); }
+  ARKodeFree(&arkode_mem);
   if (LS != NULL) SUNLinSolFree(LS); // free system linear solver
   if (A != NULL) SUNMatDestroy(A);   // free system matrix
   N_VDestroy(y);                     // Free y vector
@@ -298,17 +294,19 @@ int main(int argc, char* argv[])
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   UserData* udata     = (UserData*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
   sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-p(t))/(2*u)] + [pdot(t)/(2u)]
   //   [e -1] [(-2+v^2-s(t))/(2*v)]   [qdot(t)/(2v)]
-  tmp1              = (-TWO + u * u - p(t)) / (TWO * u);
-  tmp2              = (-TWO + v * v - q(t, *udata)) / (TWO * v);
-  NV_Ith_S(ydot, 0) = udata->G * tmp1 + udata->e * tmp2 + pdot(t) / (TWO * u);
-  NV_Ith_S(ydot, 1) = udata->e * tmp1 - tmp2 + qdot(t, *udata) / (TWO * v);
+  tmp1      = (-TWO + u * u - p(t)) / (TWO * u);
+  tmp2      = (-TWO + v * v - q(t, *udata)) / (TWO * v);
+  dydata[0] = udata->G * tmp1 + udata->e * tmp2 + pdot(t) / (TWO * u);
+  dydata[1] = udata->e * tmp1 - tmp2 + qdot(t, *udata) / (TWO * v);
 
   // Return with success
   return 0;
@@ -318,8 +316,9 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   UserData* udata     = (UserData*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
   sunrealtype t11, t22;
 
   // fill in the Jacobian:
@@ -355,6 +354,7 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   vector<sunrealtype> dsm(udata.Npart);
   vector<sunrealtype> dsm_est(udata.Npart);
   vector<long int> Nsteps(udata.Npart);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
 
   // Loop over tolerances
   cout << "\nAdaptive-step runs:\n";
@@ -416,9 +416,9 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
         }
 
         // Compute/print solution error
-        sunrealtype udsm = abs(NV_Ith_S(y, 0) - utrue(t)) /
+        sunrealtype udsm = abs(ydata[0] - utrue(t)) /
                            (abstol + rtols[irtol] * abs(utrue(t)));
-        sunrealtype vdsm = abs(NV_Ith_S(y, 1) - vtrue(t, udata)) /
+        sunrealtype vdsm = abs(ydata[1] - vtrue(t, udata)) /
                            (abstol + rtols[irtol] * abs(vtrue(t, udata)));
         dsm[ipart] = rtols[irtol] * sqrt(0.5 * (udsm * udsm + vdsm * vdsm));
         cout << "  rtol " << rtols[irtol] << "  rk_type " << rk_type
@@ -455,6 +455,7 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   vector<sunrealtype> dsm(udata.Npart);
   vector<sunrealtype> dsm_est(udata.Npart);
   vector<long int> Nsteps(udata.Npart);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
 
   // Loop over step sizes
   cout << "\nFixed-step runs:\n";
@@ -526,9 +527,9 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0,
         }
 
         // Compute/print solution error
-        sunrealtype udsm = abs(NV_Ith_S(y, 0) - utrue(t)) /
+        sunrealtype udsm = abs(ydata[0] - utrue(t)) /
                            (abstol + reltol * abs(utrue(t)));
-        sunrealtype vdsm = abs(NV_Ith_S(y, 1) - vtrue(t, udata)) /
+        sunrealtype vdsm = abs(ydata[1] - vtrue(t, udata)) /
                            (abstol + reltol * abs(vtrue(t, udata)));
         dsm[ipart] = reltol * sqrt(0.5 * (udsm * udsm + vdsm * vdsm));
         cout << "  h " << hvals[ih] << "  rk_type " << rk_type << "  order "
@@ -620,9 +621,9 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0,
       N_VLinearSum(ONE, y2, -ONE, y, y2);
       dsm_est[ipart] = reltol * N_VWrmsNorm(y2, ewt);
       Nsteps[ipart] += nsteps2;
-      sunrealtype udsm = abs(NV_Ith_S(y, 0) - utrue(t)) /
+      sunrealtype udsm = abs(ydata[0] - utrue(t)) /
                          (abstol + reltol * abs(utrue(t)));
-      sunrealtype vdsm = abs(NV_Ith_S(y, 1) - vtrue(t, udata)) /
+      sunrealtype vdsm = abs(ydata[1] - vtrue(t, udata)) /
                          (abstol + reltol * abs(vtrue(t, udata)));
       dsm[ipart] = reltol * sqrt(0.5 * (udsm * udsm + vdsm * vdsm));
       cout << "  h " << hvals[ih] << "  rk_type " << rk_type << "  order "
@@ -662,8 +663,9 @@ static sunrealtype vtrue(sunrealtype t, UserData& udata)
 
 static int Ytrue(sunrealtype t, N_Vector y, UserData& udata)
 {
-  NV_Ith_S(y, 0) = utrue(t);
-  NV_Ith_S(y, 1) = vtrue(t, udata);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  ydata[0]           = utrue(t);
+  ydata[1]           = vtrue(t, udata);
   return (0);
 }
 

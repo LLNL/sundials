@@ -86,7 +86,7 @@ The virtual table structure is defined as
    .. c:member:: SUNErrCode (*estimatesteptol)(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, int P, sunrealtype DSM, sunrealtype dsm, sunrealtype* Hnew, sunrealtype* tolfacnew)
 
       The function implementing :c:func:`SUNAdaptController_EstimateStepTol`
- 
+
       .. versionadded:: x.y.z
 
    .. c:member:: SUNErrCode (*reset)(SUNAdaptController C)
@@ -111,7 +111,7 @@ The virtual table structure is defined as
 
    .. c:member:: SUNErrCode (*updatemritol)(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
 
-      The function implementing :c:func:`SUNAdaptController_UpdateMRITol`
+      The function implementing :c:func:`SUNAdaptController_UpdateMRIHTol`
 
       .. versionadded:: x.y.z
 
@@ -144,11 +144,11 @@ following set of SUNAdaptController types:
 
    Controls a single-rate step size.
 
-.. c:enumerator:: SUN_ADAPTCONTROLLER_MRI_TOL
+.. c:enumerator:: SUN_ADAPTCONTROLLER_MRI_H_TOL
 
    Controls both a slow time step and a tolerance factor to apply on the next-faster
    time scale within a multirate simulation that has an arbitrary number of time scales.
-   
+
    .. versionadded:: x.y.z
 
 
@@ -191,11 +191,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
   :param C: the :c:type:`SUNAdaptController` object.
   :return: :c:type:`SUNErrCode` indicating success or failure.
 
-  Usage:
-
-  .. code-block:: c
-
-    retval = SUNAdaptController_DestroyEmpty(C);
 
 .. c:function:: SUNAdaptController_Type SUNAdaptController_GetType(SUNAdaptController C)
 
@@ -205,11 +200,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param C: the :c:type:`SUNAdaptController` object.
    :return: :c:type:`SUNAdaptController_Type` type identifier.
 
-   Usage:
-
-   .. code-block:: c
-
-      SUNAdaptController_Type id = SUNAdaptController_GetType(C);
 
 .. c:function:: SUNErrCode SUNAdaptController_Destroy(SUNAdaptController C)
 
@@ -223,11 +213,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param C: the :c:type:`SUNAdaptController` object.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_Destroy(C);
 
 .. c:function:: SUNErrCode SUNAdaptController_EstimateStep(SUNAdaptController C, sunrealtype h, int p, sunrealtype dsm, sunrealtype* hnew)
 
@@ -242,20 +227,15 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param hnew: (output) the estimated step size.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   Usage:
-
-   .. code-block:: c
-
-      retval = SUNAdaptController_EstimateStep(C, hcur, p, dsm, &hnew);
 
 .. c:function:: SUNErrCode SUNAdaptController_EstimateStepTol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, int P, sunrealtype DSM, sunrealtype dsm, sunrealtype* Hnew, sunrealtype* tolfacnew)
 
    Estimates a slow step size and a fast tolerance multiplication factor
    for two adjacent time scales within a multirate application.
-   
-   This routine is required for controllers of type :c:enumerator`SUN_ADAPTCONTROLLER_MRI_TOL`.
+
+   This routine is required for controllers of type :c:enumerator`SUN_ADAPTCONTROLLER_MRI_H_TOL`.
    If the current time scale has relative tolerance ``rtol``, then the
-   next-faster time scale will be called with relative tolerance ``tolfac * rtol``. 
+   next-faster time scale will be called with relative tolerance ``tolfac * rtol``.
    If this is not provided by the implementation, the base class method will set
    ``*Hnew = H`` and ``*tolfacnew = tolfac`` and return.
 
@@ -270,11 +250,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
    .. versionadded:: x.y.z
-   Usage:
 
-   .. code-block:: c
-
-      retval = SUNAdaptController_EstimateStepTol(C, Hcur, tolfac, P, DSM, dsm, &Hnew, &tolfacnew);
 
 .. c:function:: SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
 
@@ -283,7 +259,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    :param C:  the :c:type:`SUNAdaptController` object.
    :return: :c:type:`SUNErrCode` indicating success or failure.
-   
+
    .. versionadded:: x.y.z
 
 
@@ -293,7 +269,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    :param C:  the :c:type:`SUNAdaptController` object.
    :return: :c:type:`SUNErrCode` indicating success or failure.
-   
+
    .. versionadded:: x.y.z
 
 
@@ -332,9 +308,9 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNAdaptController_UpdateMRITol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
+.. c:function:: SUNErrCode SUNAdaptController_UpdateMRIHTol(SUNAdaptController C, sunrealtype H, sunrealtype tolfac, sunrealtype DSM, sunrealtype dsm)
 
-   Notifies a controller of type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_TOL` that a successful time step
+   Notifies a controller of type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL` that a successful time step
    was taken with slow stepsize ``H`` and fast relative tolerance factor ``tolfac``, and that the
    step had slow and fast local error factors ``DSM`` and ``dsm``, indicating that these can be
    saved for subsequent controller functions. This is typically relevant for controllers that
@@ -346,7 +322,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param DSM:  the successful slow temporal error estimate.
    :param dsm:  the successful fast temporal error estimate.
    :return: :c:type:`SUNErrCode` indicating success or failure.
-   
+
    .. versionadded:: x.y.z
 
 

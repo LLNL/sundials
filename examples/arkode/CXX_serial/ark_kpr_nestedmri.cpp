@@ -934,11 +934,11 @@ int main(int argc, char* argv[])
   // Main time-stepping loop: calls ARKodeEvolve to perform the
   // integration, then prints results. Stops when the final time
   // has been reached
-  sunrealtype t     = T0;
-  sunrealtype t2    = T0;
-  sunrealtype dTout = (Tf - T0) / Nt;
-  sunrealtype tout  = T0 + dTout;
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype t         = T0;
+  sunrealtype t2        = T0;
+  sunrealtype dTout     = (Tf - T0) / Nt;
+  sunrealtype tout      = T0 + dTout;
+  sunrealtype* ydata    = N_VGetArrayPointer(y);
   sunrealtype* yrefdata = N_VGetArrayPointer(yref);
   sunrealtype u, v, w, uerr, verr, werr, uerrtot, verrtot, werrtot, errtot,
     accuracy;
@@ -949,9 +949,9 @@ int main(int argc, char* argv[])
          "---------------------------------------------------------------------"
          "-------\n");
   printf("  %10.6" FSYM " %10.6" FSYM " %10.6" FSYM " %10.6" FSYM "   %.2" ESYM
-  while (Tf - t > SUN_RCONST(1.0e-8))
+         "   %.2" ESYM "   %.2" ESYM "\n",
          t, ydata[0], ydata[1], ydata[2], uerr, verr, werr);
-  while (Tf - t > SUN_RCONST(1.0e-8))  
+  while (Tf - t > SUN_RCONST(1.0e-8))
   {
     // reset reference solver so that it begins with identical state
     retval = ARKodeReset(arkode_ref, t, y);
@@ -985,15 +985,12 @@ int main(int argc, char* argv[])
     verrtot += verr * verr;
     werrtot += werr * werr;
     errtot += uerr * uerr + verr * verr + werr * werr;
-    accuracy =
-      std::max(accuracy,
-               uerr / std::abs(opts.atol + opts.rtol * NV_Ith_S(yref, 0)));
-    accuracy =
-      std::max(accuracy,
-               verr / std::abs(opts.atol + opts.rtol * NV_Ith_S(yref, 1)));
-    accuracy =
-      std::max(accuracy,
-               werr / std::abs(opts.atol + opts.rtol * NV_Ith_S(yref, 2)));
+    accuracy = std::max(accuracy,
+                        uerr / std::abs(opts.atol + opts.rtol * yrefdata[0]));
+    accuracy = std::max(accuracy,
+                        verr / std::abs(opts.atol + opts.rtol * yrefdata[1]));
+    accuracy = std::max(accuracy,
+                        werr / std::abs(opts.atol + opts.rtol * yrefdata[2]));
 
     // Periodically output current results to screen
     if (t >= tout)
@@ -1021,8 +1018,10 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumStepAttempts");
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netfs);
   check_flag(retval, "ARKodeGetNumErrTestFails");
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_flag(retval, "MRIStepGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfse);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfsi);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Get some intermediate integrator statistics
   long int nstm, nattm, netfm, nfme, nfmi;
@@ -1032,8 +1031,10 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumStepAttempts");
   retval = ARKodeGetNumErrTestFails(mid_arkode_mem, &netfm);
   check_flag(retval, "ARKodeGetNumErrTestFails");
-  retval = MRIStepGetNumRhsEvals(mid_arkode_mem, &nfme, &nfmi);
-  check_flag(retval, "MRIStepGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(mid_arkode_mem, 0, &nfme);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(mid_arkode_mem, 1, &nfmi);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Get some fast integrator statistics
   long int nstf, nattf, netff, nff;
@@ -1043,14 +1044,14 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumStepAttempts");
   retval = ARKodeGetNumErrTestFails(inner_arkode_mem, &netff);
   check_flag(retval, "ARKodeGetNumErrTestFails");
-  retval = ERKStepGetNumRhsEvals(inner_arkode_mem, &nff);
-  check_flag(retval, "ERKStepGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 0, &nff);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Print some final statistics
-  uerrtot = std::sqrt(uerrtot / nsts);
-  verrtot = std::sqrt(verrtot / nsts);
-  werrtot = std::sqrt(werrtot / nsts);
-  errtot  = std::sqrt(errtot / nsts / 3);  
+  uerrtot = std::sqrt(uerrtot / (sunrealtype)nsts);
+  verrtot = std::sqrt(verrtot / (sunrealtype)nsts);
+  werrtot = std::sqrt(werrtot / (sunrealtype)nsts);
+  errtot  = std::sqrt(errtot / SUN_RCONST(3.0) / (sunrealtype)nsts);
   std::cout << "\nFinal Solver Statistics:\n";
   std::cout << "   Slow steps = " << nsts << "  (attempts = " << natts
             << ",  fails = " << netfs << ")\n";
@@ -1074,10 +1075,12 @@ int main(int argc, char* argv[])
     retval = ARKodeGetNumJacEvals(arkode_mem, &njes);
     check_flag(retval, "ARKodeGetNumJacEvals");
     std::cout << "   Slow Newton iters = " << nnis << std::endl;
-    std::cout << "   Slow Newton iters/attempt = " << nnis/natts << std::endl;
+    std::cout << "   Slow Newton iters/attempt = "
+              << (sunrealtype)nnis / (sunrealtype)natts << std::endl;
     std::cout << "   Slow Newton conv fails = " << nncs << std::endl;
     std::cout << "   Slow Jacobian evals = " << njes << std::endl;
-    std::cout << "   Slow Jacobian evals/Newton = " << njes/nnis << std::endl;
+    std::cout << "   Slow Jacobian evals/Newton = "
+              << (sunrealtype)njes / (sunrealtype)nnis << std::endl;
   }
 
   // Get/print intermediate integrator implicit solver statistics
@@ -1089,10 +1092,12 @@ int main(int argc, char* argv[])
     retval = ARKodeGetNumJacEvals(mid_arkode_mem, &njem);
     check_flag(retval, "ARKodeGetNumJacEvals");
     std::cout << "   Intermediate Newton iters = " << nnim << std::endl;
-    std::cout << "   Intermediate Newton iters/attempt = " << nnim/nattm << std::endl;
+    std::cout << "   Intermediate Newton iters/attempt = "
+              << (sunrealtype)nnim / (sunrealtype)nattm << std::endl;
     std::cout << "   Intermediate Newton conv fails = " << nncm << std::endl;
     std::cout << "   Intermediate Jacobian evals = " << njem << std::endl;
-    std::cout << "   Intermediate Jacobian evals/Newton = " << njem/nnim << std::endl;
+    std::cout << "   Intermediate Jacobian evals/Newton = "
+              << (sunrealtype)njem / (sunrealtype)nnim << std::endl;
   }
 
   // Clean up and return
@@ -1144,14 +1149,12 @@ static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ G   e   e ] [(u^2-p-2)/(2u)] +  [ pdot(t)/(2u) ]
   //   [ e  al  be ] [(v^2-q-2)/(2v)]    [ qdot(t)/(2v) ]
   //   [ e -be  al ] [(w^2-r-2)/(2w)]    [ rdot(t)/(2w) ]
-  tmp1 = (-TWO + u * u - p(t, *opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - q(t, *opts)) / (TWO * v);
-  tmp3 = (-TWO + w * w - r(t, *opts)) / (TWO * w);
+  tmp1        = (-TWO + u * u - p(t, *opts)) / (TWO * u);
+  tmp2        = (-TWO + v * v - q(t, *opts)) / (TWO * v);
+  tmp3        = (-TWO + w * w - r(t, *opts)) / (TWO * w);
   ydotdata[0] = G * tmp1 + e * tmp2 + e * tmp3 + pdot(t, *opts) / (TWO * u);
-  ydotdata[1] = e * tmp1 + al * tmp2 + be * tmp3 +
-                qdot(t, *opts) / (TWO * v);
-  ydotdata[2] = e * tmp1 - be * tmp2 + al * tmp3 +
-                rdot(t, *opts) / (TWO * w);
+  ydotdata[1] = e * tmp1 + al * tmp2 + be * tmp3 + qdot(t, *opts) / (TWO * v);
+  ydotdata[2] = e * tmp1 - be * tmp2 + al * tmp3 + rdot(t, *opts) / (TWO * w);
 
   // Return with success
   return 0;
@@ -1175,13 +1178,12 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ 0   0   0 ] [(u^2-p-2)/(2u)] +  [      0       ]
   //   [ 0   0   0 ] [(v^2-q-2)/(2v)]    [      0       ]
   //   [ e -be  al ] [(w^2-r-2)/(2w)]    [ rdot(t)/(2w) ]
-  tmp1              = (-TWO + u * u - p(t, *opts)) / (TWO * u);
-  tmp2              = (-TWO + v * v - q(t, *opts)) / (TWO * v);
-  tmp3              = (-TWO + w * w - r(t, *opts)) / (TWO * w);
+  tmp1        = (-TWO + u * u - p(t, *opts)) / (TWO * u);
+  tmp2        = (-TWO + v * v - q(t, *opts)) / (TWO * v);
+  tmp3        = (-TWO + w * w - r(t, *opts)) / (TWO * w);
   ydotdata[0] = ZERO;
   ydotdata[1] = ZERO;
-  ydotdata[2] = e * tmp1 - be * tmp2 + al * tmp3 +
-                rdot(t, *opts) / (TWO * w);
+  ydotdata[2] = e * tmp1 - be * tmp2 + al * tmp3 + rdot(t, *opts) / (TWO * w);
 
   // Return with success
   return 0;
@@ -1205,12 +1207,11 @@ static int fm(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ 0   0   0 ] [(u^2-p-2)/(2u)] +  [      0       ]
   //   [ e  al  be ] [(v^2-q-2)/(2v)]    [ qdot(t)/(2v) ]
   //   [ 0   0   0 ] [(w^2-r-2)/(2w)]    [      0       ]
-  tmp1              = (-TWO + u * u - p(t, *opts)) / (TWO * u);
-  tmp2              = (-TWO + v * v - q(t, *opts)) / (TWO * v);
-  tmp3              = (-TWO + w * w - r(t, *opts)) / (TWO * w);
+  tmp1        = (-TWO + u * u - p(t, *opts)) / (TWO * u);
+  tmp2        = (-TWO + v * v - q(t, *opts)) / (TWO * v);
+  tmp3        = (-TWO + w * w - r(t, *opts)) / (TWO * w);
   ydotdata[0] = ZERO;
-  ydotdata[1] = e * tmp1 + al * tmp2 + be * tmp3 +
-                qdot(t, *opts) / (TWO * v);
+  ydotdata[1] = e * tmp1 + al * tmp2 + be * tmp3 + qdot(t, *opts) / (TWO * v);
   ydotdata[2] = ZERO;
 
   return 0;
@@ -1281,9 +1282,9 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
   //   [ G   e   e ] [(u^2-p-2)/(2u)] +  [ pdot(t)/(2u) ]
   //   [ 0   0   0 ] [(v^2-q-2)/(2v)]    [      0       ]
   //   [ 0   0   0 ] [(w^2-r-2)/(2w)]    [      0       ]
-  tmp1 = (-TWO + u * u - p(t, *opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - q(t, *opts)) / (TWO * v);
-  tmp3 = (-TWO + w * w - r(t, *opts)) / (TWO * w);
+  tmp1        = (-TWO + u * u - p(t, *opts)) / (TWO * u);
+  tmp2        = (-TWO + v * v - q(t, *opts)) / (TWO * v);
+  tmp3        = (-TWO + w * w - r(t, *opts)) / (TWO * w);
   ydotdata[0] = G * tmp1 + e * tmp2 + e * tmp3 + pdot(t, *opts) / (TWO * u);
   ydotdata[1] = ZERO;
   ydotdata[2] = ZERO;
@@ -1294,7 +1295,7 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 // fse routine to compute the explicit slow portion of the ODE RHS.
 static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  Options* opts.        = static_cast<Options*>(user_data);
+  Options* opts         = static_cast<Options*>(user_data);
   sunrealtype* ydata    = N_VGetArrayPointer(y);
   sunrealtype* ydotdata = N_VGetArrayPointer(ydot);
   const sunrealtype u   = ydata[0];
@@ -1342,11 +1343,11 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int Jm(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts         = static_cast<Options*>(user_data);
-  sunrealtype* ydata    = N_VGetArrayPointer(y);
-  const sunrealtype u   = ydata[0];
-  const sunrealtype v   = ydata[1];
-  const sunrealtype w   = ydata[2];
+  Options* opts       = static_cast<Options*>(user_data);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
+  const sunrealtype w = ydata[2];
   sunrealtype t11, t22, t33;
 
   // fill in the Jacobian:
@@ -1374,11 +1375,11 @@ static int Jm(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Jmi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts         = static_cast<Options*>(user_data);
-  sunrealtype* ydata    = N_VGetArrayPointer(y);
-  const sunrealtype u   = ydata[0];
-  const sunrealtype v   = ydata[1];
-  const sunrealtype w   = ydata[2];
+  Options* opts       = static_cast<Options*>(user_data);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
+  const sunrealtype w = ydata[2];
   sunrealtype t11, t22, t33;
 
   // fill in the Jacobian:
@@ -1406,11 +1407,11 @@ static int Jmi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts         = static_cast<Options*>(user_data);
-  sunrealtype* ydata    = N_VGetArrayPointer(y);
-  const sunrealtype u   = ydata[0];
-  const sunrealtype v   = ydata[1];
-  const sunrealtype w   = ydata[2];
+  Options* opts       = static_cast<Options*>(user_data);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
+  const sunrealtype w = ydata[2];
   sunrealtype t11, t22, t33;
 
   // fill in the Jacobian:
@@ -1438,11 +1439,11 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  Options* opts         = static_cast<Options*>(user_data);
-  sunrealtype* ydata    = N_VGetArrayPointer(y);
-  const sunrealtype u   = ydata[0];
-  const sunrealtype v   = ydata[1];
-  const sunrealtype w   = ydata[2];
+  Options* opts       = static_cast<Options*>(user_data);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
+  const sunrealtype w = ydata[2];
   sunrealtype t11, t22, t33;
 
   // fill in the Jacobian:

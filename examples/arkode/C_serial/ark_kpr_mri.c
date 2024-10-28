@@ -190,8 +190,8 @@ int main(int argc, char* argv[])
     printf("  ark_kpr_mri slow_type fast_type h G w e deduce_rhs");
     return (-1);
   }
-  slow_type = atoi(argv[1]);  
-  fast_type = atoi(argv[2]); 
+  slow_type = atoi(argv[1]);
+  fast_type = atoi(argv[2]);
   if (argc > 3) { hs = SUNStrToReal(argv[3]); }
   if (argc > 4) { G = SUNStrToReal(argv[4]); }
   if (argc > 5) { w = SUNStrToReal(argv[5]); }
@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
   }
   if ((fast_type < 0) || (fast_type > 5))
   {
-    printf("ERROR: fast_type be an integer in [0,5] \n");  
+    printf("ERROR: fast_type be an integer in [0,5] \n");
     return (-1);
   }
   if ((slow_type == 0) && (fast_type == 0))
@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
     printf("ERROR: at least one of slow_type and fast_type must be nonzero\n");
     return (-1);
   }
-  if (((slow_type == 9) || (slow_type == 10)) && (fast_type == 0))
+  if ((slow_type >= 9) && (fast_type == 0))
   {
     printf("ERROR: example not configured for ImEx slow solver with no fast "
            "solver\n");
@@ -432,8 +432,7 @@ int main(int argc, char* argv[])
   /* Set Butcher table for fast integrator */
   switch (fast_type)
   {
-  case (0):
-    break;
+  case (0): break;
   case (1):
     B = ARKodeButcherTable_Alloc(3, SUNFALSE);
     if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }

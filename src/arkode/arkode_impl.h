@@ -463,7 +463,6 @@ struct ARKodeMemRec
   ARKMassMultFn step_mmult;
 
   /* Time stepper module -- forcing */
-  sunbooleantype step_supports_forcing;
   ARKTimestepSetForcingFn step_setforcing;
 
   /* N_Vector storage */
@@ -540,9 +539,9 @@ struct ARKodeMemRec
   sunrealtype terr;  /* error in tn for compensated sums            */
   sunrealtype hold;  /* last successful h value used                */
   sunrealtype tolsf; /* tolerance scale factor (suggestion to user) */
-  ARKAccumError AccumErrorType; /* accumulated error estimation type      */
-  long int AccumErrorStep; /* time step of last accumulated error reset   */
-  sunrealtype AccumError;  /* accumulated error estimate                  */
+  ARKAccumError AccumErrorType; /* accumulated error estimation type   */
+  sunrealtype AccumErrorStart;  /* time of last accumulated error reset */
+  sunrealtype AccumError;       /* accumulated error estimate               */
   sunbooleantype VabstolMallocDone;
   sunbooleantype VRabstolMallocDone;
   sunbooleantype MallocDone;

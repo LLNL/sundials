@@ -240,8 +240,9 @@ static int f0(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   // fill in the RHS function and return with success
-  UserData* udata   = (UserData*)user_data;
-  NV_Ith_S(ydot, 0) = udata->a * t * t + udata->b * t + udata->c;
+  UserData* udata     = (UserData*)user_data;
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  dydata[0]           = udata->a * t * t + udata->b * t + udata->c;
   return 0;
 }
 
@@ -264,9 +265,11 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
   // Reused variables
   int retval;
   sunrealtype t;
-  N_Vector vtemp = N_VClone(y);
-  N_Vector ele   = N_VClone(y);
-  N_Vector ewt   = N_VClone(y);
+  N_Vector vtemp     = N_VClone(y);
+  N_Vector ele       = N_VClone(y);
+  N_Vector ewt       = N_VClone(y);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunrealtype* vdata = N_VGetArrayPointer(vtemp);
 
   // Set storage for errors
   vector<sunrealtype> dsm(Hvals.size(), ZERO);
@@ -298,18 +301,17 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
     // Compute/print solution error
     retval = Ytrue(t, vtemp, udata);
     if (check_retval(&retval, "Ytrue", 1)) return 1;
-    dsm[iH] = abs(NV_Ith_S(y, 0) - NV_Ith_S(vtemp, 0)) /
-              (abstol + reltol * abs(NV_Ith_S(vtemp, 0)));
+    dsm[iH] = abs(ydata[0] - vdata[0]) / (abstol + reltol * abs(vdata[0]));
     if (method == "ARKODE_MRI_GARK_ERK22a")
     {
       printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e   "
              " dsm_est_anal  %.2e\n",
              Hvals[iH], dsm[iH], dsm_est[iH],
              Hvals[iH] * Hvals[iH] * Hvals[iH] * abs(udata.a / 12.0) /
-               (abstol + reltol * abs(NV_Ith_S(vtemp, 0))),
+               (abstol + reltol * abs(vdata[0])),
              Hvals[iH] * Hvals[iH] *
                abs(udata.a * Hvals[iH] / 4.0 + udata.b / 2.0) /
-               (abstol + reltol * abs(NV_Ith_S(vtemp, 0))));
+               (abstol + reltol * abs(vdata[0])));
     }
     else if (method == "ARKODE_MRI_GARK_IRK21a")
     {
@@ -317,10 +319,10 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
              " dsm_est_anal  %.2e\n",
              Hvals[iH], dsm[iH], dsm_est[iH],
              Hvals[iH] * Hvals[iH] * Hvals[iH] * abs(udata.a / 6.0) /
-               (abstol + reltol * abs(NV_Ith_S(vtemp, 0))),
+               (abstol + reltol * abs(vdata[0])),
              Hvals[iH] * Hvals[iH] *
                abs(udata.a * Hvals[iH] / 2.0 + udata.b / 2.0) /
-               (abstol + reltol * abs(NV_Ith_S(vtemp, 0))));
+               (abstol + reltol * abs(vdata[0])));
     }
     else if (method == "ARKODE_IMEX_MRI_SR21")
     {
@@ -328,11 +330,11 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
              " dsm_est_anal  %.2e\n",
              Hvals[iH], dsm[iH], dsm_est[iH],
              Hvals[iH] * Hvals[iH] * Hvals[iH] * abs(udata.a * 3137.0 / 50370.0) /
-               (abstol + reltol * abs(NV_Ith_S(vtemp, 0))),
+               (abstol + reltol * abs(vdata[0])),
              Hvals[iH] * Hvals[iH] *
                abs(udata.a * Hvals[iH] * 20191.0 / 755550.0 -
                    udata.b * 19.0 / 30.0) /
-               (abstol + reltol * abs(NV_Ith_S(vtemp, 0))));
+               (abstol + reltol * abs(vdata[0])));
     }
     else
     {
@@ -349,8 +351,9 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
 
 static int Ytrue(sunrealtype t, N_Vector y, UserData& udata)
 {
-  NV_Ith_S(y, 0) = udata.a / SUN_RCONST(3.0) * t * t * t +
-                   udata.b / SUN_RCONST(2.0) * t * t + udata.c * t + ONE;
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  ydata[0]           = udata.a / SUN_RCONST(3.0) * t * t * t +
+             udata.b / SUN_RCONST(2.0) * t * t + udata.c * t + ONE;
   return (0);
 }
 

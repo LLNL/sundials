@@ -273,8 +273,6 @@ are defined ``arkode/arkode_mristep.h``.
               A ``NULL`` pointer if ``stages`` was invalid, an allocation error occurred,
               or the input data arrays are inconsistent with the method type.
 
-   .. note::
-
 
 .. c:function:: MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B, int q, int p)
 
@@ -425,19 +423,23 @@ with values specified for each method below (e.g., ``ARKODE_MIS_KW3``).
 
 Notes regarding the above table:
 
-#. The default method for each order when using fixed step sizes is marked with an asterisk (:math:`^*`).
+#. The default method for each order when using fixed step sizes is marked with an
+   asterisk (:math:`^*`).
 
-#. The default method for each order when using adaptive time stepping is marked with a circle (:math:`^\circ`).
+#. The default method for each order when using adaptive time stepping is marked
+   with a circle (:math:`^\circ`).
 
-#. The "Slow RHS Calls" column corresponds to the number of calls to the slow right-hand side function,
-   :math:`f^E`, per time step.
+#. The "Slow RHS Calls" column corresponds to the number of calls to the slow
+   right-hand side function, :math:`f^E`, per time step.
 
-#. Note A: although all MERK methods were derived in :cite:p:`Luan:20` under an assumption that the fast time
-   scale is linear in the solution, in :cite:p:`Fish:24` it was proven that they also satisfy all nonlinear
-   order conditions up through their linear order.  The lone exception is MERK54, where it was only proven to
-   satisfy all nonlinear conditions up to order 4, since :cite:p:`Fish:24` did not establish the formulas for
-   the order 5 conditions.  All our numerical tests to date have shown MERK54 to achieve fifth order for
-   nonlinear problems, and so we conjecture that it also satisfies the nonlinear fifth order conditions.
+#. Note A: although all MERK methods were derived in :cite:p:`Luan:20` under an assumption
+   that the fast function :math:`f^F(t,y)` is linear in :math:`y`, in :cite:p:`Fish:24` it
+   was proven that MERK methods also satisfy all nonlinear order conditions up through
+   their linear order.  The lone exception is :index:`ARKODE_MERK54`, where it was only
+   proven to satisfy all nonlinear conditions up to order 4 (since :cite:p:`Fish:24` did
+   not establish the formulas for the order 5 conditions).  All our numerical tests to
+   date have shown :index:`ARKODE_MERK54` to achieve fifth order for nonlinear problems,
+   and so we conjecture that it also satisfies the nonlinear fifth order conditions.
 
 
 .. table:: Diagonally-implicit, solve-decoupled MRI-GARK coupling tables. The default

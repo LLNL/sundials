@@ -815,7 +815,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     /* Check for too much accuracy requested */
     nrm            = N_VWrmsNorm(ark_mem->yn, ark_mem->ewt);
     ark_mem->tolsf = ark_mem->uround * nrm;
-    if (ark_mem->tolsf > ONE)
+    if (ark_mem->tolsf > ONE && !ark_mem->fixedstep)
     {
       arkProcessError(ark_mem, ARK_TOO_MUCH_ACC, __LINE__, __func__, __FILE__,
                       MSG_ARK_TOO_MUCH_ACC, ark_mem->tcur);
@@ -1373,7 +1373,7 @@ int ARKodeCreateMRIStepInnerStepper(void* inner_arkode_mem,
   ark_mem = (ARKodeMem)inner_arkode_mem;
 
   /* return with an error if the ARKODE solver does not support forcing */
-  if (!ark_mem->step_supports_forcing)
+  if (ark_mem->step_setforcing == NULL)
   {
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not support forcing");
@@ -1851,6 +1851,14 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
   sunrealtype tout_hin, rh, htmp;
   sunbooleantype conOK;
 
+  /* Check that user has supplied an initial step size if fixedstep mode is on */
+  if ((ark_mem->fixedstep) && (ark_mem->hin == ZERO))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Fixed step mode enabled, but no step size set");
+    return (ARK_ILL_INPUT);
+  }
+
   /* If using a built-in routine for error/residual weights with abstol==0,
      ensure that N_VMin is available */
   if ((!ark_mem->user_efun) && (ark_mem->atolmin0) && (!ark_mem->yn->ops->nvmin))
@@ -1865,6 +1873,30 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                     __FILE__, "N_VMin unimplemented (required by residual-weight function)");
     return (ARK_ILL_INPUT);
+  }
+
+  /* Test input tstop for legality (correct direction of integration) */
+  if (ark_mem->tstopset)
+  {
+    htmp = (ark_mem->h == ZERO) ? tout - ark_mem->tcur : ark_mem->h;
+    if ((ark_mem->tstop - ark_mem->tcur) * htmp <= ZERO)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);
+      return (ARK_ILL_INPUT);
+    }
+  }
+
+  /* Check to see if y0 satisfies constraints */
+  if (ark_mem->constraintsSet)
+  {
+    conOK = N_VConstrMask(ark_mem->constraints, ark_mem->yn, ark_mem->tempv1);
+    if (!conOK)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_ARK_Y0_FAIL_CONSTR);
+      return (ARK_ILL_INPUT);
+    }
   }
 
   /* Load initial error weights */
@@ -1919,38 +1951,6 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
         arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                         MSG_ARK_BAD_RWT);
       }
-      return (ARK_ILL_INPUT);
-    }
-  }
-
-  /* Check that user has supplied an initial step size if fixedstep mode is on */
-  if ((ark_mem->fixedstep) && (ark_mem->hin == ZERO))
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Fixed step mode enabled, but no step size set");
-    return (ARK_ILL_INPUT);
-  }
-
-  /* Test input tstop for legality (correct direction of integration) */
-  if (ark_mem->tstopset)
-  {
-    htmp = (ark_mem->h == ZERO) ? tout - ark_mem->tcur : ark_mem->h;
-    if ((ark_mem->tstop - ark_mem->tcur) * htmp <= ZERO)
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);
-      return (ARK_ILL_INPUT);
-    }
-  }
-
-  /* Check to see if y0 satisfies constraints */
-  if (ark_mem->constraintsSet)
-  {
-    conOK = N_VConstrMask(ark_mem->constraints, ark_mem->yn, ark_mem->tempv1);
-    if (!conOK)
-    {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      MSG_ARK_Y0_FAIL_CONSTR);
       return (ARK_ILL_INPUT);
     }
   }
@@ -2594,7 +2594,11 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
     {
       ark_mem->AccumError = SUNMAX(dsm, ark_mem->AccumError);
     }
-    else { ark_mem->AccumError += dsm; }
+    else if (ark_mem->AccumErrorType == ARK_ACCUMERROR_SUM)
+    {
+      ark_mem->AccumError += dsm;
+    }
+    else /* ARK_ACCUMERROR_AVG */ { ark_mem->AccumError += (dsm * ark_mem->h); }
   }
 
   /* apply user-supplied step postprocessing function (if supplied) */

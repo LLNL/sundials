@@ -271,6 +271,10 @@ int main(int argc, char* argv[])
   if (check_ptr((void*)y, "N_VNew_Serial")) return 1;
   N_Vector yref = N_VNew_Serial(NEQ, refctx);
   if (check_ptr((void*)yref, "N_VNew_Serial")) return 1;
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  if (check_ptr((void*)ydata, "N_VGetArrayPointer")) return 1;
+  sunrealtype* yrefdata = N_VGetArrayPointer(yref);
+  if (check_ptr((void*)yrefdata, "N_VGetArrayPointer")) return 1;
 
   // Set initial conditions
   retval = Ytrue(T0, y, &opts);
@@ -678,17 +682,14 @@ int main(int argc, char* argv[])
   printf("   ------------------------------------------------------\n");
   printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %.2" ESYM "  %.2" ESYM
          "\n",
-         t, NV_Ith_S(y, 0), NV_Ith_S(y, 1), uerr, verr);
-  int Nout = 0;
-  while (Tf - t > 1.0e-8)
+         t, ydata[0], ydata[1], uerr, verr);
+  while (Tf - t > SUN_RCONST(1.0e-8))
   {
     // reset reference solver so that it begins with identical state
     retval = ARKodeReset(arkode_ref, t, y);
 
     // evolve solution in one-step mode
-    retval = ARKodeSetStopTime(arkode_mem, tout);
-    if (check_flag(retval, "ARKodeSetStopTime")) return 1;
-    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_ONE_STEP);
+    retval = ARKodeEvolve(arkode_mem, Tf, y, &t, ARK_ONE_STEP);
     if (retval < 0)
     {
       printf("ARKodeEvolve error (%i)\n", retval);
@@ -698,7 +699,7 @@ int main(int argc, char* argv[])
     // evolve reference solver to same time in "normal" mode
     retval = ARKodeSetStopTime(arkode_ref, t);
     if (check_flag(retval, "ARKodeSetStopTime")) return 1;
-    retval = ARKodeEvolve(arkode_ref, t, yref, &t2, ARK_NORMAL);
+    retval = ARKodeEvolve(arkode_ref, Tf, yref, &t2, ARK_NORMAL);
     if (retval < 0)
     {
       printf("ARKodeEvolve reference solution error (%i)\n", retval);
@@ -706,18 +707,17 @@ int main(int argc, char* argv[])
     }
 
     // access/print solution and error
-    u    = NV_Ith_S(y, 0);
-    v    = NV_Ith_S(y, 1);
-    uerr = SUNRabs(NV_Ith_S(yref, 0) - u);
-    verr = SUNRabs(NV_Ith_S(yref, 1) - v);
+    u    = ydata[0];
+    v    = ydata[1];
+    uerr = std::abs(yrefdata[0] - u);
+    verr = std::abs(yrefdata[1] - v);
     uerrtot += uerr * uerr;
     verrtot += verr * verr;
     errtot += uerr * uerr + verr * verr;
-    accuracy = std::max(accuracy, uerr / SUNRabs(opts.atol +
-                                                 opts.rtol * NV_Ith_S(yref, 0)));
-    accuracy = std::max(accuracy, verr / SUNRabs(opts.atol +
-                                                 opts.rtol * NV_Ith_S(yref, 1)));
-    Nout++;
+    accuracy = std::max(accuracy,
+                        uerr / std::abs(opts.atol + opts.rtol * yrefdata[0]));
+    accuracy = std::max(accuracy,
+                        verr / std::abs(opts.atol + opts.rtol * yrefdata[1]));
 
     // Periodically output current results to screen
     if (t >= tout)
@@ -729,9 +729,6 @@ int main(int argc, char* argv[])
              t, u, v, uerr, verr);
     }
   }
-  uerrtot = SUNRsqrt(uerrtot / Nt);
-  verrtot = SUNRsqrt(verrtot / Nt);
-  errtot  = SUNRsqrt(errtot / Nt / 2);
   printf("   ------------------------------------------------------\n");
 
   //
@@ -746,8 +743,10 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumStepAttempts");
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netfs);
   check_flag(retval, "ARKodeGetNumErrTestFails");
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_flag(retval, "MRIStepGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfse);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfsi);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Get some fast integrator statistics
   long int nstf, nattf, netff, nff;
@@ -757,10 +756,13 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumStepAttempts");
   retval = ARKodeGetNumErrTestFails(inner_arkode_mem, &netff);
   check_flag(retval, "ARKodeGetNumErrTestFails");
-  retval = ERKStepGetNumRhsEvals(inner_arkode_mem, &nff);
-  check_flag(retval, "ERKStepGetNumRhsEvals");
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 0, &nff);
+  check_flag(retval, "ARKodeGetNumRhsEvals");
 
   // Print some final statistics
+  uerrtot = std::sqrt(uerrtot / (sunrealtype)nsts);
+  verrtot = std::sqrt(verrtot / (sunrealtype)nsts);
+  errtot  = std::sqrt(errtot / SUN_RCONST(2.0) / (sunrealtype)nsts);
   std::cout << "\nFinal Solver Statistics:\n";
   std::cout << "   Slow steps = " << nsts << "  (attempts = " << natts
             << ",  fails = " << netfs << ")\n";
@@ -811,17 +813,19 @@ int main(int argc, char* argv[])
 static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
   sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [0  0]*[(-2+u^2-r(t))/(2*u)] + [     0      ]
   //   [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2v)]
-  tmp1              = (-TWO + u * u - r(t, opts)) / (TWO * u);
-  tmp2              = (-TWO + v * v - s(t, opts)) / (TWO * v);
-  NV_Ith_S(ydot, 0) = ZERO;
-  NV_Ith_S(ydot, 1) = opts->e * tmp1 - tmp2 + sdot(t, opts) / (TWO * v);
+  tmp1      = (-TWO + u * u - r(t, opts)) / (TWO * u);
+  tmp2      = (-TWO + v * v - s(t, opts)) / (TWO * v);
+  dydata[0] = ZERO;
+  dydata[1] = opts->e * tmp1 - tmp2 + sdot(t, opts) / (TWO * v);
 
   // Return with success
   return 0;
@@ -831,17 +835,19 @@ static int ff(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
   sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-r(t))/(2*u)] + [rdot(t)/(2u)]
   //   [0  0] [(-2+v^2-s(t))/(2*v)]   [      0     ]
-  tmp1 = (-TWO + u * u - r(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - s(t, opts)) / (TWO * v);
-  NV_Ith_S(ydot, 0) = opts->G * tmp1 + opts->e * tmp2 + rdot(t, opts) / (TWO * u);
-  NV_Ith_S(ydot, 1) = ZERO;
+  tmp1      = (-TWO + u * u - r(t, opts)) / (TWO * u);
+  tmp2      = (-TWO + v * v - s(t, opts)) / (TWO * v);
+  dydata[0] = opts->G * tmp1 + opts->e * tmp2 + rdot(t, opts) / (TWO * u);
+  dydata[1] = ZERO;
 
   // Return with success
   return 0;
@@ -851,13 +857,15 @@ static int fs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype u = ydata[0];
 
   // fill in the slow explicit RHS function:
   //   [rdot(t)/(2u)]
   //   [      0     ]
-  NV_Ith_S(ydot, 0) = rdot(t, opts) / (TWO * u);
-  NV_Ith_S(ydot, 1) = ZERO;
+  dydata[0] = rdot(t, opts) / (TWO * u);
+  dydata[1] = ZERO;
 
   // Return with success
   return 0;
@@ -867,17 +875,19 @@ static int fse(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
   sunrealtype tmp1, tmp2;
 
   // fill in the slow implicit RHS function:
   //   [G  e]*[(-2+u^2-r(t))/(2*u)]
   //   [0  0] [(-2+v^2-s(t))/(2*v)]
-  tmp1              = (-TWO + u * u - r(t, opts)) / (TWO * u);
-  tmp2              = (-TWO + v * v - s(t, opts)) / (TWO * v);
-  NV_Ith_S(ydot, 0) = opts->G * tmp1 + opts->e * tmp2;
-  NV_Ith_S(ydot, 1) = ZERO;
+  tmp1      = (-TWO + u * u - r(t, opts)) / (TWO * u);
+  tmp2      = (-TWO + v * v - s(t, opts)) / (TWO * v);
+  dydata[0] = opts->G * tmp1 + opts->e * tmp2;
+  dydata[1] = ZERO;
 
   // Return with success
   return 0;
@@ -886,17 +896,19 @@ static int fsi(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 static int fn(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  sunrealtype* dydata = N_VGetArrayPointer(ydot);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
   sunrealtype tmp1, tmp2;
 
   // fill in the RHS function:
   //   [G  e]*[(-2+u^2-r(t))/(2*u)] + [rdot(t)/(2u)]
   //   [e -1] [(-2+v^2-s(t))/(2*v)]   [sdot(t)/(2v)]
-  tmp1 = (-TWO + u * u - r(t, opts)) / (TWO * u);
-  tmp2 = (-TWO + v * v - s(t, opts)) / (TWO * v);
-  NV_Ith_S(ydot, 0) = opts->G * tmp1 + opts->e * tmp2 + rdot(t, opts) / (TWO * u);
-  NV_Ith_S(ydot, 1) = opts->e * tmp1 - tmp2 + sdot(t, opts) / (TWO * v);
+  tmp1      = (-TWO + u * u - r(t, opts)) / (TWO * u);
+  tmp2      = (-TWO + v * v - s(t, opts)) / (TWO * v);
+  dydata[0] = opts->G * tmp1 + opts->e * tmp2 + rdot(t, opts) / (TWO * u);
+  dydata[1] = opts->e * tmp1 - tmp2 + sdot(t, opts) / (TWO * v);
 
   // Return with success
   return 0;
@@ -912,8 +924,9 @@ static int Js(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
   sunrealtype t11, t22;
 
   // fill in the Jacobian:
@@ -934,8 +947,9 @@ static int Jsi(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
   sunrealtype t11, t22;
 
   // fill in the Jacobian:
@@ -956,8 +970,9 @@ static int Jn(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J,
               void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   Options* opts       = (Options*)user_data;
-  const sunrealtype u = NV_Ith_S(y, 0);
-  const sunrealtype v = NV_Ith_S(y, 1);
+  sunrealtype* ydata  = N_VGetArrayPointer(y);
+  const sunrealtype u = ydata[0];
+  const sunrealtype v = ydata[1];
   sunrealtype t11, t22;
 
   // fill in the Jacobian:
@@ -997,18 +1012,19 @@ static sunrealtype sdot(sunrealtype t, Options* opts)
 
 static sunrealtype utrue(sunrealtype t, Options* opts)
 {
-  return (SUNRsqrt(TWO + r(t, opts)));
+  return (std::sqrt(TWO + r(t, opts)));
 }
 
 static sunrealtype vtrue(sunrealtype t, Options* opts)
 {
-  return (SUNRsqrt(TWO + s(t, opts)));
+  return (std::sqrt(TWO + s(t, opts)));
 }
 
 static int Ytrue(sunrealtype t, N_Vector y, Options* opts)
 {
-  NV_Ith_S(y, 0) = utrue(t, opts);
-  NV_Ith_S(y, 1) = vtrue(t, opts);
+  sunrealtype* ydata = N_VGetArrayPointer(y);
+  ydata[0]           = utrue(t, opts);
+  ydata[1]           = vtrue(t, opts);
   return (0);
 }
 
