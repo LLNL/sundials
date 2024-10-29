@@ -2890,11 +2890,11 @@ int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
 
 int mriStepInnerStepper_FullRhsSUNStepper(MRIStepInnerStepper stepper,
                                           sunrealtype t, N_Vector y, N_Vector f,
-                                          SUNDIALS_MAYBE_UNUSED int ark_mode)
+                                          int ark_mode)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
 
-  int mode;
+  SUNFullRhsMode mode;
   switch (ark_mode)
   {
   case ARK_FULLRHS_START:

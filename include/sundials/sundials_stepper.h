@@ -19,10 +19,6 @@
 extern "C" {
 #endif
 
-#define ARK_FULLRHS_START 0
-#define ARK_FULLRHS_END   1
-#define ARK_FULLRHS_OTHER 2
-
 typedef enum
 {
   SUN_FULLRHS_START,

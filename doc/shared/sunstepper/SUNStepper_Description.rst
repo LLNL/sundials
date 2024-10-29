@@ -112,7 +112,7 @@ Stepping Functions
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f)
+.. c:function:: SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, SUNFullRhsMode mode)
 
    This function computes the full right-hand side function of the ODE,
    :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value of the
@@ -123,6 +123,7 @@ Stepping Functions
    :param v: the current value of the dependent variable vector.
    :param f: the output vector for the ODE right-hand side,
       :math:`f(t, v) + r(t)`, in :eq:`SUNStepper_IVP`.
+   :param mode: the purpose of the right-hand side evaluation.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
@@ -171,6 +172,29 @@ Stepping Functions
       responsible for evaluating ODE right-hand side function :math:`f(t, v)` as
       well as computing and applying the forcing term :eq:`SUNStepper_forcing`
       to obtain the full right-hand side of the ODE :eq:`SUNStepper_IVP`.
+
+
+.. _SUNStepper.Description.BaseMethods.RhsMode:
+
+The Right-Hand Side Evaluation Mode
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. c:enum:: SUNFullRhsMode
+
+   A flag indicating the purpose of a right-hand side function evaluation.
+
+   .. c:enumerator:: SUN_FULLRHS_START
+
+      Evaluate at the beginning of the simulation.
+
+   .. c:enumerator:: SUN_FULLRHS_END
+
+      Evaluate at the end of a successful step.
+
+   .. c:enumerator:: SUN_FULLRHS_OTHER
+
+      Evaluate elsewhere, e.g., for dense output.
+
 
 .. _SUNStepper.Description.BaseMethods.Content:
 
@@ -312,7 +336,7 @@ abstract base class.
    :c:func:`SUNStepper_Evolve`.
 
 
-.. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f)
+.. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, SUNFullRhsMode mode)
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_FullRhs`.
