@@ -2890,10 +2890,25 @@ int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
 
 int mriStepInnerStepper_FullRhsSUNStepper(MRIStepInnerStepper stepper,
                                           sunrealtype t, N_Vector y, N_Vector f,
-                                          SUNDIALS_MAYBE_UNUSED int mode)
+                                          SUNDIALS_MAYBE_UNUSED int ark_mode)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
-  SUNErrCode err        = sunstepper->ops->fullrhs(sunstepper, t, y, f);
+
+  int mode;
+  switch (ark_mode)
+  {
+  case ARK_FULLRHS_START:
+    mode = SUN_FULLRHS_START;
+    break;
+  case ARK_FULLRHS_END:
+    mode = SUN_FULLRHS_END;
+    break;
+  default:
+    mode = SUN_FULLRHS_OTHER;
+    break;
+  }
+
+  SUNErrCode err        = sunstepper->ops->fullrhs(sunstepper, t, y, f, mode);
   stepper->last_flag    = sunstepper->last_flag;
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   return ARK_SUCCESS;

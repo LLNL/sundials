@@ -543,6 +543,17 @@ module fsundials_core_mod
  public :: FSUNAdaptController_SetErrorBias
  public :: FSUNAdaptController_UpdateH
  public :: FSUNAdaptController_Space
+ integer(C_INT), parameter, public :: ARK_FULLRHS_START = 0_C_INT
+ integer(C_INT), parameter, public :: ARK_FULLRHS_END = 1_C_INT
+ integer(C_INT), parameter, public :: ARK_FULLRHS_OTHER = 2_C_INT
+ ! typedef enum SUNFullRhsMode
+ enum, bind(c)
+  enumerator :: SUN_FULLRHS_START
+  enumerator :: SUN_FULLRHS_END
+  enumerator :: SUN_FULLRHS_OTHER
+ end enum
+ integer, parameter, public :: SUNFullRhsMode = kind(SUN_FULLRHS_START)
+ public :: SUN_FULLRHS_START, SUN_FULLRHS_END, SUN_FULLRHS_OTHER
  public :: FSUNStepper_Create
  public :: FSUNStepper_Destroy
  public :: FSUNStepper_Evolve
@@ -2086,7 +2097,7 @@ type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNStepper_FullRhs(farg1, farg2, farg3, farg4) &
+function swigc_FSUNStepper_FullRhs(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNStepper_FullRhs") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -2094,6 +2105,7 @@ type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
+integer(C_INT), intent(in) :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -5010,7 +5022,7 @@ fresult = swigc_FSUNStepper_Evolve(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FSUNStepper_FullRhs(stepper, t, v, f) &
+function FSUNStepper_FullRhs(stepper, t, v, f, mode) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -5018,17 +5030,20 @@ type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: t
 type(N_Vector), target, intent(inout) :: v
 type(N_Vector), target, intent(inout) :: f
+integer(SUNFullRhsMode), intent(in) :: mode
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
 type(C_PTR) :: farg4 
+integer(C_INT) :: farg5 
 
 farg1 = stepper
 farg2 = t
 farg3 = c_loc(v)
 farg4 = c_loc(f)
-fresult = swigc_FSUNStepper_FullRhs(farg1, farg2, farg3, farg4)
+farg5 = mode
+fresult = swigc_FSUNStepper_FullRhs(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 

@@ -42,7 +42,7 @@ static SUNErrCode arkSUNStepperEvolve(SUNStepper stepper, sunrealtype tout,
   ----------------------------------------------------------------------------*/
 
 static SUNErrCode arkSUNStepperFullRhs(SUNStepper stepper, sunrealtype t,
-                                       N_Vector y, N_Vector f)
+                                       N_Vector y, N_Vector f, SUNFullRhsMode mode)
 {
   SUNFunctionBegin(stepper->sunctx);
   /* extract the ARKODE memory struct */
@@ -50,7 +50,24 @@ static SUNErrCode arkSUNStepperFullRhs(SUNStepper stepper, sunrealtype t,
   SUNCheckCall(SUNStepper_GetContent(stepper, &arkode_mem));
   ARKodeMem ark_mem = (ARKodeMem)arkode_mem;
 
-  stepper->last_flag = ark_mem->step_fullrhs(ark_mem, t, y, f, ARK_FULLRHS_OTHER);
+  int ark_mode;
+  switch (mode)
+  {
+  case SUN_FULLRHS_START:
+    ark_mode = ARK_FULLRHS_START;
+    break;
+  case SUN_FULLRHS_END:
+    ark_mode = ARK_FULLRHS_END;
+    break;
+  case SUN_FULLRHS_OTHER:
+    ark_mode = ARK_FULLRHS_OTHER;
+    break;
+  default:
+    ark_mode = -1;
+    break;
+  }
+
+  stepper->last_flag = ark_mem->step_fullrhs(ark_mem, t, y, f, ark_mode);
   if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
 
   return SUN_SUCCESS;

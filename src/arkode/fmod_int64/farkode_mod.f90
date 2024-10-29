@@ -34,9 +34,6 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_ADAPT_EXP_GUS = 3_C_INT
  integer(C_INT), parameter, public :: ARK_ADAPT_IMP_GUS = 4_C_INT
  integer(C_INT), parameter, public :: ARK_ADAPT_IMEX_GUS = 5_C_INT
- integer(C_INT), parameter, public :: ARK_FULLRHS_START = 0_C_INT
- integer(C_INT), parameter, public :: ARK_FULLRHS_END = 1_C_INT
- integer(C_INT), parameter, public :: ARK_FULLRHS_OTHER = 2_C_INT
  integer(C_INT), parameter, public :: ARK_INTERP_MAX_DEGREE = 5_C_INT
  integer(C_INT), parameter, public :: ARK_INTERP_NONE = -1_C_INT
  integer(C_INT), parameter, public :: ARK_INTERP_HERMITE = 0_C_INT
