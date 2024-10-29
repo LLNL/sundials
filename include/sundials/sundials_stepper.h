@@ -19,12 +19,20 @@
 extern "C" {
 #endif
 
-typedef int (*SUNJacFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
-                        void* user_data, N_Vector tmp1, N_Vector tmp2,
-                        N_Vector tmp3);
+typedef enum
+{
+  SUN_FULLRHS_START,
+  SUN_FULLRHS_END,
+  SUN_FULLRHS_OTHER
+} SUNFullRhsMode;
 
-typedef int (*SUNJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
-                             N_Vector fy, void* user_data, N_Vector tmp);
+typedef int (*SUNRhsJacFn)(sunrealtype t, N_Vector y, N_Vector fy,
+                           SUNMatrix Jac, void* user_data, N_Vector tmp1,
+                           N_Vector tmp2, N_Vector tmp3);
+
+typedef int (*SUNRhsJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t,
+                                N_Vector y, N_Vector fy, void* user_data,
+                                N_Vector tmp);
 
 typedef _SUNDIALS_STRUCT_ SUNStepper_* SUNStepper;
 
@@ -32,7 +40,8 @@ typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout,
                                          N_Vector vret, sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
-                                          N_Vector v, N_Vector f);
+                                          N_Vector v, N_Vector f,
+                                          SUNFullRhsMode mode);
 
 typedef SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR,
                                         N_Vector vR);
@@ -62,7 +71,7 @@ SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
-                              N_Vector f);
+                              N_Vector f, SUNFullRhsMode mode);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR);

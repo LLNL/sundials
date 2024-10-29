@@ -2688,19 +2688,21 @@ SWIGEXPORT int _wrap_FSUNStepper_Evolve(void *farg1, double const *farg2, N_Vect
 }
 
 
-SWIGEXPORT int _wrap_FSUNStepper_FullRhs(void *farg1, double const *farg2, N_Vector farg3, N_Vector farg4) {
+SWIGEXPORT int _wrap_FSUNStepper_FullRhs(void *farg1, double const *farg2, N_Vector farg3, N_Vector farg4, int const *farg5) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   N_Vector arg4 = (N_Vector) 0 ;
+  SUNFullRhsMode arg5 ;
   SUNErrCode result;
   
   arg1 = (SUNStepper)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (N_Vector)(farg4);
-  result = (SUNErrCode)SUNStepper_FullRhs(arg1,arg2,arg3,arg4);
+  arg5 = (SUNFullRhsMode)(*farg5);
+  result = (SUNErrCode)SUNStepper_FullRhs(arg1,arg2,arg3,arg4,arg5);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
