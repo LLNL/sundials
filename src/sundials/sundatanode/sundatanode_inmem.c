@@ -182,9 +182,6 @@ SUNErrCode SUNDataNode_AddNamedChild_InMem(SUNDataNode self, const char* name,
   IMPL_PROP(child_node, name) = name;
   if (SUNHashMap_Insert(IMPL_PROP(self, named_children), name, child_node))
   {
-    // fprintf(stdout, "node with name=%s could not be inserted, current named children:\n",
-    //         name);
-    // SUNHashMap_PrintKeys(IMPL_PROP(self, named_children), stdout);
     return SUN_ERR_OP_FAIL;
   }
 
@@ -226,9 +223,6 @@ SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode self,
     if (SUNHashMap_GetValue(IMPL_PROP(self, named_children), name,
                             (void**)child_node))
     {
-      // fprintf(stdout, "node with name=%s not found, current named children:\n",
-      //         name);
-      // SUNHashMap_PrintKeys(IMPL_PROP(self, named_children), stdout);
       return SUN_ERR_DATANODE_NODENOTFOUND;
     }
   }
