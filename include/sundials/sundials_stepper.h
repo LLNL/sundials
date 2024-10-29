@@ -19,12 +19,13 @@
 extern "C" {
 #endif
 
-typedef int (*SUNJacFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
-                        void* user_data, N_Vector tmp1, N_Vector tmp2,
-                        N_Vector tmp3);
+typedef int (*SUNRhsJacFn)(sunrealtype t, N_Vector y, N_Vector fy,
+                           SUNMatrix Jac, void* user_data, N_Vector tmp1,
+                           N_Vector tmp2, N_Vector tmp3);
 
-typedef int (*SUNJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y,
-                             N_Vector fy, void* user_data, N_Vector tmp);
+typedef int (*SUNRhsJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t,
+                                N_Vector y, N_Vector fy, void* user_data,
+                                N_Vector tmp);
 
 typedef _SUNDIALS_STRUCT_ SUNStepper_* SUNStepper;
 
