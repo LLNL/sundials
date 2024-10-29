@@ -313,11 +313,11 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
     sunrealtype t{};
     const N_Vector v;
 
-    Content(const sunrealtype l, const N_Vector tmpl) : lambda(l), v(N_VClone(tmpl)) {}
+    Content(const sunrealtype l, const N_Vector tmpl)
+      : lambda(l), v(N_VClone(tmpl))
+    {}
 
-    ~Content() {
-      N_VDestroy(v);
-    }
+    ~Content() { N_VDestroy(v); }
 
     static Content& from_stepper(SUNStepper s)
     {
