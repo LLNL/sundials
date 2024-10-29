@@ -302,51 +302,63 @@ static int test_resize(const sundials::Context& ctx)
 
 /* Creates a custom SUNStepper for the linear, scalar ODE y' = lambda*y */
 static SUNStepper create_exp_stepper(const sundials::Context& ctx,
-                                     const sunrealtype& lam, const N_Vector tmpl)
+                                     const sunrealtype& lam, const N_Vector y)
 {
   SUNStepper stepper = nullptr;
   SUNStepper_Create(ctx, &stepper);
 
-  struct Content {
+  struct Content
+  {
     const sunrealtype lambda;
-    sunrealtype t;
+    sunrealtype t{};
     const N_Vector v;
 
-    static Content &from_stepper(SUNStepper s) {
-      void *content = nullptr;
+    Content(const sunrealtype l, const N_Vector tmpl) : lambda(l), v(N_VClone(tmpl)) {}
+
+    ~Content() {
+      N_VDestroy(v);
+    }
+
+    static Content& from_stepper(SUNStepper s)
+    {
+      void* content = nullptr;
       SUNStepper_GetContent(s, &content);
       return *static_cast<Content*>(content);
     }
   };
 
-  SUNStepper_SetContent(stepper, new Content{lam, 0, N_VClone(tmpl)});
-  SUNStepper_SetResetFn(stepper, [](SUNStepper s, const sunrealtype tR, const N_Vector vR) {
-    auto &content = Content::from_stepper(s);
-    content.t = tR;
+  SUNStepper_SetContent(stepper, new Content(lam, y));
+
+  const auto reset = [](SUNStepper s, const sunrealtype tR, const N_Vector vR)
+  {
+    auto& content = Content::from_stepper(s);
+    content.t     = tR;
     N_VScale(1, vR, content.v);
     return 0;
-  });
+  };
+  SUNStepper_SetResetFn(stepper, reset);
 
   const auto empty_func = [](auto...) { return 0; };
   SUNStepper_SetStopTimeFn(stepper, empty_func);
   SUNStepper_SetStepDirectionFn(stepper, empty_func);
   SUNStepper_SetFullRhsFn(stepper, empty_func);
 
-  const auto evolve = [](const SUNStepper s,
-                         const sunrealtype tout, const N_Vector vret,
-                         sunrealtype* const tret)
+  const auto evolve = [](const SUNStepper s, const sunrealtype tout,
+                         const N_Vector vret, sunrealtype* const tret)
   {
-    const auto &content = Content::from_stepper(s);
+    const auto& content = Content::from_stepper(s);
     N_VScale(std::exp(content.lambda * (tout - content.t)), content.v, vret);
     *tret = tout;
     return 0;
   };
   SUNStepper_SetEvolveFn(stepper, evolve);
 
-  SUNStepper_SetDestroyFn(stepper, [](SUNStepper stepper) {
-    delete &Content::from_stepper(stepper);
+  const auto destroy = [](SUNStepper s)
+  {
+    delete &Content::from_stepper(s);
     return 0;
-  });
+  };
+  SUNStepper_SetDestroyFn(stepper, destroy);
   return stepper;
 }
 
