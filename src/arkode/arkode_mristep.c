@@ -1848,7 +1848,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, is, t0, tf);
       if (retval != ARK_SUCCESS) { return retval; }
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
-                                    ark_mem->tempv2, SUNFALSE, need_inner_dsm);
+                                    ark_mem->tempv2, need_inner_dsm);
       if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
       break;
     case (MRISTAGE_ERK_NOFAST):
@@ -2036,8 +2036,15 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, step_mem->stages,
                                            t0, tf);
       if (retval != ARK_SUCCESS) { return retval; }
+      retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->ycur);
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
+                        "Unable to reset the inner stepper");
+        return (ARK_INNERSTEP_FAIL);
+      }
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
-                                    ark_mem->tempv2, SUNTRUE, SUNFALSE);
+                                    ark_mem->tempv2, SUNFALSE);
       if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
       break;
     case (MRISTAGE_ERK_NOFAST):
@@ -2315,10 +2322,16 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Evolve fast IVP for this stage:
          force reset due to "stage-restart" structure
          potentially get inner dsm on all non-embedding stages */
-    retval = mriStep_StageERKFast(ark_mem, step_mem, ark_mem->tn,
+    retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tn, ark_mem->ycur);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to reset the inner stepper");
+      return (ARK_INNERSTEP_FAIL);
+    }
+     retval = mriStep_StageERKFast(ark_mem, step_mem, ark_mem->tn,
                                   ark_mem->tn + cstage * ark_mem->h,
-                                  ark_mem->ycur, ytemp, SUNTRUE,
-                                  need_inner_dsm && !embedding);
+                                  ark_mem->ycur, ytemp, need_inner_dsm && !embedding);
     if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
 
     /* set current stage time for implicit correction, postprocessing
@@ -2751,8 +2764,18 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       /* Evolve fast IVP for this stage:
            force reset on first stage in group
            potentially get inner dsm on all non-embedding stages */
+      if (is == 0)
+      {
+        retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->ycur);
+        if (retval != ARK_SUCCESS)
+        {
+          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
+                          "Unable to reset the inner stepper");
+          return (ARK_INNERSTEP_FAIL);
+        }
+      }
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
-                                    ytemp, is == 0, need_inner_dsm && !embedding);
+                                    ytemp, need_inner_dsm && !embedding);
       if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
 
       /* Update "initial time" for next stage in group */
@@ -3268,17 +3291,13 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   The vector ytemp is only used if temporal adaptivity is enabled,
   and the fast error is not provided by the fast integrator.
 
-  force_reset indicates whether ycur differs from the result of
-  the previous fast evolution, in which case the inner integrator
-  needs to be reset.
-
   get_inner_dsm indicates whether this stage is one that should
   accumulate an inner temporal error estimate.
   ---------------------------------------------------------------*/
 int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                          sunrealtype t0, sunrealtype tf, N_Vector ycur,
                          SUNDIALS_MAYBE_UNUSED N_Vector ytemp,
-                         sunbooleantype force_reset, sunbooleantype get_inner_dsm)
+                         sunbooleantype get_inner_dsm)
 {
   int retval;                         /* reusable return flag */
   SUNAdaptController_Type adapt_type; /* timestep adaptivity type */
@@ -3294,18 +3313,6 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                                         step_mem->stepper->nforcing,
                                         ark_mem->user_data);
     if (retval != 0) { return (ARK_OUTERTOINNER_FAIL); }
-  }
-
-  /* if the input state has changed since last called, reset the inner integrator */
-  if (force_reset)
-  {
-    retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ycur);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                      "Unable to reset the inner stepper");
-      return (ARK_INNERSTEP_FAIL);
-    }
   }
 
   /* Get the adaptivity type (if applicable) */
