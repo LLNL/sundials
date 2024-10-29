@@ -43,7 +43,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
          The size of the data allocated.
 
       .. c:member:: size_t stride;
-         
+
          The stride of the data.
 
 .. c:function:: SUNMemory SUNMemoryNewEmpty(SUNContext sunctx)
@@ -186,8 +186,8 @@ must define:
                                                        void* queue)
 
    Allocates a ``SUNMemory`` object whose ``ptr`` field is allocated for
-   ``mem_size`` bytes and is of type ``mem_type``. The new object will have
-   ownership of ``ptr`` and will be deallocated when
+   ``mem_size`` bytes with the specified stride, and is of type ``mem_type``.
+   The new object will have ownership of ``ptr`` and will be deallocated when
    :c:func:`SUNMemoryHelper_Dealloc` is called.
 
    **Arguments:**

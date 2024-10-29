@@ -158,7 +158,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 
    :param adj_stepper: The adjoint solver object.
    :param tout: The time at which the adjoint solution is desired.
-   :param sens: The vector of sensitivity solutions dg/dy0 and dg/dp.
+   :param sens: The vector of sensitivity solutions :math:`dg/dy_0`` and :math:`dg/dp`.
    :param tret: On return, the time reached by the adjoint solver.
    :param stop_reason: On return, an integer code that indicates why the adjoint solver stopped.
 
@@ -172,7 +172,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 
    :param adj_stepper: The adjoint solver object.
    :param tout: The time at which the adjoint solution is desired.
-   :param sens: The vector of sensitivity solutions dg/dy0 and dg/dp.
+   :param sens: The vector of sensitivity solutions :math:`dg/dy_0` and :math:`dg/dp`.
    :param tret: On return, the time reached by the adjoint solver.
    :param stop_reason: On return, an integer code that indicates why the adjoint solver stopped.
 
@@ -182,7 +182,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 .. c:function:: SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper, int64_t start_idx,\
                                                           sunrealtype t0, sunrealtype tf, N_Vector y0)
 
-   Evolves the forward system in time from start_idx/t0 to stop_idx/tf with dense checkpointing.
+   Evolves the forward system in time from (``start_idx``, ``t0``) to (``stop_idx``, ``tf``) with dense checkpointing.
 
    :param adj_stepper: The SUNAdjointStepper object.
    :param start_idx: the index of the step, w.r.t. the original forward integration, to begin forward integration from.
