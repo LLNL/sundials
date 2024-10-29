@@ -76,7 +76,10 @@ SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
                               N_Vector f, SUNFullRhsMode mode)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->fullrhs) { return stepper->ops->fullrhs(stepper, t, v, f, mode); }
+  if (stepper->ops->fullrhs)
+  {
+    return stepper->ops->fullrhs(stepper, t, v, f, mode);
+  }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 

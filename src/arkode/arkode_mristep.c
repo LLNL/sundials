@@ -2897,19 +2897,13 @@ int mriStepInnerStepper_FullRhsSUNStepper(MRIStepInnerStepper stepper,
   SUNFullRhsMode mode;
   switch (ark_mode)
   {
-  case ARK_FULLRHS_START:
-    mode = SUN_FULLRHS_START;
-    break;
-  case ARK_FULLRHS_END:
-    mode = SUN_FULLRHS_END;
-    break;
-  default:
-    mode = SUN_FULLRHS_OTHER;
-    break;
+  case ARK_FULLRHS_START: mode = SUN_FULLRHS_START; break;
+  case ARK_FULLRHS_END: mode = SUN_FULLRHS_END; break;
+  default: mode = SUN_FULLRHS_OTHER; break;
   }
 
-  SUNErrCode err        = sunstepper->ops->fullrhs(sunstepper, t, y, f, mode);
-  stepper->last_flag    = sunstepper->last_flag;
+  SUNErrCode err     = sunstepper->ops->fullrhs(sunstepper, t, y, f, mode);
+  stepper->last_flag = sunstepper->last_flag;
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   return ARK_SUCCESS;
 }

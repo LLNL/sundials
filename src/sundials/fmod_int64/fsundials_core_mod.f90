@@ -543,9 +543,6 @@ module fsundials_core_mod
  public :: FSUNAdaptController_SetErrorBias
  public :: FSUNAdaptController_UpdateH
  public :: FSUNAdaptController_Space
- integer(C_INT), parameter, public :: ARK_FULLRHS_START = 0_C_INT
- integer(C_INT), parameter, public :: ARK_FULLRHS_END = 1_C_INT
- integer(C_INT), parameter, public :: ARK_FULLRHS_OTHER = 2_C_INT
  ! typedef enum SUNFullRhsMode
  enum, bind(c)
   enumerator :: SUN_FULLRHS_START
