@@ -1692,9 +1692,6 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   *nflagPtr = ARK_SUCCESS;
   *dsmPtr   = ZERO;
 
-  /* initial time and state for step */
-  N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
-
   /* determine whether embedding stage is needed */
   do_embedding = !ark_mem->fixedstep ||
                  (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE);
