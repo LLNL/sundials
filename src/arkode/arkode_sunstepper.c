@@ -116,32 +116,67 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   ARKodeMem ark_mem = (ARKodeMem)arkode_mem;
 
   SUNErrCode err = SUNStepper_Create(ark_mem->sunctx, stepper);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Failed to create SUNStepper");
+    return ARK_SUNSTEPPER_ERR;
+  }
 
   err = SUNStepper_SetContent(*stepper, arkode_mem);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Failed to set SUNStepper content");
+    return ARK_SUNSTEPPER_ERR;
+  }
 
   err = SUNStepper_SetEvolveFn(*stepper, arkSUNStepperEvolve);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Failed to set SUNStepper evolve function");
+    return ARK_SUNSTEPPER_ERR;
+  }
 
   err = SUNStepper_SetFullRhsFn(*stepper, arkSUNStepperFullRhs);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Failed to set SUNStepper full RHS function");
+    return ARK_SUNSTEPPER_ERR;
+  }
 
   err = SUNStepper_SetResetFn(*stepper, arkSUNStepperReset);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Failed to set SUNStepper reset function");
+    return ARK_SUNSTEPPER_ERR;
+  }
 
   err = SUNStepper_SetStopTimeFn(*stepper, arkSUNStepperSetStopTime);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Failed to set SUNStepper stop time function");
+    return ARK_SUNSTEPPER_ERR;
+  }
 
   if (ark_mem->step_setforcing != NULL)
   {
     err = SUNStepper_SetForcingFn(*stepper, arkSUNStepperSetForcing);
-    if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+    if (err != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                      "Failed to set SUNStepper forcing function");
+      return ARK_SUNSTEPPER_ERR;
+    }
   }
 
   return ARK_SUCCESS;
