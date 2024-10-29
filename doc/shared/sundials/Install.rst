@@ -870,8 +870,8 @@ illustration only.
 
 .. cmakeoption:: MPIEXEC_PREFLAGS
 
-   Specifies flags that come before the MPI executable, but after ``MPIEXEC_EXECUTABLE``,
-   ``MPIEXEC_NUMPROC_FLAG``, and ``MPIEXEC_MAX_NUMPROCS``.
+   Specifies flags that come directly after ``MPIEXEC_EXECUTABLE`` and before
+   ``MPIEXEC_NUMPROC_FLAG`` and ``MPIEXEC_MAX_NUMPROCS``.
 
    Default: none
 
@@ -879,7 +879,7 @@ illustration only.
 
 .. cmakeoption:: MPIEXEC_POSTFLAGS
 
-   Specifies flags that come after the MPI executable but before any other program arguments.
+   Specifies flags that come after the executable to run but before any other program arguments.
 
    Default: none
 

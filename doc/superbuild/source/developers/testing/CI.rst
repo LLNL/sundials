@@ -166,18 +166,18 @@ Take for example, this Tioga job:
 
 .. code-block:: YAML
 
-  tioga_rocmcc_620_tpls:
-    parallel:
-      matrix:
-        - COMPILER_SPEC: rocmcc@6.2.0
-          AMDGPU_TARGET: [gfx90a]
-    variables:
-      # have to use ginkgo@master because our spack version does not have ginkgo@1.8.0: yet (which seems to be needed)
-      # similarly, we need a newer magma than available to compile with 'rocm@6:' so we turn it off
-      SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
-    before_script:
-      - module load rocmcc/6.2.0-magic
-    extends: [.sundials_job_on_tioga]
+   tioga_rocmcc_620_tpls:
+     parallel:
+       matrix:
+         - COMPILER_SPEC: rocmcc@6.2.0
+           AMDGPU_TARGET: [gfx90a]
+     variables:
+       # have to use ginkgo@master because our spack version does not have ginkgo@1.8.0: yet (which seems to be needed)
+       # similarly, we need a newer magma than available to compile with 'rocm@6:' so we turn it off
+       SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+     before_script:
+       - module load rocmcc/6.2.0-magic
+     extends: [.sundials_job_on_tioga]
 
 The ``parallel:`` and ``matrix:`` keywords could be used to enable creating multiple jobs
 with different variable values for each instance of the job, e.g., one job using
@@ -196,17 +196,17 @@ section of the job, e.g.,
 
 .. code-block:: YAML
 
-  tioga_rocmcc_620_tpls:
-    parallel:
-      matrix:
-        - COMPILER_SPEC: rocmcc@6.2.0
-          AMDGPU_TARGET: [gfx90a]
-    variables:
-      ON_TIOGA: "OFF" # disable this job
-      SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
-    before_script:
-      - module load rocmcc/6.2.0-magic
-    extends: [.sundials_job_on_tioga]
+   tioga_rocmcc_620_tpls:
+     parallel:
+       matrix:
+         - COMPILER_SPEC: rocmcc@6.2.0
+           AMDGPU_TARGET: [gfx90a]
+     variables:
+       ON_TIOGA: "OFF" # disable this job
+       SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+     before_script:
+       - module load rocmcc/6.2.0-magic
+     extends: [.sundials_job_on_tioga]
 
 These variables can also be set when manually or scheduling a pipeline in the GitLab UI.
 
