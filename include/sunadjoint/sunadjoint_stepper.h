@@ -32,8 +32,8 @@ struct SUNAdjointStepper_
 
   /* Jacobian-related data */
   SUNMatrix Jac, JacP;
-  SUNJacFn JacFn, JacPFn;
-  SUNJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
+  SUNRhsJacFn JacFn, JacPFn;
+  SUNRhsJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
 
   /* counters */
   int64_t nst, njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp,
@@ -76,19 +76,19 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
                                           sunrealtype tf, N_Vector y0);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper, SUNJacFn JacFn,
-                                      SUNMatrix Jac, SUNJacFn JacPFn,
+SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper, SUNRhsJacFn JacFn,
+                                      SUNMatrix Jac, SUNRhsJacFn JacPFn,
                                       SUNMatrix JP);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper,
-                                              SUNJacTimesFn Jvp,
-                                              SUNJacTimesFn JPvp);
+                                              SUNRhsJacTimesFn Jvp,
+                                              SUNRhsJacTimesFn JPvp);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper,
-                                              SUNJacTimesFn vJp,
-                                              SUNJacTimesFn vJPp);
+                                              SUNRhsJacTimesFn vJp,
+                                              SUNRhsJacTimesFn vJPp);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper, void* user_data);

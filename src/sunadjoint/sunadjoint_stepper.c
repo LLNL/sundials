@@ -119,7 +119,7 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
   SUNErrCode retcode = SUN_SUCCESS;
   sunrealtype t      = adj_stepper->tf;
   SUNCheckCall(
-    SUNStepper_OneStep(adj_sunstepper, adj_stepper->tf, tout, sens, &t));
+    SUNStepper_OneStep(adj_sunstepper, tout, sens, &t));
   *stop_reason = adj_sunstepper->last_flag;
 
   adj_stepper->step_idx--;
@@ -150,7 +150,7 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
 
   SUNCheckCall(SUNStepper_SetStopTime(fwd_stepper, tf));
 
-  SUNCheckCall(SUNStepper_Evolve(fwd_stepper, t0, tf, y0, &fwd_t));
+  SUNCheckCall(SUNStepper_Evolve(fwd_stepper, tf, y0, &fwd_t));
   adj_stepper->nrecompute++;
 
   if (fwd_stepper->last_flag < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
@@ -178,8 +178,8 @@ SUNErrCode SUNAdjointStepper_Destroy(SUNAdjointStepper* adj_stepper_ptr)
 }
 
 SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_stepper,
-                                      SUNJacFn JacFn, SUNMatrix Jac,
-                                      SUNJacFn JacPFn, SUNMatrix JacP)
+                                      SUNRhsJacFn JacFn, SUNMatrix Jac,
+                                      SUNRhsJacFn JacPFn, SUNMatrix JacP)
 {
   SUNFunctionBegin(adj_stepper->sunctx);
 
@@ -192,8 +192,8 @@ SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_stepper,
 }
 
 SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper adj_stepper,
-                                              SUNJacTimesFn Jvp,
-                                              SUNJacTimesFn JPvp)
+                                              SUNRhsJacTimesFn Jvp,
+                                              SUNRhsJacTimesFn JPvp)
 {
   SUNFunctionBegin(adj_stepper->sunctx);
 
@@ -204,8 +204,8 @@ SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper adj_stepper,
 }
 
 SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper adj_stepper,
-                                              SUNJacTimesFn vJp,
-                                              SUNJacTimesFn vJPp)
+                                              SUNRhsJacTimesFn vJp,
+                                              SUNRhsJacTimesFn vJPp)
 {
   SUNFunctionBegin(adj_stepper->sunctx);
 

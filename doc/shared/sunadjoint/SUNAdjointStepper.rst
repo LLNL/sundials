@@ -56,27 +56,27 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
       Matrix data for the Jacobian :math:`df/dp`.
 
-   .. c:member:: SUNJacFn JacFn
+   .. c:member:: SUNRhsJacFn JacFn
 
       Jacobian function pointer to evaluate :math:`df/dy`.
 
-   .. c:member:: SUNJacFn JacPFn
+   .. c:member:: SUNRhsJacFn JacPFn
 
       Jacobian function pointer to evaluate :math:`df/dp`.
 
-   .. c:member:: SUNJacTimesFn JvpFn
+   .. c:member:: SUNRhsJacTimesFn JvpFn
 
       Jacobian-times-vector function pointer to evaluate :math:`(df/dy)^T v`.
 
-   .. c:member:: SUNJacTimesFn JPvpFn
+   .. c:member:: SUNRhsJacTimesFn JPvpFn
 
       Jacobian-times-vector function pointer to evaluate :math:`(df/dp)^T v`.
 
-   .. c:member:: SUNJacTimesFn vJpFn
+   .. c:member:: SUNRhsJacTimesFn vJpFn
 
       Jacobian-times-vector function pointer to evaluate :math:`v^T(df/dy)`.
 
-   .. c:member:: SUNJacTimesFn vJPpFn
+   .. c:member:: SUNRhsJacTimesFn vJPpFn
 
       Jacobian-times-vector function pointer to evaluate :math:`v^T(df/dp)`.
 
@@ -193,8 +193,8 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 
-.. c:function:: SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_stepper, SUNJacFn JacFn, \
-      SUNMatrix Jac, SUNJacFn JacPFn, SUNMatrix JacP)
+.. c:function:: SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_stepper, SUNRhsJacFn JacFn, \
+      SUNMatrix Jac, SUNRhsJacFn JacPFn, SUNMatrix JacP)
 
    Sets the function pointers and matrices needed to evaluate and store :math:`df/dy` and
    :math:`df/dp`. ``Jac`` should have dimensions ``neq x neq`` where ``neq`` is the number of states
@@ -209,7 +209,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
-.. c:function:: SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper adj_stepper, SUNJacTimesFn Jvp, SUNJacTimesFn JPvp)
+.. c:function:: SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper adj_stepper, SUNRhsJacTimesFn Jvp, SUNRhsJacTimesFn JPvp)
 
 
    Sets the function pointers to evaluate :math:`(df/dy)^T v`  and :math:`(df/dp)^T v`
@@ -221,7 +221,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 
-.. c:function:: SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper adj_stepper, SUNJacTimesFn Jvp, SUNJacTimesFn JPvp)
+.. c:function:: SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper adj_stepper, SUNRhsJacTimesFn Jvp, SUNRhsJacTimesFn JPvp)
 
 
    Sets the function pointers to evaluate :math:`v^T (df/dy)`  and :math:`v^T (df/dp)`
