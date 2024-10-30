@@ -2445,6 +2445,14 @@ int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
+  /* Return an error if the stepper cannot accumulate temporal error */
+  if (!ark_mem->step_supports_adaptive)
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support accumulated error estimation");
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+
   /* Get number of steps since last accumulated error reset
      (set floor of 1 to safeguard against division-by-zero) */
   sunrealtype time_interval = ark_mem->tcur - ark_mem->AccumErrorStart;
@@ -2464,9 +2472,9 @@ int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
-                    __FILE__, "time-stepping module does not support accumulated error estimation");
-    return (ARK_STEPPER_UNSUPPORTED);
+    arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__,
+                    __FILE__, "temporal error accumulation is currently disabled");
+    return (ARK_WARNING);
   }
 
   return (ARK_SUCCESS);
