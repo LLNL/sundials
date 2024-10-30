@@ -20,9 +20,11 @@
  * SUNStlVector_TTYPE_<function>. E.g.
  *   #define TTYPE int
  *   #include "sunstl_vector.h'
+ *   #undef TTYPE
  *   SUNStlVector_int_New(10, destroyIntFn);
  * If you need StlVectors that hold different types in the same file,
- * then define TTYPE for the first, include this header, then repeat.
+ * then define TTYPE for the first, include this header, undefine
+ * TTYPE then repeat.
  * -----------------------------------------------------------------*/
 
 #include <stdlib.h>
@@ -176,5 +178,3 @@ static inline void MAKE_NAME(SUNStlVectorTtype,
 
   *self_ptr = NULL;
 }
-
-#undef TTYPE

@@ -21,6 +21,7 @@
 
 #define TTYPE int
 #include "stl/sunstl_vector.h"
+#undef TTYPE
 
 static void freeIntValue(int* val_ptr) { return; }
 
@@ -123,6 +124,7 @@ TEST_F(SUNStlVectorPODTest, PopBack)
 
 #define TTYPE N_Vector
 #include "stl/sunstl_vector.h"
+#undef TTYPE
 
 class SUNStlVectorComplexTest : public testing::Test
 {

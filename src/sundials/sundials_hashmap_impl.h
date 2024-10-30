@@ -41,6 +41,7 @@ struct SUNHashMapKeyValue_
 
 #define TTYPE SUNHashMapKeyValue
 #include "stl/sunstl_vector.h"
+#undef TTYPE
 
 typedef struct SUNHashMap_* SUNHashMap;
 
