@@ -1013,9 +1013,7 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
       return (ARK_MEM_FAIL);
     }
     ark_mem->liw += (step_mem->MRIC->stages + 1);
-    step_mem->stagetypes[0] =
-      MRISTAGE_ERK_NOFAST; /* 1st stage is always ERK_NOFAST */
-    for (j = 1; j <= step_mem->MRIC->stages; j++)
+    for (j = 0; j <= step_mem->MRIC->stages; j++)
     {
       step_mem->stagetypes[j] = mriStepCoupling_GetStageType(step_mem->MRIC, j);
     }
@@ -3141,7 +3139,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   }
 
   /* Check that the matrices are defined appropriately */
-  if (step_mem->MRIC->type == MRISTEP_IMEX)
+  if ((step_mem->MRIC->type == MRISTEP_IMEX) || (step_mem->MRIC->type == MRISTEP_MRISR))
   {
     /* ImEx */
     if (!(step_mem->MRIC->W) || !(step_mem->MRIC->G))
@@ -3151,7 +3149,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
       return (ARK_ILL_INPUT);
     }
   }
-  else if (step_mem->MRIC->type == MRISTEP_EXPLICIT)
+  else if ((step_mem->MRIC->type == MRISTEP_EXPLICIT) || (step_mem->MRIC->type == MRISTEP_MERK))
   {
     /* Explicit */
     if (!(step_mem->MRIC->W) || step_mem->MRIC->G)
@@ -3214,6 +3212,37 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
                       "Coupling can be up to DIRK (at most)!");
       return (ARK_INVALID_TABLE);
     }
+  }
+
+  /* Check that MERK "groups" are structured appropriately */
+  if (step_mem->MRIC->type == MRISTEP_MERK)
+  {
+    int* group_counter = (int*)calloc(step_mem->MRIC->stages + 1, sizeof(int));
+    for (i = 0; i < step_mem->MRIC->ngroup; i++)
+    {
+      for (j = 0; j < step_mem->MRIC->stages; j++)
+      {
+        k = step_mem->MRIC->group[i][j];
+        if (k == -1) { break; }
+        if ((k < 0) || (k > step_mem->MRIC->stages))
+        {
+          arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
+                          "Invalid MERK group index!");
+          return (ARK_INVALID_TABLE);
+        }
+        group_counter[k]++;
+      }
+    }
+    for (i = 1; i <= step_mem->MRIC->stages; i++)
+    {
+      if ((group_counter[i] == 0) || (group_counter[i] > 1))
+      {
+          arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
+                          "Duplicated/missing stages from MERK groups!");
+          return (ARK_INVALID_TABLE);
+      }
+    }
+    free(group_counter);
   }
 
   /* Check that no stage has MRISTAGE_DIRK_FAST type (for now) */
