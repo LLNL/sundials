@@ -2226,7 +2226,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunrealtype cstage; /* current stage abscissa     */
   sunbooleantype need_inner_dsm;
   sunbooleantype force_reset = (*dsmPtr == PREV_ERR_FAIL);
-  int nvec;
+  int nvec, max_stages;
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
   /* access the MRIStep mem structure */
@@ -2368,8 +2368,12 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   /* The first stage is the previous time-step solution, so its RHS
      is the [already-computed] slow RHS from the start of the step */
 
+  /* Determine how many stages will be needed */
+  max_stages = (ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE)) ?
+    step_mem->stages : step_mem->stages+1;
+
   /* Loop over stages */
-  for (stage = 1; stage <= step_mem->stages; stage++)
+  for (stage = 1; stage < max_stages; stage++)
   {
     /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -2381,14 +2385,6 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Determine if this is an "embedding" or "solution" stage */
     solution  = (stage == step_mem->stages - 1);
     embedding = (stage == step_mem->stages);
-
-    /* Skip the embedding if we're using fixed time-stepping and
-       temporal error estimation is disabled */
-    if (ark_mem->fixedstep && embedding &&
-        (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE))
-    {
-      break;
-    }
 
     /* Set initial condition for this stage */
     N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
