@@ -208,8 +208,7 @@ int main(int argc, char* argv[])
   // Now compute the adjoint solution
   //
 
-  int stop_reason = 0;
-  retval = SUNAdjointStepper_Evolve(adj_stepper, t0, sf, &tret, &stop_reason);
+  retval = SUNAdjointStepper_Evolve(adj_stepper, t0, sf, &tret);
   if (check_retval(&retval, "SUNAdjointStepper_Evolve", 1)) { return 1; }
 
   printf("Adjoint Solution:\n");

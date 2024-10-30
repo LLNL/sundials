@@ -29,6 +29,7 @@ struct SUNAdjointStepper_
 
   sunrealtype tf;
   int64_t step_idx, final_step_idx;
+  int last_flag;
 
   /* Jacobian-related data */
   SUNMatrix Jac, JacP;
@@ -63,12 +64,12 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector y0,
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper adj_stepper,
                                     sunrealtype tout, N_Vector sens,
-                                    sunrealtype* tret, int* stop_reason);
+                                    sunrealtype* tret);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
                                      sunrealtype tout, N_Vector sens,
-                                     sunrealtype* tret, int* stop_reason);
+                                     sunrealtype* tret);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,

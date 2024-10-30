@@ -152,7 +152,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 
 
 .. c:function:: SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper adj_stepper, sunrealtype tout,\
-   N_Vector sens, sunrealtype* tret, int* stop_reason)
+   N_Vector sens, sunrealtype* tret)
 
    Integrates the adjoint system.
 
@@ -160,13 +160,12 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    :param tout: The time at which the adjoint solution is desired.
    :param sens: The vector of sensitivity solutions :math:`dg/dy_0`` and :math:`dg/dp`.
    :param tret: On return, the time reached by the adjoint solver.
-   :param stop_reason: On return, an integer code that indicates why the adjoint solver stopped.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 
 .. c:function:: SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper, sunrealtype tout,\
-   N_Vector sens, sunrealtype* tret, int* stop_reason)
+   N_Vector sens, sunrealtype* tret)
 
    Evolves the adjoint system backwards one step.
 
@@ -174,7 +173,6 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    :param tout: The time at which the adjoint solution is desired.
    :param sens: The vector of sensitivity solutions :math:`dg/dy_0` and :math:`dg/dp`.
    :param tret: On return, the time reached by the adjoint solver.
-   :param stop_reason: On return, an integer code that indicates why the adjoint solver stopped.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
