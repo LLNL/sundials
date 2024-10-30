@@ -890,7 +890,7 @@ int mriStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
-int mriStep_Init(ARKodeMem ark_mem, int init_type)
+int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
 {
   ARKodeMRIStepMem step_mem;
   int retval, j;
@@ -1288,7 +1288,7 @@ int mriStep_Init(ARKodeMem ark_mem, int init_type)
                         "error calling slow RHS function(s)");
         return (ARK_RHSFUNC_FAIL);
       }
-      retval = mriStep_Hin(ark_mem, ark_mem->tcur, ark_mem->tout,
+      retval = mriStep_Hin(ark_mem, ark_mem->tcur, tout,
                            ark_mem->tempv1, &(ark_mem->hin));
       if (retval != ARK_SUCCESS)
       {

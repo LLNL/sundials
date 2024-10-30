@@ -702,9 +702,6 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     ark_mem->root_mem->taskc = itask;
   }
 
-  /* store copy of tout, in case it is required for stepper initialization */
-  ark_mem->tout = tout;
-
   /* perform first-step-specific initializations:
      - initialize tret values to initialization time
      - perform initial integrator setup  */
@@ -1923,7 +1920,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
                     "Time stepper module is missing");
     return (ARK_ILL_INPUT);
   }
-  retval = ark_mem->step_init(ark_mem, ark_mem->init_type);
+  retval = ark_mem->step_init(ark_mem, tout, ark_mem->init_type);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
