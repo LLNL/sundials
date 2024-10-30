@@ -75,7 +75,9 @@ typedef struct ARKodeMRIStepMemRec
   /* Outer RK method storage and parameters */
   N_Vector* Fse;           /* explicit RHS at each stage               */
   N_Vector* Fsi;           /* implicit RHS at each stage               */
-  sunbooleantype unify_Fs; /* Fse and Fsi point at the same memory   */
+  sunbooleantype unify_Fs; /* Fse and Fsi point at the same memory     */
+  sunbooleantype fse_is_current;
+  sunbooleantype fsi_is_current;
   MRIStepCoupling MRIC;    /* slow->fast coupling table                */
   int q;                   /* method order                             */
   int p;                   /* embedding order                          */
@@ -145,7 +147,7 @@ typedef struct ARKodeMRIStepMemRec
   long int nls_fails; /* num nonlinear solver fails       */
   int nfusedopvecs;   /* length of cvals and Xvecs arrays */
 
-  /* Data for using ERKStep with external polynomial forcing */
+  /* Data for using MRIStep with external polynomial forcing */
   sunbooleantype expforcing; /* add forcing to explicit RHS */
   sunbooleantype impforcing; /* add forcing to implicit RHS */
   sunrealtype tshift;        /* time normalization shift    */
