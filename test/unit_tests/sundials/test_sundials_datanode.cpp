@@ -345,6 +345,12 @@ TEST_F(SUNDataNodeTest, GetNamedChildWorks)
   err = SUNDataNode_GetNamedChild(root_node, "int_value", &child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
+  void* raw_value;
+  size_t stride, bytes;
+  err = SUNDataNode_GetData(child_node, &raw_value, &stride, &bytes);
+  EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(integer_value, *static_cast<int*>(raw_value));
+
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
   err = SUNDataNode_Destroy(&child_node);
