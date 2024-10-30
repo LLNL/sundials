@@ -2688,6 +2688,24 @@ SWIGEXPORT int _wrap_FSUNStepper_Evolve(void *farg1, double const *farg2, N_Vect
 }
 
 
+SWIGEXPORT int _wrap_FSUNStepper_OneStep(void *farg1, double const *farg2, N_Vector farg3, double *farg4) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  sunrealtype arg2 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  sunrealtype *arg4 = (sunrealtype *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (sunrealtype *)(farg4);
+  result = (SUNErrCode)SUNStepper_OneStep(arg1,arg2,arg3,arg4);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNStepper_FullRhs(void *farg1, double const *farg2, N_Vector farg3, N_Vector farg4, int const *farg5) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
@@ -2823,6 +2841,20 @@ SWIGEXPORT int _wrap_FSUNStepper_SetEvolveFn(void *farg1, SUNStepperEvolveFn far
   arg1 = (SUNStepper)(farg1);
   arg2 = (SUNStepperEvolveFn)(farg2);
   result = (SUNErrCode)SUNStepper_SetEvolveFn(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNStepper_SetOneStepFn(void *farg1, SUNStepperOneStepFn farg2) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  SUNStepperOneStepFn arg2 = (SUNStepperOneStepFn) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (SUNStepperOneStepFn)(farg2);
+  result = (SUNErrCode)SUNStepper_SetOneStepFn(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

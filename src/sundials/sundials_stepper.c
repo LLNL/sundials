@@ -73,8 +73,8 @@ SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout, N_Vector y,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout,
-                              N_Vector y, sunrealtype* tret)
+SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout, N_Vector y,
+                              sunrealtype* tret)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->onestep)
