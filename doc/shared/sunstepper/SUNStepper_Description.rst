@@ -81,7 +81,9 @@ from an ARKODE integrator.
 
 .. c:function:: SUNErrCode SUNStepper_Destroy(SUNStepper *stepper)
 
-   This function destroys a :c:type:`SUNStepper` object.
+   This function frees memory allocated by the :c:type:`SUNStepper` base class
+   and uses the function pointer optionally specified with
+   :c:func:`SUNStepper_SetDestroyFn` to free the content.
 
    :param stepper: a pointer to a stepper object.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
@@ -109,8 +111,18 @@ Stepping Functions
    :param tret: the time corresponding to the output value ``vret``.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
+.. c:function:: SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
 
-.. c:function:: SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f)
+   This function evolves the ODE :eq:`SUNStepper_IVP` *one timestep* towards
+   the time ``tout`` and stores the solution at time ``tret`` in ``vret``.
+
+   :param stepper: the stepper object.
+   :param tout: the time to evolve towards.
+   :param vret: on output, the state at time ``tret``.
+   :param tret: the time corresponding to the output value ``vret``.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+.. c:function:: SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, SUNFullRhsMode mode)
 
    This function computes the full right-hand side function of the ODE,
    :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value of the
@@ -121,6 +133,7 @@ Stepping Functions
    :param v: the current value of the dependent variable vector.
    :param f: the output vector for the ODE right-hand side,
       :math:`f(t, v) + r(t)`, in :eq:`SUNStepper_IVP`.
+   :param mode: the purpose of the right-hand side evaluation.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
@@ -146,7 +159,7 @@ Stepping Functions
 
 
 .. c:function:: SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift, sunrealtype tscale, N_Vector* forcing, int nforcing)
-   
+
    This function sets the data necessary to compute the forcing term
    :eq:`SUNStepper_forcing`. This includes the shift and scaling factors for the
    normalized time :math:`\frac{t - t_{\text{shift}}}{t_{\text{scale}}}` and the
@@ -169,6 +182,29 @@ Stepping Functions
       responsible for evaluating ODE right-hand side function :math:`f(t, v)` as
       well as computing and applying the forcing term :eq:`SUNStepper_forcing`
       to obtain the full right-hand side of the ODE :eq:`SUNStepper_IVP`.
+
+
+.. _SUNStepper.Description.BaseMethods.RhsMode:
+
+The Right-Hand Side Evaluation Mode
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. c:enum:: SUNFullRhsMode
+
+   A flag indicating the purpose of a right-hand side function evaluation.
+
+   .. c:enumerator:: SUN_FULLRHS_START
+
+      Evaluate at the beginning of the simulation.
+
+   .. c:enumerator:: SUN_FULLRHS_END
+
+      Evaluate at the end of a successful step.
+
+   .. c:enumerator:: SUN_FULLRHS_OTHER
+
+      Evaluate elsewhere, e.g., for dense output.
+
 
 .. _SUNStepper.Description.BaseMethods.Content:
 
@@ -284,6 +320,17 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
+.. c:function:: SUNErrCode SUNStepper_SetDestroyFn(SUNStepper stepper, SUNStepperDestroyFn fn)
+
+   This function attaches a :c:type:`SUNStepperDestroyFn` function to a
+   :c:type:`SUNStepper`. The provided function is responsible for freeing any
+   memory allocated for the :c:type:`SUNStepper` content.
+
+   :param stepper: a stepper object.
+   :param fn: the :c:type:`SUNStepperDestroyFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
 .. _SUNStepper.Description.ImplMethods:
 
 Implementation Specific Methods
@@ -293,16 +340,21 @@ This section describes the virtual methods defined by the :c:type:`SUNStepper`
 abstract base class.
 
 
-.. c:type:: SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout, N_Vector v, sunrealtype* tret, int* stop_reason)
+.. c:type:: SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_Evolve`.
 
 
-.. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f)
+.. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, SUNFullRhsMode mode)
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_FullRhs`.
+
+
+   This type represents a function to compute the full right-hand side function
+   of the ODE, :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value
+   of the independent variable ``t`` and state vector ``v``.
 
 
 .. c:type:: SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR, N_Vector vR)
@@ -322,6 +374,14 @@ abstract base class.
    This type represents a function with the signature of
    :c:func:`SUNStepper_SetForcing`.
 
+
+.. c:type:: SUNErrCode (*SUNStepperDestroyFn)(SUNStepper stepper)
+
+   This type represents a function with the signature similar to
+   :c:func:`SUNStepper_Destroy` for freeing the content associated with a
+   :c:type:`SUNStepper`.
+
+
 .. _SUNStepper.Description.UserSupplied:
 
 User-Supplied Function Types
@@ -334,4 +394,4 @@ This section describes the functions that users may supply.
                             N_Vector tmp3);
 
 .. c:type:: int (*SUNJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, \
-                                 N_Vector fy, void* user_data, N_Vector tmp);                  
+                                 N_Vector fy, void* user_data, N_Vector tmp);

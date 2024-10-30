@@ -25,10 +25,12 @@ typedef struct SUNStepper_Ops_* SUNStepper_Ops;
 struct SUNStepper_Ops_
 {
   SUNStepperEvolveFn evolve;
+  SUNStepperOneStepFn onestep;
   SUNStepperFullRhsFn fullrhs;
   SUNStepperResetFn reset;
   SUNStepperSetStopTimeFn setstoptime;
   SUNStepperSetForcingFn setforcing;
+  SUNStepperDestroyFn destroy;
 };
 
 struct SUNStepper_

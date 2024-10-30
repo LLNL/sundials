@@ -36,10 +36,12 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
   SUNAssert(stepper->ops, SUN_ERR_MALLOC_FAIL);
 
   stepper->ops->evolve      = NULL;
+  stepper->ops->onestep     = NULL;
   stepper->ops->fullrhs     = NULL;
   stepper->ops->reset       = NULL;
   stepper->ops->setstoptime = NULL;
   stepper->ops->setforcing  = NULL;
+  stepper->ops->destroy     = NULL;
 
   *stepper_ptr = stepper;
 
@@ -50,7 +52,9 @@ SUNErrCode SUNStepper_Destroy(SUNStepper* stepper_ptr)
 {
   if (stepper_ptr != NULL)
   {
-    free((*stepper_ptr)->ops);
+    const SUNStepper_Ops ops = (*stepper_ptr)->ops;
+    if (ops && ops->destroy) { ops->destroy(*stepper_ptr); }
+    free(ops);
     free(*stepper_ptr);
     *stepper_ptr = NULL;
   }
@@ -69,11 +73,25 @@ SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout, N_Vector y,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
-                              N_Vector f)
+SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout,
+                              N_Vector y, sunrealtype* tret)
 {
   SUNFunctionBegin(stepper->sunctx);
-  if (stepper->ops->fullrhs) { return stepper->ops->fullrhs(stepper, t, v, f); }
+  if (stepper->ops->onestep)
+  {
+    return stepper->ops->onestep(stepper, tout, y, tret);
+  }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
+                              N_Vector f, SUNFullRhsMode mode)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->fullrhs)
+  {
+    return stepper->ops->fullrhs(stepper, t, v, f, mode);
+  }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
@@ -145,6 +163,13 @@ SUNErrCode SUNStepper_SetEvolveFn(SUNStepper stepper, SUNStepperEvolveFn fn)
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->onestep = fn;
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
@@ -170,5 +195,12 @@ SUNErrCode SUNStepper_SetForcingFn(SUNStepper stepper, SUNStepperSetForcingFn fn
 {
   SUNFunctionBegin(stepper->sunctx);
   stepper->ops->setforcing = fn;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNStepper_SetDestroyFn(SUNStepper stepper, SUNStepperDestroyFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->destroy = fn;
   return SUN_SUCCESS;
 }
