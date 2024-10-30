@@ -2472,8 +2472,8 @@ int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
   }
   else
   {
-    arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__,
-                    __FILE__, "temporal error accumulation is currently disabled");
+    arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
+                    "temporal error accumulation is currently disabled");
     return (ARK_WARNING);
   }
 

@@ -3139,7 +3139,8 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   }
 
   /* Check that the matrices are defined appropriately */
-  if ((step_mem->MRIC->type == MRISTEP_IMEX) || (step_mem->MRIC->type == MRISTEP_MRISR))
+  if ((step_mem->MRIC->type == MRISTEP_IMEX) ||
+      (step_mem->MRIC->type == MRISTEP_MRISR))
   {
     /* ImEx */
     if (!(step_mem->MRIC->W) || !(step_mem->MRIC->G))
@@ -3149,7 +3150,8 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
       return (ARK_ILL_INPUT);
     }
   }
-  else if ((step_mem->MRIC->type == MRISTEP_EXPLICIT) || (step_mem->MRIC->type == MRISTEP_MERK))
+  else if ((step_mem->MRIC->type == MRISTEP_EXPLICIT) ||
+           (step_mem->MRIC->type == MRISTEP_MERK))
   {
     /* Explicit */
     if (!(step_mem->MRIC->W) || step_mem->MRIC->G)
@@ -3226,8 +3228,8 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
         if (k == -1) { break; }
         if ((k < 0) || (k > step_mem->MRIC->stages))
         {
-          arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
-                          "Invalid MERK group index!");
+          arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__,
+                          __FILE__, "Invalid MERK group index!");
           return (ARK_INVALID_TABLE);
         }
         group_counter[k]++;
@@ -3237,9 +3239,9 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
     {
       if ((group_counter[i] == 0) || (group_counter[i] > 1))
       {
-          arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
-                          "Duplicated/missing stages from MERK groups!");
-          return (ARK_INVALID_TABLE);
+        arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__,
+                        __FILE__, "Duplicated/missing stages from MERK groups!");
+        return (ARK_INVALID_TABLE);
       }
     }
     free(group_counter);
