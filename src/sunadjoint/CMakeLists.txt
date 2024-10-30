@@ -14,11 +14,11 @@
 sundials_add_library(
   sundials_adjoint
   SOURCES sunadjoint_stepper.c sunadjoint_checkpointscheme.c
-          sunadjoint_checkpointscheme_basic.c
+          sunadjoint_checkpointscheme_fixed.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sunadjoint/sunadjoint_stepper.h
     ${SUNDIALS_SOURCE_DIR}/include/sunadjoint/sunadjoint_checkpointscheme.h
-    ${SUNDIALS_SOURCE_DIR}/include/sunadjoint/sunadjoint_checkpointscheme_basic.h
+    ${SUNDIALS_SOURCE_DIR}/include/sunadjoint/sunadjoint_checkpointscheme_fixed.h
   LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES sundials_sunmemsys_obj
   INCLUDE_SUBDIR sunadjoint)

@@ -207,21 +207,21 @@ enum {
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
 
 
-#define SWIGVERSION 0x040000 
+#define SWIGVERSION 0x040000
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
+#define SWIG_as_voidptr(a) (void *)((const void *)(a))
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
 
 
 #include <stdint.h>
 
 
-#include "sunadjoint/sunadjoint_checkpointscheme_basic.h"
+#include "sunadjoint/sunadjoint_checkpointscheme_fixed.h"
 
 
 typedef struct {
@@ -237,7 +237,7 @@ SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
     return result;
 }
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Basic(int const *farg1, SwigClassWrapper const *farg2, int64_t const *farg3, int64_t const *farg4, int const *farg5, int const *farg6, void *farg7, void *farg8) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Fixed(int const *farg1, SwigClassWrapper const *farg2, int64_t const *farg3, int64_t const *farg4, int const *farg5, int const *farg6, void *farg7, void *farg8) {
   int fresult ;
   SUNDataIOMode arg1 ;
   SUNMemoryHelper arg2 ;
@@ -248,9 +248,9 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Basic(int const *farg1, 
   SUNContext arg7 = (SUNContext) 0 ;
   SUNAdjointCheckpointScheme *arg8 = (SUNAdjointCheckpointScheme *) 0 ;
   SUNErrCode result;
-  
+
   arg1 = (SUNDataIOMode)(*farg1);
-  SWIG_check_nonnull(*farg2, "SUNMemoryHelper", "SWIGTYPE_p_SUNMemoryHelper", "SUNAdjointCheckpointScheme_Create_Basic(SUNDataIOMode,SUNMemoryHelper,int64_t,int64_t,int,int,SUNContext,SUNAdjointCheckpointScheme *)", return 0);
+  SWIG_check_nonnull(*farg2, "SUNMemoryHelper", "SWIGTYPE_p_SUNMemoryHelper", "SUNAdjointCheckpointScheme_Create_Fixed(SUNDataIOMode,SUNMemoryHelper,int64_t,int64_t,int,int,SUNContext,SUNAdjointCheckpointScheme *)", return 0);
   arg2 = *(SUNMemoryHelper *)(farg2->cptr);
   arg3 = (int64_t)(*farg3);
   arg4 = (int64_t)(*farg4);
@@ -258,13 +258,13 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Basic(int const *farg1, 
   arg6 = (int)(*farg6);
   arg7 = (SUNContext)(farg7);
   arg8 = (SUNAdjointCheckpointScheme *)(farg8);
-  result = (SUNErrCode)SUNAdjointCheckpointScheme_Create_Basic(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+  result = (SUNErrCode)SUNAdjointCheckpointScheme_Create_Fixed(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_ShouldWeSave_Basic(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, int *farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_ShouldWeSave_Fixed(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, int *farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   int64_t arg2 ;
@@ -272,19 +272,19 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_ShouldWeSave_Basic(SUNAdjointCh
   sunrealtype arg4 ;
   int *arg5 = (int *) 0 ;
   SUNErrCode result;
-  
+
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
   arg2 = (int64_t)(*farg2);
   arg3 = (int64_t)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (int *)(farg5);
-  result = (SUNErrCode)SUNAdjointCheckpointScheme_ShouldWeSave_Basic(arg1,arg2,arg3,arg4,arg5);
+  result = (SUNErrCode)SUNAdjointCheckpointScheme_ShouldWeSave_Fixed(arg1,arg2,arg3,arg4,arg5);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector_Basic(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, N_Vector farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector_Fixed(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, N_Vector farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   int64_t arg2 ;
@@ -292,55 +292,55 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector_Basic(SUNAdjointCh
   sunrealtype arg4 ;
   N_Vector arg5 = (N_Vector) 0 ;
   SUNErrCode result;
-  
+
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
   arg2 = (int64_t)(*farg2);
   arg3 = (int64_t)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (N_Vector)(farg5);
-  result = (SUNErrCode)SUNAdjointCheckpointScheme_InsertVector_Basic(arg1,arg2,arg3,arg4,arg5);
+  result = (SUNErrCode)SUNAdjointCheckpointScheme_InsertVector_Fixed(arg1,arg2,arg3,arg4,arg5);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_ShouldWeDelete_Basic(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, int *farg4) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_ShouldWeDelete_Fixed(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, int *farg4) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   int64_t arg2 ;
   int64_t arg3 ;
   int *arg4 = (int *) 0 ;
   SUNErrCode result;
-  
+
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
   arg2 = (int64_t)(*farg2);
   arg3 = (int64_t)(*farg3);
   arg4 = (int *)(farg4);
-  result = (SUNErrCode)SUNAdjointCheckpointScheme_ShouldWeDelete_Basic(arg1,arg2,arg3,arg4);
+  result = (SUNErrCode)SUNAdjointCheckpointScheme_ShouldWeDelete_Fixed(arg1,arg2,arg3,arg4);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_RemoveVector_Basic(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, void *farg4) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_RemoveVector_Fixed(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, void *farg4) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   int64_t arg2 ;
   int64_t arg3 ;
   N_Vector *arg4 = (N_Vector *) 0 ;
   SUNErrCode result;
-  
+
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
   arg2 = (int64_t)(*farg2);
   arg3 = (int64_t)(*farg3);
   arg4 = (N_Vector *)(farg4);
-  result = (SUNErrCode)SUNAdjointCheckpointScheme_RemoveVector_Basic(arg1,arg2,arg3,arg4);
+  result = (SUNErrCode)SUNAdjointCheckpointScheme_RemoveVector_Fixed(arg1,arg2,arg3,arg4);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector_Basic(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, int const *farg4, void *farg5, double *farg6) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector_Fixed(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, int const *farg4, void *farg5, double *farg6) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   int64_t arg2 ;
@@ -349,40 +349,40 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector_Basic(SUNAdjointChec
   N_Vector *arg5 = (N_Vector *) 0 ;
   sunrealtype *arg6 = (sunrealtype *) 0 ;
   SUNErrCode result;
-  
+
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
   arg2 = (int64_t)(*farg2);
   arg3 = (int64_t)(*farg3);
   arg4 = (int)(*farg4);
   arg5 = (N_Vector *)(farg5);
   arg6 = (sunrealtype *)(farg6);
-  result = (SUNErrCode)SUNAdjointCheckpointScheme_LoadVector_Basic(arg1,arg2,arg3,arg4,arg5,arg6);
+  result = (SUNErrCode)SUNAdjointCheckpointScheme_LoadVector_Fixed(arg1,arg2,arg3,arg4,arg5,arg6);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Destroy_Basic(void *farg1) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Destroy_Fixed(void *farg1) {
   int fresult ;
   SUNAdjointCheckpointScheme *arg1 = (SUNAdjointCheckpointScheme *) 0 ;
   SUNErrCode result;
-  
+
   arg1 = (SUNAdjointCheckpointScheme *)(farg1);
-  result = (SUNErrCode)SUNAdjointCheckpointScheme_Destroy_Basic(arg1);
+  result = (SUNErrCode)SUNAdjointCheckpointScheme_Destroy_Fixed(arg1);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_EnableDense_Basic(SUNAdjointCheckpointScheme farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_EnableDense_Fixed(SUNAdjointCheckpointScheme farg1, int const *farg2) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   int arg2 ;
   SUNErrCode result;
-  
+
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
   arg2 = (int)(*farg2);
-  result = (SUNErrCode)SUNAdjointCheckpointScheme_EnableDense_Basic(arg1,arg2);
+  result = (SUNErrCode)SUNAdjointCheckpointScheme_EnableDense_Fixed(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

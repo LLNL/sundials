@@ -16,8 +16,8 @@ sundials_add_f2003_library(
           fsunadjointstepper_mod.c
           fsunadjointcheckpointscheme_mod.f90
           fsunadjointcheckpointscheme_mod.c
-          fsunadjointcheckpointscheme_basic_mod.f90
-          fsunadjointcheckpointscheme_basic_mod.c
+          fSUNAdjointCheckpointScheme_Fixed_mod.f90
+          fSUNAdjointCheckpointScheme_Fixed_mod.c
   LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OUTPUT_NAME sundials_fsunadjoint_mod OBJECT_LIB_ONLY)
 

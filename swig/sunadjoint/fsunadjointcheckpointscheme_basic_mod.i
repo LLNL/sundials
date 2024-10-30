@@ -12,7 +12,7 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsunadjointcheckpointscheme_basic_mod
+%module fSUNAdjointCheckpointScheme_Fixed_mod
 
 // Include shared configuration
 %include "../sundials/fsundials.i"
@@ -20,11 +20,11 @@
 %include <stdint.i>
 
 %{
-#include "sunadjoint/sunadjoint_checkpointscheme_basic.h"
+#include "sunadjoint/sunadjoint_checkpointscheme_fixed.h"
 %}
 
 %import "../sundials/fsundials_core_mod.i"
 %import "../sunadjoint/fsunadjointcheckpointscheme_mod.i"
 
 // Process and wrap functions in the following files
-%include  "sunadjoint/sunadjoint_checkpointscheme_basic.h"
+%include  "sunadjoint/sunadjoint_checkpointscheme_fixed.h"

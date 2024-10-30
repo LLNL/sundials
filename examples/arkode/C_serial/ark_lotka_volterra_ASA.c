@@ -44,7 +44,7 @@
 
 #include <nvector/nvector_manyvector.h>
 #include <nvector/nvector_serial.h>
-#include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
+#include <sunadjoint/sunadjoint_checkpointscheme_fixed.h>
 #include <sunadjoint/sunadjoint_stepper.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmemory/sunmemory_system.h>
@@ -128,12 +128,12 @@ int main(int argc, char* argv[])
   SUNAdjointCheckpointScheme checkpoint_scheme = NULL;
   SUNMemoryHelper mem_helper                   = SUNMemoryHelper_Sys(sunctx);
 
-  retval = SUNAdjointCheckpointScheme_Create_Basic(SUNDATAIOMODE_INMEM,
+  retval = SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM,
                                                    mem_helper, check_interval,
                                                    ncheck, save_stages,
                                                    keep_check, sunctx,
                                                    &checkpoint_scheme);
-  if (check_retval(&retval, "SUNAdjointCheckpointScheme_Create_Basic", 1))
+  if (check_retval(&retval, "SUNAdjointCheckpointScheme_Create_Fixed", 1))
   {
     return 1;
   }

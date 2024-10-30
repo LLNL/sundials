@@ -9,11 +9,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * SUNAdjointCheckpointScheme_Basic class declaration.
+ * SUNAdjointCheckpointScheme_Fixed class declaration.
  * ----------------------------------------------------------------*/
 
-#ifndef _SUNADJOINT_CHECKPOINTSCHEME_BASIC_H
-#define _SUNADJOINT_CHECKPOINTSCHEME_BASIC_H
+#ifndef _sunadjoint_checkpointscheme_fixed_H
+#define _sunadjoint_checkpointscheme_fixed_H
 
 #include <sunadjoint/sunadjoint_checkpointscheme.h>
 #include <sundials/sundials_core.h>
@@ -25,46 +25,46 @@ extern "C" {
 #endif
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
   SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval,
   int64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
   SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Fixed(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
   sunrealtype t, sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
   sunrealtype t, N_Vector state);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete_Fixed(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
   sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Fixed(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
   N_Vector* out);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
   sunbooleantype peek, N_Vector* out, sunrealtype* tout);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_Destroy_Fixed(
   SUNAdjointCheckpointScheme* check_scheme_ptr);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Fixed(
   SUNAdjointCheckpointScheme check_scheme, sunbooleantype on_or_off);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _SUNADJOINT_CHECKPOINTSCHEME_BASIC_H */
+#endif /* _sunadjoint_checkpointscheme_fixed_H */

@@ -11,7 +11,7 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(unit_tests "test_sunadjointcheckpointscheme_basic\;")
+set(unit_tests "test_SUNAdjointCheckpointScheme_Fixed\;")
 
 # Add the build and install targets for each test
 if(TARGET GTest::gtest_main AND TARGET GTest::gmock)

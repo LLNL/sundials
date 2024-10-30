@@ -173,10 +173,10 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 
 .. _SUNAdjointCheckpointScheme.Basic:
 
-The SUNAdjointCheckpointScheme_Basic Module
+The SUNAdjointCheckpointScheme_Fixed Module
 ===========================================
 
-The SUNAdjointCheckpointScheme_Basic module implements a scheme where a checkpoint is saved at some
+The SUNAdjointCheckpointScheme_Fixed module implements a scheme where a checkpoint is saved at some
 fixed interval (in timesteps). The module supports checkpointing of time step states only, or time
 step stages with intermediate stage states as well (for multistage methods). When used with a
 fixed timestep size then the number of checkpoints that will be saved is fixed. However, with
@@ -186,9 +186,9 @@ The diagram below illustrates how checkpoints are stored with this scheme:
 
 
 
-The SUNAdjointCheckpointScheme_Basic module has the following user-callable functions:
+The SUNAdjointCheckpointScheme_Fixed module has the following user-callable functions:
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval, int64_t estimate, sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval, int64_t estimate, sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
 
    Creates a new :c:type:`SUNAdjointCheckpointScheme` object that checkpoints at a fixed interval.
 
@@ -202,7 +202,7 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param check_scheme_ptr: Pointer to the newly constructed object.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Fixed(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
    Queries the checkpointing scheme to determine if a checkpoint should be saved at this timestep.
 
@@ -213,7 +213,7 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param yes_or_no: On output, will be 1 if you should save, 0 otherwise.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector state)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector state)
 
    Inserts a checkpoint state represented as a `N_Vector`.
 
@@ -224,7 +224,7 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param state: A `N_Vector` object that holds the current state to be inserted.
    :return: A `SUNErrCode` indicating success or failure.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete_Basic(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete_Fixed(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
    Queries the checkpointing scheme to determine if a checkpoint should be deleted at this timestep.
 
@@ -235,7 +235,7 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param yes_or_no: On output, will be 1 if you should delete, 0 otherwise.
    :return: A `SUNErrCode` indicating success or failure.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Basic(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, N_Vector* out)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Fixed(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, N_Vector* out)
 
    Removes a checkpoint state represented as a `N_Vector`.
 
@@ -245,7 +245,7 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param out: Pointer to the `N_Vector` object that holds the current state to be removed.
    :return: A `SUNErrCode` indicating success or failure.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
 
    Loads a checkpoint state represented as a `N_Vector`.
 
@@ -257,14 +257,14 @@ The SUNAdjointCheckpointScheme_Basic module has the following user-callable func
    :param tout: Pointer to the time associated with the loaded state.
    :return: A `SUNErrCode` indicating success or failure.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(SUNAdjointCheckpointScheme* check_scheme_ptr)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Destroy_Fixed(SUNAdjointCheckpointScheme* check_scheme_ptr)
 
    Destroys and frees the memory for the `SUNAdjointCheckpointScheme` object.
 
    :param check_scheme_ptr: Pointer to the `SUNAdjointCheckpointScheme` object.
    :return: A `SUNErrCode` indicating success or failure.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Basic(SUNAdjointCheckpointScheme check_scheme, sunbooleantype on_or_off)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Fixed(SUNAdjointCheckpointScheme check_scheme, sunbooleantype on_or_off)
 
    Enables dense checkpointing, saving all steps.
 

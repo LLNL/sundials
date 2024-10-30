@@ -9,10 +9,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * SUNAdjointCheckpointScheme_Basic class definition.
+ * SUNAdjointCheckpointScheme_Fixed class definition.
  * ----------------------------------------------------------------*/
 
-#include <sunadjoint/sunadjoint_checkpointscheme_basic.h>
+#include <sunadjoint/sunadjoint_checkpointscheme_fixed.h>
 #include <sundials/sundials_core.h>
 
 #include "sunadjoint/sunadjoint_checkpointscheme.h"
@@ -25,7 +25,7 @@
 #include "sundials_macros.h"
 #include "sundials_utils.h"
 
-struct SUNAdjointCheckpointScheme_Basic_Content_
+struct SUNAdjointCheckpointScheme_Fixed_Content_
 {
   SUNMemoryHelper mem_helper;
   int64_t backup_interval;
@@ -40,13 +40,13 @@ struct SUNAdjointCheckpointScheme_Basic_Content_
   SUNDataNode current_load_step_node;
 };
 
-typedef struct SUNAdjointCheckpointScheme_Basic_Content_*
-  SUNAdjointCheckpointScheme_Basic_Content;
+typedef struct SUNAdjointCheckpointScheme_Fixed_Content_*
+  SUNAdjointCheckpointScheme_Fixed_Content;
 
-#define GET_CONTENT(S)    ((SUNAdjointCheckpointScheme_Basic_Content)S->content)
+#define GET_CONTENT(S)    ((SUNAdjointCheckpointScheme_Fixed_Content)S->content)
 #define PROPERTY(S, prop) (GET_CONTENT(S)->prop)
 
-SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
   SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval,
   int64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
   SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
@@ -56,13 +56,13 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
   SUNAdjointCheckpointScheme check_scheme = NULL;
   SUNCheckCall(SUNAdjointCheckpointScheme_NewEmpty(sunctx, &check_scheme));
 
-  check_scheme->ops->shouldWeSave = SUNAdjointCheckpointScheme_ShouldWeSave_Basic;
-  check_scheme->ops->insertVector = SUNAdjointCheckpointScheme_InsertVector_Basic;
-  check_scheme->ops->loadVector  = SUNAdjointCheckpointScheme_LoadVector_Basic;
-  check_scheme->ops->enableDense = SUNAdjointCheckpointScheme_EnableDense_Basic;
-  check_scheme->ops->destroy     = SUNAdjointCheckpointScheme_Destroy_Basic;
+  check_scheme->ops->shouldWeSave = SUNAdjointCheckpointScheme_ShouldWeSave_Fixed;
+  check_scheme->ops->insertVector = SUNAdjointCheckpointScheme_InsertVector_Fixed;
+  check_scheme->ops->loadVector  = SUNAdjointCheckpointScheme_LoadVector_Fixed;
+  check_scheme->ops->enableDense = SUNAdjointCheckpointScheme_EnableDense_Fixed;
+  check_scheme->ops->destroy     = SUNAdjointCheckpointScheme_Destroy_Fixed;
 
-  SUNAdjointCheckpointScheme_Basic_Content content = NULL;
+  SUNAdjointCheckpointScheme_Fixed_Content content = NULL;
 
   content = malloc(sizeof(*content));
   SUNAssert(content, SUN_ERR_MALLOC_FAIL);
@@ -87,7 +87,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Basic(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Fixed(
   SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
   SUNDIALS_MAYBE_UNUSED sunrealtype t, sunbooleantype* yes_or_no)
 {
@@ -104,7 +104,7 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Basic(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
   SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
   sunrealtype t, N_Vector state)
 {
@@ -152,7 +152,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Basic(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
   SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
   sunbooleantype peek, N_Vector* loaded_state, sunrealtype* t)
 {
@@ -276,14 +276,14 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Basic(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_Destroy_Fixed(
   SUNAdjointCheckpointScheme* check_scheme_ptr)
 {
   SUNFunctionBegin((*check_scheme_ptr)->sunctx);
 
   SUNAdjointCheckpointScheme self = *check_scheme_ptr;
-  SUNAdjointCheckpointScheme_Basic_Content content =
-    (SUNAdjointCheckpointScheme_Basic_Content)self->content;
+  SUNAdjointCheckpointScheme_Fixed_Content content =
+    (SUNAdjointCheckpointScheme_Fixed_Content)self->content;
 
   SUNCheckCall(SUNDataNode_Destroy(&content->root_node));
   free(content);
@@ -294,7 +294,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy_Basic(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Basic(
+SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Fixed(
   SUNAdjointCheckpointScheme check_scheme, sunbooleantype on_or_off)
 {
   SUNFunctionBegin(check_scheme->sunctx);
