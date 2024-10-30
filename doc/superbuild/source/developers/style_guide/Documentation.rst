@@ -126,6 +126,18 @@ References
 All citations go into `doc/shared/sundials.bib`.
 TODO: add citation and reference key style.
 
+Links
+=====
+
+Links to websites should typically use the anonymous link syntax.
+
+.. code-block:: rst
+
+   `SUNDIALS documentation <https://sundials.readthedocs.io>`__
+
+Pay special attention to the two trailing underscores - two underscores
+indicates an anonymous link.
+
 
 User-Callable Functions
 =======================
