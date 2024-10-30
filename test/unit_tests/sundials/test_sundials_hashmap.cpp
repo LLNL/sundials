@@ -112,7 +112,7 @@ TEST_F(SUNHashMapTest, InsertDuplicateKeyFails)
 
   int64_t err;
 
-  // Insert same key twice (should overwrite)
+  // Insert same key twice (should cause error)
   const char* key = "test_key";
   int value1      = 42;
   int value2      = 100;
@@ -120,7 +120,7 @@ TEST_F(SUNHashMapTest, InsertDuplicateKeyFails)
   err = SUNHashMap_Insert(map, key, &value1);
   ASSERT_EQ(err, 0);
   err = SUNHashMap_Insert(map, key, &value2);
-  ASSERT_EQ(err, SIZE_MAX - 1);
+  ASSERT_EQ(err, -2);
 }
 
 TEST_F(SUNHashMapTest, RemoveWorks)
@@ -144,5 +144,5 @@ TEST_F(SUNHashMapTest, RemoveWorks)
   // Check if key is gone
   void* retrieved_value;
   err = SUNHashMap_GetValue(map, key, &retrieved_value);
-  ASSERT_EQ(err, SIZE_MAX - 1);
+  ASSERT_EQ(err, -1);
 }
