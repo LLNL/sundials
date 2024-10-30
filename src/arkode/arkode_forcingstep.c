@@ -134,7 +134,7 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
   if (retval != ARK_SUCCESS) { return retval; }
 
   SUNErrCode err = SUNStepper_FullRhs(step_mem->stepper[0], t, y,
-                                      ark_mem->tempv1);
+                                      ark_mem->tempv1, SUN_FULLRHS_OTHER);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -142,7 +142,7 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
     return ARK_RHSFUNC_FAIL;
   }
 
-  err = SUNStepper_FullRhs(step_mem->stepper[1], t, y, f);
+  err = SUNStepper_FullRhs(step_mem->stepper[1], t, y, f, SUN_FULLRHS_OTHER);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,

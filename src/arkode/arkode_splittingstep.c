@@ -188,7 +188,8 @@ static int splittingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
   for (int i = 0; i < step_mem->partitions; i++)
   {
     const SUNErrCode err = SUNStepper_FullRhs(step_mem->steppers[i], t, y,
-                                              i == 0 ? f : ark_mem->tempv1);
+                                              i == 0 ? f : ark_mem->tempv1,
+                                              SUN_FULLRHS_OTHER);
     if (err != SUN_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
