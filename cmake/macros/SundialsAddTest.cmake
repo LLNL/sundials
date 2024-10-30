@@ -191,13 +191,25 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       if((SUNDIALS_ADD_TEST_MPI_NPROCS) AND ((MPIEXEC_EXECUTABLE)
                                              OR (SUNDIALS_TEST_MPIRUN_COMMAND)))
         if(SUNDIALS_TEST_MPIRUN_COMMAND)
-          set(RUN_COMMAND
-              "${SUNDIALS_TEST_MPIRUN_COMMAND} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${MPIEXEC_PREFLAGS}"
-          )
+          if(MPIEXEC_PREFLAGS)
+            set(RUN_COMMAND
+                "${SUNDIALS_TEST_MPIRUN_COMMAND} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
+            )
+          else()
+            set(RUN_COMMAND
+                "${SUNDIALS_TEST_MPIRUN_COMMAND} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
+            )
+          endif()
         elseif(MPIEXEC_EXECUTABLE)
-          set(RUN_COMMAND
-              "${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${MPIEXEC_PREFLAGS}"
-          )
+          if(MPIEXEC_PREFLAGS)
+            set(RUN_COMMAND
+                "${MPIEXEC_EXECUTABLE} ${MPIEXEC_PREFLAGS} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
+            )
+          else()
+            set(RUN_COMMAND
+                "${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} ${SUNDIALS_ADD_TEST_MPI_NPROCS}"
+            )
+          endif()
         endif()
 
         # remove trailing white space (empty MPIEXEC_PREFLAGS) as it can cause
@@ -217,7 +229,12 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         set(_run_args "${_run_args} ${_extra_args}")
         unset(_extra_args)
       endif()
-      if(_have_test_args OR _have_extra_test_args)
+      if(MPIEXEC_POSTFLAGS)
+        set(_run_args "${MPIEXEC_POSTFLAGS} ${_run_args}")
+      endif()
+      if(_have_test_args
+         OR _have_extra_test_args
+         OR MPIEXEC_POSTFLAGS)
         string(STRIP "${_run_args}" _run_args)
         list(APPEND TEST_ARGS "--runargs=\"${_run_args}\"")
         unset(_run_args)
@@ -245,22 +262,25 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         if(MPIEXEC_PREFLAGS)
           string(REPLACE " " ";" PREFLAGS "${MPIEXEC_PREFLAGS}")
         endif()
+        if(MPIEXEC_POSTFLAGS)
+          string(REPLACE " " ";" POSTLAGS "${MPIEXEC_POSTFLAGS}")
+        endif()
         if(SUNDIALS_TEST_MPIRUN_COMMAND)
           string(REPLACE " " ";" MPI_EXEC_ARGS
                          "${SUNDIALS_TEST_MPIRUN_COMMAND}")
           add_test(
             NAME ${NAME}
             COMMAND
-              ${MPI_EXEC_ARGS} ${MPIEXEC_NUMPROC_FLAG}
-              ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${PREFLAGS}
-              $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
+              ${MPI_EXEC_ARGS} ${PREFLAGS} ${MPIEXEC_NUMPROC_FLAG}
+              ${SUNDIALS_ADD_TEST_MPI_NPROCS} $<TARGET_FILE:${EXECUTABLE}>
+              ${POSTFLAGS} ${TEST_ARGS})
         else()
           add_test(
             NAME ${NAME}
             COMMAND
-              ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG}
-              ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${PREFLAGS}
-              $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
+              ${MPIEXEC_EXECUTABLE} ${PREFLAGS} ${MPIEXEC_NUMPROC_FLAG}
+              ${SUNDIALS_ADD_TEST_MPI_NPROCS} ${POSTFLAGS}
+              $<TARGET_FILE:${EXECUTABLE}> ${POSTFLAGS} ${TEST_ARGS})
         endif()
       else()
         add_test(NAME ${NAME} COMMAND $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
