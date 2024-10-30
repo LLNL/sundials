@@ -18,7 +18,7 @@
 # examples excluded from 'make test' in releases
 
 # Example programs
-set(examples "test_sunnonlinsol_petscsnes\;\;")
+set(examples "test_sunnonlinsol_petscsnes\;\;1\;1\;")
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -41,7 +41,9 @@ foreach(example_tuple ${examples})
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  list(GET example_tuple 2 number_of_nodes)
+  list(GET example_tuple 3 number_of_tasks)
+  list(GET example_tuple 4 example_type)
 
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
@@ -67,6 +69,7 @@ foreach(example_tuple ${examples})
   sundials_add_test(
     ${test_name} ${example}
     TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
