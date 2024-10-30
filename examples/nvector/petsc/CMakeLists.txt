@@ -18,8 +18,9 @@
 # develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS PETSc nvector
-set(nvector_petsc_examples "test_nvector_petsc\;1000 0\;\;\;" # run sequentially
-                           "test_nvector_petsc\;1000 0\;1\;4\;" # run 4 procs
+set(nvector_petsc_examples
+    "test_nvector_petsc\;1000 0\;1\;1\;" # run sequentially
+    "test_nvector_petsc\;1000 0\;1\;4\;" # run 4 procs
 )
 
 # Dependencies for nvector examples
