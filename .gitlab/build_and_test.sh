@@ -20,9 +20,6 @@ job_unique_id=${CI_JOB_ID:-""}
 sys_type=${SYS_TYPE:-""}
 py_env_path=${PYTHON_ENVIRONMENT_PATH:-""}
 
-spack_prefix=${SHARED_SPACK_PREFIX:-"v0.19.1"}
-shared_spack=${SHARED_SPACK:-"UPSTREAM"}
-
 # Dependencies
 date
 
@@ -38,26 +35,12 @@ echo "spec          = ${spec}"
 echo "job_unique_id = ${job_unique_id}"
 echo "sys_type      = ${sys_type}"
 echo "py_env_path   = ${py_env_path}"
-echo "shared_spack  = ${shared_spack}"
 
 # remove tailing number from hostname
 hostname=${hostname%%[0-9]*}
 
 # number of parallel build jobs
 BUILD_JOBS=${BUILD_JOBS:-"1"}
-
-# load newer python to try the clingo concretizer
-# machine specific loads
-if [[ "${hostname}" == "lassen" ]]; then
-    echo "module load python/3.8.2"
-    module load python/3.8.2
-elif [[ "${hostname}" == "corona" ]]; then
-    echo "module load python/3.9.12"
-    module load python/3.9.12
-else
-    echo "module load python"
-    module load python
-fi
 
 if [[ "${option}" != "--build-only" && "${option}" != "--test-only" ]]
 then
@@ -97,34 +80,28 @@ then
         mkdir -p ${spack_user_cache}
     fi
 
-    if [[ -d /usr/workspace/sundials ]]
+    mirror_opt=""
+    buildcache="/usr/workspace/sundials/ci/spack_stuff/build_caches/${SPACK_REF}"
+
+    if [[ ! -d "${buildcache}" ]]
     then
-        upstream="/usr/workspace/sundials/spack_installs/${spack_prefix}/${hostname}"
-        mkdir -p "${upstream}"
-        upstream_opt="--upstream=${upstream}"
+        mkdir "${buildcache}"
     fi
 
-    if [[ "${shared_spack}" == "UPSTREAM" ]]
-    then
-        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}" "${upstream_opt}"
-    elif [[ "${shared_spack}" == "ON" ]]
-    then
-        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" --prefix="${upstream}"
-    else
-        python3 .gitlab/uberenv/uberenv.py --spec="${spec}" "${prefix_opt}"
-    fi
+    mirror_opt=("--mirror=${buildcache}" "--mirror-autopush")
 
-    # Ensure correct CUDA module is loaded, only works for module naming
-    # convention on Lassen. Only needed for CUDA 11 (unclear why).
-    if [[ -n "${CUDA_SPEC}" ]]; then
-        cuda_version="${CUDA_SPEC##*@}"
-        echo "module load cuda/${cuda_version}"
-        module load cuda/"${cuda_version}"
-    fi
-
-    module load cmake/3.23
+    key_path=/usr/workspace/sundials/ci/spack_stuff/gpg_backup
+    python3 .gitlab/uberenv/uberenv.py \
+        --trust-key ${key_path}/pubring.gpg --trust-key ${key_path}/secring.gpg \
+        --spec="${spec}" "${mirror_opt[@]}" "${prefix_opt}" \
+        --spack-commit="${SPACK_REF}"
 fi
+
 date
+
+# Reload the spack environment created by uberenv
+. ${prefix}/spack/share/spack/setup-env.sh
+spack load
 
 # Host config file
 if [[ -z ${hostconfig} ]]
@@ -173,6 +150,9 @@ then
     echo "~ Host-config: ${hostconfig_path}"
     echo "~ Build Dir:   ${build_dir}"
     echo "~ Project Dir: ${project_dir}"
+    echo "~ MPIEXEC_EXECUTABLE: ${MPIEXEC_EXECUTABLE}"
+    echo "~ MPIEXEC_PREFLAGS: ${MPIEXEC_PREFLAGS}"
+    echo "~ MPIEXEC_POSTFLAGS: ${MPIEXEC_POSTFLAGS}"
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -195,6 +175,9 @@ then
         $cmake_exe \
             -C "${hostconfig_path}" \
             -DCMAKE_INSTALL_PREFIX=${install_dir} \
+            -DMPIEXEC_EXECUTABLE=$(which $MPIEXEC_EXECUTABLE) \
+            -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} \
+            -DMPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS} \
             -DSUNDIALS_CALIPER_OUTPUT_DIR="${CALIPER_DIR}/Release/${hostname}/${sundials_version}" \
             "${project_dir}"
 
@@ -202,6 +185,9 @@ then
         $cmake_exe \
             -C "${hostconfig_path}" \
             -DCMAKE_INSTALL_PREFIX=${install_dir} \
+            -DMPIEXEC_EXECUTABLE=$(which $MPIEXEC_EXECUTABLE) \
+            -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} \
+            -DMPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS} \
             "${project_dir}"
     fi
 
