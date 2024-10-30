@@ -2369,8 +2369,10 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      is the [already-computed] slow RHS from the start of the step */
 
   /* Determine how many stages will be needed */
-  max_stages = (ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE)) ?
-    step_mem->stages : step_mem->stages+1;
+  max_stages = (ark_mem->fixedstep &&
+                (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE))
+                 ? step_mem->stages
+                 : step_mem->stages + 1;
 
   /* Loop over stages */
   for (stage = 1; stage < max_stages; stage++)
