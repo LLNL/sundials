@@ -1288,8 +1288,8 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
                         "error calling slow RHS function(s)");
         return (ARK_RHSFUNC_FAIL);
       }
-      retval = mriStep_Hin(ark_mem, ark_mem->tcur, tout,
-                           ark_mem->tempv1, &(ark_mem->hin));
+      retval = mriStep_Hin(ark_mem, ark_mem->tcur, tout, ark_mem->tempv1,
+                           &(ark_mem->hin));
       if (retval != ARK_SUCCESS)
       {
         retval = arkHandleFailure(ark_mem, retval);
