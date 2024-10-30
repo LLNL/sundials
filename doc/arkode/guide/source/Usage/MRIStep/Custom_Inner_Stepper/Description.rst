@@ -280,7 +280,10 @@ responsible for evaluating ODE right-hand side function :math:`f^F(t,v)` as well
 as computing and applying the forcing term :eq:`ARKODE_MRI_forcing_poly` to obtain the
 full right-hand side of the inner (fast) ODE :eq:`ARKODE_MRI_IVP`. The functions in
 this section can be used to either apply the inner (fast) forcing or access the
-data necessary to construct the inner (fast) forcing polynomial.
+data necessary to construct the inner (fast) forcing polynomial.  While the first of 
+these is less intrusive and may be used to package an existing black-box IVP solver 
+as an MRIStepInnerStepper, the latter may be more computationally efficient since it
+does not traverse the data directly.
 
 
 .. c:function:: int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper, sunrealtype t, N_Vector ff)
@@ -298,6 +301,7 @@ data necessary to construct the inner (fast) forcing polynomial.
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+
 
 
 .. c:function:: int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper, sunrealtype *tshift, sunrealtype *tscale, N_Vector **forcing, int *nforcing)
@@ -394,7 +398,8 @@ following member functions:
 
    This function computes the full right-hand side function of the inner (fast)
    ODE, :math:`f^F(t,v)` in :eq:`ARKODE_MRI_IVP` for a given value of the independent
-   variable *t* and state vector *y*.
+   variable *t* and state vector *y*.  We note that this routine should *not* include 
+   contributions from the forcing term :eq:`ARKODE_MRI_forcing_poly`.
 
    **Arguments:**
       * *stepper* -- the inner stepper object.

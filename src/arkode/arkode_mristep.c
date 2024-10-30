@@ -1749,9 +1749,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   }
 
   /* Evaluate the slow RHS functions if needed. NOTE: We do not use the full RHS
-     function here (unlike ERKStep and ARKStep) since it does not need to check
-     for FSAL or SA methods and thus avoids potentially unnecessary evaluations
-     of the inner (fast) RHS function */
+     function here since it does not need to check for FSAL or SA methods and 
+     thus avoids potentially unnecessary evaluations of the inner (fast) RHS function */
   if (!(ark_mem->fn_is_current))
   {
     /* compute the explicit component */
