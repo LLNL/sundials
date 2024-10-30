@@ -215,14 +215,32 @@ Updating Spack
 
 To update the spack commit used for the CI simply replace the commit hash in the
 ``SPACK_REF`` variable inside the ``.gitlab-ci.yml`` file with the new commit hash.
-This will create a new spack build cache in ``/usr/workspace/sundials/ci/spack_stuff``
-and rebuild all of the specs.
+The first time a pipeline runs with a new ``SPACK_REF`` the pipeline will take longer than
+normal as a new Spack build cache must be created and populated (so all packages will be
+built from source).
 
 
 Benchmark Jobs
 ^^^^^^^^^^^^^^
 
 See :ref:`SUNDIALS Continuous Performance Testing (CPT)<CPT>` for more details.
+
+
+Directories and Permissions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``/usr/workspace/sundials`` is the workspace directory associated with the ``sundials`` LC group.
+  Users must be added to this group through the LC IDM application.
+
+* ``/usr/workspace/sundials/ci`` is where all GitLab CI related files are stored.
+  The correct permissions for this directory are ``drwxrws---``.
+
+* ``/usr/workspace/sundials/ci/.builds`` is where GitLab CI pipelines are run. The permissions
+  for this directory are ``drwxrwx---``, but directories within it must be ``drwx------``.
+  Files within it should be ``-rw-rw----`` (can add ``x`` for group and owner as appropriate). 
+
+* ``/usr/workspace/sundials/ci/spack_stuff`` contains the Spack build caches amongst other Spack
+  files. The permissions for this directory and directories below should be ``drwxrws---``.
 
 
 GitLab CI Test Script
@@ -249,9 +267,18 @@ configuration and generates an initial CMake cache file for building SUNDIALS.
 Other packages can be added to ``spack/packages`` if the default Spack package
 needs to be overridden.
 
+Spack Build Cache
+^^^^^^^^^^^^^^^^^
+
+The ``build_and_test.sh`` script leverage Spack build caches in ``/usr/workspace/sundials/ci/spack_stuff/<SPACK_REF>``
+to speedup builds. These caches store binaries of packages that have been built previously. Separate caches are
+made for each ``SPACK_REF`` to avoid conflicts across Spack versions. 
+
+
 Running Locally
 ^^^^^^^^^^^^^^^
 
 It is possible to run these scripts locally on an LC machine. First set a ``SPACK_REF``
 environment variable to a spack commit that you want to use, and then set a ``SPEC``
 environment variable with a SUNDIALS spack spec that you want to test.
+
