@@ -63,10 +63,13 @@ typedef struct ARKodeERKStepMemRec
   int nfusedopvecs; /* length of cvals and Xvecs arrays */
 
   /* Data for using ERKStep with external polynomial forcing */
-  sunrealtype tshift; /* time normalization shift    */
-  sunrealtype tscale; /* time normalization scaling  */
-  N_Vector* forcing;  /* array of forcing vectors    */
-  int nforcing;       /* number of forcing vectors   */
+  sunrealtype tshift;        /* time normalization shift       */
+  sunrealtype tscale;        /* time normalization scaling     */
+  N_Vector* forcing;         /* array of forcing vectors       */
+  int nforcing;              /* number of forcing vectors      */
+  sunrealtype* stage_times;  /* workspace for applying forcing */
+  sunrealtype* stage_coefs;  /* workspace for applying forcing */
+
 
 }* ARKodeERKStepMem;
 
@@ -104,8 +107,8 @@ sunbooleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
-void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype t,
-                          sunrealtype s, int* nvec);
+void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype* stage_times,
+                          sunrealtype* stage_coefs, int jmax, int* nvec);
 
 /* private functions for relaxation */
 int erkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);

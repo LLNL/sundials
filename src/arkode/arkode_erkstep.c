@@ -317,6 +317,21 @@ void erkStep_Free(ARKodeMem ark_mem)
     }
     step_mem->nfusedopvecs = 0;
 
+    /* free work arrays for MRI forcing */
+    if (step_mem->stage_times)
+    {
+      free(step_mem->stage_times);
+      step_mem->stage_times = NULL;
+      ark_mem->lrw -= step_mem->stages;
+    }
+
+    if (step_mem->stage_coefs)
+    {
+      free(step_mem->stage_coefs);
+      step_mem->stage_coefs = NULL;
+      ark_mem->lrw -= step_mem->stages;
+    }
+
     /* free the time stepper module itself */
     free(ark_mem->step_mem);
     ark_mem->step_mem = NULL;
@@ -457,7 +472,7 @@ int erkStep_Init(ARKodeMem ark_mem, int init_type)
   ark_mem->liw += step_mem->stages; /* pointers */
 
   /* Allocate reusable arrays for fused vector interface */
-  step_mem->nfusedopvecs = step_mem->stages + 1 + step_mem->nforcing;
+  step_mem->nfusedopvecs = 2 * step_mem->stages + 2 + step_mem->nforcing;
   if (step_mem->cvals == NULL)
   {
     step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
@@ -470,6 +485,27 @@ int erkStep_Init(ARKodeMem ark_mem, int init_type)
     step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs, sizeof(N_Vector));
     if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
     ark_mem->liw += step_mem->nfusedopvecs; /* pointers */
+  }
+
+  /* Allocate workspace for MRI forcing -- need to allocate here as the
+     number of stages may not bet set before this point and we assume
+     SetInnerForcing has been called before the first step i.e., methods
+     start with a fast integration */
+  if (step_mem->nforcing > 0)
+  {
+    if (!(step_mem->stage_times))
+    {
+      step_mem->stage_times = (sunrealtype*)calloc(step_mem->stages,
+                                                   sizeof(sunrealtype));
+      ark_mem->lrw += step_mem->stages;
+    }
+
+    if (!(step_mem->stage_coefs))
+    {
+      step_mem->stage_coefs = (sunrealtype*)calloc(step_mem->stages,
+                                                   sizeof(sunrealtype));
+      ark_mem->lrw += step_mem->stages;
+    }
   }
 
   /* Override the interpolant degree (if needed), used in arkInitialSetup */
@@ -528,6 +564,7 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   sunbooleantype recomputeRHS;
   sunrealtype* cvals;
   N_Vector* Xvecs;
+  sunrealtype stage_coefs = ONE;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -542,7 +579,7 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   {
   case ARK_FULLRHS_START:
 
-    /* compute the RHS */
+    /* compute the RHS if needed */
     if (!(ark_mem->fn_is_current))
     {
       retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
@@ -553,20 +590,20 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                         MSG_ARK_RHSFUNC_FAILED, t);
         return (ARK_RHSFUNC_FAIL);
       }
-
-      /* apply external polynomial forcing */
-      if (step_mem->nforcing > 0)
-      {
-        cvals[0] = ONE;
-        Xvecs[0] = step_mem->F[0];
-        nvec     = 1;
-        erkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-        N_VLinearCombination(nvec, cvals, Xvecs, step_mem->F[0]);
-      }
     }
 
-    /* copy RHS vector into output */
+    /* copy RHS into output */
     N_VScale(ONE, step_mem->F[0], f);
+
+    /* apply external polynomial forcing */
+    if (step_mem->nforcing > 0)
+    {
+      cvals[0] = ONE;
+      Xvecs[0] = f;
+      nvec     = 1;
+       erkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
+       N_VLinearCombination(nvec, cvals, Xvecs, f);
+    }
 
     break;
 
@@ -580,7 +617,7 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
       /* First Same As Last methods are not FSAL when relaxation is enabled */
       if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
 
-      /* base RHS calls on recomputeRHS argument */
+      /* base RHS call on recomputeRHS argument */
       if (recomputeRHS)
       {
         /* call f */
@@ -592,21 +629,22 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                           __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
           return (ARK_RHSFUNC_FAIL);
         }
-        /* apply external polynomial forcing */
-        if (step_mem->nforcing > 0)
-        {
-          cvals[0] = ONE;
-          Xvecs[0] = step_mem->F[0];
-          nvec     = 1;
-          erkStep_ApplyForcing(step_mem, t, ONE, &nvec);
-          N_VLinearCombination(nvec, cvals, Xvecs, step_mem->F[0]);
-        }
       }
       else { N_VScale(ONE, step_mem->F[step_mem->stages - 1], step_mem->F[0]); }
-    }
 
-    /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->F[0], f);
+      /* copy RHS vector into output */
+      N_VScale(ONE, step_mem->F[0], f);
+
+      /* apply external polynomial forcing */
+      if (step_mem->nforcing > 0)
+      {
+        cvals[0] = ONE;
+        Xvecs[0] = f;
+        nvec     = 1;
+        erkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
+        N_VLinearCombination(nvec, cvals, Xvecs, f);
+      }
+    }
 
     break;
 
@@ -627,7 +665,7 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
       cvals[0] = ONE;
       Xvecs[0] = f;
       nvec     = 1;
-      erkStep_ApplyForcing(step_mem, t, ONE, &nvec);
+      erkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
       N_VLinearCombination(nvec, cvals, Xvecs, f);
     }
 
@@ -738,6 +776,18 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     Xvecs[nvec] = ark_mem->yn;
     nvec += 1;
 
+    /* apply external polynomial forcing */
+    if (step_mem->nforcing > 0)
+    {
+      for (js = 0; js < is; js++)
+      {
+        step_mem->stage_times[js] = ark_mem->tn + step_mem->B->c[js] * ark_mem->h;
+        step_mem->stage_coefs[js] = ark_mem->h * step_mem->B->A[is][js];
+      }
+      erkStep_ApplyForcing(step_mem, step_mem->stage_times, step_mem->stage_coefs,
+                           is, &nvec);
+    }
+
     /*   call fused vector operation to do the work */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->ycur);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
@@ -756,16 +806,6 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->nfe++;
     if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
     if (retval > 0) { return (ARK_UNREC_RHSFUNC_ERR); }
-
-    /* apply external polynomial forcing */
-    if (step_mem->nforcing > 0)
-    {
-      cvals[0] = ONE;
-      Xvecs[0] = step_mem->F[is];
-      nvec     = 1;
-      erkStep_ApplyForcing(step_mem, ark_mem->tcur, ONE, &nvec);
-      N_VLinearCombination(nvec, cvals, Xvecs, step_mem->F[is]);
-    }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1087,6 +1127,18 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   Xvecs[nvec] = ark_mem->yn;
   nvec += 1;
 
+  /* apply external polynomial forcing */
+  if (step_mem->nforcing > 0)
+  {
+    for (j = 0; j < step_mem->stages; j++)
+    {
+      step_mem->stage_times[j] = ark_mem->tn + step_mem->B->c[j] * ark_mem->h;
+      step_mem->stage_coefs[j] = ark_mem->h * step_mem->B->b[j];
+    }
+    erkStep_ApplyForcing(step_mem, step_mem->stage_times, step_mem->stage_coefs,
+                         step_mem->stages, &nvec);
+  }
+
   /*   call fused vector operation to do the work */
   retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
   if (retval != 0) { return (ARK_VECTOROP_ERR); }
@@ -1101,6 +1153,18 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
       cvals[nvec] = ark_mem->h * (step_mem->B->b[j] - step_mem->B->d[j]);
       Xvecs[nvec] = step_mem->F[j];
       nvec += 1;
+    }
+
+    /* apply external polynomial forcing */
+    if (step_mem->nforcing > 0)
+    {
+      for (j = 0; j < step_mem->stages; j++)
+      {
+        step_mem->stage_times[j] = ark_mem->tn + step_mem->B->c[j] * ark_mem->h;
+        step_mem->stage_coefs[j] = ark_mem->h * (step_mem->B->b[j] - step_mem->B->d[j]);
+      }
+      erkStep_ApplyForcing(step_mem, step_mem->stage_times, step_mem->stage_coefs,
+                           step_mem->stages, &nvec);
     }
 
     /* call fused vector operation to do the work */
@@ -1224,27 +1288,44 @@ int erkStep_GetOrder(ARKodeMem ark_mem)
   scaling factor that should be applied to each of these coefficients.
   ----------------------------------------------------------------------------*/
 
-void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype t,
-                          sunrealtype s, int* nvec)
+void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype* stage_times,
+                          sunrealtype* stage_coefs, int jmax, int* nvec)
 {
   sunrealtype tau, taui;
-  int i;
+  int j, k;
 
-  /* always append the constant forcing term */
-  step_mem->cvals[*nvec] = s;
-  step_mem->Xvecs[*nvec] = step_mem->forcing[0];
-  (*nvec) += 1;
+  /* Shortcuts to step_mem data */
+  sunrealtype* vals  = step_mem->cvals;
+  N_Vector* vecs     = step_mem->Xvecs;
+  sunrealtype tshift = step_mem->tshift;
+  sunrealtype tscale = step_mem->tscale;
+  int nforcing       = step_mem->nforcing;
+  N_Vector* forcing  = step_mem->forcing;
 
-  /* compute normalized time tau and initialize tau^i */
-  tau  = (t - step_mem->tshift) / (step_mem->tscale);
-  taui = tau;
-  for (i = 1; i < step_mem->nforcing; i++)
+  /* Offset into vals and vecs arrays */
+  int offset = *nvec;
+
+  /* Initialize scaling values, set vectors */
+  for (k = 0; k < nforcing; k++)
   {
-    step_mem->cvals[*nvec] = s * taui;
-    step_mem->Xvecs[*nvec] = step_mem->forcing[i];
-    taui *= tau;
-    (*nvec) += 1;
+    vals[offset + k] = ZERO;
+    vecs[offset + k] = forcing[k];
   }
+
+  for (j = 0; j < jmax; j++)
+  {
+    tau  = (stage_times[j] - tshift) / tscale;
+    taui = ONE;
+
+    for (k = 0; k < nforcing; k++)
+    {
+      vals[offset + k] += stage_coefs[j] * taui;
+      taui *= tau;
+    }
+  }
+
+  /* Update vector count for linear combination */
+  *nvec += nforcing;
 }
 
 /*------------------------------------------------------------------------------
