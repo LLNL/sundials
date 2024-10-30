@@ -88,7 +88,6 @@ then
         mkdir "${buildcache}"
     fi
 
-    chmod g+rwx -R $buildcache
     mirror_opt=("--mirror=${buildcache}" "--mirror-autopush")
 
     key_path=/usr/workspace/sundials/ci/spack_stuff/gpg_backup
