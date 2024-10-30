@@ -2038,8 +2038,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->ycur);
       if (retval != ARK_SUCCESS)
       {
-        arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                        "Unable to reset the inner stepper");
+        arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                        __FILE__, "Unable to reset the inner stepper");
         return (ARK_INNERSTEP_FAIL);
       }
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
@@ -2321,16 +2321,18 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Evolve fast IVP for this stage:
          force reset due to "stage-restart" structure
          potentially get inner dsm on all non-embedding stages */
-    retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tn, ark_mem->ycur);
+    retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tn,
+                                       ark_mem->ycur);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to reset the inner stepper");
       return (ARK_INNERSTEP_FAIL);
     }
-     retval = mriStep_StageERKFast(ark_mem, step_mem, ark_mem->tn,
+    retval = mriStep_StageERKFast(ark_mem, step_mem, ark_mem->tn,
                                   ark_mem->tn + cstage * ark_mem->h,
-                                  ark_mem->ycur, ytemp, need_inner_dsm && !embedding);
+                                  ark_mem->ycur, ytemp,
+                                  need_inner_dsm && !embedding);
     if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
 
     /* set current stage time for implicit correction, postprocessing
@@ -2768,8 +2770,8 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->ycur);
         if (retval != ARK_SUCCESS)
         {
-          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                          "Unable to reset the inner stepper");
+          arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                          __FILE__, "Unable to reset the inner stepper");
           return (ARK_INNERSTEP_FAIL);
         }
       }
