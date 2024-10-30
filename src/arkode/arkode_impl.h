@@ -628,14 +628,9 @@ sunbooleantype arkCheckNvector(N_Vector tmpl);
 int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout);
 int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
                  sunrealtype* tret, int itask, int* ier);
-int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
-           N_Vector fcur, N_Vector ytmp, N_Vector temp1, N_Vector temp2,
-           ARKTimestepFullRHSFn rhs, sunrealtype* h);
-sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist, N_Vector y,
-                            N_Vector f, N_Vector temp1, N_Vector temp2);
-int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t, N_Vector y,
-               N_Vector f, N_Vector ycur, N_Vector temp1,
-               ARKTimestepFullRHSFn rhs, sunrealtype* yddnrm);
+int arkHin(ARKodeMem ark_mem, sunrealtype tout);
+sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist);
+int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype* yddnrm);
 
 int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm);
 int arkHandleFailure(ARKodeMem ark_mem, int flag);
