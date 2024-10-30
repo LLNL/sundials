@@ -2417,8 +2417,8 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                                          ark_mem->ycur);
       if (retval != ARK_SUCCESS)
       {
-        arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                        "Unable to reset the inner stepper");
+        arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
+                        __FILE__, "Unable to reset the inner stepper");
         return (ARK_INNERSTEP_FAIL);
       }
     }
