@@ -2225,6 +2225,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype store_exprhs;
   sunrealtype cstage; /* current stage abscissa     */
   sunbooleantype need_inner_dsm;
+  sunbooleantype force_reset = (*dsmPtr == PREV_ERR_FAIL);
   int nvec;
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
@@ -2267,9 +2268,8 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* if any temporal adaptivity is enabled: reset the inner integrator
-     to the beginning of this step (in case of recomputation) */
-  if (!ark_mem->fixedstep)
+  /* following an error test failure, reset the inner integrator */
+  if (force_reset)
   {
     retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tn,
                                        ark_mem->yn);
@@ -2409,17 +2409,22 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->implicit_rhs = store_imprhs;
     step_mem->explicit_rhs = store_exprhs;
 
-    /* Evolve fast IVP for this stage:
-         force reset due to "stage-restart" structure
-         potentially get inner dsm on all non-embedding stages */
-    retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tn,
-                                       ark_mem->ycur);
-    if (retval != ARK_SUCCESS)
+    /* Reset the inner stepper on all but the first stage due to 
+       "stage-restart" structure */
+    if (stage > 1)
     {
-      arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
-                      "Unable to reset the inner stepper");
-      return (ARK_INNERSTEP_FAIL);
+      retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tn,
+                                         ark_mem->ycur);
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
+                        "Unable to reset the inner stepper");
+        return (ARK_INNERSTEP_FAIL);
+      }
     }
+
+    /* Evolve fast IVP for this stage, potentially get inner dsm on 
+       all non-embedding stages */
     retval = mriStep_StageERKFast(ark_mem, step_mem, ark_mem->tn,
                                   ark_mem->tn + cstage * ark_mem->h,
                                   ark_mem->ycur, ytemp,
@@ -2697,6 +2702,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype solution;            /*   or solution stages       */
   sunrealtype cstage;                 /* current stage abscissa     */
   sunbooleantype need_inner_dsm;
+  sunbooleantype force_reset = (*nflagPtr == PREV_ERR_FAIL);
   int nvec;
 
   /* access the MRIStep mem structure */
@@ -2741,9 +2747,8 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* if any temporal adaptivity is enabled: reset the inner integrator
-     to the beginning of this step (in case of recomputation) */
-  if (!ark_mem->fixedstep)
+  /* following an error test failure, reset the inner integrator */
+  if (force_reset)
   {
     retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->yn);
     if (retval != ARK_SUCCESS)
@@ -2854,10 +2859,9 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       /* Set desired output time for subinterval */
       tf = ark_mem->tn + cstage * ark_mem->h;
 
-      /* Evolve fast IVP for this stage:
-           force reset on first stage in group
-           potentially get inner dsm on all non-embedding stages */
-      if (is == 0)
+      /* Reset the inner stepper on the first stage within all but the 
+         first stage group due to "stage-restart" structure */
+      if ((stage > 1) && (is == 0))
       {
         retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->ycur);
         if (retval != ARK_SUCCESS)
@@ -2867,6 +2871,9 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
           return (ARK_INNERSTEP_FAIL);
         }
       }
+
+      /* Evolve fast IVP for this stage, potentially get inner dsm on all 
+         non-embedding stages */
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
                                     ytemp, need_inner_dsm && !embedding);
       if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
