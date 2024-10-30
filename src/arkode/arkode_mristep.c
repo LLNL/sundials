@@ -160,8 +160,8 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
      be allocated later on (based on the MRI method) */
 
   /* Copy the slow RHS functions into stepper memory */
-  step_mem->fse = fse;
-  step_mem->fsi = fsi;
+  step_mem->fse            = fse;
+  step_mem->fsi            = fsi;
   step_mem->fse_is_current = SUNFALSE;
   step_mem->fsi_is_current = SUNFALSE;
 
@@ -346,8 +346,8 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
   }
 
   /* Copy the input parameters into ARKODE state */
-  step_mem->fse = fse;
-  step_mem->fsi = fsi;
+  step_mem->fse            = fse;
+  step_mem->fsi            = fsi;
   step_mem->fse_is_current = SUNFALSE;
   step_mem->fsi_is_current = SUNFALSE;
 
@@ -1425,7 +1425,7 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
           nvec               = 1;
           mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
           N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
-                              step_mem->Fsi[0]);
+                               step_mem->Fsi[0]);
         }
       }
     }
@@ -1518,7 +1518,7 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
             nvec               = 1;
             mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
             N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
-                                step_mem->Fse[0]);
+                                 step_mem->Fse[0]);
           }
         }
 
@@ -1543,7 +1543,7 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
             nvec               = 1;
             mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
             N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
-                                step_mem->Fsi[0]);
+                                 step_mem->Fsi[0]);
           }
         }
       }
@@ -1787,7 +1787,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
         nvec               = 1;
         mriStep_ApplyForcing(step_mem, ark_mem->tn, ONE, &nvec);
         N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
-                            step_mem->Fse[0]);
+                             step_mem->Fse[0]);
       }
     }
   }
@@ -1811,7 +1811,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
         nvec               = 1;
         mriStep_ApplyForcing(step_mem, ark_mem->tn, ONE, &nvec);
         N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
-                            step_mem->Fsi[0]);
+                             step_mem->Fsi[0]);
       }
     }
   }
@@ -1845,7 +1845,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
      is the [already-computed] slow RHS from the start of the step */
 
   /* Loop over remaining internal stages */
-  for (is = 1; is < step_mem->stages-1; is++)
+  for (is = 1; is < step_mem->stages - 1; is++)
   {
     /* Set relevant stage times (including desired stage time for implicit solves) */
     t0 = ark_mem->tn + step_mem->MRIC->c[is - 1] * ark_mem->h;
@@ -2018,7 +2018,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
     /* Reset ark_mem->tcur as the time value corresponding with the end of the step */
     /* Set relevant stage times (including desired stage time for implicit solves) */
-    t0 = ark_mem->tn + step_mem->MRIC->c[is-2] * ark_mem->h;
+    t0 = ark_mem->tn + step_mem->MRIC->c[is - 2] * ark_mem->h;
     tf = ark_mem->tcur = ark_mem->tn + ark_mem->h;
 
     /* Solver diagnostics reporting */
@@ -2068,15 +2068,15 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->ycur);
     if (retval != ARK_SUCCESS)
     {
-      arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
-                      __FILE__, "Unable to reset the inner stepper");
+      arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
+                      "Unable to reset the inner stepper");
       return (ARK_INNERSTEP_FAIL);
     }
   }
 
   /* Compute final stage (for evolved solution), along with error estimate */
   {
-    is = step_mem->stages-1;
+    is = step_mem->stages - 1;
 
     /* Set relevant stage times (including desired stage time for implicit solves) */
     t0 = ark_mem->tn + step_mem->MRIC->c[is - 1] * ark_mem->h;
@@ -2156,7 +2156,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
     }
 
-  }   /* loop over stages */
+  } /* loop over stages */
 
   /* Solver diagnostics reporting */
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
@@ -2285,7 +2285,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      function here (unlike ERKStep and ARKStep) since it does not need to check
      for FSAL or SA methods and thus avoids potentially unnecessary evaluations
      of the inner (fast) RHS function */
-  
+
   if (!(ark_mem->fn_is_current))
   {
     /* compute the explicit component */
@@ -2305,7 +2305,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         nvec               = 1;
         mriStep_ApplyForcing(step_mem, ark_mem->tn, ONE, &nvec);
         N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
-                            step_mem->Fse[0]);
+                             step_mem->Fse[0]);
       }
     }
 
@@ -2326,7 +2326,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         nvec               = 1;
         mriStep_ApplyForcing(step_mem, ark_mem->tn, ONE, &nvec);
         N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
-                            step_mem->Fsi[0]);
+                             step_mem->Fsi[0]);
       }
     }
 
@@ -2764,7 +2764,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->nfse++;
     if (retval) { return ARK_RHSFUNC_FAIL; }
     step_mem->fse_is_current = SUNTRUE;
-    ark_mem->fn_is_current = SUNTRUE;
+    ark_mem->fn_is_current   = SUNTRUE;
 
     /* Add external forcing to Fse[0], if applicable */
     if (step_mem->expforcing)
@@ -4119,7 +4119,7 @@ int mriStep_SlowRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
       nvec               = 1;
       mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
       N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs,
-                          step_mem->Fsi[0]);
+                           step_mem->Fsi[0]);
     }
   }
 
@@ -4771,14 +4771,14 @@ int mriStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
        vector is no longer current, since it has a stale forcing function */
     if (step_mem->explicit_rhs)
     {
-      step_mem->expforcing = SUNTRUE;
-      step_mem->impforcing = SUNFALSE;
+      step_mem->expforcing     = SUNTRUE;
+      step_mem->impforcing     = SUNFALSE;
       step_mem->fse_is_current = SUNFALSE;
     }
     else
     {
-      step_mem->expforcing = SUNFALSE;
-      step_mem->impforcing = SUNTRUE;
+      step_mem->expforcing     = SUNFALSE;
+      step_mem->impforcing     = SUNTRUE;
       step_mem->fsi_is_current = SUNFALSE;
     }
     step_mem->tshift   = tshift;

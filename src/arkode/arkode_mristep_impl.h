@@ -78,16 +78,16 @@ typedef struct ARKodeMRIStepMemRec
   sunbooleantype unify_Fs; /* Fse and Fsi point at the same memory     */
   sunbooleantype fse_is_current;
   sunbooleantype fsi_is_current;
-  MRIStepCoupling MRIC;    /* slow->fast coupling table                */
-  int q;                   /* method order                             */
-  int p;                   /* embedding order                          */
-  int stages;              /* total number of stages                   */
-  int nstages_active;      /* number of active stage RHS vectors       */
-  int nstages_allocated;   /* number of stage RHS vectors allocated    */
-  int* stage_map;          /* index map for storing stage RHS vectors  */
-  int* stagetypes;         /* type flags for stages                    */
-  sunrealtype* Ae_row;     /* equivalent explicit RK coeffs            */
-  sunrealtype* Ai_row;     /* equivalent implicit RK coeffs            */
+  MRIStepCoupling MRIC;  /* slow->fast coupling table                */
+  int q;                 /* method order                             */
+  int p;                 /* embedding order                          */
+  int stages;            /* total number of stages                   */
+  int nstages_active;    /* number of active stage RHS vectors       */
+  int nstages_allocated; /* number of stage RHS vectors allocated    */
+  int* stage_map;        /* index map for storing stage RHS vectors  */
+  int* stagetypes;       /* type flags for stages                    */
+  sunrealtype* Ae_row;   /* equivalent explicit RK coeffs            */
+  sunrealtype* Ai_row;   /* equivalent implicit RK coeffs            */
 
   /* Algebraic solver data and parameters */
   N_Vector sdata;         /* old stage data in residual               */
