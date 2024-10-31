@@ -702,9 +702,6 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     ark_mem->root_mem->taskc = itask;
   }
 
-  /* store copy of tout, in case it is required for stepper initialization */
-  ark_mem->tout = tout;
-
   /* perform first-step-specific initializations:
      - initialize tret values to initialization time
      - perform initial integrator setup  */
@@ -1923,7 +1920,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
                     "Time stepper module is missing");
     return (ARK_ILL_INPUT);
   }
-  retval = ark_mem->step_init(ark_mem, ark_mem->init_type);
+  retval = ark_mem->step_init(ark_mem, tout, ark_mem->init_type);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -2046,15 +2043,6 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       ark_mem->h = SUNRabs(tout - ark_mem->tcur);
       if (ark_mem->h == ZERO) ark_mem->h = ONE;
 
-      /* Call fullrhs if needed */
-      if (!(ark_mem->fn_is_current))
-      {
-        retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur, ark_mem->yn,
-                                       ark_mem->fn, ARK_FULLRHS_START);
-        if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
-        ark_mem->fn_is_current = SUNTRUE;
-      }
-
       /* Estimate the first step size */
       tout_hin = tout;
       if (ark_mem->tstopset &&
@@ -2062,14 +2050,13 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       {
         tout_hin = ark_mem->tstop;
       }
-      hflag = arkHin(ark_mem, ark_mem->tcur, tout_hin, ark_mem->yn, ark_mem->fn,
-                     ark_mem->ycur, ark_mem->tempv1, ark_mem->tempv2,
-                     ark_mem->step_fullrhs, &ark_mem->h);
+      hflag = arkHin(ark_mem, tout_hin);
       if (hflag != ARK_SUCCESS)
       {
         istate = arkHandleFailure(ark_mem, hflag);
         return (istate);
       }
+
       /* Use first step growth factor for estimated h */
       ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->etamx1;
     }
@@ -2364,9 +2351,7 @@ int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
   Finally, we apply a bias (0.5) and verify that h0 is within
   bounds.
   ---------------------------------------------------------------*/
-int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
-           N_Vector fcur, N_Vector ytmp, N_Vector temp1, N_Vector temp2,
-           ARKTimestepFullRHSFn rhs, sunrealtype* h)
+int arkHin(ARKodeMem ark_mem, sunrealtype tout)
 {
   int retval, sign, count1, count2;
   sunrealtype tdiff, tdist, tround, hlb, hub;
@@ -2374,26 +2359,39 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
   sunbooleantype hgOK;
 
   /* If tout is too close to tn, give up */
-  if ((tdiff = tout - tcur) == ZERO) { return (ARK_TOO_CLOSE); }
+  if ((tdiff = tout - ark_mem->tcur) == ZERO) { return (ARK_TOO_CLOSE); }
 
   sign   = (tdiff > ZERO) ? 1 : -1;
   tdist  = SUNRabs(tdiff);
-  tround = ark_mem->uround * SUNMAX(SUNRabs(tcur), SUNRabs(tout));
+  tround = ark_mem->uround * SUNMAX(SUNRabs(ark_mem->tcur), SUNRabs(tout));
 
   if (tdist < TWO * tround) { return (ARK_TOO_CLOSE); }
+
+  /* call full RHS if needed */
+  if (!(ark_mem->fn_is_current))
+  {
+    /* NOTE: The step size (h) is used in setting the tolerance in a potential
+       mass matrix solve when computing the full RHS. Before calling arkHin, h
+       is set to |tout - tcur| or 1 and so we do not need to guard against
+       h == 0 here before calling the full RHS. */
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+    ark_mem->fn_is_current = SUNTRUE;
+  }
 
   /* Set lower and upper bounds on h0, and take geometric mean
      as first trial value.
      Exit with this value if the bounds cross each other. */
   hlb = H0_LBFACTOR * tround;
-  hub = arkUpperBoundH0(ark_mem, tdist, ycur, fcur, temp1, temp2);
+  hub = arkUpperBoundH0(ark_mem, tdist);
 
   hg = SUNRsqrt(hlb * hub);
 
   if (hub < hlb)
   {
-    if (sign == -1) { *h = -hg; }
-    else { *h = hg; }
+    if (sign == -1) { ark_mem->h = -hg; }
+    else { ark_mem->h = hg; }
     return (ARK_SUCCESS);
   }
 
@@ -2407,8 +2405,7 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
     for (count2 = 1; count2 <= H0_ITERS; count2++)
     {
       hgs    = hg * sign;
-      retval = arkYddNorm(ark_mem, hgs, tcur, ycur, fcur, ytmp, temp1, rhs,
-                          &yddnrm);
+      retval = arkYddNorm(ark_mem, hgs, &yddnrm);
       /* If f() failed unrecoverably, give up */
       if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
       /* If successful, we can use ydd */
@@ -2463,7 +2460,7 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
   if (h0 < hlb) { h0 = hlb; }
   if (h0 > hub) { h0 = hub; }
   if (sign == -1) { h0 = -h0; }
-  *h = h0;
+  ark_mem->h = h0;
 
   return (ARK_SUCCESS);
 }
@@ -2473,24 +2470,24 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout, N_Vector ycur,
 
   This routine sets an upper bound on abs(h0) based on
   tdist = tn - t0 and the values of y[i]/y'[i].
-
-  It is assumed that the input f equals y', and that
-  temp1 and temp2 may be modified as desired.
   ---------------------------------------------------------------*/
-sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist, N_Vector y,
-                            N_Vector f, N_Vector temp1, N_Vector temp2)
+sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist)
 {
   sunrealtype hub_inv, hub;
+  N_Vector temp1, temp2;
 
   /* Bound based on |y0|/|y0'| -- allow at most an increase of
    * H0_UBFACTOR in y0 (based on a forward Euler step). The weight
    * factor is used as a safeguard against zero components in y0. */
-  N_VAbs(y, temp2);
-  ark_mem->efun(y, temp1, ark_mem->e_data);
+  temp1 = ark_mem->tempv1;
+  temp2 = ark_mem->tempv2;
+
+  N_VAbs(ark_mem->yn, temp2);
+  ark_mem->efun(ark_mem->yn, temp1, ark_mem->e_data);
   N_VInv(temp1, temp1);
   N_VLinearSum(H0_UBFACTOR, temp2, ONE, temp1, temp1);
 
-  N_VAbs(f, temp2);
+  N_VAbs(ark_mem->fn, temp2);
 
   N_VDiv(temp2, temp1, temp1);
   hub_inv = N_VMaxNorm(temp1);
@@ -2510,32 +2507,28 @@ sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist, N_Vector y,
 
   This routine computes an estimate of the second derivative of y
   using a difference quotient, and returns its WRMS norm.
-
-  It is assumed that the input f equals y'(t), that ycur can
-  be modified as desired, but upon return to equal y, and that
-  temp1 may be modified as desired.
   ---------------------------------------------------------------*/
-int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype t, N_Vector y,
-               N_Vector f, N_Vector ycur, N_Vector temp1,
-               ARKTimestepFullRHSFn rhs, sunrealtype* yddnrm)
+int arkYddNorm(ARKodeMem ark_mem, sunrealtype hg, sunrealtype* yddnrm)
 {
   int retval;
 
   /* increment y with a multiple of f */
-  N_VLinearSum(hg, f, ONE, y, ycur);
+  N_VLinearSum(hg, ark_mem->fn, ONE, ark_mem->yn, ark_mem->ycur);
 
   /* compute y', via the ODE RHS routine */
-  retval = rhs(ark_mem, t + hg, ycur, temp1, ARK_FULLRHS_OTHER);
-  if (retval != 0) return (ARK_RHSFUNC_FAIL);
+  retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tcur + hg, ark_mem->ycur,
+                                 ark_mem->tempv1, ARK_FULLRHS_OTHER);
+  if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
 
   /* difference new f and original f to estimate y'' */
-  N_VLinearSum(ONE / hg, temp1, -ONE / hg, f, temp1);
+  N_VLinearSum(ONE / hg, ark_mem->tempv1, -ONE / hg, ark_mem->fn,
+               ark_mem->tempv1);
 
   /* reset ycur to equal yn (unnecessary?) */
-  N_VScale(ONE, y, ycur);
+  N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
 
   /* compute norm of y'' */
-  *yddnrm = N_VWrmsNorm(temp1, ark_mem->ewt);
+  *yddnrm = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
 
   return (ARK_SUCCESS);
 }

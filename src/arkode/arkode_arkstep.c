@@ -939,7 +939,8 @@ int arkStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
 
   With initialization type RESET_INIT, this routine does nothing.
   ---------------------------------------------------------------*/
-int arkStep_Init(ARKodeMem ark_mem, int init_type)
+int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
+                 int init_type)
 {
   ARKodeARKStepMem step_mem;
   int j, retval;

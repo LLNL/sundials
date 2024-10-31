@@ -774,7 +774,7 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
   sunbooleantype Gdiag, Grow, Wrow, cdiff;
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
-  if ((is < 1) || (is > MRIC->stages)) { return ARK_INVALID_TABLE; }
+  if ((is < 0) || (is > MRIC->stages)) { return ARK_INVALID_TABLE; }
 
   /* report MRISTAGE_ERK_FAST for MERK and MRI-SR methods */
   if ((MRIC->type == MRISTEP_MRISR) || (MRIC->type == MRISTEP_MERK))
@@ -839,7 +839,7 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
   }
 
   /* make determination */
-  if (!(Gdiag || Grow || Wrow || cdiff))
+  if (!(Gdiag || Grow || Wrow || cdiff) && (is > 0))
   { /* stiffly-accurate stage */
     return (MRISTAGE_STIFF_ACC);
   }

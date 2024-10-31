@@ -394,7 +394,8 @@ void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
-int erkStep_Init(ARKodeMem ark_mem, int init_type)
+int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
+                 int init_type)
 {
   ARKodeERKStepMem step_mem;
   sunbooleantype reset_efun;
@@ -601,8 +602,8 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
       cvals[0] = ONE;
       Xvecs[0] = f;
       nvec     = 1;
-       erkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
-       N_VLinearCombination(nvec, cvals, Xvecs, f);
+      erkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
+      N_VLinearCombination(nvec, cvals, Xvecs, f);
     }
 
     break;
@@ -784,8 +785,8 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         step_mem->stage_times[js] = ark_mem->tn + step_mem->B->c[js] * ark_mem->h;
         step_mem->stage_coefs[js] = ark_mem->h * step_mem->B->A[is][js];
       }
-      erkStep_ApplyForcing(step_mem, step_mem->stage_times, step_mem->stage_coefs,
-                           is, &nvec);
+      erkStep_ApplyForcing(step_mem, step_mem->stage_times,
+                           step_mem->stage_coefs, is, &nvec);
     }
 
     /*   call fused vector operation to do the work */
@@ -1161,10 +1162,11 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
       for (j = 0; j < step_mem->stages; j++)
       {
         step_mem->stage_times[j] = ark_mem->tn + step_mem->B->c[j] * ark_mem->h;
-        step_mem->stage_coefs[j] = ark_mem->h * (step_mem->B->b[j] - step_mem->B->d[j]);
+        step_mem->stage_coefs[j] = ark_mem->h *
+                                   (step_mem->B->b[j] - step_mem->B->d[j]);
       }
-      erkStep_ApplyForcing(step_mem, step_mem->stage_times, step_mem->stage_coefs,
-                           step_mem->stages, &nvec);
+      erkStep_ApplyForcing(step_mem, step_mem->stage_times,
+                           step_mem->stage_coefs, step_mem->stages, &nvec);
     }
 
     /* call fused vector operation to do the work */

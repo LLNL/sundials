@@ -75,17 +75,19 @@ typedef struct ARKodeMRIStepMemRec
   /* Outer RK method storage and parameters */
   N_Vector* Fse;           /* explicit RHS at each stage               */
   N_Vector* Fsi;           /* implicit RHS at each stage               */
-  sunbooleantype unify_Fs; /* Fse and Fsi point at the same memory   */
-  MRIStepCoupling MRIC;    /* slow->fast coupling table                */
-  int q;                   /* method order                             */
-  int p;                   /* embedding order                          */
-  int stages;              /* total number of stages                   */
-  int nstages_active;      /* number of active stage RHS vectors       */
-  int nstages_allocated;   /* number of stage RHS vectors allocated    */
-  int* stage_map;          /* index map for storing stage RHS vectors  */
-  int* stagetypes;         /* type flags for stages                    */
-  sunrealtype* Ae_row;     /* equivalent explicit RK coeffs            */
-  sunrealtype* Ai_row;     /* equivalent implicit RK coeffs            */
+  sunbooleantype unify_Fs; /* Fse and Fsi point at the same memory     */
+  sunbooleantype fse_is_current;
+  sunbooleantype fsi_is_current;
+  MRIStepCoupling MRIC;  /* slow->fast coupling table                */
+  int q;                 /* method order                             */
+  int p;                 /* embedding order                          */
+  int stages;            /* total number of stages                   */
+  int nstages_active;    /* number of active stage RHS vectors       */
+  int nstages_allocated; /* number of stage RHS vectors allocated    */
+  int* stage_map;        /* index map for storing stage RHS vectors  */
+  int* stagetypes;       /* type flags for stages                    */
+  sunrealtype* Ae_row;   /* equivalent explicit RK coeffs            */
+  sunrealtype* Ai_row;   /* equivalent implicit RK coeffs            */
 
   /* Algebraic solver data and parameters */
   N_Vector sdata;         /* old stage data in residual               */
@@ -145,7 +147,7 @@ typedef struct ARKodeMRIStepMemRec
   long int nls_fails; /* num nonlinear solver fails       */
   int nfusedopvecs;   /* length of cvals and Xvecs arrays */
 
-  /* Data for using ERKStep with external polynomial forcing */
+  /* Data for using MRIStep with external polynomial forcing */
   sunbooleantype expforcing; /* add forcing to explicit RHS */
   sunbooleantype impforcing; /* add forcing to implicit RHS */
   sunrealtype tshift;        /* time normalization shift    */
@@ -213,7 +215,7 @@ int mriStep_AttachLinsol(ARKodeMem ark_mem, ARKLinsolInitFn linit,
                          ARKLinsolFreeFn lfree,
                          SUNLinearSolver_Type lsolve_type, void* lmem);
 void mriStep_DisableLSetup(ARKodeMem ark_mem);
-int mriStep_Init(ARKodeMem ark_mem, int init_type);
+int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type);
 void* mriStep_GetLmem(ARKodeMem ark_mem);
 ARKRhsFn mriStep_GetImplicitRHS(ARKodeMem ark_mem);
 int mriStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat,
