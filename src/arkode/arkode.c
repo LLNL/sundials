@@ -3710,16 +3710,21 @@ int ark_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
 
   /* set a recoverable failure for a few ARKODE failure modes;
      on other ARKODE errors return with an unrecoverable failure */
-  if (retval < 0) {
+  if (retval < 0)
+  {
     if ((retval == ARK_TOO_MUCH_WORK) || (retval == ARK_ERR_FAILURE) ||
         (retval == ARK_CONV_FAILURE))
-    { retval = 1; }
+    {
+      retval = 1;
+    }
     else { return -1; }
   }
 
   /* disable inner forcing */
-  if (ark_mem->step_setforcing(ark_mem, ZERO, ONE, NULL, 0) 
-     != ARK_SUCCESS) { return -1; }
+  if (ark_mem->step_setforcing(ark_mem, ZERO, ONE, NULL, 0) != ARK_SUCCESS)
+  {
+    return -1;
+  }
 
   return retval;
 }
@@ -3747,7 +3752,9 @@ int ark_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
   ark_mem = (ARKodeMem)arkode_mem;
 
   if (ark_mem->step_fullrhs(arkode_mem, t, y, f, mode) != ARK_SUCCESS)
-  { return -1; }
+  {
+    return -1;
+  }
   return 0;
 }
 

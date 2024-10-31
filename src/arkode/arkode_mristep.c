@@ -2417,9 +2417,9 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                                   ark_mem->tn + cstage * ark_mem->h,
                                   ark_mem->ycur, ytemp,
                                   need_inner_dsm && !embedding);
-    if (retval != ARK_SUCCESS) 
-    { 
-      *nflagPtr = CONV_FAIL; 
+    if (retval != ARK_SUCCESS)
+    {
+      *nflagPtr = CONV_FAIL;
       return retval;
     }
 
@@ -2868,9 +2868,9 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
          non-embedding stages */
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
                                     ytemp, need_inner_dsm && !embedding);
-      if (retval != ARK_SUCCESS) 
-      { 
-        *nflagPtr = CONV_FAIL; 
+      if (retval != ARK_SUCCESS)
+      {
+        *nflagPtr = CONV_FAIL;
         return retval;
       }
 
@@ -3474,7 +3474,7 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                         __FILE__, "Unable to get accumulated error from the inner stepper");
         return (ARK_INNERSTEP_FAIL);
       }
-      if (retval > 0) { return TRY_AGAIN; }      
+      if (retval > 0) { return TRY_AGAIN; }
     }
   }
 
