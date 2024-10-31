@@ -382,8 +382,9 @@ member functions:
 
    **Return value:**
       An :c:type:`MRIStepInnerEvolveFn` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed
-      unrecoverably.
+      value if a recoverable error occurred (i.e., the function could be successful if 
+      called over a smaller time interval :math:`[t0,tout]`), or a negative value if
+      it failed unrecoverably.
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
@@ -415,9 +416,8 @@ following member functions:
         * ``ARK_FULLRHS_OTHER`` -- called elsewhere e.g., for dense output
 
    **Return value:**
-      An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed
-      unrecoverably.
+      An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, or 
+      a nonzero value upon failure.
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
@@ -441,9 +441,8 @@ following member functions:
       * *vR* -- the value of the dependent variable vector :math:`v(t_R)`.
 
    **Return value:**
-      An :c:type:`MRIStepInnerResetFn` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed
-      unrecoverably.
+      An :c:type:`MRIStepInnerResetFn` should return 0 if successful, or a nonzero
+      value upon failure.
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
@@ -463,7 +462,9 @@ following member functions:
 
    **Return value:**
       An :c:type:`MRIStepInnerGetAccumulatedError` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed unrecoverably.
+      value if a recoverable error occurred (i.e., the function could be successful if 
+      called over a smaller time interval :math:`[t0,tout]`), or a negative value if it 
+      failed unrecoverably.
 
    .. note::
 
@@ -486,8 +487,8 @@ following member functions:
       * *stepper* -- the inner stepper object.
 
    **Return value:**
-      An :c:type:`MRIStepInnerResetAccumulatedError` should return 0 if successful, a positive`
-      value if a recoverable error occurred, or a negative value if it failed unrecoverably.
+      An :c:type:`MRIStepInnerResetAccumulatedError` should return 0 if successful, or 
+      a nonzero value upon failure.
 
    .. note::
 
@@ -514,8 +515,8 @@ following member functions:
       * *rtol* -- relative tolerance to use on the upcoming solve.
 
    **Return value:**
-      An :c:type:`MRIStepInnerSetRTol` should return 0 if successful, a positive`
-      value if a recoverable error occurred, or a negative value if it failed unrecoverably.
+      An :c:type:`MRIStepInnerSetRTol` should return 0 if successful, or a nonzero value
+      upon failure.
 
    .. note::
 

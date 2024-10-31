@@ -1884,7 +1884,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       break;
     case (MRISTAGE_STIFF_ACC): retval = ARK_SUCCESS; break;
     }
-    if (retval != ARK_SUCCESS) { return (retval); }
+    if (retval != ARK_SUCCESS) { return retval; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -2053,7 +2053,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       retval = mriStep_StageDIRKFast(ark_mem, step_mem, is, nflagPtr);
       break;
     }
-    if (retval != ARK_SUCCESS) { return (retval); }
+    if (retval != ARK_SUCCESS) { return retval; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
@@ -2115,7 +2115,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       break;
     case (MRISTAGE_STIFF_ACC): retval = ARK_SUCCESS; break;
     }
-    if (retval != ARK_SUCCESS) { return (retval); }
+    if (retval != ARK_SUCCESS) { return retval; }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -2417,7 +2417,11 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                                   ark_mem->tn + cstage * ark_mem->h,
                                   ark_mem->ycur, ytemp,
                                   need_inner_dsm && !embedding);
-    if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
+    if (retval != ARK_SUCCESS) 
+    { 
+      *nflagPtr = CONV_FAIL; 
+      return retval;
+    }
 
     /* set current stage time for implicit correction, postprocessing
        and RHS calls */
@@ -2864,7 +2868,11 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
          non-embedding stages */
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
                                     ytemp, need_inner_dsm && !embedding);
-      if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
+      if (retval != ARK_SUCCESS) 
+      { 
+        *nflagPtr = CONV_FAIL; 
+        return retval;
+      }
 
       /* Update "initial time" for next stage in group */
       t0 = tf;
@@ -3443,12 +3451,13 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
 
   /* advance inner method in time */
   retval = mriStepInnerStepper_Evolve(step_mem->stepper, t0, tf, ycur);
-  if (retval != ARK_SUCCESS)
+  if (retval < 0)
   {
     arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
                     "Failure when evolving the inner stepper");
     return (ARK_INNERSTEP_FAIL);
   }
+  if (retval > 0) { return TRY_AGAIN; }
 
   /* for normal stages (i.e., not the embedding) with MRI adaptivity enabled, get an
      estimate for the fast time scale error */
@@ -3459,12 +3468,13 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
     {
       retval = mriStepInnerStepper_GetAccumulatedError(step_mem->stepper,
                                                        &(step_mem->inner_dsm));
-      if (retval != ARK_SUCCESS)
+      if (retval < 0)
       {
         arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
                         __FILE__, "Unable to get accumulated error from the inner stepper");
         return (ARK_INNERSTEP_FAIL);
       }
+      if (retval > 0) { return TRY_AGAIN; }      
     }
   }
 
