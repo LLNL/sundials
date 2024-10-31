@@ -21,6 +21,12 @@ of the adjoint model.
 
 .. c:enum:: SUNDataIOMode
 
+.. c:enumerator:: SUNDATAIOMODE_INMEM
+
+   The IO mode for data that is stored in addressible random access memory.
+   The location of the memory (e.g., CPU or GPU) is not specified by this mode.
+
+
 A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 :c:struct:`SUNAdjointCheckpointScheme_` structure:
 
@@ -177,16 +183,35 @@ The SUNAdjointCheckpointScheme_Fixed Module
 ===========================================
 
 The SUNAdjointCheckpointScheme_Fixed module implements a scheme where a checkpoint is saved at some
-fixed interval (in timesteps). The module supports checkpointing of time step states only, or time
-step stages with intermediate stage states as well (for multistage methods). When used with a
+fixed interval (in timesteps). The module supports checkpointing of time step states only, or timestep
+states with intermediate stage states as well (for multistage methods). When used with a
 fixed timestep size then the number of checkpoints that will be saved is fixed. However, with
 adaptive timesteps the number of checkpoints stored with this scheme is unbounded.
 
 The diagram below illustrates how checkpoints are stored with this scheme:
 
+.. figure:: /figs/sunadjoint_ckpt_fixed.png
+   :width: 75 %
 
 
-The SUNAdjointCheckpointScheme_Fixed module has the following user-callable functions:
+Base-class Method Overrides
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``SUNAdjointCheckpointScheme_Fixed`` module implements the following :c:type:`SUNAdjointCheckpointScheme` functions:
+
+* :c:func:`SUNAdjointCheckpointScheme_ShouldWeSave`
+* :c:func:`SUNAdjointCheckpointScheme_InsertVector`
+* :c:func:`SUNAdjointCheckpointScheme_ShouldWeDelete`
+* :c:func:`SUNAdjointCheckpointScheme_RemoveVector`
+* :c:func:`SUNAdjointCheckpointScheme_LoadVector`
+* :c:func:`SUNAdjointCheckpointScheme_Destroy`
+* :c:func:`SUNAdjointCheckpointScheme_EnableDense`
+
+
+Implementation Specific Methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``SUNAdjointCheckpointScheme_Fixed`` module also implements the following module-specific functions:
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval, int64_t estimate, sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
 
@@ -201,73 +226,3 @@ The SUNAdjointCheckpointScheme_Fixed module has the following user-callable func
    :param sunctx: The :c:type:`SUNContext` for the simulation.
    :param check_scheme_ptr: Pointer to the newly constructed object.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Fixed(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
-
-   Queries the checkpointing scheme to determine if a checkpoint should be saved at this timestep.
-
-   :param check_scheme: The `SUNAdjointCheckpointScheme` object.
-   :param step_num: The current time step number.
-   :param stage_num: The current stage number (only nonzero for multistage methods).
-   :param t: The current time.
-   :param yes_or_no: On output, will be 1 if you should save, 0 otherwise.
-   :return: A :c:type:`SUNErrCode` indicating success or failure.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector state)
-
-   Inserts a checkpoint state represented as a `N_Vector`.
-
-   :param check_scheme: The `SUNAdjointCheckpointScheme` object.
-   :param step_num: The current time step number.
-   :param stage_num: The current stage number (only nonzero for multistage methods).
-   :param t: The current time.
-   :param state: A `N_Vector` object that holds the current state to be inserted.
-   :return: A `SUNErrCode` indicating success or failure.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete_Fixed(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
-
-   Queries the checkpointing scheme to determine if a checkpoint should be deleted at this timestep.
-
-   :param check_scheme: The `SUNAdjointCheckpointScheme` object.
-   :param step_num: The current time step number.
-   :param stage_num: The current stage number (only nonzero for multistage methods).
-   :param t: The current time.
-   :param yes_or_no: On output, will be 1 if you should delete, 0 otherwise.
-   :return: A `SUNErrCode` indicating success or failure.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Fixed(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, N_Vector* out)
-
-   Removes a checkpoint state represented as a `N_Vector`.
-
-   :param check_scheme: The `SUNAdjointCheckpointScheme` object.
-   :param step_num: The current time step number.
-   :param stage_num: The current stage number (only nonzero for multistage methods).
-   :param out: Pointer to the `N_Vector` object that holds the current state to be removed.
-   :return: A `SUNErrCode` indicating success or failure.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
-
-   Loads a checkpoint state represented as a `N_Vector`.
-
-   :param check_scheme: The `SUNAdjointCheckpointScheme` object.
-   :param step_num: The current time step number.
-   :param stage_num: The current stage number (only nonzero for multistage methods).
-   :param peek: Load the checkpointed vector without removing it regardless of the "keep" setting.
-   :param out: Pointer to the `N_Vector` object that holds loaded state.
-   :param tout: Pointer to the time associated with the loaded state.
-   :return: A `SUNErrCode` indicating success or failure.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Destroy_Fixed(SUNAdjointCheckpointScheme* check_scheme_ptr)
-
-   Destroys and frees the memory for the `SUNAdjointCheckpointScheme` object.
-
-   :param check_scheme_ptr: Pointer to the `SUNAdjointCheckpointScheme` object.
-   :return: A `SUNErrCode` indicating success or failure.
-
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Fixed(SUNAdjointCheckpointScheme check_scheme, sunbooleantype on_or_off)
-
-   Enables dense checkpointing, saving all steps.
-
-   :param check_scheme: The `SUNAdjointCheckpointScheme` object.
-   :param on_or_off: Turn dense checkpoints on or off.
-   :return: A `SUNErrCode` indicating success or failure.
