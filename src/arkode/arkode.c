@@ -3662,8 +3662,8 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
   ark_MRIStepInnerEvolve
 
   Implementation of MRIStepInnerStepperEvolveFn to advance the inner (fast)
-  ODE IVP.  Since the raw return value from an MRIStepInnerStepper is 
-  meaningless, aside from whether it is 0 (success), >0 (recoverable failure), 
+  ODE IVP.  Since the raw return value from an MRIStepInnerStepper is
+  meaningless, aside from whether it is 0 (success), >0 (recoverable failure),
   and <0 (unrecoverable failure), we map various ARKODE return values
   accordingly.
   ----------------------------------------------------------------------------*/
@@ -3771,6 +3771,7 @@ int ark_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR, N_Vector 
   int retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return -1; }
   if (ARKodeReset(arkode_mem, tR, yR) != ARK_SUCCESS) { return -1; }
+  return 0;
 }
 
 /*------------------------------------------------------------------------------
@@ -3805,6 +3806,7 @@ int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
   int retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return -1; }
   if (ARKodeResetAccumulatedError(arkode_mem) != ARK_SUCCESS) { return -1; }
+  return 0;
 }
 
 /*------------------------------------------------------------------------------
