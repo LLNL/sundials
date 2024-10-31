@@ -2010,7 +2010,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
        data so that both hold the current ark_mem->ycur value.  This ensures
        that during this embedding "stage":
          - ark_mem->ycur will be the correct initial condition for the final stage.
-         - ark_mem->tempv4 will hold the embeded solution vector. */
+         - ark_mem->tempv4 will hold the embedded solution vector. */
     N_VScale(ONE, ark_mem->ycur, ark_mem->tempv4);
     tmp             = ark_mem->ycur;
     ark_mem->ycur   = ark_mem->tempv4;
@@ -2221,9 +2221,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype embedding;           /* flag indicating embedding  */
   sunbooleantype solution;            /*   or solution stages       */
   sunbooleantype impl_corr;           /* is slow correct. implicit? */
-  sunbooleantype store_imprhs;        /* temporary storage          */
-  sunbooleantype store_exprhs;
-  sunrealtype cstage; /* current stage abscissa     */
+  sunrealtype cstage;                 /* current stage abscissa     */
   sunbooleantype need_inner_dsm;
   sunbooleantype force_reset = (*dsmPtr == PREV_ERR_FAIL);
   int nvec, max_stages;
@@ -2394,18 +2392,10 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Set current stage abscissa */
     cstage = (embedding) ? ONE : step_mem->MRIC->c[stage];
 
-    /* Compute forcing function for inner solver: temporarily
-       force explicit_rhs and disable implicit_rhs flag since MRISR
-       methods ignore the G coefficients in the forcing function. */
-    store_imprhs           = step_mem->implicit_rhs;
-    store_exprhs           = step_mem->explicit_rhs;
-    step_mem->implicit_rhs = SUNFALSE;
-    step_mem->explicit_rhs = SUNTRUE;
+    /* Compute forcing function for inner solver */
     retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, stage, ark_mem->tn,
                                          ark_mem->tn + cstage * ark_mem->h);
     if (retval != ARK_SUCCESS) { return retval; }
-    step_mem->implicit_rhs = store_imprhs;
-    step_mem->explicit_rhs = store_exprhs;
 
     /* Reset the inner stepper on all but the first stage due to 
        "stage-restart" structure */
@@ -3718,6 +3708,8 @@ int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
   int j, k, nmat, nstore, retval;
   sunrealtype* cvals;
   N_Vector* Xvecs;
+  sunbooleantype implicit_rhs = step_mem->implicit_rhs;
+  sunbooleantype explicit_rhs = step_mem->explicit_rhs;
 
   /* local shortcuts for fused vector operations */
   cvals = step_mem->cvals;
@@ -3727,16 +3719,24 @@ int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
   step_mem->stepper->tshift = t0;
   step_mem->stepper->tscale = tf - t0;
 
+  /* Adjust implicit/explicit RHS flags for MRISR methods, since these 
+     ignore the G coefficients in the forcing function */
+  if (step_mem->MRIC->type == MRISTEP_MRISR)
+  {
+    implicit_rhs = SUNFALSE;
+    explicit_rhs = SUNTRUE;
+  }
+
   /* compute inner forcing vectors (assumes cdiff != 0) */
   nstore = 0;
   for (j = 0; j < SUNMIN(stage, step_mem->stages); j++)
   {
-    if (step_mem->explicit_rhs && step_mem->stage_map[j] > -1)
+    if (explicit_rhs && step_mem->stage_map[j] > -1)
     {
       Xvecs[nstore] = step_mem->Fse[step_mem->stage_map[j]];
       nstore += 1;
     }
-    if (step_mem->implicit_rhs && step_mem->stage_map[j] > -1)
+    if (implicit_rhs && step_mem->stage_map[j] > -1)
     {
       Xvecs[nstore] = step_mem->Fsi[step_mem->stage_map[j]];
       nstore += 1;
@@ -3753,7 +3753,7 @@ int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
     {
       if (step_mem->stage_map[j] > -1)
       {
-        if (step_mem->explicit_rhs && step_mem->implicit_rhs)
+        if (explicit_rhs && implicit_rhs)
         {
           /* ImEx */
           cvals[nstore] = rcdiff * step_mem->MRIC->W[k][stage][j];
@@ -3761,7 +3761,7 @@ int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
           cvals[nstore] = rcdiff * step_mem->MRIC->G[k][stage][j];
           nstore += 1;
         }
-        else if (step_mem->explicit_rhs)
+        else if (explicit_rhs)
         {
           /* explicit only */
           cvals[nstore] = rcdiff * step_mem->MRIC->W[k][stage][j];
