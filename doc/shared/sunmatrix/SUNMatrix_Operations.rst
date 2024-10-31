@@ -172,7 +172,7 @@ below.
       retval = SUNMatMatvec(A, x, y);
 
 
-.. c:function:: SUNErrCode SUNMatMatvecTranspose(SUNMatrix A, N_Vector x, N_Vector y)
+.. c:function:: SUNErrCode SUNMatMatTransposeVec(SUNMatrix A, N_Vector x, N_Vector y)
 
    Performs the matrix-vector product *y \gets A^Tx*.  It should
    only be called with vectors *x* and *y* that are compatible with
@@ -186,4 +186,4 @@ below.
 
    .. code-block:: c
 
-      retval = SUNMatMatvecTranspose(A, x, y);
+      retval = SUNMatMatTransposeVec(A, x, y);

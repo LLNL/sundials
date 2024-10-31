@@ -574,9 +574,9 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
 }
 
 /* ----------------------------------------------------------------------
- * SUNMatMatvecTranspose Test (y should be correct A^T*x product)
+ * SUNMatMatTransposeVec Test (y should be correct A^T*x product)
  * --------------------------------------------------------------------*/
-int Test_SUNMatMatvecTranspose(SUNMatrix A, SUNMatrix AT, N_Vector x,
+int Test_SUNMatMatTransposeVec(SUNMatrix A, SUNMatrix AT, N_Vector x,
                                N_Vector y, int myid)
 {
   int failure;
@@ -586,7 +586,7 @@ int Test_SUNMatMatvecTranspose(SUNMatrix A, SUNMatrix AT, N_Vector x,
 
   if (A->ops->matvec == NULL)
   {
-    TEST_STATUS("    PASSED test -- SUNMatMatvecTranspose not implemented\n",
+    TEST_STATUS("    PASSED test -- SUNMatMatTransposeVec not implemented\n",
                 myid);
     return (0);
   }
@@ -599,7 +599,7 @@ int Test_SUNMatMatvecTranspose(SUNMatrix A, SUNMatrix AT, N_Vector x,
   sync_device(A);
   if (failure)
   {
-    TEST_STATUS2(">>> FAILED test -- SUNMatMatvecTranspose: SUNMatMatvec "
+    TEST_STATUS2(">>> FAILED test -- SUNMatMatTransposeVec: SUNMatMatvec "
                  "returned %d \n",
                  failure, myid);
     return (1);
@@ -607,14 +607,14 @@ int Test_SUNMatMatvecTranspose(SUNMatrix A, SUNMatrix AT, N_Vector x,
 
   /* Compute the solution with the routine we are testing */
   start_time = get_time();
-  failure    = SUNMatMatvecTranspose(A, y, z); /* z = A^Ty */
+  failure    = SUNMatMatTransposeVec(A, y, z); /* z = A^Ty */
   sync_device(A);
   stop_time = get_time();
 
   if (failure)
   {
-    TEST_STATUS2(">>> FAILED test -- SUNMatMatvecTranspose: "
-                 "SUNMatMatvecTranspose returned %d \n",
+    TEST_STATUS2(">>> FAILED test -- SUNMatMatTransposeVec: "
+                 "SUNMatMatTransposeVec returned %d \n",
                  failure, myid);
     return (1);
   }
@@ -623,16 +623,16 @@ int Test_SUNMatMatvecTranspose(SUNMatrix A, SUNMatrix AT, N_Vector x,
 
   if (failure)
   {
-    TEST_STATUS(">>> FAILED test -- SUNMatMatvecTranspose check \n", myid);
-    PRINT_TIME("    SUNMatMatvecTranspose Time: %22.15e \n \n",
+    TEST_STATUS(">>> FAILED test -- SUNMatMatTransposeVec check \n", myid);
+    PRINT_TIME("    SUNMatMatTransposeVec Time: %22.15e \n \n",
                stop_time - start_time);
     return (1);
   }
-  else { TEST_STATUS("    PASSED test -- SUNMatMatvecTranspose \n", myid); }
+  else { TEST_STATUS("    PASSED test -- SUNMatMatTransposeVec \n", myid); }
 
   if (myid == 0)
   {
-    PRINT_TIME("    SUNMatMatvecTranspose Time: %22.15e \n \n",
+    PRINT_TIME("    SUNMatMatTransposeVec Time: %22.15e \n \n",
                stop_time - start_time);
   }
 

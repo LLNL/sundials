@@ -3445,7 +3445,7 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
     adj_stepper->JacFn(t, checkpoint, NULL, adj_stepper->Jac, user_data, NULL,
                        NULL, NULL);
     adj_stepper->njeval++;
-    if (SUNMatMatvecTranspose(adj_stepper->Jac, Lambda_part, Lambda))
+    if (SUNMatMatTransposeVec(adj_stepper->Jac, Lambda_part, Lambda))
     {
       return -1;
     };
@@ -3471,7 +3471,7 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
     adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP, user_data, NULL,
                         NULL, NULL);
     adj_stepper->njpeval++;
-    if (SUNMatMatvecTranspose(adj_stepper->JacP, Lambda_part, nu))
+    if (SUNMatMatTransposeVec(adj_stepper->JacP, Lambda_part, nu))
     {
       return -1;
     }

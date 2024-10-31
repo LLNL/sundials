@@ -69,7 +69,7 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx)
   A->ops->scaleadd        = SUNMatScaleAdd_Dense;
   A->ops->scaleaddi       = SUNMatScaleAddI_Dense;
   A->ops->matvec          = SUNMatMatvec_Dense;
-  A->ops->matvectranspose = SUNMatMatvecTranspose_Dense;
+  A->ops->mattransposevec = SUNMatMatTransposeVec_Dense;
   A->ops->space           = SUNMatSpace_Dense;
 
   /* Create content */
@@ -337,7 +337,7 @@ SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNMatMatvecTranspose_Dense(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatMatTransposeVec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SUNFunctionBegin(A->sunctx);
 

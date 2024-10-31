@@ -74,7 +74,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid);
 int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid);
 int Test_SUNMatMatvecSetup(SUNMatrix A, int myid);
 int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid);
-int Test_SUNMatMatvecTranspose(SUNMatrix A, SUNMatrix AT, N_Vector x,
+int Test_SUNMatMatTransposeVec(SUNMatrix A, SUNMatrix AT, N_Vector x,
                                N_Vector y, int myid);
 int Test_SUNMatSpace(SUNMatrix A, int myid);
 

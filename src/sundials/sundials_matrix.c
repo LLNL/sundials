@@ -63,7 +63,7 @@ SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
   ops->scaleaddi       = NULL;
   ops->matvecsetup     = NULL;
   ops->matvec          = NULL;
-  ops->matvectranspose = NULL;
+  ops->mattransposevec = NULL;
   ops->space           = NULL;
 
   /* attach ops and initialize content to NULL */
@@ -224,11 +224,11 @@ SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
   return (ier);
 }
 
-SUNErrCode SUNMatMatvecTranspose(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatMatTransposeVec(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
-  if (A->ops->matvectranspose) { ier = A->ops->matvectranspose(A, x, y); }
+  if (A->ops->mattransposevec) { ier = A->ops->mattransposevec(A, x, y); }
   else { ier = SUN_ERR_NOT_IMPLEMENTED; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
   return (ier);

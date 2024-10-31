@@ -39,7 +39,7 @@ module fsunmatrix_dense_mod
  public :: FSUNMatScaleAdd_Dense
  public :: FSUNMatScaleAddI_Dense
  public :: FSUNMatMatvec_Dense
- public :: FSUNMatMatvecTranspose_Dense
+ public :: FSUNMatMatTransposeVec_Dense
  public :: FSUNMatSpace_Dense
 
  public :: FSUNDenseMatrix_Data
@@ -165,8 +165,8 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNMatMatvecTranspose_Dense(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNMatMatvecTranspose_Dense") &
+function swigc_FSUNMatMatTransposeVec_Dense(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNMatMatTransposeVec_Dense") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -219,10 +219,10 @@ type(SUNMatrix), pointer :: swig_result
 integer(C_INT32_T), intent(in) :: m
 integer(C_INT32_T), intent(in) :: n
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult 
-integer(C_INT32_T) :: farg1 
-integer(C_INT32_T) :: farg2 
-type(C_PTR) :: farg3 
+type(C_PTR) :: fresult
+integer(C_INT32_T) :: farg1
+integer(C_INT32_T) :: farg2
+type(C_PTR) :: farg3
 
 farg1 = m
 farg2 = n
@@ -235,8 +235,8 @@ subroutine FSUNDenseMatrix_Print(a, outfile)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), target, intent(inout) :: a
 type(C_PTR) :: outfile
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
+type(C_PTR) :: farg1
+type(C_PTR) :: farg2
 
 farg1 = c_loc(a)
 farg2 = outfile
@@ -248,8 +248,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT32_T) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT32_T) :: fresult 
-type(C_PTR) :: farg1 
+integer(C_INT32_T) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNDenseMatrix_Rows(farg1)
@@ -261,8 +261,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT32_T) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT32_T) :: fresult 
-type(C_PTR) :: farg1 
+integer(C_INT32_T) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNDenseMatrix_Columns(farg1)
@@ -274,8 +274,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT32_T) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT32_T) :: fresult 
-type(C_PTR) :: farg1 
+integer(C_INT32_T) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNDenseMatrix_LData(farg1)
@@ -287,8 +287,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNDenseMatrix_Cols(farg1)
@@ -300,8 +300,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNMatrix_ID) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+integer(C_INT) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNMatGetID_Dense(farg1)
@@ -313,8 +313,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult 
-type(C_PTR) :: farg1 
+type(C_PTR) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNMatClone_Dense(farg1)
@@ -324,7 +324,7 @@ end function
 subroutine FSUNMatDestroy_Dense(a)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: farg1 
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 call swigc_FSUNMatDestroy_Dense(farg1)
@@ -335,8 +335,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
+integer(C_INT) :: fresult
+type(C_PTR) :: farg1
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNMatZero_Dense(farg1)
@@ -349,9 +349,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(SUNMatrix), target, intent(inout) :: b
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
+integer(C_INT) :: fresult
+type(C_PTR) :: farg1
+type(C_PTR) :: farg2
 
 farg1 = c_loc(a)
 farg2 = c_loc(b)
@@ -366,10 +366,10 @@ integer(C_INT) :: swig_result
 real(C_DOUBLE), intent(in) :: c
 type(SUNMatrix), target, intent(inout) :: a
 type(SUNMatrix), target, intent(inout) :: b
-integer(C_INT) :: fresult 
-real(C_DOUBLE) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
+integer(C_INT) :: fresult
+real(C_DOUBLE) :: farg1
+type(C_PTR) :: farg2
+type(C_PTR) :: farg3
 
 farg1 = c
 farg2 = c_loc(a)
@@ -384,9 +384,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 real(C_DOUBLE), intent(in) :: c
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult 
-real(C_DOUBLE) :: farg1 
-type(C_PTR) :: farg2 
+integer(C_INT) :: fresult
+real(C_DOUBLE) :: farg1
+type(C_PTR) :: farg2
 
 farg1 = c
 farg2 = c_loc(a)
@@ -401,10 +401,10 @@ integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: y
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
+integer(C_INT) :: fresult
+type(C_PTR) :: farg1
+type(C_PTR) :: farg2
+type(C_PTR) :: farg3
 
 farg1 = c_loc(a)
 farg2 = c_loc(x)
@@ -413,22 +413,22 @@ fresult = swigc_FSUNMatMatvec_Dense(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNMatMatvecTranspose_Dense(a, x, y) &
+function FSUNMatMatTransposeVec_Dense(a, x, y) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: y
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
+integer(C_INT) :: fresult
+type(C_PTR) :: farg1
+type(C_PTR) :: farg2
+type(C_PTR) :: farg3
 
 farg1 = c_loc(a)
 farg2 = c_loc(x)
 farg3 = c_loc(y)
-fresult = swigc_FSUNMatMatvecTranspose_Dense(farg1, farg2, farg3)
+fresult = swigc_FSUNMatMatTransposeVec_Dense(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
@@ -439,10 +439,10 @@ integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-type(C_PTR) :: farg3 
+integer(C_INT) :: fresult
+type(C_PTR) :: farg1
+type(C_PTR) :: farg2
+type(C_PTR) :: farg3
 
 farg1 = c_loc(a)
 farg2 = c_loc(lenrw(1))

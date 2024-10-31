@@ -99,9 +99,9 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNMatMatvec`
 
-   .. c:member:: SUNErrCode (*matvectranspose)(SUNMatrix, N_Vector, N_Vector)
+   .. c:member:: SUNErrCode (*mattransposevec)(SUNMatrix, N_Vector, N_Vector)
 
-      The function implementing :c:func:`SUNMatMatvecTranspose`
+      The function implementing :c:func:`SUNMatMatTransposeVec`
 
    .. c:member:: SUNErrCode (*space)(SUNMatrix, long int*, long int*)
 
