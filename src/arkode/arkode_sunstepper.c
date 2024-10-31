@@ -21,8 +21,9 @@
 #include "arkode_impl.h"
 #include "sundials_macros.h"
 
-static SUNErrCode arkSUNStepperEvolve(SUNStepper stepper, sunrealtype tout,
-                                      N_Vector y, sunrealtype* tret)
+static SUNErrCode arkSUNStepperEvolveHelper(SUNStepper stepper,
+                                            sunrealtype tout, N_Vector y,
+                                            sunrealtype* tret, int mode)
 {
   SUNFunctionBegin(stepper->sunctx);
   /* extract the ARKODE memory struct */
@@ -30,10 +31,22 @@ static SUNErrCode arkSUNStepperEvolve(SUNStepper stepper, sunrealtype tout,
   SUNCheckCall(SUNStepper_GetContent(stepper, &arkode_mem));
 
   /* evolve inner ODE */
-  stepper->last_flag = ARKodeEvolve(arkode_mem, tout, y, tret, ARK_NORMAL);
+  stepper->last_flag = ARKodeEvolve(arkode_mem, tout, y, tret, mode);
   if (stepper->last_flag < 0) { return SUN_ERR_OP_FAIL; }
 
   return SUN_SUCCESS;
+}
+
+static SUNErrCode arkSUNStepperEvolve(SUNStepper stepper, sunrealtype tout,
+                                      N_Vector y, sunrealtype* tret)
+{
+  return arkSUNStepperEvolveHelper(stepper, tout, y, tret, ARK_NORMAL);
+}
+
+static SUNErrCode arkSUNStepperOneStep(SUNStepper stepper, sunrealtype tout,
+                                       N_Vector y, sunrealtype* tret)
+{
+  return arkSUNStepperEvolveHelper(stepper, tout, y, tret, ARK_ONE_STEP);
 }
 
 /*------------------------------------------------------------------------------
@@ -167,6 +180,9 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
                     "Failed to set SUNStepper evolve function");
     return ARK_SUNSTEPPER_ERR;
   }
+
+  err = SUNStepper_SetOneStepFn(*stepper, arkSUNStepperOneStep);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   err = SUNStepper_SetFullRhsFn(*stepper, arkSUNStepperFullRhs);
   if (err != SUN_SUCCESS)
