@@ -2010,7 +2010,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
        data so that both hold the current ark_mem->ycur value.  This ensures
        that during this embedding "stage":
          - ark_mem->ycur will be the correct initial condition for the final stage.
-         - ark_mem->tempv4 will hold the embeded solution vector. */
+         - ark_mem->tempv4 will hold the embedded solution vector. */
     N_VScale(ONE, ark_mem->ycur, ark_mem->tempv4);
     tmp             = ark_mem->ycur;
     ark_mem->ycur   = ark_mem->tempv4;
