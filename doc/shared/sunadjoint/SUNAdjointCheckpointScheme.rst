@@ -10,10 +10,12 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNAdjointCheckpointScheme:
+.. _SUNAdjoint.CheckpointScheme:
 
 The SUNAdjointCheckpointScheme API
 ==================================
+
+.. versionadded:: x.y.z
 
 The :c:type:`SUNAdjointCheckpointScheme` base class provides an interface for checkpointing
 states during forward integration and accessing them as needed during the backwards integration
@@ -177,7 +179,7 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 
-.. _SUNAdjointCheckpointScheme.Basic:
+.. _SUNAdjoint.CheckpointScheme.Fixed:
 
 The SUNAdjointCheckpointScheme_Fixed Module
 ===========================================
@@ -192,6 +194,7 @@ The diagram below illustrates how checkpoints are stored with this scheme:
 
 .. figure:: /figs/sunadjoint_ckpt_fixed.png
    :width: 75 %
+   :align: center
 
 
 Base-class Method Overrides

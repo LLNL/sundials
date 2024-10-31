@@ -11,14 +11,16 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _SUNAdjointStepper:
+.. _SUNAdjoint.Stepper:
 
-The SUNAdjointStepper API and Module
-====================================
+The SUNAdjointStepper API
+=========================
 
-The :c:type:`SUNAdjointStepper` API and module provides a package-agnostic
-interface to SUNDIALS ASA capabilities. It currently only supports the discrete
-ASA capabilities in the ARKODE package, but in the future this support may be expanded.
+.. versionadded:: x.y.z
+
+The :c:type:`SUNAdjointStepper` API provides a package-agnostic interface to SUNDIALS ASA
+capabilities. It currently only supports the discrete ASA capabilities in the ARKODE
+package, but in the future this support may be expanded.
 
 A :c:type:`SUNAdjointStepper` is a pointer to the
 :c:struct:`SUNAdjointStepper_` structure:

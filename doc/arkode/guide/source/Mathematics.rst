@@ -2171,7 +2171,7 @@ For the discrete adjoint approach, we first numerically discretize the original 
 In the context of ARKODE, this is done with a one-step time integration scheme :math:`\varphi` so that
 
 .. math::
-   y_0 = y(t_0),\quad y_n = \varphi^n(y_{n-1}).
+   y_0 = y(t_0),\quad y_n = \varphi(y_{n-1}).
    :label: ARKODE_DISCRETE_ODE
 
 Reformulating the optimization problem for the discrete case, we have
@@ -2185,8 +2185,8 @@ rule backwards in time to obtain the discete adjoint variables :math:`\lambda_n,
 and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`,
 
 .. math::
-   \lambda_n &= g_y^T(y_n, p), \quad \lambda_k = \left(\varphi^k_y(y_k, p)\right)^T \lambda_{k+1} \\
-   \mu_n     &= g_p^T(y_n, p), \quad \mu_k     = \mu_{k+1} + \left(\varphi^k_p(y_k, p)\right)^T \lambda_{k+1},
+   \lambda_n &= g_y^T(y_n, p), \quad \lambda_k = \left(\frac{\partial \varphi}{\partial y_k}(y_k, p)\right)^T \lambda_{k+1} \\
+   \mu_n     &= g_p^T(y_n, p), \quad \mu_k     = \left(\frac{\partial \varphi}{\partial p}(y_k, p)\right)^T \lambda_{k+1},
     \quad k = n - 1, \cdots, 0.
    :label: ARKODE_DISCRETE_ADJOINT
 
