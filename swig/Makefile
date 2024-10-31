@@ -28,7 +28,7 @@ SUNMATRIX=band dense sparse
 SUNLINSOL=band dense lapackdense klu spbcgs spfgmr spgmr sptfqmr pcg
 SUNNONLINSOL=newton fixedpoint
 SUNADAPTCONTROLLER=imexgus soderlind
-SUNADJOINT=fsunadjointstepper_mod fsunadjointcheckpointscheme_mod fSUNAdjointCheckpointScheme_Fixed_mod
+SUNADJOINT=fsunadjointstepper_mod fsunadjointcheckpointscheme_mod fsunadjointcheckpointscheme_fixed_mod
 
 INCLUDES=-I../include
 

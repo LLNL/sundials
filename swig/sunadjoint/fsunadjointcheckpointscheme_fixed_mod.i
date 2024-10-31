@@ -12,7 +12,7 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fSUNAdjointCheckpointScheme_Fixed_mod
+%module fsunadjointcheckpointscheme_fixed_mod
 
 // Include shared configuration
 %include "../sundials/fsundials.i"
