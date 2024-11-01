@@ -212,7 +212,7 @@ static int adjoint_solution(SUNContext sunctx, SUNAdjointStepper adj_stepper,
                             const sunrealtype tf, const sunrealtype tout,
                             N_Vector sf)
 {
-  sunrealtype t   = tf;
+  sunrealtype t = tf;
   SUNAdjointStepper_Evolve(adj_stepper, tout, sf, &t);
 
   printf("Adjoint Solution:\n");
