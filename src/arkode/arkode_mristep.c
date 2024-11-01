@@ -1697,7 +1697,6 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   sunbooleantype calc_fslow;
   sunbooleantype need_inner_dsm;
   sunbooleantype do_embedding;
-  sunbooleantype force_reset = (*nflagPtr == PREV_ERR_FAIL);
   int nvec;
 
   /* access the MRIStep mem structure */
@@ -1739,9 +1738,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     }
   }
 
-  /* if the previous step was rejected, reset the inner integrator
-     to the beginning of this step (in case of recomputation) */
-  if (force_reset)
+  /* for adaptive computations, reset the inner integrator to the beginning of this step */
+  if (!ark_mem->fixedstep)
   {
     retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tn,
                                        ark_mem->yn);
@@ -1766,7 +1764,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   }
 
   /* Evaluate the slow RHS functions if needed. NOTE: We do not use the full RHS
-     function here since it does not need to check for FSAL or SA methods and 
+     function here since it does not need to check for FSAL or SA methods and
      thus avoids potentially unnecessary evaluations of the inner (fast) RHS function */
   /*   compute the explicit component */
   if (step_mem->explicit_rhs)
@@ -2006,7 +2004,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   {
     is = step_mem->stages;
 
-    /* Temporarily swap ark_mem->ycur and ark_mem->tempv4 pointers, copying 
+    /* Temporarily swap ark_mem->ycur and ark_mem->tempv4 pointers, copying
        data so that both hold the current ark_mem->ycur value.  This ensures
        that during this embedding "stage":
          - ark_mem->ycur will be the correct initial condition for the final stage.
@@ -2223,7 +2221,6 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype impl_corr;           /* is slow correct. implicit? */
   sunrealtype cstage;                 /* current stage abscissa     */
   sunbooleantype need_inner_dsm;
-  sunbooleantype force_reset = (*dsmPtr == PREV_ERR_FAIL);
   int nvec, max_stages;
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
@@ -2266,8 +2263,8 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* following an error test failure, reset the inner integrator */
-  if (force_reset)
+  /* for adaptive computations, reset the inner integrator to the beginning of this step */
+  if (!ark_mem->fixedstep)
   {
     retval = mriStepInnerStepper_Reset(step_mem->stepper, ark_mem->tn,
                                        ark_mem->yn);
@@ -2397,7 +2394,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                                          ark_mem->tn + cstage * ark_mem->h);
     if (retval != ARK_SUCCESS) { return retval; }
 
-    /* Reset the inner stepper on all but the first stage due to 
+    /* Reset the inner stepper on all but the first stage due to
        "stage-restart" structure */
     if (stage > 1)
     {
@@ -2411,7 +2408,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       }
     }
 
-    /* Evolve fast IVP for this stage, potentially get inner dsm on 
+    /* Evolve fast IVP for this stage, potentially get inner dsm on
        all non-embedding stages */
     retval = mriStep_StageERKFast(ark_mem, step_mem, ark_mem->tn,
                                   ark_mem->tn + cstage * ark_mem->h,
@@ -2694,7 +2691,6 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype solution;            /*   or solution stages       */
   sunrealtype cstage;                 /* current stage abscissa     */
   sunbooleantype need_inner_dsm;
-  sunbooleantype force_reset = (*nflagPtr == PREV_ERR_FAIL);
   int nvec;
 
   /* access the MRIStep mem structure */
@@ -2739,8 +2735,8 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* following an error test failure, reset the inner integrator */
-  if (force_reset)
+  /* for adaptive computations, reset the inner integrator to the beginning of this step */
+  if (!ark_mem->fixedstep)
   {
     retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->yn);
     if (retval != ARK_SUCCESS)
@@ -2851,7 +2847,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       /* Set desired output time for subinterval */
       tf = ark_mem->tn + cstage * ark_mem->h;
 
-      /* Reset the inner stepper on the first stage within all but the 
+      /* Reset the inner stepper on the first stage within all but the
          first stage group due to "stage-restart" structure */
       if ((stage > 1) && (is == 0))
       {
@@ -2864,7 +2860,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         }
       }
 
-      /* Evolve fast IVP for this stage, potentially get inner dsm on all 
+      /* Evolve fast IVP for this stage, potentially get inner dsm on all
          non-embedding stages */
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
                                     ytemp, need_inner_dsm && !embedding);
@@ -3729,7 +3725,7 @@ int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
   step_mem->stepper->tshift = t0;
   step_mem->stepper->tscale = tf - t0;
 
-  /* Adjust implicit/explicit RHS flags for MRISR methods, since these 
+  /* Adjust implicit/explicit RHS flags for MRISR methods, since these
      ignore the G coefficients in the forcing function */
   if (step_mem->MRIC->type == MRISTEP_MRISR)
   {
