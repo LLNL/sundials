@@ -85,6 +85,7 @@ SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu, sunindextype ml,
   A->ops->scaleadd  = SUNMatScaleAdd_Band;
   A->ops->scaleaddi = SUNMatScaleAddI_Band;
   A->ops->matvec    = SUNMatMatvec_Band;
+  A->ops->mattransposevec = SUNMatMatTransposeVec_Band;
   A->ops->space     = SUNMatSpace_Band;
 
   /* Create content */
@@ -412,6 +413,35 @@ SUNErrCode SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y)
     is    = SUNMAX(0, j - SM_UBAND_B(A));
     ie    = SUNMIN(SM_ROWS_B(A) - 1, j + SM_LBAND_B(A));
     for (i = is; i <= ie; i++) { yd[i] += col_j[i - j] * xd[j]; }
+  }
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNMatMatTransposeVec_Band(SUNMatrix A, N_Vector x, N_Vector y)
+{
+  SUNFunctionBegin(A->sunctx);
+  sunindextype i, j, is, ie;
+  sunrealtype *col_j, *xd, *yd;
+
+  SUNCheck(compatibleMatrixAndVectors(A, x, y), SUN_ERR_ARG_DIMSMISMATCH);
+
+  /* access vector data (return if failure) */
+  xd = N_VGetArrayPointer(x);
+  SUNCheckLastErr();
+  yd = N_VGetArrayPointer(y);
+  SUNCheckLastErr();
+
+  SUNAssert(xd, SUN_ERR_MEM_FAIL);
+  SUNAssert(yd, SUN_ERR_MEM_FAIL);
+
+  /* Perform operation */
+  for (i = 0; i < SM_ROWS_B(A); i++) { yd[i] = ZERO; }
+  for (j = 0; j < SM_COLUMNS_B(A); j++)
+  {
+    col_j = SM_COLUMN_B(A, j);
+    is    = SUNMAX(0, j - SM_UBAND_B(A));
+    ie    = SUNMIN(SM_ROWS_B(A) - 1, j + SM_LBAND_B(A));
+    for (i = is; i <= ie; i++) { yd[j] += col_j[i - j] * xd[i]; }
   }
   return SUN_SUCCESS;
 }

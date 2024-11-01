@@ -24,6 +24,7 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 #include <sunmatrix/sunmatrix_band.h>
+#include <sunmatrix/sunmatrix_dense.h>
 
 #include "test_sunmatrix.h"
 
@@ -44,7 +45,7 @@ int main(int argc, char* argv[])
 {
   int fails = 0;                   /* counter for test failures  */
   sunindextype cols, uband, lband; /* matrix columns, bandwidths */
-  SUNMatrix A, I;                  /* test matrices              */
+  SUNMatrix A, AT, I;                  /* test matrices              */
   N_Vector x, y;                   /* test vectors               */
   int print_timing;
   sunindextype i, j, k, kstart, kend, jstart, jend;
@@ -102,6 +103,7 @@ int main(int argc, char* argv[])
 
   /* Create matrices and vectors */
   A = SUNBandMatrix(cols, uband, lband, sunctx);
+  AT = SUNBandMatrix(cols, lband, uband, sunctx);
   I = SUNBandMatrix(cols, 0, 0, sunctx);
   x = N_VNew_Serial(cols, sunctx);
   y = N_VNew_Serial(cols, sunctx);
@@ -122,6 +124,15 @@ int main(int argc, char* argv[])
     for (k = kstart; k <= kend; k++)
     {
       colj[k] = j - k; /* A(i,j) = j + (j-i) */
+    }
+  }
+
+  /* Create A^T */
+  for (j = 0; j < cols; j++) {
+    for (i = 0; i < cols; i++) {
+      if (j - uband <= i && i <= j + lband) {
+        SM_ELEMENT_B(AT, j, i) = SM_ELEMENT_B(A, i, j);
+      }
     }
   }
 
@@ -146,6 +157,7 @@ int main(int argc, char* argv[])
   fails += Test_SUNMatScaleAdd(A, I, 0);
   fails += Test_SUNMatScaleAddI(A, I, 0);
   fails += Test_SUNMatMatvec(A, x, y, 0);
+  fails += Test_SUNMatMatTransposeVec(A, AT, x, y, 0);
   fails += Test_SUNMatSpace(A, 0);
 
   /* Print result */
@@ -154,6 +166,8 @@ int main(int argc, char* argv[])
     printf("FAIL: SUNMatrix module failed %i tests \n \n", fails);
     printf("\nA =\n");
     SUNBandMatrix_Print(A, stdout);
+    printf("\nA^T =\n");
+    SUNBandMatrix_Print(AT, stdout);
     printf("\nI =\n");
     SUNBandMatrix_Print(I, stdout);
     printf("\nx =\n");
