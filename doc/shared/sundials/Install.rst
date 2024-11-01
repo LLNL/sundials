@@ -868,6 +868,23 @@ illustration only.
 
    .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
 
+.. cmakeoption:: MPIEXEC_PREFLAGS
+
+   Specifies flags that come directly after ``MPIEXEC_EXECUTABLE`` and before
+   ``MPIEXEC_NUMPROC_FLAG`` and ``MPIEXEC_MAX_NUMPROCS``.
+
+   Default: none
+
+   .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
+
+.. cmakeoption:: MPIEXEC_POSTFLAGS
+
+   Specifies flags that come after the executable to run but before any other program arguments.
+
+   Default: none
+
+   .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
+
 .. cmakeoption:: ENABLE_ONEMKL
 
    Enable oneMKL support.
