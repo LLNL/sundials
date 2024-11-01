@@ -208,15 +208,15 @@ function to be called or macro to be referenced.
      If a nonlinear solver requiring a linear solver is chosen (e.g., the
      default Newton iteration), then initialize the CVLS linear solver
      interface by attaching the linear solver object (and matrix object,
-     if applicable) with a call ``ier = CVodeSetLinearSolver(cvode_mem, NLS)`` (for details see
-     :numref:`CVODE.Usage.CC.callable_fct_sim.lin_solv_init`):
+     if applicable) with a call ``ier = CVodeSetLinearSolver(cvode_mem, LS, A)``
+     (for details see :numref:`CVODE.Usage.CC.callable_fct_sim.lin_solv_init`).
 
      Alternately, if the CVODE-specific diagonal linear solver module,
      CVDIAG, is desired, initialize the linear solver module and attach
      it to CVODE with the call to :c:func:`CVodeSetLinearSolver`.
 
   #. **Set optional inputs**
-     Call ```CVodeSet***`` functions to change any optional inputs that control the
+     Call ``CVodeSet***`` functions to change any optional inputs that control the
      behavior of CVODE from their default values. See
      :numref:`CVODE.Usage.CC.optional_input` for details.
 
