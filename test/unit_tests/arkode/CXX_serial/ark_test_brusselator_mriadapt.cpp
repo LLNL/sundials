@@ -681,7 +681,9 @@ int main(int argc, char* argv[])
     retval = ARKodeReset(arkode_ref, t, y);
 
     // evolve solution in one-step mode
-    retval = ARKodeEvolve(arkode_mem, Tf, y, &t, ARK_ONE_STEP);
+    retval = ARKodeSetStopTime(arkode_mem, tout);
+    if (check_flag(retval, "ARKodeSetStopTime")) return 1;
+    retval = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_ONE_STEP);
     if (retval < 0)
     {
       printf("ARKodeEvolve error (%i)\n", retval);
@@ -691,7 +693,7 @@ int main(int argc, char* argv[])
     // evolve reference solver to same time in "normal" mode
     retval = ARKodeSetStopTime(arkode_ref, t);
     if (check_flag(retval, "ARKodeSetStopTime")) return 1;
-    retval = ARKodeEvolve(arkode_ref, Tf, yref, &t2, ARK_NORMAL);
+    retval = ARKodeEvolve(arkode_ref, t, yref, &t2, ARK_NORMAL);
     if (retval < 0)
     {
       printf("ARKodeEvolve reference solution error (%i)\n", retval);
