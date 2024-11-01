@@ -154,6 +154,7 @@ module farkode_mristep_mod
  public :: FMRIStepSetPostInnerFn
  public :: FMRIStepGetCurrentCoupling
  public :: FMRIStepGetLastInnerStepFlag
+ public :: FMRIStepGetNumInnerStepperFails
  public :: FMRIStepInnerStepper_Create
  public :: FMRIStepInnerStepper_Free
  public :: FMRIStepInnerStepper_SetContent
@@ -591,6 +592,15 @@ end function
 
 function swigc_FMRIStepGetLastInnerStepFlag(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepGetLastInnerStepFlag") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepGetNumInnerStepperFails(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepGetNumInnerStepperFails") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2091,6 +2101,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(flag(1))
 fresult = swigc_FMRIStepGetLastInnerStepFlag(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepGetNumInnerStepperFails(arkode_mem, inner_fails) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+integer(C_LONG), dimension(*), target, intent(inout) :: inner_fails
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(inner_fails(1))
+fresult = swigc_FMRIStepGetNumInnerStepperFails(farg1, farg2)
 swig_result = fresult
 end function
 
