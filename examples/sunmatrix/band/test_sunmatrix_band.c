@@ -182,6 +182,7 @@ int main(int argc, char* argv[])
 
   /* Free matrices and vectors */
   SUNMatDestroy(A);
+  SUNMatDestroy(AT);
   SUNMatDestroy(I);
   N_VDestroy(x);
   N_VDestroy(y);
