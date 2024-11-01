@@ -51,6 +51,8 @@ module fsunadjointstepper_mod
   procedure :: get_step_idx => swigf_SUNAdjointStepper__step_idx_get
   procedure :: set_final_step_idx => swigf_SUNAdjointStepper__final_step_idx_set
   procedure :: get_final_step_idx => swigf_SUNAdjointStepper__final_step_idx_get
+  procedure :: set_last_flag => swigf_SUNAdjointStepper__last_flag_set
+  procedure :: get_last_flag => swigf_SUNAdjointStepper__last_flag_get
   procedure :: set_Jac => swigf_SUNAdjointStepper__Jac_set
   procedure :: get_Jac => swigf_SUNAdjointStepper__Jac_get
   procedure :: set_JacP => swigf_SUNAdjointStepper__JacP_set
@@ -210,6 +212,23 @@ use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
 type(SwigClassWrapper) :: farg1
 integer(C_INT64_T) :: fresult
+end function
+
+subroutine swigc_SUNAdjointStepper__last_flag_set(farg1, farg2) &
+bind(C, name="_wrap_SUNAdjointStepper__last_flag_set")
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT), intent(in) :: farg2
+end subroutine
+
+function swigc_SUNAdjointStepper__last_flag_get(farg1) &
+bind(C, name="_wrap_SUNAdjointStepper__last_flag_get") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+import :: swigclasswrapper
+type(SwigClassWrapper) :: farg1
+integer(C_INT) :: fresult
 end function
 
 subroutine swigc_SUNAdjointStepper__Jac_set(farg1, farg2) &
@@ -585,7 +604,7 @@ real(C_DOUBLE), intent(in) :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointStepper_Evolve(farg1, farg2, farg3, farg4, farg5) &
+function swigc_FSUNAdjointStepper_Evolve(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNAdjointStepper_Evolve") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -593,11 +612,10 @@ type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
-type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointStepper_OneStep(farg1, farg2, farg3, farg4, farg5) &
+function swigc_FSUNAdjointStepper_OneStep(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNAdjointStepper_OneStep") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -605,7 +623,6 @@ type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
-type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -832,6 +849,31 @@ type(SwigClassWrapper) :: farg1
 
 farg1 = self%swigdata
 fresult = swigc_SUNAdjointStepper__final_step_idx_get(farg1)
+swig_result = fresult
+end function
+
+subroutine swigf_SUNAdjointStepper__last_flag_set(self, last_flag)
+use, intrinsic :: ISO_C_BINDING
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT), intent(in) :: last_flag
+type(SwigClassWrapper) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = self%swigdata
+farg2 = last_flag
+call swigc_SUNAdjointStepper__last_flag_set(farg1, farg2)
+end subroutine
+
+function swigf_SUNAdjointStepper__last_flag_get(self) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+class(SUNAdjointStepper_), intent(in) :: self
+integer(C_INT) :: fresult 
+type(SwigClassWrapper) :: farg1 
+
+farg1 = self%swigdata
+fresult = swigc_SUNAdjointStepper__last_flag_get(farg1)
 swig_result = fresult
 end function
 
@@ -1407,7 +1449,7 @@ fresult = swigc_FSUNAdjointStepper_ReInit(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FSUNAdjointStepper_Evolve(adj_stepper, tout, sens, tret, stop_reason) &
+function FSUNAdjointStepper_Evolve(adj_stepper, tout, sens, tret) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -1415,24 +1457,21 @@ type(C_PTR) :: adj_stepper
 real(C_DOUBLE), intent(in) :: tout
 type(N_Vector), target, intent(inout) :: sens
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
-integer(C_INT), dimension(*), target, intent(inout) :: stop_reason
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
 type(C_PTR) :: farg4 
-type(C_PTR) :: farg5 
 
 farg1 = adj_stepper
 farg2 = tout
 farg3 = c_loc(sens)
 farg4 = c_loc(tret(1))
-farg5 = c_loc(stop_reason(1))
-fresult = swigc_FSUNAdjointStepper_Evolve(farg1, farg2, farg3, farg4, farg5)
+fresult = swigc_FSUNAdjointStepper_Evolve(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-function FSUNAdjointStepper_OneStep(adj_stepper, tout, sens, tret, stop_reason) &
+function FSUNAdjointStepper_OneStep(adj_stepper, tout, sens, tret) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -1440,20 +1479,17 @@ type(C_PTR) :: adj_stepper
 real(C_DOUBLE), intent(in) :: tout
 type(N_Vector), target, intent(inout) :: sens
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
-integer(C_INT), dimension(*), target, intent(inout) :: stop_reason
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
 type(C_PTR) :: farg4 
-type(C_PTR) :: farg5 
 
 farg1 = adj_stepper
 farg2 = tout
 farg3 = c_loc(sens)
 farg4 = c_loc(tret(1))
-farg5 = c_loc(stop_reason(1))
-fresult = swigc_FSUNAdjointStepper_OneStep(farg1, farg2, farg3, farg4, farg5)
+fresult = swigc_FSUNAdjointStepper_OneStep(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 

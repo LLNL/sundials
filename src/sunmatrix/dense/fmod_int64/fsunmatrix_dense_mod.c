@@ -192,15 +192,15 @@
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
 
 
-#define SWIGVERSION 0x040000
+#define SWIGVERSION 0x040000 
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a))
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
+#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
 #include "sundials/sundials_matrix.h"
@@ -214,7 +214,7 @@ SWIGEXPORT SUNMatrix _wrap_FSUNDenseMatrix(int64_t const *farg1, int64_t const *
   sunindextype arg2 ;
   SUNContext arg3 = (SUNContext) 0 ;
   SUNMatrix result;
-
+  
   arg1 = (sunindextype)(*farg1);
   arg2 = (sunindextype)(*farg2);
   arg3 = (SUNContext)(farg3);
@@ -227,7 +227,7 @@ SWIGEXPORT SUNMatrix _wrap_FSUNDenseMatrix(int64_t const *farg1, int64_t const *
 SWIGEXPORT void _wrap_FSUNDenseMatrix_Print(SUNMatrix farg1, void *farg2) {
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   FILE *arg2 = (FILE *) 0 ;
-
+  
   arg1 = (SUNMatrix)(farg1);
   arg2 = (FILE *)(farg2);
   SUNDenseMatrix_Print(arg1,arg2);
@@ -238,7 +238,7 @@ SWIGEXPORT int64_t _wrap_FSUNDenseMatrix_Rows(SUNMatrix farg1) {
   int64_t fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype result;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = SUNDenseMatrix_Rows(arg1);
   fresult = (sunindextype)(result);
@@ -250,7 +250,7 @@ SWIGEXPORT int64_t _wrap_FSUNDenseMatrix_Columns(SUNMatrix farg1) {
   int64_t fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype result;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = SUNDenseMatrix_Columns(arg1);
   fresult = (sunindextype)(result);
@@ -262,7 +262,7 @@ SWIGEXPORT int64_t _wrap_FSUNDenseMatrix_LData(SUNMatrix farg1) {
   int64_t fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunindextype result;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = SUNDenseMatrix_LData(arg1);
   fresult = (sunindextype)(result);
@@ -274,7 +274,7 @@ SWIGEXPORT void * _wrap_FSUNDenseMatrix_Cols(SUNMatrix farg1) {
   void * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   sunrealtype **result = 0 ;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = (sunrealtype **)SUNDenseMatrix_Cols(arg1);
   fresult = result;
@@ -286,7 +286,7 @@ SWIGEXPORT int _wrap_FSUNMatGetID_Dense(SUNMatrix farg1) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   SUNMatrix_ID result;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = (SUNMatrix_ID)SUNMatGetID_Dense(arg1);
   fresult = (int)(result);
@@ -298,7 +298,7 @@ SWIGEXPORT SUNMatrix _wrap_FSUNMatClone_Dense(SUNMatrix farg1) {
   SUNMatrix fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   SUNMatrix result;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = (SUNMatrix)SUNMatClone_Dense(arg1);
   fresult = result;
@@ -308,7 +308,7 @@ SWIGEXPORT SUNMatrix _wrap_FSUNMatClone_Dense(SUNMatrix farg1) {
 
 SWIGEXPORT void _wrap_FSUNMatDestroy_Dense(SUNMatrix farg1) {
   SUNMatrix arg1 = (SUNMatrix) 0 ;
-
+  
   arg1 = (SUNMatrix)(farg1);
   SUNMatDestroy_Dense(arg1);
 }
@@ -318,7 +318,7 @@ SWIGEXPORT int _wrap_FSUNMatZero_Dense(SUNMatrix farg1) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNMatrix)(farg1);
   result = (SUNErrCode)SUNMatZero_Dense(arg1);
   fresult = (SUNErrCode)(result);
@@ -331,7 +331,7 @@ SWIGEXPORT int _wrap_FSUNMatCopy_Dense(SUNMatrix farg1, SUNMatrix farg2) {
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNMatrix)(farg1);
   arg2 = (SUNMatrix)(farg2);
   result = (SUNErrCode)SUNMatCopy_Dense(arg1,arg2);
@@ -346,7 +346,7 @@ SWIGEXPORT int _wrap_FSUNMatScaleAdd_Dense(double const *farg1, SUNMatrix farg2,
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNMatrix arg3 = (SUNMatrix) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (sunrealtype)(*farg1);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (SUNMatrix)(farg3);
@@ -361,7 +361,7 @@ SWIGEXPORT int _wrap_FSUNMatScaleAddI_Dense(double const *farg1, SUNMatrix farg2
   sunrealtype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (sunrealtype)(*farg1);
   arg2 = (SUNMatrix)(farg2);
   result = (SUNErrCode)SUNMatScaleAddI_Dense(arg1,arg2);
@@ -376,7 +376,7 @@ SWIGEXPORT int _wrap_FSUNMatMatvec_Dense(SUNMatrix farg1, N_Vector farg2, N_Vect
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNMatrix)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -392,7 +392,7 @@ SWIGEXPORT int _wrap_FSUNMatMatTransposeVec_Dense(SUNMatrix farg1, N_Vector farg
   N_Vector arg2 = (N_Vector) 0 ;
   N_Vector arg3 = (N_Vector) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNMatrix)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
@@ -408,7 +408,7 @@ SWIGEXPORT int _wrap_FSUNMatSpace_Dense(SUNMatrix farg1, long *farg2, long *farg
   long *arg2 = (long *) 0 ;
   long *arg3 = (long *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNMatrix)(farg1);
   arg2 = (long *)(farg2);
   arg3 = (long *)(farg3);

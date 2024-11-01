@@ -1010,7 +1010,7 @@ bind(C, name="_wrap_FARKodeSetAdjointCheckpointIndex") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_LONG), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -3383,10 +3383,10 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-integer(C_LONG), intent(in) :: step_index
+integer(C_INT64_T), intent(in) :: step_index
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_LONG) :: farg2 
+integer(C_INT64_T) :: farg2 
 
 farg1 = arkode_mem
 farg2 = step_index

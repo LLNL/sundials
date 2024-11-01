@@ -1154,14 +1154,14 @@ SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointScheme(void *farg1, SwigClassWra
 }
 
 
-SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointIndex(void *farg1, long const *farg2) {
+SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointIndex(void *farg1, int64_t const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  long arg2 ;
+  int64_t arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (long)(*farg2);
+  arg2 = (int64_t)(*farg2);
   result = (int)ARKodeSetAdjointCheckpointIndex(arg1,arg2);
   fresult = (int)(result);
   return fresult;

@@ -221,15 +221,15 @@ enum {
  * the fortran.cxx file.
  */
 #define SWIG_contract_assert(RETURNNULL, EXPR, MSG) \
- if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); }
+ if (!(EXPR)) { SWIG_exception_impl("$decl", SWIG_ValueError, MSG, RETURNNULL); } 
 
 
-#define SWIGVERSION 0x040000
+#define SWIGVERSION 0x040000 
 #define SWIG_VERSION SWIGVERSION
 
 
-#define SWIG_as_voidptr(a) (void *)((const void *)(a))
-#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a))
+#define SWIG_as_voidptr(a) (void *)((const void *)(a)) 
+#define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
 #include <stdint.h>
@@ -300,7 +300,7 @@ SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
 SWIGEXPORT void _wrap_SUNAdjointStepper__adj_sunstepper_set(SwigClassWrapper const *farg1, void *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNStepper arg2 = (SUNStepper) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::adj_sunstepper", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNStepper)(farg2);
@@ -312,7 +312,7 @@ SWIGEXPORT void * _wrap_SUNAdjointStepper__adj_sunstepper_get(SwigClassWrapper c
   void * fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNStepper result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::adj_sunstepper", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNStepper) ((arg1)->adj_sunstepper);
@@ -324,7 +324,7 @@ SWIGEXPORT void * _wrap_SUNAdjointStepper__adj_sunstepper_get(SwigClassWrapper c
 SWIGEXPORT void _wrap_SUNAdjointStepper__fwd_sunstepper_set(SwigClassWrapper const *farg1, void *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNStepper arg2 = (SUNStepper) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::fwd_sunstepper", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNStepper)(farg2);
@@ -336,7 +336,7 @@ SWIGEXPORT void * _wrap_SUNAdjointStepper__fwd_sunstepper_get(SwigClassWrapper c
   void * fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNStepper result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::fwd_sunstepper", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNStepper) ((arg1)->fwd_sunstepper);
@@ -348,7 +348,7 @@ SWIGEXPORT void * _wrap_SUNAdjointStepper__fwd_sunstepper_get(SwigClassWrapper c
 SWIGEXPORT void _wrap_SUNAdjointStepper__checkpoint_scheme_set(SwigClassWrapper const *farg1, SUNAdjointCheckpointScheme farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNAdjointCheckpointScheme arg2 = (SUNAdjointCheckpointScheme) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::checkpoint_scheme", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNAdjointCheckpointScheme)(farg2);
@@ -360,7 +360,7 @@ SWIGEXPORT SUNAdjointCheckpointScheme _wrap_SUNAdjointStepper__checkpoint_scheme
   SUNAdjointCheckpointScheme fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNAdjointCheckpointScheme result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::checkpoint_scheme", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNAdjointCheckpointScheme) ((arg1)->checkpoint_scheme);
@@ -372,7 +372,7 @@ SWIGEXPORT SUNAdjointCheckpointScheme _wrap_SUNAdjointStepper__checkpoint_scheme
 SWIGEXPORT void _wrap_SUNAdjointStepper__tf_set(SwigClassWrapper const *farg1, double const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   sunrealtype arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::tf", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (sunrealtype)(*farg2);
@@ -384,7 +384,7 @@ SWIGEXPORT double _wrap_SUNAdjointStepper__tf_get(SwigClassWrapper const *farg1)
   double fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   sunrealtype result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::tf", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (sunrealtype) ((arg1)->tf);
@@ -396,7 +396,7 @@ SWIGEXPORT double _wrap_SUNAdjointStepper__tf_get(SwigClassWrapper const *farg1)
 SWIGEXPORT void _wrap_SUNAdjointStepper__step_idx_set(SwigClassWrapper const *farg1, int64_t const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::step_idx", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (int64_t)(*farg2);
@@ -408,7 +408,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__step_idx_get(SwigClassWrapper const 
   int64_t fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::step_idx", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result =  ((arg1)->step_idx);
@@ -420,7 +420,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__step_idx_get(SwigClassWrapper const 
 SWIGEXPORT void _wrap_SUNAdjointStepper__final_step_idx_set(SwigClassWrapper const *farg1, int64_t const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::final_step_idx", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (int64_t)(*farg2);
@@ -432,7 +432,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__final_step_idx_get(SwigClassWrapper 
   int64_t fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::final_step_idx", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result =  ((arg1)->final_step_idx);
@@ -441,10 +441,34 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__final_step_idx_get(SwigClassWrapper 
 }
 
 
+SWIGEXPORT void _wrap_SUNAdjointStepper__last_flag_set(SwigClassWrapper const *farg1, int const *farg2) {
+  struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
+  int arg2 ;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::last_flag", return );
+  arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
+  arg2 = (int)(*farg2);
+  if (arg1) (arg1)->last_flag = arg2;
+}
+
+
+SWIGEXPORT int _wrap_SUNAdjointStepper__last_flag_get(SwigClassWrapper const *farg1) {
+  int fresult ;
+  struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
+  int result;
+  
+  SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::last_flag", return 0);
+  arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
+  result = (int) ((arg1)->last_flag);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT void _wrap_SUNAdjointStepper__Jac_set(SwigClassWrapper const *farg1, SUNMatrix farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::Jac", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNMatrix)(farg2);
@@ -456,7 +480,7 @@ SWIGEXPORT SUNMatrix _wrap_SUNAdjointStepper__Jac_get(SwigClassWrapper const *fa
   SUNMatrix fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNMatrix result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::Jac", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNMatrix) ((arg1)->Jac);
@@ -468,7 +492,7 @@ SWIGEXPORT SUNMatrix _wrap_SUNAdjointStepper__Jac_get(SwigClassWrapper const *fa
 SWIGEXPORT void _wrap_SUNAdjointStepper__JacP_set(SwigClassWrapper const *farg1, SUNMatrix farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::JacP", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNMatrix)(farg2);
@@ -480,7 +504,7 @@ SWIGEXPORT SUNMatrix _wrap_SUNAdjointStepper__JacP_get(SwigClassWrapper const *f
   SUNMatrix fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNMatrix result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::JacP", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNMatrix) ((arg1)->JacP);
@@ -492,7 +516,7 @@ SWIGEXPORT SUNMatrix _wrap_SUNAdjointStepper__JacP_get(SwigClassWrapper const *f
 SWIGEXPORT void _wrap_SUNAdjointStepper__JacFn_set(SwigClassWrapper const *farg1, SUNRhsJacFn farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacFn arg2 = (SUNRhsJacFn) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::JacFn", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNRhsJacFn)(farg2);
@@ -504,7 +528,7 @@ SWIGEXPORT SUNRhsJacFn _wrap_SUNAdjointStepper__JacFn_get(SwigClassWrapper const
   SUNRhsJacFn fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacFn result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::JacFn", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNRhsJacFn) ((arg1)->JacFn);
@@ -516,7 +540,7 @@ SWIGEXPORT SUNRhsJacFn _wrap_SUNAdjointStepper__JacFn_get(SwigClassWrapper const
 SWIGEXPORT void _wrap_SUNAdjointStepper__JacPFn_set(SwigClassWrapper const *farg1, SUNRhsJacFn farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacFn arg2 = (SUNRhsJacFn) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::JacPFn", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNRhsJacFn)(farg2);
@@ -528,7 +552,7 @@ SWIGEXPORT SUNRhsJacFn _wrap_SUNAdjointStepper__JacPFn_get(SwigClassWrapper cons
   SUNRhsJacFn fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacFn result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::JacPFn", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNRhsJacFn) ((arg1)->JacPFn);
@@ -540,7 +564,7 @@ SWIGEXPORT SUNRhsJacFn _wrap_SUNAdjointStepper__JacPFn_get(SwigClassWrapper cons
 SWIGEXPORT void _wrap_SUNAdjointStepper__JvpFn_set(SwigClassWrapper const *farg1, SUNRhsJacTimesFn farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacTimesFn arg2 = (SUNRhsJacTimesFn) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::JvpFn", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNRhsJacTimesFn)(farg2);
@@ -552,7 +576,7 @@ SWIGEXPORT SUNRhsJacTimesFn _wrap_SUNAdjointStepper__JvpFn_get(SwigClassWrapper 
   SUNRhsJacTimesFn fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacTimesFn result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::JvpFn", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNRhsJacTimesFn) ((arg1)->JvpFn);
@@ -564,7 +588,7 @@ SWIGEXPORT SUNRhsJacTimesFn _wrap_SUNAdjointStepper__JvpFn_get(SwigClassWrapper 
 SWIGEXPORT void _wrap_SUNAdjointStepper__JPvpFn_set(SwigClassWrapper const *farg1, SUNRhsJacTimesFn farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacTimesFn arg2 = (SUNRhsJacTimesFn) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::JPvpFn", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNRhsJacTimesFn)(farg2);
@@ -576,7 +600,7 @@ SWIGEXPORT SUNRhsJacTimesFn _wrap_SUNAdjointStepper__JPvpFn_get(SwigClassWrapper
   SUNRhsJacTimesFn fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacTimesFn result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::JPvpFn", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNRhsJacTimesFn) ((arg1)->JPvpFn);
@@ -588,7 +612,7 @@ SWIGEXPORT SUNRhsJacTimesFn _wrap_SUNAdjointStepper__JPvpFn_get(SwigClassWrapper
 SWIGEXPORT void _wrap_SUNAdjointStepper__vJpFn_set(SwigClassWrapper const *farg1, SUNRhsJacTimesFn farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacTimesFn arg2 = (SUNRhsJacTimesFn) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::vJpFn", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNRhsJacTimesFn)(farg2);
@@ -600,7 +624,7 @@ SWIGEXPORT SUNRhsJacTimesFn _wrap_SUNAdjointStepper__vJpFn_get(SwigClassWrapper 
   SUNRhsJacTimesFn fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacTimesFn result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::vJpFn", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNRhsJacTimesFn) ((arg1)->vJpFn);
@@ -612,7 +636,7 @@ SWIGEXPORT SUNRhsJacTimesFn _wrap_SUNAdjointStepper__vJpFn_get(SwigClassWrapper 
 SWIGEXPORT void _wrap_SUNAdjointStepper__vJPpFn_set(SwigClassWrapper const *farg1, SUNRhsJacTimesFn farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacTimesFn arg2 = (SUNRhsJacTimesFn) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::vJPpFn", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNRhsJacTimesFn)(farg2);
@@ -624,7 +648,7 @@ SWIGEXPORT SUNRhsJacTimesFn _wrap_SUNAdjointStepper__vJPpFn_get(SwigClassWrapper
   SUNRhsJacTimesFn fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNRhsJacTimesFn result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::vJPpFn", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNRhsJacTimesFn) ((arg1)->vJPpFn);
@@ -636,7 +660,7 @@ SWIGEXPORT SUNRhsJacTimesFn _wrap_SUNAdjointStepper__vJPpFn_get(SwigClassWrapper
 SWIGEXPORT void _wrap_SUNAdjointStepper__nst_set(SwigClassWrapper const *farg1, int64_t const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::nst", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (int64_t)(*farg2);
@@ -648,7 +672,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__nst_get(SwigClassWrapper const *farg
   int64_t fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::nst", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result =  ((arg1)->nst);
@@ -660,7 +684,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__nst_get(SwigClassWrapper const *farg
 SWIGEXPORT void _wrap_SUNAdjointStepper__njeval_set(SwigClassWrapper const *farg1, int64_t const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::njeval", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (int64_t)(*farg2);
@@ -672,7 +696,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__njeval_get(SwigClassWrapper const *f
   int64_t fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::njeval", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result =  ((arg1)->njeval);
@@ -684,7 +708,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__njeval_get(SwigClassWrapper const *f
 SWIGEXPORT void _wrap_SUNAdjointStepper__njpeval_set(SwigClassWrapper const *farg1, int64_t const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::njpeval", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (int64_t)(*farg2);
@@ -696,7 +720,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__njpeval_get(SwigClassWrapper const *
   int64_t fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::njpeval", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result =  ((arg1)->njpeval);
@@ -708,7 +732,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__njpeval_get(SwigClassWrapper const *
 SWIGEXPORT void _wrap_SUNAdjointStepper__njtimesv_set(SwigClassWrapper const *farg1, int64_t const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::njtimesv", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (int64_t)(*farg2);
@@ -720,7 +744,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__njtimesv_get(SwigClassWrapper const 
   int64_t fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::njtimesv", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result =  ((arg1)->njtimesv);
@@ -732,7 +756,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__njtimesv_get(SwigClassWrapper const 
 SWIGEXPORT void _wrap_SUNAdjointStepper__njptimesv_set(SwigClassWrapper const *farg1, int64_t const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::njptimesv", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (int64_t)(*farg2);
@@ -744,7 +768,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__njptimesv_get(SwigClassWrapper const
   int64_t fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::njptimesv", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result =  ((arg1)->njptimesv);
@@ -756,7 +780,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__njptimesv_get(SwigClassWrapper const
 SWIGEXPORT void _wrap_SUNAdjointStepper__nvtimesj_set(SwigClassWrapper const *farg1, int64_t const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::nvtimesj", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (int64_t)(*farg2);
@@ -768,7 +792,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__nvtimesj_get(SwigClassWrapper const 
   int64_t fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::nvtimesj", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result =  ((arg1)->nvtimesj);
@@ -780,7 +804,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__nvtimesj_get(SwigClassWrapper const 
 SWIGEXPORT void _wrap_SUNAdjointStepper__nvtimesjp_set(SwigClassWrapper const *farg1, int64_t const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::nvtimesjp", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (int64_t)(*farg2);
@@ -792,7 +816,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__nvtimesjp_get(SwigClassWrapper const
   int64_t fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::nvtimesjp", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result =  ((arg1)->nvtimesjp);
@@ -804,7 +828,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__nvtimesjp_get(SwigClassWrapper const
 SWIGEXPORT void _wrap_SUNAdjointStepper__nrecompute_set(SwigClassWrapper const *farg1, int64_t const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t arg2 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::nrecompute", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (int64_t)(*farg2);
@@ -816,7 +840,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__nrecompute_get(SwigClassWrapper cons
   int64_t fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   int64_t result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::nrecompute", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result =  ((arg1)->nrecompute);
@@ -828,7 +852,7 @@ SWIGEXPORT int64_t _wrap_SUNAdjointStepper__nrecompute_get(SwigClassWrapper cons
 SWIGEXPORT void _wrap_SUNAdjointStepper__user_data_set(SwigClassWrapper const *farg1, void *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   void *arg2 = (void *) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::user_data", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (void *)(farg2);
@@ -840,7 +864,7 @@ SWIGEXPORT void * _wrap_SUNAdjointStepper__user_data_get(SwigClassWrapper const 
   void * fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   void *result = 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::user_data", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (void *) ((arg1)->user_data);
@@ -852,7 +876,7 @@ SWIGEXPORT void * _wrap_SUNAdjointStepper__user_data_get(SwigClassWrapper const 
 SWIGEXPORT void _wrap_SUNAdjointStepper__content_set(SwigClassWrapper const *farg1, void *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   void *arg2 = (void *) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::content", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (void *)(farg2);
@@ -864,7 +888,7 @@ SWIGEXPORT void * _wrap_SUNAdjointStepper__content_get(SwigClassWrapper const *f
   void * fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   void *result = 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::content", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (void *) ((arg1)->content);
@@ -876,7 +900,7 @@ SWIGEXPORT void * _wrap_SUNAdjointStepper__content_get(SwigClassWrapper const *f
 SWIGEXPORT void _wrap_SUNAdjointStepper__sunctx_set(SwigClassWrapper const *farg1, void *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNContext arg2 = (SUNContext) 0 ;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::sunctx", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   arg2 = (SUNContext)(farg2);
@@ -888,7 +912,7 @@ SWIGEXPORT void * _wrap_SUNAdjointStepper__sunctx_get(SwigClassWrapper const *fa
   void * fresult ;
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   SUNContext result;
-
+  
   SWIG_check_mutable_nonnull(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::sunctx", return 0);
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   result = (SUNContext) ((arg1)->sunctx);
@@ -900,7 +924,7 @@ SWIGEXPORT void * _wrap_SUNAdjointStepper__sunctx_get(SwigClassWrapper const *fa
 SWIGEXPORT SwigClassWrapper _wrap_new_SUNAdjointStepper_() {
   SwigClassWrapper fresult ;
   struct SUNAdjointStepper_ *result = 0 ;
-
+  
   result = (struct SUNAdjointStepper_ *)calloc(1, sizeof(struct SUNAdjointStepper_));
   fresult.cptr = result;
   fresult.cmemflags = SWIG_MEM_RVALUE | (1 ? SWIG_MEM_OWN : 0);
@@ -910,7 +934,7 @@ SWIGEXPORT SwigClassWrapper _wrap_new_SUNAdjointStepper_() {
 
 SWIGEXPORT void _wrap_delete_SUNAdjointStepper_(SwigClassWrapper *farg1) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
-
+  
   SWIG_check_mutable(*farg1, "struct SUNAdjointStepper_ *", "SUNAdjointStepper_", "SUNAdjointStepper_::~SUNAdjointStepper_()", return );
   arg1 = (struct SUNAdjointStepper_ *)(farg1->cptr);
   free((char *) arg1);
@@ -920,11 +944,11 @@ SWIGEXPORT void _wrap_delete_SUNAdjointStepper_(SwigClassWrapper *farg1) {
 SWIGEXPORT void _wrap_SUNAdjointStepper__op_assign__(SwigClassWrapper *farg1, SwigClassWrapper const *farg2) {
   struct SUNAdjointStepper_ *arg1 = (struct SUNAdjointStepper_ *) 0 ;
   struct SUNAdjointStepper_ *arg2 = 0 ;
-
+  
   (void)sizeof(arg1);
   (void)sizeof(arg2);
   SWIG_assign(farg1, *farg2);
-
+  
 }
 
 
@@ -939,7 +963,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_Create(void *farg1, void *farg2, int64_t
   SUNContext arg7 = (SUNContext) 0 ;
   SUNAdjointStepper *arg8 = (SUNAdjointStepper *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNStepper)(farg1);
   arg2 = (SUNStepper)(farg2);
   arg3 = (int64_t)(*farg3);
@@ -962,7 +986,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_ReInit(void *farg1, N_Vector farg2, doub
   N_Vector arg4 = (N_Vector) 0 ;
   sunrealtype arg5 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -974,41 +998,37 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_ReInit(void *farg1, N_Vector farg2, doub
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_Evolve(void *farg1, double const *farg2, N_Vector farg3, double *farg4, int *farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_Evolve(void *farg1, double const *farg2, N_Vector farg3, double *farg4) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   sunrealtype *arg4 = (sunrealtype *) 0 ;
-  int *arg5 = (int *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (sunrealtype *)(farg4);
-  arg5 = (int *)(farg5);
-  result = (SUNErrCode)SUNAdjointStepper_Evolve(arg1,arg2,arg3,arg4,arg5);
+  result = (SUNErrCode)SUNAdjointStepper_Evolve(arg1,arg2,arg3,arg4);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_OneStep(void *farg1, double const *farg2, N_Vector farg3, double *farg4, int *farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_OneStep(void *farg1, double const *farg2, N_Vector farg3, double *farg4) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
   sunrealtype *arg4 = (sunrealtype *) 0 ;
-  int *arg5 = (int *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
   arg4 = (sunrealtype *)(farg4);
-  arg5 = (int *)(farg5);
-  result = (SUNErrCode)SUNAdjointStepper_OneStep(arg1,arg2,arg3,arg4,arg5);
+  result = (SUNErrCode)SUNAdjointStepper_OneStep(arg1,arg2,arg3,arg4);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
@@ -1022,7 +1042,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_RecomputeFwd(void *farg1, int64_t const 
   sunrealtype arg4 ;
   N_Vector arg5 = (N_Vector) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (int64_t)(*farg2);
   arg3 = (sunrealtype)(*farg3);
@@ -1042,7 +1062,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_SetJacFn(void *farg1, SUNRhsJacFn farg2,
   SUNRhsJacFn arg4 = (SUNRhsJacFn) 0 ;
   SUNMatrix arg5 = (SUNMatrix) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (SUNRhsJacFn)(farg2);
   arg3 = (SUNMatrix)(farg3);
@@ -1060,7 +1080,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_SetJacTimesVecFn(void *farg1, SUNRhsJacT
   SUNRhsJacTimesFn arg2 = (SUNRhsJacTimesFn) 0 ;
   SUNRhsJacTimesFn arg3 = (SUNRhsJacTimesFn) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (SUNRhsJacTimesFn)(farg2);
   arg3 = (SUNRhsJacTimesFn)(farg3);
@@ -1076,7 +1096,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_SetVecTimesJacFn(void *farg1, SUNRhsJacT
   SUNRhsJacTimesFn arg2 = (SUNRhsJacTimesFn) 0 ;
   SUNRhsJacTimesFn arg3 = (SUNRhsJacTimesFn) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (SUNRhsJacTimesFn)(farg2);
   arg3 = (SUNRhsJacTimesFn)(farg3);
@@ -1091,7 +1111,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_SetUserData(void *farg1, void *farg2) {
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   void *arg2 = (void *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (void *)(farg2);
   result = (SUNErrCode)SUNAdjointStepper_SetUserData(arg1,arg2);
@@ -1106,7 +1126,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_PrintAllStats(void *farg1, void *farg2, 
   FILE *arg2 = (FILE *) 0 ;
   SUNOutputFormat arg3 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (FILE *)(farg2);
   arg3 = (SUNOutputFormat)(*farg3);
@@ -1120,7 +1140,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_Destroy(void *farg1) {
   int fresult ;
   SUNAdjointStepper *arg1 = (SUNAdjointStepper *) 0 ;
   SUNErrCode result;
-
+  
   arg1 = (SUNAdjointStepper *)(farg1);
   result = (SUNErrCode)SUNAdjointStepper_Destroy(arg1);
   fresult = (SUNErrCode)(result);
