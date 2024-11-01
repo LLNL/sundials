@@ -338,7 +338,7 @@ MRIStep solver function
    :retval ARK_ROOT_RETURN: if :c:func:`MRIStepEvolve()` succeeded, and
                             found one or more roots.  If the number of root
                             functions, *nrtfn*, is greater than 1, call
-                            :c:func:`MRIStepGetRootInfo()` to see which
+                            :c:func:`ARKodeGetRootInfo()` to see which
                             :math:`g_i` were found to have a root at (*\*tret*).
    :retval ARK_TSTOP_RETURN: if :c:func:`MRIStepEvolve()` succeeded and
                              returned at *tstop*.
@@ -1545,6 +1545,19 @@ Optional output functions
 
 Main solver optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+.. c:function:: int MRIStepGetNumInnerStepperFails(void* arkode_mem, long int* inner_fails)
+
+   Returns the number of recoverable failures reported by the inner stepper (so far).
+
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param inner_fails: number of slow steps taken in the solver.
+
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
+
+   .. versionadded:: x.y.z
 
 
 .. c:function:: int MRIStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)

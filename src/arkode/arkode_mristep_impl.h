@@ -140,12 +140,13 @@ typedef struct ARKodeMRIStepMemRec
   sunrealtype inner_rtol_factor_new; /* upcoming control parameter */
 
   /* Counters */
-  long int nfse;      /* num fse calls                    */
-  long int nfsi;      /* num fsi calls                    */
-  long int nsetups;   /* num linear solver setup calls    */
-  long int nls_iters; /* num nonlinear solver iters       */
-  long int nls_fails; /* num nonlinear solver fails       */
-  int nfusedopvecs;   /* length of cvals and Xvecs arrays */
+  long int nfse;        /* num fse calls                    */
+  long int nfsi;        /* num fsi calls                    */
+  long int nsetups;     /* num linear solver setup calls    */
+  long int nls_iters;   /* num nonlinear solver iters       */
+  long int nls_fails;   /* num nonlinear solver fails       */
+  long int inner_fails; /* num recov. inner solver fails  */
+  int nfusedopvecs;     /* length of cvals and Xvecs arrays */
 
   /* Data for using MRIStep with external polynomial forcing */
   sunbooleantype expforcing; /* add forcing to explicit RHS */

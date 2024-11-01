@@ -35,7 +35,9 @@ Added support for multirate time step adaptivity controllers, based on the
 recently introduced `SUNAdaptController` base class, to ARKODE's MRIStep module.
 As a part of this, we added embeddings for existing MRI-GARK methods, as well as
 support for embedded MERK and IMEX-MRI-SR methods.  Added new default MRI methods
-for temporally adaptive versus fixed-step runs.
+for temporally adaptive versus fixed-step runs.  Added the function
+`MRIStepGetNumInnerStepperFails` to retrieve the number of recoverable
+failures reported by the MRIStepInnerStepper.
 
 Added functionality to ARKODE to accumulate a temporal error
 estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorType`,

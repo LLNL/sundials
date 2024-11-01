@@ -210,12 +210,13 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   step_mem->eRNrm = ONE;
 
   /* Initialize all the counters */
-  step_mem->nfse      = 0;
-  step_mem->nfsi      = 0;
-  step_mem->nsetups   = 0;
-  step_mem->nstlp     = 0;
-  step_mem->nls_iters = 0;
-  step_mem->nls_fails = 0;
+  step_mem->nfse        = 0;
+  step_mem->nfsi        = 0;
+  step_mem->nsetups     = 0;
+  step_mem->nstlp       = 0;
+  step_mem->nls_iters   = 0;
+  step_mem->nls_fails   = 0;
+  step_mem->inner_fails = 0;
 
   /* Initialize fused op work space */
   step_mem->cvals = NULL;
@@ -352,11 +353,13 @@ int MRIStepReInit(void* arkode_mem, ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0,
   step_mem->fsi_is_current = SUNFALSE;
 
   /* Initialize all the counters */
-  step_mem->nfse      = 0;
-  step_mem->nfsi      = 0;
-  step_mem->nsetups   = 0;
-  step_mem->nstlp     = 0;
-  step_mem->nls_iters = 0;
+  step_mem->nfse        = 0;
+  step_mem->nfsi        = 0;
+  step_mem->nsetups     = 0;
+  step_mem->nstlp       = 0;
+  step_mem->nls_iters   = 0;
+  step_mem->nls_fails   = 0;
+  step_mem->inner_fails = 0;
 
   return (ARK_SUCCESS);
 }
@@ -701,6 +704,8 @@ void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "MRIStep: nsetups = %li\n", step_mem->nsetups);
   fprintf(outfile, "MRIStep: nstlp = %li\n", step_mem->nstlp);
   fprintf(outfile, "MRIStep: nls_iters = %li\n", step_mem->nls_iters);
+  fprintf(outfile, "MRIStep: nls_fails = %li\n", step_mem->nls_fails);
+  fprintf(outfile, "MRIStep: inner_fails = %li\n", step_mem->inner_fails);
 
   /* output boolean quantities */
   fprintf(outfile, "MRIStep: user_linear = %i\n", step_mem->linear);
@@ -3453,7 +3458,16 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
                     "Failure when evolving the inner stepper");
     return (ARK_INNERSTEP_FAIL);
   }
-  if (retval > 0) { return TRY_AGAIN; }
+  if (retval > 0)
+  {
+    /* increment stepper-specific counter, and decrement ARKODE-level nonlinear
+       solver counter (since that will be incremented automatically by ARKODE).
+       Return with "TRY_AGAIN" which should cause ARKODE to cut the step size
+       and retry the step. */
+    step_mem->inner_fails++;
+    ark_mem->ncfn--;
+    return TRY_AGAIN;
+  }
 
   /* for normal stages (i.e., not the embedding) with MRI adaptivity enabled, get an
      estimate for the fast time scale error */

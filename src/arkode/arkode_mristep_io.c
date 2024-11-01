@@ -222,6 +222,28 @@ int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag)
   return (ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  MRIStepGetNumInnerStepperFails:
+
+  Returns the number of recoverable failures encountered by the
+  inner stepper.
+  ---------------------------------------------------------------*/
+int MRIStepGetNumInnerStepperFails(void* arkode_mem, long int* inner_fails)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeMRIStepMem structures */
+  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* set output from step_mem */
+  *inner_fails = step_mem->inner_fails;
+
+  return (ARK_SUCCESS);
+}
+
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
@@ -811,7 +833,9 @@ int mriStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, "Explicit slow RHS fn evals   = %ld\n", step_mem->nfse);
     fprintf(outfile, "Implicit slow RHS fn evals   = %ld\n", step_mem->nfsi);
 
-    /* nonlinear solver stats */
+    /* inner stepper and nonlinear solver stats */
+    fprintf(outfile, "Inner stepper failures       = %ld\n",
+            step_mem->inner_fails);
     fprintf(outfile, "NLS iters                    = %ld\n", step_mem->nls_iters);
     fprintf(outfile, "NLS fails                    = %ld\n", step_mem->nls_fails);
     if (ark_mem->nst > 0)
@@ -852,7 +876,8 @@ int mriStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, ",Explicit slow RHS fn evals,%ld", step_mem->nfse);
     fprintf(outfile, ",Implicit slow RHS fn evals,%ld", step_mem->nfsi);
 
-    /* nonlinear solver stats */
+    /* inner stepper and nonlinear solver stats */
+    fprintf(outfile, ",Inner stepper failures,%ld", step_mem->inner_fails);
     fprintf(outfile, ",NLS iters,%ld", step_mem->nls_iters);
     fprintf(outfile, ",NLS fails,%ld", step_mem->nls_fails);
     if (ark_mem->nst > 0)

@@ -1013,7 +1013,7 @@ int main(int argc, char* argv[])
   //
 
   // Get some slow integrator statistics
-  long int nsts, natts, netfs, nfse, nfsi;
+  long int nsts, natts, netfs, nfse, nfsi, nifs;
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_flag(retval, "ARKodeGetNumSteps");
   retval = ARKodeGetNumStepAttempts(arkode_mem, &natts);
@@ -1024,9 +1024,11 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumRhsEvals");
   retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfsi);
   check_flag(retval, "ARKodeGetNumRhsEvals");
+  retval = MRIStepGetNumInnerStepperFails(arkode_mem, &nifs);
+  check_flag(retval, "MRIStepGetNumInnerStepperFails");
 
   // Get some intermediate integrator statistics
-  long int nstm, nattm, netfm, nfme, nfmi;
+  long int nstm, nattm, netfm, nfme, nfmi, nifm;
   retval = ARKodeGetNumSteps(mid_arkode_mem, &nstm);
   check_flag(retval, "ARKodeGetNumSteps");
   retval = ARKodeGetNumStepAttempts(mid_arkode_mem, &nattm);
@@ -1037,6 +1039,8 @@ int main(int argc, char* argv[])
   check_flag(retval, "ARKodeGetNumRhsEvals");
   retval = ARKodeGetNumRhsEvals(mid_arkode_mem, 1, &nfmi);
   check_flag(retval, "ARKodeGetNumRhsEvals");
+  retval = MRIStepGetNumInnerStepperFails(mid_arkode_mem, &nifm);
+  check_flag(retval, "MRIStepGetNumInnerStepperFails");
 
   // Get some fast integrator statistics
   long int nstf, nattf, netff, nff;
@@ -1056,9 +1060,9 @@ int main(int argc, char* argv[])
   errtot  = std::sqrt(errtot / SUN_RCONST(3.0) / (sunrealtype)nsts);
   std::cout << "\nFinal Solver Statistics:\n";
   std::cout << "   Slow steps = " << nsts << "  (attempts = " << natts
-            << ",  fails = " << netfs << ")\n";
+            << ",  fails = " << netfs << ",  innerfails = " << nifs << ")\n";
   std::cout << "   Intermediate steps = " << nstm << "  (attempts = " << nattm
-            << ",  fails = " << netfm << ")\n";
+            << ",  fails = " << netfm << ",  innerfails = " << nifm << ")\n";
   std::cout << "   Fast steps = " << nstf << "  (attempts = " << nattf
             << ",  fails = " << netff << ")\n";
   std::cout << "   u error = " << uerrtot << ", v error = " << verrtot
