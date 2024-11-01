@@ -1740,14 +1740,32 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (ark_mem->checkpoint_scheme)
     {
       sunbooleantype do_save;
-      SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
-                                              ark_mem->checkpoint_step_idx, 0,
-                                              ark_mem->tcur, &do_save);
+      SUNErrCode errcode =
+        SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
+                                                ark_mem->checkpoint_step_idx, 0,
+                                                ark_mem->tcur, &do_save);
+      if (errcode)
+      {
+        arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
+                        __FILE__,
+                        "SUNAdjointCheckpointScheme_ShouldWeSave returned %d",
+                        errcode);
+      }
+
       if (do_save)
       {
-        SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
-                                                ark_mem->checkpoint_step_idx, 0,
-                                                ark_mem->tcur, ark_mem->ycur);
+        errcode =
+          SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
+                                                  ark_mem->checkpoint_step_idx, 0,
+                                                  ark_mem->tcur, ark_mem->ycur);
+
+        if (errcode)
+        {
+          arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
+                          __FILE__,
+                          "SUNAdjointCheckpointScheme_InsertVector returned %d",
+                          errcode);
+        }
       }
     }
   }
@@ -2022,14 +2040,31 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (ark_mem->checkpoint_scheme)
     {
       sunbooleantype do_save;
-      SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
-                                              ark_mem->checkpoint_step_idx, is,
-                                              ark_mem->tcur, &do_save);
+      SUNErrCode errcode =
+        SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
+                                                ark_mem->checkpoint_step_idx,
+                                                is, ark_mem->tcur, &do_save);
+      if (errcode)
+      {
+        arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
+                        __FILE__,
+                        "SUNAdjointCheckpointScheme_ShouldWeSave returned %d",
+                        errcode);
+      }
+
       if (do_save)
       {
         SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
                                                 ark_mem->checkpoint_step_idx, is,
                                                 ark_mem->tcur, ark_mem->ycur);
+
+        if (errcode)
+        {
+          arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
+                          __FILE__,
+                          "SUNAdjointCheckpointScheme_InsertVector returned %d",
+                          errcode);
+        }
       }
     }
 
@@ -2314,9 +2349,16 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   /* Throw away the step solution */
   sunrealtype checkpoint_t = 0.0;
   N_Vector checkpoint      = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
-  SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
-                                        adj_stepper->step_idx, 0, 0,
-                                        &checkpoint, &checkpoint_t);
+  SUNErrCode errcode =
+    SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
+                                          adj_stepper->step_idx, 0, 0,
+                                          &checkpoint, &checkpoint_t);
+  if (errcode)
+  {
+    arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
+                    __FILE__,
+                    "SUNAdjointCheckpointScheme_LoadVector returned %d", errcode);
+  }
 
   /* Now compute the time step solution. We cannot use arkStep_ComputeSolutions because the
      adjoint calculation for the time step solution is different than the forward case. */
