@@ -46,7 +46,7 @@ where :math:`\lambda(t) \in \mathbb{R}^N`, :math:`\mu(t) \in \mathbb{R}^{N_s}`
 :math:`f_y \equiv \partial f/\partial y \in \mathbb{R}^{N \times N}` is the Jacobian with respect to the dependent variable,
 and :math:`f_p \equiv \partial f/\partial p \in \mathbb{R}^{N \times N_s}` is the Jacobian with respect to the parameters
 (:math:`N` is the size of the original IVP, :math:`N_s` is the number of parameters).
-When solved with a numerical time integation scheme, the solution to the continuous adjoint IVP
+When solved with a numerical time integration scheme, the solution to the continuous adjoint IVP
 are numerical approximations of the continuous adjoint sensitivities
 
 .. math::
