@@ -2215,7 +2215,6 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   if (fsal) { N_VConst(SUN_RCONST(0.0), stage_values[is]); }
   for (int is = step_mem->stages - (fsal ? 2 : 1); is >= 0; --is)
   {
-
     /* which stage is being processed -- needed for loading checkpoints */
     ark_mem->adj_stage_idx = is;
 
