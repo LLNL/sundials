@@ -40,13 +40,13 @@ int Test_SUNSparseMatrixToCSR(SUNMatrix A);
  * --------------------------------------------------------------------*/
 int main(int argc, char* argv[])
 {
-  int fails = 0;                 /* counter for test failures  */
-  sunindextype matrows, matcols; /* matrix dims                */
-  int mattype;                   /* matrix storage type        */
-  N_Vector x, y, z;              /* test vectors               */
-  sunrealtype* vecdata;          /* pointers to vector data    */
-  SUNMatrix A, B, C, D, I;       /* test matrices              */
-  sunrealtype* matdata;          /* pointer to matrix data     */
+  int fails = 0;                   /* counter for test failures  */
+  sunindextype matrows, matcols;   /* matrix dims                */
+  int mattype;                     /* matrix storage type        */
+  N_Vector x, y, z;                /* test vectors               */
+  sunrealtype* vecdata;            /* pointers to vector data    */
+  SUNMatrix A, AT, B, C, CT, D, I; /* test matrices              */
+  sunrealtype* matdata;            /* pointer to matrix data     */
   sunindextype i, j, k, kstart, kend, N, uband, lband;
   sunindextype *colptrs, *rowindices;
   sunindextype *rowptrs, *colindices;
@@ -97,14 +97,15 @@ int main(int argc, char* argv[])
          (long int)matrows, (long int)matcols, mattype);
 
   /* Initialize vectors and matrices to NULL */
-  x = NULL;
-  y = NULL;
-  z = NULL;
-  A = NULL;
-  B = NULL;
-  C = NULL;
-  D = NULL;
-  I = NULL;
+  x  = NULL;
+  y  = NULL;
+  z  = NULL;
+  A  = NULL;
+  B  = NULL;
+  C  = NULL;
+  CT = NULL;
+  D  = NULL;
+  I  = NULL;
 
   /* check creating sparse matrix from dense matrix */
   B = SUNDenseMatrix(5, 6, sunctx);
@@ -389,8 +390,9 @@ int main(int argc, char* argv[])
   }
 
   /* Create/fill random dense matrices, create sparse from them */
-  C = SUNDenseMatrix(matrows, matcols, sunctx);
-  D = SUNDenseMatrix(matrows, matcols, sunctx);
+  C  = SUNDenseMatrix(matrows, matcols, sunctx);
+  CT = SUNDenseMatrix(matcols, matrows, sunctx);
+  D  = SUNDenseMatrix(matrows, matcols, sunctx);
   for (k = 0; k < 3 * matrows; k++)
   {
     i          = rand() % matrows;
@@ -405,8 +407,19 @@ int main(int argc, char* argv[])
     matdata    = SUNDenseMatrix_Column(C, j);
     matdata[i] = (sunrealtype)rand() / (sunrealtype)RAND_MAX;
   }
-  A = SUNSparseFromDenseMatrix(C, ZERO, mattype);
-  B = SUNSparseFromDenseMatrix(D, ZERO, mattype);
+
+  /* Create transposed matrices */
+  for (i = 0; i < matcols; i++)
+  {
+    for (j = 0; j < matrows; j++)
+    {
+      SM_ELEMENT_D(CT, i, j) = SM_ELEMENT_D(C, j, i);
+    }
+  }
+
+  A  = SUNSparseFromDenseMatrix(C, ZERO, mattype);
+  AT = SUNSparseFromDenseMatrix(CT, ZERO, mattype);
+  B  = SUNSparseFromDenseMatrix(D, ZERO, mattype);
 
   /* Create vectors and fill */
   x       = N_VNew_Serial(matcols, sunctx);
@@ -457,6 +470,7 @@ int main(int argc, char* argv[])
     fails += Test_SUNMatScaleAddI2(A, x, y);
   }
   fails += Test_SUNMatMatvec(A, x, y, 0);
+  fails += Test_SUNMatMatTransposeVec(A, AT, x, y, 0);
   fails += Test_SUNMatSpace(A, 0);
   if (mattype == CSR_MAT) { fails += Test_SUNSparseMatrixToCSC(A); }
   else { fails += Test_SUNSparseMatrixToCSR(A); }
@@ -488,8 +502,10 @@ int main(int argc, char* argv[])
   N_VDestroy(y);
   N_VDestroy(z);
   SUNMatDestroy(A);
+  SUNMatDestroy(AT);
   SUNMatDestroy(B);
   SUNMatDestroy(C);
+  SUNMatDestroy(CT);
   SUNMatDestroy(D);
   if (square) { SUNMatDestroy(I); }
 
