@@ -2127,7 +2127,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (*nflagPtr < 0) { return (*nflagPtr); }
   if (*nflagPtr > 0) { return (TRY_AGAIN); }
 
-  if (ark_mem->checkpoint_scheme && (*nflagPtr) == 0)
+  if (ark_mem->checkpoint_scheme)
   {
     sunbooleantype do_save;
     SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
@@ -2208,17 +2208,13 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   N_Vector* stage_values        = step_mem->Fe;
 
   /* determine if method has fsal property */
-  sunbooleantype fsal = (SUNRabs(step_mem->Be->A[0][0]) == ZERO) &&
+  sunbooleantype fsal = (SUNRabs(step_mem->Be->A[0][0]) <= TINY) &&
                         ARKodeButcherTable_IsStifflyAccurate(step_mem->Be);
 
   /* Loop over stages */
-  for (int is = step_mem->stages - 1; is >= 0; --is)
+  if (fsal) { N_VConst(SUN_RCONST(0.0), stage_values[is]); }
+  for (int is = step_mem->stages - (fsal ? 2 : 1); is >= 0; --is)
   {
-    if (fsal && is == step_mem->stages - 1)
-    {
-      N_VConst(SUN_RCONST(0.0), stage_values[is]);
-      continue;
-    }
 
     /* which stage is being processed -- needed for loading checkpoints */
     ark_mem->adj_stage_idx = is;
