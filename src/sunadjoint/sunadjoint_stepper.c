@@ -90,13 +90,12 @@ SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper adj_stepper,
 {
   SUNFunctionBegin(adj_stepper->sunctx);
 
-  SUNErrCode retcode = SUN_SUCCESS;
-  sunrealtype t      = adj_stepper->tf;
+  SUNErrCode retcode     = SUN_SUCCESS;
+  sunrealtype t          = adj_stepper->tf;
   adj_stepper->last_flag = 0;
   while (t > tout)
   {
-    SUNCheckCall(
-      SUNAdjointStepper_OneStep(adj_stepper, tout, sens, tret));
+    SUNCheckCall(SUNAdjointStepper_OneStep(adj_stepper, tout, sens, tret));
     if (adj_stepper->last_flag < 0)
     {
       retcode = SUN_ERR_ADJOINT_STEPPERFAILED;
@@ -118,15 +117,17 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
 
   SUNErrCode retcode = SUN_SUCCESS;
   sunrealtype t      = adj_stepper->tf;
-  SUNCheckCall(
-    SUNStepper_OneStep(adj_sunstepper, tout, sens, &t));
+  SUNCheckCall(SUNStepper_OneStep(adj_sunstepper, tout, sens, &t));
   adj_stepper->last_flag = adj_sunstepper->last_flag;
 
   adj_stepper->step_idx--;
   adj_stepper->nst++;
 
   if (adj_stepper->last_flag < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
-  else if (adj_stepper->last_flag > 0) { retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP; }
+  else if (adj_stepper->last_flag > 0)
+  {
+    retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP;
+  }
 
   *tret = t;
 
