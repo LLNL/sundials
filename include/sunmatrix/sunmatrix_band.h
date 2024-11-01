@@ -121,7 +121,8 @@ SUNDIALS_EXPORT SUNErrCode SUNMatScaleAdd_Band(sunrealtype c, SUNMatrix A,
                                                SUNMatrix B);
 SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_Band(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT SUNErrCode SUNMatMatTransposeVec_Band(SUNMatrix A, N_Vector x, N_Vector y);
+SUNDIALS_EXPORT SUNErrCode SUNMatMatTransposeVec_Band(SUNMatrix A, N_Vector x,
+                                                      N_Vector y);
 SUNDIALS_EXPORT SUNErrCode SUNMatSpace_Band(SUNMatrix A, long int* lenrw,
                                             long int* leniw);
 

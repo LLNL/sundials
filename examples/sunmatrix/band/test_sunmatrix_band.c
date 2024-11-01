@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 {
   int fails = 0;                   /* counter for test failures  */
   sunindextype cols, uband, lband; /* matrix columns, bandwidths */
-  SUNMatrix A, AT, I;                  /* test matrices              */
+  SUNMatrix A, AT, I;              /* test matrices              */
   N_Vector x, y;                   /* test vectors               */
   int print_timing;
   sunindextype i, j, k, kstart, kend, jstart, jend;
@@ -102,11 +102,11 @@ int main(int argc, char* argv[])
   I = NULL;
 
   /* Create matrices and vectors */
-  A = SUNBandMatrix(cols, uband, lband, sunctx);
+  A  = SUNBandMatrix(cols, uband, lband, sunctx);
   AT = SUNBandMatrix(cols, lband, uband, sunctx);
-  I = SUNBandMatrix(cols, 0, 0, sunctx);
-  x = N_VNew_Serial(cols, sunctx);
-  y = N_VNew_Serial(cols, sunctx);
+  I  = SUNBandMatrix(cols, 0, 0, sunctx);
+  x  = N_VNew_Serial(cols, sunctx);
+  y  = N_VNew_Serial(cols, sunctx);
 
   /* Fill matrices */
   xdata = N_VGetArrayPointer(x);
@@ -128,9 +128,12 @@ int main(int argc, char* argv[])
   }
 
   /* Create A^T */
-  for (j = 0; j < cols; j++) {
-    for (i = 0; i < cols; i++) {
-      if (j - uband <= i && i <= j + lband) {
+  for (j = 0; j < cols; j++)
+  {
+    for (i = 0; i < cols; i++)
+    {
+      if (j - uband <= i && i <= j + lband)
+      {
         SM_ELEMENT_B(AT, j, i) = SM_ELEMENT_B(A, i, j);
       }
     }
