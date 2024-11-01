@@ -3712,8 +3712,8 @@ int ark_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
      on other ARKODE errors return with an unrecoverable failure */
   if (retval < 0)
   {
-    if ((retval == ARK_TOO_MUCH_WORK) || (retval == ARK_ERR_FAILURE) ||
-        (retval == ARK_CONV_FAILURE))
+    if ((retval == ARK_TOO_MUCH_WORK) || (retval == ARK_CONV_FAILURE) ||
+        (retval == ARK_ERR_FAILURE))
     {
       retval = 1;
     }
@@ -3750,12 +3750,9 @@ int ark_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
     return -1;
   }
   ark_mem = (ARKodeMem)arkode_mem;
-
-  if (ark_mem->step_fullrhs(arkode_mem, t, y, f, mode) != ARK_SUCCESS)
-  {
-    return -1;
-  }
-  return 0;
+  retval  = ark_mem->step_fullrhs(arkode_mem, t, y, f, mode);
+  if (retval == ARK_SUCCESS) { return 0; }
+  return -1;
 }
 
 /*------------------------------------------------------------------------------
@@ -3770,8 +3767,9 @@ int ark_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR, N_Vector 
   void* arkode_mem;
   int retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return -1; }
-  if (ARKodeReset(arkode_mem, tR, yR) != ARK_SUCCESS) { return -1; }
-  return 0;
+  retval = ARKodeReset(arkode_mem, tR, yR);
+  if (retval == ARK_SUCCESS) { return 0; }
+  return -1;
 }
 
 /*------------------------------------------------------------------------------
@@ -3805,8 +3803,9 @@ int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
   void* arkode_mem;
   int retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
   if (retval != ARK_SUCCESS) { return -1; }
-  if (ARKodeResetAccumulatedError(arkode_mem) != ARK_SUCCESS) { return -1; }
-  return 0;
+  retval = ARKodeResetAccumulatedError(arkode_mem);
+  if (retval == ARK_SUCCESS) { return 0; }
+  return -1;
 }
 
 /*------------------------------------------------------------------------------
