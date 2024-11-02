@@ -22,10 +22,6 @@
 #include "arkode_impl.h"
 #include "arkode_mristep_impl.h"
 
-/* SUNAdaptController_MRIStep heuristic constant: */
-/*   minimum estimated temporal error for inner solver */
-#define INNER_MIN_DSM SUNRsqrt(SUN_UNIT_ROUNDOFF)
-
 /*--------------------------------------------
   MRIStep SUNAdaptController wrapper functions
   --------------------------------------------*/
@@ -91,9 +87,6 @@ SUNErrCode SUNAdaptController_EstimateStep_MRIStep(SUNAdaptController C,
   ARKodeMem ark_mem         = MRICONTROL_A(C);
   ARKodeMRIStepMem step_mem = MRICONTROL_S(C);
   if ((ark_mem == NULL) || (step_mem == NULL)) { return SUN_ERR_MEM_FAIL; }
-
-  /* Enforce bound on inner_dsm */
-  step_mem->inner_dsm = SUNMAX(step_mem->inner_dsm, INNER_MIN_DSM);
 
   /* Estimate slow stepsize from MRI controller */
   return SUNAdaptController_EstimateStepTol(MRICONTROL_C(C), H,
