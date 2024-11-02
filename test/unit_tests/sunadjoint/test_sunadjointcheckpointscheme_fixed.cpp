@@ -103,10 +103,10 @@ static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
   N_VDestroy(loaded);
 }
 
-class SUNAdjointCheckpointSchemeBasic : public testing::Test
+class SUNAdjointCheckpointSchemeFixed : public testing::Test
 {
 protected:
-  SUNAdjointCheckpointSchemeBasic()
+  SUNAdjointCheckpointSchemeFixed()
   {
     SUNContext_Create(SUN_COMM_NULL, &sunctx);
     state        = N_VNew_Serial(10, sunctx);
@@ -114,7 +114,7 @@ protected:
     mem_helper   = SUNMemoryHelper_Sys(sunctx);
   }
 
-  ~SUNAdjointCheckpointSchemeBasic()
+  ~SUNAdjointCheckpointSchemeFixed()
   {
     N_VDestroy(state);
     N_VDestroy(loaded_state);
@@ -128,7 +128,7 @@ protected:
   N_Vector loaded_state;
 };
 
-TEST_F(SUNAdjointCheckpointSchemeBasic, CreateWorks)
+TEST_F(SUNAdjointCheckpointSchemeFixed, CreateWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs = NULL;
@@ -147,7 +147,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, CreateWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNAdjointCheckpointSchemeBasic, SingleStageWorks)
+TEST_F(SUNAdjointCheckpointSchemeFixed, SingleStageWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
@@ -167,7 +167,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, SingleStageWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStageWorks)
+TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStageWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
@@ -187,7 +187,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStageWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsWorks)
+TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
@@ -207,7 +207,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsTwoStagesWorks)
+TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsTwoStagesWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
@@ -227,7 +227,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsTwoStagesWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNAdjointCheckpointSchemeBasic, SingleStageWithDeleteWorks)
+TEST_F(SUNAdjointCheckpointSchemeFixed, SingleStageWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
@@ -247,7 +247,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, SingleStageWithDeleteWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStagesWithDeleteWorks)
+TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStagesWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
@@ -267,7 +267,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStagesWithDeleteWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsWithDeleteWorks)
+TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
@@ -287,7 +287,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsWithDeleteWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsTwoStagesWithDeleteWorks)
+TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsTwoStagesWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
@@ -307,7 +307,7 @@ TEST_F(SUNAdjointCheckpointSchemeBasic, TwoStepsTwoStagesWithDeleteWorks)
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
-TEST_F(SUNAdjointCheckpointSchemeBasic, CanStillInsertAfterDeleting)
+TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
