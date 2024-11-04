@@ -1133,7 +1133,7 @@ an "additive accumulation" strategy,
 
 .. math::
    \varepsilon^F_{sum} = \text{RTOL}^F \sum_{m\in \mathcal{S}} \|\varepsilon^F_{n,m}\|_{WRMS},
-   :label: maximum_accumulation
+   :label: additive_accumulation
 
 or using an "averaged accumulation" strategy,
 
