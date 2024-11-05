@@ -358,7 +358,7 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   }
 
   /* Signal to shared arkode module that full RHS evaluations are required */
-  ark_mem->call_fullrhs = SUNTRUE;
+  ark_mem->call_fullrhs = SUNFALSE;
 
   return ARK_SUCCESS;
 }
@@ -462,9 +462,11 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   weighted local error if an embedding is present; otherwise it
   should be 0.
 
-  The input/output variable nflagPtr is used to gauge convergence
-  of any algebraic solvers within the step.  As this routine
-  involves no algebraic solve, it is set to 0 (success).
+  The input/output variable nflagPtr is generally used in ARKODE 
+  to gauge the convergence of any algebraic solvers. However, since 
+  the STS step routines do not involve an algebraic solve, this variable 
+  instead serves to identify possible ARK_RETRY_STEP returns within this 
+  routine.
 
   The return value from this routine is:
             0 => step completed successfully
@@ -744,9 +746,11 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   weighted local error if an embedding is present; otherwise it
   should be 0.
 
-  The input/output variable nflagPtr is used to gauge convergence
-  of any algebraic solvers within the step.  As this routine
-  involves no algebraic solve, it is set to 0 (success).
+  The input/output variable nflagPtr is generally used in ARKODE 
+  to gauge the convergence of any algebraic solvers. However, since 
+  the STS step routines do not involve an algebraic solve, this variable 
+  instead serves to identify possible ARK_RETRY_STEP returns within this 
+  routine.
 
   The return value from this routine is:
             0 => step completed successfully

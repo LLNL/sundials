@@ -678,32 +678,14 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   case SUNFALSE:
     fprintf(fp, "  Maximum number of stages allowed = %i\n",
             step_mem->stage_max_limit);
-    fprintf(fp, "  Maximum number of stages used = %i\n", step_mem->stage_max);
-    fprintf(fp, "  Num of step when the last dom eig call happened= %li\n",
-            step_mem->dom_eig_nst);
-    fprintf(fp, "  Num of successful steps = %li\n", step_mem->step_nst);
-    fprintf(fp, "  Current real part of the dom eig = %" RSYM "\n",
-            step_mem->lambdaR);
-    fprintf(fp, "  Current imag part of the dom eig = %" RSYM "\n",
-            step_mem->lambdaI);
     fprintf(fp, "  Current spectral radius = %" RSYM "\n",
             step_mem->spectral_radius);
-    fprintf(fp, "  Current number of required stages = %i\n",
-            step_mem->req_stages);
-    fprintf(fp, "  Maximum spectral radius = %" RSYM "\n",
-            step_mem->spectral_radius_max);
-    fprintf(fp, "  Minimum spectral radius = %" RSYM "\n",
-            step_mem->spectral_radius_min);
     fprintf(fp, "  Safety factor for the dom eig = %" RSYM "\n",
             step_mem->dom_eig_safety);
     fprintf(fp, "  Max num of successful steps before new dom eig update = %i\n",
             step_mem->dom_eig_freq);
-    fprintf(fp, "  Flag to indicate new dom eig is needed = %d\n",
-            step_mem->dom_eig_update);
     fprintf(fp, "  Flag to indicate Jacobian is constant = %d\n",
             step_mem->const_Jac);
-    fprintf(fp, "  Flag to indicate dom eig is current = %d\n",
-            step_mem->dom_eig_is_current);
     break;
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
