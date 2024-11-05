@@ -226,14 +226,14 @@ static int forcingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outfil
   switch (fmt)
   {
   case SUN_OUTPUTFORMAT_TABLE:
-    for (int k = 0; k < PARTITIONS; k++)
+    for (int k = 0; k < NUM_PARTITIONS; k++)
     {
       fprintf(outfile, "Partition %i evolves          = %ld\n", k,
               step_mem->n_stepper_evolves[k]);
     }
     break;
   case SUN_OUTPUTFORMAT_CSV:
-    for (int k = 0; k < PARTITIONS; k++)
+    for (int k = 0; k < NUM_PARTITIONS; k++)
     {
       fprintf(outfile, "Partition %i evolves,%ld\n", k,
               step_mem->n_stepper_evolves[k]);
@@ -268,7 +268,7 @@ static void forcingStep_PrintMem(const ARKodeMem ark_mem, FILE* const outfile)
   if (retval != ARK_SUCCESS) { return; }
 
   /* output long integer quantities */
-  for (int k = 0; k < PARTITIONS; k++)
+  for (int k = 0; k < NUM_PARTITIONS; k++)
   {
     fprintf(outfile, "ForcingStep: partition %i: n_stepper_evolves = %li\n", k,
             step_mem->n_stepper_evolves[k]);
@@ -394,10 +394,10 @@ int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves
                                                      &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  if (partition >= PARTITIONS)
+  if (partition >= NUM_PARTITIONS)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The partition index is %i but there are only 2 partitions",
+                    "The partition index is %i but there are only 2 NUM_partitions",
                     partition);
     return ARK_ILL_INPUT;
   }

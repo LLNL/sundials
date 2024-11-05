@@ -19,12 +19,12 @@
 
 #include <sundials/sundials_stepper.h>
 
-#define PARTITIONS 2
+#define NUM_PARTITIONS 2
 
 typedef struct ARKodeForcingStepMemRec
 {
-  SUNStepper stepper[PARTITIONS];
-  long int n_stepper_evolves[PARTITIONS];
+  SUNStepper stepper[NUM_PARTITIONS];
+  long int n_stepper_evolves[NUM_PARTITIONS];
 }* ARKodeForcingStepMem;
 
 #endif
