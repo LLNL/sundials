@@ -456,7 +456,7 @@ void* SplittingStepCreate(SUNStepper* const steppers, const int partitions,
     if (steppers[i] == NULL)
     {
       arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "steppers[i] = NULL illegal.", i);
+                      "steppers[%d] = NULL illegal.", i);
       return NULL;
     }
   }
