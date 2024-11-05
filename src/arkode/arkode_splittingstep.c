@@ -251,7 +251,7 @@ static int splittingStep_SequentialMethod(const ARKodeMem ark_mem,
        * evolving the same partition the last step ended with (essentially a
        * FSAL property). Care is needed when a reset occurs, the step direction
        * changes, the coefficients change, etc. */
-      SUNErrCode err           = SUNStepper_Reset(stepper, t_start, y);
+      SUNErrCode err = SUNStepper_Reset(stepper, t_start, y);
       if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
       err = SUNStepper_SetStepDirection(stepper, t_end - t_start);

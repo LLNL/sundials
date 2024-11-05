@@ -400,7 +400,7 @@ int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves
   if (partition >= NUM_PARTITIONS)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The partition index is %i but there are only 2 NUM_partitions",
+                    "The partition index is %i but there are only 2 partitions",
                     partition);
     return ARK_ILL_INPUT;
   }
