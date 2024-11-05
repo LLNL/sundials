@@ -246,6 +246,11 @@ static int splittingStep_SequentialMethod(const ARKodeMem ark_mem,
 #endif
 
       const SUNStepper stepper = step_mem->steppers[k];
+      /* TODO(SBR): A potential future optimization is removing this reset and
+       * a call to SUNStepper_SetStopTime later for methods that start a step
+       * evolving the same partition the last step ended with (essentially a
+       * FSAL property). Care is needed when a reset occurs, the step direction
+       * changes, the coefficients change, etc. */
       SUNErrCode err           = SUNStepper_Reset(stepper, t_start, y);
       if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 

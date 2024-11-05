@@ -142,6 +142,9 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
     return ARK_RHSFUNC_FAIL;
   }
 
+  /* TODO(SBR): this *may* be able to use SUN_FULLRHS_END mode in some cases
+   * but we need to be certain the state of the SUNStepper is consistent with
+   * the outer forcing method */
   err = SUNStepper_FullRhs(step_mem->stepper[1], t, y, f, SUN_FULLRHS_OTHER);
   if (err != SUN_SUCCESS)
   {
