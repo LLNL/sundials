@@ -281,7 +281,7 @@ int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
                                         &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  if (stage_max_limit < 2 || stage_max_limit > MAX_OF_STAGE_MAX_LIMIT_DEFAULT)
+  if (stage_max_limit < 2)
   {
     step_mem->stage_max_limit = STAGE_MAX_LIMIT_DEFAULT;
   }

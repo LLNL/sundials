@@ -223,7 +223,9 @@ Allowable Method Families
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
 .. note:: If LSRKStepSetMaxNumStages routine is not called, then the default ``stage_max_limit`` is
-   set to :math:`200`. Calling this function with ``stage_max_limit < 2`` or ``stage_max_limit > 10000`` resets the default value.
+   set to :math:`200`. Calling this function with ``stage_max_limit < 2`` resets the default value. 
+   This limit should be chosen with consideration of the following proportionality: :math:`s^2 \sim - h\lambda`, 
+   where :math:`s` is the number of stages used, :math:`h` is the current step size and :math:`\lambda` is the dominant eigenvalue.
 
 
 .. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety);
