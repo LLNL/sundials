@@ -918,7 +918,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (ark_mem->fixedstep)
       {
         ark_mem->eta = ONE;
-        if (!ark_mem->do_adjoint) { break; }
+        break;
       }
 
       /* check temporal error (if checks above passed) */
