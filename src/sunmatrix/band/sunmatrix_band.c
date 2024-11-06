@@ -423,7 +423,7 @@ SUNErrCode SUNMatMatTransposeVec_Band(SUNMatrix A, N_Vector x, N_Vector y)
   sunindextype i, j, is, ie;
   sunrealtype *col_j, *xd, *yd;
 
-  SUNCheck(compatibleMatrixAndVectors(A, x, y), SUN_ERR_ARG_DIMSMISMATCH);
+  SUNCheck(compatibleMatrixAndVectors(A, y, x), SUN_ERR_ARG_DIMSMISMATCH);
 
   /* access vector data (return if failure) */
   xd = N_VGetArrayPointer(x);

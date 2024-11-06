@@ -950,7 +950,7 @@ SUNErrCode SUNMatMatTransposeVec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SUNFunctionBegin(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
-  SUNCheck(compatibleMatrixAndVectors(A, x, y), SUN_ERR_ARG_DIMSMISMATCH);
+  SUNCheck(compatibleMatrixAndVectors(A, y, x), SUN_ERR_ARG_DIMSMISMATCH);
 
   /* Perform operation */
   if (SM_SPARSETYPE_S(A) == CSC_MAT)
