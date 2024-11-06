@@ -26,10 +26,10 @@
 extern "C" {
 #endif
 
-#define STAGE_MAX_LIMIT_DEFAULT 200
+#define STAGE_MAX_LIMIT_DEFAULT        200
 #define MAX_OF_STAGE_MAX_LIMIT_DEFAULT 10000
-#define DOM_EIG_SAFETY_DEFAULT  SUN_RCONST(1.01)
-#define DOM_EIG_FREQ_DEFAULT    25
+#define DOM_EIG_SAFETY_DEFAULT         SUN_RCONST(1.01)
+#define DOM_EIG_FREQ_DEFAULT           25
 
 /*===============================================================
   LSRK time step module data structure
