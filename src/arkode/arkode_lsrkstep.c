@@ -507,16 +507,14 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return retval; }
   }
 
-  /* determine the number of required stages */
-  int ss = (int)SUNIceil(
-    SUNRsqrt(onep54 * SUNRabs(ark_mem->h) * step_mem->spectral_radius));
-  ss                   = SUNMAX(ss, 2);
-  step_mem->req_stages = SUNMIN(ss, step_mem->stage_max_limit);
-  if (step_mem->req_stages >= step_mem->stage_max_limit)
+  sunrealtype ss = SUNRceil(SUNRsqrt(onep54 * SUNRabs(ark_mem->h) * step_mem->spectral_radius));
+  ss             = SUNMAX(ss, SUN_RCONST(2.0));
+
+  if (ss >= (sunrealtype)step_mem->stage_max_limit)
   {
     if (!ark_mem->fixedstep)
     {
-      hmax = ark_mem->hadapt_mem->safety * SUNSQR(step_mem->req_stages) /
+      hmax = ark_mem->hadapt_mem->safety * SUNSQR(step_mem->stage_max_limit) /
              (onep54 * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
@@ -533,6 +531,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
+  step_mem->req_stages = SUNIround(ss);
   step_mem->stage_max = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -788,21 +787,18 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != ARK_SUCCESS) { return retval; }
   }
 
-  int ss = (int)SUNIceil(
+  sunrealtype ss = SUNRceil(
     (SUNRsqrt(SUN_RCONST(9.0) + SUN_RCONST(8.0) * SUNRabs(ark_mem->h) *
-                                  step_mem->spectral_radius) -
-     ONE) /
-    TWO);
+                                  step_mem->spectral_radius) - ONE) / TWO);
 
-  ss                   = SUNMAX(ss, 2);
-  step_mem->req_stages = SUNMIN(ss, step_mem->stage_max_limit);
+  ss             = SUNMAX(ss, SUN_RCONST(2.0));
 
-  if (step_mem->req_stages >= step_mem->stage_max_limit)
+  if (ss >= step_mem->stage_max_limit)
   {
     if (!ark_mem->fixedstep)
     {
       hmax = ark_mem->hadapt_mem->safety *
-             (SUNSQR(step_mem->req_stages) + step_mem->req_stages - TWO) /
+             (SUNSQR(step_mem->stage_max_limit) + step_mem->stage_max_limit - TWO) /
              (TWO * step_mem->spectral_radius);
       ark_mem->eta = hmax / ark_mem->h;
       *nflagPtr    = ARK_RETRY_STEP;
@@ -819,6 +815,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
+  step_mem->req_stages = SUNIround(ss);
   step_mem->stage_max = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
