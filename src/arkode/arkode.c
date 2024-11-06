@@ -735,9 +735,9 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     - loop over attempts at a new step:
       * try to take step (via time stepper module),
         handle solver convergence or other failures
-      * if the stepper requests ARK_RETRY_STEP, we 
+      * if the stepper requests ARK_RETRY_STEP, we
         retry the step without accumulating failures.
-        A stepper should never request this multiple 
+        A stepper should never request this multiple
         times in a row.
       * perform constraint-handling (if selected)
       * check temporal error
@@ -875,9 +875,9 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     for (;;)
     {
       /* increment attempt counters
-      Returns with an ARK_RETRY_STEP flag happen in a step much 
-      before any computations involve. For this reason, we do not
-      count this return as an attempt. */
+         Note: kflag can only equal ARK_RETRY_STEP if the stepper rejected
+         the current step size before performing calculations. Thus, we do
+         not include those when keeping track of step "attempts". */
       if (kflag != ARK_RETRY_STEP)
       {
         attempts++;
@@ -3002,11 +3002,11 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
   ARKodeHAdaptMem hadapt_mem;
 
   if (*nflagPtr == ARK_SUCCESS) { return (ARK_SUCCESS); }
-  /* Returns with an ARK_RETRY_STEP flag occur at a stage well before 
-  any algebraic solvers are involved. On the other hand, 
-  the arkCheckConvergence function handles the results from algebraic 
-  solvers, which never take place with an ARK_RETRY_STEP flag. 
-  Therefore, we immediately return from arkCheckConvergence, 
+  /* Returns with an ARK_RETRY_STEP flag occur at a stage well before
+  any algebraic solvers are involved. On the other hand,
+  the arkCheckConvergence function handles the results from algebraic
+  solvers, which never take place with an ARK_RETRY_STEP flag.
+  Therefore, we immediately return from arkCheckConvergence,
   as it is irrelevant in the case of an ARK_RETRY_STEP */
   if (*nflagPtr == ARK_RETRY_STEP) { return (ARK_RETRY_STEP); }
 
