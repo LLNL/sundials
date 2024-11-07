@@ -432,7 +432,23 @@ int main(int argc, char* argv[])
   /* Set Butcher table for fast integrator */
   switch (fast_type)
   {
-  case (0): break;
+  case (0):
+    B = ARKodeButcherTable_Alloc(3, SUNTRUE);
+    if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
+    B->A[1][0] = SUN_RCONST(0.5);
+    B->A[2][0] = -ONE;
+    B->A[2][1] = TWO;
+    B->b[0]    = ONE / SUN_RCONST(6.0);
+    B->b[1]    = TWO / SUN_RCONST(3.0);
+    B->b[2]    = ONE / SUN_RCONST(6.0);
+    B->d[1]    = ONE;
+    B->c[1]    = SUN_RCONST(0.5);
+    B->c[2]    = ONE;
+    B->q       = 3;
+    B->p       = 2;
+    retval     = ARKStepSetTables(inner_arkode_mem, 3, 2, NULL, B);
+    if (check_retval(&retval, "ARKStepSetTables", 1)) { return 1; }
+    break;
   case (1):
     B = ARKodeButcherTable_Alloc(3, SUNFALSE);
     if (check_retval((void*)B, "ARKodeButcherTable_Alloc", 0)) { return 1; }
