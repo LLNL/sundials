@@ -187,14 +187,11 @@ static int forward_solution(SUNContext sunctx, void* arkode_mem,
   retval = ARKodeSetFixedStep(arkode_mem, dt);
 
   sunrealtype t = t0;
-  while (t < tf)
+  retval        = ARKodeEvolve(arkode_mem, tf, u, &t, ARK_NORMAL);
+  if (retval < 0)
   {
-    retval = ARKodeEvolve(arkode_mem, tf, u, &t, ARK_NORMAL);
-    if (retval < 0)
-    {
-      fprintf(stderr, ">>> ERROR: ARKodeEvolve returned %d\n", retval);
-      return -1;
-    }
+    fprintf(stderr, ">>> ERROR: ARKodeEvolve returned %d\n", retval);
+    return -1;
   }
 
   printf("Forward Solution:\n");
@@ -297,8 +294,8 @@ int main(int argc, char* argv[])
   sunrealtype tf       = args.tf;
   const int nsteps     = (int)ceil(((tf - t0) / dt + 1));
   const int order      = args.order;
-  void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
 
+  void* arkode_mem = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
   ARKodeSetOrder(arkode_mem, order);
   ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
 
@@ -357,9 +354,6 @@ int main(int argc, char* argv[])
                              jacp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
 
-  SUNMatDestroy(jac);
-  SUNMatDestroy(jacp);
-
   //
   // Now compute the adjoint solution using Jvp
   //
@@ -401,9 +395,42 @@ int main(int argc, char* argv[])
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
 
   //
+  // Now compute the adjoint solution but for when forward problem done backwards
+  // starting with the forward solution.
+  //
+
+  printf("\n-- Redo adjoint problem of forward problem done backwards  --\n\n");
+
+  // Cleanup from the original forward problem and then recreate the integrator
+  // for the forward problem done backwards.
+  SUNAdjointCheckpointScheme_Destroy(&checkpoint_scheme);
+  SUNAdjointStepper_Destroy(&adj_stepper);
+  ARKodeFree(&arkode_mem);
+  arkode_mem = ARKStepCreate(lotka_volterra, NULL, tf, u, sunctx);
+  ARKodeSetOrder(arkode_mem, order);
+  ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
+  SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
+                                          check_interval, ncheck, save_stages,
+                                          keep_check, sunctx, &checkpoint_scheme);
+  ARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme);
+
+  printf("Initial condition:\n");
+  N_VPrint(u);
+  forward_solution(sunctx, arkode_mem, checkpoint_scheme, tf, t0, -dt, u);
+
+  ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
+  SUNAdjointStepper_SetJacFn(adj_stepper, jacobian, jac, parameter_jacobian,
+                             jacp);
+  dgdu(u, sensu0, params, t0);
+  dgdp(u, sensp, params, t0);
+  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, t0, tf, sf);
+
+  //
   // Cleanup
   //
 
+  SUNMatDestroy(jac);
+  SUNMatDestroy(jacp);
   N_VDestroy(u);
   N_VDestroy(sf);
   SUNAdjointCheckpointScheme_Destroy(&checkpoint_scheme);

@@ -91,9 +91,14 @@ SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper adj_stepper,
   SUNFunctionBegin(adj_stepper->sunctx);
 
   SUNErrCode retcode     = SUN_SUCCESS;
+  const sunrealtype zero = SUN_RCONST(0.0);
+  const sunrealtype one  = SUN_RCONST(1.0);
   sunrealtype t          = adj_stepper->tf;
+  sunrealtype direction  = (t - tout) > zero ? -one : one;
+
   adj_stepper->last_flag = 0;
-  while (t > tout)
+
+  while ((direction == -one && t > tout) || (direction == one && t < tout))
   {
     SUNCheckCall(SUNAdjointStepper_OneStep(adj_stepper, tout, sens, tret));
     if (adj_stepper->last_flag < 0)
