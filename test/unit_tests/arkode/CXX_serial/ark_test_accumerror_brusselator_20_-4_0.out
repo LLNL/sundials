@@ -287,26 +287,26 @@ Fixed-step runs:
   h 0.000390625  rk_type 0  order 4  acc 2  t 9  dsm 2.496e-11  dsm_est 5.49027e-13  nsteps 1281
   h 0.000390625  rk_type 0  order 4  acc 2  t 9.5  dsm 1.2967e-11  dsm_est 1.50929e-12  nsteps 1281
   h 0.000390625  rk_type 0  order 4  acc 2  t 10  dsm 4.44606e-12  dsm_est 8.49403e-13  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 0.5  dsm 4.75504e-11  dsm_est 4.32867e-07  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 1  dsm 8.83253e-12  dsm_est 1.65206e-16  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 0.5  dsm 4.75504e-11  dsm_est 4.33205e-07  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 1  dsm 8.83253e-12  dsm_est 1.65335e-16  nsteps 1281
   h 0.000390625  rk_type 0  order 4  acc 3  t 1.5  dsm 1.8399e-12  dsm_est 1.14767e-16  nsteps 1280
   h 0.000390625  rk_type 0  order 4  acc 3  t 2  dsm 2.21232e-13  dsm_est 6.3138e-17  nsteps 1280
   h 0.000390625  rk_type 0  order 4  acc 3  t 2.5  dsm 5.57029e-13  dsm_est 4.78256e-17  nsteps 1280
   h 0.000390625  rk_type 0  order 4  acc 3  t 3  dsm 6.33194e-12  dsm_est 9.84357e-17  nsteps 1280
   h 0.000390625  rk_type 0  order 4  acc 3  t 3.5  dsm 4.31407e-12  dsm_est 1.14709e-16  nsteps 1280
   h 0.000390625  rk_type 0  order 4  acc 3  t 4  dsm 5.25853e-12  dsm_est 6.48108e-17  nsteps 1280
-  h 0.000390625  rk_type 0  order 4  acc 3  t 4.5  dsm 3.00881e-11  dsm_est 5.75437e-17  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 5  dsm 1.04964e-12  dsm_est 1.8087e-16  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 5.5  dsm 6.97849e-12  dsm_est 6.30545e-17  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 6  dsm 5.9817e-11  dsm_est 1.32311e-16  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 6.5  dsm 1.43381e-11  dsm_est 9.62831e-15  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 7  dsm 2.94602e-12  dsm_est 1.83666e-12  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 7.5  dsm 1.82124e-11  dsm_est 1.00979e-13  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 8  dsm 1.77421e-10  dsm_est 3.54707e-15  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 8.5  dsm 2.81466e-12  dsm_est 1.71467e-15  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 9  dsm 2.496e-11  dsm_est 4.28593e-16  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 9.5  dsm 1.2967e-11  dsm_est 1.17821e-15  nsteps 1281
-  h 0.000390625  rk_type 0  order 4  acc 3  t 10  dsm 4.44606e-12  dsm_est 6.63078e-16  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 4.5  dsm 3.00881e-11  dsm_est 5.75886e-17  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 5  dsm 1.04964e-12  dsm_est 1.81011e-16  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 5.5  dsm 6.97849e-12  dsm_est 6.31038e-17  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 6  dsm 5.9817e-11  dsm_est 1.32414e-16  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 6.5  dsm 1.43381e-11  dsm_est 9.63583e-15  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 7  dsm 2.94602e-12  dsm_est 1.8381e-12  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 7.5  dsm 1.82124e-11  dsm_est 1.01058e-13  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 8  dsm 1.77421e-10  dsm_est 3.54984e-15  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 8.5  dsm 2.81466e-12  dsm_est 1.71601e-15  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 9  dsm 2.496e-11  dsm_est 4.28927e-16  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 9.5  dsm 1.2967e-11  dsm_est 1.17913e-15  nsteps 1281
+  h 0.000390625  rk_type 0  order 4  acc 3  t 10  dsm 4.44606e-12  dsm_est 6.63596e-16  nsteps 1281
   h 0.000390625  rk_type 0  order 4  acc 2  t 0.5  dsm 4.75504e-11  dsm_est 2.63435e-10  nsteps 1921
   h 0.000390625  rk_type 0  order 4  acc 2  t 1  dsm 8.83253e-12  dsm_est 2.03794e-15  nsteps 1922
   h 0.000390625  rk_type 0  order 4  acc 2  t 1.5  dsm 1.8399e-12  dsm_est 3.00814e-14  nsteps 1920
