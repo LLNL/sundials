@@ -126,11 +126,8 @@ static int adjoint_solution(SUNContext sunctx, SUNAdjointStepper adj_stepper,
 
 static void print_help(int argc, char* argv[], int exit_code)
 {
-  if (exit_code)
-  {
-    fprintf(stderr, "./ark_test_sunadjoint: option not recognized\n");
-  }
-  else { fprintf(stderr, "./ark_test_sunadjoint "); }
+  if (exit_code) { fprintf(stderr, "%s: option not recognized\n", argv[0]); }
+  else { fprintf(stderr, "%s ", argv[0]); }
   fprintf(stderr, "options:\n");
   fprintf(stderr, "--tf <real>         the final simulation time\n");
   fprintf(stderr, "--dt <real>         the timestep size\n");
