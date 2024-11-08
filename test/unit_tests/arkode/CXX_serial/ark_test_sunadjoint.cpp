@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <sundials/sundials_core.h>
+#include <sundials/sundials_core.hpp>
 
 #include <nvector/nvector_manyvector.h>
 #include <nvector/nvector_serial.h>
@@ -39,6 +39,10 @@
 
 #include <arkode/arkode.h>
 #include <arkode/arkode_arkstep.h>
+
+#include "problems/lotka_volterra.hpp"
+
+using namespace problems::lotka_volterra;
 
 typedef struct
 {
@@ -52,119 +56,6 @@ typedef struct
 
 static sunrealtype params[4] = {SUN_RCONST(1.5), SUN_RCONST(1.0),
                                 SUN_RCONST(3.0), SUN_RCONST(1.0)};
-
-static int lotka_volterra(sunrealtype t, N_Vector uvec, N_Vector udotvec,
-                          void* user_data)
-{
-  sunrealtype* p    = (sunrealtype*)user_data;
-  sunrealtype* u    = N_VGetArrayPointer(uvec);
-  sunrealtype* udot = N_VGetArrayPointer(udotvec);
-
-  udot[0] = p[0] * u[0] - p[1] * u[0] * u[1];
-  udot[1] = -p[2] * u[1] + p[3] * u[0] * u[1];
-
-  return 0;
-}
-
-static int jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec, SUNMatrix Jac,
-                    void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  sunrealtype* p = (sunrealtype*)user_data;
-  sunrealtype* u = N_VGetArrayPointer(uvec);
-  sunrealtype* J = SUNDenseMatrix_Data(Jac);
-
-  J[0] = p[0] - p[1] * u[1];
-  J[2] = -p[1] * u[0];
-  J[1] = p[3] * u[1];
-  J[3] = p[3] * u[0] - p[2];
-
-  return 0;
-}
-
-static int jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-               N_Vector udotvec, void* user_data, N_Vector tmp)
-{
-  sunrealtype* p  = (sunrealtype*)user_data;
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
-  sunrealtype* v  = N_VGetArrayPointer(vvec);
-  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
-
-  Jv[0] = (p[0] - p[1] * u[1]) * v[0] + p[3] * u[1] * v[1];
-  Jv[1] = -p[1] * u[0] * v[0] + (-p[2] + p[3] * u[0]) * v[1];
-
-  return 0;
-}
-
-static int vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
-               N_Vector udotvec, void* user_data, N_Vector tmp)
-{
-  sunrealtype* p  = (sunrealtype*)user_data;
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
-  sunrealtype* v  = N_VGetArrayPointer(vvec);
-  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
-
-  Jv[0] = (p[0] - p[1] * u[1]) * v[0] + p[3] * u[1] * v[1];
-  Jv[1] = -p[1] * u[0] * v[0] + (-p[2] + p[3] * u[0]) * v[1];
-
-  return 0;
-}
-
-static int parameter_jacobian(sunrealtype t, N_Vector uvec, N_Vector udotvec,
-                              SUNMatrix Jac, void* user_data, N_Vector tmp1,
-                              N_Vector tmp2, N_Vector tmp3)
-{
-  if (user_data != params) { return -1; }
-
-  sunrealtype* u = N_VGetArrayPointer(uvec);
-  sunrealtype* J = SUNDenseMatrix_Data(Jac);
-
-  J[0] = u[0];
-  J[1] = SUN_RCONST(0.0);
-  J[2] = -u[0] * u[1];
-  J[3] = SUN_RCONST(0.0);
-  J[4] = SUN_RCONST(0.0);
-  J[5] = -u[1];
-  J[6] = SUN_RCONST(0.0);
-  J[7] = u[0] * u[1];
-
-  return 0;
-}
-
-static int parameter_jvp(N_Vector vvec, N_Vector Jvvec, sunrealtype t,
-                         N_Vector uvec, N_Vector udotvec, void* user_data,
-                         N_Vector tmp)
-{
-  if (user_data != params) { return -1; }
-
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
-  sunrealtype* v  = N_VGetArrayPointer(vvec);
-  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
-
-  Jv[0] = u[0] * v[0];
-  Jv[1] = -u[0] * u[1] * v[0];
-  Jv[2] = -u[1] * v[1];
-  Jv[3] = u[0] * u[1] * v[1];
-
-  return 0;
-}
-
-static int parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t,
-                         N_Vector uvec, N_Vector udotvec, void* user_data,
-                         N_Vector tmp)
-{
-  if (user_data != params) { return -1; }
-
-  sunrealtype* u  = N_VGetArrayPointer(uvec);
-  sunrealtype* v  = N_VGetArrayPointer(vvec);
-  sunrealtype* Jv = N_VGetArrayPointer(Jvvec);
-
-  Jv[0] = u[0] * v[0];
-  Jv[1] = -u[0] * u[1] * v[0];
-  Jv[2] = -u[1] * v[1];
-  Jv[3] = u[0] * u[1] * v[1];
-
-  return 0;
-}
 
 static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
                  sunrealtype t)
@@ -306,7 +197,7 @@ int main(int argc, char* argv[])
   const int nsteps     = (int)ceil(((tf - t0) / dt + 1));
   const int order      = args.order;
 
-  void* arkode_mem = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
+  void* arkode_mem = ARKStepCreate(ode_rhs, NULL, t0, u, sunctx);
   ARKodeSetOrder(arkode_mem, order);
   ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
 
@@ -361,8 +252,7 @@ int main(int argc, char* argv[])
   SUNMatrix jac  = SUNDenseMatrix(neq, neq, sunctx);
   SUNMatrix jacp = SUNDenseMatrix(neq, num_params, sunctx);
 
-  SUNAdjointStepper_SetJacFn(adj_stepper, jacobian, jac, parameter_jacobian,
-                             jacp);
+  SUNAdjointStepper_SetJacFn(adj_stepper, ode_jac, jac, parameter_jacobian, jacp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
 
   //
@@ -375,14 +265,14 @@ int main(int argc, char* argv[])
     N_VConst(SUN_RCONST(1.0), u);
     printf("Initial condition:\n");
     N_VPrint(u);
-    ARKStepReInit(arkode_mem, lotka_volterra, NULL, t0, u);
+    ARKStepReInit(arkode_mem, ode_rhs, NULL, t0, u);
     forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
   }
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
   SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
   SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
-  SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, jvp, parameter_jvp);
+  SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, ode_jvp, parameter_jvp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
 
   //
@@ -395,14 +285,14 @@ int main(int argc, char* argv[])
     N_VConst(SUN_RCONST(1.0), u);
     printf("Initial condition:\n");
     N_VPrint(u);
-    ARKStepReInit(arkode_mem, lotka_volterra, NULL, t0, u);
+    ARKStepReInit(arkode_mem, ode_rhs, NULL, t0, u);
     forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
   }
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
   SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
   SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, NULL, NULL);
-  SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, vjp, parameter_vjp);
+  SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, ode_vjp, parameter_vjp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
 
   //
@@ -417,7 +307,7 @@ int main(int argc, char* argv[])
   SUNAdjointCheckpointScheme_Destroy(&checkpoint_scheme);
   SUNAdjointStepper_Destroy(&adj_stepper);
   ARKodeFree(&arkode_mem);
-  arkode_mem = ARKStepCreate(lotka_volterra, NULL, tf, u, sunctx);
+  arkode_mem = ARKStepCreate(ode_rhs, NULL, tf, u, sunctx);
   ARKodeSetOrder(arkode_mem, order);
   ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
   SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
@@ -430,8 +320,7 @@ int main(int argc, char* argv[])
   forward_solution(sunctx, arkode_mem, checkpoint_scheme, tf, t0, -dt, u);
 
   ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
-  SUNAdjointStepper_SetJacFn(adj_stepper, jacobian, jac, parameter_jacobian,
-                             jacp);
+  SUNAdjointStepper_SetJacFn(adj_stepper, ode_jac, jac, parameter_jacobian, jacp);
   dgdu(u, sensu0, params, t0);
   dgdp(u, sensp, params, t0);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, t0, tf, sf);
