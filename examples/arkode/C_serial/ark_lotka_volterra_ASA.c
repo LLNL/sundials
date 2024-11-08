@@ -22,7 +22,7 @@
   * analysis (ASA) is performed using the discrete adjoint method available with
   * with ARKStep in order to obtain the gradient of the scalar cost function,
   *
-  *    g(u(T),p) = sum_{i=1}^{n} u_{i}^2 / 2
+  *    g(u(t_f),p) = sum_{i=1}^{n} u_{i}^2 / 2
   *
   * with respect to the initial condition and the parameters.
   *

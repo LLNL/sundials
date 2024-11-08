@@ -20,7 +20,7 @@
   * Afterwards, the continuous adjoint sensitivity analysis capabilities of CVODES
   * are used to obtain the gradient of the cost function,
   *
-  *    g(u(t_f), p) = (sum(u)^2) / 2
+  *    g(u(t_f), p) = sum_{i=1}^{n} u_{i}^2 / 2
   *
   * with respect to the initial condition and the parameters.
   * -----------------------------------------------------------------------------
@@ -40,10 +40,10 @@
 #include "sunlinsol/sunlinsol_spgmr.h"
 
 /* Problem Constants */
-#define NEQ 2                /* number of equations  */
-#define NP  4                /* number of params     */
-#define T0  SUN_RCONST(0.0)  /* initial time         */
-#define TF  SUN_RCONST(10.0) /* final time           */
+#define NEQ 2               /* number of equations  */
+#define NP  4               /* number of params     */
+#define T0  SUN_RCONST(0.0) /* initial time         */
+#define TF  SUN_RCONST(1.0) /* final time           */
 #if defined(SUNDIALS_SINGLE_PRECISION)
 #define RTOL SUN_RCONST(1.0e-5) /* relative tolerance   */
 #define ATOL SUN_RCONST(1.0e-8) /* absolute tolerance   */

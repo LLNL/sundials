@@ -10,7 +10,18 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
  * Program to test the SUNAdjoint capability with ARKODE. The test uses the
- * Lotka-Volterra problem with four parameters as the test case.
+ * implements the four parameter Lotka-Volterra problem
+ *
+ *     u = [dx/dt] = [ p_0*x - p_1*x*y  ]
+ *         [dy/dt]   [ -p_2*y + p_3*x*y ].
+ *
+ * The initial condition is u(t_0) = 1.0 and we use the parameters
+ *  p  = [1.5, 1.0, 3.0, 1.0]. For the ASA we compute the sensitivities
+ * for the the scalar cost function,
+ *
+ *    g(u(t_f),p) = sum_{i=1}^{n} u_{i}^2 / 2,
+ *
+ * with respect to the initial condition and the parameters.
  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
