@@ -11,7 +11,7 @@
   * -----------------------------------------------------------------------------
   * This example solves the Lotka-Volterra ODE with four parameters,
   *
-  *     u = [dx/dt] = [ p_0*x - p_1*x*y  ]
+  *    u' = [dx/dt] = [  p_0*x - p_1*x*y  ]
   *         [dy/dt]   [ -p_2*y + p_3*x*y ].
   *
   * The initial condition is u(t_0) = 1.0 and we use the parameters
@@ -20,7 +20,7 @@
   * Afterwards, the continuous adjoint sensitivity analysis capabilities of CVODES
   * are used to obtain the gradient of the cost function,
   *
-  *    g(u(t_f), p) = sum_{i=1}^{n} u_{i}^2 / 2
+  *    g(u(t_f), p) = (u_1^2 + u_2^2) / 2,
   *
   * with respect to the initial condition and the parameters.
   * -----------------------------------------------------------------------------
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "CVode", 1)) { return 1; }
 
   /* Print the final solution */
-  printf("Forward Solution at t = %g\n", t);
+  printf("Forward Solution at t = %g:\n", t);
   N_VPrint(u);
 
   /* Allocate memory for the adjoint solution vector */

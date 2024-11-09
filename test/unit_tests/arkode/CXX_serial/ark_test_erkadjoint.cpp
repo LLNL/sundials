@@ -12,14 +12,15 @@
  * Program to test the SUNAdjoint capability with ARKODE. The test uses the
  * implements the four parameter Lotka-Volterra problem
  *
- *     u = [dx/dt] = [ p_0*x - p_1*x*y  ]
+ *    u' = [dx/dt] = [  p_0*x - p_1*x*y  ]
  *         [dy/dt]   [ -p_2*y + p_3*x*y ].
  *
  * The initial condition is u(t_0) = 1.0 and we use the parameters
- *  p  = [1.5, 1.0, 3.0, 1.0]. For the ASA we compute the sensitivities
- * for the the scalar cost function,
+ * p  = [1.5, 1.0, 3.0, 1.0]. We compute the sensitivities for the scalar cost
+ * function,
  *
- *    g(u(t_f),p) = sum_{i=1}^{n} u_{i}^2 / 2,
+ *    g(u(t_f), p) = (u_1^2 + u_2^2) / 2,
+ *    g(u(t_f), p) = || 1 - u(t_f, p) ||^2 / 2
  *
  * with respect to the initial condition and the parameters.
  * ---------------------------------------------------------------------------*/
@@ -42,6 +43,16 @@
 
 #include "problems/lotka_volterra.hpp"
 
+#if defined(SUNDIALS_SINGLE_PRECISION)
+#define FWD_TOL SUN_RCONST(1e-6)
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+#define FWD_TOL SUN_RCONST(1e-10)
+#else defined(SUNDIALS_EXTENDED_PRECISION)
+#define FWD_TOL SUN_RCONST(1e-12)
+#endif
+
+#define ADJ_TOL SUN_RCONST(1e-4)
+
 using namespace problems::lotka_volterra;
 
 typedef struct
@@ -57,14 +68,78 @@ typedef struct
 static sunrealtype params[4] = {SUN_RCONST(1.5), SUN_RCONST(1.0),
                                 SUN_RCONST(3.0), SUN_RCONST(1.0)};
 
+static int check_forward_answer(N_Vector answer)
+{
+  const sunrealtype u1 = SUN_RCONST(2.77266836e+00);
+  const sunrealtype u2 = SUN_RCONST(2.58714765e-01);
+  sunrealtype* ans     = N_VGetArrayPointer(answer);
+
+  if (SUNRCompareTol(ans[0], u1, FWD_TOL))
+  {
+    fprintf(stdout, "\n>>> ans[0] = %g, should be %g\n", ans[0], u1);
+    return -1;
+  };
+  if (SUNRCompareTol(ans[1], u2, FWD_TOL))
+  {
+    fprintf(stdout, "\n>>> ans[1] = %g, should be %g\n", ans[1], u2);
+    return -1;
+  };
+
+  return 0;
+}
+
+static int check_sensitivities(N_Vector answer)
+{
+  // The correct answer was generated with the Julia ForwardDiff.jl
+  // automatic differentiation package.
+
+  const sunrealtype lambda[2] = {
+    SUN_RCONST(3.5202568952661544),
+    SUN_RCONST(-2.19271337646507),
+  };
+
+  const sunrealtype mu[4] = {SUN_RCONST(4.341147542533404),
+                             SUN_RCONST(-2.000933816791803),
+                             SUN_RCONST(1.010120676762905),
+                             SUN_RCONST(-1.3955943267337996)};
+
+  sunrealtype* ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 0);
+
+  for (sunindextype i = 0; i < 2; ++i)
+  {
+    if (SUNRCompareTol(ans[i], lambda[i], ADJ_TOL))
+    {
+      fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
+              ans[i], lambda[i]);
+      return -1;
+    };
+  }
+
+  ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 1);
+
+  for (sunindextype i = 0; i < 4; ++i)
+  {
+    if (SUNRCompareTol(ans[i], mu[i], ADJ_TOL))
+    {
+      fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
+              ans[i], mu[i]);
+      return -1;
+    };
+  }
+
+  return 0;
+}
+
 static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
                  sunrealtype t)
 {
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* dg = N_VGetArrayPointer(dgvec);
 
-  dg[0] = u[0] + u[1];
-  dg[1] = u[0] + u[1];
+  // dg[0] = u[0] + u[1];
+  // dg[1] = u[0] + u[1];
+  dg[0] = SUN_RCONST(-1.0) + u[0];
+  dg[1] = SUN_RCONST(-1.0) + u[1];
 }
 
 static void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
@@ -216,14 +291,25 @@ int main(int argc, char* argv[])
   // Compute the forward solution
   //
 
+  printf("\n-- Do forward problem --\n\n");
+
   printf("Initial condition:\n");
   N_VPrint(u);
 
   forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+  if (check_forward_answer(u))
+  {
+    fprintf(stderr,
+            "FAILURE: forward solution does not match correct answer\n");
+    return -1;
+  };
+  printf(">>> PASS\n");
 
   //
   // Create the adjoint stepper
   //
+
+  printf("\n-- Do adjoint problem using Jacobian matrix --\n\n");
 
   sunindextype num_params = 4;
   N_Vector sensu0         = N_VClone(u);
@@ -250,7 +336,15 @@ int main(int argc, char* argv[])
   SUNMatrix jacp = SUNDenseMatrix(neq, num_params, sunctx);
 
   SUNAdjointStepper_SetJacFn(adj_stepper, ode_jac, jac, parameter_jacobian, jacp);
+
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+  if (check_sensitivities(sf))
+  {
+    fprintf(stderr,
+            "FAILURE: adjoint solution does not match correct answer\n");
+    return -1;
+  }
+  printf("\n>>> PASS\n");
 
   //
   // Now compute the adjoint solution using Jvp
@@ -264,6 +358,12 @@ int main(int argc, char* argv[])
     N_VPrint(u);
     ARKStepReInit(arkode_mem, ode_rhs, NULL, t0, u);
     forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+    if (check_forward_answer(u))
+    {
+      fprintf(stderr,
+              "FAILURE: forward solution does not match correct answer\n");
+      return -1;
+    }
   }
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
@@ -271,6 +371,13 @@ int main(int argc, char* argv[])
   SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
   SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, ode_jvp, parameter_jvp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+  if (check_sensitivities(sf))
+  {
+    fprintf(stderr,
+            "FAILURE: adjoint solution does not match correct answer\n");
+    return -1;
+  };
+  printf("\n>>> PASS\n");
 
   //
   // Now compute the adjoint solution using vJp
@@ -284,6 +391,12 @@ int main(int argc, char* argv[])
     N_VPrint(u);
     ARKStepReInit(arkode_mem, ode_rhs, NULL, t0, u);
     forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+    if (check_forward_answer(u))
+    {
+      fprintf(stderr,
+              "FAILURE: forward solution does not match correct answer\n");
+      return -1;
+    };
   }
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
@@ -291,6 +404,13 @@ int main(int argc, char* argv[])
   SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, NULL, NULL);
   SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, ode_vjp, parameter_vjp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+  if (check_sensitivities(sf))
+  {
+    fprintf(stderr,
+            "FAILURE: adjoint solution does not match correct answer\n");
+    return -1;
+  };
+  printf(">>> PASS\n");
 
   //
   // Now compute the adjoint solution but for when forward problem done backwards
