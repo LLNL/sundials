@@ -32,8 +32,7 @@ set(ARKODE_unit_tests
     "ark_test_interp\;-1000000"
     "ark_test_mass\;"
     "ark_test_reset\;"
-    "ark_test_tstop\;"
-  )
+    "ark_test_tstop\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${ARKODE_unit_tests})

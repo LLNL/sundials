@@ -54,7 +54,7 @@ set(unit_tests
     # "ark_test_erkadjoint.cpp\;--check-freq 1 --dont-keep --no-stages\;"
     # "ark_test_erkadjoint.cpp\;--check-freq 2 --dont-keep --no-stages\;"
     # "ark_test_erkadjoint.cpp\;--check-freq 5 --dont-keep --no-stages\;"
-    )
+)
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -80,8 +80,7 @@ foreach(test_tuple ${unit_tests})
     target_include_directories(
       ${test_target}
       PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-              ${CMAKE_SOURCE_DIR}/include
-              ${CMAKE_SOURCE_DIR}/src
+              ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
               ${CMAKE_SOURCE_DIR}/test/unit_tests)
 
     # We explicitly choose which object libraries to link to and link in the
