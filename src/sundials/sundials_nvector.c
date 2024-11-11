@@ -607,7 +607,7 @@ SUNErrCode N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y,
   }
   else
   {
-    for (i = 0; i < nvec; i++) { dotprods[i] = x->ops->nvdotprod(x, Y[i]); }
+    for (i = 0; i < nvec; i++) { dotprods[i] = x->ops->nvdotprod(Y[i], x); }
     ier = SUN_SUCCESS;
   }
 

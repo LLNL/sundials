@@ -569,21 +569,27 @@ operations below.
 
 .. c:function:: SUNErrCode N_VDotProdMulti(int nv, N_Vector x, N_Vector* Y, sunscalartype* d)
 
-   This routine computes the inner product of a vector with *nv* vectors
-   having :math:`n` elements:
+   This routine computes the inner product of *nv* vectors from *Y* with a vector *x*, where
+   all vectors have :math:`n` elements:
 
    .. math::
-      d_j = \sum_{i=0}^{n-1} \overline{x}_i y_{j,i}, \quad j=0,\ldots,nv-1,
+      d_j = \sum_{i=0}^{n-1} \overline{y}_{j,i} x_i, \quad j=0,\ldots,nv-1,
 
-   where *d* is an array of scalars containing the computed dot
-   products, *x* is a vector, and :math:`y_j` is a vector from the vector
-   array *Y*. The operation returns a :c:type:`SUNErrCode`.
+   where *d* is an array of scalars containing the computed inner
+   products, :math:`y_j` is a vector from the vector
+   array *Y*, and *x* is a vector. The operation returns a :c:type:`SUNErrCode`.
 
    Usage:
 
    .. code-block:: c
 
       retval = N_VDotProdMulti(nv, x, Y, d);
+
+   .. note::
+
+      The call order for :c:func:`N_VDotProdMulti` is somewhat inconsistent with
+      :c:func:`N_VDotProd` when the vectors contain complex numbers, since conjugation
+      in :c:func:`N_VDotProdMulti` occurs on the entries of *Y* instead of *x*.
 
 
 .. _NVectors.Ops.Array:
@@ -955,14 +961,14 @@ communication will be required.
 
 .. c:function:: SUNErrCode N_VDotProdMultiLocal(int nv, N_Vector x, N_Vector* Y, sunscalartype* d)
 
-   This routine computes the MPI task-local portion of the inner product of a
-   vector :math:`x` with *nv* vectors :math:`y_j`:
+   This routine computes the MPI task-local portion of the inner product of *nv* vectors
+   :math:`y_j` with a vector :math:`x`:
 
    .. math::
-      d_j = \sum_{i=0}^{n_{local}-1} \overline{x}_i y_{j,i}, \quad j=0,\ldots,nv-1,
+      d_j = \sum_{i=0}^{n_{local}-1} \overline{y}_{j,i} x_i, \quad j=0,\ldots,nv-1,
 
    where :math:`d` is an array of scalars containing the computed inner products,
-   :math:`x` is a vector, :math:`y_j` is a vector in the vector array *Y*, and
+   :math:`y_j` is a vector in the vector array *Y*, :math:`x` is a vector, and
    :math:`n_{local}` corresponds to the number of components in the vector on
    this MPI task. The operation returns a :c:type:`SUNErrCode`.
 
@@ -971,6 +977,12 @@ communication will be required.
    .. code-block:: c
 
       retval = N_VDotProdMultiLocal(nv, x, Y, d);
+
+   .. note::
+
+      The call order for :c:func:`N_VDotProdMultiLocal` is somewhat inconsistent with
+      :c:func:`N_VDotProdLocal` when the vectors contain complex numbers, since conjugation
+      in :c:func:`N_VDotProdMultiLocal` occurs on the entries of *Y* instead of *x*.
 
 
 .. c:function:: SUNErrCode N_VDotProdMultiAllReduce(int nv, N_Vector x, sunscalartype* d)
