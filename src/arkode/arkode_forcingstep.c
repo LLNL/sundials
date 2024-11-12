@@ -14,7 +14,6 @@
  * This is the implementation file for ARKODE's forcing method
  *--------------------------------------------------------------*/
 
-#include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_forcingstep.h>
 #include <sundials/sundials_nvector.h>
 

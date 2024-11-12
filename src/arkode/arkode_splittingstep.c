@@ -15,7 +15,6 @@
  * splitting module
  *--------------------------------------------------------------*/
 
-#include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_splittingstep.h>
 #include <sundials/sundials_nvector.h>
 
