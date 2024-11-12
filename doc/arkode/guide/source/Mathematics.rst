@@ -694,7 +694,7 @@ The following algorithmic procedure is used in the Splitting-Step module:
 Here, :math:`s` denotes the number of stages, while :math:`r` denotes the number
 of sequential methods within the overall operator splitting scheme. The
 sequential methods have independent flows which are linearly combined to produce
-the next step. The real coefficients :math:`\alpha_i` and :math:`\beta_{i,j,k}`
+the next step. The real coefficients :math:`\alpha \in \mathbb{R}^{r}` and :math:`\beta \in \mathbb{R}^{r \times s + 1 \times P}`
 determine the particular scheme and properties such as the order of accuracy.
 
 An alternative representation of the SplittingStep solution is
@@ -706,7 +706,7 @@ An alternative representation of the SplittingStep solution is
    \circ \dots \circ \phi^1_{\gamma_{i,s,1} h} \right)
    (y_{n-1})
 
-where :math:`\gamma_{i,j,k} = \beta_{i,j,k} - \beta_{i,j-1,k}` and
+where :math:`\gamma_{i,j,k} = \beta_{i,j,k} - \beta_{i,j-1,k}` is the scaling factor for the step size, :math:`h`, and
 :math:`\phi^k_{h}` is the flow map for partition :math:`k`:
 
 .. math::
