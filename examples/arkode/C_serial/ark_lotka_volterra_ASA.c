@@ -22,7 +22,7 @@
   * analysis (ASA) is performed using the discrete adjoint method available with
   * with ARKStep in order to obtain the gradient of the scalar cost function,
   *
-  *    g(u(t_f),p) = sum_{i=1}^{n} u_{i}^2 / 2
+  *    g(u(t_f), p) = || 1 - u(t_f, p) ||^2 / 2
   *
   * with respect to the initial condition and the parameters.
   *
@@ -282,8 +282,8 @@ void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p)
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* dg = N_VGetArrayPointer(dgvec);
 
-  dg[0] = u[0] + u[1];
-  dg[1] = u[0] + u[1];
+  dg[0] = -SUN_RCONST(1.0) + u[0];
+  dg[1] = -SUN_RCONST(1.0) + u[1];
 }
 
 void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p)

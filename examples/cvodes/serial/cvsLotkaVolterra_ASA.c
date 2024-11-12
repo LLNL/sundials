@@ -20,7 +20,7 @@
   * Afterwards, the continuous adjoint sensitivity analysis capabilities of CVODES
   * are used to obtain the gradient of the cost function,
   *
-  *    g(u(t_f), p) = (u_1^2 + u_2^2) / 2,
+  *    g(u(t_f), p) = || 1 - u(t_f, p) ||^2 / 2
   *
   * with respect to the initial condition and the parameters.
   * -----------------------------------------------------------------------------
@@ -271,8 +271,8 @@ void dgdu(N_Vector uvec, N_Vector dgvec)
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* dg = N_VGetArrayPointer(dgvec);
 
-  dg[0] = u[0] + u[1];
-  dg[1] = u[0] + u[1];
+  dg[0] = -SUN_RCONST(1.0) + u[0];
+  dg[1] = -SUN_RCONST(1.0) + u[1];
 }
 
 /* Function to compute the adjoint ODE right-hand side:

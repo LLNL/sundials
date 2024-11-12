@@ -114,13 +114,13 @@ static int check_sensitivities(N_Vector answer)
 
   const sunrealtype lambda[2] = {
     SUN_RCONST(3.5202568952661544),
-    SUN_RCONST(-2.19271337646507),
+    -SUN_RCONST(2.19271337646507),
   };
 
   const sunrealtype mu[4] = {SUN_RCONST(4.341147542533404),
-                             SUN_RCONST(-2.000933816791803),
+                             -SUN_RCONST(2.000933816791803),
                              SUN_RCONST(1.010120676762905),
-                             SUN_RCONST(-1.3955943267337996)};
+                             -SUN_RCONST(1.3955943267337996)};
 
   sunrealtype* ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 0);
 
@@ -156,7 +156,7 @@ static int check_sensitivities_backward(N_Vector answer)
 
   const sunrealtype lambda[2] = {
     SUN_RCONST(1.772850901841113),
-    SUN_RCONST(-0.7412891218574361),
+    -SUN_RCONST(0.7412891218574361),
   };
 
   const sunrealtype mu[4] = {SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0),
@@ -195,8 +195,8 @@ static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
   sunrealtype* u  = N_VGetArrayPointer(uvec);
   sunrealtype* dg = N_VGetArrayPointer(dgvec);
 
-  dg[0] = SUN_RCONST(-1.0) + u[0];
-  dg[1] = SUN_RCONST(-1.0) + u[1];
+  dg[0] = -SUN_RCONST(1.0) + u[0];
+  dg[1] = -SUN_RCONST(1.0) + u[1];
 }
 
 static void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
@@ -476,12 +476,17 @@ int main(int argc, char* argv[])
 
   printf("\n-- Redo adjoint problem of forward problem done backwards  --\n\n");
 
+  // Swap the start and end times
+  sunrealtype tmp = t0;
+  t0              = tf;
+  tf              = tmp;
+
   // Cleanup from the original forward problem and then recreate the integrator
   // for the forward problem done backwards.
   SUNAdjointCheckpointScheme_Destroy(&checkpoint_scheme);
   SUNAdjointStepper_Destroy(&adj_stepper);
   ARKodeFree(&arkode_mem);
-  arkode_mem = ARKStepCreate(ode_rhs, NULL, tf, u, sunctx);
+  arkode_mem = ARKStepCreate(ode_rhs, NULL, t0, u, sunctx);
   ARKodeSetOrder(arkode_mem, order);
   ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
   SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
@@ -492,7 +497,7 @@ int main(int argc, char* argv[])
   printf("Initial condition:\n");
   N_VPrint(u);
 
-  forward_solution(sunctx, arkode_mem, checkpoint_scheme, tf, t0, -dt, u);
+  forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, -dt, u);
   if (check_forward_backward_answer(u))
   {
     fprintf(stderr,
@@ -502,10 +507,10 @@ int main(int argc, char* argv[])
 
   ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
   SUNAdjointStepper_SetJacFn(adj_stepper, ode_jac, jac, parameter_jacobian, jacp);
-  dgdu(u, sensu0, params, t0);
-  dgdp(u, sensp, params, t0);
+  dgdu(u, sensu0, params, tf);
+  dgdp(u, sensp, params, tf);
 
-  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, t0, tf, sf);
+  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
   if (check_sensitivities_backward(sf))
   {
     fprintf(stderr,
