@@ -2837,7 +2837,7 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
   if (stepper->ops->evolve == NULL) { return ARK_ILL_INPUT; }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
+  SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStepInnerStepper_Evolve", "start-inner-evolve",
                      "t0 = %" RSYM ", tout = %" RSYM, t0, tout);
 #endif
@@ -2845,7 +2845,7 @@ int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
   stepper->last_flag = stepper->ops->evolve(stepper, t0, tout, y);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
+  SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStepInnerStepper_Evolve", "end-inner-evolve",
                      "flag = %i", stepper->last_flag);
 #endif
@@ -2916,7 +2916,7 @@ int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
   if (stepper->ops == NULL) { return ARK_ILL_INPUT; }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_INFO,
+  SUNLogger_QueueMsg(stepper->sunctx->logger, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::mriStepInnerStepper_Reset", "reset-inner-state",
                      "tR = %" RSYM, tR);
 #endif
@@ -2937,7 +2937,7 @@ int mriStepInnerStepper_ResetSUNStepper(MRIStepInnerStepper stepper,
                                         sunrealtype tR, N_Vector yR)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
-  SUNErrCode err        = sunstepper->ops->reset(sunstepper, tR, yR);
+  SUNErrCode err        = sunstepper->ops->reset(sunstepper, tR, yR, 0);
   stepper->last_flag    = sunstepper->last_flag;
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   return ARK_SUCCESS;

@@ -9,8 +9,7 @@ C API while providing an idiomatic Fortran interface.
 ## Getting SWIG-Fortran
 
 We use the SWIG-Fortran fork of SWIG created by Seth R. Johnson @ ORNL.
-The repository is maintained on [GitHub](https://github.com/swig-fortran/swig).
-The last known working commit SHA is 539be6884f327c9fd72052771f074d6cfa4e65b5.
+The upstream repository is maintained on [GitHub](https://github.com/swig-fortran/swig).
 We maintain [a fork of SWIG-Fortran](https://github.com/sundials-codes/swig)
 that is held at the last working commit and includes any of our own bug fixes.
 So if the the latest swig obtained from the actual SWIG-Fortran repository

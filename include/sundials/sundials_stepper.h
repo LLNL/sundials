@@ -47,7 +47,7 @@ typedef SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
                                           SUNFullRhsMode mode);
 
 typedef SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR,
-                                        N_Vector vR);
+                                        N_Vector vR, int64_t ckptIdxR);
 
 typedef SUNErrCode (*SUNStepperSetStopTimeFn)(SUNStepper stepper,
                                               sunrealtype tstop);
@@ -78,7 +78,8 @@ SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
                               N_Vector f, SUNFullRhsMode mode);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR);
+SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR,
+                            int64_t ckptIdxR);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop);

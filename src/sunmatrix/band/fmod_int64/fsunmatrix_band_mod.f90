@@ -44,6 +44,7 @@ module fsunmatrix_band_mod
  public :: FSUNMatScaleAdd_Band
  public :: FSUNMatScaleAddI_Band
  public :: FSUNMatMatvec_Band
+ public :: FSUNMatMatTransposeVec_Band
  public :: FSUNMatSpace_Band
 
  public :: FSUNBandMatrix_Data
@@ -206,6 +207,16 @@ end function
 
 function swigc_FSUNMatMatvec_Band(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNMatMatvec_Band") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNMatMatTransposeVec_Band(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNMatMatTransposeVec_Band") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -529,6 +540,25 @@ farg1 = c_loc(a)
 farg2 = c_loc(x)
 farg3 = c_loc(y)
 fresult = swigc_FSUNMatMatvec_Band(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNMatMatTransposeVec_Band(a, x, y) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNMatrix), target, intent(inout) :: a
+type(N_Vector), target, intent(inout) :: x
+type(N_Vector), target, intent(inout) :: y
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = c_loc(a)
+farg2 = c_loc(x)
+farg3 = c_loc(y)
+fresult = swigc_FSUNMatMatTransposeVec_Band(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

@@ -41,7 +41,20 @@ set(unit_tests
     "ark_test_dahlquist_mri.cpp\;1"
     "ark_test_butcher.cpp\;"
     "ark_test_getjac.cpp\;"
-    "ark_test_getjac_mri.cpp\;")
+    "ark_test_getjac_mri.cpp\;"
+    "ark_test_erkadjoint.cpp\;--check-freq 1\;"
+    "ark_test_erkadjoint.cpp\;--check-freq 2\;"
+    "ark_test_erkadjoint.cpp\;--check-freq 5\;"
+    "ark_test_erkadjoint.cpp\;--check-freq 1 --dont-keep\;"
+    "ark_test_erkadjoint.cpp\;--check-freq 2 --dont-keep\;"
+    "ark_test_erkadjoint.cpp\;--check-freq 5 --dont-keep\;"
+    # "ark_test_erkadjoint.cpp\;--check-freq 1 --no-stages\;"
+    # "ark_test_erkadjoint.cpp\;--check-freq 2 --no-stages\;"
+    # "ark_test_erkadjoint.cpp\;--check-freq 5 --no-stages\;"
+    # "ark_test_erkadjoint.cpp\;--check-freq 1 --dont-keep --no-stages\;"
+    # "ark_test_erkadjoint.cpp\;--check-freq 2 --dont-keep --no-stages\;"
+    # "ark_test_erkadjoint.cpp\;--check-freq 5 --dont-keep --no-stages\;"
+)
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -67,7 +80,8 @@ foreach(test_tuple ${unit_tests})
     target_include_directories(
       ${test_target}
       PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-              ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
+              ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
+              ${CMAKE_SOURCE_DIR}/test/unit_tests)
 
     # We explicitly choose which object libraries to link to and link in the
     # arkode objects so that we have access to private functions w/o changing
@@ -77,12 +91,14 @@ foreach(test_tuple ${unit_tests})
       $<TARGET_OBJECTS:sundials_arkode_obj>
       sundials_sunmemsys_obj
       sundials_nvecserial_obj
+      sundials_nvecmanyvector_obj
       sundials_sunlinsolband_obj
       sundials_sunlinsoldense_obj
       sundials_sunnonlinsolnewton_obj
       sundials_sunnonlinsolfixedpoint_obj
       sundials_sunadaptcontrollerimexgus_obj
       sundials_sunadaptcontrollersoderlind_obj
+      sundials_adjoint_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick

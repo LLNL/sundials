@@ -574,6 +574,75 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
 }
 
 /* ----------------------------------------------------------------------
+ * SUNMatMatTransposeVec Test (y should be correct A^T*x product)
+ * --------------------------------------------------------------------*/
+int Test_SUNMatMatTransposeVec(SUNMatrix A, SUNMatrix AT, N_Vector x,
+                               N_Vector y, int myid)
+{
+  int failure;
+  double start_time, stop_time;
+  N_Vector z, w;
+  sunrealtype tol = 100 * SUN_UNIT_ROUNDOFF;
+
+  if (A->ops->matvec == NULL)
+  {
+    TEST_STATUS("    PASSED test -- SUNMatMatTransposeVec not implemented\n",
+                myid);
+    return (0);
+  }
+
+  w = N_VClone(x); /* reference solution computed with Matvec */
+  z = N_VClone(x); /* will be computed with MatvecTranspose */
+
+  /* Compute reference solution */
+  failure = SUNMatMatvec(AT, y, w); /* w = A^Ty */
+  sync_device(A);
+  if (failure)
+  {
+    TEST_STATUS2(">>> FAILED test -- SUNMatMatTransposeVec: SUNMatMatvec "
+                 "returned %d \n",
+                 failure, myid);
+    return (1);
+  }
+
+  /* Compute the solution with the routine we are testing */
+  start_time = get_time();
+  failure    = SUNMatMatTransposeVec(A, y, z); /* z = A^Ty */
+  sync_device(A);
+  stop_time = get_time();
+
+  if (failure)
+  {
+    TEST_STATUS2(">>> FAILED test -- SUNMatMatTransposeVec: "
+                 "SUNMatMatTransposeVec returned %d \n",
+                 failure, myid);
+    return (1);
+  }
+
+  failure = check_vector(w, z, tol);
+
+  if (failure)
+  {
+    TEST_STATUS(">>> FAILED test -- SUNMatMatTransposeVec check \n", myid);
+    PRINT_TIME("    SUNMatMatTransposeVec Time: %22.15e \n \n",
+               stop_time - start_time);
+    return (1);
+  }
+  else { TEST_STATUS("    PASSED test -- SUNMatMatTransposeVec \n", myid); }
+
+  if (myid == 0)
+  {
+    PRINT_TIME("    SUNMatMatTransposeVec Time: %22.15e \n \n",
+               stop_time - start_time);
+  }
+
+  N_VDestroy(w);
+  N_VDestroy(z);
+
+  return (0);
+}
+
+/* ----------------------------------------------------------------------
  * SUNMatSpace Test
  * --------------------------------------------------------------------*/
 int Test_SUNMatSpace(SUNMatrix A, int myid)

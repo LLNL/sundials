@@ -23,6 +23,9 @@
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
+#include <stdarg.h>
+#include <sunadjoint/sunadjoint_checkpointscheme.h>
+#include <sunadjoint/sunadjoint_stepper.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
@@ -33,6 +36,7 @@
 #include "arkode_relaxation_impl.h"
 #include "arkode_root_impl.h"
 #include "arkode_types_impl.h"
+#include "sundials/sundials_types.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
 #include "sundials_stepper_impl.h"
@@ -560,6 +564,14 @@ struct ARKodeMemRec
   ARKPostProcessFn ProcessStage;
 
   sunbooleantype use_compensated_sums;
+
+  /* Adjoint solver data */
+  sunbooleantype do_adjoint;
+  long int adj_stage_idx; /* current stage index (only valid in adjoint context)*/
+
+  /* Checkpointing data */
+  SUNAdjointCheckpointScheme checkpoint_scheme;
+  int64_t checkpoint_step_idx; /* the step number for checkpointing */
 
   /* XBraid interface variables */
   sunbooleantype force_pass; /* when true the step attempt loop will ignore the

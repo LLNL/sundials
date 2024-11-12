@@ -380,3 +380,18 @@ abstract base class.
    This type represents a function with the signature similar to
    :c:func:`SUNStepper_Destroy` for freeing the content associated with a
    :c:type:`SUNStepper`.
+
+
+.. _SUNStepper.Description.UserSupplied:
+
+User-Supplied Function Types
+----------------------------
+
+This section describes the functions that users may supply.
+
+.. c:type:: int (*SUNRhsJacFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, \
+                            void* user_data, N_Vector tmp1, N_Vector tmp2, \
+                            N_Vector tmp3);
+
+.. c:type:: int (*SUNRhsJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, \
+                                 N_Vector fy, void* user_data, N_Vector tmp);

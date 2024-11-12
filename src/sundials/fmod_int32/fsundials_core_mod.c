@@ -1828,6 +1828,22 @@ SWIGEXPORT int _wrap_FSUNMatMatvec(SUNMatrix farg1, N_Vector farg2, N_Vector far
 }
 
 
+SWIGEXPORT int _wrap_FSUNMatMatTransposeVec(SUNMatrix farg1, N_Vector farg2, N_Vector farg3) {
+  int fresult ;
+  SUNMatrix arg1 = (SUNMatrix) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNMatrix)(farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (N_Vector)(farg3);
+  result = (SUNErrCode)SUNMatMatTransposeVec(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNMatSpace(SUNMatrix farg1, long *farg2, long *farg3) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
@@ -2726,17 +2742,19 @@ SWIGEXPORT int _wrap_FSUNStepper_FullRhs(void *farg1, double const *farg2, N_Vec
 }
 
 
-SWIGEXPORT int _wrap_FSUNStepper_Reset(void *farg1, double const *farg2, N_Vector farg3) {
+SWIGEXPORT int _wrap_FSUNStepper_Reset(void *farg1, double const *farg2, N_Vector farg3, int64_t const *farg4) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
+  int64_t arg4 ;
   SUNErrCode result;
   
   arg1 = (SUNStepper)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
-  result = (SUNErrCode)SUNStepper_Reset(arg1,arg2,arg3);
+  arg4 = (int64_t)(*farg4);
+  result = (SUNErrCode)SUNStepper_Reset(arg1,arg2,arg3,arg4);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

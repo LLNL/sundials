@@ -56,6 +56,12 @@ module fsundials_core_mod
  end enum
  integer, parameter, public :: SUNOutputFormat = kind(SUN_OUTPUTFORMAT_TABLE)
  public :: SUN_OUTPUTFORMAT_TABLE, SUN_OUTPUTFORMAT_CSV
+ ! typedef enum SUNDataIOMode
+ enum, bind(c)
+  enumerator :: SUNDATAIOMODE_INMEM
+ end enum
+ integer, parameter, public :: SUNDataIOMode = kind(SUNDATAIOMODE_INMEM)
+ public :: SUNDATAIOMODE_INMEM
  enum, bind(c)
   enumerator :: SUN_ERR_MINIMUM = -10000
   enumerator :: SUN_ERR_ARG_CORRUPT
@@ -74,11 +80,15 @@ module fsundials_core_mod
   enumerator :: SUN_ERR_DESTROY_FAIL
   enumerator :: SUN_ERR_NOT_IMPLEMENTED
   enumerator :: SUN_ERR_USER_FCN_FAIL
+  enumerator :: SUN_ERR_DATANODE_NODENOTFOUND
   enumerator :: SUN_ERR_PROFILER_MAPFULL
   enumerator :: SUN_ERR_PROFILER_MAPGET
   enumerator :: SUN_ERR_PROFILER_MAPINSERT
   enumerator :: SUN_ERR_PROFILER_MAPKEYNOTFOUND
   enumerator :: SUN_ERR_PROFILER_MAPSORT
+  enumerator :: SUN_ERR_ADJOINT_STEPPERFAILED
+  enumerator :: SUN_ERR_ADJOINT_STEPPERINVALIDSTOP
+  enumerator :: SUN_ERR_CHECKPOINT_NOT_FOUND
   enumerator :: SUN_ERR_SUNCTX_CORRUPT
   enumerator :: SUN_ERR_MPI_FAIL
   enumerator :: SUN_ERR_UNREACHABLE
@@ -89,9 +99,10 @@ module fsundials_core_mod
  public :: SUN_ERR_MINIMUM, SUN_ERR_ARG_CORRUPT, SUN_ERR_ARG_INCOMPATIBLE, SUN_ERR_ARG_OUTOFRANGE, SUN_ERR_ARG_WRONGTYPE, &
     SUN_ERR_ARG_DIMSMISMATCH, SUN_ERR_GENERIC, SUN_ERR_CORRUPT, SUN_ERR_OUTOFRANGE, SUN_ERR_FILE_OPEN, SUN_ERR_OP_FAIL, &
     SUN_ERR_MEM_FAIL, SUN_ERR_MALLOC_FAIL, SUN_ERR_EXT_FAIL, SUN_ERR_DESTROY_FAIL, SUN_ERR_NOT_IMPLEMENTED, &
-    SUN_ERR_USER_FCN_FAIL, SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, SUN_ERR_PROFILER_MAPINSERT, &
-    SUN_ERR_PROFILER_MAPKEYNOTFOUND, SUN_ERR_PROFILER_MAPSORT, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, SUN_ERR_UNREACHABLE, &
-    SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
+    SUN_ERR_USER_FCN_FAIL, SUN_ERR_DATANODE_NODENOTFOUND, SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, &
+    SUN_ERR_PROFILER_MAPINSERT, SUN_ERR_PROFILER_MAPKEYNOTFOUND, SUN_ERR_PROFILER_MAPSORT, SUN_ERR_ADJOINT_STEPPERFAILED, &
+    SUN_ERR_ADJOINT_STEPPERINVALIDSTOP, SUN_ERR_CHECKPOINT_NOT_FOUND, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, &
+    SUN_ERR_UNREACHABLE, SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
@@ -324,6 +335,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: scaleaddi
   type(C_FUNPTR), public :: matvecsetup
   type(C_FUNPTR), public :: matvec
+  type(C_FUNPTR), public :: mattransposevec
   type(C_FUNPTR), public :: space
  end type SUNMatrix_Ops
  ! struct struct _generic_SUNMatrix
@@ -344,6 +356,7 @@ module fsundials_core_mod
  public :: FSUNMatScaleAddI
  public :: FSUNMatMatvecSetup
  public :: FSUNMatMatvec
+ public :: FSUNMatMatTransposeVec
  public :: FSUNMatSpace
  enum, bind(c)
   enumerator :: SUN_PREC_NONE
@@ -1552,6 +1565,16 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
+function swigc_FSUNMatMatTransposeVec(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNMatMatTransposeVec") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNMatSpace(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNMatSpace") &
 result(fresult)
@@ -2119,13 +2142,14 @@ integer(C_INT), intent(in) :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNStepper_Reset(farg1, farg2, farg3) &
+function swigc_FSUNStepper_Reset(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FSUNStepper_Reset") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
+integer(C_INT64_T), intent(in) :: farg4
 integer(C_INT) :: fresult
 end function
 
@@ -4030,6 +4054,25 @@ fresult = swigc_FSUNMatMatvec(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
+function FSUNMatMatTransposeVec(a, x, y) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNMatrix), target, intent(inout) :: a
+type(N_Vector), target, intent(inout) :: x
+type(N_Vector), target, intent(inout) :: y
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = c_loc(a)
+farg2 = c_loc(x)
+farg3 = c_loc(y)
+fresult = swigc_FSUNMatMatTransposeVec(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
 function FSUNMatSpace(a, lenrw, leniw) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -5088,22 +5131,25 @@ fresult = swigc_FSUNStepper_FullRhs(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FSUNStepper_Reset(stepper, tr, vr) &
+function FSUNStepper_Reset(stepper, tr, vr, ckptidxr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: tr
 type(N_Vector), target, intent(inout) :: vr
+integer(C_INT64_T), intent(in) :: ckptidxr
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
+integer(C_INT64_T) :: farg4 
 
 farg1 = stepper
 farg2 = tr
 farg3 = c_loc(vr)
-fresult = swigc_FSUNStepper_Reset(farg1, farg2, farg3)
+farg4 = ckptidxr
+fresult = swigc_FSUNStepper_Reset(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 

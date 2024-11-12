@@ -30,6 +30,7 @@
 
 #include <arkode/arkode_butcher.h>
 #include <stdio.h>
+#include <sunadjoint/sunadjoint_stepper.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_stepper.h>
 
@@ -140,8 +141,10 @@ extern "C" {
 #define ARK_CONTROLLER_ERR -47
 
 #define ARK_STEPPER_UNSUPPORTED -48
+#define ARK_SUNSTEPPER_ERR      -49
 
-#define ARK_SUNSTEPPER_ERR -49
+#define ARK_ADJ_CHECKPOINT_FAIL -50
+#define ARK_ADJ_RECOMPUTE_FAIL  -51
 
 #define ARK_UNRECOGNIZED_ERROR -99
 
@@ -283,6 +286,11 @@ SUNDIALS_EXPORT int ARKodeSetInitStep(void* arkode_mem, sunrealtype hin);
 SUNDIALS_EXPORT int ARKodeSetMinStep(void* arkode_mem, sunrealtype hmin);
 SUNDIALS_EXPORT int ARKodeSetMaxStep(void* arkode_mem, sunrealtype hmax);
 SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
+SUNDIALS_EXPORT
+int ARKodeSetAdjointCheckpointScheme(void* arkode_mem,
+                                     SUNAdjointCheckpointScheme checkpoint_scheme);
+SUNDIALS_EXPORT
+int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, int64_t step_index);
 
 /* Integrate the ODE over an interval in t */
 SUNDIALS_EXPORT int ARKodeEvolve(void* arkode_mem, sunrealtype tout,
