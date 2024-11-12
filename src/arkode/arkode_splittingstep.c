@@ -98,7 +98,7 @@ static int splittingStep_SetCoefficients(const ARKodeMem ark_mem,
   }
   else
   {
-    /* Bump the order up to be even but with an error */
+    /* Bump the order up to be even but with a warning */
     const int new_order = step_mem->order + 1;
     arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                     "No splitting method at requested order, using q=%i.",
@@ -139,7 +139,7 @@ static int splittingStep_Init(const ARKodeMem ark_mem, const int init_type)
     return ARK_SUCCESS;
   }
 
-  /* assume fixed outer step size */
+  /* assume fixed step size */
   if (!ark_mem->fixedstep)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -260,7 +260,7 @@ static int splittingStep_SequentialMethod(const ARKodeMem ark_mem,
       err = SUNStepper_SetStopTime(stepper, t_end);
       if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
-      sunrealtype tret = 0;
+      sunrealtype tret = ZERO;
       err              = SUNStepper_Evolve(stepper, t_end, y, &tret);
       if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
@@ -332,7 +332,7 @@ static int splittingStep_PrintAllStats(const ARKodeMem ark_mem,
   case SUN_OUTPUTFORMAT_CSV:
     for (int k = 0; k < step_mem->partitions; k++)
     {
-      fprintf(outfile, "Partition %i evolves,%ld\n", k,
+      fprintf(outfile, ",Partition %i evolves,%ld", k,
               step_mem->n_stepper_evolves[k]);
     }
     break;

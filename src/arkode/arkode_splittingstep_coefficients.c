@@ -438,7 +438,7 @@ void SplittingStepCoefficients_Write(const SplittingStepCoefficients coefficient
                                      FILE* const outfile)
 {
   // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
-  if (coefficients == NULL || coefficients->alpha == NULL ||
+  if (outfile == NULL || coefficients == NULL || coefficients->alpha == NULL ||
       coefficients->beta == NULL || coefficients->beta[0] == NULL ||
       coefficients->beta[0][0] == NULL)
   {

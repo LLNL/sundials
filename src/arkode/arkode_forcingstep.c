@@ -238,7 +238,7 @@ static int forcingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outfil
   case SUN_OUTPUTFORMAT_CSV:
     for (int k = 0; k < NUM_PARTITIONS; k++)
     {
-      fprintf(outfile, "Partition %i evolves,%ld\n", k,
+      fprintf(outfile, ",Partition %i evolves,%ld", k,
               step_mem->n_stepper_evolves[k]);
     }
     break;

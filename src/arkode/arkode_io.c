@@ -1317,7 +1317,7 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
 
   // TODO(SBR): use SUNRcopysign once merged from other PR
   // if (SUNRcopysign(h, stepdir) == h) {
-  if (h == ZERO || ((h > 0) == (stepdir > 0))) { return ARK_SUCCESS; }
+  if (h == ZERO || ((h > ZERO) == (stepdir > ZERO))) { return ARK_SUCCESS; }
 
   /* Reverse the sign of h. If adaptive, h will be overwritten anyway by the
    * initial step estimation since ARKodeReset must be called before this.

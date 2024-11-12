@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
-  * This is the header file for the ARKODE ForcingStep module.
+ * This is the header file for the ARKODE ForcingStep module.
  *--------------------------------------------------------------*/
 
 #ifndef ARKODE_FORCINGINGSTEP_H_

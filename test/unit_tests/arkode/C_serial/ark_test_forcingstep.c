@@ -56,7 +56,7 @@ static int test_forward(SUNContext ctx)
   const sunrealtype tf         = SUN_RCONST(1.0);
   const sunrealtype dt         = SUN_RCONST(1.0e-4);
   const sunrealtype local_tol  = SUN_RCONST(1.0e-6);
-  const sunrealtype global_tol = 10 * local_tol;
+  const sunrealtype global_tol = SUN_RCONST(10.0) * local_tol;
 
   const N_Vector y = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
