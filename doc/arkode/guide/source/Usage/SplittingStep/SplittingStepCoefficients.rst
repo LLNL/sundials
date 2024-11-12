@@ -197,7 +197,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    .. math::
       y_n = \phi^1_h(y_{n-1}) + \phi^2_h(y_{n-1}) + \dots + \phi^P(y_{n-1}) +
-      (1 - p) y_{n-1}.
+      (1 - P) y_{n-1}.
 
    :param partitions: The number :math:`P > 1` of partitions in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
