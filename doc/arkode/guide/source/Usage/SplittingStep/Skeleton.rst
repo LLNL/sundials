@@ -37,15 +37,12 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
 
 #. Create a stepper object for each problem partition
 
-   * If using ARKStep as an partition integrator, create the ARKStep object with
-     :c:func:`ARKStepCreate` and configure the integrator as desired for
-     evolving the partition. See sections :numref:`ARKODE.Usage.Skeleton`,
-     :numref:`ARKODE.Usage.OptionalInputs`, and
-     :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for details on configuring
-     ARKStep.
+   * If using an ARKODE stepper module as an partition integrator, create and
+     configure the stepper as normal following the steps detailed in the section
+     for the desired stepper.
 
-     Once the ARKStep object is setup, create a :c:type:`SUNStepper` object with
-     :c:func:`ARKodeCreateSUNStepper`.
+     Once the ARKODE stepper object is setup, create a :c:type:`SUNStepper`
+     object with :c:func:`ARKodeCreateSUNStepper`.
 
    * If supplying a user-defined partition integrator, create the
      :c:type:`SUNStepper` object as described in section
@@ -53,12 +50,12 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
 
    .. note::
 
-      When using ARKStep as a partition integrator it is the user's responsibility
-      to create and configure the integrator. User-specified options regarding
-      how the integration should be performed (e.g., adaptive vs. fixed time
-      step, explicit/implicit/ImEx partitioning, algebraic solvers, etc.) will
-      be respected during evolution of a partition during SplittingStep
-      integration.
+      When using ARKODE for partition integrators, it is the user's
+      responsibility to create and configure the integrator. User-specified
+      options regarding how the integration should be performed (e.g., adaptive
+      vs. fixed time step, explicit/implicit/ImEx partitioning, algebraic
+      solvers, etc.) will be respected during evolution of a partition during
+      SplittingStep integration.
 
       If a *user_data* pointer needs to be passed to user functions called by
       an inner integrator then it should be attached here by calling

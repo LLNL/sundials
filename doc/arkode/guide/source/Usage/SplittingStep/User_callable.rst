@@ -58,18 +58,18 @@ SplittingStep initialization functions
          /* inner ARKODE objects for integrating individual partitions */
          void *partition_mem[] = {NULL, NULL};
 
-         /* SUNSteppers to wrap the inner ARKStep objects */
+         /* SUNSteppers to wrap the inner ARKODE objects */
          SUNStepper steppers[] = {NULL, NULL};
 
-         /* create ARKStep objects, setting right-hand side functions and the
+         /* create ARKODE objects, setting right-hand side functions and the
             initial condition */
-         partition_mem[0] = ARKStepCreate(fe1, fi1, t0, y0, sunctx);
+         partition_mem[0] = ERKStepCreate(f1, t0, y0, sunctx);
          partition_mem[1] = ARKStepCreate(fe2, fi2, t0, y0, sunctx);
 
-         /* setup ARKStep */
+         /* setup ARKODE objects */
          . . .
 
-         /* create SUNStepper wrappers for the ARKStep memory blocks */
+         /* create SUNStepper wrappers for the ARKODE memory blocks */
          flag = ARKodeCreateSUNStepper(partition_mem[0], &stepper[0]);
          flag = ARKodeCreateSUNStepper(partition_mem[1], &stepper[1]);
 
