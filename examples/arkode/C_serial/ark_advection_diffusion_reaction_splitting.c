@@ -15,7 +15,7 @@
  *
  * The following test simulates a simple 1D advection-diffusion-
  * reaction equation,
- *    u_t = a*(u^2/2)_x + b*u_xx + c*(u - u^3)
+ *    u_t = (a/2)*(u^2)_x + b*u_xx + c*(u - u^3)
  * for t in [0, 1], x in [0, 1], with initial conditions
  *    u(0,x) = u_0
  * and Dirichlet boundary conditions at x=0 and x=1
