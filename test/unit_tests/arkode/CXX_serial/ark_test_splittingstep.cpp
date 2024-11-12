@@ -39,7 +39,7 @@ static int test_forward(sundials::Context& ctx, const int partitions)
   constexpr auto tf         = SUN_RCONST(1.0);
   constexpr auto dt         = SUN_RCONST(8.0e-3);
   constexpr auto local_tol  = SUN_RCONST(1.0e-6);
-  constexpr auto global_tol = 10 * local_tol;
+  constexpr auto global_tol = SUN_RCONST(10.0) * local_tol;
   const auto y              = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
@@ -73,7 +73,7 @@ static int test_forward(sundials::Context& ctx, const int partitions)
 
   /* Check that the solution matches the exact solution */
   const auto exact_solution     = std::exp(t0 - tf);
-  const auto numerical_solution = NV_Ith_S(y, 0);
+  const auto numerical_solution = N_VGetArrayPointer(y)[0];
 
   if (SUNRCompareTol(exact_solution, numerical_solution, global_tol))
   {
@@ -119,7 +119,7 @@ static int test_mixed_directions(const sundials::Context& ctx)
   constexpr auto t3         = t0;
   constexpr auto dt         = -SUN_RCONST(1.23e-3);
   constexpr auto local_tol  = SUN_RCONST(1.0e-6);
-  constexpr auto global_tol = 10 * local_tol;
+  constexpr auto global_tol = SUN_RCONST(10.0) * local_tol;
   const auto y              = N_VNew_Serial(2, ctx);
   N_VConst(SUN_RCONST(1.0), y);
   const auto err = N_VClone(y);
@@ -128,16 +128,16 @@ static int test_mixed_directions(const sundials::Context& ctx)
   const ARKRhsFn f1 =
     [](const sunrealtype t, const N_Vector z, const N_Vector zdot, void* const)
   {
-    NV_Ith_S(zdot, 0) = NV_Ith_S(z, 1) - t;
-    NV_Ith_S(zdot, 1) = SUN_RCONST(0.0);
+    N_VGetArrayPointer(zdot)[0] = N_VGetArrayPointer(z)[1] - t;
+    N_VGetArrayPointer(zdot)[1] = SUN_RCONST(0.0);
     return 0;
   };
 
   const ARKRhsFn f2 =
     [](const sunrealtype t, const N_Vector z, const N_Vector zdot, void* const)
   {
-    NV_Ith_S(zdot, 0) = SUN_RCONST(0.0);
-    NV_Ith_S(zdot, 1) = t - NV_Ith_S(z, 0);
+    N_VGetArrayPointer(zdot)[0] = SUN_RCONST(0.0);
+    N_VGetArrayPointer(zdot)[1] = t - N_VGetArrayPointer(z)[0];
     return 0;
   };
 
@@ -202,7 +202,7 @@ static int test_mixed_directions(const sundials::Context& ctx)
 
 /* Integrates the ODE
  * 
- * y' = [y^2] - [y*(y - 1)] = -y
+ * y' = [y^2] - [y*(y + 1)] = -y
  * 
  * with initial condition y(0) = 1 and partitioning specified by the square
  * brackets. Powers and products are done componentwise. At t = 0.5, we resize
@@ -261,8 +261,8 @@ static int test_resize(const sundials::Context& ctx)
 
   /* Resize */
   const auto y_new   = N_VNew_Serial(2, ctx);
-  NV_Ith_S(y_new, 0) = SUN_RCONST(1.0);
-  NV_Ith_S(y_new, 1) = NV_Ith_S(y, 0);
+  N_VGetArrayPointer(y_new)[0] = SUN_RCONST(1.0);
+  N_NGetArrayPointer(y_new)[1] = N_VGetArrayPointer(y)[0];
   N_VDestroy(y);
   ARKodeResize(arkode_mem, y_new, SUN_RCONST(1.0), t1, nullptr, nullptr);
   ARKodeResize(parititon_mem[0], y_new, SUN_RCONST(1.0), t1, nullptr, nullptr);
@@ -272,8 +272,8 @@ static int test_resize(const sundials::Context& ctx)
   ARKodeEvolve(arkode_mem, t2, y_new, &tret, ARK_NORMAL);
 
   const auto err   = N_VClone(y_new);
-  NV_Ith_S(err, 0) = std::exp(t1 - t2);
-  NV_Ith_S(err, 1) = std::exp(t0 - t2);
+  N_VGetArrayPointer(err)[0] = std::exp(t1 - t2);
+  N_VGetArrayPointer(err)[1] = std::exp(t0 - t2);
   N_VLinearSum(SUN_RCONST(1.0), err, -SUN_RCONST(1.0), y_new, err);
   const auto max_err = N_VMaxNorm(err);
 
@@ -333,7 +333,7 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
   {
     auto& content = Content::from_stepper(s);
     content.t     = tR;
-    N_VScale(1, vR, content.v);
+    N_VScale(SUN_RCONST(1.0), vR, content.v);
     return 0;
   };
   SUNStepper_SetResetFn(stepper, reset);
@@ -394,7 +394,7 @@ static int test_custom_stepper(const sundials::Context& ctx)
 
   /* Check that the solution matches the exact solution */
   const auto exact_solution     = std::exp(t0 - tf);
-  const auto numerical_solution = NV_Ith_S(y, 0);
+  const auto numerical_solution = N_VGetArrayPointer(y)[0];
   if (SUNRCompare(exact_solution, numerical_solution))
   {
     const auto err = numerical_solution - exact_solution;
