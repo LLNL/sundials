@@ -675,7 +675,7 @@ The following algorithmic procedure is used in the Splitting-Step module:
 
    #. Set :math:`y_{n, i} = y_{n - 1}`.
 
-   #. For :math:`j = 0, \dots, s` do:
+   #. For :math:`j = 1, \dots, s` do:
 
       #. For :math:`k = 1, \dots, P` do:
 
