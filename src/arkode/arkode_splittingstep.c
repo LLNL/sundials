@@ -371,7 +371,7 @@ static void splittingStep_Free(const ARKodeMem ark_mem)
   {
     free(step_mem->steppers);
     free(step_mem->n_stepper_evolves);
-    SplittingStepCoefficients_Free(step_mem->coefficients);
+    SplittingStepCoefficients_Destroy(&step_mem->coefficients);
     free(step_mem);
   }
   ark_mem->step_mem = NULL;
@@ -415,7 +415,7 @@ static int splittingStep_SetOrder(const ARKodeMem ark_mem, const int order)
   /* set user-provided value, or default, depending on argument */
   step_mem->order = order <= 0 ? 1 : order;
 
-  SplittingStepCoefficients_Free(step_mem->coefficients);
+  SplittingStepCoefficients_Destroy(&step_mem->coefficients);
   step_mem->coefficients = NULL;
 
   return ARK_SUCCESS;
@@ -592,7 +592,7 @@ int SplittingStep_SetCoefficients(void* const arkode_mem,
     return ARK_ILL_INPUT;
   }
 
-  SplittingStepCoefficients_Free(step_mem->coefficients);
+  SplittingStepCoefficients_Destroy(&step_mem->coefficients);
   step_mem->coefficients = SplittingStepCoefficients_Copy(coefficients);
   if (step_mem->coefficients == NULL)
   {

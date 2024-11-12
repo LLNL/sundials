@@ -110,7 +110,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    | :c:func:`SplittingStepCoefficients_Copy()`                   | Create a copy of a :c:type:`SplittingStepCoefficients`      |
    |                                                              | object                                                      |
    +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Free()`                   | Deallocate a :c:type:`SplittingStepCoefficients` object     |
+   | :c:func:`SplittingStepCoefficients_Destroy()`                | Deallocate a :c:type:`SplittingStepCoefficients` object     |
    +--------------------------------------------------------------+-------------------------------------------------------------+
    | :c:func:`SplittingStepCoefficients_Write()`                  | Write the :c:type:`SplittingStepCoefficients` object to an  |
    |                                                              | output file                                                 |
@@ -364,7 +364,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    .. versionadded:: x.y.z
 
 
-.. c:function:: void SplittingStepCoefficients_Free(SplittingStepCoefficients coefficients)
+.. c:function:: void SplittingStepCoefficients_Destroy(SplittingStepCoefficients* coefficients)
 
    Deallocate the splitting coefficients memory.
 

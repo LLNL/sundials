@@ -142,25 +142,25 @@ int main(int argc, char* argv[])
     SplittingStepCoefficients_Copy(coefficients);
   retval += check_coefficients("Lie-Trotter (copy)", coefficients_copy, 1, 1, 2,
                                1, alpha_lie_trotter, beta_lie_trotter);
-  SplittingStepCoefficients_Free(coefficients);
-  SplittingStepCoefficients_Free(coefficients_copy);
+  SplittingStepCoefficients_Destroy(&coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients_copy);
 
   coefficients = SplittingStepCoefficients_LoadCoefficients(
     ARKODE_SPLITTING_LIE_TROTTER_1_1_2);
   retval += check_coefficients("Lie-Trotter (load by enum)", coefficients, 1, 1,
                                2, 1, alpha_lie_trotter, beta_lie_trotter);
-  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients);
 
   coefficients = SplittingStepCoefficients_LoadCoefficientsByName(
     "ARKODE_SPLITTING_LIE_TROTTER_1_1_2");
   retval += check_coefficients("Lie-Trotter (load by name)", coefficients, 1, 1,
                                2, 1, alpha_lie_trotter, beta_lie_trotter);
-  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients);
 
   coefficients = SplittingStepCoefficients_LieTrotter(2);
   retval += check_coefficients("Lie-Trotter (constructor)", coefficients, 1, 1,
                                2, 1, alpha_lie_trotter, beta_lie_trotter);
-  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients);
 
   sunrealtype alpha_strang[] = {ONE};
   sunrealtype beta_strang[]  = {ZERO, ZERO, ZERO, HALF, HALF, ONE,
@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
   coefficients = SplittingStepCoefficients_Strang(3);
   retval += check_coefficients("Strang", coefficients, 1, 3, 3, 2, alpha_strang,
                                beta_strang);
-  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients);
 
   sunrealtype alpha_parallel[] = {ONE, ONE, -ONE};
   sunrealtype beta_parallel[]  = {ZERO, ZERO, ONE,  ZERO, ZERO, ZERO,
@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
   coefficients = SplittingStepCoefficients_Parallel(2);
   retval += check_coefficients("Parallel", coefficients, 3, 1, 2, 1,
                                alpha_parallel, beta_parallel);
-  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients);
 
   sunrealtype alpha_symmetric_parallel[] = {HALF, HALF, -ONE};
   sunrealtype beta_symmetric_parallel[]  = {ZERO, ZERO, ZERO, ZERO, ZERO, ZERO,
@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
   coefficients = SplittingStepCoefficients_SymmetricParallel(3);
   retval += check_coefficients("Symmetric Parallel", coefficients, 2, 3, 3, 2,
                                alpha_symmetric_parallel, beta_symmetric_parallel);
-  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients);
 
   sunrealtype alpha_suzuki_fractal[] = {ONE};
   sunrealtype beta_suzuki_fractal[]  = {ZERO,
@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
   coefficients = SplittingStepCoefficients_SuzukiFractal(2, 4);
   retval += check_coefficients("Suzuki Fractal", coefficients, 1, 6, 2, 4,
                                alpha_suzuki_fractal, beta_suzuki_fractal);
-  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients);
 
   printf("%d test failures\n", retval);
 

@@ -28,7 +28,7 @@ SplittingStepCoefficients SplittingStepCoefficients_Alloc(
 {
   if (sequential_methods < 1 || stages < 1 || partitions < 1) { return NULL; }
 
-  const SplittingStepCoefficients coefficients =
+  SplittingStepCoefficients coefficients =
     (SplittingStepCoefficients)malloc(sizeof(*coefficients));
   if (coefficients == NULL) { return NULL; }
 
@@ -41,7 +41,7 @@ SplittingStepCoefficients SplittingStepCoefficients_Alloc(
                                              sizeof(*coefficients->alpha));
   if (coefficients->alpha == NULL)
   {
-    SplittingStepCoefficients_Free(coefficients);
+    SplittingStepCoefficients_Destroy(&coefficients);
     return NULL;
   }
 
@@ -54,7 +54,7 @@ SplittingStepCoefficients SplittingStepCoefficients_Alloc(
     (sunrealtype***)malloc(sequential_methods * sizeof(*coefficients->beta));
   if (coefficients->beta == NULL)
   {
-    SplittingStepCoefficients_Free(coefficients);
+    SplittingStepCoefficients_Destroy(&coefficients);
     return NULL;
   }
 
@@ -63,7 +63,7 @@ SplittingStepCoefficients SplittingStepCoefficients_Alloc(
     sequential_methods * (stages + 1) * sizeof(*beta_cols));
   if (beta_cols == NULL)
   {
-    SplittingStepCoefficients_Free(coefficients);
+    SplittingStepCoefficients_Destroy(&coefficients);
     return NULL;
   }
 
@@ -73,7 +73,7 @@ SplittingStepCoefficients SplittingStepCoefficients_Alloc(
                          sizeof(*beta_mem));
   if (beta_mem == NULL)
   {
-    SplittingStepCoefficients_Free(coefficients);
+    SplittingStepCoefficients_Destroy(&coefficients);
     return NULL;
   }
 
@@ -115,20 +115,21 @@ SplittingStepCoefficients SplittingStepCoefficients_Create(
 /*---------------------------------------------------------------
   Routine to free splitting coefficients
   ---------------------------------------------------------------*/
-void SplittingStepCoefficients_Free(const SplittingStepCoefficients coefficients)
+void SplittingStepCoefficients_Destroy(SplittingStepCoefficients* coefficients)
 {
-  if (coefficients != NULL)
+  if (*coefficients != NULL && coefficients != NULL)
   {
-    free(coefficients->alpha);
-    if (coefficients->beta != NULL)
+    free((*coefficients)->alpha);
+    if ((*coefficients)->beta != NULL)
     {
-      free(coefficients->beta[0][0]);
-      free(coefficients->beta[0]);
-      free(coefficients->beta);
+      free((*coefficients)->beta[0][0]);
+      free((*coefficients)->beta[0]);
+      free((*coefficients)->beta);
     }
   }
 
-  free(coefficients);
+  free(*coefficients);
+  *coefficients = NULL;
 }
 
 /*---------------------------------------------------------------

@@ -154,10 +154,10 @@ static int test_mixed_directions(const sundials::Context& ctx)
   ARKodeSetFixedStep(arkode_mem, dt);
   ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
   ARKodeSetMaxNumSteps(arkode_mem, -1);
-  const auto coefficients =
+  auto coefficients =
     SplittingStepCoefficients_LoadCoefficients(ARKODE_SPLITTING_RUTH_3_3_2);
   SplittingStep_SetCoefficients(arkode_mem, coefficients);
-  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients);
 
   /* Integrate from 0 to -1 */
   auto tret = t0;
@@ -251,18 +251,18 @@ static int test_resize(const sundials::Context& ctx)
 
   auto arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
-  const auto coefficients = SplittingStepCoefficients_SymmetricParallel(2);
+  auto coefficients = SplittingStepCoefficients_SymmetricParallel(2);
   SplittingStep_SetCoefficients(arkode_mem, coefficients);
-  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients);
 
   /* Integrate from 0 to 0.5 */
   auto tret = t0;
   ARKodeEvolve(arkode_mem, t1, y, &tret, ARK_NORMAL);
 
   /* Resize */
-  const auto y_new   = N_VNew_Serial(2, ctx);
+  const auto y_new             = N_VNew_Serial(2, ctx);
   N_VGetArrayPointer(y_new)[0] = SUN_RCONST(1.0);
-  N_NGetArrayPointer(y_new)[1] = N_VGetArrayPointer(y)[0];
+  N_VGetArrayPointer(y_new)[1] = N_VGetArrayPointer(y)[0];
   N_VDestroy(y);
   ARKodeResize(arkode_mem, y_new, SUN_RCONST(1.0), t1, nullptr, nullptr);
   ARKodeResize(parititon_mem[0], y_new, SUN_RCONST(1.0), t1, nullptr, nullptr);
@@ -271,7 +271,7 @@ static int test_resize(const sundials::Context& ctx)
   /* Integrate from 0.5 to 1 */
   ARKodeEvolve(arkode_mem, t2, y_new, &tret, ARK_NORMAL);
 
-  const auto err   = N_VClone(y_new);
+  const auto err             = N_VClone(y_new);
   N_VGetArrayPointer(err)[0] = std::exp(t1 - t2);
   N_VGetArrayPointer(err)[1] = std::exp(t0 - t2);
   N_VLinearSum(SUN_RCONST(1.0), err, -SUN_RCONST(1.0), y_new, err);
@@ -385,9 +385,9 @@ static int test_custom_stepper(const sundials::Context& ctx)
 
   auto arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
-  const auto coefficients = SplittingStepCoefficients_SuzukiFractal(2, 6);
+  auto coefficients = SplittingStepCoefficients_SuzukiFractal(2, 6);
   SplittingStep_SetCoefficients(arkode_mem, coefficients);
-  SplittingStepCoefficients_Free(coefficients);
+  SplittingStepCoefficients_Destroy(&coefficients);
 
   auto tret = t0;
   ARKodeEvolve(arkode_mem, tf, y, &tret, ARK_NORMAL);

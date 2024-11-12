@@ -62,8 +62,8 @@ SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Alloc(
 SUNDIALS_EXPORT SplittingStepCoefficients SplittingStepCoefficients_Create(
   int sequential_methods, int stages, int partitions, int order,
   sunrealtype* alpha, sunrealtype* beta);
-SUNDIALS_EXPORT void SplittingStepCoefficients_Free(
-  SplittingStepCoefficients coefficients);
+SUNDIALS_EXPORT void SplittingStepCoefficients_Destroy(
+  SplittingStepCoefficients* coefficients);
 SUNDIALS_EXPORT SplittingStepCoefficients
 SplittingStepCoefficients_Copy(SplittingStepCoefficients coefficients);
 SUNDIALS_EXPORT void SplittingStepCoefficients_Write(

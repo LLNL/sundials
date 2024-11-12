@@ -76,7 +76,7 @@ module farkode_splittingstep_mod
     ARKODE_SPLITTING_YOSHIDA_8_6_2, ARKODE_MAX_SPLITTING_NUM
  public :: FSplittingStepCoefficients_Alloc
  public :: FSplittingStepCoefficients_Create
- public :: FSplittingStepCoefficients_Free
+ public :: FSplittingStepCoefficients_Destroy
  public :: FSplittingStepCoefficients_Copy
  public :: FSplittingStepCoefficients_Write
  public :: FSplittingStepCoefficients_LoadCoefficients
@@ -249,11 +249,10 @@ type(C_PTR), value :: farg6
 type(SwigClassWrapper) :: fresult
 end function
 
-subroutine swigc_FSplittingStepCoefficients_Free(farg1) &
-bind(C, name="_wrap_FSplittingStepCoefficients_Free")
+subroutine swigc_FSplittingStepCoefficients_Destroy(farg1) &
+bind(C, name="_wrap_FSplittingStepCoefficients_Destroy")
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
-type(SwigClassWrapper) :: farg1
+type(C_PTR), value :: farg1
 end subroutine
 
 function swigc_FSplittingStepCoefficients_Copy(farg1) &
@@ -642,13 +641,13 @@ fresult = swigc_FSplittingStepCoefficients_Create(farg1, farg2, farg3, farg4, fa
 swig_result%swigdata = fresult
 end function
 
-subroutine FSplittingStepCoefficients_Free(coefficients)
+subroutine FSplittingStepCoefficients_Destroy(coefficients)
 use, intrinsic :: ISO_C_BINDING
-class(SplittingStepCoefficientsMem), intent(in) :: coefficients
-type(SwigClassWrapper) :: farg1 
+type(C_PTR), target, intent(inout) :: coefficients
+type(C_PTR) :: farg1 
 
-farg1 = coefficients%swigdata
-call swigc_FSplittingStepCoefficients_Free(farg1)
+farg1 = c_loc(coefficients)
+call swigc_FSplittingStepCoefficients_Destroy(farg1)
 end subroutine
 
 function FSplittingStepCoefficients_Copy(coefficients) &

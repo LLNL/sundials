@@ -523,12 +523,11 @@ SWIGEXPORT SwigClassWrapper _wrap_FSplittingStepCoefficients_Create(int const *f
 }
 
 
-SWIGEXPORT void _wrap_FSplittingStepCoefficients_Free(SwigClassWrapper const *farg1) {
-  SplittingStepCoefficients arg1 = (SplittingStepCoefficients) 0 ;
+SWIGEXPORT void _wrap_FSplittingStepCoefficients_Destroy(void *farg1) {
+  SplittingStepCoefficients *arg1 = (SplittingStepCoefficients *) 0 ;
   
-  SWIG_check_mutable(*farg1, "SplittingStepCoefficients", "SplittingStepCoefficientsMem", "SplittingStepCoefficients_Free(SplittingStepCoefficients)", return );
-  arg1 = (SplittingStepCoefficients)(farg1->cptr);
-  SplittingStepCoefficients_Free(arg1);
+  arg1 = (SplittingStepCoefficients *)(farg1);
+  SplittingStepCoefficients_Destroy(arg1);
 }
 
 

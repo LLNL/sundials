@@ -202,7 +202,7 @@ int main(const int argc, char* const argv[])
 
     if (coefficients_name != NULL)
     {
-      const SplittingStepCoefficients coefficients =
+      SplittingStepCoefficients coefficients =
         SplittingStepCoefficients_LoadCoefficientsByName(coefficients_name);
       if (check_flag(coefficients,
                      "SplittingStepCoefficients_LoadCoefficientsByName", 0))
@@ -213,7 +213,7 @@ int main(const int argc, char* const argv[])
       flag = SplittingStep_SetCoefficients(arkode_mem, coefficients);
       if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
-      SplittingStepCoefficients_Free(coefficients);
+      SplittingStepCoefficients_Destroy(&coefficients);
     }
   }
   else
