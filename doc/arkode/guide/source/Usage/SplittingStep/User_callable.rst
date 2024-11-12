@@ -38,10 +38,10 @@ SplittingStep initialization functions
    This function allocates and initializes memory for a problem to be solved
    using the SplittingStep time-stepping module in ARKODE.
 
-   :param steppers: an array of :c:type:`SUNStepper` with one for each
+   :param steppers: an array of :c:type:`SUNStepper` objects with one for each
       partition of the IVP. All :c:type:`SUNStepper` operations are required to
       be implemented except :c:func:`SUNStepper_SetForcing`.
-   :param partitions: the number :math:`P > 1` of partitions in the IVP.
+   :param partitions: the number of partitions, :math:`P > 1`, in the IVP.
    :param t0: the initial value of :math:`t`.
    :param y0: the initial condition vector :math:`y(t_0)`.
    :param sunctx: the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
@@ -88,7 +88,7 @@ Optional inputs for IVP method selection
 
 .. c:function:: int SplittingStep_SetCoefficients(void* arkode_mem, SplittingStepCoefficients coefficients)
 
-   Specifies a customized set of coefficients for the operator splitting method.
+   Specifies a set of coefficients for the operator splitting method.
 
    :param arkode_mem: pointer to the SplittingStep memory block.
    :param coefficients: the splitting coefficients for the method.

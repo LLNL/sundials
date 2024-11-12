@@ -37,7 +37,7 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
 
 #. Create a stepper object for each problem partition
 
-   * If using ARKStep as an inner integrator, create the ARKStep object with
+   * If using ARKStep as an partition integrator, create the ARKStep object with
      :c:func:`ARKStepCreate` and configure the integrator as desired for
      evolving the partition. See sections :numref:`ARKODE.Usage.Skeleton`,
      :numref:`ARKODE.Usage.OptionalInputs`, and
@@ -47,13 +47,13 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
      Once the ARKStep object is setup, create a :c:type:`SUNStepper` object with
      :c:func:`ARKodeCreateSUNStepper`.
 
-   * If supplying a user-defined inner integrator, create the
+   * If supplying a user-defined partition integrator, create the
      :c:type:`SUNStepper` object as described in section
      :numref:`SUNStepper.Implementing`.
 
    .. note::
 
-      When using ARKStep as an inner integrator it is the user's responsibility
+      When using ARKStep as a partition integrator it is the user's responsibility
       to create and configure the integrator. User-specified options regarding
       how the integration should be performed (e.g., adaptive vs. fixed time
       step, explicit/implicit/ImEx partitioning, algebraic solvers, etc.) will
@@ -71,12 +71,11 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
       integrators may be the same or different depending on what is required by
       the user code.
 
-      Specifying a rootfinding problem for an inner integrator is not supported.
-      Rootfinding problems should be created and initialized with the outer
-      integrator. See the steps below and :c:func:`ARKodeRootInit()` for more
-      details.
+      Specifying a rootfinding problem for a partitiona integrator is not supported.
+      Rootfinding problems should be created and initialized with SplittingStep.
+      See the steps below and :c:func:`ARKodeRootInit()` for more details.
 
-#. Create a SplittingStep object for the outer integration
+#. Create a SplittingStep object
 
    Create the SplittingStep object by calling :c:func:`SplittingStepCreate`. One
    of the inputs to :c:func:`SplittingStepCreate` is an array of
@@ -85,7 +84,7 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
 #. Set the SplittingStep step size
 
    Call :c:func:`ARKodeSetFixedStep()` on the SplittingStep object to specify
-   the outer time step size.
+   the overall time step size.
 
 #. *Set optional inputs*
 
@@ -99,11 +98,11 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
 
 #. Free solver memory
 
-   * If ARKStep was used as an inner IVP integrator, call
+   * If an ARKODE stepper module was used as an partition IVP integrator, call
      :c:func:`SUNStepper_Destroy` and :c:func:`ARKodeFree` to free the memory
-     allocated for that inner integrator.
+     allocated for that integrator.
 
-   * If a user-defined inner integrator was supplied, free the integrator
+   * If a user-defined partition integrator was supplied, free the integrator
      content and call :c:func:`SUNStepper_Destroy` to free the :c:type:`SUNStepper`
      object.
 

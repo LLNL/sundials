@@ -34,31 +34,33 @@ stored in a :c:type:`SplittingStepCoefficients` object which is a pointer to a
 
    As described in :numref:`ARKODE.Mathematics.SplittingStep`, an operator
    splitting method is defined by a vector :math:`\alpha \in \mathbb{R}^{r}` and
-   a tensor :math:`\beta \in \mathbb{R}^{r \times (s + 1) \times P}`.
+   a tensor :math:`\beta \in \mathbb{R}^{r \times (s + 1) \times P}` where :math:`r` is
+   the number of sequential methods, :math:`s` is the number of stages, and :math:`P`
+   is the number of partitions.
 
    .. c:member:: sunrealtype *alpha
 
-      An array of length ``[sequential_methods]`` containing the weight of each
-      sequential method used to produce the overall operator splitting solution
+      An array containing the weight of each sequential method used to produce the
+      overall operator splitting solution. The array is of length
+      ``[sequential_methods]``.
 
    .. c:member:: sunrealtype ***beta
 
-      A three-dimensional array with dimensions
-      ``[sequential_methods][stages+1][partitions]`` containing the time nodes
-      of the inner integrations.
+      A three-dimensional array containing the time nodes of the inner integrations.
+      The array has dimensions ``[sequential_methods][stages+1][partitions]``.
 
    .. c:member:: int sequential_methods
 
-      The number :math:`r` of sequential methods combined to produce the overall
+      The number of sequential methods, :math:`r`, combined to produce the overall
       operator splitting solution
 
    .. c:member:: int stages
 
-      The number :math:`s` of stages
+      The number of stages, :math:`s` 
 
    .. c:member:: int partitions
 
-      The number :math:`P` of partitions in the IVP
+      The number of partitions, :math:`P`, in the IVP
 
    .. c:member:: int order
 
@@ -99,15 +101,19 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    +--------------------------------------------------------------+-------------------------------------------------------------+
    | :c:func:`SplittingStepCoefficients_SuzukiFractal()`          | Create an arbitrary order, five-jump composition method     |
    +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Alloc()`                  | Allocate an empty SplittingStepCoefficient                  |
+   | :c:func:`SplittingStepCoefficients_Alloc()`                  | Allocate an empty :c:type:`SplittingStepCoefficients`       |
+   |                                                              | object                                                      |
    +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Create()`                 | Create a new SplittingStepCoefficient from coefficients     |
+   | :c:func:`SplittingStepCoefficients_Create()`                 | Create a new :c:type:`SplittingStepCoefficients` object     |
+   |                                                              | from coefficient arrays                                     |
    +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Copy()`                   | Create a copy of a SplittingStepCoefficients                |
+   | :c:func:`SplittingStepCoefficients_Copy()`                   | Create a copy of a :c:type:`SplittingStepCoefficients`      |
+   |                                                              | object                                                      |
    +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Free()`                   | Deallocate a SplittingStepCoefficients                      |
+   | :c:func:`SplittingStepCoefficients_Free()`                   | Deallocate a :c:type:`SplittingStepCoefficients` object     |
    +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Write()`                  | Write the SplittingStepCoefficients to an output file       |
+   | :c:func:`SplittingStepCoefficients_Write()`                  | Write the :c:type:`SplittingStepCoefficients` object to an  |
+   |                                                              | output file                                                 |
    +--------------------------------------------------------------+-------------------------------------------------------------+
 
 
@@ -120,7 +126,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    :param method: the splitting coefficients identifier.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
-      ``NULL`` pointer if *method* was invalid or an allocation error occurred.
+      ``NULL`` pointer if ``method`` was invalid or an allocation error occurred.
    
    .. versionadded:: x.y.z
 
@@ -134,7 +140,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    :param method: the splitting coefficients identifier.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
-      ``NULL`` pointer if *method* was invalid or an allocation error occurred.
+      ``NULL`` pointer if ``method`` was invalid or an allocation error occurred.
 
    .. note::
 
@@ -152,7 +158,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    :param method: the splitting coefficients identifier.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
-      ``NULL`` pointer if *method* was invalid or an allocation error occurred.
+      ``NULL`` pointer if ``method`` was invalid or an allocation error occurred.
    
    .. versionadded:: x.y.z
 
@@ -165,9 +171,9 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       y_n = L_h(y_{n-1}) = \left( \phi^P_{h} \circ \phi^{P-1}_{h}
       \circ \dots \circ \phi^1_{h} \right) (y_{n-1}).
 
-   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
-      ``NULL`` pointer if *partitions* was invalid or an allocation error
+      ``NULL`` pointer if ``partitions`` was invalid or an allocation error
       occurred.
    
    .. versionadded:: x.y.z
@@ -183,9 +189,9 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    where :math:`L_h` is the Lie-Trotter splitting and
    :math:`L^*_h = L^{-1}_{-h}` is its adjoint.
 
-   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
-      ``NULL`` pointer if *partitions* was invalid or an allocation error
+      ``NULL`` pointer if ``partitions`` was invalid or an allocation error
       occurred.
    
    .. versionadded:: x.y.z
@@ -199,9 +205,9 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       y_n = \phi^1_h(y_{n-1}) + \phi^2_h(y_{n-1}) + \dots + \phi^P(y_{n-1}) +
       (1 - P) y_{n-1}.
 
-   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
-      ``NULL`` pointer if *partitions* was invalid or an allocation error
+      ``NULL`` pointer if ``partitions`` was invalid or an allocation error
       occurred.
    
    .. versionadded:: x.y.z
@@ -218,9 +224,9 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    where :math:`L_h` is the Lie-Trotter splitting and
    :math:`L^*_h = L^{-1}_{-h}` is its adjoint.
 
-   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
-      ``NULL`` pointer if *partitions* was invalid or an allocation error
+      ``NULL`` pointer if ``partitions`` was invalid or an allocation error
       occurred.
    
    .. versionadded:: x.y.z
@@ -238,9 +244,9 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    :math:`L^*_h = L^{-1}_{-h}` is its adjoint. The parameters
    :math:`p_1, \dots, p_5` are selected to give third order.
 
-   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
-      ``NULL`` pointer if *partitions* was invalid or an allocation error
+      ``NULL`` pointer if ``partitions`` was invalid or an allocation error
       occurred.
    
    .. versionadded:: x.y.z
@@ -256,13 +262,13 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       T_h^{[2]} &= S_h, \\
       T_h^{[i+2]} &= T_{\gamma_1 h}^{[i]} \circ T_{(1 - 2 \gamma_1) h}^{[i]}
       \circ T_{\gamma_1 h}^{[i]}, \\
-      y_n &= T_h^{[order]}(y_{n-1}),
+      y_n &= T_h^{[\mathrm{order}]}(y_{n-1}),
       \end{align*}
    
-   where :math:`S` is the Strang splitting and parameter :math:`\gamma_1` is
+   where :math:`S` is the Strang splitting and :math:`\gamma_1` is
    selected to increase the order by two each recursion.
 
-   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :param order: A positive even number for the method order of accuracy.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
       ``NULL`` pointer if an argument was invalid or an allocation error
@@ -282,13 +288,13 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       Q_h^{[i+2]} &= Q_{\gamma_1 h}^{[i]} \circ Q_{\gamma_1 h}^{[i]} \circ
       Q_{(1 - 4 \gamma_1) h}^i \circ Q_{\gamma_1 h}^{[i]} \circ
       Q_{\gamma_1 h}^{[i]}, \\
-      y_n &= Q_h^{[order]}(y_{n-1}),
+      y_n &= Q_h^{[\mathrm{order}]}(y_{n-1}),
       \end{align*}
    
-   where :math:`S` is the Strang splitting and parameter :math:`\gamma_1` is
+   where :math:`S` is the Strang splitting and :math:`\gamma_1` is
    selected to increase the order by two each recursion.
 
-   :param partitions: The number :math:`P > 1` of partitions in the IVP.
+   :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :param order: A positive even number for the method order of accuracy.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
       ``NULL`` pointer if an argument was invalid or an allocation error
@@ -299,12 +305,12 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_Alloc(int sequential_methods, int stages, int partitions)
 
-   Allocates an empty SplittingStepCoefficients.
+   Allocates an empty :c:type:`SplittingStepCoefficients` object.
 
-   :param sequential_methods: The number :math:`r` of sequential methods
+   :param sequential_methods: The number of sequential methods, :math:`r \geq 1`,
       combined to produce the overall operator splitting solution.
-   :param stages: The number :math:`s` of stages.
-   :param partitions: The number :math:`P` of partitions in the IVP.
+   :param stages: The number of stages, :math:`s \geq 1`.
+   :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
       ``NULL`` pointer if an argument was invalid or an allocation error
       occurred.
@@ -314,22 +320,31 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_Create(int sequential_methods, int stages, int partitions, int order, sunrealtype* alpha, sunrealtype* beta)
 
-   Allocates a SplittingStepCoefficients and fills it with the given values.
+   Allocates a :c:type:`SplittingStepCoefficients` object and fills it with the given values.
 
-   :param sequential_methods: The number :math:`r` of sequential methods
+   :param sequential_methods: The number of sequential methods, :math:`r \geq 1`
       combined to produce the overall operator splitting solution.
-   :param stages: The number :math:`s` of stages.
-   :param partitions: The number :math:`P` of partitions in the IVP.
+   :param stages: The number of stages, :math:`s \geq 1`.
+   :param partitions: The number of partitions, :math:`P > 1` in the IVP.
    :param order: The method order of accuracy.
    :param alpha: An array of length ``sequential_methods`` containing the
       weight of each sequential method used to produce the overall operator
       splitting solution.
    :param beta: An array of length
       ``sequential_methods * (stages+1) * partitions`` containing the time nodes
-      of the inner integrations in the order
+      of the inner integrations in the C order
 
       .. math::
-         \beta_{1,0,1}, \dots, \beta_{1,0,P}, \beta_{1,1,1}, \dots, \beta_{1,1,P}, \dots, \beta_{2,0,1}, \dots, \beta_{r,s,P}.
+         \beta_{1,0,1}, \dots, \beta_{1,0,P},
+         \dots,
+         \beta_{1,s,1}, \dots, \beta_{1,s,P}
+         \beta_{2,0,1}, \dots, \beta_{2,0,P}
+         \dots,
+         \beta_{2,s,1}, \dots, \beta_{2,s,P}
+         \dots,
+         \beta_{r,0,1}, \dots, \beta_{r,0,P}
+         \dots,
+         \beta_{r,s,1}, \dots, \beta_{r,s,P}
 
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
       ``NULL`` pointer if an argument was invalid or an allocation error
@@ -353,7 +368,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    Deallocate the splitting coefficients memory.
 
-   :param coefficients: The splitting coefficients.
+   :param coefficients: A pointer to the splitting coefficients.
    
    .. versionadded:: x.y.z
 
