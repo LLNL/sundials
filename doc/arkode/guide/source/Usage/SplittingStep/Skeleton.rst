@@ -58,19 +58,20 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
       SplittingStep integration.
 
       If a *user_data* pointer needs to be passed to user functions called by
-      an inner integrator then it should be attached here by calling
+      a partition integrator then it should be attached here by calling
       :c:func:`ARKodeSetUserData()`. This *user_data* pointer will only be
-      passed to user-supplied functions that are attached to an inner
+      passed to user-supplied functions that are attached to a partition
       integrator. To supply a *user_data* pointer to user-supplied functions
-      called by the outer integrator the desired pointer should be attached by
-      calling :c:func:`ARKodeSetUserData()` after creating the SplittingStep
-      memory below. The *user_data* pointers attached to the inner and outer
-      integrators may be the same or different depending on what is required by
-      the user code.
+      called by the SplittingStep integrator, the desired pointer should be
+      attached by calling :c:func:`ARKodeSetUserData()` after creating the
+      SplittingStep memory below. The *user_data* pointers attached to the
+      partition and SplittingStep integrators may be the same or different
+      depending on what is required by the user code.
 
-      Specifying a rootfinding problem for a partitiona integrator is not supported.
-      Rootfinding problems should be created and initialized with SplittingStep.
-      See the steps below and :c:func:`ARKodeRootInit()` for more details.
+      Specifying a rootfinding problem for a partition integrator is not
+      supported. Rootfinding problems should be created and initialized with
+      SplittingStep. See the steps below and :c:func:`ARKodeRootInit()` for more
+      details.
 
 #. Create a SplittingStep object
 
@@ -104,7 +105,7 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
      object.
 
    * Call :c:func:`ARKodeFree` to free the memory allocated for the
-     SplittingStep outer integration object.
+     SplittingStep integration object.
 
 #. *Free the SUNContext object*
 

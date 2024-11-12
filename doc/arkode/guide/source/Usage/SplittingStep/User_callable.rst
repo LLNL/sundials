@@ -55,10 +55,10 @@ SplittingStep initialization functions
 
       .. code-block:: C
 
-         /* inner ARKODE objects for integrating individual partitions */
+         /* ARKODE objects for integrating individual partitions */
          void *partition_mem[] = {NULL, NULL};
 
-         /* SUNSteppers to wrap the inner ARKODE objects */
+         /* SUNSteppers to wrap the ARKODE objects */
          SUNStepper steppers[] = {NULL, NULL};
 
          /* create ARKODE objects, setting right-hand side functions and the

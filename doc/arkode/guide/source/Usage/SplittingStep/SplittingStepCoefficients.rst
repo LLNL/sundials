@@ -46,7 +46,7 @@ stored in a :c:type:`SplittingStepCoefficients` object which is a pointer to a
 
    .. c:member:: sunrealtype ***beta
 
-      A three-dimensional array containing the time nodes of the inner integrations.
+      A three-dimensional array containing the time nodes of the partition integrations.
       The array has dimensions ``[sequential_methods][stages+1][partitions]``.
 
    .. c:member:: int sequential_methods
@@ -332,7 +332,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       splitting solution.
    :param beta: An array of length
       ``sequential_methods * (stages+1) * partitions`` containing the time nodes
-      of the inner integrations in the C order
+      of the partition integrations in the C order
 
       .. math::
          \beta_{1,0,1}, \dots, \beta_{1,0,P},
