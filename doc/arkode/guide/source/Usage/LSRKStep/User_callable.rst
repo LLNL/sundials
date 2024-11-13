@@ -42,7 +42,7 @@ LSRKStep initialization functions
 .. c:function:: void* LSRKStepCreateSTS(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx);
 
    This function allocates and initializes memory for a problem to
-   be solved using the LSRKStep time-stepping module in ARKODE.
+   be solved using STS methods from the LSRKStep time-stepping module in ARKODE.
 
    **Arguments:**
       * *rhs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
@@ -61,7 +61,7 @@ LSRKStep initialization functions
 .. c:function:: void* LSRKStepCreateSSP(ARKRhsFn rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx);
 
    This function allocates and initializes memory for a problem to
-   be solved using the LSRKStep time-stepping module in ARKODE.
+   be solved using SSP methods from the LSRKStep time-stepping module in ARKODE.
 
    **Arguments:**
       * *rhs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
@@ -86,7 +86,8 @@ Optional input functions
 .. c:function:: int LSRKStepSetSTSMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
 
    This function selects the LSRK STS method that should be used.  The list of allowable 
-   values for this input is below.
+   values for this input is below. :c:func:`LSRKStepCreateSTS` defaults to using
+   :c:enumerator:`ARKODE_LSRK_RKC_2`.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -95,15 +96,13 @@ Optional input functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method type).
-
-   .. note:: If one of these set method routines is not called, then LSRKStep will use the 
-      :c:enumerator:`ARKODE_LSRK_RKC_2` by default.
 
 
 .. c:function:: int LSRKStepSetSSPMethod(void* arkode_mem, ARKODE_LSRKMethodType method);
 
    This function selects the LSRK SSP method that should be used.  The list of allowable 
-   values for this input is below.
+   values for this input is below. :c:func:`LSRKStepCreateSSP` defaults to using
+   :c:enumerator:`ARKODE_LSRK_SSP_S_2`.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -112,9 +111,6 @@ Optional input functions
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method type).
-
-   .. note:: If one of these set method routines is not called, then LSRKStep will use the 
-      :c:enumerator:`ARKODE_LSRK_SSP_S_2` by default.
 
 
 Allowable Method Families
@@ -144,34 +140,32 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetSTSMethodByName(void* arkode_mem, const char* emethod);
 
-   This function selects the LSRK STS method by name.  The list of allowable values for this input is above.
+   This function selects the LSRK STS method by name. The list of allowable values
+   for this input is above. :c:func:`LSRKStepCreateSTS` defaults to using
+   :c:enumerator:`ARKODE_LSRK_RKC_2`.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *emethod* -- Type of the method in strings.
+      * *emethod* -- the method name.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method type).
-
-   .. note:: If one of these set method routines is not called, then LSRKStep will use the 
-      :c:enumerator:`ARKODE_LSRK_RKC_2` by default.
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method name).
 
 
 .. c:function:: int LSRKStepSetSSPMethodByName(void* arkode_mem, const char* emethod);
 
-   This function selects the LSRK SSP method by name.  The list of allowable values for this input is above.
+   This function selects the LSRK SSP method by name. The list of allowable values
+   for this input is above. :c:func:`LSRKStepCreateSSP` defaults to using
+   :c:enumerator:`ARKODE_LSRK_SSP_S_2`.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *emethod* -- Type of the method in strings.
+      * *emethod* -- the method name.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method type).
-
-   .. note:: If one of these set method routines is not called, then LSRKStep will use the 
-      :c:enumerator:`ARKODE_LSRK_SSP_S_2` by default.
+      * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method name).
 
 
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
@@ -216,7 +210,7 @@ Allowable Method Families
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
-      * *stage_max_limit* -- maximum allowed number of stages :math:`(>=2)` and :math:`(<=10000)`.
+      * *stage_max_limit* -- maximum allowed number of stages :math:`(>=2)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -249,8 +243,7 @@ Allowable Method Families
 
 .. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
 
-   Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods. Thus, 
-   this set routine must be called after calling :c:func:`LSRKStepSetSSPMethod` with an SSPRK method.
+   Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods.
    
    * :c:enumerator:`ARKODE_LSRK_SSP_S_2`  -- ``num_of_stages`` must be greater than or equal to 2
    * :c:enumerator:`ARKODE_LSRK_SSP_S_3`  -- ``num_of_stages`` must be a perfect-square greater than or equal to 4
@@ -344,7 +337,7 @@ dependent variable vector.
 .. c:function:: int LSRKStepReInitSTS(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0);
 
    Provides required problem specifications and re-initializes the
-   LSRKStep time-stepper module.
+   LSRKStep time-stepper module when using STS methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.
@@ -371,7 +364,7 @@ dependent variable vector.
 .. c:function:: int LSRKStepReInitSSP(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0, N_Vector y0);
 
    Provides required problem specifications and re-initializes the
-   LSRKStep time-stepper module.
+   LSRKStep time-stepper module when using SSP methods.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the LSRKStep memory block.

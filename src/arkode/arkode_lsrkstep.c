@@ -303,11 +303,9 @@ int lsrkStep_ReInit_Commons(void* arkode_mem, ARKRhsFn rhs, sunrealtype t0,
   steps (after all user "set" routines have been called) from
   within arkInitialSetup.
 
-  With initialization types FIRST_INIT this routine:
-  - sets/checks the ARK Butcher tables to be used
-  - allocates any memory that depends on the number of ARK
-    stages, method order, or solver options
-  - sets the call_fullrhs flag
+  With initialization types FIRST_INIT this routine performs
+  setup and allocations needed for the method and sets
+  the call_fullrhs flag.
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
@@ -380,13 +378,11 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
 
      ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
-  evaluating the RHS functions is necessary, we store the vector f(t,y) in Fe
-  for reuse in the first stage of the subsequent time step.
-
-  In ARK_FULLRHS_END mode we check if the method is "stiffly accurate" and, if
-  appropriate, copy the vector F[stages - 1] to F[0] for reuse in the first
-  stage of the subsequent time step.
+  If this function is called in ARK_FULLRHS_START the RHS function is always
+  evaluated.
+  In ARK_FULLRHS_END mode we check is adaptive step sizes are being used
+  and copy the RHS evaluation using in computing the embedding at the end of
+  the time step.
 
   ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
   when estimating the initial time step size, so we strive to store the
@@ -542,7 +538,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* Compute RHS, if necessary. */
+  /* Compute RHS function, if necessary. */
   if ((!ark_mem->fn_is_current && ark_mem->initsetup) ||
       (step_mem->step_nst != ark_mem->nst))
   {
@@ -828,7 +824,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* Compute forcing function, if necessary. */
+  /* Compute RHS function, if necessary. */
   if ((!ark_mem->fn_is_current && ark_mem->initsetup) ||
       (step_mem->step_nst != ark_mem->nst))
   {
@@ -1059,11 +1055,14 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* The method is not FSAL, and fn ​is used as storage in each step. Therefore, fn ​is computed at the beginning regardless. */
-  retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
-                        ark_mem->user_data);
-  step_mem->nfe++;
-  if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  /* The method is not FSAL. Therefore, fn ​is computed at the beginning unless a renewed step. */  
+  if(!ark_mem->fn_is_current) {
+    retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                          ark_mem->user_data);
+    step_mem->nfe++;
+    ark_mem->fn_is_current = SUNTRUE;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1434,6 +1433,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
       N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
                    ark_mem->tempv1);
     }
+  }
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)

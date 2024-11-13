@@ -53,10 +53,6 @@ extern "C" {
  *
  * SUNRceil calls the appropriate version of ceil
  * 
- * SUNRfloor calls the appropriate version of floor
- * 
- * SUNRround calls the appropriate version of round
- * 
  * SUNIceil calls the appropriate version of ceil and returns sunindextype
  * 
  * SUNIfloor calls the appropriate version of floor and returns sunindextype
@@ -240,55 +236,6 @@ extern "C" {
 #define SUNRceil(x) (ceilf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRceil(x) (ceill((x)))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
-#endif
-
-/*
- * -----------------------------------------------------------------
- * Function : SUNRfloor
- * -----------------------------------------------------------------
- * Usage : sunrealtype floor_x;
- *         floor_x = SUNRfloor(x);
- * -----------------------------------------------------------------
- * SUNRfloor(x) returns the largest integer value not greater than x.
- * -----------------------------------------------------------------
- */
-
-#ifndef SUNRfloor
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNRfloor(x) (floor((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNRfloor(x) (floorf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNRfloor(x) (floorl((x)))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
-#endif
-
-/*
- * -----------------------------------------------------------------
- * Function : SUNRround
- * -----------------------------------------------------------------
- * Usage : sunrealtype round_x;
- *         round_x = SUNRround(x);
- * -----------------------------------------------------------------
- * SUNRround(x) returns the nearest integer value to x (in floating-point format), 
- * rounding halfway cases away from zero, regardless of the current rounding mode.
- * -----------------------------------------------------------------
- */
-
-#ifndef SUNRround
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNRround(x) (round((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNRround(x) (roundf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNRround(x) (roundl((x)))
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"

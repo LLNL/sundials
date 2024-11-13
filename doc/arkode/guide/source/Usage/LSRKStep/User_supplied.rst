@@ -18,7 +18,7 @@ User-supplied functions
 =============================
 
 In addition to the required :c:type:`ARKRhsFn` arguments that define the IVP,
-RKL and RKC methods additionally require an :c:type:`ARKDomEigFn`: function to
+RKL and RKC methods additionally require an :c:type:`ARKDomEigFn` function to
 estimate the dominant eigenvalue.
 
 
