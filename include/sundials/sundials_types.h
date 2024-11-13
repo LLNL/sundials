@@ -51,7 +51,6 @@
 #include <float.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <complex.h>
 #include <sundials/sundials_config.h>
 
 #if SUNDIALS_MPI_ENABLED
@@ -118,34 +117,62 @@ typedef long double sunrealtype;
  *------------------------------------------------------------------
  */
 
-#if defined(SUNDIALS_SINGLE_PRECISION)
+/* safeguard the #include to avoid namespace conflicts with Kokkos, CUDA and HIP,
+   and define "suncomplextype" based on the requested floating-point precision */
+#if defined(__cplusplus)  /* C++ complex support */
 
-#if defined(WIN32) || defined(_WIN32)
+  #if defined(SUNDIALS_KOKKOS_ENABLED)
+    #define suncomplexlib Kokkos
+    #include <Kokkos_Complex.hpp>
+  #elif (defined(SUNDIALS_CUDA_ENABLED) || defined(SUNDIALS_HIP_ENABLED))
+    #define suncomplexlib thrust
+    #include <thrust/complex.h>
+  #elif defined(SUNDIALS_EXTENDED_PRECISION)
+    #include <complex.h>
+  #else
+    #define suncomplexlib std
+    #include <complex>
+  #endif
+
+  #if defined(SUNDIALS_SINGLE_PRECISION)
+typedef suncomplexlib::complex<float>  suncomplextype;
+  #elif defined(SUNDIALS_DOUBLE_PRECISION)
+typedef suncomplexlib::complex<double> suncomplextype;
+  #elif defined(SUNDIALS_EXTENDED_PRECISION)
+typedef __complex128                   suncomplextype;
+  #endif
+
+#else       /* C99 complex support */
+  #include <complex.h>
+
+  #if defined(SUNDIALS_SINGLE_PRECISION)
+    #if defined(WIN32) || defined(_WIN32)
 typedef _Fcomplex             suncomplextype;
-#else
+    #else
 typedef float _Complex        suncomplextype;
-#endif
-
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#if defined(WIN32) || defined(_WIN32)
+    #endif
+  #elif defined(SUNDIALS_DOUBLE_PRECISION)
+    #if defined(WIN32) || defined(_WIN32)
 typedef _Dcomplex             suncomplextype;
-#else
+    #else
 typedef double _Complex       suncomplextype;
-#endif
-
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-
-#if defined(WIN32) || defined(_WIN32)
+    #endif
+  #elif defined(SUNDIALS_EXTENDED_PRECISION)
+    #if defined(WIN32) || defined(_WIN32)
 typedef _Lcomplex             suncomplextype;
-#else
+    #else
 typedef long double _Complex  suncomplextype;
-#endif
+    #endif
+  #endif
+#endif /* !__cplusplus */
 
+#if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+  #define SUN_I              (suncomplextype(SUN_RCONST(0.0), SUN_RCONST(1.0)))
+  #define SUN_CCONST(x, y)   (suncomplextype((x), (y)))
+#else
+  #define SUN_I              (_Complex_I)
+  #define SUN_CCONST(x, y)   (SUN_RCONST(x) + SUN_RCONST(y) * SUN_I)
 #endif
-
-#define SUN_CCONST(x, y)   (SUN_RCONST(x) + SUN_RCONST(y) * I)
-#define SUN_I              (SUN_RCONST(1.0) * I)
 
 
 /*

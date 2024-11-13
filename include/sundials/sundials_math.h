@@ -51,30 +51,39 @@ extern "C" {
  */
 
 #ifndef SUN_CREAL
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUN_CREAL(z)      (creal(z))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUN_CREAL(z)      (crealf(z))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUN_CREAL(z)      (creall(z))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
+  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+    #define SUN_CREAL(z)      (suncomplexlib::real(z))
+  #else
+    #if defined(SUNDIALS_DOUBLE_PRECISION)
+      #define SUN_CREAL(z)    (creal(z))
+    #elif defined(SUNDIALS_SINGLE_PRECISION)
+      #define SUN_CREAL(z)    (crealf(z))
+    #elif defined(SUNDIALS_EXTENDED_PRECISION)
+      #define SUN_CREAL(z)    (creall(z))
+    #else
+      #error \
+        "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+    #endif
+  #endif
 #endif
 
 #ifndef SUN_CIMAG
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUN_CIMAG(z)      (cimag(z))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUN_CIMAG(z)      (cimagf(z))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUN_CIMAG(z)      (cimagl(z))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+    #define SUN_CIMAG(z)      (suncomplexlib::imag(z))
+  #else
+    #if defined(SUNDIALS_DOUBLE_PRECISION)
+      #define SUN_CIMAG(z)    (cimag(z))
+    #elif defined(SUNDIALS_SINGLE_PRECISION)
+      #define SUN_CIMAG(z)    (cimagf(z))
+    #elif defined(SUNDIALS_EXTENDED_PRECISION)
+      #define SUN_CIMAG(z)    (cimagl(z))
+    #else
+      #error \
+        "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+    #endif
+  #endif
 #endif
-#endif
+
 
 #if defined(SUNDIALS_SCALAR_TYPE_REAL)
 #define SUN_REAL(z)     (z)
@@ -99,16 +108,20 @@ extern "C" {
  */
 
 #ifndef SUNCCONJ
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNCCONJ(x) (conj((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNCCONJ(x) (conjf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNCCONJ(x) (conjl((x)))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
+  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+    #define SUNCCONJ(z)      (suncomplexlib::conj(z))
+  #else
+    #if defined(SUNDIALS_DOUBLE_PRECISION)
+      #define SUNCCONJ(z)    (conj(z))
+    #elif defined(SUNDIALS_SINGLE_PRECISION)
+      #define SUNCCONJ(z)    (conjf(z))
+    #elif defined(SUNDIALS_EXTENDED_PRECISION)
+      #define SUNCCONJ(z)    (conjl(z))
+    #else
+      #error \
+        "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+    #endif
+  #endif
 #endif
 
 /*
@@ -248,16 +261,20 @@ extern "C" {
 #endif
 
 #ifndef SUNCsqrt
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNCsqrt(x) (csqrt((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNCsqrt(x) (csqrtf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNCsqrt(x) (csqrtl((x)))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
+  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+    #define SUNCsqrt(z)      (suncomplexlib::sqrt(z))
+  #else
+    #if defined(SUNDIALS_DOUBLE_PRECISION)
+      #define SUNCsqrt(z)    (csqrt(z))
+    #elif defined(SUNDIALS_SINGLE_PRECISION)
+      #define SUNCsqrt(z)    (csqrtf(z))
+    #elif defined(SUNDIALS_EXTENDED_PRECISION)
+      #define SUNCsqrt(z)    (csqrtl(z))
+    #else
+      #error \
+        "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+    #endif
+  #endif
 #endif
 
 #ifndef SUNsqrt
@@ -299,16 +316,20 @@ extern "C" {
 #endif
 
 #ifndef SUNCabs
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNCabs(x) (cabs((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNCabs(x) (cabsf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNCabs(x) (cabsl((x)))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
+  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+    #define SUNCabs(z)      (suncomplexlib::abs(z))
+  #else
+    #if defined(SUNDIALS_DOUBLE_PRECISION)
+      #define SUNCabs(z)    (cabs(z))
+    #elif defined(SUNDIALS_SINGLE_PRECISION)
+      #define SUNCabs(z)    (cabsf(z))
+    #elif defined(SUNDIALS_EXTENDED_PRECISION)
+      #define SUNCabs(z)    (cabsl(z))
+    #else
+      #error \
+        "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+    #endif
+  #endif
 #endif
 
 #ifndef SUNabs
@@ -352,16 +373,20 @@ extern "C" {
 #endif
 
 #ifndef SUNCexp
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNCexp(x) (cexp((x)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNCexp(x) (cexpf((x)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNCexp(x) (cexpl((x)))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
+  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+    #define SUNCexp(z)      (suncomplexlib::exp(z))
+  #else
+    #if defined(SUNDIALS_DOUBLE_PRECISION)
+      #define SUNCexp(z)    (cexp(z))
+    #elif defined(SUNDIALS_SINGLE_PRECISION)
+      #define SUNCexp(z)    (cexpf(z))
+    #elif defined(SUNDIALS_EXTENDED_PRECISION)
+      #define SUNCexp(z)    (cexpl(z))
+    #else
+      #error \
+        "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+    #endif
+  #endif
 #endif
 
 #ifndef SUNexp
@@ -404,16 +429,7 @@ extern "C" {
 #endif
 
 #ifndef SUNCceil
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNCceil(x) (ceil((SUN_REAL(x))))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNCceil(x) (ceilf((SUN_REAL(x))))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNCceil(x) (ceill((SUN_REAL(x))))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
+#define SUNCceil(x) (SUNRceil(SUN_REAL((x))))
 #endif
 
 #ifndef SUNceil
@@ -478,16 +494,20 @@ SUNDIALS_EXPORT suncomplextype SUNCpowerI(suncomplextype base, int exponent);
 SUNDIALS_EXPORT sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
 
 #ifndef SUNCpowerC
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNCpowerC(base,exponent) (cpow(base, exponent))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNCpowerC(base,exponent) (cpowf(base, exponent))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNCpowerC(base,exponent) (cpowl(base, exponent))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
+  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+    #define SUNCpowerC(base,exponent)      (suncomplexlib::pow((base),(exponent)))
+  #else
+    #if defined(SUNDIALS_DOUBLE_PRECISION)
+      #define SUNCpowerC(base,exponent)    ((cpow((base), (exponent))))
+    #elif defined(SUNDIALS_SINGLE_PRECISION)
+      #define SUNCpowerC(base,exponent)    ((cpowf((base), (exponent))))
+    #elif defined(SUNDIALS_EXTENDED_PRECISION)
+      #define SUNCpowerC(base,exponent)    ((cpowl((base), (exponent))))
+    #else
+      #error \
+        "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+    #endif
+  #endif
 #endif
 
 #ifndef SUNpower
