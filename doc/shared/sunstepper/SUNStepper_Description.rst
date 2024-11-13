@@ -111,6 +111,7 @@ Stepping Functions
    :param tret: the time corresponding to the output value ``vret``.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
+
 .. c:function:: SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
 
    This function evolves the ODE :eq:`SUNStepper_IVP` *one timestep* towards
@@ -121,6 +122,7 @@ Stepping Functions
    :param vret: on output, the state at time ``tret``.
    :param tret: the time corresponding to the output value ``vret``.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
+
 
 .. c:function:: SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, SUNFullRhsMode mode)
 
@@ -291,6 +293,16 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
+.. c:function:: SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn)
+
+   This function attaches a :c:type:`SUNStepperOneStepFn` function to a
+   :c:type:`SUNStepper` object.
+
+   :param stepper: a stepper object.
+   :param fn: the :c:type:`SUNStepperOneStepFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
 .. c:function:: SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn)
 
    This function attaches a :c:type:`SUNStepperFullRhsFn` function to a
@@ -367,15 +379,16 @@ abstract base class.
    :c:func:`SUNStepper_Evolve`.
 
 
+.. c:type:: SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
+
+   This type represents a function with the signature of
+   :c:func:`SUNStepper_OneStep`.
+
+
 .. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, SUNFullRhsMode mode)
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_FullRhs`.
-
-
-   This type represents a function to compute the full right-hand side function
-   of the ODE, :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value
-   of the independent variable ``t`` and state vector ``v``.
 
 
 .. c:type:: SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR, N_Vector vR)

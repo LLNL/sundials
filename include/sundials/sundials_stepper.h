@@ -40,7 +40,7 @@ typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout,
                                          N_Vector vret, sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype tout,
-                                          N_Vector vout, sunrealtype* tret);
+                                          N_Vector vret, sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
                                           N_Vector v, N_Vector f,
@@ -74,7 +74,7 @@ SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout,
-                              N_Vector vout, sunrealtype* tret);
+                              N_Vector vret, sunrealtype* tret);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,

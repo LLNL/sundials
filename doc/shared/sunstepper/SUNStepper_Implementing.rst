@@ -40,8 +40,7 @@ To create a SUNStepper implementation:
    recorded with :c:func:`SUNStepper_SetLastFlag`.
 
 #. In the user code, before creating the outer memory structure that uses the
-   :c:type:`SUNStepper`, e.g., with :c:func:`SplittingStepCreate` or
-   :c:func:`ForcingStepCreate`, do the following:
+   :c:type:`SUNStepper`, do the following:
 
    #. Create a :c:type:`SUNStepper` object with :c:func:`SUNStepper_Create`.
 
@@ -52,5 +51,4 @@ To create a SUNStepper implementation:
    #. Attach the member function implementations using the functions described
       in :numref:`SUNStepper.Description.BaseMethods.AttachFunctions`.
 
-#. Attach the :c:type:`SUNStepper` object to the outer memory structure, e.g.,
-   with :c:func:`SplittingStepCreate` or :c:func:`ForcingStepCreate`.
+#. Attach the :c:type:`SUNStepper` object to the outer memory structure.
