@@ -372,14 +372,14 @@ SWIGEXPORT int _wrap_FLSRKStepSetDomEigFn(void *farg1, ARKDomEigFn farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FLSRKStepSetDomEigFrequency(void *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FLSRKStepSetDomEigFrequency(void *farg1, long const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  int arg2 ;
+  long arg2 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
+  arg2 = (long)(*farg2);
   result = (int)LSRKStepSetDomEigFrequency(arg1,arg2);
   fresult = (int)(result);
   return fresult;

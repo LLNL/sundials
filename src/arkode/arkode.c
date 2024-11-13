@@ -2691,8 +2691,8 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
                     "The dominant eigenvalue function failed unrecoverably");
     break;
   case ARK_MAX_STAGE_LIMIT_FAIL:
-    arkProcessError(ark_mem, ARK_MAX_STAGE_LIMIT_FAIL, __LINE__, __func__, __FILE__,
-                    "The max stage limit failed unrecoverably");
+    arkProcessError(ark_mem, ARK_MAX_STAGE_LIMIT_FAIL, __LINE__, __func__,
+                    __FILE__, "The max stage limit failed unrecoverably");
     break;
   default:
     /* This return should never happen */
