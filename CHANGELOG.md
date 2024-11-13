@@ -54,6 +54,10 @@ support.
 Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
 using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
 
+Fixed a CMake issue which caused third-party CMake variables to be unset.
+Users may see more options in the CMake GUI now as a result of the fix.
+See details in GitHub Issue [#538](https://github.com/LLNL/sundials/issues/538).
+
 ### Deprecation Notices
 
 The ARKODE stepper specific functions to retrieve the number of right-hand side
