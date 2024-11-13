@@ -645,15 +645,16 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
     if (retval != 0) { return ARK_VECTOROP_ERR; }
 
+    /* compute new stage time factor */
+    thj = mu * thjm1 + nu * thjm2 + mus * (ONE - ajm1);
+
     /* apply user-supplied stage postprocessing function (if supplied) */
-    if (ark_mem->ProcessStage != NULL)
+    if (ark_mem->ProcessStage != NULL && j < step_mem->req_stages)
     {
-      retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * thjm1,
+      retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * thj,
                                      ark_mem->ycur, ark_mem->user_data);
       if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
-
-    thj = mu * thjm1 + nu * thjm2 + mus * (ONE - ajm1);
 
     /* Shift the data for the next stage */
     if (j < step_mem->req_stages)
@@ -916,9 +917,9 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval != 0) { return ARK_VECTOROP_ERR; }
 
     /* apply user-supplied stage postprocessing function (if supplied) */
-    if (ark_mem->ProcessStage != NULL)
+    if (ark_mem->ProcessStage != NULL && j < step_mem->req_stages)
     {
-      retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * cjm1,
+      retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * cj,
                                      ark_mem->ycur, ark_mem->user_data);
       if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
