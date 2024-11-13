@@ -528,7 +528,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  step_mem->req_stages = SUNIceil(ss);
+  step_mem->req_stages = SUNIround(ss);
   step_mem->stage_max  = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -814,7 +814,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  step_mem->req_stages = SUNIceil(ss);
+  step_mem->req_stages = SUNIround(ss);
   step_mem->stage_max  = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
