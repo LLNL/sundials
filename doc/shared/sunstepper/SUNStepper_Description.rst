@@ -286,7 +286,7 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
 
    This function attaches a :c:type:`SUNStepperOneStepFn` function to a
    :c:type:`SUNStepper` object.
-   
+
    :param stepper: a stepper object.
    :param fn: the :c:type:`SUNStepperOneStepFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
@@ -368,11 +368,6 @@ abstract base class.
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_FullRhs`.
-
-
-   This type represents a function to compute the full right-hand side function
-   of the ODE, :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value
-   of the independent variable ``t`` and state vector ``v``.
 
 
 .. c:type:: SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR, N_Vector vR)
