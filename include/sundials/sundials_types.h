@@ -57,10 +57,6 @@
 #include <mpi.h>
 #endif
 
-#ifdef __cplusplus /* wrapper to enable C++ usage */
-extern "C" {
-#endif
-
 /*
  *------------------------------------------------------------------
  * Macro _SUNDIALS_STRUCT_
@@ -276,10 +272,18 @@ typedef struct SUNLogger_* SUNLogger;
  * SUNDIALS function types
  * ---------------------------------------------------------------------------*/
 
+#ifdef __cplusplus /* enable C++ linkage for SUNDIALS function pointer types */
+extern "C" {
+#endif
+
 /* Error handler function */
 typedef void (*SUNErrHandlerFn)(int line, const char* func, const char* file,
                                 const char* msg, SUNErrCode err_code,
                                 void* err_user_data, SUNContext sunctx);
+
+#ifdef __cplusplus
+}
+#endif
 
 /*
  *------------------------------------------------------------------
@@ -304,10 +308,6 @@ typedef MPI_Comm SUNComm;
 #define SUN_COMM_NULL 0
 #endif
 typedef int SUNComm;
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 #endif /* _SUNDIALS_TYPES_H */
