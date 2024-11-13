@@ -117,10 +117,7 @@ typedef long double sunrealtype;
    and define "suncomplextype" based on the requested floating-point precision */
 #if defined(__cplusplus)  /* C++ complex support */
 
-  #if defined(SUNDIALS_KOKKOS_ENABLED)
-    #define suncomplexlib Kokkos
-    #include <Kokkos_Complex.hpp>
-  #elif (defined(SUNDIALS_CUDA_ENABLED) || defined(SUNDIALS_HIP_ENABLED))
+  #if (defined(SUNDIALS_CUDA_ENABLED) || defined(SUNDIALS_HIP_ENABLED))
     #define suncomplexlib thrust
     #include <thrust/complex.h>
   #else
