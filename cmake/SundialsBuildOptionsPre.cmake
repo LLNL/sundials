@@ -42,9 +42,9 @@ force_variable(SUNDIALS_PRECISION STRING "${DOCSTR}"
 
 set(DOCSTR "real or complex")
 sundials_option(SUNDIALS_SCALAR_TYPE STRING "${DOCSTR}" "REAL")
-string(TOUPPER ${SUNDIALS_PRECISION} _upper_SUNDIALS_PRECISION)
-force_variable(SUNDIALS_PRECISION STRING "${DOCSTR}"
-               ${_upper_SUNDIALS_PRECISION})
+string(TOUPPER ${SUNDIALS_SCALAR_TYPE} _upper_SUNDIALS_SCALAR_TYPE)
+force_variable(SUNDIALS_SCALAR_TYPE STRING "${DOCSTR}"
+               ${_upper_SUNDIALS_SCALAR_TYPE})
 
 # ---------------------------------------------------------------
 # Option to specify index type
