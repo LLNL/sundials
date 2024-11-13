@@ -123,8 +123,6 @@ typedef long double sunrealtype;
   #elif (defined(SUNDIALS_CUDA_ENABLED) || defined(SUNDIALS_HIP_ENABLED))
     #define suncomplexlib thrust
     #include <thrust/complex.h>
-  #elif defined(SUNDIALS_EXTENDED_PRECISION)
-    #include <complex.h>
   #else
     #define suncomplexlib std
     #include <complex>
@@ -135,8 +133,11 @@ typedef suncomplexlib::complex<float>  suncomplextype;
   #elif defined(SUNDIALS_DOUBLE_PRECISION)
 typedef suncomplexlib::complex<double> suncomplextype;
   #elif defined(SUNDIALS_EXTENDED_PRECISION)
-typedef __complex128                   suncomplextype;
+typedef suncomplexlib::complex<long double> suncomplextype;
   #endif
+
+  #define SUN_I              (suncomplextype(SUN_RCONST(0.0), SUN_RCONST(1.0)))
+  #define SUN_CCONST(x, y)   (suncomplextype((x), (y)))
 
 #else       /* C99 complex support */
   #include <complex.h>
@@ -160,16 +161,11 @@ typedef _Lcomplex             suncomplextype;
 typedef long double _Complex  suncomplextype;
     #endif
   #endif
-#endif /* !__cplusplus */
 
-#if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
-  #define SUN_I              (suncomplextype(SUN_RCONST(0.0), SUN_RCONST(1.0)))
-  #define SUN_CCONST(x, y)   (suncomplextype((x), (y)))
-#else
   #define SUN_I              (_Complex_I)
   #define SUN_CCONST(x, y)   (SUN_RCONST(x) + SUN_RCONST(y) * SUN_I)
-#endif
 
+#endif /* !__cplusplus */
 
 /*
  *------------------------------------------------------------------
