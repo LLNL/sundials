@@ -54,7 +54,7 @@ extern "C" {
  */
 
 #ifndef SUN_CREAL
-  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+  #if defined(__cplusplus)
     #define SUN_CREAL(z)      (suncomplexlib::real(z))
   #else
     #if defined(SUNDIALS_DOUBLE_PRECISION)
@@ -71,7 +71,7 @@ extern "C" {
 #endif
 
 #ifndef SUN_CIMAG
-  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+  #if defined(__cplusplus)
     #define SUN_CIMAG(z)      (suncomplexlib::imag(z))
   #else
     #if defined(SUNDIALS_DOUBLE_PRECISION)
@@ -111,7 +111,7 @@ extern "C" {
  */
 
 #ifndef SUNCCONJ
-  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+  #if defined(__cplusplus)
     #define SUNCCONJ(z)      (suncomplexlib::conj(z))
   #else
     #if defined(SUNDIALS_DOUBLE_PRECISION)
@@ -264,7 +264,7 @@ extern "C" {
 #endif
 
 #ifndef SUNCsqrt
-  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+  #if defined(__cplusplus)
     #define SUNCsqrt(z)      (suncomplexlib::sqrt(z))
   #else
     #if defined(SUNDIALS_DOUBLE_PRECISION)
@@ -319,7 +319,7 @@ extern "C" {
 #endif
 
 #ifndef SUNCabs
-  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+  #if defined(__cplusplus)
     #define SUNCabs(z)      (suncomplexlib::abs(z))
   #else
     #if defined(SUNDIALS_DOUBLE_PRECISION)
@@ -376,7 +376,7 @@ extern "C" {
 #endif
 
 #ifndef SUNCexp
-  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+  #if defined(__cplusplus)
     #define SUNCexp(z)      (suncomplexlib::exp(z))
   #else
     #if defined(SUNDIALS_DOUBLE_PRECISION)
@@ -602,7 +602,7 @@ SUNDIALS_EXPORT suncomplextype SUNCpowerI(suncomplextype base, int exponent);
 #endif
 
 #ifndef SUNCpowerC
-  #if defined(__cplusplus) && !defined(SUNDIALS_EXTENDED_PRECISION)
+  #if defined(__cplusplus)
     #define SUNCpowerC(base,exponent)      (suncomplexlib::pow((base),(exponent)))
   #else
     #if defined(SUNDIALS_DOUBLE_PRECISION)
