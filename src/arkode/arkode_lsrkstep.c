@@ -15,6 +15,7 @@
  * module.
  *--------------------------------------------------------------*/
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -528,7 +529,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  step_mem->req_stages = SUNIround(ss);
+  step_mem->req_stages = SUNMIN(INT_MAX, ss);
   step_mem->stage_max  = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -814,7 +815,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  step_mem->req_stages = SUNIround(ss);
+  step_mem->req_stages = SUNMIN(INT_MAX, ss);
   step_mem->stage_max  = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
@@ -1237,7 +1238,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   sunrealtype rs  = (sunrealtype)step_mem->req_stages;
   sunrealtype rn  = SUNRsqrt(rs);
   sunrealtype rat = ONE / (rs - rn);
-  int in          = (int)SUNIround(rn);
+  int in          = SUNMIN(INT_MAX, SUNRround(rn));
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,

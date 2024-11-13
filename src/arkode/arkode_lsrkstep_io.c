@@ -388,8 +388,12 @@ int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
       /* The SSP3 method differs significantly when s = 4. Therefore, the case 
       where num_of_stages = 4 is considered separately to avoid unnecessary 
       boolean checks and improve computational efficiency. */
-      if (num_of_stages < 4 || ((int)SUNIceil(SUNRsqrt(num_of_stages)) !=
-                                (int)SUNIfloor(SUNRsqrt(num_of_stages))))
+
+      /* We check that num_of_stages is a perfect square. Note the call to sqrt
+       * rather than SUNRsqrt which could cause loss of precision if
+       * sunrealtype is float. sqrt cannot produce a number bigger than INT_MAX
+       * here so there's no problem with the cast back to int */
+      if (num_of_stages < 4 || SUNSQR((int) sqrt(num_of_stages)) == num_of_stages)
       {
         arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                         "num_of_stages must be a perfect square greater than "
