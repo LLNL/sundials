@@ -2686,6 +2686,14 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, __LINE__, __func__, __FILE__,
                     "The relaxation Jacobian failed unrecoverably");
     break;
+  case ARK_DOMEIG_FAIL:
+    arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    "The dominant eigenvalue function failed unrecoverably");
+    break;
+  case ARK_MAX_STAGE_LIMIT_FAIL:
+    arkProcessError(ark_mem, ARK_MAX_STAGE_LIMIT_FAIL, __LINE__, __func__, __FILE__,
+                    "The max stage limit failed unrecoverably");
+    break;
   default:
     /* This return should never happen */
     arkProcessError(ark_mem, ARK_UNRECOGNIZED_ERROR, __LINE__, __func__, __FILE__,

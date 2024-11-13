@@ -231,7 +231,7 @@ int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig)
   nsteps = 0 refers to constant dominant eigenvalue
   nsteps < 0 resets the default value 25 and sets nonconstant dominant eigenvalue
   ---------------------------------------------------------------*/
-int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps)
+int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
@@ -682,7 +682,7 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
             step_mem->spectral_radius);
     fprintf(fp, "  Safety factor for the dom eig = %" RSYM "\n",
             step_mem->dom_eig_safety);
-    fprintf(fp, "  Max num of successful steps before new dom eig update = %i\n",
+    fprintf(fp, "  Max num of successful steps before new dom eig update = %li\n",
             step_mem->dom_eig_freq);
     fprintf(fp, "  Flag to indicate Jacobian is constant = %d\n",
             step_mem->const_Jac);

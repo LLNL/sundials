@@ -792,6 +792,8 @@ the user has set a stop time (with a call to the optional input function
    :retval ARK_VECTOROP_ERR: a vector operation error occurred.
    :retval ARK_DOMEIG_FAIL: the dominant eigenvalue function failed. It is either 
                             not provided or returns an illegal value.
+   :retval ARK_MAX_STAGE_LIMIT_FAIL: stepper failed to achieve stable results. Either 
+                                     reduce the step size or increase the stage_max_limit
 
    .. note::
 

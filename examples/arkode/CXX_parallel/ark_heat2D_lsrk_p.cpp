@@ -170,7 +170,7 @@ struct UserData
 
   // LSRKStep options
   ARKODE_LSRKMethodType method; // LSRK method choice
-  int eigfrequency;             // dominant eigenvalue update frequency
+  long int eigfrequency;        // dominant eigenvalue update frequency
   int stage_max_limit;          // maximum number of stages per step
   sunrealtype eigsafety;        // dominant eigenvalue safety factor
 

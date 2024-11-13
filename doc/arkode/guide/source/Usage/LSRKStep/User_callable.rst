@@ -192,7 +192,7 @@ Allowable Method Families
    .. note:: This function is currently required when either the RKC or RKL methods are used.
 
 
-.. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, int nsteps);
+.. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps);
 
    Specifies the number of steps after which the dominant eigenvalue information is
    considered out-of-date, and should be recomputed. This only applies to RKL and RKC methods.

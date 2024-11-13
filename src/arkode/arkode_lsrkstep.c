@@ -524,11 +524,11 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
     else
     {
-      arkProcessError(ark_mem, ARK_STEP_FIXED_SIZE_FAIL, __LINE__, __func__,
+      arkProcessError(ark_mem, ARK_MAX_STAGE_LIMIT_FAIL, __LINE__, __func__,
                       __FILE__,
-                      "Poor step size and stage_max_limit combination: Either "
-                      "reduce the step size or increase the stage_max_limit");
-      return ARK_STEP_FIXED_SIZE_FAIL;
+                      "Unable to achieve stable results: Either reduce the "
+                      "step size or increase the stage_max_limit");
+      return ARK_MAX_STAGE_LIMIT_FAIL;
     }
   }
 
@@ -542,7 +542,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* Compute forcing function, if necessary. */
+  /* Compute RHS, if necessary. */
   if ((!ark_mem->fn_is_current && ark_mem->initsetup) ||
       (step_mem->step_nst != ark_mem->nst))
   {
@@ -646,8 +646,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cvals[4] = -mus * ajm1 * ark_mem->h;
     Xvecs[4] = ark_mem->fn;
 
-    retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
-                                  ark_mem->ycur);
+    retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
     if (retval != 0) { return ARK_VECTOROP_ERR; }
 
     /* apply user-supplied stage postprocessing function (if supplied) */
@@ -811,11 +810,11 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
     else
     {
-      arkProcessError(ark_mem, ARK_STEP_FIXED_SIZE_FAIL, __LINE__, __func__,
+      arkProcessError(ark_mem, ARK_MAX_STAGE_LIMIT_FAIL, __LINE__, __func__,
                       __FILE__,
                       "Unable to achieve stable results: Either reduce the "
                       "step size or increase the stage_max_limit");
-      return ARK_STEP_FIXED_SIZE_FAIL;
+      return ARK_MAX_STAGE_LIMIT_FAIL;
     }
   }
 
@@ -917,8 +916,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cvals[4] = -mus * ajm1 * ark_mem->h;
     Xvecs[4] = ark_mem->fn;
 
-    retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
-                                  ark_mem->ycur);
+    retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
     if (retval != 0) { return ARK_VECTOROP_ERR; }
 
     /* apply user-supplied stage postprocessing function (if supplied) */
@@ -1164,20 +1162,12 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   cvals[2] = ark_mem->h / rs;
   Xvecs[2] = ark_mem->tempv2;
 
-  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
+  retval = N_VLinearCombination(3, cvals, Xvecs,
                                 ark_mem->ycur);
   if (!ark_mem->fixedstep)
   {
     N_VLinearSum(ONE, ark_mem->tempv1, bt3 * ark_mem->h, ark_mem->tempv2,
                  ark_mem->tempv1);
-  }
-
-  /* apply user-supplied stage postprocessing function (if supplied) */
-  if (ark_mem->ProcessStage != NULL)
-  {
-    retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                                   ark_mem->user_data);
-    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
   /* Compute yerr (if step adaptivity enabled) */
@@ -1395,8 +1385,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   cvals[2] = (rn - ONE) * rat * ark_mem->h / (TWO * rn - ONE);
   Xvecs[2] = ark_mem->fn;
 
-  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
-                                ark_mem->ycur);
+  retval = N_VLinearCombination(3, cvals, Xvecs, ark_mem->ycur);
   if (!ark_mem->fixedstep)
   {
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
@@ -1445,16 +1434,6 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
       N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
                    ark_mem->tempv1);
     }
-
-    /* apply user-supplied stage postprocessing function (if supplied) */
-    if (ark_mem->ProcessStage != NULL)
-    {
-      retval = ark_mem->ProcessStage(ark_mem->tcur + ((sunrealtype)j - rn - ONE) *
-                                                       rat * ark_mem->h,
-                                     ark_mem->ycur, ark_mem->user_data);
-      if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
-    }
-  }
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
@@ -1624,8 +1603,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   cvals[2] = ONE / SIX * ark_mem->h;
   Xvecs[2] = ark_mem->fn;
 
-  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
-                                ark_mem->ycur);
+  retval = N_VLinearCombination(3, cvals, Xvecs, ark_mem->ycur);
   if (!ark_mem->fixedstep)
   {
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
@@ -1666,14 +1644,6 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
                  ark_mem->tempv1);
-  }
-
-  /* apply user-supplied stage postprocessing function (if supplied) */
-  if (ark_mem->ProcessStage != NULL)
-  {
-    retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * p5,
-                                   ark_mem->ycur, ark_mem->user_data);
-    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
 
   /* Compute yerr (if step adaptivity enabled) */
@@ -1906,16 +1876,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   cvals[2] = SUN_RCONST(0.1) * ark_mem->h;
   Xvecs[2] = ark_mem->fn;
 
-  retval = N_VLinearCombination(step_mem->nfusedopvecs, cvals, Xvecs,
+  retval = N_VLinearCombination(3, cvals, Xvecs,
                                 ark_mem->ycur);
-
-  /* apply user-supplied stage postprocessing function (if supplied) */
-  if (ark_mem->ProcessStage != NULL)
-  {
-    retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
-                                   ark_mem->user_data);
-    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
-  }
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
@@ -2036,7 +1998,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
             step_mem->stage_max);
     fprintf(outfile, "LSRKStep: stage_max_limit       = %i\n",
             step_mem->stage_max_limit);
-    fprintf(outfile, "LSRKStep: dom_eig_freq          = %i\n",
+    fprintf(outfile, "LSRKStep: dom_eig_freq          = %li\n",
             step_mem->dom_eig_freq);
 
     /* output long integer quantities */
@@ -2045,7 +2007,7 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
             step_mem->dom_eig_num_evals);
 
     /* output sunrealtype quantities */
-    fprintf(outfile, "LSRKStep: dom_eig               = %" RSYM " + i%" RSYM "\n",
+    fprintf(outfile, "LSRKStep: dom_eig               = %" RSYM " %+" RSYM "i\n",
             step_mem->lambdaR, step_mem->lambdaI);
     fprintf(outfile, "LSRKStep: spectral_radius       = %" RSYM "\n",
             step_mem->spectral_radius);
@@ -2159,8 +2121,7 @@ void lsrkStep_DomEigUpdateLogic(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem,
     step_mem->dom_eig_is_current = (step_mem->const_Jac == SUNTRUE);
 
     step_mem->dom_eig_update = SUNFALSE;
-    if (step_mem->dom_eig_nst + step_mem->dom_eig_freq <=
-        ark_mem->nst_attempts + 1)
+    if (ark_mem->nst + 1 >= step_mem->dom_eig_nst + step_mem->dom_eig_freq)
     {
       step_mem->dom_eig_update = !step_mem->dom_eig_is_current;
     }
@@ -2210,7 +2171,7 @@ int lsrkStep_ComputeNewDomEig(ARKodeMem ark_mem, ARKodeLSRKStepMem step_mem)
     SUNRsqrt(SUNSQR(step_mem->lambdaR) + SUNSQR(step_mem->lambdaI));
 
   step_mem->dom_eig_is_current = SUNTRUE;
-  step_mem->dom_eig_nst        = ark_mem->nst_attempts;
+  step_mem->dom_eig_nst        = ark_mem->nst;
 
   step_mem->spectral_radius_max =
     (step_mem->spectral_radius > step_mem->spectral_radius_max)
