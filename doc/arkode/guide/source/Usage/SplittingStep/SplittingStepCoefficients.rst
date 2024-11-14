@@ -372,12 +372,9 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    Write the splitting coefficients to the provided file pointer.
 
    :param coefficients: The splitting coefficients.
-   :param outfile: Pointer to use for printing the splitting coefficients.
-
-   .. note::
-
-      The *outfile* argument can be ``stdout`` or ``stderr``, or it may point to
-      a specific file created using ``fopen``.
+   :param outfile: Pointer to use for printing the splitting coefficients. It
+   can be ``stdout`` or ``stderr``, or it may point to a specific file created
+   using ``fopen``.
    
    .. versionadded:: x.y.z
 
