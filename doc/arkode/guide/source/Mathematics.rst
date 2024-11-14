@@ -712,11 +712,11 @@ An alternative representation of the SplittingStep solution is
    \right)(y_{n-1})
 
 where :math:`\gamma_{i,j,k} = \beta_{i,j+1,k} - \beta_{i,j,k}` is the scaling
-factor for the step size, :math:`h_n`, and :math:`\phi^k_{h}` is the flow map
+factor for the step size, :math:`h_n`, and :math:`\phi^k_{h_n}` is the flow map
 for partition :math:`k`:
 
 .. math::
-   \phi^k_{h}(y_{n-1}) = v(t_n),
+   \phi^k_{h_n}(y_{n-1}) = v(t_n),
    \quad \begin{cases}
       v(t_{n-1}) = y_{n-1}, \\ \dot{v} = f_k(t, v).
    \end{cases}
@@ -724,8 +724,8 @@ for partition :math:`k`:
 For example, the Lie--Trotter splitting :cite:p:`BCM:24`, given by
 
 .. math::
-   y_n = L_h(y_{n-1}) = \left( \phi^P_{h} \circ \phi^{P-1}_{h}
-   \circ \dots \circ \phi^1_{h} \right) (y_{n-1}),
+   y_n = L_{h_n}(y_{n-1}) = \left( \phi^P_{h_n} \circ \phi^{P-1}_{h_n}
+   \circ \dots \circ \phi^1_{h_n} \right) (y_{n-1}),
    :label: ARKODE_Lie-Trotter
 
 is a first order, one-stage, sequential operator splitting method suitable for
@@ -744,14 +744,14 @@ Higher order operator splitting methods are often constructed by composing the
 Lie--Trotter splitting with its adjoint:
 
 .. math::
-   L^*_h = L^{-1}_{-h}
-   = \phi^1_{h} \circ \phi^{2}_{h} \circ \dots \circ \phi^{P}_{h}.
+   L^*_{h_n} = L^{-1}_{-h_n}
+   = \phi^1_{h_n} \circ \phi^{2}_{h_n} \circ \dots \circ \phi^{P}_{h_n}.
    :label: ARKODE_Lie-Trotter_adjoint
 
 This is the case for the Strang splitting :cite:p:`Strang:68`
 
 .. math::
-   y_n = S_h(y_{n-1}) = \left( L^*_{h/2} \circ L_{h/2} \right) (y_{n-1}),
+   y_n = S_{h_n}(y_{n-1}) = \left( L^*_{h_n/2} \circ L_{h_n/2} \right)(y_{n-1}),
    :label: ARKODE_Strang
 
 which has :math:`P` stages and coefficients

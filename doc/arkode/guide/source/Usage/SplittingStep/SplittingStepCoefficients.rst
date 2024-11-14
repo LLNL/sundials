@@ -194,8 +194,8 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    Create the coefficients for the first order parallel splitting method
 
    .. math::
-      y_n = \phi^1_h(y_{n-1}) + \phi^2_h(y_{n-1}) + \dots + \phi^P(y_{n-1}) +
-      (1 - P) y_{n-1}.
+      y_n = \phi^1_{h_n}(y_{n-1}) + \phi^2_{h_n}(y_{n-1}) + \dots
+      + \phi^P_{h_n}(y_{n-1}) + (1 - P) y_{n-1}.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
@@ -211,10 +211,10 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    splitting :cite:p:`Strang:63`
 
    .. math::
-      y_n = \frac{1}{2} \left( L_h(y_{n-1}) + L^*_h(y_{n-1}) \right),
+      y_n = \frac{1}{2} \left( L_{h_n}(y_{n-1}) + L^*_{h_n}(y_{n-1}) \right),
 
-   where :math:`L_h` is the Lie--Trotter splitting :eq:`ARKODE_Lie-Trotter` and
-   :math:`L^*_h` is its adjoint :eq:`ARKODE_Lie-Trotter_adjoint`.
+   where :math:`L_{h_n}` is the Lie--Trotter splitting :eq:`ARKODE_Lie-Trotter`
+   and :math:`L^*_{h_n}` is its adjoint :eq:`ARKODE_Lie-Trotter_adjoint`.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
@@ -229,12 +229,12 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    Create the coefficients for a splitting method of Suzuki :cite:p:`Suzuki:92`
 
    .. math::
-      y_n = \left( L_{p_1 h} \circ L^*_{p_2 h} \circ L_{p_3 h} \circ L^*_{p_4 h}
-      \circ L_{p_5 h} \right) (y_{n-1}),
+      y_n = \left( L_{p_1 h_n} \circ L^*_{p_2 h_n} \circ L_{p_3 h_n}
+      \circ L^*_{p_4 h_n} \circ L_{p_5 h_n} \right) (y_{n-1}),
 
-   where :math:`L_h` is the Lie--Trotter splitting :eq:`ARKODE_Lie-Trotter` and
-   :math:`L^*_h` is its adjoint :eq:`ARKODE_Lie-Trotter_adjoint`. The parameters
-   :math:`p_1, \dots, p_5` are selected to give third order.
+   where :math:`L_{h_n}` is the Lie--Trotter splitting :eq:`ARKODE_Lie-Trotter`
+   and :math:`L^*_{h_n}` is its adjoint :eq:`ARKODE_Lie-Trotter_adjoint`. The
+   parameters :math:`p_1, \dots, p_5` are selected to give third order.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
@@ -251,10 +251,10 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    .. math::
       \begin{align*}
-      T_h^{[2]} &= S_h, \\
-      T_h^{[i+2]} &= T_{\gamma_1 h}^{[i]} \circ T_{(1 - 2 \gamma_1) h}^{[i]}
-      \circ T_{\gamma_1 h}^{[i]}, \\
-      y_n &= T_h^{[\mathrm{order}]}(y_{n-1}),
+      T_{h_n}^{[2]} &= S_{h_n}, \\
+      T_{h_n}^{[i+2]} &= T_{\gamma_1 h_n}^{[i]} \circ
+      T_{(1 - 2 \gamma_1) h_n}^{[i]} \circ T_{\gamma_1 h_n}^{[i]}, \\
+      y_n &= T_{h_n}^{[\mathrm{order}]}(y_{n-1}),
       \end{align*}
    
    where :math:`S` is the Strang splitting :eq:`ARKODE_Strang` and
@@ -276,11 +276,11 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
    .. math::
       \begin{align*}
-      Q_h^{[2]} &= S_h, \\
-      Q_h^{[i+2]} &= Q_{\gamma_1 h}^{[i]} \circ Q_{\gamma_1 h}^{[i]} \circ
-      Q_{(1 - 4 \gamma_1) h}^i \circ Q_{\gamma_1 h}^{[i]} \circ
-      Q_{\gamma_1 h}^{[i]}, \\
-      y_n &= Q_h^{[\mathrm{order}]}(y_{n-1}),
+      Q_{h_n}^{[2]} &= S_{h_n}, \\
+      Q_{h_n}^{[i+2]} &= Q_{\gamma_1 h_n}^{[i]} \circ
+      Q_{\gamma_1 h_n}^{[i]} \circ Q_{(1 - 4 \gamma_1) h_n}^i \circ
+      Q_{\gamma_1 h_n}^{[i]} \circ Q_{\gamma_1 h_n}^{[i]}, \\
+      y_n &= Q_{h_n}^{[\mathrm{order}]}(y_{n-1}),
       \end{align*}
    
    where :math:`S` is the Strang splitting :eq:`ARKODE_Strang` and
@@ -328,16 +328,17 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       of the partition integrations in the C order
 
       .. math::
-         \beta_{1,1,1}, \dots, \beta_{1,1,P},
+         & \beta_{1,1,1}, \dots, \beta_{1,1,P},
          \dots,
-         \beta_{1,s+1,1}, \dots, \beta_{1,s+1,P}
-         \beta_{2,1,1}, \dots, \beta_{2,1,P}
+         \beta_{1,s+1,1}, \dots, \beta_{1,s+1,P},
+         \dots, \\
+         & \beta_{2,1,1}, \dots, \beta_{2,1,P},
          \dots,
-         \beta_{2,s+1,1}, \dots, \beta_{2,s+1,P}
+         \beta_{2,s+1,1}, \dots, \beta_{2,s+1,P},
+         \dots, \\
+         & \beta_{r,1,1}, \dots, \beta_{r,1,P},
          \dots,
-         \beta_{r,1,1}, \dots, \beta_{r,1,P}
-         \dots,
-         \beta_{r,s+1,1}, \dots, \beta_{r,s+1,P}
+         \beta_{r,s+1,1}, \dots, \beta_{r,s+1,P}.
 
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
       ``NULL`` pointer if an argument was invalid or an allocation error
