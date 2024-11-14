@@ -30,9 +30,10 @@
  *    coefficients (splitting only): the SplittingStepCoefficients to load
  * 
  * The linear term lambda*y and nonlinear term y^2 are treated as the two
- * partitions. The former is integrated with a time step 5x smaller than the
- * outer method, while the later uses a 10x smaller time step. Once solved, the
- * program prints the error and statistics.
+ * partitions. The former is integrated using a time step of 5e-3, while the
+ * later uses a time step of 1e-3. The overall splitting or forcing integrator
+ * uses a time step of 1e-2. Once solved, the program prints the error and
+ * statistics.
  *----------------------------------------------------------------------------*/
 
 /* Header files */
