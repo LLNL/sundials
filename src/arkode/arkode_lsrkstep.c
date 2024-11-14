@@ -1255,7 +1255,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   sunrealtype rs  = (sunrealtype)step_mem->req_stages;
   sunrealtype rn  = SUNRsqrt(rs);
   sunrealtype rat = ONE / (rs - rn);
-  int in          = (int)rn;
+  int in          = (int)SUNRround(rn);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
