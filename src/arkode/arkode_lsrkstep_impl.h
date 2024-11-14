@@ -38,12 +38,6 @@ extern "C" {
  * SUNRsinh calls the appropriate version of sinh
  *
  * SUNRcosh calls the appropriate version of cosh
- *
- * SUNIceil calls the appropriate version of ceil and returns int
- * 
- * SUNIfloor calls the appropriate version of floor and returns int
- * 
- * SUNIround calls the appropriate version of round and returns int
  * -----------------------------------------------------------------
  */
 
@@ -113,79 +107,6 @@ extern "C" {
 #define SUNRcosh(x) (coshf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRcosh(x) (coshl((x)))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
-#endif
-
-/*
- * -----------------------------------------------------------------
- * Function : SUNIceil
- * -----------------------------------------------------------------
- * Usage : int ceil_x;
- *         ceil_x = SUNIceil(x);
- * -----------------------------------------------------------------
- * SUNIceil(x) returns the smallest int value not less than x.
- * -----------------------------------------------------------------
- */
-
-#ifndef SUNIceil
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNIceil(x) ((int)(ceil((x)) + SUN_RCONST(0.5)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNIceil(x) ((int)(ceilf((x)) + SUN_RCONST(0.5)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNIceil(x) ((int)(ceill((x)) + SUN_RCONST(0.5)))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
-#endif
-
-/*
- * -----------------------------------------------------------------
- * Function : SUNIfloor
- * -----------------------------------------------------------------
- * Usage : int floor_x;
- *         floor_x = SUNIfloor(x);
- * -----------------------------------------------------------------
- * SUNIfloor(x) returns the largest int value not greater than x.
- * -----------------------------------------------------------------
- */
-
-#ifndef SUNIfloor
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNIfloor(x) ((int)(floor((x)) + SUN_RCONST(0.5)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNIfloor(x) ((int)(floorf((x)) + SUN_RCONST(0.5)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNIfloor(x) ((int)(floorl((x)) + SUN_RCONST(0.5)))
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
-#endif
-
-/*
- * -----------------------------------------------------------------
- * Function : SUNIround
- * -----------------------------------------------------------------
- * Usage : int round_x;
- *         round_x = SUNIround(x);
- * -----------------------------------------------------------------
- * SUNIround(x) returns the nearest int value to x, 
- * rounding halfway cases away from zero, regardless of the current rounding mode.
- * -----------------------------------------------------------------
- */
-
-#ifndef SUNIround
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNIround(x) ((int)(round((x)) + SUN_RCONST(0.5)))
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-#define SUNIround(x) ((int)(roundf((x)) + SUN_RCONST(0.5)))
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNIround(x) ((int)(roundl((x)) + SUN_RCONST(0.5)))
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
