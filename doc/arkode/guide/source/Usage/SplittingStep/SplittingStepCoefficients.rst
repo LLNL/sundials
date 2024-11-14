@@ -80,41 +80,41 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 .. _ARKODE.Usage.SplittingStep.SplittingStepCoefficients.Functions.Table:
 .. table:: SplittingStepCoefficients functions
 
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | Function name                                                | Description                                                 |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_LoadCoefficients()`       | Load a pre-defined SplittingStepCoefficients by ID          |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_LoadCoefficientsByName()` | Load a pre-defined SplittingStepCoefficients by name        |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_IDToName()`               | Convert a pre-defined SplittingStepCoefficients to its name |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_LieTrotter()`             | Create a Lie-Trotter splitting method                       |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Strang()`                 | Create a Strang splitting method                            |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_SymmetricParallel()`      | Create a symmetrization of the Lie-Trotter splitting method |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_ThirdOrderSuzuki()`       | Create a third order composition method of Suzuki           |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_TripleJump()`             | Create an arbitrary order, three-jump composition method    |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_SuzukiFractal()`          | Create an arbitrary order, five-jump composition method     |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Alloc()`                  | Allocate an empty :c:type:`SplittingStepCoefficients`       |
-   |                                                              | object                                                      |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Create()`                 | Create a new :c:type:`SplittingStepCoefficients` object     |
-   |                                                              | from coefficient arrays                                     |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Copy()`                   | Create a copy of a :c:type:`SplittingStepCoefficients`      |
-   |                                                              | object                                                      |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Destroy()`                | Deallocate a :c:type:`SplittingStepCoefficients` object     |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
-   | :c:func:`SplittingStepCoefficients_Write()`                  | Write the :c:type:`SplittingStepCoefficients` object to an  |
-   |                                                              | output file                                                 |
-   +--------------------------------------------------------------+-------------------------------------------------------------+
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | Function name                                                | Description                                                  |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_LoadCoefficients()`       | Load a pre-defined SplittingStepCoefficients by ID           |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_LoadCoefficientsByName()` | Load a pre-defined SplittingStepCoefficients by name         |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_IDToName()`               | Convert a pre-defined SplittingStepCoefficients to its name  |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_LieTrotter()`             | Create a Lie--Trotter splitting method                       |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_Strang()`                 | Create a Strang splitting method                             |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_SymmetricParallel()`      | Create a symmetrization of the Lie--Trotter splitting method |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_ThirdOrderSuzuki()`       | Create a third order composition method of Suzuki            |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_TripleJump()`             | Create an arbitrary order, three-jump composition method     |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_SuzukiFractal()`          | Create an arbitrary order, five-jump composition method      |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_Alloc()`                  | Allocate an empty :c:type:`SplittingStepCoefficients`        |
+   |                                                              | object                                                       |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_Create()`                 | Create a new :c:type:`SplittingStepCoefficients` object      |
+   |                                                              | from coefficient arrays                                      |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_Copy()`                   | Create a copy of a :c:type:`SplittingStepCoefficients`       |
+   |                                                              | object                                                       |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_Destroy()`                | Deallocate a :c:type:`SplittingStepCoefficients` object      |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
+   | :c:func:`SplittingStepCoefficients_Write()`                  | Write the :c:type:`SplittingStepCoefficients` object to an   |
+   |                                                              | output file                                                  |
+   +--------------------------------------------------------------+--------------------------------------------------------------+
 
 
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_LoadCoefficients(ARKODE_SplittingCoefficientsID method)
@@ -165,11 +165,8 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_LieTrotter(int partitions)
 
-   Create the coefficients for the first order Lie-Trotter splitting
-
-   .. math::
-      y_n = L_h(y_{n-1}) = \left( \phi^P_{h} \circ \phi^{P-1}_{h}
-      \circ \dots \circ \phi^1_{h} \right) (y_{n-1}).
+   Create the coefficients for the first order Lie--Trotter splitting
+   :eq:`ARKODE_Lie-Trotter`.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
@@ -182,12 +179,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_Strang(int partitions)
 
    Create the coefficients for the second order Strang splitting
-
-   .. math::
-      y_n = S_h(y_{n-1}) = \left( L^*_{h/2} \circ L_{h/2} \right) (y_{n-1}),
-
-   where :math:`L_h` is the Lie-Trotter splitting and
-   :math:`L^*_h = L^{-1}_{-h}` is its adjoint.
+   :cite:p:`Strang:68` :eq:`ARKODE_Strang`.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
@@ -215,14 +207,14 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_SymmetricParallel(int partitions)
 
-   Create the coefficients for the second order, symmetrized Lie-Trotter
+   Create the coefficients for the second order, symmetrized Lie--Trotter
    splitting :cite:p:`Strang:63`
 
    .. math::
       y_n = \frac{1}{2} \left( L_h(y_{n-1}) + L^*_h(y_{n-1}) \right),
 
-   where :math:`L_h` is the Lie-Trotter splitting and
-   :math:`L^*_h = L^{-1}_{-h}` is its adjoint.
+   where :math:`L_h` is the Lie--Trotter splitting :eq:`ARKODE_Lie-Trotter` and
+   :math:`L^*_h` is its adjoint :eq:`ARKODE_Lie-Trotter_adjoint`.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
@@ -240,8 +232,8 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       y_n = \left( L_{p_1 h} \circ L^*_{p_2 h} \circ L_{p_3 h} \circ L^*_{p_4 h}
       \circ L_{p_5 h} \right) (y_{n-1}),
 
-   where :math:`L_h` is the Lie-Trotter splitting and
-   :math:`L^*_h = L^{-1}_{-h}` is its adjoint. The parameters
+   where :math:`L_h` is the Lie--Trotter splitting :eq:`ARKODE_Lie-Trotter` and
+   :math:`L^*_h` is its adjoint :eq:`ARKODE_Lie-Trotter_adjoint`. The parameters
    :math:`p_1, \dots, p_5` are selected to give third order.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
@@ -265,8 +257,8 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       y_n &= T_h^{[\mathrm{order}]}(y_{n-1}),
       \end{align*}
    
-   where :math:`S` is the Strang splitting and :math:`\gamma_1` is
-   selected to increase the order by two each recursion.
+   where :math:`S` is the Strang splitting :eq:`ARKODE_Strang` and
+   :math:`\gamma_1` is selected to increase the order by two each recursion.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :param order: A positive even number for the method order of accuracy.
@@ -291,8 +283,8 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
       y_n &= Q_h^{[\mathrm{order}]}(y_{n-1}),
       \end{align*}
    
-   where :math:`S` is the Strang splitting and :math:`\gamma_1` is
-   selected to increase the order by two each recursion.
+   where :math:`S` is the Strang splitting :eq:`ARKODE_Strang` and
+   :math:`\gamma_1` is selected to increase the order by two each recursion.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :param order: A positive even number for the method order of accuracy.
@@ -430,9 +422,9 @@ with values specified for each method below (e.g.,
 Default Operator Splitting Coefficients
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The default SplittingStep coefficients are Lie-Trotter. If a particular order is
-requested with :c:func:`ARKodeSetOrder`, the following are the default for each
-order
+The default SplittingStep coefficients are Lie--Trotter. If a particular order
+is requested with :c:func:`ARKodeSetOrder`, the following are the default for
+each order
 
 .. table:: Default operator splitting coefficients by order.
 

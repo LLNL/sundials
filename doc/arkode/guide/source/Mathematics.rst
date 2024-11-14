@@ -484,7 +484,7 @@ ForcingStep is given by
    \dot{v}_2 &= f_1^* + f_2(t, v_2), \\
    y_n &= v_2(t_n).
 
-Like a Lie-Trotter method from
+Like a Lie--Trotter method from
 :ref:`SplittingStep <ARKODE.Mathematics.SplittingStep>`, the partitions are
 evolved through a sequence of inner IVPs which can be solved with an arbitrary
 integrator or exact solution procedure. However, the IVP for partition two
@@ -716,13 +716,58 @@ factor for the step size, :math:`h_n`, and :math:`\phi^k_{h}` is the flow map
 for partition :math:`k`:
 
 .. math::
-   \phi^k_{h}(y_{n_1}) = v(t_n),
+   \phi^k_{h}(y_{n-1}) = v(t_n),
    \quad \begin{cases}
       v(t_{n-1}) = y_{n-1}, \\ \dot{v} = f_k(t, v).
    \end{cases}
 
-SplittingStep provides standard operator splitting methods such as Lie-Trotter
-and Strang splitting, as well as schemes of arbitrarily high order.
+For example, the Lie--Trotter splitting :cite:p:`BCM:24`, given by
+
+.. math::
+   y_n = L_h(y_{n-1}) = \left( \phi^P_{h} \circ \phi^{P-1}_{h}
+   \circ \dots \circ \phi^1_{h} \right) (y_{n-1}),
+   :label: ARKODE_Lie-Trotter
+
+is a first order, one-stage, sequential operator splitting method suitable for
+any number of partitions. Its coefficients are
+
+.. math::
+   \alpha_1 &= 1, \\
+   \beta_{1,j,k} &= \begin{cases}
+   0, & j = 1, \\
+   1, & j = 2,
+   \end{cases} \qquad
+   j = 1, 2, \quad
+   k = 1, \dots, P.
+
+Higher order operator splitting methods are often constructed by composing the
+Lie--Trotter splitting with its adjoint:
+
+.. math::
+   L^*_h = L^{-1}_{-h}
+   = \phi^1_{h} \circ \phi^{2}_{h} \circ \dots \circ \phi^{P}_{h}.
+   :label: ARKODE_Lie-Trotter_adjoint
+
+This is the case for the Strang splitting :cite:p:`Strang:68`
+
+.. math::
+   y_n = S_h(y_{n-1}) = \left( L^*_{h/2} \circ L_{h/2} \right) (y_{n-1}),
+   :label: ARKODE_Strang
+
+which has :math:`P` stages and coefficients
+
+.. math::
+   \alpha_1 &= 1, \\
+   \beta_{1,j,k} &= \begin{cases}
+   0, & j = 1, \\
+   1, & j + k > P + 1, \\
+   \frac{1}{2}, & \text{otherwise},
+   \end{cases} \qquad
+   j = 1, \dots, P+1, \quad
+   k = 1, \dots, P.
+
+SplittingStep provides standard operator splitting methods such as the
+Lie--Trotter and Strang splitting, as well as schemes of arbitrarily high order.
 Alternatively, users may construct their own coefficients (see
 :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients`). Generally,
 methods of order three and higher with real coefficients require backward
