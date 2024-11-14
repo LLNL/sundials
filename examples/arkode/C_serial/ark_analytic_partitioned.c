@@ -37,6 +37,7 @@
  *----------------------------------------------------------------------------*/
 
 /* Header files */
+#include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_erkstep.h>
 #include <arkode/arkode_forcingstep.h>
 #include <arkode/arkode_splittingstep.h>
@@ -119,7 +120,7 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* Create the integrator for the nonlinear partition */
-  void* nonlinear_mem = ERKStepCreate(f_nonlinear, t0, y, ctx);
+  void* nonlinear_mem = ARKStepCreate(f_nonlinear, NULL, t0, y, ctx);
   if (check_flag(nonlinear_mem, "N_VNew_Serial", 0)) { return 1; }
 
   flag = ARKodeSetFixedStep(nonlinear_mem, dt_nonlinear);

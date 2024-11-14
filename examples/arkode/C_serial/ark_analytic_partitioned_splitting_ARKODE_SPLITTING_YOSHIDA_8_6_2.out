@@ -4,7 +4,7 @@ Analytical ODE test problem:
    coefficients = ARKODE_SPLITTING_YOSHIDA_8_6_2
    lambda     = 2
 
-Error: 1.4346e-12
+Error: 1.44246e-12
 
 Splitting Stepper Statistics:
 Current time                 = 1.000000000000001
@@ -47,4 +47,9 @@ Inequality constraint fails  = 0
 Initial step size            = 0.001
 Last step size               = 0.0008722492772224025
 Current step size            = 0.001
-RHS fn evals                 = 82500
+Explicit RHS fn evals        = 82500
+Implicit RHS fn evals        = 0
+NLS iters                    = 0
+NLS fails                    = 0
+NLS iters per step           = 0
+LS setups                    = 0
