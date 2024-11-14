@@ -320,31 +320,32 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_Create(int sequential_methods, int stages, int partitions, int order, sunrealtype* alpha, sunrealtype* beta)
 
-   Allocates a :c:type:`SplittingStepCoefficients` object and fills it with the given values.
+   Allocates a :c:type:`SplittingStepCoefficients` object and fills it with the
+   given values.
 
    :param sequential_methods: The number of sequential methods, :math:`r \geq 1`
       combined to produce the overall operator splitting solution.
    :param stages: The number of stages, :math:`s \geq 1`.
    :param partitions: The number of partitions, :math:`P > 1` in the IVP.
    :param order: The method order of accuracy.
-   :param alpha: An array of length ``sequential_methods`` containing the
-      weight of each sequential method used to produce the overall operator
-      splitting solution.
+   :param alpha: An array of length ``sequential_methods`` containing the weight
+      of each sequential method used to produce the overall operator splitting
+      solution.
    :param beta: An array of length
       ``sequential_methods * (stages+1) * partitions`` containing the time nodes
       of the partition integrations in the C order
 
       .. math::
-         \beta_{1,0,1}, \dots, \beta_{1,0,P},
+         \beta_{1,1,1}, \dots, \beta_{1,1,P},
          \dots,
-         \beta_{1,s,1}, \dots, \beta_{1,s,P}
-         \beta_{2,0,1}, \dots, \beta_{2,0,P}
+         \beta_{1,s+1,1}, \dots, \beta_{1,s+1,P}
+         \beta_{2,1,1}, \dots, \beta_{2,1,P}
          \dots,
-         \beta_{2,s,1}, \dots, \beta_{2,s,P}
+         \beta_{2,s+1,1}, \dots, \beta_{2,s+1,P}
          \dots,
-         \beta_{r,0,1}, \dots, \beta_{r,0,P}
+         \beta_{r,1,1}, \dots, \beta_{r,1,P}
          \dots,
-         \beta_{r,s,1}, \dots, \beta_{r,s,P}
+         \beta_{r,s+1,1}, \dots, \beta_{r,s+1,P}
 
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
       ``NULL`` pointer if an argument was invalid or an allocation error

@@ -679,8 +679,8 @@ The following algorithmic procedure is used in the Splitting-Step module:
 
       #. For :math:`k = 1, \dots, P` do:
 
-         #. Let :math:`t_{\text{start}} = t_{n-1} + \beta_{i,j-1,k} h_n` and
-            :math:`t_{\text{end}} = t_{n-1} + \beta_{i,j,k} h_n`.
+         #. Let :math:`t_{\text{start}} = t_{n-1} + \beta_{i,j,k} h_n` and
+            :math:`t_{\text{end}} = t_{n-1} + \beta_{i,j+1,k} h_n`.
 
          #. Let :math:`v(t_{\text{start}}) = y_{n,i}`.
 
@@ -694,20 +694,26 @@ The following algorithmic procedure is used in the Splitting-Step module:
 Here, :math:`s` denotes the number of stages, while :math:`r` denotes the number
 of sequential methods within the overall operator splitting scheme. The
 sequential methods have independent flows which are linearly combined to produce
-the next step. The real coefficients :math:`\alpha \in \mathbb{R}^{r}` and :math:`\beta \in \mathbb{R}^{r \times s + 1 \times P}`
-determine the particular scheme and properties such as the order of accuracy.
+the next step. The real coefficients :math:`\alpha \in \mathbb{R}^{r}` and
+:math:`\beta \in \mathbb{R}^{r \times (s + 1) \times P}` determine the
+particular scheme and properties such as the order of accuracy.
 
 An alternative representation of the SplittingStep solution is
 
 .. math::
-   y_n = \sum_{i=1}^P \alpha_i \left( \phi^P_{\gamma_{i,1,P} h} \circ
-   \phi^{P-1}_{\gamma_{i,1,P-1} h} \circ \dots \circ \phi^1_{\gamma_{i,1,1} h}
-   \circ \phi^P_{\gamma_{i,2,P} h} \circ \dots \circ \phi^P_{\gamma_{i,s,P} h}
-   \circ \dots \circ \phi^1_{\gamma_{i,s,1} h} \right)
-   (y_{n-1})
+   y_n = \sum_{i=1}^P \alpha_i \left(
+   \phi^P_{\gamma_{i,s,P} h_n} \circ
+   \phi^{P-1}_{\gamma_{i,s,P-1} h_n} \circ \dots \circ
+   \phi^{1}_{\gamma_{i,s,1} h_n} \circ
+   \phi^P_{\gamma_{i,s-1,P} h_n} \circ \dots \circ
+   \phi^1_{\gamma_{i,s-1,1} h_n} \circ \dots \circ
+   \phi^P_{\gamma_{i,1,P} h_n} \circ \dots \circ
+   \phi^1_{\gamma_{i,1,1} h_n}
+   \right)(y_{n-1})
 
-where :math:`\gamma_{i,j,k} = \beta_{i,j,k} - \beta_{i,j-1,k}` is the scaling factor for the step size, :math:`h`, and
-:math:`\phi^k_{h}` is the flow map for partition :math:`k`:
+where :math:`\gamma_{i,j,k} = \beta_{i,j+1,k} - \beta_{i,j,k}` is the scaling
+factor for the step size, :math:`h_n`, and :math:`\phi^k_{h}` is the flow map
+for partition :math:`k`:
 
 .. math::
    \phi^k_{h}(y_{n_1}) = v(t_n),
