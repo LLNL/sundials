@@ -37,7 +37,7 @@
  *----------------------------------------------------------------------------*/
 
 /* Header files */
-#include <arkode/arkode_arkstep.h>
+#include <arkode/arkode_erkstep.h>
 #include <arkode/arkode_forcingstep.h>
 #include <arkode/arkode_splittingstep.h>
 #include <nvector/nvector_serial.h>
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
   printf("   lambda     = %" GSYM "\n", user_data.lambda);
 
   /* Create the integrator for the linear partition */
-  void* linear_mem = ARKStepCreate(f_linear, NULL, t0, y, ctx);
+  void* linear_mem = ERKStepCreate(f_linear, t0, y, ctx);
   if (check_flag(linear_mem, "N_VNew_Serial", 0)) { return 1; }
 
   flag = ARKodeSetUserData(linear_mem, &user_data);
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* Create the integrator for the nonlinear partition */
-  void* nonlinear_mem = ARKStepCreate(f_nonlinear, NULL, t0, y, ctx);
+  void* nonlinear_mem = ERKStepCreate(f_nonlinear, t0, y, ctx);
   if (check_flag(nonlinear_mem, "N_VNew_Serial", 0)) { return 1; }
 
   flag = ARKodeSetFixedStep(nonlinear_mem, dt_nonlinear);
