@@ -419,9 +419,24 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     break;
 
   case ARK_FULLRHS_END:
-    /* No further action is needed since the currently
-	    available methods evaluate the RHS at the end of each time step*/
+    /* No further action is needed if STS since the currently
+	    available STS methods evaluate the RHS at the end of each time step
+      If the stepper is an SSP, fn is updated and reused at the beginning 
+      of the step unless ark_mem->fn_is_current is changed by ARKODE.
+      */
+    if(step_mem->is_SSP){
+      retval = step_mem->fe(t, y, ark_mem->fn, ark_mem->user_data);
+      step_mem->nfe++;
+      ark_mem->fn_is_current = SUNTRUE;
+      if (retval != 0)
+      {
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_RHSFUNC_FAILED, t);
+        return ARK_RHSFUNC_FAIL;
+      }
+    }
     N_VScale(ONE, ark_mem->fn, f);
+
     break;
 
   case ARK_FULLRHS_OTHER:
@@ -1056,7 +1071,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* The method is not FSAL. Therefore, fn ​is computed at the beginning unless a renewed step. */
+  /* The method is not FSAL. Therefore, fn ​is computed at the beginning 
+     of the step unless a renewed step or ARKODE updated fn. */
   if (!ark_mem->fn_is_current)
   {
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
@@ -1247,11 +1263,15 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* The method is not FSAL, and fn ​is used as storage in each step. Therefore, fn ​is computed at the beginning regardless. */
-  retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
-                        ark_mem->user_data);
-  step_mem->nfe++;
-  if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  /* The method is not FSAL. Therefore, fn ​is computed at the beginning 
+     of the step unless ARKODE updated fn. */
+  if (!ark_mem->fn_is_current)
+  {
+    retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                          ark_mem->user_data);
+    step_mem->nfe++;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  }
 
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * rat, ark_mem->fn, ark_mem->ycur);
   if (!ark_mem->fixedstep)
@@ -1509,11 +1529,15 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* The method is not FSAL, and fn ​is used as storage in each step. Therefore, fn ​is computed at the beginning regardless. */
-  retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
-                        ark_mem->user_data);
-  step_mem->nfe++;
-  if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  /* The method is not FSAL. Therefore, fn ​is computed at the beginning 
+     of the step unless ARKODE updated fn. */
+  if (!ark_mem->fn_is_current)
+  {
+    retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                          ark_mem->user_data);
+    step_mem->nfe++;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1715,11 +1739,15 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* The method is not FSAL, and fn ​is used as storage in each step. Therefore, fn ​is computed at the beginning regardless. */
-  retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
-                        ark_mem->user_data);
-  step_mem->nfe++;
-  if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  /* The method is not FSAL. Therefore, fn ​is computed at the beginning 
+     of the step unless ARKODE updated fn. */
+  if (!ark_mem->fn_is_current)
+  {
+    retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                          ark_mem->user_data);
+    step_mem->nfe++;
+    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+  }
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
