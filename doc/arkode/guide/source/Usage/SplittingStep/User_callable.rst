@@ -84,7 +84,7 @@ SplittingStep initialization functions
 
 
 Optional inputs for IVP method selection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------------
 
 .. c:function:: int SplittingStep_SetCoefficients(void* arkode_mem, SplittingStepCoefficients coefficients)
 
