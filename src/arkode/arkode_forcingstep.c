@@ -24,9 +24,8 @@
   Shortcut routine to unpack step_mem structure from ark_mem.
   If missing it returns ARK_MEM_NULL.
   ---------------------------------------------------------------*/
-static int forcingStep_AccessStepMem(const ARKodeMem ark_mem,
-                                     const char* const fname,
-                                     ARKodeForcingStepMem* const step_mem)
+static int forcingStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
+                                     ARKodeForcingStepMem* step_mem)
 {
   if (ark_mem->step_mem == NULL)
   {
@@ -42,10 +41,9 @@ static int forcingStep_AccessStepMem(const ARKodeMem ark_mem,
   Shortcut routine to unpack ark_mem and step_mem structures from
   void* pointer.  If either is missing it returns ARK_MEM_NULL.
   ---------------------------------------------------------------*/
-static int forcingStep_AccessARKODEStepMem(void* const arkode_mem,
-                                           const char* const fname,
-                                           ARKodeMem* const ark_mem,
-                                           ARKodeForcingStepMem* const step_mem)
+static int forcingStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
+                                           ARKodeMem* ark_mem,
+                                           ARKodeForcingStepMem* step_mem)
 {
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)
@@ -63,7 +61,7 @@ static int forcingStep_AccessARKODEStepMem(void* const arkode_mem,
   This routine checks if all required vector operations are
   present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-static sunbooleantype forcingStep_CheckNVector(const N_Vector y)
+static sunbooleantype forcingStep_CheckNVector(N_Vector y)
 {
   return y->ops->nvlinearsum != NULL;
 }
@@ -78,7 +76,7 @@ static sunbooleantype forcingStep_CheckNVector(const N_Vector y)
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
-static int forcingStep_Init(const ARKodeMem ark_mem, const int init_type)
+static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
 {
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -124,12 +122,11 @@ static int forcingStep_Init(const ARKodeMem ark_mem, const int init_type)
   called and will not be able to reuse a function evaluation since their state
   resets at the next SUNStepper_Evolve call.
   ----------------------------------------------------------------------------*/
-static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
-                               const N_Vector y, const N_Vector f,
-                               SUNDIALS_MAYBE_UNUSED const int mode)
+static int forcingStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y,
+                               N_Vector f, SUNDIALS_MAYBE_UNUSED int mode)
 {
   ARKodeForcingStepMem step_mem = NULL;
-  const int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
   SUNErrCode err = SUNStepper_FullRhs(step_mem->stepper[0], t, y,
@@ -159,8 +156,8 @@ static int forcingStep_FullRHS(const ARKodeMem ark_mem, const sunrealtype t,
 /*---------------------------------------------------------------
   This routine performs a single step of the forcing method.
   ---------------------------------------------------------------*/
-static int forcingStep_TakeStep(const ARKodeMem ark_mem,
-                                sunrealtype* const dsmPtr, int* const nflagPtr)
+static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
+                                int* nflagPtr)
 {
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
@@ -169,9 +166,9 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   *nflagPtr = ARK_SUCCESS; /* No algebraic solver */
   *dsmPtr   = ZERO;        /* No error estimate */
 
-  const SUNStepper s0    = step_mem->stepper[0];
-  const sunrealtype tout = ark_mem->tn + ark_mem->h;
-  sunrealtype tret       = 0;
+  SUNStepper s0    = step_mem->stepper[0];
+  sunrealtype tout = ark_mem->tn + ark_mem->h;
+  sunrealtype tret = 0;
 
   /* Evolve stepper 0 on its own */
   SUNErrCode err = SUNStepper_Reset(s0, ark_mem->tn, ark_mem->yn);
@@ -188,8 +185,8 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
    * MRIStep), but that would be very fragile. If the step direction ever 
    * changes or a resize is performed, the stepper and outer forcing method
    * could become out of sync. */
-  const SUNStepper s1 = step_mem->stepper[1];
-  err                 = SUNStepper_Reset(s1, ark_mem->tn, ark_mem->yn);
+  SUNStepper s1 = step_mem->stepper[1];
+  err           = SUNStepper_Reset(s1, ark_mem->tn, ark_mem->yn);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_SetStepDirection(s1, ark_mem->h);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
@@ -197,7 +194,7 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   /* Write tendency (ycur - yn)/h into stepper 1 forcing */
-  const sunrealtype hinv = SUN_RCONST(1.0) / ark_mem->h;
+  sunrealtype hinv = SUN_RCONST(1.0) / ark_mem->h;
   N_VLinearSum(hinv, ark_mem->ycur, -hinv, ark_mem->yn, ark_mem->tempv1);
   err = SUNStepper_SetForcing(s1, ZERO, ZERO, &ark_mem->tempv1, 1);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
@@ -217,12 +214,12 @@ static int forcingStep_TakeStep(const ARKodeMem ark_mem,
 /*---------------------------------------------------------------
   Prints integrator statistics
   ---------------------------------------------------------------*/
-static int forcingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outfile,
-                                     const SUNOutputFormat fmt)
+static int forcingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
+                                     SUNOutputFormat fmt)
 {
   // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
   ARKodeForcingStepMem step_mem = NULL;
-  const int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
   switch (fmt)
@@ -253,7 +250,7 @@ static int forcingStep_PrintAllStats(const ARKodeMem ark_mem, FILE* const outfil
 /*---------------------------------------------------------------
   Frees all ForcingStep memory.
   ---------------------------------------------------------------*/
-static void forcingStep_Free(const ARKodeMem ark_mem)
+static void forcingStep_Free(ARKodeMem ark_mem)
 {
   free(ark_mem->step_mem);
   ark_mem->step_mem = NULL;
@@ -263,10 +260,10 @@ static void forcingStep_Free(const ARKodeMem ark_mem)
   This routine outputs the memory from the ForcingStep
   structure to a specified file pointer (useful when debugging).
   ---------------------------------------------------------------*/
-static void forcingStep_PrintMem(const ARKodeMem ark_mem, FILE* const outfile)
+static void forcingStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 {
   ARKodeForcingStepMem step_mem = NULL;
-  const int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return; }
 
   /* output long integer quantities */
@@ -282,7 +279,7 @@ static void forcingStep_PrintMem(const ARKodeMem ark_mem, FILE* const outfile)
   values. Does not change problem-defining function pointers or
   user_data pointer.
   ---------------------------------------------------------------*/
-static int forcingStep_SetDefaults(const ARKodeMem ark_mem)
+static int forcingStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
@@ -340,8 +337,7 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
     return NULL;
   }
 
-  const ARKodeForcingStepMem step_mem =
-    (ARKodeForcingStepMem)malloc(sizeof(*step_mem));
+  ARKodeForcingStepMem step_mem = (ARKodeForcingStepMem)malloc(sizeof(*step_mem));
   if (step_mem == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -392,8 +388,8 @@ int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves
 {
   ARKodeMem ark_mem             = NULL;
   ARKodeForcingStepMem step_mem = NULL;
-  const int retval = forcingStep_AccessARKODEStepMem(arkode_mem, __func__,
-                                                     &ark_mem, &step_mem);
+  int retval = forcingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                               &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
   if (partition >= NUM_PARTITIONS)
