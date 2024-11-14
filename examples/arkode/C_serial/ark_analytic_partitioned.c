@@ -58,20 +58,17 @@ typedef struct
 } UserData;
 
 /* User-supplied Functions Called by the Solver */
-static int f_linear(const sunrealtype t, const N_Vector y, N_Vector ydot,
-                    void* const user_data);
-static int f_nonlinear(const sunrealtype t, const N_Vector y, N_Vector ydot,
-                       void* const user_data);
-static N_Vector exact_sol(const N_Vector y0, const sunrealtype tf,
-                          const UserData* const user_data);
+static int f_linear(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static int f_nonlinear(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data);
+static N_Vector exact_sol(N_Vector y0, sunrealtype tf, UserData* user_data);
 
 /* Private function to check function return values */
 static int check_flag(void* flagvalue, const char* funcname, int opt);
 
-int main(const int argc, char* const argv[])
+int main(int argc, char* argv[])
 {
   /* Parse arguments */
-  const char* const integrator_name = (argc > 1) ? argv[1] : "splitting";
+  char* integrator_name = (argc > 1) ? argv[1] : "splitting";
   if (strcmp(integrator_name, "splitting") != 0 &&
       strcmp(integrator_name, "forcing") != 0)
   {
@@ -79,14 +76,14 @@ int main(const int argc, char* const argv[])
             integrator_name);
     return 1;
   }
-  const char* const coefficients_name = (argc > 2) ? argv[2] : NULL;
+  char* coefficients_name = (argc > 2) ? argv[2] : NULL;
 
   /* Problem parameters */
-  const sunrealtype t0           = SUN_RCONST(0.0);  /* initial time */
-  const sunrealtype tf           = SUN_RCONST(1.0);  /* final time */
-  const sunrealtype dt           = SUN_RCONST(0.01); /* outer time step */
-  const sunrealtype dt_linear    = dt / 5;  /* linear integrator time step */
-  const sunrealtype dt_nonlinear = dt / 10; /* nonlinear integrator time step */
+  sunrealtype t0           = SUN_RCONST(0.0);  /* initial time */
+  sunrealtype tf           = SUN_RCONST(1.0);  /* final time */
+  sunrealtype dt           = SUN_RCONST(0.01); /* outer time step */
+  sunrealtype dt_linear    = dt / 5;           /* linear integrator time step */
+  sunrealtype dt_nonlinear = dt / 10; /* nonlinear integrator time step */
 
   UserData user_data = {.lambda = SUN_RCONST(2.0)};
 
@@ -96,11 +93,11 @@ int main(const int argc, char* const argv[])
   if (check_flag(&flag, "SUNContext_Create", 1)) { return 1; }
 
   /* Initialize vector with initial condition */
-  const N_Vector y = N_VNew_Serial(1, ctx);
+  N_Vector y = N_VNew_Serial(1, ctx);
   if (check_flag(y, "N_VNew_Serial", 0)) { return 1; }
   N_VConst(SUN_RCONST(1.0), y);
 
-  const N_Vector y_exact = exact_sol(y, tf, &user_data);
+  N_Vector y_exact = exact_sol(y, tf, &user_data);
 
   printf("\nAnalytical ODE test problem:\n");
   printf("   integrator = %s method\n", integrator_name);
@@ -170,7 +167,7 @@ int main(const int argc, char* const argv[])
   if (check_flag(&flag, "ARKodeEvolve", 1)) { return 1; }
 
   /* Print the numerical error and statistics */
-  const N_Vector y_err = N_VClone(y);
+  N_Vector y_err = N_VClone(y);
   if (check_flag(y_err, "N_VClone", 0)) { return 1; }
   N_VLinearSum(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), y_exact, y_err);
   printf("\nError: %" GSYM "\n", N_VMaxNorm(y_err));
@@ -202,8 +199,7 @@ int main(const int argc, char* const argv[])
 }
 
 /* RHS for f^1(t, y) = -lambda * y */
-static int f_linear(const sunrealtype t, const N_Vector y, N_Vector ydot,
-                    void* const user_data)
+static int f_linear(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype lambda = ((UserData*)user_data)->lambda;
   N_VScale(-lambda, y, ydot);
@@ -211,20 +207,18 @@ static int f_linear(const sunrealtype t, const N_Vector y, N_Vector ydot,
 }
 
 /* RHS for f^2(t, y) = y^2 */
-static int f_nonlinear(const sunrealtype t, const N_Vector y, N_Vector ydot,
-                       void* const user_data)
+static int f_nonlinear(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   N_VProd(y, y, ydot);
   return 0;
 }
 
 /* Compute the exact analytic solution */
-static N_Vector exact_sol(const N_Vector y0, const sunrealtype tf,
-                          const UserData* const user_data)
+static N_Vector exact_sol(N_Vector y0, sunrealtype tf, UserData* user_data)
 {
-  N_Vector sol             = N_VClone(y0);
-  const sunrealtype y0_val = N_VGetArrayPointer(y0)[0];
-  const sunrealtype lambda = user_data->lambda;
+  N_Vector sol       = N_VClone(y0);
+  sunrealtype y0_val = N_VGetArrayPointer(y0)[0];
+  sunrealtype lambda = user_data->lambda;
   N_VGetArrayPointer(sol)[0] =
     lambda * y0_val / (y0_val - (y0_val - lambda) * SUNRexp(lambda * tf));
   return sol;
