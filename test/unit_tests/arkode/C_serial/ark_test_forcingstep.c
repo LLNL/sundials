@@ -26,8 +26,7 @@
 #endif
 
 /* RHS function for f_1(t, y) = t / y */
-static int f_forward_1(const sunrealtype t, const N_Vector y,
-                       const N_Vector ydot, void* const user_data)
+static int f_forward_1(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   N_VInv(y, ydot);
   N_VScale(t, ydot, ydot);
@@ -35,8 +34,7 @@ static int f_forward_1(const sunrealtype t, const N_Vector y,
 }
 
 /* RHS function for f_2(t, y) = 1 / y */
-static int f_forward_2(const sunrealtype t, const N_Vector y,
-                       const N_Vector ydot, void* const user_data)
+static int f_forward_2(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   N_VInv(y, ydot);
   return 0;
@@ -52,13 +50,13 @@ static int f_forward_2(const sunrealtype t, const N_Vector y,
  */
 static int test_forward(SUNContext ctx)
 {
-  const sunrealtype t0         = SUN_RCONST(0.0);
-  const sunrealtype tf         = SUN_RCONST(1.0);
-  const sunrealtype dt         = SUN_RCONST(1.0e-4);
-  const sunrealtype local_tol  = SUN_RCONST(1.0e-6);
-  const sunrealtype global_tol = SUN_RCONST(10.0) * local_tol;
+  sunrealtype t0         = SUN_RCONST(0.0);
+  sunrealtype tf         = SUN_RCONST(1.0);
+  sunrealtype dt         = SUN_RCONST(1.0e-4);
+  sunrealtype local_tol  = SUN_RCONST(1.0e-6);
+  sunrealtype global_tol = SUN_RCONST(10.0) * local_tol;
 
-  const N_Vector y = N_VNew_Serial(1, ctx);
+  N_Vector y = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
   void* parititon_mem[] = {ARKStepCreate(f_forward_1, NULL, t0, y, ctx),
@@ -77,11 +75,11 @@ static int test_forward(SUNContext ctx)
   sunrealtype tret = t0;
   ARKodeEvolve(arkode_mem, tf, y, &tret, ARK_NORMAL);
 
-  const sunrealtype exact_solution     = SUN_RCONST(2.0);
-  const sunrealtype numerical_solution = N_VGetArrayPointer(y)[0];
+  sunrealtype exact_solution     = SUN_RCONST(2.0);
+  sunrealtype numerical_solution = N_VGetArrayPointer(y)[0];
   if (SUNRCompareTol(exact_solution, numerical_solution, global_tol))
   {
-    const sunrealtype err = numerical_solution - exact_solution;
+    sunrealtype err = numerical_solution - exact_solution;
     fprintf(stderr,
             "Forward direction solution failed with an error of %" GSYM "\n",
             err);

@@ -30,14 +30,13 @@
    (SUN_RCONST(4.0) - \
     SUNRpowerR(SUN_RCONST(4.0), SUN_RCONST(1.0) / SUN_RCONST(3.0))))
 
-static int check_coefficients(const char* const name,
-                              const SplittingStepCoefficients coefficients,
-                              const int expected_sequential_methods,
-                              const int expected_stages,
-                              const int expected_partitions,
-                              const int expected_order,
-                              const sunrealtype* const expected_alpha,
-                              const sunrealtype* const expected_beta)
+static int check_coefficients(const char* name,
+                              SplittingStepCoefficients coefficients,
+                              int expected_sequential_methods,
+                              int expected_stages, int expected_partitions,
+                              int expected_order,
+                              const sunrealtype* expected_alpha,
+                              const sunrealtype* expected_beta)
 {
   printf("Testing %s\n", name);
 

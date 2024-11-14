@@ -33,20 +33,19 @@
  * ERK method. Using the exact solution y(t) = exp(-t), we confirm the numerical
  * solution is sufficiently accurate.
  */
-static int test_forward(sundials::Context& ctx, const int partitions)
+static int test_forward(sundials::Context& ctx, int partitions)
 {
   constexpr auto t0         = SUN_RCONST(0.0);
   constexpr auto tf         = SUN_RCONST(1.0);
   constexpr auto dt         = SUN_RCONST(8.0e-3);
   constexpr auto local_tol  = SUN_RCONST(1.0e-6);
   constexpr auto global_tol = SUN_RCONST(10.0) * local_tol;
-  const auto y              = N_VNew_Serial(1, ctx);
+  auto y                    = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
-  const ARKRhsFn f = [](const sunrealtype, const N_Vector z,
-                        const N_Vector zdot, void* const user_data)
+  ARKRhsFn f = [](sunrealtype, N_Vector z, N_Vector zdot, void* user_data)
   {
-    const auto lambda = *static_cast<sunrealtype*>(user_data);
+    auto lambda = *static_cast<sunrealtype*>(user_data);
     N_VScale(lambda, z, zdot);
     return 0;
   };
@@ -72,12 +71,12 @@ static int test_forward(sundials::Context& ctx, const int partitions)
   ARKodeEvolve(arkode_mem, tf, y, &tret, ARK_NORMAL);
 
   /* Check that the solution matches the exact solution */
-  const auto exact_solution     = std::exp(t0 - tf);
-  const auto numerical_solution = N_VGetArrayPointer(y)[0];
+  auto exact_solution     = std::exp(t0 - tf);
+  auto numerical_solution = N_VGetArrayPointer(y)[0];
 
   if (SUNRCompareTol(exact_solution, numerical_solution, global_tol))
   {
-    const auto err = numerical_solution - exact_solution;
+    auto err = numerical_solution - exact_solution;
     std::cerr << "Forward solution with " << partitions
               << " partitions failed with an error of " << err << "\n";
     return 1;
@@ -120,21 +119,19 @@ static int test_mixed_directions(const sundials::Context& ctx)
   constexpr auto dt         = -SUN_RCONST(1.23e-3);
   constexpr auto local_tol  = SUN_RCONST(1.0e-6);
   constexpr auto global_tol = SUN_RCONST(10.0) * local_tol;
-  const auto y              = N_VNew_Serial(2, ctx);
+  auto y                    = N_VNew_Serial(2, ctx);
   N_VConst(SUN_RCONST(1.0), y);
-  const auto err = N_VClone(y);
+  auto err = N_VClone(y);
   N_VConst(SUN_RCONST(1.0), err);
 
-  const ARKRhsFn f1 =
-    [](const sunrealtype t, const N_Vector z, const N_Vector zdot, void* const)
+  ARKRhsFn f1 = [](sunrealtype t, N_Vector z, N_Vector zdot, void* const)
   {
     N_VGetArrayPointer(zdot)[0] = N_VGetArrayPointer(z)[1] - t;
     N_VGetArrayPointer(zdot)[1] = SUN_RCONST(0.0);
     return 0;
   };
 
-  const ARKRhsFn f2 =
-    [](const sunrealtype t, const N_Vector z, const N_Vector zdot, void* const)
+  ARKRhsFn f2 = [](sunrealtype t, N_Vector z, N_Vector zdot, void* const)
   {
     N_VGetArrayPointer(zdot)[0] = SUN_RCONST(0.0);
     N_VGetArrayPointer(zdot)[1] = t - N_VGetArrayPointer(z)[0];
@@ -174,7 +171,7 @@ static int test_mixed_directions(const sundials::Context& ctx)
   ARKodeEvolve(arkode_mem, t3, y, &tret, ARK_NORMAL);
 
   N_VLinearSum(SUN_RCONST(1.0), err, -SUN_RCONST(1.0), y, err);
-  const auto max_err = N_VMaxNorm(err);
+  auto max_err = N_VMaxNorm(err);
 
   if (max_err > global_tol)
   {
@@ -221,18 +218,16 @@ static int test_resize(const sundials::Context& ctx)
   constexpr auto dt         = SUN_RCONST(8.0e-3);
   constexpr auto local_tol  = SUN_RCONST(1.0e-5);
   constexpr auto global_tol = local_tol;
-  const auto y              = N_VNew_Serial(1, ctx);
+  auto y                    = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
-  const ARKRhsFn f1 =
-    [](const sunrealtype t, const N_Vector z, const N_Vector zdot, void* const)
+  ARKRhsFn f1 = [](sunrealtype t, N_Vector z, N_Vector zdot, void* const)
   {
     N_VProd(z, z, zdot);
     return 0;
   };
 
-  const ARKRhsFn f2 =
-    [](const sunrealtype t, const N_Vector z, const N_Vector zdot, void* const)
+  ARKRhsFn f2 = [](sunrealtype t, N_Vector z, N_Vector zdot, void* const)
   {
     N_VConst(-SUN_RCONST(1.0), zdot);
     N_VLinearSum(SUN_RCONST(1.0), zdot, -SUN_RCONST(1.0), z, zdot);
@@ -260,7 +255,7 @@ static int test_resize(const sundials::Context& ctx)
   ARKodeEvolve(arkode_mem, t1, y, &tret, ARK_NORMAL);
 
   /* Resize */
-  const auto y_new             = N_VNew_Serial(2, ctx);
+  auto y_new                   = N_VNew_Serial(2, ctx);
   N_VGetArrayPointer(y_new)[0] = SUN_RCONST(1.0);
   N_VGetArrayPointer(y_new)[1] = N_VGetArrayPointer(y)[0];
   N_VDestroy(y);
@@ -271,11 +266,11 @@ static int test_resize(const sundials::Context& ctx)
   /* Integrate from 0.5 to 1 */
   ARKodeEvolve(arkode_mem, t2, y_new, &tret, ARK_NORMAL);
 
-  const auto err             = N_VClone(y_new);
+  auto err                   = N_VClone(y_new);
   N_VGetArrayPointer(err)[0] = std::exp(t1 - t2);
   N_VGetArrayPointer(err)[1] = std::exp(t0 - t2);
   N_VLinearSum(SUN_RCONST(1.0), err, -SUN_RCONST(1.0), y_new, err);
-  const auto max_err = N_VMaxNorm(err);
+  auto max_err = N_VMaxNorm(err);
 
   if (max_err > global_tol)
   {
@@ -302,20 +297,18 @@ static int test_resize(const sundials::Context& ctx)
 
 /* Creates a custom SUNStepper for the linear, scalar ODE y' = lambda*y */
 static SUNStepper create_exp_stepper(const sundials::Context& ctx,
-                                     const sunrealtype& lam, const N_Vector y)
+                                     const sunrealtype& lam, N_Vector y)
 {
   SUNStepper stepper = nullptr;
   SUNStepper_Create(ctx, &stepper);
 
   struct Content
   {
-    const sunrealtype lambda;
+    sunrealtype lambda;
     sunrealtype t{};
-    const N_Vector v;
+    N_Vector v;
 
-    Content(const sunrealtype l, const N_Vector tmpl)
-      : lambda(l), v(N_VClone(tmpl))
-    {}
+    Content(sunrealtype l, N_Vector tmpl) : lambda(l), v(N_VClone(tmpl)) {}
 
     ~Content() { N_VDestroy(v); }
 
@@ -329,7 +322,7 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
 
   SUNStepper_SetContent(stepper, new Content(lam, y));
 
-  const auto reset = [](SUNStepper s, const sunrealtype tR, const N_Vector vR)
+  auto reset = [](SUNStepper s, sunrealtype tR, N_Vector vR)
   {
     auto& content = Content::from_stepper(s);
     content.t     = tR;
@@ -338,22 +331,22 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
   };
   SUNStepper_SetResetFn(stepper, reset);
 
-  const auto empty_func = [](auto...) { return 0; };
+  auto empty_func = [](auto...) { return 0; };
   SUNStepper_SetStopTimeFn(stepper, empty_func);
   SUNStepper_SetStepDirectionFn(stepper, empty_func);
   SUNStepper_SetFullRhsFn(stepper, empty_func);
 
-  const auto evolve = [](const SUNStepper s, const sunrealtype tout,
-                         const N_Vector vret, sunrealtype* const tret)
+  auto evolve =
+    [](SUNStepper s, sunrealtype tout, N_Vector vret, sunrealtype* tret)
   {
-    const auto& content = Content::from_stepper(s);
+    auto& content = Content::from_stepper(s);
     N_VScale(std::exp(content.lambda * (tout - content.t)), content.v, vret);
     *tret = tout;
     return 0;
   };
   SUNStepper_SetEvolveFn(stepper, evolve);
 
-  const auto destroy = [](SUNStepper s)
+  auto destroy = [](SUNStepper s)
   {
     delete &Content::from_stepper(s);
     return 0;
@@ -377,7 +370,7 @@ static int test_custom_stepper(const sundials::Context& ctx)
   constexpr auto t0      = SUN_RCONST(0.0);
   constexpr auto tf      = SUN_RCONST(1.0);
   constexpr auto dt      = SUN_RCONST(0.1);
-  const auto y           = N_VNew_Serial(1, ctx);
+  auto y                 = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
   SUNStepper steppers[] = {create_exp_stepper(ctx, lambda1, y),
@@ -393,11 +386,11 @@ static int test_custom_stepper(const sundials::Context& ctx)
   ARKodeEvolve(arkode_mem, tf, y, &tret, ARK_NORMAL);
 
   /* Check that the solution matches the exact solution */
-  const auto exact_solution     = std::exp(t0 - tf);
-  const auto numerical_solution = N_VGetArrayPointer(y)[0];
+  auto exact_solution     = std::exp(t0 - tf);
+  auto numerical_solution = N_VGetArrayPointer(y)[0];
   if (SUNRCompare(exact_solution, numerical_solution))
   {
-    const auto err = numerical_solution - exact_solution;
+    auto err = numerical_solution - exact_solution;
     std::cerr << "Custom SUNStepper failed with an error of " << err << "\n";
     return 1;
   }
