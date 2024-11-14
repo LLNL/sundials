@@ -491,8 +491,8 @@ integrator or exact solution procedure. However, the IVP for partition two
 includes a "forcing" or "tendency" term :math:`f_1^*` to strengthen the
 coupling. This coupling leads to a first order method provided :math:`v_1` and
 :math:`v_2` are integrated to at least first order accuracy. Currently, a fixed
-time step must be specified for the outer ForcingStep, but inner integrators are
-free to use adaptive time steps.
+time step must be specified for the overall ForcingStep integrator, but
+partition integrators are free to use adaptive time steps.
 
 
 .. _ARKODE.Mathematics.MRIStep:
@@ -772,8 +772,8 @@ Alternatively, users may construct their own coefficients (see
 :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients`). Generally,
 methods of order three and higher with real coefficients require backward
 integration, i.e., there exist negative :math:`\gamma_{i,j,k}` coefficients.
-Currently, a fixed time step must be specified for the outer SplittingStep, but
-inner integrators are free to use adaptive time steps.
+Currently, a fixed time step must be specified for the overall SplittingStep
+integrator, but partition integrators are free to use adaptive time steps.
 
 
 .. _ARKODE.Mathematics.SPRKStep:
