@@ -57,77 +57,16 @@ typedef struct
   sunrealtype lambda;
 } UserData;
 
-/* RHS for f^1(t, y) = -lambda * y */
+/* User-supplied Functions Called by the Solver */
 static int f_linear(const sunrealtype t, const N_Vector y, N_Vector ydot,
-                    void* const user_data)
-{
-  sunrealtype lambda = ((UserData*)user_data)->lambda;
-  N_VScale(-lambda, y, ydot);
-  return 0;
-}
-
-/* RHS for f^2(t, y) = y^2 */
+                    void* const user_data);
 static int f_nonlinear(const sunrealtype t, const N_Vector y, N_Vector ydot,
-                       void* const user_data)
-{
-  N_VProd(y, y, ydot);
-  return 0;
-}
-
-/* Compute the exact analytic solution */
+                       void* const user_data);
 static N_Vector exact_sol(const N_Vector y0, const sunrealtype tf,
-                          const UserData* const user_data)
-{
-  N_Vector sol             = N_VClone(y0);
-  const sunrealtype y0_val = N_VGetArrayPointer(y0)[0];
-  const sunrealtype lambda = user_data->lambda;
-  N_VGetArrayPointer(sol)[0] =
-    lambda * y0_val / (y0_val - (y0_val - lambda) * SUNRexp(lambda * tf));
-  return sol;
-}
+                          const UserData* const user_data);
 
-/* Check function return value...
-    opt == 0 means SUNDIALS function allocates memory so check if
-             returned NULL pointer
-    opt == 1 means SUNDIALS function returns a flag so check if
-             flag >= 0
-    opt == 2 means function allocates memory so check if returned
-             NULL pointer
-*/
-static int check_flag(void* flagvalue, const char* funcname, int opt)
-{
-  int* errflag;
-
-  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL)
-  {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-            funcname);
-    return 1;
-  }
-
-  /* Check if flag < 0 */
-  else if (opt == 1)
-  {
-    errflag = (int*)flagvalue;
-    if (*errflag < 0)
-    {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-              funcname, *errflag);
-      return 1;
-    }
-  }
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL)
-  {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-            funcname);
-    return 1;
-  }
-
-  return 0;
-}
+/* Private function to check function return values */
+static int check_flag(void* flagvalue, const char* funcname, int opt);
 
 int main(const int argc, char* const argv[])
 {
@@ -258,6 +197,78 @@ int main(const int argc, char* const argv[])
   SUNStepper_Destroy(&steppers[1]);
   ARKodeFree(&arkode_mem);
   SUNContext_Free(&ctx);
+
+  return 0;
+}
+
+/* RHS for f^1(t, y) = -lambda * y */
+static int f_linear(const sunrealtype t, const N_Vector y, N_Vector ydot,
+                    void* const user_data)
+{
+  sunrealtype lambda = ((UserData*)user_data)->lambda;
+  N_VScale(-lambda, y, ydot);
+  return 0;
+}
+
+/* RHS for f^2(t, y) = y^2 */
+static int f_nonlinear(const sunrealtype t, const N_Vector y, N_Vector ydot,
+                       void* const user_data)
+{
+  N_VProd(y, y, ydot);
+  return 0;
+}
+
+/* Compute the exact analytic solution */
+static N_Vector exact_sol(const N_Vector y0, const sunrealtype tf,
+                          const UserData* const user_data)
+{
+  N_Vector sol             = N_VClone(y0);
+  const sunrealtype y0_val = N_VGetArrayPointer(y0)[0];
+  const sunrealtype lambda = user_data->lambda;
+  N_VGetArrayPointer(sol)[0] =
+    lambda * y0_val / (y0_val - (y0_val - lambda) * SUNRexp(lambda * tf));
+  return sol;
+}
+
+/* Check function return value...
+    opt == 0 means SUNDIALS function allocates memory so check if
+             returned NULL pointer
+    opt == 1 means SUNDIALS function returns a flag so check if
+             flag >= 0
+    opt == 2 means function allocates memory so check if returned
+             NULL pointer
+*/
+static int check_flag(void* flagvalue, const char* funcname, int opt)
+{
+  int* errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL)
+  {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return 1;
+  }
+
+  /* Check if flag < 0 */
+  else if (opt == 1)
+  {
+    errflag = (int*)flagvalue;
+    if (*errflag < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+              funcname, *errflag);
+      return 1;
+    }
+  }
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL)
+  {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return 1;
+  }
 
   return 0;
 }

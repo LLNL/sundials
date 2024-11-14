@@ -62,147 +62,20 @@ typedef struct
   sunrealtype u0; /* initial and boundary values */
 } UserData;
 
-/* Check function return value...
-    opt == 0 means SUNDIALS function allocates memory so check if
-             returned NULL pointer
-    opt == 1 means SUNDIALS function returns a flag so check if
-             flag >= 0
-    opt == 2 means function allocates memory so check if returned
-             NULL pointer
-*/
-static int check_flag(void* flagvalue, const char* funcname, int opt)
-{
-  int* errflag;
-
-  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL)
-  {
-    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-            funcname);
-    return 1;
-  }
-
-  /* Check if flag < 0 */
-  else if (opt == 1)
-  {
-    errflag = (int*)flagvalue;
-    if (*errflag < 0)
-    {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-              funcname, *errflag);
-      return 1;
-    }
-  }
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL)
-  {
-    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-            funcname);
-    return 1;
-  }
-
-  return 0;
-}
-
-/* f routine to compute the advection RHS function. */
+/* User-supplied Functions Called by the Solver */
 static int f_advection(const sunrealtype t, const N_Vector y,
-                       const N_Vector ydot, void* const user_data)
-{
-  const UserData* const udata = (UserData*)user_data;
-  sunrealtype* Y              = NULL;
-  Y                           = N_VGetArrayPointer(y); /* access data arrays */
-  if (check_flag((void*)Y, "N_VGetArrayPointer", 0)) { return 1; }
-
-  sunrealtype* Ydot = NULL;
-  Ydot              = N_VGetArrayPointer(ydot);
-  if (check_flag((void*)Ydot, "N_VGetArrayPointer", 0)) { return 1; }
-
-  const sunrealtype coeff  = udata->a / (SUN_RCONST(4.0) * udata->dx);
-  const sunrealtype u0_sqr = udata->u0 * udata->u0;
-
-  /* Left boundary */
-  Ydot[0] = coeff * (Y[1] * Y[1] - u0_sqr);
-  /* Interior */
-  for (sunindextype i = 1; i < udata->N - 1; i++)
-  {
-    Ydot[i] = coeff * (Y[i + 1] * Y[i + 1] - Y[i - 1] * Y[i - 1]);
-  }
-  /* Right boundary */
-  Ydot[udata->N - 1] = coeff * (u0_sqr - Y[udata->N - 1] * Y[udata->N - 1]);
-
-  return 0;
-}
-
-/* f routine to compute the diffusion RHS function. */
+                       const N_Vector ydot, void* const user_data);
 static int f_diffusion(const sunrealtype t, const N_Vector y,
-                       const N_Vector ydot, void* const user_data)
-{
-  const UserData* const udata = (UserData*)user_data;
-  sunrealtype* Y              = NULL;
-  Y                           = N_VGetArrayPointer(y); /* access data arrays */
-  if (check_flag((void*)Y, "N_VGetArrayPointer", 0)) { return 1; }
-
-  sunrealtype* Ydot = NULL;
-  Ydot              = N_VGetArrayPointer(ydot);
-  if (check_flag((void*)Ydot, "N_VGetArrayPointer", 0)) { return 1; }
-
-  const sunrealtype coeff = udata->b / (udata->dx * udata->dx);
-
-  /* Left boundary */
-  Ydot[0] = coeff * (udata->u0 - 2 * Y[0] + Y[1]);
-  /* Interior */
-  for (sunindextype i = 1; i < udata->N - 1; i++)
-  {
-    Ydot[i] = coeff * (Y[i + 1] - 2 * Y[i] + Y[i - 1]);
-  }
-  /* Right boundary */
-  Ydot[udata->N - 1] = coeff *
-                       (Y[udata->N - 2] - 2 * Y[udata->N - 1] + udata->u0);
-
-  return 0;
-}
-
-/* Routine to compute the diffusion Jacobian function. */
+                       const N_Vector ydot, void* const user_data);
 static int jac_diffusion(const sunrealtype t, const N_Vector y,
                          const N_Vector fy, const SUNMatrix Jac,
                          void* const user_data, const N_Vector tmp1,
-                         const N_Vector tmp2, const N_Vector tmp3)
-{
-  const UserData* const udata = (UserData*)user_data;
-  const sunrealtype coeff     = udata->b / (udata->dx * udata->dx);
-
-  SM_ELEMENT_B(Jac, 0, 0) = -2 * coeff;
-  for (int i = 1; i < udata->N; i++)
-  {
-    SM_ELEMENT_B(Jac, i - 1, i) = coeff;
-    SM_ELEMENT_B(Jac, i, i)     = -2 * coeff;
-    SM_ELEMENT_B(Jac, i, i - 1) = coeff;
-  }
-
-  return 0;
-}
-
-/* f routine to compute the reaction RHS function. */
+                         const N_Vector tmp2, const N_Vector tmp3);
 static int f_reaction(const sunrealtype t, const N_Vector y,
-                      const N_Vector ydot, void* const user_data)
-{
-  const UserData* const udata = (UserData*)user_data;
-  sunrealtype* Y              = NULL;
-  Y                           = N_VGetArrayPointer(y); /* access data arrays */
-  if (check_flag((void*)Y, "N_VGetArrayPointer", 0)) { return 1; }
+                      const N_Vector ydot, void* const user_data);
 
-  sunrealtype* Ydot = NULL;
-  Ydot              = N_VGetArrayPointer(ydot);
-  if (check_flag((void*)Ydot, "N_VGetArrayPointer", 0)) { return 1; }
-
-  for (sunindextype i = 0; i < udata->N; i++)
-  {
-    Ydot[i] = udata->c * Y[i] * (SUN_RCONST(1.0) - Y[i] * Y[i]);
-  }
-
-  return 0;
-}
+/* Private function to check function return values */
+static int check_flag(void* flagvalue, const char* funcname, int opt);
 
 int main(void)
 {
@@ -346,6 +219,148 @@ int main(void)
   SUNLinSolFree(ls);
   SUNMatDestroy(jac_mat);
   SUNContext_Free(&ctx);
+
+  return 0;
+}
+
+/* f routine to compute the advection RHS function. */
+static int f_advection(const sunrealtype t, const N_Vector y,
+                       const N_Vector ydot, void* const user_data)
+{
+  const UserData* const udata = (UserData*)user_data;
+  sunrealtype* Y              = NULL;
+  Y                           = N_VGetArrayPointer(y); /* access data arrays */
+  if (check_flag((void*)Y, "N_VGetArrayPointer", 0)) { return 1; }
+
+  sunrealtype* Ydot = NULL;
+  Ydot              = N_VGetArrayPointer(ydot);
+  if (check_flag((void*)Ydot, "N_VGetArrayPointer", 0)) { return 1; }
+
+  const sunrealtype coeff  = udata->a / (SUN_RCONST(4.0) * udata->dx);
+  const sunrealtype u0_sqr = udata->u0 * udata->u0;
+
+  /* Left boundary */
+  Ydot[0] = coeff * (Y[1] * Y[1] - u0_sqr);
+  /* Interior */
+  for (sunindextype i = 1; i < udata->N - 1; i++)
+  {
+    Ydot[i] = coeff * (Y[i + 1] * Y[i + 1] - Y[i - 1] * Y[i - 1]);
+  }
+  /* Right boundary */
+  Ydot[udata->N - 1] = coeff * (u0_sqr - Y[udata->N - 1] * Y[udata->N - 1]);
+
+  return 0;
+}
+
+/* f routine to compute the diffusion RHS function. */
+static int f_diffusion(const sunrealtype t, const N_Vector y,
+                       const N_Vector ydot, void* const user_data)
+{
+  const UserData* const udata = (UserData*)user_data;
+  sunrealtype* Y              = NULL;
+  Y                           = N_VGetArrayPointer(y); /* access data arrays */
+  if (check_flag((void*)Y, "N_VGetArrayPointer", 0)) { return 1; }
+
+  sunrealtype* Ydot = NULL;
+  Ydot              = N_VGetArrayPointer(ydot);
+  if (check_flag((void*)Ydot, "N_VGetArrayPointer", 0)) { return 1; }
+
+  const sunrealtype coeff = udata->b / (udata->dx * udata->dx);
+
+  /* Left boundary */
+  Ydot[0] = coeff * (udata->u0 - 2 * Y[0] + Y[1]);
+  /* Interior */
+  for (sunindextype i = 1; i < udata->N - 1; i++)
+  {
+    Ydot[i] = coeff * (Y[i + 1] - 2 * Y[i] + Y[i - 1]);
+  }
+  /* Right boundary */
+  Ydot[udata->N - 1] = coeff *
+                       (Y[udata->N - 2] - 2 * Y[udata->N - 1] + udata->u0);
+
+  return 0;
+}
+
+/* Routine to compute the diffusion Jacobian function. */
+static int jac_diffusion(const sunrealtype t, const N_Vector y,
+                         const N_Vector fy, const SUNMatrix Jac,
+                         void* const user_data, const N_Vector tmp1,
+                         const N_Vector tmp2, const N_Vector tmp3)
+{
+  const UserData* const udata = (UserData*)user_data;
+  const sunrealtype coeff     = udata->b / (udata->dx * udata->dx);
+
+  SM_ELEMENT_B(Jac, 0, 0) = -2 * coeff;
+  for (int i = 1; i < udata->N; i++)
+  {
+    SM_ELEMENT_B(Jac, i - 1, i) = coeff;
+    SM_ELEMENT_B(Jac, i, i)     = -2 * coeff;
+    SM_ELEMENT_B(Jac, i, i - 1) = coeff;
+  }
+
+  return 0;
+}
+
+/* f routine to compute the reaction RHS function. */
+static int f_reaction(const sunrealtype t, const N_Vector y,
+                      const N_Vector ydot, void* const user_data)
+{
+  const UserData* const udata = (UserData*)user_data;
+  sunrealtype* Y              = NULL;
+  Y                           = N_VGetArrayPointer(y); /* access data arrays */
+  if (check_flag((void*)Y, "N_VGetArrayPointer", 0)) { return 1; }
+
+  sunrealtype* Ydot = NULL;
+  Ydot              = N_VGetArrayPointer(ydot);
+  if (check_flag((void*)Ydot, "N_VGetArrayPointer", 0)) { return 1; }
+
+  for (sunindextype i = 0; i < udata->N; i++)
+  {
+    Ydot[i] = udata->c * Y[i] * (SUN_RCONST(1.0) - Y[i] * Y[i]);
+  }
+
+  return 0;
+}
+
+/* Check function return value...
+    opt == 0 means SUNDIALS function allocates memory so check if
+             returned NULL pointer
+    opt == 1 means SUNDIALS function returns a flag so check if
+             flag >= 0
+    opt == 2 means function allocates memory so check if returned
+             NULL pointer
+*/
+static int check_flag(void* flagvalue, const char* funcname, int opt)
+{
+  int* errflag;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && flagvalue == NULL)
+  {
+    fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return 1;
+  }
+
+  /* Check if flag < 0 */
+  else if (opt == 1)
+  {
+    errflag = (int*)flagvalue;
+    if (*errflag < 0)
+    {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
+              funcname, *errflag);
+      return 1;
+    }
+  }
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && flagvalue == NULL)
+  {
+    fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
+            funcname);
+    return 1;
+  }
 
   return 0;
 }
