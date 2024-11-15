@@ -442,34 +442,18 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Function : SUNRpowerI, SUNCpowerI, SUNpowerI
+ * Function : SUNRpowerI
  * -----------------------------------------------------------------
  * Usage : int exponent;
  *         sunrealtype rbase, rans;
  *         rans = SUNRpowerI(rbase,exponent);
- *         suncomplextype cbase, cans;
- *         cans = SUNCpowerI(cbase,exponent);
- *         sunscalartype base, ans;
- *         ans = SUNpowerI(base,exponent);
  * -----------------------------------------------------------------
  * SUNRpowerI returns the value of base^exponent, where base is of
  * type sunrealtype and exponent is of type int.
- * SUNCpowerI returns the value of base^exponent, where base is of
- * type suncomplextype and exponent is of type int.
- * SUNpowerI uses whichever of the above is mapped to sunscalartype.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT sunrealtype SUNRpowerI(sunrealtype base, int exponent);
-SUNDIALS_EXPORT suncomplextype SUNCpowerI(suncomplextype base, int exponent);
-
-#ifndef SUNpowerI
-#if defined(SUNDIALS_SCALAR_TYPE_REAL)
-#define SUNpowerI(base,exponent) SUNRpowerI(base,exponent)
-#else
-#define SUNpowerI(base,exponent) SUNCpowerI(base,exponent)
-#endif
-#endif
 
 /*
  * -----------------------------------------------------------------
