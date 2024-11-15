@@ -44,5 +44,5 @@ Inequality constraint fails  = 0
 Initial step size            = 1.122284259749542e-14
 Last step size               = 0.0002334416078592081
 Current step size            = 0.0002334416078592081
-RHS fn evals                 = 3972
+RHS fn evals                 = 3957
 Number of stages used        = 10
