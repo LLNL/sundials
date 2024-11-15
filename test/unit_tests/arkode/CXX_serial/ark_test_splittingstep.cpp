@@ -73,21 +73,18 @@ static int test_forward(sundials::Context& ctx, int partitions)
   /* Check that the solution matches the exact solution */
   auto exact_solution     = std::exp(t0 - tf);
   auto numerical_solution = N_VGetArrayPointer(y)[0];
+  auto err                = numerical_solution - exact_solution;
+
+  std::cout << "Forward solution with " << partitions
+            << " partitions completed with an error of " << err << "\n";
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   if (SUNRCompareTol(exact_solution, numerical_solution, global_tol))
   {
-    auto err = numerical_solution - exact_solution;
-    std::cerr << "Forward solution with " << partitions
-              << " partitions failed with an error of " << err << "\n";
+    std::cerr << "Error exceeded tolerance of " << global_tol << "\n";
     return 1;
   }
-  else
-  {
-    std::cout << "Forward solution with " << partitions
-              << " partitions passed with these stats:\n";
-    ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-    std::cout << "\n";
-  }
+  std::cout << "\n";
 
   N_VDestroy(y);
   for (int i = 0; i < partitions; i++)
@@ -173,18 +170,16 @@ static int test_mixed_directions(const sundials::Context& ctx)
   N_VLinearSum(SUN_RCONST(1.0), err, -SUN_RCONST(1.0), y, err);
   auto max_err = N_VMaxNorm(err);
 
+  std::cout << "Mixed direction solution completed with an error of " << max_err
+            << "\n";
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
   if (max_err > global_tol)
   {
-    std::cerr << "Mixed direction solution failed with an error of " << max_err
-              << "\n";
+    std::cerr << "Error exceeded tolerance of " << global_tol << "\n";
     return 1;
   }
-  else
-  {
-    std::cout << "Mixed direction solution passed with these stats:\n";
-    ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-    std::cout << "\n";
-  }
+  std::cout << "\n";
 
   N_VDestroy(y);
   N_VDestroy(err);
@@ -272,17 +267,15 @@ static int test_resize(const sundials::Context& ctx)
   N_VLinearSum(SUN_RCONST(1.0), err, -SUN_RCONST(1.0), y_new, err);
   auto max_err = N_VMaxNorm(err);
 
+  std::cout << "Resized solution completed with an error of " << max_err << "\n";
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
   if (max_err > global_tol)
   {
-    std::cerr << "Resized solution failed with an error of " << max_err << "\n";
+    std::cerr << "Error exceeded tolerance of " << global_tol << "\n";
     return 1;
   }
-  else
-  {
-    std::cout << "Resized solution passed with these stats:\n";
-    ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-    std::cout << "\n";
-  }
+  std::cout << "\n";
 
   N_VDestroy(y_new);
   N_VDestroy(err);
@@ -388,18 +381,17 @@ static int test_custom_stepper(const sundials::Context& ctx)
   /* Check that the solution matches the exact solution */
   auto exact_solution     = std::exp(t0 - tf);
   auto numerical_solution = N_VGetArrayPointer(y)[0];
+  auto err                = numerical_solution - exact_solution;
+
+  std::cout << "Custom SUNStepper completed with an error of " << err << "\n";
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
   if (SUNRCompare(exact_solution, numerical_solution))
   {
-    auto err = numerical_solution - exact_solution;
-    std::cerr << "Custom SUNStepper failed with an error of " << err << "\n";
+    std::cerr << "Error exceeded tolerance\n";
     return 1;
   }
-  else
-  {
-    std::cout << "Custom SUNStepper passed with these stats:\n";
-    ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
-    std::cout << "\n";
-  }
+  std::cout << "\n";
 
   N_VDestroy(y);
   SUNStepper_Destroy(&steppers[0]);

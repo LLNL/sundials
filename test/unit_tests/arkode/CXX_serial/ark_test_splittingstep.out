@@ -1,4 +1,4 @@
-Forward solution with 2 partitions passed with these stats:
+Forward solution with 2 partitions completed with an error of 1.10628e-12
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -13,7 +13,7 @@ Current step size            = 0.008
 Partition 0 evolves          = 375
 Partition 1 evolves          = 375
 
-Forward solution with 3 partitions passed with these stats:
+Forward solution with 3 partitions completed with an error of 5.03264e-13
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -29,7 +29,7 @@ Partition 0 evolves          = 375
 Partition 1 evolves          = 625
 Partition 2 evolves          = 375
 
-Forward solution with 4 partitions passed with these stats:
+Forward solution with 4 partitions completed with an error of 3.57214e-13
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -46,7 +46,7 @@ Partition 1 evolves          = 625
 Partition 2 evolves          = 625
 Partition 3 evolves          = 375
 
-Forward solution with 5 partitions passed with these stats:
+Forward solution with 5 partitions completed with an error of 2.9915e-13
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -64,7 +64,7 @@ Partition 2 evolves          = 625
 Partition 3 evolves          = 625
 Partition 4 evolves          = 375
 
-Forward solution with 6 partitions passed with these stats:
+Forward solution with 6 partitions completed with an error of 2.77611e-13
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -83,7 +83,7 @@ Partition 3 evolves          = 625
 Partition 4 evolves          = 625
 Partition 5 evolves          = 375
 
-Forward solution with 7 partitions passed with these stats:
+Forward solution with 7 partitions completed with an error of 2.66953e-13
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -103,7 +103,7 @@ Partition 4 evolves          = 625
 Partition 5 evolves          = 625
 Partition 6 evolves          = 375
 
-Mixed direction solution passed with these stats:
+Mixed direction solution completed with an error of 1.96217e-10
 Current time                 = -0.0009800000000017288
 Steps                        = 2279
 Step attempts                = 2279
@@ -118,7 +118,7 @@ Current step size            = -0.00123
 Partition 0 evolves          = 6837
 Partition 1 evolves          = 6837
 
-Resized solution passed with these stats:
+Resized solution completed with an error of 7.14694e-06
 Current time                 = 1.004
 Steps                        = 126
 Step attempts                = 126
@@ -133,7 +133,7 @@ Current step size            = 0.008
 Partition 0 evolves          = 252
 Partition 1 evolves          = 252
 
-Custom SUNStepper passed with these stats:
+Custom SUNStepper completed with an error of 1.16573e-15
 Current time                 = 1.1
 Steps                        = 11
 Step attempts                = 11
