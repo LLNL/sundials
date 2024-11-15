@@ -1299,6 +1299,10 @@ int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed)
   ---------------------------------------------------------------*/
 int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
 {
+  /* stepdir is a sunrealtype because the direction typically comes from a time
+   * step h or tend-tstart which are sunrealtypes. If stepdir was in int,
+   * conversions would be required which can cause undefined behavior when
+   * greater than MAX_INT */
   int retval;
   ARKodeMem ark_mem;
   sunrealtype h;
@@ -1306,34 +1310,64 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
                     MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
+    return ARK_MEM_NULL;
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  if (stepdir == ZERO) { return ARK_SUCCESS; }
+  /* do not change direction once the module has been initialized */
+  if (!ark_mem->initsetup)
+  {
+    arkProcessError(ark_mem, ARK_STEP_DIRECTION_ERR, __LINE__, __func__,
+                    __FILE__, "Step direction cannot be specified after module initialization.");
+    return ARK_STEP_DIRECTION_ERR;
+  }
 
-  retval = ARKodeGetStepDirection(arkode_mem, &h);
-  if (retval != ARK_SUCCESS) { return retval; }
+  if (stepdir != ZERO)
+  {
+    retval = ARKodeGetStepDirection(arkode_mem, &h);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "Unable to access step direction");
+      return retval;
+    }
 
-  // TODO(SBR): use SUNRcopysign once merged from other PR
-  // if (SUNRcopysign(h, stepdir) == h) {
-  if (h == ZERO || ((h > ZERO) == (stepdir > ZERO))) { return ARK_SUCCESS; }
+    if (h != ZERO && ((h > ZERO) != (stepdir > ZERO)))
+    {
+      /* Reverse the sign of h. If adaptive, h will be overwritten anyway by the
+       * initial step estimation since ARKodeReset must be called before this.
+       * However, the sign of h will be used to check if the integration
+       * direction and stop time are consistent, e.g., in ARKodeSetStopTime, so
+       * we should not set h = 0. */
+      ark_mem->h = -h;
+      /* Clear previous initial step and force an initial step recomputation.
+       * Normally, this would not occur after a reset, but is is necessary here
+       * because the timestep used in one direction may not be suitable for the
+       * other */
+      ark_mem->h0u = ZERO;
+      /* Reverse the step if in fixed mode. If adaptive, reset to 0 to clear any
+       * old value from a call to ARKodeSetInit */
+      ark_mem->hin = ark_mem->fixedstep ? -h : ZERO;
 
-  /* Reverse the sign of h. If adaptive, h will be overwritten anyway by the
-   * initial step estimation since ARKodeReset must be called before this.
-   * However, the sign of h will be used to check if the integration direction
-   * and stop time are consistent, e.g., in ARKodeSetStopTime, so we should not
-   * set h = 0. */
-  ark_mem->h = -h;
-  /* Clear previous initial step */
-  ark_mem->h0u = ZERO;
-  /* Reverse the step if in fixed mode. If adaptive, reset to 0 to clear any old
-   * value from a call to ARKodeSetInit */
-  ark_mem->hin = ark_mem->fixedstep ? -h : ZERO;
+      /* Reset error controller (e.g., error and step size history) */
+      if (ark_mem->hadapt_mem && ark_mem->hadapt_mem->hcontroller)
+      {
+        SUNErrCode err =
+          SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
+        if (err != SUN_SUCCESS)
+        {
+          arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
+                          __FILE__, "Unable to reset error controller object");
+          return ARK_CONTROLLER_ERR;
+        }
+      }
+    }
+  }
 
-  /* Reset error controller (e.g., error and step size history) */
-  SUNErrCode err = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
-  if (err != SUN_SUCCESS) { return (ARK_CONTROLLER_ERR); }
+  if (ark_mem->step_setstepdirection != NULL)
+  {
+    return ark_mem->step_setstepdirection(ark_mem, stepdir);
+  }
 
   return ARK_SUCCESS;
 }
@@ -2201,6 +2235,12 @@ int ARKodeGetStepDirection(void* arkode_mem, sunrealtype* stepdir)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
+  if (stepdir == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "stepdir cannot be NULL");
+  }
+
   *stepdir = (ark_mem->fixedstep || ark_mem->h == ZERO) ? ark_mem->hin
                                                         : ark_mem->h;
   return (ARK_SUCCESS);
@@ -2974,6 +3014,8 @@ char* ARKodeGetReturnFlagName(long int flag)
   case ARK_RELAX_JAC_FAIL: sprintf(name, "ARK_RELAX_JAC_FAIL"); break;
   case ARK_CONTROLLER_ERR: sprintf(name, "ARK_CONTROLLER_ERR"); break;
   case ARK_STEPPER_UNSUPPORTED: sprintf(name, "ARK_STEPPER_UNSUPPORTED"); break;
+  case ARK_SUNSTEPPER_ERR: sprintf(name, "ARK_SUNSTEPPER_ERR"); break;
+  case ARK_STEP_DIRECTION_ERR: sprintf(name, "ARK_STEP_DIRECTION_ERR"); break;
   case ARK_UNRECOGNIZED_ERROR: sprintf(name, "ARK_UNRECOGNIZED_ERROR"); break;
   default: sprintf(name, "NONE");
   }

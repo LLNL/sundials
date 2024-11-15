@@ -143,6 +143,8 @@ extern "C" {
 
 #define ARK_SUNSTEPPER_ERR -49
 
+#define ARK_STEP_DIRECTION_ERR -50
+
 #define ARK_UNRECOGNIZED_ERROR -99
 
 /* ------------------------------

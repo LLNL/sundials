@@ -101,6 +101,21 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
   return ARK_SUCCESS;
 }
 
+static int forcingStep_SetStepDirection(ARKodeMem ark_mem, sunrealtype stepdir)
+{
+  ARKodeForcingStepMem step_mem = NULL;
+  int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  SUNErrCode err = SUNStepper_SetStepDirection(step_mem->stepper[0], ark_mem->h);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_SetStepDirection(step_mem->stepper[1], ark_mem->h);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  return ARK_SUCCESS;
+}
+
 /*------------------------------------------------------------------------------
   This is just a wrapper to call the user-supplied RHS function,
   f^1(t,y) + f^2(t,y).
@@ -173,8 +188,6 @@ static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   /* Evolve stepper 0 on its own */
   SUNErrCode err = SUNStepper_Reset(s0, ark_mem->tn, ark_mem->yn);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
-  err = SUNStepper_SetStepDirection(s0, ark_mem->h);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_SetStopTime(s0, tout);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_Evolve(s0, tout, ark_mem->ycur, &tret);
@@ -187,8 +200,6 @@ static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
    * could become out of sync. */
   SUNStepper s1 = step_mem->stepper[1];
   err           = SUNStepper_Reset(s1, ark_mem->tn, ark_mem->yn);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
-  err = SUNStepper_SetStepDirection(s1, ark_mem->h);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   err = SUNStepper_SetStopTime(s1, tout);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
@@ -352,14 +363,15 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
   step_mem->n_stepper_evolves[1] = 0;
 
   /* Attach step_mem structure and function pointers to ark_mem */
-  ark_mem->step_init          = forcingStep_Init;
-  ark_mem->step_fullrhs       = forcingStep_FullRHS;
-  ark_mem->step               = forcingStep_TakeStep;
-  ark_mem->step_printallstats = forcingStep_PrintAllStats;
-  ark_mem->step_free          = forcingStep_Free;
-  ark_mem->step_printmem      = forcingStep_PrintMem;
-  ark_mem->step_setdefaults   = forcingStep_SetDefaults;
-  ark_mem->step_mem           = (void*)step_mem;
+  ark_mem->step_init             = forcingStep_Init;
+  ark_mem->step_fullrhs          = forcingStep_FullRHS;
+  ark_mem->step_setstepdirection = forcingStep_SetStepDirection;
+  ark_mem->step                  = forcingStep_TakeStep;
+  ark_mem->step_printallstats    = forcingStep_PrintAllStats;
+  ark_mem->step_free             = forcingStep_Free;
+  ark_mem->step_printmem         = forcingStep_PrintMem;
+  ark_mem->step_setdefaults      = forcingStep_SetDefaults;
+  ark_mem->step_mem              = (void*)step_mem;
 
   /* Set default values for ARKStep optional inputs */
   int retval = forcingStep_SetDefaults(ark_mem);
