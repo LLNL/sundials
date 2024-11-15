@@ -54,6 +54,15 @@ if((CMAKE_CXX_COMPILER_ID MATCHES GNU)
 endif()
 
 # ===============================================================
+# Catch incompatibility between CUDA and extended precision.
+# ===============================================================
+
+if(SUNDIALS_PRECISION MATCHES "EXTENDED")
+  message(
+    FATAL_ERROR "CUDA interfaces are incompatible with extended precision.")
+endif()
+
+# ===============================================================
 # Enable CUDA lang and find the CUDA libraries.
 # ===============================================================
 
