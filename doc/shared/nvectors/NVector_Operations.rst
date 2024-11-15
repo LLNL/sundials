@@ -394,7 +394,7 @@ operations below.
 
 .. c:function:: sunrealtype N_VMin(N_Vector x)
 
-   Returns the smallest element of the ``N_Vector`` *x*:
+   Returns the smallest real element of the ``N_Vector`` *x*:
 
    .. math::
       m = \min_{0\le i< n} \operatorname{real}(x_i).
