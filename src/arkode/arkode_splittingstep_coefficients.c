@@ -102,7 +102,7 @@ SplittingStepCoefficients SplittingStepCoefficients_Create(
   const int sequential_methods, const int stages, const int partitions,
   const int order, sunrealtype* const alpha, sunrealtype* const beta)
 {
-  if (alpha == NULL || beta == NULL) { return NULL; }
+  if (alpha == NULL || beta == NULL || order < 1) { return NULL; }
 
   SplittingStepCoefficients coefficients =
     SplittingStepCoefficients_Alloc(sequential_methods, stages, partitions);
