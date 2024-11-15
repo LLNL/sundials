@@ -58,15 +58,6 @@ static int forcingStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
 }
 
 /*---------------------------------------------------------------
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
-  ---------------------------------------------------------------*/
-static sunbooleantype forcingStep_CheckNVector(N_Vector y)
-{
-  return y->ops->nvlinearsum != NULL;
-}
-
-/*---------------------------------------------------------------
   This routine is called just prior to performing internal time
   steps (after all user "set" routines have been called) from
   within arkInitialSetup.
@@ -100,7 +91,6 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
 
   return ARK_SUCCESS;
 }
-
 
 /*------------------------------------------------------------------------------
   This routine sets the step direction of the partition integrators and is
@@ -303,44 +293,71 @@ static int forcingStep_SetDefaults(ARKodeMem ark_mem)
 }
 
 /*---------------------------------------------------------------
-  Creates the ForcingStep integrator
+  This routine checks if all required vector operations are
+  present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
-                        sunrealtype t0, N_Vector y0, SUNContext sunctx)
+static sunbooleantype forcingStep_CheckNVector(N_Vector y)
+{
+  return y->ops->nvlinearsum != NULL;
+}
+
+static int forcingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper stepper1,
+                                 SUNStepper stepper2, N_Vector y0)
 {
   if (stepper1 == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "stepper1 = NULL illegal.");
-    return NULL;
+    return ARK_ILL_INPUT;
   }
 
   if (stepper2 == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "stepper2 = NULL illegal.");
-    return NULL;
+    return ARK_ILL_INPUT;
   }
 
   if (y0 == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
-    return NULL;
-  }
-
-  if (sunctx == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_SUNCTX);
-    return NULL;
+    return ARK_ILL_INPUT;
   }
 
   /* Test if all required vector operations are implemented */
   if (!forcingStep_CheckNVector(y0))
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_NVECTOR);
+    return ARK_ILL_INPUT;
+  }
+
+  return ARK_SUCCESS;
+}
+
+static void forcingStep_InitStepMem(ARKodeForcingStepMem step_mem,
+                                    SUNStepper stepper1, SUNStepper stepper2)
+{
+  step_mem->stepper[0]           = stepper1;
+  step_mem->stepper[1]           = stepper2;
+  step_mem->n_stepper_evolves[0] = 0;
+  step_mem->n_stepper_evolves[1] = 0;
+}
+
+/*---------------------------------------------------------------
+  Creates the ForcingStep integrator
+  ---------------------------------------------------------------*/
+void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
+                        sunrealtype t0, N_Vector y0, SUNContext sunctx)
+{
+  int retval = forcingStep_CheckArgs(NULL, stepper1, stepper2, y0);
+  if (retval != ARK_SUCCESS) { return NULL; }
+
+  if (sunctx == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_SUNCTX);
     return NULL;
   }
 
@@ -361,11 +378,7 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
     ARKodeFree((void**)&ark_mem);
     return NULL;
   }
-
-  step_mem->stepper[0]           = stepper1;
-  step_mem->stepper[1]           = stepper2;
-  step_mem->n_stepper_evolves[0] = 0;
-  step_mem->n_stepper_evolves[1] = 0;
+  forcingStep_InitStepMem(step_mem, stepper1, stepper2);
 
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init             = forcingStep_Init;
@@ -379,7 +392,7 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
   ark_mem->step_mem              = (void*)step_mem;
 
   /* Set default values for ARKStep optional inputs */
-  int retval = forcingStep_SetDefaults(ark_mem);
+  retval = forcingStep_SetDefaults(ark_mem);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -399,6 +412,41 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
   }
 
   return ark_mem;
+}
+
+int ForcingStepReInit(void* arkode_mem, SUNStepper stepper1,
+                      SUNStepper stepper2, sunrealtype t0, N_Vector y0)
+{
+  ARKodeMem ark_mem             = NULL;
+  ARKodeForcingStepMem step_mem = NULL;
+
+  int retval = forcingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                               &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE)
+  {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
+    return ARK_NO_MALLOC;
+  }
+
+  retval = forcingStep_CheckArgs(ark_mem, stepper1, stepper2, y0);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  forcingStep_InitStepMem(step_mem, stepper1, stepper2);
+
+  /* Initialize main ARKODE infrastructure */
+  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to initialize main ARKODE infrastructure");
+    return retval;
+  }
+
+  return ARK_SUCCESS;
 }
 
 int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves)
