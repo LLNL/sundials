@@ -1455,7 +1455,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     /* apply user-supplied stage postprocessing function (if supplied) */
     if (ark_mem->ProcessStage != NULL && j < step_mem->req_stages)
     {
-      retval = ark_mem->ProcessStage(ark_mem->tcur + 
+      retval = ark_mem->ProcessStage(ark_mem->tcur +
                                        ((sunrealtype)j - rn) * rat * ark_mem->h,
                                      ark_mem->ycur, ark_mem->user_data);
       if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
