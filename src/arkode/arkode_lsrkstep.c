@@ -356,9 +356,9 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   }
 
   /* While LSRKStep does not currently call the full RHS function directly (later
-	  optimizations might) we do need the fn vector to always be allocated. Signaling
-	  to shared arkode module that full RHS evaluations are required will ensure
-	  fn is always allocated. */
+     optimizations might) we do need the fn vector to always be allocated. Signaling
+     to shared arkode module that full RHS evaluations are required will ensure
+     fn is always allocated. */
   ark_mem->call_fullrhs = SUNTRUE;
 
   return ARK_SUCCESS;
@@ -383,8 +383,9 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
 
   If this function is called in ARK_FULLRHS_START the RHS function is always
   evaluated.
+
   In ARK_FULLRHS_END mode we evaluate the RHS if an SSP method is being
-	used otherwise we copy the RHS evaluation from the end of the STS step.
+  used otherwise we copy the RHS evaluation from the end of the STS step.
 
   ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
   when estimating the initial time step size, so we strive to store the
