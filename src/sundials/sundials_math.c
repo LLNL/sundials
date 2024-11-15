@@ -46,18 +46,6 @@ sunrealtype SUNRpowerI(sunrealtype base, int exponent)
   return (prod);
 }
 
-suncomplextype SUNCpowerI(suncomplextype base, int exponent)
-{
-  int i, expt;
-  suncomplextype prod;
-
-  prod = SUN_CCONST(1.0,0.0);
-  expt = abs(exponent);
-  for (i = 1; i <= expt; i++) { prod *= base; }
-  if (exponent < 0) { prod = SUN_CCONST(1.0,0.0) / prod; }
-  return (prod);
-}
-
 sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b)
 {
   return (SUNRCompareTol(a, b, 10 * SUN_UNIT_ROUNDOFF));
