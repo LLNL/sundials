@@ -422,9 +422,9 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     break;
 
   case ARK_FULLRHS_END:
-    /* No further action is needed if STS since the currently available STS methods 
-       evaluate the RHS at the end of each time step. If the stepper is an SSP, fn is 
-       updated and reused at the beginning of the step unless 
+    /* No further action is needed if STS since the currently available STS methods
+       evaluate the RHS at the end of each time step. If the stepper is an SSP, fn is
+       updated and reused at the beginning of the step unless
        ark_mem->fn_is_current is changed by ARKODE. */
     if (step_mem->is_SSP)
     {
@@ -476,10 +476,10 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   weighted local error if an embedding is present; otherwise it
   should be 0.
 
-  The input/output variable nflagPtr is generally used in ARKODE 
-  to gauge the convergence of any algebraic solvers. However, since 
-  the STS step routines do not involve an algebraic solve, this variable 
-  instead serves to identify possible ARK_RETRY_STEP returns within this 
+  The input/output variable nflagPtr is generally used in ARKODE
+  to gauge the convergence of any algebraic solvers. However, since
+  the STS step routines do not involve an algebraic solve, this variable
+  instead serves to identify possible ARK_RETRY_STEP returns within this
   routine.
 
   The return value from this routine is:
@@ -760,10 +760,10 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   weighted local error if an embedding is present; otherwise it
   should be 0.
 
-  The input/output variable nflagPtr is generally used in ARKODE 
-  to gauge the convergence of any algebraic solvers. However, since 
-  the STS step routines do not involve an algebraic solve, this variable 
-  instead serves to identify possible ARK_RETRY_STEP returns within this 
+  The input/output variable nflagPtr is generally used in ARKODE
+  to gauge the convergence of any algebraic solvers. However, since
+  the STS step routines do not involve an algebraic solve, this variable
+  instead serves to identify possible ARK_RETRY_STEP returns within this
   routine.
 
   The return value from this routine is:
@@ -1074,7 +1074,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* The method is not FSAL. Therefore, fn ​is computed at the beginning 
+  /* The method is not FSAL. Therefore, fn ​is computed at the beginning
      of the step unless a renewed step or ARKODE updated fn. */
   if (!ark_mem->fn_is_current)
   {
@@ -1219,8 +1219,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   This routine serves the primary purpose of the LSRKStepSSPs3 module:
   it performs a single SSPs3 step (with embedding).
 
-  The SSP3 method differs significantly when s = 4. Therefore, the case 
-  where num_of_stages = 4 is considered separately to avoid unnecessary 
+  The SSP3 method differs significantly when s = 4. Therefore, the case
+  where num_of_stages = 4 is considered separately to avoid unnecessary
   boolean checks and improve computational efficiency.
 
   The output variable dsmPtr should contain estimate of the
@@ -1266,7 +1266,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* The method is not FSAL. Therefore, fn ​is computed at the beginning 
+  /* The method is not FSAL. Therefore, fn ​is computed at the beginning
      of the step unless ARKODE updated fn. */
   if (!ark_mem->fn_is_current)
   {
@@ -1497,8 +1497,8 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   This routine serves the primary purpose of the LSRKStepSSP43 module:
   it performs a single SSP43 step (with embedding).
 
-  The SSP3 method differs significantly when s = 4. Therefore, the case 
-  where num_of_stages = 4 is considered separately to avoid unnecessary 
+  The SSP3 method differs significantly when s = 4. Therefore, the case
+  where num_of_stages = 4 is considered separately to avoid unnecessary
   boolean checks and improve computational efficiency.
 
   The output variable dsmPtr should contain estimate of the
@@ -1542,7 +1542,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* The method is not FSAL. Therefore, fn ​is computed at the beginning 
+  /* The method is not FSAL. Therefore, fn ​is computed at the beginning
      of the step unless ARKODE updated fn. */
   if (!ark_mem->fn_is_current)
   {
@@ -1753,7 +1753,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                      ark_mem->nst, ark_mem->h, ark_mem->tcur);
 #endif
 
-  /* The method is not FSAL. Therefore, fn ​is computed at the beginning 
+  /* The method is not FSAL. Therefore, fn ​is computed at the beginning
      of the step unless ARKODE updated fn. */
   if (!ark_mem->fn_is_current)
   {
