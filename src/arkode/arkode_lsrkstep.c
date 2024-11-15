@@ -1597,7 +1597,8 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   N_VPrintFile(ark_mem->tempv3, ARK_LOGGER->debug_fp);
 #endif
 
-  N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, ark_mem->tempv3, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, ark_mem->tempv3,
+               ark_mem->ycur);
   if (!ark_mem->fixedstep)
   {
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->tempv3,
@@ -1619,8 +1620,8 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                      ark_mem->nst, 3, ark_mem->h, ark_mem->tcur + ark_mem->h);
 #endif
 
-  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur, ark_mem->tempv3,
-                        ark_mem->user_data);
+  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                        ark_mem->tempv3, ark_mem->user_data);
   step_mem->nfe++;
   if (retval < 0) { return ARK_RHSFUNC_FAIL; }
   if (retval > 0) { return RHSFUNC_RECVR; }
@@ -1675,7 +1676,8 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   N_VPrintFile(ark_mem->tempv3, ARK_LOGGER->debug_fp);
 #endif
 
-  N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, ark_mem->tempv3, ark_mem->ycur);
+  N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, ark_mem->tempv3,
+               ark_mem->ycur);
   if (!ark_mem->fixedstep)
   {
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->tempv3,
@@ -1897,8 +1899,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
                      ark_mem->nst, 10, ark_mem->h, ark_mem->tcur + ark_mem->h);
 #endif
 
-  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur, ark_mem->tempv3,
-                        ark_mem->user_data);
+  retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
+                        ark_mem->tempv3, ark_mem->user_data);
   step_mem->nfe++;
   if (retval < 0) { return ARK_RHSFUNC_FAIL; }
   if (retval > 0) { return RHSFUNC_RECVR; }
