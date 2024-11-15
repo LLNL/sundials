@@ -117,20 +117,14 @@ typedef long double sunrealtype;
    and define "suncomplextype" based on the requested floating-point precision */
 #if defined(__cplusplus)  /* C++ complex support */
 
-  #if (defined(SUNDIALS_CUDA_ENABLED) || defined(SUNDIALS_HIP_ENABLED))
-    #define suncomplexlib thrust
-    #include <thrust/complex.h>
-  #else
-    #define suncomplexlib std
-    #include <complex>
-  #endif
+  #include <complex>
 
   #if defined(SUNDIALS_SINGLE_PRECISION)
-typedef suncomplexlib::complex<float>  suncomplextype;
+typedef std::complex<float>  suncomplextype;
   #elif defined(SUNDIALS_DOUBLE_PRECISION)
-typedef suncomplexlib::complex<double> suncomplextype;
+typedef std::complex<double> suncomplextype;
   #elif defined(SUNDIALS_EXTENDED_PRECISION)
-typedef suncomplexlib::complex<long double> suncomplextype;
+typedef std::complex<long double> suncomplextype;
   #endif
 
   #define SUN_I              (suncomplextype(SUN_RCONST(0.0), SUN_RCONST(1.0)))
