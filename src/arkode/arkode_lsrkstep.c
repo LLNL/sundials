@@ -358,8 +358,8 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
   /* While LSRKStep does not currently call the full RHS function directly (later
 	  optimizations might) we do need the fn vector to always be allocated. Signaling
 	  to shared arkode module that full RHS evaluations are required will ensure
-	  fn is always allocted. */
-	  ark_mem->call_fullrhs = SUNTRUE;
+	  fn is always allocated. */
+  ark_mem->call_fullrhs = SUNTRUE;
 
   return ARK_SUCCESS;
 }
@@ -1450,6 +1450,15 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     {
       N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->fn,
                    ark_mem->tempv1);
+    }
+
+    /* apply user-supplied stage postprocessing function (if supplied) */
+    if (ark_mem->ProcessStage != NULL && j < step_mem->req_stages)
+    {
+      retval = ark_mem->ProcessStage(ark_mem->tcur + 
+                                       ((sunrealtype)j - rn) * rat * ark_mem->h,
+                                     ark_mem->ycur, ark_mem->user_data);
+      if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
     }
   }
 
