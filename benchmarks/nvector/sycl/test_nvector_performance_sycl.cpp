@@ -101,7 +101,6 @@ int main(int argc, char* argv[])
   ::sycl::device dev = myQueue.get_device();
   std::cout << "Running on " << (dev.get_info<::sycl::info::device::name>())
             << std::endl;
-  std::cout << " is host? " << (dev.is_host() ? "Yes" : "No") << std::endl;
   std::cout << " is cpu? " << (dev.is_cpu() ? "Yes" : "No") << std::endl;
   std::cout << " is gpu? " << (dev.is_gpu() ? "Yes" : "No") << std::endl;
   std::cout << " is accelerator? " << (dev.is_accelerator() ? "Yes" : "No")
