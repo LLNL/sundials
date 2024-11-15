@@ -421,7 +421,10 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     break;
 
   case ARK_FULLRHS_END:
-    /* No further action is needed if STS since the currently available STS methods evaluate the RHS at the end of each time step. If the stepper is an SSP, fn is updated and reused at the beginning of the step unless ark_mem->fn_is_current is changed by ARKODE. */
+    /* No further action is needed if STS since the currently available STS methods 
+       evaluate the RHS at the end of each time step. If the stepper is an SSP, fn is 
+       updated and reused at the beginning of the step unless 
+       ark_mem->fn_is_current is changed by ARKODE. */
     if (step_mem->is_SSP)
     {
       retval = step_mem->fe(t, y, ark_mem->fn, ark_mem->user_data);
