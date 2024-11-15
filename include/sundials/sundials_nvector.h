@@ -109,23 +109,23 @@ struct _generic_N_Vector_Ops
   N_Vector (*nvcloneempty)(N_Vector);
   void (*nvdestroy)(N_Vector);
   void (*nvspace)(N_Vector, sunindextype*, sunindextype*);
-  sunrealtype* (*nvgetarraypointer)(N_Vector);
-  sunrealtype* (*nvgetdevicearraypointer)(N_Vector);
-  void (*nvsetarraypointer)(sunrealtype*, N_Vector);
+  sunscalartype* (*nvgetarraypointer)(N_Vector);
+  sunscalartype* (*nvgetdevicearraypointer)(N_Vector);
+  void (*nvsetarraypointer)(sunscalartype*, N_Vector);
   SUNComm (*nvgetcommunicator)(N_Vector);
   sunindextype (*nvgetlength)(N_Vector);
   sunindextype (*nvgetlocallength)(N_Vector);
 
   /* standard vector operations */
-  void (*nvlinearsum)(sunrealtype, N_Vector, sunrealtype, N_Vector, N_Vector);
-  void (*nvconst)(sunrealtype, N_Vector);
+  void (*nvlinearsum)(sunscalartype, N_Vector, sunscalartype, N_Vector, N_Vector);
+  void (*nvconst)(sunscalartype, N_Vector);
   void (*nvprod)(N_Vector, N_Vector, N_Vector);
   void (*nvdiv)(N_Vector, N_Vector, N_Vector);
-  void (*nvscale)(sunrealtype, N_Vector, N_Vector);
+  void (*nvscale)(sunscalartype, N_Vector, N_Vector);
   void (*nvabs)(N_Vector, N_Vector);
   void (*nvinv)(N_Vector, N_Vector);
-  void (*nvaddconst)(N_Vector, sunrealtype, N_Vector);
-  sunrealtype (*nvdotprod)(N_Vector, N_Vector);
+  void (*nvaddconst)(N_Vector, sunscalartype, N_Vector);
+  sunscalartype (*nvdotprod)(N_Vector, N_Vector);
   sunrealtype (*nvmaxnorm)(N_Vector);
   sunrealtype (*nvwrmsnorm)(N_Vector, N_Vector);
   sunrealtype (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
@@ -144,22 +144,22 @@ struct _generic_N_Vector_Ops
    */
 
   /* OPTIONAL fused vector operations */
-  SUNErrCode (*nvlinearcombination)(int, sunrealtype*, N_Vector*, N_Vector);
-  SUNErrCode (*nvscaleaddmulti)(int, sunrealtype*, N_Vector, N_Vector*,
+  SUNErrCode (*nvlinearcombination)(int, sunscalartype*, N_Vector*, N_Vector);
+  SUNErrCode (*nvscaleaddmulti)(int, sunscalartype*, N_Vector, N_Vector*,
                                 N_Vector*);
-  SUNErrCode (*nvdotprodmulti)(int, N_Vector, N_Vector*, sunrealtype*);
+  SUNErrCode (*nvdotprodmulti)(int, N_Vector, N_Vector*, sunscalartype*);
 
   /* OPTIONAL vector array operations */
-  SUNErrCode (*nvlinearsumvectorarray)(int, sunrealtype, N_Vector*, sunrealtype,
+  SUNErrCode (*nvlinearsumvectorarray)(int, sunscalartype, N_Vector*, sunscalartype,
                                        N_Vector*, N_Vector*);
-  SUNErrCode (*nvscalevectorarray)(int, sunrealtype*, N_Vector*, N_Vector*);
-  SUNErrCode (*nvconstvectorarray)(int, sunrealtype, N_Vector*);
+  SUNErrCode (*nvscalevectorarray)(int, sunscalartype*, N_Vector*, N_Vector*);
+  SUNErrCode (*nvconstvectorarray)(int, sunscalartype, N_Vector*);
   SUNErrCode (*nvwrmsnormvectorarray)(int, N_Vector*, N_Vector*, sunrealtype*);
   SUNErrCode (*nvwrmsnormmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector,
                                           sunrealtype*);
-  SUNErrCode (*nvscaleaddmultivectorarray)(int, int, sunrealtype*, N_Vector*,
+  SUNErrCode (*nvscaleaddmultivectorarray)(int, int, sunscalartype*, N_Vector*,
                                            N_Vector**, N_Vector**);
-  SUNErrCode (*nvlinearcombinationvectorarray)(int, int, sunrealtype*,
+  SUNErrCode (*nvlinearcombinationvectorarray)(int, int, sunscalartype*,
                                                N_Vector**, N_Vector*);
 
   /*
@@ -167,7 +167,7 @@ struct _generic_N_Vector_Ops
    */
 
   /* Local reduction kernels (no parallel communication) */
-  sunrealtype (*nvdotprodlocal)(N_Vector, N_Vector);
+  sunscalartype (*nvdotprodlocal)(N_Vector, N_Vector);
   sunrealtype (*nvmaxnormlocal)(N_Vector);
   sunrealtype (*nvminlocal)(N_Vector);
   sunrealtype (*nvl1normlocal)(N_Vector);
@@ -178,8 +178,8 @@ struct _generic_N_Vector_Ops
   sunrealtype (*nvwsqrsummasklocal)(N_Vector, N_Vector, N_Vector);
 
   /* Single buffer reduction operations */
-  SUNErrCode (*nvdotprodmultilocal)(int, N_Vector, N_Vector*, sunrealtype*);
-  SUNErrCode (*nvdotprodmultiallreduce)(int, N_Vector, sunrealtype*);
+  SUNErrCode (*nvdotprodmultilocal)(int, N_Vector, N_Vector*, sunscalartype*);
+  SUNErrCode (*nvdotprodmultiallreduce)(int, N_Vector, sunscalartype*);
 
   /* XBraid interface operations */
   SUNErrCode (*nvbufsize)(N_Vector, sunindextype*);
