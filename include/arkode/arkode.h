@@ -140,6 +140,9 @@ extern "C" {
 
 #define ARK_STEPPER_UNSUPPORTED -48
 
+#define ARK_DOMEIG_FAIL          -49
+#define ARK_MAX_STAGE_LIMIT_FAIL -50
+
 #define ARK_UNRECOGNIZED_ERROR -99
 
 /* ------------------------------

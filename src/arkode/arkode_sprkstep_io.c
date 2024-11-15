@@ -152,7 +152,7 @@ int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable* sprk_storage)
 }
 
 /*---------------------------------------------------------------
-  SPRKStepGetNumRhsEvals:
+  sprkStep_GetNumRhsEvals:
 
   Returns the current number of RHS calls
   ---------------------------------------------------------------*/

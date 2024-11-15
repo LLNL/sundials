@@ -519,7 +519,7 @@ int ARKStepSetTableName(void* arkode_mem, const char* itable, const char* etable
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ARKStepGetNumRhsEvals:
+  arkStep_GetNumRhsEvals:
 
   Returns the current number of calls
   ---------------------------------------------------------------*/

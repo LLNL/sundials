@@ -129,7 +129,7 @@ int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  MRIStepGetNumRhsEvals:
+  mriStep_GetNumRhsEvals:
 
   Returns the current number of RHS calls
   ---------------------------------------------------------------*/
