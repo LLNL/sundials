@@ -1273,6 +1273,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
     step_mem->nfe++;
+    ark_mem->fn_is_current = SUNTRUE;
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
   }
 
@@ -1548,6 +1549,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
     step_mem->nfe++;
+    ark_mem->fn_is_current = SUNTRUE;
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
   }
 
@@ -1758,6 +1760,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
     step_mem->nfe++;
+    ark_mem->fn_is_current = SUNTRUE;
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
   }
 
