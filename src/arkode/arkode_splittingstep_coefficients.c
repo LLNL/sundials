@@ -72,7 +72,8 @@ SplittingStepCoefficients SplittingStepCoefficients_Alloc(
     coefficients->beta[i] = &beta_cols[i * (stages + 1)];
   }
 
-  /* Contiguous memory to store the beta tensor */
+  /* Contiguous memory to store the beta tensor -- use calloc so only non-zero
+   * coefficients need to be set */
   sunrealtype* beta_mem =
     (sunrealtype*)calloc(sequential_methods * (stages + 1) * partitions,
                          sizeof(*beta_mem));
