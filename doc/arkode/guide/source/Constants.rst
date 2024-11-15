@@ -560,6 +560,9 @@ contains the ARKODE output constants.
    | :index:`ARK_DOMEIG_FAIL`            | -49  | The dominant eigenvalue function failed. It is either not  |
    |                                     |      | provided or returns an illegal value.                      |
    +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_MAX_STAGE_LIMIT_FAIL`   | -50  | Stepper failed to achieve stable results. Either reduce    |
+   |                                     |      | the step size or increase the stage_max_limit              |
+   +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
    |                                                                                                         |

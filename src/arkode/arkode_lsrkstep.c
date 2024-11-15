@@ -355,8 +355,11 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
     ark_mem->liw += step_mem->nfusedopvecs; /* pointers */
   }
 
-  /* Signal to shared arkode module that full RHS evaluations are required */
-  ark_mem->call_fullrhs = SUNFALSE;
+  /* While LSRKStep does not currently call the full RHS function directly (later
+	  optimizations might) we do need the fn vector to always be allocated. Signaling
+	  to shared arkode module that full RHS evaluations are required will ensure
+	  fn is always allocted. */
+	  ark_mem->call_fullrhs = SUNTRUE;
 
   return ARK_SUCCESS;
 }
@@ -380,9 +383,8 @@ int lsrkStep_Init(ARKodeMem ark_mem, int init_type)
 
   If this function is called in ARK_FULLRHS_START the RHS function is always
   evaluated.
-  In ARK_FULLRHS_END mode we check is adaptive step sizes are being used
-  and copy the RHS evaluation using in computing the embedding at the end of
-  the time step.
+  In ARK_FULLRHS_END mode we evaluate the RHS if an SSP method is being
+	used otherwise we copy the RHS evaluation from the end of the STS step.
 
   ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
   when estimating the initial time step size, so we strive to store the
@@ -419,11 +421,7 @@ int lsrkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     break;
 
   case ARK_FULLRHS_END:
-    /* No further action is needed if STS since the currently
-	    available STS methods evaluate the RHS at the end of each time step
-      If the stepper is an SSP, fn is updated and reused at the beginning 
-      of the step unless ark_mem->fn_is_current is changed by ARKODE.
-      */
+    /* No further action is needed if STS since the currently available STS methods evaluate the RHS at the end of each time step. If the stepper is an SSP, fn is updated and reused at the beginning of the step unless ark_mem->fn_is_current is changed by ARKODE. */
     if (step_mem->is_SSP)
     {
       retval = step_mem->fe(t, y, ark_mem->fn, ark_mem->user_data);
@@ -1305,6 +1303,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     step_mem->nfe++;
     if (retval < 0) { return ARK_RHSFUNC_FAIL; }
     if (retval > 0) { return RHSFUNC_RECVR; }
+    ark_mem->fn_is_current = SUNFALSE;
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1576,6 +1575,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   step_mem->nfe++;
   if (retval < 0) { return ARK_RHSFUNC_FAIL; }
   if (retval > 0) { return RHSFUNC_RECVR; }
+  ark_mem->fn_is_current = SUNFALSE;
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
@@ -1797,6 +1797,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     step_mem->nfe++;
     if (retval < 0) { return ARK_RHSFUNC_FAIL; }
     if (retval > 0) { return RHSFUNC_RECVR; }
+    ark_mem->fn_is_current = SUNFALSE;
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
