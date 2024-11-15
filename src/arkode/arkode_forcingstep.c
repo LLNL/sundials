@@ -101,16 +101,21 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
   return ARK_SUCCESS;
 }
 
+
+/*------------------------------------------------------------------------------
+  This routine sets the step direction of the partition integrators and is
+  called once the forcingstep integrator has updated its step direction.
+  ----------------------------------------------------------------------------*/
 static int forcingStep_SetStepDirection(ARKodeMem ark_mem, sunrealtype stepdir)
 {
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  SUNErrCode err = SUNStepper_SetStepDirection(step_mem->stepper[0], ark_mem->h);
+  SUNErrCode err = SUNStepper_SetStepDirection(step_mem->stepper[0], stepdir);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
-  err = SUNStepper_SetStepDirection(step_mem->stepper[1], ark_mem->h);
+  err = SUNStepper_SetStepDirection(step_mem->stepper[1], stepdir);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
   return ARK_SUCCESS;
