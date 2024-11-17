@@ -15,11 +15,31 @@ precision (e.g., ``SUN_CREAL``, ``SUN_CIMAG``, ``SUN_CCONJ``, ``SUNCsqrt``, and
 call either the relevant :c:type:`sunrealtype` or :c:type:`suncomplextype` function
 to match the configuration of the :c:type:`sunscalartype` alias.
 
+The following DIRK schemes now have coefficients accurate to quad precision:
+
+* ``ARKODE_BILLINGTON_3_3_2``
+
+* ``ARKODE_KVAERNO_4_2_3``
+
+* ``ARKODE_CASH_5_2_4``
+
+* ``ARKODE_CASH_5_3_4``
+
+* ``ARKODE_KVAERNO_5_3_4``
+
+* ``ARKODE_KVAERNO_7_4_5``
+
 The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
 ``70`` and is now determined automatically by CMake. The previous default was
 only valid for Volta GPUs while the automatically selected value will vary
 across compilers and compiler versions. As such, users are encouraged to
 override this value with the architecture for their system.
+
+Added a time-stepping module to ARKODE for low storage Runge--Kutta methods,
+:ref:`LSRKStep <ARKODE.Usage.LSRKStep>`.  This currently supports five explicit low-storage
+methods: the second-order Runge--Kutta--Chebyshev and Runge--Kutta--Legendre methods,
+and the second- through fourth-order optimal strong stability preserving Runge--Kutta methods.
+All methods include embeddings for temporal adaptivity.
 
 The Trilinos Tpetra NVector interface has been updated to utilize CMake
 imported targets added in Trilinos 14 to improve support for different Kokkos
