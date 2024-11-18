@@ -1552,7 +1552,7 @@ Main solver optional output functions
    Returns the number of recoverable failures reported by the inner stepper (so far).
 
    :param arkode_mem: pointer to the MRIStep memory block.
-   :param inner_fails: number of slow steps taken in the solver.
+   :param inner_fails: number of failed fast (inner) integrations.
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``

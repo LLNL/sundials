@@ -138,6 +138,7 @@ also provides the following additional user-callable routines:
    :param HControl: the slow time step adaptivity controller object.
    :param TolControl: the inner solver tolerance factor adaptivity controller object.
    :param sunctx: the current :c:type:`SUNContext` object.
+
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
 
@@ -152,7 +153,8 @@ also provides the following additional user-callable routines:
    :param C: the SUNAdaptController_MRIHTol object.
    :param inner_max_relch: the parameter :math:`relch_{\text{max}}` (must be :math:`\ge 1`).
    :param inner_min_tolfac: the parameter :math:`\text{tolfac}_{min}` (must be :math:`> 0`).
-   :param inner_max_tolfac: the parameter :math:`\text{tolfac}_{max}` (must be :math:`>= 1`).
+   :param inner_max_tolfac: the parameter :math:`\text{tolfac}_{max}` (must be :math:`\ge 1`).
+
    :returns: :c:type:`SUNErrCode` indicating success or failure.
 
 

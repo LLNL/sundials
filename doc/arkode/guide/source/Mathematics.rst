@@ -644,7 +644,7 @@ algorithm for a single step:
       z_i - \theta_{i,i} h^S f^I(t_{n,i}^S, z_i) = a_i.
       :label: MRI_implicit_solve
 
-   where :math:`t_{n,j}^S = t_{n-1}*h^S c^S_j`.
+   where :math:`t_{n,j}^S = t_{n-1} + h^S c^S_j`.
 
 #. Set :math:`y_{n} = z_{s}`.
 
@@ -732,7 +732,7 @@ matrices in :math:`\Gamma`. Typically, MRI-GARK and IMEX-MRI-GARK methods are at
 most diagonally-implicit (i.e., :math:`\Gamma_{i,j,k}=0` for all :math:`k` and
 :math:`j>i`). Furthermore, diagonally-implicit stages are characterized as being
 "solve-decoupled" if :math:`\Delta c_i^S = 0` when :math:`\Gamma_{i,i,k} \ne 0`,
-in which case the stage is computed as standard ARK or DIRK update. Alternately,
+in which case the stage is computed as a standard ARK or DIRK update. Alternately,
 a diagonally-implicit stage :math:`i` is considered "solve-coupled" if
 :math:`\Delta c^S_i \, \Gamma_{i,j,k} \ne 0`, in which
 case the stage solution :math:`z_i` is *both* an input to :math:`r_i(t)` and the
@@ -783,7 +783,7 @@ The overall time step solution is given by the final internal stage solution,
 i.e., :math:`y_{n} = z_{s}`.  The embedded solution is computing using the above
 algorithm for stage index :math:`s+1`, under the definition that :math:`c_{s+1}^S=1`
 (and thus the fast IVP portion is evolved over the full time step,
-:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n}]`).
+:math:`[\tilde{t}_{0}, \tilde{t}_{F}] = [t_{n-1}, t_{n}]`).
 
 
 
@@ -796,7 +796,7 @@ nearly identical to IMEX-MRI-SR methods.  Specifically, like IMEX-MRI-SR methods
 these evolve the fast IVPs
 :eq:`MRI_fast_IVP` and :eq:`MRI_embedding_fast_IVP` over the intervals
 :math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n,i}^S]` and
-:math:`[t_{0,i},t_{F,i}] = [t_{n-1}, t_{n}]`, respectively, and begin
+:math:`[\tilde{t}_{0}, \tilde{t}_{F}] = [t_{n-1}, t_{n}]`, respectively, and begin
 with the initial condition :math:`v_{0,i}=y_{n-1}`.  Furthermore, the fast IVP
 forcing functions are given by :eq:`IMEXMRISR_forcing` with :math:`f^I=0`.
 As MERK-based applications lack the implicit slow operator, they do not require
@@ -1116,7 +1116,7 @@ arise at *both* the slow and fast time scales, which we denote here as
 :math:`\varepsilon^S` and :math:`\varepsilon^F`, respectively.  While the
 slow error may be estimated as :math:`\varepsilon^S = \|y_n - \tilde{y}_n\|`,
 non-intrusive approaches for estimating :math:`\varepsilon^F` are more
-challenging.  ARKODE provides two strategies to help provide this estimate, both
+challenging.  ARKODE provides several strategies to help provide this estimate, all
 of which assume the fast integrator is temporally adaptive and, at each of its
 :math:`m` steps to reach :math:`t_n`, computes an estimate of the local
 temporal error, :math:`\varepsilon^F_{n,m}`. In this case, we assume that the
@@ -1228,7 +1228,7 @@ where we again satisfy the inequality with a value of :math:`\frac12` to obtain
 
 
 
-Comparing the two estimates :eq:`H0_TSExp0` and :eq:`H0_TSExp1`, we see that the
+Comparing the two estimates :eq:`H0_TSExp1` and :eq:`H0_TSExp0`, we see that the
 former has double the number of :math:`f` evaluations, but that it has a less
 conservative estimate of :math:`h_0`, particularly since we expect any valid
 time integration method to have at least :math:`\mathcal{O}(h)` accuracy.
