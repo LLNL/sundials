@@ -34,7 +34,7 @@
 /*   minimum tolerance factor for inner solver */
 #define INNER_MIN_TOLFAC SUN_RCONST(1.e-5)
 /*   maximum tolerance factor for inner solver */
-#define INNER_MAX_TOLFAC SUN_RCONST(1.e0)
+#define INNER_MAX_TOLFAC SUN_RCONST(1.0)
 
 /* ---------------
  * Macro accessors
@@ -115,33 +115,23 @@ SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
                                                 sunrealtype inner_max_tolfac)
 {
   SUNFunctionBegin(C->sunctx);
-  if (inner_max_relch < SUN_RCONST(0.0))
+  SUNAssert(inner_max_tolfac > inner_min_tolfac, SUN_ERR_ARG_OUTOFRANGE);
+  if (inner_max_relch < SUN_RCONST(1.0))
   {
     MRIHTOL_INNER_MAX_RELCH(C) = INNER_MAX_RELCH;
   }
-  else if (inner_max_relch < SUN_RCONST(1.0)) { return SUN_ERR_ARG_OUTOFRANGE; }
   else { MRIHTOL_INNER_MAX_RELCH(C) = inner_max_relch; }
-
-  if (inner_min_tolfac < SUN_RCONST(0.0))
+  if (inner_min_tolfac <= SUN_RCONST(0.0))
   {
     MRIHTOL_INNER_MIN_TOLFAC(C) = INNER_MIN_TOLFAC;
   }
-  else if (inner_min_tolfac == SUN_RCONST(0.0))
-  {
-    return SUN_ERR_ARG_OUTOFRANGE;
-  }
   else { MRIHTOL_INNER_MIN_TOLFAC(C) = inner_min_tolfac; }
-
-  if (inner_max_tolfac < SUN_RCONST(0.0))
+  if ((inner_max_tolfac <= SUN_RCONST(0.0)) ||
+      (inner_max_tolfac > SUN_RCONST(1.0)))
   {
-    MRIHTOL_INNER_MAX_RELCH(C) = INNER_MAX_RELCH;
-  }
-  else if (inner_max_tolfac < SUN_RCONST(1.0))
-  {
-    return SUN_ERR_ARG_OUTOFRANGE;
+    MRIHTOL_INNER_MAX_TOLFAC(C) = INNER_MAX_TOLFAC;
   }
   else { MRIHTOL_INNER_MAX_TOLFAC(C) = inner_max_tolfac; }
-
   return SUN_SUCCESS;
 }
 
