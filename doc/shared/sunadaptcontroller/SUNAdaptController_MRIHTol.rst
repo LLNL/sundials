@@ -81,7 +81,7 @@ results from *TolControl*.  If *TolControl* predicts a control parameter
 enforcing the following bounds:
 
 .. math::
-   \frac{\text{tolfac}_{n}^F}{\text{tolfac}'} &\ge relch_{\text{max}},\\
+   \frac{\text{tolfac}_{n}^F}{\text{tolfac}'} &\le relch_{\text{max}},\\
    \frac{\text{tolfac}'}{\text{tolfac}_{n}^F} &\le relch_{\text{max}},\\
    \text{tolfac}_{min} &\le \text{tolfac}' \le \text{tolfac}_{max}.
 
