@@ -1478,26 +1478,22 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     {
       /* if the method had a stiffly-accurate internal stage, use the
          already-computed RHS vectors */
-      sa_stage = -1;
-      for (i = 1; i < step_mem->stages; i++)
-      {
-        if (step_mem->stagetypes[i] == MRISTAGE_STIFF_ACC)
-        {
-          sa_stage = step_mem->stage_map[i - 1];
-        }
-      }
+      sa_stage = (step_mem->stagetypes[step_mem->stages-1] == MRISTAGE_STIFF_ACC) ?
+                step_mem->stage_map[step_mem->stages - 2] : -1;
       if (sa_stage > -1)
       {
         /* copy the explicit component */
         if (step_mem->explicit_rhs)
         {
           N_VScale(ONE, step_mem->Fse[sa_stage], step_mem->Fse[0]);
+          step_mem->fse_is_current = SUNTRUE;
         }
 
         /* copy the implicit component */
         if (step_mem->implicit_rhs)
         {
           N_VScale(ONE, step_mem->Fsi[sa_stage], step_mem->Fsi[0]);
+          step_mem->fsi_is_current = SUNTRUE;
         }
       }
       else
