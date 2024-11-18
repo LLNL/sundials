@@ -790,6 +790,10 @@ the user has set a stop time (with a call to the optional input function
    :retval ARK_MASSSETUP_FAIL: the mass matrix solver's setup routine failed.
    :retval ARK_MASSSOLVE_FAIL: the mass matrix solver's solve routine failed.
    :retval ARK_VECTOROP_ERR: a vector operation error occurred.
+   :retval ARK_DOMEIG_FAIL: the dominant eigenvalue function failed. It is either 
+                            not provided or returns an illegal value.
+   :retval ARK_MAX_STAGE_LIMIT_FAIL: stepper failed to achieve stable results. Either 
+                                     reduce the step size or increase the stage_max_limit
 
    .. note::
 
@@ -3421,7 +3425,9 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
 .. c:function:: int ARKodeGetNumExpSteps(void* arkode_mem, long int* expsteps)
 
    Returns the cumulative number of stability-limited steps
-   taken by the solver (so far).
+   taken by the solver (so far). If the combination of the maximum number of stages 
+   and the current time step size in the LSRKStep module will not allow for a stable 
+   step, the counter also accounts for such returns.
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param expsteps: number of stability-limited steps taken in the solver.
