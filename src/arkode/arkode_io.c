@@ -2453,8 +2453,7 @@ int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
-  /* Get number of steps since last accumulated error reset
-     (set floor of 1 to safeguard against division-by-zero) */
+  /* Get time since last accumulated error reset */
   sunrealtype time_interval = ark_mem->tcur - ark_mem->AccumErrorStart;
 
   /* Fill output based on error accumulation type */
