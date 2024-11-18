@@ -1922,7 +1922,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
     /* Compute updated slow RHS, except:
        1. if the stage is excluded from stage_map
-       3. if the next stage has "STIFF_ACC" type, and temporal estimation is disabled */
+       2. if the next stage has "STIFF_ACC" type, and temporal estimation is disabled */
     calc_fslow = SUNTRUE;
     if (step_mem->stage_map[is] == -1) { calc_fslow = SUNFALSE; }
     if (!do_embedding && (step_mem->stagetypes[is + 1] == MRISTAGE_STIFF_ACC))
@@ -3326,6 +3326,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
         if (k == -1) { break; }
         if ((k < 0) || (k > step_mem->MRIC->stages))
         {
+          free(group_counter);
           arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__,
                           __FILE__, "Invalid MERK group index!");
           return (ARK_INVALID_TABLE);
@@ -3337,6 +3338,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
     {
       if ((group_counter[i] == 0) || (group_counter[i] > 1))
       {
+        free(group_counter);
         arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__,
                         __FILE__, "Duplicated/missing stages from MERK groups!");
         return (ARK_INVALID_TABLE);
@@ -3478,13 +3480,12 @@ int mriStep_StageERKFast(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
     {
       retval = mriStepInnerStepper_GetAccumulatedError(step_mem->stepper,
                                                        &(step_mem->inner_dsm));
-      if (retval < 0)
+      if (retval != ARK_SUCCESS)
       {
         arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
                         __FILE__, "Unable to get accumulated error from the inner stepper");
         return (ARK_INNERSTEP_FAIL);
       }
-      if (retval > 0) { return TRY_AGAIN; }
     }
   }
 

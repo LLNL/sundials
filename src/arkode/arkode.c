@@ -2041,7 +2041,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
       /* If necessary, temporarily set h as it is used to compute the tolerance
          in a potential mass matrix solve when computing the full rhs */
       ark_mem->h = SUNRabs(tout - ark_mem->tcur);
-      if (ark_mem->h == ZERO) ark_mem->h = ONE;
+      if (ark_mem->h == ZERO) { ark_mem->h = ONE; }
 
       /* Estimate the first step size */
       tout_hin = tout;
