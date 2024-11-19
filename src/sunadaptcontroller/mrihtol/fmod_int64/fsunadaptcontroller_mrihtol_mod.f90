@@ -198,20 +198,22 @@ real(C_DOUBLE), intent(in) :: farg4
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdaptController_GetSlowController_MRIHTol(farg1) &
+function swigc_FSUNAdaptController_GetSlowController_MRIHTol(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_GetSlowController_MRIHTol") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_PTR) :: fresult
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdaptController_GetFastController_MRIHTol(farg1) &
+function swigc_FSUNAdaptController_GetFastController_MRIHTol(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdaptController_GetFastController_MRIHTol") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-type(C_PTR) :: fresult
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSUNAdaptController_GetType_MRIHTol(farg1) &
@@ -501,30 +503,36 @@ fresult = swigc_FSUNAdaptController_SetParams_MRIHTol(farg1, farg2, farg3, farg4
 swig_result = fresult
 end function
 
-function FSUNAdaptController_GetSlowController_MRIHTol(c) &
+function FSUNAdaptController_GetSlowController_MRIHTol(c, cslow) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SUNAdaptController), pointer :: swig_result
+integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-type(C_PTR) :: fresult 
+type(C_PTR), target, intent(inout) :: cslow
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(c)
-fresult = swigc_FSUNAdaptController_GetSlowController_MRIHTol(farg1)
-call c_f_pointer(fresult, swig_result)
+farg2 = c_loc(cslow)
+fresult = swigc_FSUNAdaptController_GetSlowController_MRIHTol(farg1, farg2)
+swig_result = fresult
 end function
 
-function FSUNAdaptController_GetFastController_MRIHTol(c) &
+function FSUNAdaptController_GetFastController_MRIHTol(c, cfast) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-type(SUNAdaptController), pointer :: swig_result
+integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-type(C_PTR) :: fresult 
+type(C_PTR), target, intent(inout) :: cfast
+integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(c)
-fresult = swigc_FSUNAdaptController_GetFastController_MRIHTol(farg1)
-call c_f_pointer(fresult, swig_result)
+farg2 = c_loc(cfast)
+fresult = swigc_FSUNAdaptController_GetFastController_MRIHTol(farg1, farg2)
+swig_result = fresult
 end function
 
 function FSUNAdaptController_GetType_MRIHTol(c) &

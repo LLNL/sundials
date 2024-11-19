@@ -139,16 +139,22 @@ SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
  * Function to get slow and fast sub-controllers
  */
 
-SUNAdaptController SUNAdaptController_GetSlowController_MRIHTol(SUNAdaptController C)
+SUNErrCode SUNAdaptController_GetSlowController_MRIHTol(SUNAdaptController C,
+                                                        SUNAdaptController* Cslow)
 {
   SUNFunctionBegin(C->sunctx);
-  return MRIHTOL_CSLOW(C);
+  SUNAssert(Cslow, SUN_ERR_ARG_CORRUPT);
+  *Cslow = MRIHTOL_CSLOW(C);
+  return SUN_SUCCESS;
 }
 
-SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(SUNAdaptController C)
+SUNErrCode SUNAdaptController_GetFastController_MRIHTol(SUNAdaptController C,
+                                                        SUNAdaptController* Cfast)
 {
   SUNFunctionBegin(C->sunctx);
-  return MRIHTOL_CFAST(C);
+  SUNAssert(Cfast, SUN_ERR_ARG_CORRUPT);
+  *Cfast = MRIHTOL_CFAST(C);
+  return SUN_SUCCESS;
 }
 
 /* -----------------------------------------------------------------

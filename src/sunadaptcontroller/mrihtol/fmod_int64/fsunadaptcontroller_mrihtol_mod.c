@@ -482,26 +482,30 @@ SWIGEXPORT int _wrap_FSUNAdaptController_SetParams_MRIHTol(SUNAdaptController fa
 }
 
 
-SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_GetSlowController_MRIHTol(SUNAdaptController farg1) {
-  SUNAdaptController fresult ;
+SWIGEXPORT int _wrap_FSUNAdaptController_GetSlowController_MRIHTol(SUNAdaptController farg1, void *farg2) {
+  int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  SUNAdaptController result;
+  SUNAdaptController *arg2 = (SUNAdaptController *) 0 ;
+  SUNErrCode result;
   
   arg1 = (SUNAdaptController)(farg1);
-  result = (SUNAdaptController)SUNAdaptController_GetSlowController_MRIHTol(arg1);
-  fresult = result;
+  arg2 = (SUNAdaptController *)(farg2);
+  result = (SUNErrCode)SUNAdaptController_GetSlowController_MRIHTol(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_GetFastController_MRIHTol(SUNAdaptController farg1) {
-  SUNAdaptController fresult ;
+SWIGEXPORT int _wrap_FSUNAdaptController_GetFastController_MRIHTol(SUNAdaptController farg1, void *farg2) {
+  int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
-  SUNAdaptController result;
+  SUNAdaptController *arg2 = (SUNAdaptController *) 0 ;
+  SUNErrCode result;
   
   arg1 = (SUNAdaptController)(farg1);
-  result = (SUNAdaptController)SUNAdaptController_GetFastController_MRIHTol(arg1);
-  fresult = result;
+  arg2 = (SUNAdaptController *)(farg2);
+  result = (SUNErrCode)SUNAdaptController_GetFastController_MRIHTol(arg1,arg2);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 

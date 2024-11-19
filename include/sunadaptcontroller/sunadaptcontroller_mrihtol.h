@@ -53,11 +53,11 @@ SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C,
                                                 sunrealtype inner_min_tolfac,
                                                 sunrealtype inner_max_tolfac);
 SUNDIALS_EXPORT
-SUNAdaptController SUNAdaptController_GetSlowController_MRIHTol(
-  SUNAdaptController C);
+SUNErrCode SUNAdaptController_GetSlowController_MRIHTol(
+  SUNAdaptController C, SUNAdaptController* Cslow);
 SUNDIALS_EXPORT
-SUNAdaptController SUNAdaptController_GetFastController_MRIHTol(
-  SUNAdaptController C);
+SUNErrCode SUNAdaptController_GetFastController_MRIHTol(
+  SUNAdaptController C, SUNAdaptController* Cfast);
 SUNDIALS_EXPORT
 SUNAdaptController_Type SUNAdaptController_GetType_MRIHTol(SUNAdaptController C);
 SUNDIALS_EXPORT
