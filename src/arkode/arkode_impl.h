@@ -1034,6 +1034,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
                               steps t_{n-1} \to t_{n} to fill
                               f_{n-1} within the Hermite
                               interpolation module.
+
                           In each case, the stepper may check the
                           fn_is_current flag to know whether
                           ARKODE believes that the RHS may have
@@ -1063,6 +1064,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
                               time step t_{n} \to t_{n+1}, in
                               which case f_{n} needs to be
                               filled.
+
                           Again, the stepper may check the
                           fn_is_current flag to know whether
                           ARKODE believes that the RHS may have
@@ -1087,6 +1089,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
                               is requested from the Hermite
                               interpolation module within the time
                               step t_{n} \to t_{n+1}.
+
                           While instances (a)-(c) will occur
                           in-between calls to the stepper's
                           ARKTimestepStepFn, instance (d) would

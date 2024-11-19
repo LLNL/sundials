@@ -542,6 +542,7 @@ int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
                               \to t_{n} to fill f_{n-1} within the Hermite
                               interpolation module, or
                           (c) by ERKStep at the start of the first internal step.
+
                           In each case, we may check the fn_is_current flag to
                           know whether the values stored in F[0] are up-to-date,
                           allowing us to copy those values instead of recomputing.
@@ -557,6 +558,7 @@ int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
                               \to t_{n} to fill f_{n}, or
                           (c) by ERKStep when starting a time step t_{n} \to t_{n+1}
                               and when using an FSAL method.
+
                           Again, we may check the fn_is_current flag to know whether
                           ARKODE believes that the values stored in F[0] are
                           up-to-date, and may just be copied.  If the values stored
@@ -572,6 +574,7 @@ int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
                               interpolation module, or
                           (c) by an "outer" stepper when ERKStep is used as an
                               inner solver).
+
                           All of these instances will occur in-between ERKStep time
                           steps, but the (t,y) input does not correspond to an
                           "official" time step, thus the RHS should always be

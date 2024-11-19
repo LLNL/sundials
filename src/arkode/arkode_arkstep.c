@@ -1240,7 +1240,9 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
                           (b) when transitioning between time steps t_{n-1}
                               \to t_{n} to fill f_{n-1} within the Hermite
                               interpolation module, or
-                          (c) by ARKStep at the start of the first internal step.
+                          (c) potentially by ARKStep at the start of the first
+                              internal step.
+
                           In each case, we may check the fn_is_current flag to
                           know whether the values stored in Fe[0] and Fi[0] are
                           up-to-date, allowing us to copy those values instead of
@@ -1257,8 +1259,9 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
                           (c) when an implicit predictor is requested from the Hermite
                               interpolation module within the time step t_{n} \to
                               t_{n+1}, in which case f_{n} needs to be filled, or
-                          (d) by ARKStep when starting a time step t_{n} \to t_{n+1}
-                              and when using an FSAL method.
+                          (d) potentially by ARKStep when starting a time step t_{n}
+                              \to t_{n+1}.
+
                           Again, we may check the fn_is_current flag to know whether
                           ARKODE believes that the values stored in Fe[0] and Fi[0]
                           are up-to-date, and may just be copied.  If those values
@@ -1278,6 +1281,7 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
                           (d) when a high-order implicit predictor is requested from
                               the Hermite interpolation module within the time step
                               t_{n} \to t_{n+1}.
+
                           While instances (a)-(c) will occur in-between ARKStep time
                           steps, instance (d) can occur at the start of each internal
                           ARKStep stage.  Since the (t,y) input does not correspond
