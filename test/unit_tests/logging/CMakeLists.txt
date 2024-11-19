@@ -16,7 +16,7 @@
 set(unit_tests)
 
 if(BUILD_ARKODE)
-  list(APPEND unit_tests "test_logging_arkode_erkstep.cpp\;")
+  # ARKStep
   list(APPEND unit_tests "test_logging_arkode_arkstep.cpp\;0") # ERK
   list(APPEND unit_tests "test_logging_arkode_arkstep.cpp\;1 1 1") # DIRK Newton
                                                                    # + Dense
@@ -30,6 +30,11 @@ if(BUILD_ARKODE)
                                                                    # + GMRES
   list(APPEND unit_tests "test_logging_arkode_arkstep.cpp\;2 0") # ImEx
                                                                  # Fixed-point
+  # ERKStep
+  list(APPEND unit_tests "test_logging_arkode_erkstep.cpp\;")
+  # LSRKStep
+  list(APPEND unit_tests "test_logging_arkode_lsrkstep.cpp\;")
+  # MRIStep
   list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;0") # Ex-MRI
   list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;1 1 1") # Im-MRI
                                                                    # Newton +
