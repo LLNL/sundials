@@ -64,10 +64,7 @@ inline sunrealtype phi(sunrealtype t) { return std::atan(t); }
 inline sunrealtype phi_prime(sunrealtype t) { return one / (one + t * t); }
 
 // Compute the true solution
-inline sunrealtype true_solution(sunrealtype t)
-{
-  return phi(t);
-}
+inline sunrealtype true_solution(sunrealtype t) { return phi(t); }
 
 // ODE RHS function
 inline int ode_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)

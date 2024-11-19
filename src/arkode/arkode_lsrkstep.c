@@ -528,8 +528,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       return retval;
     }
 
-    SUNLogInfo(ARK_LOGGER, "end-compute-dominant-eigenvalue",
-               "status = success");
+    SUNLogInfo(ARK_LOGGER, "end-compute-dominant-eigenvalue", "status = success");
   }
 
   sunrealtype ss =
