@@ -540,8 +540,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (ss >= step_mem->stage_max_limit)
   {
     SUNLogInfo(ARK_LOGGER, "compute-num-stages",
-               "stages = %" RSYM ", max stages = %i, max stage limit = %i",
-               ss, step_mem->stage_max, step_mem->stage_max_limit);
+               "stages = %" RSYM ", max stages = %i, max stage limit = %i", ss,
+               step_mem->stage_max, step_mem->stage_max_limit);
 
     if (!ark_mem->fixedstep)
     {
@@ -582,8 +582,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           ark_mem->user_data);
     step_mem->nfe++;
 
-    SUNLogInfo(ARK_LOGGER, "end-stage",
-               "status = failed rhs eval, retval = %i", retval);
+    SUNLogInfo(ARK_LOGGER, "end-stage", "status = failed rhs eval, retval = %i",
+               retval);
 
     if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
     ark_mem->fn_is_current = SUNTRUE;
@@ -740,8 +740,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           ark_mem->tempv2, ark_mem->user_data);
     step_mem->nfe++;
 
-    SUNLogExtraDebugVec(ARK_LOGGER, "solution RHS", ark_mem->tempv2,
-                        "F_n(:) =");
+    SUNLogExtraDebugVec(ARK_LOGGER, "solution RHS", ark_mem->tempv2, "F_n(:) =");
     SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-solution",
                  "status = failed rhs eval, retval = %i", retval);
 
@@ -777,8 +776,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           ark_mem->tempv2, ark_mem->user_data);
     step_mem->nfe++;
 
-    SUNLogExtraDebugVec(ARK_LOGGER, "solution RHS", ark_mem->tempv2,
-                        "F_n(:) =");
+    SUNLogExtraDebugVec(ARK_LOGGER, "solution RHS", ark_mem->tempv2, "F_n(:) =");
     SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-solution",
                  "status = failed rhs eval, retval = %i", retval);
 

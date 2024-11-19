@@ -2092,8 +2092,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   } /* loop over stages */
 
-  SUNLogInfo(ARK_LOGGER, "begin-compute-solution",
-             "mass type = %i", step_mem->mass_type);
+  SUNLogInfo(ARK_LOGGER, "begin-compute-solution", "mass type = %i",
+             step_mem->mass_type);
 
   /* compute time-evolved solution (in ark_ycur), error estimate (in dsm).
      This can fail recoverably due to nonconvergence of the mass matrix solve,
