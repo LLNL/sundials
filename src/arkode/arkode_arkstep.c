@@ -1691,6 +1691,10 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       N_VConst(ZERO,
                zcor0); /* set guess to all 0 (since using predictor-corrector form) */
       retval = SUNNonlinSolSetup(step_mem->NLS, zcor0, ark_mem);
+
+      SUNLogInfoIf(retval != 0, ARK_LOGGER, "setup-nonlinear-solver",
+                   "status = failed nonlinear solver setup, retval = %i", retval);
+
       if (retval < 0) { return (ARK_NLS_SETUP_FAIL); }
       if (retval > 0) { return (ARK_NLS_SETUP_RECVR); }
     }
@@ -1756,6 +1760,12 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                          step_mem->autonomous &&
                          step_mem->mass_type != MASS_TIMEDEP;
 
+  SUNLogInfoIf(is_start == 1, ARK_LOGGER, "begin-stage",
+               "stage = %i, implicit = %i, tcur = %" RSYM, 0, implicit_stage,
+               ark_mem->tcur);
+  SUNLogExtraDebugVecIf(is_start == 1, ARK_LOGGER, "explicit stage",
+                        ark_mem->yn, "z_0(:) =");
+
   /* Call the RHS if needed. */
   eval_rhs = !implicit_stage || save_fn_for_interp || save_fn_for_residual;
 
@@ -1778,7 +1788,12 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
       retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                      ark_mem->fn, mode);
-      if (retval) { return ARK_RHSFUNC_FAIL; }
+      if (retval)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed full rhs eval, retval = %i", retval);
+        return ARK_RHSFUNC_FAIL;
+      }
       ark_mem->fn_is_current = SUNTRUE;
     }
     else
@@ -1795,6 +1810,10 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
         retval = step_mem->fi(ark_mem->tn, ark_mem->yn, step_mem->Fi[0],
                               ark_mem->user_data);
         step_mem->nfi++;
+
+        SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-stage",
+                     "status = failed implicit rhs eval, retval = %i", retval);
+
         if (retval < 0) { return ARK_RHSFUNC_FAIL; }
         if (retval > 0) { return ARK_UNREC_RHSFUNC_ERR; }
       }
@@ -1827,11 +1846,6 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  SUNLogInfoIf(is_start == 1, ARK_LOGGER, "begin-stage",
-               "stage = %i, implicit = %i, tcur = %" RSYM, 0, implicit_stage,
-               ark_mem->tcur);
-  SUNLogExtraDebugVecIf(is_start == 1, ARK_LOGGER, "explicit stage",
-                        ark_mem->ycur, "z_0(:) =");
   SUNLogExtraDebugVecIf(is_start == 1 && step_mem->implicit, ARK_LOGGER,
                         "implicit RHS", step_mem->Fi[0], "Fi_0(:) =");
   SUNLogExtraDebugVecIf(is_start == 1 && step_mem->explicit, ARK_LOGGER,
@@ -1883,7 +1897,12 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (implicit_stage)
     {
       retval = arkStep_Predict(ark_mem, is, step_mem->zpred);
-      if (retval != ARK_SUCCESS) { return (retval); }
+      if (retval != ARK_SUCCESS)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed predict, retval = %i", retval);
+        return (retval);
+      }
 
       /* if a user-supplied predictor routine is provided, call that here.
          Note that arkStep_Predict is *still* called, so this user-supplied
@@ -2073,6 +2092,9 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   } /* loop over stages */
 
+  SUNLogInfo(ARK_LOGGER, "begin-compute-solution",
+             "mass type = %i", step_mem->mass_type);
+
   /* compute time-evolved solution (in ark_ycur), error estimate (in dsm).
      This can fail recoverably due to nonconvergence of the mass matrix solve,
      so handle that appropriately. */
@@ -2081,10 +2103,15 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     *nflagPtr = arkStep_ComputeSolutions_MassFixed(ark_mem, dsmPtr);
   }
   else { *nflagPtr = arkStep_ComputeSolutions(ark_mem, dsmPtr); }
+
+  SUNLogInfoIf(*nflagPtr != ARK_SUCCESS, ARK_LOGGER, "end-compute-solution",
+               "status = failed compute solution, retval = %i", *nflagPtr);
+
   if (*nflagPtr < 0) { return (*nflagPtr); }
   if (*nflagPtr > 0) { return (TRY_AGAIN); }
 
   SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
+  SUNLogInfo(ARK_LOGGER, "end-compute-solution", "status = success");
 
   return (ARK_SUCCESS);
 }
