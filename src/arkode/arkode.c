@@ -905,7 +905,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
 
       SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, "end-step-attempt",
-                   "status = failed solve, kflag = %i", kflag);
+                   "status = failed step, kflag = %i", kflag);
 
       if (kflag < 0) { break; }
 
