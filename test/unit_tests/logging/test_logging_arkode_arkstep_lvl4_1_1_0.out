@@ -96,6 +96,8 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.003832000015190934, h_cfl = 1.029860256095084e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.003678720014583297, h_cfl = 5.14930128047542e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 35.72057463924165
@@ -222,6 +224,8 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002326364550388339, h_cfl = 3.678720014583297e+27
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002233309968372805, h_cfl = 1.839360007291648e+27
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 0.607088867736454
@@ -348,6 +352,8 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0105439796544931, h_cfl = 2.233309968372805e+27
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.01012222046831338, h_cfl = 1.116654984186403e+27
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.532384940585946

@@ -161,10 +161,12 @@ Using dense direct linear solver
 -1.1891797717567420e-02
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448703091062e+00
 1.7320501952243579e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.003832189576692273, h_cfl = 1.029860256095084e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.003678901993624582, h_cfl = 5.14930128047542e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 35.72234166578926
@@ -346,10 +348,12 @@ Using dense direct linear solver
 -4.3648658658737233e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247434116397136e+00
 1.7312252390165905e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002326349105082655, h_cfl = 3.678901993624582e+27
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002233295140879348, h_cfl = 1.839450996812291e+27
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 0.6070548073173944
@@ -531,10 +535,12 @@ Using dense direct linear solver
 -6.9373550809677820e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247411785523130e+00
 1.7299630742269472e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.01054419843231782, h_cfl = 2.233295140879348e+27
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.01012243049502511, h_cfl = 1.116647570439674e+27
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.53250907582213

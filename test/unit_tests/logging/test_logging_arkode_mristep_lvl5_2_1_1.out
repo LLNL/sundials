@@ -109,10 +109,12 @@ Using dense direct linear solver
 -1.2955799098182033e-06
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
 1.7320508075688645e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 1.283118913371641e-06, h_cfl = 1.496006819526213e+22
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 1.231794156836775e-06, h_cfl = 7.480034097631063e+21
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 82.33880626472585
@@ -200,10 +202,12 @@ Using dense direct linear solver
 -1.0840394303739344e-04
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
 1.7320508074791343e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 2.108004205495869e-05, h_cfl = 1.231794156836775e+24
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 2.023684037276034e-05, h_cfl = 6.158970784183875e+23
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 16.42875171995309
@@ -291,10 +295,12 @@ Using dense direct linear solver
 -1.8965245322040000e-03
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
 1.7320507809215739e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0007461211873381922, h_cfl = 2.023684037276034e+25
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0004047368074552068, h_cfl = 1.011842018638017e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
@@ -382,10 +388,12 @@ Using dense direct linear solver
 -3.7531810140477219e-02
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
 1.7320403192357716e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.001474585099681421, h_cfl = 4.047368074552068e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001415601695694164, h_cfl = 2.023684037276034e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 3.49758576343673
@@ -473,10 +481,12 @@ Using dense direct linear solver
 -5.0050748175839127e-02
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
 1.7320398391262783e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0008221669095400283, h_cfl = 9.646119455459875e+24
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0001929223891091975, h_cfl = 4.823059727729937e+24
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
@@ -614,10 +624,12 @@ Using dense direct linear solver
 -6.7036339800849387e-02
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448435537740e+00
 1.7320279807094703e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0008364545860675966, h_cfl = 1.929223891091975e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0008029964026248927, h_cfl = 9.646119455459875e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.16227689452043
@@ -705,10 +717,12 @@ Using dense direct linear solver
 -8.0325114856887550e-02
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448306984567e+00
 1.7320210495709307e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.001966024518003245, h_cfl = 8.914435013657296e+25
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001782887002731459, h_cfl = 4.457217506828648e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
@@ -846,10 +860,12 @@ Using dense direct linear solver
 -1.0732441998008208e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247447060885548e+00
 1.7319930735119315e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.001522939033375331, h_cfl = 2.820667392457702e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001462021472040318, h_cfl = 1.410333696228851e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.183246617271065
@@ -1011,10 +1027,12 @@ Using dense direct linear solver
 -1.5320820431207477e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247446803586601e+00
 1.7319317786428341e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002572109837952736, h_cfl = 4.358665215084587e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002469225444434626, h_cfl = 2.179332607542293e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.665095442267654
@@ -1152,10 +1170,12 @@ Using dense direct linear solver
 -1.9021006508519731e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247445820889225e+00
 1.7318804229057940e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002257738564091452, h_cfl = 2.820667392457701e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002167429021527794, h_cfl = 1.410333696228851e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 7.684099966282349
@@ -1293,10 +1313,12 @@ Using dense direct linear solver
 -2.2276991518060965e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247443999024585e+00
 1.7318198829092342e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.001885990638869279, h_cfl = 2.820667392457703e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001810551013314508, h_cfl = 1.410333696228851e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 6.418874547760627
@@ -1458,10 +1480,12 @@ Using dense direct linear solver
 -2.6863875458799219e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247442852017176e+00
 1.7317082738850020e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002205765817803392, h_cfl = 4.358665215084585e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002117535185091256, h_cfl = 2.179332607542292e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.85821938735472
@@ -1594,10 +1618,12 @@ Using dense direct linear solver
 -3.0562594432564943e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247441293712145e+00
 1.7316244107931731e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002257553825035457, h_cfl = 2.820667392457703e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002167251672034038, h_cfl = 1.410333696228852e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 7.683471216170827
@@ -1730,10 +1756,12 @@ Using dense direct linear solver
 -3.3817095212315817e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247438895923213e+00
 1.7315314039930489e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.001885820271331692, h_cfl = 2.820667392457703e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001810387460478425, h_cfl = 1.410333696228852e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 6.418294710391211

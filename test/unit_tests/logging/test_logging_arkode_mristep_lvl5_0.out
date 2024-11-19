@@ -103,10 +103,12 @@ Using Ex-MRI method
 -9.9080784746839703e-07
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
 1.7320508075688699e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 9.812781742837131e-07, h_cfl = 1.144086354960834e+22
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 9.420270473123646e-07, h_cfl = 5.72043177480417e+21
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 82.33880626472583
@@ -194,10 +196,12 @@ Using Ex-MRI method
 -8.2903012504834220e-05
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
 1.7320508075163905e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 1.612117549351599e-05, h_cfl = 9.420270473123646e+23
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 1.547632847377535e-05, h_cfl = 4.710135236561823e+23
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 16.42875171995309
@@ -285,10 +289,12 @@ Using Ex-MRI method
 -1.4503863368916410e-03
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
 1.7320507919839878e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0005706037288326979, h_cfl = 1.547632847377535e+25
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0003095265694755069, h_cfl = 7.738164236887673e+24
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
@@ -376,10 +382,12 @@ Using Ex-MRI method
 -2.8702874510251369e-02
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
 1.7320446733750288e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.001387641353489307, h_cfl = 3.09526569475507e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001332135699349735, h_cfl = 1.547632847377535e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.303784652823311
@@ -467,10 +475,12 @@ Using Ex-MRI method
 -3.8276917428533966e-02
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448713915889e+00
 1.7320443925783966e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0005832695060001238, h_cfl = 7.376967473189085e+24
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0001475393494637817, h_cfl = 3.688483736594543e+24
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
@@ -574,10 +584,12 @@ Using Ex-MRI method
 -5.1266961967908885e-02
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448487968027e+00
 1.7320374570582269e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0008157886608518576, h_cfl = 1.475393494637817e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0007831571144177833, h_cfl = 7.376967473189085e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.308123678626051
@@ -665,10 +677,12 @@ Using Ex-MRI method
 -7.8832282114519550e-02
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448075815321e+00
 1.7320183319212286e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002342768924220768, h_cfl = 2.691273172028848e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002249058167251937, h_cfl = 1.345636586014424e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.356855746295192
@@ -772,10 +786,12 @@ Using Ex-MRI method
 -1.0825000539838989e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247447693295430e+00
 1.7319930735042126e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002092677993913014, h_cfl = 2.499999999999998e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002008970874156493, h_cfl = 1.249999999999999e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.035883496625978
@@ -888,10 +904,12 @@ Using Ex-MRI method
 -1.4433004648629949e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247447012881669e+00
 1.7319481705628721e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002019467844874993, h_cfl = 3.33333333333333e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001938689131079993, h_cfl = 1.666666666666665e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.816067393239986
@@ -995,10 +1013,12 @@ Using Ex-MRI method
 -1.9002730638403170e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247445524264131e+00
 1.7318740030745077e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002325110420635145, h_cfl = 4.166666666666664e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002232106003809739, h_cfl = 2.083333333333332e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.357054409143378
@@ -1102,10 +1122,12 @@ Using Ex-MRI method
 -2.2369523515123488e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247444631434115e+00
 1.7318198828576150e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002121473803752882, h_cfl = 2.499999999999998e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002036614851602766, h_cfl = 1.249999999999999e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.146459406411072
@@ -1218,10 +1240,12 @@ Using Ex-MRI method
 -2.5976377325039196e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247443270606932e+00
 1.7317365009469841e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.001905013896432126, h_cfl = 3.333333333333332e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001828813340574841, h_cfl = 1.666666666666666e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.486440021724523
@@ -1325,10 +1349,12 @@ Using Ex-MRI method
 -3.0544322406377666e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247440931473168e+00
 1.7316142414635605e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002324933765203915, h_cfl = 4.166666666666659e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002231936414595759, h_cfl = 2.08333333333333e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.35664739502983
@@ -1432,10 +1458,12 @@ Using Ex-MRI method
 -3.3909571391256599e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247439528333472e+00
 1.7315312702735641e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002121273546461272, h_cfl = 2.5e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00203642260460282, h_cfl = 1.25e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.145690418411281

@@ -37,10 +37,12 @@ Start ERKStep Logging test
 -8.9188496712662869e-03
 
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
 1.2247448703091062e+00
 1.7320501952242768e+00
 
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.008972298336716318, h_cfl = 1.029860256095084e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.008882575353349156, h_cfl = 5.14930128047542e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 86.25029756007065
@@ -53,8 +55,8 @@ Start ERKStep Logging test
 1.7320501952242768e+00
 
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
-1.1719990452195032e-16
-8.2872847241886988e-17
+-2.1021934429493368e-05
+-1.1891797717486953e-02
 
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.004544273702284087
@@ -81,10 +83,12 @@ Start ERKStep Logging test
 -7.7995401735825853e-01
 
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
 1.2247366288691779e+00
 1.7273955442047693e+00
 
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.001178309766646161, h_cfl = 8.882575353349156e+27
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001166526668979699, h_cfl = 4.441287676674578e+27
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 0.1313275286248895
@@ -92,8 +96,8 @@ Start ERKStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.0001029860256095084, h = 0.001166526668979699
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.006764917540621375
 [DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
-1.2247366288691779e+00
-1.7273955442047693e+00
+1.2247448703091062e+00
+1.7320501952242768e+00
 
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
 -2.1021934429493368e-05
@@ -124,10 +128,12 @@ Start ERKStep Logging test
 -1.1291238030246764e-01
 
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
 1.2247447069019091e+00
 1.7319577606918570e+00
 
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.001351152074913978, h_cfl = 1.166526668979699e+27
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.001166526668979699, h_cfl = 5.832633344898497e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 1
@@ -140,8 +146,8 @@ Start ERKStep Logging test
 1.7319577606918570e+00
 
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
--2.1021934429493368e-05
--1.1891797717486953e-02
+-2.5913815852688147e-04
+-1.4658282390787855e-01
 
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001852776029079057
@@ -168,10 +174,12 @@ Start ERKStep Logging test
 -2.4757691908584015e-01
 
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
 1.2247442657258725e+00
 1.7317082251924272e+00
 
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.003684971035872554, h_cfl = 1.166526668979699e+27
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.003648121325513829, h_cfl = 5.832633344898497e+26
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 3.127336410323694

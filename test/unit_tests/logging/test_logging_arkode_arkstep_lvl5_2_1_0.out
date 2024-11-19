@@ -224,10 +224,12 @@ Using GMRES iterative linear solver
 -1.1891797717487114e-02
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247448703091059e+00
 1.7320501952242768e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.006719923497867133, h_cfl = 1.029860256095084e+26
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.006451126557952447, h_cfl = 5.14930128047542e+25
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 62.64079538726109
@@ -500,10 +502,12 @@ Using GMRES iterative linear solver
 -7.5571963364610406e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247404871515915e+00
 1.7295724950168836e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.003802774042374871, h_cfl = 6.451126557952447e+27
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.003650663080679877, h_cfl = 3.225563278976224e+27
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 0.5658954366938629
@@ -782,10 +786,12 @@ Using GMRES iterative linear solver
 -1.1742513812974198e+00
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
+[INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [DEBUG][rank 0][arkStep_TakeStep_Z][updated solution] ycur(:) =
 1.2247342429224044e+00
 1.7260488715740170e+00
 
+[INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.02190227878408229, h_cfl = 3.650663080679877e+27
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.021026187632719, h_cfl = 1.825331540339938e+27
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.759553036815223
