@@ -1329,28 +1329,70 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
   This is just a wrapper to call the user-supplied RHS functions,
   f(t,y) = fse(t,y) + fsi(t,y)  + ff(t,y).
 
-  This will be called in one of three 'modes':
+     ARK_FULLRHS_START -> called in the following circumstances:
+                          (a) at the beginning of a simulation i.e., at
+                              (tn, yn) = (t0, y0) or (tR, yR), or
+                          (b) when transitioning between time steps t_{n-1}
+                              \to t_{n} to fill f_{n-1} within the Hermite
+                              interpolation module.
+                          In each case, we may check the fn_is_current flag to
+                          know whether ARKODE believes the values stored in
+                          Fse[0] and Fsi[0] are up-to-date, allowing us to copy
+                          those values instead of recomputing.  MRIStep
+                          additionally stores internal fse_is_current and
+                          fsi_is_current flags to denote whether it
+                          additionally believes recomputation is necessary --
+                          this is because unlike ARKStep and ERKStep, when
+                          MRIStep is used as an inner stepper for an outer
+                          MRIStep calculation, it must store any forcing terms
+                          *inside* its own values of one of Fse or Fsi (to
+                          avoid a combinatorial explosion of separate forcing
+                          vectors when used in a telescopic MRI calculation).
+                          For whichever of Fse[0] and Fsi[0] are deemed not
+                          current, the corresponding RHS function is
+                          recomputed and stored in Fe[0] and/or Fi[0] for
+                          reuse later, before copying the values into the
+                          output vector.
 
-     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
-                          (tn, yn) = (t0, y0) or (tR, yR)
+     ARK_FULLRHS_END   -> called in the following circumstances:
+                          (a) when temporal root-finding is enabled, this will be
+                              called in-between steps t_{n-1} \to t_{n} to fill f_{n},
+                          (b) when high-order dense output is requested from the
+                              Hermite interpolation module in-between steps t_{n-1}
+                              \to t_{n} to fill f_{n}, or
+                          (c) when an implicit predictor is requested from the Hermite
+                              interpolation module within the time step t_{n} \to
+                              t_{n+1}, in which case f_{n} needs to be filled.
+                          Again, we may check the fn_is_current flags to know whether
+                          ARKODE believes that the values stored in Fse[0] and Fsi[0]
+                          are up-to-date, and may just be copied.  We also again
+                          verify the ability to copy by viewing the MRIStep-specific
+                          fse_is_current and fsi_is_current flags. If one or both of
+                          Fse[0] and Fsi[0] are determined to be not current.  In all
+                          other cases, the RHS should be recomputed and stored in
+                          Fse[0] and Fsi[0] for reuse later, before copying the
+                          values into the output vector.
 
-     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
-                          (tcur, ycur) or the start of the subsequent step i.e.,
-                          at (tn, yn) = (tcur, ycur) from the end of the last
-                          step
+     ARK_FULLRHS_OTHER -> called in the following circumstances:
+                          (a) when estimating the initial time step size,
+                          (b) for high-order dense output with the Hermite
+                              interpolation module,
+                          (c) by an "outer" stepper when MRIStep is used as an
+                              inner solver), or
+                          (d) when a high-order implicit predictor is requested from
+                              the Hermite interpolation module within the time step
+                              t_{n} \to t_{n+1}.
+                          While instances (a)-(c) will occur in-between MRIStep time
+                          steps, instance (d) can occur at the start of each internal
+                          MRIStep stage.  Since the (t,y) input does not correspond
+                          to an "official" time step, thus the RHS functions should
+                          always be evaluated, and the values should *not* be stored
+                          anywhere that will interfere with other reused MRIStep data
+                          from one stage to the next (but it may use nonlinear solver
+                          scratch space).
 
-     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
-
-  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
-  evaluating the RHS functions is necessary, we store the vectors fse(t,y) and
-  fsi(t,y) in Fse[0] and Fsi[0] for possible reuse in the first stage of the
-  subsequent time step.
-
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
-  when estimating the initial time step size, so we strive to store the
-  intermediate parts so that they do not interfere with the other two modes.
-
-  Presently ff(t,y) is always called with ARK_FULLRHS_OTHER mode.
+  Note that this routine always calls the fast RHS function, ff(t,y), in
+  ARK_FULLRHS_OTHER mode.
   ----------------------------------------------------------------------------*/
 int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)

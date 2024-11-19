@@ -1022,31 +1022,92 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   This routine must compute the full ODE right-hand side function
   at the inputs (t,y), and store the result in the N_Vector f.
   Depending on the type of stepper, this may be just the single
-  ODE RHS function supplied (e.g. ERK, DIRK, IRK), or it may be
+  ODE RHS function supplied (e.g. ERK, DIRK), or it may be
   the sum of many ODE RHS functions (e.g. ARK, MRI).  The 'mode'
   indicates where this routine is called:
 
-     ARK_FULLRHS_START -> called at the beginning of a simulation
-                          i.e., at (tn, yn) = (t0, y0) or (tR, yR)
+     ARK_FULLRHS_START -> called in the following circumstances:
+                          (a) at the beginning of a simulation
+                              i.e., at (tn, yn) = (t0, y0) or
+                              (tR, yR), or
+                          (b) when transitioning between time
+                              steps t_{n-1} \to t_{n} to fill
+                              f_{n-1} within the Hermite
+                              interpolation module.
+                          In each case, the stepper may check the
+                          fn_is_current flag to know whether
+                          ARKODE believes that the RHS may have
+                          already been computed at this (t,y)
+                          value, in which case the stepper can
+                          copy the RHS data from its own internal
+                          storage instead of recomputing. If
+                          these values are not current, then the
+                          RHS should be recomputed, and the
+                          stepper should consider storing the
+                          values internally, for potential reuse
+                          later.
 
-     ARK_FULLRHS_END   -> called at the end of a successful step i.e,
-                          at (tcur, ycur) or the start of the subsequent
-                          step i.e., at (tn, yn) = (tcur, ycur) from
-                          the end of the last step
+     ARK_FULLRHS_END   -> called in the following circumstances:
+                          (a) when temporal root-finding is
+                              enabled, this will be called
+                              in-between steps t_{n-1} \to t_{n}
+                              to fill f_{n},
+                          (b) when high-order dense output is
+                              requested from the Hermite
+                              interpolation module in-between
+                              steps t_{n-1} \to t_{n} to fill
+                              f_{n}, or
+                          (c) when an implicit predictor is
+                              requested from the Hermite
+                              interpolation module within the
+                              time step t_{n} \to t_{n+1}, in
+                              which case f_{n} needs to be
+                              filled.
+                          Again, the stepper may check the
+                          fn_is_current flag to know whether
+                          ARKODE believes that the RHS may have
+                          already been computed at this (t,y)
+                          value, in which case the stepper can
+                          copy the RHS data from its own
+                          internal storage instead of
+                          recomputing. If these values are not
+                          current, then the RHS should be
+                          recomputed, and the stepper should
+                          consider storing the values internally,
+                          for potential reuse later.
 
-     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+     ARK_FULLRHS_OTHER -> called in the following circumstances:
+                          (a) when estimating the initial time
+                              step size,
+                          (b) for high-order dense output with the
+                              Hermite interpolation module,
+                          (c) by an "outer" stepper when ARKODE is
+                              used as an inner solver), or
+                          (d) when a high-order implicit predictor
+                              is requested from the Hermite
+                              interpolation module within the time
+                              step t_{n} \to t_{n+1}.
+                          While instances (a)-(c) will occur
+                          in-between calls to the stepper's
+                          ARKTimestepStepFn, instance (d) would
+                          occur from within the ARKTimestepStepFn
+                          (only if it calls an arkPredict_* function
+                          that internally calls arkInterpEvaluate).
+                          Since the (t,y) input does not correspond
+                          to an "official" time step, the RHS
+                          functions should always be evaluated, and
+                          the values should *not* be stored anywhere
+                          that will interfere with other reused
+                          stepper data.
 
-  It is recommended that the stepper use the mode information to
-  maximize reuse between calls to this function and RHS
-  evaluations inside the stepper itself.
-
-  This routine is only required to be supplied to ARKODE if:
-  * ARKODE's initial time step selection algorithm is used,
+  This routine is only *required* to be supplied to ARKODE if:
+  * ARKODE's initial time step selection algorithm (arkHin) is used,
   * the user requests temporal root-finding,
   * the Hermite interpolation module is used, or
-  * the user requests the "bootstrap" implicit predictor.
+  * the time-stepping module requests the "bootstrap" implicit predictor.
   Note that any stepper can itself require that this routine
-  exist for its own internal business (e.g., ERKStep).
+  exist for its own internal business (as in both ERKStep and ARKStep),
+  and/or call this routine for its own internal purposes.
 
   This routine should return 0 if successful, and a negative value
   otherwise.  If an error does occur, an appropriate message

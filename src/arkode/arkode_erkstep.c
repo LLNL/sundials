@@ -535,27 +535,47 @@ int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
 
   This will be called in one of three 'modes':
 
-     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
-                          (tn, yn) = (t0, y0) or (tR, yR)
+     ARK_FULLRHS_START -> called in the following circumstances:
+                          (a) at the beginning of a simulation i.e., at
+                              (tn, yn) = (t0, y0) or (tR, yR),
+                          (b) when transitioning between time steps t_{n-1}
+                              \to t_{n} to fill f_{n-1} within the Hermite
+                              interpolation module, or
+                          (c) by ERKStep at the start of the first internal step.
+                          In each case, we may check the fn_is_current flag to
+                          know whether the values stored in F[0] are up-to-date,
+                          allowing us to copy those values instead of recomputing.
+                          If these values are not current, then the RHS should be
+                          stored in F[0] for reuse later, before copying the values
+                          into the output vector.
 
-     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
-                          (tcur, ycur) or the start of the subsequent step i.e.,
-                          at (tn, yn) = (tcur, ycur) from the end of the last
-                          step
+     ARK_FULLRHS_END   -> called in the following circumstances:
+                          (a) when temporal root-finding is enabled, this will be
+                              called in-between steps t_{n-1} \to t_{n} to fill f_{n},
+                          (b) when high-order dense output is requested from the
+                              Hermite interpolation module in-between steps t_{n-1}
+                              \to t_{n} to fill f_{n}, or
+                          (c) by ERKStep when starting a time step t_{n} \to t_{n+1}
+                              and when using an FSAL method.
+                          Again, we may check the fn_is_current flag to know whether
+                          ARKODE believes that the values stored in F[0] are
+                          up-to-date, and may just be copied.  If the values stored
+                          in F[0] are not current, then the only instance where
+                          recomputation is not needed is (c), since the values in
+                          F[stages - 1] may be copied into F[0].  In all other cases,
+                          the RHS should be recomputed and stored in F[0] for reuse
+                          later, before copying the values into the output vector.
 
-     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
-
-  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
-  evaluating the RHS functions is necessary, we store the vector f(t,y) in Fe[0]
-  for reuse in the first stage of the subsequent time step.
-
-  In ARK_FULLRHS_END mode we check if the method is "stiffly accurate" and, if
-  appropriate, copy the vector F[stages - 1] to F[0] for reuse in the first
-  stage of the subsequent time step.
-
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
-  when estimating the initial time step size, so we strive to store the
-  intermediate parts so that they do not interfere with the other two modes.
+     ARK_FULLRHS_OTHER -> called in the following circumstances:
+                          (a) when estimating the initial time step size,
+                          (b) for high-order dense output with the Hermite
+                              interpolation module, or
+                          (c) by an "outer" stepper when ERKStep is used as an
+                              inner solver).
+                          All of these instances will occur in-between ERKStep time
+                          steps, but the (t,y) input does not correspond to an
+                          "official" time step, thus the RHS should always be
+                          evaluated, with the values *not* stored in F[0].
   ----------------------------------------------------------------------------*/
 int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)

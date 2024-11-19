@@ -1234,28 +1234,58 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
 
   This will be called in one of three 'modes':
 
-     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
-                          (tn, yn) = (t0, y0) or (tR, yR)
+     ARK_FULLRHS_START -> called in the following circumstances:
+                          (a) at the beginning of a simulation i.e., at
+                              (tn, yn) = (t0, y0) or (tR, yR),
+                          (b) when transitioning between time steps t_{n-1}
+                              \to t_{n} to fill f_{n-1} within the Hermite
+                              interpolation module, or
+                          (c) by ARKStep at the start of the first internal step.
+                          In each case, we may check the fn_is_current flag to
+                          know whether the values stored in Fe[0] and Fi[0] are
+                          up-to-date, allowing us to copy those values instead of
+                          recomputing. If these values are not current, then the RHS
+                          should be stored in Fe[0] and Fi[0] for reuse later,
+                          before copying the values into the output vector.
 
-     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
-                          (tcur, ycur) or the start of the subsequent step i.e.,
-                          at (tn, yn) = (tcur, ycur) from the end of the last
-                          step
+     ARK_FULLRHS_END   -> called in the following circumstances:
+                          (a) when temporal root-finding is enabled, this will be
+                              called in-between steps t_{n-1} \to t_{n} to fill f_{n},
+                          (b) when high-order dense output is requested from the
+                              Hermite interpolation module in-between steps t_{n-1}
+                              \to t_{n} to fill f_{n},
+                          (c) when an implicit predictor is requested from the Hermite
+                              interpolation module within the time step t_{n} \to
+                              t_{n+1}, in which case f_{n} needs to be filled, or
+                          (d) by ARKStep when starting a time step t_{n} \to t_{n+1}
+                              and when using an FSAL method.
+                          Again, we may check the fn_is_current flag to know whether
+                          ARKODE believes that the values stored in Fe[0] and Fi[0]
+                          are up-to-date, and may just be copied.  If those values
+                          are not current, then the only instance where recomputation
+                          is not needed is (d), since the values in Fe[stages - 1]
+                          and Fi[stages - 1] may be copied into Fe[0] and Fi[0],
+                          respectively.  In all other cases, the RHS should be
+                          recomputed and stored in Fe[0] and Fi[0] for reuse
+                          later, before copying the values into the output vector.
 
-     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
-
-  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
-  evaluating the RHS functions is necessary, we store the vectors fe(t,y) and
-  fi(t,y) in Fe[0] and Fi[0] for possible reuse in the first stage of the
-  subsequent time step.
-
-  In ARK_FULLRHS_END mode we check if the method is stiffly accurate and, if
-  appropriate, copy the vectors Fe[stages - 1] and Fi[stages - 1] to Fe[0] and
-  Fi[0] for possible reuse in the first stage of the subsequent time step.
-
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
-  when estimating the initial time step size, so we strive to store the
-  intermediate parts so that they do not interfere with the other two modes.
+     ARK_FULLRHS_OTHER -> called in the following circumstances:
+                          (a) when estimating the initial time step size,
+                          (b) for high-order dense output with the Hermite
+                              interpolation module,
+                          (c) by an "outer" stepper when ARKStep is used as an
+                              inner solver), or
+                          (d) when a high-order implicit predictor is requested from
+                              the Hermite interpolation module within the time step
+                              t_{n} \to t_{n+1}.
+                          While instances (a)-(c) will occur in-between ARKStep time
+                          steps, instance (d) can occur at the start of each internal
+                          ARKStep stage.  Since the (t,y) input does not correspond
+                          to an "official" time step, thus the RHS functions should
+                          always be evaluated, and the values should *not* be stored
+                          anywhere that will interfere with other reused ARKStep data
+                          from one stage to the next (but it may use nonlinear solver
+                          scratch space).
   ----------------------------------------------------------------------------*/
 int arkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
