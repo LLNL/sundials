@@ -488,8 +488,9 @@ vectors you may use
 
 To assist in parsing logging messages, ``begin-`` and ``end-`` markers are used
 in the log message ``label`` field to denote where particular regions begin and
-end. The region markers currently supported by the Python module for parsing log
-files are as follows:
+end. When adding a new ``begin-`` / ``end-`` label the ``logs.py`` script will
+need to be updated accordingly. The region markers currently supported by the
+Python module for parsing log files are as follows:
 
 * ``begin-step-attempt`` / ``end-step-attempt``
 
@@ -507,6 +508,9 @@ files are as follows:
 
 * ``begin-mass-linear-solve`` / ``end-mass-linear-solve``
 
+* ``begin-compute-solution`` / ``end-compute-solution``
+
+* ``begin-compute-dominant-eigenvalue`` /  ``end-compute-dominant-eigenvalue``
 
 Logging Macros
 ^^^^^^^^^^^^^^
