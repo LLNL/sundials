@@ -529,8 +529,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
 
     SUNLogInfo(ARK_LOGGER, "end-compute-dominant-eigenvalue",
-               "status = success, spectral radius = %" RSYM,
-               step_mem->spectral_radius);
+               "status = success");
   }
 
   sunrealtype ss =
@@ -540,8 +539,10 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (ss >= step_mem->stage_max_limit)
   {
     SUNLogInfo(ARK_LOGGER, "compute-num-stages",
-               "stages = %" RSYM ", max stages = %i, max stage limit = %i", ss,
-               step_mem->stage_max, step_mem->stage_max_limit);
+               "spectral radius = %" RSYM ", num stages = %" RSYM
+               ", max stages = %i, max stage limit = %i",
+               step_mem->spectral_radius, ss, step_mem->stage_max,
+               step_mem->stage_max_limit);
 
     if (!ark_mem->fixedstep)
     {
@@ -566,9 +567,10 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   step_mem->stage_max  = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
   SUNLogInfo(ARK_LOGGER, "compute-num-stages",
-             "stages = %i, max stages = %i, max stage limit = %i",
-             step_mem->req_stages, step_mem->stage_max,
-             step_mem->stage_max_limit);
+             "spectral radius = %" RSYM
+             ", num stages = %i, max stages = %i, max stage limit = %i",
+             step_mem->spectral_radius, step_mem->req_stages,
+             step_mem->stage_max, step_mem->stage_max_limit);
 
   SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 0,
              ark_mem->tcur);
