@@ -629,9 +629,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = 0, tcur = %" RSYM,
              ark_mem->tcur);
-  SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->ycur, "z_0(:) =");
-  SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->F[0], "F_0(:) =");
-  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
+  SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
 
   /* Call the full RHS if needed. If this is the first step then we may need to
      evaluate or copy the RHS values from an  earlier evaluation (e.g., to
@@ -644,9 +642,17 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     mode   = (ark_mem->initsetup) ? ARK_FULLRHS_START : ARK_FULLRHS_END;
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                    ark_mem->fn, mode);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
+    if (retval)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed rhs eval, retval = %i", retval);
+      return ARK_RHSFUNC_FAIL;
+    }
     ark_mem->fn_is_current = SUNTRUE;
   }
+
+  SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->F[0], "F_0(:) =");
+  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
 
   /* Loop over internal stages to the step; since the method is explicit
      the first stage RHS is just the full RHS from the start of the step */
@@ -709,11 +715,19 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   } /* loop over stages */
 
+  SUNLogInfo(ARK_LOGGER, "begin-compute-solution", "");
+
   /* compute time-evolved solution (in ark_ycur), error estimate (in dsm) */
   retval = erkStep_ComputeSolutions(ark_mem, dsmPtr);
-  if (retval < 0) { return (retval); }
+  if (retval < 0)
+  {
+    SUNLogInfo(ARK_LOGGER, "end-compute-solution",
+               "status = failed compute solution, retval = %i", retval);
+    return (retval);
+  }
 
   SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
+  SUNLogInfo(ARK_LOGGER, "end-compute-solution", "status = success");
 
   return (ARK_SUCCESS);
 }
