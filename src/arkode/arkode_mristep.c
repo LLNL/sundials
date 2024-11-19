@@ -1329,73 +1329,230 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
   This is just a wrapper to call the user-supplied RHS functions,
   f(t,y) = fse(t,y) + fsi(t,y)  + ff(t,y).
 
-     ARK_FULLRHS_START -> called in the following circumstances:
-                          (a) at the beginning of a simulation i.e., at
-                              (tn, yn) = (t0, y0) or (tR, yR), or
-                          (b) when transitioning between time steps t_{n-1}
-                              \to t_{n} to fill f_{n-1} within the Hermite
-                              interpolation module.
-                          In each case, we may check the fn_is_current flag to
-                          know whether ARKODE believes the values stored in
-                          Fse[0] and Fsi[0] are up-to-date, allowing us to copy
-                          those values instead of recomputing.  MRIStep
-                          additionally stores internal fse_is_current and
-                          fsi_is_current flags to denote whether it
-                          additionally believes recomputation is necessary --
-                          this is because unlike ARKStep and ERKStep, when
-                          MRIStep is used as an inner stepper for an outer
-                          MRIStep calculation, it must store any forcing terms
-                          *inside* its own values of one of Fse or Fsi (to
-                          avoid a combinatorial explosion of separate forcing
-                          vectors when used in a telescopic MRI calculation).
-                          For whichever of Fse[0] and Fsi[0] are deemed not
-                          current, the corresponding RHS function is
-                          recomputed and stored in Fe[0] and/or Fi[0] for
-                          reuse later, before copying the values into the
-                          output vector.
+  Note: this relies on the utility routine mriStep_UpdateF0 to update Fse[0]
+  and Fsi[0] as appropriate (i.e., leveraging previous evaluations, etc.), and
+  merely combines the resulting values together with ff to construct the output.
 
-     ARK_FULLRHS_END   -> called in the following circumstances:
-                          (a) when temporal root-finding is enabled, this will be
-                              called in-between steps t_{n-1} \to t_{n} to fill f_{n},
-                          (b) when high-order dense output is requested from the
-                              Hermite interpolation module in-between steps t_{n-1}
-                              \to t_{n} to fill f_{n}, or
-                          (c) when an implicit predictor is requested from the Hermite
-                              interpolation module within the time step t_{n} \to
-                              t_{n+1}, in which case f_{n} needs to be filled.
-                          Again, we may check the fn_is_current flags to know whether
-                          ARKODE believes that the values stored in Fse[0] and Fsi[0]
-                          are up-to-date, and may just be copied.  We also again
-                          verify the ability to copy by viewing the MRIStep-specific
-                          fse_is_current and fsi_is_current flags. If one or both of
-                          Fse[0] and Fsi[0] are determined to be not current.  In all
-                          other cases, the RHS should be recomputed and stored in
-                          Fse[0] and Fsi[0] for reuse later, before copying the
-                          values into the output vector.
+  However, in ARK_FULLRHS_OTHER mode, this routine must call all slow RHS
+  functions directly, since that mode cannot reuse internally stored values.
 
-     ARK_FULLRHS_OTHER -> called in the following circumstances:
-                          (a) when estimating the initial time step size,
-                          (b) for high-order dense output with the Hermite
-                              interpolation module,
-                          (c) by an "outer" stepper when MRIStep is used as an
-                              inner solver), or
-                          (d) when a high-order implicit predictor is requested from
-                              the Hermite interpolation module within the time step
-                              t_{n} \to t_{n+1}.
-                          While instances (a)-(c) will occur in-between MRIStep time
-                          steps, instance (d) can occur at the start of each internal
-                          MRIStep stage.  Since the (t,y) input does not correspond
-                          to an "official" time step, thus the RHS functions should
-                          always be evaluated, and the values should *not* be stored
-                          anywhere that will interfere with other reused MRIStep data
-                          from one stage to the next (but it may use nonlinear solver
-                          scratch space).
+   ARK_FULLRHS_OTHER -> called in the following circumstances:
+                        (a) when estimating the initial time step size,
+                        (b) for high-order dense output with the Hermite
+                            interpolation module,
+                        (c) by an "outer" stepper when MRIStep is used as an
+                            inner solver), or
+                        (d) when a high-order implicit predictor is requested from
+                            the Hermite interpolation module within the time step
+                            t_{n} \to t_{n+1}.
+
+                        While instances (a)-(c) will occur in-between MRIStep time
+                        steps, instance (d) can occur at the start of each internal
+                        MRIStep stage.  Since the (t,y) input does not correspond
+                        to an "official" time step, thus the RHS functions should
+                        always be evaluated, and the values should *not* be stored
+                        anywhere that will interfere with other reused MRIStep data
+                        from one stage to the next (but it may use nonlinear solver
+                        scratch space).
 
   Note that this routine always calls the fast RHS function, ff(t,y), in
   ARK_FULLRHS_OTHER mode.
   ----------------------------------------------------------------------------*/
 int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
+{
+  ARKodeMRIStepMem step_mem;
+  int i, sa_stage, nvec, retval;
+
+  /* access ARKodeMRIStepMem structure */
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* ensure that inner stepper provides fullrhs function */
+  if (!(step_mem->stepper->ops->fullrhs))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_MISSING_FULLRHS);
+    return ARK_ILL_INPUT;
+  }
+
+  /* perform RHS functions contingent on 'mode' argument */
+  switch (mode)
+  {
+  case ARK_FULLRHS_START:
+  case ARK_FULLRHS_END:
+
+    /* update the internal storage for Fse[0] and Fsi[0] */
+    retval = mriStep_UpdateF0(ark_mem, t, y, mode);
+    if (retval != 0)
+    {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
+                      __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
+      return (ARK_RHSFUNC_FAIL);
+    }
+
+    /* evaluate fast component */
+    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
+                                         ARK_FULLRHS_OTHER);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_RHSFUNC_FAILED, t);
+      return (ARK_RHSFUNC_FAIL);
+    }
+
+    /* combine RHS vectors into output */
+    if (step_mem->explicit_rhs && step_mem->implicit_rhs)
+    {
+      /* ImEx */
+      step_mem->cvals[0] = ONE;
+      step_mem->Xvecs[0] = f;
+      step_mem->cvals[1] = ONE;
+      step_mem->Xvecs[1] = step_mem->Fse[0];
+      step_mem->cvals[2] = ONE;
+      step_mem->Xvecs[2] = step_mem->Fsi[0];
+      nvec               = 3;
+      N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs, f);
+    }
+    else if (step_mem->implicit_rhs)
+    {
+      /* implicit */
+      N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
+    }
+    else
+    {
+      /* explicit */
+      N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
+    }
+
+    break;
+
+  case ARK_FULLRHS_OTHER:
+
+    /* compute the fast component (force new RHS computation) */
+    nvec   = 0;
+    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
+                                         ARK_FULLRHS_OTHER);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_RHSFUNC_FAILED, t);
+      return (ARK_RHSFUNC_FAIL);
+    }
+    step_mem->cvals[nvec] = ONE;
+    step_mem->Xvecs[nvec] = f;
+    nvec++;
+
+    /* compute the explicit component and store in ark_tempv2 */
+    if (step_mem->explicit_rhs)
+    {
+      retval = step_mem->fse(t, y, ark_mem->tempv2, ark_mem->user_data);
+      step_mem->nfse++;
+      if (retval != 0)
+      {
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_RHSFUNC_FAILED, t);
+        return (ARK_RHSFUNC_FAIL);
+      }
+      step_mem->cvals[nvec] = ONE;
+      step_mem->Xvecs[nvec] = ark_mem->tempv2;
+      nvec++;
+    }
+
+    /* compute the implicit component and store in sdata */
+    if (step_mem->implicit_rhs)
+    {
+      retval = step_mem->fsi(t, y, step_mem->sdata, ark_mem->user_data);
+      step_mem->nfsi++;
+      if (retval != 0)
+      {
+        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                        MSG_ARK_RHSFUNC_FAILED, t);
+        return (ARK_RHSFUNC_FAIL);
+      }
+      step_mem->cvals[nvec] = ONE;
+      step_mem->Xvecs[nvec] = step_mem->sdata;
+      nvec++;
+    }
+
+    /* Add external forcing components to linear combination */
+    if (step_mem->expforcing || step_mem->impforcing)
+    {
+      mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
+    }
+
+    /* combine RHS vectors into output */
+    N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs, f);
+
+    break;
+
+  default:
+    /* return with RHS failure if unknown mode is passed */
+    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                    "Unknown full RHS mode");
+    return (ARK_RHSFUNC_FAIL);
+  }
+
+  return (ARK_SUCCESS);
+}
+
+/*------------------------------------------------------------------------------
+  mriStep_UpdateF0:
+
+  This routine is called by mriStep_FullRHS to update the internal storage for
+  Fse[0] and Fsi[0], incorporating forcing from a slower time scale as necessary.
+  This supports the ARK_FULLRHS_START and ARK_FULLRHS_END "mode" values
+  provided to mriStep_FullRHS, and contains all internal logic regarding whether
+  RHS functions must be called, versus if the relevant data can just be copied.
+
+  ARK_FULLRHS_START -> called in the following circumstances:
+                       (a) at the beginning of a simulation i.e., at
+                           (tn, yn) = (t0, y0) or (tR, yR), or
+                       (b) when transitioning between time steps t_{n-1}
+                           \to t_{n} to fill f_{n-1} within the Hermite
+                           interpolation module.
+
+                       In each case, we may check the fn_is_current flag to
+                       know whether ARKODE believes the values stored in
+                       Fse[0] and Fsi[0] are up-to-date, allowing us to copy
+                       those values instead of recomputing.  MRIStep
+                       additionally stores internal fse_is_current and
+                       fsi_is_current flags to denote whether it
+                       additionally believes recomputation is necessary --
+                       this is because unlike ARKStep and ERKStep, when
+                       MRIStep is used as an inner stepper for an outer
+                       MRIStep calculation, it must store any forcing terms
+                       *inside* its own values of one of Fse or Fsi (to
+                       avoid a combinatorial explosion of separate forcing
+                       vectors when used in a telescopic MRI calculation).
+                       For whichever of Fse[0] and Fsi[0] are deemed not
+                       current, the corresponding RHS function is
+                       recomputed and stored in Fe[0] and/or Fi[0] for
+                       reuse later, before copying the values into the
+                       output vector.
+
+  ARK_FULLRHS_END   -> called in the following circumstances:
+                       (a) when temporal root-finding is enabled, this will be
+                           called in-between steps t_{n-1} \to t_{n} to fill f_{n},
+                       (b) when high-order dense output is requested from the
+                           Hermite interpolation module in-between steps t_{n-1}
+                           \to t_{n} to fill f_{n}, or
+                       (c) when an implicit predictor is requested from the Hermite
+                           interpolation module within the time step t_{n} \to
+                           t_{n+1}, in which case f_{n} needs to be filled.
+
+                       Again, we may check the fn_is_current flags to know whether
+                       ARKODE believes that the values stored in Fse[0] and Fsi[0]
+                       are up-to-date, and may just be copied.  We also again
+                       verify the ability to copy by viewing the MRIStep-specific
+                       fse_is_current and fsi_is_current flags. If one or both of
+                       Fse[0] and Fsi[0] are determined to be not current.  In all
+                       other cases, the RHS should be recomputed and stored in
+                       Fse[0] and Fsi[0] for reuse later, before copying the
+                       values into the output vector.
+
+  ----------------------------------------------------------------------------*/
+int mriStep_UpdateF0(ARKodeMem ark_mem, sunrealtype t, N_Vector y, int mode)
 {
   ARKodeMRIStepMem step_mem;
   int i, sa_stage, nvec, retval;
@@ -1475,40 +1632,6 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                                step_mem->Fsi[0]);
         }
       }
-    }
-
-    /*   fast component */
-    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
-                                         ARK_FULLRHS_OTHER);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_RHSFUNC_FAILED, t);
-      return (ARK_RHSFUNC_FAIL);
-    }
-
-    /*   combine RHS vectors into output */
-    if (step_mem->explicit_rhs && step_mem->implicit_rhs)
-    {
-      /* ImEx */
-      step_mem->cvals[0] = ONE;
-      step_mem->Xvecs[0] = f;
-      step_mem->cvals[1] = ONE;
-      step_mem->Xvecs[1] = step_mem->Fse[0];
-      step_mem->cvals[2] = ONE;
-      step_mem->Xvecs[2] = step_mem->Fsi[0];
-      nvec               = 3;
-      N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs, f);
-    }
-    else if (step_mem->implicit_rhs)
-    {
-      /* implicit */
-      N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
-    }
-    else
-    {
-      /* explicit */
-      N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
     }
 
     break;
@@ -1591,93 +1714,6 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
         }
       }
     }
-
-    /* compute the fast component (force new RHS computation) */
-    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
-                                         ARK_FULLRHS_OTHER);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_RHSFUNC_FAILED, t);
-      return (ARK_RHSFUNC_FAIL);
-    }
-
-    /* combine RHS vectors into output */
-    if (step_mem->explicit_rhs && step_mem->implicit_rhs)
-    {
-      /* ImEx */
-      N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
-      N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
-    }
-    else if (step_mem->implicit_rhs)
-    {
-      /* implicit */
-      N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
-    }
-    else
-    {
-      /* explicit */
-      N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
-    }
-
-    break;
-
-  case ARK_FULLRHS_OTHER:
-
-    /* compute the fast component (force new RHS computation) */
-    nvec   = 0;
-    retval = mriStepInnerStepper_FullRhs(step_mem->stepper, t, y, f,
-                                         ARK_FULLRHS_OTHER);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                      MSG_ARK_RHSFUNC_FAILED, t);
-      return (ARK_RHSFUNC_FAIL);
-    }
-    step_mem->cvals[nvec] = ONE;
-    step_mem->Xvecs[nvec] = f;
-    nvec++;
-
-    /* compute the explicit component and store in ark_tempv2 */
-    if (step_mem->explicit_rhs)
-    {
-      retval = step_mem->fse(t, y, ark_mem->tempv2, ark_mem->user_data);
-      step_mem->nfse++;
-      if (retval != 0)
-      {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RHSFUNC_FAILED, t);
-        return (ARK_RHSFUNC_FAIL);
-      }
-      step_mem->cvals[nvec] = ONE;
-      step_mem->Xvecs[nvec] = ark_mem->tempv2;
-      nvec++;
-    }
-
-    /* compute the implicit component and store in sdata */
-    if (step_mem->implicit_rhs)
-    {
-      retval = step_mem->fsi(t, y, step_mem->sdata, ark_mem->user_data);
-      step_mem->nfsi++;
-      if (retval != 0)
-      {
-        arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RHSFUNC_FAILED, t);
-        return (ARK_RHSFUNC_FAIL);
-      }
-      step_mem->cvals[nvec] = ONE;
-      step_mem->Xvecs[nvec] = step_mem->sdata;
-      nvec++;
-    }
-
-    /* Add external forcing components to linear combination */
-    if (step_mem->expforcing || step_mem->impforcing)
-    {
-      mriStep_ApplyForcing(step_mem, t, ONE, &nvec);
-    }
-
-    /* combine RHS vectors into output */
-    N_VLinearCombination(nvec, step_mem->cvals, step_mem->Xvecs, f);
 
     break;
 
