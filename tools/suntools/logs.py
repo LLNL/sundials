@@ -51,7 +51,7 @@ def parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"
             values = []
             if array_indicator in key:
                 for line in all_lines[line_number + 1 :]:
-                    if line.startswith("["):
+                    if line.startswith("[") or not line.strip():
                         break
                     values.append(np.double(line))
                 kvp_dict[key.strip()] = values
