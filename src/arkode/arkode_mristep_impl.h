@@ -223,7 +223,8 @@ int mriStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
                       sunbooleantype** jcur, sunbooleantype* dgamma_fail);
 int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
-int mriStep_UpdateF0(ARKodeMem ark_mem, sunrealtype t, N_Vector y, int mode);
+int mriStep_UpdateF0(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
+                     sunrealtype t, N_Vector y, int mode);
 int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                             int* nflagPtr);
 int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
