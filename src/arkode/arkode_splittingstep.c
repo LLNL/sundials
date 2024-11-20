@@ -449,6 +449,12 @@ void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
     return NULL;
   }
 
+  if (partitions <= 1) {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The number of partitions must be greater than one");
+    return NULL;
+  }
+
   for (int i = 0; i < partitions; i++)
   {
     if (steppers[i] == NULL)
