@@ -148,6 +148,7 @@ int ARKodeSetOrder(void* arkode_mem, int ord)
       interpolation module.
     itype == ARK_INTERP_LAGRANGE specifies the Lagrange (stiff)
       interpolation module.
+    itype == ARK_INTERP_NONE disables interpolation.
 
   Return values:
      ARK_SUCCESS on success.
