@@ -16,10 +16,12 @@
  * ---------------------------------------------------------------------------*/
 
 #include <arkode/arkode_arkstep.h>
+#include <arkode/arkode_erkstep.h>
 #include <arkode/arkode_splittingstep.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_context.hpp>
 #include <sundials/sundials_stepper.h>
+#include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 
 #include <cmath>
 #include <iostream>
@@ -55,7 +57,7 @@ static int test_forward(sundials::Context& ctx, int partitions)
   std::vector<SUNStepper> steppers(partitions);
   for (int i = 0; i < partitions; i++)
   {
-    partition_mem[i] = ARKStepCreate(f, nullptr, t0, y, ctx);
+    partition_mem[i] = ERKStepCreate(f, t0, y, ctx);
     /* The lambdas sum up to 1 */
     lambda[i] = std::pow(SUN_RCONST(2.0), i) /
                 (1 - std::pow(SUN_RCONST(2.0), partitions));
@@ -79,10 +81,10 @@ static int test_forward(sundials::Context& ctx, int partitions)
             << " partitions completed with an error of " << err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  if (SUNRCompareTol(exact_solution, numerical_solution, global_tol))
+  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution, global_tol);
+  if (fail)
   {
     std::cerr << "Error exceeded tolerance of " << global_tol << "\n";
-    return 1;
   }
   std::cout << "\n";
 
@@ -94,7 +96,7 @@ static int test_forward(sundials::Context& ctx, int partitions)
   }
   ARKodeFree(&arkode_mem);
 
-  return 0;
+  return fail;
 }
 
 /* Integrates the ODE
@@ -121,28 +123,31 @@ static int test_mixed_directions(const sundials::Context& ctx)
   auto err = N_VClone(y);
   N_VConst(SUN_RCONST(1.0), err);
 
-  ARKRhsFn f1 = [](sunrealtype t, N_Vector z, N_Vector zdot, void* const)
+  ARKRhsFn f1 = [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
   {
     N_VGetArrayPointer(zdot)[0] = N_VGetArrayPointer(z)[1] - t;
     N_VGetArrayPointer(zdot)[1] = SUN_RCONST(0.0);
     return 0;
   };
 
-  ARKRhsFn f2 = [](sunrealtype t, N_Vector z, N_Vector zdot, void* const)
+  ARKRhsFn f2 = [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
   {
     N_VGetArrayPointer(zdot)[0] = SUN_RCONST(0.0);
     N_VGetArrayPointer(zdot)[1] = t - N_VGetArrayPointer(z)[0];
     return 0;
   };
 
-  void* parititon_mem[] = {ARKStepCreate(f1, nullptr, t0, y, ctx),
-                           ARKStepCreate(f2, nullptr, t0, y, ctx)};
+  void* parititon_mem[] = {ARKStepCreate(nullptr, f1, t0, y, ctx),
+                           ERKStepCreate(f2, t0, y, ctx)};
   ARKodeSStolerances(parititon_mem[0], local_tol, local_tol);
   ARKodeSStolerances(parititon_mem[1], local_tol, local_tol);
 
   SUNStepper steppers[] = {nullptr, nullptr};
   ARKodeCreateSUNStepper(parititon_mem[0], &steppers[0]);
   ARKodeCreateSUNStepper(parititon_mem[1], &steppers[1]);
+
+  SUNNonlinearSolver nls = SUNNonlinSol_FixedPoint(y, 1, ctx);
+  ARKodeSetNonlinearSolver(parititon_mem[0], nls);
 
   auto arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
@@ -174,10 +179,10 @@ static int test_mixed_directions(const sundials::Context& ctx)
             << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  if (max_err > global_tol)
+  sunbooleantype fail = max_err > global_tol;
+  if (fail)
   {
     std::cerr << "Error exceeded tolerance of " << global_tol << "\n";
-    return 1;
   }
   std::cout << "\n";
 
@@ -188,8 +193,9 @@ static int test_mixed_directions(const sundials::Context& ctx)
   ARKodeFree(&parititon_mem[1]);
   SUNStepper_Destroy(&steppers[1]);
   ARKodeFree(&arkode_mem);
+  SUNNonlinSolFree(nls);
 
-  return 0;
+  return fail;
 }
 
 /* Integrates the ODE
@@ -216,13 +222,13 @@ static int test_resize(const sundials::Context& ctx)
   auto y                    = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
-  ARKRhsFn f1 = [](sunrealtype t, N_Vector z, N_Vector zdot, void* const)
+  ARKRhsFn f1 = [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
   {
     N_VProd(z, z, zdot);
     return 0;
   };
 
-  ARKRhsFn f2 = [](sunrealtype t, N_Vector z, N_Vector zdot, void* const)
+  ARKRhsFn f2 = [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
   {
     N_VConst(-SUN_RCONST(1.0), zdot);
     N_VLinearSum(SUN_RCONST(1.0), zdot, -SUN_RCONST(1.0), z, zdot);
@@ -230,8 +236,8 @@ static int test_resize(const sundials::Context& ctx)
     return 0;
   };
 
-  void* parititon_mem[] = {ARKStepCreate(f1, nullptr, t0, y, ctx),
-                           ARKStepCreate(f2, nullptr, t0, y, ctx)};
+  void* parititon_mem[] = {ERKStepCreate(f1, t0, y, ctx),
+                           ERKStepCreate(f2, t0, y, ctx)};
   ARKodeSStolerances(parititon_mem[0], local_tol, local_tol);
   ARKodeSStolerances(parititon_mem[1], local_tol, local_tol);
 
@@ -270,10 +276,10 @@ static int test_resize(const sundials::Context& ctx)
   std::cout << "Resized solution completed with an error of " << max_err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  if (max_err > global_tol)
+  sunbooleantype fail = max_err > global_tol;
+  if (fail)
   {
     std::cerr << "Error exceeded tolerance of " << global_tol << "\n";
-    return 1;
   }
   std::cout << "\n";
 
@@ -285,7 +291,7 @@ static int test_resize(const sundials::Context& ctx)
   SUNStepper_Destroy(&steppers[1]);
   ARKodeFree(&arkode_mem);
 
-  return 0;
+  return fail;
 }
 
 /* Creates a custom SUNStepper for the linear, scalar ODE y' = lambda*y */
@@ -386,10 +392,10 @@ static int test_custom_stepper(const sundials::Context& ctx)
   std::cout << "Custom SUNStepper completed with an error of " << err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  if (SUNRCompare(exact_solution, numerical_solution))
+  sunbooleantype fail = SUNRCompare(exact_solution, numerical_solution);
+  if (fail)
   {
     std::cerr << "Error exceeded tolerance\n";
-    return 1;
   }
   std::cout << "\n";
 
@@ -397,7 +403,7 @@ static int test_custom_stepper(const sundials::Context& ctx)
   SUNStepper_Destroy(&steppers[0]);
   SUNStepper_Destroy(&steppers[1]);
   ARKodeFree(&arkode_mem);
-  return 0;
+  return fail;
 }
 
 int main()

@@ -92,6 +92,20 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
   return ARK_SUCCESS;
 }
 
+static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR) {
+  ARKodeForcingStepMem step_mem = NULL;
+  int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  SUNErrCode err = SUNStepper_Reset(step_mem->stepper[0], tR, yR);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err = SUNStepper_Reset(step_mem->stepper[1], tR, yR);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  return ARK_SUCCESS;
+}
+
 /*------------------------------------------------------------------------------
   This routine sets the step direction of the partition integrators and is
   called once the forcingstep integrator has updated its step direction.
@@ -133,12 +147,14 @@ static int forcingStep_SetStepDirection(ARKodeMem ark_mem, sunrealtype stepdir)
   resets at the next SUNStepper_Evolve call.
   ----------------------------------------------------------------------------*/
 static int forcingStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y,
-                               N_Vector f, SUNDIALS_MAYBE_UNUSED int mode)
+                               N_Vector f, int mode)
 {
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
+  /* TODO(SBR): Possible optimization in FULLRHS_START mode. Currently that
+   * mode is not forwarded to the SUNSteppers */
   SUNErrCode err = SUNStepper_FullRhs(step_mem->stepper[0], t, y,
                                       ark_mem->tempv1, SUN_FULLRHS_OTHER);
   if (err != SUN_SUCCESS)
@@ -148,10 +164,7 @@ static int forcingStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y,
     return ARK_RHSFUNC_FAIL;
   }
 
-  /* TODO(SBR): this *may* be able to use SUN_FULLRHS_END mode in some cases
-   * but we need to be certain the state of the SUNStepper is consistent with
-   * the outer forcing method */
-  err = SUNStepper_FullRhs(step_mem->stepper[1], t, y, f, SUN_FULLRHS_OTHER);
+  err = SUNStepper_FullRhs(step_mem->stepper[1], t, y, f, mode == ARK_FULLRHS_END ? SUN_FULLRHS_END : SUN_FULLRHS_OTHER);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -189,13 +202,9 @@ static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   step_mem->n_stepper_evolves[0]++;
 
-  /* Reset stepper 1. It may be possible to avoid the reset here (like explicit
-   * MRIStep), but that would be very fragile. If the step direction ever 
-   * changes or a resize is performed, the stepper and outer forcing method
-   * could become out of sync. */
   SUNStepper s1 = step_mem->stepper[1];
-  err           = SUNStepper_Reset(s1, ark_mem->tn, ark_mem->yn);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  /* A reset is not needed because steeper 1's state is consistent with the
+   * forcing method */
   err = SUNStepper_SetStopTime(s1, tout);
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
@@ -383,6 +392,7 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init             = forcingStep_Init;
   ark_mem->step_fullrhs          = forcingStep_FullRHS;
+  ark_mem->step_reset = forcingStep_Reset;
   ark_mem->step_setstepdirection = forcingStep_SetStepDirection;
   ark_mem->step                  = forcingStep_TakeStep;
   ark_mem->step_printallstats    = forcingStep_PrintAllStats;
