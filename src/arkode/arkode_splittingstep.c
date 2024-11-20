@@ -502,6 +502,12 @@ static int splittingStep_InitStepMem(ARKodeMem ark_mem,
   step_mem->n_stepper_evolves = calloc(partitions,
                                        sizeof(*step_mem->n_stepper_evolves));
 
+  /* If the number of partitions changed, the coefficients are no longer
+   * compatible and must be cleared. If a user previously called ARKodeSetOrder
+   * that will still be respected at the next call to ARKodeEvolve */
+  if (step_mem->partitions != partitions) {
+    SplittingStepCoefficients_Destroy(&step_mem->coefficients);
+  }
   step_mem->partitions = partitions;
 
   return ARK_SUCCESS;
@@ -542,10 +548,11 @@ void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
     return NULL;
   }
 
-  step_mem->coefficients      = NULL;
+  step_mem->partitions        = partitions;
   step_mem->order             = 0;
   step_mem->steppers          = NULL;
   step_mem->n_stepper_evolves = NULL;
+  step_mem->coefficients      = NULL;
   retval = splittingStep_InitStepMem(ark_mem, step_mem, steppers, partitions);
   if (retval != ARK_SUCCESS)
   {

@@ -404,6 +404,84 @@ static int test_custom_stepper(const sundials::Context& ctx)
   return fail;
 }
 
+static int test_reinit(const sundials::Context& ctx)
+{
+  constexpr auto t0         = SUN_RCONST(0.0);
+  constexpr auto t1         = SUN_RCONST(1.0);
+  constexpr auto t2         = SUN_RCONST(2.0);
+  constexpr auto dt         = SUN_RCONST(8.0e-3);
+  constexpr auto local_tol  = SUN_RCONST(1.0e-6);
+  constexpr auto global_tol = SUN_RCONST(10.0) * local_tol;
+  auto y                    = N_VNew_Serial(1, ctx);
+  N_VConst(SUN_RCONST(1.0), y);
+
+  std::array<ARKRhsFn, 3> fns{
+    [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
+    {
+      N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t), z, zdot);
+      return 0;
+    },
+    [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
+    {
+      N_VScale(-SUN_RCONST(1.0) / (SUN_RCONST(2.0) + t), z, zdot);
+      return 0;
+    },
+    [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
+    {
+      N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(3.0) + t), z, zdot);
+      return 0;
+    }
+  };
+
+  std::array<void*, fns.size()> partition_mem{};
+  std::array<SUNStepper, fns.size()> steppers{};
+
+  for (std::size_t i = 0; i < fns.size(); i++) {
+    partition_mem[i] = ERKStepCreate(fns[i], t0, y, ctx);
+    ARKodeSStolerances(partition_mem[i], local_tol, local_tol);
+    ARKodeCreateSUNStepper(partition_mem[i], &steppers[i]);
+  }
+
+  auto arkode_mem = SplittingStepCreate(steppers.data(), steppers.size(), t0, y, ctx);
+  ARKodeSetFixedStep(arkode_mem, dt);
+  ARKodeSetOrder(arkode_mem, 2);
+  auto tret = t0;
+  ARKodeEvolve(arkode_mem, t1, y, &tret, ARK_NORMAL);
+
+  SplittingStepReInit(arkode_mem, steppers.data(), steppers.size() - 1, t1, y);
+  for (std::size_t i = 0; i < fns.size() - 1; i++) {
+    ERKStepReInit(partition_mem[i], fns[i], t1, y);
+  }
+
+  ARKodeEvolve(arkode_mem, t2, y, &tret, ARK_NORMAL);
+
+  /* Check that the solution matches the exact solution */
+  auto exact_solution     = SUN_RCONST(2.0);
+  auto numerical_solution = N_VGetArrayPointer(y)[0];
+  auto err                = numerical_solution - exact_solution;
+
+  std::cout << "Reinitialized solution with completed with an error of " << err << "\n";
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution,
+                                       global_tol);
+  if (fail)
+  {
+    std::cerr << "Error exceeded tolerance of " << global_tol << "\n";
+  }
+  std::cout << "\n";
+
+  N_VDestroy(y);
+  for (std::size_t i = 0; i < fns.size(); i++)
+  {
+    ARKodeFree(&partition_mem[i]);
+    SUNStepper_Destroy(&steppers[i]);
+  }
+  ARKodeFree(&arkode_mem);
+
+  return fail;
+}
+
 int main()
 {
   sundials::Context ctx;
@@ -422,6 +500,7 @@ int main()
   errors += test_mixed_directions(ctx);
   errors += test_resize(ctx);
   errors += test_custom_stepper(ctx);
+  errors += test_reinit(ctx);
 
   if (errors == 0) { std::cout << "Success\n"; }
   else { std::cout << errors << " Test Failures\n"; }
