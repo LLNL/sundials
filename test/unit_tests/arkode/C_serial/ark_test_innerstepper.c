@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
   flag = ARKodeSetFixedStep(arkode_mem, SUN_RCONST(0.01));
   if (flag) { return 1; }
 
-  flag = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
+  flag = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
   if (flag) { return 1; }
 
   /* ---------------
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
   flag = MRIStepReInit(arkode_mem, ode_slow_rhs, NULL, ZERO, y);
   if (flag) { return 1; }
 
-  flag = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_NONE);
+  flag = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
   if (flag) { return 1; }
 
   /* ---------------
