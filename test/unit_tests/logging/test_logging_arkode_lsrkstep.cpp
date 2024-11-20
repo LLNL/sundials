@@ -39,9 +39,9 @@ int main(int argc, char* argv[])
   // SUNDIALS context object for this simulation
   sundials::Context sunctx;
 
-  // Use RKC (0) or RKL (1)
-  int method_type = 0;
-  if (argc > 1) { method_type = stoi(argv[1]); }
+  // Use RKC (0), RKL (1), SSPs2 (2), SSPs3 (3), SSP43 (4), SSP104 (5)
+  int method = 0;
+  if (argc > 1) { method = stoi(argv[1]); }
 
   // Ensure logging output goes to stdout
   SUNLogger logger;
@@ -59,25 +59,52 @@ int main(int argc, char* argv[])
   N_VConst(true_solution(zero), y);
 
   // Create LSRKStep memory structure
-  void* arkode_mem = LSRKStepCreateSTS(ode_rhs, zero, y, sunctx);
+  void* arkode_mem = nullptr;
+  if (method < 2)
+  {
+    arkode_mem = LSRKStepCreateSTS(ode_rhs, zero, y, sunctx);
+  }
+  else
+  {
+    arkode_mem = LSRKStepCreateSSP(ode_rhs, zero, y, sunctx);
+  }
   if (check_ptr(arkode_mem, "LSRKStepCreate")) { return 1; }
 
   // Select method
-  if (method_type == 0)
+  if (method == 0)
   {
     flag = LSRKStepSetSTSMethodByName(arkode_mem, "ARKODE_LSRK_RKC_2");
-    if (check_flag(flag, "LSRKStepSetSTSMethodByName")) { return 1; }
   }
-  else if (method_type == 1)
+  else if (method == 1)
   {
     flag = LSRKStepSetSTSMethodByName(arkode_mem, "ARKODE_LSRK_RKL_2");
-    if (check_flag(flag, "LSRKStepSetSTSMethodByName")) { return 1; }
+  }
+  else if (method == 2)
+  {
+    flag = LSRKStepSetSSPMethodByName(arkode_mem, "ARKODE_LSRK_SSP_S_2");
+  }
+  else if (method == 3)
+  {
+    flag = LSRKStepSetSSPMethodByName(arkode_mem, "ARKODE_LSRK_SSP_S_3");
+  }
+  else if (method == 4)
+  {
+    flag = LSRKStepSetSSPMethodByName(arkode_mem, "ARKODE_LSRK_SSP_S_3");
+    if (flag == 0)
+    {
+      flag = LSRKStepSetSSPStageNum(arkode_mem, 4);
+    }
+  }
+  else if (method == 5)
+  {
+    flag = LSRKStepSetSSPMethodByName(arkode_mem, "ARKODE_LSRK_SSP_S_10_4");
   }
   else
   {
     cerr << "Invalid method option\n";
     return 1;
   }
+  if (check_flag(flag, "LSRKStepSetMethodByName")) { return 1; }
 
   flag = ARKodeSetUserData(arkode_mem, &prv_data);
   if (check_flag(flag, "ARKodeSetUserData")) { return 1; }

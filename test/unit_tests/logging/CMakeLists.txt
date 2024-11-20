@@ -35,6 +35,7 @@ if(BUILD_ARKODE)
   # LSRKStep
   list(APPEND unit_tests "test_logging_arkode_lsrkstep.cpp\;0") # RKC
   list(APPEND unit_tests "test_logging_arkode_lsrkstep.cpp\;1") # RKL
+  list(APPEND unit_tests "test_logging_arkode_lsrkstep.cpp\;2") # SSPs2
   # MRIStep
   list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;0") # Ex-MRI
   list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;1 1 1") # Im-MRI
