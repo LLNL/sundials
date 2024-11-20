@@ -352,8 +352,11 @@ static void splittingStep_Free(ARKodeMem ark_mem)
   ARKodeSplittingStepMem step_mem = (ARKodeSplittingStepMem)ark_mem->step_mem;
   if (step_mem != NULL)
   {
-    free(step_mem->steppers);
-    free(step_mem->n_stepper_evolves);
+    if (step_mem->steppers != NULL) { free(step_mem->steppers); }
+    if (step_mem->n_stepper_evolves != NULL)
+    {
+      free(step_mem->n_stepper_evolves);
+    }
     SplittingStepCoefficients_Destroy(&step_mem->coefficients);
     free(step_mem);
   }

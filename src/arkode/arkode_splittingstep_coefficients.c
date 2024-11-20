@@ -122,18 +122,20 @@ SplittingStepCoefficients SplittingStepCoefficients_Create(
   ---------------------------------------------------------------*/
 void SplittingStepCoefficients_Destroy(SplittingStepCoefficients* coefficients)
 {
-  if (*coefficients != NULL && coefficients != NULL)
-  {
-    free((*coefficients)->alpha);
-    if ((*coefficients)->beta != NULL)
-    {
-      free((*coefficients)->beta[0][0]);
-      free((*coefficients)->beta[0]);
-      free((*coefficients)->beta);
-    }
-  }
+  if (coefficients == NULL || *coefficients == NULL) { return; }
 
-  free(*coefficients);
+  SplittingStepCoefficients coeffs = *coefficients;
+  if (coeffs->alpha != NULL) { free(coeffs->alpha); }
+  if (coeffs->beta != NULL)
+  {
+    if (coeffs->beta[0] != NULL)
+    {
+      if (coeffs->beta[0][0] != NULL) { free(coeffs->beta[0][0]); }
+      free(coeffs->beta[0]);
+    }
+    free(coeffs->beta);
+  }
+  free(coeffs);
   *coefficients = NULL;
 }
 
