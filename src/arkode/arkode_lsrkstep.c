@@ -560,7 +560,6 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
              ", num stages = %i, max stages = %i, max stage limit = %i",
              step_mem->spectral_radius, step_mem->req_stages,
              step_mem->stage_max, step_mem->stage_max_limit);
-
   SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 0,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
@@ -879,7 +878,6 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
              ", num stages = %i, max stages = %i, max stage limit = %i",
              step_mem->spectral_radius, step_mem->req_stages,
              step_mem->stage_max, step_mem->stage_max_limit);
-
   SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 0,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
@@ -959,7 +957,6 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval > 0) { return RHSFUNC_RECVR; }
 
     SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-
     SUNLogInfoIf(j < step_mem->req_stages, ARK_LOGGER, "begin-stage",
                  "stage = %i, tcur = %" RSYM, j, ark_mem->tn + ark_mem->h * cj);
     SUNLogInfoIf(j == step_mem->req_stages, ARK_LOGGER, "begin-compute-solution",
