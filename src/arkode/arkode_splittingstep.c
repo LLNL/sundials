@@ -1,6 +1,6 @@
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * Programmer(s): Steven B. Roberts @ LLNL
- *---------------------------------------------------------------
+ *------------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -10,10 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- *---------------------------------------------------------------
- * This is the implementation file for ARKODE's operator
- * splitting module
- *--------------------------------------------------------------*/
+ *------------------------------------------------------------------------------
+ * This is the implementation file for ARKODE's operator splitting module
+ *----------------------------------------------------------------------------*/
 
 #include <arkode/arkode_splittingstep.h>
 #include <sundials/sundials_nvector.h>
@@ -21,10 +20,10 @@
 #include "arkode_impl.h"
 #include "arkode_splittingstep_impl.h"
 
-/*---------------------------------------------------------------
-  Shortcut routine to unpack step_mem structure from ark_mem.
-  If missing it returns ARK_MEM_NULL.
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Shortcut routine to unpack step_mem structure from ark_mem. If missing it
+  returns ARK_MEM_NULL.
+  ----------------------------------------------------------------------------*/
 static int splittingStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                                        ARKodeSplittingStepMem* step_mem)
 {
@@ -38,10 +37,10 @@ static int splittingStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
-  Shortcut routine to unpack ark_mem and step_mem structures from
-  void* pointer.  If either is missing it returns ARK_MEM_NULL.
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Shortcut routine to unpack ark_mem and step_mem structures from void* pointer.
+  If either is missing it returns ARK_MEM_NULL.
+  ----------------------------------------------------------------------------*/
 static int splittingStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                              ARKodeMem* ark_mem,
                                              ARKodeSplittingStepMem* step_mem)
@@ -58,10 +57,10 @@ static int splittingStep_AccessARKODEStepMem(void* arkode_mem, const char* fname
   return splittingStep_AccessStepMem(*ark_mem, __func__, step_mem);
 }
 
-/*---------------------------------------------------------------
-  This routine determines the splitting coefficients to use,
-  based on the desired accuracy.
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  This routine determines the splitting coefficients to use based on the desired
+  accuracy.
+  ----------------------------------------------------------------------------*/
 static int splittingStep_SetCoefficients(ARKodeMem ark_mem,
                                          ARKodeSplittingStepMem step_mem)
 {
@@ -105,16 +104,15 @@ static int splittingStep_SetCoefficients(ARKodeMem ark_mem,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
-  This routine is called just prior to performing internal time
-  steps (after all user "set" routines have been called) from
-  within arkInitialSetup.
+/*-----------------------------------------------------------------------------
+  This routine is called just prior to performing internal time steps (after all
+  user "set" routines have been called) from within arkInitialSetup.
 
   With initialization types FIRST_INIT this routine:
   - sets/checks the splitting coefficients to be used
 
   With other initialization types, this routine does nothing.
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 static int splittingStep_Init(ARKodeMem ark_mem, int init_type)
 {
   ARKodeSplittingStepMem step_mem = NULL;
@@ -189,9 +187,9 @@ static int splittingStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   This routine performs a sequential operator splitting method
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 static int splittingStep_SequentialMethod(ARKodeMem ark_mem,
                                           ARKodeSplittingStepMem step_mem,
                                           int i, N_Vector y)
@@ -258,9 +256,9 @@ static int splittingStep_SequentialMethod(ARKodeMem ark_mem,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   This routine performs a single step of the splitting method.
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                   int* nflagPtr)
 {
@@ -295,9 +293,9 @@ static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   Prints integrator statistics
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 static int splittingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
                                        SUNOutputFormat fmt)
 {
@@ -331,9 +329,9 @@ static int splittingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   Outputs all solver parameters to the provided file pointer.
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 static int splittingStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 {
   ARKodeSplittingStepMem step_mem = NULL;
@@ -346,9 +344,9 @@ static int splittingStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   Frees all SplittingStep memory.
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 static void splittingStep_Free(ARKodeMem ark_mem)
 {
   ARKodeSplittingStepMem step_mem = (ARKodeSplittingStepMem)ark_mem->step_mem;
@@ -362,10 +360,10 @@ static void splittingStep_Free(ARKodeMem ark_mem)
   ark_mem->step_mem = NULL;
 }
 
-/*---------------------------------------------------------------
-  This routine outputs the memory from the SplittingStep
-  structure to a specified file pointer (useful when debugging).
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  This routine outputs the memory from the SplittingStep structure to a
+  specified file pointer (useful when debugging).
+  ----------------------------------------------------------------------------*/
 static void splittingStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 {
   ARKodeSplittingStepMem step_mem = NULL;
@@ -388,9 +386,9 @@ static void splittingStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   SplittingStepCoefficients_Write(step_mem->coefficients, outfile);
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   Specifies the method order
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 static int splittingStep_SetOrder(ARKodeMem ark_mem, int order)
 {
   ARKodeSplittingStepMem step_mem = NULL;
@@ -406,11 +404,10 @@ static int splittingStep_SetOrder(ARKodeMem ark_mem, int order)
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
-  Resets all SplittingStep optional inputs to their default
-  values. Does not change problem-defining function pointers or
-  user_data pointer.
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Resets all SplittingStep optional inputs to their default values. Does not
+  change problem-defining function pointers or user_data pointer.
+  ----------------------------------------------------------------------------*/
 static int splittingStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeSplittingStepMem step_mem = NULL;
@@ -427,15 +424,19 @@ static int splittingStep_SetDefaults(ARKodeMem ark_mem)
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  This routine checks if all required vector operations are present. If any of
+  them is missing it returns SUNFALSE.
+  ----------------------------------------------------------------------------*/
 static sunbooleantype splittingStep_CheckNVector(N_Vector y)
 {
   return y->ops->nvlinearsum != NULL && y->ops->nvscale != NULL;
 }
 
+/*------------------------------------------------------------------------------
+  This routine validates arguments when (re)initializing a SplittingStep
+  integrator
+  ----------------------------------------------------------------------------*/
 static int splittingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper* steppers,
                                    int partitions, N_Vector y0)
 {
@@ -481,6 +482,9 @@ static int splittingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper* steppers,
   return ARK_SUCCESS;
 }
 
+/*------------------------------------------------------------------------------
+  This routine initializes the step memory and resets the statistics
+  ----------------------------------------------------------------------------*/
 static int splittingStep_InitStepMem(ARKodeMem ark_mem,
                                      ARKodeSplittingStepMem step_mem,
                                      SUNStepper* steppers, int partitions)
@@ -596,6 +600,14 @@ void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
   return ark_mem;
 }
 
+/*------------------------------------------------------------------------------
+  This routine re-initializes the SplittingStep module to solve a new problem of
+  the same size as was previously solved. This routine should also be called
+  when the problem dynamics or desired solvers have changed dramatically, so
+  that the problem integration should resume as if started from scratch.
+
+  Note all internal counters are set to 0 on re-initialization.
+  ----------------------------------------------------------------------------*/
 int SplittingStepReInit(void* arkode_mem, SUNStepper* steppers, int partitions,
                         sunrealtype t0, N_Vector y0)
 {
@@ -670,6 +682,9 @@ int SplittingStep_SetCoefficients(void* arkode_mem,
   return ARK_SUCCESS;
 }
 
+/*------------------------------------------------------------------------------
+  Accesses the number of times a given partition was evolved
+  ----------------------------------------------------------------------------*/
 int SplittingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves)
 {
   ARKodeMem ark_mem               = NULL;

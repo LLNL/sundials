@@ -430,6 +430,14 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
   return ark_mem;
 }
 
+/*------------------------------------------------------------------------------
+  This routine re-initializes the ForcingStep module to solve a new problem of
+  the same size as was previously solved. This routine should also be called
+  when the problem dynamics or desired solvers have changed dramatically, so
+  that the problem integration should resume as if started from scratch.
+
+  Note all internal counters are set to 0 on re-initialization.
+  ----------------------------------------------------------------------------*/
 int ForcingStepReInit(void* arkode_mem, SUNStepper stepper1,
                       SUNStepper stepper2, sunrealtype t0, N_Vector y0)
 {
