@@ -1329,7 +1329,7 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "yn:\n");
   N_VPrintFile(ark_mem->yn, outfile);
   fprintf(outfile, "fn:\n");
-  N_VPrintFile(ark_mem->fn, outfile);
+  if (ark_mem->fn) { N_VPrintFile(ark_mem->fn, outfile); }
   fprintf(outfile, "tempv1:\n");
   N_VPrintFile(ark_mem->tempv1, outfile);
   fprintf(outfile, "tempv2:\n");
