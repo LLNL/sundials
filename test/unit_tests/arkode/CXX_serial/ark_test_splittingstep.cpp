@@ -462,7 +462,7 @@ static int test_reinit(const sundials::Context& ctx)
   auto numerical_solution = N_VGetArrayPointer(y)[0];
   auto err                = numerical_solution - exact_solution;
 
-  std::cout << "Reinitialized solution with completed with an error of " << err
+  std::cout << "Reinitialized solution completed with an error of " << err
             << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
