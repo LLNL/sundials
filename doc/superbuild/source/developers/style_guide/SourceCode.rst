@@ -510,7 +510,7 @@ Python module for parsing log files are as follows:
 
 * ``begin-compute-solution`` / ``end-compute-solution``
 
-* ``begin-compute-dominant-eigenvalue`` /  ``end-compute-dominant-eigenvalue``
+* ``begin-compute-embedding`` / ``end-compute-embedding``
 
 Logging Macros
 ^^^^^^^^^^^^^^

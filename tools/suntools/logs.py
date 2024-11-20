@@ -265,6 +265,15 @@ def log_file_to_list(filename):
                 s.close_dict()
                 continue
 
+            if label == "begin-compute-embedding":
+                s.open_dict("compute-embedding")
+                s.update(line_dict["payload"])
+                continue
+            elif label == "end-compute-embedding":
+                s.update(line_dict["payload"])
+                s.close_dict()
+                continue
+
             s.update(line_dict["payload"])
 
     return step_attempts
