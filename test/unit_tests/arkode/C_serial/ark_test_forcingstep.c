@@ -190,6 +190,77 @@ static int test_mixed_directions(SUNContext ctx)
   return fail;
 }
 
+/* Integrates the ODE
+ * 
+ * y' = [t / y] + [1 / y]
+ * 
+ * with initial condition y(0) = 1 and partitioning specified by the square
+ * brackets. We integrate to t = 1 then reinitialize the forcing method by
+ * swapping the SUNSteppers and updating the initial condition to y(1) = -1.
+ * Next we integrator to t = 2 and check the error against the exact solution
+ * y(2) = -sqrt(6).
+ */
+static int test_reinit(SUNContext ctx)
+{
+  sunrealtype t0         = SUN_RCONST(0.0);
+  sunrealtype t1         = SUN_RCONST(1.0);
+  sunrealtype t2         = SUN_RCONST(2.0);
+  sunrealtype dt         = SUN_RCONST(1.0e-4);
+  sunrealtype local_tol  = SUN_RCONST(1.0e-6);
+  sunrealtype global_tol = SUN_RCONST(10.0) * local_tol;
+
+  N_Vector y = N_VNew_Serial(1, ctx);
+  N_VConst(SUN_RCONST(1.0), y);
+
+  void* parititon_mem[] = {ARKStepCreate(f_forward_1, NULL, t0, y, ctx),
+                           ARKStepCreate(f_forward_2, NULL, t0, y, ctx)};
+  ARKodeSStolerances(parititon_mem[0], local_tol, local_tol);
+  ARKodeSStolerances(parititon_mem[1], local_tol, local_tol);
+
+  SUNStepper steppers[] = {NULL, NULL};
+  ARKodeCreateSUNStepper(parititon_mem[0], &steppers[0]);
+  ARKodeCreateSUNStepper(parititon_mem[1], &steppers[1]);
+
+  void* arkode_mem = ForcingStepCreate(steppers[0], steppers[1], t0, y, ctx);
+  ARKodeSetFixedStep(arkode_mem, dt);
+  ARKodeSetMaxNumSteps(arkode_mem, -1);
+
+  sunrealtype tret = t0;
+  ARKodeEvolve(arkode_mem, t1, y, &tret, ARK_NORMAL);
+
+  /* Change the state and swap the steppers so now forcing is applied to
+   * steppers[0] rather than steppers[1] */
+  N_VConst(SUN_RCONST(-1.0), y);
+  ARKStepReInit(parititon_mem[0], f_forward_1, NULL, t1, y);
+  ForcingStepReInit(arkode_mem, steppers[1], steppers[0], t1, y);
+  ARKStepReInit(parititon_mem[1], f_forward_2, NULL, t1, y);
+
+  ARKodeEvolve(arkode_mem, t2, y, &tret, ARK_NORMAL);
+
+  sunrealtype exact_solution     = -SUNRsqrt(SUN_RCONST(6.0));
+  sunrealtype numerical_solution = N_VGetArrayPointer(y)[0];
+  sunrealtype err = numerical_solution - exact_solution;
+
+  printf("Reinitialized solution completed with an error of %" GSYM "\n", err);
+  ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+
+  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution, global_tol);
+  if (fail)
+  {
+    fprintf(stderr, "Error exceeded tolerance of %" GSYM "\n", global_tol);
+  }
+  printf("\n");
+
+  N_VDestroy(y);
+  ARKodeFree(&parititon_mem[0]);
+  SUNStepper_Destroy(&steppers[0]);
+  ARKodeFree(&parititon_mem[1]);
+  SUNStepper_Destroy(&steppers[1]);
+  ARKodeFree(&arkode_mem);
+
+  return fail;
+}
+
 int main()
 {
   SUNContext ctx = NULL;
@@ -210,6 +281,7 @@ int main()
   int errors = 0;
   errors += test_forward(ctx);
   errors += test_mixed_directions(ctx);
+  errors += test_reinit(ctx);
 
   SUNContext_Free(&ctx);
 
