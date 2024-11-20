@@ -60,14 +60,8 @@ int main(int argc, char* argv[])
 
   // Create LSRKStep memory structure
   void* arkode_mem = nullptr;
-  if (method < 2)
-  {
-    arkode_mem = LSRKStepCreateSTS(ode_rhs, zero, y, sunctx);
-  }
-  else
-  {
-    arkode_mem = LSRKStepCreateSSP(ode_rhs, zero, y, sunctx);
-  }
+  if (method < 2) { arkode_mem = LSRKStepCreateSTS(ode_rhs, zero, y, sunctx); }
+  else { arkode_mem = LSRKStepCreateSSP(ode_rhs, zero, y, sunctx); }
   if (check_ptr(arkode_mem, "LSRKStepCreate")) { return 1; }
 
   // Select method
@@ -90,10 +84,7 @@ int main(int argc, char* argv[])
   else if (method == 4)
   {
     flag = LSRKStepSetSSPMethodByName(arkode_mem, "ARKODE_LSRK_SSP_S_3");
-    if (flag == 0)
-    {
-      flag = LSRKStepSetSSPStageNum(arkode_mem, 4);
-    }
+    if (flag == 0) { flag = LSRKStepSetSSPStageNum(arkode_mem, 4); }
   }
   else if (method == 5)
   {
