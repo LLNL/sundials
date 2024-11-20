@@ -55,14 +55,14 @@ Start LSRKStep Logging test
 6.1035156250000005e-12
 
 [INFO][rank 0][lsrkStep_TakeStepSSPs2][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepSSPs2][begin-compute-solution] 
+[INFO][rank 0][lsrkStep_TakeStepSSPs2][begin-stage] stage = 10, tcur = 6.103515625000001e-12
+[INFO][rank 0][lsrkStep_TakeStepSSPs2][end-stage] status = success
 [DEBUG][rank 0][lsrkStep_TakeStepSSPs2][updated solution] ycur(:) =
 6.1035156249999997e-12
 
 [DEBUG][rank 0][lsrkStep_TakeStepSSPs2][embedded solution] y_embedded(:) =
 6.1035156250000005e-12
 
-[INFO][rank 0][lsrkStep_TakeStepSSPs2][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 3.851058010743364e-06, h_cfl = 6.103515625000001e+18
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 6.103515625e-08, h_cfl = 3.0517578125e+18
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 10000
@@ -122,14 +122,14 @@ Start LSRKStep Logging test
 6.1041259765624939e-08
 
 [INFO][rank 0][lsrkStep_TakeStepSSPs2][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepSSPs2][begin-compute-solution] 
+[INFO][rank 0][lsrkStep_TakeStepSSPs2][begin-stage] stage = 10, tcur = 6.1041259765625e-08
+[INFO][rank 0][lsrkStep_TakeStepSSPs2][end-stage] status = success
 [DEBUG][rank 0][lsrkStep_TakeStepSSPs2][updated solution] ycur(:) =
 6.1041259765624925e-08
 
 [DEBUG][rank 0][lsrkStep_TakeStepSSPs2][embedded solution] y_embedded(:) =
 6.1041259765624925e-08
 
-[INFO][rank 0][lsrkStep_TakeStepSSPs2][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.000305900411149458, h_cfl = 6.103515625e+22
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 1.220703125e-06, h_cfl = 3.0517578125e+22
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
@@ -189,14 +189,14 @@ Start LSRKStep Logging test
 1.2817443847650304e-06
 
 [INFO][rank 0][lsrkStep_TakeStepSSPs2][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepSSPs2][begin-compute-solution] 
+[INFO][rank 0][lsrkStep_TakeStepSSPs2][begin-stage] stage = 10, tcur = 1.281744384765625e-06
+[INFO][rank 0][lsrkStep_TakeStepSSPs2][end-stage] status = success
 [DEBUG][rank 0][lsrkStep_TakeStepSSPs2][updated solution] ycur(:) =
 1.2817443847648892e-06
 
 [DEBUG][rank 0][lsrkStep_TakeStepSSPs2][embedded solution] y_embedded(:) =
 1.2817443847649093e-06
 
-[INFO][rank 0][lsrkStep_TakeStepSSPs2][end-compute-solution] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.03225252825599285, h_cfl = 1.220703125e+24
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 2.44140625e-05, h_cfl = 6.103515625e+23
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20

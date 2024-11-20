@@ -7,8 +7,10 @@ Start LSRKStep Logging test
 [INFO][rank 0][lsrkStep_TakeStepRKC][end-stage] status = success
 [INFO][rank 0][lsrkStep_TakeStepRKC][begin-stage] stage = 1, tcur = 1.469364872685183e-12
 [INFO][rank 0][lsrkStep_TakeStepRKC][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepRKC][begin-compute-solution] stage = 2, tcur = 6.103515624999991e-12
-[INFO][rank 0][lsrkStep_TakeStepRKC][end-compute-solution] status = success
+[INFO][rank 0][lsrkStep_TakeStepRKC][begin-stage] stage = 2, tcur = 6.103515624999991e-12
+[INFO][rank 0][lsrkStep_TakeStepRKC][end-stage] status = success
+[INFO][rank 0][lsrkStep_TakeStepRKC][begin-compute-embedding] 
+[INFO][rank 0][lsrkStep_TakeStepRKC][end-compute-embedding] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 9.693522803355793e-17
  6.103515625000001e-12    6.103515624999988e-12    1.211690350419474e-26
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 6.103515625000001e-12, h = 4.654267000337585e-09
@@ -17,8 +19,10 @@ Start LSRKStep Logging test
 [INFO][rank 0][lsrkStep_TakeStepRKC][end-stage] status = success
 [INFO][rank 0][lsrkStep_TakeStepRKC][begin-stage] stage = 1, tcur = 1.126575200891454e-09
 [INFO][rank 0][lsrkStep_TakeStepRKC][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepRKC][begin-compute-solution] stage = 2, tcur = 4.660370515962578e-09
-[INFO][rank 0][lsrkStep_TakeStepRKC][end-compute-solution] status = success
+[INFO][rank 0][lsrkStep_TakeStepRKC][begin-stage] stage = 2, tcur = 4.660370515962578e-09
+[INFO][rank 0][lsrkStep_TakeStepRKC][end-stage] status = success
+[INFO][rank 0][lsrkStep_TakeStepRKC][begin-compute-embedding] 
+[INFO][rank 0][lsrkStep_TakeStepRKC][end-compute-embedding] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 5.790263934461531e-14
  4.660370515962586e-09    4.660370515962578e-09    7.444625512977249e-24
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 4.660370515962586e-09, h = 9.30853400067517e-08
@@ -27,8 +31,10 @@ Start LSRKStep Logging test
 [INFO][rank 0][lsrkStep_TakeStepRKC][end-stage] status = success
 [INFO][rank 0][lsrkStep_TakeStepRKC][begin-stage] stage = 1, tcur = 2.706980422129166e-08
 [INFO][rank 0][lsrkStep_TakeStepRKC][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepRKC][begin-compute-solution] stage = 2, tcur = 9.774571052271414e-08
-[INFO][rank 0][lsrkStep_TakeStepRKC][end-compute-solution] status = success
+[INFO][rank 0][lsrkStep_TakeStepRKC][begin-stage] stage = 2, tcur = 9.774571052271414e-08
+[INFO][rank 0][lsrkStep_TakeStepRKC][end-stage] status = success
+[INFO][rank 0][lsrkStep_TakeStepRKC][begin-compute-embedding] 
+[INFO][rank 0][lsrkStep_TakeStepRKC][end-compute-embedding] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.323427303468993e-12
  9.774571052271429e-08    9.774571052271400e-08    2.646977960169689e-23
 --------------------------------------------------------------------------------------------------
