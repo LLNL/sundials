@@ -87,7 +87,7 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
 }
 
 /*------------------------------------------------------------------------------
-  This routine resets the ForcingStep integrator by reseting the partition
+  This routine resets the ForcingStep integrator by resetting the partition
   integrators
   ----------------------------------------------------------------------------*/
 static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
