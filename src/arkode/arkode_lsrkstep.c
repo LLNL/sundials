@@ -571,11 +571,13 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
     step_mem->nfe++;
-
-    SUNLogInfo(ARK_LOGGER, "end-stage", "status = failed rhs eval, retval = %i",
-               retval);
-
-    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+    if (retval != ARK_SUCCESS)
+    {
+      SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_0(:) =");
+      SUNLogInfo(ARK_LOGGER, "end-stage", "status = failed rhs eval, retval = %i",
+                 retval);
+      return (ARK_RHSFUNC_FAIL);
+    }
     ark_mem->fn_is_current = SUNTRUE;
   }
 
@@ -889,11 +891,13 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = step_mem->fe(ark_mem->tn, ark_mem->yn, ark_mem->fn,
                           ark_mem->user_data);
     step_mem->nfe++;
-
-    SUNLogInfo(ARK_LOGGER, "end-stage", "status = failed rhs eval, retval = %i",
-               retval);
-
-    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+    if (retval != ARK_SUCCESS)
+    {
+      SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_0(:) =");
+      SUNLogInfo(ARK_LOGGER, "end-stage", "status = failed rhs eval, retval = %i",
+                 retval);
+      return (ARK_RHSFUNC_FAIL);
+    }
     ark_mem->fn_is_current = SUNTRUE;
   }
 
