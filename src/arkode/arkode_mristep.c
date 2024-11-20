@@ -218,9 +218,31 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   step_mem->nls_fails   = 0;
   step_mem->inner_fails = 0;
 
-  /* Initialize fused op work space */
+  /* Initialize fused op work space with sufficient storage for
+     at least filling the full RHS on an ImEx problem */
+  step_mem->nfusedopvecs = 3;
   step_mem->cvals = NULL;
+  step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
+                                         sizeof(sunrealtype));
+  if (step_mem->cvals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Error allocating MRIStep storage");
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+  ark_mem->lrw += step_mem->nfusedopvecs;
   step_mem->Xvecs = NULL;
+  step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
+                                       sizeof(N_Vector));
+  if (step_mem->Xvecs == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "Error allocating MRIStep storage");
+    ARKodeFree((void**)&ark_mem);
+    return (NULL);
+  }
+  ark_mem->liw += step_mem->nfusedopvecs;
 
   /* Initialize adaptivity parameters */
   step_mem->inner_rtol_factor     = ONE;
@@ -1371,9 +1393,9 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   /* ensure that inner stepper provides fullrhs function */
   if (!(step_mem->stepper->ops->fullrhs))
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                     MSG_ARK_MISSING_FULLRHS);
-    return ARK_ILL_INPUT;
+    return ARK_RHSFUNC_FAIL;
   }
 
   /* perform RHS functions contingent on 'mode' argument */
@@ -1830,11 +1852,19 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     }
   }
 
-  /* Evaluate the slow RHS functions if needed. NOTE: We do not use the full RHS
-     function here since it does not need to check for FSAL or SA methods and
-     thus avoids potentially unnecessary evaluations of the inner (fast) RHS function */
-  retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn, ARK_FULLRHS_START);
-  if (retval) { return ARK_RHSFUNC_FAIL; }
+  /* Evaluate the slow RHS functions if needed. NOTE: we decide between calling the full RHS
+     function (if ark_mem->fn is non-NULL) versus just updating the stored values of
+     Fse[0] and Fsi[0]. */
+  if (ark_mem->fn != NULL)
+  {
+    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn, ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+  }
+  else
+  {
+    retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn, ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+  }
   ark_mem->fn_is_current = SUNTRUE;
 
 #ifdef SUNDIALS_DEBUG
@@ -2298,12 +2328,19 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* Evaluate the slow RHS functions if needed. NOTE: We do not use the full RHS
-     function here (unlike ERKStep and ARKStep) since it does not need to check
-     for FSAL or SA methods and thus avoids potentially unnecessary evaluations
-     of the inner (fast) RHS function */
-  retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn, ARK_FULLRHS_START);
-  if (retval) { return ARK_RHSFUNC_FAIL; }
+  /* Evaluate the slow RHS functions if needed. NOTE: we decide between calling the full RHS
+     function (if ark_mem->fn is non-NULL) versus just updating the stored values of
+     Fse[0] and Fsi[0]. */
+  if (ark_mem->fn != NULL)
+  {
+    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn, ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+  }
+  else
+  {
+    retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn, ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+  }
   ark_mem->fn_is_current = SUNTRUE;
 
   /* combine both RHS into FSE for ImEx problems and zero out Fsi[0], since
@@ -2728,13 +2765,21 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* Evaluate the slow RHS if needed. NOTE: We do not use the full RHS here
-     (unlike ERKStep and ARKStep) since it does not need to check for FSAL
-     or SA methods and thus avoids potentially unnecessary evaluations of the
-     inner (fast) RHS function */
-  retval = mriStep_UpdateF0(ark_mem, step_mem, t0, ark_mem->yn, ARK_FULLRHS_START);
+/* Evaluate the slow RHS function if needed. NOTE: we decide between calling the full RHS
+   function (if ark_mem->fn is non-NULL) versus just updating the stored value of
+   Fse[0]. In either case, we use ARK_FULLRHS_START mode because MERK methods do not
+   evaluate Fse at the end of the time step (so nothing can be leveraged). */
+if (ark_mem->fn != NULL)
+{
+  retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn, ARK_FULLRHS_START);
   if (retval) { return ARK_RHSFUNC_FAIL; }
-  ark_mem->fn_is_current = SUNTRUE;
+}
+else
+{
+  retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn, ARK_FULLRHS_START);
+  if (retval) { return ARK_RHSFUNC_FAIL; }
+}
+ark_mem->fn_is_current = SUNTRUE;
 
 #ifdef SUNDIALS_DEBUG
   printf("    MRIStep step %li,  stage 0,  h = %" RSYM ",  t_n = %" RSYM "\n",
