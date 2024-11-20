@@ -1584,7 +1584,7 @@ int mriStep_UpdateF0(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
   {
   case ARK_FULLRHS_START:
 
-    /* compute the components that comprise the full RHS */
+    /* update the RHS components */
 
     /*   explicit component */
     if (step_mem->explicit_rhs)
@@ -1728,7 +1728,7 @@ int mriStep_UpdateF0(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
     break;
 
   default:
-    /* return with RHS failure if unknown mode is passed */
+    /* return with RHS failure if unknown mode is requested */
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                     "Unknown full RHS mode");
     return (ARK_RHSFUNC_FAIL);
@@ -1852,9 +1852,11 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     }
   }
 
-  /* Evaluate the slow RHS functions if needed. NOTE: we decide between calling the full RHS
-     function (if ark_mem->fn is non-NULL) versus just updating the stored values of
-     Fse[0] and Fsi[0]. */
+  /* Evaluate the slow RHS functions if needed. NOTE: we decide between calling the
+     full RHS function (if ark_mem->fn is non-NULL) versus just updating the stored
+     values of Fse[0] and Fsi[0].  In either case, we use ARK_FULLRHS_START mode
+     because MRISR methods do not evaluate the RHS functions at the end of the
+     time step (so nothing can be leveraged). */
   if (ark_mem->fn != NULL)
   {
     retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn, ARK_FULLRHS_START);
@@ -2328,9 +2330,11 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* Evaluate the slow RHS functions if needed. NOTE: we decide between calling the full RHS
-     function (if ark_mem->fn is non-NULL) versus just updating the stored values of
-     Fse[0] and Fsi[0]. */
+  /* Evaluate the slow RHS functions if needed. NOTE: we decide between calling the
+     full RHS function (if ark_mem->fn is non-NULL) versus just updating the stored
+     values of Fse[0] and Fsi[0].  In either case, we use ARK_FULLRHS_START mode
+     because MRISR methods do not evaluate the RHS functions at the end of the
+     time step (so nothing can be leveraged). */
   if (ark_mem->fn != NULL)
   {
     retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn, ARK_FULLRHS_START);
