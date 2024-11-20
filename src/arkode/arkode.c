@@ -2001,7 +2001,8 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
 
   /* If fullrhs will be called (to estimate initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1), then
-     ensure that it is provided, and space is allocated for fn. */
+     ensure that it is provided, and space is allocated for fn.  Otherwise,
+     we should free ark_mem->fn if it is allocated. */
   if (ark_mem->call_fullrhs || (ark_mem->h0u == ZERO && ark_mem->hin == ZERO) ||
       ark_mem->root_mem)
   {
@@ -2018,6 +2019,10 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
                       MSG_ARK_MEM_FAIL);
       return (ARK_MEM_FAIL);
     }
+  }
+  else
+  {
+    if (ark_mem->fn != NULL) { arkFreeVec(ark_mem, &ark_mem->fn); }
   }
 
   /* initialization complete */
