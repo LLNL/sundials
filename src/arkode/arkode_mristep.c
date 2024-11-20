@@ -4821,6 +4821,10 @@ int mriStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
     step_mem->forcing  = forcing;
     step_mem->nforcing = nvecs;
 
+    /* Signal that any pre-existing RHS vector is no longer current, since it
+       has a stale forcing function */
+    ark_mem->fn_is_current = SUNFALSE;
+
     /* If cvals and Xvecs are not allocated then mriStep_Init has not been
        called and the number of stages has not been set yet. These arrays will
        be allocated in mriStep_Init and take into account the value of nforcing.
