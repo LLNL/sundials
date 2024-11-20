@@ -661,10 +661,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* compute new stage time factor */
     thj = mu * thjm1 + nu * thjm2 + mus * (ONE - ajm1);
 
-    SUNLogInfoIf(j < step_mem->req_stages, ARK_LOGGER, "begin-stage",
-                 "stage = %i, tcur = %" RSYM, j, ark_mem->tn + ark_mem->h * thj);
-    SUNLogInfoIf(j == step_mem->req_stages, ARK_LOGGER, "begin-compute-solution",
-                 "stage = %i, tcur = %" RSYM, j, ark_mem->tn + ark_mem->h * thj);
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, j,
+               ark_mem->tn + ark_mem->h * thj);
 
     cvals[0] = mus * ark_mem->h;
     Xvecs[0] = ark_mem->ycur;
@@ -680,10 +678,8 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
     if (retval != 0)
     {
-      SUNLogInfoIf(j < step_mem->req_stages, ARK_LOGGER, "end-stage",
-                   "status = failed vector op, retval = %i", retval);
-      SUNLogInfoIf(j == step_mem->req_stages, ARK_LOGGER, "end-compute-solution",
-                   "status = failed vector op, retval = %i", retval);
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed vector op, retval = %i", retval);
       return ARK_VECTOROP_ERR;
     }
 
@@ -723,7 +719,9 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
+  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
   SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
+  SUNLogInfo(ARK_LOGGER, "begin-compute-embedding", "");
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
@@ -733,7 +731,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->nfe++;
 
     SUNLogExtraDebugVec(ARK_LOGGER, "solution RHS", ark_mem->tempv2, "F_n(:) =");
-    SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-solution",
+    SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-embedding",
                  "status = failed rhs eval, retval = %i", retval);
 
     if (retval < 0) { return ARK_RHSFUNC_FAIL; }
@@ -752,7 +750,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv1);
     if (retval != 0)
     {
-      SUNLogInfo(ARK_LOGGER, "end-compute-solution",
+      SUNLogInfo(ARK_LOGGER, "end-compute-embedding",
                  "status = failed vector op, retval = %i", retval);
       return ARK_VECTOROP_ERR;
     }
@@ -769,7 +767,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->nfe++;
 
     SUNLogExtraDebugVec(ARK_LOGGER, "solution RHS", ark_mem->tempv2, "F_n(:) =");
-    SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-solution",
+    SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-embedding",
                  "status = failed rhs eval, retval = %i", retval);
 
     if (retval < 0) { return ARK_RHSFUNC_FAIL; }
@@ -778,7 +776,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     lsrkStep_DomEigUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
 
-  SUNLogInfo(ARK_LOGGER, "end-compute-solution", "status = success");
+  SUNLogInfo(ARK_LOGGER, "end-compute-embedding", "status = success");
 
   return ARK_SUCCESS;
 }
@@ -961,10 +959,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval > 0) { return RHSFUNC_RECVR; }
 
     SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-    SUNLogInfoIf(j < step_mem->req_stages, ARK_LOGGER, "begin-stage",
-                 "stage = %i, tcur = %" RSYM, j, ark_mem->tn + ark_mem->h * cj);
-    SUNLogInfoIf(j == step_mem->req_stages, ARK_LOGGER, "begin-compute-solution",
-                 "stage = %i, tcur = %" RSYM, j, ark_mem->tn + ark_mem->h * cj);
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, j,
+               ark_mem->tn + ark_mem->h * cj);
 
     cvals[0] = mus * ark_mem->h;
     Xvecs[0] = ark_mem->ycur;
@@ -980,10 +976,8 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = N_VLinearCombination(5, cvals, Xvecs, ark_mem->ycur);
     if (retval != 0)
     {
-      SUNLogInfoIf(j < step_mem->req_stages, ARK_LOGGER, "end-stage",
-                   "status = failed vector op, retval = %i", retval);
-      SUNLogInfoIf(j == step_mem->req_stages, ARK_LOGGER, "end-compute-solution",
-                   "status = failed vector op, retval = %i", retval);
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed vector op, retval = %i", retval);
       return ARK_VECTOROP_ERR;
     }
 
@@ -1016,7 +1010,9 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
+  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
   SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
+  SUNLogInfo(ARK_LOGGER, "begin-compute-embedding", "");
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep)
@@ -1026,7 +1022,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->nfe++;
 
     SUNLogExtraDebugVec(ARK_LOGGER, "solution RHS", ark_mem->tempv2, "F_n(:) =");
-    SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-solution",
+    SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-embedding",
                  "status = failed rhs eval, retval = %i", retval);
 
     if (retval < 0) { return ARK_RHSFUNC_FAIL; }
@@ -1045,7 +1041,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     retval = N_VLinearCombination(4, cvals, Xvecs, ark_mem->tempv1);
     if (retval != 0)
     {
-      SUNLogInfo(ARK_LOGGER, "end-compute-solution",
+      SUNLogInfo(ARK_LOGGER, "end-compute-embedding",
                  "status = failed vector op, retval = %i", retval);
       return ARK_VECTOROP_ERR;
     }
@@ -1062,7 +1058,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->nfe++;
 
     SUNLogExtraDebugVec(ARK_LOGGER, "solution RHS", ark_mem->tempv2, "F_n(:) =");
-    SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-solution",
+    SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-embedding",
                  "status = failed rhs eval, retval = %i", retval);
 
     if (retval < 0) { return ARK_RHSFUNC_FAIL; }
@@ -1071,7 +1067,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     lsrkStep_DomEigUpdateLogic(ark_mem, step_mem, *dsmPtr);
   }
 
-  SUNLogInfo(ARK_LOGGER, "end-compute-solution", "status = success");
+  SUNLogInfo(ARK_LOGGER, "end-compute-embedding", "status = success");
 
   return ARK_SUCCESS;
 }
@@ -1234,7 +1230,8 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   if (retval > 0) { return RHSFUNC_RECVR; }
 
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-compute-solution", "");
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM,
+             step_mem->req_stages, ark_mem->tn + ark_mem->h);
 
   cvals[0] = ONE / (sm1inv * rs);
   Xvecs[0] = ark_mem->ycur;
@@ -1246,10 +1243,12 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   retval = N_VLinearCombination(3, cvals, Xvecs, ark_mem->ycur);
   if (retval != 0)
   {
-    SUNLogInfo(ARK_LOGGER, "end-compute-solution",
+    SUNLogInfo(ARK_LOGGER, "end-stage",
                "status = failed vector op, retval = %i", retval);
     return ARK_VECTOROP_ERR;
   }
+
+  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
   SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
 
   if (!ark_mem->fixedstep)
@@ -1267,8 +1266,6 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
-
-  SUNLogInfo(ARK_LOGGER, "end-compute-solution", "status = success");
 
   return ARK_SUCCESS;
 }
