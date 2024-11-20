@@ -1489,7 +1489,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     retval =
       ark_mem->ProcessStage(ark_mem->tcur +
-                              rat * (rn * (rn + ONE) / TWO - rn) * ark_mem->h,
+                              rat * (rn * (rn - ONE) / TWO) * ark_mem->h,
                             ark_mem->ycur, ark_mem->user_data);
     if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
   }
