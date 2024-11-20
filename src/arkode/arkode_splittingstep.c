@@ -505,7 +505,8 @@ static int splittingStep_InitStepMem(ARKodeMem ark_mem,
   /* If the number of partitions changed, the coefficients are no longer
    * compatible and must be cleared. If a user previously called ARKodeSetOrder
    * that will still be respected at the next call to ARKodeEvolve */
-  if (step_mem->partitions != partitions) {
+  if (step_mem->partitions != partitions)
+  {
     SplittingStepCoefficients_Destroy(&step_mem->coefficients);
   }
   step_mem->partitions = partitions;

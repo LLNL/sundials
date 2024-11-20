@@ -415,41 +415,43 @@ static int test_reinit(const sundials::Context& ctx)
   auto y                    = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
-  std::array<ARKRhsFn, 3> fns{
-    [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
-    {
-      N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t), z, zdot);
-      return 0;
-    },
-    [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
-    {
-      N_VScale(-SUN_RCONST(1.0) / (SUN_RCONST(2.0) + t), z, zdot);
-      return 0;
-    },
-    [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
-    {
-      N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(3.0) + t), z, zdot);
-      return 0;
-    }
-  };
+  std::array<ARKRhsFn, 3>
+    fns{[](sunrealtype t, N_Vector z, N_Vector zdot, void*)
+        {
+          N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t), z, zdot);
+          return 0;
+        },
+        [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
+        {
+          N_VScale(-SUN_RCONST(1.0) / (SUN_RCONST(2.0) + t), z, zdot);
+          return 0;
+        },
+        [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
+        {
+          N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(3.0) + t), z, zdot);
+          return 0;
+        }};
 
   std::array<void*, fns.size()> partition_mem{};
   std::array<SUNStepper, fns.size()> steppers{};
 
-  for (std::size_t i = 0; i < fns.size(); i++) {
+  for (std::size_t i = 0; i < fns.size(); i++)
+  {
     partition_mem[i] = ERKStepCreate(fns[i], t0, y, ctx);
     ARKodeSStolerances(partition_mem[i], local_tol, local_tol);
     ARKodeCreateSUNStepper(partition_mem[i], &steppers[i]);
   }
 
-  auto arkode_mem = SplittingStepCreate(steppers.data(), steppers.size(), t0, y, ctx);
+  auto arkode_mem = SplittingStepCreate(steppers.data(), steppers.size(), t0, y,
+                                        ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
   ARKodeSetOrder(arkode_mem, 2);
   auto tret = t0;
   ARKodeEvolve(arkode_mem, t1, y, &tret, ARK_NORMAL);
 
   SplittingStepReInit(arkode_mem, steppers.data(), steppers.size() - 1, t1, y);
-  for (std::size_t i = 0; i < fns.size() - 1; i++) {
+  for (std::size_t i = 0; i < fns.size() - 1; i++)
+  {
     ERKStepReInit(partition_mem[i], fns[i], t1, y);
   }
 
@@ -460,7 +462,8 @@ static int test_reinit(const sundials::Context& ctx)
   auto numerical_solution = N_VGetArrayPointer(y)[0];
   auto err                = numerical_solution - exact_solution;
 
-  std::cout << "Reinitialized solution with completed with an error of " << err << "\n";
+  std::cout << "Reinitialized solution with completed with an error of " << err
+            << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution,

@@ -1,6 +1,6 @@
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
  * Programmer(s): Steven B. Roberts @ LLNL
- *---------------------------------------------------------------
+ *------------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- *---------------------------------------------------------------
+ *------------------------------------------------------------------------------
  * This is the implementation file for ARKODE's forcing method
- *--------------------------------------------------------------*/
+ *----------------------------------------------------------------------------*/
 
 #include <arkode/arkode_forcingstep.h>
 #include <sundials/sundials_nvector.h>
@@ -20,10 +20,10 @@
 #include "arkode_forcingstep_impl.h"
 #include "arkode_impl.h"
 
-/*---------------------------------------------------------------
-  Shortcut routine to unpack step_mem structure from ark_mem.
-  If missing it returns ARK_MEM_NULL.
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Shortcut routine to unpack step_mem structure from ark_mem. If missing it
+  returns ARK_MEM_NULL.
+  ----------------------------------------------------------------------------*/
 static int forcingStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                                      ARKodeForcingStepMem* step_mem)
 {
@@ -37,10 +37,10 @@ static int forcingStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
-  Shortcut routine to unpack ark_mem and step_mem structures from
-  void* pointer.  If either is missing it returns ARK_MEM_NULL.
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Shortcut routine to unpack ark_mem and step_mem structures from void* pointer.
+  If either is missing it returns ARK_MEM_NULL.
+  ----------------------------------------------------------------------------*/
 static int forcingStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                            ARKodeMem* ark_mem,
                                            ARKodeForcingStepMem* step_mem)
@@ -57,16 +57,10 @@ static int forcingStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
   return forcingStep_AccessStepMem(*ark_mem, __func__, step_mem);
 }
 
-/*---------------------------------------------------------------
-  This routine is called just prior to performing internal time
-  steps (after all user "set" routines have been called) from
-  within arkInitialSetup.
-
-  With initialization types FIRST_INIT this routine:
-  - sets the forcing for stepper[1]
-
-  With other initialization types, this routine does nothing.
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  This routine is called just prior to performing internal time steps (after
+  all user "set" routines have been called) from within arkInitialSetup.
+  ----------------------------------------------------------------------------*/
 static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
 {
   ARKodeForcingStepMem step_mem = NULL;
@@ -92,6 +86,10 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
   return ARK_SUCCESS;
 }
 
+/*------------------------------------------------------------------------------
+  This routine resets the ForcingStep integrator by reseting the partition
+  integrators
+  ----------------------------------------------------------------------------*/
 static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
 {
   ARKodeForcingStepMem step_mem = NULL;
@@ -109,7 +107,7 @@ static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
 
 /*------------------------------------------------------------------------------
   This routine sets the step direction of the partition integrators and is
-  called once the forcingstep integrator has updated its step direction.
+  called once the ForcingStep integrator has updated its step direction.
   ----------------------------------------------------------------------------*/
 static int forcingStep_SetStepDirection(ARKodeMem ark_mem, sunrealtype stepdir)
 {
@@ -142,10 +140,9 @@ static int forcingStep_SetStepDirection(ARKodeMem ark_mem, sunrealtype stepdir)
 
      ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
 
-  In ForcingStep, we accumulate the RHS functions in ARK_FULLRHS_OTHER mode.
-  Generally, inner steppers will not have the correct yn when this function is
-  called and will not be able to reuse a function evaluation since their state
-  resets at the next SUNStepper_Evolve call.
+  The stepper for partition 1 has a state that is inconsistent with the
+  ForcingStep integrator, so we cannot pass it the SUN_FULLRHS_END option. For
+  partition 2, the state should be consistent, and we can use SUN_FULLRHS_END.
   ----------------------------------------------------------------------------*/
 static int forcingStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y,
                                N_Vector f, int mode)
@@ -179,9 +176,9 @@ static int forcingStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   This routine performs a single step of the forcing method.
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                 int* nflagPtr)
 {
@@ -229,9 +226,9 @@ static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   Prints integrator statistics
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 static int forcingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
                                      SUNOutputFormat fmt)
 {
@@ -265,19 +262,19 @@ static int forcingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   Frees all ForcingStep memory.
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 static void forcingStep_Free(ARKodeMem ark_mem)
 {
   free(ark_mem->step_mem);
   ark_mem->step_mem = NULL;
 }
 
-/*---------------------------------------------------------------
-  This routine outputs the memory from the ForcingStep
-  structure to a specified file pointer (useful when debugging).
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  This routine outputs the memory from the ForcingStep structure to a specified
+  file pointer (useful when debugging).
+  ----------------------------------------------------------------------------*/
 static void forcingStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 {
   ARKodeForcingStepMem step_mem = NULL;
@@ -292,11 +289,10 @@ static void forcingStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   }
 }
 
-/*---------------------------------------------------------------
-  Resets all ForcingStep optional inputs to their default
-  values. Does not change problem-defining function pointers or
-  user_data pointer.
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  Resets all ForcingStep optional inputs to their default values. Does not
+  change problem-defining function pointers or user_data pointer.
+  ----------------------------------------------------------------------------*/
 static int forcingStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
@@ -304,15 +300,19 @@ static int forcingStep_SetDefaults(ARKodeMem ark_mem)
   return ARK_SUCCESS;
 }
 
-/*---------------------------------------------------------------
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
-  ---------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  This routine checks if all required vector operations are present. If any of
+  them is missing it returns SUNFALSE.
+  ----------------------------------------------------------------------------*/
 static sunbooleantype forcingStep_CheckNVector(N_Vector y)
 {
   return y->ops->nvlinearsum != NULL;
 }
 
+/*------------------------------------------------------------------------------
+  This routine validates arguments when (re)initializing a ForcingStep
+  integrator
+  ----------------------------------------------------------------------------*/
 static int forcingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper stepper1,
                                  SUNStepper stepper2, N_Vector y0)
 {
@@ -348,6 +348,9 @@ static int forcingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper stepper1,
   return ARK_SUCCESS;
 }
 
+/*------------------------------------------------------------------------------
+  This routine initializes the step memory and resets the statistics
+  ----------------------------------------------------------------------------*/
 static void forcingStep_InitStepMem(ARKodeForcingStepMem step_mem,
                                     SUNStepper stepper1, SUNStepper stepper2)
 {
@@ -357,9 +360,9 @@ static void forcingStep_InitStepMem(ARKodeForcingStepMem step_mem,
   step_mem->n_stepper_evolves[1] = 0;
 }
 
-/*---------------------------------------------------------------
+/*------------------------------------------------------------------------------
   Creates the ForcingStep integrator
-  ---------------------------------------------------------------*/
+  ----------------------------------------------------------------------------*/
 void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
                         sunrealtype t0, N_Vector y0, SUNContext sunctx)
 {
@@ -462,6 +465,9 @@ int ForcingStepReInit(void* arkode_mem, SUNStepper stepper1,
   return ARK_SUCCESS;
 }
 
+/*------------------------------------------------------------------------------
+  Accesses the number of times a given partition was evolved
+  ----------------------------------------------------------------------------*/
 int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves)
 {
   ARKodeMem ark_mem             = NULL;
