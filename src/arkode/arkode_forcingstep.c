@@ -92,7 +92,8 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
   return ARK_SUCCESS;
 }
 
-static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR) {
+static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
+{
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
@@ -164,7 +165,9 @@ static int forcingStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y,
     return ARK_RHSFUNC_FAIL;
   }
 
-  err = SUNStepper_FullRhs(step_mem->stepper[1], t, y, f, mode == ARK_FULLRHS_END ? SUN_FULLRHS_END : SUN_FULLRHS_OTHER);
+  err = SUNStepper_FullRhs(step_mem->stepper[1], t, y, f,
+                           mode == ARK_FULLRHS_END ? SUN_FULLRHS_END
+                                                   : SUN_FULLRHS_OTHER);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
@@ -392,7 +395,7 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init             = forcingStep_Init;
   ark_mem->step_fullrhs          = forcingStep_FullRHS;
-  ark_mem->step_reset = forcingStep_Reset;
+  ark_mem->step_reset            = forcingStep_Reset;
   ark_mem->step_setstepdirection = forcingStep_SetStepDirection;
   ark_mem->step                  = forcingStep_TakeStep;
   ark_mem->step_printallstats    = forcingStep_PrintAllStats;

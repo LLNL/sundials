@@ -81,7 +81,8 @@ static int test_forward(sundials::Context& ctx, int partitions)
             << " partitions completed with an error of " << err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution, global_tol);
+  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution,
+                                       global_tol);
   if (fail)
   {
     std::cerr << "Error exceeded tolerance of " << global_tol << "\n";
@@ -393,10 +394,7 @@ static int test_custom_stepper(const sundials::Context& ctx)
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   sunbooleantype fail = SUNRCompare(exact_solution, numerical_solution);
-  if (fail)
-  {
-    std::cerr << "Error exceeded tolerance\n";
-  }
+  if (fail) { std::cerr << "Error exceeded tolerance\n"; }
   std::cout << "\n";
 
   N_VDestroy(y);

@@ -59,15 +59,6 @@ static int splittingStep_AccessARKODEStepMem(void* arkode_mem, const char* fname
 }
 
 /*---------------------------------------------------------------
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
-  ---------------------------------------------------------------*/
-static sunbooleantype splittingStep_CheckNVector(N_Vector y)
-{
-  return y->ops->nvlinearsum != NULL && y->ops->nvscale != NULL;
-}
-
-/*---------------------------------------------------------------
   This routine determines the splitting coefficients to use,
   based on the desired accuracy.
   ---------------------------------------------------------------*/
@@ -437,46 +428,46 @@ static int splittingStep_SetDefaults(ARKodeMem ark_mem)
 }
 
 /*---------------------------------------------------------------
-  Creates the SplittingStep integrator
+  This routine checks if all required vector operations are
+  present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
-                          N_Vector y0, SUNContext sunctx)
+static sunbooleantype splittingStep_CheckNVector(N_Vector y)
+{
+  return y->ops->nvlinearsum != NULL && y->ops->nvscale != NULL;
+}
+
+static int splittingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper* steppers,
+                                   int partitions, N_Vector y0)
 {
   if (steppers == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "steppers = NULL illegal.");
-    return NULL;
+    return ARK_ILL_INPUT;
   }
 
-  if (partitions <= 1) {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+  if (partitions <= 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "The number of partitions must be greater than one");
-    return NULL;
+    return ARK_ILL_INPUT;
   }
 
   for (int i = 0; i < partitions; i++)
   {
     if (steppers[i] == NULL)
     {
-      arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "steppers[%d] = NULL illegal.", i);
-      return NULL;
+      return ARK_ILL_INPUT;
     }
   }
 
   if (y0 == NULL)
   {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
-    return NULL;
-  }
-
-  if (sunctx == NULL)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NULL_SUNCTX);
-    return NULL;
+    return ARK_ILL_INPUT;
   }
 
   /* Test if all required vector operations are implemented */
@@ -484,6 +475,51 @@ void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_NVECTOR);
+    return ARK_ILL_INPUT;
+  }
+
+  return ARK_SUCCESS;
+}
+
+static int splittingStep_InitStepMem(ARKodeMem ark_mem,
+                                     ARKodeSplittingStepMem step_mem,
+                                     SUNStepper* steppers, int partitions)
+{
+  if (step_mem->steppers != NULL) { free(step_mem->steppers); }
+  step_mem->steppers = malloc(partitions * sizeof(*steppers));
+  if (step_mem->steppers == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_ARKMEM_FAIL);
+    return ARK_MEM_FAIL;
+  }
+  memcpy(step_mem->steppers, steppers, partitions * sizeof(*steppers));
+
+  if (step_mem->n_stepper_evolves != NULL)
+  {
+    free(step_mem->n_stepper_evolves);
+  }
+  step_mem->n_stepper_evolves = calloc(partitions,
+                                       sizeof(*step_mem->n_stepper_evolves));
+
+  step_mem->partitions = partitions;
+
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
+  Creates the SplittingStep integrator
+  ---------------------------------------------------------------*/
+void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
+                          N_Vector y0, SUNContext sunctx)
+{
+  int retval = splittingStep_CheckArgs(NULL, steppers, partitions, y0);
+  if (retval != ARK_SUCCESS) { return NULL; }
+
+  if (sunctx == NULL)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NULL_SUNCTX);
     return NULL;
   }
 
@@ -506,28 +542,16 @@ void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
     return NULL;
   }
 
-  step_mem->steppers = malloc(partitions * sizeof(*steppers));
-  if (step_mem->steppers == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_ARKMEM_FAIL);
-    ARKodeFree((void**)&ark_mem);
-    return NULL;
-  }
-  memcpy(step_mem->steppers, steppers, partitions * sizeof(*steppers));
-
   step_mem->coefficients      = NULL;
-  step_mem->n_stepper_evolves = calloc(partitions,
-                                       sizeof(*step_mem->n_stepper_evolves));
-  if (step_mem->n_stepper_evolves == NULL)
+  step_mem->order             = 0;
+  step_mem->steppers          = NULL;
+  step_mem->n_stepper_evolves = NULL;
+  retval = splittingStep_InitStepMem(ark_mem, step_mem, steppers, partitions);
+  if (retval != ARK_SUCCESS)
   {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_ARKMEM_FAIL);
     ARKodeFree((void**)&ark_mem);
     return NULL;
   }
-  step_mem->partitions = partitions;
-  step_mem->order      = 0;
 
   /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_init            = splittingStep_Init;
@@ -542,7 +566,7 @@ void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
   ark_mem->step_mem             = (void*)step_mem;
 
   /* Set default values for ARKStep optional inputs */
-  int retval = splittingStep_SetDefaults(ark_mem);
+  retval = splittingStep_SetDefaults(ark_mem);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -562,6 +586,41 @@ void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
   }
 
   return ark_mem;
+}
+
+int SplittingStepReInit(void* arkode_mem, SUNStepper* steppers, int partitions,
+                        sunrealtype t0, N_Vector y0)
+{
+  ARKodeMem ark_mem               = NULL;
+  ARKodeSplittingStepMem step_mem = NULL;
+
+  int retval = splittingStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem,
+                                                 &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* Check if ark_mem was allocated */
+  if (ark_mem->MallocDone == SUNFALSE)
+  {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MALLOC);
+    return ARK_NO_MALLOC;
+  }
+
+  retval = splittingStep_CheckArgs(ark_mem, steppers, partitions, y0);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  splittingStep_InitStepMem(ark_mem, step_mem, steppers, partitions);
+
+  /* Initialize main ARKODE infrastructure */
+  retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Unable to initialize main ARKODE infrastructure");
+    return retval;
+  }
+
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------

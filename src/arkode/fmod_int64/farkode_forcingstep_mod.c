@@ -225,6 +225,26 @@ SWIGEXPORT void * _wrap_FForcingStepCreate(void *farg1, void *farg2, double cons
 }
 
 
+SWIGEXPORT int _wrap_FForcingStepReInit(void *farg1, void *farg2, void *farg3, double const *farg4, N_Vector farg5) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNStepper arg2 = (SUNStepper) 0 ;
+  SUNStepper arg3 = (SUNStepper) 0 ;
+  sunrealtype arg4 ;
+  N_Vector arg5 = (N_Vector) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (SUNStepper)(farg2);
+  arg3 = (SUNStepper)(farg3);
+  arg4 = (sunrealtype)(*farg4);
+  arg5 = (N_Vector)(farg5);
+  result = (int)ForcingStepReInit(arg1,arg2,arg3,arg4,arg5);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FForcingStep_GetNumEvolves(void *farg1, int const *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;

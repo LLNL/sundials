@@ -94,6 +94,7 @@ module farkode_splittingstep_mod
  public :: FSplittingStepCoefficients_TripleJump
  public :: FSplittingStepCoefficients_SuzukiFractal
  public :: FSplittingStepCreate
+ public :: FSplittingStepReInit
  public :: FSplittingStep_SetCoefficients
  public :: FSplittingStep_GetNumEvolves
 
@@ -380,6 +381,18 @@ real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR) :: fresult
+end function
+
+function swigc_FSplittingStepReInit(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FSplittingStepReInit") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT), intent(in) :: farg3
+real(C_DOUBLE), intent(in) :: farg4
+type(C_PTR), value :: farg5
+integer(C_INT) :: fresult
 end function
 
 function swigc_FSplittingStep_SetCoefficients(farg1, farg2) &
@@ -867,6 +880,31 @@ farg3 = t0
 farg4 = c_loc(y0)
 farg5 = sunctx
 fresult = swigc_FSplittingStepCreate(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FSplittingStepReInit(arkode_mem, steppers, partitions, t0, y0) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: steppers
+integer(C_INT), intent(in) :: partitions
+real(C_DOUBLE), intent(in) :: t0
+type(N_Vector), target, intent(inout) :: y0
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_INT) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
+
+farg1 = arkode_mem
+farg2 = c_loc(steppers)
+farg3 = partitions
+farg4 = t0
+farg5 = c_loc(y0)
+fresult = swigc_FSplittingStepReInit(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 

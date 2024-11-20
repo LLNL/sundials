@@ -27,6 +27,7 @@ module farkode_forcingstep_mod
 
  ! DECLARATION CONSTRUCTS
  public :: FForcingStepCreate
+ public :: FForcingStepReInit
  public :: FForcingStep_GetNumEvolves
 
 ! WRAPPER DECLARATIONS
@@ -41,6 +42,18 @@ real(C_DOUBLE), intent(in) :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR) :: fresult
+end function
+
+function swigc_FForcingStepReInit(farg1, farg2, farg3, farg4, farg5) &
+bind(C, name="_wrap_FForcingStepReInit") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
+real(C_DOUBLE), intent(in) :: farg4
+type(C_PTR), value :: farg5
+integer(C_INT) :: fresult
 end function
 
 function swigc_FForcingStep_GetNumEvolves(farg1, farg2, farg3) &
@@ -80,6 +93,31 @@ farg3 = t0
 farg4 = c_loc(y0)
 farg5 = sunctx
 fresult = swigc_FForcingStepCreate(farg1, farg2, farg3, farg4, farg5)
+swig_result = fresult
+end function
+
+function FForcingStepReInit(arkode_mem, stepper1, stepper2, t0, y0) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR) :: stepper1
+type(C_PTR) :: stepper2
+real(C_DOUBLE), intent(in) :: t0
+type(N_Vector), target, intent(inout) :: y0
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
+
+farg1 = arkode_mem
+farg2 = stepper1
+farg3 = stepper2
+farg4 = t0
+farg5 = c_loc(y0)
+fresult = swigc_FForcingStepReInit(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 

@@ -78,12 +78,14 @@ static int test_forward(SUNContext ctx)
 
   sunrealtype exact_solution     = SUN_RCONST(2.0);
   sunrealtype numerical_solution = N_VGetArrayPointer(y)[0];
-  sunrealtype err = numerical_solution - exact_solution;
+  sunrealtype err                = numerical_solution - exact_solution;
 
-  printf("Forward direction solution completed with an error of %" GSYM "\n", err);
+  printf("Forward direction solution completed with an error of %" GSYM "\n",
+         err);
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution, global_tol);
+  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution,
+                                       global_tol);
   if (fail)
   {
     fprintf(stderr, "Error exceeded tolerance of %" GSYM "\n", global_tol);
@@ -100,14 +102,16 @@ static int test_forward(SUNContext ctx)
   return fail;
 }
 
-static int f_mixed_direction_1(sunrealtype t, N_Vector z, N_Vector zdot, void* data)
+static int f_mixed_direction_1(sunrealtype t, N_Vector z, N_Vector zdot,
+                               void* data)
 {
   N_VGetArrayPointer(zdot)[0] = N_VGetArrayPointer(z)[1] - t;
   N_VGetArrayPointer(zdot)[1] = SUN_RCONST(0.0);
   return 0;
 }
 
-static int f_mixed_direction_2(sunrealtype t, N_Vector z, N_Vector zdot, void* data)
+static int f_mixed_direction_2(sunrealtype t, N_Vector z, N_Vector zdot,
+                               void* data)
 {
   N_VGetArrayPointer(zdot)[0] = SUN_RCONST(0.0);
   N_VGetArrayPointer(zdot)[1] = t - N_VGetArrayPointer(z)[0];
@@ -169,7 +173,8 @@ static int test_mixed_directions(SUNContext ctx)
   N_VLinearSum(SUN_RCONST(1.0), err, -SUN_RCONST(1.0), y, err);
   sunrealtype max_err = N_VMaxNorm(err);
 
-  printf("Mixed direction solution completed with an error of %" GSYM "\n", max_err);
+  printf("Mixed direction solution completed with an error of %" GSYM "\n",
+         max_err);
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   sunbooleantype fail = max_err > global_tol;
@@ -239,12 +244,13 @@ static int test_reinit(SUNContext ctx)
 
   sunrealtype exact_solution     = -SUNRsqrt(SUN_RCONST(6.0));
   sunrealtype numerical_solution = N_VGetArrayPointer(y)[0];
-  sunrealtype err = numerical_solution - exact_solution;
+  sunrealtype err                = numerical_solution - exact_solution;
 
   printf("Reinitialized solution completed with an error of %" GSYM "\n", err);
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
-  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution, global_tol);
+  sunbooleantype fail = SUNRCompareTol(exact_solution, numerical_solution,
+                                       global_tol);
   if (fail)
   {
     fprintf(stderr, "Error exceeded tolerance of %" GSYM "\n", global_tol);

@@ -98,6 +98,10 @@ SUNDIALS_EXPORT void* SplittingStepCreate(SUNStepper* steppers, int partitions,
                                           sunrealtype t0, N_Vector y0,
                                           SUNContext sunctx);
 
+SUNDIALS_EXPORT int SplittingStepReInit(void* arkode_mem, SUNStepper* steppers,
+                                        int partitions, sunrealtype t0,
+                                        N_Vector y0);
+
 SUNDIALS_EXPORT int SplittingStep_SetCoefficients(
   void* arkode_mem, SplittingStepCoefficients coefficients);
 
