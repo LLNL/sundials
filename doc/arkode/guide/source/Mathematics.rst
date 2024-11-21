@@ -63,22 +63,22 @@ of time-stepping modules supplied with ARKODE, including
 * ARKStep for :ref:`additive Runge--Kutta methods <ARKODE.Mathematics.ARK>`
 
 * ERKStep that is optimized for :ref:`explicit Runge--Kutta methods
-<ARKODE.Mathematics.ERK>`
+  <ARKODE.Mathematics.ERK>`
 
 * ForcingStep for :ref:`a forcing method <ARKODE.Mathematics.ForcingStep>`
 
 * LSRKStep that supports :ref:`low-storage Runge--Kutta methods
-<ARKODE.Mathematics.LSRK>`
+  <ARKODE.Mathematics.LSRK>`
 
 * MRIStep for :ref:`multirate infinitesimal step (MIS), multirate infinitesimal
-GARK (MRI-GARK), and implicit-explicit MRI-GARK (IMEX-MRI-GARK) methods
-<ARKODE.Mathematics.MRIStep>`
+  GARK (MRI-GARK), and implicit-explicit MRI-GARK (IMEX-MRI-GARK) methods
+  <ARKODE.Mathematics.MRIStep>`
 
 * SplittingStep for :ref:`operator splitting methods
-<ARKODE.Mathematics.SplittingStep>`
+  <ARKODE.Mathematics.SplittingStep>`
 
 * SPRKStep for :ref:`symplectic partitioned Runge--Kutta methods
-<ARKODE.Mathematics.SPRKStep>`
+  <ARKODE.Mathematics.SPRKStep>`
 
 We then discuss the :ref:`adaptive temporal
 error controllers <ARKODE.Mathematics.Adaptivity>` shared by the time-stepping
@@ -955,214 +955,6 @@ using a fixed time-step size.
 .. However, it is possible for a user to provide a
 .. problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
 .. The `ark_kepler.c` example demonstrates an implementation of such controller.
-
-
-.. _ARKODE.Mathematics.SplittingStep:
-
-SplittingStep -- Operator splitting methods
-================================================
-
-The SplittingStep time-stepping module in ARKODE is designed for IVPs of the
-form
-
-.. math::
-   \dot{y} = f_1(t,y) + f_2(t,y) + \dots + f_P(t,y), \qquad y(t_0) = y_0,
-
-with :math:`P > 1` additive partitions. Operator splitting methods, such as
-those implemented in SplittingStep, allow each partition to be integrated
-separately, possibly with different numerical integrators or exact solution
-procedures. Coupling is only performed though initial conditions which are
-passed from the flow of one partition to the next.
-
-The following algorithmic procedure is used in the Splitting-Step module:
-
-#. For :math:`i = 1, \dots, r` do:
-
-   #. Set :math:`y_{n, i} = y_{n - 1}`.
-
-   #. For :math:`j = 1, \dots, s` do:
-
-      #. For :math:`k = 1, \dots, P` do:
-
-         #. Let :math:`t_{\text{start}} = t_{n-1} + \beta_{i,j,k} h_n` and
-            :math:`t_{\text{end}} = t_{n-1} + \beta_{i,j+1,k} h_n`.
-
-         #. Let :math:`v(t_{\text{start}}) = y_{n,i}`.
-
-         #. For :math:`t \in [t_{\text{start}}, t_{\text{end}}]` solve
-            :math:`\dot{v} = f_{k}(t, v)`.
-
-         #. Set :math:`y_{n, i} = v(t_{\text{end}})`.
-
-#. Set :math:`y_n = \sum_{i=1}^r \alpha_i y_{n,i}`
-
-Here, :math:`s` denotes the number of stages, while :math:`r` denotes the number
-of sequential methods within the overall operator splitting scheme. The
-sequential methods have independent flows which are linearly combined to produce
-the next step. The real coefficients :math:`\alpha \in \mathbb{R}^{r}` and
-:math:`\beta \in \mathbb{R}^{r \times (s + 1) \times P}` determine the
-particular scheme and properties such as the order of accuracy.
-
-An alternative representation of the SplittingStep solution is
-
-.. math::
-   y_n = \sum_{i=1}^P \alpha_i \left(
-   \phi^P_{\gamma_{i,s,P} h_n} \circ
-   \phi^{P-1}_{\gamma_{i,s,P-1} h_n} \circ \dots \circ
-   \phi^{1}_{\gamma_{i,s,1} h_n} \circ
-   \phi^P_{\gamma_{i,s-1,P} h_n} \circ \dots \circ
-   \phi^1_{\gamma_{i,s-1,1} h_n} \circ \dots \circ
-   \phi^P_{\gamma_{i,1,P} h_n} \circ \dots \circ
-   \phi^1_{\gamma_{i,1,1} h_n}
-   \right)(y_{n-1})
-
-where :math:`\gamma_{i,j,k} = \beta_{i,j+1,k} - \beta_{i,j,k}` is the scaling
-factor for the step size, :math:`h_n`, and :math:`\phi^k_{h_n}` is the flow map
-for partition :math:`k`:
-
-.. math::
-   \phi^k_{h_n}(y_{n-1}) = v(t_n),
-   \quad \begin{cases}
-      v(t_{n-1}) = y_{n-1}, \\ \dot{v} = f_k(t, v).
-   \end{cases}
-
-For example, the Lie--Trotter splitting :cite:p:`BCM:24`, given by
-
-.. math::
-   y_n = L_{h_n}(y_{n-1}) = \left( \phi^P_{h_n} \circ \phi^{P-1}_{h_n}
-   \circ \dots \circ \phi^1_{h_n} \right) (y_{n-1}),
-   :label: ARKODE_Lie-Trotter
-
-is a first order, one-stage, sequential operator splitting method suitable for
-any number of partitions. Its coefficients are
-
-.. math::
-   \alpha_1 &= 1, \\
-   \beta_{1,j,k} &= \begin{cases}
-   0, & j = 1, \\
-   1, & j = 2,
-   \end{cases} \qquad
-   j = 1, 2, \quad
-   k = 1, \dots, P.
-
-Higher order operator splitting methods are often constructed by composing the
-Lie--Trotter splitting with its adjoint:
-
-.. math::
-   L^*_{h_n} = L^{-1}_{-h_n}
-   = \phi^1_{h_n} \circ \phi^{2}_{h_n} \circ \dots \circ \phi^{P}_{h_n}.
-   :label: ARKODE_Lie-Trotter_adjoint
-
-This is the case for the Strang splitting :cite:p:`Strang:68`
-
-.. math::
-   y_n = S_{h_n}(y_{n-1}) = \left( L^*_{h_n/2} \circ L_{h_n/2} \right)(y_{n-1}),
-   :label: ARKODE_Strang
-
-which has :math:`P` stages and coefficients
-
-.. math::
-   \alpha_1 &= 1, \\
-   \beta_{1,j,k} &= \begin{cases}
-   0, & j = 1, \\
-   1, & j + k > P + 1, \\
-   \frac{1}{2}, & \text{otherwise},
-   \end{cases} \qquad
-   j = 1, \dots, P+1, \quad
-   k = 1, \dots, P.
-
-SplittingStep provides standard operator splitting methods such as the
-Lie--Trotter and Strang splitting, as well as schemes of arbitrarily high order.
-Alternatively, users may construct their own coefficients (see
-:numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients`). Generally,
-methods of order three and higher with real coefficients require backward
-integration, i.e., there exist negative :math:`\gamma_{i,j,k}` coefficients.
-Currently, a fixed time step must be specified for the overall SplittingStep
-integrator, but partition integrators are free to use adaptive time steps.
-
-
-.. _ARKODE.Mathematics.SPRKStep:
-
-SPRKStep -- Symplectic Partitioned Runge--Kutta methods
-=======================================================
-
-The SPRKStep time-stepping module in ARKODE is designed for problems where the
-state vector is partitioned as
-
-.. math::
-   y(t) =
-   \begin{bmatrix}
-     p(t) \\
-     q(t)
-   \end{bmatrix}
-
-and the component partitioned IVP is given by
-
-.. math::
-   \dot{p} &= f_1(t, q), \qquad p(t_0) = p_0 \\
-   \dot{q} &= f_2(t, p), \qquad q(t_0) = q_0.
-   :label: ARKODE_IVP_SPRK
-
-The right-hand side functions :math:`f_1(t,p)` and :math:`f_2(t,q)` typically
-arise from the **separable** Hamiltonian system
-
-.. math::
-   H(t, p, q) = T(t, p) + V(t, q)
-
-where
-
-.. math::
-   f_1(t, q) \equiv \frac{\partial V(t, q)}{\partial q}, \qquad
-   f_2(t, p) \equiv \frac{\partial T(t, p)}{\partial p}.
-
-When *H* is autonomous, then *H* is a conserved quantity. Often this corresponds
-to the conservation of energy (for example, in *n*-body problems). For
-non-autonomous *H*, the invariants are no longer directly obtainable from the
-Hamiltonian :cite:p:`Struckmeier:02`.
-
-In practice, the ordering of the variables does not matter and is determined by the user.
-SPRKStep utilizes Symplectic Partitioned Runge-Kutta (SPRK) methods represented by the pair
-of explicit and diagonally implicit Butcher tableaux,
-
-.. math::
-   \begin{array}{c|cccc}
-   c_1 & 0 & \cdots & 0 & 0 \\
-   c_2 & a_1 & 0 & \cdots & \vdots \\
-   \vdots & \vdots & \ddots & \ddots & \vdots \\
-   c_s & a_1 & \cdots & a_{s-1} & 0 \\
-   \hline
-   & a_1 & \cdots & a_{s-1} & a_s
-   \end{array}
-   \qquad \qquad
-   \begin{array}{c|cccc}
-   \hat{c}_1 & \hat{a}_1 & \cdots & 0 & 0 \\
-   \hat{c}_2 & \hat{a}_1 & \hat{a}_2 & \cdots & \vdots \\
-   \vdots & \vdots & \ddots & \ddots & \vdots \\
-   \hat{c}_s & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s} \\
-   \hline
-   & \hat{a}_1 & \hat{a}_2 & \cdots & \hat{a}_{s}
-   \end{array}.
-
-These methods approximately conserve a nearby Hamiltonian for exponentially long
-times :cite:p:`HaWa:06`. SPRKStep makes the assumption that the Hamiltonian is
-separable, in which case the resulting method is explicit. SPRKStep provides
-schemes with order of accuracy and conservation equal to
-:math:`q = \{1,2,3,4,5,6,8,10\}`. The references for these these methods and
-the default methods used are given in the section :numref:`Butcher.sprk`.
-
-In the default case, the algorithm for a single time-step is as follows
-(for autonomous Hamiltonian systems the times provided to :math:`f_1` and
-:math:`f_2`
-can be ignored).
-
-#. Set :math:`P_0 = p_{n-1}, Q_1 = q_{n-1}`
-
-#. For :math:`i = 1,\ldots,s` do:
-
-   #. :math:`P_i = P_{i-1} + h_n \hat{a}_i f_1(t_{n-1} + \hat{c}_i h_n, Q_i)`
-   #. :math:`Q_{i+1} = Q_i + h_n a_i f_2(t_{n-1} + c_i h_n, P_i)`
-
-#. Set :math:`p_n = P_s, q_n = Q_{s+1}`
 
 .. _ARKODE.Mathematics.SPRKStep.Compensated:
 
