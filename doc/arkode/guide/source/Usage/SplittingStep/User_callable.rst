@@ -185,8 +185,6 @@ the ODE and the :c:type:`SUNStepper` objects used to evolve each partition.
    :param partitions: the number of partitions, :math:`P > 1`, in the IVP.
    :param t0: the initial value of :math:`t`.
    :param y0: the initial condition vector :math:`y(t_0)`.
-   :param sunctx: the :c:type:`SUNContext` object (see
-      :numref:`SUNDIALS.SUNContext`)
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SplittingStep memory was ``NULL``
@@ -199,8 +197,12 @@ the ODE and the :c:type:`SUNStepper` objects used to evolve each partition.
       :c:type:`SUNStepper` objects. It is up to the user to do this, if
       necessary.
 
-   .. note::
-      All previously set options are retained but may be updated by calling
-      the appropriate "Set" functions.
+   .. warning::
+
+      If the number of partitions changes and coefficients were previously
+      specified with :c:func:`SplittingStep_SetCoefficients`, the coefficients
+      will be reset since they are no longer compatible. Otherwise, all
+      previously set options are retained but may be updated by calling the
+      appropriate "Set" functions.
    
    .. versionadded:: x.y.z

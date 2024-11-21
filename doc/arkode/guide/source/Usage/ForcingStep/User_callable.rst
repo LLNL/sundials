@@ -106,3 +106,74 @@ Optional output functions
    :retval ARK_ILL_INPUT: if *partition* was out of bounds
    
    .. versionadded:: x.y.z
+
+
+ForcingStep re-initialization function
+--------------------------------------
+
+To reinitialize the ForcingStep module for the solution of a new problem,
+where a prior call to :c:func:`ForcingStepCreate` has been made, the user must
+call the function :c:func:`ForcingStepReInit()` and re-initialize each
+:c:type:`SUNStepper`.  The new problem must have the same size as the previous
+one.  This routine retains the current settings for all ForcingStep module
+options and performs the same input checking and initializations that are done
+in :c:func:`ForcingStepCreate`, but it performs no memory allocation as is
+assumes that the existing internal memory is sufficient for the new problem.  A
+call to this re-initialization routine deletes the solution history that was
+stored internally during the previous integration, and deletes any
+previously-set *tstop* value specified via a call to
+:c:func:`ARKodeSetStopTime()`.  Following a successful call to
+:c:func:`ForcingStepReInit()`, call :c:func:`ARKodeEvolve()` again for
+the solution of the new problem.
+
+One important use of the :c:func:`ForcingStepReInit()` function is in the
+treating of jump discontinuities in the RHS function.  Except in cases of fairly
+small jumps, it is usually more efficient to stop at each point of discontinuity
+and restart the integrator with a readjusted ODE model, using a call to this
+routine.  To stop when the location of the discontinuity is known, simply make
+that location a value of ``tout``.  To stop when the location of the
+discontinuity is determined by the solution, use the rootfinding feature.  In
+either case, it is critical that the RHS function *not* incorporate the
+discontinuity, but rather have a smooth extension over the discontinuity, so
+that the step across it (and subsequent rootfinding, if used) can be done
+efficiently.  Then use a switch within the RHS function (communicated through
+``user_data``) that can be flipped between the stopping of the integration and
+the restart, so that the restarted problem uses the new values (which have
+jumped).  Similar comments apply if there is to be a jump in the dependent
+variable vector.
+
+Another use of :c:func:`ForcingStepReInit()` is changing the partitioning of
+the ODE and the :c:type:`SUNStepper` objects used to evolve each partition.
+
+
+.. c:function:: int ForcingStepReInit(void* arkode_mem, SUNStepper stepper1, SUNStepper stepper2, sunrealtype t0, N_Vector y0)
+
+   Provides required problem specifications and re-initializes the ForcingStep
+   time-stepper module.
+
+   :param arkode_mem: pointer to the ForcingStep memory block.
+   :param stepper1: A :c:type:`SUNStepper` to integrate partition one. All
+      :c:type:`SUNStepper` operations are required to be implemented except
+      :c:func:`SUNStepper_SetForcing`.
+   :param stepper2: A :c:type:`SUNStepper` to integrate partition two
+      including the forcing from partition one. All :c:type:`SUNStepper`
+      operations are required to be implemented.
+   :param t0: The initial value of :math:`t`.
+   :param y0: The initial condition vector :math:`y(t_0)`.
+
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the ForcingStep memory was ``NULL``
+   :retval ARK_MEM_FAIL: if a memory allocation failed
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
+
+   .. warning::
+
+      This function does not perform any re-initialization of the
+      :c:type:`SUNStepper` objects. It is up to the user to do this, if
+      necessary.
+
+   .. note::
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
+   
+   .. versionadded:: x.y.z
