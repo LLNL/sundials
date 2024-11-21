@@ -81,6 +81,13 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
     return ARK_SUCCESS;
   }
 
+  /* On first initialization, make the SUNStepper consistent with the current
+   * state in case a user provided a different initial condition for the
+   * ForcingStep integrator and SUNStepper. */
+  SUNErrCode err = SUNStepper_Reset(step_mem->stepper[1], ark_mem->tn,
+                                    ark_mem->yn);
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
   ark_mem->interp_degree = 1;
 
   return ARK_SUCCESS;

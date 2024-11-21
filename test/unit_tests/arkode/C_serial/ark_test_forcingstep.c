@@ -58,7 +58,9 @@ static int test_forward(SUNContext ctx)
   sunrealtype global_tol = SUN_RCONST(10.0) * local_tol;
 
   N_Vector y = N_VNew_Serial(1, ctx);
-  N_VConst(SUN_RCONST(1.0), y);
+  /* Use the wrong initial condition for the partitions to ensure it gets reset
+   * to the correct value of 1 by ForcingStep */
+  N_VConst(SUN_RCONST(0.0), y);
 
   void* parititon_mem[] = {ARKStepCreate(f_forward_1, NULL, t0, y, ctx),
                            ARKStepCreate(f_forward_2, NULL, t0, y, ctx)};
@@ -69,6 +71,7 @@ static int test_forward(SUNContext ctx)
   ARKodeCreateSUNStepper(parititon_mem[0], &steppers[0]);
   ARKodeCreateSUNStepper(parititon_mem[1], &steppers[1]);
 
+  N_VConst(SUN_RCONST(1.0), y);
   void* arkode_mem = ForcingStepCreate(steppers[0], steppers[1], t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
   ARKodeSetMaxNumSteps(arkode_mem, -1);
