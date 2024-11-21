@@ -35,7 +35,7 @@
  * ERK method. Using the exact solution y(t) = exp(-t), we confirm the numerical
  * solution is sufficiently accurate.
  */
-static int test_forward(sundials::Context& ctx, int partitions)
+static int test_forward(sundials::Context& ctx, int order, int partitions)
 {
   constexpr auto t0         = SUN_RCONST(0.0);
   constexpr auto tf         = SUN_RCONST(1.0);
@@ -68,7 +68,7 @@ static int test_forward(sundials::Context& ctx, int partitions)
 
   auto arkode_mem = SplittingStepCreate(steppers.data(), partitions, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
-  ARKodeSetOrder(arkode_mem, 3);
+  ARKodeSetOrder(arkode_mem, order);
   auto tret = t0;
   ARKodeEvolve(arkode_mem, tf, y, &tret, ARK_NORMAL);
 
@@ -77,7 +77,7 @@ static int test_forward(sundials::Context& ctx, int partitions)
   auto numerical_solution = N_VGetArrayPointer(y)[0];
   auto err                = numerical_solution - exact_solution;
 
-  std::cout << "Forward solution with " << partitions
+  std::cout << "Forward solution of order " << order << " with " << partitions
             << " partitions completed with an error of " << err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
@@ -110,7 +110,7 @@ static int test_forward(sundials::Context& ctx, int partitions)
  * a component partitioning and check that the numerical solution is close to
  * the original initial condition.
  */
-static int test_mixed_directions(const sundials::Context& ctx)
+static int test_mixed_directions(const sundials::Context& ctx, const char* name)
 {
   constexpr auto t0         = SUN_RCONST(0.0);
   constexpr auto t1         = SUN_RCONST(-1.0);
@@ -155,7 +155,7 @@ static int test_mixed_directions(const sundials::Context& ctx)
   ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
   ARKodeSetMaxNumSteps(arkode_mem, -1);
   auto coefficients =
-    SplittingStepCoefficients_LoadCoefficients(ARKODE_SPLITTING_RUTH_3_3_2);
+    SplittingStepCoefficients_LoadCoefficientsByName(name);
   SplittingStepSetCoefficients(arkode_mem, coefficients);
   SplittingStepCoefficients_Destroy(&coefficients);
 
@@ -176,8 +176,7 @@ static int test_mixed_directions(const sundials::Context& ctx)
   N_VLinearSum(SUN_RCONST(1.0), err, -SUN_RCONST(1.0), y, err);
   auto max_err = N_VMaxNorm(err);
 
-  std::cout << "Mixed direction solution completed with an error of " << max_err
-            << "\n";
+  std::cout << "Mixed direction solution using " << name << " completed with an error of " << max_err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   sunbooleantype fail = max_err > global_tol;
@@ -363,7 +362,7 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
  * exact, custom SUNSteppers for the two partitions. We integrate to t = 1 and
  * compare the numerical solution to the exact solution y(t) = exp(-t).
  */
-static int test_custom_stepper(const sundials::Context& ctx)
+static int test_custom_stepper(const sundials::Context& ctx, int order)
 {
   constexpr auto lambda1 = SUN_RCONST(-0.6);
   constexpr auto lambda2 = SUN_RCONST(-0.4);
@@ -378,7 +377,7 @@ static int test_custom_stepper(const sundials::Context& ctx)
 
   auto arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
-  auto coefficients = SplittingStepCoefficients_SuzukiFractal(2, 6);
+  auto coefficients = SplittingStepCoefficients_SuzukiFractal(2, order);
   SplittingStepSetCoefficients(arkode_mem, coefficients);
   SplittingStepCoefficients_Destroy(&coefficients);
 
@@ -390,7 +389,7 @@ static int test_custom_stepper(const sundials::Context& ctx)
   auto numerical_solution = N_VGetArrayPointer(y)[0];
   auto err                = numerical_solution - exact_solution;
 
-  std::cout << "Custom SUNStepper completed with an error of " << err << "\n";
+  std::cout << "Custom SUNStepper solution of order " << order << " completed with an error of " << err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   sunbooleantype fail = SUNRCompare(exact_solution, numerical_solution);
@@ -404,6 +403,16 @@ static int test_custom_stepper(const sundials::Context& ctx)
   return fail;
 }
 
+/* Integrates the ODE
+ * 
+ * y' = [y / (1 + t)] + [-y / (2 + t)] + [y / (3 + t)]
+ * 
+ * with initial condition y(0) = 1 and partitioning specified by the square
+ * brackets. After integration to t = 1, the third partition and its
+ * corresponding SUNStepper are dropped from the ODE so there are only two
+ * partitions. Then we integrate to t = 2 and check the error against the exact
+ * solution y(2) = 2.
+ */
 static int test_reinit(const sundials::Context& ctx)
 {
   constexpr auto t0         = SUN_RCONST(0.0);
@@ -415,8 +424,8 @@ static int test_reinit(const sundials::Context& ctx)
   auto y                    = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
-  std::array<ARKRhsFn, 3>
-    fns{[](sunrealtype t, N_Vector z, N_Vector zdot, void*)
+  ARKRhsFn fns[] = {
+    [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
         {
           N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t), z, zdot);
           return 0;
@@ -432,25 +441,25 @@ static int test_reinit(const sundials::Context& ctx)
           return 0;
         }};
 
-  std::array<void*, fns.size()> partition_mem{};
-  std::array<SUNStepper, fns.size()> steppers{};
+  void* partition_mem[] = {nullptr, nullptr, nullptr};
+  SUNStepper steppers[] = {nullptr, nullptr, nullptr};
 
-  for (std::size_t i = 0; i < fns.size(); i++)
+  for (std::size_t i = 0; i < 3; i++)
   {
     partition_mem[i] = ERKStepCreate(fns[i], t0, y, ctx);
     ARKodeSStolerances(partition_mem[i], local_tol, local_tol);
     ARKodeCreateSUNStepper(partition_mem[i], &steppers[i]);
   }
 
-  auto arkode_mem = SplittingStepCreate(steppers.data(), steppers.size(), t0, y,
+  auto arkode_mem = SplittingStepCreate(steppers, 3, t0, y,
                                         ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
   ARKodeSetOrder(arkode_mem, 2);
   auto tret = t0;
   ARKodeEvolve(arkode_mem, t1, y, &tret, ARK_NORMAL);
 
-  SplittingStepReInit(arkode_mem, steppers.data(), steppers.size() - 1, t1, y);
-  for (std::size_t i = 0; i < fns.size() - 1; i++)
+  SplittingStepReInit(arkode_mem, steppers, 2, t1, y);
+  for (std::size_t i = 0; i < 2; i++)
   {
     ERKStepReInit(partition_mem[i], fns[i], t1, y);
   }
@@ -475,7 +484,7 @@ static int test_reinit(const sundials::Context& ctx)
   std::cout << "\n";
 
   N_VDestroy(y);
-  for (std::size_t i = 0; i < fns.size(); i++)
+  for (std::size_t i = 0; i < 3; i++)
   {
     ARKodeFree(&partition_mem[i]);
     SUNStepper_Destroy(&steppers[i]);
@@ -494,15 +503,29 @@ int main()
 
   /* Run the tests */
   constexpr auto min_partitions = 2;
-  constexpr auto max_partitions = 7;
+  constexpr auto max_partitions = 5;
   for (auto p = min_partitions; p <= max_partitions; p++)
   {
-    errors += test_forward(ctx, p);
+    constexpr auto min_order = 1;
+    constexpr auto max_order = 4;
+    for (auto order = min_order; order <= max_order; order ++) {
+      errors += test_forward(ctx, order, p);
+    }
   }
 
-  errors += test_mixed_directions(ctx);
+  auto names = {
+    "ARKODE_SPLITTING_STRANG_2_2_2",
+    "ARKODE_SPLITTING_BEST_2_2_2",
+    "ARKODE_SPLITTING_SUZUKI_3_3_2",
+    "ARKODE_SPLITTING_RUTH_3_3_2"
+  };
+  for (auto name : names) {
+    errors += test_mixed_directions(ctx, name);
+  }
+
   errors += test_resize(ctx);
-  errors += test_custom_stepper(ctx);
+  errors += test_custom_stepper(ctx, 4);
+  errors += test_custom_stepper(ctx, 6);
   errors += test_reinit(ctx);
 
   if (errors == 0) { std::cout << "Success\n"; }
