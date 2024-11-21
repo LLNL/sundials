@@ -1599,12 +1599,9 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   sunrealtype rs = SUN_RCONST(4.0);
   sunrealtype p5 = SUN_RCONST(0.5);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "start-stage",
-                     "step = %li, stage = 0, h = %" RSYM ", tcur = %" RSYM,
-                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
-#endif
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 0,
+             ark_mem->tcur);
+  SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
 
   /* The method is not FSAL. Therefore, fn ​is computed at the beginning
      of the step unless ARKODE updated fn. */
@@ -1614,17 +1611,19 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
                           ark_mem->user_data);
     step_mem->nfe++;
     ark_mem->fn_is_current = SUNTRUE;
-    if (retval != ARK_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+    if (retval != ARK_SUCCESS)
+    {
+      SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_0(:) =");
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed rhs eval, retval = %i", retval);
+      return (ARK_RHSFUNC_FAIL);
+    }
   }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "stage", "z_0(:) =", "");
-  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS", "F(:) =", "");
-  N_VPrintFile(ark_mem->fn, ARK_LOGGER->debug_fp);
-#endif
+  SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_0(:) =");
+  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 1,
+             ark_mem->tn + p5 * ark_mem->h);
 
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * p5, ark_mem->fn, ark_mem->ycur);
   if (!ark_mem->fixedstep)
@@ -1637,29 +1636,28 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     retval = ark_mem->ProcessStage(ark_mem->tn + ark_mem->h * p5, ark_mem->ycur,
                                    ark_mem->user_data);
-    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
+    if (retval != 0)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed postprocess stage, retval = %i", retval);
+      return ARK_POSTPROCESS_STAGE_FAIL;
+    }
   }
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "start-stage",
-                     "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
-                     ark_mem->nst, 2, ark_mem->h,
-                     ark_mem->tcur + ark_mem->h * p5);
-#endif
 
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h * p5, ark_mem->ycur,
                         ark_mem->tempv3, ark_mem->user_data);
   step_mem->nfe++;
+
+  SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_1(:) =");
+  SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-stage",
+               "status = failed rhs eval, retval = %i", retval);
+
   if (retval < 0) { return ARK_RHSFUNC_FAIL; }
   if (retval > 0) { return RHSFUNC_RECVR; }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS",
-                     "F_%i(:) =", 2);
-  N_VPrintFile(ark_mem->tempv3, ARK_LOGGER->debug_fp);
-#endif
+  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 2,
+             ark_mem->tn + ark_mem->h);
 
   N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, ark_mem->tempv3,
                ark_mem->ycur);
@@ -1674,28 +1672,28 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                                    ark_mem->user_data);
-    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
+    if (retval != 0)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed postprocess stage, retval = %i", retval);
+      return ARK_POSTPROCESS_STAGE_FAIL;
+    }
   }
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "start-stage",
-                     "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
-                     ark_mem->nst, 3, ark_mem->h, ark_mem->tcur + ark_mem->h);
-#endif
 
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h, ark_mem->ycur,
                         ark_mem->tempv3, ark_mem->user_data);
   step_mem->nfe++;
+
+  SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_2(:) =");
+  SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-stage",
+               "status = failed rhs eval, retval = %i", retval);
+
   if (retval < 0) { return ARK_RHSFUNC_FAIL; }
   if (retval > 0) { return RHSFUNC_RECVR; }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS",
-                     "F_%i(:) =", 3);
-  N_VPrintFile(ark_mem->tempv3, ARK_LOGGER->debug_fp);
-#endif
+  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 3,
+             ark_mem->tn + p5 * ark_mem->h);
 
   cvals[0] = ONE / THREE;
   Xvecs[0] = ark_mem->ycur;
@@ -1705,6 +1703,13 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   Xvecs[2] = ark_mem->tempv3;
 
   retval = N_VLinearCombination(3, cvals, Xvecs, ark_mem->ycur);
+  if (retval != 0)
+  {
+    SUNLogInfo(ARK_LOGGER, "end-stage",
+               "status = failed vector op, retval = %i", retval);
+    return ARK_VECTOROP_ERR;
+  }
+
   if (!ark_mem->fixedstep)
   {
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->tempv3,
@@ -1716,36 +1721,41 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     retval = ark_mem->ProcessStage(ark_mem->tcur + ark_mem->h * p5,
                                    ark_mem->ycur, ark_mem->user_data);
-    if (retval != 0) { return ARK_POSTPROCESS_STAGE_FAIL; }
+    if (retval != 0)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed postprocess stage, retval = %i", retval);
+      return ARK_POSTPROCESS_STAGE_FAIL;
+    }
   }
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "start-stage",
-                     "step = %li, stage = %i, h = %" RSYM ", tcur = %" RSYM,
-                     ark_mem->nst, 4, ark_mem->h,
-                     ark_mem->tcur + ark_mem->h * p5);
-#endif
 
   retval = step_mem->fe(ark_mem->tcur + ark_mem->h * p5, ark_mem->ycur,
                         ark_mem->tempv3, ark_mem->user_data);
   step_mem->nfe++;
+
+  SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_3(:) =");
+  SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-stage",
+               "status = failed rhs eval, retval = %i", retval);
+
   if (retval < 0) { return ARK_RHSFUNC_FAIL; }
   if (retval > 0) { return RHSFUNC_RECVR; }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "stage RHS",
-                     "F_%i(:) =", 4);
-  N_VPrintFile(ark_mem->tempv3, ARK_LOGGER->debug_fp);
-#endif
+  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM,
+             step_mem->req_stages, ark_mem->tn + ark_mem->h);
 
   N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, ark_mem->tempv3,
                ark_mem->ycur);
+
+  SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
+  SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
+
   if (!ark_mem->fixedstep)
   {
     N_VLinearSum(ONE, ark_mem->tempv1, ark_mem->h / rs, ark_mem->tempv3,
                  ark_mem->tempv1);
+    SUNLogExtraDebugVec(ARK_LOGGER, "embedded solution", ark_mem->tempv1,
+                        "y_embedded(:) =");
   }
 
   /* Compute yerr (if step adaptivity enabled) */
@@ -1755,20 +1765,6 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
-
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "updated solution",
-                     "ycur(:) =", "");
-  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
-#endif
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::lsrkStep_TakeStepSSP43", "error-test",
-                     "step = %li, h = %" RSYM ", dsm = %" RSYM, ark_mem->nst,
-                     ark_mem->h, *dsmPtr);
-#endif
 
   return ARK_SUCCESS;
 }

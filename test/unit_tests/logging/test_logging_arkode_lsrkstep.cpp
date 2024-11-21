@@ -117,18 +117,20 @@ int main(int argc, char* argv[])
   sunrealtype tret        = zero;
   sunrealtype tout        = tret + dtout;
 
+  const int width = numeric_limits<sunrealtype>::digits10 + 8;
+
   // Output initial contion
   cout << scientific;
   cout << setprecision(numeric_limits<sunrealtype>::digits10);
-  cout << "           t              ";
-  cout << "          y              ";
-  cout << "        y err            ";
-  for (int i = 0; i < 7; i++) { cout << "--------------"; }
+  cout << setw(width) << " t";
+  cout << setw(width) << " y";
+  cout << setw(width) << " y err" << endl;
+  for (int i = 0; i < 3 * width; i++) { cout << "-"; }
   cout << endl;
 
   sunrealtype* y_data = N_VGetArrayPointer(y);
 
-  cout << setw(22) << tret << setw(25) << y_data[0] << setw(25)
+  cout << setw(width) << tret << setw(width) << y_data[0] << setw(width)
        << abs(y_data[0] - true_solution(tret)) << endl;
 
   // Advance in time
@@ -137,13 +139,13 @@ int main(int argc, char* argv[])
     flag = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
     if (check_flag(flag, "ARKodeEvolve")) { return 1; }
 
-    cout << setw(22) << tret << setw(25) << y_data[0] << setw(25)
+    cout << setw(width) << tret << setw(width) << y_data[0] << setw(width)
          << abs(y_data[0] - true_solution(tret)) << endl;
 
     // update output time
     tout += dtout;
   }
-  for (int i = 0; i < 7; i++) { cout << "--------------"; }
+  for (int i = 0; i < 3 * width; i++) { cout << "-"; }
   cout << endl;
 
   // Print some final statistics
