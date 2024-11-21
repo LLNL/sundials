@@ -94,7 +94,9 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_RELAX_JAC_FAIL = -46_C_INT
  integer(C_INT), parameter, public :: ARK_CONTROLLER_ERR = -47_C_INT
  integer(C_INT), parameter, public :: ARK_STEPPER_UNSUPPORTED = -48_C_INT
- integer(C_INT), parameter, public :: ARK_SUNSTEPPER_ERR = -49_C_INT
+ integer(C_INT), parameter, public :: ARK_DOMEIG_FAIL = -49_C_INT
+ integer(C_INT), parameter, public :: ARK_MAX_STAGE_LIMIT_FAIL = -50_C_INT
+ integer(C_INT), parameter, public :: ARK_SUNSTEPPER_ERR = -51_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)

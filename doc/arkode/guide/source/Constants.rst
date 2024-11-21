@@ -317,6 +317,25 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
+   | **LSRK method types**                         |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_LSRK_RKC_2`                    | 2nd order Runge-Kutta-Chebyshev (RKC) method               |
+   |                                               | :c:enumerator:`ARKODE_LSRK_RKC_2`                          |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_LSRK_RKL_2`                    | 2nd order Runge-Kutta-Legendre (RKL) method                |
+   |                                               | :c:enumerator:`ARKODE_LSRK_RKL_2`                          |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_LSRK_SSP_S_2`                  | Optimal 2nd order s-stage SSP RK method                    |
+   |                                               | :c:enumerator:`ARKODE_LSRK_SSP_S_2`                        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_LSRK_SSP_S_3`                  | Optimal 3rd order s-stage SSP RK method                    |
+   |                                               | :c:enumerator:`ARKODE_LSRK_SSP_S_3`                        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_LSRK_SSP_10_4`                 | Optimal 4th order 10-stage SSP RK method                   |
+   |                                               | :c:enumerator:`ARKODE_LSRK_SSP_10_4`                       |
+   +-----------------------------------------------+------------------------------------------------------------+
+   |                                               |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
    | **MRI method types**                          |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_EXPLICIT`                     | Use an explicit (at the slow time scale) MRI method.       |
@@ -538,7 +557,13 @@ contains the ARKODE output constants.
    | :index:`ARK_STEPPER_UNSUPPORTED`    | -48  | An operation was not supported by the current              |
    |                                     |      | time-stepping module.                                      |
    +-------------------------------------+------+------------------------------------------------------------+
-   | :index:`ARK_SUNSTEPPER_ERR`         | -49  | An error occurred in the SUNStepper module.                |
+   | :index:`ARK_DOMEIG_FAIL`            | -49  | The dominant eigenvalue function failed. It is either not  |
+   |                                     |      | provided or returns an illegal value.                      |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_MAX_STAGE_LIMIT_FAIL`   | -50  | Stepper failed to achieve stable results. Either reduce    |
+   |                                     |      | the step size or increase the stage_max_limit              |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_SUNSTEPPER_ERR`         | -51  | An error occurred in the SUNStepper module.                |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+

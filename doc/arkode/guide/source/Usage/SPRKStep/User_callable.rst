@@ -232,7 +232,7 @@ Optional inputs for SPRKStep
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
    .. note::
 
@@ -267,7 +267,7 @@ Optional inputs for SPRKStep
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory or interpolation module are ``NULL``
    :retval ARK_INTERP_FAIL: if this is called after :c:func:`SPRKStepEvolve()`
-   :retval ARK_ILL_INPUT: if an argument has an illegal value or the
+   :retval ARK_ILL_INPUT: if an argument had an illegal value or the
                           interpolation module has already been initialized
 
    .. note::
@@ -303,7 +303,7 @@ Optional inputs for SPRKStep
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
    .. deprecated:: 6.1.0
 
@@ -326,7 +326,7 @@ Optional inputs for SPRKStep
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
    .. deprecated:: 6.1.0
 
@@ -353,7 +353,7 @@ Optional inputs for SPRKStep
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
    .. deprecated:: 6.1.0
 
@@ -391,7 +391,7 @@ Optional inputs for SPRKStep
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
    .. deprecated:: 6.1.0
 
@@ -435,7 +435,7 @@ Optional inputs for IVP method selection
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
    .. warning::
 
@@ -456,7 +456,7 @@ Optional inputs for IVP method selection
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
    .. note::
 
@@ -477,7 +477,7 @@ Optional inputs for IVP method selection
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
    .. warning::
 
@@ -499,7 +499,7 @@ Optional inputs for IVP method selection
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
 
 
@@ -527,7 +527,7 @@ Rootfinding optional input functions
 
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
-   :retval ARK_ILL_INPUT: if an argument has an illegal value
+   :retval ARK_ILL_INPUT: if an argument had an illegal value
 
    .. deprecated:: 6.1.0
 
@@ -814,7 +814,7 @@ Main solver optional output functions
    :param user_data: memory reference to a user data pointer
 
    :retval ARK_SUCCESS: if successful
-   :retval ARK_MEM_NULL: if the ARKStep memory was ``NULL``
+   :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
    .. deprecated:: 6.1.0
 
@@ -950,7 +950,7 @@ the RHS function should not incorporate the discontinuity.
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL:  if the SPRKStep memory was ``NULL``
    :retval ARK_MEM_FAIL:  if a memory allocation failed
-   :retval ARK_ILL_INPUT: if an argument has an illegal value.
+   :retval ARK_ILL_INPUT: if an argument had an illegal value.
 
 
 .. _ARKODE.Usage.SPRKStep.Reset:
@@ -976,7 +976,7 @@ SPRKStep reset function
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL:  if the SPRKStep memory was ``NULL``
    :retval ARK_MEM_FAIL:  if a memory allocation failed
-   :retval ARK_ILL_INPUTL: if an argument has an illegal value.
+   :retval ARK_ILL_INPUTL: if an argument had an illegal value.
 
    .. note::
 
