@@ -154,8 +154,7 @@ static int test_mixed_directions(const sundials::Context& ctx, const char* name)
   ARKodeSetFixedStep(arkode_mem, dt);
   ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
   ARKodeSetMaxNumSteps(arkode_mem, -1);
-  auto coefficients =
-    SplittingStepCoefficients_LoadCoefficientsByName(name);
+  auto coefficients = SplittingStepCoefficients_LoadCoefficientsByName(name);
   SplittingStepSetCoefficients(arkode_mem, coefficients);
   SplittingStepCoefficients_Destroy(&coefficients);
 
@@ -176,7 +175,8 @@ static int test_mixed_directions(const sundials::Context& ctx, const char* name)
   N_VLinearSum(SUN_RCONST(1.0), err, -SUN_RCONST(1.0), y, err);
   auto max_err = N_VMaxNorm(err);
 
-  std::cout << "Mixed direction solution using " << name << " completed with an error of " << max_err << "\n";
+  std::cout << "Mixed direction solution using " << name
+            << " completed with an error of " << max_err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   sunbooleantype fail = max_err > global_tol;
@@ -389,7 +389,8 @@ static int test_custom_stepper(const sundials::Context& ctx, int order)
   auto numerical_solution = N_VGetArrayPointer(y)[0];
   auto err                = numerical_solution - exact_solution;
 
-  std::cout << "Custom SUNStepper solution of order " << order << " completed with an error of " << err << "\n";
+  std::cout << "Custom SUNStepper solution of order " << order
+            << " completed with an error of " << err << "\n";
   ARKodePrintAllStats(arkode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
 
   sunbooleantype fail = SUNRCompare(exact_solution, numerical_solution);
@@ -424,22 +425,21 @@ static int test_reinit(const sundials::Context& ctx)
   auto y                    = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
-  ARKRhsFn fns[] = {
-    [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
-        {
-          N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t), z, zdot);
-          return 0;
-        },
-        [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
-        {
-          N_VScale(-SUN_RCONST(1.0) / (SUN_RCONST(2.0) + t), z, zdot);
-          return 0;
-        },
-        [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
-        {
-          N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(3.0) + t), z, zdot);
-          return 0;
-        }};
+  ARKRhsFn fns[] = {[](sunrealtype t, N_Vector z, N_Vector zdot, void*)
+                    {
+                      N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t), z, zdot);
+                      return 0;
+                    },
+                    [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
+                    {
+                      N_VScale(-SUN_RCONST(1.0) / (SUN_RCONST(2.0) + t), z, zdot);
+                      return 0;
+                    },
+                    [](sunrealtype t, N_Vector z, N_Vector zdot, void*)
+                    {
+                      N_VScale(SUN_RCONST(1.0) / (SUN_RCONST(3.0) + t), z, zdot);
+                      return 0;
+                    }};
 
   void* partition_mem[] = {nullptr, nullptr, nullptr};
   SUNStepper steppers[] = {nullptr, nullptr, nullptr};
@@ -451,8 +451,7 @@ static int test_reinit(const sundials::Context& ctx)
     ARKodeCreateSUNStepper(partition_mem[i], &steppers[i]);
   }
 
-  auto arkode_mem = SplittingStepCreate(steppers, 3, t0, y,
-                                        ctx);
+  auto arkode_mem = SplittingStepCreate(steppers, 3, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
   ARKodeSetOrder(arkode_mem, 2);
   auto tret = t0;
@@ -508,20 +507,15 @@ int main()
   {
     constexpr auto min_order = 1;
     constexpr auto max_order = 4;
-    for (auto order = min_order; order <= max_order; order ++) {
+    for (auto order = min_order; order <= max_order; order++)
+    {
       errors += test_forward(ctx, order, p);
     }
   }
 
-  auto names = {
-    "ARKODE_SPLITTING_STRANG_2_2_2",
-    "ARKODE_SPLITTING_BEST_2_2_2",
-    "ARKODE_SPLITTING_SUZUKI_3_3_2",
-    "ARKODE_SPLITTING_RUTH_3_3_2"
-  };
-  for (auto name : names) {
-    errors += test_mixed_directions(ctx, name);
-  }
+  auto names = {"ARKODE_SPLITTING_STRANG_2_2_2", "ARKODE_SPLITTING_BEST_2_2_2",
+                "ARKODE_SPLITTING_SUZUKI_3_3_2", "ARKODE_SPLITTING_RUTH_3_3_2"};
+  for (auto name : names) { errors += test_mixed_directions(ctx, name); }
 
   errors += test_resize(ctx);
   errors += test_custom_stepper(ctx, 4);
