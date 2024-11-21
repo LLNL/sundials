@@ -297,17 +297,6 @@ static void forcingStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 }
 
 /*------------------------------------------------------------------------------
-  Resets all ForcingStep optional inputs to their default values. Does not
-  change problem-defining function pointers or user_data pointer.
-  ----------------------------------------------------------------------------*/
-static int forcingStep_SetDefaults(ARKodeMem ark_mem)
-{
-  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
-
-  return ARK_SUCCESS;
-}
-
-/*------------------------------------------------------------------------------
   This routine checks if all required vector operations are present. If any of
   them is missing it returns SUNFALSE.
   ----------------------------------------------------------------------------*/
@@ -411,11 +400,8 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
   ark_mem->step_printallstats    = forcingStep_PrintAllStats;
   ark_mem->step_free             = forcingStep_Free;
   ark_mem->step_printmem         = forcingStep_PrintMem;
-  ark_mem->step_setdefaults      = forcingStep_SetDefaults;
   ark_mem->step_mem              = (void*)step_mem;
 
-  /* Set default values for ARKStep optional inputs */
-  retval = forcingStep_SetDefaults(ark_mem);
   if (retval != ARK_SUCCESS)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -433,6 +419,8 @@ void* ForcingStepCreate(SUNStepper stepper1, SUNStepper stepper2,
     ARKodeFree((void**)&ark_mem);
     return NULL;
   }
+
+  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ark_mem;
 }

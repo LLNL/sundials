@@ -417,14 +417,7 @@ static int splittingStep_SetDefaults(ARKodeMem ark_mem)
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  retval = splittingStep_SetOrder(ark_mem, 0);
-  if (retval != ARK_SUCCESS) { return retval; }
-
-  /* TODO(SBR): This may cause issues if a user calls ARKodeSetDefaults. This
-   * issues affects other ARKODE steppers as well */
-  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
-
-  return ARK_SUCCESS;
+  return splittingStep_SetOrder(ark_mem, 0);
 }
 
 /*------------------------------------------------------------------------------
@@ -599,6 +592,8 @@ void* SplittingStepCreate(SUNStepper* steppers, int partitions, sunrealtype t0,
     ARKodeFree((void**)&ark_mem);
     return NULL;
   }
+
+  ARKodeSetInterpolantType(ark_mem, ARK_INTERP_LAGRANGE);
 
   return ark_mem;
 }
