@@ -1121,6 +1121,11 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       ``*StepReInit``, or :c:func:`ARKodeReset` but before a call to
       :c:func:`ARKodeEvolve`.
 
+      When the direction changes for an adaptive method, the adaptivity
+      controller and next step size are reset. A new initial step size will be
+      estimated at the next call to :c:func:`ARKodeEvolve` or can be specified
+      with :c:func:`ARKodeSetInitStep`.
+
    .. versionadded:: x.y.z
 
 
