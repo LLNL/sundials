@@ -50,6 +50,7 @@ Then in the introduction for each of the stepper-specific documentation sections
 (:numref:`ARKODE.Usage.ARKStep.UserCallable`,
 :numref:`ARKODE.Usage.ERKStep.UserCallable`,
 :numref:`ARKODE.Usage.ForcingStep.UserCallable`,
+:numref:`ARKODE.Usage.LSRKStep.UserCallable`,
 :numref:`ARKODE.Usage.MRIStep.UserCallable`,
 :numref:`ARKODE.Usage.SplittingStep.UserCallable`,
 and :numref:`ARKODE.Usage.SPRKStep.UserCallable`)
@@ -62,8 +63,10 @@ ARKODE initialization and deallocation functions
 ------------------------------------------------------
 
 For functions to create an ARKODE stepper instance see :c:func:`ARKStepCreate`,
-:c:func:`ERKStepCreate`, :c:func:`ForcingStepCreate`, :c:func:`MRIStepCreate`,
-:c:func:`SplittingStepCreate`, or :c:func:`SPRKStepCreate`.
+:c:func:`ERKStepCreate`, :c:func:`ForcingStepCreate`,
+:c:func:`LSRKStepCreateSTS`, :c:func:`LSRKStepCreateSSP`,
+:c:func:`MRIStepCreate`, :c:func:`SplittingStepCreate`, or
+:c:func:`SPRKStepCreate`.
 
 .. c:function:: void ARKodeFree(void** arkode_mem)
 
