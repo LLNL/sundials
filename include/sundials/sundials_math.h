@@ -46,6 +46,8 @@ extern "C" {
  * SUNRexp calls the appropriate version of exp
  *
  * SUNRceil calls the appropriate version of ceil
+ *
+ * SUNRround calls the appropriate version of round
  * -----------------------------------------------------------------
  */
 
@@ -152,6 +154,30 @@ extern "C" {
 #define SUNRceil(x) (ceilf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 #define SUNRceil(x) (ceill((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRround
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype round_x;
+ *         round_x = SUNRround(x);
+ * -----------------------------------------------------------------
+ * SUNRround(x) returns the smallest integer value not less than x.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRround
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRround(x) (round((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRround(x) (roundf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRround(x) (roundl((x)))
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"

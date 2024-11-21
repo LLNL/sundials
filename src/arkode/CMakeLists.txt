@@ -33,6 +33,8 @@ set(arkode_SOURCES
     arkode_interp.c
     arkode_io.c
     arkode_ls.c
+    arkode_lsrkstep_io.c
+    arkode_lsrkstep.c
     arkode_mri_tables.c
     arkode_mristep_io.c
     arkode_mristep_nls.c
@@ -60,6 +62,7 @@ set(arkode_HEADERS
     arkode_erkstep.h
     arkode_forcingstep.h
     arkode_ls.h
+    arkode_lsrkstep.h
     arkode_mristep.h
     arkode_splittingstep.h
     arkode_sprk.h

@@ -39,6 +39,7 @@ separately discuss the usage details that that are specific to each of ARKODE's
 time stepping modules: :ref:`ARKStep <ARKODE.Usage.ARKStep>`,
 :ref:`ERKStep <ARKODE.Usage.ERKStep>`,
 :ref:`ForcingStep <ARKODE.Usage.ForcingStep>`,
+:ref:`LSRKStep <ARKODE.Usage.LSRKStep>`,
 :ref:`MRIStep <ARKODE.Usage.MRIStep>`,
 :ref:`SplittingStep <ARKODE.Usage.SplittingStep>`, and
 :ref:`SPRKStep <ARKODE.Usage.SPRKStep>`.
@@ -81,6 +82,7 @@ ARKBBDPRE can only be used with NVECTOR_PARALLEL.
    ARKStep/index.rst
    ERKStep/index.rst
    ForcingStep/index.rst
+   LSRKStep/index.rst
    MRIStep/index.rst
    SplittingStep/index.rst
    SPRKStep/index.rst

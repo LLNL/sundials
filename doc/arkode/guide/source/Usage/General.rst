@@ -55,6 +55,7 @@ to the SUNDIALS core header file.
   #include <arkode/arkode_arkstep.h>       // ARKStep provides explicit, implicit, IMEX additive RK methods.
   #include <arkode/arkode_erkstep.h>       // ERKStep provides explicit RK methods.
   #include <arkode/arkode_forcingstep.h>   // ForcingStep provides a forcing method.
+  #include <arkode/arkode_lsrkstep.h> // LSRKStep provides low-storage RK methods.
   #include <arkode/arkode_mristep.h>       // MRIStep provides multirate RK methods.
   #include <arkode/arkode_splittingstep.h> // SplittingStep provides operator splitting methods.
   #include <arkode/arkode_sprkstep.h>      // SPRKStep provides symplectic partitioned RK methods.
