@@ -95,8 +95,8 @@ module farkode_splittingstep_mod
  public :: FSplittingStepCoefficients_SuzukiFractal
  public :: FSplittingStepCreate
  public :: FSplittingStepReInit
- public :: FSplittingStep_SetCoefficients
- public :: FSplittingStep_GetNumEvolves
+ public :: FSplittingStepSetCoefficients
+ public :: FSplittingStepGetNumEvolves
 
 ! WRAPPER DECLARATIONS
 interface
@@ -395,8 +395,8 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSplittingStep_SetCoefficients(farg1, farg2) &
-bind(C, name="_wrap_FSplittingStep_SetCoefficients") &
+function swigc_FSplittingStepSetCoefficients(farg1, farg2) &
+bind(C, name="_wrap_FSplittingStepSetCoefficients") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 import :: swigclasswrapper
@@ -405,8 +405,8 @@ type(SwigClassWrapper) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSplittingStep_GetNumEvolves(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSplittingStep_GetNumEvolves") &
+function swigc_FSplittingStepGetNumEvolves(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSplittingStepGetNumEvolves") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -908,7 +908,7 @@ fresult = swigc_FSplittingStepReInit(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FSplittingStep_SetCoefficients(arkode_mem, coefficients) &
+function FSplittingStepSetCoefficients(arkode_mem, coefficients) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -920,11 +920,11 @@ type(SwigClassWrapper) :: farg2
 
 farg1 = arkode_mem
 farg2 = coefficients%swigdata
-fresult = swigc_FSplittingStep_SetCoefficients(farg1, farg2)
+fresult = swigc_FSplittingStepSetCoefficients(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSplittingStep_GetNumEvolves(arkode_mem, partition, evolves) &
+function FSplittingStepGetNumEvolves(arkode_mem, partition, evolves) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -939,7 +939,7 @@ type(C_PTR) :: farg3
 farg1 = arkode_mem
 farg2 = partition
 farg3 = c_loc(evolves(1))
-fresult = swigc_FSplittingStep_GetNumEvolves(farg1, farg2, farg3)
+fresult = swigc_FSplittingStepGetNumEvolves(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

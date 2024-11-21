@@ -102,11 +102,11 @@ SUNDIALS_EXPORT int SplittingStepReInit(void* arkode_mem, SUNStepper* steppers,
                                         int partitions, sunrealtype t0,
                                         N_Vector y0);
 
-SUNDIALS_EXPORT int SplittingStep_SetCoefficients(
+SUNDIALS_EXPORT int SplittingStepSetCoefficients(
   void* arkode_mem, SplittingStepCoefficients coefficients);
 
-SUNDIALS_EXPORT int SplittingStep_GetNumEvolves(void* arkode_mem, int partition,
-                                                long int* evolves);
+SUNDIALS_EXPORT int SplittingStepGetNumEvolves(void* arkode_mem, int partition,
+                                               long int* evolves);
 
 #ifdef __cplusplus
 }

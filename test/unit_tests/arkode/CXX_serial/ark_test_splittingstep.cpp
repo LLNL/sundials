@@ -156,7 +156,7 @@ static int test_mixed_directions(const sundials::Context& ctx)
   ARKodeSetMaxNumSteps(arkode_mem, -1);
   auto coefficients =
     SplittingStepCoefficients_LoadCoefficients(ARKODE_SPLITTING_RUTH_3_3_2);
-  SplittingStep_SetCoefficients(arkode_mem, coefficients);
+  SplittingStepSetCoefficients(arkode_mem, coefficients);
   SplittingStepCoefficients_Destroy(&coefficients);
 
   /* Integrate from 0 to -1 */
@@ -249,7 +249,7 @@ static int test_resize(const sundials::Context& ctx)
   auto arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
   auto coefficients = SplittingStepCoefficients_SymmetricParallel(2);
-  SplittingStep_SetCoefficients(arkode_mem, coefficients);
+  SplittingStepSetCoefficients(arkode_mem, coefficients);
   SplittingStepCoefficients_Destroy(&coefficients);
 
   /* Integrate from 0 to 0.5 */
@@ -379,7 +379,7 @@ static int test_custom_stepper(const sundials::Context& ctx)
   auto arkode_mem = SplittingStepCreate(steppers, 2, t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
   auto coefficients = SplittingStepCoefficients_SuzukiFractal(2, 6);
-  SplittingStep_SetCoefficients(arkode_mem, coefficients);
+  SplittingStepSetCoefficients(arkode_mem, coefficients);
   SplittingStepCoefficients_Destroy(&coefficients);
 
   auto tret = t0;

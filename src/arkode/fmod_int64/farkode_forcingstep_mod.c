@@ -245,7 +245,7 @@ SWIGEXPORT int _wrap_FForcingStepReInit(void *farg1, void *farg2, void *farg3, d
 }
 
 
-SWIGEXPORT int _wrap_FForcingStep_GetNumEvolves(void *farg1, int const *farg2, long *farg3) {
+SWIGEXPORT int _wrap_FForcingStepGetNumEvolves(void *farg1, int const *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int arg2 ;
@@ -255,7 +255,7 @@ SWIGEXPORT int _wrap_FForcingStep_GetNumEvolves(void *farg1, int const *farg2, l
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (long *)(farg3);
-  result = (int)ForcingStep_GetNumEvolves(arg1,arg2,arg3);
+  result = (int)ForcingStepGetNumEvolves(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

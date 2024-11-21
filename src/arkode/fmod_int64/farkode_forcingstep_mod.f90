@@ -28,7 +28,7 @@ module farkode_forcingstep_mod
  ! DECLARATION CONSTRUCTS
  public :: FForcingStepCreate
  public :: FForcingStepReInit
- public :: FForcingStep_GetNumEvolves
+ public :: FForcingStepGetNumEvolves
 
 ! WRAPPER DECLARATIONS
 interface
@@ -56,8 +56,8 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FForcingStep_GetNumEvolves(farg1, farg2, farg3) &
-bind(C, name="_wrap_FForcingStep_GetNumEvolves") &
+function swigc_FForcingStepGetNumEvolves(farg1, farg2, farg3) &
+bind(C, name="_wrap_FForcingStepGetNumEvolves") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -121,7 +121,7 @@ fresult = swigc_FForcingStepReInit(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FForcingStep_GetNumEvolves(arkode_mem, partition, evolves) &
+function FForcingStepGetNumEvolves(arkode_mem, partition, evolves) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -136,7 +136,7 @@ type(C_PTR) :: farg3
 farg1 = arkode_mem
 farg2 = partition
 farg3 = c_loc(evolves(1))
-fresult = swigc_FForcingStep_GetNumEvolves(farg1, farg2, farg3)
+fresult = swigc_FForcingStepGetNumEvolves(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

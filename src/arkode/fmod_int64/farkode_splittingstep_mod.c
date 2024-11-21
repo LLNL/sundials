@@ -730,22 +730,22 @@ SWIGEXPORT int _wrap_FSplittingStepReInit(void *farg1, void *farg2, int const *f
 }
 
 
-SWIGEXPORT int _wrap_FSplittingStep_SetCoefficients(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FSplittingStepSetCoefficients(void *farg1, SwigClassWrapper const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   SplittingStepCoefficients arg2 = (SplittingStepCoefficients) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  SWIG_check_mutable(*farg2, "SplittingStepCoefficients", "SplittingStepCoefficientsMem", "SplittingStep_SetCoefficients(void *,SplittingStepCoefficients)", return 0);
+  SWIG_check_mutable(*farg2, "SplittingStepCoefficients", "SplittingStepCoefficientsMem", "SplittingStepSetCoefficients(void *,SplittingStepCoefficients)", return 0);
   arg2 = (SplittingStepCoefficients)(farg2->cptr);
-  result = (int)SplittingStep_SetCoefficients(arg1,arg2);
+  result = (int)SplittingStepSetCoefficients(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSplittingStep_GetNumEvolves(void *farg1, int const *farg2, long *farg3) {
+SWIGEXPORT int _wrap_FSplittingStepGetNumEvolves(void *farg1, int const *farg2, long *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int arg2 ;
@@ -755,7 +755,7 @@ SWIGEXPORT int _wrap_FSplittingStep_GetNumEvolves(void *farg1, int const *farg2,
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
   arg3 = (long *)(farg3);
-  result = (int)SplittingStep_GetNumEvolves(arg1,arg2,arg3);
+  result = (int)SplittingStepGetNumEvolves(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
 }

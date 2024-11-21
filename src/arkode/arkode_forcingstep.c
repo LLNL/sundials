@@ -483,7 +483,7 @@ int ForcingStepReInit(void* arkode_mem, SUNStepper stepper1,
 /*------------------------------------------------------------------------------
   Accesses the number of times a given partition was evolved
   ----------------------------------------------------------------------------*/
-int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves)
+int ForcingStepGetNumEvolves(void* arkode_mem, int partition, long int* evolves)
 {
   ARKodeMem ark_mem             = NULL;
   ARKodeForcingStepMem step_mem = NULL;

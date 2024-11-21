@@ -33,8 +33,8 @@ SUNDIALS_EXPORT int ForcingStepReInit(void* arkode_mem, SUNStepper stepper1,
                                       SUNStepper stepper2, sunrealtype t0,
                                       N_Vector y0);
 
-SUNDIALS_EXPORT int ForcingStep_GetNumEvolves(void* arkode_mem, int partition,
-                                              long int* evolves);
+SUNDIALS_EXPORT int ForcingStepGetNumEvolves(void* arkode_mem, int partition,
+                                             long int* evolves);
 
 #ifdef __cplusplus
 }

@@ -649,8 +649,8 @@ int SplittingStepReInit(void* arkode_mem, SUNStepper* steppers, int partitions,
 /*---------------------------------------------------------------
   Sets the SplittingStep coefficients.
   ---------------------------------------------------------------*/
-int SplittingStep_SetCoefficients(void* arkode_mem,
-                                  SplittingStepCoefficients coefficients)
+int SplittingStepSetCoefficients(void* arkode_mem,
+                                 SplittingStepCoefficients coefficients)
 {
   ARKodeMem ark_mem               = NULL;
   ARKodeSplittingStepMem step_mem = NULL;
@@ -688,7 +688,7 @@ int SplittingStep_SetCoefficients(void* arkode_mem,
 /*------------------------------------------------------------------------------
   Accesses the number of times a given partition was evolved
   ----------------------------------------------------------------------------*/
-int SplittingStep_GetNumEvolves(void* arkode_mem, int partition, long int* evolves)
+int SplittingStepGetNumEvolves(void* arkode_mem, int partition, long int* evolves)
 {
   ARKodeMem ark_mem               = NULL;
   ARKodeSplittingStepMem step_mem = NULL;

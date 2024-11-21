@@ -22,7 +22,7 @@ coefficients of various orders and partitions. There are also a number of
 built-in methods of fixed orders and partitions (see
 :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients.Coefficients`).
 Finally, a user may construct a custom set of coefficients and attach it with
-:c:func:`SplittingStep_SetCoefficients`. The operator splitting coefficients are
+:c:func:`SplittingStepSetCoefficients`. The operator splitting coefficients are
 stored in a :c:type:`SplittingStepCoefficients` object which is a pointer to a
 :c:struct:`SplittingStepCoefficientsMem` structure:
 

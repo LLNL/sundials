@@ -87,7 +87,7 @@ SplittingStep initialization functions
 Optional inputs for IVP method selection
 ----------------------------------------
 
-.. c:function:: int SplittingStep_SetCoefficients(void* arkode_mem, SplittingStepCoefficients coefficients)
+.. c:function:: int SplittingStepSetCoefficients(void* arkode_mem, SplittingStepCoefficients coefficients)
 
    Specifies a set of coefficients for the operator splitting method.
 
@@ -117,7 +117,7 @@ Optional inputs for IVP method selection
 Optional output functions
 ------------------------------
 
-.. c:function:: int SplittingStep_GetNumEvolves(void* arkode_mem, int partition, long int *evolves)
+.. c:function:: int SplittingStepGetNumEvolves(void* arkode_mem, int partition, long int *evolves)
 
    Returns the number of times the :c:type:`SUNStepper` for the given partition
    index has been evolved (so far).
@@ -200,7 +200,7 @@ the ODE and the :c:type:`SUNStepper` objects used to evolve each partition.
    .. warning::
 
       If the number of partitions changes and coefficients were previously
-      specified with :c:func:`SplittingStep_SetCoefficients`, the coefficients
+      specified with :c:func:`SplittingStepSetCoefficients`, the coefficients
       will be reset since they are no longer compatible. Otherwise, all
       previously set options are retained but may be updated by calling the
       appropriate "Set" functions.
