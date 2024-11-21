@@ -91,7 +91,7 @@ ForcingStep initialization functions
 Optional output functions
 ------------------------------
 
-.. c:function:: int ForcingStep_GetNumEvolves(void* arkode_mem, int partition, long int *evolves)
+.. c:function:: int ForcingStepGetNumEvolves(void* arkode_mem, int partition, long int *evolves)
 
    Returns the number of times the :c:type:`SUNStepper` for the given partition
    index has been evolved (so far).
