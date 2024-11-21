@@ -956,34 +956,6 @@ using a fixed time-step size.
 .. problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
 .. The `ark_kepler.c` example demonstrates an implementation of such controller.
 
-.. _ARKODE.Mathematics.SPRKStep.Compensated:
-
-Optionally, a different algorithm leveraging compensated summation can be used
-that is more robust to roundoff error at the expense of 2 extra vector operations
-per stage and an additional 5 per time step. It also requires one extra vector to
-be stored.  However, it is significantly more robust to roundoff error accumulation
-:cite:p:`Sof:02`. When compensated summation is enabled, the following incremental
-form is used to compute a time step:
-
-#. Set :math:`\Delta P_0 = 0, \Delta Q_1 = 0`
-
-#. For :math:`i = 1,\ldots,s` do:
-
-   #. :math:`\Delta P_i = \Delta P_{i-1} + h_n \hat{a}_i f_1(t_{n-1} + \hat{c}_i h_n, q_{n-1} + \Delta Q_i)`
-   #. :math:`\Delta Q_{i+1} = \Delta Q_i + h_n a_i f_2(t_{n-1} + c_i h_n, p_{n-1} + \Delta P_i)`
-
-#. Set :math:`\Delta p_n = \Delta P_s, \Delta q_n = \Delta Q_{s+1}`
-
-#. Using compensated summation, set :math:`p_n = p_{n-1} + \Delta p_n, q_n = q_{n-1} + \Delta q_n`
-
-Since temporal error based adaptive time-stepping is known to ruin the
-conservation property :cite:p:`HaWa:06`,  SPRKStep requires that ARKODE be run
-using a fixed time-step size.
-
-.. However, it is possible for a user to provide a
-.. problem-specific adaptivity controller such as the one described in :cite:p:`HaSo:05`.
-.. The `ark_kepler.c` example demonstrates an implementation of such controller.
-
 .. _ARKODE.Mathematics.Error.Norm:
 
 Error norms
