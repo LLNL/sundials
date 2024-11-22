@@ -168,7 +168,12 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   }
 
   err = SUNStepper_SetOneStepFn(*stepper, arkSUNStepperOneStep);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Failed to set SUNStepper one step function");
+    return ARK_SUNSTEPPER_ERR;
+  }
 
   err = SUNStepper_SetFullRhsFn(*stepper, arkSUNStepperFullRhs);
   if (err != SUN_SUCCESS)
