@@ -563,6 +563,8 @@ contains the ARKODE output constants.
    | :index:`ARK_MAX_STAGE_LIMIT_FAIL`   | -50  | Stepper failed to achieve stable results. Either reduce    |
    |                                     |      | the step size or increase the stage_max_limit              |
    +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_SUNSTEPPER_ERR`         | -51  | An error occurred in the SUNStepper module.                |
+   +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+
    |                                                                                                         |

@@ -4725,3 +4725,31 @@ rescale the upcoming time step by the specified factor.  If a value
       * ``examples/arkode/C_serial/ark_heat1D_adapt.c``
 
    .. versionadded:: 6.1.0
+
+
+
+.. _ARKODE.Usage.SUNStepperInterface:
+
+Using an ARKODE solver as a SUNStepper
+--------------------------------------
+
+The utility function :c:func:`ARKodeCreateSUNStepper` wraps an ARKODE memory
+block as a :c:type:`SUNStepper`.
+
+.. c:function:: int ARKodeCreateSUNStepper(void *inner_arkode_mem, SUNStepper *stepper)
+
+   Wraps an ARKODE integrator as a :c:type:`SUNStepper`.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param stepper: the :c:type:`SUNStepper` object.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_FAIL: a memory allocation failed.
+   :retval ARK_SUNSTEPPER_ERR: the :c:type:`SUNStepper` initialization failed.
+
+   .. warning::
+      Currently, ``stepper`` will be equipped with an implementation for the
+      :c:func:`SUNStepper_SetForcing` function only if ``inner_arkode_mem`` is
+      an ARKStep integrator.
+
+   .. versionadded:: x.y.z

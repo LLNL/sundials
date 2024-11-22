@@ -33,6 +33,10 @@ MRIStep supports the following categories:
 
 * implicit nonlinear and/or linear solvers
 
+MRIStep does not have forcing function support when converted to a
+:c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
+:c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
+for additional details.
 
 
 .. _ARKODE.Usage.MRIStep.Initialization:

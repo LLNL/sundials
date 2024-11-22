@@ -1447,6 +1447,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_getnumnonlinsolviters     = NULL;
   ark_mem->step_getnumnonlinsolvconvfails = NULL;
   ark_mem->step_getnonlinsolvstats        = NULL;
+  ark_mem->step_setforcing                = NULL;
   ark_mem->step_mem                       = NULL;
   ark_mem->step_supports_adaptive         = SUNFALSE;
   ark_mem->step_supports_implicit         = SUNFALSE;
@@ -2693,6 +2694,10 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
   case ARK_MAX_STAGE_LIMIT_FAIL:
     arkProcessError(ark_mem, ARK_MAX_STAGE_LIMIT_FAIL, __LINE__, __func__,
                     __FILE__, "The max stage limit failed unrecoverably");
+    break;
+  case ARK_SUNSTEPPER_ERR:
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "An inner SUNStepper error occurred");
     break;
   default:
     /* This return should never happen */
