@@ -2876,6 +2876,11 @@ char* ARKodeGetReturnFlagName(long int flag)
   case ARK_RELAX_JAC_FAIL: sprintf(name, "ARK_RELAX_JAC_FAIL"); break;
   case ARK_CONTROLLER_ERR: sprintf(name, "ARK_CONTROLLER_ERR"); break;
   case ARK_STEPPER_UNSUPPORTED: sprintf(name, "ARK_STEPPER_UNSUPPORTED"); break;
+  case ARK_DOMEIG_FAIL: sprintf(name, "ARK_DOMEIG_FAIL"); break;
+  case ARK_MAX_STAGE_LIMIT_FAIL:
+    sprintf(name, "ARK_MAX_STAGE_LIMIT_FAIL");
+    break;
+  case ARK_SUNSTEPPER_ERR: sprintf(name, "ARK_SUNSTEPPER_ERR"); break;
   case ARK_UNRECOGNIZED_ERROR: sprintf(name, "ARK_UNRECOGNIZED_ERROR"); break;
   default: sprintf(name, "NONE");
   }

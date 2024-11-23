@@ -6,11 +6,30 @@
 
 ### New Features and Enhancements
 
+Added the `SUNStepper` base class to represent a generic solution procedure for
+IVPs. A SUNStepper can be created from an ARKODE memory block with the new
+function `ARKodeCreateSUNStepper`. To enable interoperability with
+`MRIStepInnerStepper`, the function `MRIStepInnerStepper_CreateFromSUNStepper`
+was added.
+
+The following DIRK schemes now have coefficients accurate to quad precision:
+* `ARKODE_BILLINGTON_3_3_2`
+* `ARKODE_KVAERNO_4_2_3`
+* `ARKODE_CASH_5_2_4`
+* `ARKODE_CASH_5_3_4`
+* `ARKODE_KVAERNO_5_3_4`
+* `ARKODE_KVAERNO_7_4_5`
+
 The default value of `CMAKE_CUDA_ARCHITECTURES` is no longer set to `70` and is
 now determined automatically by CMake. The previous default was only valid for
 Volta GPUs while the automatically selected value will vary across compilers and
 compiler versions. As such, users are encouraged to override this value with the
 architecture for their system.
+
+Added a time-stepping module to ARKODE for low storage Runge--Kutta methods, LSRKStep.
+This currently supports five explicit low-storage methods: the second-order Runge--Kutta--Chebyshev 
+and Runge--Kutta--Legendre methods, and the second- through fourth-order optimal strong stability
+preserving Runge--Kutta methods.  All methods include embeddings for temporal adaptivity.
 
 The Trilinos Teptra NVector interface has been updated to utilize CMake
 imported targets added in Trilinos 14 to improve support for different Kokkos

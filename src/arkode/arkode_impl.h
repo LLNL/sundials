@@ -35,6 +35,7 @@
 #include "arkode_types_impl.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
+#include "sundials_stepper_impl.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -111,6 +112,7 @@ extern "C" {
 #define PREV_ERR_FAIL  +8
 #define RHSFUNC_RECVR  +9
 #define CONSTR_RECVR   +10
+#define ARK_RETRY_STEP +11
 
 /*---------------------------------------------------------------
   Return values for lower-level rootfinding functions
@@ -281,6 +283,11 @@ typedef int (*ARKTimestepAttachMasssolFn)(
 typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
 typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
 
+/* time stepper interface functions -- forcing */
+typedef int (*ARKTimestepSetForcingFn)(ARKodeMem ark_mem, sunrealtype tshift,
+                                       sunrealtype tscale, N_Vector* f,
+                                       int nvecs);
+
 /*===============================================================
   ARKODE interpolation module definition
   ===============================================================*/
@@ -445,6 +452,9 @@ struct ARKodeMemRec
   ARKTimestepDisableMSetup step_disablemsetup;
   ARKTimestepGetMassMemFn step_getmassmem;
   ARKMassMultFn step_mmult;
+
+  /* Time stepper module -- forcing */
+  ARKTimestepSetForcingFn step_setforcing;
 
   /* N_Vector storage */
   N_Vector ewt;                 /* error weight vector                        */
