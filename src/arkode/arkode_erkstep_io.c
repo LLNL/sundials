@@ -411,20 +411,7 @@ int erkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
   retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  switch (fmt)
-  {
-  case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, "\n");
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return (ARK_ILL_INPUT);
-  }
+  sunfprintf_long(outfile, fmt, SUNFALSE, "RHS fn evals", step_mem->nfe);
 
   return (ARK_SUCCESS);
 }

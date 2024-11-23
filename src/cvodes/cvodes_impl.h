@@ -1420,7 +1420,8 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
 #define MSGCV_BAD_TBOUT                                                  \
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
-#define MSGCV_BACK_ERROR  "Error occurred while integrating backward problem # %d"
+#define MSGCV_BACK_ERROR \
+  "Error occurred while integrating backward problem # %d"
 #define MSGCV_BAD_TINTERP "Bad t = " SUN_FORMAT_G " for interpolation."
 #define MSGCV_WRONG_INTERP \
   "This function cannot be called for the specified interp type."

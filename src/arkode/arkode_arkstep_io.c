@@ -1287,7 +1287,7 @@ int arkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* function evaluations */
-  sunfprintf_long(outfile, fmt, SUNTRUE, "Explicit RHS fn evals", step_mem->nfe);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Explicit RHS fn evals", step_mem->nfe);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Implicit RHS fn evals", step_mem->nfi);
 
   /* nonlinear solver stats */

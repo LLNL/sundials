@@ -565,67 +565,25 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   retval = lsrkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
+  sunfprintf_long(outfile, fmt, SUNFALSE, "RHS fn evals", step_mem->nfe);
   if (step_mem->is_SSP)
   {
-    switch (fmt)
-    {
-    case SUN_OUTPUTFORMAT_TABLE:
-      fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-      fprintf(outfile, "Number of stages used        = %d\n",
-              step_mem->req_stages);
-      break;
-    case SUN_OUTPUTFORMAT_CSV:
-      fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-      fprintf(outfile, ",Number of stages used,%d", step_mem->req_stages);
-      fprintf(outfile, "\n");
-      break;
-    default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "Invalid formatting option.");
-      return ARK_ILL_INPUT;
-    }
-  }
-  else if (!step_mem->is_SSP)
-  {
-    switch (fmt)
-    {
-    case SUN_OUTPUTFORMAT_TABLE:
-      fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-      fprintf(outfile, "Number of dom_eig updates    = %ld\n",
-              step_mem->dom_eig_num_evals);
-      fprintf(outfile, "Max. num. of stages used     = %d\n",
-              step_mem->stage_max);
-      fprintf(outfile, "Max. num. of stages allowed  = %d\n",
-              step_mem->stage_max_limit);
-      fprintf(outfile, "Max. spectral radius         = " SUN_FORMAT_G "\n",
-              step_mem->spectral_radius_max);
-      fprintf(outfile, "Min. spectral radius         = " SUN_FORMAT_G "\n",
-              step_mem->spectral_radius_min);
-      break;
-    case SUN_OUTPUTFORMAT_CSV:
-      fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-      fprintf(outfile, ",Number of dom_eig update calls,%ld",
-              step_mem->dom_eig_num_evals);
-      fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
-      fprintf(outfile, ",Max. num. of stages allowed,%d",
-              step_mem->stage_max_limit);
-      fprintf(outfile, ",Max. spectral radius," SUN_FORMAT_G "",
-              step_mem->spectral_radius_max);
-      fprintf(outfile, ",Min. spectral radius," SUN_FORMAT_G "",
-              step_mem->spectral_radius_min);
-      fprintf(outfile, "\n");
-      break;
-    default:
-      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "Invalid formatting option.");
-      return ARK_ILL_INPUT;
-    }
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Number of stages used",
+                    step_mem->req_stages);
   }
   else
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid method type.");
-    return ARK_ILL_INPUT;
+    sunfprintf_long(outfile, fmt, SUNFALSE, "RHS fn evals", step_mem->nfe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Number of dom_eig updates",
+                    step_mem->dom_eig_num_evals);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of stages used",
+                    step_mem->stage_max);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of stages allowed",
+                    step_mem->stage_max_limit);
+    sunfprintf_real(outfile, fmt, SUNFALSE, "Max. spectral radius",
+                    step_mem->spectral_radius_max);
+    sunfprintf_real(outfile, fmt, SUNFALSE, "Min. spectral radius",
+                    step_mem->spectral_radius_min);
   }
 
   return ARK_SUCCESS;
