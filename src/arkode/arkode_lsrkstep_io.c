@@ -597,9 +597,9 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
               step_mem->stage_max);
       fprintf(outfile, "Max. num. of stages allowed  = %d\n",
               step_mem->stage_max_limit);
-      fprintf(outfile, "Max. spectral radius         = %" RSYM "\n",
+      fprintf(outfile, "Max. spectral radius         = " SUN_FORMAT_G "\n",
               step_mem->spectral_radius_max);
-      fprintf(outfile, "Min. spectral radius         = %" RSYM "\n",
+      fprintf(outfile, "Min. spectral radius         = " SUN_FORMAT_G "\n",
               step_mem->spectral_radius_min);
       break;
     case SUN_OUTPUTFORMAT_CSV:
@@ -609,9 +609,9 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
       fprintf(outfile, ",Max. num. of stages used,%d", step_mem->stage_max);
       fprintf(outfile, ",Max. num. of stages allowed,%d",
               step_mem->stage_max_limit);
-      fprintf(outfile, ",Max. spectral radius,%" RSYM "",
+      fprintf(outfile, ",Max. spectral radius," SUN_FORMAT_G "",
               step_mem->spectral_radius_max);
-      fprintf(outfile, ",Min. spectral radius,%" RSYM "",
+      fprintf(outfile, ",Min. spectral radius," SUN_FORMAT_G "",
               step_mem->spectral_radius_min);
       fprintf(outfile, "\n");
       break;
@@ -682,9 +682,9 @@ int lsrkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
   case SUNFALSE:
     fprintf(fp, "  Maximum number of stages allowed = %i\n",
             step_mem->stage_max_limit);
-    fprintf(fp, "  Current spectral radius = %" RSYM "\n",
+    fprintf(fp, "  Current spectral radius = " SUN_FORMAT_G "\n",
             step_mem->spectral_radius);
-    fprintf(fp, "  Safety factor for the dom eig = %" RSYM "\n",
+    fprintf(fp, "  Safety factor for the dom eig = " SUN_FORMAT_G "\n",
             step_mem->dom_eig_safety);
     fprintf(fp, "  Max num of successful steps before new dom eig update = %li\n",
             step_mem->dom_eig_freq);
