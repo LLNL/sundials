@@ -114,8 +114,7 @@ sundials_option(
 
 sundials_option(
   MAGMA_WORKS BOOL
-  "Set to ON to force CMake to accept a given MAGMA configuration" OFF
-  ADVANCED)
+  "Set to ON to force CMake to accept a given MAGMA configuration" OFF ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable SuperLU_DIST support?
@@ -128,14 +127,12 @@ sundials_option(
 
 sundials_option(
   SUPERLUDIST_INCLUDE_DIRS PATH "SuperLU_DIST include directories"
-  "${SUPERLUDIST_INCLUDE_DIRS}"
-  ADVANCED)
+  "${SUPERLUDIST_INCLUDE_DIRS}" ADVANCED)
 
 sundials_option(
   SUPERLUDIST_LIBRARIES STRING
   "Semi-colon separated list of libraries needed for SuperLU_DIST."
-  "${SUPERLUDIST_LIBRARIES}"
-  ADVANCED)
+  "${SUPERLUDIST_LIBRARIES}" ADVANCED)
 
 sundials_option(
   SUPERLUDIST_OpenMP BOOL
@@ -162,9 +159,8 @@ sundials_option(
   "Semi-colon separated list of additional libraries needed for SuperLU_MT."
   "${SUPERLUMT_LIBRARIES}")
 
-sundials_option(
-  SUPERLUMT_THREAD_TYPE STRING "SuperLU_MT threading type: OPENMP or PTHREAD"
-  "PTHREAD")
+sundials_option(SUPERLUMT_THREAD_TYPE STRING
+                "SuperLU_MT threading type: OPENMP or PTHREAD" "PTHREAD")
 
 sundials_option(
   SUPERLUMT_WORKS BOOL
@@ -201,8 +197,7 @@ sundials_option(HYPRE_LIBRARY_DIR PATH "HYPRE library directory"
 
 sundials_option(
   HYPRE_WORKS BOOL
-  "Set to ON to force CMake to accept a given hypre configuration" OFF
-  ADVANCED)
+  "Set to ON to force CMake to accept a given hypre configuration" OFF ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable PETSc support?
@@ -218,18 +213,16 @@ sundials_option(PETSC_ARCH STRING "PETSc architecture (optional)"
 
 sundials_option(
   PETSC_LIBRARIES STRING "Semi-colon separated list of PETSc link libraries"
-  "${PETSC_LIBRARIES}"
-  ADVANCED)
+  "${PETSC_LIBRARIES}" ADVANCED)
 
 sundials_option(
-  PETSC_INCLUDES STRING "Semi-colon separated list of PETSc include directories"
-  "${PETSC_INCLUDES}"
+  PETSC_INCLUDES STRING
+  "Semi-colon separated list of PETSc include directories" "${PETSC_INCLUDES}"
   ADVANCED)
 
 sundials_option(
   PETSC_WORKS BOOL
-  "Set to ON to force CMake to accept a given PETSc configuration" OFF
-  ADVANCED)
+  "Set to ON to force CMake to accept a given PETSc configuration" OFF ADVANCED)
 
 # -------------------------------------------------------------
 # Enable RAJA support?
@@ -264,13 +257,12 @@ sundials_option(XBRAID_DIR PATH "Path to the root of an XBraid installation"
 
 sundials_option(
   XBRAID_LIBRARIES STRING "Semi-colon separated list of XBraid link libraries"
-  "${XBRAID_LIBRARIES}"
-  ADVANCED)
+  "${XBRAID_LIBRARIES}" ADVANCED)
 
 sundials_option(
   XBRAID_INCLUDES STRING
-  "Semi-colon separated list of XBraid include directories" "${XBRAID_INCLUDES}"
-  ADVANCED)
+  "Semi-colon separated list of XBraid include directories"
+  "${XBRAID_INCLUDES}" ADVANCED)
 
 sundials_option(
   XBRAID_WORKS BOOL
