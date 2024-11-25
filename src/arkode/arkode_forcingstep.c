@@ -86,7 +86,12 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
    * ForcingStep integrator and SUNStepper. */
   SUNErrCode err = SUNStepper_Reset(step_mem->stepper[1], ark_mem->tn,
                                     ark_mem->yn);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                     "Resetting the first partition SUNStepper failed");
+     return ARK_SUNSTEPPER_ERR; 
+  }
 
   ark_mem->interp_degree = 1;
 
@@ -104,10 +109,20 @@ static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
   if (retval != ARK_SUCCESS) { return retval; }
 
   SUNErrCode err = SUNStepper_Reset(step_mem->stepper[0], tR, yR);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                     "Resetting the first partition SUNStepper failed");
+     return ARK_SUNSTEPPER_ERR; 
+  }
 
   err = SUNStepper_Reset(step_mem->stepper[1], tR, yR);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                     "Resetting the second partition SUNStepper failed");
+     return ARK_SUNSTEPPER_ERR; 
+  }
 
   return ARK_SUCCESS;
 }
@@ -123,10 +138,21 @@ static int forcingStep_SetStepDirection(ARKodeMem ark_mem, sunrealtype stepdir)
   if (retval != ARK_SUCCESS) { return retval; }
 
   SUNErrCode err = SUNStepper_SetStepDirection(step_mem->stepper[0], stepdir);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                     "Setting the step direction for the first partition SUNStepper failed");
+     return ARK_SUNSTEPPER_ERR; 
+  }
 
   err = SUNStepper_SetStepDirection(step_mem->stepper[1], stepdir);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                     "Setting the step direction for the second partition SUNStepper failed");
+     return ARK_SUNSTEPPER_ERR; 
+  }
+
 
   return ARK_SUCCESS;
 }
@@ -298,7 +324,7 @@ static void forcingStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 
 /*------------------------------------------------------------------------------
   This routine checks if all required vector operations are present. If any of
-  them is missing it returns SUNFALSE.
+  them are missing it returns SUNFALSE.
   ----------------------------------------------------------------------------*/
 static sunbooleantype forcingStep_CheckNVector(N_Vector y)
 {

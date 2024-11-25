@@ -179,7 +179,7 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_Strang(int partitions)
 
    Create the coefficients for the second order Strang splitting
-   :cite:p:`Strang:68` :eq:`ARKODE_Strang`.
+   :cite:p:`Strang:68`, see :eq:`ARKODE_Strang`.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a
