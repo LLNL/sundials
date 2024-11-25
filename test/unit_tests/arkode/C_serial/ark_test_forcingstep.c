@@ -156,7 +156,7 @@ static int test_mixed_directions(SUNContext ctx)
 
   void* arkode_mem = ForcingStepCreate(steppers[0], steppers[1], t0, y, ctx);
   ARKodeSetFixedStep(arkode_mem, dt);
-  // ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
+  ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
   ARKodeSetMaxNumSteps(arkode_mem, -1);
 
   /* Integrate from 0 to -1 */
