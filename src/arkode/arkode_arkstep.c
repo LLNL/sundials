@@ -21,10 +21,12 @@
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
+#include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_types.h"
 
 #define FIXED_LIN_TOL
 
@@ -139,6 +141,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ark_mem->step_getnumnonlinsolviters     = arkStep_GetNumNonlinSolvIters;
   ark_mem->step_getnumnonlinsolvconvfails = arkStep_GetNumNonlinSolvConvFails;
   ark_mem->step_getnonlinsolvstats        = arkStep_GetNonlinSolvStats;
+  ark_mem->step_setforcing                = arkStep_SetInnerForcing;
   ark_mem->step_supports_adaptive         = SUNTRUE;
   ark_mem->step_supports_implicit         = SUNTRUE;
   ark_mem->step_supports_massmatrix       = SUNTRUE;
@@ -3325,16 +3328,19 @@ void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, sunrealtype* stage_times,
   methods).
   ----------------------------------------------------------------------------*/
 
-int arkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
+int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
                             sunrealtype tscale, N_Vector* forcing, int nvecs)
 {
-  ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  /* access ARKodeARKStepMem structure */
+  if (ark_mem->step_mem == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARKSTEP_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  step_mem = (ARKodeARKStepMem)ark_mem->step_mem;
 
   if (nvecs > 0)
   {

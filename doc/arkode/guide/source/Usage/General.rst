@@ -56,7 +56,8 @@ to the SUNDIALS core header file.
   #include <arkode/arkode_arkstep.h>  // ARKStep provides explicit, implicit, IMEX additive RK methods.
   #include <arkode/arkode_mristep.h>  // MRIStep provides mutlirate RK methods.
   #include <arkode/arkode_sprkstep.h> // SPRKStep provides symplectic partition RK methods.
-
+  #include <arkode/arkode_lsrkstep.h> // LSRKStep provides low-storage RK methods.
+  
 Each of these define several types and various constants, include function
 prototypes, and include the shared ``arkode/arkode.h`` and
 ``arkode/arkode_ls.h`` header files. No other header files are required to be
