@@ -1314,7 +1314,8 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  /* do not change direction once the module has been initialized */
+  /* do not change direction once the module has been initialized i.e., after calling
+     ARKodeEvolve unless ReInit or Reset are called. */
   if (!ark_mem->initsetup)
   {
     arkProcessError(ark_mem, ARK_STEP_DIRECTION_ERR, __LINE__, __func__,
@@ -1341,7 +1342,7 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
        * we should not set h = 0. */
       ark_mem->h = -h;
       /* Clear previous initial step and force an initial step recomputation.
-       * Normally, this would not occur after a reset, but is is necessary here
+       * Normally, this would not occur after a reset, but it is necessary here
        * because the timestep used in one direction may not be suitable for the
        * other */
       ark_mem->h0u = ZERO;

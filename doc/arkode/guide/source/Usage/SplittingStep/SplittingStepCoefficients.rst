@@ -165,8 +165,8 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
 
 .. c:function:: SplittingStepCoefficients SplittingStepCoefficients_LieTrotter(int partitions)
 
-   Create the coefficients for the first order Lie--Trotter splitting
-   :eq:`ARKODE_Lie-Trotter`.
+   Create the coefficients for the first order Lie--Trotter splitting,
+   see :eq:`ARKODE_Lie-Trotter`.
 
    :param partitions: The number of partitions, :math:`P > 1`, in the IVP.
    :return: A :c:type:`SplittingStepCoefficients` structure if successful or a

@@ -140,20 +140,20 @@ SplittingStep re-initialization function
 
 To reinitialize the SplittingStep module for the solution of a new problem,
 where a prior call to :c:func:`SplittingStepCreate` has been made, the user must
-call the function :c:func:`SplittingStepReInit()` and re-initialize each
+call the function :c:func:`SplittingStepReInit` and re-initialize each
 :c:type:`SUNStepper`.  The new problem must have the same size as the previous
 one.  This routine retains the current settings for all SplittingStep module
 options and performs the same input checking and initializations that are done
-in :c:func:`SplittingStepCreate`, but it performs no memory allocation as is
+in :c:func:`SplittingStepCreate`, but it performs no memory allocation as it
 assumes that the existing internal memory is sufficient for the new problem.  A
 call to this re-initialization routine deletes the solution history that was
 stored internally during the previous integration, and deletes any
 previously-set *tstop* value specified via a call to
-:c:func:`ARKodeSetStopTime()`.  Following a successful call to
-:c:func:`SplittingStepReInit()`, call :c:func:`ARKodeEvolve()` again for
+:c:func:`ARKodeSetStopTime`.  Following a successful call to
+:c:func:`SplittingStepReInit`, call :c:func:`ARKodeEvolve` again for
 the solution of the new problem.
 
-One important use of the :c:func:`SplittingStepReInit()` function is in the
+One important use of the :c:func:`SplittingStepReInit` function is in the
 treating of jump discontinuities in the RHS function.  Except in cases of fairly
 small jumps, it is usually more efficient to stop at each point of discontinuity
 and restart the integrator with a readjusted ODE model, using a call to this
@@ -169,7 +169,7 @@ the restart, so that the restarted problem uses the new values (which have
 jumped).  Similar comments apply if there is to be a jump in the dependent
 variable vector.
 
-Another use of :c:func:`SplittingStepReInit()` is changing the partitioning of
+Another use of :c:func:`SplittingStepReInit` is changing the partitioning of
 the ODE and the :c:type:`SUNStepper` objects used to evolve each partition.
 
 

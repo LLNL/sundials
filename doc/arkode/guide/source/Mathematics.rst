@@ -763,7 +763,7 @@ The following algorithmic procedure is used in the Splitting-Step module:
 Here, :math:`s` denotes the number of stages, while :math:`r` denotes the number
 of sequential methods within the overall operator splitting scheme. The
 sequential methods have independent flows which are linearly combined to produce
-the next step. The real coefficients :math:`\alpha \in \mathbb{R}^{r}` and
+the next step. The coefficients :math:`\alpha \in \mathbb{R}^{r}` and
 :math:`\beta \in \mathbb{R}^{r \times (s + 1) \times P}` determine the
 particular scheme and properties such as the order of accuracy.
 
@@ -803,10 +803,10 @@ any number of partitions. Its coefficients are
 .. math::
    \alpha_1 &= 1, \\
    \beta_{1,j,k} &= \begin{cases}
-   0, & j = 1, \\
-   1, & j = 2,
-   \end{cases} \qquad
-   j = 1, 2, \quad
+   0 & j = 1 \\
+   1 & j = 2
+   \end{cases}, \qquad
+   j = 1, 2 \quad \textrm{and} \quad
    k = 1, \dots, P.
 
 Higher order operator splitting methods are often constructed by composing the
@@ -828,16 +828,16 @@ which has :math:`P` stages and coefficients
 .. math::
    \alpha_1 &= 1, \\
    \beta_{1,j,k} &= \begin{cases}
-   0, & j = 1, \\
-   1, & j + k > P + 1, \\
-   \frac{1}{2}, & \text{otherwise},
-   \end{cases} \qquad
-   j = 1, \dots, P+1, \quad
+   0 & j = 1 \\
+   1 & j + k > P + 1 \\
+   \frac{1}{2} & \text{otherwise}
+   \end{cases}, \qquad
+   j = 1, \dots, P+1 \quad \textrm{and} \quad
    k = 1, \dots, P.
 
 SplittingStep provides standard operator splitting methods such as the
 Lie--Trotter and Strang splitting, as well as schemes of arbitrarily high order.
-Alternatively, users may construct their own coefficients (see
+Alternatively, users may provide their own coefficients (see
 :numref:`ARKODE.Usage.SplittingStep.SplittingStepCoefficients`). Generally,
 methods of order three and higher with real coefficients require backward
 integration, i.e., there exist negative :math:`\gamma_{i,j,k}` coefficients.

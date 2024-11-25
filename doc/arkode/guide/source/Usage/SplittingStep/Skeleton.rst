@@ -58,19 +58,19 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
       SplittingStep integration.
 
       If a *user_data* pointer needs to be passed to user functions called by
-      a partition integrator then it should be attached here by calling
-      :c:func:`ARKodeSetUserData()`. This *user_data* pointer will only be
+      a partition integrator then it should be attached to the partition integrator here by calling
+      :c:func:`ARKodeSetUserData`. This *user_data* pointer will only be
       passed to user-supplied functions that are attached to a partition
       integrator. To supply a *user_data* pointer to user-supplied functions
       called by the SplittingStep integrator, the desired pointer should be
-      attached by calling :c:func:`ARKodeSetUserData()` after creating the
+      attached by calling :c:func:`ARKodeSetUserData` after creating the
       SplittingStep memory below. The *user_data* pointers attached to the
       partition and SplittingStep integrators may be the same or different
       depending on what is required by the user code.
 
       Specifying a rootfinding problem for a partition integrator is not
       supported. Rootfinding problems should be created and initialized with
-      SplittingStep. See the steps below and :c:func:`ARKodeRootInit()` for more
+      SplittingStep. See the steps below and :c:func:`ARKodeRootInit` for more
       details.
 
 #. Create a SplittingStep object
@@ -96,7 +96,7 @@ skeleton program presented in :numref:`ARKODE.Usage.Skeleton` are *italicized*.
 
 #. Free solver memory
 
-   * If an ARKODE stepper module was used as an partition IVP integrator, call
+   * If an ARKODE stepper module was used as a partition IVP integrator, call
      :c:func:`SUNStepper_Destroy` and :c:func:`ARKodeFree` to free the memory
      allocated for that integrator.
 
