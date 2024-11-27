@@ -101,8 +101,8 @@ foreach(example_tuple ${sunmatrix_sparse_fortran_examples})
     add_executable(
       ${example}
       ${example}.f90
-      ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
-      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.f90)
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/utilities/test_utilities.f90
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.f90)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")

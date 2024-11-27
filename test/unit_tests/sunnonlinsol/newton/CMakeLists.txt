@@ -102,7 +102,7 @@ foreach(example_tuple ${fortran_examples})
     # example source files
     add_executable(
       ${example} ${example}.f90
-                 ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90)
+                 ${SUNDIALS_SOURCE_DIR}/test/unit_tests/utilities/test_utilities.f90)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
