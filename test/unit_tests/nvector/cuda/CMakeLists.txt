@@ -111,10 +111,10 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_CUDA_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/cuda/CMakeLists.txt @ONLY)
+    ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/cuda/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(FILES ${PROJECT_BINARY_DIR}/examples/nvector/cuda/CMakeLists.txt
+  install(FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/cuda/CMakeLists.txt
           DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -125,10 +125,10 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_CUDA_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/cuda/Makefile_ex @ONLY)
+      ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/cuda/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/cuda/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/cuda/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda
       RENAME Makefile)
   endif()

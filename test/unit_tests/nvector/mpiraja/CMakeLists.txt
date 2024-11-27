@@ -115,9 +115,9 @@ if(EXAMPLES_INSTALL)
     nvec_mpiraja examples_list
     EXAMPLES_DEPENDENCIES test_nvector.c test_mpinvector.c
     EXTRA_FILES
-      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
-      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
-      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_mpinvector.c
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/nvector/test_nvector.c
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/nvector/test_nvector.h
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/nvector/test_mpinvector.c
     CMAKE_TEMPLATE cmakelists_${_lang}_MPI_ex.in
     SOLVER_LIBRARY sundials_ida
     SUNDIALS_TARGETS generic nvecmpiplusx nvecraja

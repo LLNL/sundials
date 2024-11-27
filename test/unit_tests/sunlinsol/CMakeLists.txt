@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# examples/sunlinsol level CMakeLists.txt for SUNDIALS
+# test/unit_tests/sunlinsol level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
 if(ENABLE_CALIPER AND SUNDIALS_BUILD_WITH_PROFILING)

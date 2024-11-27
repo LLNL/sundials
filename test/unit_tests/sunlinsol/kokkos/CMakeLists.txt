@@ -76,8 +76,8 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunlinsol_kokkosdense examples_list
     EXAMPLES_DEPENDENCIES test_sunlinsol.c
-    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.c
-                ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.h
+    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.c
+                ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.h
     CMAKE_TEMPLATE cmakelists_CXX_ex.in
     SUNDIALS_COMPONENTS nveckokkos sunmatrixkokkosdense sunlinsolkokkosdense
     SUNDIALS_TARGETS generic

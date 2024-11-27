@@ -97,8 +97,8 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunmatrix_slunrloc sunmatrix_slunrloc_examples
     EXAMPLES_DEPENDENCIES test_sunmatrix.c
-    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
-                ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
+    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.c
+                ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.h
     CMAKE_TEMPLATE cmakelists_${_ex_lang}_MPI_ex.in
     SUNDIALS_TARGETS nvecserial nvecparallel sunmatrixdense sunmatrixslunrloc
     DESTINATION sunmatrix/slunrloc)

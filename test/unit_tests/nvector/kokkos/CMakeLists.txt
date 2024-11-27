@@ -72,8 +72,8 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     nvec_kokkos examples_list
     EXAMPLES_DEPENDENCIES test_nvector.c
-    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
-                ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
+    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/test/unit_tests/nvector/test_nvector.c
+                ${SUNDIALS_SOURCE_DIR}/test/unit_tests/nvector/test_nvector.h
     CMAKE_TEMPLATE cmakelists_CXX_ex.in
     SUNDIALS_COMPONENTS nveckokkos
     SUNDIALS_TARGETS generic

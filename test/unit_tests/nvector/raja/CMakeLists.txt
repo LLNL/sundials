@@ -99,8 +99,8 @@ if(EXAMPLES_INSTALL)
     nvec_raja examples_list
     EXAMPLES_DEPENDENCIES test_nvector.c
     EXTRA_FILES
-      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
-      ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/nvector/test_nvector.c
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/nvector/test_nvector.h
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/${_custom_memhelper}
     CMAKE_TEMPLATE cmakelists_${_lang}_ex.in
     SUNDIALS_TARGETS generic nvecraja

@@ -105,13 +105,13 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunlinsol/spfgmr/parallel/CMakeLists.txt
+    ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/spfgmr/parallel/CMakeLists.txt
     @ONLY)
 
   # install CMakelists.txt
   install(
     FILES
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/spfgmr/parallel/CMakeLists.txt
+      ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/spfgmr/parallel/CMakeLists.txt
     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spfgmr/parallel)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -122,11 +122,11 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/spfgmr/parallel/Makefile_ex
+      ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/spfgmr/parallel/Makefile_ex
       @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/spfgmr/parallel/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/spfgmr/parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spfgmr/parallel
       RENAME Makefile)
   endif()

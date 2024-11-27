@@ -130,10 +130,10 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parhyp_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/CMakeLists.txt @ONLY)
+    ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/parhyp/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(FILES ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/CMakeLists.txt
+  install(FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/parhyp/CMakeLists.txt
           DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -144,10 +144,10 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parhyp_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/Makefile_ex @ONLY)
+      ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/parhyp/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/parhyp/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/parhyp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parhyp
       RENAME Makefile)
   endif()

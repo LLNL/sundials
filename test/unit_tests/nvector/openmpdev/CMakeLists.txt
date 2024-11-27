@@ -99,10 +99,10 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmpdev_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/CMakeLists.txt @ONLY)
+    ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/openmpdev/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(FILES ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/CMakeLists.txt
+  install(FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/openmpdev/CMakeLists.txt
           DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -113,10 +113,10 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_openmpdev_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/Makefile_ex @ONLY)
+      ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/openmpdev/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/openmpdev/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/openmpdev/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev
       RENAME Makefile)
   endif()

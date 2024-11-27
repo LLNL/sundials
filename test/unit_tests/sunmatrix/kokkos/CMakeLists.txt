@@ -78,8 +78,8 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunmatrix_kokkosdense examples_list
     EXAMPLES_DEPENDENCIES test_sunmatrix.c
-    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
-                ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
+    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.c
+                ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.h
     CMAKE_TEMPLATE cmakelists_CXX_ex.in
     SUNDIALS_COMPONENTS nveckokkos sunmatrixkokkosdense
     SUNDIALS_TARGETS generic

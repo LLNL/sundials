@@ -143,10 +143,10 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunmatrix/band/CMakeLists.txt @ONLY)
+    ${PROJECT_BINARY_DIR}/test/unit_tests/sunmatrix/band/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(FILES ${PROJECT_BINARY_DIR}/examples/sunmatrix/band/CMakeLists.txt
+  install(FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sunmatrix/band/CMakeLists.txt
           DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/band)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -157,10 +157,10 @@ if(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunmatrix/band/Makefile_ex @ONLY)
+      ${PROJECT_BINARY_DIR}/test/unit_tests/sunmatrix/band/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/examples/sunmatrix/band/Makefile_ex
+      FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sunmatrix/band/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/band
       RENAME Makefile)
   endif()

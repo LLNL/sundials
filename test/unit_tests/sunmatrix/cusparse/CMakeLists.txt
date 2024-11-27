@@ -76,10 +76,10 @@ if(EXAMPLES_INSTALL)
     sunmatrix_cusparse examples_list
     EXAMPLES_DEPENDENCIES test_sunmatrix.c test_sunmatrix.h dreadrb.c dreadrb.h
     EXTRA_FILES
-      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.c
-      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/test_sunmatrix.h
-      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/dreadrb.c
-      ${SUNDIALS_SOURCE_DIR}/examples/sunmatrix/dreadrb.h
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.c
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.h
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/dreadrb.c
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/dreadrb.h
     CMAKE_TEMPLATE cmakelists_CUDA_ex.in
     SUNDIALS_TARGETS nveccuda nvecserial sunmatrixdense sunmatrixsparse
                      sunmatrixcusparse
