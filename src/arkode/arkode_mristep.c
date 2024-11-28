@@ -224,9 +224,9 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   /* Initialize fused op work space with sufficient storage for
      at least filling the full RHS on an ImEx problem */
   step_mem->nfusedopvecs = 3;
-  step_mem->cvals = NULL;
-  step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                         sizeof(sunrealtype));
+  step_mem->cvals        = NULL;
+  step_mem->cvals        = (sunrealtype*)calloc(step_mem->nfusedopvecs,
+                                                sizeof(sunrealtype));
   if (step_mem->cvals == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -236,8 +236,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   }
   ark_mem->lrw += step_mem->nfusedopvecs;
   step_mem->Xvecs = NULL;
-  step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
-                                       sizeof(N_Vector));
+  step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs, sizeof(N_Vector));
   if (step_mem->Xvecs == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -1411,8 +1410,8 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     retval = mriStep_UpdateF0(ark_mem, step_mem, t, y, mode);
     if (retval != 0)
     {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_RHSFUNC_FAILED, t);
       return (ARK_RHSFUNC_FAIL);
     }
 
@@ -1839,12 +1838,14 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
      time step (so nothing can be leveraged). */
   if (ark_mem->fn != NULL)
   {
-    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn, ARK_FULLRHS_START);
+    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                             ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
   }
   else
   {
-    retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn, ARK_FULLRHS_START);
+    retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn,
+                              ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
   }
   ark_mem->fn_is_current = SUNTRUE;
@@ -2317,12 +2318,14 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
      time step (so nothing can be leveraged). */
   if (ark_mem->fn != NULL)
   {
-    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn, ARK_FULLRHS_START);
+    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                             ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
   }
   else
   {
-    retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn, ARK_FULLRHS_START);
+    retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn,
+                              ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
   }
   ark_mem->fn_is_current = SUNTRUE;
@@ -2748,21 +2751,23 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-/* Evaluate the slow RHS function if needed. NOTE: we decide between calling the full RHS
+  /* Evaluate the slow RHS function if needed. NOTE: we decide between calling the full RHS
    function (if ark_mem->fn is non-NULL) versus just updating the stored value of
    Fse[0]. In either case, we use ARK_FULLRHS_START mode because MERK methods do not
    evaluate Fse at the end of the time step (so nothing can be leveraged). */
-if (ark_mem->fn != NULL)
-{
-  retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn, ARK_FULLRHS_START);
-  if (retval) { return ARK_RHSFUNC_FAIL; }
-}
-else
-{
-  retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn, ARK_FULLRHS_START);
-  if (retval) { return ARK_RHSFUNC_FAIL; }
-}
-ark_mem->fn_is_current = SUNTRUE;
+  if (ark_mem->fn != NULL)
+  {
+    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                             ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+  }
+  else
+  {
+    retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn,
+                              ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+  }
+  ark_mem->fn_is_current = SUNTRUE;
 
 #ifdef SUNDIALS_DEBUG
   printf("    MRIStep step %li,  stage 0,  h = %" RSYM ",  t_n = %" RSYM "\n",
