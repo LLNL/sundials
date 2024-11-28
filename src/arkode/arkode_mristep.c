@@ -1594,13 +1594,13 @@ int mriStep_UpdateF0(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
       {
         retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
         step_mem->nfse++;
-        step_mem->fse_is_current = SUNTRUE;
         if (retval != 0)
         {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
                           __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
           return (ARK_RHSFUNC_FAIL);
         }
+        step_mem->fse_is_current = SUNTRUE;
 
         /* Add external forcing, if applicable */
         if (step_mem->expforcing)
@@ -1623,13 +1623,13 @@ int mriStep_UpdateF0(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
       {
         retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
         step_mem->nfsi++;
-        step_mem->fsi_is_current = SUNTRUE;
         if (retval != 0)
         {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
                           __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
           return (ARK_RHSFUNC_FAIL);
         }
+        step_mem->fsi_is_current = SUNTRUE;
 
         /* Add external forcing, if applicable */
         if (step_mem->impforcing)
@@ -1656,13 +1656,13 @@ int mriStep_UpdateF0(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
       {
         retval = step_mem->fse(t, y, step_mem->Fse[0], ark_mem->user_data);
         step_mem->nfse++;
-        step_mem->fse_is_current = SUNTRUE;
         if (retval != 0)
         {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
                           __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
           return (ARK_RHSFUNC_FAIL);
         }
+        step_mem->fse_is_current = SUNTRUE;
 
         /* Add external forcing, as appropriate */
         if (step_mem->expforcing)
@@ -1681,13 +1681,13 @@ int mriStep_UpdateF0(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
       {
         retval = step_mem->fsi(t, y, step_mem->Fsi[0], ark_mem->user_data);
         step_mem->nfsi++;
-        step_mem->fsi_is_current = SUNTRUE;
         if (retval != 0)
         {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
                           __FILE__, MSG_ARK_RHSFUNC_FAILED, t);
           return (ARK_RHSFUNC_FAIL);
         }
+        step_mem->fsi_is_current = SUNTRUE;
 
         /* Add external forcing, as appropriate */
         if (step_mem->impforcing)
@@ -1832,7 +1832,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   /* Evaluate the slow RHS functions if needed. NOTE: we decide between calling the
      full RHS function (if ark_mem->fn is non-NULL) versus just updating the stored
      values of Fse[0] and Fsi[0].  In either case, we use ARK_FULLRHS_START mode
-     because MRISR methods do not evaluate the RHS functions at the end of the
+     because MRIGARK methods do not evaluate the RHS functions at the end of the
      time step (so nothing can be leveraged). */
   if (ark_mem->fn != NULL)
   {
@@ -2324,12 +2324,11 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
   ark_mem->fn_is_current = SUNTRUE;
 
-  /* combine both RHS into FSE for ImEx problems and zero out Fsi[0], since
-     MRISR fast forcing function only depends on Omega coefficients  */
+  /* combine both RHS into FSE for ImEx problems, since MRISR fast forcing function
+     only depends on Omega coefficients  */
   if (step_mem->implicit_rhs && step_mem->explicit_rhs)
   {
     N_VLinearSum(ONE, step_mem->Fse[0], ONE, step_mem->Fsi[0], step_mem->Fse[0]);
-    /* N_VConst(ZERO, step_mem->Fsi[0]);*/
   }
 
 #ifdef SUNDIALS_DEBUG
