@@ -701,12 +701,12 @@ given by
 where :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)`, :math:`\tau = (t -
 t_{n,i-1}^S)/(h^S \Delta c_i^S)` is the normalized time, the coefficients
 :math:`\omega_{i,j}` and :math:`\gamma_{i,j}` are polynomials in time of degree
-:math:`k` given by
+:math:`k-1` given by
 
 .. math::
-   \omega_{i,j}(\tau) = \sum_{k\geq 1} \Omega_{i,j,k} \, \tau^{k-1}
+   \omega_{i,j}(\tau) = \sum_{\ell\geq 1} \Omega_{i,j,\ell} \, \tau^{\ell-1}
    \quad\text{and}\quad
-   \gamma_{i,j}(\tau) = \sum_{k\geq 1} \Gamma_{i,j,k} \, \tau^{k-1}.
+   \gamma_{i,j}(\tau) = \sum_{\ell\geq 1} \Gamma_{i,j,\ell} \, \tau^{\ell-1}.
    :label: ARKODE_MRI_coupling
 
 When the slow abscissa are repeated, i.e. :math:`\Delta c_i^S = 0`, the fast IVP
@@ -716,10 +716,10 @@ stage is computed as
 
 .. math::
    z_i = z_{i-1}
-   + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 1}
-     \frac{\Omega_{i,j,k}}{k}\right) f^E(t_{n,j}^S, z_j)
-   + h^S \sum_{j=1}^i \left(\sum_{k\geq 1}
-     \frac{\Gamma_{i,j,k}}{k}\right) f^I(t_{n,j}^S, z_j).
+   + h^S \sum_{j=1}^{i-1} \left(\sum_{\ell\geq 1}
+     \frac{\Omega_{i,j,\ell}}{\ell}\right) f^E(t_{n,j}^S, z_j)
+   + h^S \sum_{j=1}^i \left(\sum_{\ell\geq 1}
+     \frac{\Gamma_{i,j,\ell}}{\ell}\right) f^I(t_{n,j}^S, z_j).
    :label: ARKODE_MRI_delta_c_zero
 
 Similarly, the embedded solution IVP, :eq:`MRI_embedding_fast_IVP`, is evolved
@@ -729,12 +729,12 @@ with the initial condition :math:`\tilde{v}_0=z_{s-1}`.
 As with standard ARK and DIRK methods, implicitness at the slow time scale is
 characterized by nonzero values on or above the diagonal of the :math:`k`
 matrices in :math:`\Gamma`. Typically, MRI-GARK and IMEX-MRI-GARK methods are at
-most diagonally-implicit (i.e., :math:`\Gamma_{i,j,k}=0` for all :math:`k` and
+most diagonally-implicit (i.e., :math:`\Gamma_{i,j,\ell}=0` for all :math:`\ell` and
 :math:`j>i`). Furthermore, diagonally-implicit stages are characterized as being
-"solve-decoupled" if :math:`\Delta c_i^S = 0` when :math:`\Gamma_{i,i,k} \ne 0`,
+"solve-decoupled" if :math:`\Delta c_i^S = 0` when :math:`\Gamma_{i,i,\ell} \ne 0`,
 in which case the stage is computed as a standard ARK or DIRK update. Alternately,
 a diagonally-implicit stage :math:`i` is considered "solve-coupled" if
-:math:`\Delta c^S_i \, \Gamma_{i,j,k} \ne 0`, in which
+:math:`\Delta c^S_i \, \Gamma_{i,j,\ell} \ne 0`, in which
 case the stage solution :math:`z_i` is *both* an input to :math:`r_i(t)` and the
 result of time-evolution of the fast IVP, necessitating an implicit solve that
 is coupled to the fast evolution. At present, only "solve-decoupled"
@@ -750,7 +750,7 @@ The IMEX-MRI-SR family of methods perform *both* the fast IVP evolution,
 (but these methods typically have far fewer stages than implicit MRI-GARK or
 IMEX-MRI-GARK methods).  These methods are defined by a vector of slow stage
 time abscissae :math:`c^S \in \mathbb{R}^{s}`, a set of coupling tensors
-:math:`\Omega\in\mathbb{R}^{(s+1)\times s\times k}`, and a Butcher table of
+:math:`\Omega\in\mathbb{R}^{(s+1)\times s\times \ell}`, and a Butcher table of
 slow-implicit coefficients, :math:`\Gamma\in\mathbb{R}^{(s+1) \times s}`.
 
 The fast stage IVPs, :eq:`MRI_fast_IVP`, are evolved on overlapping
@@ -763,7 +763,7 @@ given by
    :label: IMEXMRISR_forcing
 
 where :math:`\tau = (t - t_n)/(h^S c_i^S)` is the normalized time, and the coefficients
-:math:`\omega_{i,j}` are polynomials in time of degree :math:`k` that are also given by
+:math:`\omega_{i,j}` are polynomials in time of degree :math:`k-1` that are also given by
 :eq:`ARKODE_MRI_coupling`.  The solution of these fast IVPs defines an intermediate stage
 solution, :math:`\tilde{z}_i`.
 
