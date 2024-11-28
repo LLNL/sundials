@@ -657,7 +657,7 @@ ARK_MRI_TABLE(ARKODE_IMEX_MRI_GARK4, { /* R. Chinomona & D. Reynolds SINUM 43(5)
   })
 
 ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR21, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(1, 4, MRISTEP_MRISR);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(1, 4, MRISTEP_SR);
 
     C->q = 2;
     C->p = 1;
@@ -692,7 +692,7 @@ ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR21, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts,
   })
 
 ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR32, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 5, MRISTEP_MRISR);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 5, MRISTEP_SR);
 
     C->q = 3;
     C->p = 2;
@@ -753,7 +753,7 @@ ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR32, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts,
   })
 
 ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR43, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, arXiv:2301.00865, 2023 */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 7, MRISTEP_MRISR);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 7, MRISTEP_SR);
 
     C->q = 4;
     C->p = 3;

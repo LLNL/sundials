@@ -39,7 +39,7 @@ typedef enum
   MRISTEP_IMPLICIT,
   MRISTEP_IMEX,
   MRISTEP_MERK,
-  MRISTEP_MRISR
+  MRISTEP_SR
 } MRISTEP_METHOD_TYPE;
 
 /* MRI coupling table IDs */

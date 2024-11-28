@@ -32,10 +32,10 @@ module farkode_mristep_mod
   enumerator :: MRISTEP_IMPLICIT
   enumerator :: MRISTEP_IMEX
   enumerator :: MRISTEP_MERK
-  enumerator :: MRISTEP_MRISR
+  enumerator :: MRISTEP_SR
  end enum
  integer, parameter, public :: MRISTEP_METHOD_TYPE = kind(MRISTEP_EXPLICIT)
- public :: MRISTEP_EXPLICIT, MRISTEP_IMPLICIT, MRISTEP_IMEX, MRISTEP_MERK, MRISTEP_MRISR
+ public :: MRISTEP_EXPLICIT, MRISTEP_IMPLICIT, MRISTEP_IMEX, MRISTEP_MERK, MRISTEP_SR
  ! typedef enum ARKODE_MRITableID
  enum, bind(c)
   enumerator :: ARKODE_MRI_NONE = -1

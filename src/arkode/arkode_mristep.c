@@ -981,7 +981,7 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
     case MRISTEP_IMPLICIT: ark_mem->step = mriStep_TakeStepMRIGARK; break;
     case MRISTEP_IMEX: ark_mem->step = mriStep_TakeStepMRIGARK; break;
     case MRISTEP_MERK: ark_mem->step = mriStep_TakeStepMERK; break;
-    case MRISTEP_MRISR: ark_mem->step = mriStep_TakeStepMRISR; break;
+    case MRISTEP_SR: ark_mem->step = mriStep_TakeStepMRISR; break;
     default:
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "Unknown method type");
@@ -1121,7 +1121,7 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
     /* If an MRISR method is applied to a non-ImEx problem, we "unify"
        the Fse and Fsi vectors to point at the same memory */
     step_mem->unify_Fs = SUNFALSE;
-    if ((step_mem->MRIC->type == MRISTEP_MRISR) &&
+    if ((step_mem->MRIC->type == MRISTEP_SR) &&
         ((step_mem->explicit_rhs && !step_mem->implicit_rhs) ||
          (!step_mem->explicit_rhs && step_mem->implicit_rhs)))
     {
@@ -3197,7 +3197,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   /* Check that coupling table has compatible type */
   if (step_mem->implicit_rhs && step_mem->explicit_rhs &&
       (step_mem->MRIC->type != MRISTEP_IMEX) &&
-      (step_mem->MRIC->type != MRISTEP_MRISR))
+      (step_mem->MRIC->type != MRISTEP_SR))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid coupling table for an IMEX problem!");
@@ -3206,7 +3206,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   if (step_mem->explicit_rhs && (step_mem->MRIC->type != MRISTEP_EXPLICIT) &&
       (step_mem->MRIC->type != MRISTEP_IMEX) &&
       (step_mem->MRIC->type != MRISTEP_MERK) &&
-      (step_mem->MRIC->type != MRISTEP_MRISR))
+      (step_mem->MRIC->type != MRISTEP_SR))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid coupling table for an explicit problem!");
@@ -3214,7 +3214,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
   }
   if (step_mem->implicit_rhs && (step_mem->MRIC->type != MRISTEP_IMPLICIT) &&
       (step_mem->MRIC->type != MRISTEP_IMEX) &&
-      (step_mem->MRIC->type != MRISTEP_MRISR))
+      (step_mem->MRIC->type != MRISTEP_SR))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid coupling table for an implicit problem!");
@@ -3223,7 +3223,7 @@ int mriStep_CheckCoupling(ARKodeMem ark_mem)
 
   /* Check that the matrices are defined appropriately */
   if ((step_mem->MRIC->type == MRISTEP_IMEX) ||
-      (step_mem->MRIC->type == MRISTEP_MRISR))
+      (step_mem->MRIC->type == MRISTEP_SR))
   {
     /* ImEx */
     if (!(step_mem->MRIC->W) || !(step_mem->MRIC->G))
@@ -3727,7 +3727,7 @@ int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
 
   /* Adjust implicit/explicit RHS flags for MRISR methods, since these
      ignore the G coefficients in the forcing function */
-  if (step_mem->MRIC->type == MRISTEP_MRISR)
+  if (step_mem->MRIC->type == MRISTEP_SR)
   {
     implicit_rhs = SUNFALSE;
     explicit_rhs = SUNTRUE;
