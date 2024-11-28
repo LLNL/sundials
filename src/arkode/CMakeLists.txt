@@ -32,6 +32,8 @@ set(arkode_SOURCES
     arkode_interp.c
     arkode_io.c
     arkode_ls.c
+    arkode_lsrkstep_io.c
+    arkode_lsrkstep.c
     arkode_mri_tables.c
     arkode_mristep_controller.c
     arkode_mristep_io.c
@@ -42,6 +44,7 @@ set(arkode_SOURCES
     arkode_sprkstep_io.c
     arkode_sprkstep.c
     arkode_sprk.c
+    arkode_sunstepper.c
     arkode_user_controller.c
     arkode.c)
 
@@ -56,6 +59,7 @@ set(arkode_HEADERS
     arkode_butcher_erk.h
     arkode_erkstep.h
     arkode_ls.h
+    arkode_lsrkstep.h
     arkode_mristep.h
     arkode_sprk.h
     arkode_sprkstep.h)

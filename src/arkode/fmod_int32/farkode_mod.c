@@ -2307,6 +2307,20 @@ SWIGEXPORT int _wrap_FARKodeGetNumRelaxSolveIters(void *farg1, long *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FARKodeCreateSUNStepper(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNStepper *arg2 = (SUNStepper *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (SUNStepper *)(farg2);
+  result = (int)ARKodeCreateSUNStepper(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKBandPrecInit(void *farg1, int32_t const *farg2, int32_t const *farg3, int32_t const *farg4) {
   int fresult ;
   void *arg1 = (void *) 0 ;

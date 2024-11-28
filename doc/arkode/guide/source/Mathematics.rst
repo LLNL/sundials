@@ -61,13 +61,15 @@ for interpolated solution output.  We then discuss the current suite
 of time-stepping modules supplied with ARKODE, including the ARKStep
 module for :ref:`additive Runge--Kutta methods <ARKODE.Mathematics.ARK>`,
 the ERKStep module that is optimized for :ref:`explicit Runge--Kutta
-methods <ARKODE.Mathematics.ERK>`, and the MRIStep module for :ref:`multirate
-infinitesimal step (MIS), multirate infinitesimal GARK (MRI-GARK), and
-implicit-explicit MRI-GARK (IMEX-MRI-GARK) methods <ARKODE.Mathematics.MRIStep>`.
-We then discuss the :ref:`adaptive temporal error controllers
-<ARKODE.Mathematics.Adaptivity>` shared by the time-stepping modules, including
-discussion of our choice of norms for measuring errors within various components
-of the solver.
+methods <ARKODE.Mathematics.ERK>`, the SPRKStep module that provides
+:ref:`symplectic partitioned Runge--Kutta methods <ARKODE.Mathematics.SPRKStep>`
+for Hamiltonian dynamics, the MRIStep module that provides a variety of
+:ref:`multirate infinitesimal methods <ARKODE.Mathematics.MRIStep>`, and the
+LSRKStep module that supports :ref:`low-storage Runge--Kutta methods
+<ARKODE.Mathematics.LSRK>`.  We then discuss the :ref:`adaptive temporal
+error controllers <ARKODE.Mathematics.Adaptivity>` shared by the time-stepping
+modules, including discussion of our choice of norms for measuring errors
+within various components of the solver.
 
 We then discuss the nonlinear and linear solver strategies used by
 ARKODE for solving implicit algebraic systems that arise in computing each
@@ -830,6 +832,61 @@ and finally finishing the IVP solve to :math:`t_{n-1}+h^S` to obtain :math:`\til
    and so we conjecture that it also satisfies the nonlinear fifth order conditions.
 
 
+
+.. _ARKODE.Mathematics.LSRK:
+
+LSRKStep -- Low-Storage Runge--Kutta methods
+============================================
+
+The LSRKStep time-stepping module in ARKODE supports a variety of so-called
+"low-storage" Runge--Kutta (LSRK) methods, :cite:p:`VSH:04, MBA:14, K:08, FCS:22`.  This category includes traditional explicit 
+fixed-step and low-storage Runge--Kutta methods, adaptive  
+low-storage Runge--Kutta methods, and others.  These are characterized by coefficient tables
+that have an exploitable structure, such that their implementation does not require
+that all stages be stored simultaneously.  At present, this module supports explicit, 
+adaptive "super-time-stepping" (STS) and "strong-stability-preserving" (SSP) methods.
+
+The LSRK time-stepping module in ARKODE currently supports IVP
+of the form :eq:`ARKODE_IVP_simple_explicit`, i.e., unlike the more general problem form :eq:`ARKODE_IMEX_IVP`, LSRKStep
+requires that problems have an identity mass matrix (i.e., :math:`M(t)=I`)
+and that the right-hand side function is not split into separate
+components.
+
+LSRKStep currently supports two families of second-order, explicit, and temporally adaptive STS methods: 
+Runge--Kutta--Chebyshev (RKC), :cite:p:`VSH:04` and Runge--Kutta--Legendre (RKL), :cite:p:`MBA:14`.   These methods have the form
+
+.. math::
+   z_0 &= y_n,\\
+   z_1 &= z_0 + h \tilde{\mu}_1 f(t_n,z_0),\\
+   z_j &= (1-\mu_j-\nu_j)z_0 + \mu_j z_{j-1} + \nu_jz_{j-2} + h \tilde{\gamma}_j f(t_n,z_0) + h \tilde{\mu}_j f(t_n + c_{j-1}h, z_{j-1}) \\
+   y_{n+1} &= z_s.
+   :label: ARKODE_RKC_RKL
+
+The corresponding coefficients can be found in :cite:p:`VSH:04` and :cite:p:`MBA:14`, respectively.
+
+LSRK methods of STS type are designed for stiff problems characterized by 
+having Jacobians with eigenvalues that have large real and small imaginary parts. 
+While those problems are traditionally treated using implicit methods, STS methods
+are explicit.  To achieve stability for these stiff problems, STS methods use more stages than 
+conventional Runge-Kutta methods to extend the stability region along the negative 
+real axis. The extent of this stability region is proportional to the square of the number 
+of stages used.
+
+LSRK methods of the SSP type are designed to preserve the so-called "strong-stability" properties of advection-type equations. 
+For details, see :cite:p:`K:08`.
+The SSPRK methods in ARKODE use the following Shu--Osher representation :cite:p:`SO:88` of explicit Runge--Kutta methods:
+
+.. math::
+   z_1 &= y_n,\\
+   z_i &= \sum_{j = 1}^{i-1} \left(\alpha_{i,j}y_j + \beta_{i,j}h f(t_n + c_jh, z_j)\right),\\
+   y_{n+1} &= z_s.
+   :label: ARKODE_SSP
+
+The coefficients of the Shu--Osher representation are not uniquely determined by the Butcher table :cite:p:`SR:02`.
+In particular, the methods SSP(s,2), SSP(s,3), and SSP(10,4) implemented herein and presented in 
+:cite:p:`K:08` have "almost" all zero coefficients appearing in :math:`\alpha_{i,i-1}` and 
+:math:`\beta_{i,i-1}`. This feature facilitates their implementation in a low-storage manner. The 
+corresponding coefficients and embedding weights can be found in :cite:p:`K:08` and :cite:p:`FCS:22`, respectively.
 
 .. _ARKODE.Mathematics.Error.Norm:
 

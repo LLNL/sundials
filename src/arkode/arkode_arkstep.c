@@ -21,10 +21,12 @@
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
+#include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_types.h"
 
 #define FIXED_LIN_TOL
 
@@ -3245,7 +3247,6 @@ int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
                             sunrealtype tscale, N_Vector* forcing, int nvecs)
 {
   ARKodeARKStepMem step_mem;
-  int retval;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);

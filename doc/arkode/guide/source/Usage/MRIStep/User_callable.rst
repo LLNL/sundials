@@ -34,6 +34,10 @@ MRIStep supports the following categories:
 * temporal adaptivity
 * implicit nonlinear and/or linear solvers
 
+MRIStep does not have forcing function support when converted to a
+:c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
+:c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
+for additional details.
 
 
 .. _ARKODE.Usage.MRIStep.Initialization:
@@ -131,7 +135,7 @@ MRIStep tolerance specification functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL:  if the MRIStep memory was ``NULL``
    :retval ARK_NO_MALLOC:  if the MRIStep memory was not allocated by the time-stepping module
-   :retval ARK_ILL_INPUT: if an argument has an illegal value (e.g. a negative tolerance).
+   :retval ARK_ILL_INPUT: if an argument had an illegal value (e.g. a negative tolerance).
 
    .. deprecated:: 6.1.0
 
@@ -153,7 +157,7 @@ MRIStep tolerance specification functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL:  if the MRIStep memory was ``NULL``
    :retval ARK_NO_MALLOC:  if the MRIStep memory was not allocated by the time-stepping module
-   :retval ARK_ILL_INPUT: if an argument has an illegal value (e.g. a negative tolerance).
+   :retval ARK_ILL_INPUT: if an argument had an illegal value (e.g. a negative tolerance).
 
    .. deprecated:: 6.1.0
 
@@ -439,7 +443,6 @@ Optional inputs for MRIStep
    :retval ARK_ILL_INPUT: if an argument has an illegal value
 
    .. note::
-
 
       This function does not change problem-defining function pointers
       *fs* and *ff* or the *user_data* pointer. It also does not affect any data
@@ -2399,7 +2402,7 @@ To reinitialize the MRIStep module for the solution of a new problem,
 where a prior call to :c:func:`MRIStepCreate()` has been made, the
 user must call the function :c:func:`MRIStepReInit()`.  The new
 problem must have the same size as the previous one.  This routine
-retains the current settings for all ARKstep module options and
+retains the current settings for all MRIStep module options and
 performs the same input checking and initializations that are done in
 :c:func:`MRIStepCreate()`, but it performs no memory allocation as is
 assumes that the existing internal memory is sufficient for the new

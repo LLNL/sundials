@@ -25,4 +25,5 @@
 %include "fsundials_linearsolver.i"
 %include "fsundials_nonlinearsolver.i"
 %include "fsundials_adaptcontroller.i"
+%include "fsundials_stepper.i"
 %include "fcopyright.i"
