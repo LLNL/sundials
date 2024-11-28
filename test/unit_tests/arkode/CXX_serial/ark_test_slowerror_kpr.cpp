@@ -154,10 +154,10 @@ int main(int argc, char* argv[])
   // Retrieve the command-line options:  method Npart G e omega
   if (argc > 1) { method = argv[1]; }
   else { method = "ARKODE_MRI_GARK_ERK33a"; }
-  if (argc > 2) udata.Npart = (int)atoi(argv[2]);
-  if (argc > 3) udata.G = (sunrealtype)atof(argv[3]);
-  if (argc > 4) udata.e = (sunrealtype)atof(argv[4]);
-  if (argc > 5) udata.omega = (sunrealtype)atof(argv[5]);
+  if (argc > 2) udata.Npart = atoi(argv[2]);
+  if (argc > 3) udata.G = SUNStrToReal(argv[3]);
+  if (argc > 4) udata.e = SUNStrToReal(argv[4]);
+  if (argc > 5) udata.omega = SUNStrToReal(argv[5]);
 
   // Check arguments for validity
   //   G < 0.0
