@@ -205,7 +205,7 @@ static int test_mixed_directions(SUNContext ctx)
  * with initial condition y(0) = 1 and partitioning specified by the square
  * brackets. We integrate to t = 1 then reinitialize the forcing method by
  * swapping the SUNSteppers and updating the initial condition to y(1) = -1.
- * Next we integrator to t = 2 and check the error against the exact solution
+ * Next we integrate to t = 2 and check the error against the exact solution
  * y(2) = -sqrt(6).
  */
 static int test_reinit(SUNContext ctx)
