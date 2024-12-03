@@ -72,7 +72,6 @@ int erkStep_Init(ARKodeMem ark_mem, int init_type);
 int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
-int erkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int erkStep_SetDefaults(ARKodeMem ark_mem);
 int erkStep_SetOrder(ARKodeMem ark_mem, int ord);
 int erkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
@@ -82,6 +81,8 @@ int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 void erkStep_Free(ARKodeMem ark_mem);
 void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
+int erkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals);
 int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
 
 /* Internal utility routines */

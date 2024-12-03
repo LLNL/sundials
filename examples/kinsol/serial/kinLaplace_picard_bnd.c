@@ -119,7 +119,7 @@ int main(void)
   if (check_retval((void*)scale, "N_VNew_Serial", 0)) { return (1); }
 
   /* ----------------------------------------------------------------------------------
-   * Initialize and allocate memory for KINSOL, set parametrs for Anderson acceleration
+   * Initialize and allocate memory for KINSOL, set parameters for Anderson acceleration
    * ---------------------------------------------------------------------------------- */
 
   kmem = KINCreate(sunctx);

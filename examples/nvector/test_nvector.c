@@ -48,7 +48,7 @@
 /* all tests need a SUNContext */
 SUNContext sunctx = NULL;
 
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
                                        by get_time easier to read when
                                        printed since they will be zero
@@ -365,7 +365,7 @@ int Test_N_VClone(N_Vector W, sunindextype local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VGetArrayPointer Test
  *
- * For now commenting this out to surpress warning messages (pointer set,
+ * For now commenting this out to suppress warning messages (pointer set,
  * but not used). Do we really need to time access to the vector
  * data pointer?
  *
@@ -390,7 +390,7 @@ int Test_N_VGetArrayPointer(N_Vector W, sunindextype local_length, int myid)
   start_time = get_time();
   Wdata      = N_VGetArrayPointer(W);
   stop_time  = get_time();
-  Wdata[0]   = ONE; /* Do something with pointer to surpress warning */
+  Wdata[0]   = ONE; /* Do something with pointer to suppress warning */
 
   /* check vector data */
   if (!has_data(W))
@@ -5993,7 +5993,7 @@ int Test_N_VBufUnpack(N_Vector x, sunindextype local_length, int myid)
 
 void SetTiming(int onoff, int myid)
 {
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
   struct timespec spec;
   clock_gettime(CLOCK_MONOTONIC, &spec);
   base_time_tv_sec = spec.tv_sec;
@@ -6016,7 +6016,7 @@ void SetTiming(int onoff, int myid)
 static double get_time(void)
 {
   double time;
-#if defined(SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
   struct timespec spec;
   clock_gettime(CLOCK_MONOTONIC, &spec);
   time = (double)(spec.tv_sec - base_time_tv_sec) +

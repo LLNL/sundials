@@ -27,7 +27,7 @@
  * Construct, initialize, and free
  * ------------------------------- */
 
-/* Create XBraid app strucutre */
+/* Create XBraid app structure */
 int ARKBraid_Create(void* arkode_mem, braid_App* app)
 {
   int flag;
@@ -67,7 +67,7 @@ int ARKBraid_Create(void* arkode_mem, braid_App* app)
   content->last_flag_braid  = SUNBRAID_SUCCESS;
   content->last_flag_arkode = SUNBRAID_SUCCESS;
 
-  /* Output time and solution (allocaed in access if necessary) */
+  /* Output time and solution (allocated in access if necessary) */
   content->tout = content->ark_mem->tn;
   content->yout = NULL;
 

@@ -174,9 +174,11 @@ SUNDIALS License and Notices
    sunlinsol/index.rst
    sunnonlinsol/index.rst
    sunadaptcontroller/index.rst
+   sunstepper/index.rst
    sunmemory/index.rst
    History_link.rst
    Changelog_link.rst
+   FAQ_link.rst
 
 .. toctree::
    :caption: DEVELOPMENT

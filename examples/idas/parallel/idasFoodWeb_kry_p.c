@@ -79,7 +79,7 @@
  *
  * The DAE system is solved by IDAS using the SUNLinSol_SPGMR linear
  * solver, which uses the preconditioned GMRES iterative method to
- * solve linear systems. The precondtioner supplied to SUNLinSol_SPGMR is
+ * solve linear systems. The preconditioner supplied to SUNLinSol_SPGMR is
  * the block-diagonal part of the Jacobian with ns by ns blocks
  * arising from the reaction terms only. Output is printed at
  * t = 0, .001, .01, .1, .4, .7, 1.
@@ -1239,7 +1239,7 @@ static sunrealtype dotprod(int size, sunrealtype* x1, sunrealtype* x2)
 /*
  * Preconbd: Preconditioner setup routine.
  * This routine generates and preprocesses the block-diagonal
- * preconditoner PP.  At each spatial point, a block of PP is computed
+ * preconditioner PP.  At each spatial point, a block of PP is computed
  * by way of difference quotients on the reaction rates R.
  * The base value of R are taken from webdata->rates, as set by webres.
  * Each block is LU-factored, for later solution of the linear systems.
@@ -1286,8 +1286,8 @@ static int Precondbd(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
 
       for (js = 0; js < ns; js++)
       {
-        inc = sqru *
-              (MAX(fabs(cxy[js]), MAX(hh * fabs(cpxy[js]), ONE / ewtxy[js])));
+        inc    = sqru * (MAX(SUNRabs(cxy[js]),
+                             MAX(hh * SUNRabs(cpxy[js]), ONE / ewtxy[js])));
         cctemp = cxy[js]; /* Save the (js,ix,jy) element of cc. */
         cxy[js] += inc;   /* Perturb the (js,ix,jy) element of cc. */
         fac = -ONE / inc;

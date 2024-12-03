@@ -164,7 +164,7 @@ information:
 
 * ``berr`` -- the componentwise relative backward error of the computed solution,
 
-* ``grid`` -- pointer to the SuperLU_DIST structure that strores the 2D process grid
+* ``grid`` -- pointer to the SuperLU_DIST structure that stores the 2D process grid
 
 * ``lu`` -- pointer to the SuperLU_DIST structure that stores the distributed ``L``
   and ``U`` factors,
@@ -172,7 +172,7 @@ information:
 * ``scaleperm`` -- pointer to the SuperLU_DIST structure that stores vectors describing
   the transformations done to the matrix ``A``,
 
-* ``options`` -- pointer to the SuperLU_DIST stucture which contains options that control
+* ``options`` -- pointer to the SuperLU_DIST structure which contains options that control
   how the linear system is factorized and solved,
 
 * ``solve`` -- pointer to the SuperLU_DIST solve structure,

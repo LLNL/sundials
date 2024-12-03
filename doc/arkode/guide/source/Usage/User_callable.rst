@@ -790,6 +790,10 @@ the user has set a stop time (with a call to the optional input function
    :retval ARK_MASSSETUP_FAIL: the mass matrix solver's setup routine failed.
    :retval ARK_MASSSOLVE_FAIL: the mass matrix solver's solve routine failed.
    :retval ARK_VECTOROP_ERR: a vector operation error occurred.
+   :retval ARK_DOMEIG_FAIL: the dominant eigenvalue function failed. It is either 
+                            not provided or returns an illegal value.
+   :retval ARK_MAX_STAGE_LIMIT_FAIL: stepper failed to achieve stable results. Either 
+                                     reduce the step size or increase the stage_max_limit
 
    .. note::
 
@@ -1235,7 +1239,7 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       The default is that no stop time is imposed.
 
       Once the integrator returns at a stop time, any future testing for
-      ``tstop`` is disabled (and can be reenabled only though a new call to
+      ``tstop`` is disabled (and can be re-enabled only though a new call to
       :c:func:`ARKodeSetStopTime`).
 
       A stop time not reached before a call to ``*StepReInit`` or
@@ -1271,7 +1275,7 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
    .. note::
 
-      The stop time can be reenabled though a new call to
+      The stop time can be re-enabled though a new call to
       :c:func:`ARKodeSetStopTime`.
 
    .. versionadded:: 6.1.0
@@ -3165,6 +3169,7 @@ Name of constant associated with a return flag         :c:func:`ARKodeGetReturnF
 No. of explicit stability-limited steps                :c:func:`ARKodeGetNumExpSteps`
 No. of accuracy-limited steps                          :c:func:`ARKodeGetNumAccSteps`
 No. of attempted steps                                 :c:func:`ARKodeGetNumStepAttempts`
+No. of RHS evaluations                                 :c:func:`ARKodeGetNumRhsEvals`
 No. of local error test failures that have occurred    :c:func:`ARKodeGetNumErrTestFails`
 No. of failed steps due to a nonlinear solver failure  :c:func:`ARKodeGetNumStepSolveFails`
 Estimated local truncation error vector                :c:func:`ARKodeGetEstLocalErrors`
@@ -3420,7 +3425,9 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
 .. c:function:: int ARKodeGetNumExpSteps(void* arkode_mem, long int* expsteps)
 
    Returns the cumulative number of stability-limited steps
-   taken by the solver (so far).
+   taken by the solver (so far). If the combination of the maximum number of stages 
+   and the current time step size in the LSRKStep module will not allow for a stable 
+   step, the counter also accounts for such returns.
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param expsteps: number of stability-limited steps taken in the solver.
@@ -3468,6 +3475,39 @@ Retrieve a pointer for user data                       :c:func:`ARKodeGetUserDat
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
    .. versionadded:: 6.1.0
+
+
+.. c:function:: int ARKodeGetNumRhsEvals(void* arkode_mem, int partition_index, long int* num_rhs_evals)
+
+   Returns the number of calls to the user's right-hand side function (so far).
+   For implicit methods or methods with an implicit partition, the count does
+   not include calls made by a linear solver or preconditioner.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param num_partition: the right-hand side partition index:
+
+                   * For ERKStep, ``0`` corresponds to :math:`f(t,y)`
+
+                   * For ARKStep, ``0`` corresponds to :math:`f^E(t,y)` and
+                     ``1`` to :math:`f^I(t,y)`
+
+                   * For MRIStep, ``0`` corresponds to :math:`f^E(t,y)` and
+                     ``1`` to :math:`f^I(t,y)`
+
+                   * For SPRKStep, ``0`` corresponds to :math:`f_1(t,p)` and
+                     ``1`` to :math:`f_2(t,q)`
+
+                   A negative index will return the sum of the evaluations for
+                   each partition.
+
+   :param num_rhs_evals: the number of right-hand side evaluations.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: if ``arkode_mem`` was ``NULL``.
+   :retval ARK_ILL_INPUT: if ``num_partiton`` was invalid for the stepper or
+                          ``num_rhs_evals`` was ``NULL``
+
+   .. versionadded:: x.y.z
 
 
 .. c:function:: int ARKodeGetNumErrTestFails(void* arkode_mem, long int* netfails)
@@ -4685,3 +4725,31 @@ rescale the upcoming time step by the specified factor.  If a value
       * ``examples/arkode/C_serial/ark_heat1D_adapt.c``
 
    .. versionadded:: 6.1.0
+
+
+
+.. _ARKODE.Usage.SUNStepperInterface:
+
+Using an ARKODE solver as a SUNStepper
+--------------------------------------
+
+The utility function :c:func:`ARKodeCreateSUNStepper` wraps an ARKODE memory
+block as a :c:type:`SUNStepper`.
+
+.. c:function:: int ARKodeCreateSUNStepper(void *inner_arkode_mem, SUNStepper *stepper)
+
+   Wraps an ARKODE integrator as a :c:type:`SUNStepper`.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param stepper: the :c:type:`SUNStepper` object.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_FAIL: a memory allocation failed.
+   :retval ARK_SUNSTEPPER_ERR: the :c:type:`SUNStepper` initialization failed.
+
+   .. warning::
+      Currently, ``stepper`` will be equipped with an implementation for the
+      :c:func:`SUNStepper_SetForcing` function only if ``inner_arkode_mem`` is
+      an ARKStep integrator.
+
+   .. versionadded:: x.y.z

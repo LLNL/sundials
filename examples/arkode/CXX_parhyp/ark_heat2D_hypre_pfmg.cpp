@@ -155,7 +155,7 @@ struct UserData
   sunrealtype* Ssend;
   sunrealtype* Nsend;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -208,7 +208,7 @@ struct UserData
                          //   3 - nonsymmetric R/B Gauss-Seidel
   HYPRE_Int pfmg_nrelax; // number of pre and post relaxation sweeps (2)
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   int nout;      // number of output times
   ofstream uout; // output file stream
@@ -338,6 +338,13 @@ int main(int argc, char* argv[])
   SUNContext ctx;
   flag = SUNContext_Create(comm_w, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1)) { return 1; }
+
+  // Initialize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+  flag = HYPRE_Init();
+  if (check_flag(&flag, "HYPRE_Init", 1)) { return 1; }
+#endif
 
   // Set output process flag
   bool outproc = (myid == 0);
@@ -523,7 +530,7 @@ int main(int argc, char* argv[])
   sunrealtype dTout = udata->tf / udata->nout;
   sunrealtype tout  = dTout;
 
-  // Inital output
+  // Initial output
   flag = OpenOutput(udata);
   if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 
@@ -596,6 +603,13 @@ int main(int argc, char* argv[])
   // --------------------
   // Clean up and return
   // --------------------
+
+  // Finalize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+  flag = HYPRE_Finalize();
+  if (check_flag(&flag, "HYPRE_Finalize", 1)) { return 1; }
+#endif
 
   ARKodeFree(&arkode_mem); // Free integrator memory
   SUNLinSolFree(LS);       // Free linear solver
@@ -1094,7 +1108,7 @@ static int PSetup(sunrealtype t, N_Vector u, N_Vector f, sunbooleantype jok,
   flag = HYPRE_StructPFMGCreate(udata->comm_c, &(udata->precond));
   if (flag != 0) { return -1; }
 
-  // Signal that the inital guess is zero
+  // Signal that the initial guess is zero
   flag = HYPRE_StructPFMGSetZeroGuess(udata->precond);
   if (flag != 0) { return -1; }
 
@@ -1167,7 +1181,7 @@ static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
   flag = HYPRE_StructPFMGSolve(udata->precond, udata->Amatrix, udata->bvec,
                                udata->xvec);
 
-  // If a convergence error occured, clear the error and continue. For any
+  // If a convergence error occurred, clear the error and continue. For any
   // other error return with a recoverable error.
   if (flag == HYPRE_ERROR_CONV) { HYPRE_ClearError(HYPRE_ERROR_CONV); }
   else if (flag != 0) { return 1; }
@@ -1236,6 +1250,7 @@ static int SetupHypre(UserData* udata)
   flag = HYPRE_StructGridCreate(udata->comm_c, 2, &(udata->grid));
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructGridCreate = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1250,6 +1265,7 @@ static int SetupHypre(UserData* udata)
   flag = HYPRE_StructGridSetExtents(udata->grid, udata->ilower, udata->iupper);
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructGridSetExtents = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1258,6 +1274,7 @@ static int SetupHypre(UserData* udata)
   flag = HYPRE_StructGridAssemble(udata->grid);
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructGridAssemble = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1270,6 +1287,7 @@ static int SetupHypre(UserData* udata)
   flag = HYPRE_StructStencilCreate(2, 5, &(udata->stencil));
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructStencilCreate = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1282,6 +1300,7 @@ static int SetupHypre(UserData* udata)
     flag = HYPRE_StructStencilSetElement(udata->stencil, entry, offsets[entry]);
     if (flag != 0)
     {
+      cerr << "Error in HYPRE_StructStencilSetElement = " << flag << endl;
       FreeUserData(udata);
       return -1;
     }
@@ -1296,6 +1315,7 @@ static int SetupHypre(UserData* udata)
   udata->work  = new HYPRE_Real[udata->nwork];
   if (udata->work == NULL)
   {
+    cerr << "Error: unable to allocate work array" << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1307,6 +1327,7 @@ static int SetupHypre(UserData* udata)
   flag = HYPRE_StructVectorCreate(udata->comm_c, udata->grid, &(udata->xvec));
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructVectorCreate (x) = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1314,6 +1335,7 @@ static int SetupHypre(UserData* udata)
   flag = HYPRE_StructVectorInitialize(udata->xvec);
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructVectorInitialize (x) = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1325,6 +1347,7 @@ static int SetupHypre(UserData* udata)
   flag = HYPRE_StructVectorCreate(udata->comm_c, udata->grid, &(udata->bvec));
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructVectorCreate (b) = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1332,6 +1355,7 @@ static int SetupHypre(UserData* udata)
   flag = HYPRE_StructVectorInitialize(udata->bvec);
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructVectorInitialize (b) = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1345,6 +1369,7 @@ static int SetupHypre(UserData* udata)
     flag = HYPRE_StructVectorCreate(udata->comm_c, udata->grid, &(udata->vvec));
     if (flag != 0)
     {
+      cerr << "Error in HYPRE_StructVectorCreate (v) = " << flag << endl;
       FreeUserData(udata);
       return -1;
     }
@@ -1352,6 +1377,7 @@ static int SetupHypre(UserData* udata)
     flag = HYPRE_StructVectorInitialize(udata->vvec);
     if (flag != 0)
     {
+      cerr << "Error in HYPRE_StructVectorInitialize (v) = " << flag << endl;
       FreeUserData(udata);
       return -1;
     }
@@ -1363,6 +1389,7 @@ static int SetupHypre(UserData* udata)
     flag = HYPRE_StructVectorCreate(udata->comm_c, udata->grid, &(udata->Jvvec));
     if (flag != 0)
     {
+      cerr << "Error in HYPRE_StructVectorCreate (Jv) = " << flag << endl;
       FreeUserData(udata);
       return -1;
     }
@@ -1370,6 +1397,7 @@ static int SetupHypre(UserData* udata)
     flag = HYPRE_StructVectorInitialize(udata->Jvvec);
     if (flag != 0)
     {
+      cerr << "Error in HYPRE_StructVectorInitialize (Jv) = " << flag << endl;
       FreeUserData(udata);
       return -1;
     }
@@ -1383,6 +1411,7 @@ static int SetupHypre(UserData* udata)
                                   &(udata->Jmatrix));
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructMatrixCreate (J) = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1390,6 +1419,7 @@ static int SetupHypre(UserData* udata)
   flag = HYPRE_StructMatrixInitialize(udata->Jmatrix);
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructMatrixInitialize (A) = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1402,6 +1432,7 @@ static int SetupHypre(UserData* udata)
                                   &(udata->Amatrix));
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructMatrixCreate (A) = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1409,6 +1440,7 @@ static int SetupHypre(UserData* udata)
   flag = HYPRE_StructMatrixInitialize(udata->Amatrix);
   if (flag != 0)
   {
+    cerr << "Error in HYPRE_StructMatrixInitialize (A) = " << flag << endl;
     FreeUserData(udata);
     return -1;
   }
@@ -1431,6 +1463,7 @@ static int SetupHypre(UserData* udata)
     flag = Jac(udata);
     if (flag != 0)
     {
+      cerr << "Error in Jac = " << flag << endl;
       FreeUserData(udata);
       return -1;
     }
@@ -1438,6 +1471,7 @@ static int SetupHypre(UserData* udata)
     flag = HYPRE_StructMatrixAssemble(udata->Jmatrix);
     if (flag != 0)
     {
+      cerr << "Error in HYPRE_StructMatrixAssemble = " << flag << endl;
       FreeUserData(udata);
       return -1;
     }
@@ -1518,7 +1552,12 @@ static int Jac(UserData* udata)
     // Modify the matrix
     flag = HYPRE_StructMatrixSetBoxValues(Jmatrix, ilower, iupper, 5, entries,
                                           work);
-    if (flag != 0) { return -1; }
+    if (flag != 0)
+    {
+      cerr << "Error in HYPRE_StructMatrixSetBoxValues (interior) = " << flag
+           << endl;
+      return -1;
+    }
 
     // ----------------------------------------
     // Correct matrix values at boundary nodes
@@ -1560,7 +1599,12 @@ static int Jac(UserData* udata)
         // Modify the matrix
         flag = HYPRE_StructMatrixSetBoxValues(Jmatrix, bc_ilower, bc_iupper, 5,
                                               entries, work);
-        if (flag != 0) { return -1; }
+        if (flag != 0)
+        {
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (west bdry) = " << flag
+               << endl;
+          return -1;
+        }
       }
     }
 
@@ -1581,7 +1625,12 @@ static int Jac(UserData* udata)
         // Modify the matrix
         flag = HYPRE_StructMatrixSetBoxValues(Jmatrix, bc_ilower, bc_iupper, 5,
                                               entries, work);
-        if (flag != 0) { return -1; }
+        if (flag != 0)
+        {
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (east bdry) = " << flag
+               << endl;
+          return -1;
+        }
       }
     }
 
@@ -1602,7 +1651,12 @@ static int Jac(UserData* udata)
         // Modify the matrix
         flag = HYPRE_StructMatrixSetBoxValues(Jmatrix, bc_ilower, bc_iupper, 5,
                                               entries, work);
-        if (flag != 0) { return -1; }
+        if (flag != 0)
+        {
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (south bdry) = "
+               << flag << endl;
+          return -1;
+        }
       }
     }
 
@@ -1623,7 +1677,12 @@ static int Jac(UserData* udata)
         // Modify the matrix
         flag = HYPRE_StructMatrixSetBoxValues(Jmatrix, bc_ilower, bc_iupper, 5,
                                               entries, work);
-        if (flag != 0) { return -1; }
+        if (flag != 0)
+        {
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (north bdry) = "
+               << flag << endl;
+          return -1;
+        }
       }
     }
 
@@ -1654,7 +1713,13 @@ static int Jac(UserData* udata)
         // Modify the matrix
         flag = HYPRE_StructMatrixSetBoxValues(Jmatrix, bc_ilower, bc_iupper, 1,
                                               entry, work);
-        if (flag != 0) { return -1; }
+        if (flag != 0)
+        {
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect west "
+                  "bdry) = "
+               << flag << endl;
+          return -1;
+        }
       }
     }
 
@@ -1678,7 +1743,13 @@ static int Jac(UserData* udata)
         // Modify the matrix
         flag = HYPRE_StructMatrixSetBoxValues(Jmatrix, bc_ilower, bc_iupper, 1,
                                               entry, work);
-        if (flag != 0) { return -1; }
+        if (flag != 0)
+        {
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect east "
+                  "bdry) = "
+               << flag << endl;
+          return -1;
+        }
       }
     }
 
@@ -1702,7 +1773,13 @@ static int Jac(UserData* udata)
         // Modify the matrix
         flag = HYPRE_StructMatrixSetBoxValues(Jmatrix, bc_ilower, bc_iupper, 1,
                                               entry, work);
-        if (flag != 0) { return -1; }
+        if (flag != 0)
+        {
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect south "
+                  "bdry) = "
+               << flag << endl;
+          return -1;
+        }
       }
     }
 
@@ -1726,7 +1803,13 @@ static int Jac(UserData* udata)
         // Modify the matrix
         flag = HYPRE_StructMatrixSetBoxValues(Jmatrix, bc_ilower, bc_iupper, 1,
                                               entry, work);
-        if (flag != 0) { return -1; }
+        if (flag != 0)
+        {
+          cerr << "Error in HYPRE_StructMatrixSetBoxValues (disconnect north "
+                  "bdry) = "
+               << flag << endl;
+          return -1;
+        }
       }
     }
   }
@@ -1767,7 +1850,11 @@ static int ScaleAddI(UserData* udata, sunrealtype gamma)
   // Copy all matrix values into work array from J
   flag = HYPRE_StructMatrixGetBoxValues(udata->Jmatrix, ilower, iupper, 5,
                                         entries, work);
-  if (flag != 0) { return (flag); }
+  if (flag != 0)
+  {
+    cerr << "Error in HYPRE_StructMatrixGetBoxValues = " << flag << endl;
+    return (flag);
+  }
 
   // Scale work array by c
   for (HYPRE_Int i = 0; i < nwork; i++) { work[i] *= -gamma; }
@@ -1775,7 +1862,11 @@ static int ScaleAddI(UserData* udata, sunrealtype gamma)
   // Insert scaled values into A
   flag = HYPRE_StructMatrixSetBoxValues(udata->Amatrix, ilower, iupper, 5,
                                         entries, work);
-  if (flag != 0) { return (flag); }
+  if (flag != 0)
+  {
+    cerr << "Error in HYPRE_StructMatrixSetBoxValues = " << flag << endl;
+    return (flag);
+  }
 
   // Set first 1/5 of work array to 1
   for (HYPRE_Int i = 0; i < nwork / 5; i++) { work[i] = ONE; }
@@ -1784,7 +1875,11 @@ static int ScaleAddI(UserData* udata, sunrealtype gamma)
   HYPRE_Int entry[1] = {0};
   flag = HYPRE_StructMatrixAddToBoxValues(udata->Amatrix, ilower, iupper, 1,
                                           entry, work);
-  if (flag != 0) { return (flag); }
+  if (flag != 0)
+  {
+    cerr << "Error in HYPRE_StructMatrixAddToBoxValues = " << flag << endl;
+    return (flag);
+  }
 
   // Return success
   return 0;
@@ -2386,7 +2481,7 @@ static void InputHelp()
   cout << "  --noforcing             : disable forcing term" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --nonlinear             : disable linearly implicit flag" << endl;
   cout << "  --order <ord>           : method order" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
@@ -2633,15 +2728,15 @@ static int OutputStats(void* arkode_mem, UserData* udata)
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nst, nst_a, netf, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);

@@ -1108,7 +1108,7 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
   {
     cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
 
-    /* Check inputs for corectness */
+    /* Check inputs for correctness */
 
     ier = cvInitialSetup(cv_mem);
     if (ier != CV_SUCCESS)
@@ -4723,7 +4723,7 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void* data)
 /*
  * cvEwtSetSS
  *
- * This routine sets ewt as decribed above in the case tol_type = CV_SS.
+ * This routine sets ewt as described above in the case tol_type = CV_SS.
  * If the absolute tolerance is zero, it tests for non-positive components
  * before inverting. cvEwtSetSS returns 0 if ewt is successfully set to a
  * positive vector and -1 otherwise. In the latter case, ewt is considered
@@ -4763,7 +4763,7 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 /*
  * cvEwtSetSV
  *
- * This routine sets ewt as decribed above in the case tol_type = CV_SV.
+ * This routine sets ewt as described above in the case tol_type = CV_SV.
  * If any absolute tolerance is zero, it tests for non-positive components
  * before inverting. cvEwtSetSV returns 0 if ewt is successfully set to a
  * positive vector and -1 otherwise. In the latter case, ewt is considered
@@ -4815,7 +4815,8 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
 
   /* Compose the message */
   va_start(ap, msgfmt);
-  size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
+  size_t msglen = 1;
+  if (msgfmt) { msglen += vsnprintf(NULL, 0, msgfmt, ap); }
   va_end(ap);
 
   char* msg = (char*)malloc(msglen);

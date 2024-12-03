@@ -159,7 +159,7 @@ struct UserData
   sunrealtype* Ssend;
   sunrealtype* Nsend;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -210,7 +210,7 @@ struct UserData
                          //   3 - nonsymmetric R/B Gauss-Seidel
   HYPRE_Int pfmg_nrelax; // number of pre and post relaxation sweeps (2)
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   int nout;      // number of output times
   ofstream uout; // output file streams
@@ -345,6 +345,12 @@ int main(int argc, char* argv[])
 
     // Create SUNDIALS context
     sundials::Context sunctx(comm_w);
+
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+    flag = HYPRE_Init();
+    if (check_flag(&flag, "HYPRE_Init", 1)) { return 1; }
+#endif
 
     // ------------------------------------------
     // Setup UserData and parallel decomposition
@@ -543,7 +549,7 @@ int main(int argc, char* argv[])
     sunrealtype dTout = udata.tf / udata.nout;
     sunrealtype tout  = dTout;
 
-    // Inital output
+    // Initial output
     flag = OpenOutput(&udata);
     if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 
@@ -604,6 +610,13 @@ int main(int argc, char* argv[])
     // --------------------
     // Clean up and return
     // --------------------
+
+    // Finalize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+    flag = HYPRE_Finalize();
+    if (check_flag(&flag, "HYPRE_Finalize", 1)) { return 1; }
+#endif
 
     ARKodeFree(&arkode_mem);                  // Free slow integrator memory
     ARKodeFree(&inner_arkode_mem);            // Free fast integrator memory
@@ -1365,7 +1378,7 @@ static int PSolve(sunrealtype t, N_Vector u, N_Vector f, N_Vector r, N_Vector z,
   flag = HYPRE_StructPFMGSolve(udata->precond, udata->Amatrix, udata->bvec,
                                udata->xvec);
 
-  // If a convergence error occured, clear the error and continue. For any
+  // If a convergence error occurred, clear the error and continue. For any
   // other error return with a recoverable error.
   if (flag == HYPRE_ERROR_CONV) { HYPRE_ClearError(HYPRE_ERROR_CONV); }
   else if (flag != 0) { return 1; }
@@ -1564,7 +1577,7 @@ static int HyprePFMG(UserData* udata)
     return -1;
   }
 
-  // signal that the inital guess is zero
+  // signal that the initial guess is zero
   flag = HYPRE_StructPFMGSetZeroGuess(udata->precond);
   if (flag != 0)
   {
@@ -2509,7 +2522,7 @@ static void InputHelp()
   cout << "  --r <r>                 : reaction coefficient" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --linear                : enable linearly implicit flag" << endl;
   cout << "  --sorder <ord>          : slow method order" << endl;
   cout << "  --forder <ord>          : fast method order" << endl;
@@ -2694,15 +2707,15 @@ static int OutputFastStats(void* arkode_mem, UserData* udata)
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nJv;
+  long int nst, nst_a, netf, nfi, nni, ncfn, nli, nlcf, nsetups, nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
@@ -2765,8 +2778,10 @@ static int OutputSlowStats(void* arkode_mem, UserData* udata)
   long int nst, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
-  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
@@ -2784,7 +2799,8 @@ static int OutputSlowStats(void* arkode_mem, UserData* udata)
   cout << setprecision(6);
 
   cout << "  Steps            = " << nst << endl;
-  cout << "  RHS evals        = " << nfi << endl;
+  cout << "  Fe RHS evals     = " << nfe << endl;
+  cout << "  Fi RHS evals     = " << nfi << endl;
   cout << "  NLS iters        = " << nni << endl;
   cout << "  NLS fails        = " << ncfn << endl;
   cout << "  LS iters         = " << nli << endl;

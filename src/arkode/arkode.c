@@ -115,7 +115,7 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
 
   /* Update time-stepping parameters */
   /*   adjust upcoming step size depending on hscale */
-  if (hscale < ZERO) { hscale = ONE; }
+  if (hscale <= ZERO) { hscale = ONE; }
   if (hscale != ONE)
   {
     /* Encode hscale into ark_mem structure */
@@ -135,7 +135,7 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
     }
   }
 
-  /* Determing change in vector sizes */
+  /* Determining change in vector sizes */
   lrw1 = liw1 = 0;
   if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
   lrw_diff      = lrw1 - ark_mem->lrw1;
@@ -735,6 +735,10 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     - loop over attempts at a new step:
       * try to take step (via time stepper module),
         handle solver convergence or other failures
+      * if the stepper requests ARK_RETRY_STEP, we
+        retry the step without accumulating failures.
+        A stepper should never request this multiple
+        times in a row.
       * perform constraint-handling (if selected)
       * check temporal error
       * if all of the above pass, complete step by
@@ -870,9 +874,15 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     nflag                                                    = FIRST_CALL;
     for (;;)
     {
-      /* increment attempt counters */
-      attempts++;
-      ark_mem->nst_attempts++;
+      /* increment attempt counters
+         Note: kflag can only equal ARK_RETRY_STEP if the stepper rejected
+         the current step size before performing calculations. Thus, we do
+         not include those when keeping track of step "attempts". */
+      if (kflag != ARK_RETRY_STEP)
+      {
+        attempts++;
+        ark_mem->nst_attempts++;
+      }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::ARKodeEvolve",
@@ -1364,7 +1374,6 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
 ARKodeMem arkCreate(SUNContext sunctx)
 {
   int iret;
-  long int lenrw, leniw;
   ARKodeMem ark_mem;
 
   if (!sunctx)
@@ -1430,6 +1439,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_setmaxnonliniters         = NULL;
   ark_mem->step_setnonlinconvcoef         = NULL;
   ark_mem->step_setstagepredictfn         = NULL;
+  ark_mem->step_getnumrhsevals            = NULL;
   ark_mem->step_getnumlinsolvsetups       = NULL;
   ark_mem->step_getestlocalerrors         = NULL;
   ark_mem->step_getcurrentgamma           = NULL;
@@ -1437,6 +1447,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_getnumnonlinsolviters     = NULL;
   ark_mem->step_getnumnonlinsolvconvfails = NULL;
   ark_mem->step_getnonlinsolvstats        = NULL;
+  ark_mem->step_setforcing                = NULL;
   ark_mem->step_mem                       = NULL;
   ark_mem->step_supports_adaptive         = SUNFALSE;
   ark_mem->step_supports_implicit         = SUNFALSE;
@@ -1485,21 +1496,6 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->lrw += ARK_ADAPT_LRW;
   ark_mem->liw += ARK_ADAPT_LIW;
 
-  /* Allocate default step controller (PID) and note storage */
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PID(sunctx);
-  if (ark_mem->hadapt_mem->hcontroller == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "Allocation of step controller object failed");
-    ARKodeFree((void**)&ark_mem);
-    return (NULL);
-  }
-  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  (void)SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                 &leniw);
-  ark_mem->lrw += lenrw;
-  ark_mem->liw += leniw;
-
   /* Initialize the interpolation structure to NULL */
   ark_mem->interp        = NULL;
   ark_mem->interp_type   = ARK_INTERP_HERMITE;
@@ -1523,7 +1519,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->h   = ZERO;
   ark_mem->h0u = ZERO;
 
-  /* Set default values for integrator optional inputs */
+  /* Set default values for integrator and stepper optional inputs */
   iret = ARKodeSetDefaults(ark_mem);
   if (iret != ARK_SUCCESS)
   {
@@ -1706,12 +1702,15 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     ark_mem->tolsf = ONE;
 
     /* Reset error controller object */
-    retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
-    if (retval != SUN_SUCCESS)
+    if (ark_mem->hadapt_mem->hcontroller)
     {
-      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
-                      "Unable to reset error controller object");
-      return (ARK_CONTROLLER_ERR);
+      retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
+      if (retval != SUN_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
+                        __FILE__, "Unable to reset error controller object");
+        return (ARK_CONTROLLER_ERR);
+      }
     }
 
     /* Adaptivity counters */
@@ -1896,17 +1895,23 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     }
   }
 
-  /* Create default Hermite interpolation module (if needed) */
+  /* Create default interpolation module (if needed) */
   if (ark_mem->interp_type != ARK_INTERP_NONE && !(ark_mem->interp))
   {
-    ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    if (ark_mem->interp_type == ARK_INTERP_LAGRANGE)
+    {
+      ark_mem->interp = arkInterpCreate_Lagrange(ark_mem, ark_mem->interp_degree);
+    }
+    else
+    {
+      ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    }
     if (ark_mem->interp == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to allocate interpolation module");
       return ARK_MEM_FAIL;
     }
-    ark_mem->interp_type = ARK_INTERP_HERMITE;
   }
 
   /* Fill initial interpolation data (if needed) */
@@ -2543,13 +2548,16 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
   ark_mem->fn_is_current = SUNFALSE;
 
   /* Notify time step controller object of successful step */
-  retval = SUNAdaptController_UpdateH(ark_mem->hadapt_mem->hcontroller,
-                                      ark_mem->h, dsm);
-  if (retval != SUN_SUCCESS)
+  if (ark_mem->hadapt_mem->hcontroller)
   {
-    arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
-                    "Failure updating controller object");
-    return (ARK_CONTROLLER_ERR);
+    retval = SUNAdaptController_UpdateH(ark_mem->hadapt_mem->hcontroller,
+                                        ark_mem->h, dsm);
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__, __FILE__,
+                      "Failure updating controller object");
+      return (ARK_CONTROLLER_ERR);
+    }
   }
 
   /* update scalar quantities */
@@ -2679,6 +2687,18 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, __LINE__, __func__, __FILE__,
                     "The relaxation Jacobian failed unrecoverably");
     break;
+  case ARK_DOMEIG_FAIL:
+    arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    "The dominant eigenvalue function failed unrecoverably");
+    break;
+  case ARK_MAX_STAGE_LIMIT_FAIL:
+    arkProcessError(ark_mem, ARK_MAX_STAGE_LIMIT_FAIL, __LINE__, __func__,
+                    __FILE__, "The max stage limit failed unrecoverably");
+    break;
+  case ARK_SUNSTEPPER_ERR:
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "An inner SUNStepper error occurred");
+    break;
   default:
     /* This return should never happen */
     arkProcessError(ark_mem, ARK_UNRECOGNIZED_ERROR, __LINE__, __func__, __FILE__,
@@ -2767,7 +2787,7 @@ int arkEwtSetSmallReal(SUNDIALS_MAYBE_UNUSED N_Vector ycur, N_Vector weight,
 /*---------------------------------------------------------------
   arkRwtSetSS
 
-  This routine sets rwt as decribed above in the case tol_type = ARK_SS.
+  This routine sets rwt as described above in the case tol_type = ARK_SS.
   When the absolute tolerance is zero, it tests for non-positive
   components before inverting. arkRwtSetSS returns 0 if rwt is
   successfully set to a positive vector and -1 otherwise. In the
@@ -2789,7 +2809,7 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 /*---------------------------------------------------------------
   arkRwtSetSV
 
-  This routine sets rwt as decribed above in the case tol_type = ARK_SV.
+  This routine sets rwt as described above in the case tol_type = ARK_SV.
   When any absolute tolerance is zero, it tests for non-positive
   components before inverting. arkRwtSetSV returns 0 if rwt is
   successfully set to a positive vector and -1 otherwise. In the
@@ -2995,6 +3015,13 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
   ARKodeHAdaptMem hadapt_mem;
 
   if (*nflagPtr == ARK_SUCCESS) { return (ARK_SUCCESS); }
+  /* Returns with an ARK_RETRY_STEP flag occur at a stage well before
+  any algebraic solvers are involved. On the other hand,
+  the arkCheckConvergence function handles the results from algebraic
+  solvers, which never take place with an ARK_RETRY_STEP flag.
+  Therefore, we immediately return from arkCheckConvergence,
+  as it is irrelevant in the case of an ARK_RETRY_STEP */
+  if (*nflagPtr == ARK_RETRY_STEP) { return (ARK_RETRY_STEP); }
 
   /* The nonlinear soln. failed; increment ncfn */
   ark_mem->ncfn++;
@@ -3183,7 +3210,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 
   SUNTRUE is returned if the allocation is successful (or if the
   target vector or vector array already exists) otherwise SUNFALSE
-  is retured.
+  is returned.
   ---------------------------------------------------------------*/
 sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v)
 {
@@ -3264,7 +3291,7 @@ void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
   integer work spaces.
 
   SUNTRUE is returned if the resize is successful otherwise
-  SUNFALSE is retured.
+  SUNFALSE is returned.
   ---------------------------------------------------------------*/
 sunbooleantype arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
                             void* resize_data, sunindextype lrw_diff,
@@ -3536,7 +3563,8 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
 
   /* Compose the message */
   va_start(ap, msgfmt);
-  size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
+  size_t msglen = 1;
+  if (msgfmt) { msglen += vsnprintf(NULL, 0, msgfmt, ap); }
   va_end(ap);
 
   char* msg = (char*)malloc(msglen);

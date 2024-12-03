@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
      user's right hand side function in u'=fi(t,u) [here fe is NULL],
-     the inital time T0, and the initial dependent variable vector u. */
+     the initial time T0, and the initial dependent variable vector u. */
   arkode_mem = ARKStepCreate(NULL, f, T0, u, sunctx);
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0, my_pe))
   {
@@ -486,8 +486,10 @@ static void PrintFinalStats(void* arkode_mem)
   check_flag(&flag, "ARKodeGetWorkSpace", 1, 0);
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1, 0);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1, 0);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1, 0);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1, 0);
   flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1, 0);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);

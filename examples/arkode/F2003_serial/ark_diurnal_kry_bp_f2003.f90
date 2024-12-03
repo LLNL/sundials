@@ -79,7 +79,7 @@ module DiurnalKryBP_mod
   real(c_double), parameter  :: twohr = 7200.0D0
   real(c_double), parameter  :: rtol = 1.0d-5
   real(c_double), parameter  :: floor = 100.0d0
-  real(c_double), parameter  :: delt = 0.0d0
+  real(c_double), parameter  :: delta = 0.0d0
   real(c_double), parameter  :: atol = rtol*floor
   integer(c_int), parameter  :: Jpretype = 1
   integer(c_int), parameter  :: iGStype = 1
@@ -438,9 +438,15 @@ subroutine ARKStepStats(arkode_mem)
     stop 1
   end if
 
-  ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+  ierr = FARKodeGetNumRhsEvals(arkode_mem, 0, nfe)
   if (ierr /= 0) then
-    print *, 'Error in FARKStepGetNumRhsEvals, ierr = ', ierr, '; halting'
+    print *, 'Error in FARKodeGetNumRhsEvals, retval = ', ierr, '; halting'
+    stop 1
+  end if
+
+  ierr = FARKodeGetNumRhsEvals(arkode_mem, 1, nfi)
+  if (ierr /= 0) then
+    print *, 'Error in FARKodeGetNumRhsEvals, retval = ', ierr, '; halting'
     stop 1
   end if
 

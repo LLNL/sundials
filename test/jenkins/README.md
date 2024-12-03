@@ -83,7 +83,7 @@ Suggested plugins:
 * Dashboard view -- Customizable dashboard that can present various views of job
   information.
 
-* Rebuilder -- allows ther user to rebuild a parametrized build without entering
+* Rebuilder -- allows the user to rebuild a parameterized build without entering
   the parameters again.
 
 
@@ -127,8 +127,8 @@ and end of a collapsible section.
    enter/do the following:
 
    Section name:        {1}
-   Section starts with: START TEST
-   Section ends with:   (PASSED|FAILED)
+   Section starts with: TEST: (.*)
+   Section ends with:   (PASSED|FAILED): (.*)
    Check the box next to "Collapse Sections by default"
 
 7. To create a INSTALLING section, click on "Add Console Section" and

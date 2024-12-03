@@ -207,6 +207,8 @@ int arkStep_SetMaxNonlinIters(ARKodeMem ark_mem, int maxcor);
 int arkStep_SetNonlinConvCoef(ARKodeMem ark_mem, sunrealtype nlscoef);
 int arkStep_SetStagePredictFn(ARKodeMem ark_mem, ARKStagePredictFn PredictStage);
 int arkStep_SetDeduceImplicitRhs(ARKodeMem ark_mem, sunbooleantype deduce);
+int arkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals);
 int arkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
 int arkStep_GetCurrentGamma(ARKodeMem ark_mem, sunrealtype* gamma);
 int arkStep_GetNonlinearSystemData(ARKodeMem ark_mem, sunrealtype* tcur,
@@ -269,7 +271,7 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         sunrealtype tol, N_Vector ewt, void* arkode_mem);
 
 /* private functions for interfacing with MRIStep */
-int arkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
+int arkStep_SetInnerForcing(ARKodeMem arkode_mem, sunrealtype tshift,
                             sunrealtype tscale, N_Vector* f, int nvecs);
 int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
                                sunrealtype tout, N_Vector y);

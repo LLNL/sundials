@@ -21,10 +21,18 @@ Changelog
 
 .. SED_REPLACEMENT_KEY
 
-Changes to SUNDIALS in release 7.1.1
+Changes to SUNDIALS in release X.Y.Z
 ====================================
 
 .. include:: RecentChanges_link.rst
+
+Changes to SUNDIALS in release 7.1.1
+====================================
+
+**Bug Fixes**
+
+Fixed a `bug <https://github.com/LLNL/sundials/pull/523>`__ in v7.1.0 with the
+SYCL N_Vector ``N_VSpace`` function.
 
 Changes to SUNDIALS in release 7.1.0
 ====================================
@@ -101,11 +109,11 @@ to ``SYCL`` to match Ginkgo's updated naming convention.
 
 Changed the CMake version compatibility mode for SUNDIALS to ``AnyNewerVersion``
 instead of ``SameMajorVersion``. This fixes the issue seen `here
-<https://github.com/AMReX-Codes/amrex/pull/3835>`_.
+<https://github.com/AMReX-Codes/amrex/pull/3835>`__.
 
 Fixed a CMake bug that caused an MPI linking error for our C++ examples in some
 instances. Fixes `GitHub Issue #464
-<https://github.com/LLNL/sundials/issues/464>`_.
+<https://github.com/LLNL/sundials/issues/464>`__.
 
 Fixed the runtime library installation path for windows systems. This fix
 changes the default library installation path from
@@ -126,11 +134,11 @@ Fixed a bug in the HIP execution policies where ``WARP_SIZE`` would not be set
 with ROCm 6.0.0 or newer.
 
 Fixed a bug that caused error messages to be cut off in some cases. Fixes
-`GitHub Issue #461 <https://github.com/LLNL/sundials/issues/461>`_.
+`GitHub Issue #461 <https://github.com/LLNL/sundials/issues/461>`__.
 
 Fixed a memory leak when an error handler was added to a
 :c:type:`SUNContext`. Fixes `GitHub Issue #466
-<https://github.com/LLNL/sundials/issues/466>`_.
+<https://github.com/LLNL/sundials/issues/466>`__.
 
 Fixed a bug where :c:func:`MRIStepEvolve` would not handle a recoverable error
 produced from evolving the inner stepper.
@@ -179,7 +187,7 @@ be built with additional error checking by default. See
 SUNDIALS now requires using a compiler that supports a subset of the C99
 standard. Note with the Microsoft C/C++ compiler the subset of C99 features
 utilized by SUNDIALS are available starting with `Visual Studio 2015
-<https://learn.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-170#c-standard-library-features-1>`_.
+<https://learn.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-170#c-standard-library-features-1>`__.
 
 *Minimum CMake Version*
 
@@ -289,7 +297,7 @@ and a typedef to a ``MPI_Comm`` in builds with MPI. As a result:
 
 The change away from type-erased pointers for :c:type:`SUNComm` fixes problems
 like the one described in
-`GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`_.
+`GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`__.
 
 The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
 ``SUNDIALS_LOGGING_ENABLE_MPI`` CMake option and macro definition were removed
@@ -350,12 +358,12 @@ interface.
 
 **Bug Fixes**
 
-Fixed `GitHub Issue #329 <https://github.com/LLNL/sundials/issues/329>`_ so
+Fixed `GitHub Issue #329 <https://github.com/LLNL/sundials/issues/329>`__ so
 that C++20 aggregate initialization can be used.
 
 Fixed integer overflow in the internal SUNDIALS hashmap. This resolves
-`GitHub Issues #409 <https://github.com/LLNL/sundials/issues/409>`_ and
-`#249 <https://github.com/LLNL/sundials/issues/249>`_.
+`GitHub Issues #409 <https://github.com/LLNL/sundials/issues/409>`__ and
+`#249 <https://github.com/LLNL/sundials/issues/249>`__.
 
 **Deprecation Notice**
 
@@ -423,7 +431,7 @@ an :c:type:`MRIStepInnerFullRhsFn` optional.
 **Bug Fixes**
 
 Changed the :c:type:`SUNProfiler` so that it does not rely on ``MPI_WTime`` in
-any case. This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
+any case. This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`__.
 
 Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
@@ -579,7 +587,7 @@ Added support for the SYCL backend with RAJA 2022.x.y.
 **Bug Fixes**
 
 Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and
-IDAS. This fixes `GitHub Issue #57 <https://github.com/LLNL/sundials/issues/57>`_.
+IDAS. This fixes `GitHub Issue #57 <https://github.com/LLNL/sundials/issues/57>`__.
 
 Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
 ``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
@@ -616,13 +624,13 @@ e.g., CUDA, HIP, RAJA, Trilinos, SuperLU_DIST, MAGMA, Ginkgo, and Kokkos.
 
 **Major Features**
 
-Added support for the `Ginkgo <https://ginkgo-project.github.io/>`_ linear
+Added support for the `Ginkgo <https://ginkgo-project.github.io/>`__ linear
 algebra library. This support includes new SUNDIALS matrix and linear solver
 implementations, see the sections :numref:`SUNMatrix.Ginkgo` and
 :numref:`SUNLinSol.Ginkgo`.
 
 Added new SUNDIALS vector, dense matrix, and dense linear solver implementations
-utilizing the `Kokkos Ecosystem <https://kokkos.org/>`_ for performance
+utilizing the `Kokkos Ecosystem <https://kokkos.org/>`__ for performance
 portability, see sections :numref:`NVectors.Kokkos`, :numref:`SUNMatrix.Kokkos`,
 and :numref:`SUNLinSol.Kokkos` for more information.
 
@@ -694,7 +702,7 @@ functions when they are available and the user may provide the math library to
 link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
 Changed ``SUNDIALS_LOGGING_ENABLE_MPI`` CMake option default to be ``OFF``. This
-fixes `GitHub Issue #177 <https://github.com/LLNL/sundials/issues/177>`_.
+fixes `GitHub Issue #177 <https://github.com/LLNL/sundials/issues/177>`__.
 
 Changes to SUNDIALS in release 6.2.0
 ====================================
@@ -1044,7 +1052,7 @@ namespace.
 A capability to profile/instrument SUNDIALS library code has been added. This
 can be enabled with the CMake option :cmakeop:`SUNDIALS_BUILD_WITH_PROFILING`. A
 built-in profiler will be used by default, but the `Caliper
-<https://github.com/LLNL/Caliper>`_ library can also be used instead with the
+<https://github.com/LLNL/Caliper>`__ library can also be used instead with the
 CMake option :cmakeop:`ENABLE_CALIPER`. See the documentation section on
 profiling for more details.
 
@@ -1991,7 +1999,7 @@ implemented a custom :c:type:`SUNMatrix` will need to at least update their code
 to set the corresponding ``ops`` structure member, ``matvecsetup``, to ``NULL``.
 
 The generic :c:type:`SUNMatrix` API now defines error codes to be returned by
-matrix operations. Operations which return an integer flag indiciating
+matrix operations. Operations which return an integer flag indicating
 success/failure may return different values than previously.
 
 A new :c:type:`SUNMatrix` (and :c:type:`SUNLinearSolver`) implementation was
@@ -2104,7 +2112,7 @@ function signatures have been changed including :c:func:`MRIStepCreate` which
 now takes an ARKStep memory structure for the fast integration as an input.
 
 The reinitialization functions :c:func:`ERKStepReInit`, :c:func:`ARKStepReInit`,
-and :c:func:`MRIStepReInit` have been updated to retain the minimum and maxiumum
+and :c:func:`MRIStepReInit` have been updated to retain the minimum and maximum
 step size values from before reinitialization rather than resetting them to the
 default values.
 
@@ -2130,7 +2138,7 @@ being built.
 
 Fixed a memory leak in the PETSc :c:type:`N_Vector` clone function.
 
-Fixed a memeory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
+Fixed a memory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
 the default nonlinear solver.
 
 Fixed a bug in the ARKStep time-stepping module in ARKODE that would result in
@@ -2648,7 +2656,7 @@ these vectors both move all data to the GPU device upon construction, and
 speedup will only be realized if the user also conducts the right-hand-side
 function evaluation on the device. In addition, these vectors assume the problem
 fits on one GPU. For further information about RAJA, users are referred to the
-`RAJA web site <https://software.llnl.gov/RAJA/>`_.
+`RAJA web site <https://software.llnl.gov/RAJA/>`__.
 
 Added the type :c:type:`sunindextype` to support using 32-bit or 64-bit integer
 types for indexing arrays within all SUNDIALS structures. :c:type:`sunindextype`
@@ -2672,11 +2680,11 @@ The file ``include/sundials_fconfig.h`` was added. This file contains SUNDIALS
 type information for use in Fortran programs.
 
 Added support for many xSDK-compliant build system keys. For more information on
-on xSDK compliance the `xSDK policies <https://xsdk.info/policies/>`_. The xSDK
+on xSDK compliance the `xSDK policies <https://xsdk.info/policies/>`__. The xSDK
 is a movement in scientific software to provide a foundation for the rapid and
 efficient production of high-quality, sustainable extreme-scale scientific
 applications. For more information visit the
-`xSDK web site <https://xsdk.info>`_.
+`xSDK web site <https://xsdk.info>`__.
 
 Added functions :c:func:`SUNDIALSGetVersion` and
 :c:func:`SUNDIALSGetVersionNumber` to get SUNDIALS release version information
@@ -2870,7 +2878,7 @@ with sparse direct solvers.
 
 *KINSOL*
 
-The Picard iteration return was chanegd to always return the newest iterate upon
+The Picard iteration return was changed to always return the newest iterate upon
 success.
 
 A minor bug in the line search was fixed to prevent an infinite loop when the

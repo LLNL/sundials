@@ -33,7 +33,7 @@ typedef struct
   SUNNonlinearSolver local_nls;
 }* TaskLocalNewton_Content;
 
-/* Content accessor macors */
+/* Content accessor macros */
 #define GET_NLS_CONTENT(NLS) ((TaskLocalNewton_Content)(NLS->content))
 #define LOCAL_NLS(NLS)       (GET_NLS_CONTENT(NLS)->local_nls)
 
@@ -190,8 +190,10 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
   retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
@@ -394,8 +396,10 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
   retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
@@ -519,8 +523,8 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
-  retval = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
-  check_retval(&retval, "ERKStepGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
 

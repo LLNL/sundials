@@ -469,8 +469,8 @@ static int Precond(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
 
       for (js = 0; js < NUM_SPECIES; js++)
       {
-        inc = sqru *
-              (MAX(fabs(cxy[js]), MAX(hh * fabs(cpxy[js]), ONE / ewtxy[js])));
+        inc   = sqru * (MAX(SUNRabs(cxy[js]),
+                            MAX(hh * SUNRabs(cpxy[js]), ONE / ewtxy[js])));
         cctmp = cxy[js];
         cxy[js] += inc;
         fac = -ONE / inc;
@@ -501,7 +501,7 @@ static int Precond(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
 
 static int PSolve(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
                   N_Vector rvec, N_Vector zvec, sunrealtype cj,
-                  sunrealtype dalta, void* user_data)
+                  sunrealtype delta, void* user_data)
 {
   sunrealtype **Pxy, *zxy;
   sunindextype* pivot;

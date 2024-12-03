@@ -31,7 +31,7 @@ by cloning the `SUNDIALS GitHub repository <https://github.com/LLNL/sundials>`_
 SUNDIALS release compressed archives (``.tar.gz``) from  the SUNDIALS
 `website <https://computing.llnl.gov/projects/sundials/sundials-software>`_.
 
-The compressed archives allow for downloading of indvidual SUNDIALS packages.
+The compressed archives allow for downloading of individual SUNDIALS packages.
 The name of the distribution archive is of the form
 ``SOLVER-7.1.0.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
 ``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``7.1.0``
@@ -187,7 +187,7 @@ Using CMake with the ``cmake-gui`` GUI follows a similar process:
 
 #. The first time you click ``Configure``, make sure to pick the
    appropriate generator (the following will assume generation of Unix
-   Makfiles).
+   Makefiles).
 
 #. New values are highlighted in red
 
@@ -523,9 +523,19 @@ illustration only.
 
 .. cmakeoption:: CMAKE_CUDA_ARCHITECTURES
 
-   Specifies the CUDA architecture to compile for.
+   Specifies the CUDA architecture to compile for i.e., ``60`` for Pascal,
+   ``70`` Volta, ``80`` for Ampere, ``90`` for Hopper, etc. See the `GPU compute
+   capability tables <https://developer.nvidia.com/cuda-gpus>`_ on the NVIDIA
+   webpage and the `GPU Compilation <https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/index.html#gpu-compilation>`_
+   section of the CUDA documentation for more information.
 
-   Default: ``sm_30``
+   Default: Determined automatically by CMake. Users are encouraged to override
+   this value with the architecture for their system as the default varies
+   across compilers and compiler versions.
+
+   .. versionchanged:: x.y.z
+
+      In prior versions ``CMAKE_CUDA_ARCHITECTURES`` defaulted to ``70``.
 
 .. cmakeoption:: EXAMPLES_ENABLE_C
 
@@ -591,7 +601,7 @@ illustration only.
    Default: ``OFF``
 
    .. warning:: There is a known issue with MSYS/gfortran and SUNDIALS shared libraries
-      that causes linking the Fortran interfaces to fail when buidling SUNDIALS. For
+      that causes linking the Fortran interfaces to fail when building SUNDIALS. For
       now the work around is to only build with static libraries when using MSYS with
       gfortran on Windows.
 
@@ -612,7 +622,7 @@ illustration only.
 
 .. cmakeoption:: SUNDIALS_BUILD_WITH_MONITORING
 
-   Build SUNDIALS with capabilties for fine-grained monitoring of solver progress
+   Build SUNDIALS with capabilities for fine-grained monitoring of solver progress
    and statistics. This is primarily useful for debugging.
 
    Default: OFF
@@ -624,7 +634,7 @@ illustration only.
 
 .. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
 
-   Build SUNDIALS with capabilties for fine-grained profiling.
+   Build SUNDIALS with capabilities for fine-grained profiling.
    This requires POSIX timers or the Windows ``profileapi.h`` timers.
 
    Default: OFF
@@ -669,8 +679,8 @@ illustration only.
 
 .. cmakeoption:: SUNDIALS_GINKGO_BACKENDS
 
-   Semi-colon separated list of Ginkgo target architecutres/executors to build for.
-   Options currenty supported are REF (the Ginkgo reference executor), OMP, CUDA, HIP, and SYCL.
+   Semi-colon separated list of Ginkgo target architectures/executors to build for.
+   Options currently supported are REF (the Ginkgo reference executor), OMP, CUDA, HIP, and SYCL.
 
    Default: "REF;OMP"
 
@@ -766,15 +776,29 @@ illustration only.
              options. See additional information on building with
              LAPACK enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
+.. cmakeoption:: BLAS_LIBRARIES
+
+   BLAS libraries
+
+   Default: none (CMake will try to find a BLAS installation)
+
+.. cmakeoption:: BLAS_LINKER_FLAGS
+
+   BLAS required linker flags
+
+   Default: none (CMake will try to determine the necessary flags)
+
 .. cmakeoption:: LAPACK_LIBRARIES
 
-   LAPACK (and BLAS) libraries
+   LAPACK libraries
 
-   Default: ``/usr/lib/liblapack.so;/usr/lib/libblas.so``
+   Default: none (CMake will try to find a LAPACK installation)
 
-   .. note:: CMake will search for libraries in your
-      ``LD_LIBRARY_PATH`` prior to searching default system
-      paths.
+.. cmakeoption:: LAPACK_LINKER_FLAGS
+
+   LAPACK required linker flags
+
+   Default: none (CMake will try to determine the necessary flags)
 
 .. cmakeoption:: ENABLE_MAGMA
 
@@ -844,6 +868,23 @@ illustration only.
 
    .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
 
+.. cmakeoption:: MPIEXEC_PREFLAGS
+
+   Specifies flags that come directly after ``MPIEXEC_EXECUTABLE`` and before
+   ``MPIEXEC_NUMPROC_FLAG`` and ``MPIEXEC_MAX_NUMPROCS``.
+
+   Default: none
+
+   .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
+
+.. cmakeoption:: MPIEXEC_POSTFLAGS
+
+   Specifies flags that come after the executable to run but before any other program arguments.
+
+   Default: none
+
+   .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
+
 .. cmakeoption:: ENABLE_ONEMKL
 
    Enable oneMKL support.
@@ -901,7 +942,7 @@ illustration only.
 
 .. cmakeoption:: PETSC_INCLUDES
 
-   Semi-colon separated list of PETSc include directroies. Unless provided by
+   Semi-colon separated list of PETSc include directories. Unless provided by
    the user, this is autopopulated based on the PETSc installation found in
    ``PETSC_DIR``.
 
@@ -935,7 +976,7 @@ illustration only.
 
    Default: ``OFF``
 
-   .. note:: See additional information on building wtih
+   .. note:: See additional information on building with
              SuperLU_DIST enabled in :numref:`Installation.CMake.ExternalLibraries`.
 
 .. cmakeoption:: SUPERLUDIST_DIR
@@ -1049,6 +1090,18 @@ illustration only.
    some cases of incomplete compiler support for SYCL 2020.
 
    Default: OFF
+
+.. cmakeoption:: ENABLE_TRILINOS
+
+   Enable Trilinos (Tpetra) support
+
+   Default: OFF
+
+.. cmakeoption:: Trilinos_DIR
+
+   Path to the Trilinos installation.
+
+   Default: None
 
 .. cmakeoption:: ENABLE_CALIPER
 
@@ -1264,7 +1317,7 @@ CUDA (for NVIDIA devices), HIP (for AMD devices) and SYCL/DPC++ (for Intel devic
 supported hardware). To enable Ginkgo in SUNDIALS, set the :cmakeop:`ENABLE_GINKGO` to ``ON``
 and provide the path to the root of the Ginkgo installation in :cmakeop:`Ginkgo_DIR`.
 Additionally, :cmakeop:`SUNDIALS_GINKGO_BACKENDS` must be set to a list of Ginkgo target
-architecutres/executors. E.g.,
+architectures/executors. E.g.,
 
 .. code-block:: bash
 
@@ -1312,13 +1365,12 @@ path to the root of the Kokkos-Kernels installation in
 Building with LAPACK
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To enable LAPACK, set the ``ENABLE_LAPACK`` option to ``ON``.
-If the directory containing the LAPACK library is in the
-``LD_LIBRARY_PATH`` environment variable, CMake will set the
-``LAPACK_LIBRARIES`` variable accordingly, otherwise CMake will
-attempt to find the LAPACK library in standard system locations. To
-explicitly tell CMake what library to use, the ``LAPACK_LIBRARIES``
-variable can be set to the desired libraries required for LAPACK.
+To enable LAPACK, set the :cmakeop:`ENABLE_LAPACK` option to ``ON``. CMake will
+attempt to find BLAS and LAPACK installations on the system and set the
+variables :cmakeop:`BLAS_LIBRARIES`, :cmakeop:`BLAS_LINKER_FLAGS`,
+:cmakeop:`LAPACK_LIBRARIES`, and :cmakeop:`LAPACK_LINKER_FLAGS`. To explicitly
+specify the LAPACK library to build with, manually set the aforementioned
+variables to the desired values when configuring the build.
 
 .. code-block:: bash
 
@@ -1326,7 +1378,8 @@ variable can be set to the desired libraries required for LAPACK.
    > -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
    > -DENABLE_LAPACK=ON \
-   > -DLAPACK_LIBRARIES=/mylapackpath/lib/libblas.so;/mylapackpath/lib/liblapack.so \
+   > -DBLAS_LIBRARIES=/mylapackpath/lib/libblas.so \
+   > -DLAPACK_LIBRARIES=/mylapackpath/lib/liblapack.so \
    > /home/myname/sundials/srcdir
 
    % make install
@@ -1340,7 +1393,7 @@ variable can be set to the desired libraries required for LAPACK.
    these options in earlier versions of SUNDIALS were ``lower`` and ``one``,
    respectively.
 
-SUNDIALS has been tested with OpenBLAS 0.3.18.
+SUNDIALS has been tested with OpenBLAS 0.3.27.
 
 
 .. _Installation.CMake.ExternalLibraries.KLU:
@@ -1580,6 +1633,25 @@ repository.
 SUNDIALS has been tested with XBraid version 3.0.0.
 
 
+.. _Installation.CMake.ExternalLibraries.Trilinos:
+
+Building with Trilinos
+^^^^^^^^^^^^^^^^^^^^^^
+
+`Trilinos <https://trilinos.github.io/>`_ is a collection of C++ libraries of
+linear solvers, non-linear solvers, optimization solvers, etc. To enable the
+SUNDIALS interface to the Trilinos Tpetra vector, set the
+:cmakeop:`ENABLE_TRILINOS` to ``ON`` and provide the path to the root of the
+Trilinos installation in :cmakeop:`Trilinos_DIR`.
+
+.. code-block:: bash
+
+   % cmake \
+   > -DENABLE_TRILONOS=ON \
+   > -DTRILINOS_DIR=/path/to/ginkgo/installation \
+   > /home/myname/sundials/srcdir
+
+
 .. _Installation.CMake.Testing:
 
 Testing the build and installation
@@ -1743,6 +1815,18 @@ the first example and ``libsundials_cvode``, ``libsundials_nveccuda``,
 
 Refer to the documentations sections for the individual packages and modules of
 SUNDIALS that interest you for the proper includes and libraries to link to.
+
+Furthermore, each of the sundials solvers is distributed with a set of examples demonstrating basic
+usage. To build and install the examples, set both ``EXAMPLES_ENABLE_<lang>`` and
+:cmakeop:`EXAMPLES_INSTALL` to ``ON`` and specify the example installation directory
+:cmakeop:`EXAMPLES_INSTALL_PATH`. CMake will generate a ``CMakeLists.txt`` configuration file (and
+``Makefile`` files if on Linux/Unix) that reference the installed sundials headers and libraries. Either
+the ``CMakeLists.txt`` file or the traditional ``Makefile`` may be used to build the examples as well as
+serve as a template for creating user developed solutions. To use the supplied ``Makefile`` simply run
+``make`` to compile and generate the executables. To use CMake, from within the installed example
+directory, run ``cmake`` (or ``ccmake`` to use the GUI) followed by make to compile the example code. Note
+that if CMake is used, it will overwrite the traditional ``Makefile`` with a new CMake generated
+``Makefile``.
 
 
 Using SUNDIALS as a Third Party Library in other CMake Projects

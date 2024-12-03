@@ -81,7 +81,7 @@ int main(void)
   FILE* UFID;
   sunrealtype t, tout;
   int iout;
-  long int nsts, nstf, nfse, nfsi, nff, tmp;
+  long int nsts, nstf, nfse, nff;
 
   /*
    * Initialization
@@ -129,7 +129,7 @@ int main(void)
    */
 
   /* Initialize the fast integrator. Specify the explicit fast right-hand side
-     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the initial time T0, and the
      initial dependent variable vector y. */
   inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
   if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
@@ -158,7 +158,7 @@ int main(void)
    */
 
   /* Initialize the slow integrator. Specify the explicit slow right-hand side
-     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the initial time T0, the
      initial dependent variable vector y, and the fast integrator. */
   arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
   if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
@@ -219,14 +219,14 @@ int main(void)
   /* Get some slow integrator statistics */
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfse);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nff, &tmp);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 0, &nff);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");

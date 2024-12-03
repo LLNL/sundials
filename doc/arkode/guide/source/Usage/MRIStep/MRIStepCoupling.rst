@@ -24,7 +24,7 @@ supply a custom set of slow-to-fast time scale coupling coefficients by
 constructing a coupling table and attaching it with
 :c:func:`MRIStepSetCoupling`. The MRI coupling tables are stored in an
 :c:func:`MRIStepCoupling` object which is a pointer to a
-:c:struct:`MRIStepCouplingMem` strucutre:
+:c:struct:`MRIStepCouplingMem` structure:
 
 .. c:type:: MRIStepCouplingMem *MRIStepCoupling
 

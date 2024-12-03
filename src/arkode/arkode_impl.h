@@ -35,6 +35,7 @@
 #include "arkode_types_impl.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
+#include "sundials_stepper_impl.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -119,6 +120,7 @@ extern "C" {
 #define PREV_ERR_FAIL  +8
 #define RHSFUNC_RECVR  +9
 #define CONSTR_RECVR   +10
+#define ARK_RETRY_STEP +11
 
 /*---------------------------------------------------------------
   Return values for lower-level rootfinding functions
@@ -224,6 +226,8 @@ typedef void (*ARKTimestepFree)(ARKodeMem ark_mem);
 typedef void (*ARKTimestepPrintMem)(ARKodeMem ark_mem, FILE* outfile);
 typedef int (*ARKTimestepSetDefaults)(ARKodeMem ark_mem);
 typedef int (*ARKTimestepSetOrder)(ARKodeMem ark_mem, int maxord);
+typedef int (*ARKTimestepGetNumRhsEvals)(ARKodeMem ark_mem, int partition_index,
+                                         long int* num_rhs_evals);
 
 /* time stepper interface functions -- temporal adaptivity */
 typedef int (*ARKTimestepGetEstLocalErrors)(ARKodeMem ark_mem, N_Vector ele);
@@ -286,6 +290,11 @@ typedef int (*ARKTimestepAttachMasssolFn)(
   sunbooleantype time_dep, SUNLinearSolver_Type msolve_type, void* mass_mem);
 typedef void (*ARKTimestepDisableMSetup)(ARKodeMem ark_mem);
 typedef void* (*ARKTimestepGetMassMemFn)(ARKodeMem ark_mem);
+
+/* time stepper interface functions -- forcing */
+typedef int (*ARKTimestepSetForcingFn)(ARKodeMem ark_mem, sunrealtype tshift,
+                                       sunrealtype tscale, N_Vector* f,
+                                       int nvecs);
 
 /*===============================================================
   ARKODE interpolation module definition
@@ -406,6 +415,7 @@ struct ARKodeMemRec
   ARKTimestepPrintMem step_printmem;
   ARKTimestepSetDefaults step_setdefaults;
   ARKTimestepSetOrder step_setorder;
+  ARKTimestepGetNumRhsEvals step_getnumrhsevals;
 
   /* Time stepper module -- temporal adaptivity */
   sunbooleantype step_supports_adaptive;
@@ -415,7 +425,7 @@ struct ARKodeMemRec
   sunbooleantype step_supports_relaxation;
   ARKTimestepSetRelaxFn step_setrelaxfn;
 
-  /* Time stepper module -- implcit solvers */
+  /* Time stepper module -- implicit solvers */
   sunbooleantype step_supports_implicit;
   ARKTimestepAttachLinsolFn step_attachlinsol;
   ARKTimestepDisableLSetup step_disablelsetup;
@@ -450,6 +460,9 @@ struct ARKodeMemRec
   ARKTimestepDisableMSetup step_disablemsetup;
   ARKTimestepGetMassMemFn step_getmassmem;
   ARKMassMultFn step_mmult;
+
+  /* Time stepper module -- forcing */
+  ARKTimestepSetForcingFn step_setforcing;
 
   /* N_Vector storage */
   N_Vector ewt;                 /* error weight vector                        */
@@ -1148,7 +1161,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   ARKTimestepGetEstLocalErrors
 
   This routine requests the stepper to copy its internal
-  estimate of the local trunction error to the output (called by
+  estimate of the local truncation error to the output (called by
   ARKodeGetEstLocalErrors).
 
   ===============================================================

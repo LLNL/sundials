@@ -120,7 +120,7 @@ int main(void)
   N_VConst(ONE, constraints);
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
-     specify the right-hand side function in y'=f(t,y), the inital time
+     specify the right-hand side function in y'=f(t,y), the initial time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, ctx);
@@ -204,8 +204,10 @@ int main(void)
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
   flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
@@ -338,7 +340,7 @@ static int check_flag(void* flagvalue, const char* funcname, int opt)
 }
 
 /* compare the solution at the final time 1e11s to a reference solution computed
-   using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
+   using a relative tolerance of 1e-8 and absolute tolerance of 1e-14 */
 static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype atol)
 {
   int passfail = 0; /* answer pass (0) or fail (1) flag */

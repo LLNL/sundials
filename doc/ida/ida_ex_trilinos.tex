@@ -49,7 +49,7 @@ this example can be linked to a Trilinos library built with or without MPI suppo
 changing the example code. 
 Once the communicator and map are set, a Tpetra vector is created as:
 \begin{verbatim}
-  /* Create a Tpetra vector and return refernce counting pointer to it. */
+  /* Create a Tpetra vector and return reference counting pointer to it. */
   Teuchos::RCP<vector_type> rcpuu =
     Teuchos::rcp(new vector_type(mpiMap));
 \end{verbatim}

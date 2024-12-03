@@ -435,7 +435,7 @@ static int check_retval(void* returnvalue, const char* funcname, int opt)
 }
 
 /* compare the solution at the final time 4e10s to a reference solution computed
-   using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
+   using a relative tolerance of 1e-8 and absolute tolerance of 1e-14 */
 static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol)
 {
   int passfail = 0; /* answer pass (0) or fail (1) flag */

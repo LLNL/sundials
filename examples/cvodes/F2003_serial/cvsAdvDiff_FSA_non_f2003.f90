@@ -255,7 +255,7 @@ program main
   retval = FCVodeInit(cvodes_mem, c_funloc(RhsFn), T0, u)
   call check_retval(retval, "FCVodeInit")
 
-  ! Set relative and absolute tolerences
+  ! Set relative and absolute tolerances
   retval = FCVodeSStolerances(cvodes_mem, reltol, abstol)
   call check_retval(retval, "FCVodeSStolerances")
 

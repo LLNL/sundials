@@ -561,7 +561,7 @@ contains
     type(N_Vector)        :: sunvec_y     ! solution N_Vector
     type(N_Vector)        :: sunvec_ydot  ! rhs N_Vector
     integer(c_int), value :: jok          ! flag to signal for Jacobian update
-    integer(c_int)        :: jcurPtr      ! flag to singal Jacobian is current
+    integer(c_int)        :: jcurPtr      ! flag to signal Jacobian is current
     real(c_double), value :: gamma        ! current gamma value
     type(c_ptr), value :: user_data    ! user-defined data
 
@@ -884,9 +884,15 @@ program driver
     call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 0, nfe)
   if (retval /= 0) then
-    print *, "Error: FARKStepGetNumRhsEvals returned ", retval
+    print *, "Error: FARKodeGetNumRhsEvals returned ", retval
+    call MPI_Abort(comm, 1, ierr)
+  end if
+
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 1, nfi)
+  if (retval /= 0) then
+    print *, "Error: FARKodeGetNumRhsEvals returned ", retval
     call MPI_Abort(comm, 1, ierr)
   end if
 

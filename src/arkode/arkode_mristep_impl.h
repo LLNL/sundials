@@ -219,6 +219,8 @@ int mriStep_SetMaxNonlinIters(ARKodeMem ark_mem, int maxcor);
 int mriStep_SetNonlinConvCoef(ARKodeMem ark_mem, sunrealtype nlscoef);
 int mriStep_SetStagePredictFn(ARKodeMem ark_mem, ARKStagePredictFn PredictStage);
 int mriStep_SetDeduceImplicitRhs(ARKodeMem ark_mem, sunbooleantype deduce);
+int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals);
 int mriStep_GetCurrentGamma(ARKodeMem ark_mem, sunrealtype* gamma);
 int mriStep_GetNonlinearSystemData(ARKodeMem ark_mem, sunrealtype* tcur,
                                    N_Vector* zpred, N_Vector* z, N_Vector* Fi,
@@ -270,10 +272,18 @@ int mriStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 int mriStepInnerStepper_HasRequiredOps(MRIStepInnerStepper stepper);
 int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
                                sunrealtype tout, N_Vector y);
+int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
+                                         sunrealtype t0, sunrealtype tout,
+                                         N_Vector y);
 int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
                                 N_Vector y, N_Vector f, int mode);
+int mriStepInnerStepper_FullRhsSUNStepper(MRIStepInnerStepper stepper,
+                                          sunrealtype t, N_Vector y, N_Vector f,
+                                          int mode);
 int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
                               N_Vector yR);
+int mriStepInnerStepper_ResetSUNStepper(MRIStepInnerStepper stepper,
+                                        sunrealtype tR, N_Vector yR);
 int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
                                   N_Vector tmpl);
 int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper, ARKVecResizeFn resize,

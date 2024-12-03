@@ -163,7 +163,7 @@ struct UserData
   sunrealtype* Ssend;
   sunrealtype* Nsend;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -185,7 +185,7 @@ struct UserData
   // Inverse of Jacobian diagonal for preconditioner
   N_Vector d;
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   int nout;      // number of output times
   ofstream uout; // output file stream
@@ -206,13 +206,13 @@ struct UserData
   int x_nt;            // number of fine grid time points
   int x_skip;          // skip all work on first down cycle
   int x_max_levels;    // max number of levels
-  int x_min_coarse;    // min possible coarse gird size
+  int x_min_coarse;    // min possible coarse grid size
   int x_nrelax;        // number of CF relaxation sweeps on all levels
   int x_nrelax0;       // number of CF relaxation sweeps on level 0
   int x_tnorm;         // temporal stopping norm
   int x_cfactor;       // coarsening factor
   int x_cfactor0;      // coarsening factor on level 0
-  int x_max_iter;      // max number of interations
+  int x_max_iter;      // max number of iterations
   int x_storage;       // Full storage on levels >= storage
   int x_print_level;   // xbraid output level
   int x_access_level;  // access level
@@ -1951,7 +1951,7 @@ static void InputHelp()
   cout << "  --noforcing             : disable forcing term" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --nonlinear             : disable linearly implicit flag" << endl;
   cout << "  --order <ord>           : method order" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
@@ -2052,15 +2052,15 @@ static int OutputStats(void* arkode_mem, UserData* udata)
   bool outproc = (udata->myid_w == 0);
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nst, nst_a, netf, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);

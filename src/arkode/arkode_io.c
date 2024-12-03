@@ -55,13 +55,6 @@ int ARKodeSetDefaults(void* arkode_mem)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  /* Set stepper defaults (if provided) */
-  if (ark_mem->step_setdefaults)
-  {
-    retval = ark_mem->step_setdefaults(arkode_mem);
-    if (retval != ARK_SUCCESS) { return retval; }
-  }
-
   /* Set default values for integrator optional inputs */
   ark_mem->use_compensated_sums = SUNFALSE;
   ark_mem->fixedstep            = SUNFALSE; /* default to use adaptive steps */
@@ -106,6 +99,14 @@ int ARKodeSetDefaults(void* arkode_mem)
   ark_mem->hadapt_mem->p          = 0;       /* no default embedding order */
   ark_mem->hadapt_mem->q          = 0;       /* no default method order */
   ark_mem->hadapt_mem->adjust     = ADJUST;  /* controller order adjustment */
+
+  /* Set stepper defaults (if provided) */
+  if (ark_mem->step_setdefaults)
+  {
+    retval = ark_mem->step_setdefaults(arkode_mem);
+    if (retval != ARK_SUCCESS) { return retval; }
+  }
+
   return (ARK_SUCCESS);
 }
 
@@ -910,15 +911,17 @@ int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
 
   /* Remove current SUNAdaptController object
      (delete if owned, and then nullify pointer) */
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
+  if (ark_mem->hadapt_mem->owncontroller &&
+      (ark_mem->hadapt_mem->hcontroller != NULL))
   {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
-  }
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
+
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUN_SUCCESS)
@@ -1043,8 +1046,11 @@ int ARKodeSetInitStep(void* arkode_mem, sunrealtype hin)
   ark_mem->h0u = ZERO;
 
   /* Reset error controller (e.g., error and step size history) */
-  retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
-  if (retval != SUN_SUCCESS) { return (ARK_CONTROLLER_ERR); }
+  if (ark_mem->hadapt_mem->hcontroller != NULL)
+  {
+    retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
+    if (retval != SUN_SUCCESS) { return (ARK_CONTROLLER_ERR); }
+  }
 
   return (ARK_SUCCESS);
 }
@@ -1641,6 +1647,14 @@ int ARKodeSetErrorBias(void* arkode_mem, sunrealtype bias)
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
+  /* Return an error if there is not a current SUNAdaptController */
+  if (ark_mem->hadapt_mem->hcontroller == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__,
+                    __FILE__, "SUNAdaptController NULL -- must be set before setting the error bias");
+    return (ARK_MEM_NULL);
+  }
+
   /* set allowed value, otherwise set default */
   if (bias < ONE)
   {
@@ -1984,6 +1998,38 @@ int ARKodeSetMaxConvFails(void* arkode_mem, int maxncf)
 /*===============================================================
   ARKODE optional output utility functions
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  ARKodeGetNumStepAttempts:
+
+  Returns the current number of RHS evaluations
+  ---------------------------------------------------------------*/
+int ARKodeGetNumRhsEvals(void* arkode_mem, int partition_index,
+                         long int* num_rhs_evals)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Call stepper routine (if provided) */
+  if (ark_mem->step_getnumrhsevals)
+  {
+    return ark_mem->step_getnumrhsevals(arkode_mem, partition_index,
+                                        num_rhs_evals);
+  }
+  else
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
+                    "time-stepping module does not support this function");
+    return ARK_STEPPER_UNSUPPORTED;
+  }
+}
 
 /*---------------------------------------------------------------
   ARKodeGetNumStepAttempts:
@@ -2853,6 +2899,11 @@ char* ARKodeGetReturnFlagName(long int flag)
   case ARK_RELAX_JAC_FAIL: sprintf(name, "ARK_RELAX_JAC_FAIL"); break;
   case ARK_CONTROLLER_ERR: sprintf(name, "ARK_CONTROLLER_ERR"); break;
   case ARK_STEPPER_UNSUPPORTED: sprintf(name, "ARK_STEPPER_UNSUPPORTED"); break;
+  case ARK_DOMEIG_FAIL: sprintf(name, "ARK_DOMEIG_FAIL"); break;
+  case ARK_MAX_STAGE_LIMIT_FAIL:
+    sprintf(name, "ARK_MAX_STAGE_LIMIT_FAIL");
+    break;
+  case ARK_SUNSTEPPER_ERR: sprintf(name, "ARK_SUNSTEPPER_ERR"); break;
   case ARK_UNRECOGNIZED_ERROR: sprintf(name, "ARK_UNRECOGNIZED_ERROR"); break;
   default: sprintf(name, "NONE");
   }
@@ -2947,7 +2998,10 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
     fprintf(fp, "  Default explicit stability function\n");
   }
   else { fprintf(fp, "  User provided explicit stability function\n"); }
-  (void)SUNAdaptController_Write(ark_mem->hadapt_mem->hcontroller, fp);
+  if (ark_mem->hadapt_mem->hcontroller != NULL)
+  {
+    (void)SUNAdaptController_Write(ark_mem->hadapt_mem->hcontroller, fp);
+  }
 
   fprintf(fp, "  Maximum number of error test failures = %i\n", ark_mem->maxnef);
   fprintf(fp, "  Maximum number of convergence test failures = %i\n",
@@ -2991,7 +3045,7 @@ int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass)
 /*---------------------------------------------------------------
   arkGetLastKFlag:
 
-  The last kflag value retured by the temporal error test.
+  The last kflag value returned by the temporal error test.
   ---------------------------------------------------------------*/
 int arkGetLastKFlag(void* arkode_mem, int* last_kflag)
 {
@@ -3050,15 +3104,17 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
 
   /* Remove current SUNAdaptController object
      (delete if owned, and then nullify pointer) */
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
+  if (ark_mem->hadapt_mem->owncontroller &&
+      (ark_mem->hadapt_mem->hcontroller != NULL))
   {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
-  }
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
+
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUN_SUCCESS)
@@ -3251,15 +3307,17 @@ int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
 
   /* Remove current SUNAdaptController object
      (delete if owned, and then nullify pointer) */
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
+  if (ark_mem->hadapt_mem->owncontroller &&
+      (ark_mem->hadapt_mem->hcontroller != NULL))
   {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
-  }
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
+
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUN_SUCCESS)

@@ -22,9 +22,9 @@ DIRS = arkode/guide arkode/examples \
        kinsol/guide
 
 # prefix with desired command to create unique dependencies/targets
-LATEXDIRS = $(DIRS:%=latexpdf-%)
+LATEXDIRS = $(DIRS:%=latexpdf-%) latexpdf-install_guide
 HTMLDIRS = $(DIRS:%=html-%) html-superbuild
-CLEANDIRS = $(DIRS:%=clean-%) clean-superbuild
+CLEANDIRS = $(DIRS:%=clean-%) clean-superbuild clean-install_guide
 
 latexpdf: $(LATEXDIRS)
 $(LATEXDIRS):

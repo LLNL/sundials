@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   print_timing = atoi(argv[4]);
   SetTiming(print_timing);
 
-  /* intiailize SuperLU-DIST process grid */
+  /* initialize SuperLU-DIST process grid */
   superlu_gridinit(comm, nprow, npcol, &grid);
   /* excess processes just exit */
   if (grid.iam >= nprow * npcol)
@@ -299,7 +299,7 @@ int main(int argc, char* argv[])
   {
     sunindextype shift;
 
-    /* recieve number of local nnz */
+    /* receive number of local nnz */
     MPI_Recv(&NNZ_local, 1, MPI_SUNINDEXTYPE, 0, grid.iam, grid.comm, &mpistatus);
 
     /* Allocate memory for matrix members */
@@ -345,7 +345,7 @@ int main(int argc, char* argv[])
     ydata = N_VGetArrayPointer(y);
     bdata = N_VGetArrayPointer(b);
 
-    /* recieve vectors */
+    /* receive vectors */
     MPI_Recv(xdata, M_loc, MPI_SUNREALTYPE, 0, grid.iam, grid.comm, &mpistatus);
     MPI_Recv(ydata, M_loc, MPI_SUNREALTYPE, 0, grid.iam, grid.comm, &mpistatus);
     MPI_Recv(bdata, M_loc, MPI_SUNREALTYPE, 0, grid.iam, grid.comm, &mpistatus);
