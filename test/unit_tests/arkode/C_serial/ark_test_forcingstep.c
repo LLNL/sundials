@@ -15,7 +15,6 @@
  * ForcingStep module.
  * ---------------------------------------------------------------------------*/
 
-#include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_erkstep.h>
 #include <arkode/arkode_forcingstep.h>
 #include <nvector/nvector_serial.h>
@@ -62,8 +61,8 @@ static int test_forward(SUNContext ctx)
    * to the correct value of 1 by ForcingStep */
   N_VConst(SUN_RCONST(0.0), y);
 
-  void* parititon_mem[] = {ARKStepCreate(f_forward_1, NULL, t0, y, ctx),
-                           ARKStepCreate(f_forward_2, NULL, t0, y, ctx)};
+  void* parititon_mem[] = {ERKStepCreate(f_forward_1, t0, y, ctx),
+                           ERKStepCreate(f_forward_2, t0, y, ctx)};
   ARKodeSStolerances(parititon_mem[0], local_tol, local_tol);
   ARKodeSStolerances(parititon_mem[1], local_tol, local_tol);
 
@@ -146,7 +145,7 @@ static int test_mixed_directions(SUNContext ctx)
   N_VConst(SUN_RCONST(1.0), err);
 
   void* parititon_mem[] = {ERKStepCreate(f_mixed_direction_1, t0, y, ctx),
-                           ARKStepCreate(f_mixed_direction_2, NULL, t0, y, ctx)};
+                           ERKStepCreate(f_mixed_direction_2, t0, y, ctx)};
   ARKodeSStolerances(parititon_mem[0], local_tol, local_tol);
   ARKodeSStolerances(parititon_mem[1], local_tol, local_tol);
 
@@ -220,8 +219,8 @@ static int test_reinit(SUNContext ctx)
   N_Vector y = N_VNew_Serial(1, ctx);
   N_VConst(SUN_RCONST(1.0), y);
 
-  void* parititon_mem[] = {ARKStepCreate(f_forward_1, NULL, t0, y, ctx),
-                           ARKStepCreate(f_forward_2, NULL, t0, y, ctx)};
+  void* parititon_mem[] = {ERKStepCreate(f_forward_1, t0, y, ctx),
+                           ERKStepCreate(f_forward_2, t0, y, ctx)};
   ARKodeSStolerances(parititon_mem[0], local_tol, local_tol);
   ARKodeSStolerances(parititon_mem[1], local_tol, local_tol);
 
@@ -239,9 +238,9 @@ static int test_reinit(SUNContext ctx)
   /* Change the state and swap the steppers so now forcing is applied to
    * steppers[0] rather than steppers[1] */
   N_VConst(SUN_RCONST(-1.0), y);
-  ARKStepReInit(parititon_mem[0], f_forward_1, NULL, t1, y);
+  ERKStepReInit(parititon_mem[0], f_forward_1, t1, y);
   ForcingStepReInit(arkode_mem, steppers[1], steppers[0], t1, y);
-  ARKStepReInit(parititon_mem[1], f_forward_2, NULL, t1, y);
+  ERKStepReInit(parititon_mem[1], f_forward_2, t1, y);
 
   ARKodeEvolve(arkode_mem, t2, y, &tret, ARK_NORMAL);
 
