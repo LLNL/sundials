@@ -369,6 +369,7 @@ static int forcingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper stepper1,
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "stepper1 does not implement the required operations.");
+    return ARK_ILL_INPUT;
   }
 
   if (stepper2 == NULL)
@@ -381,6 +382,7 @@ static int forcingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper stepper1,
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "stepper2 does not implement the required operations.");
+    return ARK_ILL_INPUT;
   }
 
   if (y0 == NULL)
