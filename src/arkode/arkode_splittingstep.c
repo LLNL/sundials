@@ -447,11 +447,11 @@ static sunbooleantype splittingStep_CheckNVector(N_Vector y)
   This routine checks if all required SUNStepper operations are present. If any
   of them are missing it return SUNFALSE.
   ----------------------------------------------------------------------------*/
-static sunbooleantype forcingStep_CheckSUNStepper(SUNStepper stepper)
+static sunbooleantype splittingStep_CheckSUNStepper(SUNStepper stepper)
 {
   SUNStepper_Ops ops = stepper->ops;
   return ops->evolve != NULL && ops->reset != NULL &&
-         ops->setstoptime != NULL && ops->setstepdirection;
+         ops->setstoptime != NULL && ops->setstepdirection != NULL;
 }
 
 /*------------------------------------------------------------------------------
@@ -484,7 +484,7 @@ static int splittingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper* steppers,
       return ARK_ILL_INPUT;
     }
 
-    if (!forcingStep_CheckSUNStepper(steppers[i]))
+    if (!splittingStep_CheckSUNStepper(steppers[i]))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "stepper[%d] does not implement the required operations.",

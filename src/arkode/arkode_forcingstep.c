@@ -99,7 +99,7 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
-                    "Resetting the first partition SUNStepper failed");
+                    "Resetting the second partition SUNStepper failed");
     return ARK_SUNSTEPPER_ERR;
   }
 
