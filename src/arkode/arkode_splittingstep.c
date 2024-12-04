@@ -415,10 +415,9 @@ static int splittingStep_SetOrder(ARKodeMem ark_mem, int order)
   if (retval != ARK_SUCCESS) { return retval; }
 
   /* set user-provided value, or default, depending on argument */
-  step_mem->order = order <= 0 ? 1 : order;
+  step_mem->order = SUNMAX(1, order);
 
   SplittingStepCoefficients_Destroy(&step_mem->coefficients);
-  step_mem->coefficients = NULL;
 
   return ARK_SUCCESS;
 }
