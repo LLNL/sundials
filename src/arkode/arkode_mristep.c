@@ -2601,13 +2601,12 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #endif
       }
 
-      /* combine both RHS into Fse for ImEx problems, and zero Fsi[0] since
+      /* combine both RHS into Fse for ImEx problems since
          fast forcing function only depends on Omega coefficients */
       if (step_mem->implicit_rhs && step_mem->explicit_rhs)
       {
         N_VLinearSum(ONE, step_mem->Fse[stage], ONE, step_mem->Fsi[stage],
                      step_mem->Fse[stage]);
-        /*N_VConst(ZERO, step_mem->Fsi[stage]);*/
       }
     }
 
