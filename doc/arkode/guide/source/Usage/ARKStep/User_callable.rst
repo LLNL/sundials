@@ -35,6 +35,11 @@ ARKStep supports *all categories*:
 * non-identity mass matrices
 * relaxation Runge--Kutta methods
 
+ARKStep also has forcing function support when converted to a
+:c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
+:c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
+for additional details.
+
 
 .. _ARKODE.Usage.ARKStep.Initialization:
 

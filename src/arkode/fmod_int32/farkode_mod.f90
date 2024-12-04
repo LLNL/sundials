@@ -96,6 +96,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_STEPPER_UNSUPPORTED = -48_C_INT
  integer(C_INT), parameter, public :: ARK_DOMEIG_FAIL = -49_C_INT
  integer(C_INT), parameter, public :: ARK_MAX_STAGE_LIMIT_FAIL = -50_C_INT
+ integer(C_INT), parameter, public :: ARK_SUNSTEPPER_ERR = -51_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)
@@ -243,6 +244,7 @@ module farkode_mod
  public :: FARKodeGetNumRelaxBoundFails
  public :: FARKodeGetNumRelaxSolveFails
  public :: FARKodeGetNumRelaxSolveIters
+ public :: FARKodeCreateSUNStepper
  public :: FARKBandPrecInit
  public :: FARKBandPrecGetWorkSpace
  public :: FARKBandPrecGetNumRhsEvals
@@ -1699,6 +1701,15 @@ end function
 
 function swigc_FARKodeGetNumRelaxSolveIters(farg1, farg2) &
 bind(C, name="_wrap_FARKodeGetNumRelaxSolveIters") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeCreateSUNStepper(farg1, farg2) &
+bind(C, name="_wrap_FARKodeCreateSUNStepper") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -4628,6 +4639,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(iters(1))
 fresult = swigc_FARKodeGetNumRelaxSolveIters(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeCreateSUNStepper(arkode_mem, stepper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: stepper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(stepper)
+fresult = swigc_FARKodeCreateSUNStepper(farg1, farg2)
 swig_result = fresult
 end function
 

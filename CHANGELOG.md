@@ -6,6 +6,12 @@
 
 ### New Features and Enhancements
 
+Added the `SUNStepper` base class to represent a generic solution procedure for
+IVPs. A SUNStepper can be created from an ARKODE memory block with the new
+function `ARKodeCreateSUNStepper`. To enable interoperability with
+`MRIStepInnerStepper`, the function `MRIStepInnerStepper_CreateFromSUNStepper`
+was added.
+
 The following DIRK schemes now have coefficients accurate to quad precision:
 * `ARKODE_BILLINGTON_3_3_2`
 * `ARKODE_KVAERNO_4_2_3`
@@ -64,6 +70,10 @@ support.
 
 Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
 using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
+
+Fixed a CMake issue which caused third-party CMake variables to be unset.
+Users may see more options in the CMake GUI now as a result of the fix.
+See details in GitHub Issue [#538](https://github.com/LLNL/sundials/issues/538).
 
 ### Deprecation Notices
 
