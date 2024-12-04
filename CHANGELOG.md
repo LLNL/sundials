@@ -85,6 +85,7 @@ Fixed a bug in MRIStep where the data supplied to the Hermite interpolation modu
 not include contributions from the fast right-hand side function. With this fix, users
 will see one additional fast right-hand side function evaluation per slow step with the
 Hermite interpolation option.
+
 Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
 using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
 
