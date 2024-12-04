@@ -112,7 +112,7 @@ Office of Science, Office of Advanced Scientific Computing Research,
 Next-Generation Scientific Software Technologies program under contract
 DE-AC52-07NA27344.  Additional support is also provided by SciDAC
 partnerships with the U.S. Department of Energy’s FES, NP, BES, OE, and BER
-offices and the LLNL Institutional Scientific Capability Portfolio.
+offices as well as the LLNL Institutional Scientific Capability Portfolio.
 
 
 ## License ##
