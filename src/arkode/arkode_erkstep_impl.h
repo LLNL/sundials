@@ -60,6 +60,15 @@ typedef struct ARKodeERKStepMemRec
   /* Reusable arrays for fused vector operations */
   sunrealtype* cvals;
   N_Vector* Xvecs;
+  int nfusedopvecs; /* length of cvals and Xvecs arrays */
+
+  /* Data for using ERKStep with external polynomial forcing */
+  sunrealtype tshift;       /* time normalization shift       */
+  sunrealtype tscale;       /* time normalization scaling     */
+  N_Vector* forcing;        /* array of forcing vectors       */
+  int nforcing;             /* number of forcing vectors      */
+  sunrealtype* stage_times; /* workspace for applying forcing */
+  sunrealtype* stage_coefs; /* workspace for applying forcing */
 
 }* ARKodeERKStepMem;
 
@@ -68,7 +77,7 @@ typedef struct ARKodeERKStepMemRec
   ===============================================================*/
 
 /* Interface routines supplied to ARKODE */
-int erkStep_Init(ARKodeMem ark_mem, int init_type);
+int erkStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type);
 int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
@@ -84,6 +93,8 @@ void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
 int erkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
                            long int* rhs_evals);
 int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
+int erkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
+                            sunrealtype tscale, N_Vector* f, int nvecs);
 
 /* Internal utility routines */
 int erkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
@@ -94,6 +105,8 @@ sunbooleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
+void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype* stage_times,
+                          sunrealtype* stage_coefs, int jmax, int* nvec);
 
 /* private functions for relaxation */
 int erkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
