@@ -1907,7 +1907,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       if (retval != ARK_SUCCESS)
       {
         *nflagPtr = CONV_FAIL;
-        SUNLogInfo(ARK_LOGGER, "end-stage", "status = failed fast ERK stage, retval = %i", retval);
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed fast ERK stage, retval = %i", retval);
       }
       break;
     case (MRISTAGE_ERK_NOFAST):
