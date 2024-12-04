@@ -752,7 +752,7 @@ The IMEX-MRI-SR family of methods perform *both* the fast IVP evolution,
 (but these methods typically have far fewer stages than implicit MRI-GARK or
 IMEX-MRI-GARK methods).  These methods are defined by a vector of slow stage
 time abscissae :math:`c^S \in \mathbb{R}^{s}`, a set of coupling tensors
-:math:`\Omega\in\mathbb{R}^{(s+1)\times s\times \ell}`, and a Butcher table of
+:math:`\Omega\in\mathbb{R}^{(s+1)\times s\times k}`, and a Butcher table of
 slow-implicit coefficients, :math:`\Gamma\in\mathbb{R}^{(s+1) \times s}`.
 
 The fast stage IVPs, :eq:`MRI_fast_IVP`, are evolved on overlapping
