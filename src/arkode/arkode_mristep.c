@@ -1854,10 +1854,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       {
         N_VLinearSum(ONE, step_mem->Fsi[0], ONE, step_mem->Fse[0], ark_mem->fn);
       }
-      else
-      {
-        N_VScale(ONE, step_mem->Fsi[0], ark_mem->fn);
-      }
+      else { N_VScale(ONE, step_mem->Fsi[0], ark_mem->fn); }
     }
   }
   else if (ark_mem->fn != NULL && !ark_mem->fn_is_current)
@@ -2352,10 +2349,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       {
         N_VLinearSum(ONE, step_mem->Fsi[0], ONE, step_mem->Fse[0], ark_mem->fn);
       }
-      else
-      {
-        N_VScale(ONE, step_mem->Fsi[0], ark_mem->fn);
-      }
+      else { N_VScale(ONE, step_mem->Fsi[0], ark_mem->fn); }
     }
   }
   if (ark_mem->fn != NULL && !ark_mem->fn_is_current)
