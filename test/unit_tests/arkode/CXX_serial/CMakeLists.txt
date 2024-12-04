@@ -11,37 +11,49 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# ARKode C++ serial unit_tests
+# ARKODE C++ serial unit_tests
 # ---------------------------------------------------------------
 
-# List of test tuples of the form "name\;args"
+# List of test tuples of the form "name\;args\;type" where the type is 'develop'
+# for tests excluded from 'make test' in releases
 set(unit_tests
-    "ark_test_analytic_sys_mri.cpp\;0"
-    "ark_test_analytic_sys_mri.cpp\;1"
-    "ark_test_dahlquist_ark.cpp\;0 -1 0"
-    "ark_test_dahlquist_ark.cpp\;0 0 0"
-    "ark_test_dahlquist_ark.cpp\;0 0 1"
-    "ark_test_dahlquist_ark.cpp\;0 1 0"
-    "ark_test_dahlquist_ark.cpp\;0 1 1"
-    "ark_test_dahlquist_ark.cpp\;1 -1 0"
-    "ark_test_dahlquist_ark.cpp\;1 0 0"
-    "ark_test_dahlquist_ark.cpp\;1 0 1"
-    "ark_test_dahlquist_ark.cpp\;1 1 0"
-    "ark_test_dahlquist_ark.cpp\;1 1 1"
-    "ark_test_dahlquist_ark.cpp\;2 -1 0"
-    "ark_test_dahlquist_ark.cpp\;2 0 0"
-    "ark_test_dahlquist_ark.cpp\;2 0 1"
-    "ark_test_dahlquist_ark.cpp\;2 1 0"
-    "ark_test_dahlquist_ark.cpp\;2 1 1"
-    "ark_test_dahlquist_erk.cpp\;-1"
-    "ark_test_dahlquist_erk.cpp\;0"
-    "ark_test_dahlquist_erk.cpp\;1"
-    "ark_test_dahlquist_mri.cpp\;-1"
-    "ark_test_dahlquist_mri.cpp\;0"
-    "ark_test_dahlquist_mri.cpp\;1"
-    "ark_test_butcher.cpp\;"
-    "ark_test_getjac.cpp\;"
-    "ark_test_getjac_mri.cpp\;")
+    "ark_test_accumerror_brusselator.cpp\;20 3 1\;exclude-single"
+    "ark_test_accumerror_brusselator.cpp\;20 -4 0\;exclude-single"
+    "ark_test_accumerror_brusselator.cpp\;20 5 0\;exclude-single"
+    "ark_test_accumerror_kpr.cpp\;20 2 0\;exclude-single"
+    "ark_test_accumerror_kpr.cpp\;20 3 1\;exclude-single"
+    "ark_test_accumerror_kpr.cpp\;20 -4 1\;exclude-single"
+    "ark_test_analytic_sys_mri.cpp\;0\;develop"
+    "ark_test_analytic_sys_mri.cpp\;1\;develop"
+    "ark_test_dahlquist_ark.cpp\;0 -1 0\;develop"
+    "ark_test_dahlquist_ark.cpp\;0 0 0\;develop"
+    "ark_test_dahlquist_ark.cpp\;0 0 1\;develop"
+    "ark_test_dahlquist_ark.cpp\;0 1 0\;develop"
+    "ark_test_dahlquist_ark.cpp\;0 1 1\;develop"
+    "ark_test_dahlquist_ark.cpp\;1 -1 0\;develop"
+    "ark_test_dahlquist_ark.cpp\;1 0 0\;develop"
+    "ark_test_dahlquist_ark.cpp\;1 0 1\;develop"
+    "ark_test_dahlquist_ark.cpp\;1 1 0\;develop"
+    "ark_test_dahlquist_ark.cpp\;1 1 1\;develop"
+    "ark_test_dahlquist_ark.cpp\;2 -1 0\;develop"
+    "ark_test_dahlquist_ark.cpp\;2 0 0\;develop"
+    "ark_test_dahlquist_ark.cpp\;2 0 1\;develop"
+    "ark_test_dahlquist_ark.cpp\;2 1 0\;develop"
+    "ark_test_dahlquist_ark.cpp\;2 1 1\;develop"
+    "ark_test_dahlquist_erk.cpp\;-1\;develop"
+    "ark_test_dahlquist_erk.cpp\;0\;develop"
+    "ark_test_dahlquist_erk.cpp\;1\;develop"
+    "ark_test_dahlquist_mri.cpp\;-1\;develop"
+    "ark_test_dahlquist_mri.cpp\;0\;develop"
+    "ark_test_dahlquist_mri.cpp\;1\;develop"
+    "ark_test_butcher.cpp\;\;develop"
+    "ark_test_getjac.cpp\;\;develop"
+    "ark_test_getjac_mri.cpp\;\;develop"
+    "ark_test_kpr_mriadapt.cpp\;--hs 0.002 --rtol 0.000004 --scontrol 0\;exclude-single"
+    "ark_test_brusselator_mriadapt.cpp\;--rtol 0.000004 --scontrol 0\;exclude-single"
+    "ark_test_slowerror_brusselator.cpp\;\;exclude-single"
+    "ark_test_slowerror_kpr.cpp\;\;exclude-single"
+    "ark_test_slowerror_polynomial.cpp\;\;exclude-single")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -49,6 +61,7 @@ foreach(test_tuple ${unit_tests})
   # Parse the test tuple
   list(GET test_tuple 0 test)
   list(GET test_tuple 1 test_args)
+  list(GET test_tuple 2 test_type)
 
   # Extract the file name without extension
   get_filename_component(test_target ${test} NAME_WE)
@@ -83,6 +96,7 @@ foreach(test_tuple ${unit_tests})
       sundials_sunnonlinsolfixedpoint_obj
       sundials_sunadaptcontrollerimexgus_obj
       sundials_sunadaptcontrollersoderlind_obj
+      sundials_sunadaptcontrollermrihtol_obj
       ${EXE_EXTRA_LINK_LIBS})
 
     # Tell CMake that we depend on the ARKODE library since it does not pick
@@ -110,7 +124,7 @@ foreach(test_tuple ${unit_tests})
     TEST_ARGS ${test_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE "develop" ${diff_output})
+    EXAMPLE_TYPE ${test_type} ${diff_output})
 
 endforeach()
 

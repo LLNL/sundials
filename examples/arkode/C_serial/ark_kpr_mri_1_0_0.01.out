@@ -6,7 +6,8 @@ Multirate nonlinear Kvaerno-Prothero-Robinson test problem:
     G = -100
     w = 100
     e = 0.5
-    solver: exp-3/none (explicit slow, no fast)
+    slow solver: ARKODE_MIS_KW3
+    fast solver: none
         t           u           v       uerr      verr
    ------------------------------------------------------
     0.000000    1.224745    1.732051  0.00e+00  0.00e+00
@@ -65,4 +66,4 @@ Multirate nonlinear Kvaerno-Prothero-Robinson test problem:
 Final Solver Statistics:
    Steps: nsts = 501, nstf = 50601
    u error = 5.052e-05, v error = 7.684e-04, total error = 5.445e-04
-   Total RHS evals:  Fs = 1504,  Ff = 151853
+   Total RHS evals:  Fs = 1504,  Ff = 152305

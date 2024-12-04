@@ -4404,7 +4404,11 @@ wrap an ARKStep memory block as an :c:type:`MRIStepInnerStepper`.
 
          /* create an MRIStep object, setting the slow (outer) right-hand side
             functions and the initial condition */
-         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
+         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx);
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+
+   .. deprecated:: x.y.z
+
+      Use :c:func:`ARKodeCreateMRIStepInnerStepper` instead.

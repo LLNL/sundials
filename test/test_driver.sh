@@ -374,7 +374,7 @@ args_phase=()
 case "$testtype" in
 
     BRANCH)
-        # Don't creat tarballs
+        # Don't create tarballs
         tarball=NONE
 
         # Address sanitizer tests (TPLs OFF)
