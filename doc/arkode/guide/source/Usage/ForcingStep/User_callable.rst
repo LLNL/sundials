@@ -38,12 +38,15 @@ ForcingStep initialization functions
    This function allocates and initializes memory for a problem to be solved
    using the ForcingStep time-stepping module in ARKODE.
 
-   :param stepper1: A :c:type:`SUNStepper` to integrate partition one. All
-      :c:type:`SUNStepper` operations are required to be implemented except
-      :c:func:`SUNStepper_SetForcing`.
+   :param stepper1: A :c:type:`SUNStepper` to integrate partition one. At
+      minimum, it must implement the :c:func:`SUNStepper_Evolve`,
+      :c:func:`SUNStepper_Reset`, and :c:func:`SUNStepper_SetStopTime`
+      operations.
    :param stepper2: A :c:type:`SUNStepper` to integrate partition two
-      including the forcing from partition one. All :c:type:`SUNStepper`
-      operations are required to be implemented.
+      including the forcing from partition one. At
+      minimum, it must implement the :c:func:`SUNStepper_Evolve`,
+      :c:func:`SUNStepper_Reset`, :c:func:`SUNStepper_SetStopTime`, and
+      :c:func:`SUNStepper_SetForcing` operations.
    :param t0: The initial value of :math:`t`.
    :param y0: The initial condition vector :math:`y(t_0)`.
    :param sunctx: The :c:type:`SUNContext` object (see
@@ -152,12 +155,15 @@ the ODE and the :c:type:`SUNStepper` objects used to evolve each partition.
    time-stepper module.
 
    :param arkode_mem: pointer to the ForcingStep memory block.
-   :param stepper1: A :c:type:`SUNStepper` to integrate partition one. All
-      :c:type:`SUNStepper` operations are required to be implemented except
-      :c:func:`SUNStepper_SetForcing`.
+   :param stepper1: A :c:type:`SUNStepper` to integrate partition one. At
+      minimum, it must implement the :c:func:`SUNStepper_Evolve`,
+      :c:func:`SUNStepper_Reset`, and :c:func:`SUNStepper_SetStopTime`
+      operations.
    :param stepper2: A :c:type:`SUNStepper` to integrate partition two
-      including the forcing from partition one. All :c:type:`SUNStepper`
-      operations are required to be implemented.
+      including the forcing from partition one. At
+      minimum, it must implement the :c:func:`SUNStepper_Evolve`,
+      :c:func:`SUNStepper_Reset`, :c:func:`SUNStepper_SetStopTime`, and
+      :c:func:`SUNStepper_SetForcing` operations.
    :param t0: The initial value of :math:`t`.
    :param y0: The initial condition vector :math:`y(t_0)`.
 

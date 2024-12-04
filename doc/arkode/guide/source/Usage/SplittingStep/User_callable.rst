@@ -39,8 +39,10 @@ SplittingStep initialization functions
    using the SplittingStep time-stepping module in ARKODE.
 
    :param steppers: an array of :c:type:`SUNStepper` objects with one for each
-      partition of the IVP. All :c:type:`SUNStepper` operations are required to
-      be implemented except :c:func:`SUNStepper_SetForcing`.
+      partition of the IVP. At minimum, they must implement the
+      :c:func:`SUNStepper_Evolve`, :c:func:`SUNStepper_Reset`,
+      :c:func:`SUNStepper_SetStopTime`, and
+      :c:func:`SUNStepper_SetStepDirection` operations.
    :param partitions: the number of partitions, :math:`P > 1`, in the IVP.
    :param t0: the initial value of :math:`t`.
    :param y0: the initial condition vector :math:`y(t_0)`.
@@ -180,8 +182,10 @@ the ODE and the :c:type:`SUNStepper` objects used to evolve each partition.
 
    :param arkode_mem: pointer to the SplittingStep memory block.
    :param steppers: an array of :c:type:`SUNStepper` objects with one for each
-      partition of the IVP. All :c:type:`SUNStepper` operations are required to
-      be implemented except :c:func:`SUNStepper_SetForcing`.
+      partition of the IVP. At minimum, they must implement the
+      :c:func:`SUNStepper_Evolve`, :c:func:`SUNStepper_Reset`,
+      :c:func:`SUNStepper_SetStopTime`, and
+      :c:func:`SUNStepper_SetStepDirection` operations.
    :param partitions: the number of partitions, :math:`P > 1`, in the IVP.
    :param t0: the initial value of :math:`t`.
    :param y0: the initial condition vector :math:`y(t_0)`.
