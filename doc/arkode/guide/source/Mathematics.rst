@@ -704,9 +704,9 @@ t_{n,i-1}^S)/(h^S \Delta c_i^S)` is the normalized time, the coefficients
 :math:`k` given by
 
 .. math::
-   \omega_{i,j}(\tau) = \sum_{k\geq 1} \Omega_{i,j,k} \, \tau^{k-1}
+   \omega_{i,j}(\tau) = \sum_{\ell = 1}^{k} \Omega_{i,j,\ell} \, \tau^{\ell-1}
    \quad\text{and}\quad
-   \gamma_{i,j}(\tau) = \sum_{k\geq 1} \Gamma_{i,j,k} \, \tau^{k-1}.
+   \gamma_{i,j}(\tau) = \sum_{\ell = 1}^{k} \Gamma_{i,j,\ell} \, \tau^{\ell-1}.
    :label: ARKODE_MRI_coupling
 
 When the slow abscissa are repeated, i.e. :math:`\Delta c_i^S = 0`, the fast IVP
@@ -716,10 +716,10 @@ stage is computed as
 
 .. math::
    z_i = z_{i-1}
-   + h^S \sum_{j=1}^{i-1} \left(\sum_{k\geq 1}
-     \frac{\Omega_{i,j,k}}{k}\right) f^E(t_{n,j}^S, z_j)
-   + h^S \sum_{j=1}^i \left(\sum_{k\geq 1}
-     \frac{\Gamma_{i,j,k}}{k}\right) f^I(t_{n,j}^S, z_j).
+   + h^S \sum_{j=1}^{i-1} \left(\sum_{\ell = 1}^{k}
+     \frac{\Omega_{i,j,\ell}}{\ell}\right) f^E(t_{n,j}^S, z_j)
+   + h^S \sum_{j=1}^i \left(\sum_{\ell = 1}^{k}
+     \frac{\Gamma_{i,j,\ell}}{\ell}\right) f^I(t_{n,j}^S, z_j).
    :label: ARKODE_MRI_delta_c_zero
 
 Similarly, the embedded solution IVP, :eq:`MRI_embedding_fast_IVP`, is evolved
