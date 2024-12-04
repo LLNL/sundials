@@ -4564,14 +4564,21 @@ int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
   SUNStepper sunstepper = (SUNStepper)stepper->content;
   sunrealtype tret;
 
-  SUNErrCode err = sunstepper->ops->setstoptime(sunstepper, tout);
-  if (err != SUN_SUCCESS)
-  {
-    stepper->last_flag = sunstepper->last_flag;
-    return ARK_SUNSTEPPER_ERR;
-  }
+  SUNErrCode err     = SUNStepper_SetForcing(sunstepper, stepper->tshift,
+                                             stepper->tscale, stepper->forcing,
+                                             stepper->nforcing);
+  stepper->last_flag = sunstepper->last_flag;
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
-  err                = sunstepper->ops->evolve(sunstepper, tout, y, &tret);
+  err                = SUNStepper_SetStopTime(sunstepper, tout);
+  stepper->last_flag = sunstepper->last_flag;
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err                = SUNStepper_Evolve(sunstepper, tout, y, &tret);
+  stepper->last_flag = sunstepper->last_flag;
+  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+
+  err                = SUNStepper_SetForcing(sunstepper, ZERO, ONE, NULL, 0);
   stepper->last_flag = sunstepper->last_flag;
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
 
@@ -4606,7 +4613,7 @@ int mriStepInnerStepper_FullRhsSUNStepper(MRIStepInnerStepper stepper,
   default: mode = SUN_FULLRHS_OTHER; break;
   }
 
-  SUNErrCode err     = sunstepper->ops->fullrhs(sunstepper, t, y, f, mode);
+  SUNErrCode err     = SUNStepper_FullRhs(sunstepper, t, y, f, mode);
   stepper->last_flag = sunstepper->last_flag;
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   return ARK_SUCCESS;
@@ -4692,7 +4699,7 @@ int mriStepInnerStepper_ResetSUNStepper(MRIStepInnerStepper stepper,
                                         sunrealtype tR, N_Vector yR)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
-  SUNErrCode err        = sunstepper->ops->reset(sunstepper, tR, yR);
+  SUNErrCode err        = SUNStepper_Reset(sunstepper, tR, yR);
   stepper->last_flag    = sunstepper->last_flag;
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   return ARK_SUCCESS;
