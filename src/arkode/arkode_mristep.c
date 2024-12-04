@@ -1765,6 +1765,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   sunbooleantype calc_fslow;
   sunbooleantype need_inner_dsm;
   sunbooleantype do_embedding;
+  sunbooleantype nested_mri;
   int nvec;
 
   /* access the MRIStep mem structure */
@@ -1832,20 +1833,37 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   }
 
   /* Evaluate the slow RHS functions if needed. NOTE: we decide between calling the
-     full RHS function (if ark_mem->fn is non-NULL) versus just updating the stored
-     values of Fse[0] and Fsi[0].  In either case, we use ARK_FULLRHS_START mode
-     because MRIGARK methods do not evaluate the RHS functions at the end of the
-     time step (so nothing can be leveraged). */
-  if (ark_mem->fn != NULL)
-  {
-    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
-                             ARK_FULLRHS_START);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
-  }
-  else
+     full RHS function (if ark_mem->fn is non-NULL and MRIStep is not an inner
+     integrator) versus just updating the stored values of Fse[0] and Fsi[0].  In
+     either case, we use ARK_FULLRHS_START mode because MRIGARK methods do not
+     evaluate the RHS functions at the end of the time step (so nothing can be
+     leveraged). */
+  nested_mri = step_mem->expforcing || step_mem->impforcing;
+  if (ark_mem->fn == NULL || nested_mri)
   {
     retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn,
                               ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+
+    /* For a nested MRI configuration we might still need fn to create a predictor
+       but it should be fn only for the current nesting level which is why we use
+       UpdateF0 in this case rather than FullRHS */
+    if (ark_mem->fn != NULL && nested_mri && step_mem->implicit_rhs)
+    {
+      if (step_mem->implicit_rhs && step_mem->explicit_rhs)
+      {
+        N_VLinearSum(ONE, step_mem->Fsi[0], ONE, step_mem->Fse[0], ark_mem->fn);
+      }
+      else
+      {
+        N_VScale(ONE, step_mem->Fsi[0], ark_mem->fn);
+      }
+    }
+  }
+  else if (ark_mem->fn != NULL && !ark_mem->fn_is_current)
+  {
+    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                             ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
   }
   ark_mem->fn_is_current = SUNTRUE;
@@ -2256,6 +2274,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype impl_corr;           /* is slow correct. implicit? */
   sunrealtype cstage;                 /* current stage abscissa     */
   sunbooleantype need_inner_dsm;
+  sunbooleantype nested_mri;
   int nvec, max_stages;
   const sunrealtype tol = SUN_RCONST(100.0) * SUN_UNIT_ROUNDOFF;
 
@@ -2312,20 +2331,37 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   /* Evaluate the slow RHS functions if needed. NOTE: we decide between calling the
-     full RHS function (if ark_mem->fn is non-NULL) versus just updating the stored
-     values of Fse[0] and Fsi[0].  In either case, we use ARK_FULLRHS_START mode
-     because MRISR methods do not evaluate the RHS functions at the end of the
-     time step (so nothing can be leveraged). */
-  if (ark_mem->fn != NULL)
-  {
-    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
-                             ARK_FULLRHS_START);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
-  }
-  else
+     full RHS function (if ark_mem->fn is non-NULL and MRIStep is not an inner
+     integrator) versus just updating the stored values of Fse[0] and Fsi[0].  In
+     either case, we use ARK_FULLRHS_START mode because MRISR methods do not
+     evaluate the RHS functions at the end of the time step (so nothing can be
+     leveraged). */
+  nested_mri = step_mem->expforcing || step_mem->impforcing;
+  if (ark_mem->fn == NULL || nested_mri)
   {
     retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn,
                               ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+
+    /* For a nested MRI configuration we might still need fn to create a predictor
+       but it should be fn only for the current nesting level which is why we use
+       UpdateF0 in this case rather than FullRHS */
+    if (ark_mem->fn != NULL && nested_mri && step_mem->implicit_rhs)
+    {
+      if (step_mem->implicit_rhs && step_mem->explicit_rhs)
+      {
+        N_VLinearSum(ONE, step_mem->Fsi[0], ONE, step_mem->Fse[0], ark_mem->fn);
+      }
+      else
+      {
+        N_VScale(ONE, step_mem->Fsi[0], ark_mem->fn);
+      }
+    }
+  }
+  if (ark_mem->fn != NULL && !ark_mem->fn_is_current)
+  {
+    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                             ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
   }
   ark_mem->fn_is_current = SUNTRUE;
@@ -2694,6 +2730,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   sunbooleantype solution;            /*   or solution stages       */
   sunrealtype cstage;                 /* current stage abscissa     */
   sunbooleantype need_inner_dsm;
+  sunbooleantype nested_mri;
   int nvec;
 
   /* access the MRIStep mem structure */
@@ -2750,20 +2787,22 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* Evaluate the slow RHS function if needed. NOTE: we decide between calling the full RHS
-   function (if ark_mem->fn is non-NULL) versus just updating the stored value of
-   Fse[0]. In either case, we use ARK_FULLRHS_START mode because MERK methods do not
-   evaluate Fse at the end of the time step (so nothing can be leveraged). */
-  if (ark_mem->fn != NULL)
-  {
-    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
-                             ARK_FULLRHS_START);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
-  }
-  else
+  /* Evaluate the slow RHS function if needed. NOTE: we decide between calling the
+     full RHS function (if ark_mem->fn is non-NULL and MRIStep is not an inner
+     integrator) versus just updating the stored value of Fse[0]. In either case,
+     we use ARK_FULLRHS_START mode because MERK methods do not evaluate Fse at the
+     end of the time step (so nothing can be leveraged). */
+  nested_mri = step_mem->expforcing || step_mem->impforcing;
+  if (ark_mem->fn == NULL || nested_mri)
   {
     retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn,
                               ARK_FULLRHS_START);
+    if (retval) { return ARK_RHSFUNC_FAIL; }
+  }
+  if (ark_mem->fn != NULL && !ark_mem->fn_is_current)
+  {
+    retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
+                             ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
   }
   ark_mem->fn_is_current = SUNTRUE;
