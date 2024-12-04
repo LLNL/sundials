@@ -99,6 +99,13 @@ Yu Pan, Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
 Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
 Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
 
+## Acknowledgements ##
+
+This material is based upon work supported by the U.S. Department of Energy,
+Office of Science, Office of Advanced Scientific Computing Research,
+Next-Generation Scientific Software Technologies program, under contract
+DE-AC52-07NA2734.
+
 ## License ##
 
 SUNDIALS is released under the BSD 3-clause license. See the [LICENSE](./LICENSE)
