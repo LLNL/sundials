@@ -23,6 +23,10 @@
 #include <stdlib.h>
 #include <sundials/sundials_types.h>
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct SUNHashMapKeyValue_* SUNHashMapKeyValue;
 
 struct SUNHashMapKeyValue_
@@ -54,4 +58,8 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
 SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, size_t value_size);
 #endif
 
+#if defined(__cplusplus)
+}
 #endif
+
+#endif /* _SUNDIALS_HASHMAP_IMPL_H */

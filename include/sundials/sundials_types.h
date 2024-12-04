@@ -119,6 +119,8 @@ typedef long double sunrealtype;
 
   #include <complex>
 
+  #define suncomplexlib std
+
   #if defined(SUNDIALS_SINGLE_PRECISION)
 typedef std::complex<float>  suncomplextype;
   #elif defined(SUNDIALS_DOUBLE_PRECISION)

@@ -208,7 +208,7 @@ SUNErrCode SUNLogger_SetErrorFilename(SUNLogger logger, const char* error_filena
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_ERROR
     FILE* fp = NULL;
-    if (!SUNHashMap_GetValue(logger->filenames, error_filename, (void*)&fp))
+    if (!SUNHashMap_GetValue(logger->filenames, error_filename, (void**)&fp))
     {
       logger->error_fp = fp;
     }
@@ -239,7 +239,7 @@ SUNErrCode SUNLogger_SetWarningFilename(SUNLogger logger,
   {
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_WARNING
     FILE* fp = NULL;
-    if (!SUNHashMap_GetValue(logger->filenames, warning_filename, (void*)&fp))
+    if (!SUNHashMap_GetValue(logger->filenames, warning_filename, (void**)&fp))
     {
       logger->warning_fp = fp;
     }
