@@ -4221,7 +4221,7 @@ int mriStep_Hin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
 
 /*===============================================================
   User-callable functions for a custom inner integrator
-  ---------------------------------------------------------------*/
+  ===============================================================*/
 
 int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper* stepper)
 {
