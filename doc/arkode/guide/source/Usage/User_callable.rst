@@ -4905,6 +4905,6 @@ block as a :c:type:`SUNStepper`.
    .. warning::
       Currently, ``stepper`` will be equipped with an implementation for the
       :c:func:`SUNStepper_SetForcing` function only if ``inner_arkode_mem`` is
-      an ARKStep integrator.
+      an ARKStep, ERKStep, or MRIStep integrator.
 
    .. versionadded:: x.y.z
