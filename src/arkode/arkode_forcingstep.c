@@ -75,6 +75,16 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
     return ARK_ILL_INPUT;
   }
 
+  if (ark_mem->interp_type == ARK_INTERP_HERMITE &&
+      (step_mem->stepper[0]->ops->fullrhs == NULL ||
+       step_mem->stepper[1]->ops->fullrhs == NULL))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The SUNSteppers must implement SUNStepper_FullRhs when "
+                    "using Hermite interpolation");
+    return ARK_ILL_INPUT;
+  }
+
   /* immediately return if resize or reset */
   if (init_type == RESIZE_INIT || init_type == RESET_INIT)
   {
@@ -88,9 +98,9 @@ static int forcingStep_Init(ARKodeMem ark_mem, int init_type)
                                     ark_mem->yn);
   if (err != SUN_SUCCESS)
   {
-     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
-                     "Resetting the first partition SUNStepper failed");
-     return ARK_SUNSTEPPER_ERR; 
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Resetting the first partition SUNStepper failed");
+    return ARK_SUNSTEPPER_ERR;
   }
 
   ark_mem->interp_degree = 1;
@@ -111,17 +121,17 @@ static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
   SUNErrCode err = SUNStepper_Reset(step_mem->stepper[0], tR, yR);
   if (err != SUN_SUCCESS)
   {
-     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
-                     "Resetting the first partition SUNStepper failed");
-     return ARK_SUNSTEPPER_ERR; 
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Resetting the first partition SUNStepper failed");
+    return ARK_SUNSTEPPER_ERR;
   }
 
   err = SUNStepper_Reset(step_mem->stepper[1], tR, yR);
   if (err != SUN_SUCCESS)
   {
-     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
-                     "Resetting the second partition SUNStepper failed");
-     return ARK_SUNSTEPPER_ERR; 
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Resetting the second partition SUNStepper failed");
+    return ARK_SUNSTEPPER_ERR;
   }
 
   return ARK_SUCCESS;
@@ -140,19 +150,18 @@ static int forcingStep_SetStepDirection(ARKodeMem ark_mem, sunrealtype stepdir)
   SUNErrCode err = SUNStepper_SetStepDirection(step_mem->stepper[0], stepdir);
   if (err != SUN_SUCCESS)
   {
-     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
-                     "Setting the step direction for the first partition SUNStepper failed");
-     return ARK_SUNSTEPPER_ERR; 
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__,
+                    __FILE__, "Setting the step direction for the first partition SUNStepper failed");
+    return ARK_SUNSTEPPER_ERR;
   }
 
   err = SUNStepper_SetStepDirection(step_mem->stepper[1], stepdir);
   if (err != SUN_SUCCESS)
   {
-     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
-                     "Setting the step direction for the second partition SUNStepper failed");
-     return ARK_SUNSTEPPER_ERR; 
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__,
+                    __FILE__, "Setting the step direction for the second partition SUNStepper failed");
+    return ARK_SUNSTEPPER_ERR;
   }
-
 
   return ARK_SUCCESS;
 }
@@ -332,6 +341,18 @@ static sunbooleantype forcingStep_CheckNVector(N_Vector y)
 }
 
 /*------------------------------------------------------------------------------
+  This routine checks if all required SUNStepper operations are present. If any
+  of them are missing it return SUNFALSE.
+  ----------------------------------------------------------------------------*/
+static sunbooleantype forcingStep_CheckSUNStepper(SUNStepper stepper,
+                                                  sunbooleantype needs_forcing)
+{
+  SUNStepper_Ops ops = stepper->ops;
+  return ops->evolve != NULL && ops->reset != NULL &&
+         ops->setstoptime != NULL && (!needs_forcing || ops->setforcing != NULL);
+}
+
+/*------------------------------------------------------------------------------
   This routine validates arguments when (re)initializing a ForcingStep
   integrator
   ----------------------------------------------------------------------------*/
@@ -344,12 +365,22 @@ static int forcingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper stepper1,
                     "stepper1 = NULL illegal.");
     return ARK_ILL_INPUT;
   }
+  if (!forcingStep_CheckSUNStepper(stepper1, SUNFALSE))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "stepper1 does not implement the required operations.");
+  }
 
   if (stepper2 == NULL)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "stepper2 = NULL illegal.");
     return ARK_ILL_INPUT;
+  }
+  if (!forcingStep_CheckSUNStepper(stepper2, SUNTRUE))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "stepper2 does not implement the required operations.");
   }
 
   if (y0 == NULL)
