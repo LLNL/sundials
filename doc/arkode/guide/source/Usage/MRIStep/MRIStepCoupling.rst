@@ -46,7 +46,7 @@ by the table is determined by an enumerated type, :c:enum:`MRISTEP_METHOD_TYPE`:
 
       A explicit MERK method (does not support a slow implicit operator, :math:`f^I`).
 
-   .. c:enumerator:: MRISTEP_MRISR
+   .. c:enumerator:: MRISTEP_SR
 
       An IMEX-MRI-SR method.
 
@@ -206,7 +206,7 @@ are defined ``arkode/arkode_mristep.h``.
 
       For :c:enumerator:`MRISTEP_MERK` tables, the *G* array is not allocated.
 
-      For :c:enumerator:`MRISTEP_MRISR` tables, the *group* array is not allocated.
+      For :c:enumerator:`MRISTEP_SR` tables, the *group* array is not allocated.
 
       When allocated, both :math:`\Omega` and :math:`\Gamma`
       are initialized to all zeros, so only nonzero coefficients need to be provided.
@@ -241,7 +241,7 @@ are defined ``arkode/arkode_mristep.h``.
    ``MRISTEP_EXPLICIT``, ``MRISTEP_IMPLICIT``, or  ``MRISTEP_IMEX``.  The
    routine determines the relevant type based on whether either of the
    arguments *W* and *G* are ``NULL``.  Users who wish to create MRI
-   methods of type ``MRISTEP_MERK`` or ``MRISTEP_MRISR`` must currently
+   methods of type ``MRISTEP_MERK`` or ``MRISTEP_SR`` must currently
    do so manually.
 
    The assumed size of the input arrays *W* and *G* depends on the

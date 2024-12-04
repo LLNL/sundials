@@ -36,6 +36,7 @@
 #include "arkode_types_impl.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
+#include "sundials_stepper_impl.h"
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -120,6 +121,7 @@ extern "C" {
 #define PREV_ERR_FAIL  +8
 #define RHSFUNC_RECVR  +9
 #define CONSTR_RECVR   +10
+#define ARK_RETRY_STEP +11
 
 /*---------------------------------------------------------------
   Return values for lower-level rootfinding functions

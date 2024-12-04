@@ -23,6 +23,7 @@
 #include <arkode/arkode_butcher_erk.h>
 #include <arkode/arkode_ls.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -39,7 +40,7 @@ typedef enum
   MRISTEP_IMPLICIT,
   MRISTEP_IMEX,
   MRISTEP_MERK,
-  MRISTEP_MRISR
+  MRISTEP_SR
 } MRISTEP_METHOD_TYPE;
 
 /* MRI coupling table IDs */
@@ -200,6 +201,10 @@ SUNDIALS_EXPORT int MRIStepGetNumInnerStepperFails(void* arkode_mem,
 /* Custom inner stepper functions */
 SUNDIALS_EXPORT int MRIStepInnerStepper_Create(SUNContext sunctx,
                                                MRIStepInnerStepper* stepper);
+
+SUNDIALS_EXPORT int MRIStepInnerStepper_CreateFromSUNStepper(
+  SUNStepper sunstepper, MRIStepInnerStepper* stepper);
+
 SUNDIALS_EXPORT int MRIStepInnerStepper_Free(MRIStepInnerStepper* stepper);
 SUNDIALS_EXPORT int MRIStepInnerStepper_SetContent(MRIStepInnerStepper stepper,
                                                    void* content);

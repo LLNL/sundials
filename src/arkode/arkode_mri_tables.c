@@ -103,12 +103,12 @@ MRIStepCoupling MRIStepCoupling_Alloc(int nmat, int stages,
 
   hasOmegas = hasGammas = SUNFALSE;
   if ((type == MRISTEP_EXPLICIT) || (type == MRISTEP_IMEX) ||
-      (type == MRISTEP_MERK) || (type == MRISTEP_MRISR))
+      (type == MRISTEP_MERK) || (type == MRISTEP_SR))
   {
     hasOmegas = SUNTRUE;
   }
   if ((type == MRISTEP_IMPLICIT) || (type == MRISTEP_IMEX) ||
-      (type == MRISTEP_MRISR))
+      (type == MRISTEP_SR))
   {
     hasGammas = SUNTRUE;
   }
@@ -674,7 +674,7 @@ void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile)
   case MRISTEP_IMPLICIT: fprintf(outfile, "  type = implicit MRI\n"); break;
   case MRISTEP_IMEX: fprintf(outfile, "  type = ImEx MRI\n"); break;
   case MRISTEP_MERK: fprintf(outfile, "  type = MERK\n"); break;
-  case MRISTEP_MRISR: fprintf(outfile, "  type = MRISR\n"); break;
+  case MRISTEP_SR: fprintf(outfile, "  type = MRISR\n"); break;
   default: fprintf(outfile, "  type = unknown\n");
   }
   fprintf(outfile, "  nmat = %i\n", MRIC->nmat);
@@ -777,7 +777,7 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
   if ((is < 0) || (is > MRIC->stages)) { return ARK_INVALID_TABLE; }
 
   /* report MRISTAGE_ERK_FAST for MERK and MRI-SR methods */
-  if ((MRIC->type == MRISTEP_MRISR) || (MRIC->type == MRISTEP_MERK))
+  if ((MRIC->type == MRISTEP_SR) || (MRIC->type == MRISTEP_MERK))
   {
     return (MRISTAGE_ERK_FAST);
   }
@@ -890,7 +890,7 @@ int mriStepCoupling_GetStageMap(MRIStepCoupling MRIC, int* stage_map,
    * MERK and MRI-SR have "identity" storage map
    * ------------------------------------------- */
 
-  if ((MRIC->type == MRISTEP_MERK) || (MRIC->type == MRISTEP_MRISR))
+  if ((MRIC->type == MRISTEP_MERK) || (MRIC->type == MRISTEP_SR))
   {
     /* Number of stage RHS vectors active */
     *nstages_active = MRIC->stages;

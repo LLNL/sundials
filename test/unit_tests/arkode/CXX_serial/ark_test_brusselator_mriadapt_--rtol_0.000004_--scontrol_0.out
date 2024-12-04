@@ -40,4 +40,4 @@ Final Solver Statistics:
    Fast steps = 11777  (attempts = 16708,  fails = 4931)
    u error = 1.83324e-06, v error = 1.63119e-06, w error = 5.54867e-05, total error = 3.20666e-05
    Relative accuracy = 83.5081
-   Total RHS evals:  Fse = 5000, Fsi = 0, Ff = 78611
+   Total RHS evals:  Fse = 5000, Fsi = 0, Ff = 79611

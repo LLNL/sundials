@@ -2,6 +2,12 @@
 
 **New Features and Enhancements**
 
+Added the :c:type:`SUNStepper` base class to represent a generic solution
+procedure for IVPs. A SUNStepper can be created from an ARKODE memory block with
+the new function :c:func:`ARKodeCreateSUNStepper`. To enable interoperability
+with :c:type:`MRIStepInnerStepper`, the function
+:c:func:`MRIStepInnerStepper_CreateFromSUNStepper` was added.
+
 The following DIRK schemes now have coefficients accurate to quad precision:
 
 * ``ARKODE_BILLINGTON_3_3_2``
@@ -21,6 +27,12 @@ The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
 only valid for Volta GPUs while the automatically selected value will vary
 across compilers and compiler versions. As such, users are encouraged to
 override this value with the architecture for their system.
+
+Added a time-stepping module to ARKODE for low storage Runge--Kutta methods, 
+:ref:`LSRKStep <ARKODE.Usage.LSRKStep>`.  This currently supports five explicit low-storage 
+methods: the second-order Runge--Kutta--Chebyshev and Runge--Kutta--Legendre methods, 
+and the second- through fourth-order optimal strong stability preserving Runge--Kutta methods.  
+All methods include embeddings for temporal adaptivity.
 
 The Trilinos Tpetra NVector interface has been updated to utilize CMake
 imported targets added in Trilinos 14 to improve support for different Kokkos
@@ -73,8 +85,16 @@ Fixed loading the default IMEX-MRI method if :c:func:`ARKodeSetOrder` is used to
 specify a third or fourth order method. Previously, the default second order method
 was loaded in both cases.
 
+Fixed a bug in MRIStep where the data supplied to the Hermite interpolation module did
+not include contributions from the fast right-hand side function. With this fix, users
+will see one additional fast right-hand side function evaluation per slow step with the
+Hermite interpolation option.
 Fixed a CMake configuration issue related to aliasing an ``ALIAS`` target when
 using ``ENABLE_KLU=ON`` in combination with a static-only build of SuiteSparse.
+
+Fixed a CMake issue which caused third-party CMake variables to be unset.
+Users may see more options in the CMake GUI now as a result of the fix.
+See details in GitHub Issue `#538 <https://github.com/LLNL/sundials/issues/538>`__.
 
 **Deprecation Notices**
 

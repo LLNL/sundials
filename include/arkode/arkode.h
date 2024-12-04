@@ -31,6 +31,7 @@
 #include <arkode/arkode_butcher.h>
 #include <stdio.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -139,6 +140,11 @@ extern "C" {
 #define ARK_CONTROLLER_ERR -47
 
 #define ARK_STEPPER_UNSUPPORTED -48
+
+#define ARK_DOMEIG_FAIL          -49
+#define ARK_MAX_STAGE_LIMIT_FAIL -50
+
+#define ARK_SUNSTEPPER_ERR -51
 
 #define ARK_UNRECOGNIZED_ERROR -99
 
@@ -434,6 +440,9 @@ SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveFails(void* arkode_mem,
                                                 long int* fails);
 SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveIters(void* arkode_mem,
                                                 long int* iters);
+
+/* SUNStepper functions */
+SUNDIALS_EXPORT int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper);
 
 #ifdef __cplusplus
 }

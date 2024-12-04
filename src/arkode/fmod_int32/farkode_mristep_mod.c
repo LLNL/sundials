@@ -841,6 +841,20 @@ SWIGEXPORT int _wrap_FMRIStepInnerStepper_Create(void *farg1, void *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FMRIStepInnerStepper_CreateFromSUNStepper(void *farg1, void *farg2) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  MRIStepInnerStepper *arg2 = (MRIStepInnerStepper *) 0 ;
+  int result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (MRIStepInnerStepper *)(farg2);
+  result = (int)MRIStepInnerStepper_CreateFromSUNStepper(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FMRIStepInnerStepper_Free(void *farg1) {
   int fresult ;
   MRIStepInnerStepper *arg1 = (MRIStepInnerStepper *) 0 ;

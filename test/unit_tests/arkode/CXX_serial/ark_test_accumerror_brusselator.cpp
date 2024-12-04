@@ -164,11 +164,11 @@ int main(int argc, char* argv[])
   //
 
   // Retrieve the command-line options:  Npart ord method ep test
-  if (argc > 1) udata.Npart = (int)atoi(argv[1]);
-  if (argc > 2) order = (int)atoi(argv[2]);
-  if (argc > 3) rk_type = (int)atoi(argv[3]);
-  if (argc > 4) udata.ep = (sunrealtype)atof(argv[4]);
-  if (argc > 5) test = (int)atoi(argv[5]);
+  if (argc > 1) udata.Npart = atoi(argv[1]);
+  if (argc > 2) order = atoi(argv[2]);
+  if (argc > 3) rk_type = atoi(argv[3]);
+  if (argc > 4) udata.ep = SUNStrToReal(argv[4]);
+  if (argc > 5) test = atoi(argv[5]);
 
   // Check arguments for validity
   //    method = {0, 1}

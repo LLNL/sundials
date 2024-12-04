@@ -1,10 +1,10 @@
 
 2D Heat PDE test problem:
- --------------------------------- 
+ ---------------------------------
   nprocs         = 4
   npx            = 2
   npy            = 2
- --------------------------------- 
+ ---------------------------------
   kx             = 1
   ky             = 1
   ax             = 1
@@ -19,7 +19,7 @@
   nyl (proc 0)   = 32
   dx             = 0.015873
   dy             = 0.015873
- --------------------------------- 
+ ---------------------------------
   rtol           = 1e-05
   atol           = 1e-10
   sorder         = 3
@@ -28,18 +28,18 @@
   hs             = 0.001
   controller     = 0
   linear         = 0
- --------------------------------- 
+ ---------------------------------
   lin iters      = 10
   eps lins       = -1
   prectype       = 1
   msbp           = 0
   pfmg_relax     = 2
   pfmg_nrelax    = 2
- --------------------------------- 
+ ---------------------------------
   output         = 1
- --------------------------------- 
+ ---------------------------------
 
-          t                     ||u||_rms      
+          t                     ||u||_rms
  ----------------------------------------------
  0.000000000000000e+00    3.691406249999997e-01
  1.000000000000000e-01    5.162014241945451e-02
@@ -75,7 +75,7 @@ Final fast integrator statistics:
   Steps            = 3003
   Step attempts    = 3003
   Error test fails = 0
-  RHS evals        = 29862
+  RHS evals        = 30862
   NLS iters        = 17842
   NLS fails        = 0
   LS iters         = 10048
@@ -89,4 +89,3 @@ Final fast integrator statistics:
   Preconditioner setups = 0
   Preconditioner solves = 0
   PFMG iters            = 10603
-

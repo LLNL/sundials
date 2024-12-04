@@ -115,11 +115,11 @@ int main(int argc, char* argv[])
   // Retrieve the command-line options:  method Npart ep test
   if (argc > 1) { method = argv[1]; }
   else { method = "ARKODE_MRI_GARK_ERK22a"; }
-  if (argc > 2) { udata.a = (sunrealtype)atof(argv[2]); }
+  if (argc > 2) { udata.a = SUNStrToReal(argv[2]); }
   else { udata.a = ONE; }
-  if (argc > 3) { udata.b = (sunrealtype)atof(argv[3]); }
+  if (argc > 3) { udata.b = SUNStrToReal(argv[3]); }
   else { udata.b = ONE; }
-  if (argc > 4) { udata.c = (sunrealtype)atof(argv[4]); }
+  if (argc > 4) { udata.c = SUNStrToReal(argv[4]); }
   else { udata.c = ONE; }
 
   sunbooleantype implicit = SUNFALSE;

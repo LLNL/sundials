@@ -21,10 +21,12 @@
 #include <sundials/sundials_math.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 
+#include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_types.h"
 
 #define FIXED_LIN_TOL
 

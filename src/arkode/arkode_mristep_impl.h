@@ -223,7 +223,8 @@ int mriStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
                       sunbooleantype** jcur, sunbooleantype* dgamma_fail);
 int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
-int mriStep_UpdateF0(ARKodeMem ark_mem, sunrealtype t, N_Vector y, int mode);
+int mriStep_UpdateF0(ARKodeMem ark_mem, ARKodeMRIStepMem step_mem,
+                     sunrealtype t, N_Vector y, int mode);
 int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                             int* nflagPtr);
 int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
@@ -311,14 +312,22 @@ sunbooleantype mriStepInnerStepper_SupportsRTolAdaptivity(
   MRIStepInnerStepper stepper);
 int mriStepInnerStepper_Evolve(MRIStepInnerStepper stepper, sunrealtype t0,
                                sunrealtype tout, N_Vector y);
+int mriStepInnerStepper_EvolveSUNStepper(MRIStepInnerStepper stepper,
+                                         sunrealtype t0, sunrealtype tout,
+                                         N_Vector y);
 int mriStepInnerStepper_FullRhs(MRIStepInnerStepper stepper, sunrealtype t,
                                 N_Vector y, N_Vector f, int mode);
+int mriStepInnerStepper_FullRhsSUNStepper(MRIStepInnerStepper stepper,
+                                          sunrealtype t, N_Vector y, N_Vector f,
+                                          int mode);
 int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
                               N_Vector yR);
 int mriStepInnerStepper_GetAccumulatedError(MRIStepInnerStepper stepper,
                                             sunrealtype* accum_error);
 int mriStepInnerStepper_ResetAccumulatedError(MRIStepInnerStepper stepper);
 int mriStepInnerStepper_SetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
+int mriStepInnerStepper_ResetSUNStepper(MRIStepInnerStepper stepper,
+                                        sunrealtype tR, N_Vector yR);
 int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
                                   N_Vector tmpl);
 int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper, ARKVecResizeFn resize,

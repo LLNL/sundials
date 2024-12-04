@@ -735,6 +735,10 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     - loop over attempts at a new step:
       * try to take step (via time stepper module),
         handle solver convergence or other failures
+      * if the stepper requests ARK_RETRY_STEP, we
+        retry the step without accumulating failures.
+        A stepper should never request this multiple
+        times in a row.
       * perform constraint-handling (if selected)
       * check temporal error
       * if all of the above pass, complete step by
@@ -870,9 +874,15 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     nflag                                                    = FIRST_CALL;
     for (;;)
     {
-      /* increment attempt counters */
-      attempts++;
-      ark_mem->nst_attempts++;
+      /* increment attempt counters
+         Note: kflag can only equal ARK_RETRY_STEP if the stepper rejected
+         the current step size before performing calculations. Thus, we do
+         not include those when keeping track of step "attempts". */
+      if (kflag != ARK_RETRY_STEP)
+      {
+        attempts++;
+        ark_mem->nst_attempts++;
+      }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
       SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::ARKodeEvolve",
@@ -1329,7 +1339,7 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "yn:\n");
   N_VPrintFile(ark_mem->yn, outfile);
   fprintf(outfile, "fn:\n");
-  N_VPrintFile(ark_mem->fn, outfile);
+  if (ark_mem->fn) { N_VPrintFile(ark_mem->fn, outfile); }
   fprintf(outfile, "tempv1:\n");
   N_VPrintFile(ark_mem->tempv1, outfile);
   fprintf(outfile, "tempv2:\n");
@@ -1498,6 +1508,7 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_getnumnonlinsolviters     = NULL;
   ark_mem->step_getnumnonlinsolvconvfails = NULL;
   ark_mem->step_getnonlinsolvstats        = NULL;
+  ark_mem->step_setforcing                = NULL;
   ark_mem->step_mem                       = NULL;
   ark_mem->step_supports_adaptive         = SUNFALSE;
   ark_mem->step_supports_implicit         = SUNFALSE;
@@ -1952,17 +1963,23 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     }
   }
 
-  /* Create default Hermite interpolation module (if needed) */
+  /* Create default interpolation module (if needed) */
   if (ark_mem->interp_type != ARK_INTERP_NONE && !(ark_mem->interp))
   {
-    ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    if (ark_mem->interp_type == ARK_INTERP_LAGRANGE)
+    {
+      ark_mem->interp = arkInterpCreate_Lagrange(ark_mem, ark_mem->interp_degree);
+    }
+    else
+    {
+      ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    }
     if (ark_mem->interp == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to allocate interpolation module");
       return ARK_MEM_FAIL;
     }
-    ark_mem->interp_type = ARK_INTERP_HERMITE;
   }
 
   /* Fill initial interpolation data (if needed) */
@@ -2001,7 +2018,8 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
 
   /* If fullrhs will be called (to estimate initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1), then
-     ensure that it is provided, and space is allocated for fn. */
+     ensure that it is provided, and space is allocated for fn.  Otherwise,
+     we should free ark_mem->fn if it is allocated. */
   if (ark_mem->call_fullrhs || (ark_mem->h0u == ZERO && ark_mem->hin == ZERO) ||
       ark_mem->root_mem)
   {
@@ -2018,6 +2036,10 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
                       MSG_ARK_MEM_FAIL);
       return (ARK_MEM_FAIL);
     }
+  }
+  else
+  {
+    if (ark_mem->fn != NULL) { arkFreeVec(ark_mem, &ark_mem->fn); }
   }
 
   /* initialization complete */
@@ -2755,6 +2777,18 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, __LINE__, __func__, __FILE__,
                     "The relaxation Jacobian failed unrecoverably");
     break;
+  case ARK_DOMEIG_FAIL:
+    arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    "The dominant eigenvalue function failed unrecoverably");
+    break;
+  case ARK_MAX_STAGE_LIMIT_FAIL:
+    arkProcessError(ark_mem, ARK_MAX_STAGE_LIMIT_FAIL, __LINE__, __func__,
+                    __FILE__, "The max stage limit failed unrecoverably");
+    break;
+  case ARK_SUNSTEPPER_ERR:
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "An inner SUNStepper error occurred");
+    break;
   default:
     /* This return should never happen */
     arkProcessError(ark_mem, ARK_UNRECOGNIZED_ERROR, __LINE__, __func__, __FILE__,
@@ -3072,6 +3106,13 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
 
   /* If nonlinear solver succeeded, return with ARK_SUCCESS */
   if (*nflagPtr == ARK_SUCCESS) { return (ARK_SUCCESS); }
+  /* Returns with an ARK_RETRY_STEP flag occur at a stage well before
+  any algebraic solvers are involved. On the other hand,
+  the arkCheckConvergence function handles the results from algebraic
+  solvers, which never take place with an ARK_RETRY_STEP flag.
+  Therefore, we immediately return from arkCheckConvergence,
+  as it is irrelevant in the case of an ARK_RETRY_STEP */
+  if (*nflagPtr == ARK_RETRY_STEP) { return (ARK_RETRY_STEP); }
 
   /* The nonlinear soln. failed; increment ncfn */
   ark_mem->ncfn++;

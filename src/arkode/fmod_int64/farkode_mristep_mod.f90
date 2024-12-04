@@ -32,10 +32,10 @@ module farkode_mristep_mod
   enumerator :: MRISTEP_IMPLICIT
   enumerator :: MRISTEP_IMEX
   enumerator :: MRISTEP_MERK
-  enumerator :: MRISTEP_MRISR
+  enumerator :: MRISTEP_SR
  end enum
  integer, parameter, public :: MRISTEP_METHOD_TYPE = kind(MRISTEP_EXPLICIT)
- public :: MRISTEP_EXPLICIT, MRISTEP_IMPLICIT, MRISTEP_IMEX, MRISTEP_MERK, MRISTEP_MRISR
+ public :: MRISTEP_EXPLICIT, MRISTEP_IMPLICIT, MRISTEP_IMEX, MRISTEP_MERK, MRISTEP_SR
  ! typedef enum ARKODE_MRITableID
  enum, bind(c)
   enumerator :: ARKODE_MRI_NONE = -1
@@ -156,6 +156,7 @@ module farkode_mristep_mod
  public :: FMRIStepGetLastInnerStepFlag
  public :: FMRIStepGetNumInnerStepperFails
  public :: FMRIStepInnerStepper_Create
+ public :: FMRIStepInnerStepper_CreateFromSUNStepper
  public :: FMRIStepInnerStepper_Free
  public :: FMRIStepInnerStepper_SetContent
  public :: FMRIStepInnerStepper_GetContent
@@ -610,6 +611,15 @@ end function
 
 function swigc_FMRIStepInnerStepper_Create(farg1, farg2) &
 bind(C, name="_wrap_FMRIStepInnerStepper_Create") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FMRIStepInnerStepper_CreateFromSUNStepper(farg1, farg2) &
+bind(C, name="_wrap_FMRIStepInnerStepper_CreateFromSUNStepper") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2133,6 +2143,22 @@ type(C_PTR) :: farg2
 farg1 = sunctx
 farg2 = c_loc(stepper)
 fresult = swigc_FMRIStepInnerStepper_Create(farg1, farg2)
+swig_result = fresult
+end function
+
+function FMRIStepInnerStepper_CreateFromSUNStepper(sunstepper, stepper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: sunstepper
+type(C_PTR), target, intent(inout) :: stepper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = sunstepper
+farg2 = c_loc(stepper)
+fresult = swigc_FMRIStepInnerStepper_CreateFromSUNStepper(farg1, farg2)
 swig_result = fresult
 end function
 

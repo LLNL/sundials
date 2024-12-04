@@ -272,6 +272,16 @@ int arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         sunrealtype tol, N_Vector ewt, void* arkode_mem);
 
+/* private functions for interfacing with MRIStep */
+int arkStep_SetInnerForcing(ARKodeMem arkode_mem, sunrealtype tshift,
+                            sunrealtype tscale, N_Vector* f, int nvecs);
+int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
+                               sunrealtype tout, N_Vector y);
+int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                                N_Vector y, N_Vector f, int mode);
+int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
+                              N_Vector yR);
+
 /* private functions for relaxation */
 int arkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,

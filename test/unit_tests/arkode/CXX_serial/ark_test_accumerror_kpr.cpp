@@ -155,12 +155,12 @@ int main(int argc, char* argv[])
   //
 
   // Retrieve the command-line options:  Npart ord method G e omega
-  if (argc > 1) udata.Npart = (int)atoi(argv[1]);
-  if (argc > 2) order = (int)atoi(argv[2]);
-  if (argc > 3) rk_type = (int)atoi(argv[3]);
-  if (argc > 4) udata.G = (sunrealtype)atof(argv[4]);
-  if (argc > 5) udata.e = (sunrealtype)atof(argv[5]);
-  if (argc > 6) udata.omega = (sunrealtype)atof(argv[6]);
+  if (argc > 1) udata.Npart = atoi(argv[1]);
+  if (argc > 2) order = atoi(argv[2]);
+  if (argc > 3) rk_type = atoi(argv[3]);
+  if (argc > 4) udata.G = SUNStrToReal(argv[4]);
+  if (argc > 5) udata.e = SUNStrToReal(argv[5]);
+  if (argc > 6) udata.omega = SUNStrToReal(argv[6]);
 
   // Check arguments for validity
   //   0 <= rk_type <= 1
