@@ -49,6 +49,21 @@ The build system has been updated to utilize the CMake LAPACK imported target
 which should ease building SUNDIALS with LAPACK libraries that require setting
 specific linker flags e.g., MKL.
 
+Added support for multirate time step adaptivity controllers, based on the
+recently introduced `SUNAdaptController` base class, to ARKODE's MRIStep module.
+As a part of this, we added embeddings for existing MRI-GARK methods, as well as
+support for embedded MERK and IMEX-MRI-SR methods.  Added new default MRI methods
+for temporally adaptive versus fixed-step runs.  Added the function
+`MRIStepGetNumInnerStepperFails` to retrieve the number of recoverable
+failures reported by the MRIStepInnerStepper.
+
+Added functionality to ARKODE to accumulate a temporal error
+estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorType`,
+`ARKodeResetAccumulatedError`, and `ARKodeGetAccumulatedError` for details.
+
+Added a utility routine to wrap any valid ARKODE integrator for use as an MRIStep
+inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
+
 ### Bug Fixes
 
 Fixed a [bug](https://github.com/LLNL/sundials/issues/581) in the sparse matrix
@@ -69,6 +84,15 @@ repeatedly.
 Fixed compilation errors when building the Trilinos Teptra NVector with CUDA
 support.
 
+Fixed loading the default IMEX-MRI method if `ARKodeSetOrder` is used to specify
+a third or fourth order method. Previously, the default second order method
+was loaded in both cases.
+
+Fixed a bug in MRIStep where the data supplied to the Hermite interpolation module did
+not include contributions from the fast right-hand side function. With this fix, users
+will see one additional fast right-hand side function evaluation per slow step with the
+Hermite interpolation option.
+
 Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
 using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
 
@@ -77,6 +101,10 @@ Users may see more options in the CMake GUI now as a result of the fix.
 See details in GitHub Issue [#538](https://github.com/LLNL/sundials/issues/538).
 
 ### Deprecation Notices
+
+Deprecated the ARKStep-specific utility routine for wrapping an ARKStep instance
+as an MRIStep inner stepper object, `ARKStepCreateMRIStepInnerStepper`. Use
+`ARKodeCreateMRIStepInnerStepper` instead.
 
 The ARKODE stepper specific functions to retrieve the number of right-hand side
 function evaluations have been deprecated. Use `ARKodeGetNumRhsEvals` instead.
