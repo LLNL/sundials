@@ -63,4 +63,4 @@
  Final Solver Statistics:
    Steps: nsts =    2501, nstf =  250100
    u error =  0.166E-09, v error =  0.768E-10, total error =  0.130E-09
-   Total RHS evals: Fs =   12506, Ff = 1002951
+   Total RHS evals: Fs =   12506, Ff = 1002902
