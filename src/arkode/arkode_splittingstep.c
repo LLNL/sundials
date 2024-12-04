@@ -119,6 +119,20 @@ static int splittingStep_Init(ARKodeMem ark_mem, int init_type)
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
+  if (ark_mem->interp_type == ARK_INTERP_HERMITE)
+  {
+    for (int i = 0; i < step_mem->partitions; i++)
+    {
+      if (step_mem->steppers[i]->ops->fullrhs == NULL)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                        __FILE__, "steppers[%d] must implement SUNStepper_FullRhs when using Hermite interpolation",
+                        i);
+        return ARK_ILL_INPUT;
+      }
+    }
+  }
+
   /* immediately return if resize or reset */
   if (init_type == RESIZE_INIT || init_type == RESET_INIT)
   {
@@ -430,6 +444,17 @@ static sunbooleantype splittingStep_CheckNVector(N_Vector y)
 }
 
 /*------------------------------------------------------------------------------
+  This routine checks if all required SUNStepper operations are present. If any
+  of them are missing it return SUNFALSE.
+  ----------------------------------------------------------------------------*/
+static sunbooleantype forcingStep_CheckSUNStepper(SUNStepper stepper)
+{
+  SUNStepper_Ops ops = stepper->ops;
+  return ops->evolve != NULL && ops->reset != NULL &&
+         ops->setstoptime != NULL && ops->setstepdirection;
+}
+
+/*------------------------------------------------------------------------------
   This routine validates arguments when (re)initializing a SplittingStep
   integrator
   ----------------------------------------------------------------------------*/
@@ -456,6 +481,14 @@ static int splittingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper* steppers,
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                       "steppers[%d] = NULL illegal.", i);
+      return ARK_ILL_INPUT;
+    }
+
+    if (!forcingStep_CheckSUNStepper(steppers[i]))
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "stepper[%d] does not implement the required operations.",
+                      i);
       return ARK_ILL_INPUT;
     }
   }
