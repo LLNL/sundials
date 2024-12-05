@@ -250,12 +250,10 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    :cite:p:`CrGo:89`
 
    .. math::
-      \begin{align*}
       T_{h_n}^{[2]} &= S_{h_n}, \\
       T_{h_n}^{[i+2]} &= T_{\gamma_1 h_n}^{[i]} \circ
       T_{(1 - 2 \gamma_1) h_n}^{[i]} \circ T_{\gamma_1 h_n}^{[i]}, \\
       y_n &= T_{h_n}^{[\mathrm{order}]}(y_{n-1}),
-      \end{align*}
    
    where :math:`S` is the Strang splitting :eq:`ARKODE_Strang` and
    :math:`\gamma_1` is selected to increase the order by two each recursion.
@@ -275,13 +273,11 @@ integer constants are defined ``arkode/arkode_splittingstep.h``.
    :cite:p:`Suzuki:90`
 
    .. math::
-      \begin{align*}
       Q_{h_n}^{[2]} &= S_{h_n}, \\
       Q_{h_n}^{[i+2]} &= Q_{\gamma_1 h_n}^{[i]} \circ
       Q_{\gamma_1 h_n}^{[i]} \circ Q_{(1 - 4 \gamma_1) h_n}^i \circ
       Q_{\gamma_1 h_n}^{[i]} \circ Q_{\gamma_1 h_n}^{[i]}, \\
       y_n &= Q_{h_n}^{[\mathrm{order}]}(y_{n-1}),
-      \end{align*}
    
    where :math:`S` is the Strang splitting :eq:`ARKODE_Strang` and
    :math:`\gamma_1` is selected to increase the order by two each recursion.
