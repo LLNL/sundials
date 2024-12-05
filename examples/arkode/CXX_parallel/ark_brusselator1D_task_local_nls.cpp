@@ -1090,7 +1090,6 @@ int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfails
 
 SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y)
 {
-  void* tmp_comm;
   SUNNonlinearSolver NLS;
   TaskLocalNewton_Content content;
 
