@@ -2127,7 +2127,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     }
     if (retval != ARK_SUCCESS) { return retval; }
 
-    SUNLogExtraDebugVec(ARK_LOGGER, "embedded solution", ark_mem->ycur, "y_embedded(:) =");
+    SUNLogExtraDebugVec(ARK_LOGGER, "embedded solution", ark_mem->ycur,
+                        "y_embedded(:) =");
 
     /* Swap back ark_mem->ycur with ark_mem->tempv4, and reset the inner integrator */
     tmp             = ark_mem->ycur;
