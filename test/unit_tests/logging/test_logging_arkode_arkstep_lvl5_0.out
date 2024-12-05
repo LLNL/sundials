@@ -15,10 +15,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 5.14930128047542e-05
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 6.0349761842647577e-21
 4.2673725841929259e-21
@@ -33,10 +29,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 5.14930128047542e-05
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -5.3732780587686200e-10
 -3.0618017609099279e-07
@@ -51,10 +43,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0001029860256095084
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -1.0903110774615028e-09
 -6.1232895581729812e-07
@@ -69,10 +57,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 7.723951920713131e-05
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -6.1036469467812032e-10
 -3.4444093451935336e-07
@@ -109,10 +93,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.001310450940264551
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -2.5383248261792105e-08
 -1.4358928516040411e-05
@@ -127,10 +107,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001310450940264551
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -2.7253284987217969e-07
 -1.8279318948087589e-04
@@ -145,10 +121,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002517915854919593
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -7.4725059817597985e-07
 -3.6521545612210971e-04
@@ -163,10 +135,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.001914183397592072
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -3.9197022573340586e-07
 -2.1089114783662453e-04
@@ -203,10 +171,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.003293708683506516
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -3.9873202025276405e-07
 -2.2550934655697668e-04
@@ -221,10 +185,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.003293708683506516
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -5.0821199360567276e-07
 -2.9496747940006233e-04
@@ -239,10 +199,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.004069501512093439
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -1.0699694669524497e-06
 -5.8985093774072378e-04
@@ -257,10 +213,6 @@ Using ERK method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.003681605097799978
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -7.4134759063292287e-07
 -4.1637512929463936e-04
