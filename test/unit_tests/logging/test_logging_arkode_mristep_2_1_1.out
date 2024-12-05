@@ -22,6 +22,7 @@ Last step size               = 0.001
 Current step size            = 0.001
 Explicit slow RHS fn evals   = 12
 Implicit slow RHS fn evals   = 27
+Inner stepper failures       = 0
 NLS iters                    = 15
 NLS fails                    = 0
 NLS iters per step           = 5
