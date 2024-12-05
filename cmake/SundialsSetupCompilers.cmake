@@ -86,6 +86,8 @@ if(ENABLE_ALL_WARNINGS)
       "-Wno-unknown-warning-option -Wall -Wpedantic -Wextra -Wshadow \
 -Wwrite-strings -Wcast-align -Wdisabled-optimization -Wvla -Walloca \
 -Wduplicated-cond -Wduplicated-branches")
+  # TODO(SBR): Try to add -Wredundant-decls once SuperLU version is updated in
+  # CI tests
 
   # Avoid numerous warnings from printf
   if(SUNDIALS_PRECISION MATCHES "EXTENDED")
