@@ -337,7 +337,7 @@ Current step size            = 0.008
 Partition 0 evolves          = 252
 Partition 1 evolves          = 252
 
-Custom SUNStepper solution of order 4 completed with an error of -4.996e-16
+Custom SUNStepper solution of order 4 completed with an error of -8.32667e-16
 Current time                 = 1.1
 Steps                        = 11
 Step attempts                = 11
