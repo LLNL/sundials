@@ -85,7 +85,7 @@ if(ENABLE_ALL_WARNINGS)
   set(WARNING_FLAGS
       "-Wno-unknown-warning-option -Wall -Wpedantic -Wextra -Wshadow \
 -Wwrite-strings -Wcast-align -Wdisabled-optimization -Wvla -Walloca \
--Wredundant-decls -Wduplicated-cond -Wduplicated-branches")
+-Wduplicated-cond -Wduplicated-branches")
 
   # Avoid numerous warnings from printf
   if(SUNDIALS_PRECISION MATCHES "EXTENDED")
