@@ -4,17 +4,17 @@ Using Ex-MRI method
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = 1, tcur = 0
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_0(:) =
 1.2247448713915889e+00
 1.7320508075688772e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_0(:) =
 1.1719990452195032e-16
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.0003333333333333333
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 1, stage type = 0, tcur = 0.0003333333333333333
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
 1.1719990452195032e-16
 0.0000000000000000e+00
@@ -32,10 +32,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 5.72043177480417e-09
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 6.7043405783137950e-25
 4.7406846863098245e-25
@@ -50,10 +46,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 5.72043177480417e-09
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 6.7043405783137950e-25
 -3.7785658061256218e-15
@@ -68,10 +60,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 1.144086354960834e-08
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.3408681156627590e-24
 -7.5571315697172442e-15
@@ -86,10 +74,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 8.580647662206255e-09
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.0056510867470693e-24
 -4.2508865157902688e-15
@@ -125,10 +109,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 4.824543872057906e-07
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 5.5202740001051954e-23
 -6.2224519411136004e-13
@@ -143,10 +123,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 4.824543872057906e-07
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 5.5202740001051954e-23
 -2.6239714461655333e-11
@@ -161,10 +137,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 9.534679108619729e-07
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.1040548000210391e-22
 -5.2479404791632934e-11
@@ -179,10 +151,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 7.179611490338818e-07
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 8.2804110001577931e-23
 -2.9753011668513490e-11
@@ -218,10 +186,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 8.691632147749645e-06
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 9.0691210973840574e-22
 -8.5194859796217894e-10
@@ -236,10 +200,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 8.691632147749645e-06
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 9.0691210973840574e-22
 -7.7662280884078046e-09
@@ -254,10 +214,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 1.642979638463732e-05
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.8138242194768115e-21
 -1.5532349231157368e-08
@@ -272,10 +228,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 1.256071426619348e-05
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.3603681646076087e-21
 -9.0564472278026476e-09
@@ -311,10 +263,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0001711930811223908
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.8138242194768116e-20
 -2.9360907931865759e-07
@@ -329,10 +277,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0001711930811223908
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.8138242194768116e-20
 -3.0595185570055904e-06
@@ -347,10 +291,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0003259563658601442
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 3.6276484389536231e-20
 -6.1181907623552925e-06
@@ -365,10 +305,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0002485747234912675
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 2.7207363292152176e-20
 -3.5517453331153056e-06
@@ -404,10 +340,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0003296448495967387
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 4.3228994175964693e-22
 -1.3882737364138767e-07
@@ -422,10 +354,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0003296448495967387
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 4.3228994175964693e-22
 -1.4039831909200959e-07
@@ -440,10 +368,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0003333333333333333
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 8.6457988351929386e-22
 -2.8079662684988434e-07
@@ -458,10 +382,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.000331489091465036
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 6.4843491263947040e-22
 -2.1000836986792525e-07
@@ -486,16 +406,16 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.165109125384501e-12
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_1(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_1(:) =
 1.2247448713915889e+00
 1.7320443925783966e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_1(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_1(:) =
 -6.8064060628792247e-05
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 0, tcur = 0.00075
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 2, stage type = 0, tcur = 0.00075
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
 -1.5314413641492905e-04
 0.0000000000000000e+00
@@ -513,10 +433,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0004071030080652242
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -1.1297393130425637e-08
 -2.8393851697686186e-06
@@ -531,10 +447,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0004071030080652242
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -1.1297393130425637e-08
 -3.4677832692787757e-06
@@ -549,10 +461,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.000480872682797115
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -2.2594786260851273e-08
 -6.9354763413723103e-06
@@ -567,10 +475,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0004439878454311696
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -1.6946089695638454e-08
 -4.9659920308202206e-06
@@ -606,10 +510,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0006154363413985574
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -2.0607635289351237e-08
 -7.4717771423124676e-06
@@ -624,10 +524,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0006154363413985574
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -2.0607635289351237e-08
 -9.5627092139555982e-06
@@ -642,10 +538,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0007499999999999998
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -4.1215270578702474e-08
 -1.9124878789146170e-05
@@ -660,10 +552,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0006827181706992786
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -3.0911452934026854e-08
 -1.3559764106430567e-05
@@ -688,16 +576,16 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.356855746295192
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.061352125450266e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_2(:) =
 1.2247448075815321e+00
 1.7320183319212286e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_2(:) =
 -1.5308030199797466e-04
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 0, tcur = 0.001
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 3, stage type = 0, tcur = 0.001
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
 -1.5300795632542635e-04
 0.0000000000000000e+00
@@ -715,10 +603,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0008749999999999999
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -1.9125994540678279e-08
 -1.0825114971531545e-05
@@ -733,10 +617,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0008749999999999999
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -1.9125994540678279e-08
 -1.2629321298582147e-05
@@ -751,10 +631,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0009999999999999998
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -3.8251989081356559e-08
 -2.5258217856924772e-05
@@ -769,10 +645,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0009374999999999999
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -2.8688991811017417e-08
 -1.8267247774675333e-05
@@ -797,25 +669,29 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.035883496625978
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.534938689302334e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_3(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_3(:) =
 1.2247447693295430e+00
 1.7319930735042126e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][updated solution] ycur(:) =
+1.2247447693295430e+00
+1.7319930735042126e+00
+
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  1.000000000000000e-03    1.224744769329543e+00    1.731993073504213e+00    2.242650509742816e-14    2.664535259100376e-15
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.001
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = 1, tcur = 0.001
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_0(:) =
 1.2247447693295430e+00
 1.7319930735042126e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_0(:) =
 -2.0412412826749547e-04
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.001333333333333333
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 1, stage type = 0, tcur = 0.001333333333333333
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
 -2.0412412826749547e-04
 0.0000000000000000e+00
@@ -833,10 +709,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.001166666666666667
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -3.4020688044582544e-08
 -1.9244367466270964e-05
@@ -851,10 +723,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001166666666666667
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -3.4020688044582544e-08
 -2.2451738014468388e-05
@@ -869,10 +737,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.001333333333333333
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -6.8041376089165088e-08
 -4.4902490059471733e-05
@@ -887,10 +751,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.00125
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -5.1031032066873813e-08
 -3.2474481146996852e-05
@@ -915,18 +775,18 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.816067393239986
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 4.85185275272059e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_1(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_1(:) =
 1.2247447012881669e+00
 1.7319481705628721e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_1(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_1(:) =
 -2.7218816431900944e-04
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 0, tcur = 0.00175
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 2, stage type = 0, tcur = 0.00175
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--3.5726820938340194e-04
+-3.5726820938340189e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -942,12 +802,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.001541666666666666
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--7.4430876954875356e-08
+-7.4430876954875343e-08
 -3.2073112998402921e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -960,12 +816,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001541666666666666
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--7.4430876954875356e-08
+-7.4430876954875343e-08
 -3.7084266302953558e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -978,12 +830,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.00175
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.4886175390975071e-07
+-1.4886175390975069e-07
 -7.4166659223362606e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -996,12 +844,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.001645833333333333
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.1164631543231303e-07
+-1.1164631543231301e-07
 -5.3746534612451886e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -1024,16 +868,16 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.357054409143378
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.184752984633551e-05
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_2(:) =
 1.2247445524264131e+00
 1.7318740030745077e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_2(:) =
 -3.5720436435653953e-04
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 0, tcur = 0.002
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 3, stage type = 0, tcur = 0.002
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
 -3.5713200665942884e-04
 0.0000000000000000e+00
@@ -1051,10 +895,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.001875
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -4.4641500832428567e-08
 -2.5256496067638749e-05
@@ -1069,10 +909,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001875
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -4.4641500832428567e-08
 -2.7060221213245443e-05
@@ -1087,10 +923,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -8.9283001664857134e-08
 -5.4120047861614639e-05
@@ -1105,10 +937,6 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0019375
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 -6.6962251248642854e-08
 -3.9913792225586784e-05
@@ -1133,27 +961,31 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.146459406411072
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.535440853723494e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_3(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_3(:) =
 1.2247444631434115e+00
 1.7318198828576150e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][updated solution] ycur(:) =
+1.2247444631434115e+00
+1.7318198828576150e+00
+
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  2.000000000000000e-03    1.224744463143411e+00    1.731819882857615e+00    4.485301019485632e-14    4.218847493575595e-15
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.002
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = 1, tcur = 0.002
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_0(:) =
 1.2247444631434115e+00
 1.7318198828576150e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_0(:) =
 -4.0824815447279339e-04
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.002333333333333334
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 1, stage type = 0, tcur = 0.002333333333333334
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--4.0824815447279339e-04
+-4.0824815447279322e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -1169,12 +1001,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.002166666666666667
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--6.8041359078798878e-08
+-6.8041359078798852e-08
 -3.8484885738275638e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -1187,12 +1015,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002166666666666667
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--6.8041359078798878e-08
+-6.8041359078798852e-08
 -4.1691222595473722e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -1205,12 +1029,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002333333333333333
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.3608271815759776e-07
+-1.3608271815759770e-07
 -8.3381530791173987e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -1223,12 +1043,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.00225
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.0206203861819831e-07
+-1.0206203861819826e-07
 -6.1334129176894448e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -1251,18 +1067,18 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.486440021724523
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 4.85375335258683e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_1(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_1(:) =
 1.2247443270606932e+00
 1.7317365009469841e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_1(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_1(:) =
 -4.7631213191499233e-04
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 0, tcur = 0.00275
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 2, stage type = 0, tcur = 0.00275
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--5.6139210371774096e-04
+-5.6139210371774139e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -1278,12 +1094,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.002541666666666666
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.1695668827452916e-07
+-1.1695668827452925e-07
 -5.6121087648193886e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -1296,12 +1108,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002541666666666666
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.1695668827452916e-07
+-1.1695668827452925e-07
 -6.1130263689111418e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -1314,12 +1122,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002749999999999999
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--2.3391337654905832e-07
+-2.3391337654905851e-07
 -1.2225879387863062e-04
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -1332,12 +1136,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.002645833333333333
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.7543503241179374e-07
+-1.7543503241179387e-07
 -8.9816337681903363e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -1360,18 +1160,18 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.35664739502983
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.185319915370691e-05
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_2(:) =
 1.2247440931473168e+00
 1.7316142414635605e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_2(:) =
 -5.6132824811321762e-04
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 0, tcur = 0.003
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 3, stage type = 0, tcur = 0.003
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--5.6125587842809099e-04
+-5.6125587842809045e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -1387,12 +1187,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.002875
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--7.0156984803511381e-08
+-7.0156984803511302e-08
 -3.9682824748845896e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -1405,12 +1201,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002875
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--7.0156984803511381e-08
+-7.0156984803511302e-08
 -4.1485707730087344e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -1423,12 +1215,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.003
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.4031396960702276e-07
+-1.4031396960702260e-07
 -8.2971051127566972e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -1441,12 +1229,8 @@ Using Ex-MRI method
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0029375
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.0523547720526706e-07
+-1.0523547720526696e-07
 -6.1552351970712324e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -1469,11 +1253,15 @@ Using Ex-MRI method
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.145690418411281
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.53635312385524e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_3(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_3(:) =
 1.2247439528333472e+00
 1.7315312702735641e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][updated solution] ycur(:) =
+1.2247439528333472e+00
+1.7315312702735641e+00
+
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  3.000000000000000e-03    1.224743952833347e+00    1.731531270273564e+00    6.727951529228449e-14    6.217248937900877e-15
 ------------------------------------------------------------------------------------------------------------------------------
@@ -1490,6 +1278,7 @@ Last step size               = 0.001
 Current step size            = 0.001
 Explicit slow RHS fn evals   = 9
 Implicit slow RHS fn evals   = 0
+Inner stepper failures       = 0
 NLS iters                    = 0
 NLS fails                    = 0
 NLS iters per step           = 0

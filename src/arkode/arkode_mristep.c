@@ -1832,6 +1832,11 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     }
   }
 
+  SUNLogInfo(ARK_LOGGER, "begin-stage",
+             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_ERK_NOFAST,
+             ark_mem->tcur);
+  SUNLogExtraDebugVec(ARK_LOGGER, "slow stage", ark_mem->ycur, "z_0(:) =");
+
   /* Evaluate the slow RHS functions if needed. NOTE: we decide between calling the
      full RHS function (if ark_mem->fn is non-NULL and MRIStep is not an inner
      integrator) versus just updating the stored values of Fse[0] and Fsi[0].  In
@@ -1843,7 +1848,12 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   {
     retval = mriStep_UpdateF0(ark_mem, step_mem, ark_mem->tn, ark_mem->yn,
                               ARK_FULLRHS_START);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
+    if (retval)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed update F0 eval, retval = %i", retval);
+      return ARK_RHSFUNC_FAIL;
+    }
 
     /* For a nested MRI configuration we might still need fn to create a predictor
        but it should be fn only for the current nesting level which is why we use
@@ -1861,14 +1871,15 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   {
     retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
                              ARK_FULLRHS_START);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
+    if (retval)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed full rhs eval, retval = %i", retval);
+      return ARK_RHSFUNC_FAIL;
+    }
   }
   ark_mem->fn_is_current = SUNTRUE;
 
-  SUNLogInfo(ARK_LOGGER, "begin-stage",
-             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_ERK_NOFAST,
-             ark_mem->tcur);
-  SUNLogExtraDebugVec(ARK_LOGGER, "slow stage", ark_mem->ycur, "z_0(:) =");
   SUNLogExtraDebugVecIf(step_mem->explicit_rhs, ARK_LOGGER, "slow explicit RHS",
                         step_mem->Fse[0], "Fse_0(:) =");
   SUNLogExtraDebugVecIf(step_mem->implicit_rhs, ARK_LOGGER, "slow implicit RHS",
@@ -2072,15 +2083,9 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     t0 = ark_mem->tn + step_mem->MRIC->c[is - 2] * ark_mem->h;
     tf = ark_mem->tcur = ark_mem->tn + ark_mem->h;
 
-    /* Solver diagnostics reporting */
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStep", "embedding-stage",
-                       "step = %li, stage = %i, stage type = %d, h = %" RSYM
-                       ", tcur = %" RSYM,
-                       ark_mem->nst, is, step_mem->stagetypes[is], ark_mem->h,
-                       ark_mem->tcur);
-#endif
+    SUNLogInfo(ARK_LOGGER, "begin-compute-embedding",
+               "stage = %i, stage type = %d, tcur = %" RSYM, is,
+               step_mem->stagetypes[is], ark_mem->tcur);
 
     /* Determine embedding stage type, and call corresponding routine; the
        vector ark_mem->ycur stores the previous stage solution on input, and
@@ -2089,28 +2094,40 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     {
     case (MRISTAGE_ERK_FAST):
       retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, is, t0, tf);
-      if (retval != ARK_SUCCESS) { return retval; }
+      if (retval != ARK_SUCCESS)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-compute-embedding",
+                   "status = failed forcing computation, retval = %i", retval);
+        return retval;
+      }
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
                                     ark_mem->tempv2, SUNFALSE);
-      if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
+      if (retval != ARK_SUCCESS)
+      {
+        *nflagPtr = CONV_FAIL;
+        SUNLogInfo(ARK_LOGGER, "end-compute-embedding",
+                   "status = failed fast ERK stage, retval = %i", retval);
+      }
       break;
     case (MRISTAGE_ERK_NOFAST):
       retval = mriStep_StageERKNoFast(ark_mem, step_mem, is);
+      SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-embedding",
+                   "status = failed ERK stage, retval = %i", retval);
       break;
     case (MRISTAGE_DIRK_NOFAST):
       retval = mriStep_StageDIRKNoFast(ark_mem, step_mem, is, nflagPtr);
+      SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-embedding",
+                   "status = failed DIRK stage, retval = %i", retval);
       break;
     case (MRISTAGE_DIRK_FAST):
       retval = mriStep_StageDIRKFast(ark_mem, step_mem, is, nflagPtr);
+      SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-compute-embedding",
+                   "status = failed fast DIRK stage, retval = %i", retval);
       break;
     }
     if (retval != ARK_SUCCESS) { return retval; }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                       "embedded solution", "ytilde(:) =", "");
-    N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
-#endif
+    SUNLogExtraDebugVec(ARK_LOGGER, "embedded solution", ark_mem->ycur, "y_embedded(:) =");
 
     /* Swap back ark_mem->ycur with ark_mem->tempv4, and reset the inner integrator */
     tmp             = ark_mem->ycur;
@@ -2119,10 +2136,14 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     retval = mriStepInnerStepper_Reset(step_mem->stepper, t0, ark_mem->ycur);
     if (retval != ARK_SUCCESS)
     {
+      SUNLogInfo(ARK_LOGGER, "end-compute-embedding",
+                 "status = failed reset, retval = %i", retval);
       arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to reset the inner stepper");
       return (ARK_INNERSTEP_FAIL);
     }
+
+    SUNLogInfo(ARK_LOGGER, "end-compute-embedding", "status = success");
   }
 
   /* Compute final stage (for evolved solution), along with error estimate */
@@ -2133,15 +2154,9 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     t0 = ark_mem->tn + step_mem->MRIC->c[is - 1] * ark_mem->h;
     tf = ark_mem->tcur = ark_mem->tn + ark_mem->h;
 
-    /* Solver diagnostics reporting */
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStep", "start-stage",
-                       "step = %li, stage = %i, stage type = %d, h = %" RSYM
-                       ", tcur = %" RSYM,
-                       ark_mem->nst, is, step_mem->stagetypes[is], ark_mem->h,
-                       ark_mem->tcur);
-#endif
+    SUNLogInfo(ARK_LOGGER, "begin-stage",
+               "stage = %i, stage type = %d, tcur = %" RSYM, is,
+               step_mem->stagetypes[is], ark_mem->tcur);
 
     /* Determine final stage type, and call corresponding routine; the
        vector ark_mem->ycur stores the previous stage solution on input, and
@@ -2150,29 +2165,41 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     {
     case (MRISTAGE_ERK_FAST):
       retval = mriStep_ComputeInnerForcing(ark_mem, step_mem, is, t0, tf);
-      if (retval != ARK_SUCCESS) { return retval; }
+      if (retval != ARK_SUCCESS)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed forcing computation, retval = %i", retval);
+        return retval;
+      }
       retval = mriStep_StageERKFast(ark_mem, step_mem, t0, tf, ark_mem->ycur,
                                     ark_mem->tempv2, need_inner_dsm);
-      if (retval != ARK_SUCCESS) { *nflagPtr = CONV_FAIL; }
+      if (retval != ARK_SUCCESS)
+      {
+        *nflagPtr = CONV_FAIL;
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed fast ERK stage, retval = %i", retval);
+      }
       break;
     case (MRISTAGE_ERK_NOFAST):
       retval = mriStep_StageERKNoFast(ark_mem, step_mem, is);
+      SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-stage",
+                   "status = failed ERK stage, retval = %i", retval);
       break;
     case (MRISTAGE_DIRK_NOFAST):
       retval = mriStep_StageDIRKNoFast(ark_mem, step_mem, is, nflagPtr);
+      SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-stage",
+                   "status = failed DIRK stage, retval = %i", retval);
       break;
     case (MRISTAGE_DIRK_FAST):
       retval = mriStep_StageDIRKFast(ark_mem, step_mem, is, nflagPtr);
+      SUNLogInfoIf(retval != 0, ARK_LOGGER, "end-stage",
+                   "status = failed fast DIRK stage, retval = %i", retval);
       break;
     case (MRISTAGE_STIFF_ACC): retval = ARK_SUCCESS; break;
     }
     if (retval != ARK_SUCCESS) { return retval; }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::mriStep_TakeStep", "slow stage", "z_%i(:) =", is);
-    N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
-#endif
+    SUNLogExtraDebugVec(ARK_LOGGER, "slow stage", ark_mem->ycur, "z_%i(:) =", is);
 
     /* apply user-supplied stage postprocessing function (if supplied) */
     if ((ark_mem->ProcessStage != NULL) &&
@@ -2180,7 +2207,12 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     {
       retval = ark_mem->ProcessStage(ark_mem->tcur, ark_mem->ycur,
                                      ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed postprocess stage, retval = %i", retval);
+        return (ARK_POSTPROCESS_STAGE_FAIL);
+      }
     }
 
     /* conditionally reset the inner integrator with the modified stage solution */
@@ -2192,6 +2224,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
         retval = mriStepInnerStepper_Reset(step_mem->stepper, tf, ark_mem->ycur);
         if (retval != ARK_SUCCESS)
         {
+          SUNLogInfo(ARK_LOGGER, "end-stage",
+                     "status = failed reset, retval = %i", retval);
           arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, __LINE__, __func__,
                           __FILE__, "Unable to reset the inner stepper");
           return (ARK_INNERSTEP_FAIL);
@@ -2207,19 +2241,11 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
       *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
     }
 
+    SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
+
   } /* loop over stages */
 
-  /* Solver diagnostics reporting */
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                     "updated solution", "ycur(:) =", "");
-  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
-#endif
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                     "error-test", "step = %li, h = %" RSYM ", dsm = %" RSYM,
-                     ark_mem->nst, ark_mem->h, *dsmPtr);
-#endif
+  SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
 
   return (ARK_SUCCESS);
 }

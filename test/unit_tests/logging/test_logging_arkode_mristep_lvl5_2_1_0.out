@@ -6,21 +6,21 @@ Using GMRES iterative linear solver
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = 1, tcur = 0
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_0(:) =
 1.2247448713915889e+00
 1.7320508075688772e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_0(:) =
 -0.0000000000000000e+00
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_0(:) =
 1.1719990452195032e-16
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.000435866521508459
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 1, stage type = 0, tcur = 0.000435866521508459
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
 1.1719990452195032e-16
 0.0000000000000000e+00
@@ -38,10 +38,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 7.480034097631063e-09
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 8.7665928206329331e-25
 6.1989172313708505e-25
@@ -56,10 +52,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 7.480034097631063e-09
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 8.7665928206329331e-25
 -6.4606546253197653e-15
@@ -74,10 +66,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 1.496006819526213e-08
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.7533185641265866e-24
 -1.2921309154747402e-14
@@ -92,10 +80,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 1.122005114644659e-08
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.3149889230949401e-24
 -7.2682364172830469e-15
@@ -131,10 +115,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 6.308571466136496e-07
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 7.2183078785983163e-23
 -1.0639251752699482e-12
@@ -149,10 +129,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 6.308571466136496e-07
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 7.2183078785983163e-23
 -4.4865103090255557e-11
@@ -167,10 +143,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 1.246754225032037e-06
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.4436615757196633e-22
 -8.9730152228821661e-11
@@ -185,10 +157,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 9.388056858228434e-07
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.0827461817897473e-22
 -5.0872192687095676e-11
@@ -224,10 +192,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 1.13651744114122e-05
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.1858778797567304e-21
 -1.4566758729363121e-09
@@ -242,10 +206,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 1.13651744114122e-05
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.1858778797567304e-21
 -1.3278839880753896e-08
@@ -260,10 +220,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 2.148359459779237e-05
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 2.3717557595134609e-21
 -2.6557440699533699e-08
@@ -278,10 +234,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 1.642438450460229e-05
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.7788168196350954e-21
 -1.5484858693447888e-08
@@ -317,10 +269,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0002238519983253957
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 2.3717557595134611e-20
 -5.0201767961106226e-07
@@ -335,10 +283,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0002238519983253957
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 2.3717557595134611e-20
 -5.2313215262676757e-06
@@ -353,10 +297,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0004262204020529991
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 4.7435115190269222e-20
 -1.0460757494550389e-05
@@ -371,10 +311,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0003250362001891974
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 3.5576336392701913e-20
 -6.0727889759923864e-06
@@ -410,10 +346,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.000431043461780729
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 5.6526213959361231e-22
 -2.3736874368566389e-07
@@ -428,10 +360,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.000431043461780729
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 5.6526213959361231e-22
 -2.4005475304776807e-07
@@ -446,10 +374,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.000435866521508459
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 1.1305242791872246e-21
 -4.8010948093051328e-07
@@ -464,10 +388,6 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.000433454991644594
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
 8.4789320939041850e-22
 -3.5907486669449202e-07
@@ -492,12 +412,12 @@ Using GMRES iterative linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 3.399381689992988e-12
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_1(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_1(:) =
 1.2247448713915889e+00
 1.7320398391262783e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 2, tcur = 0.000435866521508459
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 2, stage type = 2, tcur = 0.000435866521508459
 [DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
 1.2247448713915889e+00
 1.7320508075688772e+00
@@ -530,23 +450,23 @@ Using GMRES iterative linear solver
 -1.6881753582792283e-11
 -1.0968442598846546e-05
 
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_2(:) =
 1.2247448713747071e+00
 1.7320398391262783e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.000435866521508459
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_2(:) =
 -8.8970878322246785e-05
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_2(:) =
 -3.8744959080927067e-08
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 0, tcur = 0.0007179332607542295
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 3, stage type = 0, tcur = 0.0007179332607542295
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--1.4420787623571250e-04
+-1.4420787623571244e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -562,12 +482,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0005323277160630578
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.3910464005878560e-08
+-1.3910464005878555e-08
 -4.8548149747962736e-06
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -580,12 +496,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0005323277160630578
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.3910464005878560e-08
+-1.3910464005878555e-08
 -5.9292612788792851e-06
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -598,12 +510,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0006287889106176565
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--2.7820928011757120e-08
+-2.7820928011757110e-08
 -1.1858322629238362e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -616,12 +524,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0005805583133403571
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--2.0865696008817843e-08
+-2.0865696008817833e-08
 -8.4909002756183143e-06
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -655,12 +559,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.000673361085685943
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--6.4276587058039666e-09
+-6.4276587058039642e-09
 -3.2361773107931728e-06
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -673,12 +573,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.000673361085685943
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--6.4276587058039666e-09
+-6.4276587058039642e-09
 -3.4655743834969511e-06
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -691,12 +587,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0007179332607542294
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.2855317411607933e-08
+-1.2855317411607928e-08
 -6.9311292355319857e-06
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -709,12 +601,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0006956471732200863
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--9.6414880587059496e-09
+-9.6414880587059463e-09
 -5.1123304352758512e-06
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -737,12 +625,12 @@ Using GMRES iterative linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.480987744230228e-08
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_3(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_3(:) =
 1.2247448306984616e+00
 1.7320210495688497e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 4, stage type = 2, tcur = 0.0007179332607542295
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 4, stage type = 2, tcur = 0.0007179332607542295
 [DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
 1.2247448713915889e+00
 1.7320508075688772e+00
@@ -775,23 +663,23 @@ Using GMRES iterative linear solver
 -3.5316630590410054e-08
 -2.9758000027468860e-05
 
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_4(:) =
 1.2247448360749584e+00
 1.7320210495688497e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.0007179332607542295
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_4(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_4(:) =
 -1.4654750482174185e-04
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_4(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_4(:) =
 -3.4576357887299533e-08
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 5, stage type = 0, tcur = 0.001
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 5, stage type = 0, tcur = 0.001
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--4.6083542769079688e-04
+-4.6083542769079699e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -807,12 +695,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.0008589666303771146
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--6.4993173208836500e-08
+-6.4993173208836513e-08
 -1.1691434952020005e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -825,12 +709,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.0008589666303771146
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--6.4993173208836500e-08
+-6.4993173208836513e-08
 -1.3988194319059144e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -843,12 +723,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.0009999999999999998
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.2998634641767300e-07
+-1.2998634641767303e-07
 -2.7975777896855958e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -861,12 +737,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.0009294833151885572
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--9.7489759813254737e-08
+-9.7489759813254763e-08
 -2.0120781180351096e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -889,12 +761,12 @@ Using GMRES iterative linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.183246938942064
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.487422957291812e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_5(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_5(:) =
 1.2247447060886121e+00
 1.7319930735042082e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 6, stage type = 2, tcur = 0.001
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 6, stage type = 2, tcur = 0.001
 [DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
 1.2247448713915889e+00
 1.7320508075688772e+00
@@ -927,47 +799,51 @@ Using GMRES iterative linear solver
 -1.3022471426414292e-07
 -5.7734064669023872e-05
 
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_6(:) =
 1.2247447411668746e+00
 1.7319930735042082e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.001
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_6(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_6(:) =
 -2.0412413291536011e-04
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_6(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_6(:) =
 5.6325289350319049e-08
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 7, stage type = 1, tcur = 0.001
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_7(:) =
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 7, stage type = 1, tcur = 0.001
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_7(:) =
 1.2247447693297844e+00
 1.7319930735042082e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.001
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
- 1.000000000000000e-03    1.224744769329784e+00    1.731993073504208e+00    2.637889906509372e-13    7.105427357601002e-15
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.001
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][updated solution] ycur(:) =
 1.2247447693297844e+00
 1.7319930735042082e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+ 1.000000000000000e-03    1.224744769329784e+00    1.731993073504208e+00    2.637889906509372e-13    7.105427357601002e-15
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = 1, tcur = 0.001
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_0(:) =
+1.2247447693297844e+00
+1.7319930735042082e+00
+
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_0(:) =
 -2.0412412822154170e-04
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_0(:) =
 -5.3089134668866307e-13
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.001435866521508459
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 1, stage type = 0, tcur = 0.001435866521508459
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--2.0412412875243306e-04
+-2.0412412875243303e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -983,12 +859,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.001217933260754229
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--4.4485436977633878e-08
+-4.4485436977633871e-08
 -2.5163926518435063e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -1001,12 +873,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001217933260754229
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--4.4485436977633878e-08
+-4.4485436977633871e-08
 -3.0648037732270130e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -1019,12 +887,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.001435866521508459
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--8.8970873955267756e-08
+-8.8970873955267743e-08
 -6.1293879209072826e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -1037,12 +901,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.001326899891131344
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--6.6728155466450820e-08
+-6.6728155466450807e-08
 -4.3914709541546611e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -1065,12 +925,12 @@ Using GMRES iterative linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.665095259817906
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.418573779999255e-05
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_1(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_1(:) =
 1.2247446803589104e+00
 1.7319317786241735e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 2, tcur = 0.001435866521508459
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 2, stage type = 2, tcur = 0.001435866521508459
 [DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
 1.2247447693297844e+00
 1.7319930735042082e+00
@@ -1103,23 +963,23 @@ Using GMRES iterative linear solver
 -8.8987534912805221e-08
 -6.1294880034701280e-05
 
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_2(:) =
 1.2247446803422495e+00
 1.7319317786241735e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.001435866521508459
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_2(:) =
 -2.9309497137733315e-04
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_2(:) =
 -3.8745918517299070e-08
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 0, tcur = 0.001717933260754229
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 3, stage type = 0, tcur = 0.001717933260754229
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--3.4833194836750899e-04
+-3.4833194836750910e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -1135,12 +995,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.001576899891131344
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--4.9126428425574608e-08
+-4.9126428425574621e-08
 -2.3381665704615935e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -1153,12 +1009,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001576899891131344
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--4.9126428425574608e-08
+-4.9126428425574621e-08
 -2.5678036304855603e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -1171,12 +1023,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.001717933260754229
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--9.8252856851149217e-08
+-9.8252856851149243e-08
 -5.1355492973610147e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -1189,12 +1037,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.001647416575942787
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--7.3689642638361899e-08
+-7.3689642638361926e-08
 -3.7655704518895430e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -1217,12 +1061,12 @@ Using GMRES iterative linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 7.684100014563951
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.487925957703379e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_3(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_3(:) =
 1.2247445820893925e+00
 1.7318804228755162e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 4, stage type = 2, tcur = 0.001717933260754229
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 4, stage type = 2, tcur = 0.001717933260754229
 [DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
 1.2247447693297844e+00
 1.7319930735042082e+00
@@ -1255,23 +1099,23 @@ Using GMRES iterative linear solver
 -1.8186316808347051e-07
 -1.1265062869192373e-04
 
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_4(:) =
 1.2247445874666163e+00
 1.7318804228755162e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.001717933260754229
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_4(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_4(:) =
 -3.5067156722175821e-04
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_4(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_4(:) =
 -3.4578776485889356e-08
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 5, stage type = 0, tcur = 0.002
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 5, stage type = 0, tcur = 0.002
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--6.6495931383095440e-04
+-6.6495931383095375e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -1287,12 +1131,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.001858966630377115
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--9.3781452691701064e-08
+-9.3781452691700971e-08
 -2.7974014272094086e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -1305,12 +1145,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.001858966630377115
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--9.3781452691701064e-08
+-9.3781452691700971e-08
 -3.0270170920135741e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -1323,12 +1159,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.8756290538340213e-07
+-1.8756290538340194e-07
 -6.0539774437241262e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -1341,12 +1173,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.001929483315188557
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.4067217903755161e-07
+-1.4067217903755145e-07
 -4.4543992403934499e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -1369,12 +1197,12 @@ Using GMRES iterative linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 6.418874520703118
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.488213391475553e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_5(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_5(:) =
 1.2247443999037109e+00
 1.7318198828576059e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 6, stage type = 2, tcur = 0.002
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 6, stage type = 2, tcur = 0.002
 [DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
 1.2247447693297844e+00
 1.7319930735042082e+00
@@ -1407,47 +1235,51 @@ Using GMRES iterative linear solver
 -3.3434617870545338e-07
 -1.7319064660226147e-04
 
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_6(:) =
 1.2247444349836056e+00
 1.7318198828576059e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.002
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_6(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_6(:) =
 -4.0824816376767314e-04
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_6(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_6(:) =
 5.6319515876694253e-08
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 7, stage type = 1, tcur = 0.002
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_7(:) =
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 7, stage type = 1, tcur = 0.002
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_7(:) =
 1.2247444631465021e+00
 1.7318198828576059e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.002
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
- 2.000000000000000e-03    1.224744463146502e+00    1.731819882857606e+00    3.135491866146367e-12    1.332267629550188e-14
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 0, stage type = 1, tcur = 0.002
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_0(:) =
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][updated solution] ycur(:) =
 1.2247444631465021e+00
 1.7318198828576059e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_0(:) =
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+ 2.000000000000000e-03    1.224744463146502e+00    1.731819882857606e+00    3.135491866146367e-12    1.332267629550188e-14
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = 1, tcur = 0.002
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_0(:) =
+1.2247444631465021e+00
+1.7318198828576059e+00
+
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_0(:) =
 -4.0824815438004076e-04
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_0(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_0(:) =
 -6.2776539506729569e-12
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 1, stage type = 0, tcur = 0.002435866521508459
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 1, stage type = 0, tcur = 0.002435866521508459
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--4.0824816065769472e-04
+-4.0824816065769488e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -1463,12 +1295,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.002217933260754229
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--8.8970852849047856e-08
+-8.8970852849047882e-08
 -5.0322819831839579e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -1481,12 +1309,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002217933260754229
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--8.8970852849047856e-08
+-8.8970852849047882e-08
 -5.5805126090860530e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -1499,12 +1323,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002435866521508458
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.7794170569809571e-07
+-1.7794170569809576e-07
 -1.1160821595267170e-04
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -1517,12 +1337,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.002326899891131344
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.3345627927357177e-07
+-1.3345627927357182e-07
 -8.1651093896043496e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -1545,12 +1361,12 @@ Using GMRES iterative linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.858219393173556
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.419125651884173e-05
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_1(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_1(:) =
 1.2247442852047965e+00
 1.7317082738005669e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 2, stage type = 2, tcur = 0.002435866521508459
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 2, stage type = 2, tcur = 0.002435866521508459
 [DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
 1.2247444631465021e+00
 1.7318198828576059e+00
@@ -1583,23 +1399,23 @@ Using GMRES iterative linear solver
 -1.7795782736178756e-07
 -1.1160905703899719e-04
 
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_2(:) =
 1.2247442851886747e+00
 1.7317082738005669e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.002435866521508459
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_2(:) =
 -4.9721891788353232e-04
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_2(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_2(:) =
 -3.8752706795920109e-08
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 3, stage type = 0, tcur = 0.002717933260754229
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 3, stage type = 0, tcur = 0.002717933260754229
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--5.5245585208699253e-04
+-5.5245585208699220e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -1615,12 +1431,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.002576899891131344
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--7.7914710387710790e-08
+-7.7914710387710737e-08
 -3.9660557364056374e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -1633,12 +1445,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002576899891131344
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--7.7914710387710790e-08
+-7.7914710387710737e-08
 -4.1955995353792824e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -1651,12 +1459,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.002717933260754229
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.5582942077542158e-07
+-1.5582942077542147e-07
 -8.3911454471331814e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -1669,12 +1473,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.002647416575942787
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.1687206558156619e-07
+-1.1687206558156612e-07
 -6.2073013147636625e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -1697,12 +1497,12 @@ Using GMRES iterative linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 7.683471266304468
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.489193375207932e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_3(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_3(:) =
 1.2247441293592540e+00
 1.7316243621337195e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 4, stage type = 2, tcur = 0.002717933260754229
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 4, stage type = 2, tcur = 0.002717933260754229
 [DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
 1.2247444631465021e+00
 1.7318198828576059e+00
@@ -1735,23 +1535,23 @@ Using GMRES iterative linear solver
 -3.2840843660907345e-07
 -1.9552072388639982e-04
 
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_4(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_4(:) =
 1.2247441347380654e+00
 1.7316243621337195e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.002717933260754229
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_4(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_4(:) =
 -5.5479545428378124e-04
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_4(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_4(:) =
 -3.4588749624294499e-08
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 5, stage type = 0, tcur = 0.003
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 5, stage type = 0, tcur = 0.003
 [DEBUG][rank 0][mriStep_ComputeInnerForcing][forcing] forcing_0(:) =
--8.6908286769073260e-04
+-8.6908286769073217e-04
 0.0000000000000000e+00
 
 [INFO][rank 0][mriStep_StageERKFast][begin-fast-steps] 
@@ -1767,12 +1567,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 0, tcur = 0.002858966630377115
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.2256968531194409e-07
+-1.2256968531194404e-07
 -4.4250997594481636e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_1(:) =
@@ -1785,12 +1581,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 0, tcur = 0.002858966630377115
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.2256968531194409e-07
+-1.2256968531194404e-07
 -4.6546091998672899e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_2(:) =
@@ -1803,12 +1595,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 0, tcur = 0.003
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--2.4513937062388818e-07
+-2.4513937062388807e-07
 -9.3091660014786321e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_3(:) =
@@ -1821,12 +1609,8 @@ Using GMRES iterative linear solver
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 0, tcur = 0.002929483315188557
-[DEBUG][rank 0][arkStep_TakeStep_Z][predictor] zpred(:) =
--1.8325506472120096e-06
--1.8325506472120096e-06
-
 [DEBUG][rank 0][arkStep_TakeStep_Z][rhs data] sdata(:) =
--1.8385452796791615e-07
+-1.8385452796791604e-07
 -6.8958292697798818e-05
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit stage] z_4(:) =
@@ -1849,12 +1633,12 @@ Using GMRES iterative linear solver
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 6.418294686795201
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.489668421778799e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_5(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_5(:) =
 1.2247438895986948e+00
 1.7315312702735526e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 6, stage type = 2, tcur = 0.003
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 6, stage type = 2, tcur = 0.003
 [DEBUG][rank 0][mriStep_StageDIRKNoFast][predictor] zpred(:) =
 1.2247444631465021e+00
 1.7318198828576059e+00
@@ -1887,27 +1671,31 @@ Using GMRES iterative linear solver
 -5.3846462366900770e-07
 -2.8861258405332718e-04
 
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_6(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_6(:) =
 1.2247439246818783e+00
 1.7315312702735526e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.003
-[DEBUG][rank 0][mriStep_TakeStep][slow explicit RHS] Fse_6(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow explicit RHS] Fse_6(:) =
 -6.1237199049206555e-04
 0.0000000000000000e+00
 
-[DEBUG][rank 0][mriStep_TakeStep][slow implicit RHS] Fsi_6(:) =
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow implicit RHS] Fsi_6(:) =
 5.6302794985155313e-08
 0.0000000000000000e+00
 
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
-[INFO][rank 0][mriStep_TakeStep][begin-stage] stage = 7, stage type = 1, tcur = 0.003
-[DEBUG][rank 0][mriStep_TakeStep][slow stage] z_7(:) =
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 7, stage type = 1, tcur = 0.003
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_7(:) =
 1.2247439528447472e+00
 1.7315312702735526e+00
 
 [DEBUG][rank 0][mriStepInnerStepper_Reset][reset-inner-state] tR = 0.003
-[INFO][rank 0][mriStep_TakeStep][end-stage] status = success
+[INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
+[DEBUG][rank 0][mriStep_TakeStepMRIGARK][updated solution] ycur(:) =
+1.2247439528447472e+00
+1.7315312702735526e+00
+
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  3.000000000000000e-03    1.224743952844747e+00    1.731531270273553e+00    1.146727157674832e-11    1.776356839400250e-14
 ------------------------------------------------------------------------------------------------------------------------------
@@ -1924,6 +1712,7 @@ Last step size               = 0.001
 Current step size            = 0.001
 Explicit slow RHS fn evals   = 12
 Implicit slow RHS fn evals   = 30
+Inner stepper failures       = 0
 NLS iters                    = 18
 NLS fails                    = 0
 NLS iters per step           = 6
