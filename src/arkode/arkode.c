@@ -2622,6 +2622,20 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
     }
   }
 
+  /* store this step's contribution to accumulated temporal error */
+  if (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)
+  {
+    if (ark_mem->AccumErrorType == ARK_ACCUMERROR_MAX)
+    {
+      ark_mem->AccumError = SUNMAX(dsm, ark_mem->AccumError);
+    }
+    else if (ark_mem->AccumErrorType == ARK_ACCUMERROR_SUM)
+    {
+      ark_mem->AccumError += dsm;
+    }
+    else /* ARK_ACCUMERROR_AVG */ { ark_mem->AccumError += (dsm * ark_mem->h); }
+  }
+
   /* apply user-supplied step postprocessing function (if supplied) */
   if (ark_mem->ProcessStep != NULL)
   {
