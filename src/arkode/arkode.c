@@ -869,6 +869,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
 
     /* Looping point for step attempts */
     dsm      = ZERO;
+    kflag    = ARK_SUCCESS;
     attempts = ncf = nef = constrfails = ark_mem->last_kflag = 0;
     relax_fails                                              = 0;
     nflag                                                    = FIRST_CALL;
