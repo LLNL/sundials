@@ -3239,8 +3239,7 @@ int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C,
     }
     ark_mem->hadapt_mem->owncontroller = SUNTRUE;
   }
-  else if (take_ownership) { ark_mem->hadapt_mem->owncontroller = SUNTRUE; }
-  else { ark_mem->hadapt_mem->owncontroller = SUNFALSE; }
+  else { ark_mem->hadapt_mem->owncontroller = take_ownership; }
 
   /* Attach new SUNAdaptController object */
   retval = SUNAdaptController_Space(C, &lenrw, &leniw);
