@@ -242,7 +242,8 @@ static int splittingStep_SequentialMethod(ARKodeMem ark_mem,
                          "ARKODE::splittingStep_SequentialMethod",
                          "start-inner-evolve",
                          "step = %li, sequential method = %i, stage = %i, "
-                         "partition = %i, t0 = %" RSYM ", tout = %" RSYM,
+                         "partition = %i, t0 = " SUN_FORMAT_G
+                         ", tout = " SUN_FORMAT_G,
                          ark_mem->nst, i, j, k, t_start, t_end);
 #endif
 
@@ -315,31 +316,16 @@ static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 static int splittingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
                                        SUNOutputFormat fmt)
 {
-  // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
   ARKodeSplittingStepMem step_mem = NULL;
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  switch (fmt)
+  char name_buf[SUN_TABLE_WIDTH];
+  for (int k = 0; k < step_mem->partitions; k++)
   {
-  case SUN_OUTPUTFORMAT_TABLE:
-    for (int k = 0; k < step_mem->partitions; k++)
-    {
-      fprintf(outfile, "Partition %i evolves          = %ld\n", k,
-              step_mem->n_stepper_evolves[k]);
-    }
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    for (int k = 0; k < step_mem->partitions; k++)
-    {
-      fprintf(outfile, ",Partition %i evolves,%ld", k,
-              step_mem->n_stepper_evolves[k]);
-    }
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return ARK_ILL_INPUT;
+    sunsnprintf(name_buf, sizeof(name_buf), "Partition %i evolves", k + 1);
+    sunfprintf_long(outfile, fmt, SUNFALSE, name_buf,
+                    step_mem->n_stepper_evolves[k]);
   }
 
   return ARK_SUCCESS;

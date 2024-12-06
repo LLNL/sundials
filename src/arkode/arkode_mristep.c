@@ -1866,7 +1866,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   ark_mem->fn_is_current = SUNTRUE;
 
 #ifdef SUNDIALS_DEBUG
-  printf("    MRIStep step %li,  stage 0,  h = %" RSYM ",  t_n = %" RSYM "\n",
+  printf("    MRIStep step %li,  stage 0,  h = " SUN_FORMAT_G
+         ",  t_n = " SUN_FORMAT_G "\n",
          ark_mem->nst, ark_mem->h, ark_mem->tn);
 #endif
 
@@ -2073,8 +2074,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_TakeStep", "embedding-stage",
-                       "step = %li, stage = %i, stage type = %d, h = %" RSYM
-                       ", tcur = %" RSYM,
+                       "step = %li, stage = %i, stage type = %d, h "
+                       "= " SUN_FORMAT_G ", tcur = " SUN_FORMAT_G,
                        ark_mem->nst, is, step_mem->stagetypes[is], ark_mem->h,
                        ark_mem->tcur);
 #endif
@@ -2134,8 +2135,8 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::mriStep_TakeStep", "start-stage",
-                       "step = %li, stage = %i, stage type = %d, h = %" RSYM
-                       ", tcur = %" RSYM,
+                       "step = %li, stage = %i, stage type = %d, h "
+                       "= " SUN_FORMAT_G ", tcur = " SUN_FORMAT_G,
                        ark_mem->nst, is, step_mem->stagetypes[is], ark_mem->h,
                        ark_mem->tcur);
 #endif
@@ -2369,7 +2370,8 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
 #ifdef SUNDIALS_DEBUG
-  printf("    MRIStep step %li,  stage 0,  h = %" RSYM ",  t_n = %" RSYM "\n",
+  printf("    MRIStep step %li,  stage 0,  h = " SUN_FORMAT_G
+         ",  t_n = " SUN_FORMAT_G "\n",
          ark_mem->nst, ark_mem->h, ark_mem->tn);
 #endif
 
@@ -2407,8 +2409,9 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                       "start-stage", "step = %li, stage = %i, h = %" RSYM,
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::mriStep_TakeStep", "start-stage",
+                       "step = %li, stage = %i, h = " SUN_FORMAT_G,
                        ark_mem->nst, stage, ark_mem->h);
 #endif
 
@@ -2666,7 +2669,8 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
                      "end-step",
-                     "step = %li, t = %" RSYM ", h = %" RSYM ", dsm = %" RSYM,
+                     "step = %li, t = " SUN_FORMAT_G ", h = " SUN_FORMAT_G
+                     ", dsm = " SUN_FORMAT_G,
                      ark_mem->nst, ark_mem->tn, ark_mem->h, *dsmPtr);
 #endif
 
@@ -2803,7 +2807,8 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   ark_mem->fn_is_current = SUNTRUE;
 
 #ifdef SUNDIALS_DEBUG
-  printf("    MRIStep step %li,  stage 0,  h = %" RSYM ",  t_n = %" RSYM "\n",
+  printf("    MRIStep step %li,  stage 0,  h = " SUN_FORMAT_G
+         ",  t_n = " SUN_FORMAT_G "\n",
          ark_mem->nst, ark_mem->h, t0);
 #endif
 
@@ -2825,8 +2830,9 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     /* Solver diagnostics reporting */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
-                       "start-stage", "step = %li, stage group = %i, h = %" RSYM,
+    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
+                       "ARKODE::mriStep_TakeStep", "start-stage",
+                       "step = %li, stage group = %i, h = " SUN_FORMAT_G,
                        ark_mem->nst, ig, ark_mem->h);
 #endif
 
@@ -2985,7 +2991,8 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_TakeStep",
                      "end-step",
-                     "step = %li, t = %" RSYM ", h = %" RSYM ", dsm = %" RSYM,
+                     "step = %li, t = " SUN_FORMAT_G ", h = " SUN_FORMAT_G
+                     ", dsm = " SUN_FORMAT_G,
                      ark_mem->nst, ark_mem->tn, ark_mem->h, *dsmPtr);
 #endif
 

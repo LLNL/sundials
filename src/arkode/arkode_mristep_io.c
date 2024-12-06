@@ -833,7 +833,8 @@ int mriStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
                   step_mem->nfsi);
 
   /* inner stepper and nonlinear solver stats */
-  sunfprintf_long(outfile, fmt, SUNFALSE, "Inner stepper failures", step_mem->inner_fails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Inner stepper failures",
+                  step_mem->inner_fails);
   sunfprintf_long(outfile, fmt, SUNFALSE, "NLS iters", step_mem->nls_iters);
   sunfprintf_long(outfile, fmt, SUNFALSE, "NLS fails", step_mem->nls_fails);
   if (ark_mem->nst > 0)
