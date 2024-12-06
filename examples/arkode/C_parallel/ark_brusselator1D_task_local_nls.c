@@ -106,7 +106,7 @@ typedef struct
   FILE* UFID;    /* solution output file pointer */
   FILE* VFID;
   FILE* WFID;
-  char* outputdir;
+  const char* outputdir;
 }* UserOptions;
 
 /*
