@@ -776,6 +776,8 @@ int mriStepCoupling_GetStageType(MRIStepCoupling MRIC, int is)
 
   if ((is < 0) || (is > MRIC->stages)) { return ARK_INVALID_TABLE; }
 
+  if (is == 0) { return MRISTAGE_FIRST; }
+
   /* report MRISTAGE_ERK_FAST for MERK and MRI-SR methods */
   if ((MRIC->type == MRISTEP_SR) || (MRIC->type == MRISTEP_MERK))
   {
