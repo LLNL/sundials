@@ -113,7 +113,7 @@ static void PrintSensOutput(N_Vector* uS);
 
 static void PrintFinalStats(void* ida_mem, sunbooleantype sensi);
 
-static int check_retval(void* returnvalue, char* funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -840,7 +840,7 @@ static void PrintFinalStats(void* ida_mem, sunbooleantype sensi)
  *             NULL pointer
  */
 
-static int check_retval(void* returnvalue, char* funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
   int* retval;
 

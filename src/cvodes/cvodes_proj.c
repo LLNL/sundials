@@ -218,7 +218,7 @@ int CVodeSetProjFailEta(void* cvode_mem, sunrealtype eta)
   else
   {
     /* Update the eta value */
-    proj_mem->eta_pfail = PROJ_FAIL_ETA;
+    proj_mem->eta_pfail = eta;
   }
 
   return (CV_SUCCESS);
