@@ -132,18 +132,39 @@ if(ENABLE_WARNINGS_AS_ERRORS)
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Werror")
 endif()
 
+# With clang it is not possible to combine the -fsanitize=address and
+# -fsanitize=memory checkers.
+
 if(ENABLE_ADDRESS_SANITIZER)
   message(STATUS "Enabling address sanitizer")
 
-  set(CMAKE_C_FLAGS
-      "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
-  )
-  set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
-  )
-  set(CMAKE_Fortran_FLAGS
-      "${CMAKE_Fortran_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
-  )
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=address")
+endif()
+
+if(ENABLE_MEMORY_SANITIZER)
+  message(STATUS "Enabling memory sanitizer")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=memory")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=memory")
+endif()
+
+if(ENABLE_LEAK_SANITIZER)
+  message(STATUS "Enabling leak sanitizer")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=leak")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=leak")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=leak")
+endif()
+
+if(ENABLE_UNDEFINED_BEHAVIOR_SANITIZER)
+  message(STATUS "Enabling undefined behavior sanitizer")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=undefined")
 endif()
 
 if(SUNDIALS_DEBUG)
