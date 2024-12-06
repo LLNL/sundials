@@ -915,7 +915,7 @@ int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
   }
 
   /* Otherwise, call a utility routine to replace the current controller object */
-  return (arkReplaceAdaptController(ark_mem, C));
+  return (arkReplaceAdaptController(ark_mem, C, SUNFALSE));
 }
 
 /*---------------------------------------------------------------
@@ -3197,7 +3197,8 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   object. If a NULL-valued SUNAdaptController is input, the
   default will be re-enabled.
   ---------------------------------------------------------------*/
-int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C)
+int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C,
+                              sunbooleantype take_ownership)
 {
   int retval;
   long int lenrw, leniw;
@@ -3238,6 +3239,7 @@ int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C)
     }
     ark_mem->hadapt_mem->owncontroller = SUNTRUE;
   }
+  else if (take_ownership) { ark_mem->hadapt_mem->owncontroller = SUNTRUE; }
   else { ark_mem->hadapt_mem->owncontroller = SUNFALSE; }
 
   /* Attach new SUNAdaptController object */
