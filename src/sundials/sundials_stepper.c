@@ -35,13 +35,14 @@ SUNErrCode SUNStepper_Create(SUNContext sunctx, SUNStepper* stepper_ptr)
   stepper->ops = malloc(sizeof(*(stepper->ops)));
   SUNAssert(stepper->ops, SUN_ERR_MALLOC_FAIL);
 
-  stepper->ops->evolve      = NULL;
-  stepper->ops->onestep     = NULL;
-  stepper->ops->fullrhs     = NULL;
-  stepper->ops->reset       = NULL;
-  stepper->ops->setstoptime = NULL;
-  stepper->ops->setforcing  = NULL;
-  stepper->ops->destroy     = NULL;
+  stepper->ops->evolve           = NULL;
+  stepper->ops->onestep          = NULL;
+  stepper->ops->fullrhs          = NULL;
+  stepper->ops->reset            = NULL;
+  stepper->ops->setstoptime      = NULL;
+  stepper->ops->setstepdirection = NULL;
+  stepper->ops->setforcing       = NULL;
+  stepper->ops->destroy          = NULL;
 
   *stepper_ptr = stepper;
 
@@ -108,6 +109,16 @@ SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop)
   if (stepper->ops->setstoptime)
   {
     return stepper->ops->setstoptime(stepper, tstop);
+  }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype stepdir)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->setstepdirection)
+  {
+    return stepper->ops->setstepdirection(stepper, stepdir);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
@@ -184,6 +195,14 @@ SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper, SUNStepperSetStopTimeFn 
 {
   SUNFunctionBegin(stepper->sunctx);
   stepper->ops->setstoptime = fn;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNStepper_SetStepDirectionFn(SUNStepper stepper,
+                                         SUNStepperSetStepDirectionFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->setstepdirection = fn;
   return SUN_SUCCESS;
 }
 
