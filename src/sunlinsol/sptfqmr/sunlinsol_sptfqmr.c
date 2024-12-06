@@ -744,7 +744,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
           {
             *zeroguess  = SUNFALSE;
             LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
-                                       : SUNLS_PSOLVE_FAIL_UNREC;
+                                       : SUNLS_PSOLVE_FAIL_REC;
 
             SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                        "status = failed preconditioner solve, retval = %d",
@@ -987,7 +987,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       {
         *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
-                                   : SUNLS_PSOLVE_FAIL_UNREC;
+                                   : SUNLS_PSOLVE_FAIL_REC;
 
         SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                    "status = failed preconditioner solve, retval = %d", status);

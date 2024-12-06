@@ -336,6 +336,30 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
+   | **Splitting Coefficients specification**      |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_LIE_TROTTER_1_1_2`   | 1st order Lie-Trotter splitting for problems with two      |
+   |                                               | partitions.                                                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_STRANG_2_2_2`        | 2nd order Strang splitting for problems with two           |
+   |                                               | partitions.                                                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_BEST_2_2_2`          | 2nd order splitting with optimal error for problems with   |
+   |                                               | two partitions.                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_SUZUKI_3_3_2`        | 3rd order Suzuki splitting for problems with two           |
+   |                                               | partitions.                                                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_RUTH_3_3_2`          | 3rd order Ruth splitting for problems with two partitions. |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_YOSHIDA_4_4_2`       | 4th order Yoshida splitting for problems with two          |
+   |                                               | partitions.                                                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_SPLITTING_YOSHIDA_8_6_2`       | 6th order Yoshida splitting for problems with two          |
+   |                                               | partitions.                                                |
+   +-----------------------------------------------+------------------------------------------------------------+
+   |                                               |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
    | **MRI method types**                          |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_EXPLICIT`                     | Use an explicit (at the slow time scale) MRI method.       |
@@ -599,6 +623,8 @@ contains the ARKODE output constants.
    |                                     |      | the step size or increase the stage_max_limit              |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_SUNSTEPPER_ERR`         | -51  | An error occurred in the SUNStepper module.                |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_STEP_DIRECTION_ERR`     | -52  | An error occurred changing the step direction.             |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+

@@ -38,7 +38,7 @@ void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
                          const char* label, const char* txt, va_list args,
                          char** log_msg)
 {
-  char* prefix;
+  const char* prefix;
   char* formatted_txt;
   int msg_length;
 
@@ -53,10 +53,10 @@ void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
     fprintf(stderr, "[FATAL LOGGER ERROR] %s\n", "message size too large");
   }
 
-  if (lvl == SUN_LOGLEVEL_DEBUG) { prefix = (char*)"DEBUG"; }
-  else if (lvl == SUN_LOGLEVEL_WARNING) { prefix = (char*)"WARNING"; }
-  else if (lvl == SUN_LOGLEVEL_INFO) { prefix = (char*)"INFO"; }
-  else if (lvl == SUN_LOGLEVEL_ERROR) { prefix = (char*)"ERROR"; }
+  if (lvl == SUN_LOGLEVEL_DEBUG) { prefix = "DEBUG"; }
+  else if (lvl == SUN_LOGLEVEL_WARNING) { prefix = "WARNING"; }
+  else if (lvl == SUN_LOGLEVEL_INFO) { prefix = "INFO"; }
+  else if (lvl == SUN_LOGLEVEL_ERROR) { prefix = "ERROR"; }
 
   msg_length = sunsnprintf(NULL, 0, "[%s][rank %d][%s][%s] %s\n", prefix, rank,
                            scope, label, formatted_txt);

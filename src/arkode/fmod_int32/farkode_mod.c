@@ -619,6 +619,20 @@ SWIGEXPORT int _wrap_FARKodeSetFixedStep(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FARKodeSetStepDirection(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (int)ARKodeSetStepDirection(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeSetUserData(void *farg1, void *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1316,6 +1330,20 @@ SWIGEXPORT int _wrap_FARKodeGetCurrentStep(void *farg1, double *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)ARKodeGetCurrentStep(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKodeGetStepDirection(void *farg1, double *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype *)(farg2);
+  result = (int)ARKodeGetStepDirection(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
