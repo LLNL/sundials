@@ -53,7 +53,8 @@ set(unit_tests
     "ark_test_brusselator_mriadapt.cpp\;--rtol 0.000004 --scontrol 0\;exclude-single"
     "ark_test_slowerror_brusselator.cpp\;\;exclude-single"
     "ark_test_slowerror_kpr.cpp\;\;exclude-single"
-    "ark_test_slowerror_polynomial.cpp\;\;exclude-single")
+    "ark_test_slowerror_polynomial.cpp\;\;exclude-single"
+    "ark_test_splittingstep.cpp\;\;")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
