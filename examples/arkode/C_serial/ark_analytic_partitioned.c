@@ -70,7 +70,7 @@ static int check_flag(void* flagvalue, const char* funcname, int opt);
 int main(int argc, char* argv[])
 {
   /* Parse arguments */
-  char* integrator_name = (argc > 1) ? argv[1] : "splitting";
+  const char* integrator_name = (argc > 1) ? argv[1] : "splitting";
   if (strcmp(integrator_name, "splitting") != 0 &&
       strcmp(integrator_name, "forcing") != 0)
   {
