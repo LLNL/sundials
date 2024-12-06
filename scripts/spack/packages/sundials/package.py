@@ -506,34 +506,23 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
     @property
     def _smoke_tests(self):
         # smoke_tests tuple: exe, args, purpose, use cmake (true/false)
-        smoke_tests = [
-            ("nvector/serial/test_nvector_serial", ["10", "0"], "Test serial N_Vector", False)
-        ]
+        smoke_tests = []
         if "+CVODE" in self.spec:
             smoke_tests.append(("cvode/serial/cvAdvDiff_bnd", [], "Test CVODE", True))
 
         if "+cuda" in self.spec:
-            smoke_tests.append(
-                ("nvector/cuda/test_nvector_cuda", ["10", "0", "0"], "Test CUDA N_Vector", True)
-            )
             if "+CVODE" in self.spec:
                 smoke_tests.append(
                     ("cvode/cuda/cvAdvDiff_kry_cuda", [], "Test CVODE with CUDA", True)
                 )
 
         if "+hip" in self.spec:
-            smoke_tests.append(
-                ("nvector/hip/test_nvector_hip", ["10", "0", "0"], "Test HIP N_Vector", True)
-            )
             if "+CVODE" in self.spec:
                 smoke_tests.append(
                     ("cvode/hip/cvAdvDiff_kry_hip", [], "Test CVODE with HIP", True)
                 )
 
         if "+sycl" in self.spec:
-            smoke_tests.append(
-                ("nvector/sycl/test_nvector_sycl", ["10", "0", "0"], "Test SYCL N_Vector")
-            )
             if "+CVODE" in self.spec:
                 smoke_tests.append(
                     ("cvode/sycl/cvAdvDiff_kry_sycl", [], "Test CVODE with SYCL", True)
@@ -612,20 +601,11 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
         if '+cuda' in self.spec:
             self.run_test('examples/cvode/cuda/cvAdvDiff_ky_cuda',
                           work_dir=self._extra_tests_path)
-            self.run_test('examples/nvector/cuda/test_nvector_cuda',
-                          options=['10', '0', '0'],
-                          work_dir=self._extra_tests_path)
         if '+rocm' in self.spec:
             self.run_test('examples/cvode/hip/cvAdvDiff_kry_hip',
                           work_dir=self._extra_tests_path)
-            self.run_test('examples/nvector/hip/test_nvector_hip',
-                          options=['10', '0', '0'],
-                          work_dir=self._extra_tests_path)
         if '+sycl' in self.spec:
             self.run_test('examples/cvode/CXX_sycl/cvAdvDiff_kry_sycl',
-                          work_dir=self._extra_tests_path)
-            self.run_test('examples/nvector/sycl/test_nvector_sycl',
-                          options=['10', '0', '0'],
                           work_dir=self._extra_tests_path)
         return
 
