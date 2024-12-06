@@ -23,10 +23,16 @@ set(ARKODE_examples
     # tests that are always run
     "ark_analytic\;\;"
     # develop tests
+    "ark_advection_diffusion_reaction_splitting\;\;develop"
     "ark_analytic_lsrk\;\;develop"
     "ark_analytic_lsrk_varjac\;\;develop"
     "ark_analytic_mels\;\;develop"
     "ark_analytic_nonlin\;\;develop"
+    "ark_analytic_partitioned\;forcing\;develop"
+    "ark_analytic_partitioned\;splitting\;develop"
+    "ark_analytic_partitioned\;splitting ARKODE_SPLITTING_BEST_2_2_2\;develop"
+    "ark_analytic_partitioned\;splitting ARKODE_SPLITTING_RUTH_3_3_2\;exclude-single"
+    "ark_analytic_partitioned\;splitting ARKODE_SPLITTING_YOSHIDA_8_6_2\;exclude-single"
     "ark_analytic_ssprk\;\;develop"
     "ark_brusselator_1D_mri\;\;develop"
     "ark_brusselator_fp\;\;exclude-single"

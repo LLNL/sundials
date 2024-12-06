@@ -2802,6 +2802,20 @@ SWIGEXPORT int _wrap_FSUNStepper_SetStopTime(void *farg1, double const *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNStepper_SetStepDirection(void *farg1, double const *farg2) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  sunrealtype arg2 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (SUNErrCode)SUNStepper_SetStepDirection(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNStepper_SetForcing(void *farg1, double const *farg2, double const *farg3, void *farg4, int const *farg5) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
@@ -2943,6 +2957,20 @@ SWIGEXPORT int _wrap_FSUNStepper_SetStopTimeFn(void *farg1, SUNStepperSetStopTim
   arg1 = (SUNStepper)(farg1);
   arg2 = (SUNStepperSetStopTimeFn)(farg2);
   result = (SUNErrCode)SUNStepper_SetStopTimeFn(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNStepper_SetStepDirectionFn(void *farg1, SUNStepperSetStepDirectionFn farg2) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  SUNStepperSetStepDirectionFn arg2 = (SUNStepperSetStepDirectionFn) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (SUNStepperSetStepDirectionFn)(farg2);
+  result = (SUNErrCode)SUNStepper_SetStepDirectionFn(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
