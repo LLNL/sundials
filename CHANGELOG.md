@@ -66,6 +66,11 @@ inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
 
 ### Bug Fixes
 
+Fixed a bug where `CVodeSetProjFailEta` would ignore the `eta` parameter.
+
+Fixed a bug in the SPTFQMR linear solver where recoverable preconditioner errors
+were reported as unrecoverable.
+
 Fixed a [bug](https://github.com/LLNL/sundials/issues/581) in the sparse matrix
 implementation of `SUNMatScaleAddI` which caused out of bounds writes unless
 `indexvals` were in ascending order for each row/column.
