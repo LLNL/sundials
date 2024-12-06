@@ -769,7 +769,7 @@ int ARKodeSetJacEvalFrequency(void* arkode_mem, long int msbj)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* store input and return */
-  arkls_mem->msbj = (msbj <= ZERO) ? ARKLS_MSBJ : msbj;
+  arkls_mem->msbj = (msbj <= 0) ? ARKLS_MSBJ : msbj;
 
   return (ARKLS_SUCCESS);
 }

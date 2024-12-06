@@ -104,6 +104,7 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
   ark_mem->step_setorder            = erkStep_SetOrder;
   ark_mem->step_getnumrhsevals      = erkStep_GetNumRhsEvals;
   ark_mem->step_getestlocalerrors   = erkStep_GetEstLocalErrors;
+  ark_mem->step_setforcing          = erkStep_SetInnerForcing;
   ark_mem->step_supports_adaptive   = SUNTRUE;
   ark_mem->step_supports_relaxation = SUNTRUE;
   ark_mem->step_mem                 = (void*)step_mem;
@@ -131,6 +132,15 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 
   /* Initialize all the counters */
   step_mem->nfe = 0;
+
+  /* Initialize fused op work space */
+  step_mem->cvals        = NULL;
+  step_mem->Xvecs        = NULL;
+  step_mem->nfusedopvecs = 0;
+
+  /* Initialize external polynomial forcing data */
+  step_mem->forcing  = NULL;
+  step_mem->nforcing = 0;
 
   /* Initialize main ARKODE infrastructure */
   retval = arkInit(ark_mem, t0, y0, FIRST_INIT);
@@ -297,13 +307,29 @@ void erkStep_Free(ARKodeMem ark_mem)
     {
       free(step_mem->cvals);
       step_mem->cvals = NULL;
-      ark_mem->lrw -= (step_mem->stages + 1);
+      ark_mem->lrw -= step_mem->nfusedopvecs;
     }
     if (step_mem->Xvecs != NULL)
     {
       free(step_mem->Xvecs);
       step_mem->Xvecs = NULL;
-      ark_mem->liw -= (step_mem->stages + 1);
+      ark_mem->liw -= step_mem->nfusedopvecs;
+    }
+    step_mem->nfusedopvecs = 0;
+
+    /* free work arrays for MRI forcing */
+    if (step_mem->stage_times)
+    {
+      free(step_mem->stage_times);
+      step_mem->stage_times = NULL;
+      ark_mem->lrw -= step_mem->stages;
+    }
+
+    if (step_mem->stage_coefs)
+    {
+      free(step_mem->stage_coefs);
+      step_mem->stage_coefs = NULL;
+      ark_mem->lrw -= step_mem->stages;
     }
 
     /* free the time stepper module itself */
@@ -368,9 +394,11 @@ void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 
   With other initialization types, this routine does nothing.
   ---------------------------------------------------------------*/
-int erkStep_Init(ARKodeMem ark_mem, int init_type)
+int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
+                 int init_type)
 {
   ARKodeERKStepMem step_mem;
+  sunbooleantype reset_efun;
   int retval, j;
 
   /* access ARKodeERKStepMem structure */
@@ -383,9 +411,14 @@ int erkStep_Init(ARKodeMem ark_mem, int init_type)
     return (ARK_SUCCESS);
   }
 
-  /* enforce use of arkEwtSmallReal if using a fixed step size
-     and an internal error weight function */
-  if (ark_mem->fixedstep && !ark_mem->user_efun)
+  /* enforce use of arkEwtSmallReal if using a fixed step size,
+     an internal error weight function, and not performing accumulated
+     temporal error estimation */
+  reset_efun = SUNTRUE;
+  if (!ark_mem->fixedstep) { reset_efun = SUNFALSE; }
+  if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
+  if (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE) { reset_efun = SUNFALSE; }
+  if (reset_efun)
   {
     ark_mem->user_efun = SUNFALSE;
     ark_mem->efun      = arkEwtSetSmallReal;
@@ -414,11 +447,13 @@ int erkStep_Init(ARKodeMem ark_mem, int init_type)
   step_mem->q = ark_mem->hadapt_mem->q = step_mem->B->q;
   step_mem->p = ark_mem->hadapt_mem->p = step_mem->B->p;
 
-  /* Ensure that if adaptivity is enabled, then method includes embedding coefficients */
-  if (!ark_mem->fixedstep && (step_mem->p == 0))
+  /* Ensure that if adaptivity or error accumulation is enabled, then
+       method includes embedding coefficients */
+  if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)) &&
+      (step_mem->p == 0))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "Adaptive timestepping cannot be performed without embedding coefficients");
+                    __FILE__, "Temporal error estimation cannot be performed without embedding coefficients");
     return (ARK_ILL_INPUT);
   }
 
@@ -438,18 +473,40 @@ int erkStep_Init(ARKodeMem ark_mem, int init_type)
   ark_mem->liw += step_mem->stages; /* pointers */
 
   /* Allocate reusable arrays for fused vector interface */
+  step_mem->nfusedopvecs = 2 * step_mem->stages + 2 + step_mem->nforcing;
   if (step_mem->cvals == NULL)
   {
-    step_mem->cvals = (sunrealtype*)calloc(step_mem->stages + 1,
+    step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
                                            sizeof(sunrealtype));
     if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
-    ark_mem->lrw += (step_mem->stages + 1);
+    ark_mem->lrw += step_mem->nfusedopvecs;
   }
   if (step_mem->Xvecs == NULL)
   {
-    step_mem->Xvecs = (N_Vector*)calloc(step_mem->stages + 1, sizeof(N_Vector));
+    step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs, sizeof(N_Vector));
     if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
-    ark_mem->liw += (step_mem->stages + 1); /* pointers */
+    ark_mem->liw += step_mem->nfusedopvecs; /* pointers */
+  }
+
+  /* Allocate workspace for MRI forcing -- need to allocate here as the
+     number of stages may not bet set before this point and we assume
+     SetInnerForcing has been called before the first step i.e., methods
+     start with a fast integration */
+  if (step_mem->nforcing > 0)
+  {
+    if (!(step_mem->stage_times))
+    {
+      step_mem->stage_times = (sunrealtype*)calloc(step_mem->stages,
+                                                   sizeof(sunrealtype));
+      ark_mem->lrw += step_mem->stages;
+    }
+
+    if (!(step_mem->stage_coefs))
+    {
+      step_mem->stage_coefs = (sunrealtype*)calloc(step_mem->stages,
+                                                   sizeof(sunrealtype));
+      ark_mem->lrw += step_mem->stages;
+    }
   }
 
   /* Override the interpolant degree (if needed), used in arkInitialSetup */
@@ -478,45 +535,75 @@ int erkStep_Init(ARKodeMem ark_mem, int init_type)
 
   This will be called in one of three 'modes':
 
-     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
-                          (tn, yn) = (t0, y0) or (tR, yR)
+     ARK_FULLRHS_START -> called in the following circumstances:
+                          (a) at the beginning of a simulation i.e., at
+                              (tn, yn) = (t0, y0) or (tR, yR),
+                          (b) when transitioning between time steps t_{n-1}
+                              \to t_{n} to fill f_{n-1} within the Hermite
+                              interpolation module, or
+                          (c) by ERKStep at the start of the first internal step.
 
-     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
-                          (tcur, ycur) or the start of the subsequent step i.e.,
-                          at (tn, yn) = (tcur, ycur) from the end of the last
-                          step
+                          In each case, we may check the fn_is_current flag to
+                          know whether the values stored in F[0] are up-to-date,
+                          allowing us to copy those values instead of recomputing.
+                          If these values are not current, then the RHS should be
+                          stored in F[0] for reuse later, before copying the values
+                          into the output vector.
 
-     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+     ARK_FULLRHS_END   -> called in the following circumstances:
+                          (a) when temporal root-finding is enabled, this will be
+                              called in-between steps t_{n-1} \to t_{n} to fill f_{n},
+                          (b) when high-order dense output is requested from the
+                              Hermite interpolation module in-between steps t_{n-1}
+                              \to t_{n} to fill f_{n}, or
+                          (c) by ERKStep when starting a time step t_{n} \to t_{n+1}
+                              and when using an FSAL method.
 
-  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
-  evaluating the RHS functions is necessary, we store the vector f(t,y) in Fe[0]
-  for reuse in the first stage of the subsequent time step.
+                          Again, we may check the fn_is_current flag to know whether
+                          ARKODE believes that the values stored in F[0] are
+                          up-to-date, and may just be copied.  If the values stored
+                          in F[0] are not current, then the only instance where
+                          recomputation is not needed is (c), since the values in
+                          F[stages - 1] may be copied into F[0].  In all other cases,
+                          the RHS should be recomputed and stored in F[0] for reuse
+                          later, before copying the values into the output vector.
 
-  In ARK_FULLRHS_END mode we check if the method is "stiffly accurate" and, if
-  appropriate, copy the vector F[stages - 1] to F[0] for reuse in the first
-  stage of the subsequent time step.
+     ARK_FULLRHS_OTHER -> called in the following circumstances:
+                          (a) when estimating the initial time step size,
+                          (b) for high-order dense output with the Hermite
+                              interpolation module, or
+                          (c) by an "outer" stepper when ERKStep is used as an
+                              inner solver).
 
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
-  when estimating the initial time step size, so we strive to store the
-  intermediate parts so that they do not interfere with the other two modes.
+                          All of these instances will occur in-between ERKStep time
+                          steps, but the (t,y) input does not correspond to an
+                          "official" time step, thus the RHS should always be
+                          evaluated, with the values *not* stored in F[0].
   ----------------------------------------------------------------------------*/
 int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
 {
-  int retval;
+  int nvec, retval;
   ARKodeERKStepMem step_mem;
   sunbooleantype recomputeRHS;
+  sunrealtype* cvals;
+  N_Vector* Xvecs;
+  sunrealtype stage_coefs = ONE;
 
   /* access ARKodeERKStepMem structure */
   retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* local shortcuts for use with fused vector operations */
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
 
   /* perform RHS functions contingent on 'mode' argument */
   switch (mode)
   {
   case ARK_FULLRHS_START:
 
-    /* compute the RHS */
+    /* compute the RHS if needed */
     if (!(ark_mem->fn_is_current))
     {
       retval = step_mem->f(t, y, step_mem->F[0], ark_mem->user_data);
@@ -529,8 +616,18 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
       }
     }
 
-    /* copy RHS vector into output */
+    /* copy RHS into output */
     N_VScale(ONE, step_mem->F[0], f);
+
+    /* apply external polynomial forcing */
+    if (step_mem->nforcing > 0)
+    {
+      cvals[0] = ONE;
+      Xvecs[0] = f;
+      nvec     = 1;
+      erkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
+      N_VLinearCombination(nvec, cvals, Xvecs, f);
+    }
 
     break;
 
@@ -544,7 +641,7 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
       /* First Same As Last methods are not FSAL when relaxation is enabled */
       if (ark_mem->relax_enabled) { recomputeRHS = SUNTRUE; }
 
-      /* base RHS calls on recomputeRHS argument */
+      /* base RHS call on recomputeRHS argument */
       if (recomputeRHS)
       {
         /* call f */
@@ -558,10 +655,20 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
         }
       }
       else { N_VScale(ONE, step_mem->F[step_mem->stages - 1], step_mem->F[0]); }
-    }
 
-    /* copy RHS vector into output */
-    N_VScale(ONE, step_mem->F[0], f);
+      /* copy RHS vector into output */
+      N_VScale(ONE, step_mem->F[0], f);
+
+      /* apply external polynomial forcing */
+      if (step_mem->nforcing > 0)
+      {
+        cvals[0] = ONE;
+        Xvecs[0] = f;
+        nvec     = 1;
+        erkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
+        N_VLinearCombination(nvec, cvals, Xvecs, f);
+      }
+    }
 
     break;
 
@@ -575,6 +682,15 @@ int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
                       MSG_ARK_RHSFUNC_FAILED, t);
       return (ARK_RHSFUNC_FAIL);
+    }
+    /* apply external polynomial forcing */
+    if (step_mem->nforcing > 0)
+    {
+      cvals[0] = ONE;
+      Xvecs[0] = f;
+      nvec     = 1;
+      erkStep_ApplyForcing(step_mem, &t, &stage_coefs, 1, &nvec);
+      N_VLinearCombination(nvec, cvals, Xvecs, f);
     }
 
     break;
@@ -685,6 +801,18 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cvals[nvec] = ONE;
     Xvecs[nvec] = ark_mem->yn;
     nvec += 1;
+
+    /* apply external polynomial forcing */
+    if (step_mem->nforcing > 0)
+    {
+      for (js = 0; js < is; js++)
+      {
+        step_mem->stage_times[js] = ark_mem->tn + step_mem->B->c[js] * ark_mem->h;
+        step_mem->stage_coefs[js] = ark_mem->h * step_mem->B->A[is][js];
+      }
+      erkStep_ApplyForcing(step_mem, step_mem->stage_times,
+                           step_mem->stage_coefs, is, &nvec);
+    }
 
     /*   call fused vector operation to do the work */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->ycur);
@@ -1026,12 +1154,24 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   Xvecs[nvec] = ark_mem->yn;
   nvec += 1;
 
+  /* apply external polynomial forcing */
+  if (step_mem->nforcing > 0)
+  {
+    for (j = 0; j < step_mem->stages; j++)
+    {
+      step_mem->stage_times[j] = ark_mem->tn + step_mem->B->c[j] * ark_mem->h;
+      step_mem->stage_coefs[j] = ark_mem->h * step_mem->B->b[j];
+    }
+    erkStep_ApplyForcing(step_mem, step_mem->stage_times, step_mem->stage_coefs,
+                         step_mem->stages, &nvec);
+  }
+
   /*   call fused vector operation to do the work */
   retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
   if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-  /* Compute yerr (if step adaptivity enabled) */
-  if (!ark_mem->fixedstep)
+  /* Compute yerr (if step adaptivity or error accumulation enabled) */
+  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE))
   {
     /* set arrays for fused vector operation */
     nvec = 0;
@@ -1040,6 +1180,19 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
       cvals[nvec] = ark_mem->h * (step_mem->B->b[j] - step_mem->B->d[j]);
       Xvecs[nvec] = step_mem->F[j];
       nvec += 1;
+    }
+
+    /* apply external polynomial forcing */
+    if (step_mem->nforcing > 0)
+    {
+      for (j = 0; j < step_mem->stages; j++)
+      {
+        step_mem->stage_times[j] = ark_mem->tn + step_mem->B->c[j] * ark_mem->h;
+        step_mem->stage_coefs[j] = ark_mem->h *
+                                   (step_mem->B->b[j] - step_mem->B->d[j]);
+      }
+      erkStep_ApplyForcing(step_mem, step_mem->stage_times,
+                           step_mem->stage_coefs, step_mem->stages, &nvec);
     }
 
     /* call fused vector operation to do the work */
@@ -1146,6 +1299,145 @@ int erkStep_GetOrder(ARKodeMem ark_mem)
 {
   ARKodeERKStepMem step_mem = (ARKodeERKStepMem)(ark_mem->step_mem);
   return step_mem->q;
+}
+
+/*---------------------------------------------------------------
+  Utility routines for ERKStep to serve as an MRIStepInnerStepper
+  ---------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+  erkStep_ApplyForcing
+
+  Determines the linear combination coefficients and vectors to apply forcing
+  at a given value of the independent variable (t).  This occurs through
+  appending coefficients and N_Vector pointers to the underlying cvals and Xvecs
+  arrays in the step_mem structure.  The dereferenced input *nvec should indicate
+  the next available entry in the cvals/Xvecs arrays.  The input 's' is a
+  scaling factor that should be applied to each of these coefficients.
+  ----------------------------------------------------------------------------*/
+
+void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype* stage_times,
+                          sunrealtype* stage_coefs, int jmax, int* nvec)
+{
+  sunrealtype tau, taui;
+  int j, k;
+
+  /* Shortcuts to step_mem data */
+  sunrealtype* vals  = step_mem->cvals;
+  N_Vector* vecs     = step_mem->Xvecs;
+  sunrealtype tshift = step_mem->tshift;
+  sunrealtype tscale = step_mem->tscale;
+  int nforcing       = step_mem->nforcing;
+  N_Vector* forcing  = step_mem->forcing;
+
+  /* Offset into vals and vecs arrays */
+  int offset = *nvec;
+
+  /* Initialize scaling values, set vectors */
+  for (k = 0; k < nforcing; k++)
+  {
+    vals[offset + k] = ZERO;
+    vecs[offset + k] = forcing[k];
+  }
+
+  for (j = 0; j < jmax; j++)
+  {
+    tau  = (stage_times[j] - tshift) / tscale;
+    taui = ONE;
+
+    for (k = 0; k < nforcing; k++)
+    {
+      vals[offset + k] += stage_coefs[j] * taui;
+      taui *= tau;
+    }
+  }
+
+  /* Update vector count for linear combination */
+  *nvec += nforcing;
+}
+
+/*------------------------------------------------------------------------------
+  erkStep_SetInnerForcing
+
+  Sets an array of coefficient vectors for a time-dependent external polynomial
+  forcing term in the ODE RHS i.e., y' = f(t,y) + p(t). This function is
+  primarily intended for use with multirate integration methods (e.g., MRIStep)
+  where ERKStep is used to solve a modified ODE at a fast time scale. The
+  polynomial is of the form
+
+  p(t) = sum_{i = 0}^{nvecs - 1} forcing[i] * ((t - tshift) / (tscale))^i
+
+  where tshift and tscale are used to normalize the time t (e.g., with MRIGARK
+  methods).
+  ----------------------------------------------------------------------------*/
+
+int erkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
+                            sunrealtype tscale, N_Vector* forcing, int nvecs)
+{
+  ARKodeERKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeERKStepMem structure */
+  retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  if (nvecs > 0)
+  {
+    /* store forcing inputs */
+    step_mem->tshift   = tshift;
+    step_mem->tscale   = tscale;
+    step_mem->forcing  = forcing;
+    step_mem->nforcing = nvecs;
+
+    /* If cvals and Xvecs are not allocated then erkStep_Init has not been
+       called and the number of stages has not been set yet. These arrays will
+       be allocated in erkStep_Init and take into account the value of nforcing.
+       On subsequent calls will check if enough space has allocated in case
+       nforcing has increased since the original allocation. */
+    if (step_mem->cvals != NULL && step_mem->Xvecs != NULL)
+    {
+      /* check if there are enough reusable arrays for fused operations */
+      if ((step_mem->nfusedopvecs - nvecs) < (step_mem->stages + 1))
+      {
+        /* free current work space */
+        if (step_mem->cvals != NULL)
+        {
+          free(step_mem->cvals);
+          ark_mem->lrw -= step_mem->nfusedopvecs;
+        }
+        if (step_mem->Xvecs != NULL)
+        {
+          free(step_mem->Xvecs);
+          ark_mem->liw -= step_mem->nfusedopvecs;
+        }
+
+        /* allocate reusable arrays for fused vector operations */
+        step_mem->nfusedopvecs = step_mem->stages + 1 + nvecs;
+
+        step_mem->cvals = NULL;
+        step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
+                                               sizeof(sunrealtype));
+        if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
+        ark_mem->lrw += step_mem->nfusedopvecs;
+
+        step_mem->Xvecs = NULL;
+        step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
+                                            sizeof(N_Vector));
+        if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
+        ark_mem->liw += step_mem->nfusedopvecs;
+      }
+    }
+  }
+  else
+  {
+    /* disable forcing */
+    step_mem->tshift   = ZERO;
+    step_mem->tscale   = ONE;
+    step_mem->forcing  = NULL;
+    step_mem->nforcing = 0;
+  }
+
+  return (ARK_SUCCESS);
 }
 
 /*===============================================================

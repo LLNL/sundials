@@ -70,12 +70,11 @@ sundials_option(
 sundials_option(ENABLE_LAPACK BOOL "Enable Lapack support" OFF)
 
 sundials_option(LAPACK_LIBRARIES STRING "Lapack and Blas libraries"
-                "${LAPACK_LIBRARIES}" DEPENDS_ON ENABLE_LAPACK)
+                "${LAPACK_LIBRARIES}")
 
 sundials_option(
   LAPACK_WORKS BOOL
   "Set to ON to force CMake to accept a given LAPACK configuration" OFF
-  DEPENDS_ON ENABLE_LAPACK
   ADVANCED)
 
 # ---------------------------------------------------------------
@@ -84,7 +83,7 @@ sundials_option(
 sundials_option(ENABLE_GINKGO BOOL "Enable Ginkgo support" OFF)
 
 sundials_option(Ginkgo_DIR PATH "Path to the root of a Ginkgo installation"
-                "${Ginkgo_DIR}" DEPENDS_ON ENABLE_GINKGO)
+                "${Ginkgo_DIR}")
 
 sundials_option(
   SUNDIALS_GINKGO_BACKENDS
@@ -96,7 +95,6 @@ sundials_option(
 sundials_option(
   GINKGO_WORKS BOOL
   "Set to ON to force CMake to accept a given Ginkgo configuration" OFF
-  DEPENDS_ON ENABLE_GINKGO
   ADVANCED)
 
 # ---------------------------------------------------------------
@@ -105,7 +103,7 @@ sundials_option(
 sundials_option(ENABLE_MAGMA BOOL "Enable MAGMA support" OFF)
 
 sundials_option(MAGMA_DIR PATH "Path to the root of a MAGMA installation"
-                "${MAGMA_DIR}" DEPENDS_ON ENABLE_MAGMA)
+                "${MAGMA_DIR}")
 
 sundials_option(
   SUNDIALS_MAGMA_BACKENDS STRING
@@ -116,9 +114,7 @@ sundials_option(
 
 sundials_option(
   MAGMA_WORKS BOOL
-  "Set to ON to force CMake to accept a given MAGMA configuration" OFF
-  DEPENDS_ON ENABLE_MAGMA
-  ADVANCED)
+  "Set to ON to force CMake to accept a given MAGMA configuration" OFF ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable SuperLU_DIST support?
@@ -127,30 +123,24 @@ sundials_option(ENABLE_SUPERLUDIST BOOL "Enable SuperLU_DIST support" OFF)
 
 sundials_option(
   SUPERLUDIST_DIR PATH "Path to the root of the SuperLU_DIST installation"
-  "${SUPERLUDIST_DIR}" DEPENDS_ON ENABLE_SUPERLUDIST)
+  "${SUPERLUDIST_DIR}")
 
 sundials_option(
   SUPERLUDIST_INCLUDE_DIRS PATH "SuperLU_DIST include directories"
-  "${SUPERLUDIST_INCLUDE_DIRS}"
-  DEPENDS_ON ENABLE_SUPERLUDIST
-  ADVANCED)
+  "${SUPERLUDIST_INCLUDE_DIRS}" ADVANCED)
 
 sundials_option(
   SUPERLUDIST_LIBRARIES STRING
   "Semi-colon separated list of libraries needed for SuperLU_DIST."
-  "${SUPERLUDIST_LIBRARIES}"
-  DEPENDS_ON ENABLE_SUPERLUDIST
-  ADVANCED)
+  "${SUPERLUDIST_LIBRARIES}" ADVANCED)
 
 sundials_option(
   SUPERLUDIST_OpenMP BOOL
-  "Enable SUNDIALS support for SuperLU_DIST OpenMP on-node parallelism" OFF
-  DEPENDS_ON ENABLE_SUPERLUDIST)
+  "Enable SUNDIALS support for SuperLU_DIST OpenMP on-node parallelism" OFF)
 
 sundials_option(
   SUPERLUDIST_WORKS BOOL
   "Set to ON to force CMake to accept a given SuperLU_DIST configuration" OFF
-  DEPENDS_ON ENABLE_SUPERLUDIST
   ADVANCED)
 
 # ---------------------------------------------------------------
@@ -159,24 +149,22 @@ sundials_option(
 sundials_option(ENABLE_SUPERLUMT BOOL "Enable SuperLU_MT support" OFF)
 
 sundials_option(SUPERLUMT_INCLUDE_DIR PATH "SuperLU_MT include directory"
-                "${SUPERLUMT_INCLUDE_DIR}" DEPENDS_ON ENABLE_SUPERLUMT)
+                "${SUPERLUMT_INCLUDE_DIR}")
 
 sundials_option(SUPERLUMT_LIBRARY_DIR PATH "SuperLU_MT library directory"
-                "${SUPERLUMT_LIBRARY_DIR}" DEPENDS_ON ENABLE_SUPERLUMT)
+                "${SUPERLUMT_LIBRARY_DIR}")
 
 sundials_option(
   SUPERLUMT_LIBRARIES STRING
   "Semi-colon separated list of additional libraries needed for SuperLU_MT."
-  "${SUPERLUMT_LIBRARIES}" DEPENDS_ON ENABLE_SUPERLUMT)
+  "${SUPERLUMT_LIBRARIES}")
 
-sundials_option(
-  SUPERLUMT_THREAD_TYPE STRING "SuperLU_MT threading type: OPENMP or PTHREAD"
-  "PTHREAD" DEPENDS_ON ENABLE_SUPERLUMT)
+sundials_option(SUPERLUMT_THREAD_TYPE STRING
+                "SuperLU_MT threading type: OPENMP or PTHREAD" "PTHREAD")
 
 sundials_option(
   SUPERLUMT_WORKS BOOL
   "Set to ON to force CMake to accept a given SUPERLUMT configuration" OFF
-  DEPENDS_ON ENABLE_SUPERLUMT
   ADVANCED)
 
 # ---------------------------------------------------------------
@@ -185,36 +173,31 @@ sundials_option(
 sundials_option(ENABLE_KLU BOOL "Enable KLU support" OFF)
 
 sundials_option(KLU_INCLUDE_DIR PATH "KLU include directory"
-                "${KLU_INCLUDE_DIR}" DEPENDS_ON ENABLE_KLU)
+                "${KLU_INCLUDE_DIR}")
 
 sundials_option(KLU_LIBRARY_DIR PATH "KLU library directory"
-                "${KLU_LIBRARY_DIR}" DEPENDS_ON ENABLE_KLU)
+                "${KLU_LIBRARY_DIR}")
 
 sundials_option(
   KLU_WORKS BOOL "Set to ON to force CMake to accept a given KLU configuration"
-  OFF
-  DEPENDS_ON ENABLE_KLU
-  ADVANCED)
+  OFF ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable hypre support?
 # ---------------------------------------------------------------
 sundials_option(ENABLE_HYPRE BOOL "Enable hypre support" OFF)
 
-sundials_option(HYPRE_DIR PATH "Path to hypre installation" "${HYPRE_DIR}"
-                DEPENDS_ON ENABLE_HYPRE)
+sundials_option(HYPRE_DIR PATH "Path to hypre installation" "${HYPRE_DIR}")
 
 sundials_option(HYPRE_INCLUDE_DIR PATH "HYPRE include directory"
-                "${HYPRE_INCLUDE_DIR}" DEPENDS_ON ENABLE_HYPRE)
+                "${HYPRE_INCLUDE_DIR}")
 
 sundials_option(HYPRE_LIBRARY_DIR PATH "HYPRE library directory"
-                "${HYPRE_LIBRARY_DIR}" DEPENDS_ON ENABLE_HYPRE)
+                "${HYPRE_LIBRARY_DIR}")
 
 sundials_option(
   HYPRE_WORKS BOOL
-  "Set to ON to force CMake to accept a given hypre configuration" OFF
-  DEPENDS_ON ENABLE_HYPRE
-  ADVANCED)
+  "Set to ON to force CMake to accept a given hypre configuration" OFF ADVANCED)
 
 # ---------------------------------------------------------------
 # Enable PETSc support?
@@ -223,36 +206,30 @@ sundials_option(
 sundials_option(ENABLE_PETSC BOOL "Enable PETSc support" OFF)
 
 sundials_option(PETSC_DIR PATH "Path to the root of a PETSc installation"
-                "${PETSC_DIR}" DEPENDS_ON ENABLE_PETSC)
+                "${PETSC_DIR}")
 
 sundials_option(PETSC_ARCH STRING "PETSc architecture (optional)"
-                "${PETSC_ARCH}" DEPENDS_ON ENABLE_PETSC)
+                "${PETSC_ARCH}")
 
 sundials_option(
   PETSC_LIBRARIES STRING "Semi-colon separated list of PETSc link libraries"
-  "${PETSC_LIBRARIES}"
-  DEPENDS_ON ENABLE_PETSC
-  ADVANCED)
+  "${PETSC_LIBRARIES}" ADVANCED)
 
 sundials_option(
-  PETSC_INCLUDES STRING "Semi-colon separated list of PETSc include directories"
-  "${PETSC_INCLUDES}"
-  DEPENDS_ON ENABLE_PETSC
+  PETSC_INCLUDES STRING
+  "Semi-colon separated list of PETSc include directories" "${PETSC_INCLUDES}"
   ADVANCED)
 
 sundials_option(
   PETSC_WORKS BOOL
-  "Set to ON to force CMake to accept a given PETSc configuration" OFF
-  DEPENDS_ON ENABLE_PETSC
-  ADVANCED)
+  "Set to ON to force CMake to accept a given PETSc configuration" OFF ADVANCED)
 
 # -------------------------------------------------------------
 # Enable RAJA support?
 # -------------------------------------------------------------
 sundials_option(ENABLE_RAJA BOOL "Enable RAJA support" OFF)
 
-sundials_option(RAJA_DIR PATH "Path to root of RAJA installation" "${RAJA_DIR}"
-                DEPENDS_ON ENABLE_RAJA)
+sundials_option(RAJA_DIR PATH "Path to root of RAJA installation" "${RAJA_DIR}")
 
 sundials_option(
   SUNDIALS_RAJA_BACKENDS STRING
@@ -276,24 +253,20 @@ sundials_option(Trilinos_DIR PATH "Path to root of Trilinos installation"
 sundials_option(ENABLE_XBRAID BOOL "Enable XBraid support" OFF)
 
 sundials_option(XBRAID_DIR PATH "Path to the root of an XBraid installation"
-                "${XBRAID_DIR}" DEPENDS_ON ENABLE_XBRAID)
+                "${XBRAID_DIR}")
 
 sundials_option(
   XBRAID_LIBRARIES STRING "Semi-colon separated list of XBraid link libraries"
-  "${XBRAID_LIBRARIES}"
-  DEPENDS_ON ENABLE_XBRAID
-  ADVANCED)
+  "${XBRAID_LIBRARIES}" ADVANCED)
 
 sundials_option(
   XBRAID_INCLUDES STRING
-  "Semi-colon separated list of XBraid include directories" "${XBRAID_INCLUDES}"
-  DEPENDS_ON ENABLE_XBRAID
-  ADVANCED)
+  "Semi-colon separated list of XBraid include directories"
+  "${XBRAID_INCLUDES}" ADVANCED)
 
 sundials_option(
   XBRAID_WORKS BOOL
   "Set to ON to force CMake to accept a given XBraid configuration" OFF
-  DEPENDS_ON ENABLE_XBRAID
   ADVANCED)
 
 # -------------------------------------------------------------
@@ -303,12 +276,11 @@ sundials_option(
 sundials_option(ENABLE_ONEMKL BOOL "Enable oneMKL support" OFF)
 
 sundials_option(ONEMKL_DIR PATH "Path to root of oneMKL installation"
-                "${ONEMKL_DIR}" DEPENDS_ON ENABLE_ONEMKL)
+                "${ONEMKL_DIR}")
 
 sundials_option(
   ONEMKL_WORKS BOOL
   "Set to ON to force CMake to accept a given oneMKL configuration" OFF
-  DEPENDS_ON ENABLE_ONEMKL
   ADVANCED)
 
 sundials_option(
@@ -331,12 +303,11 @@ sundials_option(ENABLE_CALIPER BOOL "Enable CALIPER support" OFF
                 DEPENDS_ON SUNDIALS_BUILD_WITH_PROFILING)
 
 sundials_option(CALIPER_DIR PATH "Path to the root of an CALIPER installation"
-                "${CALIPER_DIR}" DEPENDS_ON ENABLE_CALIPER)
+                "${CALIPER_DIR}")
 
 sundials_option(
   CALIPER_WORKS BOOL
   "Set to ON to force CMake to accept a given CALIPER configuration" OFF
-  DEPENDS_ON ENABLE_CALIPER
   ADVANCED)
 
 # ---------------------------------------------------------------
@@ -347,7 +318,7 @@ sundials_option(ENABLE_ADIAK BOOL "Enable Adiak support" OFF
                 DEPENDS_ON SUNDIALS_BUILD_WITH_PROFILING)
 
 sundials_option(adiak_DIR PATH "Path to the root of an Adiak installation"
-                "${ADIAK_DIR}" DEPENDS_ON ENABLE_ADIAK)
+                "${ADIAK_DIR}")
 
 # ---------------------------------------------------------------
 # Enable Kokkos support?
@@ -361,7 +332,6 @@ sundials_option(Kokkos_DIR PATH "Path to the root of a Kokkos installation"
 sundials_option(
   KOKKOS_WORKS BOOL
   "Set to ON to force CMake to accept a given Kokkos configuration" OFF
-  DEPENDS_ON ENABLE_KOKKOS
   ADVANCED)
 
 # ---------------------------------------------------------------
@@ -377,5 +347,4 @@ sundials_option(
 sundials_option(
   KOKKOS_KERNELS_WORKS BOOL
   "Set to ON to force CMake to accept a given Kokkos configuration" OFF
-  DEPENDS_ON ENABLE_KOKKOS ENABLE_KOKKOS_KERNELS
   ADVANCED)

@@ -325,7 +325,7 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptControllerPI allocation failure");
+                    "SUNAdaptController_PI allocation failure");
     return (ARK_MEM_FAIL);
   }
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;
@@ -390,7 +390,11 @@ int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return an error if local truncation error is not computed */
-  if (ark_mem->fixedstep) { return (ARK_STEPPER_UNSUPPORTED); }
+  if ((ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE)) ||
+      (step_mem->p <= 0))
+  {
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
 
   /* otherwise, copy local truncation error vector to output */
   N_VScale(ONE, ark_mem->tempv1, ele);

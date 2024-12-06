@@ -345,47 +345,6 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0,
   return (ARK_SUCCESS);
 }
 
-/*------------------------------------------------------------------------------
-  ARKStepCreateMRIStepInnerStepper
-
-  Wraps an ARKStep memory structure as an MRIStep inner stepper.
-  ----------------------------------------------------------------------------*/
-int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
-                                     MRIStepInnerStepper* stepper)
-{
-  int retval;
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-
-  retval = arkStep_AccessARKODEStepMem(inner_arkode_mem,
-                                       "ARKStepCreateMRIStepInnerStepper",
-                                       &ark_mem, &step_mem);
-  if (retval)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "The ARKStep memory pointer is NULL");
-    return ARK_ILL_INPUT;
-  }
-
-  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, arkStep_MRIStepInnerEvolve);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper,
-                                            arkStep_MRIStepInnerFullRhs);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  retval = MRIStepInnerStepper_SetResetFn(*stepper, arkStep_MRIStepInnerReset);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARK_SUCCESS);
-}
-
 /*===============================================================
   Interface routines supplied to ARKODE
   ===============================================================*/
@@ -982,7 +941,8 @@ int arkStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
 
   With initialization type RESET_INIT, this routine does nothing.
   ---------------------------------------------------------------*/
-int arkStep_Init(ARKodeMem ark_mem, int init_type)
+int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
+                 int init_type)
 {
   ARKodeARKStepMem step_mem;
   int j, retval;
@@ -999,12 +959,17 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
   if (init_type == FIRST_INIT)
   {
     /* enforce use of arkEwtSmallReal if using a fixed step size for
-       an explicit method, an internal error weight function, and not
-       using an iterative mass matrix solver with rwt=ewt */
+       an explicit method, an internal error weight function, not
+       using an iterative mass matrix solver with rwt=ewt, and not
+       performing accumulated temporal error estimation */
     reset_efun = SUNTRUE;
     if (step_mem->implicit) { reset_efun = SUNFALSE; }
     if (!ark_mem->fixedstep) { reset_efun = SUNFALSE; }
     if (ark_mem->user_efun) { reset_efun = SUNFALSE; }
+    if (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)
+    {
+      reset_efun = SUNFALSE;
+    }
     if (ark_mem->rwt_is_ewt &&
         (step_mem->msolve_type == SUNLINEARSOLVER_ITERATIVE))
     {
@@ -1052,11 +1017,13 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
       step_mem->p = ark_mem->hadapt_mem->p = step_mem->Be->p;
     }
 
-    /* Ensure that if adaptivity is enabled, then method includes embedding coefficients */
-    if (!ark_mem->fixedstep && (step_mem->p == 0))
+    /* Ensure that if adaptivity or error accumulation is enabled, then
+       method includes embedding coefficients */
+    if ((!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)) &&
+        (step_mem->p <= 0))
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                      __FILE__, "Adaptive timestepping cannot be performed without embedding coefficients");
+                      __FILE__, "Temporal error estimation cannot be performed without embedding coefficients");
       return (ARK_ILL_INPUT);
     }
 
@@ -1269,28 +1236,62 @@ int arkStep_Init(ARKodeMem ark_mem, int init_type)
 
   This will be called in one of three 'modes':
 
-     ARK_FULLRHS_START -> called at the beginning of a simulation i.e., at
-                          (tn, yn) = (t0, y0) or (tR, yR)
+     ARK_FULLRHS_START -> called in the following circumstances:
+                          (a) at the beginning of a simulation i.e., at
+                              (tn, yn) = (t0, y0) or (tR, yR),
+                          (b) when transitioning between time steps t_{n-1}
+                              \to t_{n} to fill f_{n-1} within the Hermite
+                              interpolation module, or
+                          (c) potentially by ARKStep at the start of the first
+                              internal step.
 
-     ARK_FULLRHS_END   -> called at the end of a successful step i.e, at
-                          (tcur, ycur) or the start of the subsequent step i.e.,
-                          at (tn, yn) = (tcur, ycur) from the end of the last
-                          step
+                          In each case, we may check the fn_is_current flag to
+                          know whether the values stored in Fe[0] and Fi[0] are
+                          up-to-date, allowing us to copy those values instead of
+                          recomputing. If these values are not current, then the RHS
+                          should be stored in Fe[0] and Fi[0] for reuse later,
+                          before copying the values into the output vector.
 
-     ARK_FULLRHS_OTHER -> called elsewhere (e.g. for dense output)
+     ARK_FULLRHS_END   -> called in the following circumstances:
+                          (a) when temporal root-finding is enabled, this will be
+                              called in-between steps t_{n-1} \to t_{n} to fill f_{n},
+                          (b) when high-order dense output is requested from the
+                              Hermite interpolation module in-between steps t_{n-1}
+                              \to t_{n} to fill f_{n},
+                          (c) when an implicit predictor is requested from the Hermite
+                              interpolation module within the time step t_{n} \to
+                              t_{n+1}, in which case f_{n} needs to be filled, or
+                          (d) potentially by ARKStep when starting a time step t_{n}
+                              \to t_{n+1}.
 
-  If this function is called in ARK_FULLRHS_START or ARK_FULLRHS_END mode and
-  evaluating the RHS functions is necessary, we store the vectors fe(t,y) and
-  fi(t,y) in Fe[0] and Fi[0] for possible reuse in the first stage of the
-  subsequent time step.
+                          Again, we may check the fn_is_current flag to know whether
+                          ARKODE believes that the values stored in Fe[0] and Fi[0]
+                          are up-to-date, and may just be copied.  If those values
+                          are not current, then the only instance where recomputation
+                          is not needed is (d), since the values in Fe[stages - 1]
+                          and Fi[stages - 1] may be copied into Fe[0] and Fi[0],
+                          respectively.  In all other cases, the RHS should be
+                          recomputed and stored in Fe[0] and Fi[0] for reuse
+                          later, before copying the values into the output vector.
 
-  In ARK_FULLRHS_END mode we check if the method is stiffly accurate and, if
-  appropriate, copy the vectors Fe[stages - 1] and Fi[stages - 1] to Fe[0] and
-  Fi[0] for possible reuse in the first stage of the subsequent time step.
+     ARK_FULLRHS_OTHER -> called in the following circumstances:
+                          (a) when estimating the initial time step size,
+                          (b) for high-order dense output with the Hermite
+                              interpolation module,
+                          (c) by an "outer" stepper when ARKStep is used as an
+                              inner solver), or
+                          (d) when a high-order implicit predictor is requested from
+                              the Hermite interpolation module within the time step
+                              t_{n} \to t_{n+1}.
 
-  ARK_FULLRHS_OTHER mode is only called for dense output in-between steps, or
-  when estimating the initial time step size, so we strive to store the
-  intermediate parts so that they do not interfere with the other two modes.
+                          While instances (a)-(c) will occur in-between ARKStep time
+                          steps, instance (d) can occur at the start of each internal
+                          ARKStep stage.  Since the (t,y) input does not correspond
+                          to an "official" time step, thus the RHS functions should
+                          always be evaluated, and the values should *not* be stored
+                          anywhere that will interfere with other reused ARKStep data
+                          from one stage to the next (but it may use nonlinear solver
+                          scratch space).
   ----------------------------------------------------------------------------*/
 int arkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode)
@@ -2962,8 +2963,8 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
   }
 
-  /* Compute yerr (if step adaptivity enabled) */
-  if (!ark_mem->fixedstep)
+  /* Compute yerr (if temporal error estimation is enabled). */
+  if (!ark_mem->fixedstep || (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE))
   {
     /* set arrays for fused vector operation */
     nvec = 0;
@@ -3168,92 +3169,6 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   ===============================================================*/
 
 /*------------------------------------------------------------------------------
-  arkStep_MRIStepInnerEvolve
-
-  Implementation of MRIStepInnerStepperEvolveFn to advance the inner (fast)
-  ODE IVP.
-  ----------------------------------------------------------------------------*/
-
-int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
-                               SUNDIALS_MAYBE_UNUSED sunrealtype t0,
-                               sunrealtype tout, N_Vector y)
-{
-  void* arkode_mem;           /* arkode memory             */
-  sunrealtype tret;           /* return time               */
-  sunrealtype tshift, tscale; /* time normalization values */
-  N_Vector* forcing;          /* forcing vectors           */
-  int nforcing;               /* number of forcing vectors */
-  int retval;                 /* return value              */
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* get the forcing data */
-  retval = MRIStepInnerStepper_GetForcingData(stepper, &tshift, &tscale,
-                                              &forcing, &nforcing);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* set the inner forcing data */
-  retval = arkStep_SetInnerForcing(arkode_mem, tshift, tscale, forcing, nforcing);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* set the stop time */
-  retval = ARKodeSetStopTime(arkode_mem, tout);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* evolve inner ODE */
-  retval = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
-  if (retval < 0) { return (retval); }
-
-  /* disable inner forcing */
-  retval = arkStep_SetInnerForcing(arkode_mem, ZERO, ONE, NULL, 0);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARK_SUCCESS);
-}
-
-/*------------------------------------------------------------------------------
-  arkStep_MRIStepInnerFullRhs
-
-  Implementation of MRIStepInnerStepperFullRhsFn to compute the full inner
-  (fast) ODE IVP RHS.
-  ----------------------------------------------------------------------------*/
-
-int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
-                                N_Vector y, N_Vector f, int mode)
-{
-  void* arkode_mem;
-  int retval;
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (arkStep_FullRHS(arkode_mem, t, y, f, mode));
-}
-
-/*------------------------------------------------------------------------------
-  arkStep_MRIStepInnerReset
-
-  Implementation of MRIStepInnerStepperResetFn to reset the inner (fast) stepper
-  state.
-  ----------------------------------------------------------------------------*/
-
-int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
-                              N_Vector yR)
-{
-  void* arkode_mem;
-  int retval;
-
-  /* extract the ARKODE memory struct */
-  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  return (ARKodeReset(arkode_mem, tR, yR));
-}
-
-/*------------------------------------------------------------------------------
   arkStep_ApplyForcing
 
   Determines the scaling values and vectors necessary for the MRI polynomial
@@ -3333,15 +3248,11 @@ int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
                             sunrealtype tscale, N_Vector* forcing, int nvecs)
 {
   ARKodeARKStepMem step_mem;
+  int retval;
 
   /* access ARKodeARKStepMem structure */
-  if (ark_mem->step_mem == NULL)
-  {
-    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARKSTEP_NO_MEM);
-    return ARK_MEM_NULL;
-  }
-  step_mem = (ARKodeARKStepMem)ark_mem->step_mem;
+  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
 
   if (nvecs > 0)
   {

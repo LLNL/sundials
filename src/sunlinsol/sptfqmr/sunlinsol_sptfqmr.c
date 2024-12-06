@@ -704,7 +704,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
           {
             *zeroguess  = SUNFALSE;
             LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
-                                       : SUNLS_PSOLVE_FAIL_UNREC;
+                                       : SUNLS_PSOLVE_FAIL_REC;
             return (LASTFLAG(S));
           }
           N_VScale(ONE, vtemp2, vtemp1);
@@ -907,7 +907,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       {
         *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
-                                   : SUNLS_PSOLVE_FAIL_UNREC;
+                                   : SUNLS_PSOLVE_FAIL_REC;
         return (LASTFLAG(S));
       }
       N_VScale(ONE, vtemp1, x);
