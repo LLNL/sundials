@@ -265,23 +265,8 @@ int sprkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  switch (fmt)
-  {
-  case SUN_OUTPUTFORMAT_TABLE:
-    /* function evaluations */
-    fprintf(outfile, "f1 RHS fn evals              = %ld\n", step_mem->nf1);
-    fprintf(outfile, "f2 RHS fn evals              = %ld\n", step_mem->nf2);
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    /* function evaluations */
-    fprintf(outfile, ",f1 RHS evals,%ld", step_mem->nf1);
-    fprintf(outfile, ",f2 RHS fn evals,%ld", step_mem->nf2);
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return (ARK_ILL_INPUT);
-  }
+  sunfprintf_long(outfile, fmt, SUNFALSE, "f1 RHS fn evals", step_mem->nf1);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "f2 RHS fn evals", step_mem->nf2);
 
   return (ARK_SUCCESS);
 }
