@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "SUNContext_Create")) { return 1; }
 
   /* Create serial vector and set the initial condition values */
-  y = N_VNew_Serial(2, ctx);
+  y = N_VNew_Serial(1, ctx);
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   ydata = N_VGetArrayPointer(y);
