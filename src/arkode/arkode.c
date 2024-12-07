@@ -2408,14 +2408,27 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
   sunrealtype hg, hgs, hs, hnew, hrat, h0, yddnrm;
   sunbooleantype hgOK;
 
+  SUNLogDebug(ARK_LOGGER, "begin-compute-initial-step",
+              "tcur = %" RSYM ", tout = %" RSYM, ark_mem->tcur, tout);
+
   /* If tout is too close to tn, give up */
-  if ((tdiff = tout - ark_mem->tcur) == ZERO) { return (ARK_TOO_CLOSE); }
+  if ((tdiff = tout - ark_mem->tcur) == ZERO)
+  {
+    SUNLogDebug(ARK_LOGGER, "end-compute-initial-step",
+                "status = failed tout is tcur");
+    return (ARK_TOO_CLOSE);
+  }
 
   sign   = (tdiff > ZERO) ? 1 : -1;
   tdist  = SUNRabs(tdiff);
   tround = ark_mem->uround * SUNMAX(SUNRabs(ark_mem->tcur), SUNRabs(tout));
 
-  if (tdist < TWO * tround) { return (ARK_TOO_CLOSE); }
+  if (tdist < TWO * tround)
+  {
+    SUNLogDebug(ARK_LOGGER, "end-compute-initial-step",
+                "status = failed tout is too close to tcur");
+    return (ARK_TOO_CLOSE);
+  }
 
   /* call full RHS if needed */
   if (!(ark_mem->fn_is_current))
@@ -2426,7 +2439,16 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
        h == 0 here before calling the full RHS. */
     retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
                                    ark_mem->fn, ARK_FULLRHS_START);
-    if (retval) { return ARK_RHSFUNC_FAIL; }
+
+    SUNLogExtraDebugVec(ARK_LOGGER, "full RHS", ark_mem->fn, "fn(:) =");
+
+    if (retval)
+    {
+      SUNLogDebug(ARK_LOGGER, "end-compute-initial-step",
+                  "status = failed full RHS evaluation, retval = %i",
+                  retval);
+      return ARK_RHSFUNC_FAIL;
+    }
     ark_mem->fn_is_current = SUNTRUE;
   }
 
@@ -2442,6 +2464,8 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
   {
     if (sign == -1) { ark_mem->h = -hg; }
     else { ark_mem->h = hg; }
+    SUNLogDebug(ARK_LOGGER, "end-compute-initial-step",
+               "status = success");
     return (ARK_SUCCESS);
   }
 
@@ -2457,7 +2481,13 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
       hgs    = hg * sign;
       retval = arkYddNorm(ark_mem, hgs, &yddnrm);
       /* If f() failed unrecoverably, give up */
-      if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
+      if (retval < 0)
+      {
+        SUNLogDebug(ARK_LOGGER, "end-compute-initial-step",
+                    "status = failed full RHS evaluation, retval = %i",
+                    retval);
+        return (ARK_RHSFUNC_FAIL);
+      }
       /* If successful, we can use ydd */
       if (retval == ARK_SUCCESS)
       {
@@ -2472,7 +2502,12 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
     if (!hgOK)
     {
       /* Exit if this is the first or second pass. No recovery possible */
-      if (count1 <= 2) { return (ARK_REPTD_RHSFUNC_ERR); }
+      if (count1 <= 2)
+      {
+        SUNLogDebug(ARK_LOGGER, "end-compute-initial-step",
+                    "status = failed full RHS evaluation repeatedly");
+        return (ARK_REPTD_RHSFUNC_ERR);
+      }
       /* We have a fall-back option. The value hs is a previous hnew which
          passed through f(). Use it and break */
       hnew = hs;
@@ -2511,6 +2546,9 @@ int arkHin(ARKodeMem ark_mem, sunrealtype tout)
   if (h0 > hub) { h0 = hub; }
   if (sign == -1) { h0 = -h0; }
   ark_mem->h = h0;
+
+  SUNLogDebug(ARK_LOGGER, "end-compute-initial-step",
+              "status = success");
 
   return (ARK_SUCCESS);
 }

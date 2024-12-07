@@ -195,6 +195,15 @@ def log_file_to_list(filename):
                     step_attempts.append(s.get_step())
                 continue
 
+            if label == "begin-compute-initial-step":
+                s.open_dict("initial-step")
+                s.update(line_dict["payload"])
+                continue
+            elif label == "end-compute-initial-step":
+                s.update(line_dict["payload"])
+                s.close_dict()
+                continue
+
             if label == "begin-nonlinear-solve":
                 s.open_dict("nonlinear-solve")
                 s.update(line_dict["payload"])
