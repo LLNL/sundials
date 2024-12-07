@@ -125,6 +125,9 @@ export CMAKE_CXX_EXTENSIONS="OFF"
 export SUNDIALS_ENABLE_ALL_WARNINGS=ON
 export SUNDIALS_ENABLE_WARNINGS_AS_ERRORS=ON
 
+# Enable address sanitizer (the environment script may disable)
+export SUNDIALS_ENABLE_ADDRESS_SANITIZER=ON
+
 # Enable address sanitizer (environment script may disable)
 # TODO(DJG): Always enable sanitizer not just when TPLs are OFF
 if [[ "${SUNDIALS_TPLS}" == "OFF" ]]; then
