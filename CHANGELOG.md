@@ -98,6 +98,12 @@ not include contributions from the fast right-hand side function. With this fix,
 will see one additional fast right-hand side function evaluation per slow step with the
 Hermite interpolation option.
 
+Fixed a bug in the 32-bit ``sunindextype`` Fortran interfaces to
+``N_VGetSubvectorArrayPointer_ManyVector``,
+``N_VGetSubvectorArrayPointer_MPIManyVector``, ``SUNBandMatrix_Column`` and
+``SUNDenseMatrix_Column`` where 64-bit ``sunindextype`` interface functions were
+used.
+
 Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
 using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
 
