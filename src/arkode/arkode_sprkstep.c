@@ -114,6 +114,8 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
       ARKodeFree((void**)&ark_mem);
       return (NULL);
     }
+    /* Zero yerr for compensated summation */
+    N_VConst(ZERO, step_mem->yerr);
   }
   else { step_mem->yerr = NULL; }
   ark_mem->step_init            = sprkStep_Init;
@@ -146,9 +148,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   step_mem->nf1    = 0;
   step_mem->nf2    = 0;
   step_mem->istage = 0;
-
-  /* Zero yerr for compensated summation */
-  if (ark_mem->use_compensated_sums) { N_VConst(ZERO, step_mem->yerr); }
 
   /* SPRKStep uses Lagrange interpolation by default, since Hermite is
      less compatible with these methods. */
@@ -286,6 +285,8 @@ int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
                       "Unable to resize vector");
       return (ARK_MEM_FAIL);
     }
+    /* Zero yerr for compensated summation */
+    N_VConst(ZERO, step_mem->yerr);
   }
 
   return (ARK_SUCCESS);
@@ -430,6 +431,9 @@ int sprkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
        solution values are returned at the time interval end points */
     ark_mem->interp_degree = 1;
   }
+
+  /* Zero yerr for compensated summation */
+  if (ark_mem->use_compensated_sums) { N_VConst(ZERO, step_mem->yerr); }
 
   return (ARK_SUCCESS);
 }
