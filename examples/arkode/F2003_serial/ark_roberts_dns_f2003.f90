@@ -435,6 +435,7 @@ program main
   retval = FSUNLinSolFree(sunlinsol_LS)
   call FSUNMatDestroy(sunmat_A)
   call FN_VDestroy(sunvec_y)
+  call FN_VDestroy(sunvec_f)
   call FN_VDestroy(sunvec_dky)
   call FN_VDestroy(sunvec_av)
   retval = FSUNContext_Free(sunctx)
