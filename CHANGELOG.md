@@ -5,7 +5,7 @@
 ### Major Features
 
 Added a time-stepping module to ARKODE for low storage Runge--Kutta methods, LSRKStep.
-This currently supports five explicit low-storage methods: the second-order Runge--Kutta--Chebyshev 
+This currently supports five explicit low-storage methods: the second-order Runge--Kutta--Chebyshev
 and Runge--Kutta--Legendre methods, and the second- through fourth-order optimal strong stability
 preserving Runge--Kutta methods.  All methods include embeddings for temporal adaptivity.
 
@@ -97,6 +97,10 @@ Fixed a bug in MRIStep where the data supplied to the Hermite interpolation modu
 not include contributions from the fast right-hand side function. With this fix, users
 will see one additional fast right-hand side function evaluation per slow step with the
 Hermite interpolation option.
+
+Fixed potential memory leaks and out of bounds array accesses that could occur
+in the ARKODE Lagrange interpolation module when changing the method order or
+polynomial degree after re-initializing an integrator.
 
 Fixed a bug in the 32-bit ``sunindextype`` Fortran interfaces to
 ``N_VGetSubvectorArrayPointer_ManyVector``,

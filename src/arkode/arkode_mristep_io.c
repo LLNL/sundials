@@ -266,12 +266,13 @@ int mriStep_SetAdaptController(ARKodeMem ark_mem, SUNAdaptController C)
   /* If this does not have MRI type, then just pass to ARKODE */
   if (ctype != SUN_ADAPTCONTROLLER_MRI_H_TOL)
   {
-    return (arkReplaceAdaptController(ark_mem, C));
+    return (arkReplaceAdaptController(ark_mem, C, SUNFALSE));
   }
 
-  /* Create the mriStepControl wrapper, and pass that to ARKODE */
+  /* Create the mriStepControl wrapper, pass that to ARKODE, and give ownership
+     of the wrapper to ARKODE */
   SUNAdaptController Cwrapper = SUNAdaptController_MRIStep(ark_mem, C);
-  return (arkReplaceAdaptController(ark_mem, Cwrapper));
+  return (arkReplaceAdaptController(ark_mem, Cwrapper, SUNTRUE));
 }
 
 /*---------------------------------------------------------------
