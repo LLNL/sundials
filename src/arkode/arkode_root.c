@@ -434,7 +434,12 @@ int arkRootCheck1(void* arkode_mem)
   retval       = rootmem->gfun(rootmem->tlo, ark_mem->yn, rootmem->glo,
                                rootmem->root_data);
   rootmem->nge = 1;
-  if (retval != 0) { return (ARK_RTFUNC_FAIL); }
+  if (retval != 0)
+  {
+    arkProcessError(ark_mem, ARK_RTFUNC_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_RTFUNC_FAILED, ark_mem->tcur);
+    return (ARK_RTFUNC_FAIL);
+  }
 
   zroot = SUNFALSE;
   for (i = 0; i < rootmem->nrtfn; i++)
@@ -447,6 +452,20 @@ int arkRootCheck1(void* arkode_mem)
   }
   if (!zroot) { return (ARK_SUCCESS); }
 
+  /* call full RHS if needed */
+  if (!(ark_mem->fn_is_current))
+  {
+    retval = ark_mem->step_fullrhs(ark_mem, ark_mem->tn, ark_mem->yn,
+                                   ark_mem->fn, ARK_FULLRHS_START);
+    if (retval)
+    {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
+                      __FILE__, MSG_ARK_RHSFUNC_FAILED, ark_mem->tcur);
+      return ARK_RHSFUNC_FAIL;
+    }
+    ark_mem->fn_is_current = SUNTRUE;
+  }
+
   /* Some g_i is zero at t0; look at g at t0+(small increment). */
   hratio = SUNMAX(rootmem->ttol / SUNRabs(ark_mem->h), TENTH);
   smallh = hratio * ark_mem->h;
@@ -454,7 +473,12 @@ int arkRootCheck1(void* arkode_mem)
   N_VLinearSum(ONE, ark_mem->yn, smallh, ark_mem->fn, ark_mem->ycur);
   retval = rootmem->gfun(tplus, ark_mem->ycur, rootmem->ghi, rootmem->root_data);
   rootmem->nge++;
-  if (retval != 0) { return (ARK_RTFUNC_FAIL); }
+  if (retval != 0)
+  {
+    arkProcessError(ark_mem, ARK_RTFUNC_FAIL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_RTFUNC_FAILED, ark_mem->tcur);
+    return (ARK_RTFUNC_FAIL);
+  }
 
   /* We check now only the components of g which were exactly 0.0 at t0
    * to see if we can 'activate' them. */
