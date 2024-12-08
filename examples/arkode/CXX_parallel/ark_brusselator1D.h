@@ -118,7 +118,7 @@ struct UserOptions
   int nout;      /* number of outputs            */
   int monitor;   /* print solution to screen     */
   int printtime; /* print timing information     */
-  char* outputdir;
+  const char* outputdir;
 };
 
 /*

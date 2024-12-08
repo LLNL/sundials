@@ -353,6 +353,20 @@ SWIGEXPORT int _wrap_FARKodeReset(void *farg1, double const *farg2, N_Vector far
 }
 
 
+SWIGEXPORT int _wrap_FARKodeCreateMRIStepInnerStepper(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  MRIStepInnerStepper *arg2 = (MRIStepInnerStepper *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (MRIStepInnerStepper *)(farg2);
+  result = (int)ARKodeCreateMRIStepInnerStepper(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeSStolerances(void *farg1, double const *farg2, double const *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -600,6 +614,20 @@ SWIGEXPORT int _wrap_FARKodeSetFixedStep(void *farg1, double const *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (int)ARKodeSetFixedStep(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKodeSetStepDirection(void *farg1, double const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (int)ARKodeSetStepDirection(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1139,6 +1167,32 @@ SWIGEXPORT int _wrap_FARKodeSetMaxNumConstrFails(void *farg1, int const *farg2) 
 }
 
 
+SWIGEXPORT int _wrap_FARKodeSetAccumulatedErrorType(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKAccumError arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKAccumError)(*farg2);
+  result = (int)ARKodeSetAccumulatedErrorType(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKodeResetAccumulatedError(void *farg1) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  result = (int)ARKodeResetAccumulatedError(arg1);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeEvolve(void *farg1, double const *farg2, N_Vector farg3, double *farg4, int const *farg5) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1276,6 +1330,20 @@ SWIGEXPORT int _wrap_FARKodeGetCurrentStep(void *farg1, double *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (sunrealtype *)(farg2);
   result = (int)ARKodeGetCurrentStep(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKodeGetStepDirection(void *farg1, double *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype *)(farg2);
+  result = (int)ARKodeGetStepDirection(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -1495,6 +1563,20 @@ SWIGEXPORT int _wrap_FARKodeGetStepStats(void *farg1, long *farg2, double *farg3
   arg5 = (sunrealtype *)(farg5);
   arg6 = (sunrealtype *)(farg6);
   result = (int)ARKodeGetStepStats(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKodeGetAccumulatedError(void *farg1, double *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  sunrealtype *arg2 = (sunrealtype *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (sunrealtype *)(farg2);
+  result = (int)ARKodeGetAccumulatedError(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
@@ -2248,6 +2330,20 @@ SWIGEXPORT int _wrap_FARKodeGetNumRelaxSolveIters(void *farg1, long *farg2) {
   arg1 = (void *)(farg1);
   arg2 = (long *)(farg2);
   result = (int)ARKodeGetNumRelaxSolveIters(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKodeCreateSUNStepper(void *farg1, void *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  SUNStepper *arg2 = (SUNStepper *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (SUNStepper *)(farg2);
+  result = (int)ARKodeCreateSUNStepper(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }

@@ -519,7 +519,7 @@ int ARKStepSetTableName(void* arkode_mem, const char* itable, const char* etable
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ARKStepGetNumRhsEvals:
+  arkStep_GetNumRhsEvals:
 
   Returns the current number of calls
   ---------------------------------------------------------------*/
@@ -757,7 +757,7 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptControllerPID allocation failure");
+                    "SUNAdaptController_PID allocation failure");
     return (ARK_MEM_FAIL);
   }
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;
@@ -1183,7 +1183,11 @@ int arkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return an error if local truncation error is not computed */
-  if (ark_mem->fixedstep) { return (ARK_STEPPER_UNSUPPORTED); }
+  if ((ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE)) ||
+      (step_mem->p <= 0))
+  {
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
 
   /* otherwise, copy local truncation error vector to output */
   N_VScale(ONE, ark_mem->tempv1, ele);
@@ -1287,7 +1291,7 @@ int arkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* function evaluations */
-  sunfprintf_long(outfile, fmt, SUNTRUE, "Explicit RHS fn evals", step_mem->nfe);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Explicit RHS fn evals", step_mem->nfe);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Implicit RHS fn evals", step_mem->nfi);
 
   /* nonlinear solver stats */
@@ -1404,6 +1408,12 @@ int arkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 /*===============================================================
   Exported-but-deprecated user-callable functions.
   ===============================================================*/
+
+int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
+                                     MRIStepInnerStepper* stepper)
+{
+  return (ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, stepper));
+}
 
 int ARKStepResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)

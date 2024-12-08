@@ -31,6 +31,7 @@
 #include <arkode/arkode_butcher.h>
 #include <stdio.h>
 #include <sundials/sundials_core.h>
+#include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -140,6 +141,13 @@ extern "C" {
 
 #define ARK_STEPPER_UNSUPPORTED -48
 
+#define ARK_DOMEIG_FAIL          -49
+#define ARK_MAX_STAGE_LIMIT_FAIL -50
+
+#define ARK_SUNSTEPPER_ERR -51
+
+#define ARK_STEP_DIRECTION_ERR -52
+
 #define ARK_UNRECOGNIZED_ERROR -99
 
 /* ------------------------------
@@ -191,6 +199,18 @@ typedef enum
 } ARKRelaxSolver;
 
 /* --------------------------
+ * Error Accumulation Options
+ * -------------------------- */
+
+typedef enum
+{
+  ARK_ACCUMERROR_NONE,
+  ARK_ACCUMERROR_MAX,
+  ARK_ACCUMERROR_SUM,
+  ARK_ACCUMERROR_AVG
+} ARKAccumError;
+
+/* --------------------------
  * Shared API routines
  * -------------------------- */
 
@@ -199,6 +219,10 @@ SUNDIALS_EXPORT int ARKodeResize(void* arkode_mem, N_Vector ynew,
                                  sunrealtype hscale, sunrealtype t0,
                                  ARKVecResizeFn resize, void* resize_data);
 SUNDIALS_EXPORT int ARKodeReset(void* arkode_mem, sunrealtype tR, N_Vector yR);
+
+/* Utility to wrap ARKODE as an MRIStepInnerStepper */
+SUNDIALS_EXPORT int ARKodeCreateMRIStepInnerStepper(void* arkode_mem,
+                                                    MRIStepInnerStepper* stepper);
 
 /* Tolerance input functions */
 SUNDIALS_EXPORT int ARKodeSStolerances(void* arkode_mem, sunrealtype reltol,
@@ -228,6 +252,7 @@ SUNDIALS_EXPORT int ARKodeSetInterpolateStopTime(void* arkode_mem,
 SUNDIALS_EXPORT int ARKodeSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_EXPORT int ARKodeClearStopTime(void* arkode_mem);
 SUNDIALS_EXPORT int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed);
+SUNDIALS_EXPORT int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir);
 SUNDIALS_EXPORT int ARKodeSetUserData(void* arkode_mem, void* user_data);
 SUNDIALS_EXPORT int ARKodeSetPostprocessStepFn(void* arkode_mem,
                                                ARKPostProcessFn ProcessStep);
@@ -280,6 +305,9 @@ SUNDIALS_EXPORT int ARKodeSetInitStep(void* arkode_mem, sunrealtype hin);
 SUNDIALS_EXPORT int ARKodeSetMinStep(void* arkode_mem, sunrealtype hmin);
 SUNDIALS_EXPORT int ARKodeSetMaxStep(void* arkode_mem, sunrealtype hmax);
 SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
+SUNDIALS_EXPORT int ARKodeSetAccumulatedErrorType(void* arkode_mem,
+                                                  ARKAccumError accum_type);
+SUNDIALS_EXPORT int ARKodeResetAccumulatedError(void* arkode_mem);
 
 /* Integrate the ODE over an interval in t */
 SUNDIALS_EXPORT int ARKodeEvolve(void* arkode_mem, sunrealtype tout,
@@ -303,6 +331,8 @@ SUNDIALS_EXPORT int ARKodeGetWorkSpace(void* arkode_mem, long int* lenrw,
 SUNDIALS_EXPORT int ARKodeGetNumSteps(void* arkode_mem, long int* nsteps);
 SUNDIALS_EXPORT int ARKodeGetLastStep(void* arkode_mem, sunrealtype* hlast);
 SUNDIALS_EXPORT int ARKodeGetCurrentStep(void* arkode_mem, sunrealtype* hcur);
+SUNDIALS_EXPORT int ARKodeGetStepDirection(void* arkode_mem,
+                                           sunrealtype* stepdir);
 SUNDIALS_EXPORT int ARKodeGetErrWeights(void* arkode_mem, N_Vector eweight);
 SUNDIALS_EXPORT int ARKodeGetNumGEvals(void* arkode_mem, long int* ngevals);
 SUNDIALS_EXPORT int ARKodeGetRootInfo(void* arkode_mem, int* rootsfound);
@@ -327,6 +357,8 @@ SUNDIALS_EXPORT int ARKodeGetNumConstrFails(void* arkode_mem,
 SUNDIALS_EXPORT int ARKodeGetStepStats(void* arkode_mem, long int* nsteps,
                                        sunrealtype* hinused, sunrealtype* hlast,
                                        sunrealtype* hcur, sunrealtype* tcur);
+SUNDIALS_EXPORT int ARKodeGetAccumulatedError(void* arkode_mem,
+                                              sunrealtype* accum_error);
 
 /* Optional output functions (implicit solver) */
 SUNDIALS_EXPORT int ARKodeGetNumLinSolvSetups(void* arkode_mem,
@@ -413,6 +445,9 @@ SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveFails(void* arkode_mem,
                                                 long int* fails);
 SUNDIALS_EXPORT int ARKodeGetNumRelaxSolveIters(void* arkode_mem,
                                                 long int* iters);
+
+/* SUNStepper functions */
+SUNDIALS_EXPORT int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper);
 
 #ifdef __cplusplus
 }

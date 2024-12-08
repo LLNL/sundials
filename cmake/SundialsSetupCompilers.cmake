@@ -79,26 +79,34 @@ endif()
 if(ENABLE_ALL_WARNINGS)
   message(STATUS "Enabling all compiler warnings")
 
+  # Some warning flags are not supported by all compilers so ignore unknown
+  # flags with -Wno-unknown-warning-option. Ironically, this is not supported by
+  # some compilers.
+  set(WARNING_FLAGS
+      "-Wno-unknown-warning-option -Wall -Wpedantic -Wextra -Wshadow \
+-Wwrite-strings -Wcast-align -Wdisabled-optimization -Wvla -Walloca \
+-Wduplicated-cond -Wduplicated-branches -Wunused-macros \
+-Wunused-local-typedefs")
+  # TODO(SBR): Try to add -Wredundant-decls once SuperLU version is updated in
+  # CI tests
+
   # Avoid numerous warnings from printf
   if(SUNDIALS_PRECISION MATCHES "EXTENDED")
-    set(CMAKE_C_FLAGS "-Wdouble-promotion ${CMAKE_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "-Wdouble-promotion ${CMAKE_CXX_FLAGS}")
+    set(WARNING_FLAGS "-Wdouble-promotion ${WARNING_FLAGS}")
   endif()
 
   if((SUNDIALS_PRECISION MATCHES "DOUBLE") AND (SUNDIALS_INDEX_SIZE MATCHES "32"
                                                ))
-    set(CMAKE_C_FLAGS "-Wconversion -Wno-sign-conversion ${CMAKE_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "-Wconversion -Wno-sign-conversion ${CMAKE_CXX_FLAGS}")
+    set(WARNING_FLAGS "-Wconversion -Wno-sign-conversion ${WARNING_FLAGS}")
   endif()
 
   # Avoid numerous warnings from SWIG generated functions
   if(NOT BUILD_FORTRAN_MODULE_INTERFACE)
-    set(CMAKE_C_FLAGS "-Wmissing-declarations -Wcast-qual ${CMAKE_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "-Wmissing-declarations -Wcast-qual ${CMAKE_CXX_FLAGS}")
+    set(WARNING_FLAGS "-Wmissing-declarations -Wcast-qual ${WARNING_FLAGS}")
   endif()
 
-  set(CMAKE_C_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wunused-macros -Wunused-local-typedefs ${CMAKE_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra -Wshadow -Wunused-macros -Wunused-local-typedefs ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_C_FLAGS "${WARNING_FLAGS} ${CMAKE_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${WARNING_FLAGS} ${CMAKE_CXX_FLAGS}")
 
   # TODO(DJG): Add -fcheck=all,no-pointer,no-recursion once Jenkins is updated
   # to use gfortran > 5.5 which segfaults with -fcheck=array-temps,bounds,do,mem
@@ -125,18 +133,39 @@ if(ENABLE_WARNINGS_AS_ERRORS)
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Werror")
 endif()
 
+# With clang it is not possible to combine the -fsanitize=address and
+# -fsanitize=memory checkers.
+
 if(ENABLE_ADDRESS_SANITIZER)
   message(STATUS "Enabling address sanitizer")
 
-  set(CMAKE_C_FLAGS
-      "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
-  )
-  set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
-  )
-  set(CMAKE_Fortran_FLAGS
-      "${CMAKE_Fortran_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
-  )
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=address")
+endif()
+
+if(ENABLE_MEMORY_SANITIZER)
+  message(STATUS "Enabling memory sanitizer")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=memory")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=memory")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=memory")
+endif()
+
+if(ENABLE_LEAK_SANITIZER)
+  message(STATUS "Enabling leak sanitizer")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=leak")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=leak")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=leak")
+endif()
+
+if(ENABLE_UNDEFINED_BEHAVIOR_SANITIZER)
+  message(STATUS "Enabling undefined behavior sanitizer")
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fsanitize=undefined")
 endif()
 
 if(SUNDIALS_DEBUG)

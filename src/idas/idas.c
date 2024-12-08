@@ -5888,7 +5888,7 @@ static int IDAStep(IDAMem IDA_mem)
   saved_t = IDA_mem->ida_tn;
   ncf = nef = 0;
 
-  if (IDA_mem->ida_nst == ZERO)
+  if (IDA_mem->ida_nst == 0)
   {
     IDA_mem->ida_kk     = 1;
     IDA_mem->ida_kused  = 0;

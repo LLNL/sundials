@@ -19,17 +19,19 @@ The MRIStepInnerStepper Class
 
 As with other SUNDIALS classes, the :c:type:`MRIStepInnerStepper` abstract base
 class is implemented using a C structure containing a ``content`` pointer to the
-derived class member data and a structure of function pointers the derived class
-implementations of the virtual methods.
+derived class member data and a structure of function pointers (vtable) to the
+derived class implementations of the base class virtual methods.
 
 .. c:type:: MRIStepInnerStepper
 
    An object for solving the fast (inner) ODE in an MRI method.
 
-   The actual definition of the ``MRIStepInnerStepper`` structure is kept
-   private to allow for the object internals to change without impacting user
-   code. The following sections describe the base class methods and the virtual
-   methods that a must be provided by a derived class.
+The actual definitions of the structure and the
+corresponding operations structure are kept private to allow for the object
+internals to change without impacting user code. The following sections describe
+the base (:numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods`)
+and virtual methods (:numref:`ARKODE.Usage.MRIStep.CustomInnerStepper.Description.ImplMethods`)
+that a must be provided by a derived class.
 
 .. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods:
 
@@ -53,13 +55,11 @@ Creating and Destroying an Object
    This function creates an :c:type:`MRIStepInnerStepper` object to which a user
    should attach the member data (content) pointer and method function pointers.
 
-   **Arguments:**
-      * ``sunctx`` -- the SUNDIALS simulation context.
-      * ``stepper`` -- a pointer to an inner stepper object.
+   :param sunctx: the SUNDIALS simulation context.
+   :param stepper: a pointer to an inner stepper object.
 
-   **Return value:**
-      * ARK_SUCCESS if successful
-      * ARK_MEM_FAIL if a memory allocation error occurs
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_FAIL: if a memory allocation error occurs
 
    **Example usage:**
 
@@ -79,15 +79,39 @@ Creating and Destroying an Object
       for details on how to attach member data and method function pointers.
 
 
+.. c:function:: int MRIStepInnerStepper_CreateFromSUNStepper(SUNStepper sunstepper, MRIStepInnerStepper* stepper)
+
+   This utility function wraps a :c:type:`SUNStepper` as an
+   :c:type:`MRIStepInnerStepper`.
+
+   :param sunctx: the SUNDIALS simulation context.
+   :param sunstepper: the c:type:`SUNStepper` to wrap.
+   :param stepper: a pointer to an MRI inner stepper object.
+
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_FAIL: if a memory allocation error occurs
+
+   **Example usage:**
+
+   .. code-block:: C
+
+      SUNStepper sunstepper = NULL;
+      SUNStepper_Create(ctx, &sunstepper);
+      /* Attach content and functions to the SUNStepper... */
+
+      MRIStepInnerStepper inner_stepper = NULL;
+      flag = MRIStepInnerStepper_CreateFromSUNStepper(sunstepper, &inner_stepper);
+
+   .. versionadded:: x.y.z
+
+
 .. c:function:: int MRIStepInnerStepper_Free(MRIStepInnerStepper *stepper)
 
    This function destroys an :c:type:`MRIStepInnerStepper` object.
 
-   **Arguments:**
-      * *stepper* -- a pointer to an inner stepper object.
+   :param stepper: a pointer to an inner stepper object.
 
-   **Return value:**
-      * ARK_SUCCESS if successful
+   :retval ARK_SUCCESS: if successful
 
    **Example usage:**
 
@@ -115,13 +139,11 @@ Attaching and Accessing the Content Pointer
    This function attaches a member data (content) pointer to an
    :c:type:`MRIStepInnerStepper` object.
 
-   **Arguments:**
-      * *stepper* -- an inner stepper object.
-      * *content* -- a pointer to the stepper member data.
+   :param stepper: an inner stepper object.
+   :param content: a pointer to the stepper member data.
 
-   **Return value:**
-      * ARK_SUCCESS if successful
-      * ARK_ILL_INPUT if the stepper is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -140,13 +162,11 @@ Attaching and Accessing the Content Pointer
    This function retrieves the member data (content) pointer from an
    :c:type:`MRIStepInnerStepper` object.
 
-   **Arguments:**
-      * *stepper* -- an inner stepper object.
-      * *content* -- a pointer to set to the stepper member data pointer.
+   :param stepper: an inner stepper object.
+   :param content: a pointer to set to the stepper member data pointer.
 
-   **Return value:**
-      * ARK_SUCCESS if successful
-      * ARK_ILL_INPUT if the stepper is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -173,13 +193,11 @@ Setting Member Functions
    This function attaches an :c:type:`MRIStepInnerEvolveFn` function to an
    :c:type:`MRIStepInnerStepper` object.
 
-   **Arguments:**
-      * *stepper* -- an inner stepper object.
-      * *fn* -- the :c:type:`MRIStepInnerStepper` function to attach.
+   :param stepper: an inner stepper object.
+   :param fn: the :c:type:`MRIStepInnerStepper` function to attach.
 
-   **Return value:**
-      * ARK_SUCCESS if successful
-      * ARK_ILL_INPUT if the stepper is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -197,13 +215,11 @@ Setting Member Functions
    This function attaches an :c:type:`MRIStepInnerFullRhsFn` function to an
    :c:type:`MRIStepInnerStepper` object.
 
-   **Arguments:**
-      * *stepper* -- an inner stepper object.
-      * *fn* -- the :c:type:`MRIStepInnerFullRhsFn` function to attach.
+   :param stepper: an inner stepper object.
+   :param fn: the :c:type:`MRIStepInnerFullRhsFn` function to attach.
 
-   **Return value:**
-      * ARK_SUCCESS if successful
-      * ARK_ILL_INPUT if the stepper is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -221,13 +237,11 @@ Setting Member Functions
    This function attaches an :c:type:`MRIStepInnerResetFn` function to an
    :c:type:`MRIStepInnerStepper` object.
 
-   **Arguments:**
-      * *stepper* -- an inner stepper object.
-      * *fn* -- the :c:type:`MRIStepInnerResetFn` function to attach.
+   :param stepper: an inner stepper object.
+   :param fn: the :c:type:`MRIStepInnerResetFn` function to attach.
 
-   **Return value:**
-      * ARK_SUCCESS if successful
-      * ARK_ILL_INPUT if the stepper is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -239,6 +253,49 @@ Setting Member Functions
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
+.. c:function:: int MRIStepInnerStepper_SetAccumulatedErrorGetFn(MRIStepInnerStepper stepper, MRIStepInnerGetAccumulatedError fn)
+
+   This function attaches an :c:type:`MRIStepInnerGetAccumulatedError` function to an
+   :c:type:`MRIStepInnerStepper` object.
+
+   :param stepper: an inner stepper object.
+   :param fn: the :c:type:`MRIStepInnerGetAccumulatedError` function to attach.
+
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
+
+   .. versionadded: x.y.z
+
+
+.. c:function:: int MRIStepInnerStepper_SetAccumulatedErrorResetFn(MRIStepInnerStepper stepper, MRIStepInnerResetAccumulatedError fn)
+
+   This function attaches an :c:type:`MRIStepInnerResetAccumulatedError` function to an
+   :c:type:`MRIStepInnerStepper` object.
+
+   :param stepper: an inner stepper object.
+   :param fn: the :c:type:`MRIStepInnerResetAccumulatedError` function to attach.
+
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
+
+   .. versionadded: x.y.z
+
+
+.. c:function:: int MRIStepInnerStepper_SetRTolFn(MRIStepInnerStepper stepper, MRIStepInnerSetRTol fn)
+
+   This function attaches an :c:type:`MRIStepInnerSetRTol` function to an
+   :c:type:`MRIStepInnerStepper` object.
+
+   :param stepper: an inner stepper object.
+   :param fn: the :c:type:`MRIStepInnerSetRTol` function to attach.
+
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
+
+   .. versionadded: x.y.z
+
+
+
 .. _ARKODE.Usage.MRIStep.CustomInnerStepper.Description.BaseMethods.Forcing:
 
 Applying and Accessing Forcing Data
@@ -249,7 +306,10 @@ responsible for evaluating ODE right-hand side function :math:`f^F(t,v)` as well
 as computing and applying the forcing term :eq:`ARKODE_MRI_forcing_poly` to obtain the
 full right-hand side of the inner (fast) ODE :eq:`ARKODE_MRI_IVP`. The functions in
 this section can be used to either apply the inner (fast) forcing or access the
-data necessary to construct the inner (fast) forcing polynomial.
+data necessary to construct the inner (fast) forcing polynomial.  While the first of 
+these is less intrusive and may be used to package an existing black-box IVP solver 
+as an MRIStepInnerStepper, the latter may be more computationally efficient since it
+does not traverse the data directly.
 
 
 .. c:function:: int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper, sunrealtype t, N_Vector ff)
@@ -258,24 +318,16 @@ data necessary to construct the inner (fast) forcing polynomial.
    time *t* and adds it to input vector *ff*, i.e., the inner (fast) right-hand
    side vector.
 
-   **Arguments:**
-      * *stepper* -- an inner stepper object.
-      * *t* -- the time at which the forcing should be evaluated.
-      * *f* -- the vector to which the forcing should be applied.
+   :param stepper: an inner stepper object.
+   :param t: the time at which the forcing should be evaluated.
+   :param f: the vector to which the forcing should be applied.
 
-   **Return value:**
-      * ARK_SUCCESS if successful
-      * ARK_ILL_INPUT if the stepper is ``NULL``
-
-   **Example usage:**
-
-   .. code-block:: C
-
-      /* compute the forcing term and add it the fast RHS vector */
-      flag = MRIStepInnerStepper_AddForcing(inner_stepper, t, f_fast);
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+
 
 
 .. c:function:: int MRIStepInnerStepper_GetForcingData(MRIStepInnerStepper stepper, sunrealtype *tshift, sunrealtype *tscale, N_Vector **forcing, int *nforcing)
@@ -283,21 +335,19 @@ data necessary to construct the inner (fast) forcing polynomial.
    This function provides access to data necessary to compute the forcing term
    :eq:`ARKODE_MRI_forcing_poly`. This includes the shift and scaling factors for the
    normalized time :math:`\tau = (t - t_{n,i-1}^S)/(h^S \Delta c_i^S)` and the
-   array of polynomial coefficient vectors :math:`\hat{\gamma}^{\{k\}}_i`.
+   array of polynomial coefficient vectors :math:`\hat{\gamma}^{i,k}`.
 
-   **Arguments:**
-      * *stepper* -- an inner stepper object.
-      * *tshift* -- the time shift to apply to the current time when computing the
+   :param stepper: an inner stepper object.
+   :param tshift: the time shift to apply to the current time when computing the
         forcing, :math:`t_{n,i-1}^S`.
-      * *tscale* -- the time scaling to apply to the current time when computing
+   :param tscale: the time scaling to apply to the current time when computing
         the forcing, :math:`h^S \Delta c_i^S`.
-      * *forcing* -- a pointer to an array of forcing vectors,
-        :math:`\hat{\gamma}^{\{k\}}_i`.
-      * *nforcing* -- the number of forcing vectors.
+   :param forcing: a pointer to an array of forcing vectors,
+        :math:`\hat{\gamma}_{i,k}`.
+   :param nforcing: the number of forcing vectors.
 
-   **Return value:**
-      * ARK_SUCCESS if successful
-      * ARK_ILL_INPUT if the stepper is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
    **Example usage:**
 
@@ -358,8 +408,9 @@ member functions:
 
    **Return value:**
       An :c:type:`MRIStepInnerEvolveFn` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed
-      unrecoverably.
+      value if a recoverable error occurred (i.e., the function could be successful if 
+      called over a smaller time interval :math:`[t0,tout]`), or a negative value if
+      it failed unrecoverably.
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
@@ -374,7 +425,8 @@ following member functions:
 
    This function computes the full right-hand side function of the inner (fast)
    ODE, :math:`f^F(t,v)` in :eq:`ARKODE_MRI_IVP` for a given value of the independent
-   variable *t* and state vector *y*.
+   variable *t* and state vector *y*.  We note that this routine should *not* include 
+   contributions from the forcing term :eq:`ARKODE_MRI_forcing_poly`.
 
    **Arguments:**
       * *stepper* -- the inner stepper object.
@@ -390,9 +442,8 @@ following member functions:
         * ``ARK_FULLRHS_OTHER`` -- called elsewhere e.g., for dense output
 
    **Return value:**
-      An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed
-      unrecoverably.
+      An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, or 
+      a nonzero value upon failure.
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
@@ -406,15 +457,94 @@ following member functions:
    This function resets the inner (fast) stepper state to the provided
    independent variable value and dependent variable vector.
 
+   If provided, the :c:type:`MRIStepInnerResetFn` function will be called
+   *before* a call to :c:type:`MRIStepInnerEvolveFn` when the state was
+   updated at the slow timescale.
+
    **Arguments:**
       * *stepper* -- the inner stepper object.
       * *tR* -- the value of the independent variable :math:`t_R`.
       * *vR* -- the value of the dependent variable vector :math:`v(t_R)`.
 
    **Return value:**
-      An :c:type:`MRIStepInnerResetFn` should return 0 if successful, a positive
-      value if a recoverable error occurred, or a negative value if it failed
-      unrecoverably.
+      An :c:type:`MRIStepInnerResetFn` should return 0 if successful, or a nonzero
+      value upon failure.
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+
+
+.. c:type:: int (*MRIStepInnerGetAccumulatedError)(MRIStepInnerStepper stepper, sunrealtype* accum_error)
+
+   This function returns an estimate of the accumulated solution error arising from the
+   inner stepper.   Both the :c:type:`MRIStepInnerGetAccumulatedError` and
+   :c:type:`MRIStepInnerResetAccumulatedError` functions should be provided, or not; if only
+   one is provided then MRIStep will disable multirate temporal adaptivity and call neither.
+
+
+   **Arguments:**
+      * *stepper* -- the inner stepper object.
+      * *accum_error* -- estimation of the accumulated solution error.
+
+   **Return value:**
+      An :c:type:`MRIStepInnerGetAccumulatedError` should return 0 if successful, a positive
+      value if a recoverable error occurred (i.e., the function could be successful if 
+      called over a smaller time interval :math:`[t0,tout]`), or a negative value if it 
+      failed unrecoverably.
+
+   .. note::
+
+      This function is required when multirate temporal adaptivity has been enabled,
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL`.
+
+      If provided, the :c:type:`MRIStepInnerGetAccumulatedError` function will always
+      be called *after* a preceding call to the :c:type:`MRIStepInnerResetAccumulatedError`
+      function.
+
+
+.. c:type:: int (*MRIStepInnerResetAccumulatedError)(MRIStepInnerStepper stepper)
+
+   This function resets the inner stepper's accumulated solution error to zero.
+   This function performs a different role within MRIStep than the
+   :c:type:`MRIStepInnerResetFn`, and thus an implementation should make no
+   assumptions about the frequency/ordering of calls to either.
+
+   **Arguments:**
+      * *stepper* -- the inner stepper object.
+
+   **Return value:**
+      An :c:type:`MRIStepInnerResetAccumulatedError` should return 0 if successful, or 
+      a nonzero value upon failure.
+
+   .. note::
+
+      This function is required when multirate temporal adaptivity has been enabled,
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL`.
+
+      The :c:type:`MRIStepInnerResetAccumulatedError` function will always be called
+      *before* any calls to the :c:type:`MRIStepInnerGetAccumulatedError` function.
+
+      Both the :c:type:`MRIStepInnerGetAccumulatedError` and
+      :c:type:`MRIStepInnerResetAccumulatedError` functions should be provided, or not; if only
+      one is provided then MRIStep will disable multirate temporal adaptivity and call neither.
+
+
+.. c:type:: int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol)
+
+   This function accepts a relative tolerance for the inner stepper to use in its
+   upcoming adaptive solve.  It is assumed that if the inner stepper supports absolute
+   tolerances as well, then these have been set up directly by the user to indicate the
+   "noise" level for solution components.
+
+   **Arguments:**
+      * *stepper* -- the inner stepper object.
+      * *rtol* -- relative tolerance to use on the upcoming solve.
+
+   **Return value:**
+      An :c:type:`MRIStepInnerSetRTol` should return 0 if successful, or a nonzero value
+      upon failure.
+
+   .. note::
+
+      This function is required when multirate temporal adaptivity has been enabled
+      using a :c:type:`SUNAdaptController` module having type :c:enumerator:`SUN_ADAPTCONTROLLER_MRI_H_TOL`.

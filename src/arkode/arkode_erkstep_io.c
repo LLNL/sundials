@@ -165,7 +165,7 @@ int ERKStepSetTableName(void* arkode_mem, const char* etable)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ERKStepGetNumRhsEvals:
+  erkStep_GetNumRhsEvals:
 
   Returns the current number of RHS calls
   ---------------------------------------------------------------*/
@@ -321,12 +321,11 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
       return (ARK_MEM_FAIL);
     }
   }
-  ark_mem->hadapt_mem->hcontroller = NULL;
   ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptControllerPI allocation failure");
+                    "SUNAdaptController_PI allocation failure");
     return (ARK_MEM_FAIL);
   }
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;
@@ -391,7 +390,11 @@ int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return an error if local truncation error is not computed */
-  if (ark_mem->fixedstep) { return (ARK_STEPPER_UNSUPPORTED); }
+  if ((ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE)) ||
+      (step_mem->p <= 0))
+  {
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
 
   /* otherwise, copy local truncation error vector to output */
   N_VScale(ONE, ark_mem->tempv1, ele);
@@ -412,20 +415,7 @@ int erkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
   retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  switch (fmt)
-  {
-  case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "RHS fn evals                 = %ld\n", step_mem->nfe);
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, ",RHS fn evals,%ld", step_mem->nfe);
-    fprintf(outfile, "\n");
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return (ARK_ILL_INPUT);
-  }
+  sunfprintf_long(outfile, fmt, SUNFALSE, "RHS fn evals", step_mem->nfe);
 
   return (ARK_SUCCESS);
 }

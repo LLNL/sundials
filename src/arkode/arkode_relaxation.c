@@ -936,35 +936,17 @@ int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
-  switch (fmt)
-  {
-  case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Relax fn evals               = %ld\n",
-            relax_mem->num_relax_fn_evals);
-    fprintf(outfile, "Relax Jac evals              = %ld\n",
-            relax_mem->num_relax_jac_evals);
-    fprintf(outfile, "Relax fails                  = %ld\n",
-            relax_mem->num_fails);
-    fprintf(outfile, "Relax bound fails            = %ld\n",
-            relax_mem->bound_fails);
-    fprintf(outfile, "Relax NLS iters              = %ld\n",
-            relax_mem->nls_iters);
-    fprintf(outfile, "Relax NLS fails              = %ld\n",
-            relax_mem->nls_fails);
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, ",Relax fn evals,%ld", relax_mem->num_relax_fn_evals);
-    fprintf(outfile, ",Relax Jac evals,%ld", relax_mem->num_relax_jac_evals);
-    fprintf(outfile, ",Relax fails,%ld", relax_mem->num_fails);
-    fprintf(outfile, ",Relax bound fails,%ld", relax_mem->bound_fails);
-    fprintf(outfile, ",Relax NLS iters,%ld", relax_mem->nls_iters);
-    fprintf(outfile, ",Relax NLS fails,%ld", relax_mem->nls_fails);
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return ARK_ILL_INPUT;
-  }
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax fn evals",
+                  relax_mem->num_relax_fn_evals);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax Jac evals",
+                  relax_mem->num_relax_jac_evals);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax fails", relax_mem->num_fails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax bound fails",
+                  relax_mem->bound_fails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax NLS iters",
+                  relax_mem->nls_iters);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax NLS fails",
+                  relax_mem->nls_fails);
 
   return ARK_SUCCESS;
 }
