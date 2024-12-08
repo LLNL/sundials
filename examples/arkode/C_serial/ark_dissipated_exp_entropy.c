@@ -180,8 +180,7 @@ int main(int argc, char* argv[])
   ydata = N_VGetArrayPointer(y);
   if (check_ptr(ydata, "N_VGetArrayPointer")) { return 1; }
 
-  ydata[0] = SUN_RCONST(1.0);
-  ydata[1] = SUN_RCONST(0.5);
+  ydata[0] = SUN_RCONST(0.5);
 
   ytrue = N_VClone(y);
   if (check_ptr(ytrue, "N_VClone")) { return 1; }
