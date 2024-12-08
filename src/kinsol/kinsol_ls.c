@@ -1252,7 +1252,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
   if (kinls_mem->iterative)
   {
-    KINPrintInfo(kin_mem, PRNT_NLI, "KINLS", "kinLsSolve", INFO_NLI, nli_inc);
+    KINPrintInfo(kin_mem, PRNT_NLI, "KINLS", __func__, INFO_NLI, nli_inc);
   }
 #endif
 
@@ -1336,7 +1336,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
   if (kin_mem->kin_inexact_ls)
   {
-    KINPrintInfo(kin_mem, PRNT_EPS, "KINLS", "kinLsSolve", INFO_EPS, res_norm,
+    KINPrintInfo(kin_mem, PRNT_EPS, "KINLS", __func__, INFO_EPS, res_norm,
                  kin_mem->kin_eps);
   }
 #endif
