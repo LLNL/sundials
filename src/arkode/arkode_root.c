@@ -459,8 +459,8 @@ int arkRootCheck1(void* arkode_mem)
                                    ark_mem->fn, ARK_FULLRHS_START);
     if (retval)
     {
-      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__,
-                      __FILE__, MSG_ARK_RHSFUNC_FAILED, ark_mem->tcur);
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      MSG_ARK_RHSFUNC_FAILED, ark_mem->tcur);
       return ARK_RHSFUNC_FAIL;
     }
     ark_mem->fn_is_current = SUNTRUE;
