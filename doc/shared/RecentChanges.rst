@@ -108,6 +108,9 @@ not include contributions from the fast right-hand side function. With this fix,
 will see one additional fast right-hand side function evaluation per slow step with the
 Hermite interpolation option.
 
+Fixed a bug in SPRKStep when using compensated summations where the error vector
+was not initialized to zero.
+
 Fixed a CMake configuration issue related to aliasing an ``ALIAS`` target when
 using ``ENABLE_KLU=ON`` in combination with a static-only build of SuiteSparse.
 
