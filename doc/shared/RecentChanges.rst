@@ -90,6 +90,11 @@ of ``0`` was provided.
 
 Fixed the loading of ARKStep's default first order explicit method.
 
+Fixed a bug in ARKODE when enabling rootfinding with fixed step sizes and the
+initial value of the rootfinding function is zero. In this case, uninitialized
+right-hand side data was used to compute a state value near the initial
+condition to determine if any rootfinding functions are initially active.
+
 Fixed a CMake bug regarding usage of missing "print_warning" macro
 that was only triggered when the deprecated ``CUDA_ARCH`` option was used.
 
@@ -108,9 +113,18 @@ not include contributions from the fast right-hand side function. With this fix,
 will see one additional fast right-hand side function evaluation per slow step with the
 Hermite interpolation option.
 
+Fixed a bug in SPRKStep when using compensated summations where the error vector
+was not initialized to zero.
+
 Fixed potential memory leaks and out of bounds array accesses that could occur
 in the ARKODE Lagrange interpolation module when changing the method order or
 polynomial degree after re-initializing an integrator.
+
+Fixed a bug in the 32-bit ``sunindextype`` Fortran interfaces to
+:c:func:`N_VGetSubvectorArrayPointer_ManyVector`,
+:c:func:`N_VGetSubvectorArrayPointer_MPIManyVector`,
+:c:func:`SUNBandMatrix_Column` and :c:func:`SUNDenseMatrix_Column` where 64-bit
+``sunindextype`` interface functions were used.
 
 Fixed a CMake configuration issue related to aliasing an ``ALIAS`` target when
 using ``ENABLE_KLU=ON`` in combination with a static-only build of SuiteSparse.
