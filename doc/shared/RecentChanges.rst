@@ -90,6 +90,11 @@ of ``0`` was provided.
 
 Fixed the loading of ARKStep's default first order explicit method.
 
+Fixed a bug in ARKODE when enabling rootfinding with fixed step sizes and the
+initial value of the rootfinding function is zero. In this case, uninitialized
+right-hand side data was used to compute a state value near the initial
+condition to determine if any rootfinding functions are initially active.
+
 Fixed a CMake bug regarding usage of missing "print_warning" macro
 that was only triggered when the deprecated ``CUDA_ARCH`` option was used.
 
