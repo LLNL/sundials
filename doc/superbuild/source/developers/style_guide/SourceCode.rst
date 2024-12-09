@@ -578,7 +578,7 @@ To log extra debugging messages use the following macros:
 .. c:macro:: SUNLogExtraDebug(logger, label, msg_txt, ...)
 
    When extra debugging logging is enabled, this macro expands to a call to
-   :c:func:`SUNLogger_QueueMsg` to log a debug message. Otherwise, this expands
+   :c:func:`SUNLogger_QueueMsg` to log an extra debug message. Otherwise, this expands
    to nothing.
 
    :param logger: the :c:type:`SUNLogger` to handle the message.
@@ -590,7 +590,7 @@ To log extra debugging messages use the following macros:
 .. c:macro:: SUNLogExtraDebugIf(condition, logger, label, msg_txt, ...)
 
    When extra debugging logging is enabled, this macro expands to a conditional
-   call to :c:func:`SUNLogger_QueueMsg` to log a debug message. Otherwise, this
+   call to :c:func:`SUNLogger_QueueMsg` to log an extra debug message. Otherwise, this
    expands to nothing.
 
    :param condition: a boolean expression that determines if the log message
@@ -604,8 +604,8 @@ To log extra debugging messages use the following macros:
 .. c:macro:: SUNLogExtraDebugVec(logger, label, vec, msg_txt, ...)
 
    When extra debugging logging is enabled, this macro expands to a call to
-   :c:func:`SUNLogger_QueueMsg` and :c:func:`N_VPrintFile` to log a debug
-   message and output the vector data. Otherwise, this expands to nothing.
+   :c:func:`SUNLogger_QueueMsg` and :c:func:`N_VPrintFile` to log an extra
+   debug message and output the vector data. Otherwise, this expands to nothing.
 
    :param logger: the :c:type:`SUNLogger` to handle the message.
    :param label: the ``const char*`` message label.
@@ -617,7 +617,7 @@ To log extra debugging messages use the following macros:
 .. c:macro:: SUNLogExtraDebugVecIf(condition, logger, label, vec, msg_txt, ...)
 
    When extra debugging logging is enabled, this macro expands to a conditional
-   call to :c:func:`SUNLogger_QueueMsg` and :c:func:`N_VPrintFile` to log a
+   call to :c:func:`SUNLogger_QueueMsg` and :c:func:`N_VPrintFile` to log an extra
    debug message and output the vector data. Otherwise, this expands to nothing.
 
    :param condition: a boolean expression that determines if the log message
@@ -633,7 +633,7 @@ To log extra debugging messages use the following macros:
 
    When extra debugging logging is enabled, this macro expands to a loop calling
    :c:func:`SUNLogger_QueueMsg` and :c:func:`N_VPrintFile` for each vector in
-   the vector array to log a debug message and output the vector data.
+   the vector array to log an extra debug message and output the vector data.
    Otherwise, this expands to nothing.
 
    :param logger: the :c:type:`SUNLogger` to handle the message.
