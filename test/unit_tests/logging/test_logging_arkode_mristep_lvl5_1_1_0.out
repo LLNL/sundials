@@ -1,12 +1,12 @@
 Start MRIStep Logging test
-Using Im-MRI method
+Using Im-MRI-GARK method
 Using Newton nonlinear solver
 Using GMRES iterative linear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.001
-[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = 1, tcur = 0
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = -2, tcur = 0
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_0(:) =
 1.2247448713915889e+00
 1.7320508075688772e+00
@@ -422,6 +422,7 @@ Using GMRES iterative linear solver
 -5.1083514705106001e-20
 -6.4149904805965718e-06
 
+[INFO][rank 0][mriStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
 [INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 1, b-norm = 2.618808553272737, b-tol = 0.0005000000000000001, res-tol = 0.0007071067811865477
@@ -446,6 +447,7 @@ Using GMRES iterative linear solver
 -2.9641005420688385e-08
 -6.4149904805965718e-06
 
+[INFO][rank 0][mriStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_2(:) =
 1.2247448417505835e+00
 1.7320443925783966e+00
@@ -631,6 +633,7 @@ Using GMRES iterative linear solver
 -2.8985069623259161e-08
 -2.5659825403367975e-05
 
+[INFO][rank 0][mriStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
 [INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 1, b-norm = 10.4750840049673, b-tol = 0.0005000000000000001, res-tol = 0.0007071067811865477
@@ -655,6 +658,7 @@ Using GMRES iterative linear solver
 -8.8261555664408316e-08
 -2.5659825403367982e-05
 
+[INFO][rank 0][mriStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_4(:) =
 1.2247447831300333e+00
 1.7320251477434738e+00
@@ -763,6 +767,7 @@ Using GMRES iterative linear solver
 -1.3091134176741472e-08
 -5.7734064650372119e-05
 
+[INFO][rank 0][mriStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
 [INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 1, b-norm = 23.56852919194102, b-tol = 0.0005000000000000001, res-tol = 0.0007071067811865477
@@ -787,6 +792,7 @@ Using GMRES iterative linear solver
 -1.0206180734277936e-07
 -5.7734064650372139e-05
 
+[INFO][rank 0][mriStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_6(:) =
 1.2247447693297815e+00
 1.7319930735042268e+00
@@ -806,7 +812,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  1.000000000000000e-03    1.224744769329781e+00    1.731993073504227e+00    2.609024107869118e-13    1.154631945610163e-14
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
-[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = 1, tcur = 0.001
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = -2, tcur = 0.001
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_0(:) =
 1.2247447693297815e+00
 1.7319930735042268e+00
@@ -914,6 +920,7 @@ Using GMRES iterative linear solver
 2.0929497637687065e-08
 -4.4902941340518865e-05
 
+[INFO][rank 0][mriStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
 [INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 1, b-norm = 18.33117208679076, b-tol = 0.0005000000000000001, res-tol = 0.0007071067811865477
@@ -938,6 +945,7 @@ Using GMRES iterative linear solver
 -9.7682254961199432e-08
 -4.4902941340518851e-05
 
+[INFO][rank 0][mriStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_2(:) =
 1.2247446716475265e+00
 1.7319481705628863e+00
@@ -1046,6 +1054,7 @@ Using GMRES iterative linear solver
 -7.6096821626861300e-08
 -1.0263358871687167e-04
 
+[INFO][rank 0][mriStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
 [INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 1, b-norm = 41.8991272714572, b-tol = 0.0005000000000000001, res-tol = 0.0007071067811865477
@@ -1070,6 +1079,7 @@ Using GMRES iterative linear solver
 -2.2434355129501485e-07
 -1.0263358871687166e-04
 
+[INFO][rank 0][mriStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_4(:) =
 1.2247445449862302e+00
 1.7318904399155099e+00
@@ -1178,6 +1188,7 @@ Using GMRES iterative linear solver
 -1.2824366285310272e-07
 -1.7319064658360972e-04
 
+[INFO][rank 0][mriStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
 [INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 1, b-norm = 70.70323025789027, b-tol = 0.0005000000000000001, res-tol = 0.0007071067811865477
@@ -1202,6 +1213,7 @@ Using GMRES iterative linear solver
 -3.0618350816911757e-07
 -1.7319064658360969e-04
 
+[INFO][rank 0][mriStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_6(:) =
 1.2247444631462734e+00
 1.7318198828576432e+00
@@ -1221,7 +1233,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
  2.000000000000000e-03    1.224744463146273e+00    1.731819882857643e+00    2.906785923073585e-12    2.398081733190338e-14
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
-[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = 1, tcur = 0.002
+[INFO][rank 0][mriStep_TakeStepMRIGARK][begin-stage] stage = 0, stage type = -2, tcur = 0.002
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_0(:) =
 1.2247444631462734e+00
 1.7318198828576432e+00
@@ -1329,6 +1341,7 @@ Using GMRES iterative linear solver
 4.1858985509180174e-08
 -8.3381910630286882e-05
 
+[INFO][rank 0][mriStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
 [INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 1, b-norm = 34.04320254847141, b-tol = 0.0005000000000000001, res-tol = 0.0007071067811865477
@@ -1353,6 +1366,7 @@ Using GMRES iterative linear solver
 -1.6572327087728307e-07
 -8.3381910630286882e-05
 
+[INFO][rank 0][mriStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_2(:) =
 1.2247442974230025e+00
 1.7317365009470129e+00
@@ -1433,7 +1447,7 @@ Using GMRES iterative linear solver
 
 [DEBUG][rank 0][arkStep_TakeStep_Z][explicit RHS] Fe_4(:) =
 0.0000000000000000e+00
--2.9823129101245022e-01
+-2.9823129101245016e-01
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
@@ -1442,10 +1456,10 @@ Using GMRES iterative linear solver
 1.7316402960352575e+00
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002127119973787826, h_cfl = 3.333333333333328e+26
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002042035174836313, h_cfl = 1.666666666666664e+26
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 6.12610552450895
-[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 4.854673660366595e-06
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00212711997753779, h_cfl = 3.333333333333328e+26
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002042035178436279, h_cfl = 1.666666666666664e+26
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 6.126105535308846
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 4.85467361609875e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_3(:) =
 1.2247441179592364e+00
@@ -1461,6 +1475,7 @@ Using GMRES iterative linear solver
 -1.2320835026909067e-07
 -1.7958682238572443e-04
 
+[INFO][rank 0][mriStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
 [INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 1, b-norm = 73.32179062888304, b-tol = 0.0005000000000000001, res-tol = 0.0007071067811865477
@@ -1485,6 +1500,7 @@ Using GMRES iterative linear solver
 -3.6042450720410523e-07
 -1.7958682238572449e-04
 
+[INFO][rank 0][mriStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_4(:) =
 1.2247441027217663e+00
 1.7316402960352575e+00
@@ -1574,9 +1590,9 @@ Using GMRES iterative linear solver
 1.7315312702736079e+00
 
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002127045938209293, h_cfl = 3.333333333333332e+26
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002041964100680921, h_cfl = 1.666666666666666e+26
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 6.125892302042766
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002127045936851595, h_cfl = 3.333333333333332e+26
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002041964099377531, h_cfl = 1.666666666666666e+26
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 6.125892298132595
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 4.855748234790828e-06
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_5(:) =
@@ -1593,6 +1609,7 @@ Using GMRES iterative linear solver
 -2.4339519787613935e-07
 -2.8861258403534151e-04
 
+[INFO][rank 0][mriStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
 [INFO][rank 0][arkLsSolve][begin-linear-solve] iterative = 1, b-norm = 117.8347847337331, b-tol = 0.0005000000000000001, res-tol = 0.0007071067811865477
@@ -1617,6 +1634,7 @@ Using GMRES iterative linear solver
 -5.1030245465525719e-07
 -2.8861258403534151e-04
 
+[INFO][rank 0][mriStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [DEBUG][rank 0][mriStep_TakeStepMRIGARK][slow stage] z_6(:) =
 1.2247439528438187e+00
 1.7315312702736079e+00
