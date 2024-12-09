@@ -108,6 +108,10 @@ not include contributions from the fast right-hand side function. With this fix,
 will see one additional fast right-hand side function evaluation per slow step with the
 Hermite interpolation option.
 
+Fixed potential memory leaks and out of bounds array accesses that could occur
+in the ARKODE Lagrange interpolation module when changing the method order or
+polynomial degree after re-initializing an integrator.
+
 Fixed a bug in the 32-bit ``sunindextype`` Fortran interfaces to
 :c:func:`N_VGetSubvectorArrayPointer_ManyVector`,
 :c:func:`N_VGetSubvectorArrayPointer_MPIManyVector`,
