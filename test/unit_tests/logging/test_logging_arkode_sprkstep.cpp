@@ -61,12 +61,13 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "initial_condition")) { return 1; }
 
   // Create SPRKStep memory structure
-  void* arkode_mem = SPRKStepCreate(ode_rhs_force, ode_rhs_velocity, zero, y, sunctx);
+  void* arkode_mem = SPRKStepCreate(ode_rhs_force, ode_rhs_velocity, zero, y,
+                                    sunctx);
   if (check_ptr(arkode_mem, "SPKStepCreate")) { return 1; }
 
   // Step size
   const sunrealtype dt = SUN_RCONST(0.001);
-  flag = ARKodeSetFixedStep(arkode_mem, dt);
+  flag                 = ARKodeSetFixedStep(arkode_mem, dt);
   if (check_flag(flag, "ARKodeSetFixedStep")) { return 1; }
 
   // Compensated summation
@@ -74,8 +75,8 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "SPRKStepSetUseCompensatedSums")) { return 1; }
 
   // Initial time and fist output time
-  const sunrealtype dtout = dt;  // output interval
-  const int nout          = 3;   // number of outputs
+  const sunrealtype dtout = dt; // output interval
+  const int nout          = 3;  // number of outputs
   sunrealtype tret        = zero;
   sunrealtype tout        = tret + dtout;
 

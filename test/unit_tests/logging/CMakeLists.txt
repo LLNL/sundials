@@ -59,7 +59,8 @@ if(BUILD_ARKODE)
                                                                  # Fixed-point
   # SPRKStep
   list(APPEND unit_tests "test_logging_arkode_sprkstep.cpp\;0")
-  list(APPEND unit_tests "test_logging_arkode_sprkstep.cpp\;1") # Compensated sum
+  list(APPEND unit_tests "test_logging_arkode_sprkstep.cpp\;1") # Compensated
+                                                                # sum
 endif()
 
 if(BUILD_CVODE)
