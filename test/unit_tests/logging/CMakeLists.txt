@@ -49,12 +49,10 @@ if(BUILD_ARKODE)
                                                                    # GMRES
   list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;1 0") # Implicit
                                                                  # Fixed-point
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 1 1") # ImEx
-                                                                   # Newton +
-                                                                   # Dense
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 1 0") # ImEx
-                                                                   # Newton +
-                                                                   # GMRES
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 1 1") # ImEx Newton
+                                                                   # + Dense
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 1 0") # ImEx Newton
+                                                                   # + GMRES
   list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 0") # ImEx
                                                                  # Fixed-point
   # MRIStep -- MRI-SR
@@ -67,12 +65,10 @@ if(BUILD_ARKODE)
                                                                    # GMRES
   list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;4 0") # Implicit
                                                                  # Fixed-point
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;5 1 1") # ImEx
-                                                                   # Newton +
-                                                                   # Dense
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;5 1 0") # ImEx
-                                                                   # Newton +
-                                                                   # GMRES
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;5 1 1") # ImEx Newton
+                                                                   # + Dense
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;5 1 0") # ImEx Newton
+                                                                   # + GMRES
   list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;5 0") # ImEx
                                                                  # Fixed-point
   # MRIStep -- MERK
