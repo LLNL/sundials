@@ -87,17 +87,17 @@ Start LSRKStep Logging test
 [INFO][rank 0][lsrkStep_TakeStepSSP43][end-stage] status = success
 [INFO][rank 0][lsrkStep_TakeStepSSP43][begin-stage] stage = 1, tcur = 5.120304051933844e-08
 [DEBUG][rank 0][lsrkStep_TakeStepSSP43][stage RHS] F_1(:) =
-1.0000000000000000e+00
+9.9999999999999734e-01
 
 [INFO][rank 0][lsrkStep_TakeStepSSP43][end-stage] status = success
 [INFO][rank 0][lsrkStep_TakeStepSSP43][begin-stage] stage = 2, tcur = 9.774571052271429e-08
 [DEBUG][rank 0][lsrkStep_TakeStepSSP43][stage RHS] F_2(:) =
-1.0000000000000000e+00
+9.9999999999999045e-01
 
 [INFO][rank 0][lsrkStep_TakeStepSSP43][end-stage] status = success
 [INFO][rank 0][lsrkStep_TakeStepSSP43][begin-stage] stage = 3, tcur = 5.120304051933844e-08
 [DEBUG][rank 0][lsrkStep_TakeStepSSP43][stage RHS] F_3(:) =
-1.0000000000000000e+00
+9.9999999999999734e-01
 
 [INFO][rank 0][lsrkStep_TakeStepSSP43][end-stage] status = success
 [INFO][rank 0][lsrkStep_TakeStepSSP43][begin-stage] stage = 4, tcur = 9.774571052271429e-08

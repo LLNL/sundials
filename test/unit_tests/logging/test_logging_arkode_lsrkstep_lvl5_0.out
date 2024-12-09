@@ -26,9 +26,6 @@ Start LSRKStep Logging test
 [DEBUG][rank 0][lsrkStep_TakeStepRKC][solution RHS] F_n(:) =
 1.0000000000000000e+00
 
-[DEBUG][rank 0][lsrkStep_TakeStepRKC][embedded solution] y_embedded(:) =
-9.6935228033557931e-27
-
 [INFO][rank 0][lsrkStep_TakeStepRKC][end-compute-embedding] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 4.848194792018318e-09, h_cfl = 6.103515625000001e+18
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 4.654267000337585e-09, h_cfl = 3.0517578125e+18
@@ -59,9 +56,6 @@ Start LSRKStep Logging test
 [DEBUG][rank 0][lsrkStep_TakeStepRKC][solution RHS] F_n(:) =
 1.0000000000000000e+00
 
-[DEBUG][rank 0][lsrkStep_TakeStepRKC][embedded solution] y_embedded(:) =
-5.7902642878711937e-24
-
 [INFO][rank 0][lsrkStep_TakeStepRKC][end-compute-embedding] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 3.2949687022872e-07, h_cfl = 4.654267000337585e+21
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 9.30853400067517e-08, h_cfl = 2.327133500168793e+21
@@ -91,9 +85,6 @@ Start LSRKStep Logging test
 [INFO][rank 0][lsrkStep_TakeStepRKC][begin-compute-embedding] 
 [DEBUG][rank 0][lsrkStep_TakeStepRKC][solution RHS] F_n(:) =
 9.9999999999999045e-01
-
-[DEBUG][rank 0][lsrkStep_TakeStepRKC][embedded solution] y_embedded(:) =
--1.3234889800848443e-22
 
 [INFO][rank 0][lsrkStep_TakeStepRKC][end-compute-embedding] status = success
 [DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 2.083921183639362e-05, h_cfl = 9.308534000675171e+22
