@@ -57,6 +57,9 @@ if(BUILD_ARKODE)
                                                                    # GMRES
   list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 0") # ImEx-MRI
                                                                  # Fixed-point
+  # SPRKStep
+  list(APPEND unit_tests "test_logging_arkode_sprkstep.cpp\;0")
+  list(APPEND unit_tests "test_logging_arkode_sprkstep.cpp\;1") # Compensated sum
 endif()
 
 if(BUILD_CVODE)
