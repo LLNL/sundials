@@ -252,7 +252,6 @@ int main(int argc, char* argv[])
 
         flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
         if (check_flag(flag, "ARKodeSetLinearSolver")) { return 1; }
->>>>>>> Stashed changes
       }
     }
   }
