@@ -909,7 +909,7 @@ void arkInterpFree_Lagrange(ARKodeMem ark_mem, ARKInterp I)
   {
     if (LINT_YHIST(I) != NULL)
     {
-      for (i = 0; i < LINT_NMAX(I); i++)
+      for (i = 0; i < LINT_NMAXALLOC(I); i++)
       {
         if (LINT_YJ(I, i) != NULL)
         {
@@ -1039,7 +1039,7 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tnew)
     }
     if (LINT_YHIST(I) != NULL)
     {
-      for (i = 0; i < LINT_NMAX(I); i++)
+      for (i = 0; i < LINT_NMAXALLOC(I); i++)
       {
         if (LINT_YJ(I, i) != NULL)
         {
