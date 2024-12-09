@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
     if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
   }
 
-  flag = ARKodeSetUserData(arkode_mem, &data);
+  flag = ARKodeSetUserData(arkode_mem, &problem_data);
   if (check_flag(flag, "ARKodeSetUserData")) { return 1; }
 
   // Relative and absolute tolerances

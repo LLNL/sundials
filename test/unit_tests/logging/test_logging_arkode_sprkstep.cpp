@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
   N_Vector y = N_VNew_Serial(4, sunctx);
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
-  flag = initial_condition(y, data);
+  flag = initial_condition(y, eccentricity);
   if (check_flag(flag, "initial_condition")) { return 1; }
 
   // Create SPRKStep memory structure

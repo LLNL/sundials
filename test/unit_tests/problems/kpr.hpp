@@ -50,7 +50,7 @@ constexpr sunrealtype two    = SUN_RCONST(2.0);
 constexpr sunrealtype twenty = SUN_RCONST(20.0);
 
 // constants a, b, c, and d
-sunrealtype data[4] = {-two, half, half, -one};
+sunrealtype problem_data[4] = {-two, half, half, -one};
 
 // -----------------------------------------------------------------------------
 // Helper functions

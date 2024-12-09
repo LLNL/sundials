@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
   flag = IDAInit(ida_mem, dae_res, zero, y, yp);
   if (check_flag(flag, "IDAInit")) { return 1; }
 
-  flag = IDASetUserData(ida_mem, &data);
+  flag = IDASetUserData(ida_mem, &problem_data);
   if (check_flag(flag, "IDASetUserData")) { return 1; }
 
   // Relative and absolute tolerances

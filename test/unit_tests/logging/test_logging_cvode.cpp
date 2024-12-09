@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
   flag = CVodeInit(cvode_mem, ode_rhs, zero, y);
   if (check_flag(flag, "CVodeInit")) { return 1; }
 
-  flag = CVodeSetUserData(cvode_mem, &data);
+  flag = CVodeSetUserData(cvode_mem, &problem_data);
   if (check_flag(flag, "CVodeSetUserData")) { return 1; }
 
   // Relative and absolute tolerances

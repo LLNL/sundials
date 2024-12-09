@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
   void* inner_arkode_mem = ARKStepCreate(ode_rhs_ff, nullptr, zero, y, sunctx);
   if (check_ptr(inner_arkode_mem, "ARKStepCreate")) { return 1; }
 
-  flag = ARKodeSetUserData(inner_arkode_mem, &data);
+  flag = ARKodeSetUserData(inner_arkode_mem, &problem_data);
   if (check_flag(flag, "ARKodeSetUserData")) { return 1; }
 
   // Relative and absolute tolerances
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
     if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
   }
 
-  flag = ARKodeSetUserData(arkode_mem, &data);
+  flag = ARKodeSetUserData(arkode_mem, &problem_data);
   if (check_flag(flag, "ARKodeSetUserData")) { return 1; }
 
   // Relative and absolute tolerances

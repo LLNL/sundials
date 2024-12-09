@@ -1,4 +1,6 @@
 /* -----------------------------------------------------------------------------
+ * Programmer(s): David J. Gardner @ LLNL
+ * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2024, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -35,6 +37,7 @@
 #ifndef KEPLER_HPP_
 #define KEPLER_HPP_
 
+#include <cmath>
 #include <sundials/sundials_core.hpp>
 
 namespace problems {
@@ -46,7 +49,7 @@ constexpr sunrealtype half = SUN_RCONST(0.5);
 constexpr sunrealtype one  = SUN_RCONST(1.0);
 
 // eccentricity
-sunrealtype data = SUN_RCONST(0.6);
+sunrealtype eccentricity = SUN_RCONST(0.6);
 
 inline int initial_condition(N_Vector y_vec, sunrealtype ecc)
 {
