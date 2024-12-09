@@ -39,24 +39,44 @@ if(BUILD_ARKODE)
   list(APPEND unit_tests "test_logging_arkode_lsrkstep.cpp\;3") # SSPs3
   list(APPEND unit_tests "test_logging_arkode_lsrkstep.cpp\;4") # SSP43
   list(APPEND unit_tests "test_logging_arkode_lsrkstep.cpp\;5") # SSP104
-  # MRIStep
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;0") # Ex-MRI
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;1 1 1") # Im-MRI
+  # MRIStep -- MRI-GARK
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;0") # Explicit
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;1 1 1") # Implicit
                                                                    # Newton +
                                                                    # Dense
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;1 1 0") # Im-MRI
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;1 1 0") # Implicit
                                                                    # Newton +
                                                                    # GMRES
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;1 0") # Im-MRI
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;1 0") # Implicit
                                                                  # Fixed-point
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 1 1") # ImEx-MRI
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 1 1") # ImEx
                                                                    # Newton +
                                                                    # Dense
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 1 0") # ImEx-MRI
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 1 0") # ImEx
                                                                    # Newton +
                                                                    # GMRES
-  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 0") # ImEx-MRI
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;2 0") # ImEx
                                                                  # Fixed-point
+  # MRIStep -- MRI-SR
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;3") # Explicit
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;4 1 1") # Implicit
+                                                                   # Newton +
+                                                                   # Dense
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;4 1 0") # Implicit
+                                                                   # Newton +
+                                                                   # GMRES
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;4 0") # Implicit
+                                                                 # Fixed-point
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;5 1 1") # ImEx
+                                                                   # Newton +
+                                                                   # Dense
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;5 1 0") # ImEx
+                                                                   # Newton +
+                                                                   # GMRES
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;5 0") # ImEx
+                                                                 # Fixed-point
+  # MRIStep -- MERK
+  list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;6") # Explicit
   # SPRKStep
   list(APPEND unit_tests "test_logging_arkode_sprkstep.cpp\;0")
   list(APPEND unit_tests "test_logging_arkode_sprkstep.cpp\;1") # Compensated

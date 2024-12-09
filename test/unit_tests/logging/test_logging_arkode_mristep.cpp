@@ -48,7 +48,14 @@ int main(int argc, char* argv[])
   // SUNDIALS context object for this simulation
   sundials::Context sunctx;
 
-  // Use Ex-MRI (0) or Im-MRI (1) otherwise use ImEx
+  // Method to use:
+  //   0 = Ex-MRI-GARK
+  //   1 = Im-MRI-GARK
+  //   2 = ImEx-MRI-GARK
+  //   3 = Ex-MRI-SR
+  //   4 = Im-MRI-SR
+  //   5 = ImEx-MRI-SR
+  //   6 = MERK
   int method_type = 0;
   if (argc > 1) { method_type = stoi(argv[1]); }
 
@@ -104,21 +111,70 @@ int main(int argc, char* argv[])
   void* arkode_mem = nullptr;
   if (method_type == 0)
   {
-    cout << "Using Ex-MRI method" << endl;
+    cout << "Using Ex-MRI-GARK method" << endl;
     arkode_mem = MRIStepCreate(ode_rhs_s, nullptr, zero, y, stepper, sunctx);
     if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
   }
   else if (method_type == 1)
   {
-    cout << "Using Im-MRI method" << endl;
+    cout << "Using Im-MRI-GARK method" << endl;
     arkode_mem = MRIStepCreate(nullptr, ode_rhs_s, zero, y, stepper, sunctx);
+    if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
+  }
+  else if (method_type == 2)
+  {
+    cout << "Using ImEx-MRI-GARK method" << endl;
+    arkode_mem = MRIStepCreate(ode_rhs_se, ode_rhs_si, zero, y, stepper, sunctx);
+    if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
+  }
+  else if (method_type == 3)
+  {
+    cout << "Using Ex-MRI-SR method" << endl;
+    arkode_mem = MRIStepCreate(ode_rhs_s, nullptr, zero, y, stepper, sunctx);
+    if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
+  }
+  else if (method_type == 4)
+  {
+    cout << "Using Im-MRI-SR method" << endl;
+    arkode_mem = MRIStepCreate(nullptr, ode_rhs_s, zero, y, stepper, sunctx);
+    if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
+  }
+  else if (method_type == 5)
+  {
+    cout << "Using ImEx-MRI-SR method" << endl;
+    arkode_mem = MRIStepCreate(ode_rhs_se, ode_rhs_si, zero, y, stepper, sunctx);
+    if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
+  }
+  else if (method_type == 6)
+  {
+    cout << "Using MERK method" << endl;
+    arkode_mem = MRIStepCreate(ode_rhs_s, nullptr, zero, y, stepper, sunctx);
     if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
   }
   else
   {
-    cout << "Using ImEx-MRI method" << endl;
-    arkode_mem = MRIStepCreate(ode_rhs_se, ode_rhs_si, zero, y, stepper, sunctx);
-    if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
+    cerr << "ERROR: Invalid method type option " << method_type;
+    return 1;
+  }
+
+  // Set MRI-SR or MERK method
+  MRIStepCoupling C = nullptr;
+  if (method_type == 3 || method_type == 4 || method_type == 5)
+  {
+    C = MRIStepCoupling_LoadTable(ARKODE_IMEX_MRI_SR21);
+    if (check_ptr(C, "MRIStepCoupling_LoadTable")) { return 1; }
+  }
+  else if (method_type == 6)
+  {
+    C = MRIStepCoupling_LoadTable(ARKODE_MERK21);
+    if (check_ptr(C, "MRIStepCoupling_LoadTable")) { return 1; }
+  }
+
+  if (C)
+  {
+    flag = MRIStepSetCoupling(arkode_mem, C);
+    if (check_flag(flag, "MRIStepSetCoupling")) { return 1; }
+    MRIStepCoupling_Free(C);
   }
 
   flag = ARKodeSetUserData(arkode_mem, &problem_data);
@@ -141,7 +197,7 @@ int main(int argc, char* argv[])
   SUNLinearSolver LS     = nullptr;
   SUNNonlinearSolver NLS = nullptr;
 
-  if (method_type > 0)
+  if (method_type == 1 || method_type == 2 || method_type == 4 || method_type == 5)
   {
     if (!newton)
     {
@@ -153,41 +209,51 @@ int main(int argc, char* argv[])
       flag = ARKodeSetNonlinearSolver(arkode_mem, NLS);
       if (check_flag(flag, "ARKodeSetLinearSolver")) { return 1; }
     }
-    else { cout << "Using Newton nonlinear solver" << endl; }
-
-    if (newton && direct)
+    else
     {
-      cout << "Using dense direct linear solver" << endl;
-
-      A = SUNDenseMatrix(2, 2, sunctx);
-      if (check_ptr(A, "SUNDenseMatrix")) { return 1; }
-
-      LS = SUNLinSol_Dense(y, A, sunctx);
-      if (check_ptr(LS, "SUNLinSol_Dense")) { return 1; }
-
-      flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
-      if (check_flag(flag, "ARKodeSetLinearSolver")) { return 1; }
-
-      if (method_type == 1)
+      cout << "Using Newton nonlinear solver" << endl;
+      if (direct)
       {
-        flag = ARKodeSetJacFn(arkode_mem, ode_rhs_jac);
-        if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
+        cout << "Using dense direct linear solver" << endl;
+
+        A = SUNDenseMatrix(2, 2, sunctx);
+        if (check_ptr(A, "SUNDenseMatrix")) { return 1; }
+
+        LS = SUNLinSol_Dense(y, A, sunctx);
+        if (check_ptr(LS, "SUNLinSol_Dense")) { return 1; }
+
+        flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+        if (check_flag(flag, "ARKodeSetLinearSolver")) { return 1; }
+
+        if (method_type == 1 || method_type == 4)
+        {
+          // implicit slow
+          flag = ARKodeSetJacFn(arkode_mem, ode_rhs_jac);
+          if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
+        }
+        else if (method_type == 2 || method_type == 5)
+        {
+          // implicit-explicit slow
+          flag = ARKodeSetJacFn(arkode_mem, ode_rhs_jac_im);
+          if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
+        }
+        else
+        {
+          cerr << "ERROR: Unknown splitting option";
+          return 1;
+        }
       }
       else
       {
-        flag = ARKodeSetJacFn(arkode_mem, ode_rhs_jac_im);
-        if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
+        cout << "Using GMRES iterative linear solver" << endl;
+
+        LS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx);
+        if (check_ptr(LS, "SUNLinSol_SPGMR")) { return 1; }
+
+        flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
+        if (check_flag(flag, "ARKodeSetLinearSolver")) { return 1; }
+>>>>>>> Stashed changes
       }
-    }
-    else if (newton)
-    {
-      cout << "Using GMRES iterative linear solver" << endl;
-
-      LS = SUNLinSol_SPGMR(y, SUN_PREC_NONE, 0, sunctx);
-      if (check_ptr(LS, "SUNLinSol_SPGMR")) { return 1; }
-
-      flag = ARKodeSetLinearSolver(arkode_mem, LS, A);
-      if (check_flag(flag, "ARKodeSetLinearSolver")) { return 1; }
     }
   }
 

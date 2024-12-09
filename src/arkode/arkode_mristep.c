@@ -1833,7 +1833,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   }
 
   SUNLogInfo(ARK_LOGGER, "begin-stage",
-             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_ERK_NOFAST,
+             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_FIRST,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "slow stage", ark_mem->ycur, "z_0(:) =");
 
