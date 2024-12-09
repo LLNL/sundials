@@ -635,6 +635,7 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0,
 
   N_VDestroy(y2);
   N_VDestroy(ewt);
+  N_VDestroy(vtemp);
   return (0);
 }
 

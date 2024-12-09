@@ -491,8 +491,7 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
   sunrealtype abstol = SUN_RCONST(1.e-12);
   N_Vector y2        = N_VClone(y);
   N_Vector ewt       = N_VClone(y);
-  ;
-  N_Vector vtemp = N_VClone(y);
+  N_Vector vtemp     = N_VClone(y);
 
   // Set array of fixed step sizes to use, storage for corresponding errors/orders
   sunrealtype hmax = (Tf - T0) / 400;
@@ -657,6 +656,7 @@ static int fixed_run(void* arkode_mem, N_Vector y, sunrealtype T0, sunrealtype T
 
   N_VDestroy(y2);
   N_VDestroy(ewt);
+  N_VDestroy(vtemp);
   return (0);
 }
 
