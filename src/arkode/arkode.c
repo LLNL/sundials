@@ -2164,13 +2164,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     if (ark_mem->root_mem->nrtfn > 0)
     {
       retval = arkRootCheck1((void*)ark_mem);
-
-      if (retval == ARK_RTFUNC_FAIL)
-      {
-        arkProcessError(ark_mem, ARK_RTFUNC_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RTFUNC_FAILED, ark_mem->tcur);
-        return (ARK_RTFUNC_FAIL);
-      }
+      if (retval != ARK_SUCCESS) { return retval; }
     }
   }
 
