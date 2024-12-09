@@ -2835,7 +2835,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                               ARK_FULLRHS_START);
     if (retval) { return ARK_RHSFUNC_FAIL; }
   }
-  if (ark_mem->fn != NULL && !ark_mem->fn_is_current)
+  else if (ark_mem->fn != NULL && !ark_mem->fn_is_current)
   {
     retval = mriStep_FullRHS(ark_mem, ark_mem->tn, ark_mem->yn, ark_mem->fn,
                              ARK_FULLRHS_START);
