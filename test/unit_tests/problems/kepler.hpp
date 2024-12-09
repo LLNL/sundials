@@ -94,8 +94,8 @@ inline int angular_momentum(N_Vector y_vec, sunrealtype* L)
   return 0;
 }
 
-int ode_rhs_velocity(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
-                     void* user_data)
+inline int ode_rhs_velocity(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
+                            void* user_data)
 {
   sunrealtype* y_data = N_VGetArrayPointer(y_vec);
   sunrealtype* f_data = N_VGetArrayPointer(f_vec);
@@ -110,7 +110,8 @@ int ode_rhs_velocity(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
   return 0;
 }
 
-int ode_rhs_force(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_data)
+inline int ode_rhs_force(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
+                         void* user_data)
 {
   sunrealtype* y_data = N_VGetArrayPointer(y_vec);
   sunrealtype* f_data = N_VGetArrayPointer(f_vec);
