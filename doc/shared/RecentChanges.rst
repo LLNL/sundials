@@ -115,6 +115,12 @@ Fixed potential memory leaks and out of bounds array accesses that could occur
 in the ARKODE Lagrange interpolation module when changing the method order or
 polynomial degree after re-initializing an integrator.
 
+Fixed a bug in the 32-bit ``sunindextype`` Fortran interfaces to
+:c:func:`N_VGetSubvectorArrayPointer_ManyVector`,
+:c:func:`N_VGetSubvectorArrayPointer_MPIManyVector`,
+:c:func:`SUNBandMatrix_Column` and :c:func:`SUNDenseMatrix_Column` where 64-bit
+``sunindextype`` interface functions were used.
+
 Fixed a CMake configuration issue related to aliasing an ``ALIAS`` target when
 using ``ENABLE_KLU=ON`` in combination with a static-only build of SuiteSparse.
 
