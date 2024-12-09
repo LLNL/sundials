@@ -1,5 +1,5 @@
 #
-name: Test - Address Sanitizer
+name: Build and Test - Ubuntu/gcc (Address Sanitizer)
 
 on:
   push:
