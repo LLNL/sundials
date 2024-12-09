@@ -30,6 +30,7 @@
 #include "utilities/check_return.hpp"
 
 using namespace std;
+using namespace problems::kpr;
 
 int main(int argc, char* argv[])
 {
@@ -53,7 +54,7 @@ int main(int argc, char* argv[])
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   sunrealtype utrue, vtrue;
-  flag = kpr_true_sol(ZERO, &utrue, &vtrue);
+  flag = true_sol(zero, &utrue, &vtrue);
   if (check_flag(flag, "true_sol")) { return 1; }
 
   sunrealtype* ydata = N_VGetArrayPointer(y);
@@ -61,10 +62,10 @@ int main(int argc, char* argv[])
   ydata[1]           = vtrue;
 
   // Create ERKStep memory structure
-  void* arkode_mem = ERKStepCreate(kpr_rhs, ZERO, y, sunctx);
+  void* arkode_mem = ERKStepCreate(ode_rhs, zero, y, sunctx);
   if (check_ptr(arkode_mem, "ERKStepCreate")) { return 1; }
 
-  flag = ARKodeSetUserData(arkode_mem, &kpr_udata);
+  flag = ARKodeSetUserData(arkode_mem, &data);
   if (check_flag(flag, "ARKodeSetUserData")) { return 1; }
 
   // Relative and absolute tolerances
@@ -75,9 +76,9 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "ARKodeSStolerances")) { return 1; }
 
   // Initial time and fist output time
-  const sunrealtype dtout = ONE; // output interval
+  const sunrealtype dtout = one; // output interval
   const int nout          = 3;   // number of outputs
-  sunrealtype tret        = ZERO;
+  sunrealtype tret        = zero;
   sunrealtype tout        = tret + dtout;
 
   // Output initial contion
@@ -101,7 +102,7 @@ int main(int argc, char* argv[])
     flag = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
     if (check_flag(flag, "ARKodeEvolve")) { return 1; }
 
-    flag = kpr_true_sol(tret, &utrue, &vtrue);
+    flag = true_sol(tret, &utrue, &vtrue);
     if (check_flag(flag, "true_sol")) { return 1; }
 
     cout << setw(22) << tret << setw(25) << ydata[0] << setw(25) << ydata[1]

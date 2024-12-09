@@ -39,6 +39,7 @@
 #include "utilities/check_return.hpp"
 
 using namespace std;
+using namespace problems::kpr;
 
 int main(int argc, char* argv[])
 {
@@ -74,7 +75,7 @@ int main(int argc, char* argv[])
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   sunrealtype utrue, vtrue;
-  flag = kpr_true_sol(ZERO, &utrue, &vtrue);
+  flag = true_sol(zero, &utrue, &vtrue);
   if (check_flag(flag, "true_sol")) { return 1; }
 
   sunrealtype* ydata = N_VGetArrayPointer(y);
@@ -82,10 +83,10 @@ int main(int argc, char* argv[])
   ydata[1]           = vtrue;
 
   // Create fast stepper
-  void* inner_arkode_mem = ARKStepCreate(kpr_rhs_ff, nullptr, ZERO, y, sunctx);
+  void* inner_arkode_mem = ARKStepCreate(ode_rhs_ff, nullptr, zero, y, sunctx);
   if (check_ptr(inner_arkode_mem, "ARKStepCreate")) { return 1; }
 
-  flag = ARKodeSetUserData(inner_arkode_mem, &kpr_udata);
+  flag = ARKodeSetUserData(inner_arkode_mem, &data);
   if (check_flag(flag, "ARKodeSetUserData")) { return 1; }
 
   // Relative and absolute tolerances
@@ -104,23 +105,23 @@ int main(int argc, char* argv[])
   if (method_type == 0)
   {
     cout << "Using Ex-MRI method" << endl;
-    arkode_mem = MRIStepCreate(kpr_rhs_s, nullptr, ZERO, y, stepper, sunctx);
+    arkode_mem = MRIStepCreate(ode_rhs_s, nullptr, zero, y, stepper, sunctx);
     if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
   }
   else if (method_type == 1)
   {
     cout << "Using Im-MRI method" << endl;
-    arkode_mem = MRIStepCreate(nullptr, kpr_rhs_s, ZERO, y, stepper, sunctx);
+    arkode_mem = MRIStepCreate(nullptr, ode_rhs_s, zero, y, stepper, sunctx);
     if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
   }
   else
   {
     cout << "Using ImEx-MRI method" << endl;
-    arkode_mem = MRIStepCreate(kpr_rhs_se, kpr_rhs_si, ZERO, y, stepper, sunctx);
+    arkode_mem = MRIStepCreate(ode_rhs_se, ode_rhs_si, zero, y, stepper, sunctx);
     if (check_ptr(arkode_mem, "MRIStepCreate")) { return 1; }
   }
 
-  flag = ARKodeSetUserData(arkode_mem, &kpr_udata);
+  flag = ARKodeSetUserData(arkode_mem, &data);
   if (check_flag(flag, "ARKodeSetUserData")) { return 1; }
 
   // Relative and absolute tolerances
@@ -169,12 +170,12 @@ int main(int argc, char* argv[])
 
       if (method_type == 1)
       {
-        flag = ARKodeSetJacFn(arkode_mem, kpr_rhs_jac);
+        flag = ARKodeSetJacFn(arkode_mem, ode_rhs_jac);
         if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
       }
       else
       {
-        flag = ARKodeSetJacFn(arkode_mem, kpr_rhs_jac_im);
+        flag = ARKodeSetJacFn(arkode_mem, ode_rhs_jac_im);
         if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
       }
     }
@@ -191,9 +192,9 @@ int main(int argc, char* argv[])
   }
 
   // Initial time and fist output time
-  const sunrealtype dtout = ONE; // output interval
+  const sunrealtype dtout = one; // output interval
   const int nout          = 3;   // number of outputs
-  sunrealtype tret        = ZERO;
+  sunrealtype tret        = zero;
   sunrealtype tout        = tret + dtout;
 
   // Output initial contion
@@ -217,7 +218,7 @@ int main(int argc, char* argv[])
     flag = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
     if (check_flag(flag, "ARKode")) { return 1; }
 
-    flag = kpr_true_sol(tret, &utrue, &vtrue);
+    flag = true_sol(tret, &utrue, &vtrue);
     if (check_flag(flag, "true_sol")) { return 1; }
 
     cout << setw(22) << tret << setw(25) << ydata[0] << setw(25) << ydata[1]

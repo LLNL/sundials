@@ -28,8 +28,8 @@
  * should be chosen such that L(t) is negative.
  * ---------------------------------------------------------------------------*/
 
-#ifndef PRV_
-#define PRV_
+#ifndef PRV_HPP_
+#define PRV_HPP_
 
 #include <cmath>
 #include <sundials/sundials_core.hpp>
@@ -45,7 +45,7 @@ constexpr sunrealtype one  = SUN_RCONST(1.0);
 constexpr sunrealtype ten  = SUN_RCONST(10.0);
 
 // lambda and alpha
-sunrealtype prv_data[2] = {SUN_RCONST(-1000.0), SUN_RCONST(10.0)};
+sunrealtype data[2] = {SUN_RCONST(-1000.0), SUN_RCONST(10.0)};
 
 // -----------------------------------------------------------------------------
 // Helper functions

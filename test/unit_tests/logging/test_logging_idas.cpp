@@ -35,6 +35,7 @@
 #include "utilities/check_return.hpp"
 
 using namespace std;
+using namespace problems::kpr;
 
 int main(int argc, char* argv[])
 {
@@ -62,7 +63,7 @@ int main(int argc, char* argv[])
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   sunrealtype utrue, vtrue;
-  flag = kpr_true_sol(ZERO, &utrue, &vtrue);
+  flag = true_sol(zero, &utrue, &vtrue);
   if (check_flag(flag, "true_sol")) { return 1; }
 
   sunrealtype* ydata = N_VGetArrayPointer(y);
@@ -73,7 +74,7 @@ int main(int argc, char* argv[])
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   sunrealtype uptrue, vptrue;
-  flag = kpr_true_sol_p(ZERO, &uptrue, &vptrue);
+  flag = true_sol_p(zero, &uptrue, &vptrue);
   if (check_flag(flag, "true_sol")) { return 1; }
 
   sunrealtype* ypdata = N_VGetArrayPointer(yp);
@@ -84,10 +85,10 @@ int main(int argc, char* argv[])
   void* ida_mem = IDACreate(sunctx);
   if (check_ptr(ida_mem, "IDACreate")) { return 1; }
 
-  flag = IDAInit(ida_mem, kpr_res, ZERO, y, yp);
+  flag = IDAInit(ida_mem, dae_res, zero, y, yp);
   if (check_flag(flag, "IDAInit")) { return 1; }
 
-  flag = IDASetUserData(ida_mem, &kpr_udata);
+  flag = IDASetUserData(ida_mem, &data);
   if (check_flag(flag, "IDASetUserData")) { return 1; }
 
   // Relative and absolute tolerances
@@ -115,7 +116,7 @@ int main(int argc, char* argv[])
     flag = IDASetLinearSolver(ida_mem, LS, A);
     if (check_flag(flag, "IDASetLinearSolver")) { return 1; }
 
-    flag = IDASetJacFn(ida_mem, kpr_res_jac);
+    flag = IDASetJacFn(ida_mem, dae_res_jac);
     if (check_flag(flag, "IDASetJacFn")) { return 1; }
   }
   else
@@ -130,9 +131,9 @@ int main(int argc, char* argv[])
   }
 
   // Initial time and fist output time
-  const sunrealtype dtout = ONE; // output interval
+  const sunrealtype dtout = one; // output interval
   const int nout          = 3;   // number of outputs
-  sunrealtype tret        = ZERO;
+  sunrealtype tret        = zero;
   sunrealtype tout        = tret + dtout;
 
   // Output initial contion
@@ -156,7 +157,7 @@ int main(int argc, char* argv[])
     flag = IDASolve(ida_mem, tout, &tret, y, yp, IDA_ONE_STEP);
     if (check_flag(flag, "IDA")) { return 1; }
 
-    flag = kpr_true_sol(tret, &utrue, &vtrue);
+    flag = true_sol(tret, &utrue, &vtrue);
     if (check_flag(flag, "true_sol")) { return 1; }
 
     cout << setw(22) << tret << setw(25) << ydata[0] << setw(25) << ydata[1]

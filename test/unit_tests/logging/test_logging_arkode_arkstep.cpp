@@ -37,6 +37,7 @@
 #include "utilities/check_return.hpp"
 
 using namespace std;
+using namespace problems::kpr;
 
 int main(int argc, char* argv[])
 {
@@ -72,7 +73,7 @@ int main(int argc, char* argv[])
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   sunrealtype utrue, vtrue;
-  flag = kpr_true_sol(ZERO, &utrue, &vtrue);
+  flag = true_sol(zero, &utrue, &vtrue);
   if (check_flag(flag, "true_sol")) { return 1; }
 
   sunrealtype* ydata = N_VGetArrayPointer(y);
@@ -84,23 +85,23 @@ int main(int argc, char* argv[])
   if (method_type == 0)
   {
     cout << "Using ERK method" << endl;
-    arkode_mem = ARKStepCreate(kpr_rhs, nullptr, ZERO, y, sunctx);
+    arkode_mem = ARKStepCreate(ode_rhs, nullptr, zero, y, sunctx);
     if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
   }
   else if (method_type == 1)
   {
     cout << "Using DIRK method" << endl;
-    arkode_mem = ARKStepCreate(nullptr, kpr_rhs, ZERO, y, sunctx);
+    arkode_mem = ARKStepCreate(nullptr, ode_rhs, zero, y, sunctx);
     if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
   }
   else
   {
     cout << "Using ImEx method" << endl;
-    arkode_mem = ARKStepCreate(kpr_rhs_ex, kpr_rhs_im, ZERO, y, sunctx);
+    arkode_mem = ARKStepCreate(ode_rhs_ex, ode_rhs_im, zero, y, sunctx);
     if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
   }
 
-  flag = ARKodeSetUserData(arkode_mem, &kpr_udata);
+  flag = ARKodeSetUserData(arkode_mem, &data);
   if (check_flag(flag, "ARKodeSetUserData")) { return 1; }
 
   // Relative and absolute tolerances
@@ -143,12 +144,12 @@ int main(int argc, char* argv[])
 
       if (method_type == 1)
       {
-        flag = ARKodeSetJacFn(arkode_mem, kpr_rhs_jac);
+        flag = ARKodeSetJacFn(arkode_mem, ode_rhs_jac);
         if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
       }
       else
       {
-        flag = ARKodeSetJacFn(arkode_mem, kpr_rhs_jac_im);
+        flag = ARKodeSetJacFn(arkode_mem, ode_rhs_jac_im);
         if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
       }
     }
@@ -165,9 +166,9 @@ int main(int argc, char* argv[])
   }
 
   // Initial time and fist output time
-  const sunrealtype dtout = ONE; // output interval
+  const sunrealtype dtout = one; // output interval
   const int nout          = 3;   // number of outputs
-  sunrealtype tret        = ZERO;
+  sunrealtype tret        = zero;
   sunrealtype tout        = tret + dtout;
 
   // Output initial contion
@@ -191,7 +192,7 @@ int main(int argc, char* argv[])
     flag = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_ONE_STEP);
     if (check_flag(flag, "ARKode")) { return 1; }
 
-    flag = kpr_true_sol(tret, &utrue, &vtrue);
+    flag = true_sol(tret, &utrue, &vtrue);
     if (check_flag(flag, "true_sol")) { return 1; }
 
     cout << setw(22) << tret << setw(25) << ydata[0] << setw(25) << ydata[1]

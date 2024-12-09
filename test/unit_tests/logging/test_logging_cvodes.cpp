@@ -37,6 +37,7 @@
 #include "utilities/check_return.hpp"
 
 using namespace std;
+using namespace problems::kpr;
 
 int main(int argc, char* argv[])
 {
@@ -68,7 +69,7 @@ int main(int argc, char* argv[])
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   sunrealtype utrue, vtrue;
-  flag = kpr_true_sol(ZERO, &utrue, &vtrue);
+  flag = true_sol(zero, &utrue, &vtrue);
   if (check_flag(flag, "true_sol")) { return 1; }
 
   sunrealtype* ydata = N_VGetArrayPointer(y);
@@ -79,10 +80,10 @@ int main(int argc, char* argv[])
   void* cvode_mem = CVodeCreate(CV_BDF, sunctx);
   if (check_ptr(cvode_mem, "CVodeCreate")) { return 1; }
 
-  flag = CVodeInit(cvode_mem, kpr_rhs, ZERO, y);
+  flag = CVodeInit(cvode_mem, ode_rhs, zero, y);
   if (check_flag(flag, "CVodeInit")) { return 1; }
 
-  flag = CVodeSetUserData(cvode_mem, &kpr_udata);
+  flag = CVodeSetUserData(cvode_mem, &data);
   if (check_flag(flag, "CVodeSetUserData")) { return 1; }
 
   // Relative and absolute tolerances
@@ -122,7 +123,7 @@ int main(int argc, char* argv[])
     flag = CVodeSetLinearSolver(cvode_mem, LS, A);
     if (check_flag(flag, "CVodeSetLinearSolver")) { return 1; }
 
-    flag = CVodeSetJacFn(cvode_mem, kpr_rhs_jac);
+    flag = CVodeSetJacFn(cvode_mem, ode_rhs_jac);
     if (check_flag(flag, "CVodeSetJacFn")) { return 1; }
   }
   else if (newton)
@@ -137,9 +138,9 @@ int main(int argc, char* argv[])
   }
 
   // Initial time and fist output time
-  const sunrealtype dtout = ONE; // output interval
+  const sunrealtype dtout = one; // output interval
   const int nout          = 3;   // number of outputs
-  sunrealtype tret        = ZERO;
+  sunrealtype tret        = zero;
   sunrealtype tout        = tret + dtout;
 
   // Output initial contion
@@ -163,7 +164,7 @@ int main(int argc, char* argv[])
     flag = CVode(cvode_mem, tout, y, &tret, CV_ONE_STEP);
     if (check_flag(flag, "CVode")) { return 1; }
 
-    flag = kpr_true_sol(tret, &utrue, &vtrue);
+    flag = true_sol(tret, &utrue, &vtrue);
     if (check_flag(flag, "true_sol")) { return 1; }
 
     cout << setw(22) << tret << setw(25) << ydata[0] << setw(25) << ydata[1]
