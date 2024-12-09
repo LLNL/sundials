@@ -174,14 +174,13 @@ int main(int argc, char* argv[])
   if (check_flag(flag, "SUNContext_Create")) { return 1; }
 
   /* Create serial vector and set the initial condition values */
-  y = N_VNew_Serial(2, ctx);
+  y = N_VNew_Serial(1, ctx);
   if (check_ptr(y, "N_VNew_Serial")) { return 1; }
 
   ydata = N_VGetArrayPointer(y);
   if (check_ptr(ydata, "N_VGetArrayPointer")) { return 1; }
 
-  ydata[0] = SUN_RCONST(1.0);
-  ydata[1] = SUN_RCONST(0.5);
+  ydata[0] = SUN_RCONST(0.5);
 
   ytrue = N_VClone(y);
   if (check_ptr(ytrue, "N_VClone")) { return 1; }
@@ -208,7 +207,7 @@ int main(int argc, char* argv[])
   if (implicit)
   {
     /* Create dense matrix and linear solver */
-    A = SUNDenseMatrix(2, 2, ctx);
+    A = SUNDenseMatrix(1, 1, ctx);
     if (check_ptr(A, "SUNDenseMatrix")) { return 1; }
 
     LS = SUNLinSol_Dense(y, A, ctx);
@@ -445,7 +444,7 @@ int JacEnt(N_Vector y, N_Vector J, void* user_data)
 int ans(sunrealtype t, N_Vector y)
 {
   sunrealtype* ydata = N_VGetArrayPointer(y);
-  ydata[0]           = LOG(EXP(SUN_RCONST(-0.5)) + t);
+  ydata[0]           = -LOG(EXP(SUN_RCONST(-0.5)) + t);
   return 0;
 }
 
