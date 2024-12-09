@@ -791,6 +791,7 @@ int main(int argc, char* argv[])
 
   // Clean up and return
   N_VDestroy(y);
+  N_VDestroy(yref);
   MRIStepCoupling_Free(C);
   if (As) { SUNMatDestroy(As); }
   if (LSs) { SUNLinSolFree(LSs); }
