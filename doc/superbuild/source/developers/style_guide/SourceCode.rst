@@ -502,6 +502,8 @@ Python module for parsing log files are as follows:
 
 * ``begin-linear-iterate`` / ``end-linear-iterate``
 
+* ``begin-group`` / ``end-group``
+
 * ``begin-stage`` / ``end-stage``
 
 * ``begin-fast-steps`` / ``end-fast-steps``

@@ -231,6 +231,15 @@ def log_file_to_list(filename):
                 s.close_list()
                 continue
 
+            if label == "begin-group":
+                s.open_list("groups")
+                s.update(line_dict["payload"])
+                continue
+            elif label == "end-group":
+                s.update(line_dict["payload"])
+                s.close_list()
+                continue
+
             if label == "begin-stage":
                 s.open_list("stages")
                 s.update(line_dict["payload"])
