@@ -62,7 +62,7 @@ def parse_logfile_payload(payload, line_number, all_lines, array_indicator="(:)"
 
 def parse_logfile_line(line, line_number, all_lines):
     """
-    Parse a line from a SUNDIALS log file it into a dictionary.
+    Parse a line from a SUNDIALS log file into a dictionary.
 
     A log file line has the form:
       [loglvl][rank][scope][label] key1 = value, key2 = value
@@ -316,7 +316,7 @@ def print_log_dict(a_dict, indent=0):
 
 def print_log(log, indent=0):
     """
-    Print the entries entries from a log file list of step attempts.
+    Print the entries from a log file list of step attempts.
     """
     spaces = indent * " "
     for entry in log:
