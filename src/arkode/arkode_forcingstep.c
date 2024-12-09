@@ -275,32 +275,14 @@ static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 static int forcingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
                                      SUNOutputFormat fmt)
 {
-  // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  switch (fmt)
-  {
-  case SUN_OUTPUTFORMAT_TABLE:
-    for (int k = 0; k < NUM_PARTITIONS; k++)
-    {
-      fprintf(outfile, "Partition %i evolves          = %ld\n", k,
-              step_mem->n_stepper_evolves[k]);
-    }
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    for (int k = 0; k < NUM_PARTITIONS; k++)
-    {
-      fprintf(outfile, ",Partition %i evolves,%ld", k,
-              step_mem->n_stepper_evolves[k]);
-    }
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return ARK_ILL_INPUT;
-  }
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Partition 1 evolves",
+                  step_mem->n_stepper_evolves[0]);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Partition 2 evolves",
+                  step_mem->n_stepper_evolves[1]);
 
   return ARK_SUCCESS;
 }

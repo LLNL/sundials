@@ -125,7 +125,8 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::arkRelaxNewtonSolve", "residual",
-                       "iter = %i, relax_param = %" RSYM ", residual = %" RSYM,
+                       "iter = %i, relax_param = " SUN_FORMAT_G
+                       ", residual = " SUN_FORMAT_G,
                        i, relax_mem->relax_param, relax_mem->res);
 #endif
 
@@ -349,7 +350,8 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
-                     "compute delta e", "delta_e = %" RSYM, relax_mem->delta_e);
+                     "compute delta e", "delta_e = " SUN_FORMAT_G,
+                     relax_mem->delta_e);
 #endif
 
   /* Get the change in state (delta_y = tempv2) */
@@ -370,7 +372,7 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
 
 #ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
-                     "compute old e", "e_old = %" RSYM, relax_mem->e_old);
+                     "compute old e", "e_old = " SUN_FORMAT_G, relax_mem->e_old);
 #endif
 
   /* Initial guess for relaxation parameter */
@@ -915,8 +917,9 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
   SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                      "ARKODE::arkStep_TakeStep_Z", "relaxation",
-                     "relaxation parameter = %" RSYM ", relaxed h = %" RSYM
-                     ", relaxed error = %" RSYM,
+                     "relaxation parameter = " SUN_FORMAT_G
+                     ", relaxed h = " SUN_FORMAT_G
+                     ", relaxed error = " SUN_FORMAT_G,
                      relax_val, ark_mem->h, *dsm_inout);
 #endif
 
@@ -933,35 +936,17 @@ int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
-  switch (fmt)
-  {
-  case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Relax fn evals               = %ld\n",
-            relax_mem->num_relax_fn_evals);
-    fprintf(outfile, "Relax Jac evals              = %ld\n",
-            relax_mem->num_relax_jac_evals);
-    fprintf(outfile, "Relax fails                  = %ld\n",
-            relax_mem->num_fails);
-    fprintf(outfile, "Relax bound fails            = %ld\n",
-            relax_mem->bound_fails);
-    fprintf(outfile, "Relax NLS iters              = %ld\n",
-            relax_mem->nls_iters);
-    fprintf(outfile, "Relax NLS fails              = %ld\n",
-            relax_mem->nls_fails);
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, ",Relax fn evals,%ld", relax_mem->num_relax_fn_evals);
-    fprintf(outfile, ",Relax Jac evals,%ld", relax_mem->num_relax_jac_evals);
-    fprintf(outfile, ",Relax fails,%ld", relax_mem->num_fails);
-    fprintf(outfile, ",Relax bound fails,%ld", relax_mem->bound_fails);
-    fprintf(outfile, ",Relax NLS iters,%ld", relax_mem->nls_iters);
-    fprintf(outfile, ",Relax NLS fails,%ld", relax_mem->nls_fails);
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return ARK_ILL_INPUT;
-  }
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax fn evals",
+                  relax_mem->num_relax_fn_evals);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax Jac evals",
+                  relax_mem->num_relax_jac_evals);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax fails", relax_mem->num_fails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax bound fails",
+                  relax_mem->bound_fails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax NLS iters",
+                  relax_mem->nls_iters);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax NLS fails",
+                  relax_mem->nls_fails);
 
   return ARK_SUCCESS;
 }
