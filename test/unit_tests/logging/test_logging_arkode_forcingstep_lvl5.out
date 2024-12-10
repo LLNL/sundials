@@ -74,8 +74,14 @@ Start ForcingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9800199866733308e-01
+
 [INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
 [INFO][rank 0][forcingStep_TakeStep][begin-partition] partition = 1
+[DEBUG][rank 0][forcingStep_TakeStep][forcing] forcing(:) =
+-1.9980013326669210e+00
+
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0
 [DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
@@ -216,7 +222,13 @@ Start ForcingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9900100033300010e-01
+
 [INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][current state] y_cur(:) =
+9.9900100033300010e-01
+
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
   1.000000000000000e-03  9.990010003330001e-01  9.999996670728706e-07
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
@@ -291,8 +303,14 @@ Start ForcingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9700499500299922e-01
+
 [INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
 [INFO][rank 0][forcingStep_TakeStep][begin-partition] partition = 1
+[DEBUG][rank 0][forcingStep_TakeStep][forcing] forcing(:) =
+-1.9960053300008829e+00
+
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, tn = 0.001, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
 [DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
@@ -433,7 +451,13 @@ Start ForcingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9800200066466693e-01
+
 [INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][current state] y_cur(:) =
+9.9800200066466693e-01
+
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
   2.000000000000000e-03  9.980020006646669e-01  1.997998004599211e-06
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
@@ -508,8 +532,14 @@ Start ForcingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9600799133733475e-01
+
 [INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
 [INFO][rank 0][forcingStep_TakeStep][begin-partition] partition = 1
+[DEBUG][rank 0][forcingStep_TakeStep][forcing] forcing(:) =
+-1.9940093273321802e+00
+
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 9, tn = 0.002, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
 [DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
@@ -650,7 +680,13 @@ Start ForcingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9700300299299394e-01
+
 [INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][current state] y_cur(:) =
+9.9700300299299394e-01
+
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
   3.000000000000000e-03  9.970030029929939e-01  2.993993026279007e-06
 ---------------------------------------------------------------------

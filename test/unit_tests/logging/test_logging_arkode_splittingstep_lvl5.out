@@ -76,6 +76,9 @@ Start SplittingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][splittingStep_SequentialMethod][partition state] y_par(:) =
+9.9800199866733308e-01
+
 [INFO][rank 0][splittingStep_SequentialMethod][end-partition] status = success
 [INFO][rank 0][splittingStep_SequentialMethod][begin-partition] partition = 1, t_start = 0, t_end = 0.001
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.00025
@@ -218,9 +221,21 @@ Start SplittingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][splittingStep_SequentialMethod][partition state] y_par(:) =
+9.9899900166766409e-01
+
 [INFO][rank 0][splittingStep_SequentialMethod][end-partition] status = success
 [INFO][rank 0][splittingStep_SequentialMethod][end-stage] status = success
+[DEBUG][rank 0][splittingStep_TakeStep][sequential state] y_seq(:) =
+9.9899900166766409e-01
+
+[DEBUG][rank 0][splittingStep_TakeStep][current state] y_cur(:) =
+9.9899900166766409e-01
+
 [INFO][rank 0][splittingStep_TakeStep][end-sequential-method] status = success
+[DEBUG][rank 0][splittingStep_TakeStep][current state] y_cur(:) =
+9.9899900166766409e-01
+
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
   1.000000000000000e-03  9.989990016676641e-01  9.986656689386919e-07
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
@@ -297,6 +312,9 @@ Start SplittingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][splittingStep_SequentialMethod][partition state] y_par(:) =
+9.9700300033099909e-01
+
 [INFO][rank 0][splittingStep_SequentialMethod][end-partition] status = success
 [INFO][rank 0][splittingStep_SequentialMethod][begin-partition] partition = 1, t_start = 0.001, t_end = 0.002
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, tn = 0.001, h = 0.00025
@@ -439,9 +457,21 @@ Start SplittingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][splittingStep_SequentialMethod][partition state] y_par(:) =
+9.9799800733863997e-01
+
 [INFO][rank 0][splittingStep_SequentialMethod][end-partition] status = success
 [INFO][rank 0][splittingStep_SequentialMethod][end-stage] status = success
+[DEBUG][rank 0][splittingStep_TakeStep][sequential state] y_seq(:) =
+9.9799800733863997e-01
+
+[DEBUG][rank 0][splittingStep_TakeStep][current state] y_cur(:) =
+9.9799800733863997e-01
+
 [INFO][rank 0][splittingStep_TakeStep][end-sequential-method] status = success
+[DEBUG][rank 0][splittingStep_TakeStep][current state] y_cur(:) =
+9.9799800733863997e-01
+
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
   2.000000000000000e-03  9.979980073386400e-01  1.995328022363907e-06
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
@@ -518,6 +548,9 @@ Start SplittingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][splittingStep_SequentialMethod][partition state] y_par(:) =
+9.9600400598997840e-01
+
 [INFO][rank 0][splittingStep_SequentialMethod][end-partition] status = success
 [INFO][rank 0][splittingStep_SequentialMethod][begin-partition] partition = 1, t_start = 0.002, t_end = 0.003
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 9, tn = 0.002, h = 0.00025
@@ -660,9 +693,21 @@ Start SplittingStep Logging test
 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][splittingStep_SequentialMethod][partition state] y_par(:) =
+9.9699701901487725e-01
+
 [INFO][rank 0][splittingStep_SequentialMethod][end-partition] status = success
 [INFO][rank 0][splittingStep_SequentialMethod][end-stage] status = success
+[DEBUG][rank 0][splittingStep_TakeStep][sequential state] y_seq(:) =
+9.9699701901487725e-01
+
+[DEBUG][rank 0][splittingStep_TakeStep][current state] y_cur(:) =
+9.9699701901487725e-01
+
 [INFO][rank 0][splittingStep_TakeStep][end-sequential-method] status = success
+[DEBUG][rank 0][splittingStep_TakeStep][current state] y_cur(:) =
+9.9699701901487725e-01
+
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
   3.000000000000000e-03  9.969970190148773e-01  2.989985090406932e-06
 ---------------------------------------------------------------------
