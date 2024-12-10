@@ -200,6 +200,15 @@ def log_file_to_list(filename):
                     step_attempts.append(s.get_step())
                 continue
 
+            if label == "begin-sequential-method":
+                s.open_list("sequential methods")
+                s.update(line_dict["payload"])
+                continue
+            elif label == "end-sequential-method":
+                s.update(line_dict["payload"])
+                s.close_list()
+                continue
+
             if label == "begin-partition":
                 s.open_list("partitions")
                 s.update(line_dict["payload"])
