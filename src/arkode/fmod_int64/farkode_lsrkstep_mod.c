@@ -414,7 +414,7 @@ SWIGEXPORT int _wrap_FLSRKStepSetDomEigSafetyFactor(void *farg1, double const *f
 }
 
 
-SWIGEXPORT int _wrap_FLSRKStepSetSSPStageNum(void *farg1, int const *farg2) {
+SWIGEXPORT int _wrap_FLSRKStepSetNumSSPStages(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   int arg2 ;
@@ -422,7 +422,7 @@ SWIGEXPORT int _wrap_FLSRKStepSetSSPStageNum(void *farg1, int const *farg2) {
   
   arg1 = (void *)(farg1);
   arg2 = (int)(*farg2);
-  result = (int)LSRKStepSetSSPStageNum(arg1,arg2);
+  result = (int)LSRKStepSetNumSSPStages(arg1,arg2);
   fresult = (int)(result);
   return fresult;
 }
