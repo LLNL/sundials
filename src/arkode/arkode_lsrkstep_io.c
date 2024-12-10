@@ -320,7 +320,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 }
 
 /*---------------------------------------------------------------
-  LSRKStepSetSSPStageNum sets the number of stages in the following
+  LSRKStepSetNumSSPStages sets the number of stages in the following
   SSP methods:
 
       ARKODE_LSRK_SSP_S_2  -- num_of_stages must be greater than or equal to 2
@@ -332,7 +332,7 @@ int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety)
 
    Calling this function with num_of_stages =< 0 resets the default value.
   ---------------------------------------------------------------*/
-int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages)
+int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages)
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
