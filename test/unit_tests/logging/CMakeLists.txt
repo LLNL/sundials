@@ -75,6 +75,8 @@ if(BUILD_ARKODE)
                                                                  # Fixed-point
   # MRIStep -- MERK
   list(APPEND unit_tests "test_logging_arkode_mristep.cpp\;6") # Explicit
+  # SplittingStep
+  list(APPEND unit_tests "test_logging_arkode_splittingstep.cpp\;")
   # SPRKStep
   list(APPEND unit_tests "test_logging_arkode_sprkstep.cpp\;0")
   list(APPEND unit_tests "test_logging_arkode_sprkstep.cpp\;1") # Compensated
