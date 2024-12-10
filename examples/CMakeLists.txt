@@ -141,20 +141,3 @@ endif()
 if(BUILD_KINSOL)
   add_subdirectory(kinsol)
 endif()
-
-# Add CPODES examples
-if(BUILD_CPODES)
-  add_subdirectory(cpodes)
-endif()
-
-# Add the nvector examples
-add_subdirectory(nvector)
-
-# Add the sunmatrix examples
-add_subdirectory(sunmatrix)
-
-# Add the sunlinearsolver examples
-add_subdirectory(sunlinsol)
-
-# Add the sunnonlinearsolver examples
-add_subdirectory(sunnonlinsol)
