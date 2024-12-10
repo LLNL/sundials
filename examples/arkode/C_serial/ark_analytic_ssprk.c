@@ -133,8 +133,8 @@ int main(void)
   if (check_flag(&flag, "LSRKStepSetSSPMethod", 1)) { return 1; }
 
   /* Specify the SSP number of stages */
-  flag = LSRKStepSetSSPStageNum(arkode_mem, 9);
-  if (check_flag(&flag, "LSRKStepSetSSPStageNum", 1)) { return 1; }
+  flag = LSRKStepSetNumSSPStages(arkode_mem, 9);
+  if (check_flag(&flag, "LSRKStepSetNumSSPStages", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
