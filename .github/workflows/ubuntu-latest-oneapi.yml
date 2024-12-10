@@ -16,12 +16,11 @@ env:
   CACHE_NUMBER: 5
 
 jobs:
-  build_cycle_profiling:
+  build:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        profiling: ['OFF', 'ON']
         LINUX_BASEKIT_URL: [
           'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/e6ff8e9c-ee28-47fb-abd7-5c524c983e1c/l_BaseKit_p_2024.2.1.100_offline.sh',
           'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/96aa5993-5b22-4a9b-91ab-da679f422594/intel-oneapi-base-toolkit-2025.0.0.885_offline.sh'
@@ -54,7 +53,7 @@ jobs:
         -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
         -D CMAKE_C_COMPILER=$(which icp) \
         -D CMAKE_CXX_COMPILER=$(which icpx) \
-        -D SUNDIALS_BUILD_WITH_PROFILING=${{matrix.profiling}} \
+        -D SUNDIALS_BUILD_WITH_PROFILING=ON \
         -D ENABLE_ALL_WARNINGS=ON \
         -D ENABLE_WARNINGS_AS_ERRORS=ON \
         -D ENABLE_SYCL=ON
