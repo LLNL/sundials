@@ -21,7 +21,8 @@
 #                   [ANSWER_DIR path]
 #                   [ANSWER_FIEL file]
 #                   [EXAMPLE_TYPE type]
-#                   [TEST_ARGS arg1 arg2 ...])
+#                   [TEST_ARGS arg1 arg2 ...]
+#                   [LABELS label1 label2 ...])
 # ~~~
 #
 # CMake macro to add a SUNDIALS regression test. Keyword input arguments can be
@@ -45,6 +46,11 @@
 # The option ANSWER_FILE set the name of test answer file
 #
 # The option EXAMPLE_TYPE set the example type i.e., release or develop examples
+#
+# The option TEST_ARGS are command line arguments to pass to the executable
+#
+# The options LABELS are labels added to the test properties to easily run (or
+# exclude) groups of test with ctest -L <label> (or ctest -LE <label>)
 #
 # When SUNDIALS_TEST_DEVTESTS is OFF (default) the executable is run and success
 # or failure is determined by the executable return value (zero or non-zero
@@ -83,7 +89,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   set(options "NODIFF")
   set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PRECISION"
                    "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
-  set(multiValueArgs "TEST_ARGS" "EXTRA_ARGS")
+  set(multiValueArgs "LABELS" "TEST_ARGS" "EXTRA_ARGS")
 
   # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>
   cmake_parse_arguments(SUNDIALS_ADD_TEST "${options}" "${oneValueArgs}"
@@ -280,6 +286,14 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         add_test(NAME ${NAME} COMMAND $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
       endif()
 
+    endif()
+
+    if(SUNDIALS_TEST_DEVTESTS OR NOT SUNDIALS_ADD_TEST_EXAMPLE_TYPE)
+      # set any labels (must quote SUNDIALS_ADD_TEST_LABELS)
+      if(SUNDIALS_ADD_TEST_LABELS)
+        set_tests_properties(${NAME} PROPERTIES LABELS
+                                                "${SUNDIALS_ADD_TEST_LABELS}")
+      endif()
     endif()
 
   endif()
