@@ -166,6 +166,9 @@ def log_file_to_list(filename):
         # Time level for nested integrators e.g., MRI methods
         level = 0
 
+        # Partition for split integrators e.g., operator splitting methods
+        partition = 0
+
         # Read the log file
         all_lines = logfile.readlines()
 
@@ -185,14 +188,27 @@ def log_file_to_list(filename):
                 line_dict["payload"]["level"] = level
                 if level > 0:
                     s.open_list(f"time-level-{level}")
+                if partition > 0:
+                    s.open_list(f"evolve")
                 s.update(line_dict["payload"])
                 continue
             elif label == "end-step-attempt":
                 s.update(line_dict["payload"])
-                if level > 0:
+                if level > 0 or partition > 0:
                     s.close_list()
                 else:
                     step_attempts.append(s.get_step())
+                continue
+
+            if label == "begin-partition":
+                s.open_list("partitions")
+                s.update(line_dict["payload"])
+                partition += 1
+                continue
+            elif label == "end-partition":
+                s.update(line_dict["payload"])
+                s.close_list()
+                partition -= 1
                 continue
 
             if label == "begin-nonlinear-solve":
