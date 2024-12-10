@@ -1146,7 +1146,7 @@ sunrealtype N_VWrmsNorm_Sycl(N_Vector x, N_Vector w)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(x);
   const sunrealtype sum = N_VWSqrSumLocal_Sycl(x, w);
-  return std::sqrt(sum / N);
+  return sycl::sqrt(sum / N);
 }
 
 sunrealtype N_VWSqrSumMaskLocal_Sycl(N_Vector x, N_Vector w, N_Vector id)
@@ -1192,7 +1192,7 @@ sunrealtype N_VWrmsNormMask_Sycl(N_Vector x, N_Vector w, N_Vector id)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(x);
   const sunrealtype sum = N_VWSqrSumMaskLocal_Sycl(x, w, id);
-  return std::sqrt(sum / N);
+  return sycl::sqrt(sum / N);
 }
 
 sunrealtype N_VMin_Sycl(N_Vector x)
@@ -1233,7 +1233,7 @@ sunrealtype N_VMin_Sycl(N_Vector x)
 
 sunrealtype N_VWL2Norm_Sycl(N_Vector x, N_Vector w)
 {
-  return std::sqrt(N_VWSqrSumLocal_Sycl(x, w));
+  return sycl::sqrt(N_VWSqrSumLocal_Sycl(x, w));
 }
 
 sunrealtype N_VL1Norm_Sycl(N_Vector x)
