@@ -245,7 +245,7 @@ Allowable Method Families
    set to :math:`1.01`. Calling this function with ``dom_eig_safety < 1`` resets the default value.
 
 
-.. c:function:: int LSRKStepSetSSPStageNum(void* arkode_mem, int num_of_stages);
+.. c:function:: int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
 
    Sets the number of stages, ``s`` in ``SSP(s, p)`` methods. This input is only utilized by SSPRK methods.
 
@@ -262,7 +262,7 @@ Allowable Method Families
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. SSP method is not declared)
 
-.. note:: If LSRKStepSetSSPStageNum routine is not called, then the default ``num_of_stages`` is
+.. note:: If LSRKStepSetNumSSPStages routine is not called, then the default ``num_of_stages`` is
    set. Calling this function with ``num_of_stages <= 0`` resets the default values:
 
    * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_S_2`
