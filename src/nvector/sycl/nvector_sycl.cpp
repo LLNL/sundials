@@ -2285,13 +2285,13 @@ static int FusedBuffer_CopyRealArray(N_Vector v, sunrealtype* rdata, int nval,
     return SUN_ERR_GENERIC;
   }
 
-  sunrealtype* h_buffer = std::reinterpret_cast<sunrealtype*>((char*)(vcp->fused_buffer_host->ptr) +
+  sunrealtype* h_buffer = reinterpret_cast<sunrealtype*>((char*)(vcp->fused_buffer_host->ptr) +
                                          vcp->fused_buffer_offset);
 
   for (int j = 0; j < nval; j++) { h_buffer[j] = rdata[j]; }
 
   /* Set shortcut to the device buffer and update offset*/
-  *shortcut = std::reinterpret_cast<sunrealtype*>((char*)(vcp->fused_buffer_dev->ptr) +
+  *shortcut = reinterpret_cast<sunrealtype*>((char*)(vcp->fused_buffer_dev->ptr) +
                              vcp->fused_buffer_offset);
 
   vcp->fused_buffer_offset += nval * sizeof(sunrealtype);
@@ -2314,13 +2314,13 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
     return SUN_ERR_GENERIC;
   }
 
-  sunrealtype** h_buffer = std::reinterpret_cast<sunrealtype**>((char*)(vcp->fused_buffer_host->ptr) +
+  sunrealtype** h_buffer = reinterpret_cast<sunrealtype**>((char*)(vcp->fused_buffer_host->ptr) +
                                            vcp->fused_buffer_offset);
 
   for (int j = 0; j < nvec; j++) { h_buffer[j] = NVEC_SYCL_DDATAp(X[j]); }
 
   /* Set shortcut to the device buffer and update offset*/
-  *shortcut = std::reinterpret_cast<sunrealtype**>((char*)(vcp->fused_buffer_dev->ptr) +
+  *shortcut = reinterpret_cast<sunrealtype**>((char*)(vcp->fused_buffer_dev->ptr) +
                               vcp->fused_buffer_offset);
 
   vcp->fused_buffer_offset += nvec * sizeof(sunrealtype*);
@@ -2342,7 +2342,7 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
     return SUN_ERR_GENERIC;
   }
 
-  sunrealtype** h_buffer = std::reinterpret_cast<sunrealtype**>((char*)(vcp->fused_buffer_host->ptr) +
+  sunrealtype** h_buffer = reinterpret_cast<sunrealtype**>((char*)(vcp->fused_buffer_host->ptr) +
                                            vcp->fused_buffer_offset);
 
   for (int j = 0; j < nvec; j++)
@@ -2354,7 +2354,7 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
   }
 
   /* Set shortcut to the device buffer and update offset*/
-  *shortcut = std::reinterpret_cast<sunrealtype**>((char*)(vcp->fused_buffer_dev->ptr) +
+  *shortcut = reinterpret_cast<sunrealtype**>((char*)(vcp->fused_buffer_dev->ptr) +
                               vcp->fused_buffer_offset);
 
   /* Update the offset */
