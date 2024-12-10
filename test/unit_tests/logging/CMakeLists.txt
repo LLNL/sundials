@@ -32,6 +32,8 @@ if(BUILD_ARKODE)
                                                                  # Fixed-point
   # ERKStep
   list(APPEND unit_tests "test_logging_arkode_erkstep.cpp\;")
+  # ForcingStep
+  list(APPEND unit_tests "test_logging_arkode_forcingstep.cpp\;")
   # LSRKStep
   list(APPEND unit_tests "test_logging_arkode_lsrkstep.cpp\;0") # RKC
   list(APPEND unit_tests "test_logging_arkode_lsrkstep.cpp\;1") # RKL

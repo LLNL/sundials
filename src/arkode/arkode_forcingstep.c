@@ -234,37 +234,81 @@ static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   SUNStepper s0    = step_mem->stepper[0];
   sunrealtype tout = ark_mem->tn + ark_mem->h;
-  sunrealtype tret = 0;
+  sunrealtype tret = ZERO;
 
   /* Evolve stepper 0 on its own */
+  SUNLogInfo(ARK_LOGGER, "begin-partition", "partition = 0");
+
   SUNErrCode err = SUNStepper_Reset(s0, ark_mem->tn, ark_mem->yn);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    SUNLogInfo(ARK_LOGGER, "end-partition",
+               "status = failed stepper reset, err = %i", err);
+    return ARK_SUNSTEPPER_ERR;
+  }
+
   err = SUNStepper_SetStopTime(s0, tout);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    SUNLogInfo(ARK_LOGGER, "end-partition",
+               "status = failed set stop time, err = %i", err);
+    return ARK_SUNSTEPPER_ERR;
+  }
+
   err = SUNStepper_Evolve(s0, tout, ark_mem->ycur, &tret);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    SUNLogInfo(ARK_LOGGER, "end-partition",
+               "status = failed evolve, err = %i", err);
+    return ARK_SUNSTEPPER_ERR;
+  }
   step_mem->n_stepper_evolves[0]++;
+
+  SUNLogInfo(ARK_LOGGER, "end-partition", "status = success");
+  SUNLogInfo(ARK_LOGGER, "begin-partition", "partition = 1");
 
   SUNStepper s1 = step_mem->stepper[1];
   /* A reset is not needed because steeper 1's state is consistent with the
    * forcing method */
   err = SUNStepper_SetStopTime(s1, tout);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    SUNLogInfo(ARK_LOGGER, "end-partition",
+               "status = failed set stop time, err = %i", err);
+    return ARK_SUNSTEPPER_ERR;
+  }
 
   /* Write tendency (ycur - yn)/h into stepper 1 forcing */
   sunrealtype hinv = SUN_RCONST(1.0) / ark_mem->h;
   N_VLinearSum(hinv, ark_mem->ycur, -hinv, ark_mem->yn, ark_mem->tempv1);
   err = SUNStepper_SetForcing(s1, ZERO, ZERO, &ark_mem->tempv1, 1);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    SUNLogInfo(ARK_LOGGER, "end-partition",
+               "status = failed set forcing, err = %i", err);
+    return ARK_SUNSTEPPER_ERR;
+  }
 
   /* Evolve stepper 1 with the forcing */
   err = SUNStepper_Evolve(s1, tout, ark_mem->ycur, &tret);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    SUNLogInfo(ARK_LOGGER, "end-partition",
+               "status = failed evolve, err = %i", err);
+    return ARK_SUNSTEPPER_ERR;
+  }
   step_mem->n_stepper_evolves[1]++;
 
   /* Clear the forcing so it doesn't get included in a fullRhs call */
   err = SUNStepper_SetForcing(s1, ZERO, ZERO, NULL, 0);
-  if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+  if (err != SUN_SUCCESS)
+  {
+    SUNLogInfo(ARK_LOGGER, "end-partition",
+               "status = failed set forcing, err = %i", err);
+    return ARK_SUNSTEPPER_ERR;
+  }
+
+  SUNLogInfo(ARK_LOGGER, "end-partition", "status = success");
 
   return ARK_SUCCESS;
 }
