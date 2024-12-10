@@ -151,6 +151,8 @@ int main(int argc, char* argv[])
   ARKodeFree(&arkode_mem);
   ARKodeFree(&stepper_1);
   ARKodeFree(&stepper_2);
+  SUNStepper_Destroy(&steppers[0]);
+  SUNStepper_Destroy(&steppers[1]);
 
   cout << "End ForcingStep Logging test" << endl;
 
