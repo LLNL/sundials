@@ -306,7 +306,8 @@ static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
   retval = splittingStep_SequentialMethod(ark_mem, step_mem, 0, ark_mem->ycur);
-  SUNLogExtraDebugVec(ARK_LOGGER, "sequential state", ark_mem->ycur, "y_seq(:) =");
+  SUNLogExtraDebugVec(ARK_LOGGER, "sequential state", ark_mem->ycur,
+                      "y_seq(:) =");
   if (retval != ARK_SUCCESS)
   {
     SUNLogInfo(ARK_LOGGER, "end-sequential-method",
@@ -329,7 +330,8 @@ static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
     retval = splittingStep_SequentialMethod(ark_mem, step_mem, i,
                                             ark_mem->tempv1);
-    SUNLogExtraDebugVec(ARK_LOGGER, "sequential state", ark_mem->tempv1, "y_seq(:) =");
+    SUNLogExtraDebugVec(ARK_LOGGER, "sequential state", ark_mem->tempv1,
+                        "y_seq(:) =");
     if (retval != ARK_SUCCESS)
     {
       SUNLogInfo(ARK_LOGGER, "end-sequential-method",
