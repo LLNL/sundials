@@ -2560,6 +2560,32 @@ SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStep(SUNAdaptController farg1, 
 }
 
 
+SWIGEXPORT int _wrap_FSUNAdaptController_EstimateStepTol(SUNAdaptController farg1, double const *farg2, double const *farg3, int const *farg4, double const *farg5, double const *farg6, double *farg7, double *farg8) {
+  int fresult ;
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
+  int arg4 ;
+  sunrealtype arg5 ;
+  sunrealtype arg6 ;
+  sunrealtype *arg7 = (sunrealtype *) 0 ;
+  sunrealtype *arg8 = (sunrealtype *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNAdaptController)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (int)(*farg4);
+  arg5 = (sunrealtype)(*farg5);
+  arg6 = (sunrealtype)(*farg6);
+  arg7 = (sunrealtype *)(farg7);
+  arg8 = (sunrealtype *)(farg8);
+  result = (SUNErrCode)SUNAdaptController_EstimateStepTol(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNAdaptController_Reset(SUNAdaptController farg1) {
   int fresult ;
   SUNAdaptController arg1 = (SUNAdaptController) 0 ;
@@ -2623,6 +2649,26 @@ SWIGEXPORT int _wrap_FSUNAdaptController_UpdateH(SUNAdaptController farg1, doubl
   arg2 = (sunrealtype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
   result = (SUNErrCode)SUNAdaptController_UpdateH(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNAdaptController_UpdateMRIHTol(SUNAdaptController farg1, double const *farg2, double const *farg3, double const *farg4, double const *farg5) {
+  int fresult ;
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
+  sunrealtype arg2 ;
+  sunrealtype arg3 ;
+  sunrealtype arg4 ;
+  sunrealtype arg5 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNAdaptController)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (sunrealtype)(*farg3);
+  arg4 = (sunrealtype)(*farg4);
+  arg5 = (sunrealtype)(*farg5);
+  result = (SUNErrCode)SUNAdaptController_UpdateMRIHTol(arg1,arg2,arg3,arg4,arg5);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
@@ -2751,6 +2797,20 @@ SWIGEXPORT int _wrap_FSUNStepper_SetStopTime(void *farg1, double const *farg2) {
   arg1 = (SUNStepper)(farg1);
   arg2 = (sunrealtype)(*farg2);
   result = (SUNErrCode)SUNStepper_SetStopTime(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNStepper_SetStepDirection(void *farg1, double const *farg2) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  sunrealtype arg2 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (sunrealtype)(*farg2);
+  result = (SUNErrCode)SUNStepper_SetStepDirection(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
@@ -2897,6 +2957,20 @@ SWIGEXPORT int _wrap_FSUNStepper_SetStopTimeFn(void *farg1, SUNStepperSetStopTim
   arg1 = (SUNStepper)(farg1);
   arg2 = (SUNStepperSetStopTimeFn)(farg2);
   result = (SUNErrCode)SUNStepper_SetStopTimeFn(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNStepper_SetStepDirectionFn(void *farg1, SUNStepperSetStepDirectionFn farg2) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  SUNStepperSetStepDirectionFn arg2 = (SUNStepperSetStepDirectionFn) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (SUNStepperSetStepDirectionFn)(farg2);
+  result = (SUNErrCode)SUNStepper_SetStepDirectionFn(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

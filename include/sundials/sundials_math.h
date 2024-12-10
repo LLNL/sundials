@@ -186,6 +186,20 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * Function : SUNIpowerI
+ * -----------------------------------------------------------------
+ * Usage : int exponent, base, ans;
+ *         ans = SUNIpowerI(base,exponent);
+ * -----------------------------------------------------------------
+ * SUNIpowerI returns the value of base^exponent, where base and
+ * exponent are of type int and exponent is nonnegative.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int SUNIpowerI(int base, int exponent);
+
+/*
+ * -----------------------------------------------------------------
  * Function : SUNRpowerI
  * -----------------------------------------------------------------
  * Usage : int exponent;

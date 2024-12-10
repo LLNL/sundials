@@ -33,7 +33,7 @@ ERKStep supports the following categories:
 * temporal adaptivity
 * relaxation Runge--Kutta methods
 
-ERKStep does not have forcing function support when converted to a
+ERKStep also has forcing function support when converted to a
 :c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
 :c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
 for additional details.
@@ -1787,9 +1787,9 @@ Main solver optional output functions
 
          typedef struct ARKodeButcherTableMem {
 
-           int q;           /* method order of accuracy       */
-           int p;           /* embedding order of accuracy    */
-           int stages;      /* number of stages               */
+           int q;              /* method order of accuracy       */
+           int p;              /* embedding order of accuracy    */
+           int stages;         /* number of stages               */
            sunrealtype **A;    /* Butcher table coefficients     */
            sunrealtype *c;     /* canopy node coefficients       */
            sunrealtype *b;     /* root node coefficients         */
