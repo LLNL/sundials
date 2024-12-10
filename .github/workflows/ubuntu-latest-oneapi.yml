@@ -12,42 +12,21 @@ concurrency:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
-  LINUX_DPCPP_COMPONENTS_WEB: intel.oneapi.lin.dpcpp-cpp-compiler
-  CACHE_NUMBER: 5
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        LINUX_BASEKIT_URL: [
-          'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/e6ff8e9c-ee28-47fb-abd7-5c524c983e1c/l_BaseKit_p_2024.2.1.100_offline.sh',
-          'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/96aa5993-5b22-4a9b-91ab-da679f422594/intel-oneapi-base-toolkit-2025.0.0.885_offline.sh'
+        ONEAPI_VERSION: [
+          '2024.2.1-0-devel-ubuntu22.04',
+          'latest' # 2025.0.0-0-devel-ubuntu24.04 at the time of commit
         ]
+
+    runs-on: ubuntu-latest
+    container: intel/oneapi-basekit:${{ matrix.ONEAPI_VERSION }}
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: cache install oneAPI with dpcpp
-      id: cache-install
-      uses: actions/cache@v3
-      with:
-        path: |
-          /opt/intel/oneapi/compiler
-          /opt/intel/oneapi/tbb
-        key: install-${{ env.CACHE_NUMBER }}-${{ matrix.LINUX_BASEKIT_URL }}-${{ env.LINUX_DPCPP_COMPONENTS_WEB }}-compiler-tbb-${{ hashFiles('**/.github/actions/install-oneapi/cache_exclude_linux.sh') }}
-
-    - name: install oneAPI with dpcpp
-      if: steps.cache-install.outputs.cache-hit != 'true'
-      run: ./.github/actions/install-oneapi/install_linux.sh ${{ matrix.LINUX_BASEKIT_URL }} ${{ env.LINUX_DPCPP_COMPONENTS_WEB }}
-
-    - name: exclude unused files from oneAPI cache
-      if: steps.cache-install.outputs.cache-hit != 'true'
-      run: ./.github/actions/install-oneapi/cache_exclude_linux.sh
-
-    - name: Source oneAPI
-      run: source /opt/intel/oneapi/setvars.sh
 
     - name: Configure CMake
       run: |
