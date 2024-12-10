@@ -1,0 +1,45 @@
+name: Build - Ubuntu/dpcpp
+
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        ONEAPI_VERSION: [
+          '2024.2.1-0-devel-ubuntu22.04',
+          'latest' # 2025.0.0-0-devel-ubuntu24.04 at the time of commit
+        ]
+
+    runs-on: ubuntu-latest
+    container: intel/oneapi-basekit:${{ matrix.ONEAPI_VERSION }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure CMake
+      run: |
+        cmake \
+        -B ${{github.workspace}}/build \
+        -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        -D CMAKE_C_COMPILER=$(which icx) \
+        -D CMAKE_CXX_COMPILER=$(which icpx) \
+        -D CMAKE_CXX_FLAGS="-fsycl" \
+        -D SUNDIALS_BUILD_WITH_PROFILING=ON \
+        -D ENABLE_ALL_WARNINGS=ON \
+        -D ENABLE_WARNINGS_AS_ERRORS=ON \
+        -D ENABLE_SYCL=ON
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}

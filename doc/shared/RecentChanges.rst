@@ -75,6 +75,9 @@ inner stepper object, :c:func:`ARKodeCreateMRIStepInnerStepper`.
 
 **Bug Fixes**
 
+Fixed a build failure with the SYCL NVector when using Intel oneAPI 2025.0
+compilers. See GitHub Issue `#596 <https://github.com/LLNL/sundials/issues/596>`__.
+
 Fixed a bug where :c:func:`CVodeSetProjFailEta` would ignore the `eta`
 parameter.
 
