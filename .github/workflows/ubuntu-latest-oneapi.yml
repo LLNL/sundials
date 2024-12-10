@@ -1,0 +1,63 @@
+name: Build - Ubuntu/dpcpp 2025.0.0 (no TPLs)
+
+on:
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/96aa5993-5b22-4a9b-91ab-da679f422594/intel-oneapi-base-toolkit-2025.0.0.885_offline.sh
+  LINUX_DPCPP_COMPONENTS_WEB: intel.oneapi.lin.dpcpp-cpp-compiler
+  CACHE_NUMBER: 5
+  SAMPLES_TAG: 2025.0.0
+
+jobs:
+  build_cycle_profiling:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        profiling: ['OFF', 'ON']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: cache install oneAPI
+      id: cache-install
+      uses: actions/cache@v3
+      with:
+        path: |
+          /opt/intel/oneapi/compiler
+          /opt/intel/oneapi/tbb
+        key: install-${{ env.CACHE_NUMBER }}-${{ env.LINUX_BASEKIT_URL }}-${{ env.LINUX_DPCPP_COMPONENTS_WEB }}-compiler-tbb-${{ hashFiles('**/scripts/cache_exclude_linux.sh') }}
+
+    - name: install oneAPI
+      if: steps.cache-install.outputs.cache-hit != 'true'
+      run: scripts/install_linux.sh $LINUX_BASEKIT_URL $LINUX_DPCPP_COMPONENTS_WEB
+
+    - name: build oneAPI
+      run: scripts/build_linux.sh dpc++ $SAMPLES_TAG
+
+    - name: exclude unused files from oneAPI cache
+      if: steps.cache-install.outputs.cache-hit != 'true'
+      run: scripts/cache_exclude_linux.sh
+
+    - name: Configure CMake
+      run: |
+        cmake \
+        -B ${{github.workspace}}/build \
+        -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        -D CMAKE_C_COMPILER=$(which clang) \
+        -D CMAKE_CXX_COMPILER=$(which clang++) \
+        -D SUNDIALS_BUILD_WITH_PROFILING=${{matrix.profiling}} \
+        -D ENABLE_ALL_WARNINGS=ON \
+        -D ENABLE_WARNINGS_AS_ERRORS=ON
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
