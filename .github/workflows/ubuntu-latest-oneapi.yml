@@ -41,7 +41,7 @@ jobs:
 
     - name: install oneAPI
       if: steps.cache-install.outputs.cache-hit != 'true'
-      run: ./.github/actions/install-oneapi/install_linux.sh $LINUX_BASEKIT_URL $LINUX_DPCPP_COMPONENTS_WEB
+      run: ./.github/actions/install-oneapi/install_linux.sh ${{ matrix.LINUX_BASEKIT_URL }} ${{ env.LINUX_DPCPP_COMPONENTS_WEB }}
 
     - name: exclude unused files from oneAPI cache
       if: steps.cache-install.outputs.cache-hit != 'true'
