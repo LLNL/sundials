@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
   else if (method == 4)
   {
     flag = LSRKStepSetSSPMethodByName(arkode_mem, "ARKODE_LSRK_SSP_S_3");
-    if (flag == 0) { flag = LSRKStepSetSSPStageNum(arkode_mem, 4); }
+    if (flag == 0) { flag = LSRKStepSetNumSSPStages(arkode_mem, 4); }
   }
   else if (method == 5)
   {
