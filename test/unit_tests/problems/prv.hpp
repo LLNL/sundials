@@ -20,12 +20,15 @@
  *
  *   L(t) = lambda - alpha * cos((10 - t) / 10 * pi).
  *
- * This problem has analytical solution y(t) = atan(t).
+ * This problem has the analytic solution y(t) = atan(t).
  *
  * The stiffness of the problem depends on the value of L(t) where the lambda
  * determines the center of the parameter and alpha the radius of the interval
  * in which the stiffness parameter lies. For a well-posed problem, the values
  * should be chosen such that L(t) is negative.
+ *
+ * Right-hand side (RHS) function is defined for the full problem as well as
+ * a function for computing the dominant eigenvalue, L(t).
  * ---------------------------------------------------------------------------*/
 
 #ifndef PRV_HPP_
@@ -66,24 +69,33 @@ inline sunrealtype phi_prime(sunrealtype t) { return one / (one + t * t); }
 // Compute the true solution
 inline sunrealtype true_solution(sunrealtype t) { return phi(t); }
 
-// ODE RHS function
-inline int ode_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
-{
-  sunrealtype* u_data  = static_cast<sunrealtype*>(user_data);
-  sunrealtype* y_data  = N_VGetArrayPointer(y);
-  sunrealtype* yd_data = N_VGetArrayPointer(ydot);
+// -----------------------------------------------------------------------------
+// Problem functions
+// -----------------------------------------------------------------------------
 
-  yd_data[0] = l_coef(t, u_data) * (y_data[0] - phi(t)) + phi_prime(t);
+// ODE RHS function
+inline int ode_rhs(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_data)
+{
+  if (y_vec == nullptr || f_vec == nullptr || user_data == nullptr) { return 1; }
+
+  sunrealtype* u_data = static_cast<sunrealtype*>(user_data);
+  sunrealtype* y_data = N_VGetArrayPointer(y_vec);
+  sunrealtype* f_data = N_VGetArrayPointer(f_vec);
+  if (y_data == nullptr || f_data == nullptr) { return 1; }
+
+  f_data[0] = l_coef(t, u_data) * (y_data[0] - phi(t)) + phi_prime(t);
 
   return 0;
 }
 
 // Dominant eigenvalue function
-inline int ode_dom_eig(sunrealtype t, N_Vector y, N_Vector fn,
+inline int ode_dom_eig(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
                        sunrealtype* lambdaR, sunrealtype* lambdaI,
                        void* user_data, N_Vector temp1, N_Vector temp2,
                        N_Vector temp3)
 {
+  if (user_data == nullptr) { return 1; }
+
   sunrealtype* u_data = static_cast<sunrealtype*>(user_data);
 
   *lambdaR = l_coef(t, u_data);

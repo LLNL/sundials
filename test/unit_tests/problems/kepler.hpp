@@ -32,6 +32,13 @@
  * is conserved as well as the angular momentum,
  *
  *   L(p,q) = q1 * p2 - q2 * p1.
+ *
+ * Right-hand side (RHS) functions are defined for the full problem as well as
+ * a component partitioning:
+ *
+ *   Full RHS     = ode_rhs          = RHS terms for q' and p'
+ *   Velocity RHS = ode_rhs_velocity = RHS terms for q'
+ *   Force RHS    = ode_rhs_force    = RHS terms for p'
  * ---------------------------------------------------------------------------*/
 
 #ifndef KEPLER_HPP_
@@ -53,6 +60,8 @@ sunrealtype eccentricity = SUN_RCONST(0.6);
 
 inline int initial_condition(N_Vector y_vec, sunrealtype ecc)
 {
+  if (y_vec == nullptr) { return 1; }
+
   sunrealtype* y_data = N_VGetArrayPointer(y_vec);
   if (y_data == nullptr) { return 1; }
 
@@ -66,6 +75,8 @@ inline int initial_condition(N_Vector y_vec, sunrealtype ecc)
 
 inline int hamiltonian(N_Vector y_vec, sunrealtype* H)
 {
+  if (y_vec == nullptr || H == nullptr) { return 1; }
+
   sunrealtype* y_data = N_VGetArrayPointer(y_vec);
   if (y_data == nullptr) { return 1; }
 
@@ -84,6 +95,8 @@ inline int hamiltonian(N_Vector y_vec, sunrealtype* H)
 
 inline int angular_momentum(N_Vector y_vec, sunrealtype* L)
 {
+  if (y_vec == nullptr || L == nullptr) { return 1; }
+
   sunrealtype* y_data = N_VGetArrayPointer(y_vec);
   if (y_data == nullptr) { return 1; }
 
@@ -100,9 +113,11 @@ inline int angular_momentum(N_Vector y_vec, sunrealtype* L)
 inline int ode_rhs_velocity(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
                             void* user_data)
 {
+  if (y_vec == nullptr || f_vec == nullptr) { return 1; }
+
   sunrealtype* y_data = N_VGetArrayPointer(y_vec);
   sunrealtype* f_data = N_VGetArrayPointer(f_vec);
-  if (y_data == nullptr || f_data == NULL) { return 1; }
+  if (y_data == nullptr || f_data == nullptr) { return 1; }
 
   const sunrealtype p1 = y_data[2];
   const sunrealtype p2 = y_data[3];
@@ -116,9 +131,11 @@ inline int ode_rhs_velocity(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
 inline int ode_rhs_force(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
                          void* user_data)
 {
+  if (y_vec == nullptr || f_vec == nullptr) { return 1; }
+
   sunrealtype* y_data = N_VGetArrayPointer(y_vec);
   sunrealtype* f_data = N_VGetArrayPointer(f_vec);
-  if (y_data == nullptr || f_data == NULL) { return 1; }
+  if (y_data == nullptr || f_data == nullptr) { return 1; }
 
   const sunrealtype q1 = y_data[0];
   const sunrealtype q2 = y_data[1];
