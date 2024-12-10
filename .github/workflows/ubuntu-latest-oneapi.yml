@@ -51,7 +51,7 @@ jobs:
         cmake \
         -B ${{github.workspace}}/build \
         -D CMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-        -D CMAKE_C_COMPILER=$(which icp) \
+        -D CMAKE_C_COMPILER=$(which icpc) \
         -D CMAKE_CXX_COMPILER=$(which icpx) \
         -D SUNDIALS_BUILD_WITH_PROFILING=ON \
         -D ENABLE_ALL_WARNINGS=ON \
