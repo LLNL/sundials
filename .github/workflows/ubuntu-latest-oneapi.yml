@@ -12,10 +12,8 @@ concurrency:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
-  LINUX_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/IRC_NAS/96aa5993-5b22-4a9b-91ab-da679f422594/intel-oneapi-base-toolkit-2025.0.0.885_offline.sh
   LINUX_DPCPP_COMPONENTS_WEB: intel.oneapi.lin.dpcpp-cpp-compiler
   CACHE_NUMBER: 5
-  SAMPLES_TAG: 2025.0.0
 
 jobs:
   build_cycle_profiling:
@@ -24,6 +22,10 @@ jobs:
     strategy:
       matrix:
         profiling: ['OFF', 'ON']
+        LINUX_BASEKIT_URL: [
+          'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/e6ff8e9c-ee28-47fb-abd7-5c524c983e1c/l_BaseKit_p_2024.2.1.100_offline.sh',
+          'https://registrationcenter-download.intel.com/akdlm/IRC_NAS/96aa5993-5b22-4a9b-91ab-da679f422594/intel-oneapi-base-toolkit-2025.0.0.885_offline.sh'
+        ]
 
     steps:
     - uses: actions/checkout@v4
@@ -35,14 +37,11 @@ jobs:
         path: |
           /opt/intel/oneapi/compiler
           /opt/intel/oneapi/tbb
-        key: install-${{ env.CACHE_NUMBER }}-${{ env.LINUX_BASEKIT_URL }}-${{ env.LINUX_DPCPP_COMPONENTS_WEB }}-compiler-tbb-${{ hashFiles('**/scripts/cache_exclude_linux.sh') }}
+        key: install-${{ env.CACHE_NUMBER }}-${{ matrix.LINUX_BASEKIT_URL }}-${{ env.LINUX_DPCPP_COMPONENTS_WEB }}-compiler-tbb-${{ hashFiles('**/scripts/cache_exclude_linux.sh') }}
 
     - name: install oneAPI
       if: steps.cache-install.outputs.cache-hit != 'true'
       run: scripts/install_linux.sh $LINUX_BASEKIT_URL $LINUX_DPCPP_COMPONENTS_WEB
-
-    - name: build oneAPI
-      run: scripts/build_linux.sh dpc++ $SAMPLES_TAG
 
     - name: exclude unused files from oneAPI cache
       if: steps.cache-install.outputs.cache-hit != 'true'
