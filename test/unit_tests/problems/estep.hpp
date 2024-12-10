@@ -74,7 +74,10 @@ inline int true_solution(sunrealtype t, sunrealtype lambda, N_Vector y_vec)
 
 inline int ode_rhs(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_data)
 {
-  if (y_vec == nullptr || f_vec == nullptr || user_data == nullptr) { return 1; }
+  if (y_vec == nullptr || f_vec == nullptr || user_data == nullptr)
+  {
+    return 1;
+  }
 
   sunrealtype* y_data = N_VGetArrayPointer(y_vec);
   sunrealtype* f_data = N_VGetArrayPointer(f_vec);
@@ -87,9 +90,13 @@ inline int ode_rhs(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_dat
   return 0;
 }
 
-inline int ode_rhs_1(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_data)
+inline int ode_rhs_1(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
+                     void* user_data)
 {
-  if (y_vec == nullptr || f_vec == nullptr || user_data == nullptr) { return 1; }
+  if (y_vec == nullptr || f_vec == nullptr || user_data == nullptr)
+  {
+    return 1;
+  }
 
   sunrealtype* y_data = N_VGetArrayPointer(y_vec);
   sunrealtype* f_data = N_VGetArrayPointer(f_vec);
@@ -102,7 +109,8 @@ inline int ode_rhs_1(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_d
   return 0;
 }
 
-inline int ode_rhs_2(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_data)
+inline int ode_rhs_2(sunrealtype t, N_Vector y_vec, N_Vector f_vec,
+                     void* user_data)
 {
   if (y_vec == nullptr || f_vec == nullptr) { return 1; }
 

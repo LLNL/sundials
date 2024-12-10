@@ -76,7 +76,10 @@ inline sunrealtype true_solution(sunrealtype t) { return phi(t); }
 // ODE RHS function
 inline int ode_rhs(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_data)
 {
-  if (y_vec == nullptr || f_vec == nullptr || user_data == nullptr) { return 1; }
+  if (y_vec == nullptr || f_vec == nullptr || user_data == nullptr)
+  {
+    return 1;
+  }
 
   sunrealtype* u_data = static_cast<sunrealtype*>(user_data);
   sunrealtype* y_data = N_VGetArrayPointer(y_vec);

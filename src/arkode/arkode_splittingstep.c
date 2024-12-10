@@ -227,8 +227,8 @@ static int splittingStep_SequentialMethod(ARKodeMem ark_mem,
       sunrealtype t_end   = ark_mem->tn + beta_end * ark_mem->h;
 
       SUNLogInfo(ARK_LOGGER, "begin-partition",
-                 "partition = %i, t_start = %" RSYM ", t_end = %" RSYM,
-                 k, t_start, t_end);
+                 "partition = %i, t_start = %" RSYM ", t_end = %" RSYM, k,
+                 t_start, t_end);
 
       SUNStepper stepper = step_mem->steppers[k];
       /* TODO(SBR): A potential future optimization is removing this reset and
@@ -301,8 +301,7 @@ static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   SplittingStepCoefficients coefficients = step_mem->coefficients;
 
-  SUNLogInfo(ARK_LOGGER, "begin-sequential-method",
-             "sequential method = 0");
+  SUNLogInfo(ARK_LOGGER, "begin-sequential-method", "sequential method = 0");
 
   N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
   retval = splittingStep_SequentialMethod(ark_mem, step_mem, 0, ark_mem->ycur);
@@ -322,8 +321,8 @@ static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   for (int i = 1; i < coefficients->sequential_methods; i++)
   {
-    SUNLogInfo(ARK_LOGGER, "begin-sequential-method",
-               "sequential method = %i", i);
+    SUNLogInfo(ARK_LOGGER, "begin-sequential-method", "sequential method = %i",
+               i);
 
     N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
     retval = splittingStep_SequentialMethod(ark_mem, step_mem, i,

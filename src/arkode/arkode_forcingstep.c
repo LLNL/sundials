@@ -258,8 +258,8 @@ static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   err = SUNStepper_Evolve(s0, tout, ark_mem->ycur, &tret);
   if (err != SUN_SUCCESS)
   {
-    SUNLogInfo(ARK_LOGGER, "end-partition",
-               "status = failed evolve, err = %i", err);
+    SUNLogInfo(ARK_LOGGER, "end-partition", "status = failed evolve, err = %i",
+               err);
     return ARK_SUNSTEPPER_ERR;
   }
   step_mem->n_stepper_evolves[0]++;
@@ -293,8 +293,8 @@ static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   err = SUNStepper_Evolve(s1, tout, ark_mem->ycur, &tret);
   if (err != SUN_SUCCESS)
   {
-    SUNLogInfo(ARK_LOGGER, "end-partition",
-               "status = failed evolve, err = %i", err);
+    SUNLogInfo(ARK_LOGGER, "end-partition", "status = failed evolve, err = %i",
+               err);
     return ARK_SUNSTEPPER_ERR;
   }
   step_mem->n_stepper_evolves[1]++;
