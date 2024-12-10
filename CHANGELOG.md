@@ -66,6 +66,9 @@ inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
 
 ### Bug Fixes
 
+Fixed a build failure with the SYCL NVector when using Intel oneAPI 2025.0
+compilers. See GitHub Issue [#596](https://github.com/LLNL/sundials/issues/596).
+
 Fixed a bug where `CVodeSetProjFailEta` would ignore the `eta` parameter.
 
 Fixed a bug in the SPTFQMR linear solver where recoverable preconditioner errors
