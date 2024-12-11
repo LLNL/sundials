@@ -1131,7 +1131,7 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       estimated at the next call to :c:func:`ARKodeEvolve` or can be specified
       with :c:func:`ARKodeSetInitStep`.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
 
 
 
@@ -1819,7 +1819,7 @@ tolerance.
 
    The type of error accumulation that ARKODE should use.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
 
    .. c:enumerator:: ARK_ACCUMERROR_NONE
 
@@ -1859,7 +1859,7 @@ tolerance.
    :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
                                     by the current time-stepping module.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
 
 
 .. c:function:: int ARKodeResetAccumulatedError(void* arkode_mem)
@@ -1874,7 +1874,7 @@ tolerance.
    :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
                                     by the current time-stepping module.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
 
 
 
@@ -3395,7 +3395,7 @@ Retrieve the accumulated temporal error estimate       :c:func:`ARKodeGetAccumul
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
 
 
 .. c:function:: int ARKodeGetCurrentTime(void* arkode_mem, sunrealtype* tcur)
@@ -3647,7 +3647,7 @@ Retrieve the accumulated temporal error estimate       :c:func:`ARKodeGetAccumul
    :retval ARK_ILL_INPUT: if ``num_partiton`` was invalid for the stepper or
                           ``num_rhs_evals`` was ``NULL``
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
 
 
 .. c:function:: int ARKodeGetNumErrTestFails(void* arkode_mem, long int* netfails)
@@ -3764,7 +3764,7 @@ Retrieve the accumulated temporal error estimate       :c:func:`ARKodeGetAccumul
    :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
                                     by the current time-stepping module.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
 
 
 
@@ -4962,4 +4962,4 @@ block as a :c:type:`SUNStepper`.
       :c:func:`SUNStepper_SetForcing` function only if ``inner_arkode_mem`` is
       an ARKStep, ERKStep, or MRIStep integrator.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
