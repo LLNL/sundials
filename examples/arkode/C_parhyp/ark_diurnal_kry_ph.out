@@ -2,61 +2,62 @@
 2-species diurnal advection-diffusion problem
 
 t = 7.20e+03   no. steps = 979   stepsize = 3.07e+00
-At bottom left:  c1, c2 =    1.047e+04    2.527e+11
-At top right:    c1, c2 =    1.119e+04    2.700e+11
+At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
+At top right:    c1, c2 =    1.119e+04    2.700e+11 
 
 t = 1.44e+04   no. steps = 2733   stepsize = 6.93e+00
-At bottom left:  c1, c2 =    6.659e+06    2.582e+11
-At top right:    c1, c2 =    7.301e+06    2.833e+11
+At bottom left:  c1, c2 =    6.659e+06    2.582e+11 
+At top right:    c1, c2 =    7.301e+06    2.833e+11 
 
 t = 2.16e+04   no. steps = 3532   stepsize = 1.04e+01
-At bottom left:  c1, c2 =    2.665e+07    2.993e+11
-At top right:    c1, c2 =    2.931e+07    3.313e+11
+At bottom left:  c1, c2 =    2.665e+07    2.993e+11 
+At top right:    c1, c2 =    2.931e+07    3.313e+11 
 
-t = 2.88e+04   no. steps = 4588   stepsize = 4.86e+00
-At bottom left:  c1, c2 =    8.702e+06    3.380e+11
-At top right:    c1, c2 =    9.650e+06    3.751e+11
+t = 2.88e+04   no. steps = 4603   stepsize = 4.79e+00
+At bottom left:  c1, c2 =    8.702e+06    3.380e+11 
+At top right:    c1, c2 =    9.650e+06    3.751e+11 
 
-t = 3.60e+04   no. steps = 5824   stepsize = 2.55e+00
-At bottom left:  c1, c2 =    1.404e+04    3.387e+11
-At top right:    c1, c2 =    1.561e+04    3.765e+11
+t = 3.60e+04   no. steps = 5841   stepsize = 2.56e+00
+At bottom left:  c1, c2 =    1.404e+04    3.387e+11 
+At top right:    c1, c2 =    1.561e+04    3.765e+11 
 
-t = 4.32e+04   no. steps = 7026   stepsize = 5.12e+02
-At bottom left:  c1, c2 =    1.334e-12    3.382e+11
-At top right:    c1, c2 =   -4.825e-12    3.804e+11
+t = 4.32e+04   no. steps = 7028   stepsize = 5.25e+02
+At bottom left:  c1, c2 =   -1.384e-10    3.382e+11 
+At top right:    c1, c2 =    4.912e-10    3.804e+11 
 
-t = 5.04e+04   no. steps = 7041   stepsize = 5.36e+02
-At bottom left:  c1, c2 =    1.415e-13    3.358e+11
-At top right:    c1, c2 =   -1.712e-12    3.864e+11
+t = 5.04e+04   no. steps = 7045   stepsize = 4.32e+02
+At bottom left:  c1, c2 =   -1.726e-08    3.358e+11 
+At top right:    c1, c2 =    3.060e-08    3.864e+11 
 
-t = 5.76e+04   no. steps = 7055   stepsize = 2.34e+02
-At bottom left:  c1, c2 =   -2.533e-12    3.320e+11
-At top right:    c1, c2 =   -5.401e-12    3.909e+11
+t = 5.76e+04   no. steps = 7060   stepsize = 2.24e+02
+At bottom left:  c1, c2 =   -2.215e-10    3.320e+11 
+At top right:    c1, c2 =   -3.625e-10    3.909e+11 
 
-t = 6.48e+04   no. steps = 7068   stepsize = 6.40e+02
-At bottom left:  c1, c2 =   -4.169e-12    3.313e+11
-At top right:    c1, c2 =    1.665e-11    3.963e+11
+t = 6.48e+04   no. steps = 7074   stepsize = 6.21e+02
+At bottom left:  c1, c2 =   -1.004e-22    3.313e+11 
+At top right:    c1, c2 =   -3.771e-23    3.963e+11 
 
-t = 7.20e+04   no. steps = 7080   stepsize = 6.40e+02
-At bottom left:  c1, c2 =   -3.839e-12    3.330e+11
-At top right:    c1, c2 =   -3.434e-11    4.039e+11
+t = 7.20e+04   no. steps = 7085   stepsize = 6.21e+02
+At bottom left:  c1, c2 =   -2.029e-23    3.330e+11 
+At top right:    c1, c2 =    2.084e-23    4.039e+11 
 
-t = 7.92e+04   no. steps = 7091   stepsize = 6.40e+02
-At bottom left:  c1, c2 =    2.289e-26    3.334e+11
-At top right:    c1, c2 =    4.220e-25    4.120e+11
+t = 7.92e+04   no. steps = 7097   stepsize = 6.21e+02
+At bottom left:  c1, c2 =   -5.112e-23    3.334e+11 
+At top right:    c1, c2 =    1.320e-23    4.120e+11 
 
-t = 8.64e+04   no. steps = 7102   stepsize = 6.40e+02
-At bottom left:  c1, c2 =   -5.225e-26    3.352e+11
-At top right:    c1, c2 =   -5.452e-25    4.163e+11
+t = 8.64e+04   no. steps = 7109   stepsize = 6.21e+02
+At bottom left:  c1, c2 =    1.584e-22    3.352e+11 
+At top right:    c1, c2 =   -2.798e-23    4.163e+11 
 
 
-Final Statistics:
+Final Statistics: 
 
 lenrw   =  3302     leniw   =   255
 lenrwls =  2455     leniwls =   126
-nst     =  7102     nfe     =     0
-nfi     = 74579     nfels   = 87090
-nni     = 38921     nli     = 87090
-nsetups =   429     netf    =    29
-npe     =   119     nps     = 123765
+nst     =  7109     nfe     =     0
+nfi     = 74641     nfels   = 87206
+nni     = 38963     nli     = 87206
+nsetups =   431     netf    =    26
+npe     =   119     nps     = 123911
 ncfn    =     0     ncfl    =     0
+

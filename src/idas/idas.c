@@ -5890,7 +5890,7 @@ static int IDAStep(IDAMem IDA_mem)
   saved_t = IDA_mem->ida_tn;
   ncf = nef = 0;
 
-  if (IDA_mem->ida_nst == ZERO)
+  if (IDA_mem->ida_nst == 0)
   {
     IDA_mem->ida_kk     = 1;
     IDA_mem->ida_kused  = 0;
@@ -8763,7 +8763,8 @@ void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
 
   /* Compose the message */
   va_start(ap, msgfmt);
-  size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
+  size_t msglen = 1;
+  if (msgfmt) { msglen += vsnprintf(NULL, 0, msgfmt, ap); }
   va_end(ap);
 
   char* msg = (char*)malloc(msglen);

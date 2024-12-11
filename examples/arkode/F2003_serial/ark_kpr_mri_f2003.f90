@@ -602,7 +602,7 @@ program main
   real(c_double), allocatable :: As(:, :), bs(:), cs(:), ds(:) ! Arrays for slow Butcher table, NOTE: must be in row-major order
   integer(c_int) :: iout, argc, argi
   integer(c_long) :: nsts(1), nstf(1), nfse(1), nfsi(1), nff(1)
-  integer(c_long) :: nnif(1), nncf(1), njef(1), nnis(1), nncs(1), njes(1), tmp(1)
+  integer(c_long) :: nnif(1), nncf(1), njef(1), nnis(1), nncs(1), njes(1)
   character(len=32), dimension(:), allocatable :: argv
 
   !
@@ -886,9 +886,9 @@ program main
   end if
 
   ! Create inner stepper */
-  retval = FARKStepCreateMRIStepInnerStepper(inner_arkode_mem, inner_stepper)
+  retval = FARKodeCreateMRIStepInnerStepper(inner_arkode_mem, inner_stepper)
   if (retval /= 0) then
-    print *, 'ERROR: FARKStepCreateMRIStepInnerStepper failed'
+    print *, 'ERROR: FARKodeCreateMRIStepInnerStepper failed'
     stop 1
   end if
 
@@ -1057,11 +1057,12 @@ program main
 
   ! Get some slow integrator statistics
   retval = FARKodeGetNumSteps(arkode_mem, nsts)
-  retval = FMRIStepGetNumRhsEvals(arkode_mem, nfse, nfsi)
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 0, nfse)
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 1, nfsi)
 
   ! Get some fast integrator statistics
   retval = FARKodeGetNumSteps(inner_arkode_mem, nstf)
-  retval = FARKStepGetNumRhsEvals(inner_arkode_mem, nff, tmp)
+  retval = FARKodeGetNumRhsEvals(inner_arkode_mem, 0, nff)
 
   ! Print some final statistics
   print *, "Final Solver Statistics:"

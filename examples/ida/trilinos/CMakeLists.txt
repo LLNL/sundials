@@ -18,21 +18,12 @@
 # for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-if(Trilinos_INTERFACE_MPI_CXX_FOUND)
+if(MPI_CXX_FOUND)
   set(IDA_examples "idaHeat2D_kry_tpetra\;1\;1\;develop"
                    "idaHeat2D_kry_p_tpetra\;1\;4\;develop")
 else()
   set(IDA_examples "idaHeat2D_kry_tpetra\;1\;1\;develop")
 endif()
-
-# Set Trilinos compilers/flags
-set(CMAKE_CXX_COMPILER ${Trilinos_INTERFACE_CXX_COMPILER})
-set(CMAKE_C_COMPILER ${Trilinos_INTERFACE_C_COMPILER})
-set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} ${Trilinos_INTERFACE_CXX_COMPILER_FLAGS}")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${Trilinos_INTERFACE_C_COMPILER_FLAGS}")
-
-set(MPIEXEC_EXECUTABLE ${Trilinos_INTERFACE_MPIEXEC})
 
 # Specify libraries to link against
 set(IDA_LIB sundials_ida)

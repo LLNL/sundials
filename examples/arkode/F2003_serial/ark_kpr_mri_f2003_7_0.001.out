@@ -64,7 +64,7 @@
  Final Solver Statistics:
    Steps: nsts =    5000, nstf =  510000
    u error =  0.380E-09, v error =  0.394E-09, total error =  0.387E-09
-   Total RHS evals: Fs =   45313, Ff = 1530050
+   Total RHS evals: Fs =   45313, Ff = 1535001
    Slow Newton iters =   30312
    Slow Newton conv fails =       0
    Slow Jacobian evals =     250

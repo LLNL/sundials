@@ -36,6 +36,8 @@ compile_commands.json
 *.orig
 *.nvvp
 *.ptp-sync*
+*.project
+*.cproject
 *~
 \#*
 

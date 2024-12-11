@@ -127,8 +127,8 @@ and end of a collapsible section.
    enter/do the following:
 
    Section name:        {1}
-   Section starts with: START TEST
-   Section ends with:   (PASSED|FAILED)
+   Section starts with: TEST: (.*)
+   Section ends with:   (PASSED|FAILED): (.*)
    Check the box next to "Collapse Sections by default"
 
 7. To create a INSTALLING section, click on "Add Console Section" and

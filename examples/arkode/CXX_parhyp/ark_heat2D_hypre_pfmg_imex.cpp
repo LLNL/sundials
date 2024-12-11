@@ -339,6 +339,13 @@ int main(int argc, char* argv[])
     // Create SUNDIALS context
     sundials::Context sunctx(comm_w);
 
+    // Initialize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+    flag = HYPRE_Init();
+    if (check_flag(&flag, "HYPRE_Init", 1)) { return 1; }
+#endif
+
     // ------------------------------------------
     // Setup UserData and parallel decomposition
     // ------------------------------------------
@@ -538,6 +545,13 @@ int main(int argc, char* argv[])
     // --------------------
     // Clean up and return
     // --------------------
+
+    // Finalize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+    flag = HYPRE_Finalize();
+    if (check_flag(&flag, "HYPRE_Finalize", 1)) { return 1; }
+#endif
 
     ARKodeFree(&arkode_mem);             // Free integrator memory
     SUNLinSolFree(LS);                   // Free linear solver
@@ -2726,8 +2740,10 @@ static int OutputStats(void* arkode_mem, UserData* udata)
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
@@ -2747,7 +2763,8 @@ static int OutputStats(void* arkode_mem, UserData* udata)
   cout << "  Steps            = " << nst << endl;
   cout << "  Step attempts    = " << nst_a << endl;
   cout << "  Error test fails = " << netf << endl;
-  cout << "  RHS evals        = " << nfi << endl;
+  cout << "  Fe RHS evals     = " << nfe << endl;
+  cout << "  Fi RHS evals     = " << nfi << endl;
   cout << "  NLS iters        = " << nni << endl;
   cout << "  NLS fails        = " << ncfn << endl;
   cout << "  LS iters         = " << nli << endl;

@@ -12,7 +12,7 @@
    SUNDIALS Copyright End
    ----------------------------------------------------------------
 
-.. _History:
+.. _ReleaseHistory:
 
 ###############
 Release History

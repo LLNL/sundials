@@ -29,18 +29,25 @@ set(arkode_SOURCES
     arkode_butcher.c
     arkode_erkstep_io.c
     arkode_erkstep.c
+    arkode_forcingstep.c
     arkode_interp.c
     arkode_io.c
     arkode_ls.c
+    arkode_lsrkstep_io.c
+    arkode_lsrkstep.c
     arkode_mri_tables.c
+    arkode_mristep_controller.c
     arkode_mristep_io.c
     arkode_mristep_nls.c
     arkode_mristep.c
     arkode_relaxation.c
     arkode_root.c
+    arkode_splittingstep_coefficients.c
+    arkode_splittingstep.c
     arkode_sprkstep_io.c
     arkode_sprkstep.c
     arkode_sprk.c
+    arkode_sunstepper.c
     arkode_user_controller.c
     arkode.c)
 
@@ -54,8 +61,11 @@ set(arkode_HEADERS
     arkode_butcher_dirk.h
     arkode_butcher_erk.h
     arkode_erkstep.h
+    arkode_forcingstep.h
     arkode_ls.h
+    arkode_lsrkstep.h
     arkode_mristep.h
+    arkode_splittingstep.h
     arkode_sprk.h
     arkode_sprkstep.h)
 
@@ -72,8 +82,9 @@ sundials_add_library(
   OBJECT_LIBRARIES
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
-    sundials_sunadaptcontrollerimexgus_obj
     sundials_sunadaptcontrollersoderlind_obj
+    sundials_sunadaptcontrollerimexgus_obj
+    sundials_sunadaptcontrollermrihtol_obj
     sundials_sunmatrixband_obj
     sundials_sunmatrixdense_obj
     sundials_sunmatrixsparse_obj

@@ -65,7 +65,7 @@ foreach(tpl ${SUNDIALS_TPL_LIST})
 endforeach()
 
 # prepare substitution variable SUNDIALS_TRILINOS_HAVE_MPI for sundials_config.h
-if(Trilinos_MPI)
+if(ENABLE_MPI)
   set(SUNDIALS_TRILINOS_HAVE_MPI TRUE)
 endif()
 

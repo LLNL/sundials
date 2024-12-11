@@ -122,7 +122,7 @@ static int rhsQB(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector yyB,
 /* Prototypes of private functions */
 static void PrintOutput(sunrealtype tfinal, N_Vector yB, N_Vector ypB,
                         N_Vector qB);
-static int check_retval(void* returnvalue, char* funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -808,7 +808,7 @@ static void PrintOutput(sunrealtype tfinal, N_Vector yB, N_Vector ypB, N_Vector 
  *             NULL pointer
  */
 
-static int check_retval(void* returnvalue, char* funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
   int* retval;
 

@@ -83,16 +83,27 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   set(options "NODIFF")
   set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PRECISION"
                    "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
-
-  # macro keyword inputs followed by multiple values TEST_ARGS = command line
-  # arguments to pass to the test executable EXTRA_ARGS = additional command
-  # line arguments not added to the test name
   set(multiValueArgs "TEST_ARGS" "EXTRA_ARGS")
 
   # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>
   cmake_parse_arguments(SUNDIALS_ADD_TEST "${options}" "${oneValueArgs}"
                         "${multiValueArgs}" ${ARGN})
 
+  # check if any options for setting command line args have been provided by
+  # comparing them against an empty string -- this is needed to avoid missing
+  # single args that are a false constant in CMake e.g., 0, FALSE, OFF, etc.
+  if("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL "")
+    set(_have_test_args FALSE)
+  else()
+    set(_have_test_args TRUE)
+  endif()
+
+  if("${SUNDIALS_ADD_TEST_EXTRA_ARGS}" STREQUAL "")
+    set(_have_extra_test_args FALSE)
+  else()
+    set(_have_extra_test_args TRUE)
+  endif()
+  
   # ---------------------------------
   # check if the test should be added
   # ---------------------------------
@@ -248,6 +259,9 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
                                            OR SUNDIALS_TEST_MPIRUN_COMMAND))
         if(MPIEXEC_PREFLAGS)
           string(REPLACE " " ";" PREFLAGS "${MPIEXEC_PREFLAGS}")
+        endif()
+        if(MPIEXEC_POSTFLAGS)
+          string(REPLACE " " ";" POSTLAGS "${MPIEXEC_POSTFLAGS}")
         endif()
         if(SUNDIALS_TEST_MPIRUN_COMMAND)
           string(REPLACE " " ";" MPI_EXEC_ARGS

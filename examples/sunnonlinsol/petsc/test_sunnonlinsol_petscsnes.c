@@ -157,6 +157,7 @@ int main(int argc, char* argv[])
   N_VDestroy(y0);
   N_VDestroy(w);
   SUNNonlinSolFree(NLS);
+  PetscFinalize();
   SUNContext_Free(&sunctx);
 
   /* Print result */

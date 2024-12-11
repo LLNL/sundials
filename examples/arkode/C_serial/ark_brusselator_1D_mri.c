@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
   FILE *FID, *UFID, *VFID, *WFID;           /* output file pointers           */
   int iout;                                 /* output counter                 */
   long int nsts, nstf, nstf_a, netf;        /* step stats                     */
-  long int nfse, nfsi, nffe, nffi;          /* RHS stats                      */
+  long int nfse, nffi;                      /* RHS stats                      */
   long int nsetups, nje, nfeLS;             /* linear solver stats            */
   long int nni, ncfn;                       /* nonlinear solver stats         */
   sunindextype NEQ;                         /* number of equations            */
@@ -248,11 +248,8 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "ARKodeSetJacFn", 1)) { return 1; }
 
   /* Create inner stepper */
-  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1))
-  {
-    return 1;
-  }
+  retval = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   /*
    * Create the slow integrator and set options
@@ -349,16 +346,16 @@ int main(int argc, char* argv[])
   /* Get some slow integrator statistics */
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfse);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = ARKodeGetNumStepAttempts(inner_arkode_mem, &nstf_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1);
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nffe, &nffi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 1, &nffi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
   retval = ARKodeGetNumLinSolvSetups(inner_arkode_mem, &nsetups);
   check_retval(&retval, "ARKodeGetNumLinSolvSetups", 1);
   retval = ARKodeGetNumErrTestFails(inner_arkode_mem, &netf);

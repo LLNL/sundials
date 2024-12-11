@@ -3,7 +3,7 @@
 	url = https://github.com/sundials-codes/radiuss-spack-configs.git
 [submodule "uberenv"]
 	path = .gitlab/uberenv
-	url = https://github.com/LLNL/uberenv.git
+	url = https://github.com/sundials-codes/uberenv.git
 [submodule "test/answers"]
 	path = test/answers
 	url = https://github.com/sundials-codes/answers.git

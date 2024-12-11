@@ -235,14 +235,13 @@ subroutine ARKStepStats(arkode_mem)
   integer(c_long) :: nsteps(1)    ! num steps
   integer(c_long) :: nst_a(1)     ! num steps attempted
   integer(c_long) :: nfe(1)       ! num explicit function evals
-  integer(c_long) :: nfi(1)       ! num implicit function evals
   integer(c_long) :: netfails(1)  ! num error test fails
 
   !======= Internals ============
 
   ierr = FARKodeGetNumSteps(arkode_mem, nsteps)
   ierr = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
-  ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+  ierr = FARKodeGetNumRhsEvals(arkode_mem, 0, nfe)
   ierr = FARKodeGetNumErrTestFails(arkode_mem, netfails)
 
   print *, ' '
