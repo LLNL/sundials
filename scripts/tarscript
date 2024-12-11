@@ -57,13 +57,13 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="7.1.1"
-CV_VER="7.1.1"
-CVS_VER="7.1.1"
-IDA_VER="7.1.1"
-IDAS_VER="6.1.1"
-KIN_VER="7.1.1"
-ARK_VER="6.1.1"
+SUN_VER="7.2.0"
+CV_VER="7.2.0"
+CVS_VER="7.2.0"
+IDA_VER="7.2.0"
+IDAS_VER="6.2.0"
+KIN_VER="7.2.0"
+ARK_VER="6.2.0"
 
 #---------------------------------------------------------
 # Test if the script is executed from within its directory
@@ -177,7 +177,7 @@ fi
 # Define some names
 #------------------
 
-# Location of the scripts
+# Location of the tarscript
 scriptdir=`pwd`
 
 # Sundials directory
@@ -205,9 +205,9 @@ mkdir $tmpdir/cmake
 mkdir $tmpdir/doc
 mkdir $tmpdir/examples
 mkdir $tmpdir/include
-mkdir $tmpdir/scripts
 mkdir $tmpdir/src
 mkdir $tmpdir/test
+mkdir $tmpdir/tools
 
 #----------------------------------
 # Copy appropriate files in $tmpdir
@@ -238,6 +238,8 @@ cp -r $sundialsdir/test/unit_tests/sunlinsol $tmpdir/examples/
 cp -r $sundialsdir/test/unit_tests/sunnonlinsol $tmpdir/examples/
 cp -r $sundialsdir/examples/templates $tmpdir/examples/
 
+cp -r $sundialsdir/external $tmpdir/
+
 cp -r $sundialsdir/include/sundials $tmpdir/include/
 cp -r $sundialsdir/include/nvector $tmpdir/include/
 cp -r $sundialsdir/include/sunmatrix $tmpdir/include/
@@ -245,8 +247,6 @@ cp -r $sundialsdir/include/sunmemory $tmpdir/include/
 cp -r $sundialsdir/include/sunlinsol $tmpdir/include/
 cp -r $sundialsdir/include/sunnonlinsol $tmpdir/include/
 cp -r $sundialsdir/include/sunadaptcontroller $tmpdir/include/
-
-cp -r $sundialsdir/scripts $tmpdir/
 
 cp    $sundialsdir/src/CMakeLists.txt $tmpdir/src/
 cp -r $sundialsdir/src/sundials $tmpdir/src/
@@ -260,7 +260,7 @@ cp -r $sundialsdir/src/sunadaptcontroller $tmpdir/src/
 cp    $sundialsdir/test/testRunner $tmpdir/test/
 cp -r $sundialsdir/test/unit_tests $tmpdir/test/
 
-cp -r $sundialsdir/external $tmpdir/
+cp -r $sundialsdir/tools $tmpdir/
 
 # Clean up tmpdir
 rm -rf $tmpdir/doc/shared/__pycache__
@@ -271,7 +271,7 @@ find $tmpdir -name ".DS_Store" -delete
 
 # Remove ignored or untracked files that may have been added
 cd $sundialsdir
-for f in $(git ls-files --others --directory benchmarks cmake doc examples include scripts src test); do
+for f in $(git ls-files --others --directory benchmarks cmake doc examples external include src test tools); do
     rm -rf $tmpdir/$f
 done
 cd -
@@ -346,7 +346,7 @@ done
 #---------------------------
 
 # NOTE: The "shared" script must be called first for each case below as it
-# creates the initial archive appended to by the package scripts
+# creates the initial archive appended to by the package tarscripts
 
 # Initial name of the directory to be archived
 distrobase="$tmpdir"
