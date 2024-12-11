@@ -49,6 +49,7 @@ if(BUILD_KINSOL)
 endif()
 
 if(CXX_FOUND)
+  add_subdirectory(logging)
   add_subdirectory(sunmemory)
   if(SUNDIALS_BUILD_WITH_PROFILING)
     add_subdirectory(profiling)

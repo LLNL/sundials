@@ -34,7 +34,6 @@ meant for SUNDIALS developers.
    pull_requests/index
    releases/index
    packages/index
-   sundialsdev/index
    appendix/index
 
 .. only:: html

@@ -139,6 +139,8 @@ Pay special attention to the two trailing underscores - two underscores
 indicates an anonymous link.
 
 
+.. _Style.Documentation.UserCallable:
+
 User-Callable Functions
 =======================
 
@@ -317,26 +319,28 @@ following.
    * ``examples/package/subdir/pkg_foo_demo.c``
 
 
+.. _Style.Documentation.UserSupplied:
+
 User-Supplied Functions
 =======================
 
 Document user-supplied functions with the :external+sphinx:rst:dir:`c:type`
 directive. The directive is followed by the ``typedef`` for the function
 pointer. The description of the function type mirrors the style used for
-user-callable function with one exception. As :external+sphinx:rst:dir:`c:type`
-does not currently support the ``param``, ``retval``, and ``returns`` fields,
-these sections must be manually created. The style that follows is chosen to
-reflect that of ``param``, ``retval``, and ``returns`` fields as much as
-possible. Function parameters should be listed under a boldface "Parameters:"
-section with the parameters in boldface and separated from their description by
-an en-dash. As user-supplied functions typically return a ``int``, but specific
-values are not required, a description of how the return value is interpreted
-should be given under a boldface "Returns:" section (skipping a line and
-indenting 2 spaces). If specific return values are required, these should be
-documented similarly to the function parameters and listed under a boldface
-"Return values:" section. If the function returns ``void``, a return section
-should not be included. Below we give, two examples describing user-supplied
-functions.
+user-callable functions (see :ref:`Style.Documentation.UserCallable`) with one
+exception. As :external+sphinx:rst:dir:`c:type` does not currently support the
+``param``, ``retval``, and ``returns`` fields, these sections must be manually
+created. The style that follows is chosen to reflect that of ``param``,
+``retval``, and ``returns`` fields as much as possible. Function parameters
+should be listed under a boldface "Parameters:" section with the parameters in
+boldface and separated from their description by an en-dash. As user-supplied
+functions typically return a ``int``, but specific values are not required, a
+description of how the return value is interpreted should be given under a
+boldface "Returns:" section (skipping a line and indenting 2 spaces). If
+specific return values are required, these should be documented similarly to the
+function parameters and listed under a boldface "Return values:" section. If the
+function returns ``void``, a return section should not be included. Below we
+give two examples describing user-supplied functions.
 
 .. code-block:: rst
 
@@ -408,3 +412,33 @@ following.
    **Examples codes:**
 
    * ``examples/package/subdir/pkg_bar_demo.c``
+
+
+.. _Style.Documentation.MacroFunction:
+
+Function-like Macros
+====================
+
+Document function-like macros with the :external+sphinx:rst:dir:`c:macro`
+directive followed by the macro. The guidelines for documenting function-like
+macros are the same as those used for documenting user-callable functions (see
+:ref:`Style.Documentation.UserCallable`) with one exception. As
+:external+sphinx:rst:dir:`c:macro` does not include the parameter types, the
+types should be included in the parameter descriptions when relevant i.e., when
+the macro is a wrapper to function (see :c:macro:`SUNLogInfo`). For example,
+
+.. code-block:: rst
+
+   .. c:macro:: FnLikeMacro(p1, p2)
+
+      Brief description of what the function-like macro does.
+
+      Additional information about the macro and its usage.
+
+      :param p1: the :c:type:`p1_type` parameter.
+      :param p2: the :c:type:`p1_type` parameter.
+
+      :retval retval1: under some conditions.
+      :retval retval2: under some other conditions.
+
+      .. versionadded:: x.y.z
