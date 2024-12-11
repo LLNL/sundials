@@ -4,25 +4,54 @@
 
 ### Major Features
 
-Added a time-stepping module to ARKODE for low storage Runge--Kutta methods, LSRKStep.
-This currently supports five explicit low-storage methods: the second-order Runge--Kutta--Chebyshev 
-and Runge--Kutta--Legendre methods, and the second- through fourth-order optimal strong stability
-preserving Runge--Kutta methods.  All methods include embeddings for temporal adaptivity.
+Added a time-stepping module to ARKODE for low storage Runge--Kutta methods,
+LSRKStep.  This currently supports five explicit low-storage methods: the
+second-order Runge--Kutta--Chebyshev and Runge--Kutta--Legendre methods, and the
+second- through fourth-order optimal strong stability preserving Runge--Kutta
+methods. All methods include embeddings for temporal adaptivity.
 
 Added an operator splitting module, SplittingStep, and forcing method module,
 ForcingStep, to ARKODE. These modules support a broad range of operator-split
 time integration methods for multiphysics applications.
 
+Added support for multirate time step adaptivity controllers, based on the
+recently introduced `SUNAdaptController` base class, to ARKODE's MRIStep module.
+As a part of this, we added embeddings for existing MRI-GARK methods, as well as
+support for embedded MERK and IMEX-MRI-SR methods. Added new default MRI methods
+for temporally adaptive versus fixed-step runs.
+
 ### New Features and Enhancements
 
-Added the `ARKodeSetStepDirection` and `ARKodeGetStepDirection` functions to
-change and query the direction of integration.
+#### Logging
+
+The information level logging output in ARKODE, CVODE(S), and IDA(S) has been
+updated to be more uniform across the packages and a new `tools` directory has
+been added with a Python module, `suntools`, containing utilities for parsing
+logging output. The Python utilities for parsing CSV output have been relocated
+from the `scripts` directory to the Python module.
+
+#### SUNStepper
 
 Added the `SUNStepper` base class to represent a generic solution procedure for
 IVPs. This is used by the SplittingStep and ForcingStep modules of ARKODE. A
 SUNStepper can be created from an ARKODE memory block with the new function
 `ARKodeCreateSUNStepper`. To enable interoperability with `MRIStepInnerStepper`,
 the function `MRIStepInnerStepper_CreateFromSUNStepper` was added.
+
+#### ARKODE
+
+Added functionality to ARKODE to accumulate a temporal error estimate over
+multiple time steps. See the routines `ARKodeSetAccumulatedErrorType`,
+`ARKodeResetAccumulatedError`, and `ARKodeGetAccumulatedError` for details.
+
+Added the `ARKodeSetStepDirection` and `ARKodeGetStepDirection` functions to
+change and query the direction of integration.
+
+Added the function `MRIStepGetNumInnerStepperFails` to retrieve the number of
+recoverable failures reported by the MRIStepInnerStepper.
+
+Added a utility routine to wrap any valid ARKODE integrator for use as an
+MRIStep inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
 
 The following DIRK schemes now have coefficients accurate to quad precision:
 * `ARKODE_BILLINGTON_3_3_2`
@@ -32,105 +61,102 @@ The following DIRK schemes now have coefficients accurate to quad precision:
 * `ARKODE_KVAERNO_5_3_4`
 * `ARKODE_KVAERNO_7_4_5`
 
+#### CMake
+
 The default value of `CMAKE_CUDA_ARCHITECTURES` is no longer set to `70` and is
 now determined automatically by CMake. The previous default was only valid for
 Volta GPUs while the automatically selected value will vary across compilers and
 compiler versions. As such, users are encouraged to override this value with the
 architecture for their system.
 
-The Trilinos Teptra NVector interface has been updated to utilize CMake
-imported targets added in Trilinos 14 to improve support for different Kokkos
-backends with Trilinos.  As such, Trilinos 14 or newer is required and the
-`Trilinos_INTERFACE_*` CMake options have been removed.
-
-Example programs using *hypre* have been updated to support v2.20 and newer.
-
-The information level logging output in ARKODE, CVODE(S), and IDA(S) has been
-updated to be more uniform across the packages and a new `tools` directory
-has been added with a Python module, `suntools`, containing utilities for
-parsing logging output. The Python utilities for parsing CSV output have been
-relocated from the `scripts` directory to the Python module.
-
 The build system has been updated to utilize the CMake LAPACK imported target
 which should ease building SUNDIALS with LAPACK libraries that require setting
 specific linker flags e.g., MKL.
 
-Added support for multirate time step adaptivity controllers, based on the
-recently introduced `SUNAdaptController` base class, to ARKODE's MRIStep module.
-As a part of this, we added embeddings for existing MRI-GARK methods, as well as
-support for embedded MERK and IMEX-MRI-SR methods.  Added new default MRI methods
-for temporally adaptive versus fixed-step runs.  Added the function
-`MRIStepGetNumInnerStepperFails` to retrieve the number of recoverable
-failures reported by the MRIStepInnerStepper.
+#### Third Party Libraries
 
-Added functionality to ARKODE to accumulate a temporal error
-estimate over multiple time steps.  See the routines `ARKodeSetAccumulatedErrorType`,
-`ARKodeResetAccumulatedError`, and `ARKodeGetAccumulatedError` for details.
+The Trilinos Teptra NVector interface has been updated to utilize CMake imported
+targets added in Trilinos 14 to improve support for different Kokkos backends
+with Trilinos. As such, Trilinos 14 or newer is required and the
+`Trilinos_INTERFACE_*` CMake options have been removed.
 
-Added a utility routine to wrap any valid ARKODE integrator for use as an MRIStep
-inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
+Example programs using *hypre* have been updated to support v2.20 and newer.
 
 ### Bug Fixes
+
+#### CMake
+
+Fixed a CMake bug regarding usage of missing "print_warning" macro that was only
+triggered when the deprecated `CUDA_ARCH` option was used.
+
+Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
+using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
+
+Fixed a CMake issue which caused third-party CMake variables to be unset.  Users
+may see more options in the CMake GUI now as a result of the fix.  See details
+in GitHub Issue [#538](https://github.com/LLNL/sundials/issues/538).
+
+#### NVector
 
 Fixed a build failure with the SYCL NVector when using Intel oneAPI 2025.0
 compilers. See GitHub Issue [#596](https://github.com/LLNL/sundials/issues/596).
 
-Fixed a bug where `CVodeSetProjFailEta` would ignore the `eta` parameter.
+Fixed compilation errors when building the Trilinos Teptra NVector with CUDA
+support.
 
-Fixed a bug in the SPTFQMR linear solver where recoverable preconditioner errors
-were reported as unrecoverable.
+#### SUNMatrix
 
 Fixed a [bug](https://github.com/LLNL/sundials/issues/581) in the sparse matrix
 implementation of `SUNMatScaleAddI` which caused out of bounds writes unless
 `indexvals` were in ascending order for each row/column.
 
+#### SUNLinearSolver
+
+Fixed a bug in the SPTFQMR linear solver where recoverable preconditioner errors
+were reported as unrecoverable.
+
+#### ARKODE
+
 Fixed `ARKodeResize` not using the default `hscale` when an argument of `0` was
 provided.
 
+Fixed a memory leak that could occur if ``ARKodeSetDefaults`` is called
+repeatedly.
+
 Fixed the loading of ARKStep's default first order explicit method.
+
+Fixed loading the default IMEX-MRI method if `ARKodeSetOrder` is used to specify
+a third or fourth order method. Previously, the default second order method was
+loaded in both cases.
+
+Fixed potential memory leaks and out of bounds array accesses that could occur
+in the ARKODE Lagrange interpolation module when changing the method order or
+polynomial degree after re-initializing an integrator.
 
 Fixed a bug in ARKODE when enabling rootfinding with fixed step sizes and the
 initial value of the rootfinding function is zero. In this case, uninitialized
 right-hand side data was used to compute a state value near the initial
 condition to determine if any rootfinding functions are initially active.
 
-Fixed a CMake bug regarding usage of missing "print_warning" macro
-that was only triggered when the deprecated `CUDA_ARCH` option was used.
-
-Fixed a memory leak that could occur if ``ARKodeSetDefaults`` is called
-repeatedly.
-
-Fixed compilation errors when building the Trilinos Teptra NVector with CUDA
-support.
-
-Fixed loading the default IMEX-MRI method if `ARKodeSetOrder` is used to specify
-a third or fourth order method. Previously, the default second order method
-was loaded in both cases.
-
-Fixed a bug in MRIStep where the data supplied to the Hermite interpolation module did
-not include contributions from the fast right-hand side function. With this fix, users
-will see one additional fast right-hand side function evaluation per slow step with the
-Hermite interpolation option.
+Fixed a bug in MRIStep where the data supplied to the Hermite interpolation
+module did not include contributions from the fast right-hand side
+function. With this fix, users will see one additional fast right-hand side
+function evaluation per slow step with the Hermite interpolation option.
 
 Fixed a bug in SPRKStep when using compensated summations where the error vector
 was not initialized to zero.
 
-Fixed potential memory leaks and out of bounds array accesses that could occur
-in the ARKODE Lagrange interpolation module when changing the method order or
-polynomial degree after re-initializing an integrator.
+#### CVODE(S)
+
+Fixed a bug where `CVodeSetProjFailEta` would ignore the `eta` parameter.
+
+#### Fortran Interfaces
 
 Fixed a bug in the 32-bit ``sunindextype`` Fortran interfaces to
 ``N_VGetSubvectorArrayPointer_ManyVector``,
 ``N_VGetSubvectorArrayPointer_MPIManyVector``, ``SUNBandMatrix_Column`` and
 ``SUNDenseMatrix_Column`` where 64-bit ``sunindextype`` interface functions were
 used.
-
-Fixed a CMake configuration issue related to aliasing an `ALIAS` target when
-using `ENABLE_KLU=ON` in combination with a static-only build of SuiteSparse.
-
-Fixed a CMake issue which caused third-party CMake variables to be unset.
-Users may see more options in the CMake GUI now as a result of the fix.
-See details in GitHub Issue [#538](https://github.com/LLNL/sundials/issues/538).
 
 ### Deprecation Notices
 
@@ -277,7 +303,7 @@ ARKODE-wide equivalent, instructions have been added to the user guide for how
 to retain the current functionality using other user-callable functions.
 
 The unsupported implementations of `N_VGetArrayPointer` and `N_VSetArrayPointer`
-for the *hypre* and PETSc vectors are now deprecated.  Users should access the
+for the *hypre* and PETSc vectors are now deprecated. Users should access the
 underlying wrapped external library vector objects instead with
 `N_VGetVector_ParHyp` and `N_VGetVector_Petsc`, respectively.
 
@@ -584,9 +610,9 @@ ARKODE.
 ### New Features
 
 Updated CVODE, CVODES and ARKODE default behavior when returning the solution when
-the internal time has reached a user-specified stop time.  Previously, the output
+the internal time has reached a user-specified stop time. Previously, the output
 solution was interpolated to the value of `tstop`; the default is now to copy the
-internal solution vector.  Users who wish to revert to interpolation may call a new
+internal solution vector. Users who wish to revert to interpolation may call a new
 routine `CVodeSetInterpolateStopTime`, `ARKStepSetInterpolateStopTime`,
 `ERKStepSetInterpolateStopTime`, or `MRIStepSetInterpolateStopTime`.
 
@@ -906,7 +932,7 @@ instead.
 * `SUNLinSolSetInfoFile_SPBCGS`
 * `SUNLinSolSetPrintLevel_SPBCGS`
 
-The `SUNLinSolSetInfoFile_*` and  `SUNNonlinSolSetInfoFile_*` family of
+The `SUNLinSolSetInfoFile_*` and `SUNNonlinSolSetInfoFile_*` family of
 functions are now enabled by setting the CMake option `SUNDIALS_LOGGING_LEVEL`
 to a value `>= 3`.
 
@@ -1067,7 +1093,7 @@ can be enabled with the CMake option `SUNDIALS_BUILD_WITH_PROFILING`. A built-in
 profiler will be used by default, but the
 [Caliper](https://github.com/LLNL/Caliper) library can also be used instead with
 the CMake option `ENABLE_CALIPER`. See the documentation section on profiling
-for more details.  **WARNING**: Profiling will impact performance, and should be
+for more details. **WARNING**: Profiling will impact performance, and should be
 enabled judiciously.
 
 #### IMEX MRI Methods and MRIStepInnerStepper Object
@@ -1402,9 +1428,9 @@ use the `SUNLinSolNewEmpty` constructor will, at a minimum, need set the
 to leverage this new set function to remove one dot product per solve.
 
 The time integrator packages (ARKODE, CVODE(S), and IDA(S)) all now support a
-new "matrix-embedded" SUNLinearSolver type.  This type supports user-supplied
+new "matrix-embedded" SUNLinearSolver type. This type supports user-supplied
 SUNLinearSolver implementations that set up and solve the specified linear
-system at each linear solve call.  Any matrix-related data structures are held
+system at each linear solve call. Any matrix-related data structures are held
 internally to the linear solver itself, and are not provided by the SUNDIALS
 package.
 
@@ -1779,7 +1805,7 @@ should be used instead.
 Added support for a user-supplied function to update the prediction for each
 implicit stage solution in ARKStep. If supplied, this routine will be called
 *after* any existing ARKStep predictor algorithm completes, so that the
-predictor may be modified by the user as desired.  The new user-supplied routine
+predictor may be modified by the user as desired. The new user-supplied routine
 has type `ARKStepStagePredictFn`, and may be set by calling
 `ARKStepSetStagePredictFn`.
 
@@ -1977,7 +2003,7 @@ The inputs values passed to the first two inputs of the `SUNNonlinSolSolve`
 function in the `SUNNonlinearSolver` have been changed to be the predicted state
 and the initial guess for the correction to that state. Additionally, the
 definitions of `SUNNonlinSolLSetupFn` and `SUNNonlinSolLSolveFn` in the
-SUNNonlinearSolver API have been updated to remove unused input parameters.  For
+SUNNonlinearSolver API have been updated to remove unused input parameters. For
 more information on the nonlinear system formulation and the API functions see
 the `SUNNonlinearSolver` chapter in the user guides.
 
