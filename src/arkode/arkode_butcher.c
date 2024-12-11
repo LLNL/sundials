@@ -376,7 +376,7 @@ void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE* outfile)
 {
   int i, j;
 
-  /* check for vaild table */
+  /* check for valid table */
   if (B == NULL) { return; }
   if (B->A == NULL) { return; }
   for (i = 0; i < B->stages; i++)

@@ -211,7 +211,7 @@ SUNLinearSolver SUNLinSol_OneMklDense(N_Vector y, SUNMatrix Amat,
                                                oneapi::mkl::transpose::nontrans,
                                                M, // number of rows in A_i
                                                1, // number of right-hand sides
-                                               M, // leading dimensino of A_i
+                                               M, // leading dimension of A_i
                                                M * N, // stride between A_i
                                                M,     // stride between pivots
                                                M, // leading dimension of B_i
@@ -348,7 +348,7 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
     }
     catch (oneapi::mkl::lapack::exception const& e)
     {
-      SUNDIALS_DEBUG_ERROR("An exception occured in getrf\n");
+      SUNDIALS_DEBUG_ERROR("An exception occurred in getrf\n");
       if (e.info())
       {
         // An illegal value was providied or the scratch pad is too small
@@ -377,7 +377,7 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
     }
     catch (oneapi::mkl::lapack::exception const& e)
     {
-      SUNDIALS_DEBUG_ERROR("An exception occured in getrf_batch\n");
+      SUNDIALS_DEBUG_ERROR("An exception occurred in getrf_batch\n");
       if (e.info())
       {
         // An illegal value was providied or the scratch pad is too small
@@ -406,7 +406,7 @@ int SUNLinSolSetup_OneMklDense(SUNLinearSolver S, SUNMatrix A)
     }
     catch (oneapi::mkl::lapack::exception const& e)
     {
-      SUNDIALS_DEBUG_ERROR("An exception occured in getrf\n");
+      SUNDIALS_DEBUG_ERROR("An exception occurred in getrf\n");
       if (e.info())
       {
         // An illegal value was providied or the scratch pad is too small
@@ -522,7 +522,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     }
     catch (oneapi::mkl::lapack::exception const& e)
     {
-      SUNDIALS_DEBUG_ERROR("An exception occured in getrs\n");
+      SUNDIALS_DEBUG_ERROR("An exception occurred in getrs\n");
       ier = -1;
     }
 #else
@@ -546,7 +546,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     }
     catch (oneapi::mkl::lapack::exception const& e)
     {
-      SUNDIALS_DEBUG_ERROR("An exception occured in getrs_batch\n");
+      SUNDIALS_DEBUG_ERROR("An exception occurred in getrs_batch\n");
       ier = -1;
     }
 #endif
@@ -569,7 +569,7 @@ int SUNLinSolSolve_OneMklDense(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     }
     catch (oneapi::mkl::lapack::exception const& e)
     {
-      SUNDIALS_DEBUG_ERROR("An exception occured in getrs\n");
+      SUNDIALS_DEBUG_ERROR("An exception occurred in getrs\n");
       ier = -1;
     }
   }
@@ -619,7 +619,7 @@ SUNErrCode SUNLinSolFree_OneMklDense(SUNLinearSolver S)
       SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_PIVOTS(S), LS_QUEUE(S));
     }
 
-    // Factorization scrach memory
+    // Factorization scratch memory
     if (LS_F_SCRATCH(S))
     {
       SUNMemoryHelper_Dealloc(LS_MEM_HELPER(S), LS_F_SCRATCH(S), LS_QUEUE(S));

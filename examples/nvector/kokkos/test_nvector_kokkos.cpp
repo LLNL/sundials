@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * This is the testing routine for the NVector implemenation using Kokkos.
+ * This is the testing routine for the NVector implementation using Kokkos.
  * ---------------------------------------------------------------------------*/
 
 #include <nvector/nvector_kokkos.hpp>

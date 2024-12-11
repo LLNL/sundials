@@ -20,8 +20,8 @@ foreach(test_tuple ${unit_tests})
   list(GET test_tuple 0 test)
   list(GET test_tuple 1 test_args)
 
-  # check if this test has already been added, only need to add
-  # test source files once for testing with different inputs
+  # check if this test has already been added, only need to add test source
+  # files once for testing with different inputs
   if(NOT TARGET ${test})
 
     # test source files
@@ -30,13 +30,13 @@ foreach(test_tuple ${unit_tests})
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
     # include location of public and private header files
-    target_include_directories(${test} PRIVATE
-      $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-      ${CMAKE_SOURCE_DIR}/include
-      ${CMAKE_SOURCE_DIR}/src)
+    target_include_directories(
+      ${test} PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+                      ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
     # libraries to link against
-    target_link_libraries(${test} PRIVATE sundials_core sundials_sunmemsys_obj ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(${test} PRIVATE sundials_core sundials_sunmemsys_obj
+                                          ${EXE_EXTRA_LINK_LIBS})
 
   endif()
 
@@ -54,4 +54,3 @@ foreach(test_tuple ${unit_tests})
 endforeach()
 
 message(STATUS "Added SUNMemoryHelper_Sys units tests")
-

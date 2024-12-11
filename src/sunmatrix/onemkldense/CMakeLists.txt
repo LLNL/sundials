@@ -15,29 +15,18 @@
 install(CODE "MESSAGE(\"\nInstall SUNMATRIX_ONEMKLDENSE\n\")")
 
 # Create the library
-sundials_add_library(sundials_sunmatrixonemkldense
-  SOURCES
-    sunmatrix_onemkldense.cpp
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_onemkldense.h
-  INCLUDE_SUBDIR
-    sunmatrix
-  LINK_LIBRARIES
-    PUBLIC sundials_core
-  OBJECT_LIBRARIES
-    sundials_sunmemsycl_obj
-  COMPILE_FEATURES
-    PUBLIC cxx_std_17
-  INCLUDE_DIRECTORIES
-    PUBLIC ${MKL_INCLUDE_DIR}
-  LINK_LIBRARIES
-    PUBLIC MKL::MKL_DPCPP
-  OUTPUT_NAME
-    sundials_sunmatrixonemkldense
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
-)
+sundials_add_library(
+  sundials_sunmatrixonemkldense
+  SOURCES sunmatrix_onemkldense.cpp
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunmatrix/sunmatrix_onemkldense.h
+  INCLUDE_SUBDIR sunmatrix
+  LINK_LIBRARIES PUBLIC sundials_core
+  OBJECT_LIBRARIES sundials_sunmemsycl_obj
+  COMPILE_FEATURES PUBLIC cxx_std_17
+  INCLUDE_DIRECTORIES PUBLIC ${MKL_INCLUDE_DIR}
+  LINK_LIBRARIES PUBLIC MKL::MKL_DPCPP
+  OUTPUT_NAME sundials_sunmatrixonemkldense
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(STATUS "Added SUNMATRIX_ONEMKLDENSE module")

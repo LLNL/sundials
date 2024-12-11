@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   RCP<const map_type> testMap = rcp(
     new map_type(global_length, index_base, comm, Tpetra::GloballyDistributed));
 
-  /* Construct a Tpetra vector and return refernce counting pointer to it. */
+  /* Construct a Tpetra vector and return reference counting pointer to it. */
   RCP<vector_type> px = rcp(new vector_type(testMap));
 
   int fails     = 0; /* counter for test failures */

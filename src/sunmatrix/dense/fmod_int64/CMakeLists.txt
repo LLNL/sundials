@@ -14,17 +14,12 @@
 # CMakeLists.txt file for the F2003 dense SUNMatrix object library
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunmatrixdense_mod
-  SOURCES
-    fsunmatrix_dense_mod.f90 fsunmatrix_dense_mod.c
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
-  OUTPUT_NAME
-    sundials_fsunmatrixdense_mod
-  VERSION
-    ${sunmatrixlib_VERSION}
-  SOVERSION
-    ${sunmatrixlib_SOVERSION}
-)
+sundials_add_f2003_library(
+  sundials_fsunmatrixdense_mod
+  SOURCES fsunmatrix_dense_mod.f90 fsunmatrix_dense_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
+  OUTPUT_NAME sundials_fsunmatrixdense_mod
+  VERSION ${sunmatrixlib_VERSION}
+  SOVERSION ${sunmatrixlib_SOVERSION})
 
 message(STATUS "Added SUNMATRIX_DENSE F2003 interface")

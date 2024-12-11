@@ -14,30 +14,26 @@
 # CMakeLists.txt file for sunlinsol LAPACK dense examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type" where the type is 'develop' for
+# examples excluded from 'make test' in releases
 
 # Examples using the LAPACK dense linear solver
 set(sunlinsol_lapackdense_examples
-  "test_sunlinsol_lapackdense\;10 0 0\;"
-  "test_sunlinsol_lapackdense\;100 0 0\;"
-  "test_sunlinsol_lapackdense\;500 0 0\;"
-  "test_sunlinsol_lapackdense\;1000 0 0\;"
-)
+    "test_sunlinsol_lapackdense\;10 0 0\;"
+    "test_sunlinsol_lapackdense\;100 0 0\;"
+    "test_sunlinsol_lapackdense\;500 0 0\;"
+    "test_sunlinsol_lapackdense\;1000 0 0\;")
 
 # Dependencies for nvector examples
-set(sunlinsol_lapackdense_dependencies
-  test_sunlinsol
-)
+set(sunlinsol_lapackdense_dependencies test_sunlinsol)
 
 # If building F2003 tests
-if (BUILD_FORTRAN_MODULE_INTERFACE)
+if(BUILD_FORTRAN_MODULE_INTERFACE)
   set(sunlinsol_lapackdense_fortran_examples
-    "test_fsunlinsol_lapackdense_mod\;10 0 0\;"
-    "test_fsunlinsol_lapackdense_mod\;100 0 0\;"
-    "test_fsunlinsol_lapackdense_mod\;500 0 0\;"
-    "test_fsunlinsol_lapackdense_mod\;1000 0 0\;"
-    )
+      "test_fsunlinsol_lapackdense_mod\;10 0 0\;"
+      "test_fsunlinsol_lapackdense_mod\;100 0 0\;"
+      "test_fsunlinsol_lapackdense_mod\;500 0 0\;"
+      "test_fsunlinsol_lapackdense_mod\;1000 0 0\;")
 endif()
 
 # Add source directory to include directories
@@ -51,8 +47,8 @@ foreach(example_tuple ${sunlinsol_lapackdense_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.c ../test_sunlinsol.c)
@@ -61,12 +57,9 @@ foreach(example_tuple ${sunlinsol_lapackdense_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecserial
-      sundials_sunmatrixdense
-      sundials_sunlinsollapackdense
-      ${LAPACK_LIBRARIES}
-      ${EXE_EXTRA_LINK_LIBS})
+    target_link_libraries(
+      ${example} sundials_nvecserial sundials_sunmatrixdense
+      sundials_sunlinsollapackdense ${EXE_EXTRA_LINK_LIBS})
   endif()
 
   # check if example args are provided and set the test name
@@ -77,17 +70,16 @@ foreach(example_tuple ${sunlinsol_lapackdense_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(
+    ${test_name} ${example}
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
   # install example source files
   if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c
-      ../test_sunlinsol.h
-      ../test_sunlinsol.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackdense)
+    install(FILES ${example}.c ../test_sunlinsol.h ../test_sunlinsol.c
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackdense)
   endif()
 
 endforeach(example_tuple ${sunlinsol_lapackdense_examples})
@@ -100,14 +92,17 @@ foreach(example_tuple ${sunlinsol_lapackdense_fortran_examples})
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # build fortran modules into a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(CMAKE_Fortran_MODULE_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    add_executable(${example} ${example}.f90
+    add_executable(
+      ${example}
+      ${example}.f90
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/test_utilities.f90
       ${SUNDIALS_SOURCE_DIR}/examples/sunlinsol/test_sunlinsol.f90)
 
@@ -115,11 +110,9 @@ foreach(example_tuple ${sunlinsol_lapackdense_fortran_examples})
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example}
-      sundials_nvecserial
-      sundials_fnvecserial_mod
-      sundials_sunlinsollapackdense
-      sundials_fsunlinsollapackdense_mod
+    target_link_libraries(
+      ${example} sundials_nvecserial sundials_fnvecserial_mod
+      sundials_sunlinsollapackdense sundials_fsunlinsollapackdense_mod
       ${EXE_EXTRA_LINK_LIBS})
 
     # check if example args are provided and set the test name
@@ -130,14 +123,14 @@ foreach(example_tuple ${sunlinsol_lapackdense_fortran_examples})
     endif()
 
     # add example to regression tests
-    sundials_add_test(${test_name} ${example}
+    sundials_add_test(
+      ${test_name} ${example}
       TEST_ARGS ${example_args}
       EXAMPLE_TYPE ${example_type}
       NODIFF)
   endif()
 
 endforeach(example_tuple ${sunlinsol_lapackdense_fortran_examples})
-
 
 if(EXAMPLES_INSTALL)
 
@@ -148,47 +141,41 @@ if(EXAMPLES_INSTALL)
   set(SOLVER_LIB "sundials_sunlinsollapackdense")
   set(LIBS "${LIBS} -lsundials_sunmatrixdense -lsundials_sunmatrixband")
 
-  # Set the link directory for the dense and band sunmatrix libraries
-  # The generated CMakeLists.txt does not use find_library() locate them
+  # Set the link directory for the dense and band sunmatrix libraries The
+  # generated CMakeLists.txt does not use find_library() locate them
   set(EXTRA_LIBS_DIR "${libdir}")
 
   examples2string(sunlinsol_lapackdense_examples EXAMPLES_BL)
   examples2string(sunlinsol_lapackdense_dependencies EXAMPLES_DEPENDENCIES_BL)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackdense/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackdense/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
   install(
     FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackdense/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackdense
-    )
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackdense)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackdense/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackdense/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/lapackdense/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/lapackdense
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
 endif()

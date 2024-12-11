@@ -93,7 +93,7 @@ typedef struct
   sunrealtype z[100];
 }* UserData;
 
-/* Prototypes of user-supplied functins */
+/* Prototypes of user-supplied functions */
 
 static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data);
 

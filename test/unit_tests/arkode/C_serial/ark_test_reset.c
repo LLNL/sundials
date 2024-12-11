@@ -15,7 +15,7 @@
  *
  * This runs the same test problem as in
  * examples/arkode/C_serial/ark_analytic.c:
- *    dy/dt = lamda*y + 1/(1+t^2) - lambda*atan(t)
+ *    dy/dt = lambda*y + 1/(1+t^2) - lambda*atan(t)
  * for t in various time intervals, with the initial condition
  * y(0)=0, and having analytical solution y(t) = atan(t).
  *
@@ -97,7 +97,7 @@ int main(void)
   retval = SUNContext_Create(SUN_COMM_NULL, &ctx);
   if (check_retval(&retval, "SUNContext_Create", 1)) { return 1; }
 
-  /* Initialize vector, matrix, and linaer solver data structures */
+  /* Initialize vector, matrix, and linear solver data structures */
   y = N_VNew_Serial(1, ctx);
   if (check_retval((void*)y, "N_VNew_Serial", 0)) { return 1; }
   A = SUNDenseMatrix(1, 1, ctx);
@@ -125,7 +125,7 @@ int main(void)
   check_retval(&retval, "ARKodeSetStopTime", 1);
   retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Initial ARKodeEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -143,7 +143,7 @@ int main(void)
   check_retval(&retval, "ARKodeReset", 1);
   retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Second ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -161,7 +161,7 @@ int main(void)
   check_retval(&retval, "ARKodeReset", 1);
   retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Third ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -179,7 +179,7 @@ int main(void)
   check_retval(&retval, "ARKodeReset", 1);
   retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Fourth ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -218,7 +218,7 @@ int main(void)
   /* Initially evolve to dTout, and check result */
   retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Initial ARKodeEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -236,7 +236,7 @@ int main(void)
   check_retval(&retval, "ARKodeReset", 1);
   retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Second ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -254,7 +254,7 @@ int main(void)
   check_retval(&retval, "ARKodeReset", 1);
   retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Third ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -272,7 +272,7 @@ int main(void)
   check_retval(&retval, "ARKodeReset", 1);
   retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Fourth ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -299,11 +299,8 @@ int main(void)
   if (check_retval(&retval, "ARKodeSStolerances", 1)) { return 1; }
   retval = ARKodeSetMaxNumSteps(arkode_mem, 100);
   check_retval(&retval, "ARKodeSetMaxNumSteps", 1);
-  retval = ARKStepCreateMRIStepInnerStepper(arkode_mem, &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1))
-  {
-    return 1;
-  }
+  retval = ARKodeCreateMRIStepInnerStepper(arkode_mem, &inner_stepper);
+  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
   mristep_mem = MRIStepCreate(NULL, f, t, y, inner_stepper, ctx);
   if (check_retval((void*)mristep_mem, "MRIStepCreate", 0)) { return 1; }
   retval = ARKodeSetUserData(mristep_mem, (void*)&lambda);
@@ -316,13 +313,13 @@ int main(void)
   if (check_retval(&retval, "ARKodeSetLinear", 1)) { return 1; }
   retval = ARKodeSetMaxNumSteps(mristep_mem, 100);
   check_retval(&retval, "ARKodeSetMaxNumSteps", 1);
-  retval = ARKodeSetFixedStep(mristep_mem, dTout * SUN_RCONST(0.105));
+  retval = ARKodeSetFixedStep(mristep_mem, dTout * SUN_RCONST(0.100));
   check_retval(&retval, "ARKodeSetFixedStep", 1);
 
   /* Initially evolve to dTout, and check result */
   retval = ARKodeEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Initial ARKodeEvolve had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -340,7 +337,7 @@ int main(void)
   check_retval(&retval, "ARKodeReset", 1);
   retval = ARKodeEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Second ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -358,7 +355,7 @@ int main(void)
   check_retval(&retval, "ARKodeReset", 1);
   retval = ARKodeEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Third ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -376,7 +373,7 @@ int main(void)
   check_retval(&retval, "ARKodeReset", 1);
   retval = ARKodeEvolve(mristep_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
-  if (check_ans(y, t, SUN_RCONST(0.001), SUN_RCONST(0.000001)))
+  if (check_ans(y, t, rtol, atol))
   {
     printf("  Fourth ARKodeEvolve call had insufficient accuracy\n");
     printf("    t = %" GSYM "\n", t);
@@ -498,8 +495,8 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
 
   /* compute solution error */
   ans = ytrue(t);
-  ewt = SUN_RCONST(1.0) / (rtol * fabs(ans) + atol);
-  err = ewt * fabs(NV_Ith_S(y, 0) - ans);
+  ewt = SUN_RCONST(1.0) / (rtol * SUNRabs(ans) + atol);
+  err = ewt * SUNRabs(NV_Ith_S(y, 0) - ans);
 
   /* is the solution within the tolerances? */
   passfail = (err < SUN_RCONST(1.0)) ? 0 : 1;

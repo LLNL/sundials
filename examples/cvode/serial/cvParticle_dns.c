@@ -479,7 +479,7 @@ static void InputHelp(void)
   printf("  --alpha <vel>      : particle velocity\n");
   printf("  --orbits <orbits>  : number of orbits to perform\n");
   printf("  --rtol <rtol>      : relative tolerance\n");
-  printf("  --atol <atol>      : absoltue tolerance\n");
+  printf("  --atol <atol>      : absolute tolerance\n");
   printf("  --proj <1 or 0>    : enable (1) / disable (0) projection\n");
   printf("  --projerr <1 or 0> : enable (1) / disable (0) error projection\n");
   printf("  --nout <nout>      : outputs per period\n");

@@ -1224,7 +1224,7 @@ in the notation of :eq:`IDAS_QUAD`. The form of the call to this function is as 
       .. warning::
 
          Before calling :c:func:`IDAQuadSensInit`, the user must enable the
-         sensitivites  by calling  :c:func:`IDASensInit`.  If an error occurred,
+         sensitivities  by calling  :c:func:`IDASensInit`.  If an error occurred,
          :c:func:`IDAQuadSensInit` also sends an error message to the  error handler
          function.
 

@@ -33,13 +33,15 @@
 
 # check for valid thread type
 string(TOUPPER ${SUPERLUMT_THREAD_TYPE} _upper_SUPERLUMT_THREAD_TYPE)
-force_variable(SUPERLUMT_THREAD_TYPE STRING "SuperLU_MT threading type: OPENMP or PTHREAD" ${_upper_SUPERLUMT_THREAD_TYPE})
+force_variable(
+  SUPERLUMT_THREAD_TYPE STRING "SuperLU_MT threading type: OPENMP or PTHREAD"
+  ${_upper_SUPERLUMT_THREAD_TYPE})
 
-if(SUPERLUMT_THREAD_TYPE AND
-    NOT SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP" AND
-    NOT SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
+if(SUPERLUMT_THREAD_TYPE
+   AND NOT SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP"
+   AND NOT SUPERLUMT_THREAD_TYPE STREQUAL "PTHREAD")
   message(FATAL_ERROR "Unknown thread type: ${SUPERLUMT_THREAD_TYPE} "
-    "Please enter PTHREAD or OPENMP")
+                      "Please enter PTHREAD or OPENMP")
 endif()
 
 # check if the threading library has been found
@@ -69,9 +71,8 @@ if(MSVC)
   set(CMAKE_FIND_LIBRARY_PREFIXES lib ${CMAKE_FIND_LIBRARY_PREFIXES})
 endif()
 
-# Check if SUPERLUMT_LIBRARIES contains the superlu_mt
-# library as well as TPLs. If so, extract it into the
-# SUPERLUMT_LIBRARY variable.
+# Check if SUPERLUMT_LIBRARIES contains the superlu_mt library as well as TPLs.
+# If so, extract it into the SUPERLUMT_LIBRARY variable.
 if(SUPERLUMT_LIBRARIES MATCHES "${SUPERLUMT_LIBRARY_NAME}")
   foreach(lib ${SUPERLUMT_LIBRARIES})
     if(lib MATCHES "${SUPERLUMT_LIBRARY_NAME}")
@@ -83,8 +84,10 @@ endif()
 # find library
 if(NOT SUPERLUMT_LIBRARY)
   # search user provided directory path
-  find_library(SUPERLUMT_LIBRARY ${SUPERLUMT_LIBRARY_NAME}
-    PATHS ${SUPERLUMT_LIBRARY_DIR} NO_DEFAULT_PATH)
+  find_library(
+    SUPERLUMT_LIBRARY ${SUPERLUMT_LIBRARY_NAME}
+    PATHS ${SUPERLUMT_LIBRARY_DIR}
+    NO_DEFAULT_PATH)
   # if user didn't provide a path, search anywhere
   if(NOT (SUPERLUMT_LIBRARY_DIR OR SUPERLUMT_LIBRARY))
     find_library(SUPERLUMT_LIBRARY ${SUPERLUMT_LIBRARY_NAME})
@@ -94,38 +97,42 @@ endif()
 
 # set the libraries, stripping out 'NOTFOUND' from previous attempts
 if(NOT (SUPERLUMT_LIBRARIES MATCHES "${SUPERLUMT_LIBRARY_NAME}"))
-  set(SUPERLUMT_LIBRARIES "${SUPERLUMT_LIBRARY};${SUPERLUMT_LIBRARIES}" CACHE STRING "" FORCE)
+  set(SUPERLUMT_LIBRARIES
+      "${SUPERLUMT_LIBRARY};${SUPERLUMT_LIBRARIES}"
+      CACHE STRING "" FORCE)
 endif()
 
 # set the library dir option if it wasn't preset
 if(SUPERLUMT_LIBRARY AND (NOT SUPERLUMT_LIBRARY_DIR))
   get_filename_component(SUPERLUMT_LIBRARY_DIR ${SUPERLUMT_LIBRARY} DIRECTORY)
-  set(SUPERLUMT_LIBRARY_DIR ${SUPERLUMT_LIBRARY_DIR} CACHE PATH "" FORCE)
+  set(SUPERLUMT_LIBRARY_DIR
+      ${SUPERLUMT_LIBRARY_DIR}
+      CACHE PATH "" FORCE)
 endif()
 
 # set the include dir option if it wasn't preset
 if(SUPERLUMT_LIBRARY AND (NOT SUPERLUMT_INCLUDE_DIR))
-  get_filename_component(SUPERLUMT_INCLUDE_DIR ${SUPERLUMT_LIBRARY_DIR} DIRECTORY)
-  set(SUPERLUMT_INCLUDE_DIR "${SUPERLUMT_INCLUDE_DIR}/include" CACHE PATH "" FORCE)
+  get_filename_component(SUPERLUMT_INCLUDE_DIR ${SUPERLUMT_LIBRARY_DIR}
+                         DIRECTORY)
+  set(SUPERLUMT_INCLUDE_DIR
+      "${SUPERLUMT_INCLUDE_DIR}/include"
+      CACHE PATH "" FORCE)
 endif()
 
 # set a more informative error message in case the library was not found
-set(SUPERLUMT_NOT_FOUND_MESSAGE "\
+set(SUPERLUMT_NOT_FOUND_MESSAGE
+    "\
 ************************************************************************\n\
 ERROR: Could not find SuperLU_MT. Please check the variables:\n\
        SUPERLUMT_INCLUDE_DIR and SUPERLUMT_LIBRARY_DIR\n\
 ************************************************************************")
 
 # set package variables including SUPERLUMT_FOUND
-find_package_handle_standard_args(SUPERLUMT
-  REQUIRED_VARS
-    SUPERLUMT_LIBRARY
-    SUPERLUMT_LIBRARIES
-    SUPERLUMT_INCLUDE_DIR
-    SUPERLUMT_THREAD_TYPE
-  FAIL_MESSAGE
-    "${SUPERLUMT_NOT_FOUND_MESSAGE}"
-  )
+find_package_handle_standard_args(
+  SUPERLUMT
+  REQUIRED_VARS SUPERLUMT_LIBRARY SUPERLUMT_LIBRARIES SUPERLUMT_INCLUDE_DIR
+                SUPERLUMT_THREAD_TYPE
+  FAIL_MESSAGE "${SUPERLUMT_NOT_FOUND_MESSAGE}")
 
 # Create target for SuperLU_MT
 if(SUPERLUMT_FOUND)
@@ -134,10 +141,11 @@ if(SUPERLUMT_FOUND)
     add_library(SUNDIALS::SUPERLUMT UNKNOWN IMPORTED)
   endif()
 
-  set_target_properties(SUNDIALS::SUPERLUMT PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${SUPERLUMT_INCLUDE_DIR}"
-    INTERFACE_LINK_LIBRARIES "${SUPERLUMT_LIBRARIES}"
-    IMPORTED_LOCATION "${SUPERLUMT_LIBRARY}")
+  set_target_properties(
+    SUNDIALS::SUPERLUMT
+    PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${SUPERLUMT_INCLUDE_DIR}"
+               INTERFACE_LINK_LIBRARIES "${SUPERLUMT_LIBRARIES}"
+               IMPORTED_LOCATION "${SUPERLUMT_LIBRARY}")
 
   list2string(SUPERLUMT_LIBRARIES EXAMPLES_SUPERLUMT_LIBRARIES)
 

@@ -184,7 +184,7 @@ In certain instances, users may wish to provide a custom SUNLinSol
 implementation to ARKODE in order to leverage the structure of a problem.  While
 the "standard" API for these routines is typically sufficient for most users,
 others may need additional ARKODE-specific information on top of what is
-provided.  For these purposes, we note the following advanced ouptut functions
+provided.  For these purposes, we note the following advanced output functions
 available in ARKStep and MRIStep:
 
 

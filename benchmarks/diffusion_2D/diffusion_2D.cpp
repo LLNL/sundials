@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------------------
- * Shared implementaiton file for 2D diffusion benchmark problem
+ * Shared implementation file for 2D diffusion benchmark problem
  * ---------------------------------------------------------------------------*/
 
 #include "diffusion_2D.hpp"

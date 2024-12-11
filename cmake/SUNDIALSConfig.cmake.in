@@ -108,6 +108,16 @@ if("@ENABLE_KOKKOS_KERNELS@" AND NOT TARGET Kokkos::kokkoskernels)
   find_dependency(KokkosKernels PATHS "@KokkosKernels_DIR@")
 endif()
 
+if("@ENABLE_LAPACK@" AND NOT TARGET LAPACK::LAPACK)
+  # For some reason find_dependency does not find the libraries if the variables
+  # below are internal rather than CACHE variables
+  set(BLAS_LIBRARIES "@BLAS_LIBRARIES@" CACHE "FILEPATH" "BLAS libraries")
+  set(BLAS_LINKER_FLAGS "@BLAS_LINKER_FLAGS@" CACHE "STRING" "BLAS linker flags")
+  set(LAPACK_LIBRARIES "@LAPACK_LIBRARIES@" CACHE "FILEPATH" "LAPACK libraries")
+  set(LAPACK_LINKER_FLAGS "@LAPACK_LINKER_FLAGS@" CACHE "STRING" "LAPACK linker flags")
+  find_dependency(LAPACK)
+endif()
+
 if("@ENABLE_PETSC@" AND NOT TARGET SUNDIALS::PETSC)
   add_library(SUNDIALS::PETSC INTERFACE IMPORTED)
   target_link_libraries(SUNDIALS::PETSC INTERFACE "@PETSC_LIBRARIES@")
@@ -161,10 +171,8 @@ if("@ENABLE_RAJA@" AND NOT TARGET RAJA)
   find_dependency(RAJA PATHS "@RAJA_DIR@")
 endif()
 
-if("@ENABLE_TRILINOS@" AND NOT TARGET SUNDIALS::TRILINOS)
-  add_library(SUNDIALS::TRILINOS INTERFACE IMPORTED)
-  target_link_libraries(SUNDIALS::TRILINOS INTERFACE "@Trilinos_LIBRARIES@")
-  set_target_properties(SUNDIALS::TRILINOS PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "@Trilinos_INCLUDE_DIRS@")
+if("@ENABLE_TRILINOS@" AND NOT TARGET Tpetra::all_libs)
+  find_dependency(Trilinos COMPONENTS Tpetra PATHS "@Trilinos_DIR@")
 endif()
 
 if("@ENABLE_XBRAID@" AND NOT TARGET SUNDIALS::XBRAID)

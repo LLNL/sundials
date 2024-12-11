@@ -155,7 +155,7 @@ struct UserData
   sunrealtype* Ssend;
   sunrealtype* Nsend;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -185,7 +185,7 @@ struct UserData
                          //   3 - nonsymmetric R/B Gauss-Seidel
   HYPRE_Int pfmg_nrelax; // number of pre and post relaxation sweeps (2)
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   int nout;      // number of output times
   ofstream uout; // output file stream
@@ -382,6 +382,13 @@ int main(int argc, char* argv[])
   flag = SUNContext_Create(comm_w, &ctx);
   if (check_flag(&flag, "SUNContext_Create", 1)) { return 1; }
 
+  // Initialize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+  flag = HYPRE_Init();
+  if (check_flag(&flag, "HYPRE_Init", 1)) { return 1; }
+#endif
+
   // Set output process flag
   bool outproc = (myid == 0);
 
@@ -518,7 +525,7 @@ int main(int argc, char* argv[])
   sunrealtype dTout = udata->tf / udata->nout;
   sunrealtype tout  = dTout;
 
-  // Inital output
+  // Initial output
   flag = OpenOutput(udata);
   if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 
@@ -591,6 +598,13 @@ int main(int argc, char* argv[])
   // --------------------
   // Clean up and return
   // --------------------
+
+  // Finalize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+  flag = HYPRE_Finalize();
+  if (check_flag(&flag, "HYPRE_Finalize", 1)) { return 1; }
+#endif
 
   ARKodeFree(&arkode_mem); // Free integrator memory
   SUNLinSolFree(LS);       // Free linear solver
@@ -1852,7 +1866,7 @@ static void InputHelp()
   cout << "  --noforcing             : disable forcing term" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --nonlinear             : disable linearly implicit flag" << endl;
   cout << "  --order <ord>           : method order" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
@@ -2097,15 +2111,15 @@ static int OutputStats(void* arkode_mem, UserData* udata)
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nJeval;
+  long int nst, nst_a, netf, nfi, nni, ncfn, nli, nlcf, nsetups, nJeval;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
@@ -2620,7 +2634,7 @@ int HypreLS_Setup(SUNLinearSolver LS, SUNMatrix A)
     flag = HYPRE_StructPFMGCreate(udata->comm_c, &(HLS_PRECOND(LS)));
     if (flag != 0) { return (flag); }
 
-    // Signal that the inital guess is zero
+    // Signal that the initial guess is zero
     flag = HYPRE_StructPFMGSetZeroGuess(HLS_PRECOND(LS));
     if (flag != 0) { return (flag); }
 
@@ -2744,14 +2758,14 @@ int HypreLS_Solve(SUNLinearSolver LS, SUNMatrix A, N_Vector x, N_Vector b,
                                   HLS_X(LS));
   }
 
-  // If a convergence error occured, clear the error, and return with a
+  // If a convergence error occurred, clear the error, and return with a
   // recoverable error.
   if (flag == HYPRE_ERROR_CONV)
   {
     HYPRE_ClearError(HYPRE_ERROR_CONV);
     return SUNLS_CONV_FAIL;
   }
-  // If any other error occured return with an unrecoverable error.
+  // If any other error occurred return with an unrecoverable error.
   else if (flag != 0) { return SUN_ERR_EXT_FAIL; }
 
   // Update iteration count

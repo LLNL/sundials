@@ -14,27 +14,29 @@
 # benchmarks level CMakeLists.txt for SUNDIALS
 # ---------------------------------------------------------------
 
-if(NOT (CMAKE_BUILD_TYPE STREQUAL "Release" OR
-      CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+if(NOT (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL
+                                               "RelWithDebInfo"))
   message(WARNING "SUNDIALS is not being built in a \"Release\" mode, "
-          "benchmark performance will be affected")
+                  "benchmark performance will be affected")
 endif()
 
 sundials_option(BENCHMARK_NVECTOR BOOL "NVector benchmarks are on" ON)
 
 # Disable some warnings for benchmarks
 if(ENABLE_ALL_WARNINGS)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-parameter")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
+  set(CMAKE_C_FLAGS
+      "${CMAKE_C_FLAGS} -Wno-unused-parameter -Wno-unused-function")
+  set(CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-unused-function")
 endif()
 
-#----------------------------------------
+# ----------------------------------------
 # Add specific benchmarks
-#----------------------------------------
+# ----------------------------------------
 
 if(ENABLE_MPI)
-add_subdirectory(diffusion_2D)
-add_subdirectory(advection_reaction_3D)
+  add_subdirectory(diffusion_2D)
+  add_subdirectory(advection_reaction_3D)
 endif()
 
 # Add the nvector benchmarks

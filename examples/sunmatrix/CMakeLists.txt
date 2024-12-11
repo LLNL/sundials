@@ -28,8 +28,10 @@ add_subdirectory(sparse)
 # Build the sunmatrix test utilities
 add_library(test_sunmatrix_obj OBJECT test_sunmatrix.c test_sunmatrix.h)
 if(BUILD_SHARED_LIBS)
-  # need PIC when shared libs are used since the example executables will link to the shared lib
-  set_property(TARGET test_sunmatrix_obj PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  # need PIC when shared libs are used since the example executables will link
+  # to the shared lib
+  set_property(TARGET test_sunmatrix_obj PROPERTY POSITION_INDEPENDENT_CODE
+                                                  TRUE)
 endif()
 target_link_libraries(test_sunmatrix_obj PRIVATE sundials_sunmatrixdense)
 

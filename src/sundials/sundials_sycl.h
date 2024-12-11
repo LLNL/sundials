@@ -43,7 +43,7 @@ extern "C" {
                      [=](::sycl::nd_item<1> item) { loop }); \
     });
 
-/* Sycl parallel for loop with stream for ouput */
+/* Sycl parallel for loop with stream for output */
 #define SYCL_FOR_DEBUG(q, total, block, item, loop)          \
   q->submit(                                                 \
     [&](::sycl::handler& h)                                  \
@@ -63,7 +63,7 @@ extern "C" {
                      [=](::sycl::nd_item<1> item, auto& rvar) { loop }); \
     });
 
-/* Sycl parallel for loop with reduction and stream for ouput */
+/* Sycl parallel for loop with reduction and stream for output */
 #define SYCL_FOR_REDUCE_DEBUG(q, total, block, item, rvar, rop, loop)    \
   q->submit(                                                             \
     [&](::sycl::handler& h)                                              \

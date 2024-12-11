@@ -23,7 +23,9 @@ if(EXAMPLES_ENABLE_C)
   if(ENABLE_OPENMP AND OPENMP_FOUND)
     add_subdirectory(C_openmp)
   endif()
-  if(ENABLE_OPENMP_DEVICE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+  if(ENABLE_OPENMP_DEVICE
+     AND OPENMP_FOUND
+     AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
     add_subdirectory(C_openmpdev)
   endif()
   if(ENABLE_MPI AND MPI_C_FOUND)
@@ -40,10 +42,16 @@ endif()
 # C++ examples
 if(EXAMPLES_ENABLE_CXX)
   add_subdirectory(CXX_serial)
+  if(BUILD_NVECTOR_MANYVECTOR)
+    add_subdirectory(CXX_manyvector)
+  endif()
   if(ENABLE_MPI AND MPI_CXX_FOUND)
     add_subdirectory(CXX_parallel)
   endif()
-  if(ENABLE_MPI AND MPI_CXX_FOUND AND ENABLE_HYPRE AND HYPRE_FOUND)
+  if(ENABLE_MPI
+     AND MPI_CXX_FOUND
+     AND ENABLE_HYPRE
+     AND HYPRE_FOUND)
     add_subdirectory(CXX_parhyp)
   endif()
   if(MPI_CXX_FOUND AND ENABLE_SUPERLUDIST)

@@ -24,7 +24,7 @@ construction of distinct NVECTOR modules for each component, that are
 then combined together to form the NVECTOR_MANYVECTOR.  Two potential
 use cases for this flexibility include:
 
-A. *Heterogenous computational architectures*:
+A. *Heterogeneous computational architectures*:
    for data partitioning between different computing resources on a node,
    architecture-specific subvectors may be created for each partition.
    For example, a user could create one GPU-accelerated component based

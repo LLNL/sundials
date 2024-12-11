@@ -44,10 +44,9 @@ else()
   string(TIMESTAMP JOB_START_TIME "%Y%m%d%H%M%S")
 endif()
 
-
 # ============================================================================
-# Generate macros and substitution variables related to TPLs
-# that SUNDIALS is being built with.
+# Generate macros and substitution variables related to TPLs that SUNDIALS is
+# being built with.
 # ============================================================================
 
 # prepare substitution variables for modules that have been built
@@ -59,13 +58,14 @@ foreach(_item ${SUNDIALS_BUILD_LIST})
   endif()
 endforeach()
 
-# prepare substitution variable SUNDIALS_${TPL NAME}_ENABLED for sundials_config.h
+# prepare substitution variable SUNDIALS_${TPL NAME}_ENABLED for
+# sundials_config.h
 foreach(tpl ${SUNDIALS_TPL_LIST})
   set(SUNDIALS_${tpl}_ENABLED TRUE)
 endforeach()
 
 # prepare substitution variable SUNDIALS_TRILINOS_HAVE_MPI for sundials_config.h
-if(Trilinos_MPI)
+if(ENABLE_MPI)
   set(SUNDIALS_TRILINOS_HAVE_MPI TRUE)
 endif()
 
@@ -94,7 +94,5 @@ endif()
 # Generate the header file and place it in the binary dir.
 # =============================================================================
 
-configure_file(
-  ${PROJECT_SOURCE_DIR}/include/sundials/sundials_config.in
-  ${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h
-  )
+configure_file(${PROJECT_SOURCE_DIR}/include/sundials/sundials_config.in
+               ${PROJECT_BINARY_DIR}/include/sundials/sundials_config.h)

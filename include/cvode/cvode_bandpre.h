@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-/* BandPrec inititialization function */
+/* BandPrec initialization function */
 
 SUNDIALS_EXPORT int CVBandPrecInit(void* cvode_mem, sunindextype N,
                                    sunindextype mu, sunindextype ml);

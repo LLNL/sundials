@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
   int ngroups = 100;
   if (argc > 1) { ngroups = atoi(argv[1]); }
 
-  // Use a direct or iterative linear sovler
+  // Use a direct or iterative linear solver
   bool direct = true;
   if (argc > 2) { direct = (atoi(argv[2])) ? true : false; }
 

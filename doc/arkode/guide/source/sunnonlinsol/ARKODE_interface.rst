@@ -141,7 +141,7 @@ of user-supplied SUNNonlinSol modules are as follows.
 
       This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
-      This routine is intended for users who whish to attach a custom
+      This routine is intended for users who wish to attach a custom
       :c:type:`SUNNonlinSolSysFn` to an existing ``SUNNonlinearSolver`` object
       (through a call to :c:func:`SUNNonlinSolSetSysFn`) or who need access to
       nonlinear system data to compute the nonlinear system function as part of
@@ -150,7 +150,7 @@ of user-supplied SUNNonlinSol modules are as follows.
       When supplying a custom :c:type:`SUNNonlinSolSysFn` to an existing
       ``SUNNonlinearSolver`` object, the user should call
       :c:func:`ARKodeGetNonlinearSystemData()` **inside** the nonlinear system
-      function to access the requisite data for evaluting the nonlinear systen
+      function to access the requisite data for evaluating the nonlinear system
       function of their choosing. Additionlly, if the ``SUNNonlinearSolver`` object
       (existing or custom) leverages the :c:type:`SUNNonlinSolLSetupFn` and/or
       :c:type:`SUNNonlinSolLSolveFn` functions supplied by ARKODE (through
@@ -259,7 +259,7 @@ of user-supplied SUNNonlinSol modules are as follows.
 
    .. note::
 
-      This routine is intended for users who whish to attach a custom
+      This routine is intended for users who wish to attach a custom
       :c:type:`SUNNonlinSolSysFn` to an existing ``SUNNonlinearSolver`` object
       (through a call to :c:func:`SUNNonlinSolSetSysFn`) or who need access to
       nonlinear system data to compute the nonlinear system function as part of
@@ -268,7 +268,7 @@ of user-supplied SUNNonlinSol modules are as follows.
       When supplying a custom :c:type:`SUNNonlinSolSysFn` to an existing
       ``SUNNonlinearSolver`` object, the user should call
       :c:func:`ARKStepGetNonlinearSystemData()` **inside** the nonlinear system
-      function to access the requisite data for evaluting the nonlinear systen
+      function to access the requisite data for evaluating the nonlinear system
       function of their choosing. Additionlly, if the ``SUNNonlinearSolver`` object
       (existing or custom) leverages the :c:type:`SUNNonlinSolLSetupFn` and/or
       :c:type:`SUNNonlinSolLSolveFn` functions supplied by ARKStep (through
@@ -362,7 +362,7 @@ of user-supplied SUNNonlinSol modules are as follows.
 
    .. note::
 
-      This routine is intended for users who whish to attach a custom
+      This routine is intended for users who wish to attach a custom
       :c:type:`SUNNonlinSolSysFn` to an existing ``SUNNonlinearSolver`` object
       (through a call to :c:func:`SUNNonlinSolSetSysFn()`) or who need access to
       nonlinear system data to compute the nonlinear system function as part of
@@ -371,7 +371,7 @@ of user-supplied SUNNonlinSol modules are as follows.
       When supplying a custom :c:type:`SUNNonlinSolSysFn` to an existing
       ``SUNNonlinearSolver`` object, the user should call
       :c:func:`MRIStepGetNonlinearSystemData()` **inside** the nonlinear system
-      function to access the requisite data for evaluting the nonlinear systen
+      function to access the requisite data for evaluating the nonlinear system
       function of their choosing. Additionlly, if the ``SUNNonlinearSolver`` object
       (existing or custom) leverages the :c:type:`SUNNonlinSolLSetupFn` and/or
       :c:type:`SUNNonlinSolLSolveFn` functions supplied by MRIStep (through

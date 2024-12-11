@@ -326,7 +326,7 @@ The problem implements the following testing scenario: :math:`u_0=1.2`,
 Numerical method
 ----------------
 
-This program solves the problem with the default thrid order method.
+This program solves the problem with the default third order method.
 
 The problem is run using a fixed slow step size :math:`hs=0.025` and fast step
 size :math:`0.001`.
@@ -854,7 +854,7 @@ is the product of two matrices:
    only a subset of the :math:`3\times3` blocks).
 
 Four different runs are made for this problem.  The product
-preconditoner is applied on the left and on the right.  In each case,
+preconditioner is applied on the left and on the right.  In each case,
 both the modified and classical Gram-Schmidt orthogonalization options
 are tested.  In the series of runs, ``ARKodeInit``, ``SUNSPGMR``,
 ``ARKSpilsSetLinearSolver``, ``SUNSPGMRSetGSType``,

@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
   data[1] = PTONE;
   data[2] = -PTONE;
 
-  /* set inital correction */
+  /* set initial correction */
   N_VConst(ZERO, Imem->ycor);
 
   /* set weights */

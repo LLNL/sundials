@@ -32,7 +32,7 @@
  * is suppressed. Output is taken at t = 0, .01, .02, .04,
  * ..., 10.24.
  * -----------------------------------------------------------------
- * When running this example for unit testing, set the environemnt
+ * When running this example for unit testing, set the environment
  * variables OMP_PROC_BIND=false and OMP_NUM_THREADS=2 to run
  * without thread binding and with two OpenMP threads.
  * -----------------------------------------------------------------
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
       return 1;
     }
 
-    /* Construct a Tpetra vector and return refernce counting pointer to it. */
+    /* Construct a Tpetra vector and return reference counting pointer to it. */
     Teuchos::RCP<vector_type> rcpuu = Teuchos::rcp(new vector_type(testMap));
 
     /* Allocate and initialize N-vectors. */
@@ -292,7 +292,7 @@ int main(int argc, char* argv[])
     retval = IDASetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
     if (check_retval(&retval, "IDASetPreconditioner", 1, thispe)) { return -1; }
 
-    /* Print output heading (on processor 0 only) and intial solution  */
+    /* Print output heading (on processor 0 only) and initial solution  */
 
     if (thispe == 0) { PrintHeader(rtol, atol, data); }
     PrintOutput(thispe, ida_mem, t0, uu);
@@ -372,7 +372,7 @@ int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr, void* user_da
  * PsetupHeat: setup for diagonal preconditioner for heatsk.
  *
  * The optional user-supplied functions PsetupHeat and
- * PsolveHeat together must define the left preconditoner
+ * PsolveHeat together must define the left preconditioner
  * matrix P approximating the system Jacobian matrix
  *                   J = dF/du + cj*dF/du'
  * (where the DAE system is F(t,u,u') = 0), and solve the linear

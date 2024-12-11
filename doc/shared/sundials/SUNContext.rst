@@ -187,7 +187,7 @@ Applications that need to have *concurrently initialized* SUNDIALS simulations
 need to take care to understand the following:
 
 #. A :c:type:`SUNContext` object must only be associated with *one* SUNDIALS simulation
-(a solver object and its associated vectors etc.) at a time.
+   (a solver object and its associated vectors etc.) at a time.
 
    - Concurrently initialized is not the same as concurrently executing. Even if
      two SUNDIALS simulations execute sequentially, if both are initialized
@@ -199,7 +199,7 @@ need to take care to understand the following:
      destroyed.
 
 #. The creation and destruction of a :c:type:`SUNContext` object is cheap, especially
-in comparison to the cost of creating/destroying a SUNDIALS solver object.
+   in comparison to the cost of creating/destroying a SUNDIALS solver object.
 
 The following (incomplete) code examples demonstrate these points using CVODE as
 the example SUNDIALS package.

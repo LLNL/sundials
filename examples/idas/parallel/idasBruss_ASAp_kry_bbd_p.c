@@ -683,7 +683,7 @@ static void SetInitialProfilesB(N_Vector uv, N_Vector uvp, N_Vector uvB,
 
 /*
  * Print first lines of output (problem description)
- * and table headerr
+ * and table header
  */
 
 static void PrintHeader(sunindextype SystemSize, int maxl, sunindextype mudq,

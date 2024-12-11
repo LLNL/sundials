@@ -833,7 +833,7 @@ int CVodeSetMaxNonlinIters(void* cvode_mem, int maxcor)
 /*
  * CVodeSetNonlinConvCoef
  *
- * Specifies the coeficient in the nonlinear solver convergence
+ * Specifies the coefficient in the nonlinear solver convergence
  * test
  */
 
@@ -1234,7 +1234,7 @@ int CVodeSetQuadSensErrCon(void* cvode_mem, sunbooleantype errconQS)
     return (CV_NO_SENS);
   }
 
-  /* Ckeck if quadrature sensitivity was initialized? */
+  /* Check if quadrature sensitivity was initialized? */
 
   if (cv_mem->cv_QuadSensMallocDone == SUNFALSE)
   {
@@ -1349,7 +1349,7 @@ int CVodeGetNumErrTestFails(void* cvode_mem, long int* netfails)
 /*
  * CVodeGetLastOrder
  *
- * Returns the order on the last succesful step
+ * Returns the order on the last successful step
  */
 
 int CVodeGetLastOrder(void* cvode_mem, int* qlast)

@@ -89,7 +89,7 @@ The initial guess vectors \id{u1} and \id{u2} are set by the private
 functions \id{SetInitialGuess1} and \id{SetInitialGuess2} and the constraint
 vector \id{c} is initialized to $[0,0,1,-1,1,-1]$ indicating that there are
 no additional constraints on the first two components of \id{u} (i.e. $x_1$ and 
-$x_2$) and that the 3rd and 5th compnents should be non-negative, while
+$x_2$) and that the 3rd and 5th components should be non-negative, while
 the 4th and 6th should be non-positive.
 
 The calls to \id{N\_VNew\_Serial}, and also later calls to various \id{KIN***}
@@ -275,7 +275,7 @@ to allocate space for the preconditioner and the pivot arrays; \id{InitUserData}
 to load problem constants in the \id{data} block; \id{FreeUserData} to free
 that block; \id{SetInitialProfiles} to load the initial values in \id{cc};
 \id{PrintHeader} to print the heading for the output;
-\id{PrintOutput} to retreive and print selected solution values;
+\id{PrintOutput} to retrieve and print selected solution values;
 \id{PrintFinalStats} to print statistics; and \id{check\_flag}
 to check return values for error conditions.
 
@@ -326,7 +326,7 @@ is the value passed to \id{KINBBDPrecInit} for \id{mukeep} and \id{mlkeep}.
 
 The function \id{func\_local} is also passed as the \id{gloc} argument to 
 \id{KINBBDPrecInit}. Since all communication needed for the evaluation of the
-local aproximation of $f$ used in building the band-block-diagonal preconditioner
+local approximation of $f$ used in building the band-block-diagonal preconditioner
 is already done for the evaluation of $f$ in \id{func}, a \id{NULL} pointer is
 passed as the \id{gcomm} argument to \id{KINBBDPrecInit}.
 

@@ -14,15 +14,12 @@
 # CMakeLists.txt file for raja nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the
-# type is develop for examples excluded from 'make test' in releases
-set(examples_list
-  "test_nvector_raja.cpp\;1000 0\;"
-  )
+# Example lists are tuples "name\;args\;type" where the type is develop for
+# examples excluded from 'make test' in releases
+set(examples_list "test_nvector_raja.cpp\;1000 0\;")
 
 # Add source directory to include directories
-include_directories(. ..
-  ${SUNDIALS_SOURCE_DIR}/examples/utilities)
+include_directories(. .. ${SUNDIALS_SOURCE_DIR}/examples/utilities)
 
 if(SUNDIALS_RAJA_BACKENDS MATCHES "CUDA")
   set(_lang CUDA)
@@ -51,8 +48,8 @@ foreach(example_tuple ${examples_list})
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
 
-  # check if this example has already been added, only need to add
-  # example source files once for testing with different inputs
+  # check if this example has already been added, only need to add example
+  # source files once for testing with different inputs
   if(NOT TARGET ${example_target})
 
     # add example source files
@@ -63,12 +60,9 @@ foreach(example_tuple ${examples_list})
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    target_link_libraries(${example_target}
-      PRIVATE
-      test_nvector_obj
-      sundials_nvecraja
-      ${EXE_EXTRA_LINK_LIBS}
-      ${OTHER_LIBS})
+    target_link_libraries(
+      ${example_target} PRIVATE test_nvector_obj sundials_nvecraja
+                                ${EXE_EXTRA_LINK_LIBS} ${OTHER_LIBS})
 
   endif()
 
@@ -80,7 +74,8 @@ foreach(example_tuple ${examples_list})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example_target}
+  sundials_add_test(
+    ${test_name} ${example_target}
     TEST_ARGS ${example_args}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
@@ -89,31 +84,27 @@ endforeach()
 
 if(EXAMPLES_INSTALL)
 
-  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"))
+  if((RAJA_BACKENDS MATCHES "TARGET_OPENMP") OR (RAJA_BACKENDS MATCHES "OPENMP"
+                                                ))
     set(EXAMPLES_FIND_PACKAGE "find_package(OpenMP REQUIRED)\n")
     set(_openmp_target OpenMP::OpenMP_CXX)
   endif()
 
   if(RAJA_NEEDS_THREADS)
-    set(EXAMPLES_FIND_PACKAGE "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
+    set(EXAMPLES_FIND_PACKAGE
+        "${EXAMPLES_FIND_PACKAGE}find_package(Threads REQUIRED)\n")
   endif()
 
-  sundials_install_examples(nvec_raja examples_list
-    EXAMPLES_DEPENDENCIES
-      test_nvector.c
+  sundials_install_examples(
+    nvec_raja examples_list
+    EXAMPLES_DEPENDENCIES test_nvector.c
     EXTRA_FILES
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.c
       ${SUNDIALS_SOURCE_DIR}/examples/nvector/test_nvector.h
       ${SUNDIALS_SOURCE_DIR}/examples/utilities/${_custom_memhelper}
-    CMAKE_TEMPLATE
-      cmakelists_${_lang}_ex.in
-    SUNDIALS_TARGETS
-      generic
-      nvecraja
-    OTHER_TARGETS
-      ${_openmp_target}
-    DESTINATION
-      nvector/raja
-    )
+    CMAKE_TEMPLATE cmakelists_${_lang}_ex.in
+    SUNDIALS_TARGETS generic nvecraja
+    OTHER_TARGETS ${_openmp_target}
+    DESTINATION nvector/raja)
 
 endif()

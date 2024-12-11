@@ -106,7 +106,7 @@ typedef struct CVLsMemRec
   int (*pfree)(CVodeMem cv_mem);
   void* P_data;
 
-  /* Jacobian times vector compuation
+  /* Jacobian times vector computation
    * (a) jtimes function provided by the user:
    *     - jt_data == user_data
    *     - jtimesDQ == SUNFALSE
@@ -164,7 +164,7 @@ int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight, N_Vector ycur,
               N_Vector fcur);
 int cvLsFree(CVodeMem cv_mem);
 
-/* Auxilliary functions */
+/* Auxiliary functions */
 int cvLsInitializeCounters(CVLsMem cvls_mem);
 int cvLs_AccessLMem(void* cvode_mem, const char* fname, CVodeMem* cv_mem,
                     CVLsMem* cvls_mem);

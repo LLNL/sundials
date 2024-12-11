@@ -186,10 +186,12 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
   msglen = (size_t)vsnprintf(NULL, (size_t)0, msgfmt, values); /* determine size
                                                                   of buffer
                                                                   needed */
-  msg    = (char*)malloc(msglen + 1);
-  vsnprintf(msg, msglen + 1, msgfmt, values);
-  SUNHandleErrWithMsg(line, func, file, msg, code, sunctx);
   va_end(values);
+  msg = (char*)malloc(msglen + 1);
+  va_start(values, sunctx);
+  vsnprintf(msg, msglen + 1, msgfmt, values);
+  va_end(values);
+  SUNHandleErrWithMsg(line, func, file, msg, code, sunctx);
   free(msg);
 }
 
@@ -328,7 +330,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 
 /*
    SUNCheckCallMsg performs the SUNDIALS function call, and checks the
-   returned error code. If an error occured, then it will log the error, set the
+   returned error code. If an error occurred, then it will log the error, set the
    last_err value, call the error handler, **and then return the error code**.
 
    :param call: the function call
@@ -352,7 +354,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 
 /*
    SUNCheckCallNoRetMsg performs the SUNDIALS function call, and checks the
-   returned error code. If an error occured, then it will log the error, set the
+   returned error code. If an error occurred, then it will log the error, set the
    last_err value, and call the error handler. **It does not return**.
 
    :param call: the function call
@@ -375,7 +377,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 
 /*
    SUNCheckCallNullMsg performs the SUNDIALS function call, and checks the
-   returned error code. If an error occured, then it will log the error, set the
+   returned error code. If an error occurred, then it will log the error, set the
    last_err value, call the error handler, **and then returns NULL**.
 
    :param call: the function call
@@ -399,7 +401,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 
 /*
    SUNCheckCallNullMsg performs the SUNDIALS function call, and checks the
-   returned error code. If an error occured, then it will log the error, set the
+   returned error code. If an error occurred, then it will log the error, set the
    last_err value, call the error handler, **and then returns void**.
 
    :param call: the function call
@@ -429,7 +431,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 #define SUNCheckCallVoid(call)  SUNCheckCallVoidMsg(call, NULL)
 
 /* SUNCheckLastErrMsg checks the last_err value in the SUNContext.
-   If an error occured, then it will log the error, set the last_err
+   If an error occurred, then it will log the error, set the last_err
    value, and call the error handler, **and then returns the code**. */
 #if defined(SUNDIALS_ENABLE_ERROR_CHECKS)
 #define SUNCheckLastErrMsg(msg)                              \
@@ -440,7 +442,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 
 /*
    SUNCheckLastErrNoRetMsg performs the SUNDIALS function call, and checks the
-   returned error code. If an error occured, then it will log the error, set the
+   returned error code. If an error occurred, then it will log the error, set the
    last_err value, call the error handler. **It does not return.**
 
    :param msg: an error message
@@ -453,7 +455,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 
 /*
    SUNCheckLastErrNullMsg performs the SUNDIALS function call, and checks the
-   returned error code. If an error occured, then it will log the error, set the
+   returned error code. If an error occurred, then it will log the error, set the
    last_err value, call the error handler, **and then returns NULL**.
 
    :param msg: an error message
@@ -466,7 +468,7 @@ static inline void SUNHandleErrWithFmtMsg(int line, const char* func,
 
 /*
    SUNCheckLastErrVoidMsg performs the SUNDIALS function call, and checks the
-   returned error code. If an error occured, then it will log the error, set the
+   returned error code. If an error occurred, then it will log the error, set the
    last_err value, call the error handler, **and then returns void**.
 
    :param msg: an error message

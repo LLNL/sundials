@@ -36,18 +36,16 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
-
 # -----------------------------------------------------------------------------
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
-find_package(Kokkos REQUIRED
-  HINTS "${Kokkos_DIR}"
-  NO_DEFAULT_PATH)
+find_package(Kokkos REQUIRED HINTS "${Kokkos_DIR}" NO_DEFAULT_PATH)
 
-# We should be able to use Kokkos_DEVICES directly but it seems to get
-# removed or unset in some CMake versions
-set(KOKKOS_EXAMPLES_BACKENDS "${Kokkos_DEVICES}" CACHE STRING
-  "Kokkos backends to build examples with")
+# We should be able to use Kokkos_DEVICES directly but it seems to get removed
+# or unset in some CMake versions
+set(KOKKOS_EXAMPLES_BACKENDS
+    "${Kokkos_DEVICES}"
+    CACHE STRING "Kokkos backends to build examples with")
 mark_as_advanced(FORCE KOKKOS_EXAMPLES_BACKENDS)
 message(STATUS "Kokkos VERSION: ${Kokkos_VERSION}")
 
@@ -57,8 +55,9 @@ message(STATUS "Kokkos VERSION: ${Kokkos_VERSION}")
 
 if(Kokkos_FOUND AND (NOT KOKKOS_WORKS))
   message(STATUS "Checking if Kokkos works... OK")
-  set(KOKKOS_WORKS TRUE CACHE BOOL "Kokkos works with SUNDIALS as configured"
-    FORCE)
+  set(KOKKOS_WORKS
+      TRUE
+      CACHE BOOL "Kokkos works with SUNDIALS as configured" FORCE)
 elseif(Kokkos_FOUND AND KOKKOS_WORKS)
   message(STATUS "Skipped Kokkos tests, assuming Kokkos works with SUNDIALS.")
 endif()

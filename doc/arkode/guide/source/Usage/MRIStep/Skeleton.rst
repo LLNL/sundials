@@ -39,15 +39,12 @@ unchanged from the skeleton program presented in
 
 #. Create an inner stepper object to solve the fast (inner) IVP
 
-   * If using ARKStep as the fast (inner) integrator, create the ARKStep object
-     with :c:func:`ARKStepCreate` and configure the integrator as desired for
-     evolving the fast time scale. See sections :numref:`ARKODE.Usage.Skeleton`,
-     :numref:`ARKODE.Usage.OptionalInputs`, and
-     :numref:`ARKODE.Usage.ARKStep.OptionalInputs` for details on configuring
-     ARKStep.
+   * If using an ARKODE stepper module for the fast integrator, create and configure
+     the stepper as normal following the steps detailed in the section for the desired
+     stepper.
 
-     Once the ARKStep object is setup, create an ``MRIStepInnerStepper`` object
-     with :c:func:`ARKStepCreateMRIStepInnerStepper`.
+     Once the ARKODE stepper object is setup, create an ``MRIStepInnerStepper`` object
+     with :c:func:`ARKodeCreateMRIStepInnerStepper`.
 
    * If supplying a user-defined fast (inner) integrator, create the
      ``MRIStepInnerStepper`` object as described in section
@@ -88,10 +85,15 @@ unchanged from the skeleton program presented in
    inputs to :c:func:`MRIStepCreate` is the ``MRIStepInnerStepper`` object for
    solving the fast (inner) IVP created in the previous step.
 
-#. Set the slow step size
-
-   Call :c:func:`ARKodeSetFixedStep()` on the MRIStep object to specify the
+#. If using fixed step sizes, then set the slow step size by calling
+   :c:func:`ARKodeSetFixedStep()` on the MRIStep object to specify the
    slow time step size.
+
+   If using adaptive slow steps, then specify the desired integration tolerances
+   as normal.  By default, MRIStep will use a "decoupled" (see
+   :numref:`ARKODE.Mathematics.MultirateControllers`) I controller (see
+   :numref:`SUNAdaptController.Soderlind`),  Alternately, create and attach a
+   multirate temporal controller (see :numref:`SUNAdaptController.MRIHTol`).
 
 #. Create and configure implicit solvers (*as appropriate*)
 

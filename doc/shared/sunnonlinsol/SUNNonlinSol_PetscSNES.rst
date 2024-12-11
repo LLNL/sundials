@@ -25,7 +25,7 @@ configured to use PETSc. Instructions on how to do this are given in
 SUNNonlinSol_PetscSNES module, include the header file
 ``sunnonlinsol/sunnonlinsol_petscsnes.h``. The library to link to is
 ``libsundials_sunnonlinsolpetsc.lib`` where ``.lib`` is typically ``.so`` for
-shared libaries and ``.a`` for static libraries. Users of the
+shared libraries and ``.a`` for static libraries. Users of the
 SUNNonlinSol_PetscSNES module should also see :numref:`NVectors.NVPETSc`
 which discusses the NVECTOR interface to the PETSc ``Vec`` API.
 
@@ -184,4 +184,4 @@ These entries of the *content* field contain the following information:
 * ``r``               -- the nonlinear residual,
 * ``y``               -- wrapper for PETSc vectors used in the system function,
 * ``f``               -- wrapper for PETSc vectors used in the system function,
-* ``Sys``             -- nonlinear system definining function.
+* ``Sys``             -- nonlinear system defining function.

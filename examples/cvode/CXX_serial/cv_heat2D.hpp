@@ -81,7 +81,7 @@ struct UserData
   // Inverse of Jacobian diagonal for preconditioner
   N_Vector d = nullptr;
 
-  // Ouput variables
+  // Output variables
   bool output = false; // write solution to disk
   int nout    = 20;    // number of output times
   std::ofstream uout;  // output file stream
@@ -163,7 +163,7 @@ static void InputHelp()
             << "  --kx <ky>          : y diffusion coefficient\n"
             << "  --tf <time>        : final time\n"
             << "  --rtol <rtol>      : relative tolerance\n"
-            << "  --atol <atol>      : absoltue tolerance\n"
+            << "  --atol <atol>      : absolute tolerance\n"
             << "  --gmres            : use GMRES linear solver\n"
             << "  --noprec           : disable preconditioner\n"
             << "  --liniters <iters> : max number of iterations\n"

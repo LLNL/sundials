@@ -290,7 +290,7 @@ man_pages = [
 texinfo_documents = [
   ('index', 'ARKODE', u'ARKODE Documentation',
    u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos', 'ARKODE',
-   'Time integration package for multi-rate systems of ordinary differntial equations.',
+   'Time integration package for multi-rate systems of ordinary differential equations.',
    'Miscellaneous'),
 ]
 

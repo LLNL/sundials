@@ -14,17 +14,12 @@
 # CMakeLists.txt file for the F2003 PCG SUNLinearSolver object library
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunlinsolpcg_mod
-  SOURCES
-    fsunlinsol_pcg_mod.f90 fsunlinsol_pcg_mod.c
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
-  OUTPUT_NAME
-    sundials_fsunlinsolpcg_mod
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-    ${sunlinsollib_SOVERSION}
-)
+sundials_add_f2003_library(
+  sundials_fsunlinsolpcg_mod
+  SOURCES fsunlinsol_pcg_mod.f90 fsunlinsol_pcg_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
+  OUTPUT_NAME sundials_fsunlinsolpcg_mod
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_PCG F2003 interface")

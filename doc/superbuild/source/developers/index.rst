@@ -23,6 +23,12 @@ integration packages CVODE, IDA, and ARKODE, the sensitivity analysis enabled va
 IDAS, and the nonlinear solver package KINSOL. This is the part of the SUNDIALS documentation is
 meant for SUNDIALS developers.
 
+.. note::
+
+   New SUNDIALS developers should review this developer guide. In particular, the
+   :ref:`Style` section should be *carefully* read.
+
+
 .. toctree::
    :maxdepth: 1
 
@@ -34,7 +40,6 @@ meant for SUNDIALS developers.
    pull_requests/index
    releases/index
    packages/index
-   sundialsdev/index
    appendix/index
 
 .. only:: html

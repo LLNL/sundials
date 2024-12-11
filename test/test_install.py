@@ -113,7 +113,7 @@ def main():
             os.chdir(cwd)
             continue
 
-        # confgure cmake if necessary
+        # configure cmake if necessary
         configfail = False
         if args.cmake:
             if os.path.isfile("Makefile"):

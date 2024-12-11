@@ -125,7 +125,7 @@ In addition, the module provides the following user-callable routines:
    The function ``SUNLinSol_cuSolverSp_batchQR_GetDeviceSpace``
    returns the cuSOLVER batch QR method internal buffer size, in bytes,
    in the argument ``cuSolverInternal`` and the cuSOLVER
-   batch QR workspace buffer size, in bytes, in the agrument
+   batch QR workspace buffer size, in bytes, in the argument
    ``cuSolverWorkspace``. The size of the internal buffer is
    proportional to the number of matrix blocks while the size
    of the workspace is almost independent of the number of blocks.

@@ -104,7 +104,7 @@ The module NVECTOR_TRILINOS provides the following additional user-callable rout
   in SUNDIALS.
 
 * When there is a need to access components of an ``N_Vector_Trilinos v``,
-  it is recommeded to extract the Trilinos vector object via ``x_vec =
+  it is recommended to extract the Trilinos vector object via ``x_vec =
   N_VGetVector_Trilinos(v)`` and then access components using the
   appropriate Trilinos functions.
 

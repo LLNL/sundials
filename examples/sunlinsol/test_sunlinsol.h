@@ -20,7 +20,7 @@
 #include <math.h>
 #include <sundials/sundials_core.h>
 
-/* define constatnts */
+/* define constants */
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 

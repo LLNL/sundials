@@ -915,7 +915,7 @@ or :c:func:`ARKodeButcherTable_LoadERK`.
 Accessible via the string ``"ARKODE_VERNER_8_5_6"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-This is the default 6th order explicit method (from :cite:p:`Ver:78`).
+This is the default 6th order explicit method (from :cite:p:`HEJ:76`).
 
 .. math::
 
@@ -1407,12 +1407,12 @@ Here, the higher-order embedding is less stable than the lower-order method
 
    \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccc}
-     0.292893218813 & 0.292893218813 & 0 & 0 \\
-     1.091883092037 & 0.798989873223 & 0.292893218813 & 0 \\
-     1.292893218813 & 0.740789228841 & 0.259210771159 & 0.292893218813 \\
+     1 - \frac{1}{\sqrt{2}} & 1 - \frac{1}{\sqrt{2}} & 0 & 0 \\
+     \frac{27}{\sqrt{2}} - 18 & 14 \sqrt{2} - 19 & 1 - \frac{1}{\sqrt{2}} & 0 \\
+     2 - \frac{1}{\sqrt{2}} & \frac{53 - 5 \sqrt{2}}{62} & \frac{9 + 5 \sqrt{2}}{62} & 1 - \frac{1}{\sqrt{2}} \\
      \hline
-     2 & 0.740789228840 & 0.259210771159 & 0 \\
-     3 & 0.691665115992 & 0.503597029883 & -0.195262145876
+     2 & \frac{53 - 5 \sqrt{2}}{62} & \frac{9 + 5 \sqrt{2}}{62} & 0 \\
+     3 & \frac{263 - 95 \sqrt{2}}{186} & \frac{47 + 33 \sqrt{2}}{186} & \frac{\sqrt{2} - 2}{3}
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_12.png

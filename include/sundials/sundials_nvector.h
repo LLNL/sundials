@@ -140,7 +140,7 @@ struct _generic_N_Vector_Ops
   /*
    * OPTIONAL operations.
    *
-   * These operations provide default implementations that may be overriden.
+   * These operations provide default implementations that may be overridden.
    */
 
   /* OPTIONAL fused vector operations */

@@ -35,7 +35,7 @@ struct _braid_Vector_struct
   N_Vector y;
 };
 
-/* Poiner to vector wrapper (same as braid_Vector) */
+/* Pointer to vector wrapper (same as braid_Vector) */
 typedef struct _braid_Vector_struct* SUNBraidVector;
 
 /* -----------------------------

@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
   if (check_retval((void*)q, "N_VNew_Serial", 0)) { return (1); }
   Ith(q, 1) = ZERO;
 
-  /* Set the scalar realtive and absolute tolerances reltolQ and abstolQ */
+  /* Set the scalar relative and absolute tolerances reltolQ and abstolQ */
   reltolQ = RTOL;
   abstolQ = ATOLq;
 
@@ -263,9 +263,9 @@ int main(int argc, char* argv[])
 
   /* Allocate global memory */
 
-  /* Call CVodeAdjInit to update CVODES memory block by allocting the internal
+  /* Call CVodeAdjInit to update CVODES memory block by allocating the internal
      memory needed for backward integration.*/
-  steps = STEPS; /* no. of integration steps between two consecutive ckeckpoints*/
+  steps = STEPS; /* no. of integration steps between two consecutive checkpoints*/
   retval = CVodeAdjInit(cvode_mem, steps, CV_HERMITE);
   /*
   retval = CVodeAdjInit(cvode_mem, steps, CV_POLYNOMIAL);

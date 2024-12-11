@@ -15,19 +15,15 @@
 # CMakeLists.txt file for the KINsol F2003 module parallel examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;nodes\;tasks\;type" where the
-# type is develop for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;nodes\;tasks\;type" where the type is develop
+# for examples excluded from 'make test' in releases
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
-  set(FKINSOL_examples
-    "kin_diagon_kry_f2003\;\;1\;4\;develop\;2")
+  set(FKINSOL_examples "kin_diagon_kry_f2003\;\;1\;4\;develop\;2")
 endif()
 
 # Specify libraries to link against
-set(KINSOL_LIBS
-  sundials_kinsol
-  sundials_fkinsol_mod
-  sundials_nvecparallel
-  sundials_fnvecparallel_mod)
+set(KINSOL_LIBS sundials_kinsol sundials_fkinsol_mod sundials_nvecparallel
+                sundials_fnvecparallel_mod)
 
 # Set-up linker flags and link libraries
 set(SUNDIALS_LIBS ${KINSOL_LIBS} ${EXE_EXTRA_LINK_LIBS})
@@ -45,7 +41,8 @@ foreach(example_tuple ${FKINSOL_examples})
 
   if(NOT TARGET ${example})
     # Install fortran modules to a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+    set(CMAKE_Fortran_MODULE_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
     add_executable(${example} ${example}.f90)
@@ -64,7 +61,8 @@ foreach(example_tuple ${FKINSOL_examples})
   endif()
 
   # add example to regression tests
-  sundials_add_test(${test_name} ${example}
+  sundials_add_test(
+    ${test_name} ${example}
     TEST_ARGS ${example_args}
     MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
@@ -78,19 +76,18 @@ foreach(example_tuple ${FKINSOL_examples})
   # install example source and out files
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.f90 ${example_out}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_parallel)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_parallel)
   endif()
 
 endforeach(example_tuple ${FKINSOL_examples})
 
-
-# create Makfile and CMakeLists.txt for examples
+# create Makefile and CMakeLists.txt for examples
 if(EXAMPLES_INSTALL)
 
   # Install the extra files
   foreach(extrafile ${KINSOL_extras})
     install(FILES ${extrafile}
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_parallel)
+            DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_parallel)
   endforeach()
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
@@ -99,47 +96,41 @@ if(EXAMPLES_INSTALL)
   # Makefile: convert semi-colon separated target list to space separated string
   list2string(KINSOL_LIBS EXAMPLE_LIBS)
 
-  # CMakeLists: replace sundials_ prefix and convert to space separted string
+  # CMakeLists: replace sundials_ prefix and convert to space separated string
   list(TRANSFORM KINSOL_LIBS REPLACE "sundials_" "SUNDIALS::"
-    OUTPUT_VARIABLE EXAMPLES_CMAKE_TARGETS_tmp)
+                                     OUTPUT_VARIABLE EXAMPLES_CMAKE_TARGETS_tmp)
   list2string(EXAMPLES_CMAKE_TARGETS_tmp EXAMPLES_CMAKE_TARGETS)
 
   examples2string(FKINSOL_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
-  # CMakeLists.txt file for building the examples. This file  can then
-  # be used as a template for the user's own programs.
+  # CMakeLists.txt file for building the examples. This file  can then be used
+  # as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_F2003_ex.in
-    ${PROJECT_BINARY_DIR}/examples/kinsol/F2003_parallel/CMakeLists.txt
-    @ONLY
-    )
+    ${PROJECT_BINARY_DIR}/examples/kinsol/F2003_parallel/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
   install(
     FILES ${PROJECT_BINARY_DIR}/examples/kinsol/F2003_parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_parallel
-    )
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_parallel)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
-  # building the examples. This makefile can then be used as a template
-  # for the user's own programs.
+  # building the examples. This makefile can then be used as a template for the
+  # user's own programs.
 
   if(UNIX)
     # generate Makefile and place it in the binary dir
     configure_file(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_F2003_ex.in
-      ${PROJECT_BINARY_DIR}/examples/kinsol/F2003_parallel/Makefile_ex
-      @ONLY
-      )
+      ${PROJECT_BINARY_DIR}/examples/kinsol/F2003_parallel/Makefile_ex @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
       FILES ${PROJECT_BINARY_DIR}/examples/kinsol/F2003_parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/F2003_parallel
-      RENAME Makefile
-      )
+      RENAME Makefile)
   endif()
 
   # add test_install target

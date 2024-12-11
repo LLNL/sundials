@@ -248,7 +248,7 @@ the :ref:`Workflow` section.
   reordering, squashing, updating commit messages, etc.) before pushing to the
   remote repository.
 
-  Rebase the commited but not pushed changes on the current branch and execute
+  Rebase the committed but not pushed changes on the current branch and execute
   a given command (``cmd``) between each step in the rebase
 
   .. code-block:: none

@@ -21,7 +21,7 @@
 #include <math.h>
 #include <sundials/sundials_core.h>
 
-/* define constatnts */
+/* define constants */
 #define NEG_TWO  SUN_RCONST(-2.0)
 #define NEG_ONE  SUN_RCONST(-1.0)
 #define NEG_HALF SUN_RCONST(-0.5)

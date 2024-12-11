@@ -16,11 +16,10 @@
 set(cvodes_SOURCES fcvodes_mod.f90 fcvodes_mod.c)
 
 # Create the library
-sundials_add_f2003_library(sundials_fcvodes_mod
-  SOURCES
-    ${cvodes_SOURCES}
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
+sundials_add_f2003_library(
+  sundials_fcvodes_mod
+  SOURCES ${cvodes_SOURCES}
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
   OBJECT_LIBRARIES
     sundials_fnvecserial_mod_obj
     sundials_fsunmatrixband_mod_obj
@@ -35,12 +34,8 @@ sundials_add_f2003_library(sundials_fcvodes_mod
     sundials_fsunlinsolpcg_mod_obj
     sundials_fsunnonlinsolnewton_mod_obj
     sundials_fsunnonlinsolfixedpoint_mod_obj
-  OUTPUT_NAME
-    sundials_fcvodes_mod
-  VERSION
-    ${cvodeslib_VERSION}
-  SOVERSION
-    ${cvodeslib_SOVERSION}
-)
+  OUTPUT_NAME sundials_fcvodes_mod
+  VERSION ${cvodeslib_VERSION}
+  SOVERSION ${cvodeslib_SOVERSION})
 
 message(STATUS "Added CVODES F2003 interface")

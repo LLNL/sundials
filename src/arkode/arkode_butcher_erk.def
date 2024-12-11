@@ -29,7 +29,7 @@
   Methods in an ARK pair are marked with a *.
 
   Methods that satisfy the additional third order multirate
-  infinitesimal step condition and are suppored by the MRIStep
+  infinitesimal step condition and are supported by the MRIStep
   module (c_i > c_{i-1} and c_s != 1) are marked with a ^.
 
   The 'QP' column denotes whether the coefficients of the method

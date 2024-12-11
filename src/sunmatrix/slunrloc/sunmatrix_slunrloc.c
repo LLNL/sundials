@@ -13,7 +13,7 @@
  * SUNDIALS Copyright End
  * ----------------------------------------------------------------------------
  * This is the implementation file for the SuperLU SuperMatrix SLU_NR_loc
- * format compatibile SUNMatrix.
+ * format compatible SUNMatrix.
  * ----------------------------------------------------------------------------
  */
 
@@ -87,7 +87,7 @@ SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix* A_super, gridinfo_t* grid,
   SUNMatrix A;
   SUNMatrixContent_SLUNRloc content;
 
-  /* Check for valid intputs */
+  /* Check for valid inputs */
   if (A_super == NULL || grid == NULL) { return (NULL); }
 
   if (A_super->Stype != SLU_NR_loc || A_super->Dtype != SLU_D ||

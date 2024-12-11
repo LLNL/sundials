@@ -4,3 +4,7 @@ fab1cecb7d91cff53b31730af5d00ff154c3b6ce
 cc6960349aa92e2bcad9168a6dacff99b21c329c
 # Apply formatting to Fortran files
 23581e8454955283139e551a7bcd1b85d8b7c77b
+# Apply formatting to Python files
+b578eabccd77b7642b04ddda9d8530f05890d1b4
+# Apply formatting to CMake files
+c6b9a02f24a27081c471d63dfc524684a9f5a9e3

@@ -142,7 +142,7 @@ class.
 
       :param rows: number of matrix rows
       :param cols: number of matrix columns
-      :param ex: an execuation space
+      :param ex: an execution space
       :param sunctx: the SUNDIALS simulation context object (:c:type:`SUNContext`)
 
    .. cpp:function:: DenseMatrix(size_type blocks, size_type block_rows, \
@@ -166,7 +166,7 @@ class.
       :param blocks: number of matrix blocks
       :param block_rows: number of rows in a block
       :param block_cols: number of columns in a block
-      :param ex: an execuation space
+      :param ex: an execution space
       :param sunctx: the SUNDIALS simulation context object (:c:type:`SUNContext`)
 
    .. cpp:function:: DenseMatrix(DenseMatrix&& that_matrix) noexcept

@@ -563,7 +563,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
 
 /*
  * Print first lines of output (problem description)
- * and table headerr
+ * and table header
  */
 
 static void PrintHeader(sunindextype SystemSize, int maxl, sunindextype mudq,

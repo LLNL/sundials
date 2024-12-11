@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
   LS = SUNLinSol_SPGMR(y, SUN_PREC_LEFT, 0, sunctx);
   if (check_retval((void*)LS, "SUNLinSol_SPGMR", 0)) { return (1); }
 
-  /* Attach the linear sovler */
+  /* Attach the linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
   if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 

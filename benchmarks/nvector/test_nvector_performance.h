@@ -17,7 +17,7 @@
 
 #include <math.h>
 
-/* define constatnts */
+/* define constants */
 #define NEG_ONE SUN_RCONST(-1.0)
 #define ZERO    SUN_RCONST(0.0)
 #define ONE     SUN_RCONST(1.0)

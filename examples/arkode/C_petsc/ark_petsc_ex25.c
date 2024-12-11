@@ -192,7 +192,7 @@ int main(int argc, char** argv)
    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
-     specify the right-hand side function in y'=f(t,y),the inital time
+     specify the right-hand side function in y'=f(t,y),the initial time
      T0,and the initial dependent variable vector y. */
   arkode_mem = ARKStepCreate(f_E, f_I, T0, nvecx, ctx);
   if (check_retval((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }

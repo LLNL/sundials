@@ -70,7 +70,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = 1.3166233214789713e-07, L(p,q)-L0 = -1.1102230246251565e-15
+t = 50.0000, H(p,q)-H0 = 1.3166233259198634e-07, L(p,q)-L0 = -6.6613381477509392e-16
 Current time                 = 50
 Steps                        = 1000
 Step attempts                = 1000
@@ -210,7 +210,7 @@ Problem Arguments:
   nout:                 1
 
 t = 0.0000, H(p,q) = -0.5000000000000000, L(p,q) = 0.8000000000000000
-t = 50.0000, H(p,q)-H0 = 3.9968028886505635e-15, L(p,q)-L0 = 2.9864999362416711e-14
+t = 50.0000, H(p,q)-H0 = 1.2878587085651816e-14, L(p,q)-L0 = 1.9317880628477724e-14
 Current time                 = 50
 Steps                        = 32001
 Step attempts                = 32001
@@ -253,5 +253,5 @@ Current step size            = 0.00078125
 f1 RHS fn evals              = 384000
 f2 RHS fn evals              = 384000
 
-Order of accuracy wrt solution:    expected = 5, max = 5.9898,  avg = 3.4143,  overall = 3.7927
-Order of accuracy wrt Hamiltonian: expected = 5, max = 5.8607,  avg = 3.9728,  overall = 4.4560
+Order of accuracy wrt solution:    expected = 5, max = 5.9898,  avg = 3.4143,  overall = 3.7912
+Order of accuracy wrt Hamiltonian: expected = 5, max = 5.8607,  avg = 3.9728,  overall = 4.3555

@@ -811,7 +811,7 @@ int CVodeSetMaxNonlinIters(void* cvode_mem, int maxcor)
 /*
  * CVodeSetNonlinConvCoef
  *
- * Specifies the coeficient in the nonlinear solver convergence
+ * Specifies the coefficient in the nonlinear solver convergence
  * test
  */
 
@@ -1134,7 +1134,7 @@ int CVodeGetNumErrTestFails(void* cvode_mem, long int* netfails)
 /*
  * CVodeGetLastOrder
  *
- * Returns the order on the last succesful step
+ * Returns the order on the last successful step
  */
 
 int CVodeGetLastOrder(void* cvode_mem, int* qlast)

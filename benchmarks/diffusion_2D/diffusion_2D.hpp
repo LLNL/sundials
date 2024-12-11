@@ -159,7 +159,7 @@ struct UserData
   sunrealtype* Ssend = NULL;
   sunrealtype* Nsend = NULL;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -192,7 +192,7 @@ private:
 
 struct UserOutput
 {
-  // Ouput variables
+  // Output variables
   int output     = 1;    // 0 = no output, 1 = stats output, 2 = output to disk
   int nout       = 20;   // number of output times
   N_Vector error = NULL; // error vector

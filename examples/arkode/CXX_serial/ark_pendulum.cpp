@@ -300,8 +300,11 @@ int main(int argc, char* argv[])
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_flag(flag, "ARKodeGetNumErrTestFails");
 
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(flag, "ARKStepGetNumRhsEvals");
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_flag(flag, "ARKodeGetNumRhsEvals");
+
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_flag(flag, "ARKodeGetNumRhsEvals");
 
   std::cout << std::endl;
   std::cout << "Final Solver Statistics:\n";

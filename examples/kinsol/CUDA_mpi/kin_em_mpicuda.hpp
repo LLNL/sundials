@@ -80,7 +80,7 @@ struct UserData
   // Fixed Point Solver settings
   sunrealtype rtol; // relative tolerance
   int maa;          // m for Anderson Acceleration
-  double damping;   // daming for Anderson Acceleration
+  double damping;   // damping for Anderson Acceleration
   int orthaa;       // orthogonalization routine for AA
   int maxits;       // max number of fixed point iterations
 
@@ -93,7 +93,7 @@ struct UserData
 
   int num_samples;
 
-  // Ouput variables
+  // Output variables
   int output;     // output level
   N_Vector vtemp; // error vector
   ofstream uout;  // output file stream

@@ -32,4 +32,3 @@ endif()
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory(F2003_serial)
 endif()
-

@@ -483,7 +483,7 @@ int SetupProblem(int argc, char* argv[], UserData* udata, UserOptions* uopt,
   uopt->fused     = 0;  /* use fused vector ops     */
   uopt->save      = 1;  /* save solution to disk    */
   uopt->nout      = 10; /* number of output times   */
-  uopt->outputdir = (char*)"."; /* output directory         */
+  uopt->outputdir = "."; /* output directory         */
 
   /* Parse CLI args and set udata/uopt appropriately */
   int retval = ParseArgs(argc, argv, udata, uopt);

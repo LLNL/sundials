@@ -71,7 +71,7 @@ user-callable routines:
 
 .. c:function:: N_Vector N_VMake_MPIPlusX(MPI_Comm comm, N_Vector *local_vector, SUNContext sunctx)
 
-   This function creates a MPIPlusX vector from an exisiting local
+   This function creates a MPIPlusX vector from an existing local
    (i.e. on node) NVECTOR object, and a user-created MPI communicator.
 
    The input *comm* should be this user-created MPI communicator.

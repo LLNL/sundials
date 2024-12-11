@@ -114,6 +114,8 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
       ARKodeFree((void**)&ark_mem);
       return (NULL);
     }
+    /* Zero yerr for compensated summation */
+    N_VConst(ZERO, step_mem->yerr);
   }
   else { step_mem->yerr = NULL; }
   ark_mem->step_init            = sprkStep_Init;
@@ -125,6 +127,7 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   ark_mem->step_free            = sprkStep_Free;
   ark_mem->step_setdefaults     = sprkStep_SetDefaults;
   ark_mem->step_setorder        = sprkStep_SetOrder;
+  ark_mem->step_getnumrhsevals  = sprkStep_GetNumRhsEvals;
   ark_mem->step_mem             = (void*)step_mem;
 
   /* Set default values for optional inputs */
@@ -145,9 +148,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   step_mem->nf1    = 0;
   step_mem->nf2    = 0;
   step_mem->istage = 0;
-
-  /* Zero yerr for compensated summation */
-  if (ark_mem->use_compensated_sums) { N_VConst(ZERO, step_mem->yerr); }
 
   /* SPRKStep uses Lagrange interpolation by default, since Hermite is
      less compatible with these methods. */
@@ -285,6 +285,8 @@ int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0,
                       "Unable to resize vector");
       return (ARK_MEM_FAIL);
     }
+    /* Zero yerr for compensated summation */
+    N_VConst(ZERO, step_mem->yerr);
   }
 
   return (ARK_SUCCESS);
@@ -352,7 +354,8 @@ void sprkStep_Free(ARKodeMem ark_mem)
 
   With initialization type RESET_INIT, this routine does nothing.
   ---------------------------------------------------------------*/
-int sprkStep_Init(ARKodeMem ark_mem, int init_type)
+int sprkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
+                  int init_type)
 {
   ARKodeSPRKStepMem step_mem = NULL;
   int retval                 = 0;
@@ -398,6 +401,8 @@ int sprkStep_Init(ARKodeMem ark_mem, int init_type)
         step_mem->method = ARKodeSPRKTable_Load(SPRKSTEP_DEFAULT_10);
         break;
       default:
+        arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
+                        "No SPRK method at requested order, using q=4.");
         step_mem->method = ARKodeSPRKTable_Load(SPRKSTEP_DEFAULT_4);
         break;
       }
@@ -417,6 +422,9 @@ int sprkStep_Init(ARKodeMem ark_mem, int init_type)
        solution values are returned at the time interval end points */
     ark_mem->interp_degree = 1;
   }
+
+  /* Zero yerr for compensated summation */
+  if (ark_mem->use_compensated_sums) { N_VConst(ZERO, step_mem->yerr); }
 
   return (ARK_SUCCESS);
 }
@@ -540,12 +548,26 @@ int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* store current stage index */
     step_mem->istage = is;
 
+    SUNLogInfo(ARK_LOGGER, "begin-stage",
+               "stage = %i, t = %" RSYM ", that = %" RSYM, is,
+               ark_mem->tn + ci * ark_mem->h, ark_mem->tn + chati * ark_mem->h);
+    SUNLogExtraDebugVec(ARK_LOGGER, "stage", prev_stage, "z2_%i(:) =", is);
+
     /* evaluate p' with the previous velocity */
     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
                                         set other outputs to zero */
     retval = sprkStep_f1(step_mem, ark_mem->tn + chati * ark_mem->h, prev_stage,
                          step_mem->sdata, ark_mem->user_data);
-    if (retval != 0) { return ARK_RHSFUNC_FAIL; }
+
+    SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->sdata,
+                        "f1_%i(:) =", is);
+
+    if (retval != 0)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed rhs eval, retval = %i", retval);
+      return ARK_RHSFUNC_FAIL;
+    }
 
     /* position update */
     N_VLinearSum(ONE, prev_stage, ark_mem->h * ahati, step_mem->sdata,
@@ -554,12 +576,23 @@ int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* set current stage time(s) */
     ark_mem->tcur = ark_mem->tn + chati * ark_mem->h;
 
+    SUNLogExtraDebugVec(ARK_LOGGER, "stage", curr_stage, "z1_%i(:) =", is);
+
     /* evaluate q' with the current positions */
     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
                                         set other outputs to zero */
     retval = sprkStep_f2(step_mem, ark_mem->tn + ci * ark_mem->h, curr_stage,
                          step_mem->sdata, ark_mem->user_data);
-    if (retval != 0) { return ARK_RHSFUNC_FAIL; }
+
+    SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->sdata,
+                        "f2_%i(:) =", is);
+
+    if (retval != 0)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed rhs eval, retval = %i", retval);
+      return ARK_RHSFUNC_FAIL;
+    }
 
     /* velocity update */
     N_VLinearSum(ONE, curr_stage, ark_mem->h * ai, step_mem->sdata, curr_stage);
@@ -569,17 +602,26 @@ int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     {
       retval = ark_mem->ProcessStage(ark_mem->tcur, ark_mem->ycur,
                                      ark_mem->user_data);
-      if (retval != 0) { return (ARK_POSTPROCESS_STAGE_FAIL); }
+      if (retval != 0)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed postprocess stage, retval = %i", retval);
+        return (ARK_POSTPROCESS_STAGE_FAIL);
+      }
     }
 
     /* keep track of the stage number */
     step_mem->istage++;
 
     prev_stage = curr_stage;
+
+    SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
   }
 
   *nflagPtr = 0;
   *dsmPtr   = 0;
+
+  SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
 
   return ARK_SUCCESS;
 }
@@ -625,16 +667,31 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     /* store current stage index */
     step_mem->istage = is;
 
+    SUNLogInfo(ARK_LOGGER, "begin-stage",
+               "stage = %i, t = %" RSYM ", that = %" RSYM, is,
+               ark_mem->tn + ci * ark_mem->h, ark_mem->tn + chati * ark_mem->h);
+
     /* [     ] + [            ]
        [ q_n ] + [ \Delta Q_i ] */
     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
+
+    SUNLogExtraDebugVec(ARK_LOGGER, "stage", yn_plus_delta_Yi, "z2_%i(:) =", is);
 
     /* Evaluate p' with the previous velocity */
     N_VConst(ZERO, step_mem->sdata); /* either have to do this or ask user to
                                         set other outputs to zero */
     retval = sprkStep_f1(step_mem, ark_mem->tn + chati * ark_mem->h,
                          yn_plus_delta_Yi, step_mem->sdata, ark_mem->user_data);
-    if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
+
+    SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->sdata,
+                        "f1_%i(:) =", is);
+
+    if (retval != 0)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed rhs eval, retval = %i", retval);
+      return (ARK_RHSFUNC_FAIL);
+    }
 
     /* Incremental position update:
        [ \Delta P_i ] = [ \Delta P_{i-1} ] + [ sdata ]
@@ -645,6 +702,8 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
        [     ] + [            ] */
     N_VLinearSum(ONE, ark_mem->yn, ONE, delta_Yi, yn_plus_delta_Yi);
 
+    SUNLogExtraDebugVec(ARK_LOGGER, "stage", yn_plus_delta_Yi, "z1_%i(:) =", is);
+
     /* set current stage time(s) */
     ark_mem->tcur = ark_mem->tn + chati * ark_mem->h;
 
@@ -653,7 +712,16 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
                                         set other outputs to zero */
     retval = sprkStep_f2(step_mem, ark_mem->tn + ci * ark_mem->h,
                          yn_plus_delta_Yi, step_mem->sdata, ark_mem->user_data);
-    if (retval != 0) { return (ARK_RHSFUNC_FAIL); }
+
+    SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", step_mem->sdata,
+                        "f2_%i(:) =", is);
+
+    if (retval != 0)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed rhs eval, retval = %i", retval);
+      return (ARK_RHSFUNC_FAIL);
+    }
 
     /* Incremental velocity update:
        [            ] = [                ] + [       ]
@@ -661,15 +729,19 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     N_VLinearSum(ONE, delta_Yi, ark_mem->h * ai, step_mem->sdata, delta_Yi);
 
     /* if user-supplied stage postprocessing function, we error out since it
-     * wont work with the increment form */
+     * won't work with the increment form */
     if (ark_mem->ProcessStage != NULL)
     {
+      SUNLogInfo(ARK_LOGGER, "end-stage",
+                 "status = failed postprocess stage, retval = %i", retval);
       arkProcessError(ark_mem, ARK_POSTPROCESS_STAGE_FAIL, __LINE__, __func__,
                       __FILE__,
                       "Compensated summation is not compatible with stage "
                       "PostProcessing!\n");
       return (ARK_POSTPROCESS_STAGE_FAIL);
     }
+
+    SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
   }
 
   /*
@@ -683,6 +755,8 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   *nflagPtr = 0;
   *dsmPtr   = SUN_RCONST(0.0);
+
+  SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
 
   return 0;
 }

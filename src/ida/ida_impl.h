@@ -202,14 +202,14 @@ typedef struct IDAMemRec
   sunrealtype ida_ss; /* scalar used in Newton iteration convergence test  */
   sunrealtype ida_oldnrm; /* norm of previous nonlinear solver update          */
   sunrealtype ida_epsNewt; /* test constant in Newton convergence test          */
-  sunrealtype ida_epcon; /* coeficient of the Newton covergence test          */
+  sunrealtype ida_epcon; /* coefficient of the Newton convergence test          */
   sunrealtype ida_toldel; /* tolerance in direct test on Newton corrections    */
 
   /*------
     Limits
     ------*/
 
-  int ida_maxncf; /* max numer of convergence failures                 */
+  int ida_maxncf; /* max number of convergence failures                 */
   int ida_maxnef; /* max number of error test failures                 */
 
   int ida_maxord;       /* max value of method order k:                      */

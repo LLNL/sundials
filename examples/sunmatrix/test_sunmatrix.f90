@@ -256,7 +256,7 @@ contains
     failure = 0
 
     !
-    ! Case 1: same sparsity/bandwith pattern
+    ! Case 1: same sparsity/bandwidth pattern
     !
 
     ! protect A

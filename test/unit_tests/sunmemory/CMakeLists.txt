@@ -23,4 +23,3 @@ endif()
 if(ENABLE_SYCL)
   add_subdirectory(sycl)
 endif()
-

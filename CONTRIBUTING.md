@@ -1,6 +1,6 @@
 # Contributing to SUNDIALS
 
-There are two primary ways of contributing to SUNDIALS. The first way is by particpating
+There are two primary ways of contributing to SUNDIALS. The first way is by participating
 in the development of SUNDIALS directly through contributions of code to the primary
 [SUNDIALS repository](https://github.com/LLNL/sundials). This is the best way to contribute
 bug fixes and minor improvements. At this time, the SUNDIALS team does not have the resources

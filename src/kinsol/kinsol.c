@@ -480,7 +480,7 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
   int ret, sflag;
   sunbooleantype maxStepTaken;
 
-  /* intialize to avoid compiler warning messages */
+  /* initialize to avoid compiler warning messages */
 
   maxStepTaken = SUNFALSE;
   f1normp = fnormp = -ONE;
@@ -537,7 +537,7 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
     }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-    KINPrintInfo(kin_mem, PRNT_TOL, "KINSOL", "KINSol", INFO_TOL,
+    KINPrintInfo(kin_mem, PRNT_TOL, "KINSOL", __func__, INFO_TOL,
                  kin_mem->kin_scsteptol, kin_mem->kin_fnormtol);
 #endif
 
@@ -709,7 +709,7 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
     /* print the current nni, fnorm, and nfe values */
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-    KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINSol", INFO_NNI,
+    KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", __func__, INFO_NNI,
                  kin_mem->kin_nni, kin_mem->kin_nfe, kin_mem->kin_fnorm);
 #endif
 
@@ -718,7 +718,7 @@ int KINSol(void* kinmem, N_Vector u, int strategy_in, N_Vector u_scale,
   } /* end of loop; return */
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", "KINSol", INFO_RETVAL, ret);
+  KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", __func__, INFO_RETVAL, ret);
 #endif
 
   switch (ret)
@@ -1521,7 +1521,7 @@ static int KINSolInit(KINMem kin_mem)
 
   /* all error checking is complete at this point */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_TOL, "KINSOL", "KINSolInit", INFO_TOL,
+  KINPrintInfo(kin_mem, PRNT_TOL, "KINSOL", __func__, INFO_TOL,
                kin_mem->kin_scsteptol, kin_mem->kin_fnormtol);
 #endif
 
@@ -1593,7 +1593,7 @@ static int KINSolInit(KINMem kin_mem)
   }
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINSolInit", INFO_FMAX, fmax);
+  KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", __func__, INFO_FMAX, fmax);
 #endif
 
   /* initialize the linear solver if linit != NULL */
@@ -1615,7 +1615,7 @@ static int KINSolInit(KINMem kin_mem)
   kin_mem->kin_f1norm    = HALF * kin_mem->kin_fnorm * kin_mem->kin_fnorm;
   kin_mem->kin_fnorm_sub = kin_mem->kin_fnorm;
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINSolInit", INFO_NNI,
+  KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", __func__, INFO_NNI,
                kin_mem->kin_nni, kin_mem->kin_nfe, kin_mem->kin_fnorm);
 #endif
 
@@ -1718,7 +1718,7 @@ static int KINFullNewton(KINMem kin_mem, sunrealtype* fnormp,
     pnorm = kin_mem->kin_mxnewtstep;
   }
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", "KINFullNewton", INFO_PNORM, pnorm);
+  KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", __func__, INFO_PNORM, pnorm);
 #endif
 
   /* If constraints are active, then constrain the step accordingly */
@@ -1736,8 +1736,7 @@ static int KINFullNewton(KINMem kin_mem, sunrealtype* fnormp,
       pnorm *= kin_mem->kin_stepmul;
       kin_mem->kin_stepl = pnorm;
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-      KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", "KINFullNewton", INFO_PNORM,
-                   pnorm);
+      KINPrintInfo(kin_mem, PRNT_PNORM, "KINSOL", __func__, INFO_PNORM, pnorm);
 #endif
       if (pnorm <= kin_mem->kin_scsteptol)
       {
@@ -1794,8 +1793,7 @@ static int KINFullNewton(KINMem kin_mem, sunrealtype* fnormp,
   kin_mem->kin_sJpnorm *= ratio;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_FNORM, "KINSOL", "KINFullNewton", INFO_FNORM,
-               *fnormp);
+  KINPrintInfo(kin_mem, PRNT_FNORM, "KINSOL", __func__, INFO_FNORM, *fnormp);
 #endif
 
   if (pnorm > (POINT99 * kin_mem->kin_mxnewtstep)) { *maxStepTaken = SUNTRUE; }
@@ -1837,7 +1835,7 @@ static int KINFullNewton(KINMem kin_mem, sunrealtype* fnormp,
  * If the system function fails unrecoverably at any time, KINLineSearch
  * returns KIN_SYSFUNC_FAIL which will halt the solver.
  *
- * We attempt to corect recoverable system function failures only before
+ * We attempt to correct recoverable system function failures only before
  * the alpha-condition loop; i.e. when the solution is updated with the
  * full Newton step (possibly reduced due to constraint violations).
  * Once we find a feasible pp, we assume that any update up to pp is
@@ -1904,8 +1902,7 @@ static int KINLineSearch(KINMem kin_mem, sunrealtype* fnormp,
       rlmax              = ONE;
       kin_mem->kin_stepl = pnorm;
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-      KINPrintInfo(kin_mem, PRNT_PNORM1, "KINSOL", "KINLineSearch", INFO_PNORM1,
-                   pnorm);
+      KINPrintInfo(kin_mem, PRNT_PNORM1, "KINSOL", __func__, INFO_PNORM1, pnorm);
 #endif
       if (pnorm <= kin_mem->kin_scsteptol)
       {
@@ -1965,7 +1962,7 @@ static int KINLineSearch(KINMem kin_mem, sunrealtype* fnormp,
   rl      = ONE;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_LAM, "KINSOL", "KINLineSearch", INFO_LAM, rlmin,
+  KINPrintInfo(kin_mem, PRNT_LAM, "KINSOL", __func__, INFO_LAM, rlmin,
                kin_mem->kin_f1norm, pnorm);
 #endif
 
@@ -1978,8 +1975,8 @@ static int KINLineSearch(KINMem kin_mem, sunrealtype* fnormp,
     alpha_cond = kin_mem->kin_f1norm + (alpha * slpi * rl);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-    KINPrintInfo(kin_mem, PRNT_ALPHA, "KINSOL", "KINLinesearch", INFO_ALPHA,
-                 *fnormp, *f1normp, alpha_cond, rl);
+    KINPrintInfo(kin_mem, PRNT_ALPHA, "KINSOL", __func__, INFO_ALPHA, *fnormp,
+                 *f1normp, alpha_cond, rl);
 #endif
 
     /* If ALPHA condition is satisfied, break out from loop */
@@ -2077,7 +2074,7 @@ static int KINLineSearch(KINMem kin_mem, sunrealtype* fnormp,
         beta_cond  = kin_mem->kin_f1norm + (beta * slpi * rl);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-        KINPrintInfo(kin_mem, PRNT_BETA, "KINSOL", "KINLineSearch", INFO_BETA,
+        KINPrintInfo(kin_mem, PRNT_BETA, "KINSOL", __func__, INFO_BETA,
                      *f1normp, beta_cond, rl);
 #endif
       }
@@ -2109,7 +2106,7 @@ static int KINLineSearch(KINMem kin_mem, sunrealtype* fnormp,
         beta_cond  = kin_mem->kin_f1norm + (beta * slpi * rl);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-        KINPrintInfo(kin_mem, PRNT_ALPHABETA, "KINSOL", "KINLineSearch",
+        KINPrintInfo(kin_mem, PRNT_ALPHABETA, "KINSOL", __func__,
                      INFO_ALPHABETA, *f1normp, alpha_cond, beta_cond, rl);
 #endif
 
@@ -2152,7 +2149,7 @@ static int KINLineSearch(KINMem kin_mem, sunrealtype* fnormp,
   kin_mem->kin_nbktrk += nbktrk_l;
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_ADJ, "KINSOL", "KINLineSearch", INFO_ADJ, nbktrk_l);
+  KINPrintInfo(kin_mem, PRNT_ADJ, "KINSOL", __func__, INFO_ADJ, nbktrk_l);
 #endif
 
   /* scale sFdotJp and sJpnorm by rl * ratio for later use in KINForcingTerm */
@@ -2255,7 +2252,7 @@ static int KINStop(KINMem kin_mem, sunbooleantype maxStepTaken, int sflag)
   fmax = KINScFNorm(kin_mem, kin_mem->kin_fval, kin_mem->kin_fscale);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINStop", INFO_FMAX, fmax);
+  KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", __func__, INFO_FMAX, fmax);
 #endif
 
   if (fmax <= kin_mem->kin_fnormtol) { return (KIN_SUCCESS); }
@@ -2545,9 +2542,7 @@ void KINPrintInfo(SUNDIALS_MAYBE_UNUSED KINMem kin_mem, int info_code,
     vsnprintf(msg, sizeof msg, msgfmt, ap);
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_INFO, "KINSOL", fname, "%s", msg);
-#endif
+  SUNLogInfo(KIN_LOGGER, "KINSOL", fname, "%s", msg);
 
   /* finalize argument processing */
 
@@ -2571,7 +2566,8 @@ void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
 
   /* Compose the message */
   va_start(ap, msgfmt);
-  size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
+  size_t msglen = 1;
+  if (msgfmt) { msglen += vsnprintf(NULL, 0, msgfmt, ap); }
   va_end(ap);
 
   char* msg = (char*)malloc(msglen);
@@ -2621,7 +2617,7 @@ void KINProcessError(KINMem kin_mem, int error_code, int line, const char* func,
  * KINPicardAA
  *
  * This routine is the main driver for the Picard iteration with
- * acclerated fixed point.
+ * accelerated fixed point.
  */
 
 static int KINPicardAA(KINMem kin_mem)
@@ -2725,13 +2721,13 @@ static int KINPicardAA(KINMem kin_mem)
                                     kin_mem->kin_fscale);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-    KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINPicardAA", INFO_FMAX,
+    KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", __func__, INFO_FMAX,
                  kin_mem->kin_fnorm);
 #endif
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
     /* print the current iter, fnorm, and nfe values */
-    KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINPicardAA", INFO_NNI,
+    KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", __func__, INFO_NNI,
                  kin_mem->kin_nni, kin_mem->kin_nfe, kin_mem->kin_fnorm);
 #endif
 
@@ -2752,7 +2748,7 @@ static int KINPicardAA(KINMem kin_mem)
 
   } /* end of loop; return */
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", "KINPicardAA", INFO_RETVAL, ret);
+  KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", __func__, INFO_RETVAL, ret);
 #endif
 
   return (ret);
@@ -2840,11 +2836,7 @@ static int KINFP(KINMem kin_mem)
   ret    = CONTINUE_ITERATIONS;
   tolfac = ONE;
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, "KINSOL::KINFP", "begin",
-                     "%s", "u_0(:) =");
-  N_VPrintFile(kin_mem->kin_uu, KIN_LOGGER->debug_fp);
-#endif
+  SUNLogExtraDebugVec(KIN_LOGGER, "begin", kin_mem->kin_uu, "u_0(:) =");
 
   /* initialize iteration count */
   kin_mem->kin_nni = 0;
@@ -2859,12 +2851,8 @@ static int KINFP(KINMem kin_mem)
                                kin_mem->kin_user_data);
     kin_mem->kin_nfe++;
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, "KINSOL::KINFP",
-                       "while-loop-before-compute-new",
-                       "G_%ld(:) =", kin_mem->kin_nni - 1);
-    N_VPrintFile(kin_mem->kin_fval, KIN_LOGGER->debug_fp);
-#endif
+    SUNLogExtraDebugVec(KIN_LOGGER, "while-loop-before-compute-new",
+                        kin_mem->kin_fval, "G_%ld(:) =", kin_mem->kin_nni - 1);
 
     if (retval < 0)
     {
@@ -2915,12 +2903,8 @@ static int KINFP(KINMem kin_mem)
       else { tolfac = ONE; }
     }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(KIN_LOGGER, SUN_LOGLEVEL_DEBUG, "KINSOL::KINFP",
-                       "while-loop-after-compute-new",
-                       "u_%ld(:) =", kin_mem->kin_nni);
-    N_VPrintFile(kin_mem->kin_unew, KIN_LOGGER->debug_fp);
-#endif
+    SUNLogExtraDebugVec(KIN_LOGGER, "while-loop-after-compute-new",
+                        kin_mem->kin_unew, "u_%ld(:) =", kin_mem->kin_nni);
 
     /* compute change between iterations */
     N_VLinearSum(ONE, kin_mem->kin_unew, -ONE, kin_mem->kin_uu, delta);
@@ -2929,13 +2913,13 @@ static int KINFP(KINMem kin_mem)
     kin_mem->kin_fnorm = KINScFNorm(kin_mem, delta, kin_mem->kin_fscale);
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-    KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", "KINFP", INFO_FMAX,
+    KINPrintInfo(kin_mem, PRNT_FMAX, "KINSOL", __func__, INFO_FMAX,
                  kin_mem->kin_fnorm);
 #endif
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
     /* print the current iter, fnorm, and nfe values */
-    KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", "KINFP", INFO_NNI,
+    KINPrintInfo(kin_mem, PRNT_NNI, "KINSOL", __func__, INFO_NNI,
                  kin_mem->kin_nni, kin_mem->kin_nfe, kin_mem->kin_fnorm);
 #endif
 
@@ -2957,7 +2941,7 @@ static int KINFP(KINMem kin_mem)
   } /* end of loop; return */
 
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
-  KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", "KINFP", INFO_RETVAL, ret);
+  KINPrintInfo(kin_mem, PRNT_RETVAL, "KINSOL", __func__, INFO_RETVAL, ret);
 #endif
 
   return (ret);
@@ -3061,7 +3045,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       s    = b / temp;
       R[(i + 1) * kin_mem->kin_m_aa + i]     = temp;
       R[(i + 1) * kin_mem->kin_m_aa + i + 1] = ZERO;
-      /* OK to re-use temp */
+      /* OK to reuse temp */
       if (i < kin_mem->kin_m_aa - 1)
       {
         for (j = i + 2; j < kin_mem->kin_m_aa; j++)

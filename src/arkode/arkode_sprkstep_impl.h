@@ -67,7 +67,7 @@ typedef struct ARKodeSPRKStepMemRec
   ===============================================================*/
 
 /* Interface routines supplied to ARKODE */
-int sprkStep_Init(ARKodeMem ark_mem, int init_type);
+int sprkStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type);
 int sprkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode);
 int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
@@ -83,6 +83,8 @@ int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                     sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 void sprkStep_Free(ARKodeMem ark_mem);
 void sprkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
+int sprkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                            long int* rhs_evals);
 
 /* Internal utility routines */
 int sprkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,

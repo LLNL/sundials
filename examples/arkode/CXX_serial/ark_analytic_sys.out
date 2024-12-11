@@ -1,6 +1,6 @@
 
 Analytical ODE test problem:
-    lamda = -100
+   lambda = -100
    reltol = 1e-06
    abstol = 1e-10
 

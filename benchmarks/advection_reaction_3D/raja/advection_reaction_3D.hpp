@@ -57,7 +57,7 @@ struct UserOptions
   int fused;         /* use fused vector ops          */
   int nout;          /* number of outputs             */
   int save;          /* save solution to disk         */
-  char* outputdir;
+  const char* outputdir;
 };
 
 /*
@@ -89,7 +89,7 @@ struct UserData
   N_Vector vmask;
   N_Vector wmask;
 
-  /* problem paramaters */
+  /* problem parameters */
   sunrealtype xmax; /* maximum x value              */
   sunrealtype A;    /* concentration of species A   */
   sunrealtype B;    /* w source rate                */

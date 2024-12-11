@@ -19,7 +19,7 @@
 // include code common to all nvector implementations
 %include "fnvector.i"
 
-// include the header file in the swig wraper
+// include the header file in the swig wrapper
 %{
 #include "nvector/nvector_pthreads.h"
 %}

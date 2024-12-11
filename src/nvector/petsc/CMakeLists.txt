@@ -25,24 +25,16 @@ else()
 endif()
 
 # Create the library
-sundials_add_library(sundials_nvecpetsc
-  SOURCES
-    nvector_petsc.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_petsc.h
-  INCLUDE_SUBDIR
-    nvector
-  LINK_LIBRARIES
-    PUBLIC sundials_core
+sundials_add_library(
+  sundials_nvecpetsc
+  SOURCES nvector_petsc.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_petsc.h
+  INCLUDE_SUBDIR nvector
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC SUNDIALS::PETSC
-  OUTPUT_NAME
-    sundials_nvecpetsc
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
-)
+  LINK_LIBRARIES PUBLIC SUNDIALS::PETSC
+  OUTPUT_NAME sundials_nvecpetsc
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_PETSC module")

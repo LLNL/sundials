@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
   }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
-   * user's right hand side function in u'=f(t,u), the inital time T0, and
+   * user's right hand side function in u'=f(t,u), the initial time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
   if (check_retval(&retval, "CVodeInit", 1, my_pe)) { return (1); }

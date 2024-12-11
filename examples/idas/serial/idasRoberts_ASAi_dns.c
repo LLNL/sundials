@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
   if (check_retval((void*)q, "N_VNew_Serial", 0)) { return (1); }
   Ith(q, 1) = ZERO;
 
-  /* Set the scalar realtive and absolute tolerances reltolQ and abstolQ */
+  /* Set the scalar relative and absolute tolerances reltolQ and abstolQ */
   reltolQ = RTOL;
   abstolQ = ATOLQ;
 

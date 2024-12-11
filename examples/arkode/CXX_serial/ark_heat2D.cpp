@@ -122,7 +122,7 @@ struct UserData
   // Inverse of Jacobian diagonal for preconditioner
   N_Vector d;
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   int nout;      // number of output times
   ofstream uout; // output file stream
@@ -394,7 +394,7 @@ int main(int argc, char* argv[])
   sunrealtype dTout = udata->tf / udata->nout;
   sunrealtype tout  = dTout;
 
-  // Inital output
+  // Initial output
   flag = OpenOutput(udata);
   if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 
@@ -881,7 +881,7 @@ static void InputHelp()
   cout << "  --noforcing             : disable forcing term" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --nonlinear             : disable linearly implicit flag" << endl;
   cout << "  --order <ord>           : method order" << endl;
   cout << "  --fixedstep <step>      : used fixed step size" << endl;
@@ -1086,15 +1086,15 @@ static int OutputStats(void* arkode_mem, UserData* udata)
   int flag;
 
   // Get integrator and solver stats
-  long int nst, nst_a, netf, nfe, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
+  long int nst, nst_a, netf, nfi, nni, ncfn, nli, nlcf, nsetups, nfi_ls, nJv;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return -1; }
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) { return -1; }
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return -1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);

@@ -14,8 +14,8 @@
 
 message(STATUS "Added CUDA NVECTOR benchmark")
 
-sundials_add_nvector_benchmark(nvector_cuda_benchmark
+sundials_add_nvector_benchmark(
+  nvector_cuda_benchmark
   SOURCES test_nvector_performance_cuda.cu
   SUNDIALS_TARGETS sundials_nveccuda
-  INSTALL_SUBDIR nvector/cuda
-  )
+  INSTALL_SUBDIR nvector/cuda)

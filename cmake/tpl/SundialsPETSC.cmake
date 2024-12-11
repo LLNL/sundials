@@ -38,11 +38,15 @@ endif()
 
 # Using PETSc requires building with MPI enabled
 if(ENABLE_PETSC AND NOT ENABLE_MPI)
-  message(FATAL_ERROR "MPI is required for PETSc support. Set ENABLE_MPI to ON.")
+  message(
+    FATAL_ERROR "MPI is required for PETSc support. Set ENABLE_MPI to ON.")
 endif()
 
 if(SUNDIALS_PRECISION MATCHES "EXTENDED")
-  message(FATAL_ERROR "SUNDIALS is not compatible with PETSc when using ${SUNDIALS_PRECISION} precision")
+  message(
+    FATAL_ERROR
+      "SUNDIALS is not compatible with PETSc when using ${SUNDIALS_PRECISION} precision"
+  )
 endif()
 
 # -----------------------------------------------------------------------------
@@ -63,30 +67,37 @@ message(STATUS "PETSC_PRECISION:    ${PETSC_PRECISION}")
 # -----------------------------------------------------------------------------
 
 if(PETSC_FOUND AND (NOT PETSC_WORKS))
-  # No need for any compile tests because the FindPETSC module
-  # does compile tests already.
+  # No need for any compile tests because the FindPETSC module does compile
+  # tests already.
 
   if(NOT ("${SUNDIALS_INDEX_SIZE}" MATCHES "${PETSC_INDEX_SIZE}"))
-    string(CONCAT _err_msg_string
-      "PETSc not functional due to index size mismatch:\n"
-      "SUNDIALS_INDEX_SIZE=${SUNDIALS_INDEX_SIZE}, "
-      "but PETSc was built with ${PETSC_INDEX_SIZE}-bit indices\n"
-      "PETSC_DIR: ${PETSC_DIR}\n")
+    string(
+      CONCAT _err_msg_string
+             "PETSc not functional due to index size mismatch:\n"
+             "SUNDIALS_INDEX_SIZE=${SUNDIALS_INDEX_SIZE}, "
+             "but PETSc was built with ${PETSC_INDEX_SIZE}-bit indices\n"
+             "PETSC_DIR: ${PETSC_DIR}\n")
     message(FATAL_ERROR "${_err_msg_string}")
   endif()
 
   string(TOUPPER "${PETSC_PRECISION}" _petsc_precision)
   string(TOUPPER "${SUNDIALS_PRECISION}" _sundials_precision)
   if(NOT ("${_sundials_precision}" MATCHES "${_petsc_precision}"))
-    string(CONCAT _err_msg_string
-      "PETSc not functional due to real type precision mismatch:\n"
-      "SUNDIALS_PRECISION=${_sundials_precision}, "
-      "but PETSc was built with ${_petsc_precision} precision\n"
-      "PETSC_DIR: ${PETSC_DIR}\n")
+    string(
+      CONCAT _err_msg_string
+             "PETSc not functional due to real type precision mismatch:\n"
+             "SUNDIALS_PRECISION=${_sundials_precision}, "
+             "but PETSc was built with ${_petsc_precision} precision\n"
+             "PETSC_DIR: ${PETSC_DIR}\n")
     message(FATAL_ERROR "${_err_msg_string}")
   endif()
 
-  set(PETSC_WORKS TRUE CACHE BOOL "PETSC works with SUNDIALS as configured" FORCE)
+  set(PETSC_WORKS
+      TRUE
+      CACHE BOOL "PETSC works with SUNDIALS as configured" FORCE)
 elseif(PETSC_FOUND AND PETSC_WORKS)
-  message(STATUS "Skipped PETSC tests, assuming PETSC works with SUNDIALS. Set PETSC_WORKS=FALSE to (re)run compatibility test.")
+  message(
+    STATUS
+      "Skipped PETSC tests, assuming PETSC works with SUNDIALS. Set PETSC_WORKS=FALSE to (re)run compatibility test."
+  )
 endif()
