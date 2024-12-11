@@ -18,7 +18,7 @@ The SUNAdaptController API
 
 .. versionadded:: 6.7.0
 
-.. versionchanged:: x.y.z
+.. versionchanged:: 7.2.0
 
    Added support multirate time step adaptivity controllers
 
@@ -87,7 +87,7 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNAdaptController_EstimateStepTol`
 
-      .. versionadded:: x.y.z
+      .. versionadded:: 7.2.0
 
    .. c:member:: SUNErrCode (*reset)(SUNAdaptController C)
 
@@ -113,7 +113,7 @@ The virtual table structure is defined as
 
       The function implementing :c:func:`SUNAdaptController_UpdateMRIHTol`
 
-      .. versionadded:: x.y.z
+      .. versionadded:: 7.2.0
 
    .. c:member:: SUNErrCode (*space)(SUNAdaptController C, long int *lenrw, long int *leniw)
 
@@ -149,7 +149,7 @@ following set of SUNAdaptController types:
    Controls both a slow time step and a tolerance factor to apply on the next-faster
    time scale within a multirate simulation that has an arbitrary number of time scales.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.2.0
 
 
 
@@ -249,7 +249,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param tolfacnew: (output) the estimated relative tolerance factor.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.2.0
 
 
 .. c:function:: SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
@@ -260,8 +260,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param C:  the :c:type:`SUNAdaptController` object.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   .. versionadded:: x.y.z
-
 
 .. c:function:: SUNErrCode SUNAdaptController_SetDefaults(SUNAdaptController C)
 
@@ -269,8 +267,6 @@ note these requirements below. Additionally, we note the behavior of the base SU
 
    :param C:  the :c:type:`SUNAdaptController` object.
    :return: :c:type:`SUNErrCode` indicating success or failure.
-
-   .. versionadded:: x.y.z
 
 
 .. c:function:: SUNErrCode SUNAdaptController_Write(SUNAdaptController C, FILE* fptr)
@@ -323,7 +319,7 @@ note these requirements below. Additionally, we note the behavior of the base SU
    :param dsm:  the successful fast temporal error estimate.
    :return: :c:type:`SUNErrCode` indicating success or failure.
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 7.2.0
 
 
 .. c:function:: SUNErrCode SUNAdaptController_Space(SUNAdaptController C, long int *lenrw, long int *leniw)

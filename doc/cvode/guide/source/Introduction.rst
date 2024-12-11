@@ -108,7 +108,7 @@ implementations.
 .. efficiency of C, and the greater ease of interfacing the solver to
 .. applications written in extended Fortran.
 
-Changes to SUNDIALS in release 7.1.0
+Changes to SUNDIALS in release 7.2.0
 ====================================
 
 .. include:: ../../../shared/RecentChanges.rst
