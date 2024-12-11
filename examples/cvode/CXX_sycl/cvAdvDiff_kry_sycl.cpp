@@ -248,9 +248,9 @@ static int f(sunrealtype t, N_Vector u, N_Vector udot, void* user_data)
       h.parallel_for(sycl::range{MX, MY},
                      [=](sycl::id<2> idx)
                      {
-                       sunindextype i   = idx[0];
-                       sunindextype j   = idx[1];
-                       sunindextype tid = i * MY + j;
+                       size_t i   = idx[0];
+                       size_t j   = idx[1];
+                       size_t tid = i * MY + j;
 
                        sunrealtype uij = udata[tid];
                        sunrealtype udn = (j == 0) ? ZERO : udata[tid - 1];
@@ -293,9 +293,9 @@ static int jtv(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector u, N_Vector fu,
       h.parallel_for(sycl::range{MX, MY},
                      [=](sycl::id<2> idx)
                      {
-                       sunindextype i   = idx[0];
-                       sunindextype j   = idx[1];
-                       sunindextype tid = i * MY + j;
+                       size_t i   = idx[0];
+                       size_t j   = idx[1];
+                       size_t tid = i * MY + j;
 
                        // set the tid-th element of Jv
                        Jvdata[tid] = -TWO * (verdc + hordc) * vdata[tid];

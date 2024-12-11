@@ -102,7 +102,7 @@ Creating and Destroying an Object
       MRIStepInnerStepper inner_stepper = NULL;
       flag = MRIStepInnerStepper_CreateFromSUNStepper(sunstepper, &inner_stepper);
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
 
 
 .. c:function:: int MRIStepInnerStepper_Free(MRIStepInnerStepper *stepper)
@@ -264,7 +264,7 @@ Setting Member Functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
-   .. versionadded: x.y.z
+   .. versionadded: 6.2.0
 
 
 .. c:function:: int MRIStepInnerStepper_SetAccumulatedErrorResetFn(MRIStepInnerStepper stepper, MRIStepInnerResetAccumulatedError fn)
@@ -278,7 +278,7 @@ Setting Member Functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
-   .. versionadded: x.y.z
+   .. versionadded: 6.2.0
 
 
 .. c:function:: int MRIStepInnerStepper_SetRTolFn(MRIStepInnerStepper stepper, MRIStepInnerSetRTol fn)
@@ -292,7 +292,7 @@ Setting Member Functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_ILL_INPUT: if the stepper is ``NULL``
 
-   .. versionadded: x.y.z
+   .. versionadded: 6.2.0
 
 
 
