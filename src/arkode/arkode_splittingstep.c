@@ -212,21 +212,10 @@ static int splittingStep_SequentialMethod(ARKodeMem ark_mem,
 {
   SplittingStepCoefficients coefficients = step_mem->coefficients;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::splittingStep_SequentialMethod",
-                     "start-sequential-method",
-                     "step = %li, sequential method = %i", ark_mem->nst, i);
-#endif
-
   for (int j = 0; j < coefficients->stages; j++)
   {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::splittingStep_SequentialMethod", "start-stage",
-                       "step = %li, sequential method = %i, stage = %i",
-                       ark_mem->nst, i, j);
-#endif
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i", j);
+
     for (int k = 0; k < coefficients->partitions; k++)
     {
       sunrealtype beta_start = coefficients->beta[i][j][k];
@@ -237,14 +226,9 @@ static int splittingStep_SequentialMethod(ARKodeMem ark_mem,
       sunrealtype t_start = ark_mem->tn + beta_start * ark_mem->h;
       sunrealtype t_end   = ark_mem->tn + beta_end * ark_mem->h;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                         "ARKODE::splittingStep_SequentialMethod",
-                         "start-inner-evolve",
-                         "step = %li, sequential method = %i, stage = %i, "
-                         "partition = %i, t0 = %" RSYM ", tout = %" RSYM,
-                         ark_mem->nst, i, j, k, t_start, t_end);
-#endif
+      SUNLogInfo(ARK_LOGGER, "begin-partition",
+                 "partition = %i, t_start = %" RSYM ", t_end = %" RSYM, k,
+                 t_start, t_end);
 
       SUNStepper stepper = step_mem->steppers[k];
       /* TODO(SBR): A potential future optimization is removing this reset and
@@ -253,20 +237,51 @@ static int splittingStep_SequentialMethod(ARKodeMem ark_mem,
        * FSAL property). Care is needed when a reset occurs, the step direction
        * changes, the coefficients change, etc. */
       SUNErrCode err = SUNStepper_Reset(stepper, t_start, y);
-      if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+      if (err != SUN_SUCCESS)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-partition",
+                   "status = failed stepper reset, err = %i", err);
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed partition, err = %i", err);
+        return ARK_SUNSTEPPER_ERR;
+      }
 
       err = SUNStepper_SetStepDirection(stepper, t_end - t_start);
-      if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+      if (err != SUN_SUCCESS)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-partition",
+                   "status = failed set direction, err = %i", err);
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed partition, err = %i", err);
+        return ARK_SUNSTEPPER_ERR;
+      }
 
       err = SUNStepper_SetStopTime(stepper, t_end);
-      if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
+      if (err != SUN_SUCCESS)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-partition",
+                   "status = failed set stop time, err = %i", err);
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed partition, err = %i", err);
+        return ARK_SUNSTEPPER_ERR;
+      }
 
       sunrealtype tret = ZERO;
       err              = SUNStepper_Evolve(stepper, t_end, y, &tret);
-      if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
-
+      SUNLogExtraDebugVec(ARK_LOGGER, "partition state", y, "y_par(:) =");
+      if (err != SUN_SUCCESS)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-partition",
+                   "status = failed evolve, err = %i", err);
+        SUNLogInfo(ARK_LOGGER, "end-stage",
+                   "status = failed partition, err = %i", err);
+        return ARK_SUNSTEPPER_ERR;
+      }
       step_mem->n_stepper_evolves[k]++;
+
+      SUNLogInfo(ARK_LOGGER, "end-partition", "status = success");
     }
+    SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
   }
 
   return ARK_SUCCESS;
@@ -287,24 +302,50 @@ static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   SplittingStepCoefficients coefficients = step_mem->coefficients;
 
+  SUNLogInfo(ARK_LOGGER, "begin-sequential-method", "sequential method = 0");
+
   N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
   retval = splittingStep_SequentialMethod(ark_mem, step_mem, 0, ark_mem->ycur);
-  if (retval != ARK_SUCCESS) { return retval; }
+  SUNLogExtraDebugVec(ARK_LOGGER, "sequential state", ark_mem->ycur,
+                      "y_seq(:) =");
+  if (retval != ARK_SUCCESS)
+  {
+    SUNLogInfo(ARK_LOGGER, "end-sequential-method",
+               "status = failed sequential method, retval = %i", retval);
+    return retval;
+  }
 
   if (coefficients->alpha[0] != ONE)
   {
     N_VScale(coefficients->alpha[0], ark_mem->ycur, ark_mem->ycur);
   }
+  SUNLogExtraDebugVec(ARK_LOGGER, "current state", ark_mem->ycur, "y_cur(:) =");
+  SUNLogInfo(ARK_LOGGER, "end-sequential-method", "status = success");
 
   for (int i = 1; i < coefficients->sequential_methods; i++)
   {
+    SUNLogInfo(ARK_LOGGER, "begin-sequential-method", "sequential method = %i",
+               i);
+
     N_VScale(ONE, ark_mem->yn, ark_mem->tempv1);
     retval = splittingStep_SequentialMethod(ark_mem, step_mem, i,
                                             ark_mem->tempv1);
-    if (retval != ARK_SUCCESS) { return retval; }
+    SUNLogExtraDebugVec(ARK_LOGGER, "sequential state", ark_mem->tempv1,
+                        "y_seq(:) =");
+    if (retval != ARK_SUCCESS)
+    {
+      SUNLogInfo(ARK_LOGGER, "end-sequential-method",
+                 "status = failed sequential method, retval = %i", retval);
+      return retval;
+    }
     N_VLinearSum(ONE, ark_mem->ycur, coefficients->alpha[i], ark_mem->tempv1,
                  ark_mem->ycur);
+
+    SUNLogExtraDebugVec(ARK_LOGGER, "current state", ark_mem->ycur, "y_cur(:) =");
+    SUNLogInfo(ARK_LOGGER, "end-sequential-method", "status = success");
   }
+
+  SUNLogExtraDebugVec(ARK_LOGGER, "current state", ark_mem->ycur, "y_cur(:) =");
 
   return ARK_SUCCESS;
 }
