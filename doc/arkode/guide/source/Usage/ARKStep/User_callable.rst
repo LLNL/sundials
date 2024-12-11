@@ -3160,7 +3160,7 @@ Main solver optional output functions
       The *nfi_evals* value does not account for calls made to
       :math:`f^I` by a linear solver or preconditioner module.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.2.0
 
       Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
@@ -4409,6 +4409,6 @@ wrap an ARKStep memory block as an :c:type:`MRIStepInnerStepper`.
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.2.0
 
       Use :c:func:`ARKodeCreateMRIStepInnerStepper` instead.

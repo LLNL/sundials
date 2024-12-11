@@ -227,7 +227,7 @@ are defined ``arkode/arkode_mristep.h``.
          C->group[1][1] = 4;
          C->group[2][0] = 3;
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 6.2.0
 
       This function now supports a broader range of MRI method types.
 

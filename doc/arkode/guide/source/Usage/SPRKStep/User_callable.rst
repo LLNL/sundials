@@ -789,7 +789,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.2.0
 
       Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
