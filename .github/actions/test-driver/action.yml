@@ -8,6 +8,9 @@ inputs:
   indexsize:
     description: SUNDIALS_INDEX_SIZE
     required: true
+  tpls:
+    description: "enable/disable TPLs"
+    required: true
 
 runs:
   using: composite
@@ -26,5 +29,10 @@ runs:
       run: |
         git config --global --add safe.directory $GITHUB_WORKSPACE
         cd test
-        ./test_driver.sh --testtype CUSTOM --env env/docker.sh --tpls --sunrealtype ${{ inputs.precision }} --indexsize ${{ inputs.indexsize }}
+        ./test_driver.sh \
+        --testtype CUSTOM \
+        --env env/docker.sh \
+        --tpls ${{ inputs.tpls }} \
+        --sunrealtype ${{ inputs.precision }} \
+        --indexsize ${{ inputs.indexsize }}
       shell: bash

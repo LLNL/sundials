@@ -181,7 +181,7 @@ int arkStep_AttachMasssol(ARKodeMem ark_mem, ARKMassInitFn minit,
                           SUNLinearSolver_Type msolve_type, void* mass_mem);
 void arkStep_DisableLSetup(ARKodeMem ark_mem);
 void arkStep_DisableMSetup(ARKodeMem ark_mem);
-int arkStep_Init(ARKodeMem ark_mem, int init_type);
+int arkStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type);
 void* arkStep_GetLmem(ARKodeMem ark_mem);
 void* arkStep_GetMassMem(ARKodeMem ark_mem);
 ARKRhsFn arkStep_GetImplicitRHS(ARKodeMem ark_mem);
@@ -207,6 +207,8 @@ int arkStep_SetMaxNonlinIters(ARKodeMem ark_mem, int maxcor);
 int arkStep_SetNonlinConvCoef(ARKodeMem ark_mem, sunrealtype nlscoef);
 int arkStep_SetStagePredictFn(ARKodeMem ark_mem, ARKStagePredictFn PredictStage);
 int arkStep_SetDeduceImplicitRhs(ARKodeMem ark_mem, sunbooleantype deduce);
+int arkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals);
 int arkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
 int arkStep_GetCurrentGamma(ARKodeMem ark_mem, sunrealtype* gamma);
 int arkStep_GetNonlinearSystemData(ARKodeMem ark_mem, sunrealtype* tcur,
@@ -226,6 +228,8 @@ int arkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
 int arkStep_ComputeState(ARKodeMem ark_mem, N_Vector zcor, N_Vector z);
 void arkStep_Free(ARKodeMem ark_mem);
 void arkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
+int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
+                            sunrealtype tscale, N_Vector* f, int nvecs);
 
 /* Internal utility routines */
 int arkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
@@ -267,16 +271,6 @@ int arkStep_NlsLSetup(sunbooleantype jbad, sunbooleantype* jcur,
 int arkStep_NlsLSolve(N_Vector delta, void* arkode_mem);
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         sunrealtype tol, N_Vector ewt, void* arkode_mem);
-
-/* private functions for interfacing with MRIStep */
-int arkStep_SetInnerForcing(void* arkode_mem, sunrealtype tshift,
-                            sunrealtype tscale, N_Vector* f, int nvecs);
-int arkStep_MRIStepInnerEvolve(MRIStepInnerStepper stepper, sunrealtype t0,
-                               sunrealtype tout, N_Vector y);
-int arkStep_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
-                                N_Vector y, N_Vector f, int mode);
-int arkStep_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR,
-                              N_Vector yR);
 
 /* private functions for relaxation */
 int arkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);

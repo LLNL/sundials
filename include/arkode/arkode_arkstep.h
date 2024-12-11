@@ -86,8 +86,6 @@ SUNDIALS_EXPORT int ARKStepSetTableName(void* arkode_mem, const char* itable,
                                         const char* etable);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int ARKStepGetNumRhsEvals(void* arkode_mem, long int* nfe_evals,
-                                          long int* nfi_evals);
 SUNDIALS_EXPORT int ARKStepGetCurrentButcherTables(void* arkode_mem,
                                                    ARKodeButcherTable* Bi,
                                                    ARKodeButcherTable* Be);
@@ -96,14 +94,13 @@ SUNDIALS_EXPORT int ARKStepGetTimestepperStats(
   long int* step_attempts, long int* nfe_evals, long int* nfi_evals,
   long int* nlinsetups, long int* netfails);
 
-/* MRIStep interface functions */
-SUNDIALS_EXPORT int ARKStepCreateMRIStepInnerStepper(void* arkode_mem,
-                                                     MRIStepInnerStepper* stepper);
-
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines
  * -------------------------------------------------------------------------- */
 
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeCreateMRIStepInnerStepper instead")
+int ARKStepCreateMRIStepInnerStepper(void* arkode_mem,
+                                     MRIStepInnerStepper* stepper);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeResize instead")
 int ARKStepResize(void* arkode_mem, N_Vector ynew, sunrealtype hscale,
                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
@@ -430,7 +427,9 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxSolveFails instead")
 int ARKStepGetNumRelaxSolveFails(void* arkode_mem, long int* fails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRelaxSolveIters instead")
 int ARKStepGetNumRelaxSolveIters(void* arkode_mem, long int* iters);
-
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRhsEvals instead")
+int ARKStepGetNumRhsEvals(void* arkode_mem, long int* nfe_evals,
+                          long int* nfi_evals);
 #ifdef __cplusplus
 }
 #endif

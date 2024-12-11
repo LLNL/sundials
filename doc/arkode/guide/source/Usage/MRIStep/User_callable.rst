@@ -31,8 +31,13 @@ As discussed in the main :ref:`ARKODE user-callable function introduction
 clarifies the categories of user-callable functions that it supports.
 MRIStep supports the following categories:
 
+* temporal adaptivity
 * implicit nonlinear and/or linear solvers
 
+MRIStep also has forcing function support when converted to a
+:c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
+:c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
+for additional details.
 
 
 .. _ARKODE.Usage.MRIStep.Initialization:
@@ -46,24 +51,22 @@ MRIStep initialization and deallocation functions
    This function allocates and initializes memory for a problem to
    be solved using the MRIStep time-stepping module in ARKODE.
 
-   **Arguments:**
-      * *fse* -- the name of the function (of type :c:func:`ARKRhsFn()`)
-        defining the explicit slow portion of the right-hand side function in
-        :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
-      * *fsi* -- the name of the function (of type :c:func:`ARKRhsFn()`)
-        defining the implicit slow portion of the right-hand side function in
-        :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
-      * *t0* -- the initial value of :math:`t`.
-      * *y0* -- the initial condition vector :math:`y(t_0)`.
-      * *stepper* -- an :c:type:`MRIStepInnerStepper` for integrating the fast
-        time scale.
-      * *sunctx* -- the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
+   :param fse: the name of the function (of type :c:func:`ARKRhsFn()`)
+               defining the explicit slow portion of the right-hand side function in
+               :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
+   :param fsi: the name of the function (of type :c:func:`ARKRhsFn()`)
+               defining the implicit slow portion of the right-hand side function in
+               :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
+   :param t0: the initial value of :math:`t`.
+   :param y0: the initial condition vector :math:`y(t_0)`.
+   :param stepper: an :c:type:`MRIStepInnerStepper` for integrating the fast
+                   time scale.
+   :param sunctx: the :c:type:`SUNContext` object (see :numref:`SUNDIALS.SUNContext`)
 
-   **Return value:**
-      If successful, a pointer to initialized problem memory of type ``void*``, to
-      be passed to all user-facing MRIStep routines listed below.  If unsuccessful,
-      a ``NULL`` pointer will be returned, and an error message will be printed to
-      ``stderr``.
+   :returns: If successful, a pointer to initialized problem memory of type ``void*``, to
+             be passed to all user-facing MRIStep routines listed below.  If unsuccessful,
+             a ``NULL`` pointer will be returned, and an error message will be printed to
+             ``stderr``.
 
    **Example usage:**
 
@@ -73,18 +76,18 @@ MRIStep initialization and deallocation functions
          void *inner_arkode_mem = NULL;
          void *outer_arkode_mem = NULL;
 
-         /* MRIStepInnerStepper to wrap the inner (fast) ARKStep object */
+         /* MRIStepInnerStepper to wrap the inner (fast) object */
          MRIStepInnerStepper stepper = NULL;
 
-         /* create an ARKStep object, setting fast (inner) right-hand side
+         /* create an ARKODE object, setting fast (inner) right-hand side
             functions and the initial condition */
-         inner_arkode_mem = ARKStepCreate(ffe, ffi, t0, y0, sunctx);
+         inner_arkode_mem = *StepCreate(...);
 
-         /* setup ARKStep */
-         . . .
+         /* configure the inner integrator */
+         retval = ARKodeSet*(inner_arkode_mem, ...);
 
-         /* create MRIStepInnerStepper wrapper for the ARKStep memory block */
-         flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
+         /* create MRIStepInnerStepper wrapper for the ARKODE integrator */
+         flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &stepper);
 
          /* create an MRIStep object, setting the slow (outer) right-hand side
             functions and the initial condition */
@@ -98,6 +101,8 @@ MRIStep initialization and deallocation functions
       * ``examples/arkode/C_serial/ark_reaction_diffusion_mri.c``
       * ``examples/arkode/C_serial/ark_kpr_mri.c``
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+      * ``examples/arkode/CXX_serial/ark_test_kpr_nestedmri.cpp``
+        (uses MRIStep within itself)
 
 
 .. c:function:: void MRIStepFree(void** arkode_mem)
@@ -105,10 +110,8 @@ MRIStep initialization and deallocation functions
    This function frees the problem memory *arkode_mem* created by
    :c:func:`MRIStepCreate`.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
+   :param arkode_mem: pointer to the MRIStep memory block.
 
-   **Return value:**  None
 
    .. deprecated:: 6.1.0
 
@@ -125,16 +128,14 @@ MRIStep tolerance specification functions
 
    This function specifies scalar relative and absolute tolerances.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *reltol* -- scalar relative tolerance.
-      * *abstol* -- scalar absolute tolerance.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param reltol: scalar relative tolerance.
+   :param abstol: scalar absolute tolerance.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the MRIStep memory was not allocated by the time-stepping module
-      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARK_NO_MALLOC:  if the MRIStep memory was not allocated by the time-stepping module
+   :retval ARK_ILL_INPUT: if an argument had an illegal value (e.g. a negative tolerance).
 
    .. deprecated:: 6.1.0
 
@@ -148,17 +149,15 @@ MRIStep tolerance specification functions
    absolute tolerance (a potentially different absolute tolerance for
    each vector component).
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *reltol* -- scalar relative tolerance.
-      * *abstol* -- vector containing the absolute tolerances for each
-        solution component.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param reltol: scalar relative tolerance.
+   :param abstol: vector containing the absolute tolerances for each
+                  solution component.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the MRIStep memory was not allocated by the time-stepping module
-      * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARK_NO_MALLOC:  if the MRIStep memory was not allocated by the time-stepping module
+   :retval ARK_ILL_INPUT: if an argument had an illegal value (e.g. a negative tolerance).
 
    .. deprecated:: 6.1.0
 
@@ -171,19 +170,18 @@ MRIStep tolerance specification functions
    This function specifies a user-supplied function *efun* to compute
    the error weight vector ``ewt``.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *efun* -- the name of the function (of type :c:func:`ARKEwtFn()`)
-        that implements the error weight vector computation.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param efun: the name of the function (of type :c:func:`ARKEwtFn()`)
+                that implements the error weight vector computation.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the MRIStep memory was not allocated by the time-stepping module
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARK_NO_MALLOC:  if the MRIStep memory was not allocated by the time-stepping module
 
    .. deprecated:: 6.1.0
 
       Use :c:func:`ARKodeWFtolerances` instead.
+
 
 
 
@@ -198,40 +196,40 @@ Linear solver interface functions
    should use, as well as a template Jacobian ``SUNMatrix`` object (if
    applicable).
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *LS* -- the ``SUNLinearSolver`` object to use.
-      * *J* -- the template Jacobian ``SUNMatrix`` object to use (or
-        ``NULL`` if not applicable).
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param LS: the ``SUNLinearSolver`` object to use.
+   :param J: the template Jacobian ``SUNMatrix`` object to use (or
+             ``NULL`` if not applicable).
 
-   **Return value:**
-      * *ARKLS_SUCCESS*   if successful
-      * *ARKLS_MEM_NULL*  if the MRIStep memory was ``NULL``
-      * *ARKLS_MEM_FAIL*  if there was a memory allocation failure
-      * *ARKLS_ILL_INPUT* if ARKLS is incompatible with the
-        provided *LS* or *J* input objects, or the current
-        ``N_Vector`` module.
+   :retval ARKLS_SUCCESS:   if successful
+   :retval ARKLS_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARKLS_MEM_FAIL:  if there was a memory allocation failure
+   :retval ARKLS_ILL_INPUT: if ARKLS is incompatible with the
+                            provided *LS* or *J* input objects, or the current
+                            ``N_Vector`` module.
 
-   **Notes:**  If *LS* is a matrix-free linear solver, then the *J*
-   argument should be ``NULL``.
+   .. note::
 
-   If *LS* is a matrix-based linear solver, then the template Jacobian
-   matrix *J* will be used in the solve process, so if additional
-   storage is required within the ``SUNMatrix`` object (e.g. for
-   factorization of a banded matrix), ensure that the input object is
-   allocated with sufficient size (see the documentation of
-   the particular SUNMATRIX type in :numref:`SUNMatrix` for
-   further information).
+      If *LS* is a matrix-free linear solver, then the *J*
+      argument should be ``NULL``.
 
-   When using sparse linear solvers, it is typically much more
-   efficient to supply *J* so that it includes the full sparsity
-   pattern of the Newton system matrices :math:`\mathcal{A} =
-   I-\gamma J`, even if *J* itself has zeros in nonzero
-   locations of :math:`I`.  The reasoning for this is
-   that :math:`\mathcal{A}` is constructed in-place, on top of the
-   user-specified values of *J*, so if the sparsity pattern in *J* is
-   insufficient to store :math:`\mathcal{A}` then it will need to be
-   resized internally by MRIStep.
+      If *LS* is a matrix-based linear solver, then the template Jacobian
+      matrix *J* will be used in the solve process, so if additional
+      storage is required within the ``SUNMatrix`` object (e.g. for
+      factorization of a banded matrix), ensure that the input object is
+      allocated with sufficient size (see the documentation of
+      the particular SUNMATRIX type in :numref:`SUNMatrix` for
+      further information).
+
+      When using sparse linear solvers, it is typically much more
+      efficient to supply *J* so that it includes the full sparsity
+      pattern of the Newton system matrices :math:`\mathcal{A} =
+      I-\gamma J`, even if *J* itself has zeros in nonzero
+      locations of :math:`I`.  The reasoning for this is
+      that :math:`\mathcal{A}` is constructed in-place, on top of the
+      user-specified values of *J*, so if the sparsity pattern in *J* is
+      insufficient to store :math:`\mathcal{A}` then it will need to be
+      resized internally by MRIStep.
 
    .. deprecated:: 6.1.0
 
@@ -249,20 +247,20 @@ Nonlinear solver interface functions
    This function specifies the ``SUNNonlinearSolver`` object
    that MRIStep should use for implicit stage solves.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *NLS* -- the ``SUNNonlinearSolver`` object to use.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param NLS: the ``SUNNonlinearSolver`` object to use.
 
-   **Return value:**
-      * *ARK_SUCCESS*   if successful
-      * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
-      * *ARK_MEM_FAIL*  if there was a memory allocation failure
-      * *ARK_ILL_INPUT* if MRIStep is incompatible with the
-        provided *NLS* input object.
+   :retval ARK_SUCCESS:   if successful
+   :retval ARK_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARK_MEM_FAIL:  if there was a memory allocation failure
+   :retval ARK_ILL_INPUT: if MRIStep is incompatible with the
+                          provided *NLS* input object.
 
-   **Notes:**  MRIStep will use the Newton ``SUNNonlinearSolver`` module by
-   default; a call to this routine replaces that module with the
-   supplied *NLS* object.
+   .. note::
+
+      MRIStep will use the Newton ``SUNNonlinearSolver`` module by
+      default; a call to this routine replaces that module with the
+      supplied *NLS* object.
 
    .. deprecated:: 6.1.0
 
@@ -281,29 +279,29 @@ Rootfinding initialization function
    integration of the ODE system.  It must be called after
    :c:func:`MRIStepCreate()`, and before :c:func:`MRIStepEvolve()`.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nrtfn* -- number of functions :math:`g_i`, an integer :math:`\ge` 0.
-      * *g* -- name of user-supplied function, of type :c:func:`ARKRootFn()`,
-        defining the functions :math:`g_i` whose roots are sought.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nrtfn: number of functions :math:`g_i`, an integer :math:`\ge` 0.
+   :param g: name of user-supplied function, of type :c:func:`ARKRootFn()`,
+             defining the functions :math:`g_i` whose roots are sought.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
-      * *ARK_MEM_FAIL*  if there was a memory allocation failure
-      * *ARK_ILL_INPUT* if *nrtfn* is greater than zero but *g* = ``NULL``.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARK_MEM_FAIL:  if there was a memory allocation failure
+   :retval ARK_ILL_INPUT: if *nrtfn* is greater than zero but *g* = ``NULL``.
 
-   **Notes:** To disable the rootfinding feature after it has already
-   been initialized, or to free memory associated with MRIStep's
-   rootfinding module, call *MRIStepRootInit* with *nrtfn = 0*.
+   .. note::
 
-   Similarly, if a new IVP is to be solved with a call to
-   :c:func:`MRIStepReInit()`, where the new IVP has no rootfinding
-   problem but the prior one did, then call *MRIStepRootInit* with
-   *nrtfn = 0*.
+      To disable the rootfinding feature after it has already
+      been initialized, or to free memory associated with MRIStep's
+      rootfinding module, call *MRIStepRootInit* with *nrtfn = 0*.
 
-   Rootfinding is only supported for the slow (outer) integrator and should not
-   be activated for the fast (inner) integrator.
+      Similarly, if a new IVP is to be solved with a call to
+      :c:func:`MRIStepReInit()`, where the new IVP has no rootfinding
+      problem but the prior one did, then call *MRIStepRootInit* with
+      *nrtfn = 0*.
+
+      Rootfinding is only supported for the slow (outer) integrator and should not
+      be activated for the fast (inner) integrator.
 
    .. deprecated:: 6.1.0
 
@@ -320,72 +318,73 @@ MRIStep solver function
 
    Integrates the ODE over an interval in :math:`t`.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *tout* -- the next time at which a computed solution is desired.
-      * *yout* -- the computed solution vector.
-      * *tret* -- the time corresponding to *yout* (output).
-      * *itask* -- a flag indicating the job of the solver for the next
-        user step.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param tout: the next time at which a computed solution is desired.
+   :param yout: the computed solution vector.
+   :param tret: the time corresponding to *yout* (output).
+   :param itask: a flag indicating the job of the solver for the next
+                 user step.
 
-        The *ARK_NORMAL* option causes the solver to take internal
-        steps until it has just overtaken a user-specified output
-        time, *tout*, in the direction of integration,
-        i.e. :math:`t_{n-1} <` *tout* :math:`\le t_{n}` for forward
-        integration, or :math:`t_{n} \le` *tout* :math:`< t_{n-1}` for
-        backward integration.  It will then compute an approximation
-        to the solution :math:`y(tout)` by interpolation (as described
-        in :numref:`ARKODE.Mathematics.Interpolation`).
+                 The *ARK_NORMAL* option causes the solver to take internal
+                 steps until it has just overtaken a user-specified output
+                 time, *tout*, in the direction of integration,
+                 i.e. :math:`t_{n-1} <` *tout* :math:`\le t_{n}` for forward
+                 integration, or :math:`t_{n} \le` *tout* :math:`< t_{n-1}` for
+                 backward integration.  It will then compute an approximation
+                 to the solution :math:`y(tout)` by interpolation (as described
+                 in :numref:`ARKODE.Mathematics.Interpolation`).
 
-        The *ARK_ONE_STEP* option tells the solver to only take a
-        single internal step, :math:`y_{n-1} \to y_{n}`, and return the solution
-        at that point, :math:`y_{n}`, in the vector *yout*.
+                 The *ARK_ONE_STEP* option tells the solver to only take a
+                 single internal step, :math:`y_{n-1} \to y_{n}`, and return the
+                 solution at that point, :math:`y_{n}`, in the vector *yout*.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful.
-      * *ARK_ROOT_RETURN* if :c:func:`MRIStepEvolve()` succeeded, and
-        found one or more roots.  If the number of root functions,
-        *nrtfn*, is greater than 1, call
-        :c:func:`MRIStepGetRootInfo()` to see which :math:`g_i` were
-        found to have a root at (*\*tret*).
-      * *ARK_TSTOP_RETURN* if :c:func:`MRIStepEvolve()` succeeded and
-        returned at *tstop*.
-      * *ARK_MEM_NULL* if the *arkode_mem* argument was ``NULL``.
-      * *ARK_NO_MALLOC* if *arkode_mem* was not allocated.
-      * *ARK_ILL_INPUT* if one of the inputs to
-        :c:func:`MRIStepEvolve()` is illegal, or some other input to
-        the solver was either illegal or missing.  Details will be
-        provided in the error message.  Typical causes of this failure:
+   :retval ARK_SUCCESS: if successful.
+   :retval ARK_ROOT_RETURN: if :c:func:`MRIStepEvolve()` succeeded, and
+                            found one or more roots.  If the number of root
+                            functions, *nrtfn*, is greater than 1, call
+                            :c:func:`ARKodeGetRootInfo()` to see which
+                            :math:`g_i` were found to have a root at (*\*tret*).
+   :retval ARK_TSTOP_RETURN: if :c:func:`MRIStepEvolve()` succeeded and
+                             returned at *tstop*.
+   :retval ARK_MEM_NULL: if the *arkode_mem* argument was ``NULL``.
+   :retval ARK_NO_MALLOC: if *arkode_mem* was not allocated.
+   :retval ARK_ILL_INPUT: if one of the inputs to
+                          :c:func:`MRIStepEvolve()` is illegal, or some other
+                          input to the solver was either illegal or missing.
+                          Details will be provided in the error message.
+                          Typical causes of this failure:
 
-        (a) A component of the error weight vector became zero during
-            internal time-stepping.
+                          (a) A component of the error weight vector became
+                              zero during internal time-stepping.
 
-        (b) The linear solver initialization function (called by the
-            user after calling :c:func:`ARKStepCreate`) failed to set
-            the linear solver-specific *lsolve* field in
-            *arkode_mem*.
+                          (b) The linear solver initialization function
+                              (called by the user after calling
+                              :c:func:`ARKStepCreate`) failed to set
+                              the linear solver-specific *lsolve* field in
+                              *arkode_mem*.
 
-        (c) A root of one of the root functions was found both at a
-            point :math:`t` and also very near :math:`t`.
+                          (c) A root of one of the root functions was found both
+                              at a point :math:`t` and also very near :math:`t`.
 
-      * *ARK_TOO_MUCH_WORK* if the solver took *mxstep* internal steps
-        but could not reach *tout*.  The default value for *mxstep* is
-        *MXSTEP_DEFAULT = 500*.
-      * *ARK_CONV_FAILURE* if convergence test failures occurred
-        too many times (*ark_maxncf*) during one internal time step.
-      * *ARK_LINIT_FAIL* if the linear solver's initialization
-        function failed.
-      * *ARK_LSETUP_FAIL* if the linear solver's setup routine failed in
-        an unrecoverable manner.
-      * *ARK_LSOLVE_FAIL* if the linear solver's solve routine failed in
-        an unrecoverable manner.
-      * *ARK_VECTOROP_ERR* a vector operation error occurred.
-      * *ARK_INNERSTEP_FAILED* if the inner stepper returned with an
-        unrecoverable error. The value returned from the inner stepper can be
-        obtained with :c:func:`MRIStepGetLastInnerStepFlag()`.
-      * *ARK_INVALID_TABLE* if an invalid coupling table was provided.
+   :retval ARK_TOO_MUCH_WORK: if the solver took *mxstep* internal steps
+                              but could not reach *tout*.  The default value for
+                              *mxstep* is *MXSTEP_DEFAULT = 500*.
+   :retval ARK_CONV_FAILURE: if convergence test failures occurred too many
+                             times (*ark_maxncf*) during one internal time step.
+   :retval ARK_LINIT_FAIL: if the linear solver's initialization function failed.
+   :retval ARK_LSETUP_FAIL: if the linear solver's setup routine failed in
+                            an unrecoverable manner.
+   :retval ARK_LSOLVE_FAIL: if the linear solver's solve routine failed in
+                            an unrecoverable manner.
+   :retval ARK_VECTOROP_ERR: a vector operation error occurred.
+   :retval ARK_INNERSTEP_FAILED: if the inner stepper returned with an
+                                 unrecoverable error. The value returned from the
+                                 inner stepper can be obtained with
+                                 :c:func:`MRIStepGetLastInnerStepFlag()`.
+   :retval ARK_INVALID_TABLE: if an invalid coupling table was provided.
 
-   **Notes:**
+   .. note::
+
       The input vector *yout* can use the same memory as the
       vector *y0* of initial conditions that was passed to
       :c:func:`MRIStepCreate`.
@@ -437,22 +436,18 @@ Optional inputs for MRIStep
    Resets all optional input parameters to MRIStep's original
    default values.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Return value:**
+   .. note::
 
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:** This function does not change problem-defining function pointers
-   *fs* and *ff* or the *user_data* pointer. It also does not affect any data
-   structures or options related to root-finding (those can be reset using
-   :c:func:`MRIStepRootInit()`).
+      This function does not change problem-defining function pointers
+      *fs* and *ff* or the *user_data* pointer. It also does not affect any data
+      structures or options related to root-finding (those can be reset using
+      :c:func:`MRIStepRootInit()`).
 
    .. deprecated:: 6.1.0
 
@@ -475,39 +470,32 @@ Optional inputs for MRIStep
    used for dense output (i.e. interpolation of solution output values
    and implicit method predictors).
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param degree: requested polynomial degree.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory or interpolation module are ``NULL``
+   :retval ARK_INTERP_FAIL: if this is called after :c:func:`MRIStepEvolve()`
+   :retval ARK_ILL_INPUT: if an argument has an illegal value or the
+                          interpolation module has already been initialized
 
-   * *degree* -- requested polynomial degree.
+   .. note::
 
-   **Return value:**
+      Allowed values are between 0 and 5.
 
-   * *ARK_SUCCESS* if successful
+      This routine should be called *after* :c:func:`MRIStepCreate()` and *before*
+      :c:func:`MRIStepEvolve()`. After the first call to :c:func:`MRIStepEvolve()`
+      the interpolation degree may not be changed without first calling
+      :c:func:`MRIStepReInit()`.
 
-   * *ARK_MEM_NULL* if the MRIStep memory or interpolation module are ``NULL``
+      If a user calls both this routine and :c:func:`MRIStepSetInterpolantType()`, then
+      :c:func:`MRIStepSetInterpolantType()` must be called first.
 
-   * *ARK_INTERP_FAIL* if this is called after :c:func:`MRIStepEvolve()`
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value or the
-     interpolation module has already been initialized
-
-   **Notes:** Allowed values are between 0 and 5.
-
-   This routine should be called *after* :c:func:`MRIStepCreate()` and *before*
-   :c:func:`MRIStepEvolve()`. After the first call to :c:func:`MRIStepEvolve()`
-   the interpolation degree may not be changed without first calling
-   :c:func:`MRIStepReInit()`.
-
-
-   If a user calls both this routine and :c:func:`MRIStepSetInterpolantType()`, then
-   :c:func:`MRIStepSetInterpolantType()` must be called first.
-
-   Since the accuracy of any polynomial interpolant is limited by the accuracy
-   of the time-step solutions on which it is based, the *actual* polynomial
-   degree that is used by MRIStep will be the minimum of :math:`q-1` and the
-   input *degree*, for :math:`q > 1` where :math:`q` is the order of accuracy
-   for the time integration method.
+      Since the accuracy of any polynomial interpolant is limited by the accuracy
+      of the time-step solutions on which it is based, the *actual* polynomial
+      degree that is used by MRIStep will be the minimum of :math:`q-1` and the
+      input *degree*, for :math:`q > 1` where :math:`q` is the order of accuracy
+      for the time integration method.
 
    .. versionchanged:: 5.5.1
 
@@ -532,28 +520,23 @@ Optional inputs for MRIStep
    Specifies the file pointer for a diagnostics file where
    all MRIStep step adaptivity and solver information is written.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param diagfp: pointer to the diagnostics output file.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   * *diagfp* -- pointer to the diagnostics output file.
+   .. note::
 
-   **Return value:**
+      This parameter can be ``stdout`` or ``stderr``, although the
+      suggested approach is to specify a pointer to a unique file opened
+      by the user and returned by ``fopen``.  If not called, or if called
+      with a ``NULL`` file pointer, all diagnostics output is disabled.
 
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:** This parameter can be ``stdout`` or ``stderr``, although the
-   suggested approach is to specify a pointer to a unique file opened
-   by the user and returned by ``fopen``.  If not called, or if called
-   with a ``NULL`` file pointer, all diagnostics output is disabled.
-
-   When run in parallel, only one process should set a non-NULL value
-   for this pointer, since statistics from all processes would be
-   identical.
+      When run in parallel, only one process should set a non-NULL value
+      for this pointer, since statistics from all processes would be
+      identical.
 
    .. deprecated:: 5.2.0
 
@@ -565,24 +548,17 @@ Optional inputs for MRIStep
 
    Set the slow step size used within MRIStep for the following internal step(s).
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param hs: value of the outer (slow) step size.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   * *hs* -- value of the outer (slow) step size.
+   .. note::
 
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-
-   The step sizes used by the inner (fast) stepper may be controlled through calling the
-   appropriate "Set" routines on the inner integrator.
+      The step sizes used by the inner (fast) stepper may be controlled through calling the
+      appropriate "Set" routines on the inner integrator.
 
    .. deprecated:: 6.1.0
 
@@ -596,24 +572,18 @@ Optional inputs for MRIStep
    solver to warn that :math:`t+h=t` on the next internal step, before
    MRIStep will instead return with an error.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param mxhnil: maximum allowed number of warning messages :math:`(>0)`.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   * *mxhnil* -- maximum allowed number of warning messages :math:`(>0)`.
+   .. note::
 
-   **Return value:**
+      The default value is 10; set *mxhnil* to zero to specify this default.
 
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:** The default value is 10; set *mxhnil* to zero to specify
-   this default.
-
-   A negative value indicates that no warning messages should be issued.
+      A negative value indicates that no warning messages should be issued.
 
    .. deprecated:: 6.1.0
 
@@ -627,24 +597,19 @@ Optional inputs for MRIStep
    solver in its attempt to reach the next output time, before MRIStep
    will return with an error.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param mxsteps: maximum allowed number of internal steps.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   * *mxsteps* -- maximum allowed number of internal steps.
+   .. note::
 
-   **Return value:**
+      Passing *mxsteps* = 0 results in MRIStep using the
+      default value (500).
 
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:** Passing *mxsteps* = 0 results in MRIStep using the
-   default value (500).
-
-   Passing *mxsteps* < 0 disables the test (not recommended).
+      Passing *mxsteps* < 0 disables the test (not recommended).
 
    .. deprecated:: 6.1.0
 
@@ -657,21 +622,14 @@ Optional inputs for MRIStep
    Specifies the value of the independent variable
    :math:`t` past which the solution is not to proceed.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param tstop: stopping time for the integrator.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   * *tstop* -- stopping time for the integrator.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
+   .. note::
 
       The default is that no stop time is imposed.
 
@@ -695,13 +653,11 @@ Optional inputs for MRIStep
    :math:`t` equals the specified ``tstop`` (instead of merely copying the
    internal solution :math:`y_n`).
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *interp* -- flag indicating to use interpolation (1) or copy (0).
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param interp: flag indicating to use interpolation (1) or copy (0).
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
    .. versionadded:: 5.6.0
 
@@ -715,14 +671,13 @@ Optional inputs for MRIStep
 
    Disables the stop time set with :c:func:`MRIStepSetStopTime`.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
+   :param arkode_mem: pointer to the MRIStep memory block.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
-   **Notes:**
+   .. note::
+
       The stop time can be re-enabled though a new call to
       :c:func:`MRIStepSetStopTime`.
 
@@ -739,29 +694,24 @@ Optional inputs for MRIStep
    Specifies the user data block *user_data* for the outer integrator and
    attaches it to the main MRIStep memory block.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param user_data: pointer to the user data.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   * *user_data* -- pointer to the user data.
+   .. note::
 
-   **Return value:**
+      If specified, the pointer to *user_data* is passed to all
+      user-supplied functions called by the outer integrator for which it is an
+      argument; otherwise ``NULL`` is passed.
 
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:** If specified, the pointer to *user_data* is passed to all
-   user-supplied functions called by the outer integrator for which it is an
-   argument; otherwise ``NULL`` is passed.
-
-   To attach a user data block to the inner integrator call the appropriate
-   *SetUserData* function for the inner integrator memory structure (e.g.,
-   :c:func:`ARKStepSetUserData()` if the inner stepper is ARKStep). This pointer
-   may be the same as or different from the pointer attached to the outer
-   integrator depending on what is required by the user code.
+      To attach a user data block to the inner integrator call the appropriate
+      *SetUserData* function for the inner integrator memory structure (e.g.,
+      :c:func:`ARKStepSetUserData()` if the inner stepper is ARKStep). This pointer
+      may be the same as or different from the pointer attached to the outer
+      integrator depending on what is required by the user code.
 
    .. deprecated:: 6.1.0
 
@@ -773,18 +723,12 @@ Optional inputs for MRIStep
 
    Specifies the function called *before* each inner integration.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param prefn: the name of the C function (of type :c:func:`MRIStepPreInnerFn()`)
+                 defining pre inner integration function.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *prefn* -- the name of the C function (of type :c:func:`MRIStepPreInnerFn()`)
-     defining pre inner integration function.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
 
 
@@ -792,18 +736,13 @@ Optional inputs for MRIStep
 
    Specifies the function called *after* each inner integration.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param postfn: the name of the C function (of type :c:func:`MRIStepPostInnerFn()`)
+                  defining post inner integration function.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
-   * *postfn* -- the name of the C function (of type :c:func:`MRIStepPostInnerFn()`)
-     defining post inner integration function.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
 
 
 
@@ -818,7 +757,7 @@ Optional inputs for IVP method selection
 
    +--------------------------------+-------------------------------------+----------+
    | Optional input                 | Function name                       | Default  |
-   +--------------------------------+-------------------------------------+----------+
+   +================================+=====================================+==========+
    | Select the default MRI method  | :c:func:`MRIStepSetOrder()`         | 3        |
    | of a given order               |                                     |          |
    +--------------------------------+-------------------------------------+----------+
@@ -830,20 +769,14 @@ Optional inputs for IVP method selection
 
    Select the default MRI method of a given order.
 
-   The default order is 3. An order less than 1 or greater than 4 will result in
+   The default order is 3. An order less than 1 will result in
    using the default.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param ord: the method order.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *ord* -- the method order.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
    .. deprecated:: 6.1.0
 
@@ -855,28 +788,21 @@ Optional inputs for IVP method selection
 
    Specifies a customized set of slow-to-fast coupling coefficients for the MRI method.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param C: the table of coupling coefficients for the MRI method.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   * *C* -- the table of coupling coefficients for the MRI method.
+   .. note::
 
-   **Return value:**
+      For a description of the :c:type:`MRIStepCoupling` type and related
+      functions for creating Butcher tables see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling`.
 
-   * *ARK_SUCCESS* if successful
+   .. warning::
 
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value
-
-   **Notes:**
-
-   For a description of the :c:type:`MRIStepCoupling` type and related
-   functions for creating Butcher tables see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling`.
-
-   **Warning:**
-
-   This should not be used with :c:func:`ARKodeSetOrder`.
+      This should not be used with :c:func:`ARKodeSetOrder`.
 
 
 
@@ -890,28 +816,28 @@ Optional inputs for implicit stage solves
    Specifies that the implicit slow right-hand side function, :math:`f^I(t,y)`
    is linear in :math:`y`.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *timedepend* -- flag denoting whether the Jacobian of
-        :math:`f^I(t,y)` is time-dependent (1) or not (0).
-        Alternately, when using a matrix-free iterative linear solver
-        this flag denotes time dependence of the preconditioner.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param timedepend: flag denoting whether the Jacobian of
+                      :math:`f^I(t,y)` is time-dependent (1) or not (0).
+                      Alternately, when using a matrix-free iterative linear solver
+                      this flag denotes time dependence of the preconditioner.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Notes:** Tightens the linear solver tolerances and takes only a
-   single Newton iteration.  Calls :c:func:`MRIStepSetDeltaGammaMax()`
-   to enforce Jacobian recomputation when the step size ratio changes
-   by more than 100 times the unit roundoff (since nonlinear
-   convergence is not tested).  Only applicable when used in
-   combination with the modified or inexact Newton iteration (not the
-   fixed-point solver).
+   .. note::
 
-   The only SUNDIALS-provided SUNNonlinearSolver module that is compatible
-   with the :c:func:`MRIStepSetLinear()` option is the Newton solver.
+      Tightens the linear solver tolerances and takes only a
+      single Newton iteration.  Calls :c:func:`MRIStepSetDeltaGammaMax()`
+      to enforce Jacobian recomputation when the step size ratio changes
+      by more than 100 times the unit roundoff (since nonlinear
+      convergence is not tested).  Only applicable when used in
+      combination with the modified or inexact Newton iteration (not the
+      fixed-point solver).
+
+      The only SUNDIALS-provided SUNNonlinearSolver module that is compatible
+      with the :c:func:`MRIStepSetLinear()` option is the Newton solver.
 
    .. deprecated:: 6.1.0
 
@@ -924,19 +850,19 @@ Optional inputs for implicit stage solves
    Specifies that the implicit slow right-hand side function, :math:`f^I(t,y)`
    is nonlinear in :math:`y`.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
+   :param arkode_mem: pointer to the MRIStep memory block.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Notes:** This is the default behavior of MRIStep, so the function
-   is primarily useful to undo a previous call to
-   :c:func:`MRIStepSetLinear()`.  Calls
-   :c:func:`MRIStepSetDeltaGammaMax()` to reset the step size ratio
-   threshold to the default value.
+   .. note::
+
+      This is the default behavior of MRIStep, so the function
+      is primarily useful to undo a previous call to
+      :c:func:`MRIStepSetLinear()`.  Calls
+      :c:func:`MRIStepSetDeltaGammaMax()` to reset the step size ratio
+      threshold to the default value.
 
    .. deprecated:: 6.1.0
 
@@ -948,35 +874,37 @@ Optional inputs for implicit stage solves
 
    Specifies the method to use for predicting implicit solutions.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *method* -- method choice (0 :math:`\le` *method* :math:`\le` 4):
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param method: the predictor method
 
-        * 0 is the trivial predictor,
+                  * 0 is the trivial predictor,
 
-        * 1 is the maximum order (dense output) predictor,
+                  * 1 is the maximum order (dense output) predictor,
 
-        * 2 is the variable order predictor, that decreases the
-          polynomial degree for more distant RK stages,
+                  * 2 is the variable order predictor, that decreases the
+                    polynomial degree for more distant RK stages,
 
-        * 3 is the cutoff order predictor, that uses the maximum order
-          for early RK stages, and a first-order predictor for distant
-          RK stages,
+                  * 3 is the cutoff order predictor, that uses the maximum order
+                    for early RK stages, and a first-order predictor for distant
+                    RK stages,
 
-        * 4 is the bootstrap predictor, that uses a second-order
-          predictor based on only information within the current step.
-          **deprecated**
+                  * 4 is the bootstrap predictor, that uses a second-order
+                    predictor based on only information within the current step.
+                    **deprecated**
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Notes:** The default value is 0.  If *method* is set to an
-   undefined value, this default predictor will be used.
+   .. note::
 
-   **The "bootstrap" predictor (option 4 above) has been deprecated, and
-   will be removed from a future release.**
+      The default value is 0.  If *method* is set to an
+      undefined value, this default predictor will be used.
+
+   .. warning::
+
+      The "bootstrap" predictor (option 4 above) has been deprecated, and
+      will be removed from a future release.
 
    .. deprecated:: 6.1.0
 
@@ -989,18 +917,17 @@ Optional inputs for implicit stage solves
    Specifies the maximum number of nonlinear solver
    iterations permitted per slow MRI stage within each time step.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *maxcor* -- maximum allowed solver iterations per stage :math:`(>0)`.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param maxcor: maximum allowed solver iterations per stage :math:`(>0)`.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value or if the SUNNONLINSOL module is ``NULL``
-      * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value or if the SUNNONLINSOL module is ``NULL``
+   :retval ARK_NLS_OP_ERR: if the SUNNONLINSOL object returned a failure flag
 
-   **Notes:** The default value is 3; set *maxcor* :math:`\le 0`
-   to specify this default.
+   .. note::
+
+      The default value is 3; set *maxcor* :math:`\le 0` to specify this default.
 
    .. deprecated:: 6.1.0
 
@@ -1012,17 +939,16 @@ Optional inputs for implicit stage solves
 
    Specifies the safety factor used within the nonlinear solver convergence test.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nlscoef* -- coefficient in nonlinear solver convergence test :math:`(>0.0)`.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nlscoef: coefficient in nonlinear solver convergence test :math:`(>0.0)`.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Notes:** The default value is 0.1; set *nlscoef* :math:`\le 0`
-   to specify this default.
+   .. note::
+
+      The default value is 0.1; set *nlscoef* :math:`\le 0` to specify this default.
 
    .. deprecated:: 6.1.0
 
@@ -1034,16 +960,16 @@ Optional inputs for implicit stage solves
 
    Specifies the constant used in estimating the nonlinear solver convergence rate.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *crdown* -- nonlinear convergence rate estimation constant (default is 0.3).
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param crdown: nonlinear convergence rate estimation constant (default is 0.3).
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Notes:** Any non-positive parameter will imply a reset to the default value.
+   .. note::
+
+      Any non-positive parameter will imply a reset to the default value.
 
    .. deprecated:: 6.1.0
 
@@ -1056,17 +982,17 @@ Optional inputs for implicit stage solves
    Specifies the nonlinear correction threshold beyond which the
    iteration will be declared divergent.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *rdiv* -- tolerance on nonlinear correction size ratio to
-        declare divergence (default is 2.3).
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param rdiv: tolerance on nonlinear correction size ratio to
+                declare divergence (default is 2.3).
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Notes:** Any non-positive parameter will imply a reset to the default value.
+   .. note::
+
+      Any non-positive parameter will imply a reset to the default value.
 
    .. deprecated:: 6.1.0
 
@@ -1079,17 +1005,17 @@ Optional inputs for implicit stage solves
    Sets the user-supplied function to update the implicit stage predictor prior to
    execution of the nonlinear or linear solver algorithms that compute the implicit stage solution.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *PredictStage* -- name of user-supplied predictor function. If ``NULL``, then any
-        previously-provided stage prediction function will be disabled.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param PredictStage: name of user-supplied predictor function. If ``NULL``, then any
+                        previously-provided stage prediction function will be disabled.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
-   **Notes:** See :numref:`ARKODE.Usage.StagePredictFn` for more information on
-   this user-supplied routine.
+   .. note::
+
+      See :numref:`ARKODE.Usage.StagePredictFn` for more information on
+      this user-supplied routine.
 
    .. deprecated:: 6.1.0
 
@@ -1102,22 +1028,22 @@ Optional inputs for implicit stage solves
    Specifies an alternative implicit slow right-hand side function for
    evaluating :math:`f^I(t,y)` within nonlinear system function evaluations.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nls_fs* -- the alternative C function for computing the right-hand side
-        function :math:`f^I(t,y)` in the ODE.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nls_fs: the alternative C function for computing the right-hand side
+                  function :math:`f^I(t,y)` in the ODE.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful.
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``.
+   :retval ARK_SUCCESS: if successful.
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``.
 
-   **Notes:** The default is to use the implicit slow right-hand side function
-   provided to :c:func:`MRIStepCreate()` in nonlinear system functions. If the
-   input implicit slow right-hand side function is ``NULL``, the default is
-   used.
+   .. note::
 
-   When using a non-default nonlinear solver, this function must be called
-   *after* :c:func:`MRIStepSetNonlinearSolver()`.
+      The default is to use the implicit slow right-hand side function
+      provided to :c:func:`MRIStepCreate()` in nonlinear system functions. If the
+      input implicit slow right-hand side function is ``NULL``, the default is
+      used.
+
+      When using a non-default nonlinear solver, this function must be called
+      *after* :c:func:`MRIStepSetNonlinearSolver()`.
 
    .. deprecated:: 6.1.0
 
@@ -1130,16 +1056,14 @@ Optional inputs for implicit stage solves
    Specifies if implicit stage derivatives are deduced without evaluating
    :math:`f^I`. See :numref:`ARKODE.Mathematics.Nonlinear` for more details.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *deduce* -- If ``SUNFALSE`` (default), the stage derivative is obtained
-        by evaluating :math:`f^I` with the stage solution returned from the
-        nonlinear solver. If ``SUNTRUE``, the stage derivative is deduced
-        without an additional evaluation of :math:`f^I`.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param deduce: If ``SUNFALSE`` (default), the stage derivative is obtained
+                  by evaluating :math:`f^I` with the stage solution returned from the
+                  nonlinear solver. If ``SUNTRUE``, the stage derivative is deduced
+                  without an additional evaluation of :math:`f^I`.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
    .. versionadded:: 5.2.0
 
@@ -1165,17 +1089,17 @@ Optional inputs for the ARKLS linear solver interface
    Specifies a scaled step size ratio tolerance, beyond which the
    linear solver setup routine will be signaled.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *dgmax* -- tolerance on step size ratio change before calling
-        linear solver setup routine (default is 0.2).
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param dgmax: tolerance on step size ratio change before calling
+                 linear solver setup routine (default is 0.2).
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Notes:**  Any non-positive parameter will imply a reset to the default value.
+   .. note::
+
+      Any non-positive parameter will imply a reset to the default value.
 
    .. deprecated:: 6.1.0
 
@@ -1188,20 +1112,19 @@ Optional inputs for the ARKLS linear solver interface
    Specifies the frequency of calls to the linear solver setup
    routine.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *msbp* -- the linear solver setup frequency.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param msbp: the linear solver setup frequency.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
-   **Notes:**
-   Positive values of **msbp** specify the linear solver setup frequency. For
-   example, an input of 1 means the setup function will be called every time
-   step while an input of 2 means it will be called called every other time
-   step. If **msbp** is 0, the default value of 20 will be used. A negative
-   value forces a linear solver step at each implicit stage.
+   .. note::
+
+      Positive values of **msbp** specify the linear solver setup frequency. For
+      example, an input of 1 means the setup function will be called every time
+      step while an input of 2 means it will be called called every other time
+      step. If **msbp** is 0, the default value of 20 will be used. A negative
+      value forces a linear solver step at each implicit stage.
 
    .. deprecated:: 6.1.0
 
@@ -1214,27 +1137,26 @@ Optional inputs for the ARKLS linear solver interface
    Specifies the frequency for recomputing the Jacobian or recommending a
    preconditioner update.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *msbj* -- the Jacobian re-computation or preconditioner update frequency.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param msbj: the Jacobian re-computation or preconditioner update frequency.
 
-   **Return value:**
-      * *ARKLS_SUCCESS* if successful.
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``.
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``.
+   :retval ARKLS_SUCCESS: if successful.
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``.
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``.
 
-   **Notes:**
-   The Jacobian update frequency is only checked *within* calls to the linear
-   solver setup routine, as such values of *msbj* :math:`<` *msbp* will result
-   in recomputing the Jacobian every *msbp* steps. See
-   :c:func:`MRIStepSetLSetupFrequency()` for setting the linear solver setup
-   frequency *msbp*.
+   .. note::
 
-   Passing a value *msbj* :math:`\le 0` indicates to use the
-   default value of 50.
+      The Jacobian update frequency is only checked *within* calls to the linear
+      solver setup routine, as such values of *msbj* :math:`<` *msbp* will result
+      in recomputing the Jacobian every *msbp* steps. See
+      :c:func:`MRIStepSetLSetupFrequency()` for setting the linear solver setup
+      frequency *msbp*.
 
-   This function must be called *after* the ARKLS system solver interface has
-   been initialized through a call to :c:func:`MRIStepSetLinearSolver()`.
+      Passing a value *msbj* :math:`\le 0` indicates to use the
+      default value of 50.
+
+      This function must be called *after* the ARKLS system solver interface has
+      been initialized through a call to :c:func:`MRIStepSetLinearSolver()`.
 
    .. deprecated:: 6.1.0
 
@@ -1253,26 +1175,26 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
    Specifies the Jacobian approximation routine to
    be used for the matrix-based solver with the ARKLS interface.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *jac* -- name of user-supplied Jacobian approximation function.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param jac: name of user-supplied Jacobian approximation function.
 
-   **Return value:**
-      * *ARKLS_SUCCESS*  if successful
-      * *ARKLS_MEM_NULL*  if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+   :retval ARKLS_SUCCESS:  if successful
+   :retval ARKLS_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   **Notes:** This routine must be called after the ARKLS linear
-   solver interface has been initialized through a call to
-   :c:func:`MRIStepSetLinearSolver()`.
+   .. note::
 
-   By default, ARKLS uses an internal difference quotient function for
-   dense and band matrices.  If ``NULL`` is passed in for *jac*, this
-   default is used. An error will occur if no *jac* is supplied when
-   using other matrix types.
+      This routine must be called after the ARKLS linear
+      solver interface has been initialized through a call to
+      :c:func:`MRIStepSetLinearSolver()`.
 
-   The function type :c:func:`ARKLsJacFn()` is described in
-   :numref:`ARKODE.Usage.UserSupplied`.
+      By default, ARKLS uses an internal difference quotient function for
+      dense and band matrices.  If ``NULL`` is passed in for *jac*, this
+      default is used. An error will occur if no *jac* is supplied when
+      using other matrix types.
+
+      The function type :c:func:`ARKLsJacFn()` is described in
+      :numref:`ARKODE.Usage.UserSupplied`.
 
    .. deprecated:: 6.1.0
 
@@ -1285,25 +1207,25 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
    Specifies the linear system approximation routine to be used for the
    matrix-based solver with the ARKLS interface.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *linsys* -- name of user-supplied linear system approximation function.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param linsys: name of user-supplied linear system approximation function.
 
-   **Return value:**
-      * *ARKLS_SUCCESS*  if successful
-      * *ARKLS_MEM_NULL*  if the MRIStep memory was ``NULL``
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+   :retval ARKLS_SUCCESS:  if successful
+   :retval ARKLS_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   **Notes:** This routine must be called after the ARKLS linear
-   solver interface has been initialized through a call to
-   :c:func:`MRIStepSetLinearSolver()`.
+   .. note::
 
-   By default, ARKLS uses an internal linear system function that leverages the
-   SUNMATRIX API to form the system :math:`I - \gamma J`.  If ``NULL`` is passed
-   in for *linsys*, this default is used.
+      This routine must be called after the ARKLS linear
+      solver interface has been initialized through a call to
+      :c:func:`MRIStepSetLinearSolver()`.
 
-   The function type :c:func:`ARKLsLinSysFn()` is described in
-   :numref:`ARKODE.Usage.UserSupplied`.
+      By default, ARKLS uses an internal linear system function that leverages the
+      SUNMATRIX API to form the system :math:`I - \gamma J`.  If ``NULL`` is passed
+      in for *linsys*, this default is used.
+
+      The function type :c:func:`ARKLsLinSysFn()` is described in
+      :numref:`ARKODE.Usage.UserSupplied`.
 
    .. deprecated:: 6.1.0
 
@@ -1317,18 +1239,18 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
    change in :math:`\gamma` in the linear system. For more details see
    :numref:`SUNLinSol.Lagged_matrix`.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *onoff* -- flag to enable (``SUNTRUE``) or disable (``SUNFALSE``)
-        scaling
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param onoff: flag to enable (``SUNTRUE``) or disable (``SUNFALSE``)
+                 scaling
 
-   **Return value:**
-      * *ARKLS_SUCCESS* if successful
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-      * *ARKLS_ILL_INPUT* if the attached linear solver is not matrix-based
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_ILL_INPUT: if the attached linear solver is not matrix-based
 
-   **Notes:** Linear solution scaling is enabled by default when a matrix-based
-   linear solver is attached.
+   .. note::
+
+      Linear solution scaling is enabled by default when a matrix-based
+      linear solver is attached.
 
    .. deprecated:: 6.1.0
 
@@ -1345,33 +1267,33 @@ Optional inputs for matrix-free ``SUNLinearSolver`` modules
 
    Specifies the Jacobian-times-vector setup and product functions.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *jtsetup* -- user-defined Jacobian-vector setup function.
-        Pass ``NULL`` if no setup is necessary.
-      * *jtimes* -- user-defined Jacobian-vector product function.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param jtsetup: user-defined Jacobian-vector setup function.
+                   Pass ``NULL`` if no setup is necessary.
+   :param jtimes: user-defined Jacobian-vector product function.
 
-   **Return value:**
-      * *ARKLS_SUCCESS* if successful.
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``.
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``.
-      * *ARKLS_ILL_INPUT* if an input has an illegal value.
-      * *ARKLS_SUNLS_FAIL* if an error occurred when setting up
-        the Jacobian-vector product in the ``SUNLinearSolver``
-        object used by the ARKLS interface.
+   :retval ARKLS_SUCCESS: if successful.
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``.
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``.
+   :retval ARKLS_ILL_INPUT: if an input has an illegal value.
+   :retval ARKLS_SUNLS_FAIL: if an error occurred when setting up
+                             the Jacobian-vector product in the ``SUNLinearSolver``
+                             object used by the ARKLS interface.
 
-   **Notes:** The default is to use an internal finite difference
-   quotient for *jtimes* and to leave out *jtsetup*.  If ``NULL`` is
-   passed to *jtimes*, these defaults are used.  A user may
-   specify non-``NULL`` *jtimes* and ``NULL`` *jtsetup* inputs.
+   .. note::
 
-   This function must be called *after* the ARKLS system solver
-   interface has been initialized through a call to
-   :c:func:`MRIStepSetLinearSolver()`.
+      The default is to use an internal finite difference
+      quotient for *jtimes* and to leave out *jtsetup*.  If ``NULL`` is
+      passed to *jtimes*, these defaults are used.  A user may
+      specify non-``NULL`` *jtimes* and ``NULL`` *jtsetup* inputs.
 
-   The function types :c:type:`ARKLsJacTimesSetupFn` and
-   :c:type:`ARKLsJacTimesVecFn` are described in
-   :numref:`ARKODE.Usage.UserSupplied`.
+      This function must be called *after* the ARKLS system solver
+      interface has been initialized through a call to
+      :c:func:`MRIStepSetLinearSolver()`.
+
+      The function types :c:type:`ARKLsJacTimesSetupFn` and
+      :c:type:`ARKLsJacTimesVecFn` are described in
+      :numref:`ARKODE.Usage.UserSupplied`.
 
    .. deprecated:: 6.1.0
 
@@ -1383,23 +1305,23 @@ Optional inputs for matrix-free ``SUNLinearSolver`` modules
    Specifies an alternative implicit right-hand side function for use in the
    internal Jacobian-vector product difference quotient approximation.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *jtimesRhsFn* -- the name of the C function (of type
-        :c:func:`ARKRhsFn()`) defining the alternative right-hand side function.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param jtimesRhsFn: the name of the C function defining the alternative
+                       right-hand side function.
 
-   **Return value:**
-      * *ARKLS_SUCCESS* if successful.
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``.
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``.
-      * *ARKLS_ILL_INPUT* if an input has an illegal value.
+   :retval ARKLS_SUCCESS: if successful.
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``.
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``.
+   :retval ARKLS_ILL_INPUT: if an input has an illegal value.
 
-   **Notes:** The default is to use the implicit right-hand side function
-   provided to :c:func:`MRIStepCreate()` in the internal difference quotient. If
-   the input implicit right-hand side function is ``NULL``, the default is used.
+   .. note::
 
-   This function must be called *after* the ARKLS system solver interface has
-   been initialized through a call to :c:func:`MRIStepSetLinearSolver()`.
+      The default is to use the implicit right-hand side function provided
+      to :c:func:`MRIStepCreate()` in the internal difference quotient. If
+      the input implicit right-hand side function is ``NULL``, the default is used.
+
+      This function must be called *after* the ARKLS system solver interface has
+      been initialized through a call to :c:func:`MRIStepSetLinearSolver()`.
 
    .. deprecated:: 6.1.0
 
@@ -1418,31 +1340,31 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
 
    Specifies the user-supplied preconditioner setup and solve functions.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *psetup* -- user defined preconditioner setup function.  Pass
-        ``NULL`` if no setup is needed.
-      * *psolve* -- user-defined preconditioner solve function.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param psetup: user defined preconditioner setup function.  Pass
+                  ``NULL`` if no setup is needed.
+   :param psolve: user-defined preconditioner solve function.
 
-   **Return value:**
-      * *ARKLS_SUCCESS* if successful.
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``.
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``.
-      * *ARKLS_ILL_INPUT* if an input has an illegal value.
-      * *ARKLS_SUNLS_FAIL* if an error occurred when setting up
-        preconditioning in the ``SUNLinearSolver`` object used
-        by the ARKLS interface.
+   :retval ARKLS_SUCCESS: if successful.
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``.
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``.
+   :retval ARKLS_ILL_INPUT: if an input has an illegal value.
+   :retval ARKLS_SUNLS_FAIL: if an error occurred when setting up
+                             preconditioning in the ``SUNLinearSolver`` object used
+                             by the ARKLS interface.
 
-   **Notes:** The default is ``NULL`` for both arguments (i.e., no
-   preconditioning).
+   .. note::
 
-   This function must be called *after* the ARKLS system solver
-   interface has been initialized through a call to
-   :c:func:`MRIStepSetLinearSolver()`.
+      The default is ``NULL`` for both arguments (i.e., no
+      preconditioning).
 
-   Both of the function types :c:func:`ARKLsPrecSetupFn()` and
-   :c:func:`ARKLsPrecSolveFn()` are described in
-   :numref:`ARKODE.Usage.UserSupplied`.
+      This function must be called *after* the ARKLS system solver
+      interface has been initialized through a call to
+      :c:func:`MRIStepSetLinearSolver()`.
+
+      Both of the function types :c:func:`ARKLsPrecSetupFn()` and
+      :c:func:`ARKLsPrecSolveFn()` are described in
+      :numref:`ARKODE.Usage.UserSupplied`.
 
    .. deprecated:: 6.1.0
 
@@ -1456,22 +1378,22 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
    iteration is multiplied to get a tolerance on the linear
    iteration.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *eplifac* -- linear convergence safety factor.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param eplifac: linear convergence safety factor.
 
-   **Return value:**
-      * *ARKLS_SUCCESS* if successful.
-      * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``.
-      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``.
-      * *ARKLS_ILL_INPUT* if an input has an illegal value.
+   :retval ARKLS_SUCCESS: if successful.
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``.
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``.
+   :retval ARKLS_ILL_INPUT: if an input has an illegal value.
 
-   **Notes:** Passing a value *eplifac* :math:`\le 0` indicates to use the
-   default value of 0.05.
+   .. note::
 
-   This function must be called *after* the ARKLS system solver
-   interface has been initialized through a call to
-   :c:func:`MRIStepSetLinearSolver()`.
+      Passing a value *eplifac* :math:`\le 0` indicates to use the
+      default value of 0.05.
+
+      This function must be called *after* the ARKLS system solver
+      interface has been initialized through a call to
+      :c:func:`MRIStepSetLinearSolver()`.
 
    .. deprecated:: 6.1.0
 
@@ -1485,26 +1407,25 @@ Optional inputs for iterative ``SUNLinearSolver`` modules
    (WRMS norm) to the linear solver tolerance (L2 norm) for Newton linear system
    solves e.g., ``tol_L2 = fac * tol_WRMS``.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *nrmfac* -- the norm conversion factor. If *nrmfac* is:
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nrmfac: the norm conversion factor. If *nrmfac* is:
 
-        :math:`> 0` then the provided value is used.
+                  :math:`> 0` then the provided value is used.
 
-        :math:`= 0` then the conversion factor is computed using the vector
-        length i.e., ``nrmfac = sqrt(N_VGetLength(y))`` (*default*).
+                  :math:`= 0` then the conversion factor is computed using the vector
+                  length i.e., ``nrmfac = sqrt(N_VGetLength(y))`` (*default*).
 
-        :math:`< 0` then the conversion factor is computed using the vector dot
-        product i.e., ``nrmfac = sqrt(N_VDotProd(v,v))`` where all the entries
-        of ``v`` are one.
+                  :math:`< 0` then the conversion factor is computed using the vector dot
+                  product i.e., ``nrmfac = sqrt(N_VDotProd(v,v))`` where all the entries
+                  of ``v`` are one.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful.
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``.
+   :retval ARK_SUCCESS: if successful.
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``.
 
-   **Notes:**
-   This function must be called *after* the ARKLS system solver interface has
-   been initialized through a call to :c:func:`MRIStepSetLinearSolver()`.
+   .. note::
+
+      This function must be called *after* the ARKLS system solver interface has
+      been initialized through a call to :c:func:`MRIStepSetLinearSolver()`.
 
    .. deprecated:: 6.1.0
 
@@ -1521,22 +1442,22 @@ Rootfinding optional input functions
 
    Specifies the direction of zero-crossings to be located and returned.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *rootdir* -- state array of length *nrtfn*, the number of root
-        functions :math:`g_i`  (the value of *nrtfn* was supplied in
-        the call to :c:func:`MRIStepRootInit()`).  If ``rootdir[i] ==
-        0`` then crossing in either direction for :math:`g_i` should be
-        reported.  A value of +1 or -1 indicates that the solver
-        should report only zero-crossings where :math:`g_i` is
-        increasing or decreasing, respectively.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param rootdir: state array of length *nrtfn*, the number of root
+                   functions :math:`g_i`  (the value of *nrtfn* was supplied in
+                   the call to :c:func:`MRIStepRootInit()`).  If
+                   ``rootdir[i] == 0`` then crossing in either direction for
+                   :math:`g_i` should be reported.  A value of +1 or -1 indicates
+                   that the solver should report only zero-crossings where
+                   :math:`g_i` is increasing or decreasing, respectively.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
+   :retval ARK_ILL_INPUT: if an argument has an illegal value
 
-   **Notes:**  The default behavior is to monitor for both zero-crossing directions.
+   .. note::
+
+      The default behavior is to monitor for both zero-crossing directions.
 
    .. deprecated:: 6.1.0
 
@@ -1549,20 +1470,20 @@ Rootfinding optional input functions
    Disables issuing a warning if some root function appears
    to be identically zero at the beginning of the integration.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
+   :param arkode_mem: pointer to the MRIStep memory block.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
-   **Notes:** MRIStep will not report the initial conditions as a
-   possible zero-crossing (assuming that one or more components
-   :math:`g_i` are zero at the initial time).  However, if it appears
-   that some :math:`g_i` is identically zero at the initial time
-   (i.e., :math:`g_i` is zero at the initial time *and* after the
-   first step), MRIStep will issue a warning which can be disabled with
-   this optional input function.
+   .. note::
+
+      MRIStep will not report the initial conditions as a
+      possible zero-crossing (assuming that one or more components
+      :math:`g_i` are zero at the initial time).  However, if it appears
+      that some :math:`g_i` is identically zero at the initial time
+      (i.e., :math:`g_i` is zero at the initial time *and* after the
+      first step), MRIStep will issue a warning which can be disabled with
+      this optional input function.
 
    .. deprecated:: 6.1.0
 
@@ -1590,35 +1511,26 @@ Interpolated output function
    interpolation module. For Hermite interpolants *kmax = 5* and for Lagrange
    interpolants *kmax = 3*.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param t: the value of the independent variable at which the
+             derivative is to be evaluated.
+   :param k: the derivative order requested.
+   :param dky: output vector (must be allocated by the user).
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_BAD_K: if *k* is not in the range {0,..., *min(degree, kmax)*}.
+   :retval ARK_BAD_T: if *t* is not in the interval :math:`[t_n-h_n, t_n]`
+   :retval ARK_BAD_DKY: if the *dky* vector was ``NULL``
+   :retval ARK_MEM_NULL: if the MRIStep memory is ``NULL``
 
-   * *t* -- the value of the independent variable at which the
-     derivative is to be evaluated.
+   .. note::
 
-   * *k* -- the derivative order requested.
+      It is only legal to call this function after a successful
+      return from :c:func:`MRIStepEvolve()`.
 
-   * *dky* -- output vector (must be allocated by the user).
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_BAD_K* if *k* is not in the range {0,..., *min(degree, kmax)*}.
-
-   * *ARK_BAD_T* if *t* is not in the interval :math:`[t_n-h_n, t_n]`
-
-   * *ARK_BAD_DKY* if the *dky* vector was ``NULL``
-
-   * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
-
-   **Notes:** It is only legal to call this function after a successful
-   return from :c:func:`MRIStepEvolve()`.
-
-   A user may access the values :math:`t_n` and :math:`h_n` via the
-   functions :c:func:`MRIStepGetCurrentTime()` and
-   :c:func:`MRIStepGetLastStep()`, respectively.
+      A user may access the values :math:`t_n` and :math:`h_n` via the
+      functions :c:func:`MRIStepGetCurrentTime()` and
+      :c:func:`MRIStepGetLastStep()`, respectively.
 
    .. deprecated:: 6.1.0
 
@@ -1638,23 +1550,29 @@ Main solver optional output functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+.. c:function:: int MRIStepGetNumInnerStepperFails(void* arkode_mem, long int* inner_fails)
+
+   Returns the number of recoverable failures reported by the inner stepper (so far).
+
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param inner_fails: number of failed fast (inner) integrations.
+
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
+
+   .. versionadded:: x.y.z
+
+
 .. c:function:: int MRIStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
 
    Returns the MRIStep real and integer workspace sizes.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param lenrw: the number of ``realtype`` values in the MRIStep workspace.
+   :param leniw: the number of integer values in the MRIStep workspace.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *lenrw* -- the number of ``sunrealtype`` values in the MRIStep workspace.
-
-   * *leniw* -- the number of integer values in the MRIStep workspace.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
    .. deprecated:: 6.1.0
 
@@ -1667,19 +1585,12 @@ Main solver optional output functions
    Returns the cumulative number of slow and fast internal steps taken by
    the solver (so far).
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nssteps: number of slow steps taken in the solver.
+   :param nfsteps: number of fast steps taken in the solver.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *nssteps* -- number of slow steps taken in the solver.
-
-   * *nfsteps* -- number of fast steps taken in the solver.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
    .. deprecated:: 6.1.0
 
@@ -1692,17 +1603,11 @@ Main solver optional output functions
    Returns the integration step size taken on the last successful
    internal step.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param hlast: step size taken on the last internal step.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *hlast* -- step size taken on the last internal step.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
    .. deprecated:: 6.1.0
 
@@ -1714,17 +1619,11 @@ Main solver optional output functions
 
    Returns the current internal time reached by the solver.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param tcur: current internal time reached.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *tcur* -- current internal time reached.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
    .. deprecated:: 6.1.0
 
@@ -1735,21 +1634,17 @@ Main solver optional output functions
 
    Returns the current internal solution reached by the solver.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param ycur: current internal solution.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   * *ycur* -- current internal solution.
+   .. note::
 
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   **Notes:** Users should exercise extreme caution when using this function,
-   as altering values of *ycur* may lead to undesirable behavior, depending
-   on the particular use case and on when this routine is called.
+      Users should exercise extreme caution when using this function,
+      as altering values of *ycur* may lead to undesirable behavior, depending
+      on the particular use case and on when this routine is called.
 
    .. deprecated:: 6.1.0
 
@@ -1761,17 +1656,11 @@ Main solver optional output functions
    Returns the current internal value of :math:`\gamma` used in the implicit
    solver Newton matrix (see equation :eq:`ARKODE_NewtonMatrix`).
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param gamma: current step size scaling factor in the Newton system.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *gamma* -- current step size scaling factor in the Newton system.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
    .. deprecated:: 6.1.0
 
@@ -1784,17 +1673,11 @@ Main solver optional output functions
    tolerances should be scaled when too much accuracy has been
    requested for some internal step.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param tolsfac: suggested scaling factor for user-supplied tolerances.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *tolsfac* -- suggested scaling factor for user-supplied tolerances.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
    .. deprecated:: 6.1.0
 
@@ -1805,20 +1688,16 @@ Main solver optional output functions
 
    Returns the current error weight vector.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param eweight: solution error weights at the current time.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   * *eweight* -- solution error weights at the current time.
+   .. note::
 
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   **Notes:** The user must allocate space for *eweight*, that will be
-   filled in by this function.
+      The user must allocate space for *eweight*, that will be
+      filled in by this function.
 
    .. deprecated:: 6.1.0
 
@@ -1830,19 +1709,18 @@ Main solver optional output functions
    Outputs all of the integrator, nonlinear solver, linear solver, and other
    statistics.
 
-   **Arguments:**
-     * *arkode_mem* -- pointer to the MRIStep memory block.
-     * *outfile* -- pointer to output file.
-     * *fmt* -- the output format:
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param outfile: pointer to output file.
+   :param fmt: the output format:
 
-       * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
-       * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
-         of key and value pairs e.g., ``key1,value1,key2,value2,...``
+               * :c:enumerator:`SUN_OUTPUTFORMAT_TABLE` -- prints a table of values
 
-   **Return value:**
-     * *ARK_SUCCESS* -- if the output was successfully.
-     * *CV_MEM_NULL* -- if the MRIStep memory was ``NULL``.
-     * *CV_ILL_INPUT* -- if an invalid formatting option was provided.
+               * :c:enumerator:`SUN_OUTPUTFORMAT_CSV` -- prints a comma-separated list
+                 of key and value pairs e.g., ``key1,value1,key2,value2,...``
+
+   :retval ARK_SUCCESS: if the output was successfully.
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``.
+   :retval ARK_ILL_INPUT: if an invalid formatting option was provided.
 
    .. note::
 
@@ -1862,13 +1740,9 @@ Main solver optional output functions
    Returns the name of the MRIStep constant corresponding to *flag*.
    See :ref:`ARKODE.Constants`.
 
-   **Arguments:**
+   :param flag: a return flag from an MRIStep function.
 
-   * *flag* -- a return flag from an MRIStep function.
-
-   **Return value:**
-   The return value is a string containing the name of
-   the corresponding constant.
+   :returns: A string containing the name of the corresponding constant.
 
    .. deprecated:: 6.1.0
 
@@ -1881,37 +1755,27 @@ Main solver optional output functions
    Returns the number of calls to the user's outer (slow) right-hand side
    functions, :math:`f^E` and :math:`f^I`, so far.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nfse_evals: number of calls to the user's :math:`f^E(t,y)` function.
+   :param nfsi_evals: number of calls to the user's :math:`f^I(t,y)` function.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   * *nfse_evals* -- number of calls to the user's :math:`f^E(t,y)` function.
+   .. deprecated:: x.y.z
 
-   * *nfsi_evals* -- number of calls to the user's :math:`f^I(t,y)` function.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-
+      Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
 
 .. c:function:: int MRIStepGetNumStepSolveFails(void* arkode_mem, long int* ncnf)
 
    Returns the number of failed steps due to a nonlinear solver failure (so far).
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param ncnf: number of step failures.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *ncnf* -- number of step failures.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
    .. deprecated:: 6.1.0
 
@@ -1922,54 +1786,29 @@ Main solver optional output functions
 
    Returns the MRI coupling table currently in use by the solver.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param C: pointer to slow-to-fast MRI coupling structure.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   * *C* -- pointer to slow-to-fast MRI coupling structure.
+   .. note::
 
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   **Notes:**  The *MRIStepCoupling* data structure is defined in
-   the header file ``arkode/arkode_mristep.h``.  It is defined as a
-   pointer to the following C structure:
-
-   .. code-block:: c
-
-      struct MRIStepCouplingMem {
-
-         int nmat;        /* number of MRI coupling matrices             */
-         int stages;      /* size of coupling matrices (stages * stages) */
-         int q;           /* method order of accuracy                    */
-         int p;           /* embedding order of accuracy                 */
-         sunrealtype ***G;   /* coupling matrices [nmat][stages][stages]    */
-         sunrealtype *c;     /* abscissae                                   */
-
-       };
-       typedef MRIStepCouplingMem *MRIStepCoupling;
-
-   For more details see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling`.
+      The *MRIStepCoupling* data structure is defined in
+      the header file ``arkode/arkode_mristep.h``.  For more details
+      see :numref:`ARKODE.Usage.MRIStep.MRIStepCoupling`.
 
 
 .. c:function:: int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag)
 
    Returns the last return value from the inner stepper.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param flag: inner stepper return value.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   * *flag* -- inner stepper return value.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
 .. c:function:: int MRIStepGetUserData(void* arkode_mem, void** user_data)
@@ -1977,17 +1816,11 @@ Main solver optional output functions
    Returns the user data pointer previously set with
    :c:func:`MRIStepSetUserData`.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param user_data: memory reference to a user data pointer
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
-
-   * *user_data* -- memory reference to a user data pointer
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the ARKStep memory was ``NULL``
 
    .. versionadded:: 5.3.0
 
@@ -2007,21 +1840,17 @@ Implicit solver optional output functions
    Returns the number of calls made to the linear solver's
    setup routine (so far).
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nlinsetups: number of linear solver setup calls made.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   * *nlinsetups* -- number of linear solver setup calls made.
+   .. note::
 
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   **Notes:** This is only accumulated for the "life" of the nonlinear
-   solver object; the counter is reset whenever a new nonlinear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the nonlinear
+      solver object; the counter is reset whenever a new nonlinear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2032,23 +1861,18 @@ Implicit solver optional output functions
 
    Returns the number of nonlinear solver iterations performed (so far).
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nniters: number of nonlinear iterations performed.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARK_NLS_OP_ERR: if the SUNNONLINSOL object returned a failure flag
 
-   * *nniters* -- number of nonlinear iterations performed.
+   .. note::
 
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
-
-   **Notes:** This is only accumulated for the "life" of the nonlinear
-   solver object; the counter is reset whenever a new nonlinear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the nonlinear
+      solver object; the counter is reset whenever a new nonlinear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2061,21 +1885,17 @@ Implicit solver optional output functions
    Returns the number of nonlinear solver convergence
    failures that have occurred (so far).
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nncfails: number of nonlinear convergence failures.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   * *nncfails* -- number of nonlinear convergence failures.
+   .. note::
 
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   **Notes:** This is only accumulated for the "life" of the nonlinear
-   solver object; the counter is reset whenever a new nonlinear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the nonlinear
+      solver object; the counter is reset whenever a new nonlinear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2087,25 +1907,19 @@ Implicit solver optional output functions
 
    Returns all of the nonlinear solver statistics in a single call.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nniters: number of nonlinear iterations performed.
+   :param nncfails: number of nonlinear convergence failures.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARK_NLS_OP_ERR: if the SUNNONLINSOL object returned a failure flag
 
-   * *nniters* -- number of nonlinear iterations performed.
+   .. note::
 
-   * *nncfails* -- number of nonlinear convergence failures.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
-
-   **Notes:** These are only accumulated for the "life" of the
-   nonlinear solver object; the counters are reset whenever a new
-   nonlinear solver module is "attached" to MRIStep, or when MRIStep is resized.
+      These are only accumulated for the "life" of the
+      nonlinear solver object; the counters are reset whenever a new
+      nonlinear solver module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2123,26 +1937,26 @@ Rootfinding optional output functions
    Returns an array showing which functions were found to
    have a root.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *rootsfound* -- array of length *nrtfn* with the indices of the
-        user functions :math:`g_i` found to have a root (the value of
-        *nrtfn* was supplied in the call to
-        :c:func:`MRIStepRootInit()`).  For :math:`i = 0 \ldots`
-        *nrtfn*-1, ``rootsfound[i]`` is nonzero if :math:`g_i` has a
-        root, and 0 if not.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param rootsfound: array of length *nrtfn* with the indices of the
+                      user functions :math:`g_i` found to have a root (the value of
+                      *nrtfn* was supplied in the call to
+                      :c:func:`MRIStepRootInit()`).  For :math:`i = 0 \ldots`
+                      *nrtfn*-1, ``rootsfound[i]`` is nonzero if :math:`g_i` has a
+                      root, and 0 if not.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   **Notes:** The user must allocate space for *rootsfound* prior to
-   calling this function.
+   .. note::
 
-   For the components of :math:`g_i` for which a root was found, the
-   sign of ``rootsfound[i]`` indicates the direction of
-   zero-crossing.  A value of +1 indicates that :math:`g_i` is
-   increasing, while a value of -1 indicates a decreasing :math:`g_i`.
+      The user must allocate space for *rootsfound* prior to
+      calling this function.
+
+      For the components of :math:`g_i` for which a root was found, the
+      sign of ``rootsfound[i]`` indicates the direction of
+      zero-crossing.  A value of +1 indicates that :math:`g_i` is
+      increasing, while a value of -1 indicates a decreasing :math:`g_i`.
 
    .. deprecated:: 6.1.0
 
@@ -2155,13 +1969,11 @@ Rootfinding optional output functions
    Returns the cumulative number of calls made to the
    user's root function :math:`g`.
 
-   **Arguments:**
-      * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *ngevals* -- number of calls made to :math:`g` so far.
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param ngevals: number of calls made to :math:`g` so far.
 
-   **Return value:**
-      * *ARK_SUCCESS* if successful
-      * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
    .. deprecated:: 6.1.0
 
@@ -2235,30 +2047,24 @@ Linear solver interface optional output functions
 
    Returns the real and integer workspace used by the ARKLS linear solver interface.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param lenrwLS: the number of ``realtype`` values in the ARKLS workspace.
+   :param leniwLS: the number of integer values in the ARKLS workspace.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   * *lenrwLS* -- the number of ``sunrealtype`` values in the ARKLS workspace.
+   .. note::
 
-   * *leniwLS* -- the number of integer values in the ARKLS workspace.
+      The workspace requirements reported by this routine
+      correspond only to memory allocated within this interface and to
+      memory allocated by the ``SUNLinearSolver`` object attached
+      to it.  The template Jacobian matrix allocated by the user outside
+      of ARKLS is not included in this report.
 
-   **Return value:**
-
-   * *ARKLS_SUCCESS* if successful
-
-   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
-
-   **Notes:** The workspace requirements reported by this routine
-   correspond only to memory allocated within this interface and to
-   memory allocated by the ``SUNLinearSolver`` object attached
-   to it.  The template Jacobian matrix allocated by the user outside
-   of ARKLS is not included in this report.
-
-   In a parallel setting, the above values are global (i.e., summed over all
-   processors).
+      In a parallel setting, the above values are global (i.e., summed over all
+      processors).
 
    .. deprecated:: 6.1.0
 
@@ -2269,23 +2075,18 @@ Linear solver interface optional output functions
 
    Returns the number of Jacobian evaluations.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param njevals: number of Jacobian evaluations.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   * *njevals* -- number of Jacobian evaluations.
+   .. note::
 
-   **Return value:**
-
-   * *ARKLS_SUCCESS* if successful
-
-   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
-
-   **Notes:** This is only accumulated for the "life" of the linear
-   solver object; the counter is reset whenever a new linear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the linear
+      solver object; the counter is reset whenever a new linear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2298,23 +2099,18 @@ Linear solver interface optional output functions
    i.e., the number of calls made to *psetup* with ``jok`` = ``SUNFALSE`` and
    that returned ``*jcurPtr`` = ``SUNTRUE``.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param npevals: the current number of calls to *psetup*.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   * *npevals* -- the current number of calls to *psetup*.
+   .. note::
 
-   **Return value:**
-
-   * *ARKLS_SUCCESS* if successful
-
-   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
-
-   **Notes:** This is only accumulated for the "life" of the linear
-   solver object; the counter is reset whenever a new linear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the linear
+      solver object; the counter is reset whenever a new linear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2326,23 +2122,18 @@ Linear solver interface optional output functions
    Returns the number of calls made to the preconditioner
    solve function, *psolve*.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param npsolves: the number of calls to *psolve*.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   * *npsolves* -- the number of calls to *psolve*.
+   .. note::
 
-   **Return value:**
-
-   * *ARKLS_SUCCESS* if successful
-
-   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
-
-   **Notes:** This is only accumulated for the "life" of the linear
-   solver object; the counter is reset whenever a new linear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the linear
+      solver object; the counter is reset whenever a new linear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2353,23 +2144,18 @@ Linear solver interface optional output functions
 
    Returns the cumulative number of linear iterations.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nliters: the current number of linear iterations.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   * *nliters* -- the current number of linear iterations.
+   .. note::
 
-   **Return value:**
-
-   * *ARKLS_SUCCESS* if successful
-
-   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
-
-   **Notes:** This is only accumulated for the "life" of the linear
-   solver object; the counter is reset whenever a new linear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the linear
+      solver object; the counter is reset whenever a new linear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2380,23 +2166,18 @@ Linear solver interface optional output functions
 
    Returns the cumulative number of linear convergence failures.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nlcfails: the current number of linear convergence failures.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   * *nlcfails* -- the current number of linear convergence failures.
+   .. note::
 
-   **Return value:**
-
-   * *ARKLS_SUCCESS* if successful
-
-   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
-
-   **Notes:** This is only accumulated for the "life" of the linear
-   solver object; the counter is reset whenever a new linear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the linear
+      solver object; the counter is reset whenever a new linear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2408,23 +2189,18 @@ Linear solver interface optional output functions
    Returns the cumulative number of calls made to the user-supplied
    Jacobian-vector setup function, *jtsetup*.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param njtsetup: the current number of calls to *jtsetup*.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   * *njtsetup* -- the current number of calls to *jtsetup*.
+   .. note::
 
-   **Return value:**
-
-   * *ARKLS_SUCCESS* if successful
-
-   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
-
-   **Notes:** This is only accumulated for the "life" of the linear
-   solver object; the counter is reset whenever a new linear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the linear
+      solver object; the counter is reset whenever a new linear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2436,23 +2212,18 @@ Linear solver interface optional output functions
    Returns the cumulative number of calls made to the
    Jacobian-vector product function, *jtimes*.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param njvevals: the current number of calls to *jtimes*.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   * *njvevals* -- the current number of calls to *jtimes*.
+   .. note::
 
-   **Return value:**
-
-   * *ARKLS_SUCCESS* if successful
-
-   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
-
-   **Notes:** This is only accumulated for the "life" of the linear
-   solver object; the counter is reset whenever a new linear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the linear
+      solver object; the counter is reset whenever a new linear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2465,27 +2236,22 @@ Linear solver interface optional output functions
    right-hand side function :math:`f^I` for finite difference
    Jacobian or Jacobian-vector product approximation.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param nfevalsLS: the number of calls to the user implicit
+                     right-hand side function.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   * *nfevalsLS* -- the number of calls to the user implicit
-     right-hand side function.
+   .. note::
 
-   **Return value:**
+      The value *nfevalsLS* is incremented only if the default
+      internal difference quotient function is used.
 
-   * *ARKLS_SUCCESS* if successful
-
-   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
-
-   **Notes:** The value *nfevalsLS* is incremented only if the default
-   internal difference quotient function is used.
-
-   This is only accumulated for the "life" of the linear
-   solver object; the counter is reset whenever a new linear solver
-   module is "attached" to MRIStep, or when MRIStep is resized.
+      This is only accumulated for the "life" of the linear
+      solver object; the counter is reset whenever a new linear solver
+      module is "attached" to MRIStep, or when MRIStep is resized.
 
    .. deprecated:: 6.1.0
 
@@ -2496,55 +2262,58 @@ Linear solver interface optional output functions
 
    Returns the last return value from an ARKLS routine.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param lsflag: the value of the last return flag from an
+                  ARKLS function.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKLS_SUCCESS: if successful
+   :retval ARKLS_MEM_NULL: if the MRIStep memory was ``NULL``
+   :retval ARKLS_LMEM_NULL: if the linear solver memory was ``NULL``
 
-   * *lsflag* -- the value of the last return flag from an
-     ARKLS function.
+   .. note::
 
-   **Return value:**
+      If the ARKLS setup function failed when using the
+      ``SUNLINSOL_DENSE`` or ``SUNLINSOL_BAND`` modules, then the value
+      of *lsflag* is equal to the column index (numbered from one) at
+      which a zero diagonal element was encountered during the LU
+      factorization of the (dense or banded) Jacobian matrix.  For all
+      other failures, *lsflag* is negative.
 
-   * *ARKLS_SUCCESS* if successful
+      Otherwise, if the ARKLS setup function failed
+      (:c:func:`MRIStepEvolve()` returned *ARK_LSETUP_FAIL*), then
+      *lsflag* will be *SUNLS_PSET_FAIL_UNREC*, *SUNLS_ASET_FAIL_UNREC*
+      or *SUNLS_PACKAGE_FAIL_UNREC*.
 
-   * *ARKLS_MEM_NULL* if the MRIStep memory was ``NULL``
+      If the ARKLS solve function failed (:c:func:`MRIStepEvolve()`
+      returned *ARK_LSOLVE_FAIL*), then *lsflag* contains the error
+      return flag from the ``SUNLinearSolver`` object, which will
+      be one of:
 
-   * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+      * *SUNLS_MEM_NULL*, indicating that the ``SUNLinearSolver``
+        memory is ``NULL``;
 
-   **Notes:** If the ARKLS setup function failed when using the
-   ``SUNLINSOL_DENSE`` or ``SUNLINSOL_BAND`` modules, then the value
-   of *lsflag* is equal to the column index (numbered from one) at
-   which a zero diagonal element was encountered during the LU
-   factorization of the (dense or banded) Jacobian matrix.  For all
-   other failures, *lsflag* is negative.
+      * *SUNLS_ATIMES_NULL*, indicating that a matrix-free iterative solver
+        was provided, but is missing a routine for the matrix-vector product
+        approximation,
 
-   Otherwise, if the ARKLS setup function failed
-   (:c:func:`MRIStepEvolve()` returned *ARK_LSETUP_FAIL*), then
-   *lsflag* will be *SUNLS_PSET_FAIL_UNREC*, *SUNLS_ASET_FAIL_UNREC*
-   or *SUN_ERR_EXT_FAIL*.
+      * *SUNLS_ATIMES_FAIL_UNREC*, indicating an unrecoverable failure in
+        the :math:`Jv` function;
 
-   If the ARKLS solve function failed (:c:func:`MRIStepEvolve()`
-   returned *ARK_LSOLVE_FAIL*), then *lsflag* contains the error
-   return flag from the ``SUNLinearSolver`` object, which will
-   be one of:
-   *SUN_ERR_ARG_CORRUPTRRUPT*, indicating that the ``SUNLinearSolver``
-   memory is ``NULL``;
-   *SUNLS_ATIMES_NULL*, indicating that a matrix-free iterative solver
-   was provided, but is missing a routine for the matrix-vector product
-   approximation,
-   *SUNLS_ATIMES_FAIL_UNREC*, indicating an unrecoverable failure in
-   the :math:`Jv` function;
-   *SUNLS_PSOLVE_NULL*, indicating that an iterative linear solver was
-   configured to use preconditioning, but no preconditioner solve
-   routine was provided,
-   *SUNLS_PSOLVE_FAIL_UNREC*, indicating that the preconditioner solve
-   function failed unrecoverably;
-   *SUNLS_GS_FAIL*, indicating a failure in the Gram-Schmidt procedure
-   (SPGMR and SPFGMR only);
-   *SUNLS_QRSOL_FAIL*, indicating that the matrix :math:`R` was found
-   to be singular during the QR solve phase (SPGMR and SPFGMR only); or
-   *SUN_ERR_EXT_FAIL*, indicating an unrecoverable failure in
-   an external iterative linear solver package.
+      * *SUNLS_PSOLVE_NULL*, indicating that an iterative linear solver was
+        configured to use preconditioning, but no preconditioner solve
+        routine was provided,
+
+      * *SUNLS_PSOLVE_FAIL_UNREC*, indicating that the preconditioner solve
+        function failed unrecoverably;
+
+      * *SUNLS_GS_FAIL*, indicating a failure in the Gram-Schmidt procedure
+        (SPGMR and SPFGMR only);
+
+      * *SUNLS_QRSOL_FAIL*, indicating that the matrix :math:`R` was found
+        to be singular during the QR solve phase (SPGMR and SPFGMR only); or
+
+      * *SUNLS_PACKAGE_FAIL_UNREC*, indicating an unrecoverable failure in
+        an external iterative linear solver package.
 
    .. deprecated:: 6.1.0
 
@@ -2555,14 +2324,13 @@ Linear solver interface optional output functions
 
    Returns the name of the ARKLS constant corresponding to *lsflag*.
 
-   **Arguments:**
+   :param lsflag: a return flag from an ARKLS function.
 
-   * *lsflag* -- a return flag from an ARKLS function.
-
-   **Return value:**  The return value is a string containing the name of
-   the corresponding constant. If using the ``SUNLINSOL_DENSE`` or
-   ``SUNLINSOL_BAND`` modules, then if  1 :math:`\le` `lsflag`
-   :math:`\le n` (LU factorization failed), this routine returns "NONE".
+   :returns:  The return value is a string containing the name of
+              the corresponding constant. If using the ``SUNLINSOL_DENSE``
+              or ``SUNLINSOL_BAND`` modules, then if  1 :math:`\le` `lsflag`
+              :math:`\le n` (LU factorization failed), this routine returns
+              "NONE".
 
    .. deprecated:: 6.1.0
 
@@ -2580,24 +2348,20 @@ General usability functions
 
    Outputs all MRIStep solver parameters to the provided file pointer.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param fp: pointer to use for printing the solver parameters.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARKS_SUCCESS: if successful
+   :retval ARKS_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   * *fp* -- pointer to use for printing the solver parameters.
+   .. note::
 
-   **Return value:**
+      The *fp* argument can be ``stdout`` or ``stderr``, or it
+      may point to a specific file created using ``fopen``.
 
-   * *ARKS_SUCCESS* if successful
-
-   * *ARKS_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   **Notes:** The *fp* argument can be ``stdout`` or ``stderr``, or it
-   may point to a specific file created using ``fopen``.
-
-   When run in parallel, only one process should set a non-NULL value
-   for this pointer, since parameters for all processes would be
-   identical.
+      When run in parallel, only one process should set a non-NULL value
+      for this pointer, since parameters for all processes would be
+      identical.
 
    .. deprecated:: 6.1.0
 
@@ -2608,24 +2372,20 @@ General usability functions
 
    Outputs the current MRI coupling table to the provided file pointer.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param fp: pointer to use for printing the Butcher tables.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   * *fp* -- pointer to use for printing the Butcher tables.
+   .. note::
 
-   **Return value:**
+      The *fp* argument can be ``stdout`` or ``stderr``, or it
+      may point to a specific file created using ``fopen``.
 
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
-
-   **Notes:** The *fp* argument can be ``stdout`` or ``stderr``, or it
-   may point to a specific file created using ``fopen``.
-
-   When run in parallel, only one process should set a non-NULL value
-   for this pointer, since tables for all processes would be
-   identical.
+      When run in parallel, only one process should set a non-NULL value
+      for this pointer, since tables for all processes would be
+      identical.
 
    .. deprecated:: 6.1.0
 
@@ -2642,7 +2402,7 @@ To reinitialize the MRIStep module for the solution of a new problem,
 where a prior call to :c:func:`MRIStepCreate()` has been made, the
 user must call the function :c:func:`MRIStepReInit()`.  The new
 problem must have the same size as the previous one.  This routine
-retains the current settings for all ARKstep module options and
+retains the current settings for all MRIStep module options and
 performs the same input checking and initializations that are done in
 :c:func:`MRIStepCreate()`, but it performs no memory allocation as is
 assumes that the existing internal memory is sufficient for the new
@@ -2681,42 +2441,32 @@ vector.
    Provides required problem specifications and re-initializes the
    MRIStep outer (slow) stepper.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param fse: the name of the function (of type :c:func:`ARKRhsFn()`)
+               defining the explicit slow portion of the right-hand side function in
+               :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
+   :param fsi: the name of the function (of type :c:func:`ARKRhsFn()`)
+               defining the implicit slow portion of the right-hand side function in
+               :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
+   :param t0: the initial value of :math:`t`.
+   :param y0: the initial condition vector :math:`y(t_0)`.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARK_MEM_FAIL:  if a memory allocation failed
+   :retval ARK_ILL_INPUT: if an argument has an illegal value.
 
-   * *fse* -- the name of the function (of type :c:func:`ARKRhsFn()`)
-     defining the explicit slow portion of the right-hand side function in
-     :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
+   .. note::
 
-   * *fsi* -- the name of the function (of type :c:func:`ARKRhsFn()`)
-     defining the implicit slow portion of the right-hand side function in
-     :math:`\dot{y} = f^E(t,y) + f^I(t,y) + f^F(t,y)`.
+      If the inner (fast) stepper also needs to be reinitialized, its
+      reinitialization function should be called before calling
+      :c:func:`MRIStepReInit()` to reinitialize the outer stepper.
 
-   * *t0* -- the initial value of :math:`t`.
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
 
-   * *y0* -- the initial condition vector :math:`y(t_0)`.
-
-   **Return value:**
-
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
-
-   * *ARK_MEM_FAIL*  if a memory allocation failed
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value.
-
-   **Notes:**
-   If the inner (fast) stepper also needs to be reinitialized, its
-   reinitialization function should be called before calling
-   :c:func:`MRIStepReInit()` to reinitialize the outer stepper.
-
-   All previously set options are retained but may be updated by calling
-   the appropriate "Set" functions.
-
-   If an error occurred, :c:func:`MRIStepReInit()` also
-   sends an error message to the error handler function.
+      If an error occurred, :c:func:`MRIStepReInit()` also
+      sends an error message to the error handler function.
 
 
 
@@ -2730,33 +2480,25 @@ MRIStep reset function
    Resets the current MRIStep outer (slow) time-stepper module state to the
    provided independent variable value and dependent variable vector.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param tR: the value of the independent variable :math:`t`.
+   :param yR: the value of the dependent variable vector :math:`y(t_R)`.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARK_MEM_FAIL:  if a memory allocation failed
+   :retval ARK_ILL_INPUT: if an argument has an illegal value.
 
-   * *tR* -- the value of the independent variable :math:`t`.
+   .. note::
 
-   * *yR* -- the value of the dependent variable vector :math:`y(t_R)`.
+      If the inner (fast) stepper also needs to be reset, its reset function should
+      be called before calling :c:func:`MRIStepReset()` to reset the outer stepper.
 
-   **Return value:**
+      All previously set options are retained but may be updated by calling
+      the appropriate "Set" functions.
 
-   * *ARK_SUCCESS* if successful
-
-   * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
-
-   * *ARK_MEM_FAIL*  if a memory allocation failed
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value.
-
-   **Notes:**
-   If the inner (fast) stepper also needs to be reset, its reset function should
-   be called before calling :c:func:`MRIStepReset()` to reset the outer stepper.
-
-   All previously set options are retained but may be updated by calling
-   the appropriate "Set" functions.
-
-   If an error occurred, :c:func:`MRIStepReset()` also sends an error message to
-   the error handler function.
+      If an error occurred, :c:func:`MRIStepReset()` also sends an error message to
+      the error handler function.
 
    .. versionchanged:: 5.3.0
 
@@ -2770,6 +2512,7 @@ MRIStep reset function
 
 
 
+
 .. _ARKODE.Usage.MRIStep.Resizing:
 
 MRIStep system resize function
@@ -2779,68 +2522,58 @@ MRIStep system resize function
 
    Re-initializes MRIStep with a different state vector.
 
-   **Arguments:**
+   :param arkode_mem: pointer to the MRIStep memory block.
+   :param yR: the newly-sized solution vector, holding the current
+              dependent variable values :math:`y(t_R)`.
+   :param tR: the current value of the independent variable
+              :math:`t_R` (this must be consistent with *yR*).
+   :param resize: the user-supplied vector resize function (of type
+                  :c:func:`ARKVecResizeFn()`.
+   :param resize_data: the user-supplied data structure to be passed
+                       to *resize* when modifying internal MRIStep vectors.
 
-   * *arkode_mem* -- pointer to the MRIStep memory block.
+   :retval ARK_SUCCESS: if successful
+   :retval ARK_MEM_NULL:  if the MRIStep memory was ``NULL``
+   :retval ARK_NO_MALLOC: if *arkode_mem* was not allocated.
+   :retval ARK_ILL_INPUT: if an argument has an illegal value.
 
-   * *yR* -- the newly-sized solution vector, holding the current
-     dependent variable values :math:`y(t_R)`.
+   .. note::
 
-   * *tR* -- the current value of the independent variable
-     :math:`t_R` (this must be consistent with *yR*).
+      If an error occurred, :c:func:`MRIStepResize()` also sends an error
+      message to the error handler function.
 
-   * *resize* -- the user-supplied vector resize function (of type
-     :c:func:`ARKVecResizeFn()`.
+      **Resizing the linear solver:**
+        When using any of the SUNDIALS-provided linear solver modules, the
+        linear solver memory structures must also be resized.  At present,
+        none of these include a solver-specific "resize" function, so the linear
+        solver memory must be destroyed and re-allocated **following** each
+        call to :c:func:`MRIStepResize()`.  Moreover, the existing ARKLS
+        interface should then be deleted and recreated by attaching the
+        updated ``SUNLinearSolver`` (and possibly ``SUNMatrix``) object(s)
+        through calls to :c:func:`MRIStepSetLinearSolver()`.
 
-   * *resize_data* -- the user-supplied data structure to be passed
-     to *resize* when modifying internal MRIStep vectors.
+        If any user-supplied routines are provided to aid the linear solver
+        (e.g. Jacobian construction, Jacobian-vector product,
+        mass-matrix-vector product, preconditioning), then the corresponding
+        "set" routines must be called again **following** the solver
+        re-specification.
 
-   **Return value:**
+      **Resizing the absolute tolerance array:**
+        If using array-valued absolute tolerances, the absolute tolerance
+        vector will be invalid after the call to :c:func:`MRIStepResize()`, so
+        the new absolute tolerance vector should be re-set **following** each
+        call to :c:func:`MRIStepResize()` through a new call to
+        :c:func:`MRIStepSVtolerances()`.
 
-   * *ARK_SUCCESS* if successful
+        If scalar-valued tolerances or a tolerance function was specified
+        through either :c:func:`MRIStepSStolerances()` or
+        :c:func:`MRIStepWFtolerances()`, then these will remain valid and no
+        further action is necessary.
 
-   * *ARK_MEM_NULL*  if the MRIStep memory was ``NULL``
-
-   * *ARK_NO_MALLOC* if *arkode_mem* was not allocated.
-
-   * *ARK_ILL_INPUT* if an argument has an illegal value.
-
-   **Notes:** If an error occurred, :c:func:`MRIStepResize()` also sends an error
-   message to the error handler function.
-
-   **Resizing the linear solver:**
-      When using any of the SUNDIALS-provided linear solver modules, the
-      linear solver memory structures must also be resized.  At present,
-      none of these include a solver-specific "resize" function, so the linear
-      solver memory must be destroyed and re-allocated **following** each
-      call to :c:func:`MRIStepResize()`.  Moreover, the existing ARKLS
-      interface should then be deleted and recreated by attaching the
-      updated ``SUNLinearSolver`` (and possibly ``SUNMatrix``) object(s)
-      through calls to :c:func:`MRIStepSetLinearSolver()`.
-
-      If any user-supplied routines are provided to aid the linear solver
-      (e.g. Jacobian construction, Jacobian-vector product,
-      mass-matrix-vector product, preconditioning), then the corresponding
-      "set" routines must be called again **following** the solver
-      re-specification.
-
-   **Resizing the absolute tolerance array:**
-      If using array-valued absolute tolerances, the absolute tolerance
-      vector will be invalid after the call to :c:func:`MRIStepResize()`, so
-      the new absolute tolerance vector should be re-set **following** each
-      call to :c:func:`MRIStepResize()` through a new call to
-      :c:func:`MRIStepSVtolerances()`.
-
-      If scalar-valued tolerances or a tolerance function was specified
-      through either :c:func:`MRIStepSStolerances()` or
-      :c:func:`MRIStepWFtolerances()`, then these will remain valid and no
-      further action is necessary.
-
-      .. note::
-
-         For an example showing usage of the similar :c:func:`ARKStepResize()`
-         routine, see the supplied serial C example problem,
-         ``ark_heat1D_adapt.c``.
+      **Example codes:**
+        For an example showing usage of the similar :c:func:`ARKStepResize()`
+        routine, see the supplied serial C example problem,
+        ``ark_heat1D_adapt.c``.
 
    .. deprecated:: 6.1.0
 

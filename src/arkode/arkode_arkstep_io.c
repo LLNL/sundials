@@ -519,25 +519,54 @@ int ARKStepSetTableName(void* arkode_mem, const char* itable, const char* etable
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ARKStepGetNumRhsEvals:
+  arkStep_GetNumRhsEvals:
 
-  Returns the current number of calls to fe and fi
+  Returns the current number of calls
   ---------------------------------------------------------------*/
+int arkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals)
+{
+  ARKodeARKStepMem step_mem = NULL;
+
+  /* access ARKodeARKStepMem structure */
+  int retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (rhs_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "rhs_evals is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  if (partition_index > 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid partition index");
+    return ARK_ILL_INPUT;
+  }
+
+  switch (partition_index)
+  {
+  case 0: *rhs_evals = step_mem->nfe; break;
+  case 1: *rhs_evals = step_mem->nfi; break;
+  default: *rhs_evals = step_mem->nfe + step_mem->nfi; break;
+  }
+
+  return ARK_SUCCESS;
+}
+
 int ARKStepGetNumRhsEvals(void* arkode_mem, long int* fe_evals, long int* fi_evals)
 {
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
+  int retval = ARK_SUCCESS;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  retval = arkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, fe_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  /* get values from step_mem */
-  *fe_evals = step_mem->nfe;
-  *fi_evals = step_mem->nfi;
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, fi_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -728,7 +757,7 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptControllerPID allocation failure");
+                    "SUNAdaptController_PID allocation failure");
     return (ARK_MEM_FAIL);
   }
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;
@@ -1154,7 +1183,11 @@ int arkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return an error if local truncation error is not computed */
-  if (ark_mem->fixedstep) { return (ARK_STEPPER_UNSUPPORTED); }
+  if ((ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE)) ||
+      (step_mem->p <= 0))
+  {
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
 
   /* otherwise, copy local truncation error vector to output */
   N_VScale(ONE, ark_mem->tempv1, ele);
@@ -1442,6 +1475,12 @@ int arkStep_WriteParameters(ARKodeMem ark_mem, FILE* fp)
 /*===============================================================
   Exported-but-deprecated user-callable functions.
   ===============================================================*/
+
+int ARKStepCreateMRIStepInnerStepper(void* inner_arkode_mem,
+                                     MRIStepInnerStepper* stepper)
+{
+  return (ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, stepper));
+}
 
 int ARKStepResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
                   sunrealtype t0, ARKVecResizeFn resize, void* resize_data)

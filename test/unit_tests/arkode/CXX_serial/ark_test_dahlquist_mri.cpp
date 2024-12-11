@@ -155,6 +155,10 @@ int main(int argc, char* argv[])
 
   numfails += run_tests(MRISTEP_IMEX, prob_opts, prob_data, sunctx);
 
+  numfails += run_tests(MRISTEP_MERK, prob_opts, prob_data, sunctx);
+
+  numfails += run_tests(MRISTEP_SR, prob_opts, prob_data, sunctx);
+
   if (numfails) { std::cout << "\n\nFailed " << numfails << " tests!\n"; }
   else { std::cout << "\n\nAll tests passed!\n"; }
 
@@ -185,7 +189,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
   SUNMatrix A        = nullptr;
   SUNLinearSolver LS = nullptr;
 
-  if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
+  if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX || type == MRISTEP_SR)
   {
     // Initialize dense matrix data structures and solvers
     A = SUNDenseMatrix(1, 1, sunctx);
@@ -229,8 +233,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
 
   // Wrap ARKStep integrator as fast integrator object
   MRIStepInnerStepper inner_stepper = nullptr;
-  flag = ARKStepCreateMRIStepInnerStepper(arkstep_mem, &inner_stepper);
-  if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) { return 1; }
+  flag = ARKodeCreateMRIStepInnerStepper(arkstep_mem, &inner_stepper);
+  if (check_flag(&flag, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   // ----------------------
   // Create slow integrator
@@ -239,7 +243,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
   // Create slow integrator based on MRI type
   void* mristep_mem = nullptr;
 
-  if (type == MRISTEP_EXPLICIT)
+  if ((type == MRISTEP_EXPLICIT) || (type == MRISTEP_MERK))
   {
     mristep_mem = MRIStepCreate(fe, nullptr, prob_opts.t0, y, inner_stepper,
                                 sunctx);
@@ -249,7 +253,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     mristep_mem = MRIStepCreate(nullptr, fi, prob_opts.t0, y, inner_stepper,
                                 sunctx);
   }
-  else if (type == MRISTEP_IMEX)
+  else if ((type == MRISTEP_IMEX) || (type == MRISTEP_SR))
   {
     mristep_mem = MRIStepCreate(fe, fi, prob_opts.t0, y, inner_stepper, sunctx);
   }
@@ -268,7 +272,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
   flag = ARKodeSetFixedStep(mristep_mem, prob_opts.hs);
   if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
 
-  if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
+  if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX || type == MRISTEP_SR)
   {
     // Attach linear solver
     flag = ARKodeSetLinearSolver(mristep_mem, LS, A);
@@ -295,9 +299,9 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     if (check_flag(&flag, "ARKStepSetInterpolantType", 1)) { return 1; }
   }
 
-  // ------------------------------------
-  // Evolve with various IMEX MRI methods
-  // ------------------------------------
+  // -------------------------------
+  // Evolve with various MRI methods
+  // -------------------------------
 
   // Methods to test paired with whether they are stiffly accurate
   std::map<std::string, bool> methods;
@@ -316,6 +320,17 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
                     {"ARKODE_MRI_GARK_ERK33a", false},
                     {"ARKODE_MRI_GARK_RALSTON3", false},
                     {"ARKODE_MRI_GARK_ERK45a", false}});
+  }
+  else if (type == MRISTEP_MERK)
+  {
+    std::cout << "\n=================\n";
+    std::cout << "Test MERK methods\n";
+    std::cout << "=================\n";
+
+    methods.insert({{"ARKODE_MERK21", true},
+                    {"ARKODE_MERK32", true},
+                    {"ARKODE_MERK43", true},
+                    {"ARKODE_MERK54", true}});
   }
   else if (type == MRISTEP_IMPLICIT)
   {
@@ -342,10 +357,21 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
                     {"ARKODE_IMEX_MRI_GARK3b", false},
                     {"ARKODE_IMEX_MRI_GARK4", false}});
   }
+  else if (type == MRISTEP_SR)
+  {
+    std::cout << "\n========================\n";
+    std::cout << "Test IMEX MRI SR methods\n";
+    std::cout << "========================\n";
+
+    methods.insert({{"ARKODE_IMEX_MRI_SR21", true},
+                    {"ARKODE_IMEX_MRI_SR32", true},
+                    {"ARKODE_IMEX_MRI_SR43", true}});
+  }
   else { return 1; }
 
   for (const auto& pair : methods)
   {
+    int methodfails       = 0;
     std::string id        = pair.first;
     bool stiffly_accurate = pair.second;
     std::cout << "\nTesting method " << id << "\n";
@@ -402,10 +428,13 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     flag = ARKodeGetNumSteps(mristep_mem, &mri_nst);
     if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
-    flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
-    if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return 1; }
+    flag = ARKodeGetNumRhsEvals(mristep_mem, 0, &mri_nfse);
+    if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
 
-    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
+    flag = ARKodeGetNumRhsEvals(mristep_mem, 1, &mri_nfsi);
+    if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+
+    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX || type == MRISTEP_SR)
     {
       flag = ARKodeGetNumNonlinSolvIters(mristep_mem, &mri_nni);
       if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
@@ -424,11 +453,8 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     }
 
     sunrealtype pow = prob_data.lambda_f;
-    if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
-    {
-      pow += prob_data.lambda_e;
-    }
-    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
+    if (type != MRISTEP_IMPLICIT) { pow += prob_data.lambda_e; }
+    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX || type == MRISTEP_SR)
     {
       pow += prob_data.lambda_i;
     }
@@ -446,7 +472,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     std::cout << "   Fe evals    = " << mri_nfse << "\n";
     std::cout << "   Fi evals    = " << mri_nfsi << "\n";
 
-    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
+    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX || type == MRISTEP_SR)
     {
       std::cout << "   NLS iters   = " << mri_nni << "\n";
       std::cout << "   NLS fails   = " << mri_ncfn << "\n";
@@ -464,31 +490,29 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     int nstages_evaluated = nstages_stored;
     if (stiffly_accurate) nstages_evaluated--;
     long int fe_evals = 0;
-    if (type == MRISTEP_EXPLICIT || type == MRISTEP_IMEX)
-    {
-      fe_evals = mri_nst * nstages_evaluated;
-    }
+    if (type != MRISTEP_IMPLICIT) { fe_evals = mri_nst * nstages_evaluated; }
 
     if (mri_nfse != fe_evals)
     {
-      numfails++;
+      methodfails++;
       std::cout << "Fe RHS evals: " << mri_nfse << " vs " << fe_evals << "\n";
     }
 
     long int fi_evals = 0;
-    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
+    if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX || type == MRISTEP_SR)
     {
       fi_evals = mri_nst * nstages_evaluated + mri_nni;
     }
 
     if (mri_nfsi != fi_evals)
     {
-      numfails++;
+      methodfails++;
       std::cout << "Fi RHS evals: " << mri_nfsi << " vs " << fi_evals << "\n";
     }
 
-    if (numfails) { std::cout << "Failed " << numfails << " tests\n"; }
+    if (methodfails) { std::cout << "Failed " << methodfails << " tests\n"; }
     else { std::cout << "All checks passed\n"; }
+    numfails += methodfails;
 
     // -------------------
     // Setup for next test
@@ -505,7 +529,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     if (check_flag(&flag, "ARKStepReInit", 1)) { return 1; }
 
     // Re-initialize slow integrator based on MRI type
-    if (type == MRISTEP_EXPLICIT)
+    if ((type == MRISTEP_EXPLICIT) || (type == MRISTEP_MERK))
     {
       flag = MRIStepReInit(mristep_mem, fe, nullptr, prob_opts.t0, y);
     }
@@ -513,7 +537,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
     {
       flag = MRIStepReInit(mristep_mem, nullptr, fi, prob_opts.t0, y);
     }
-    else if (type == MRISTEP_IMEX)
+    else if (type == MRISTEP_IMEX || type == MRISTEP_SR)
     {
       flag = MRIStepReInit(mristep_mem, fe, fi, prob_opts.t0, y);
     }
@@ -525,7 +549,7 @@ int run_tests(MRISTEP_METHOD_TYPE type, ProblemOptions& prob_opts,
   MRIStepInnerStepper_Free(&inner_stepper);
   ARKodeFree(&mristep_mem);
   ARKodeFree(&arkstep_mem);
-  if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX)
+  if (type == MRISTEP_IMPLICIT || type == MRISTEP_IMEX || type == MRISTEP_SR)
   {
     SUNLinSolFree(LS);
     SUNMatDestroy(A);

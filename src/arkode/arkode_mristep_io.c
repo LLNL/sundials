@@ -129,26 +129,55 @@ int MRIStepSetPostInnerFn(void* arkode_mem, MRIStepPostInnerFn postfn)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  MRIStepGetNumRhsEvals:
+  mriStep_GetNumRhsEvals:
 
-  Returns the current number of calls to fse and fsi
+  Returns the current number of RHS calls
   ---------------------------------------------------------------*/
+int mriStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals)
+{
+  ARKodeMRIStepMem step_mem = NULL;
+
+  /* access ARKodeMRIStepMem structure */
+  int retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (rhs_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "rhs_evals is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  if (partition_index > 1)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid partition index");
+    return ARK_ILL_INPUT;
+  }
+
+  switch (partition_index)
+  {
+  case 0: *rhs_evals = step_mem->nfse; break;
+  case 1: *rhs_evals = step_mem->nfsi; break;
+  default: *rhs_evals = step_mem->nfse + step_mem->nfsi; break;
+  }
+
+  return ARK_SUCCESS;
+}
+
 int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
                           long int* nfsi_evals)
 {
-  ARKodeMem ark_mem;
-  ARKodeMRIStepMem step_mem;
-  int retval;
+  int retval = ARK_SUCCESS;
 
-  /* access ARKodeMem and ARKodeMRIStepMem structures */
-  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, nfse_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  /* get number of fse and fsi evals from step_mem */
-  *nfse_evals = step_mem->nfse;
-  *nfsi_evals = step_mem->nfsi;
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, nfsi_evals);
+  if (retval != ARK_SUCCESS) { return retval; }
 
-  return (ARK_SUCCESS);
+  return ARK_SUCCESS;
 }
 
 /*---------------------------------------------------------------
@@ -193,9 +222,58 @@ int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag)
   return (ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  MRIStepGetNumInnerStepperFails:
+
+  Returns the number of recoverable failures encountered by the
+  inner stepper.
+  ---------------------------------------------------------------*/
+int MRIStepGetNumInnerStepperFails(void* arkode_mem, long int* inner_fails)
+{
+  ARKodeMem ark_mem;
+  ARKodeMRIStepMem step_mem;
+  int retval;
+
+  /* access ARKodeMem and ARKodeMRIStepMem structures */
+  retval = mriStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* set output from step_mem */
+  *inner_fails = step_mem->inner_fails;
+
+  return (ARK_SUCCESS);
+}
+
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  mriStep_SetAdaptController:
+
+  Specifies a temporal adaptivity controller for MRIStep to use.
+  If a non-MRI controller is provided, this just passes that
+  through to arkReplaceAdaptController.  However, if an MRI
+  controller is provided, then this wraps that inside a
+  "SUNAdaptController_MRIStep" wrapper, which will properly
+  interact with the fast integration module.
+  ---------------------------------------------------------------*/
+int mriStep_SetAdaptController(ARKodeMem ark_mem, SUNAdaptController C)
+{
+  /* Retrieve the controller type */
+  SUNAdaptController_Type ctype = SUNAdaptController_GetType(C);
+
+  /* If this does not have MRI type, then just pass to ARKODE */
+  if (ctype != SUN_ADAPTCONTROLLER_MRI_H_TOL)
+  {
+    return (arkReplaceAdaptController(ark_mem, C, SUNFALSE));
+  }
+
+  /* Create the mriStepControl wrapper, pass that to ARKODE, and give ownership
+     of the wrapper to ARKODE */
+  SUNAdaptController Cwrapper = SUNAdaptController_MRIStep(ark_mem, C);
+  return (arkReplaceAdaptController(ark_mem, Cwrapper, SUNTRUE));
+}
 
 /*---------------------------------------------------------------
   mriStep_SetUserData:
@@ -231,7 +309,8 @@ int mriStep_SetUserData(ARKodeMem ark_mem, void* user_data)
 int mriStep_SetDefaults(ARKodeMem ark_mem)
 {
   ARKodeMRIStepMem step_mem;
-  sunindextype lenrw, leniw;
+  sunindextype Clenrw, Cleniw;
+  long int lenrw, leniw;
   int retval;
 
   /* access ARKodeMRIStepMem structure */
@@ -264,12 +343,47 @@ int mriStep_SetDefaults(ARKodeMem ark_mem)
   /* Remove pre-existing coupling table */
   if (step_mem->MRIC)
   {
-    MRIStepCoupling_Space(step_mem->MRIC, &leniw, &lenrw);
-    ark_mem->lrw -= lenrw;
-    ark_mem->liw -= leniw;
+    MRIStepCoupling_Space(step_mem->MRIC, &Cleniw, &Clenrw);
+    ark_mem->lrw -= Clenrw;
+    ark_mem->liw -= Cleniw;
     MRIStepCoupling_Free(step_mem->MRIC);
   }
   step_mem->MRIC = NULL;
+
+  /* Remove pre-existing SUNAdaptController object, and replace with "I" */
+  if (ark_mem->hadapt_mem->owncontroller)
+  {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
+    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "SUNAdaptController_Destroy failure");
+      return (ARK_MEM_FAIL);
+    }
+  }
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_I(ark_mem->sunctx);
+  if (ark_mem->hadapt_mem->hcontroller == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                    "SUNAdaptController_I allocation failure");
+    return (ARK_MEM_FAIL);
+  }
+  ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                    &leniw);
+  if (retval == SUN_SUCCESS)
+  {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
   return (ARK_SUCCESS);
 }
 
@@ -596,6 +710,29 @@ int mriStep_GetCurrentGamma(ARKodeMem ark_mem, sunrealtype* gamma)
 }
 
 /*---------------------------------------------------------------
+  mriStep_GetEstLocalErrors: Returns the current local truncation
+  error estimate vector
+  ---------------------------------------------------------------*/
+int mriStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
+{
+  int retval;
+  ARKodeMRIStepMem step_mem;
+  retval = mriStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  /* return an error if local truncation error is not computed */
+  if ((ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE)) ||
+      (step_mem->p <= 0))
+  {
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+
+  /* otherwise, copy local truncation error vector to output */
+  N_VScale(ONE, ark_mem->tempv1, ele);
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
   mriStep_GetNumLinSolvSetups:
 
   Returns the current number of calls to the lsetup routine
@@ -697,7 +834,9 @@ int mriStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, "Explicit slow RHS fn evals   = %ld\n", step_mem->nfse);
     fprintf(outfile, "Implicit slow RHS fn evals   = %ld\n", step_mem->nfsi);
 
-    /* nonlinear solver stats */
+    /* inner stepper and nonlinear solver stats */
+    fprintf(outfile, "Inner stepper failures       = %ld\n",
+            step_mem->inner_fails);
     fprintf(outfile, "NLS iters                    = %ld\n", step_mem->nls_iters);
     fprintf(outfile, "NLS fails                    = %ld\n", step_mem->nls_fails);
     if (ark_mem->nst > 0)
@@ -738,7 +877,8 @@ int mriStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt)
     fprintf(outfile, ",Explicit slow RHS fn evals,%ld", step_mem->nfse);
     fprintf(outfile, ",Implicit slow RHS fn evals,%ld", step_mem->nfsi);
 
-    /* nonlinear solver stats */
+    /* inner stepper and nonlinear solver stats */
+    fprintf(outfile, ",Inner stepper failures,%ld", step_mem->inner_fails);
     fprintf(outfile, ",NLS iters,%ld", step_mem->nls_iters);
     fprintf(outfile, ",NLS fails,%ld", step_mem->nls_fails);
     if (ark_mem->nst > 0)

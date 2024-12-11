@@ -22,6 +22,7 @@
 set(ARKODE_examples
     "ark_analytic_sys.cpp\;\;develop"
     "ark_heat2D.cpp\;\;develop"
+    "ark_heat2D_lsrk.cpp\;\;exclude-single"
     "ark_kpr_Mt.cpp\;0 5\;develop"
     "ark_kpr_Mt.cpp\;1 4\;develop"
     "ark_kpr_Mt.cpp\;2 8 0 -10\;develop"
@@ -34,6 +35,7 @@ set(ARKODE_examples
     "ark_kpr_Mt.cpp\;2 4 0 -10 0\;develop"
     "ark_kpr_Mt.cpp\;0 4 0 -10 1 10 1\;develop"
     "ark_kpr_Mt.cpp\;0 4 0 -10 0 10 1\;develop"
+    "ark_kpr_nestedmri.cpp\;\;exclude-single"
     "ark_pendulum.cpp\;\;develop")
 
 # Header files to install
