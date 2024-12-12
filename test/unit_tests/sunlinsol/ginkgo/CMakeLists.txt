@@ -71,8 +71,9 @@ if(EXAMPLES_INSTALL)
     sunlinsol
     CPU_GPU_EXAMPLES_VAR examples
     SUNDIALS_COMPONENTS ${vectors}
-    DEPENDENCIES ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.c
-                 ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.h
+    DEPENDENCIES
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.c
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.h
     DESTINATION sunlinsol/ginkgo)
 
 endif()

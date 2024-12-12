@@ -197,8 +197,9 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/parallel/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/parallel/CMakeLists.txt
-          DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel)
+  install(
+    FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/parallel/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template for the

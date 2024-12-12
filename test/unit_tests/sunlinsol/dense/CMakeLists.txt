@@ -151,8 +151,9 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/dense/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/dense/CMakeLists.txt
-          DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense)
+  install(
+    FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/dense/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template for the

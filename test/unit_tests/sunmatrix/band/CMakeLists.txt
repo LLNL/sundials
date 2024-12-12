@@ -146,8 +146,9 @@ if(EXAMPLES_INSTALL)
     ${PROJECT_BINARY_DIR}/test/unit_tests/sunmatrix/band/CMakeLists.txt @ONLY)
 
   # install CMakelists.txt
-  install(FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sunmatrix/band/CMakeLists.txt
-          DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/band)
+  install(
+    FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sunmatrix/band/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/band)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template for the

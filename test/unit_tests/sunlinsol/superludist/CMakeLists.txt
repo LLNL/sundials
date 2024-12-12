@@ -100,8 +100,9 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunlinsol_superludist sunlinsol_superludist_examples
     EXAMPLES_DEPENDENCIES test_sunlinsol.c
-    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.c
-                ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.h
+    EXTRA_FILES
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.c
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.h
     CMAKE_TEMPLATE cmakelists_${_ex_lang}_MPI_ex.in
     SUNDIALS_TARGETS nvecserial nvecparallel sunlinsoldense sunlinsolsuperludist
     DESTINATION sunlinsol/superludist)

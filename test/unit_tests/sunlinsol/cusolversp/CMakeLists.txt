@@ -76,8 +76,9 @@ if(EXAMPLES_INSTALL)
   sundials_install_examples(
     sunlinsol_cusolversp examples_list
     EXAMPLES_DEPENDENCIES test_sunlinsol.c
-    EXTRA_FILES ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.c
-                ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.h
+    EXTRA_FILES
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.c
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.h
     CMAKE_TEMPLATE cmakelists_CUDA_ex.in
     SUNDIALS_TARGETS nveccuda nvecserial sunmatrixdense sunmatrixsparse
                      sunmatrixcusparse sunlinsolcusolversp

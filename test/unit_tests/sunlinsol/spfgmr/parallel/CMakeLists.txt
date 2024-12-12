@@ -126,7 +126,8 @@ if(EXAMPLES_INSTALL)
       @ONLY)
     # install the configured Makefile_ex as Makefile
     install(
-      FILES ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/spfgmr/parallel/Makefile_ex
+      FILES
+        ${PROJECT_BINARY_DIR}/test/unit_tests/sunlinsol/spfgmr/parallel/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/spfgmr/parallel
       RENAME Makefile)
   endif()

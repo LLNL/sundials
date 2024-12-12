@@ -99,11 +99,13 @@ if(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   configure_file(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmpdev_ex.in
-    ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/openmpdev/CMakeLists.txt @ONLY)
+    ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/openmpdev/CMakeLists.txt
+    @ONLY)
 
   # install CMakelists.txt
-  install(FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/openmpdev/CMakeLists.txt
-          DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev)
+  install(
+    FILES ${PROJECT_BINARY_DIR}/test/unit_tests/nvector/openmpdev/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/openmpdev)
 
   # On UNIX-type platforms, we also  generate and install a makefile for
   # building the examples. This makefile can then be used as a template for the

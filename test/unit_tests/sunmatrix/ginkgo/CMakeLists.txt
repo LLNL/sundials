@@ -55,8 +55,9 @@ if(EXAMPLES_INSTALL)
     CPU_GPU_EXAMPLES_VAR examples
     SUNDIALS_COMPONENTS sunmatrixdense ${vectors}
     SUNDIALS_TARGETS sunmatrixdense
-    DEPENDENCIES ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.c
-                 ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.h
+    DEPENDENCIES
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.c
+      ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.h
     DESTINATION sunmatrix/ginkgo)
 
 endif()
