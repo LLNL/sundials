@@ -63,7 +63,10 @@ static inline int sunvasnprintf(char** str, const char* fmt, va_list args)
   int size = 0;
 
   /* compute string length */
-  size = vsnprintf(NULL, 0, fmt, args);
+  va_list tmp1;
+  va_copy(tmp1, args);
+  size = vsnprintf(NULL, 0, fmt, tmp1);
+  va_end(tmp1);
 
   if (size < 0) { return -1; }
 
@@ -71,7 +74,10 @@ static inline int sunvasnprintf(char** str, const char* fmt, va_list args)
   *str = (char*)malloc(size + 1);
   if (NULL == *str) { return -1; }
 
-  size = vsnprintf(*str, size + 1, fmt, args);
+  va_list tmp2;
+  va_copy(tmp2, args);
+  size = vsnprintf(*str, size + 1, fmt, tmp2);
+  va_end(tmp2);
 
   return size;
 }
