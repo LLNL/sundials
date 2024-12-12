@@ -83,10 +83,6 @@ $tar $tarfile $distrobase/src/sunadaptcontroller
 
 echo "   --- Add examples to $tarfile"
 $tar $tarfile $distrobase/examples/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/nvector
-$tar $tarfile $distrobase/test/unit_tests/sunlinsol
-$tar $tarfile $distrobase/test/unit_tests/sunmatrix
-$tar $tarfile $distrobase/test/unit_tests/sunnonlinsol
 $tar $tarfile $distrobase/examples/templates
 $tar $tarfile $distrobase/examples/utilities
 

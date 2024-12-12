@@ -232,10 +232,6 @@ cp -r $sundialsdir/doc/requirements.txt $tmpdir/doc
 
 cp    $sundialsdir/examples/CMakeLists.txt $tmpdir/examples/
 cp -r $sundialsdir/examples/utilities $tmpdir/examples/
-cp -r $sundialsdir/test/unit_tests/nvector $tmpdir/examples/
-cp -r $sundialsdir/test/unit_tests/sunmatrix $tmpdir/examples/
-cp -r $sundialsdir/test/unit_tests/sunlinsol $tmpdir/examples/
-cp -r $sundialsdir/test/unit_tests/sunnonlinsol $tmpdir/examples/
 cp -r $sundialsdir/examples/templates $tmpdir/examples/
 
 cp -r $sundialsdir/external $tmpdir/
