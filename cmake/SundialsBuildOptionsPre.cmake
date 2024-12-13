@@ -343,22 +343,27 @@ sundials_option(
   SUNDIALS_TEST_CONTAINER_MNT STRING
   "Path to project root inside the container" "/sundials" ADVANCED)
 
-# Include development examples in regression tests
-sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
-                "Include development tests in make test" OFF ADVANCED)
+sundials_option(SUNDIALS_TEST_ENABLE_DEV_TESTS BOOL
+                "Include development tests" OFF ADVANCED)
 
-# Include unit tests in regression tests
-sundials_option(SUNDIALS_TEST_UNITTESTS BOOL "Include unit tests in make test"
+sundials_option(SUNDIALS_TEST_ENABLE_UNIT_TESTS BOOL "Include unit tests"
                 OFF ADVANCED)
 
-# Include googletest unit tests in regression tests
-sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL "Disable GTest unit tests" ON
+sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL "Include GTest unit tests" ON
                 ADVANCED)
+
+# ---------------------------------------------------------------
+# Options for SUNDIALS development
+# ---------------------------------------------------------------
 
 sundials_option(SUNDIALS_DEV_IWYU BOOL "Enable include-what-you-use" OFF
                 ADVANCED)
 
 sundials_option(SUNDIALS_DEV_CLANG_TIDY BOOL "Enable clang-tidy" OFF ADVANCED)
+
+# ---------------------------------------------------------------
+# Options for SUNDIALS benchmarks
+# ---------------------------------------------------------------
 
 sundials_option(
   SUNDIALS_SCHEDULER_COMMAND STRING

@@ -20,7 +20,9 @@ include(CTest)
 #
 # Check if the test runner is needed
 #
-if(SUNDIALS_TEST_DIFF_OUTPUT OR SUNDIALS_TEST_ENABLE_CALIPER)
+if(SUNDIALS_TEST_DIFF_OUTPUT
+   OR SUNDIALS_TEST_ENABLE_CALIPER
+   OR BUILD_BENCHMARKS)
   set(SUNDIALS_TEST_USE_RUNNER TRUE)
   # Python is needed to use the test runner
   find_package(Python3 REQUIRED)
@@ -28,12 +30,9 @@ if(SUNDIALS_TEST_DIFF_OUTPUT OR SUNDIALS_TEST_ENABLE_CALIPER)
   find_program(
     TESTRUNNER testRunner
     PATHS test
-    NO_DEFAULT_PATH)
+    NO_DEFAULT_PATH REQUIRED)
   if(NOT TESTRUNNER)
-    message(
-      FATAL_ERROR
-        "Could not locate testRunner. Set SUNDIALS_TEST_DEVTESTS=OFF or BUILD_BENCHMARKS=OFF to continue."
-    )
+    message(FATAL_ERROR "Could not locate testRunner.")
   endif()
   message(STATUS "Found testRunner: ${TESTRUNNER}")
   set(TESTRUNNER
@@ -181,7 +180,7 @@ if(SUNDIALS_TEST_UNITTESTS AND SUNDIALS_TEST_ENABLE_GTEST)
 endif()
 
 #
-# Create post install smoke test targets
+# Create `make test_install` and `make test_install_all`
 #
 if(EXAMPLES_INSTALL)
 
@@ -207,12 +206,10 @@ if(EXAMPLES_INSTALL)
 
 endif()
 
-# If benchmarks are enabled, set up `make benchmark`
+#
+# Create `make benchmark`
+#
 if(BUILD_BENCHMARKS)
-
-  message("SUNDIALS Benchmarking")
-
-  # Create benchmark targets
   add_custom_target(benchmark ${CMAKE_COMMAND} -E cmake_echo_color --cyan
                               "All benchmarks complete.")
 endif()
