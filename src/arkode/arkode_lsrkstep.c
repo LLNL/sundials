@@ -529,7 +529,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (ss >= step_mem->stage_max_limit)
   {
     SUNLogInfo(ARK_LOGGER, "compute-num-stages",
-               "spectral radius = %" RSYM ", num stages = %" RSYM
+               "spectral radius = " SUN_FORMAT_G ", num stages = " SUN_FORMAT_G
                ", max stages = %i, max stage limit = %i",
                step_mem->spectral_radius, ss, step_mem->stage_max,
                step_mem->stage_max_limit);
@@ -557,11 +557,11 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   step_mem->stage_max  = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
   SUNLogInfo(ARK_LOGGER, "compute-num-stages",
-             "spectral radius = %" RSYM
+             "spectral radius = " SUN_FORMAT_G
              ", num stages = %i, max stages = %i, max stage limit = %i",
              step_mem->spectral_radius, step_mem->req_stages,
              step_mem->stage_max, step_mem->stage_max_limit);
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 0,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 0,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
 
@@ -605,7 +605,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
 
   mus = w1 * bjm1;
 
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 1,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 1,
              ark_mem->tn + ark_mem->h * mus);
 
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * mus, ark_mem->fn, ark_mem->tempv2);
@@ -662,7 +662,7 @@ int lsrkStep_TakeStepRKC(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* compute new stage time factor */
     thj = mu * thjm1 + nu * thjm2 + mus * (ONE - ajm1);
 
-    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, j,
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, j,
                ark_mem->tn + ark_mem->h * thj);
 
     cvals[0] = mus * ark_mem->h;
@@ -842,7 +842,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (ss >= step_mem->stage_max_limit)
   {
     SUNLogInfo(ARK_LOGGER, "compute-num-stages",
-               "spectral radius = %" RSYM ", num stages = %" RSYM
+               "spectral radius = " SUN_FORMAT_G ", num stages = " SUN_FORMAT_G
                ", max stages = %i, max stage limit = %i",
                step_mem->spectral_radius, ss, step_mem->stage_max,
                step_mem->stage_max_limit);
@@ -872,11 +872,11 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   step_mem->stage_max  = SUNMAX(step_mem->req_stages, step_mem->stage_max);
 
   SUNLogInfo(ARK_LOGGER, "compute-num-stages",
-             "spectral radius = %" RSYM
+             "spectral radius = " SUN_FORMAT_G
              ", num stages = %i, max stages = %i, max stage limit = %i",
              step_mem->spectral_radius, step_mem->req_stages,
              step_mem->stage_max, step_mem->stage_max_limit);
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 0,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 0,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
 
@@ -914,7 +914,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   mus  = w1 * bjm1;
   cjm1 = mus;
 
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 1,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 1,
              ark_mem->tn + ark_mem->h * mus);
 
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * mus, ark_mem->fn, ark_mem->tempv2);
@@ -957,7 +957,7 @@ int lsrkStep_TakeStepRKL(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     if (retval > 0) { return RHSFUNC_RECVR; }
 
     SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, j,
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, j,
                ark_mem->tn + ark_mem->h * cj);
 
     cvals[0] = mus * ark_mem->h;
@@ -1123,7 +1123,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     bt3 = (rs - ONE) / (rs * rs);
   }
 
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 0,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 0,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
 
@@ -1146,7 +1146,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_0(:) =");
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 1,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 1,
              ark_mem->tn + ark_mem->h * sm1inv);
 
   N_VLinearSum(ONE, ark_mem->yn, sm1inv * ark_mem->h, ark_mem->fn, ark_mem->ycur);
@@ -1186,7 +1186,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval > 0) { return RHSFUNC_RECVR; }
 
     SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, j,
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, j,
                ark_mem->tn + ark_mem->h * j * sm1inv);
 
     N_VLinearSum(ONE, ark_mem->ycur, sm1inv * ark_mem->h, ark_mem->tempv2,
@@ -1225,7 +1225,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   if (retval > 0) { return RHSFUNC_RECVR; }
 
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G,
              step_mem->req_stages, ark_mem->tn + ark_mem->h);
 
   cvals[0] = ONE / (sm1inv * rs);
@@ -1307,7 +1307,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   sunrealtype rat = ONE / (rs - rn);
   int in          = (int)SUNRround(rn);
 
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 0,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 0,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
 
@@ -1330,7 +1330,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_0(:) =");
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 1,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 1,
              ark_mem->tn + rat * ark_mem->h);
 
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * rat, ark_mem->fn, ark_mem->ycur);
@@ -1369,7 +1369,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval > 0) { return RHSFUNC_RECVR; }
 
     SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, j,
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, j,
                ark_mem->tn + j * rat * ark_mem->h);
 
     N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, ark_mem->tempv3,
@@ -1412,7 +1412,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval > 0) { return RHSFUNC_RECVR; }
 
     SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, j,
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, j,
                ark_mem->tn + j * rat * ark_mem->h);
 
     N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, ark_mem->tempv3,
@@ -1451,7 +1451,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   if (retval > 0) { return RHSFUNC_RECVR; }
 
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G,
              (in * (in + 1) / 2),
              ark_mem->tn + (in * (in - 1) / 2) * rat * ark_mem->h);
 
@@ -1501,7 +1501,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     if (retval > 0) { return RHSFUNC_RECVR; }
 
     SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, j,
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, j,
                ark_mem->tn + ((sunrealtype)j - rn) * rat * ark_mem->h);
 
     N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * rat, ark_mem->tempv3,
@@ -1589,7 +1589,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   sunrealtype rs = SUN_RCONST(4.0);
   sunrealtype p5 = SUN_RCONST(0.5);
 
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 0,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 0,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
 
@@ -1612,7 +1612,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
 
   SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_0(:) =");
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 1,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 1,
              ark_mem->tn + p5 * ark_mem->h);
 
   N_VLinearSum(ONE, ark_mem->yn, ark_mem->h * p5, ark_mem->fn, ark_mem->ycur);
@@ -1646,7 +1646,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   if (retval > 0) { return RHSFUNC_RECVR; }
 
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 2,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 2,
              ark_mem->tn + ark_mem->h);
 
   N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, ark_mem->tempv3,
@@ -1682,7 +1682,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   if (retval > 0) { return RHSFUNC_RECVR; }
 
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 3,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 3,
              ark_mem->tn + p5 * ark_mem->h);
 
   cvals[0] = ONE / THREE;
@@ -1731,7 +1731,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   if (retval > 0) { return RHSFUNC_RECVR; }
 
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G,
              step_mem->req_stages, ark_mem->tn + ark_mem->h);
 
   N_VLinearSum(ONE, ark_mem->ycur, ark_mem->h * p5, ark_mem->tempv3,
@@ -1794,7 +1794,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   sunrealtype* cvals = step_mem->cvals;
   N_Vector* Xvecs    = step_mem->Xvecs;
 
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 0,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 0,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
 
@@ -1817,7 +1817,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
 
   SUNLogExtraDebugVec(ARK_LOGGER, "stage RHS", ark_mem->fn, "F_0(:) =");
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 1,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 1,
              ark_mem->tn + onesixth * ark_mem->h);
 
   N_VScale(ONE, ark_mem->yn, ark_mem->tempv2);
@@ -1861,7 +1861,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     if (retval > 0) { return RHSFUNC_RECVR; }
 
     SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, j,
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, j,
                ark_mem->tn + j * onesixth * ark_mem->h);
 
     N_VLinearSum(ONE, ark_mem->ycur, onesixth * ark_mem->h, ark_mem->tempv3,
@@ -1874,7 +1874,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   }
 
   SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, 6,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G, 6,
              ark_mem->tn + TWO * onesixth * ark_mem->h);
 
   N_VLinearSum(SUN_RCONST(1.0) / SUN_RCONST(25.0), ark_mem->tempv2,
@@ -1911,8 +1911,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     if (retval > 0) { return RHSFUNC_RECVR; }
 
     SUNLogInfo(ARK_LOGGER, "end-stage", "status = success");
-    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, j + 1,
-               ark_mem->tn + (j - 3) * onesixth * ark_mem->h);
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G,
+               j + 1, ark_mem->tn + (j - 3) * onesixth * ark_mem->h);
 
     N_VLinearSum(ONE, ark_mem->ycur, onesixth * ark_mem->h, ark_mem->tempv3,
                  ark_mem->ycur);

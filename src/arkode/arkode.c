@@ -886,8 +886,8 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       }
 
       SUNLogInfo(ARK_LOGGER, "begin-step-attempt",
-                 "step = %li, tn = %" RSYM ", h = %" RSYM, ark_mem->nst + 1,
-                 ark_mem->tn, ark_mem->h);
+                 "step = %li, tn = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                 ark_mem->nst + 1, ark_mem->tn, ark_mem->h);
 
       /* Call time stepper module to attempt a step:
             0 => step completed successfully
@@ -951,7 +951,8 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
         kflag = arkCheckTemporalError(ark_mem, &nflag, &nef, dsm);
 
         SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, "end-step-attempt",
-                     "status = failed error test, dsm = %" RSYM ", kflag = %i",
+                     "status = failed error test, dsm = " SUN_FORMAT_G
+                     ", kflag = %i",
                      dsm, kflag);
 
         if (kflag < 0) { break; }
@@ -970,7 +971,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (kflag == ARK_SUCCESS)
       {
         SUNLogInfo(ARK_LOGGER, "end-step-attempt",
-                   "status = success, dsm = %" RSYM, dsm);
+                   "status = success, dsm = " SUN_FORMAT_G, dsm);
         break;
       }
 

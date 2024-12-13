@@ -558,7 +558,7 @@ int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->istage = is;
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, t = %" RSYM ", that = %" RSYM, is,
+               "stage = %i, t = " SUN_FORMAT_G ", that = " SUN_FORMAT_G, is,
                ark_mem->tn + ci * ark_mem->h, ark_mem->tn + chati * ark_mem->h);
     SUNLogExtraDebugVec(ARK_LOGGER, "stage", prev_stage, "z2_%i(:) =", is);
 
@@ -677,7 +677,7 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     step_mem->istage = is;
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, t = %" RSYM ", that = %" RSYM, is,
+               "stage = %i, t = " SUN_FORMAT_G ", that = " SUN_FORMAT_G, is,
                ark_mem->tn + ci * ark_mem->h, ark_mem->tn + chati * ark_mem->h);
 
     /* [     ] + [            ]

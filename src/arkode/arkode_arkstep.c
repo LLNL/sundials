@@ -1765,8 +1765,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                          step_mem->mass_type != MASS_TIMEDEP;
 
   SUNLogInfoIf(is_start == 1, ARK_LOGGER, "begin-stage",
-               "stage = %i, implicit = %i, tcur = %" RSYM, 0, implicit_stage,
-               ark_mem->tcur);
+               "stage = %i, implicit = %i, tcur = " SUN_FORMAT_G, 0,
+               implicit_stage, ark_mem->tcur);
   SUNLogExtraDebugVecIf(is_start == 1, ARK_LOGGER, "explicit stage",
                         ark_mem->yn, "z_0(:) =");
 
@@ -1880,8 +1880,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     else { ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is] * ark_mem->h; }
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, implicit = %i, tcur = %" RSYM, is, implicit_stage,
-               ark_mem->tcur);
+               "stage = %i, implicit = %i, tcur = " SUN_FORMAT_G, is,
+               implicit_stage, ark_mem->tcur);
 
     /* setup time-dependent mass matrix */
     if ((step_mem->mass_type == MASS_TIMEDEP) && (step_mem->msetup != NULL))

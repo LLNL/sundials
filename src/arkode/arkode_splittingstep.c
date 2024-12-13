@@ -227,8 +227,9 @@ static int splittingStep_SequentialMethod(ARKodeMem ark_mem,
       sunrealtype t_end   = ark_mem->tn + beta_end * ark_mem->h;
 
       SUNLogInfo(ARK_LOGGER, "begin-partition",
-                 "partition = %i, t_start = %" RSYM ", t_end = %" RSYM, k,
-                 t_start, t_end);
+                 "partition = %i, t_start = " SUN_FORMAT_G
+                 ", t_end = " SUN_FORMAT_G,
+                 k, t_start, t_end);
 
       SUNStepper stepper = step_mem->steppers[k];
       /* TODO(SBR): A potential future optimization is removing this reset and

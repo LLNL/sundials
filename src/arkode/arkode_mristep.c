@@ -1833,7 +1833,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   }
 
   SUNLogInfo(ARK_LOGGER, "begin-stage",
-             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_FIRST,
+             "stage = 0, stage type = %d, tcur = " SUN_FORMAT_G, MRISTAGE_FIRST,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "slow stage", ark_mem->ycur, "z_0(:) =");
 
@@ -1897,7 +1897,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     tf = ark_mem->tcur = ark_mem->tn + step_mem->MRIC->c[is] * ark_mem->h;
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, stage type = %d, tcur = %" RSYM, is,
+               "stage = %i, stage type = %d, tcur = " SUN_FORMAT_G, is,
                step_mem->stagetypes[is], ark_mem->tcur);
 
     /* Determine current stage type, and call corresponding routine; the
@@ -2084,7 +2084,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     tf = ark_mem->tcur = ark_mem->tn + ark_mem->h;
 
     SUNLogInfo(ARK_LOGGER, "begin-compute-embedding",
-               "stage = %i, stage type = %d, tcur = %" RSYM, is,
+               "stage = %i, stage type = %d, tcur = " SUN_FORMAT_G, is,
                step_mem->stagetypes[is], ark_mem->tcur);
 
     /* Determine embedding stage type, and call corresponding routine; the
@@ -2156,7 +2156,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     tf = ark_mem->tcur = ark_mem->tn + ark_mem->h;
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, stage type = %d, tcur = %" RSYM, is,
+               "stage = %i, stage type = %d, tcur = " SUN_FORMAT_G, is,
                step_mem->stagetypes[is], ark_mem->tcur);
 
     /* Determine final stage type, and call corresponding routine; the
@@ -2358,7 +2358,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   SUNLogInfo(ARK_LOGGER, "begin-stage",
-             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_FIRST,
+             "stage = 0, stage type = %d, tcur = " SUN_FORMAT_G, MRISTAGE_FIRST,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "slow stage", ark_mem->ycur, "z_0(:) =");
 
@@ -2441,7 +2441,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cstage = (embedding) ? ONE : step_mem->MRIC->c[stage];
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, stage type = %d, tcur = %" RSYM, stage,
+               "stage = %i, stage type = %d, tcur = " SUN_FORMAT_G, stage,
                MRISTAGE_ERK_FAST, ark_mem->tn + cstage * ark_mem->h);
 
     /* Compute forcing function for inner solver */
@@ -2823,7 +2823,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   SUNLogInfo(ARK_LOGGER, "begin-stage",
-             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_FIRST,
+             "stage = 0, stage type = %d, tcur = " SUN_FORMAT_G, MRISTAGE_FIRST,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "slow stage", ark_mem->ycur, "z_0(:) =");
 
@@ -2923,7 +2923,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       tf = ark_mem->tn + cstage * ark_mem->h;
 
       SUNLogInfo(ARK_LOGGER, "begin-stage",
-                 "stage = %i, stage type = %i, tcur = %" RSYM, stage,
+                 "stage = %i, stage type = %i, tcur = " SUN_FORMAT_G, stage,
                  step_mem->stagetypes[stage], tf);
 
       /* Reset the inner stepper on the first stage within all but the
@@ -4646,7 +4646,8 @@ int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
   if (stepper == NULL) { return ARK_ILL_INPUT; }
   if (stepper->ops == NULL) { return ARK_ILL_INPUT; }
 
-  SUNLogDebug(stepper->sunctx->logger, "reset-inner-state", "tR = %" RSYM, tR);
+  SUNLogDebug(stepper->sunctx->logger, "reset-inner-state",
+              "tR = " SUN_FORMAT_G, tR);
 
   if (stepper->ops->reset)
   {

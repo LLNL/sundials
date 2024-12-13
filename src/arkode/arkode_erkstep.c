@@ -743,7 +743,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   cvals = step_mem->cvals;
   Xvecs = step_mem->Xvecs;
 
-  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = 0, tcur = %" RSYM,
+  SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = 0, tcur = " SUN_FORMAT_G,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "stage", ark_mem->yn, "z_0(:) =");
 
@@ -777,8 +777,8 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* Set current stage time(s) */
     ark_mem->tcur = ark_mem->tn + step_mem->B->c[is] * ark_mem->h;
 
-    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = %" RSYM, is,
-               ark_mem->tcur);
+    SUNLogInfo(ARK_LOGGER, "begin-stage", "stage = %i, tcur = " SUN_FORMAT_G,
+               is, ark_mem->tcur);
 
     /* Set ycur to current stage solution */
     nvec = 0;

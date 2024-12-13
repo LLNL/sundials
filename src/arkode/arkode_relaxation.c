@@ -123,8 +123,9 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
     if (retval) { return retval; }
 
     SUNLogExtraDebug(ARK_LOGGER, "residual",
-                     "iter = %i, relax_param = %" RSYM ", residual = %" RSYM, i,
-                     relax_mem->relax_param, relax_mem->res);
+                     "iter = %i, relax_param = " SUN_FORMAT_G
+                     ", residual = " SUN_FORMAT_G,
+                     i, relax_mem->relax_param, relax_mem->res);
 
     /* Check for convergence */
     if (SUNRabs(relax_mem->res) < relax_mem->res_tol) { return ARK_SUCCESS; }
@@ -344,7 +345,7 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
                                  &(relax_mem->delta_e));
   if (retval) { return retval; }
 
-  SUNLogExtraDebug(ARK_LOGGER, "compute delta e", "delta_e = %" RSYM,
+  SUNLogExtraDebug(ARK_LOGGER, "compute delta e", "delta_e = " SUN_FORMAT_G,
                    relax_mem->delta_e);
 
   /* Get the change in state (delta_y = tempv2) */
@@ -360,7 +361,7 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
   if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
 
-  SUNLogExtraDebug(ARK_LOGGER, "compute old e", "e_old = %" RSYM,
+  SUNLogExtraDebug(ARK_LOGGER, "compute old e", "e_old = " SUN_FORMAT_G,
                    relax_mem->e_old);
 
   /* Initial guess for relaxation parameter */
@@ -897,8 +898,8 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout)
                ark_mem->ycur);
 
   SUNLogDebug(ARK_LOGGER, "relaxation",
-              "relaxation parameter = %" RSYM ", relaxed h = %" RSYM
-              ", relaxed error = %" RSYM,
+              "relaxation parameter = " SUN_FORMAT_G
+              ", relaxed h = " SUN_FORMAT_G ", relaxed error = " SUN_FORMAT_G,
               relax_val, ark_mem->h, *dsm_inout);
 
   return ARK_SUCCESS;
