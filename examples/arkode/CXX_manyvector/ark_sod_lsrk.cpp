@@ -112,8 +112,8 @@ int main(int argc, char* argv[])
     // Select number of SSPRK stages
     if (uopts.stages > 0)
     {
-      flag = LSRKStepSetSSPStageNum(arkode_mem, uopts.stages);
-      if (check_flag(flag, "LSRKStepSetSSPStageNum")) { return 1; }
+      flag = LSRKStepSetNumSSPStages(arkode_mem, uopts.stages);
+      if (check_flag(flag, "LSRKStepSetNumSSPStages")) { return 1; }
     }
   }
   else

@@ -5908,11 +5908,11 @@ static int IDAStep(IDAMem IDA_mem)
 
   for (;;)
   {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAStep",
-                       "start-step-attempt", "step = %li, h = " SUN_FORMAT_G,
-                       IDA_mem->ida_nst, IDA_mem->ida_hh);
-#endif
+    SUNLogInfo(IDA_LOGGER, "begin-step-attempt",
+               "step = %li, tn = " SUN_FORMAT_G ", h = " SUN_FORMAT_G
+               ", q = %d",
+               IDA_mem->ida_nst + 1, IDA_mem->ida_tn, IDA_mem->ida_hh,
+               IDA_mem->ida_kk);
 
     /*-----------------------
       Set method coefficients
@@ -5965,6 +5965,15 @@ static int IDAStep(IDAMem IDA_mem)
       kflag = IDAHandleNFlag(IDA_mem, nflag, err_k, err_km1, &(IDA_mem->ida_ncfn),
                              &ncf, &(IDA_mem->ida_netf), &nef);
 
+      SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER, "end-step-attempt",
+                   "status = failed error test, dsm = " SUN_FORMAT_G
+                   ", kflag = %i",
+                   ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+      SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS, IDA_LOGGER,
+                   "end-step-attempt", "status = failed solve, kflag = %i",
+                   kflag);
+
       /* exit on nonrecoverable failure */
       if (kflag != PREDICT_AGAIN) { return (kflag); }
 
@@ -5995,6 +6004,14 @@ static int IDAStep(IDAMem IDA_mem)
                                &(IDA_mem->ida_ncfnQ), &ncf,
                                &(IDA_mem->ida_netfQ), &nef);
 
+        SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER,
+                     "end-step-attempt", "status = failed quad error test, dsmQ = %.16g, kflag = %i",
+                     ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+        SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS,
+                     IDA_LOGGER, "end-step-attempt",
+                     "status = failed quad solve, kflag = %i", kflag);
+
         /* exit on nonrecoverable failure */
         if (kflag != PREDICT_AGAIN) { return (kflag); }
 
@@ -6015,6 +6032,9 @@ static int IDAStep(IDAMem IDA_mem)
 
       retval = IDA_mem->ida_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
                                 IDA_mem->ida_delta, IDA_mem->ida_user_data);
+
+      SUNLogInfoIf(retval != 0, IDA_LOGGER, "end-step-attempt",
+                   "status = failed res eval, retval = %i", retval);
 
       if (retval < 0) { return (IDA_RES_FAIL); }
       if (retval > 0) { continue; }
@@ -6039,6 +6059,14 @@ static int IDAStep(IDAMem IDA_mem)
         kflag = IDAHandleNFlag(IDA_mem, nflag, err_k, err_km1,
                                &(IDA_mem->ida_ncfnQ), &ncf,
                                &(IDA_mem->ida_netfQ), &nef);
+
+        SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER,
+                     "end-step-attempt", "status = failed sens error test, dsmS = %.16g, kflag = %i",
+                     ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+        SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS,
+                     IDA_LOGGER, "end-step-attempt",
+                     "status = failed sens solve, kflag = %i", kflag);
 
         /* exit on nonrecoverable failure */
         if (kflag != PREDICT_AGAIN) { return (kflag); }
@@ -6071,6 +6099,14 @@ static int IDAStep(IDAMem IDA_mem)
                                &(IDA_mem->ida_ncfnQ), &ncf,
                                &(IDA_mem->ida_netfQ), &nef);
 
+        SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER,
+                     "end-step-attempt", "status = failed quad sens error test, dsmQS = %.16g, kflag = %i",
+                     ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+        SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS,
+                     IDA_LOGGER, "end-step-attempt",
+                     "status = failed quad sens solve, kflag = %i", kflag);
+
         /* exit on nonrecoverable failure */
         if (kflag != PREDICT_AGAIN) { return (kflag); }
 
@@ -6084,6 +6120,10 @@ static int IDAStep(IDAMem IDA_mem)
     break;
 
   } /* end loop */
+
+  SUNLogInfo(IDA_LOGGER, "end-step-attempt",
+             "status = success, dsm = " SUN_FORMAT_G,
+             ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk]);
 
   /* Nonlinear system solve and error test were both successful;
      update data, and consider change of step and/or order */
@@ -6327,6 +6367,9 @@ static int IDANls(IDAMem IDA_mem)
     if (retval > 0) { return (IDA_NLS_SETUP_RECVR); }
   }
 
+  SUNLogInfo(IDA_LOGGER, "begin-nonlinear-solve", "tol = %.16g",
+             IDA_mem->ida_epsNewt);
+
   /* solve the nonlinear system */
   if (sensi_sim)
   {
@@ -6354,16 +6397,15 @@ static int IDANls(IDAMem IDA_mem)
     IDA_mem->ida_nnf += nnf_inc;
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDANls",
-                     "nls-return", "flag = %i, iters = %li, fails = %li",
-                     retval, nni_inc, nnf_inc);
-#endif
-
   /* return if nonlinear solver failed */
-  if (retval != SUN_SUCCESS) { return (retval); }
+  if (retval != SUN_SUCCESS)
+  {
+    SUNLogInfo(IDA_LOGGER, "end-nonlinear-solve",
+               "status = failed, flag = %i, iters = %li", retval, nni_inc);
+    return (retval);
+  }
 
-  /* update the state using the final correction from the nonlinear solver */
+  /* update yy and yp based on the final correction from the nonlinear solver */
   N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee,
                IDA_mem->ida_yy);
   N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, IDA_mem->ida_ee,
@@ -6377,6 +6419,9 @@ static int IDANls(IDAMem IDA_mem)
     N_VLinearSumVectorArray(IDA_mem->ida_Ns, ONE, IDA_mem->ida_ypSpredict,
                             IDA_mem->ida_cj, IDA_mem->ida_eeS, IDA_mem->ida_ypS);
   }
+
+  SUNLogInfo(IDA_LOGGER, "end-nonlinear-solve", "status = success, iters = %li",
+             nni_inc);
 
   /* If otherwise successful, check and enforce inequality constraints. */
 
@@ -6673,12 +6718,8 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
   *err_k  = IDA_mem->ida_sigma[IDA_mem->ida_kk] * enorm_k;
   terr_k  = (IDA_mem->ida_kk + 1) * (*err_k);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                     "estimate-error-order-k",
-                     "err_k = " SUN_FORMAT_G ", terr_k = " SUN_FORMAT_G, *err_k,
-                     terr_k);
-#endif
+  SUNLogDebug(IDA_LOGGER, "estimate-error-order-k",
+              "err_k = " SUN_FORMAT_G ", terr_k = " SUN_FORMAT_G, *err_k, terr_k);
 
   IDA_mem->ida_knew = IDA_mem->ida_kk;
 
@@ -6692,12 +6733,9 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
     *err_km1  = IDA_mem->ida_sigma[IDA_mem->ida_kk - 1] * enorm_km1;
     terr_km1  = IDA_mem->ida_kk * (*err_km1);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                       "estimate-error-order-km1",
-                       "err_km1 = " SUN_FORMAT_G ", terr_km1 = " SUN_FORMAT_G,
-                       *err_km1, terr_km1);
-#endif
+    SUNLogDebug(IDA_LOGGER, "estimate-error-order-km1",
+                "err_km1 = " SUN_FORMAT_G ", terr_km1 = " SUN_FORMAT_G,
+                *err_km1, terr_km1);
 
     if (IDA_mem->ida_kk > 2)
     {
@@ -6709,12 +6747,9 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
       *err_km2  = IDA_mem->ida_sigma[IDA_mem->ida_kk - 2] * enorm_km2;
       terr_km2  = (IDA_mem->ida_kk - 1) * (*err_km2);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                         "estimate-error-order-km2",
-                         "err_km2 = " SUN_FORMAT_G ", terr_km2 = " SUN_FORMAT_G,
-                         *err_km2, terr_km2);
-#endif
+      SUNLogDebug(IDA_LOGGER, "estimate-error-order-km2",
+                  "err_km2 = " SUN_FORMAT_G ", terr_km2 = " SUN_FORMAT_G,
+                  err_km2, terr_km2);
 
       /* Decrease order if errors are reduced */
       if (SUNMAX(terr_km1, terr_km2) <= terr_k)
@@ -6732,15 +6767,11 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
     }
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                     "new-order", "kk = %i, knew = %i", IDA_mem->ida_kk,
-                     IDA_mem->ida_knew);
+  SUNLogDebug(IDA_LOGGER, "new-order", "kk = %i, knew = %i", IDA_mem->ida_kk,
+              IDA_mem->ida_knew);
 
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                     "error-estimate", "ck_enorm_k = " SUN_FORMAT_G,
-                     ck * enorm_k);
-#endif
+  SUNLogDebug(IDA_LOGGER, "error-estimate", "ck_enorm_k = " SUN_FORMAT_G,
+              ck * enorm_k);
 
   /* Perform error test */
   if (ck * enorm_k > ONE) { return (ERROR_TEST_FAIL); }
@@ -7251,12 +7282,9 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAHandleNFlag",
-                         "first-error-test_fail",
-                         "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
-                         IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
-#endif
+      SUNLogDebug(IDA_LOGGER, "first-error-test_fail",
+                  "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                  IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
       return (PREDICT_AGAIN);
     }
@@ -7270,12 +7298,9 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAHandleNFlag",
-                         "second-error-test-fail",
-                         "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
-                         IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
-#endif
+      SUNLogDebug(IDA_LOGGER, "second-error-test-fail",
+                  "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                  IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
       return (PREDICT_AGAIN);
     }
@@ -7288,12 +7313,9 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAHandleNFlag",
-                         "error-test-fail",
-                         "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
-                         IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
-#endif
+      SUNLogDebug(IDA_LOGGER, "error-test-fail",
+                  "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                  IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
       return (PREDICT_AGAIN);
     }
@@ -7471,13 +7493,9 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
         if (terr_kp1 >= HALF * terr_k) { action = MAINTAIN; }
         else { action = RAISE; }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-        SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
-                           "IDAS::IDACompleteStep", "order-selection-raise",
-                           "terr_k = " SUN_FORMAT_G
-                           ", terr_kp1 = " SUN_FORMAT_G,
-                           terr_k, terr_kp1);
-#endif
+        SUNLogDebug(IDA_LOGGER, "order-selection-raise",
+                    "terr_k = " SUN_FORMAT_G ", terr_kp1 = " SUN_FORMAT_G,
+                    terr_k, terr_kp1);
       }
       else
       {
@@ -7486,13 +7504,10 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
         else if (terr_kp1 >= terr_k) { action = MAINTAIN; }
         else { action = RAISE; }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-        SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDACompleteStep",
-                           "order-selection-rasie-or-lower",
-                           "terr_km1 = " SUN_FORMAT_G ", terr_k = " SUN_FORMAT_G
-                           ", terr_kp1 = " SUN_FORMAT_G,
-                           terr_km1, terr_k, terr_kp1);
-#endif
+        SUNLogDebug(IDA_LOGGER, "order-selection-rasie-or-lower",
+                    "terr_km1 = " SUN_FORMAT_G ", terr_k = " SUN_FORMAT_G
+                    ", terr_kp1 = " SUN_FORMAT_G,
+                    terr_km1, terr_k, terr_kp1);
       }
     }
 
@@ -7538,14 +7553,10 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
     }
     IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDACompleteStep",
-                       "new-step-and-order",
-                       "knew = %i, err_knew = " SUN_FORMAT_G
-                       ", eta = " SUN_FORMAT_G ", hnew = " SUN_FORMAT_G,
-                       IDA_mem->ida_kk, err_knew, IDA_mem->ida_eta,
-                       IDA_mem->ida_hh);
-#endif
+    SUNLogDebug(IDA_LOGGER, "new-step-and-order",
+                "knew = %i, err_knew = " SUN_FORMAT_G ", eta = " SUN_FORMAT_G
+                ", hnew = " SUN_FORMAT_G,
+                IDA_mem->ida_kk, err_knew, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
   } /* end of phase if block */
 

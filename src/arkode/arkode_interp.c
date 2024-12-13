@@ -461,11 +461,8 @@ int arkInterpEvaluate_Hermite(ARKodeMem ark_mem, ARKInterp interp,
   q = SUNMAX(order, 0);               /* respect lower bound  */
   q = SUNMIN(q, HINT_DEGREE(interp)); /* respect max possible */
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkInterpEvaluate_Hermite", "interp-eval",
-                     "tau = " SUN_FORMAT_G ", d = %i, q = %i", tau, d, q);
-#endif
+  SUNLogDebug(ARK_LOGGER, "interp-eval",
+              "tau = " SUN_FORMAT_G ", d = %i, q = %i", tau, d, q);
 
   /* call full RHS if needed -- called just AFTER the end of a step, so yn has
      been updated to ycur */
@@ -910,7 +907,7 @@ void arkInterpFree_Lagrange(ARKodeMem ark_mem, ARKInterp I)
   {
     if (LINT_YHIST(I) != NULL)
     {
-      for (i = 0; i < LINT_NMAX(I); i++)
+      for (i = 0; i < LINT_NMAXALLOC(I); i++)
       {
         if (LINT_YJ(I, i) != NULL)
         {
@@ -1040,7 +1037,7 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tnew)
     }
     if (LINT_YHIST(I) != NULL)
     {
-      for (i = 0; i < LINT_NMAX(I); i++)
+      for (i = 0; i < LINT_NMAXALLOC(I); i++)
       {
         if (LINT_YJ(I, i) != NULL)
         {
@@ -1204,11 +1201,8 @@ int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp I, sunrealtype tau,
   q = SUNMAX(degree, 0);    /* respect lower bound */
   q = SUNMIN(q, nhist - 1); /* respect max possible */
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkInterpEvaluate_Lagrange", "interp-eval",
-                     "tau = " SUN_FORMAT_G ", d = %i, q = %i", tau, deriv, q);
-#endif
+  SUNLogDebug(ARK_LOGGER, "interp-eval",
+              "tau = " SUN_FORMAT_G ", d = %i, q = %i", tau, deriv, q);
 
   /* error on illegal deriv */
   if ((deriv < 0) || (deriv > 3))

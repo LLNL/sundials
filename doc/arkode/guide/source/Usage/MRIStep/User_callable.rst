@@ -1560,7 +1560,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   .. versionadded:: x.y.z
+   .. versionadded:: 6.2.0
 
 
 .. c:function:: int MRIStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw)
@@ -1724,9 +1724,9 @@ Main solver optional output functions
 
    .. note::
 
-      The file ``scripts/sundials_csv.py`` provides python utility functions to
-      read and output the data from a SUNDIALS CSV output file using the key
-      and value pair format.
+      The Python module ``tools/suntools`` provides utilities to read and output
+      the data from a SUNDIALS CSV output file using the key and value pair
+      format.
 
    .. versionadded:: 5.2.0
 
@@ -1762,7 +1762,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the MRIStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.2.0
 
       Use :c:func:`ARKodeGetNumRhsEvals` instead.
 

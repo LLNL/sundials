@@ -18,7 +18,7 @@
 The SUNStepper API
 ==================
 
-.. versionadded:: x.y.z
+.. versionadded:: 7.2.0
 
 As with other SUNDIALS classes, the :c:type:`SUNStepper` abstract base class is
 implemented using a C structure containing a ``content`` pointer to the derived

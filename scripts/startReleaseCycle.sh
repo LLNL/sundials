@@ -69,7 +69,8 @@ rm -f tmp.txt
 
 fn="../doc/shared/Changelog.rst"
 
-# Move recent changes to changelog
+# Replace line containing RecentChanges_link.rst in Changelog.rst with the
+# contents of RecentChanges.rst
 sedi -e '/RecentChanges_link.rst/ {' \
      -e 'r ../doc/shared/RecentChanges.rst' \
      -e 'd' \
@@ -87,7 +88,7 @@ cat > ../doc/shared/RecentChanges.rst <<HEREDOC
 **Deprecation Notices**
 HEREDOC
 
-# Add new entry to changelog
+# Create temporary file with new changelog entry
 cat > tmp.txt <<HEREDOC
 .. SED_REPLACEMENT_KEY
 
@@ -97,6 +98,7 @@ Changes to SUNDIALS in release X.Y.Z
 .. include:: RecentChanges_link.rst
 HEREDOC
 
+# Replace the line containing SED_REPLACEMENT with the new changelog entry
 sedi -e '/SED_REPLACEMENT_KEY/ {' \
      -e 'r tmp.txt' \
      -e 'd' \
@@ -104,3 +106,14 @@ sedi -e '/SED_REPLACEMENT_KEY/ {' \
      $fn
 
 rm -f tmp.txt
+
+# ------------------------------------------------------------------------------
+# Update package introductions
+# ------------------------------------------------------------------------------
+
+# Replace section titles
+for pkg in arkode cvode cvodes ida idas kinsol
+do
+    sedi 's/Changes to SUNDIALS.*/Changes to SUNDIALS in release X.Y.Z/I' \
+         "../doc/${pkg}/guide/source/Introduction.rst"
+done

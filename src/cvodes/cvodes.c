@@ -5857,14 +5857,10 @@ static int cvStep(CVodeMem cv_mem)
 
   for (;;)
   {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvStep",
-                       "enter-step-attempt-loop",
-                       "step = %li, h = " SUN_FORMAT_G
-                       ", q = %d, t_n = " SUN_FORMAT_G,
-                       cv_mem->cv_nst, cv_mem->cv_next_h, cv_mem->cv_next_q,
-                       cv_mem->cv_tn);
-#endif
+    SUNLogInfo(CV_LOGGER, "begin-step-attempt",
+               "step = %li, tn = " SUN_FORMAT_G ", h = " SUN_FORMAT_G
+               ", q = %d",
+               cv_mem->cv_nst + 1, cv_mem->cv_tn, cv_mem->cv_h, cv_mem->cv_q);
 
     cvPredict(cv_mem);
     cvSet(cv_mem);
@@ -5873,6 +5869,9 @@ static int cvStep(CVodeMem cv_mem)
 
     nflag = cvNls(cv_mem, nflag);
     kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &ncf, &(cv_mem->cv_ncfn));
+
+    SUNLogInfoIf(kflag == PREDICT_AGAIN || kflag != DO_ERROR_TEST, CV_LOGGER,
+                 "end-step-attempt", "status = failed solve, kflag = %i", kflag);
 
     /* Go back in loop if we need to predict again (nflag=PREV_CONV_FAIL) */
     if (kflag == PREDICT_AGAIN) { continue; }
@@ -5888,6 +5887,9 @@ static int cvStep(CVodeMem cv_mem)
       /* Perform projection (nflag=CV_SUCCESS) */
       pflag = cvDoProjection(cv_mem, &nflag, saved_t, &npf);
 
+      SUNLogInfoIf(pflag != CV_SUCCESS, CV_LOGGER, "end-step-attempt",
+                   "status = failed projection, pflag = %i", pflag);
+
       /* Go back in loop if we need to predict again (nflag=PREV_PROJ_FAIL) */
       if (pflag == PREDICT_AGAIN) { continue; }
 
@@ -5898,6 +5900,11 @@ static int cvStep(CVodeMem cv_mem)
     /* Perform error test (nflag=CV_SUCCESS) */
     eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, cv_mem->cv_acnrm, &nef,
                           &(cv_mem->cv_netf), &dsm);
+
+    SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, "end-step-attempt",
+                 "status = failed error test, dsm = " SUN_FORMAT_G
+                 ", eflag = %i",
+                 dsm, eflag);
 
     /* Go back in loop if we need to predict again (nflag=PREV_ERR_FAIL) */
     if (eflag == TRY_AGAIN) { continue; }
@@ -5916,6 +5923,10 @@ static int cvStep(CVodeMem cv_mem)
       nflag = cvQuadNls(cv_mem);
       kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &ncf, &(cv_mem->cv_ncfn));
 
+      SUNLogInfoIf(kflag == PREDICT_AGAIN || kflag != DO_ERROR_TEST, CV_LOGGER,
+                   "end-step-attempt", "status = failed quad solve, kflag = %i",
+                   kflag);
+
       if (kflag == PREDICT_AGAIN) { continue; }
       if (kflag != DO_ERROR_TEST) { return (kflag); }
 
@@ -5925,6 +5936,11 @@ static int cvStep(CVodeMem cv_mem)
         cv_mem->cv_acnrmQ = N_VWrmsNorm(cv_mem->cv_acorQ, cv_mem->cv_ewtQ);
         eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, cv_mem->cv_acnrmQ, &nefQ,
                               &(cv_mem->cv_netfQ), &dsmQ);
+
+        SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, "end-step-attempt",
+                     "status = failed quad error test, dsmQ = " SUN_FORMAT_G
+                     ", eflag = %i",
+                     dsmQ, eflag);
 
         if (eflag == TRY_AGAIN) { continue; }
         if (eflag != CV_SUCCESS) { return (eflag); }
@@ -5948,6 +5964,10 @@ static int cvStep(CVodeMem cv_mem)
       retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
                             cv_mem->cv_user_data);
       cv_mem->cv_nfe++;
+
+      SUNLogInfoIf(retval != 0, CV_LOGGER, "end-step-attempt",
+                   "status = failed rhs eval, retval = %i", retval);
+
       if (retval < 0) { return (CV_RHSFUNC_FAIL); }
       if (retval > 0)
       {
@@ -5968,12 +5988,17 @@ static int cvStep(CVodeMem cv_mem)
         for (is = 0; is < cv_mem->cv_Ns; is++)
         {
           cv_mem->sens_solve_idx = is;
-          nflag                  = cvStgr1Nls(cv_mem, is);
+
+          nflag = cvStgr1Nls(cv_mem, is);
           kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &(cv_mem->cv_ncfS1[is]),
                                 &(cv_mem->cv_ncfnS1[is]));
           if (kflag != DO_ERROR_TEST) { break; }
         }
       }
+
+      SUNLogInfoIf(kflag == PREDICT_AGAIN || kflag != DO_ERROR_TEST, CV_LOGGER,
+                   "end-step-attempt", "status = failed sens solve, kflag = %i",
+                   kflag);
 
       if (kflag == PREDICT_AGAIN) { continue; }
       if (kflag != DO_ERROR_TEST) { return (kflag); }
@@ -5989,6 +6014,11 @@ static int cvStep(CVodeMem cv_mem)
 
         eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, cv_mem->cv_acnrmS, &nefS,
                               &(cv_mem->cv_netfS), &dsmS);
+
+        SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, "end-step-attempt",
+                     "status = failed sens error test, dsmS = " SUN_FORMAT_G
+                     ", eflag = %i",
+                     dsmS, eflag);
 
         if (eflag == TRY_AGAIN) { continue; }
         if (eflag != CV_SUCCESS) { return (eflag); }
@@ -6018,6 +6048,10 @@ static int cvStep(CVodeMem cv_mem)
       nflag = cvQuadSensNls(cv_mem);
       kflag = cvHandleNFlag(cv_mem, &nflag, saved_t, &ncf, &(cv_mem->cv_ncfn));
 
+      SUNLogInfoIf(kflag == PREDICT_AGAIN || kflag != DO_ERROR_TEST, CV_LOGGER,
+                   "end-step-attempt",
+                   "status = failed quad sens solve, kflag = %i", kflag);
+
       if (kflag == PREDICT_AGAIN) { continue; }
       if (kflag != DO_ERROR_TEST) { return (kflag); }
 
@@ -6028,6 +6062,11 @@ static int cvStep(CVodeMem cv_mem)
                                             cv_mem->cv_ewtQS);
         eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, cv_mem->cv_acnrmQS,
                               &nefQS, &(cv_mem->cv_netfQS), &dsmQS);
+
+        SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, "end-step-attempt",
+                     "status = failed quad sens error test, dsmQS "
+                     "= " SUN_FORMAT_G ", eflag = %i",
+                     dsmQS, eflag);
 
         if (eflag == TRY_AGAIN) { continue; }
         if (eflag != CV_SUCCESS) { return (eflag); }
@@ -6040,6 +6079,9 @@ static int cvStep(CVodeMem cv_mem)
     /* Error test passed (eflag=CV_SUCCESS), break from loop */
     break;
   }
+
+  SUNLogInfo(CV_LOGGER, "end-step-attempt",
+             "status = success, dsm = " SUN_FORMAT_G, dsm);
 
   /* Nonlinear system solve and error test were both successful.
      Update data, and consider change of step and/or order.       */
@@ -6507,9 +6549,6 @@ void cvRescale(CVodeMem cv_mem)
 
 static void cvPredict(CVodeMem cv_mem)
 {
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  int i;
-#endif
   int j, k;
 
   cv_mem->cv_tn += cv_mem->cv_h;
@@ -6530,11 +6569,7 @@ static void cvPredict(CVodeMem cv_mem)
     }
   }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                     "forward", "zn_0(:) =", "");
-  N_VPrintFile(cv_mem->cv_zn[0], CV_LOGGER->debug_fp);
-#endif
+  SUNLogExtraDebugVec(CV_LOGGER, "forward", cv_mem->cv_zn[0], "zn_0(:) =");
 
   if (cv_mem->cv_quadr)
   {
@@ -6547,11 +6582,7 @@ static void cvPredict(CVodeMem cv_mem)
       }
     }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                       "quad", "znQ_0(:) =", "");
-    N_VPrintFile(cv_mem->cv_znQ[0], CV_LOGGER->debug_fp);
-#endif
+    SUNLogExtraDebugVec(CV_LOGGER, "quad", cv_mem->cv_znQ[0], "znQ_0(:) =");
   }
 
   if (cv_mem->cv_sensi)
@@ -6563,14 +6594,8 @@ static void cvPredict(CVodeMem cv_mem)
         (void)N_VLinearSumVectorArray(cv_mem->cv_Ns, ONE, cv_mem->cv_znS[j - 1],
                                       ONE, cv_mem->cv_znS[j],
                                       cv_mem->cv_znS[j - 1]);
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-        for (i = 0; i < cv_mem->cv_Ns; i++)
-        {
-          SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                             "sensi", " i = %d,  znS_i(:) = ", i);
-          N_VPrintFile(cv_mem->cv_znS[0][i], CV_LOGGER->debug_fp);
-        }
-#endif
+        SUNLogExtraDebugVecArray(CV_LOGGER, "sensi", cv_mem->cv_Ns,
+                                 cv_mem->cv_znS[0], "znS_%d(:) =");
       }
     }
   }
@@ -6584,14 +6609,8 @@ static void cvPredict(CVodeMem cv_mem)
         (void)N_VLinearSumVectorArray(cv_mem->cv_Ns, ONE, cv_mem->cv_znQS[j - 1],
                                       ONE, cv_mem->cv_znQS[j],
                                       cv_mem->cv_znQS[j - 1]);
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-        for (i = 0; i < cv_mem->cv_Ns; i++)
-        {
-          SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPredict",
-                             "quad-sensi", " i = %d,  znQS_i(:) = ", i);
-          N_VPrintFile(cv_mem->cv_znQS[0][i], CV_LOGGER->debug_fp);
-        }
-#endif
+        SUNLogExtraDebugVecArray(CV_LOGGER, "quad-sensi", cv_mem->cv_Ns,
+                                 cv_mem->cv_znQS[0], "znQS_%d(:) =");
       }
     }
   }
@@ -6947,6 +6966,8 @@ static int cvNls(CVodeMem cv_mem, int nflag)
     if (flag > 0) { return (SUN_NLS_CONV_RECVR); }
   }
 
+  SUNLogInfo(CV_LOGGER, "begin-nonlinear-solve", "tol = %.16g", cv_mem->cv_tq[4]);
+
   /* solve the nonlinear system */
   if (do_sensi_sim)
   {
@@ -6974,7 +6995,13 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   }
 
   /* if the solve failed return */
-  if (flag != SUN_SUCCESS) { return (flag); }
+  if (flag != SUN_SUCCESS)
+  {
+    SUNLogInfo(CV_LOGGER, "end-nonlinear-solve",
+               "status = failed, flag = %i, iters = %li", flag, nni_inc);
+
+    return (flag);
+  }
 
   /* solve successful */
 
@@ -6997,6 +7024,9 @@ static int cvNls(CVodeMem cv_mem, int nflag)
     }
     else { cv_mem->cv_acnrm = N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt); }
   }
+
+  SUNLogInfo(CV_LOGGER, "end-nonlinear-solve", "status = success, iters = %li",
+             nni_inc);
 
   /* update Jacobian status */
   cv_mem->cv_jcur = SUNFALSE;
@@ -7469,12 +7499,9 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
 
   dsm = acor_nrm * cv_mem->cv_tq[2];
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvDoErrorTest",
-                     "error-test",
-                     "step = %li, h = " SUN_FORMAT_G ", dsm = " SUN_FORMAT_G,
-                     cv_mem->cv_nst, cv_mem->cv_h, dsm);
-#endif
+  SUNLogDebug(CV_LOGGER, "error-test",
+              "step = %li, h = " SUN_FORMAT_G ", dsm = " SUN_FORMAT_G,
+              cv_mem->cv_nst, cv_mem->cv_h, dsm);
 
   /* If est. local error norm dsm passes test, return CV_SUCCESS */
   *dsmPtr = dsm;
@@ -7510,10 +7537,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
 
     cvRescale(cv_mem);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvDoErrorTest",
-                       "new-step-eta", "eta = " SUN_FORMAT_G, cv_mem->cv_eta);
-#endif
+    SUNLogDebug(CV_LOGGER, "new-step-eta", "eta = " SUN_FORMAT_G, cv_mem->cv_eta);
 
     return (TRY_AGAIN);
   }
@@ -7528,11 +7552,8 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
     cv_mem->cv_q--;
     cv_mem->cv_qwait = cv_mem->cv_L;
     cvRescale(cv_mem);
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvDoErrorTest",
-                       "new-step-eta-mxnef1", "eta = " SUN_FORMAT_G,
-                       cv_mem->cv_eta);
-#endif
+    SUNLogDebug(CV_LOGGER, "new-step-eta-mxnef1", "eta = " SUN_FORMAT_G,
+                cv_mem->cv_eta);
     return (TRY_AGAIN);
   }
 
@@ -7554,11 +7575,8 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
 
   N_VScale(cv_mem->cv_h, cv_mem->cv_tempv, cv_mem->cv_zn[1]);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvDoErrorTest",
-                     "new-step-eta-mxnef1-q1", "eta = " SUN_FORMAT_G "",
-                     cv_mem->cv_eta);
-#endif
+  SUNLogDebug(CV_LOGGER, "new-step-eta-mxnef1-q1", "eta = " SUN_FORMAT_G,
+              cv_mem->cv_eta);
 
   if (cv_mem->cv_quadr)
   {
@@ -7732,11 +7750,8 @@ static void cvCompleteStep(CVodeMem cv_mem)
   }
 #endif
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvCompleteStep",
-                     "return", "nst = %d, nscon = %d", cv_mem->cv_nst,
-                     cv_mem->cv_nscon);
-#endif
+  SUNLogDebug(CV_LOGGER, "return", "nst = %d, nscon = %d", cv_mem->cv_nst,
+              cv_mem->cv_nscon);
 }
 
 /*
@@ -7783,14 +7798,11 @@ static void cvPrepareNextStep(CVodeMem cv_mem, sunrealtype dsm)
     }
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(CV_LOGGER, SUN_LOGLEVEL_DEBUG, "CVODES::cvPrepareNextStep",
-                     "return",
-                     "eta = " SUN_FORMAT_G ", hprime = " SUN_FORMAT_G
-                     ", qprime = %d, qwait = %d\n",
-                     cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_qprime,
-                     cv_mem->cv_qwait);
-#endif
+  SUNLogDebug(CV_LOGGER, "return",
+              "eta = " SUN_FORMAT_G ", hprime = " SUN_FORMAT_G
+              ", qprime = %d, qwait = %d",
+              cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_qprime,
+              cv_mem->cv_qwait);
 }
 
 /*

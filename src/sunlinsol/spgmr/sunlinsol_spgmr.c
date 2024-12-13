@@ -410,6 +410,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   /* If preconditioning, check if psolve has been set */
   SUNAssert(!(preOnLeft || preOnRight) || psolve, SUN_ERR_ARG_CORRUPT);
 
+  SUNLogInfo(S->sunctx->logger, "linear-solver", "solver = spgmr");
+
+  SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "");
+
   /* Set vtemp and V[0] to initial (unscaled) residual r_0 = b - A*x_0 */
   if (*zeroguess)
   {
@@ -424,6 +428,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       *zeroguess  = SUNFALSE;
       LASTFLAG(S) = (status < 0) ? SUNLS_ATIMES_FAIL_UNREC
                                  : SUNLS_ATIMES_FAIL_REC;
+
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+                 "status = failed matvec, retval = %d", status);
+
       return (LASTFLAG(S));
     }
     N_VLinearSum(ONE, b, -ONE, vtemp, vtemp);
@@ -441,6 +449,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       *zeroguess  = SUNFALSE;
       LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                  : SUNLS_PSOLVE_FAIL_REC;
+
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+                 "status = failed preconditioner solve, retval = %d", status);
+
       return (LASTFLAG(S));
     }
   }
@@ -467,18 +479,21 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   SUNCheckLastErr();
   *res_norm = r_norm = beta = SUNRsqrt(r_norm);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO, "SUNLinSolSolve_SPGMR",
-                     "initial-residual", "nli = %li, resnorm = " SUN_FORMAT_G,
-                     (long int)0, *res_norm);
-#endif
-
   if (r_norm <= delta)
   {
     *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUN_SUCCESS;
+
+    SUNLogInfo(S->sunctx->logger,
+               "end-linear-iterate", "cur-iter = 0, total-iters = 0, res-norm = %.16g, status = success",
+               *res_norm);
+
     return (LASTFLAG(S));
   }
+
+  SUNLogInfo(S->sunctx->logger,
+             "end-linear-iterate", "cur-iter = 0, total-iters = 0, res-norm = %.16g, status = continue",
+             *res_norm);
 
   /* Initialize rho to avoid compiler warning message */
   rho = beta;
@@ -504,6 +519,8 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     /* Inner loop: generate Krylov sequence and Arnoldi basis */
     for (l = 0; l < l_max; l++)
     {
+      SUNLogInfo(S->sunctx->logger, "begin-linear-iterate", "");
+
       (*nli)++;
       krydim = l_plus_1 = l + 1;
 
@@ -532,6 +549,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
           *zeroguess  = SUNFALSE;
           LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                      : SUNLS_PSOLVE_FAIL_REC;
+
+          SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+                     "status = failed preconditioner solve, retval = %d", status);
+
           return (LASTFLAG(S));
         }
       }
@@ -543,6 +564,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (status < 0) ? SUNLS_ATIMES_FAIL_UNREC
                                    : SUNLS_ATIMES_FAIL_REC;
+
+        SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+                   "status = failed matvec, retval = %d", status);
+
         return (LASTFLAG(S));
       }
 
@@ -555,6 +580,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
           *zeroguess  = SUNFALSE;
           LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                      : SUNLS_PSOLVE_FAIL_REC;
+
+          SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+                     "status = failed preconditioner solve, retval = %d", status);
+
           return (LASTFLAG(S));
         }
       }
@@ -592,6 +621,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       {
         *zeroguess  = SUNFALSE;
         LASTFLAG(S) = SUNLS_QRFACT_FAIL;
+
+        SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+                   "status = failed QR factorization");
+
         return (LASTFLAG(S));
       }
 
@@ -599,12 +632,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       rotation_product *= givens[2 * l + 1];
       *res_norm = rho = SUNRabs(rotation_product * r_norm);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
-                         "SUNLinSolSolve_SPGMR", "iterate-residual",
-                         "nli = %li, resnorm = " SUN_FORMAT_G, (long int)*nli,
-                         *res_norm);
-#endif
+      SUNLogInfo(S->sunctx->logger, "linear-iterate",
+                 "cur-iter = %i, total-iters = %i, res-norm = %.16g", l + 1,
+                 *nli, *res_norm);
 
       if (rho <= delta)
       {
@@ -615,6 +645,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       /* Normalize V[l+1] with norm value from the Gram-Schmidt routine */
       N_VScale(ONE / Hes[l_plus_1][l], V[l_plus_1], V[l_plus_1]);
       SUNCheckLastErr();
+
+      SUNLogInfoIf(l < l_max - 1, S->sunctx->logger, "end-linear-iterate",
+                   "status = continue");
     }
 
     /* Inner loop is done.  Compute the new correction vector xcor */
@@ -626,6 +659,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     {
       *zeroguess  = SUNFALSE;
       LASTFLAG(S) = SUNLS_QRSOL_FAIL;
+
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+                 "status = failed QR solve");
+
       return (LASTFLAG(S));
     }
 
@@ -658,6 +695,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
           *zeroguess  = SUNFALSE;
           LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                      : SUNLS_PSOLVE_FAIL_REC;
+
+          SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+                     "status = failed preconditioner solve, retval = %d", status);
+
           return (LASTFLAG(S));
         }
       }
@@ -681,6 +722,9 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
       *zeroguess  = SUNFALSE;
       LASTFLAG(S) = SUN_SUCCESS;
+
+      SUNLogInfo(S->sunctx->logger, "end-linear-iterate", "status = success");
+
       return (LASTFLAG(S));
     }
 
@@ -708,6 +752,8 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       Xv[k] = V[k];
     }
     SUNCheckCall(N_VLinearCombination(krydim + 1, cv, Xv, V[0]));
+
+    SUNLogInfo(S->sunctx->logger, "end-linear-iterate", "status = continue");
   }
 
   /* Failed to converge, even after allowed restarts.
@@ -730,6 +776,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         *zeroguess  = SUNFALSE;
         LASTFLAG(S) = (status < 0) ? SUNLS_PSOLVE_FAIL_UNREC
                                    : SUNLS_PSOLVE_FAIL_REC;
+
+        SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+                   "status = failed preconditioner solve, retval = %d", status);
+
         return (LASTFLAG(S));
       }
     }
@@ -753,11 +803,19 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
     *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_RES_REDUCED;
+
+    SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+               "status = failed residual reduced");
+
     return (LASTFLAG(S));
   }
 
   *zeroguess  = SUNFALSE;
   LASTFLAG(S) = SUNLS_CONV_FAIL;
+
+  SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
+             "status = failed max iterations");
+
   return (LASTFLAG(S));
 }
 

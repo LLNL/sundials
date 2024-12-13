@@ -1,0 +1,706 @@
+Start ForcingStep Logging test
+                      t                      y                  y err
+---------------------------------------------------------------------
+  0.000000000000000e+00  1.000000000000000e+00  0.000000000000000e+00
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.001
+[INFO][rank 0][forcingStep_TakeStep][begin-partition] partition = 0
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.0005
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+1.0000000000000000e+00
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+-2.0000000000000000e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00025
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+-1.9990000000000001e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00025
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+-1.9990005000000000e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0005
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+-1.9980009995000001e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.000375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+-1.9985005623281094e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9900049983337502e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.0005, h = 0.0005
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0005
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9900049983337502e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+-1.9980009996667500e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00075
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+-1.9970019991669166e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00075
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+-1.9970024986671666e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.001
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+-1.9960039971680830e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.000875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+-1.9965030606830623e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9800199866733308e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9800199866733308e-01
+
+[INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
+[INFO][rank 0][forcingStep_TakeStep][begin-partition] partition = 1
+[DEBUG][rank 0][forcingStep_TakeStep][forcing] forcing(:) =
+-1.9980013326669210e+00
+
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+1.0000000000000000e+00
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+1.0000000000000000e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000125
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9975051522943725e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000125
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9975045286602637e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00025
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9950093684165087e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0001875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9962571435044589e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9975043728654289e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.00025, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00025
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9975043728654289e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9950093685463370e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9925138963097027e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9925132726752142e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0005
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9900174882116322e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0004375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9912655753706747e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9950074979168746e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.0005, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0005
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9950074979168746e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9900174883414539e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000625
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9875213921962747e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000625
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9875207685617162e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00075
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9850243605013178e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0006875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9862727594198053e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9925093748423055e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, tn = 0.00075, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00075
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9925093748423055e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9850243606311362e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9825276412009678e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9825270175666514e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.001
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9800299865335362e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0009375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9812786968992684e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9900100033300010e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9900100033300010e-01
+
+[INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][current state] y_cur(:) =
+9.9900100033300010e-01
+
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+  1.000000000000000e-03  9.990010003330001e-01  9.999996670728706e-07
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.001, h = 0.001
+[INFO][rank 0][forcingStep_TakeStep][begin-partition] partition = 0
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.001, h = 0.0005
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9900100033300010e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+-1.9980020006660002e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00125
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+-1.9970029996656673e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00125
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+-1.9970034991661674e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0015
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+-1.9960049971668341e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.001375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+-1.9965040609318445e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9800249866670876e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, tn = 0.0015, h = 0.0005
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0015
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9800249866670876e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+-1.9960049973334175e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00175
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+-1.9950069948347509e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00175
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+-1.9950074938360001e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.002
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+-1.9940099898395816e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.001875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+-1.9945085547902757e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9700499500299922e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9700499500299922e-01
+
+[INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
+[INFO][rank 0][forcingStep_TakeStep][begin-partition] partition = 1
+[DEBUG][rank 0][forcingStep_TakeStep][forcing] forcing(:) =
+-1.9960053300008829e+00
+
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, tn = 0.001, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9900100033300010e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9800299866633491e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001125
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9775376289713569e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001125
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9775370065821412e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00125
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9750443375983089e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0011875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9762908665892802e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9875143743214723e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, tn = 0.00125, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00125
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9875143743214723e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9750443377278031e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9725513579962222e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9725507356072474e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0015
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9700574448953228e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0014375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9713042847113253e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9850174987452123e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 7, tn = 0.0015, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0015
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9850174987452123e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9700574450248092e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001625
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9675638438767267e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001625
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9675632214883070e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00175
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9650693096719167e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0016875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9663164600009913e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9825193762904363e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 8, tn = 0.00175, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00175
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9825193762904363e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9650693098013998e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9625750878609920e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9625744654734361e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.002
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9600799331773038e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0019375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9613273937069435e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9800200066466693e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9800200066466693e-01
+
+[INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][current state] y_cur(:) =
+9.9800200066466693e-01
+
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+  2.000000000000000e-03  9.980020006646669e-01  1.997998004599211e-06
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.002, h = 0.001
+[INFO][rank 0][forcingStep_TakeStep][begin-partition] partition = 0
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, tn = 0.002, h = 0.0005
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9800200066466693e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+-1.9960040013293339e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00225
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+-1.9950059993286693e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00225
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+-1.9950064983296696e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0025
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+-1.9940089948310042e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+-1.9945075595329151e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9700449749871056e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, tn = 0.0025, h = 0.0005
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0025
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9700449749871056e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+-1.9940089949974211e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00275
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+-1.9930119904999224e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00275
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+-1.9930124890021712e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.003
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+-1.9920159825084189e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+-1.9925140488948272e+00
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9600799133733475e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9600799133733475e-01
+
+[INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
+[INFO][rank 0][forcingStep_TakeStep][begin-partition] partition = 1
+[DEBUG][rank 0][forcingStep_TakeStep][forcing] forcing(:) =
+-1.9940093273321802e+00
+
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 9, tn = 0.002, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9800200066466693e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9600799333067791e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002125
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9575900706128206e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002125
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9575894494684947e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00225
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9550992767277469e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0021875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9563445571303111e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9775243807554304e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 10, tn = 0.00225, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00225
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9775243807554304e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9550992768569035e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9526087946122810e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9526081734688199e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0025
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9501173814892097e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0024375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9513629714719976e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9750275095452046e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 11, tn = 0.0025, h = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0025
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9750275095452046e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9501173816183608e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002625000000000001
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9476262804467785e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002625000000000001
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9476256593044876e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.002750000000000001
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9451342487102634e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002687500000000001
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9463801479610059e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9725293927064507e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, tn = 0.002750000000000001, h = 0.0002499999999999991
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.002750000000000001
+[DEBUG][rank 0][erkStep_TakeStep][stage] z_0(:) =
+9.9725293927064507e-01
+
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
+9.9451342488394090e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
+9.9426425293656551e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002875
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
+9.9426419082248474e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.003
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
+9.9401498796413412e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0029375
+[DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
+9.9413960878472252e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-stage] status = success
+[INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
+[DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
+9.9700300299299394e-01
+
+[INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][partition state] y_par(:) =
+9.9700300299299394e-01
+
+[INFO][rank 0][forcingStep_TakeStep][end-partition] status = success
+[DEBUG][rank 0][forcingStep_TakeStep][current state] y_cur(:) =
+9.9700300299299394e-01
+
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
+  3.000000000000000e-03  9.970030029929939e-01  2.993993026279007e-06
+---------------------------------------------------------------------
+Current time                 = 0.003
+Steps                        = 3
+Step attempts                = 3
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.001
+Last step size               = 0.001
+Current step size            = 0.001
+Partition 0 evolves          = 3
+Partition 1 evolves          = 3
+End ForcingStep Logging test
