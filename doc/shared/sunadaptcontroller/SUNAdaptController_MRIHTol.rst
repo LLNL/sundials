@@ -17,7 +17,7 @@
 The SUNAdaptController_MRIHTol Module
 ======================================
 
-.. versionadded:: x.y.z
+.. versionadded:: 7.2.0
 
 Mathematical motivation
 -----------------------

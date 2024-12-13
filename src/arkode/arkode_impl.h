@@ -651,7 +651,8 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 int arkAccessHAdaptMem(void* arkode_mem, const char* fname, ARKodeMem* ark_mem,
                        ARKodeHAdaptMem* hadapt_mem);
 
-int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C);
+int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C,
+                              sunbooleantype take_ownership);
 int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
                            sunrealtype adapt_params[3]);
 int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data);

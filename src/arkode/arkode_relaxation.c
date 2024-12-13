@@ -122,13 +122,9 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
     retval = arkRelaxResidual(relax_mem->relax_param, &(relax_mem->res), ark_mem);
     if (retval) { return retval; }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::arkRelaxNewtonSolve", "residual",
-                       "iter = %i, relax_param = " SUN_FORMAT_G
-                       ", residual = " SUN_FORMAT_G,
-                       i, relax_mem->relax_param, relax_mem->res);
-#endif
+    SUNLogExtraDebug(ARK_LOGGER, "residual",
+                     "iter = %i, relax_param = %" RSYM ", residual = %" RSYM, i,
+                     relax_mem->relax_param, relax_mem->res);
 
     /* Check for convergence */
     if (SUNRabs(relax_mem->res) < relax_mem->res_tol) { return ARK_SUCCESS; }
@@ -348,20 +344,14 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
                                  &(relax_mem->delta_e));
   if (retval) { return retval; }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
-                     "compute delta e", "delta_e = " SUN_FORMAT_G,
-                     relax_mem->delta_e);
-#endif
+  SUNLogExtraDebug(ARK_LOGGER, "compute delta e", "delta_e = %" RSYM,
+                   relax_mem->delta_e);
 
   /* Get the change in state (delta_y = tempv2) */
   N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->yn, ark_mem->tempv2);
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
-                     "compute delta y", "delta_y(:) =", "");
-  N_VPrintFile(ark_mem->tempv2, ARK_LOGGER->debug_fp);
-#endif
+  SUNLogExtraDebugVec(ARK_LOGGER, "compute delta y", ark_mem->tempv2,
+                      "delta_y(:) =");
 
   /* Store the current relaxation function value */
   retval = relax_mem->relax_fn(ark_mem->yn, &(relax_mem->e_old),
@@ -370,10 +360,8 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
   if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkRelaxSolve",
-                     "compute old e", "e_old = " SUN_FORMAT_G, relax_mem->e_old);
-#endif
+  SUNLogExtraDebug(ARK_LOGGER, "compute old e", "e_old = %" RSYM,
+                   relax_mem->e_old);
 
   /* Initial guess for relaxation parameter */
   relax_mem->relax_param = relax_mem->relax_param_prev;
@@ -897,12 +885,6 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout)
     /* Cut step size and try again */
     ark_mem->eta = relax_mem->eta_fail;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::arkStep_TakeStep_Z", "relaxation",
-                       "relaxation failed");
-#endif
-
     return TRY_AGAIN;
   }
 
@@ -914,14 +896,10 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout)
   N_VLinearSum(relax_val, ark_mem->ycur, (ONE - relax_val), ark_mem->yn,
                ark_mem->ycur);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkStep_TakeStep_Z", "relaxation",
-                     "relaxation parameter = " SUN_FORMAT_G
-                     ", relaxed h = " SUN_FORMAT_G
-                     ", relaxed error = " SUN_FORMAT_G,
-                     relax_val, ark_mem->h, *dsm_inout);
-#endif
+  SUNLogDebug(ARK_LOGGER, "relaxation",
+              "relaxation parameter = %" RSYM ", relaxed h = %" RSYM
+              ", relaxed error = %" RSYM,
+              relax_val, ark_mem->h, *dsm_inout);
 
   return ARK_SUCCESS;
 }

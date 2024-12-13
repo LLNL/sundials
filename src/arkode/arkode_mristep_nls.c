@@ -321,16 +321,15 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   /* Reset the stored residual norm (for iterative linear solvers) */
   step_mem->eRNrm = SUN_RCONST(0.1) * step_mem->nlscoef;
 
+  SUNLogInfo(ARK_LOGGER, "begin-nonlinear-solve", "tol = %.16g",
+             step_mem->nlscoef);
+
   /* solve the nonlinear system for the actual correction */
   retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, step_mem->zcor,
                              ark_mem->ewt, step_mem->nlscoef, callLSetup,
                              ark_mem);
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::mriStep_Nls",
-                     "correction", "zcor(:) =", "");
-  N_VPrintFile(step_mem->zcor, ARK_LOGGER->debug_fp);
-#endif
+  SUNLogExtraDebugVec(ARK_LOGGER, "correction", step_mem->zcor, "zcor(:) =");
 
   /* increment counters */
   (void)SUNNonlinSolGetNumIters(step_mem->NLS, &nls_iters_inc);
@@ -344,8 +343,14 @@ int mriStep_Nls(ARKodeMem ark_mem, int nflag)
   {
     step_mem->jcur = SUNFALSE;
     N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
+
+    SUNLogInfo(ARK_LOGGER, "end-nonlinear-solve",
+               "status = success, iters = %li", nls_iters_inc);
     return (ARK_SUCCESS);
   }
+
+  SUNLogInfo(ARK_LOGGER, "end-nonlinear-solve",
+             "status = failed, retval = %i, iters = %li", retval, nls_iters_inc);
 
   /* check for recoverable failure, return ARKODE::CONV_FAIL */
   if (retval == SUN_NLS_CONV_RECVR) { return (CONV_FAIL); }

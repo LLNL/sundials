@@ -193,7 +193,7 @@ int res(sunrealtype t, N_Vector y, N_Vector yp, N_Vector rr, void* user_data)
 }
 
 /* -----------------------------------------------------------------------------
- * Compute the ODE RHS Jacobin:
+ * Compute the DAE residual Jacobian:
  *   [a/2 + (a(1+r(t))-r'(t))/(2u^2) - cj  b/2 + b*(2+s(t))/(2*v^2)            ]
  *   [c/2 + c(1+r(t))/(2u^2)               d/2 + (d(2+s(t))-s'(t))/(2u^2) - cj ]
  * ---------------------------------------------------------------------------*/

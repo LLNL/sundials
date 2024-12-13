@@ -533,7 +533,7 @@ illustration only.
    this value with the architecture for their system as the default varies
    across compilers and compiler versions.
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 7.2.0
 
       In prior versions ``CMAKE_CUDA_ARCHITECTURES`` defaulted to ``70``.
 

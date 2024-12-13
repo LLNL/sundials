@@ -71,9 +71,6 @@ $tar $tarfile $distrobase/include/sunmemory
 $tar $tarfile $distrobase/include/sunnonlinsol
 $tar $tarfile $distrobase/include/sunadaptcontroller
 
-echo "   --- Add scripts to $tarfile"
-$tar $tarfile $distrobase/scripts/sundials_csv.py
-
 echo "   --- Add shared source files to $tarfile"
 $tar $tarfile $distrobase/src/CMakeLists.txt
 $tar $tarfile $distrobase/src/nvector
@@ -86,10 +83,6 @@ $tar $tarfile $distrobase/src/sunadaptcontroller
 
 echo "   --- Add examples to $tarfile"
 $tar $tarfile $distrobase/examples/CMakeLists.txt
-$tar $tarfile $distrobase/examples/nvector
-$tar $tarfile $distrobase/examples/sunlinsol
-$tar $tarfile $distrobase/examples/sunmatrix
-$tar $tarfile $distrobase/examples/sunnonlinsol
 $tar $tarfile $distrobase/examples/templates
 $tar $tarfile $distrobase/examples/utilities
 
@@ -97,11 +90,10 @@ echo "   --- Add testing files to $tarfile"
 $tar $tarfile $distrobase/test/testRunner
 
 echo "   --- Add unit tests files to $tarfile"
-$tar $tarfile $distrobase/test/unit_tests/CMakeLists.txt
-$tar $tarfile $distrobase/test/unit_tests/profiling
-$tar $tarfile $distrobase/test/unit_tests/sunmemory
-$tar $tarfile $distrobase/test/unit_tests/sundials
-$tar $tarfile $distrobase/test/unit_tests/utilities
+$tar $tarfile $distrobase/test/unit_tests/
 
 echo "   --- Add external files to $tarfile"
-$tar $tarfile $distrobase/external
+$tar $tarfile $distrobase/external/
+
+echo "   --- Add tools to $tarfile"
+$tar $tarfile $distrobase/tools/
