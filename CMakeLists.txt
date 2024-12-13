@@ -200,6 +200,12 @@ include(SundialsBuildOptionsPost)
 include(SundialsSetupConfig)
 
 # ===============================================================
+# Setup testing
+# ===============================================================
+
+include(SundialsSetupTesting)
+
+# ===============================================================
 # Add src and tests; optionally add examples and unit tests.
 # ===============================================================
 
@@ -208,7 +214,6 @@ add_subdirectory(src)
 
 # Add selected examples to the build
 if(_BUILD_EXAMPLES)
-  include(SundialsSetupTesting)
   add_subdirectory(examples)
 endif()
 
