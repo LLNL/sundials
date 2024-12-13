@@ -222,10 +222,15 @@ if(BUILD_BENCHMARKS)
   add_subdirectory(benchmarks)
 endif()
 
-# Add unit tests to the build if they are enabled
+# Add unit tests to the build
 if(SUNDIALS_TEST_ENABLE_UNIT_TESTS)
   add_subdirectory(test/unit_tests)
 endif()
+
+# Add development tests to the build
+# if(SUNDIALS_TEST_ENABLE_DEV_TESTS)
+#   add_subdirectory(test/dev_tests)
+# endif()
 
 if(SUNDIALS_ENABLE_EXTERNAL_ADDONS)
   add_subdirectory(external)
