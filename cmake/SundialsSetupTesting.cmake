@@ -20,9 +20,7 @@ include(CTest)
 #
 # Check if the test runner is needed
 #
-if(SUNDIALS_TEST_DIFF_OUTPUT
-   OR SUNDIALS_TEST_ENABLE_CALIPER
-   OR BUILD_BENCHMARKS)
+if(SUNDIALS_TEST_DIFF_OUTPUT OR SUNDIALS_TEST_ENABLE_CALIPER)
   set(SUNDIALS_TEST_USE_RUNNER TRUE)
   # Python is needed to use the test runner
   find_package(Python3 REQUIRED)
@@ -31,9 +29,6 @@ if(SUNDIALS_TEST_DIFF_OUTPUT
     TESTRUNNER testRunner
     PATHS test
     NO_DEFAULT_PATH REQUIRED)
-  if(NOT TESTRUNNER)
-    message(FATAL_ERROR "Could not locate testRunner.")
-  endif()
   message(STATUS "Found testRunner: ${TESTRUNNER}")
   set(TESTRUNNER
       ${TESTRUNNER}
@@ -75,12 +70,12 @@ endif()
 #
 # Print Caliper profiling settings
 #
-if(SUNDIALS_TEST_ENABLE_CALIPER)
+if(ENABLE_CALIPER)
   message(STATUS "Enabled test profiling with Caliper")
-  if(NOT EXISTS ${SUNDIALS_TEST_OUTPUT_DIR})
-    file(MAKE_DIRECTORY ${SUNDIALS_TEST_OUTPUT_DIR})
-    message(STATUS "Test output directory: ${SUNDIALS_TEST_OUTPUT_DIR}")
+  if(NOT EXISTS ${SUNDIALS_TEST_CALIPER_OUTPUT_DIR})
+    file(MAKE_DIRECTORY ${SUNDIALS_TEST_CALIPER_OUTPUT_DIR})
   endif()
+  message(STATUS "Test Caliper output directory: ${SUNDIALS_TEST_CALIPER_OUTPUT_DIR}")
 endif()
 
 #
@@ -204,12 +199,4 @@ if(EXAMPLES_INSTALL)
   add_custom_target(test_install_all ${CMAKE_COMMAND} -E cmake_echo_color
                                      --cyan "All installation tests complete.")
 
-endif()
-
-#
-# Create `make benchmark`
-#
-if(BUILD_BENCHMARKS)
-  add_custom_target(benchmark ${CMAKE_COMMAND} -E cmake_echo_color --cyan
-                              "All benchmarks complete.")
 endif()

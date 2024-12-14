@@ -45,42 +45,42 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
     endif()
   endif()
 
-  # Create default benchmark caliper output directory if custom directory is not
-  # defined
-  if(SUNDIALS_CALIPER_OUTPUT_DIR)
-    set(SUNDIALS_BENCHMARK_OUTPUT_DIR
-        ${SUNDIALS_CALIPER_OUTPUT_DIR}/Benchmarking/${BASE_BENCHMARK_NAME})
-  else()
-    set(SUNDIALS_BENCHMARK_OUTPUT_DIR
-        ${PROJECT_BINARY_DIR}/Benchmarking/${BASE_BENCHMARK_NAME})
+  # make the the output directory if it doesn't exist
+  set(_output_dir "${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${BASE_BENCHMARK_NAME}/${TARGET_NAME}")
+  if(NOT EXISTS ${_output_dir})
+    file(MAKE_DIRECTORY ${_output_dir})
   endif()
 
   # make the caliper output directory if it doesn't exist
-  if(NOT EXISTS ${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME})
-    file(MAKE_DIRECTORY ${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME})
-  endif()
-
-  # make the the output directory if it doesn't exist
-  if(NOT EXISTS ${SUNDIALS_BENCHMARK_OUTPUT_DIR}/output)
-    file(MAKE_DIRECTORY ${SUNDIALS_BENCHMARK_OUTPUT_DIR}/output)
+  if(ENABLE_CALIPER)
+    set(_caliper_dir "${SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR}/${BASE_BENCHMARK_NAME}/${TARGET_NAME}")
+    if(NOT EXISTS ${_caliper_dir})
+      file(MAKE_DIRECTORY ${_caliper_dir})
+    endif()
   endif()
 
   # command line arguments for the test runner script
   set(TEST_RUNNER_ARGS
-      "--profile" "--verbose" "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
-      "--outputdir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}/output"
-      "--calidir=${SUNDIALS_BENCHMARK_OUTPUT_DIR}/${TARGET_NAME}" "--nodiff")
+      "--verbose" "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
+      "--outputdir=${_output_dir}"
+      "--nodiff")
+
+  if(ENABLE_CALIPER)
+    list(APPEND TEST_RUNNER_ARGS "--profile")
+    list(APPEND TEST_RUNNER_ARGS "--calidir=${_caliper_dir}")
+  endif()
 
   # incorporate scheduler arguments into test_runner
   if(SUNDIALS_SCHEDULER_COMMAND STREQUAL "flux run")
     set(SCHEDULER_STRING " -n${sundials_add_benchmark_NUM_CORES}")
-  elseif(SUNDIALS_SCHEDULER_COMMAND STREQUAL "jsrun"
-         AND ${sundials_add_benchmark_ENABLE_GPU})
-    set(SCHEDULER_STRING
-        " --smpiargs=\\\"-gpu\\\" -n${sundials_add_benchmark_NUM_CORES} -a1 -c1 -g1"
-    )
   elseif(SUNDIALS_SCHEDULER_COMMAND STREQUAL "jsrun")
-    set(SCHEDULER_STRING " -n${sundials_add_benchmark_NUM_CORES} -a1 -c1")
+    if(${sundials_add_benchmark_ENABLE_GPU})
+      set(SCHEDULER_STRING
+        " --smpiargs=\\\"-gpu\\\" -n${sundials_add_benchmark_NUM_CORES} -a1 -c1 -g1"
+      )
+    else()
+      set(SCHEDULER_STRING " -n${sundials_add_benchmark_NUM_CORES} -a1 -c1")
+    endif()
   elseif(SUNDIALS_SCHEDULER_COMMAND STREQUAL "srun")
     set(SCHEDULER_STRING
         " -n${sundials_add_benchmark_NUM_CORES} --cpus-per-task=1 --ntasks-per-node=1"

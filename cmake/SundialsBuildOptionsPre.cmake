@@ -319,14 +319,15 @@ sundials_option(
   "Precision for integer comparisons (percent difference)" "10" ADVANCED)
 
 sundials_option(
-  SUNDIALS_TEST_OUTPUT_DIR PATH "Location to write testing output files"
+  SUNDIALS_TEST_OUTPUT_DIR PATH "Location to write test output files"
   "${PROJECT_BINARY_DIR}/Testing/output" ADVANCED)
 
 sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH
-                "Location of testing answer files" "" ADVANCED)
+                "Location of test answer files" "" ADVANCED)
 
-sundials_option(SUNDIALS_TEST_ENABLE_CALIPER BOOL
-                "Enable profiling in SUNDIALS tests with Caliper" OFF ADVANCED)
+sundials_option(
+  SUNDIALS_TEST_CALIPER_OUTPUT_DIR PATH "Location to write test Caliper files"
+  "${PROJECT_BINARY_DIR}/Testing/caliper" ADVANCED)
 
 sundials_option(SUNDIALS_TEST_DIFF_OUTPUT BOOL
                 "Compare test output with saved answer files" OFF ADVANCED)
@@ -369,8 +370,13 @@ sundials_option(
   SUNDIALS_SCHEDULER_COMMAND STRING
   "Job scheduler command to use to launch SUNDIALS MPI tests" "" ADVANCED)
 
-sundials_option(SUNDIALS_CALIPER_OUTPUT_DIR PATH
-                "Location to write caliper output files" "" ADVANCED)
+sundials_option(
+  SUNDIALS_BENCHMARK_OUTPUT_DIR PATH "Location to write benchmark output files"
+  "${PROJECT_BINARY_DIR}/Benchmarking/output" ADVANCED)
+
+sundials_option(
+  SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR PATH "Location to write benchmark caliper files"
+  "${PROJECT_BINARY_DIR}/Benchmarking/caliper" ADVANCED)
 
 sundials_option(SUNDIALS_BENCHMARK_NUM_CPUS STRING
                 "Number of CPU cores to run benchmarks with" "40" ADVANCED)
