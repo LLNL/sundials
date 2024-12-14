@@ -52,11 +52,11 @@
 # The options LABELS are labels added to the test properties to easily run (or
 # exclude) groups of test with ctest -L <label> (or ctest -LE <label>)
 #
-# When SUNDIALS_TEST_DEVTESTS is OFF (default) the executable is run and success
+# When SUNDIALS_TEST_ENABLE_DEV_TESTS is OFF (default) the executable is run and success
 # or failure is determined by the executable return value (zero or non-zero
 # respectively).
 #
-# When SUNDIALS_TEST_DEVTESTS is ON the executable is run and its output is
+# When SUNDIALS_TEST_ENABLE_DEV_TESTS is ON the executable is run and its output is
 # compared with the corresponding .out file. If the output differs significantly
 # then the test fails. The default level of significance is 4 decimal places for
 # floating point values and 10% for integer values.

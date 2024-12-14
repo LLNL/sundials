@@ -421,7 +421,7 @@ endif()
 # ===============================================================
 
 if(BUILD_BENCHMARKS
-   OR SUNDIALS_TEST_UNITTESTS
+   OR SUNDIALS_TEST_ENABLE_UNIT_TESTS
    OR EXAMPLES_ENABLE_CXX
    OR ENABLE_CUDA
    OR ENABLE_HIP

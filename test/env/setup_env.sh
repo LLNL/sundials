@@ -93,12 +93,12 @@ esac
 
 case "$SUNDIALS_TEST_TYPE" in
     DEV)
-        export SUNDIALS_TEST_DEVTESTS=ON
-        export SUNDIALS_TEST_UNITTESTS=ON
+        export SUNDIALS_TEST_ENABLE_DEV_TESTS=ON
+        export SUNDIALS_TEST_ENABLE_UNIT_TESTS=ON
         ;;
     STD|NONE)
-        export SUNDIALS_TEST_DEVTESTS=OFF
-        export SUNDIALS_TEST_UNITTESTS=OFF
+        export SUNDIALS_TEST_ENABLE_DEV_TESTS=OFF
+        export SUNDIALS_TEST_ENABLE_UNIT_TESTS=OFF
         ;;
     *)
         echo "ERROR: Unknown test type option: $SUNDIALS_TEST_TYPE"

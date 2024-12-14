@@ -154,7 +154,7 @@ endif()
 #
 # Check if GTest is needed
 #
-if(SUNDIALS_TEST_UNITTESTS AND SUNDIALS_TEST_ENABLE_GTEST)
+if(SUNDIALS_TEST_ENABLE_UNIT_TESTS AND SUNDIALS_TEST_ENABLE_GTEST)
   # find_package(GTest)
   if(NOT (TARGET GTest::gtest_main OR TARGET GTest::Main))
     include(FetchContent)
