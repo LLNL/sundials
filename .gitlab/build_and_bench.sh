@@ -19,7 +19,7 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 export CUDA_LAUNCH_BLOCKING=1
 
 if [[ -d ${build_dir} ]]
-then 
+then
 
     # configure for multinode
     $cmake_exe \
@@ -27,7 +27,7 @@ then
         -DSUNDIALS_BENCHMARK_NUM_CPUS=${nresc} \
         -DSUNDIALS_BENCHMARK_NUM_GPUS=${nresg} \
         "${project_dir}"
-    
+
     cd ${build_dir}
     make benchmark
 
@@ -37,4 +37,3 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "~~~~~ CLEAN UP"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 make clean
-
