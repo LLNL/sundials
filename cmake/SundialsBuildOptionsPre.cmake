@@ -320,13 +320,13 @@ sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL "Include GTest unit tests" ON
                 ADVANCED)
 
 if(SUNDIALS_TEST_ENABLE_DEV_TESTS OR SUNDIALS_TEST_ENABLE_UNIT_TESTS)
-  set(_diff_default ON)
+  set(_default_diff_output ON)
 else()
-  set(_diff_default OFF)
+  set(_default_diff_output OFF)
 endif()
 
 sundials_option(SUNDIALS_TEST_DIFF_OUTPUT BOOL
-  "Compare test output with saved answer files" ${_diff_default} ADVANCED)
+  "Compare test output with saved answer files" ${_default_diff_output} ADVANCED)
 
 sundials_option(
   SUNDIALS_TEST_FLOAT_PRECISION STRING
