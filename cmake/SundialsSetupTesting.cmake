@@ -20,7 +20,7 @@ include(CTest)
 #
 # Check if the test runner is needed
 #
-if(SUNDIALS_TEST_DIFF_OUTPUT OR (SUNDIALS_TEST_ENABLE_PROFILING AND ENABLE_CALIPER))
+if(SUNDIALS_TEST_ENABLE_DIFF_OUTPUT OR (SUNDIALS_TEST_ENABLE_PROFILING AND ENABLE_CALIPER))
   set(SUNDIALS_TEST_USE_RUNNER TRUE)
   # Python is needed to use the test runner
   find_package(Python3 REQUIRED)
@@ -40,7 +40,7 @@ endif()
 #
 # Print comparison settings
 #
-if(SUNDIALS_TEST_DIFF_OUTPUT)
+if(SUNDIALS_TEST_ENABLE_DIFF_OUTPUT)
   message(STATUS "Enabled comparing test output with answer files")
 
   # Create the test output directory

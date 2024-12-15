@@ -346,11 +346,11 @@ else()
 endif()
 
 sundials_option(
-  SUNDIALS_TEST_DIFF_OUTPUT BOOL "Compare test output with saved answer files"
+  SUNDIALS_TEST_ENABLE_DIFF_OUTPUT BOOL "Compare test output with saved answer files"
   ${_default_diff_output} ADVANCED)
 
 if((SUNDIALS_TEST_ENABLE_DEV_TESTS OR SUNDIALS_TEST_ENABLE_UNIT_TESTS)
-   AND NOT SUNDIALS_TEST_DIFF_OUTPUT)
+   AND NOT SUNDIALS_TEST_ENABLE_DIFF_OUTPUT)
   message(
     WARNING "Development or unit tests are enabled but output comparison is OFF"
   )
@@ -371,7 +371,7 @@ sundials_option(
 sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH "Location of test answer files"
                 "" ADVANCED)
 
-if(SUNDIALS_TEST_DIFF_OUTPUT AND NOT SUNDIALS_TEST_ANSWER_DIR)
+if(SUNDIALS_TEST_ENABLE_DIFF_OUTPUT AND NOT SUNDIALS_TEST_ANSWER_DIR)
   message(
     WARNING
       "Test output comparison is enabled but an answer directory was not "

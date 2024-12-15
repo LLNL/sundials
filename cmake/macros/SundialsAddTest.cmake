@@ -202,7 +202,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       endif()
 
       # set comparison precisions or do not diff the output and answer files
-      if(SUNDIALS_TEST_DIFF_OUTPUT AND NOT arg_NODIFF)
+      if(SUNDIALS_TEST_ENABLE_DIFF_OUTPUT AND NOT arg_NODIFF)
 
         # set answer directory
         if(SUNDIALS_TEST_ANSWER_DIR)

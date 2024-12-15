@@ -69,7 +69,7 @@ examples that do not internally verify correctness with saved "answer" files
 that are deemed correct by the SUNDIALS team. The following CMake options can be
 used to enable and configure output comparisons.
 
-.. cmakeoption:: SUNDIALS_TEST_DIFF_OUTPUT
+.. cmakeoption:: SUNDIALS_TEST_ENABLE_DIFF_OUTPUT
 
    Compare test outputs with answer files
 

@@ -30,16 +30,17 @@ Documentation to using the SPOT performance visualization tool can be found
 Setting Up Your Own SPOT Visualizations
 ---------------------------------------
 
-To display data from non-GitLab jobs or create a local collection of runs,
-input into the SPOT search bar the absolute path to the directory containing
-the `.cali` files and refresh the page. By default `.cali`` files will be
-generated in the build directory under ``Benchmarking`` and
-``Testing/output/Caliper/Example``. To specify where `.cali` output files are placed, define
-the CMake option SUNDIALS_CALIPER_OUTPUT_DIR with the desired directory path.
+To display data from non-GitLab jobs or create a local collection of runs, input
+into the SPOT search bar the absolute path to the directory containing the
+``.cali`` files and refresh the page. By default ``.cali`` files will be
+generated in the build directory under ``Benchmarking/caliper`` and
+``Testing/caliper``. To specify where ``.cali`` output files are placed, define
+the CMake options ``SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR`` and
+``SUNDIALS_TEST_CALIPER_OUTPUT_DIR`` with the desired directory path.
 
 To retain the same filters as a given SPOT visualization link in
 :ref:`Bookmarks`, swap out the ``sf`` value in the URL with the
-directory path containing the `.cali` files.
+directory path containing the ``.cali`` files.
 
 .. _Bookmarks:
 
@@ -53,7 +54,7 @@ SPOT will be put into maintenance mode in the coming months
 `Thicket <https://github.com/llnl/thicket>`_ as SPOT's successor.
 
 Aggregate results for example runs on SPOT may not be accurate. The aggregation method
-involves combining `.cali` files in ways that do not necessarily equal the
+involves combining ``.cali`` files in ways that do not necessarily equal the
 true sum of the results.
 
 **Examples**
