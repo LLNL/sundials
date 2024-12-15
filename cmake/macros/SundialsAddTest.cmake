@@ -189,7 +189,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         list(APPEND TEST_ARGS "--runargs=\"${_post_exe}\"")
       endif()
 
-      if(ENABLE_CALIPER)
+      if(SUNDIALS_TEST_ENABLE_CALIPER)
         list(APPEND TEST_ARGS "--profile")
         list(APPEND TEST_ARGS "--calidir=${SUNDIALS_TEST_CALIPER_OUTPUT_DIR}")
       endif()

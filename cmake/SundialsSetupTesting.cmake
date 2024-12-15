@@ -37,12 +37,6 @@ else()
   set(SUNDIALS_TEST_USE_RUNNER FALSE)
 endif()
 
-# TODO(DJG): Issue a warning if dev or unit test are enabled and diff is off
-
-# TODO(DJG): When Jenkins uses an answer directory, warn if an answer directory
-# is not set when dev or unit tests are on. In the CI have cmake warnings as
-# errors to make sure the answer directory is set
-
 #
 # Print comparison settings
 #
@@ -76,7 +70,7 @@ endif()
 #
 # Print Caliper profiling settings
 #
-if(ENABLE_CALIPER)
+if(SUNDIALS_TEST_ENABLE_CALIPER)
   message(STATUS "Enabled test profiling with Caliper")
   if(NOT EXISTS ${SUNDIALS_TEST_CALIPER_OUTPUT_DIR})
     file(MAKE_DIRECTORY ${SUNDIALS_TEST_CALIPER_OUTPUT_DIR})

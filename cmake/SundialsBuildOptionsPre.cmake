@@ -317,8 +317,27 @@ sundials_option(SUNDIALS_TEST_ENABLE_DEV_TESTS BOOL "Include development tests"
 sundials_option(SUNDIALS_TEST_ENABLE_UNIT_TESTS BOOL "Include unit tests" OFF
                 ADVANCED)
 
-sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL "Include GTest unit tests" ON
-                ADVANCED)
+if(SUNDIALS_TEST_ENABLE_UNIT_TESTS)
+  set(_default_gtest ON)
+else()
+  set(_default_gtest OFF)
+endif()
+
+sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL "Include GTest unit tests"
+                ${_default_gtest} ADVANCED)
+
+if(SUNDIALS_TEST_ENABLE_GTEST AND NOT SUNDIALS_TEST_ENABLE_UNIT_TESTS)
+  message(
+    FATAL_ERROR "Unit tests with Google test are enabled but unit tests are OFF"
+  )
+endif()
+
+if(SUNDIALS_TEST_ENABLE_UNIT_TEST AND NOT SUNDIALS_ENABLE_GTEST)
+  message(
+    WARNING
+      "Unit tests are enabled but unit tests with Google test are OFF. Some "
+      "unit test will not be run.")
+endif()
 
 if(SUNDIALS_TEST_ENABLE_DEV_TESTS OR SUNDIALS_TEST_ENABLE_UNIT_TESTS)
   set(_default_diff_output ON)
@@ -329,6 +348,13 @@ endif()
 sundials_option(
   SUNDIALS_TEST_DIFF_OUTPUT BOOL "Compare test output with saved answer files"
   ${_default_diff_output} ADVANCED)
+
+if((SUNDIALS_TEST_ENABLE_DEV_TESTS OR SUNDIALS_TEST_ENABLE_UNIT_TESTS)
+   AND NOT SUNDIALS_TEST_DIFF_OUTPUT)
+  message(
+    WARNING "Development or unit tests are enabled but output comparison is OFF"
+  )
+endif()
 
 sundials_option(
   SUNDIALS_TEST_FLOAT_PRECISION STRING
@@ -345,9 +371,28 @@ sundials_option(
 sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH "Location of test answer files"
                 "" ADVANCED)
 
+if(SUNDIALS_TEST_DIFF_OUTPUT AND NOT SUNDIALS_TEST_ANSWER_DIR)
+  message(
+    WARNING
+      "Test output comparison is enabled but an answer directory was not "
+      "supplied. Using the default answer files may produce erroneous test "
+      "failures due to hardware or round-off differences.")
+endif()
+
+sundials_option(SUNDIALS_TEST_ENABLE_CALIPER BOOL "Profile tests with Caliper"
+                OFF ADVANCED)
+
+if(SUNDIALS_TEST_ENABLE_CALIPER AND NOT ENABLE_CALIPER)
+  message(FATAL_ERROR "Profiling tests with Caliper requires ENABLE_CALIPER=ON")
+endif()
+
 sundials_option(
   SUNDIALS_TEST_CALIPER_OUTPUT_DIR PATH "Location to write test Caliper files"
   "${PROJECT_BINARY_DIR}/Testing/caliper" ADVANCED)
+
+# ---------------------------------------------------------------
+# Options for SUNDIALS testing with containers
+# ---------------------------------------------------------------
 
 sundials_option(SUNDIALS_TEST_CONTAINER_EXE PATH "Path to docker or podman" ""
                 ADVANCED)
