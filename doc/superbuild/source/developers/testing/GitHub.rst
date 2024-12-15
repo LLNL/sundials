@@ -39,7 +39,7 @@ Original Setup
 These are the steps that were originally performed by Cody Balos
 to build the Docker container(s) used for the comprehensive CI testing.
 
-1. Create a `spack.yaml` for each configuration of SUNDIALS. E.g., int64 and double:
+1. Create a ``spack.yaml`` for each configuration of SUNDIALS. E.g., int64 and double:
 
 .. code-block:: yaml
 
@@ -53,7 +53,7 @@ to build the Docker container(s) used for the comprehensive CI testing.
         providers:
           blas: [openblas]
           mpi: [openmpi]
-    # add package specs to the `specs` list
+    # add package specs to the ``specs`` list
     specs:
     - hypre+int64~internal-superlu
     - petsc+double+int64
@@ -71,7 +71,7 @@ to build the Docker container(s) used for the comprehensive CI testing.
       images:
         os: ubuntu:20.04
 
-2. Run `spack containerize > Dockerfile` in the directory of the `spack.yaml`
+2. Run ``spack containerize > Dockerfile`` in the directory of the ``spack.yaml``
 
 3. The Dockerfile produced in step 2 was then manually modified to leverage
    Spack's buildcache feature and Docker's 'cache' bind-mount. The gist is that
@@ -80,7 +80,7 @@ to build the Docker container(s) used for the comprehensive CI testing.
    before the build failed. Without the buildcache, the spack build failing would
    result in all packages needing to be built again when re-attempting to build the Docker image.
 
-4. Run `DOCKER_BUILDKIT docker build -t sundials-ci/<index-size>-<precision>:<tag>`
+4. Run ``DOCKER_BUILDKIT docker build -t sundials-ci/<index-size>-<precision>:<tag>``
 
 5. Push
 
@@ -97,7 +97,7 @@ GitHub action) every week against the latest Spack develop commit. This allows u
 the latest versions of dependencies regularly and detect interface breakages.
 
 Running Locally
-^^^^^^^^^^^^^^^
+---------------
 
 It is possible to use the SUNDIALS CI containers available on `GitHub
 <https://github.com/orgs/LLNL/packages?ecosystem=container>`__ for testing
