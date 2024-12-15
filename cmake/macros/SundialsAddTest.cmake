@@ -256,7 +256,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       endif()
 
       add_test(NAME ${NAME} COMMAND ${_pre_exe} $<TARGET_FILE:${EXECUTABLE}>
-                                    ${_post_args})
+                                    ${_post_exe})
 
     endif()
 
