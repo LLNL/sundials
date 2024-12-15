@@ -43,7 +43,7 @@ These tests are benchmarks of SUNDIALS performance and are found in ``benchmarks
    :maxdepth: 1
 
    CTest
-   Jenkins
+   Scripts
    GitHub
    GitLab
    Answers

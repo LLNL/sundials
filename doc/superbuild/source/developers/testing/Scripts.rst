@@ -11,28 +11,27 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Test.Jenkins:
+.. _Test.Scripts:
 
-Jenkins CI Testing
+CI Testing Scripts
 ==================
 
-With this option enabled tests are run using a Python test runner
-``test/testRunner``.
+Some of the CI suites utilize various scripts in the ``test`` directory to setup
+and run tests.
 
+Test Driver
+-----------
 
-Testing Scripts
----------------
+The script ``test_driver.sh`` is used to drive tests in the Jenkins and
+GitHub CI. The input option ``--testtype`` can be used to select from a
+predefined set of test configurations:
 
-The script ``test_driver.sh`` is provided to setup and run SUNDIALS tests. The
-input option ``--testtype`` can be used to select from a predefined set of
-test configurations:
+* BRANCH -- C99 build tests and a small set of build and run tests.
 
-* BRANCH -- C90 build tests and a small set of build and run tests.
-
-* PR -- C90 build tests and a larger set of build, run, and install tests using
+* PR -- C99 build tests and a larger set of build, run, and install tests using
   the SUNDIALS release tarball.
 
-* RELEASE -- C90 build test and an even larger set of build, run, and install
+* RELEASE -- C99 build tests and an even larger set of build, run, and install
   tests using the SUNDIALS release tarball.
 
 * CUSTOM -- run a single user-defined test configuration set using additional
@@ -40,15 +39,13 @@ test configurations:
 
 Run ``test_driver.sh -h`` for more information on the options available.
 
-Note: At this time the testing scripts only run development tests when SUNDIALS
-is configured with real type double (either index size can be used).
+Testing Environment
+-------------------
 
-Testing environment
---------------------
-
-The ``env/setup_env.sh`` script and a machine specific environment script are used
-to setup the testing environment. The machine specific environment script used
-(listed in the order checked) is:
+The environment setup script, ``env/setup_env.sh``, and a machine-specific
+script are used by the test driver to configure the testing environment. The
+machine script can be specified using the ``--env`` option to ``test_driver.sh``
+otherwise, the following variables/locations will be checked:
 
 #. The script specified by the environment variable ``SUNDIALS_ENV_FILE``
 #. A user's local environment script: ``<sunrepo>/test/env/env.sh``
@@ -56,8 +53,29 @@ to setup the testing environment. The machine specific environment script used
 #. A machine environment script: ``<sunrepo>/test/env/${HOST}.sh``
 #. The default SUNDIALS environment script: ``<sunrepo>/test/env/default.sh``
 
-Environment scripts must set the following environment variables that are used
-when configuring SUNDIALS for testing.
+The setup script will set various environment variables based on inputs from the
+test driver to configure SUNDIALS. Any unrecognized input options passed to the
+test driver will be passed through to the machine script to supply additional
+setup information. For example, a compiler spec could be passed through to the
+machine script to change the compiler used when testing.
+
+The setup script will set the following environment variables (among others):
+
+* ``SUNDIALS_PRECISION`` the real type: ``single``, ``double``, or ``extended``
+
+* ``SUNDIALS_INDEX_SIZE`` the index size: ``32`` or ``64``
+
+* ``SUNDIALS_LIBRARY_TYPE`` the library type: ``shared``, ``static`` or ``both``
+
+* ``SUNDIALS_TPLS`` enable third-party libraries (TPLs): ``ON`` or ``OFF``
+
+* ``SUNDIALS_TEST_TYPE`` enable additional tests: ``STD`` or ``DEV``
+
+  - When set to ``DEV``, development and unit tests will be enabled
+
+After this initial setup, the machine script is called to set any additional
+environment variables need to configure SUNDIALS for testing. Currently, these
+include the following:
 
 .. code-block:: shell
 
@@ -68,16 +86,6 @@ when configuring SUNDIALS for testing.
    CFLAGS   = C compiler flags
    CXXFLAGS = C++ compiler flags
    FFLAGS   = Fortran compiler flags
-
-Note the test scripts will append the C standard flag (``-std=c90`` or ``-std=c99``)
-and C++ standard flag (``-std=c++11`` or ``-std=c++17``) to the compiler flags
-provided by the environment variables.
-
-An environment script may optionally set additional environment variables to
-enable or disable third party libraries (TPLs) in the SUNDIALS configuration.
-The currently supported TPL environment variables are as follows:
-
-.. code-block:: shell
 
    # Enable/disable MPI support
    SUNDIALS_MPI = ON or OFF
@@ -151,21 +159,8 @@ The currently supported TPL environment variables are as follows:
    SUNDIALS_XBRAID = ON or OFF
    XBRAID_ROOT     = full path to XBraid installation
 
-To aid in setting the above variables appropriately, ``env/setup_env.sh`` will set
-environment variables ``SUNDIALS_PRECISION``, ``SUNDIALS_INDEX_SIZE``, and
-``SUNDIALS_LIBRARY_TYPE`` for the real type (``single``, ``double``, or ``extended``),
-index size (``32`` or ``64``), and library type (``shared``, ``static`` or ``both``) used
-in the test. Additionally, ``SUNDIALS_TPLS`` is set to ``ON`` or ``OFF`` to indicate
-if the test will use third-party libraries.
+Test Runner
+-----------
 
-Any additional input options passed to ``test_driver.sh`` will be passed through
-to the environment script for additional setup information. For example, the
-machine script may accept a compiler spec (e.g., ``gcc@4.9.4``) and/or a build
-type (e.g., ``opt`` for an optimized build).
-
-## Using Spack to install TPLs
-
-The TPLs needed for a complete build of SUNDIALS can be easily installed with
-spack and the spack environment included in the SUNDIALS repository. Simply
-navigate to ``test/spack`` and run ``spack install``. For more information on Spack
-environments is the [Spack tutorial](https://spack.readthedocs.io/en/latest/tutorial_environments.html).
+When comparing test outputs with answer files or profiling tests with Caliper
+the Python test runner, ``test/testRunner``, is used run the test under CTest.
