@@ -379,12 +379,8 @@ if(SUNDIALS_TEST_DIFF_OUTPUT AND NOT SUNDIALS_TEST_ANSWER_DIR)
       "failures due to hardware or round-off differences.")
 endif()
 
-sundials_option(SUNDIALS_TEST_ENABLE_CALIPER BOOL "Profile tests with Caliper"
+sundials_option(SUNDIALS_TEST_ENABLE_PROFILING BOOL "Profile test"
                 OFF ADVANCED)
-
-if(SUNDIALS_TEST_ENABLE_CALIPER AND NOT ENABLE_CALIPER)
-  message(FATAL_ERROR "Profiling tests with Caliper requires ENABLE_CALIPER=ON")
-endif()
 
 sundials_option(
   SUNDIALS_TEST_CALIPER_OUTPUT_DIR PATH "Location to write test Caliper files"

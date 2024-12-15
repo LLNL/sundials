@@ -53,8 +53,8 @@ Adiak enabled for the CPT suite by setting the CMake options
   > -DCaliper_DIR=/path/to/caliper \
   > -DENABLE_ADIAK=ON \
   > -Dadiak_DIR=/path/to/adiak/lib/cmake/adiak \
-  > -DSUNDIALS_TEST_DEVTESTS=ON \
-  > -DSUNDIALS_TEST_PROFILE=ON \
+  > -DSUNDIALS_TEST_ENABLE_DEV_TESTS=ON \
+  > -DSUNDIALS_TEST_ENABLE_PROFILING=ON \
 
 This command will result in ``--profile`` option being passed to the SUNDIALS
 test runner Python script, ``test/testRunner``, which will in turn set the
