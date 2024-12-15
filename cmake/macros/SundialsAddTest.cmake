@@ -144,22 +144,23 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
     # flags or inputs after the executable
     # ------------------------------------
 
-    # When checking if test command line args have been provided we comparing
-    # against an empty string to avoid missing single input that are also a
-    # false constant in CMake e.g., 0, FALSE, OFF, etc.
+    # When checking if test command line args have been provided we compare
+    # against an empty string (here and elsewhere below when checking _post_exe)
+    # to avoid not adding the command line arg when it is also a false constant
+    # in CMake (0, FALSE, OFF, etc.) e.g., "test_foo 0"
     set(_post_exe "")
     if(NOT "${arg_TEST_ARGS}" STREQUAL "")
       set(_post_exe "${arg_TEST_ARGS}")
     endif()
     if(NOT "${arg_EXTRA_ARGS}" STREQUAL "")
-      if(_post_exe)
+      if(NOT "${_post_exe}" STREQUAL "")
         set(_post_exe "${_post_exe} ${arg_EXTRA_ARGS}")
       else()
         set(_post_exe "${arg_EXTRA_ARGS}")
       endif()
     endif()
     if(arg_MPI_NPROCS AND MPIEXEC_POSTFLAGS)
-      if(_post_exe)
+      if(NOT "${_post_exe}" STREQUAL "")
         set(_post_exe "${MPIEXEC_POSTFLAGS} ${_post_exe}")
       else()
         set(_post_exe "${MPIEXEC_POSTFLAGS}")
@@ -191,7 +192,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       endif()
 
       # set the test input args
-      if(_post_exe)
+      if(NOT "${_post_exe}" STREQUAL "")
         string(REPLACE ";" " " _post_exe "${_post_exe}")
         list(APPEND TEST_ARGS "--runargs=\"${_post_exe}\"")
       endif()
@@ -251,7 +252,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       endif()
 
       # set the test input args
-      if(_post_exe)
+      if(NOT "${_post_exe}" STREQUAL "")
         string(REPLACE " " ";" _post_exe "${_post_exe}")
       endif()
 
