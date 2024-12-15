@@ -162,7 +162,7 @@ foreach(test_tuple ${unit_tests})
     TEST_ARGS ${test_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    LABELS "logging" ${diff_output})
+    LABELS "logging")
 
 endforeach()
 
