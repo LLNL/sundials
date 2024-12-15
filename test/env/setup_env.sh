@@ -153,33 +153,6 @@ elif [ -f env/env.sh ]; then
         return 1;
     fi
 
-elif [ -f "env/${HOSTNAME}.sh" ]; then
-
-    echo "Setting up environment with sundials/test/env/${HOSTNAME}.sh"
-    # shellcheck source=/dev/null
-    if ! source "env/${HOSTNAME}.sh" "$@"; then
-        echo "ERROR: env/${HOSTNAME}.sh $* failed"
-        return 1;
-    fi
-
-elif [ -f "env/${HOST}.sh" ]; then
-
-    echo "Setting up environment with sundials/test/env/${HOST}.sh"
-    # shellcheck source=/dev/null
-    if ! source "env/${HOST}.sh" "$@"; then
-        echo "ERROR: env/${HOST}.sh $* failed"
-        return 1;
-    fi
-
-elif [ -f env/default.sh ]; then
-
-    echo "Setting up environment with sundials/test/env/default.sh"
-    # shellcheck disable=SC1091
-    if ! source env/default.sh "$@"; then
-        echo "ERROR: env/default.sh $*"
-        return 1;
-    fi
-
 else
 
     echo "WARNING: No environment setup script found"

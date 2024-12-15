@@ -126,7 +126,7 @@ help ()
 
         $0
         $0 --testtype release --buildjobs 4
-        $0 --phase CONFIG --indexsize 32 --tpls ON --env env/default.sh
+        $0 --phase CONFIG --indexsize 32 --tpls ON --env env/my_env.sh
 
 EOF
 }

@@ -49,9 +49,6 @@ otherwise, the following variables/locations will be checked:
 
 #. The script specified by the environment variable ``SUNDIALS_ENV_FILE``
 #. A user's local environment script: ``<sunrepo>/test/env/env.sh``
-#. A machine environment script: ``<sunrepo>/test/env/${HOSTNAME}.sh``
-#. A machine environment script: ``<sunrepo>/test/env/${HOST}.sh``
-#. The default SUNDIALS environment script: ``<sunrepo>/test/env/default.sh``
 
 The setup script will set various environment variables based on inputs from the
 test driver to configure SUNDIALS. Any unrecognized input options passed to the
