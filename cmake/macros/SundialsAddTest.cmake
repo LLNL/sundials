@@ -97,6 +97,8 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   set(_add_test TRUE)
 
   # exclude development tests (non-empty example type)
+  # TODO(DJG): When examples and development tests are separated this check
+  # can be removed
   if(NOT SUNDIALS_TEST_ENABLE_DEV_TESTS AND arg_EXAMPLE_TYPE)
     set(_add_test FALSE)
   endif()
