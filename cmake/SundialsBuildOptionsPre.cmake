@@ -310,6 +310,24 @@ endif()
 # Options for SUNDIALS testing
 # ---------------------------------------------------------------
 
+sundials_option(SUNDIALS_TEST_ENABLE_DEV_TESTS BOOL
+                "Include development tests" OFF ADVANCED)
+
+sundials_option(SUNDIALS_TEST_ENABLE_UNIT_TESTS BOOL "Include unit tests"
+                OFF ADVANCED)
+
+sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL "Include GTest unit tests" ON
+                ADVANCED)
+
+if(SUNDIALS_TEST_ENABLE_DEV_TESTS OR SUNDIALS_TEST_ENABLE_UNIT_TESTS)
+  set(_diff_default ON)
+else()
+  set(_diff_default OFF)
+endif()
+
+sundials_option(SUNDIALS_TEST_DIFF_OUTPUT BOOL
+  "Compare test output with saved answer files" ${_diff_default} ADVANCED)
+
 sundials_option(
   SUNDIALS_TEST_FLOAT_PRECISION STRING
   "Precision for floating point comparisons (number of digits)" "4" ADVANCED)
@@ -329,9 +347,6 @@ sundials_option(
   SUNDIALS_TEST_CALIPER_OUTPUT_DIR PATH "Location to write test Caliper files"
   "${PROJECT_BINARY_DIR}/Testing/caliper" ADVANCED)
 
-sundials_option(SUNDIALS_TEST_DIFF_OUTPUT BOOL
-                "Compare test output with saved answer files" OFF ADVANCED)
-
 sundials_option(SUNDIALS_TEST_CONTAINER_EXE PATH "Path to docker or podman" ""
                 ADVANCED)
 
@@ -343,15 +358,6 @@ sundials_option(
 sundials_option(
   SUNDIALS_TEST_CONTAINER_MNT STRING
   "Path to project root inside the container" "/sundials" ADVANCED)
-
-sundials_option(SUNDIALS_TEST_ENABLE_DEV_TESTS BOOL
-                "Include development tests" OFF ADVANCED)
-
-sundials_option(SUNDIALS_TEST_ENABLE_UNIT_TESTS BOOL "Include unit tests"
-                OFF ADVANCED)
-
-sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL "Include GTest unit tests" ON
-                ADVANCED)
 
 # ---------------------------------------------------------------
 # Options for SUNDIALS development

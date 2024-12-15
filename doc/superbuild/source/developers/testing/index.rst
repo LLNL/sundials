@@ -18,8 +18,8 @@ Testing
 =======
 
 We include several types of tests in SUNDIALS: unit tests, integration test and performance tests.
-These tests are run via as part of our :ref:`Continuous Integration suite <CI>`.
- 
+These tests are run via as part of our Continuous Integration (CI) suite.
+
 **Unit Tests**
 
 The unit tests reside in two places: ``test/unit_tests`` and in files named ``test_`` within
@@ -42,9 +42,10 @@ These tests are benchmarks of SUNDIALS performance and are found in ``benchmarks
 .. toctree::
    :maxdepth: 1
 
-   CI
-   Local
+   CTest
+   Jenkins
+   GitHub
+   GitLab
    Answers
    Benchmarking
    Spot
-   

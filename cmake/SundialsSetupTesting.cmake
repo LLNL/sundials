@@ -37,6 +37,12 @@ else()
   set(SUNDIALS_TEST_USE_RUNNER FALSE)
 endif()
 
+# TODO(DJG): Issue a warning if dev or unit test are enabled and diff is off
+
+# TODO(DJG): When Jenkins uses an answer directory, warn if an answer directory
+# is not set when dev or unit tests are on. In the CI have cmake warnings as
+# errors to make sure the answer directory is set
+
 #
 # Print comparison settings
 #
