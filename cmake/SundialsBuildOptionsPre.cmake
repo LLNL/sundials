@@ -33,8 +33,9 @@ endif()
 set(DOCSTR "single, double, or extended")
 sundials_option(SUNDIALS_PRECISION STRING "${DOCSTR}" "DOUBLE")
 string(TOUPPER ${SUNDIALS_PRECISION} _upper_SUNDIALS_PRECISION)
-set(SUNDIALS_PRECISION "${_upper_SUNDIALS_PRECISION}" CACHE STRING
-  "${DOCSTR}" FORCE)
+set(SUNDIALS_PRECISION
+    "${_upper_SUNDIALS_PRECISION}"
+    CACHE STRING "${DOCSTR}" FORCE)
 
 # ---------------------------------------------------------------
 # Option to specify index type
@@ -310,11 +311,11 @@ endif()
 # Options for SUNDIALS testing
 # ---------------------------------------------------------------
 
-sundials_option(SUNDIALS_TEST_ENABLE_DEV_TESTS BOOL
-                "Include development tests" OFF ADVANCED)
-
-sundials_option(SUNDIALS_TEST_ENABLE_UNIT_TESTS BOOL "Include unit tests"
+sundials_option(SUNDIALS_TEST_ENABLE_DEV_TESTS BOOL "Include development tests"
                 OFF ADVANCED)
+
+sundials_option(SUNDIALS_TEST_ENABLE_UNIT_TESTS BOOL "Include unit tests" OFF
+                ADVANCED)
 
 sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL "Include GTest unit tests" ON
                 ADVANCED)
@@ -325,8 +326,9 @@ else()
   set(_default_diff_output OFF)
 endif()
 
-sundials_option(SUNDIALS_TEST_DIFF_OUTPUT BOOL
-  "Compare test output with saved answer files" ${_default_diff_output} ADVANCED)
+sundials_option(
+  SUNDIALS_TEST_DIFF_OUTPUT BOOL "Compare test output with saved answer files"
+  ${_default_diff_output} ADVANCED)
 
 sundials_option(
   SUNDIALS_TEST_FLOAT_PRECISION STRING
@@ -340,8 +342,8 @@ sundials_option(
   SUNDIALS_TEST_OUTPUT_DIR PATH "Location to write test output files"
   "${PROJECT_BINARY_DIR}/Testing/output" ADVANCED)
 
-sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH
-                "Location of test answer files" "" ADVANCED)
+sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH "Location of test answer files"
+                "" ADVANCED)
 
 sundials_option(
   SUNDIALS_TEST_CALIPER_OUTPUT_DIR PATH "Location to write test Caliper files"
@@ -381,7 +383,8 @@ sundials_option(
   "${PROJECT_BINARY_DIR}/Benchmarking/output" ADVANCED)
 
 sundials_option(
-  SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR PATH "Location to write benchmark caliper files"
+  SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR PATH
+  "Location to write benchmark caliper files"
   "${PROJECT_BINARY_DIR}/Benchmarking/caliper" ADVANCED)
 
 sundials_option(SUNDIALS_BENCHMARK_NUM_CPUS STRING
