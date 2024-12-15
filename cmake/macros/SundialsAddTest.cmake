@@ -124,8 +124,6 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
     # commands or flags before the executable
     # ---------------------------------------
 
-    # Below we use STRIP to remove trailing white space from _pre_exe as it can
-    # cause erroneous test failures with some MPI implementations
     set(_pre_exe "")
     if(arg_MPI_NPROCS)
       if(SUNDIALS_TEST_MPIRUN_COMMAND)
@@ -138,14 +136,17 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       endif()
       set(_pre_exe "${_pre_exe} ${MPIEXEC_NUMPROC_FLAG} ${arg_MPI_NPROCS}")
     endif()
+    # Remove leading and trailing white space as it can cause erroneous test
+    # failures with some MPI implementations
+    string(STRIP "${_pre_exe}" _pre_exe)
 
     # ------------------------------------
     # flags or inputs after the executable
     # ------------------------------------
 
-    # check if any options for setting command line args have been provided by
-    # comparing them against an empty string -- this is needed to avoid missing
-    # single args that are a false constant in CMake e.g., 0, FALSE, OFF, etc.
+    # When checking if test command line args have been provided we comparing
+    # against an empty string to avoid missing single input that are also a
+    # false constant in CMake e.g., 0, FALSE, OFF, etc.
     set(_post_exe "")
     if(NOT "${arg_TEST_ARGS}" STREQUAL "")
       set(_post_exe "${arg_TEST_ARGS}")
@@ -164,10 +165,16 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
         set(_post_exe "${MPIEXEC_POSTFLAGS}")
       endif()
     endif()
+    string(STRIP "${_post_exe}" _post_exe)
 
     # -------------------
     # create test command
     # -------------------
+
+    # When using the test runner _pre_exe and _post_exe must be a string so we
+    # replace semicolons with spaces below. Otherwise, _pre_exe and _post_exe
+    # must be a semicolon separated list so we replace spaces with semicolons
+    # below.
 
     if(SUNDIALS_TEST_USE_RUNNER)
 
@@ -180,14 +187,12 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       # set the test runcommand
       if(_pre_exe)
         string(REPLACE ";" " " _pre_exe "${_pre_exe}")
-        string(STRIP "${_pre_exe}" _pre_exe)
         list(APPEND TEST_ARGS "--runcommand=\"${_pre_exe}\"")
       endif()
 
       # set the test input args
       if(_post_exe)
         string(REPLACE ";" " " _post_exe "${_post_exe}")
-        string(STRIP "${_post_exe}" _post_exe)
         list(APPEND TEST_ARGS "--runargs=\"${_post_exe}\"")
       endif()
 
@@ -243,13 +248,11 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
       # set the test runcommand
       if(_pre_exe)
         string(REPLACE " " ";" _pre_exe "${_pre_exe}")
-        string(STRIP "${_pre_exe}" _pre_exe)
       endif()
 
       # set the test input args
       if(_post_exe)
         string(REPLACE " " ";" _post_exe "${_post_exe}")
-        string(STRIP "${_post_exe}" _post_exe)
       endif()
 
       add_test(NAME ${NAME} COMMAND ${_pre_exe} $<TARGET_FILE:${EXECUTABLE}>
@@ -264,6 +267,7 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   endif()
 
+  unset(_add_test)
   unset(_pre_exe)
   unset(_post_exe)
 
