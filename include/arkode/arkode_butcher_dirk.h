@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for ARKode's built-in DIRK Butcher tables.
+ * This is the header file for ARKODE's built-in DIRK Butcher tables.
  * -----------------------------------------------------------------*/
 
 #ifndef _ARKODE_DIRK_TABLES_H
@@ -54,7 +54,13 @@ typedef enum
   ARKODE_BACKWARD_EULER_1_1,
   ARKODE_IMPLICIT_MIDPOINT_1_2,
   ARKODE_IMPLICIT_TRAPEZOIDAL_2_2,
-  ARKODE_MAX_DIRK_NUM = ARKODE_IMPLICIT_TRAPEZOIDAL_2_2
+  ARKODE_SSP_SDIRK_2_1_2,
+  ARKODE_SSP_DIRK_3_1_2,
+  ARKODE_SSP_LSPUM_SDIRK_3_1_2,
+  ARKODE_SSP_ESDIRK_4_2_3,
+  ARKODE_GIRALDO_EDIRK_3_1_2,
+  ARKODE_ASCHER_SDIRK_2_1_2,
+  ARKODE_MAX_DIRK_NUM = ARKODE_ASCHER_SDIRK_2_1_2
 } ARKODE_DIRKTableID;
 
 /* Accessor routine to load built-in DIRK table */
