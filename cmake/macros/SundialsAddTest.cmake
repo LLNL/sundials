@@ -52,14 +52,14 @@
 # The options LABELS are labels added to the test properties to easily run (or
 # exclude) groups of test with ctest -L <label> (or ctest -LE <label>)
 #
-# When SUNDIALS_TEST_ENABLE_DEV_TESTS is OFF (default) the executable is run and success
-# or failure is determined by the executable return value (zero or non-zero
-# respectively).
+# When SUNDIALS_TEST_ENABLE_DEV_TESTS is OFF (default) the executable is run and
+# success or failure is determined by the executable return value (zero or
+# non-zero respectively).
 #
-# When SUNDIALS_TEST_ENABLE_DEV_TESTS is ON the executable is run and its output is
-# compared with the corresponding .out file. If the output differs significantly
-# then the test fails. The default level of significance is 4 decimal places for
-# floating point values and 10% for integer values.
+# When SUNDIALS_TEST_ENABLE_DEV_TESTS is ON the executable is run and its output
+# is compared with the corresponding .out file. If the output differs
+# significantly then the test fails. The default level of significance is 4
+# decimal places for floating point values and 10% for integer values.
 #
 # The level of precision can be adjusted for an individual test with the
 # FLOAT_PRECISION AND INTEGER_PRECISION keyword inputs to the macro or globally
@@ -97,8 +97,8 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   set(_add_test TRUE)
 
   # exclude development tests (non-empty example type)
-  # TODO(DJG): When examples and development tests are separated this check
-  # can be removed
+  # TODO(DJG): When examples and development tests are separated this check can
+  # be removed
   if(NOT SUNDIALS_TEST_ENABLE_DEV_TESTS AND arg_EXAMPLE_TYPE)
     set(_add_test FALSE)
   endif()

@@ -42,11 +42,14 @@ if(ENABLE_CALIPER)
   if(NOT EXISTS ${SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR})
     file(MAKE_DIRECTORY ${SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR})
   endif()
-  message(STATUS "Benchmark Caliper output directory: ${SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR}")
+  message(
+    STATUS
+      "Benchmark Caliper output directory: ${SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR}"
+  )
 endif()
 
 #
 # Create `make benchmark`
 #
 add_custom_target(benchmark ${CMAKE_COMMAND} -E cmake_echo_color --cyan
-    "All benchmarks complete.")
+                            "All benchmarks complete.")
