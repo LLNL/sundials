@@ -33,8 +33,9 @@ endif()
 set(DOCSTR "single, double, or extended")
 sundials_option(SUNDIALS_PRECISION STRING "${DOCSTR}" "DOUBLE")
 string(TOUPPER ${SUNDIALS_PRECISION} _upper_SUNDIALS_PRECISION)
-force_variable(SUNDIALS_PRECISION STRING "${DOCSTR}"
-               ${_upper_SUNDIALS_PRECISION})
+set(SUNDIALS_PRECISION
+    "${_upper_SUNDIALS_PRECISION}"
+    CACHE STRING "${DOCSTR}" FORCE)
 
 # ---------------------------------------------------------------
 # Option to specify index type
