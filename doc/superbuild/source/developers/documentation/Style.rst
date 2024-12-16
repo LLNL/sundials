@@ -12,122 +12,88 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Style.Documentation:
+.. _Documentation.Style:
 
-*******************
-Documentation Style
-*******************
+Style
+=====
 
-Style guide for reStructuredText with Sphinx. For the most part, we attempt
-to follow the Python developer's guide commentary on documentation (where relevant):
-https://devguide.python.org/documenting/#style-guide.
-
-File Structure
-==============
-
-Each package in SUNDIALS has a directory within the `doc` folder,
-because each package documentation can be compiled separately.
-Shared documentation goes into the `doc/shared` directory and
-can be included from the package documentation using the
-Sphinx ``.. include::`` directive. Generally speaking, the use
-of symlinks to the `doc/shared` directory is discouraged.
-However, for the `figs` folder, we allow it.
-
-Figures and other assets
-------------------------
-
-Figures and other assets go under `doc/shared/figs`. Package specific
-figures go in the `doc/shared/figs/<package>` directory.
-
-Documentation superbuild
-------------------------
-
-An HTML build of the documentation can be generated that includes
-all of the package documentations (with shared parts unrepeated).
-This is what is built by readthedocs and what can be accessed
-at readthedocs.org/project/sundials.
+For the most part, we follow the `Python developer's style guide
+<https://devguide.python.org/documentation/style-guide>`__ where relevant.
 
 Headings
-========
+--------
 
-Follow the Python documentation convention:
+Section headings follow the Python documentation convention shown below. The
+overline and underline lengths must be at least as long at the title text. The
+``#`` headers should **never** occur in the package documentation
+directories and is reserved for the documentation superbuild.
 
-.. code-block::
+* For parts, underline and overline with ``#``
 
-   # with overline, for parts
+  .. code-block:: rst
 
-   * with overline, for chapters
+     ##########
+     Part Title
+     ##########
 
-   =, for sections
+* For chapters, underline and overline with ``*``
 
-   -, for subsections
+  .. code-block:: rst
 
-   ^, for subsubsections
+     *************
+     Chapter Title
+     *************
 
-   ", for paragraphs
+* For sections, underline with ``=``
 
-Note that by following this convention, the `#` headers should **never**
-occur in the package documentation directories. This is reserved for
-the documentation superbuild.
+  .. code-block:: rst
 
-Colors
-======
+     Section Title
+     =============
 
-+---------------------+--------------------+-----------------------+-----------------------------+
-| Color Roles         | Text               | Color Italic Roles    | Text                        |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:red:`text```     | :red:`red`         | ``:redit:`text```     | :redit:`red italic`         |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:black:`text```   | :black:`black`     | ``:blackit:`text```   | :blackit:`black italic`     |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:gray:`text```    | :gray:`gray`       | ``:grayit:`text```    | :grayit:`gray italic`       |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:silver:`text```  | :silver:`silver`   | ``:silverit:`text```  | :silverit:`silver italic`   |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:magenta:`text``` | :magenta:`magenta` | ``:magentait:`text``` | :magentait:`magenta italic` |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:pink:`text```    | :pink:`pink`       | ``:pinkit:`text```    | :pinkit:`pink italic`       |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:orange:`text```  | :orange:`orange`   | ``:orangeit:`text```  | :orangeit:`orange italic`   |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:yellow:`text```  | :yellow:`yellow`   | ``:yellowit:`text```  | :yellowit:`yellow italic`   |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:lime:`text```    | :lime:`lime`       | ``:limeit:`text```    | :limeit:`lime italic`       |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:green:`text```   | :green:`green`     | ``:greenit:`text```   | :greenit:`green italic`     |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:olive:`text```   | :olive:`olive`     | ``:oliveit:`text```   | :oliveit:`olive italic`     |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:teal:`text```    | :teal:`teal`       | ``:tealit:`text```    | :tealit:`teal italic`       |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:cyan:`text```    | :cyan:`cyan`       | ``:cyanit:`text```    | :cyanit:`cyan italic`       |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:blue:`text```    | :blue:`blue`       | ``:blueit:`text```    | :blueit:`blue italic`       |
-+---------------------+--------------------+-----------------------+-----------------------------+
-| ``:purple:`text```  | :purple:`purple`   | ``:purpleit:`text```  | :purpleit:`purple italic`   |
-+---------------------+--------------------+-----------------------+-----------------------------+
+* For subsections, underline with ``-``
+
+  .. code-block:: rst
+
+     Subsection Title
+     ----------------
+
+* For subsubsections, underline with ``^``
+
+  .. code-block:: rst
+
+     Subsubsection Title
+     ^^^^^^^^^^^^^^^^^^^
+
+* For paragraphs, underline with ``"``
+
+  .. code-block:: rst
+
+     Subsubsection Title
+     """""""""""""""""""
 
 Capitalization
-==============
+--------------
 
-Special terms in the SUNDIALS documentation that should be capitalized:
+Special terms in the documentation that should be capitalized:
+
 TODO: enumerate them
 
 Footnotes
-=========
+---------
 
-Sphinx footnotes do not compile when generating the PDF from Latex,
-therefore the use of footnotes is entirely banned. Restructure the
-text, use ``.. notes::``, or ``.. warning::`` directives instead.
+Sphinx footnotes do not compile when generating the PDF from Latex, therefore
+the use of footnotes is entirely banned. Restructure the text to use the
+:external+sphinx:rst:dir:`note` or :external+sphinx:rst:dir:`warning` directives
+instead.
 
 References
-==========
+----------
 
-All citations go into `doc/shared/sundials.bib`.
 TODO: add citation and reference key style.
 
 Links
-=====
+-----
 
 Links to websites should typically use the anonymous link syntax.
 
@@ -139,10 +105,10 @@ Pay special attention to the two trailing underscores - two underscores
 indicates an anonymous link.
 
 
-.. _Style.Documentation.UserCallable:
+.. _Documentation.Style.UserCallable:
 
 User-Callable Functions
-=======================
+-----------------------
 
 Document user-callable functions with the :external+sphinx:rst:dir:`c:function`
 or :external+sphinx:rst:dir:`cpp:function` directives, as appropriate. The
@@ -319,15 +285,15 @@ following.
    * ``examples/package/subdir/pkg_foo_demo.c``
 
 
-.. _Style.Documentation.UserSupplied:
+.. _Documentation.Style.UserSupplied:
 
 User-Supplied Functions
-=======================
+-----------------------
 
 Document user-supplied functions with the :external+sphinx:rst:dir:`c:type`
 directive. The directive is followed by the ``typedef`` for the function
 pointer. The description of the function type mirrors the style used for
-user-callable functions (see :ref:`Style.Documentation.UserCallable`) with one
+user-callable functions (see :ref:`Documentation.Style.UserCallable`) with one
 exception. As :external+sphinx:rst:dir:`c:type` does not currently support the
 ``param``, ``retval``, and ``returns`` fields, these sections must be manually
 created. The style that follows is chosen to reflect that of ``param``,
@@ -414,15 +380,15 @@ following.
    * ``examples/package/subdir/pkg_bar_demo.c``
 
 
-.. _Style.Documentation.MacroFunction:
+.. _Documentation.Style.MacroFunction:
 
 Function-like Macros
-====================
+--------------------
 
 Document function-like macros with the :external+sphinx:rst:dir:`c:macro`
 directive followed by the macro. The guidelines for documenting function-like
 macros are the same as those used for documenting user-callable functions (see
-:ref:`Style.Documentation.UserCallable`) with one exception. As
+:ref:`Documentation.Style.UserCallable`) with one exception. As
 :external+sphinx:rst:dir:`c:macro` does not include the parameter types, the
 types should be included in the parameter descriptions when relevant i.e., when
 the macro is a wrapper to function (see :c:macro:`SUNLogInfo`). For example,
