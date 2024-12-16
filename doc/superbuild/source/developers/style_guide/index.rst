@@ -24,4 +24,3 @@ CMake files, and documentation files to ensure consistency and maintainability.
    :maxdepth: 1
 
    SourceCode
-   Documentation

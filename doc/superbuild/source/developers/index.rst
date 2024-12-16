@@ -35,14 +35,10 @@ meant for SUNDIALS developers.
    History
    getting_started/index
    style_guide/index
+   documentation/index
    testing/index
    benchmarks/index
    pull_requests/index
    releases/index
    packages/index
    appendix/index
-
-.. only:: html
-
-   * :ref:`genindex`
-
