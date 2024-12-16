@@ -305,26 +305,26 @@ ARK_BUTCHER_TABLE(ARKODE_GIRALDO_ERK_3_1_2, { /* Explicit portion of ARK2 method
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     B->q = 2;
     B->p = 1;
-    B->A[1][0] = SUN_RCONST(2.0)-SUN_Rsqrt(SUN_RCONST(2.0));
-    B->A[2][0] = (SUN_RCONST(3.0)-SUN_Rsqrt(SUN_RCONST(8.0)))/SUN_RCONST(6.0);
-    B->A[2][1] = (SUN_RCONST(3.0)+SUN_Rsqrt(SUN_RCONST(8.0)))/SUN_RCONST(6.0);
+    B->A[1][0] = SUN_RCONST(2.0)-SUNRsqrt(SUN_RCONST(2.0));
+    B->A[2][0] = (SUN_RCONST(3.0)-SUNRsqrt(SUN_RCONST(8.0)))/SUN_RCONST(6.0);
+    B->A[2][1] = (SUN_RCONST(3.0)+SUNRsqrt(SUN_RCONST(8.0)))/SUN_RCONST(6.0);
 
-    B->b[0] = SUN_RCONST(1.0)/SUN_Rsqrt(SUN_RCONST(8.0));
-    B->b[1] = SUN_RCONST(1.0)/SUN_Rsqrt(SUN_RCONST(8.0));
-    B->b[2] = SUN_RCONST(1.0)-SUN_RCONST(1.0)/SUN_Rsqrt(SUN_RCONST(2.0));
+    B->b[0] = SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(8.0));
+    B->b[1] = SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(8.0));
+    B->b[2] = SUN_RCONST(1.0)-SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(2.0));
 
-    B->d[0] = (SUN_RCONST(4.0)-SUN_Rsqrt(SUN_RCONST(2.0)))/SUN_RCONST(8.0);
-    B->d[1] = (SUN_RCONST(4.0)-SUN_Rsqrt(SUN_RCONST(2.0)))/SUN_RCONST(8.0);
-    B->d[2] = SUN_RCONST(1.0)/SUN_Rsqrt(SUN_RCONST(8.0));
+    B->d[0] = (SUN_RCONST(4.0)-SUNRsqrt(SUN_RCONST(2.0)))/SUN_RCONST(8.0);
+    B->d[1] = (SUN_RCONST(4.0)-SUNRsqrt(SUN_RCONST(2.0)))/SUN_RCONST(8.0);
+    B->d[2] = SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(8.0));
 
-    B->c[1] = SUN_RCONST(2.0)-SUN_Rsqrt(SUN_RCONST(2.0));
+    B->c[1] = SUN_RCONST(2.0)-SUNRsqrt(SUN_RCONST(2.0));
     B->c[2] = SUN_RCONST(1.0);
     return B;
   })
 
 ARK_BUTCHER_TABLE(ARKODE_ASCHER_ERK_2_1_2, { /* citation */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    const sunrealtype gamma = (SUN_RCONST(2.0)-SUN_Rsqrt(SUN_RCONST(2.0)))/SUN_RCONST(2.0);
+    const sunrealtype gamma = (SUN_RCONST(2.0)-SUNRsqrt(SUN_RCONST(2.0)))/SUN_RCONST(2.0);
     const sunrealtype delta = SUN_RCONST(1.0)-SUN_RCONST(1.0)/(SUN_RCONST(2.0)*gamma);
     B->q = 2;
     B->p = 1;
