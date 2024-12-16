@@ -15,12 +15,41 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
+<<<<<<<< HEAD:doc/superbuild/source/developers/packages/cvode/index.rst
 .. _CVODE.Alg:
+|||||||| parent of f08608104 (Docs: Separate sections (#626)):doc/superbuild/source/developers/style_guide/index.rst
+.. _Style:
+========
+.. _SourceCode:
+>>>>>>>> f08608104 (Docs: Separate sections (#626)):doc/superbuild/source/developers/source_code/index.rst
 
+<<<<<<<< HEAD:doc/superbuild/source/developers/packages/cvode/index.rst
 CVODE
 =====
+|||||||| parent of f08608104 (Docs: Separate sections (#626)):doc/superbuild/source/developers/style_guide/index.rst
+Style Guide
+===========
+
+This chapter covers the SUNDIALS style conventions for formatting source code,
+CMake files, and documentation files to ensure consistency and maintainability.
+========
+Source Code
+===========
+
+This chapter covers the coding and style conventions for SUNDIALS source code
+to ensure consistency and maintainability.
+>>>>>>>> f08608104 (Docs: Separate sections (#626)):doc/superbuild/source/developers/source_code/index.rst
 
 .. toctree::
    :maxdepth: 2
 
+<<<<<<<< HEAD:doc/superbuild/source/developers/packages/cvode/index.rst
    Nordsieck
+|||||||| parent of f08608104 (Docs: Separate sections (#626)):doc/superbuild/source/developers/style_guide/index.rst
+   SourceCode
+   Documentation
+========
+   Rules
+   Naming
+   Style
+>>>>>>>> f08608104 (Docs: Separate sections (#626)):doc/superbuild/source/developers/source_code/index.rst
