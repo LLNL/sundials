@@ -26,7 +26,7 @@ meant for SUNDIALS developers.
 .. note::
 
    New SUNDIALS developers should review this developer guide. In particular, the
-   :ref:`Style` section should be *carefully* read.
+   :ref:`SourceCode` section should be *carefully* read.
 
 
 .. toctree::
@@ -34,15 +34,11 @@ meant for SUNDIALS developers.
 
    History
    getting_started/index
-   style_guide/index
+   source_code/index
+   documentation/index
    testing/index
    benchmarks/index
    pull_requests/index
    releases/index
    packages/index
    appendix/index
-
-.. only:: html
-
-   * :ref:`genindex`
-
