@@ -18,7 +18,7 @@
 The SUNStepper API
 ==================
 
-.. versionadded:: x.y.z
+.. versionadded:: 7.2.0
 
 As with other SUNDIALS classes, the :c:type:`SUNStepper` abstract base class is
 implemented using a C structure containing a ``content`` pointer to the derived
@@ -158,6 +158,17 @@ Stepping Functions
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
+.. c:function:: SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype stepdir)
+
+   This function specifies the direction of integration (forward or backward).
+
+   :param stepper: the stepper object.
+   :param stepdir: value whose sign determines the direction. A positive value
+      selects forward integration, a negative value selects backward
+      integration, and zero leaves the current direction unchanged.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
 .. c:function:: SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift, sunrealtype tscale, N_Vector* forcing, int nforcing)
 
    This function sets the data necessary to compute the forcing term
@@ -280,6 +291,16 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
+.. c:function:: SUNErrCode SUNStepper_SetOneStepFn(SUNStepper stepper, SUNStepperOneStepFn fn)
+
+   This function attaches a :c:type:`SUNStepperOneStepFn` function to a
+   :c:type:`SUNStepper` object.
+
+   :param stepper: a stepper object.
+   :param fn: the :c:type:`SUNStepperOneStepFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
 .. c:function:: SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn)
 
    This function attaches a :c:type:`SUNStepperFullRhsFn` function to a
@@ -307,6 +328,16 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
 
    :param stepper: a stepper object.
    :param fn: the :c:type:`SUNStepperSetStopTimeFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNStepper_SetStepDirectionFn(SUNStepper stepper, SUNStepperSetStepDirectionFn fn)
+
+   This function attaches a :c:type:`SUNStepperSetStepDirectionFn` function to a
+   :c:type:`SUNStepper` object.
+
+   :param stepper: a stepper object.
+   :param fn: the :c:type:`SUNStepperSetStepDirectionFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
@@ -346,15 +377,16 @@ abstract base class.
    :c:func:`SUNStepper_Evolve`.
 
 
+.. c:type:: SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
+
+   This type represents a function with the signature of
+   :c:func:`SUNStepper_OneStep`.
+
+
 .. c:type:: SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, SUNFullRhsMode mode)
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_FullRhs`.
-
-
-   This type represents a function to compute the full right-hand side function
-   of the ODE, :math:`f(t, v) + r(t)` in :eq:`SUNStepper_IVP` for a given value
-   of the independent variable ``t`` and state vector ``v``.
 
 
 .. c:type:: SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR, N_Vector vR)
@@ -367,6 +399,12 @@ abstract base class.
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_SetStopTime`.
+
+
+.. c:type:: SUNErrCode (*SUNStepperSetStepDirectionFn)(SUNStepper stepper, sunrealtype stepdir)
+
+   This type represents a function with the signature of
+   :c:func:`SUNStepper_SetStepDirection`.
 
 
 .. c:type:: SUNErrCode (*SUNStepperSetForcingFn)(SUNStepper stepper, sunrealtype tshift, sunrealtype tscale, N_Vector* forcing, int nforcing)

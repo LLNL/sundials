@@ -94,9 +94,16 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_RELAX_JAC_FAIL = -46_C_INT
  integer(C_INT), parameter, public :: ARK_CONTROLLER_ERR = -47_C_INT
  integer(C_INT), parameter, public :: ARK_STEPPER_UNSUPPORTED = -48_C_INT
+<<<<<<< HEAD
  integer(C_INT), parameter, public :: ARK_SUNSTEPPER_ERR = -49_C_INT
  integer(C_INT), parameter, public :: ARK_ADJ_CHECKPOINT_FAIL = -50_C_INT
  integer(C_INT), parameter, public :: ARK_ADJ_RECOMPUTE_FAIL = -51_C_INT
+=======
+ integer(C_INT), parameter, public :: ARK_DOMEIG_FAIL = -49_C_INT
+ integer(C_INT), parameter, public :: ARK_MAX_STAGE_LIMIT_FAIL = -50_C_INT
+ integer(C_INT), parameter, public :: ARK_SUNSTEPPER_ERR = -51_C_INT
+ integer(C_INT), parameter, public :: ARK_STEP_DIRECTION_ERR = -52_C_INT
+>>>>>>> origin/develop
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)
@@ -105,8 +112,18 @@ module farkode_mod
  end enum
  integer, parameter, public :: ARKRelaxSolver = kind(ARK_RELAX_BRENT)
  public :: ARK_RELAX_BRENT, ARK_RELAX_NEWTON
+ ! typedef enum ARKAccumError
+ enum, bind(c)
+  enumerator :: ARK_ACCUMERROR_NONE
+  enumerator :: ARK_ACCUMERROR_MAX
+  enumerator :: ARK_ACCUMERROR_SUM
+  enumerator :: ARK_ACCUMERROR_AVG
+ end enum
+ integer, parameter, public :: ARKAccumError = kind(ARK_ACCUMERROR_NONE)
+ public :: ARK_ACCUMERROR_NONE, ARK_ACCUMERROR_MAX, ARK_ACCUMERROR_SUM, ARK_ACCUMERROR_AVG
  public :: FARKodeResize
  public :: FARKodeReset
+ public :: FARKodeCreateMRIStepInnerStepper
  public :: FARKodeSStolerances
  public :: FARKodeSVtolerances
  public :: FARKodeWFtolerances
@@ -125,6 +142,7 @@ module farkode_mod
  public :: FARKodeSetStopTime
  public :: FARKodeClearStopTime
  public :: FARKodeSetFixedStep
+ public :: FARKodeSetStepDirection
  public :: FARKodeSetUserData
  public :: FARKodeSetPostprocessStepFn
  public :: FARKodeSetPostprocessStageFn
@@ -163,6 +181,7 @@ module farkode_mod
  public :: FARKodeSetMinStep
  public :: FARKodeSetMaxStep
  public :: FARKodeSetMaxNumConstrFails
+<<<<<<< HEAD
 
  integer, parameter :: swig_cmem_own_bit = 0
  integer, parameter :: swig_cmem_rvalue_bit = 1
@@ -176,6 +195,10 @@ module farkode_mod
  end type
  public :: FARKodeSetAdjointCheckpointScheme
  public :: FARKodeSetAdjointCheckpointIndex
+=======
+ public :: FARKodeSetAccumulatedErrorType
+ public :: FARKodeResetAccumulatedError
+>>>>>>> origin/develop
  public :: FARKodeEvolve
  public :: FARKodeGetDky
  public :: FARKodeComputeState
@@ -185,6 +208,7 @@ module farkode_mod
  public :: FARKodeGetNumSteps
  public :: FARKodeGetLastStep
  public :: FARKodeGetCurrentStep
+ public :: FARKodeGetStepDirection
  public :: FARKodeGetErrWeights
  public :: FARKodeGetNumGEvals
  public :: FARKodeGetRootInfo
@@ -204,6 +228,7 @@ module farkode_mod
  public :: FARKodeGetTolScaleFactor
  public :: FARKodeGetNumConstrFails
  public :: FARKodeGetStepStats
+ public :: FARKodeGetAccumulatedError
  public :: FARKodeGetNumLinSolvSetups
  public :: FARKodeGetCurrentTime
  public :: FARKodeGetCurrentState
@@ -491,6 +516,15 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
+function swigc_FARKodeCreateMRIStepInnerStepper(farg1, farg2) &
+bind(C, name="_wrap_FARKodeCreateMRIStepInnerStepper") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FARKodeSStolerances(farg1, farg2, farg3) &
 bind(C, name="_wrap_FARKodeSStolerances") &
 result(fresult)
@@ -646,6 +680,15 @@ end function
 
 function swigc_FARKodeSetFixedStep(farg1, farg2) &
 bind(C, name="_wrap_FARKodeSetFixedStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeSetStepDirection(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetStepDirection") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -996,6 +1039,7 @@ integer(C_INT), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
+<<<<<<< HEAD
 function swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2) &
 bind(C, name="_wrap_FARKodeSetAdjointCheckpointScheme") &
 result(fresult)
@@ -1012,6 +1056,22 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT64_T), intent(in) :: farg2
+=======
+function swigc_FARKodeSetAccumulatedErrorType(farg1, farg2) &
+bind(C, name="_wrap_FARKodeSetAccumulatedErrorType") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeResetAccumulatedError(farg1) &
+bind(C, name="_wrap_FARKodeResetAccumulatedError") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+>>>>>>> origin/develop
 integer(C_INT) :: fresult
 end function
 
@@ -1097,6 +1157,15 @@ end function
 
 function swigc_FARKodeGetCurrentStep(farg1, farg2) &
 bind(C, name="_wrap_FARKodeGetCurrentStep") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetStepDirection(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetStepDirection") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -1246,6 +1315,15 @@ type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR), value :: farg6
+integer(C_INT) :: fresult
+end function
+
+function swigc_FARKodeGetAccumulatedError(farg1, farg2) &
+bind(C, name="_wrap_FARKodeGetAccumulatedError") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2464,6 +2542,22 @@ fresult = swigc_FARKodeReset(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
+function FARKodeCreateMRIStepInnerStepper(arkode_mem, stepper) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(C_PTR), target, intent(inout) :: stepper
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(stepper)
+fresult = swigc_FARKodeCreateMRIStepInnerStepper(farg1, farg2)
+swig_result = fresult
+end function
+
 function FARKodeSStolerances(arkode_mem, reltol, abstol) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -2749,6 +2843,22 @@ real(C_DOUBLE) :: farg2
 farg1 = arkode_mem
 farg2 = hfixed
 fresult = swigc_FARKodeSetFixedStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeSetStepDirection(arkode_mem, stepdir) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), intent(in) :: stepdir
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+
+farg1 = arkode_mem
+farg2 = stepdir
+fresult = swigc_FARKodeSetStepDirection(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3363,11 +3473,16 @@ fresult = swigc_FARKodeSetMaxNumConstrFails(farg1, farg2)
 swig_result = fresult
 end function
 
+<<<<<<< HEAD
 function FARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme) &
+=======
+function FARKodeSetAccumulatedErrorType(arkode_mem, accum_type) &
+>>>>>>> origin/develop
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
+<<<<<<< HEAD
 type(SWIGTYPE_p_SUNAdjointCheckpointScheme), intent(in) :: checkpoint_scheme
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -3380,10 +3495,25 @@ swig_result = fresult
 end function
 
 function FARKodeSetAdjointCheckpointIndex(arkode_mem, step_index) &
+=======
+integer(ARKAccumError), intent(in) :: accum_type
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+
+farg1 = arkode_mem
+farg2 = accum_type
+fresult = swigc_FARKodeSetAccumulatedErrorType(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeResetAccumulatedError(arkode_mem) &
+>>>>>>> origin/develop
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
+<<<<<<< HEAD
 integer(C_INT64_T), intent(in) :: step_index
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -3392,6 +3522,13 @@ integer(C_INT64_T) :: farg2
 farg1 = arkode_mem
 farg2 = step_index
 fresult = swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2)
+=======
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+
+farg1 = arkode_mem
+fresult = swigc_FARKodeResetAccumulatedError(farg1)
+>>>>>>> origin/develop
 swig_result = fresult
 end function
 
@@ -3560,6 +3697,22 @@ type(C_PTR) :: farg2
 farg1 = arkode_mem
 farg2 = c_loc(hcur(1))
 fresult = swigc_FARKodeGetCurrentStep(farg1, farg2)
+swig_result = fresult
+end function
+
+function FARKodeGetStepDirection(arkode_mem, stepdir) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: stepdir
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(stepdir(1))
+fresult = swigc_FARKodeGetStepDirection(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -3827,6 +3980,22 @@ farg4 = c_loc(hlast(1))
 farg5 = c_loc(hcur(1))
 farg6 = c_loc(tcur(1))
 fresult = swigc_FARKodeGetStepStats(farg1, farg2, farg3, farg4, farg5, farg6)
+swig_result = fresult
+end function
+
+function FARKodeGetAccumulatedError(arkode_mem, accum_error) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+real(C_DOUBLE), dimension(*), target, intent(inout) :: accum_error
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = arkode_mem
+farg2 = c_loc(accum_error(1))
+fresult = swigc_FARKodeGetAccumulatedError(farg1, farg2)
 swig_result = fresult
 end function
 

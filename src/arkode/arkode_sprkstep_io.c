@@ -58,6 +58,8 @@ int SPRKStepSetUseCompensatedSums(void* arkode_mem, sunbooleantype onoff)
       {
         return ARK_MEM_FAIL;
       }
+      /* Zero yerr for compensated summation */
+      N_VConst(ZERO, step_mem->yerr);
     }
   }
   else
@@ -152,7 +154,7 @@ int SPRKStepGetCurrentMethod(void* arkode_mem, ARKodeSPRKTable* sprk_storage)
 }
 
 /*---------------------------------------------------------------
-  SPRKStepGetNumRhsEvals:
+  sprkStep_GetNumRhsEvals:
 
   Returns the current number of RHS calls
   ---------------------------------------------------------------*/

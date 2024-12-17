@@ -1476,8 +1476,13 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
                N_Vector ypcur, N_Vector rescur)
 {
   IDALsMem idals_mem;
-  int nli_inc, retval;
+  int retval;
+  int nli_inc = 0;
   sunrealtype tol, w_mean;
+
+  /* only used with logging */
+  SUNDIALS_MAYBE_UNUSED long int nps_inc    = 0;
+  SUNDIALS_MAYBE_UNUSED sunrealtype resnorm = SUN_RCONST(0.0);
 
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL)
@@ -1496,8 +1501,16 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   if (idals_mem->iterative)
   {
     tol = idals_mem->nrmfac * idals_mem->eplifac * IDA_mem->ida_epsNewt;
+
+    SUNLogInfo(IDA_LOGGER, "begin-linear-solve",
+               "iterative = 1, res-tol = %.16g", tol);
   }
-  else { tol = ZERO; }
+  else
+  {
+    tol = ZERO;
+
+    SUNLogInfo(IDA_LOGGER, "begin-linear-solve", "iterative = 0");
+  }
 
   /* Set vectors ycur, ypcur and rcur for use by the Atimes and
      Psolve interface routines */
@@ -1514,6 +1527,10 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
       IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, __LINE__, __func__, __FILE__,
                       "Error in calling SUNLinSolSetScalingVectors");
       idals_mem->last_flag = IDALS_SUNLS_FAIL;
+
+      SUNLogInfo(IDA_LOGGER, "end-linear-solve",
+                 "status = failed set scaling vectors");
+
       return (idals_mem->last_flag);
     }
 
@@ -1544,7 +1561,15 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
 
   /* Set zero initial guess flag */
   retval = SUNLinSolSetZeroGuess(idals_mem->LS, SUNTRUE);
-  if (retval != SUN_SUCCESS) { return (-1); }
+  if (retval != SUN_SUCCESS)
+  {
+    SUNLogInfo(IDA_LOGGER, "end-linear-solve", "status = failed set zero guess",
+               "");
+    return (-1);
+  }
+
+  /* Store previous nps value in nps_inc */
+  nps_inc = idals_mem->nps;
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (idals_mem->jtsetup)
@@ -1557,6 +1582,8 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
     {
       IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                       MSG_LS_JTSETUP_FAILED);
+
+      SUNLogInfo(IDA_LOGGER, "end-linear-solve", "status = failed J-times setup");
       return (idals_mem->last_flag);
     }
   }
@@ -1569,6 +1596,7 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
   {
     /* Retrieve solver statistics */
     nli_inc = SUNLinSolNumIters(idals_mem->LS);
+    resnorm = SUNLinSolResNorm(idals_mem->LS);
 
     /* Copy x (or preconditioned residual vector if no iterations required) to b */
     if ((nli_inc == 0) &&
@@ -1599,6 +1627,13 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight, N_Vector ycur,
 
   /* Interpret solver return value  */
   idals_mem->last_flag = retval;
+
+  SUNLogInfoIf(retval == SUN_SUCCESS, IDA_LOGGER, "end-linear-solve",
+               "status = success, iters = %i, p-solves = %i, res-norm = %.16g",
+               nli_inc, (int)(idals_mem->nps - nps_inc), resnorm);
+  SUNLogInfoIf(retval != SUN_SUCCESS, IDA_LOGGER,
+               "end-linear-solve", "status = failed, retval = %i, iters = %i, p-solves = %i, res-norm = %.16g",
+               retval, nli_inc, (int)(idals_mem->nps - nps_inc), resnorm);
 
   switch (retval)
   {

@@ -27,6 +27,7 @@ jobs:
         # Disable extended tests until compiler warnings are addressed
         precision: ['single', 'double']
         buildtype: ['Debug', 'Release', 'RelWithDebInfo']
+        tpls: ['ON']
         exclude:
           - buildtype: Debug
             precision: single
@@ -49,6 +50,7 @@ jobs:
         with:
           indexsize: ${{ matrix.indexsize }}
           precision: ${{ matrix.precision }}
+          tpls: ${{ matrix.tpls }}
         env:
           CMAKE_BUILD_TYPE: ${{ matrix.buildtype }}
       - name: Archive build files from failed build

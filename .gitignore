@@ -37,6 +37,8 @@ compile_commands.json
 *.orig
 *.nvvp
 *.ptp-sync*
+*.project
+*.cproject
 *~
 \#*
 
@@ -77,3 +79,6 @@ uberenv_libs
 
 # swig
 /swig/swig
+
+# tools
+/tools/suntools/__pycache__

@@ -105,7 +105,7 @@ static inline sunrealtype* N_VGetDeviceArrayPointer_Sycl(N_Vector x)
  * NVECTOR API functions
  * ----------------------------------------------------------------- */
 
-static inline N_Vector_ID N_VGetVectorID_Sycl(N_Vector v)
+static inline N_Vector_ID N_VGetVectorID_Sycl(N_Vector)
 {
   return SUNDIALS_NVEC_SYCL;
 }

@@ -40,7 +40,7 @@ typedef SUNErrCode (*SUNStepperEvolveFn)(SUNStepper stepper, sunrealtype tout,
                                          N_Vector vret, sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperOneStepFn)(SUNStepper stepper, sunrealtype tout,
-                                          N_Vector vout, sunrealtype* tret);
+                                          N_Vector vret, sunrealtype* tret);
 
 typedef SUNErrCode (*SUNStepperFullRhsFn)(SUNStepper stepper, sunrealtype t,
                                           N_Vector v, N_Vector f,
@@ -51,6 +51,9 @@ typedef SUNErrCode (*SUNStepperResetFn)(SUNStepper stepper, sunrealtype tR,
 
 typedef SUNErrCode (*SUNStepperSetStopTimeFn)(SUNStepper stepper,
                                               sunrealtype tstop);
+
+typedef SUNErrCode (*SUNStepperSetStepDirectionFn)(SUNStepper stepper,
+                                                   sunrealtype stepdir);
 
 typedef SUNErrCode (*SUNStepperSetForcingFn)(SUNStepper stepper,
                                              sunrealtype tshift,
@@ -71,7 +74,7 @@ SUNErrCode SUNStepper_Evolve(SUNStepper stepper, sunrealtype tout,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout,
-                              N_Vector vout, sunrealtype* tret);
+                              N_Vector vret, sunrealtype* tret);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
@@ -83,6 +86,9 @@ SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype stepdir);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetForcing(SUNStepper stepper, sunrealtype tshift,
@@ -116,6 +122,10 @@ SUNErrCode SUNStepper_SetResetFn(SUNStepper stepper, SUNStepperResetFn fn);
 SUNDIALS_EXPORT
 SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper,
                                     SUNStepperSetStopTimeFn fn);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNStepper_SetStepDirectionFn(SUNStepper stepper,
+                                         SUNStepperSetStepDirectionFn fn);
 
 SUNDIALS_EXPORT SUNErrCode SUNStepper_SetForcingFn(SUNStepper stepper,
                                                    SUNStepperSetForcingFn fn);
