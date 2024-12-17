@@ -52,35 +52,35 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
    .. c:member:: SUNMatrix Jac
 
-      Matrix data for the Jacobian :math:`df/dy`.
+      Matrix data for the Jacobian :math:`\partial f / \partial y`.
 
    .. c:member:: SUNMatrix JacP
 
-      Matrix data for the Jacobian :math:`df/dp`.
+      Matrix data for the Jacobian :math:`\partial f / \partial p`.
 
    .. c:member:: SUNRhsJacFn JacFn
 
-      Jacobian function pointer to evaluate :math:`df/dy`.
+      Jacobian function pointer to evaluate :math:`\partial f / \partial y`.
 
    .. c:member:: SUNRhsJacFn JacPFn
 
-      Jacobian function pointer to evaluate :math:`df/dp`.
+      Jacobian function pointer to evaluate :math:`\partial f / \partial p`.
 
    .. c:member:: SUNRhsJacTimesFn JvpFn
 
-      Jacobian-times-vector function pointer to evaluate :math:`(df/dy)^T v`.
+      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial y)^T v`.
 
    .. c:member:: SUNRhsJacTimesFn JPvpFn
 
-      Jacobian-times-vector function pointer to evaluate :math:`(df/dp)^T v`.
+      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial p)^T v`.
 
    .. c:member:: SUNRhsJacTimesFn vJpFn
 
-      Jacobian-times-vector function pointer to evaluate :math:`v^T(df/dy)`.
+      Jacobian-times-vector function pointer to evaluate :math:`v^T(\partial f/\partial y)`.
 
    .. c:member:: SUNRhsJacTimesFn vJPpFn
 
-      Jacobian-times-vector function pointer to evaluate :math:`v^T(df/dp)`.
+      Jacobian-times-vector function pointer to evaluate :math:`v^T(\partial f/\partial p)`.
 
    .. c:member:: int64_t nst
 
@@ -88,27 +88,27 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
    .. c:member:: int64_t njeval
 
-      Holds the count of the number of :math:`df/dy` evaluations.
+      Holds the count of the number of :math:`\partial f / \partial y` evaluations.
 
    .. c:member:: int64_t njpeval
 
-      Holds the count of the number of :math:`df/dp` evaluations.
+      Holds the count of the number of :math:`\partial f / \partial p` evaluations.
 
    .. c:member:: int64_t njtimesv
 
-      Holds the count of the number of :math:`(df/dy)^T v` evaluations.
+      Holds the count of the number of :math:`(\partial f/\partial y)^T v` evaluations.
 
    .. c:member:: int64_t njptimesv
 
-      Holds the count of the number of :math:`(df/dp)^T v` evaluations.
+      Holds the count of the number of :math:`(\partial f/\partial p)^T v` evaluations.
 
    .. c:member:: int64_t nvtimesj
 
-      Holds the count of the number of :math:`v^T(df/dy)` evaluations.
+      Holds the count of the number of :math:`v^T(\partial f/\partial y)` evaluations.
 
    .. c:member:: int64_t nvtimesjp
 
-      Holds the count of the number of :math:`v^T(df/dp)` evaluations.
+      Holds the count of the number of :math:`v^T(\partial f/\partial p)` evaluations.
 
    .. c:member:: int64_t nrecompute
 
@@ -140,6 +140,9 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    :param tf: The terminal time for the forward ODE and (which is the initial time for the adjoint ODE).
    :param checkpoint_scheme: The :c:type:`SUNAdjointCheckpointScheme` object that determines the checkpointing strategy to use. This should be the same scheme provided to the forward integrator/stepper.
    :param sunctx: The :c:type:`SUNContext` for the simulation context.
+   :param adj_stepper: The :c:type:`SUNAdjointStepper` to construct (will be ``NULL`` on failure)
+
+   :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 
 .. c:function:: SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector sf, sunrealtype tf)
@@ -147,7 +150,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    Reinitializes the adjoint stepper to solve a new problem of the same size.
 
    :param adj_stepper: The adjoint solver object.
-   :param sf: The terminal condition vector of sensitivity solutions :math:`dg/dy_0`` and :math:`dg/dp`.
+   :param sf: The terminal condition vector of sensitivity solutions :math:`\partial g/\partial y_0` and :math:`\partial g/\partial p`.
    :param tf: The time to start integrating the adjoint system from.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
@@ -160,7 +163,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 
    :param adj_stepper: The adjoint solver object.
    :param tout: The time at which the adjoint solution is desired.
-   :param sens: The vector of sensitivity solutions :math:`dg/dy_0`` and :math:`dg/dp`.
+   :param sens: The vector of sensitivity solutions :math:`\partial g/\partial y_0` and :math:`\partial g/\partial p`.
    :param tret: On return, the time reached by the adjoint solver.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
@@ -173,7 +176,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 
    :param adj_stepper: The adjoint solver object.
    :param tout: The time at which the adjoint solution is desired.
-   :param sens: The vector of sensitivity solutions :math:`dg/dy_0` and :math:`dg/dp`.
+   :param sens: The vector of sensitivity solutions :math:`\partial g/\partial y_0` and :math:`\partial g/\partial p`.
    :param tret: On return, the time reached by the adjoint solver.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
@@ -196,39 +199,38 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 .. c:function:: SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_stepper, SUNRhsJacFn JacFn, \
       SUNMatrix Jac, SUNRhsJacFn JacPFn, SUNMatrix JacP)
 
-   Sets the function pointers and matrices needed to evaluate and store :math:`df/dy` and
-   :math:`df/dp`. ``Jac`` should have dimensions ``neq x neq`` where ``neq`` is the number of states
+   Sets the function pointers and matrices needed to evaluate and store :math:`\partial f / \partial y` and
+   :math:`\partial f / \partial p`. ``Jac`` should have dimensions ``neq x neq`` where ``neq`` is the number of states
    in the forward problem. ``JacP`` should have dimensions ``nparams x neq`` where ``nparams`` is the
    number of parameters in the model to get sensitivities for.
 
    :param adj_stepper: The SUNAdjointStepper object.
-   :param JacFn: the function that evaluates :math:`df/dy`.
-   :param Jac: a :c:type:`SUNMatrix` that will hold :math:`df/dy`.
-   :param JacPFn: the function that evaluates :math:`df/dp`.
-   :param JacP: a :c:type:`SUNMatrix` that will hold :math:`df/dp`.
+   :param JacFn: the function that evaluates :math:`\partial f / \partial y`.
+   :param Jac: a :c:type:`SUNMatrix` that will hold :math:`\partial f / \partial y`.
+   :param JacPFn: the function that evaluates :math:`\partial f / \partial p`.
+   :param JacP: a :c:type:`SUNMatrix` that will hold :math:`\partial f / \partial p`.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper adj_stepper, SUNRhsJacTimesFn Jvp, SUNRhsJacTimesFn JPvp)
 
 
-   Sets the function pointers to evaluate :math:`(df/dy)^T v`  and :math:`(df/dp)^T v`
+   Sets the function pointers to evaluate :math:`(\partial f/\partial y)^T v`  and :math:`(\partial f/\partial p)^T v`
 
    :param adj_stepper: The SUNAdjointStepper object.
-   :param Jvp: function that evaluates :math:`(df/dy)^T v`.
-   :param JPvp: function that evaluates :math:`(df/dp)^T v`.
+   :param Jvp: function that evaluates :math:`(\partial f/\partial y)^T v`.
+   :param JPvp: function that evaluates :math:`(\partial f/\partial p)^T v`.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 
 .. c:function:: SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper adj_stepper, SUNRhsJacTimesFn Jvp, SUNRhsJacTimesFn JPvp)
 
-
-   Sets the function pointers to evaluate :math:`v^T (df/dy)`  and :math:`v^T (df/dp)`
+   Sets the function pointers to evaluate :math:`v^T (\partial f/\partial y)`  and :math:`v^T (\partial f/\partial p)`
 
    :param adj_stepper: The SUNAdjointStepper object.
-   :param Jvp: function that evaluates :math:`v^T (df/dy)`.
-   :param JPvp: function that evaluates :math:`v^T (df/dp)`.
+   :param Jvp: function that evaluates :math:`v^T (\partial f/\partial y)`.
+   :param JPvp: function that evaluates :math:`v^T (\partial f/\partial p)`.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
