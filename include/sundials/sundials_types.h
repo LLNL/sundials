@@ -95,8 +95,8 @@ typedef float sunrealtype;
 #define SUN_SMALL_REAL    FLT_MIN
 #define SUN_UNIT_ROUNDOFF FLT_EPSILON
 // TODO(SBR): In C11, FLT_DECIMAL_DIGITS would be a better choice
-#define SUN_FORMAT_E      "% ." SUN_STRING(FLT_DIG) "e"
-#define SUN_FORMAT_G      "%." SUN_STRING(FLT_DIG) "g"
+#define SUN_FORMAT_E "% ." SUN_STRING(FLT_DIG) "e"
+#define SUN_FORMAT_G "%." SUN_STRING(FLT_DIG) "g"
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
