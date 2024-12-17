@@ -32,27 +32,6 @@ static inline char* sunCombineFileAndLine(int line, const char* file)
   return file_and_line;
 }
 
-static inline int sunvsnprintf(char* buffer, size_t bufsz, const char* format,
-                               va_list vlist)
-{
-  int size = 0;
-  va_list tmp;
-  va_copy(tmp, vlist);
-  size = vsnprintf(buffer, bufsz, format, tmp);
-  va_end(tmp);
-  return size;
-}
-
-static inline int sunsnprintf(char* buffer, size_t bufsz, const char* format, ...)
-{
-  int size = 0;
-  va_list args;
-  va_start(args, format);
-  size = sunvsnprintf(buffer, bufsz, format, args);
-  va_end(args);
-  return size;
-}
-
 /*
  * Implementation of the GNU extension function vasprintf which
  * is itself an analog for vsprintf, except it allocates a string
@@ -63,7 +42,10 @@ static inline int sunvasnprintf(char** str, const char* fmt, va_list args)
   int size = 0;
 
   /* compute string length */
-  size = sunvsnprintf(NULL, 0, fmt, args);
+  va_list tmp1;
+  va_copy(tmp1, args);
+  size = vsnprintf(NULL, 0, fmt, tmp1);
+  va_end(tmp1);
 
   if (size < 0) { return -1; }
 
@@ -71,7 +53,10 @@ static inline int sunvasnprintf(char** str, const char* fmt, va_list args)
   *str = (char*)malloc(size + 1);
   if (NULL == *str) { return -1; }
 
-  size = vsnprintf(*str, size + 1, fmt, args);
+  va_list tmp2;
+  va_copy(tmp2, args);
+  size = vsnprintf(*str, size + 1, fmt, tmp2);
+  va_end(tmp2);
 
   return size;
 }
