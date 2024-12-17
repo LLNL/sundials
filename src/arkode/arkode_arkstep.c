@@ -1890,45 +1890,11 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-<<<<<<< HEAD
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  if (is_start == 1)
-  {
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::arkStep_TakeStep_Z", "start-stage",
-                       "step = %li, stage = %i, implicit = %i, h = %" RSYM
-                       ", tcur = %" RSYM,
-                       ark_mem->nst, 0, implicit_stage, ark_mem->h,
-                       ark_mem->tcur);
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::arkStep_TakeStep_Z", "explicit stage",
-                       "z_%i(:) =", 0);
-    N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
-    if (step_mem->implicit)
-    {
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                         "ARKODE::arkStep_TakeStep_Z", "implicit RHS",
-                         "Fi_%i(:) =", 0);
-      N_VPrintFile(step_mem->Fi[0], ARK_LOGGER->debug_fp);
-    }
-    if (step_mem->explicit)
-    {
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                         "ARKODE::arkStep_TakeStep_Z", "explicit RHS",
-                         "Fe_%i(:) =", 0);
-      N_VPrintFile(step_mem->Fe[0], ARK_LOGGER->debug_fp);
-    }
-#endif
-  }
-#endif
-  == == == = SUNLogExtraDebugVecIf(is_start == 1 && step_mem->implicit,
-                                   ARK_LOGGER, "implicit RHS", step_mem->Fi[0],
-                                   "Fi_0(:) =");
+  SUNLogExtraDebugVecIf(is_start == 1 && step_mem->implicit, ARK_LOGGER,
+                        "implicit RHS", step_mem->Fi[0], "Fi_0(:) =");
   SUNLogExtraDebugVecIf(is_start == 1 && step_mem->explicit, ARK_LOGGER,
                         "explicit RHS", step_mem->Fe[0], "Fe_0(:) =");
   SUNLogInfoIf(is_start == 1, ARK_LOGGER, "end-stage", "status = success");
->>>>>>> origin/develop
 
   /* loop over internal stages to the step */
   for (is = is_start; is < step_mem->stages; is++)
@@ -2220,7 +2186,6 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (*nflagPtr < 0) { return (*nflagPtr); }
   if (*nflagPtr > 0) { return (TRY_AGAIN); }
 
-<<<<<<< HEAD
   if (ark_mem->checkpoint_scheme)
   {
     sunbooleantype do_save;
@@ -2238,22 +2203,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkStep_TakeStep_Z",
-                     "updated solution", "ycur(:) =", "");
-  N_VPrintFile(ark_mem->ycur, ARK_LOGGER->debug_fp);
-#endif
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkStep_TakeStep_Z", "end-step",
-                     "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
-                     ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
-#endif
-  == == == = SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur,
-                                 "ycur(:) =");
+  SUNLogExtraDebugVec(ARK_LOGGER, "updated solution", ark_mem->ycur, "ycur(:) =");
   SUNLogInfo(ARK_LOGGER, "end-compute-solution", "status = success");
->>>>>>> origin/develop
 
   return (ARK_SUCCESS);
 }
@@ -3849,7 +3800,7 @@ int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
   ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  int retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
   if (nvecs > 0)
