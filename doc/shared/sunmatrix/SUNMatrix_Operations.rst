@@ -157,9 +157,9 @@ below.
 
 .. c:function:: SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 
-   Performs the matrix-vector product *y \gets Ax*.  It should
-   only be called with vectors *x* and *y* that are compatible with
-   the matrix *A* -- both in storage type and dimensions.  The return
+   Performs the matrix-vector product :math:`y \gets Ax`.  It should
+   only be called with vectors :math:`x` and :math:`y` that are compatible with
+   the matrix :math:`A` -- both in storage type and dimensions.  The return
    value denotes the success/failure of the operation:
 
    .. math::
@@ -174,9 +174,9 @@ below.
 
 .. c:function:: SUNErrCode SUNMatMatTransposeVec(SUNMatrix A, N_Vector x, N_Vector y)
 
-   Performs the matrix-vector product *y \gets A^Tx*.  It should
-   only be called with vectors *x* and *y* that are compatible with
-   the matrix *A^T* -- both in storage type and dimensions.  The return
+   Performs the matrix-vector product :math:`y \gets A^Tx`.  It should
+   only be called with vectors :math:`x`` and :math:`y` that are compatible with
+   the matrix :math:`A^T` -- both in storage type and dimensions.  The return
    value denotes the success/failure of the operation:
 
    .. math::

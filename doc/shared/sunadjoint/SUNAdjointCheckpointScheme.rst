@@ -114,7 +114,6 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
    :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
-   :param t: the time of the checkpoint
    :param yes_or_no: boolean indicating if the checkpoint should be deleted or not
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
