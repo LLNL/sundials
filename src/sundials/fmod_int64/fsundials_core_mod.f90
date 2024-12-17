@@ -576,10 +576,7 @@ module fsundials_core_mod
  public :: FSUNStepper_FullRhs
  public :: FSUNStepper_Reset
  public :: FSUNStepper_SetStopTime
-<<<<<<< HEAD
-=======
  public :: FSUNStepper_SetStepDirection
->>>>>>> origin/develop
  public :: FSUNStepper_SetForcing
  public :: FSUNStepper_SetContent
  public :: FSUNStepper_GetContent
@@ -590,10 +587,7 @@ module fsundials_core_mod
  public :: FSUNStepper_SetFullRhsFn
  public :: FSUNStepper_SetResetFn
  public :: FSUNStepper_SetStopTimeFn
-<<<<<<< HEAD
-=======
  public :: FSUNStepper_SetStepDirectionFn
->>>>>>> origin/develop
  public :: FSUNStepper_SetForcingFn
  public :: FSUNStepper_SetDestroyFn
 
@@ -2182,21 +2176,14 @@ integer(C_INT), intent(in) :: farg5
 integer(C_INT) :: fresult
 end function
 
-<<<<<<< HEAD
 function swigc_FSUNStepper_Reset(farg1, farg2, farg3, farg4) &
-=======
-function swigc_FSUNStepper_Reset(farg1, farg2, farg3) &
->>>>>>> origin/develop
 bind(C, name="_wrap_FSUNStepper_Reset") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
-<<<<<<< HEAD
 integer(C_INT64_T), intent(in) :: farg4
-=======
->>>>>>> origin/develop
 integer(C_INT) :: fresult
 end function
 
@@ -2209,8 +2196,6 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-<<<<<<< HEAD
-=======
 function swigc_FSUNStepper_SetStepDirection(farg1, farg2) &
 bind(C, name="_wrap_FSUNStepper_SetStepDirection") &
 result(fresult)
@@ -2220,7 +2205,6 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
->>>>>>> origin/develop
 function swigc_FSUNStepper_SetForcing(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNStepper_SetForcing") &
 result(fresult)
@@ -2314,8 +2298,6 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-<<<<<<< HEAD
-=======
 function swigc_FSUNStepper_SetStepDirectionFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNStepper_SetStepDirectionFn") &
 result(fresult)
@@ -2325,7 +2307,6 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
->>>>>>> origin/develop
 function swigc_FSUNStepper_SetForcingFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNStepper_SetForcingFn") &
 result(fresult)
@@ -5214,21 +5195,13 @@ fresult = swigc_FSUNStepper_Evolve(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
-<<<<<<< HEAD
-function FSUNStepper_OneStep(stepper, tout, vout, tret) &
-=======
 function FSUNStepper_OneStep(stepper, tout, vret, tret) &
->>>>>>> origin/develop
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: tout
-<<<<<<< HEAD
-type(N_Vector), target, intent(inout) :: vout
-=======
 type(N_Vector), target, intent(inout) :: vret
->>>>>>> origin/develop
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -5238,11 +5211,7 @@ type(C_PTR) :: farg4
 
 farg1 = stepper
 farg2 = tout
-<<<<<<< HEAD
-farg3 = c_loc(vout)
-=======
 farg3 = c_loc(vret)
->>>>>>> origin/develop
 farg4 = c_loc(tret(1))
 fresult = swigc_FSUNStepper_OneStep(farg1, farg2, farg3, farg4)
 swig_result = fresult
@@ -5273,39 +5242,25 @@ fresult = swigc_FSUNStepper_FullRhs(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-<<<<<<< HEAD
 function FSUNStepper_Reset(stepper, tr, vr, ckptidxr) &
-=======
-function FSUNStepper_Reset(stepper, tr, vr) &
->>>>>>> origin/develop
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: tr
 type(N_Vector), target, intent(inout) :: vr
-<<<<<<< HEAD
 integer(C_INT64_T), intent(in) :: ckptidxr
-=======
->>>>>>> origin/develop
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 real(C_DOUBLE) :: farg2 
 type(C_PTR) :: farg3 
-<<<<<<< HEAD
 integer(C_INT64_T) :: farg4 
-=======
->>>>>>> origin/develop
 
 farg1 = stepper
 farg2 = tr
 farg3 = c_loc(vr)
-<<<<<<< HEAD
 farg4 = ckptidxr
 fresult = swigc_FSUNStepper_Reset(farg1, farg2, farg3, farg4)
-=======
-fresult = swigc_FSUNStepper_Reset(farg1, farg2, farg3)
->>>>>>> origin/develop
 swig_result = fresult
 end function
 
@@ -5325,8 +5280,6 @@ fresult = swigc_FSUNStepper_SetStopTime(farg1, farg2)
 swig_result = fresult
 end function
 
-<<<<<<< HEAD
-=======
 function FSUNStepper_SetStepDirection(stepper, stepdir) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -5343,7 +5296,6 @@ fresult = swigc_FSUNStepper_SetStepDirection(farg1, farg2)
 swig_result = fresult
 end function
 
->>>>>>> origin/develop
 function FSUNStepper_SetForcing(stepper, tshift, tscale, forcing, nforcing) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -5513,8 +5465,6 @@ fresult = swigc_FSUNStepper_SetStopTimeFn(farg1, farg2)
 swig_result = fresult
 end function
 
-<<<<<<< HEAD
-=======
 function FSUNStepper_SetStepDirectionFn(stepper, fn) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -5531,7 +5481,6 @@ fresult = swigc_FSUNStepper_SetStepDirectionFn(farg1, farg2)
 swig_result = fresult
 end function
 
->>>>>>> origin/develop
 function FSUNStepper_SetForcingFn(stepper, fn) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING

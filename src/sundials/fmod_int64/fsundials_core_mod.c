@@ -2788,30 +2788,19 @@ SWIGEXPORT int _wrap_FSUNStepper_FullRhs(void *farg1, double const *farg2, N_Vec
 }
 
 
-<<<<<<< HEAD
 SWIGEXPORT int _wrap_FSUNStepper_Reset(void *farg1, double const *farg2, N_Vector farg3, int64_t const *farg4) {
-=======
-SWIGEXPORT int _wrap_FSUNStepper_Reset(void *farg1, double const *farg2, N_Vector farg3) {
->>>>>>> origin/develop
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
   sunrealtype arg2 ;
   N_Vector arg3 = (N_Vector) 0 ;
-<<<<<<< HEAD
   int64_t arg4 ;
-=======
->>>>>>> origin/develop
   SUNErrCode result;
   
   arg1 = (SUNStepper)(farg1);
   arg2 = (sunrealtype)(*farg2);
   arg3 = (N_Vector)(farg3);
-<<<<<<< HEAD
   arg4 = (int64_t)(*farg4);
   result = (SUNErrCode)SUNStepper_Reset(arg1,arg2,arg3,arg4);
-=======
-  result = (SUNErrCode)SUNStepper_Reset(arg1,arg2,arg3);
->>>>>>> origin/develop
   fresult = (SUNErrCode)(result);
   return fresult;
 }
@@ -2831,8 +2820,6 @@ SWIGEXPORT int _wrap_FSUNStepper_SetStopTime(void *farg1, double const *farg2) {
 }
 
 
-<<<<<<< HEAD
-=======
 SWIGEXPORT int _wrap_FSUNStepper_SetStepDirection(void *farg1, double const *farg2) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
@@ -2847,7 +2834,6 @@ SWIGEXPORT int _wrap_FSUNStepper_SetStepDirection(void *farg1, double const *far
 }
 
 
->>>>>>> origin/develop
 SWIGEXPORT int _wrap_FSUNStepper_SetForcing(void *farg1, double const *farg2, double const *farg3, void *farg4, int const *farg5) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
@@ -2994,8 +2980,6 @@ SWIGEXPORT int _wrap_FSUNStepper_SetStopTimeFn(void *farg1, SUNStepperSetStopTim
 }
 
 
-<<<<<<< HEAD
-=======
 SWIGEXPORT int _wrap_FSUNStepper_SetStepDirectionFn(void *farg1, SUNStepperSetStepDirectionFn farg2) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
@@ -3010,7 +2994,6 @@ SWIGEXPORT int _wrap_FSUNStepper_SetStepDirectionFn(void *farg1, SUNStepperSetSt
 }
 
 
->>>>>>> origin/develop
 SWIGEXPORT int _wrap_FSUNStepper_SetForcingFn(void *farg1, SUNStepperSetForcingFn farg2) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;

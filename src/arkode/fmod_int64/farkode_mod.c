@@ -1167,7 +1167,6 @@ SWIGEXPORT int _wrap_FARKodeSetMaxNumConstrFails(void *farg1, int const *farg2) 
 }
 
 
-<<<<<<< HEAD
 SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointScheme(void *farg1, SwigClassWrapper const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1178,23 +1177,11 @@ SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointScheme(void *farg1, SwigClassWra
   SWIG_check_nonnull(*farg2, "SUNAdjointCheckpointScheme", "SWIGTYPE_p_SUNAdjointCheckpointScheme", "ARKodeSetAdjointCheckpointScheme(void *,SUNAdjointCheckpointScheme)", return 0);
   arg2 = *(SUNAdjointCheckpointScheme *)(farg2->cptr);
   result = (int)ARKodeSetAdjointCheckpointScheme(arg1,arg2);
-=======
-SWIGEXPORT int _wrap_FARKodeSetAccumulatedErrorType(void *farg1, int const *farg2) {
-  int fresult ;
-  void *arg1 = (void *) 0 ;
-  ARKAccumError arg2 ;
-  int result;
-  
-  arg1 = (void *)(farg1);
-  arg2 = (ARKAccumError)(*farg2);
-  result = (int)ARKodeSetAccumulatedErrorType(arg1,arg2);
->>>>>>> origin/develop
   fresult = (int)(result);
   return fresult;
 }
 
 
-<<<<<<< HEAD
 SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointIndex(void *farg1, int64_t const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1204,7 +1191,25 @@ SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointIndex(void *farg1, int64_t const
   arg1 = (void *)(farg1);
   arg2 = (int64_t)(*farg2);
   result = (int)ARKodeSetAdjointCheckpointIndex(arg1,arg2);
-=======
+  fresult = (int)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FARKodeSetAccumulatedErrorType(void *farg1, int const *farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  ARKAccumError arg2 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (ARKAccumError)(*farg2);
+  result = (int)ARKodeSetAccumulatedErrorType(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKodeResetAccumulatedError(void *farg1) {
   int fresult ;
   void *arg1 = (void *) 0 ;
@@ -1212,7 +1217,6 @@ SWIGEXPORT int _wrap_FARKodeResetAccumulatedError(void *farg1) {
   
   arg1 = (void *)(farg1);
   result = (int)ARKodeResetAccumulatedError(arg1);
->>>>>>> origin/develop
   fresult = (int)(result);
   return fresult;
 }
