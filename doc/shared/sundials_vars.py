@@ -29,6 +29,7 @@ nitpick_ignore = [
     ('cpp:identifier', 'FILE'),
     ('c:identifier', 'size_t'),
     ('cpp:identifier', 'size_t'),
+    ('c:identifier', 'int64_t'),
     # CUDA
     ('cpp:identifier', 'cudaStream_t'),
     ('c:identifier', 'cusparseHandle_t'),

@@ -488,6 +488,22 @@ SWIGEXPORT int _wrap_FSUNMatMatvec_Sparse(SUNMatrix farg1, N_Vector farg2, N_Vec
 }
 
 
+SWIGEXPORT int _wrap_FSUNMatMatTransposeVec_Sparse(SUNMatrix farg1, N_Vector farg2, N_Vector farg3) {
+  int fresult ;
+  SUNMatrix arg1 = (SUNMatrix) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNMatrix)(farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (N_Vector)(farg3);
+  result = (SUNErrCode)SUNMatMatTransposeVec_Sparse(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNMatSpace_Sparse(SUNMatrix farg1, long *farg2, long *farg3) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;

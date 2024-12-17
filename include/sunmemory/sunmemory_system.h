@@ -36,6 +36,12 @@ SUNErrCode SUNMemoryHelper_Alloc_Sys(SUNMemoryHelper helper, SUNMemory* memptr,
                                      void* queue);
 
 SUNDIALS_EXPORT
+SUNErrCode SUNMemoryHelper_AllocStrided_Sys(SUNMemoryHelper helper,
+                                            SUNMemory* memptr, size_t mem_size,
+                                            size_t stride,
+                                            SUNMemoryType mem_type, void* queue);
+
+SUNDIALS_EXPORT
 SUNErrCode SUNMemoryHelper_Dealloc_Sys(SUNMemoryHelper helper, SUNMemory mem,
                                        void* queue);
 
