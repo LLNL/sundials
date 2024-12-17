@@ -15,15 +15,6 @@
 # CMake macros used throughout the SUNDIALS build system
 # ---------------------------------------------------------------
 
-# Macro to force a cache variable to take on the value
-
-# show variable (set as cache) and overwrite (force) its value
-macro(FORCE_VARIABLE var type doc val)
-  set(${var}
-      "${val}"
-      CACHE "${type}" "${doc}" FORCE)
-endmacro(FORCE_VARIABLE)
-
 # Macros to append a common suffix or prefix to the elements of a list
 
 macro(ADD_SUFFIX rootlist suffix)

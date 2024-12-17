@@ -28,7 +28,6 @@ cloning the SUNDIALS repository. A list of helpful commands can be found in the
 
    Setup
    Workflow
-   Documentation
    Checklist
 
 .. Environment
