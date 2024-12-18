@@ -142,15 +142,15 @@ ARK_BUTCHER_TABLE(ARKODE_ARK2_DIRK_3_1_2, { /* ARK2 Implicit Table (A,L stable) 
 
 ARK_BUTCHER_TABLE(ARKODE_ASCHER_SDIRK_3_1_2, { /* citation */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    const sunrealtype gamma = (SUN_RCONST(2.0)-SUNRsqrt(SUN_RCONST(2.0)))/SUN_RCONST(2.0);
+    const sunrealtype gamma = SUN_RCONST(1.0) - SUN_RCONST(1.0) / SUNRsqrt(SUN_RCONST(2.0));
     B->q = 2;
     B->p = 1;
     B->A[1][1] = gamma;
     B->A[2][1] = SUN_RCONST(1.0)-gamma;
     B->A[2][2] = gamma;
 
-    B->b[0] = SUN_RCONST(1.0)-gamma;
-    B->b[1] = gamma;
+    B->b[1] = SUN_RCONST(1.0)-gamma;
+    B->b[2] = gamma;
 
     B->d[1] = SUN_RCONST(2.0)/SUN_RCONST(3.0);
     B->d[2] = SUN_RCONST(1.0)/SUN_RCONST(3.0);
