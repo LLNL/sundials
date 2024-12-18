@@ -798,7 +798,7 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
     }
     else { nfe_expected += stages * nst; }
 
-    if (prob_opts.i_type == interp_type::hermite)
+    if (prob_opts.i_type == interp_type::hermite && !explicit_first_stage)
     {
       if (stiffly_accurate)
       {
