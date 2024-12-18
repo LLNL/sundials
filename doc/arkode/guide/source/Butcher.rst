@@ -94,44 +94,17 @@ and step size.  The stability region
 
 is typically given by an enclosed region of the complex plane, so it
 is standard to search for the border of that region in order to
-understand the method.  Since all complex numbers with unit magnitude
-may be written as :math:`e^{i\theta}` for some value of :math:`\theta`,
-we perform the following algorithm to trace out this boundary.
-
-1. Define an array of values ``Theta``.  Since we wish for a
-   smooth curve, and since we wish to trace out the entire boundary,
-   we choose 10,000 linearly-spaced points from 0 to :math:`16\pi`.
-   Since some angles will correspond to multiple locations on the
-   stability boundary, by going beyond :math:`2\pi` we ensure that all
-   boundary locations are plotted, and by using such a fine
-   discretization the Newton method (next step) is more likely to
-   converge to the root closest to the previous boundary point,
-   ensuring a smooth plot.
-
-2. For each value :math:`\theta \in` ``Theta``, we solve the nonlinear
-   equation
-
-   .. math::
-
-      0 = f(\eta) = R(\eta) - e^{i\theta}
-
-   using a finite-difference Newton iteration, using tolerance
-   :math:`10^{-7}`, and differencing parameter
-   :math:`\sqrt{\varepsilon}` (:math:`\approx 10^{-8}`).
-
-   In this iteration, we use as initial guess the solution from the
-   previous value of :math:`\theta`, starting with an initial-initial
-   guess of :math:`\eta=0` for :math:`\theta=0`.
-
-3. We then plot the resulting :math:`\eta` values that trace the
-   stability region boundary.
+understand the method.  To this end, for each method below, we evaluate
+:math:`R(\eta)` over a fine mesh of values :math:`\eta \in \mathbb{C}`.
+Each plot then displays the contour :math:`|R(\eta)| = 1`, corresponding
+to the boundary of this linear stability region.
 
 We note that for any stable IVP method, the value :math:`\eta_0 =
 -\varepsilon + 0i` is always within the stability region.  So in each
 of the following pictures, the interior of the stability region is the
-connected region that includes :math:`\eta_0`.  Resultingly, methods
-whose linear stability boundary is located entirely in the right
-half-plane indicate an `A-stable` method.
+connected region that includes :math:`\eta_0`.  Resultingly, a linear
+stability boundary that is located entirely in the right half-plane
+indicates an `A-stable` method.
 
 
 
@@ -150,7 +123,7 @@ specified via a unique ID and name:
 with values specified for each method below (e.g., ``ARKODE_HEUN_EULER_2_1_2``).
 
 
-.. _Butcher.Forward_Euler:
+.. _Butcher.Forward-Euler:
 
 Forward-Euler-1-1
 ^^^^^^^^^^^^^^^^^
@@ -175,13 +148,13 @@ This is the default 1st order explicit method (from :cite:p:`Euler:68`).
    \end{array}
 
 .. figure:: /figs/arkode/forward_euler_erk_stab_region.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the forward Euler method.
 
 
-.. _Butcher.Heun_Euler:
+.. _Butcher.Heun-Euler:
 
 Heun-Euler-2-1-2
 ^^^^^^^^^^^^^^^^^^^^
@@ -208,14 +181,14 @@ This is the default 2nd order explicit method.
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_0.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Heun-Euler method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Ralston_Euler:
+.. _Butcher.Ralston-Euler:
 
 Ralston-Euler-2-1-2
 ^^^^^^^^^^^^^^^^^^^^
@@ -242,14 +215,14 @@ Accessible via the string ``"ARKODE_RALSTON_EULER_2_1_2"`` to
    \end{array}
 
 .. figure:: /figs/arkode/ralston_euler_erk_stab_region.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Ralston-Euler method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Explicit_Midpoint_Euler:
+.. _Butcher.Explicit-Midpoint-Euler:
 
 Explicit-Midpoint-Euler-2-1-2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -276,14 +249,169 @@ Accessible via the string ``"ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2"`` to
    \end{array}
 
 .. figure:: /figs/arkode/explicit_midpoint_euler_erk_stab_region.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Explicit-Midpoint-Euler method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ARK2_ERK:
+.. _Butcher.SSP-ERK-2-1-2:
+
+SSP-ERK-2-1-2
+^^^^^^^^^^^^^
+
+.. index:: SSP-ERK-2-1-2
+
+Accessible via the constant ``ARKODE_SSP_ERK_2_1_2`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_SSP_ERK_2_1_2"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the "SSPERK(2,2)" method from :cite:p:`FCS:22`.
+Both the method and its embedding have optimal SSP coefficient
+equal to 1.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cc}
+     0 & 0 & 0 \\
+     1 & 1 & 0 \\
+     \hline
+     2 & \frac{1}{2}    & \frac{1}{2}     \\
+     1 & 0.694021459207626 & 1-0.694021459207626 \\
+   \end{array}
+
+.. figure:: /figs/arkode/ARKODE_SSP_ERK_2_1_2_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the SSP-ERK-2-1-2 method. The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.SSP-ERK-3-1-2:
+
+SSP-ERK-3-1-2
+^^^^^^^^^^^^^
+
+.. index:: SSP-ERK-3-1-2
+
+Accessible via the constant ``ARKODE_SSP_ERK_3_1_2`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_SSP_ERK_3_1_2"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the "SSPERK(3,2)" method from :cite:p:`FCS:22`.
+Both the method and its embedding have optimal SSP coefficient
+equal to 2.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccc}
+     0 & 0 & 0 & 0 \\
+     \frac12 & \frac12 & 0 & 0 \\
+     1 & \frac12 & \frac12 & 0 \\
+     \hline
+     2 & \frac13 & \frac13 & \frac13 \\
+     1 & \frac49 & \frac13 & \frac29\\
+   \end{array}
+
+.. figure:: /figs/arkode/ARKODE_SSP_ERK_3_1_2_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the SSP-ERK-3-1-2 method. The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.SSP-ERK-4-1-2:
+
+SSP-ERK-4-1-2
+^^^^^^^^^^^^^
+
+.. index:: SSP-ERK-4-1-2
+
+Accessible via the constant ``ARKODE_SSP_ERK_4_1_2`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_SSP_ERK_4_1_2"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the "SSPERK(4,2)" method from :cite:p:`FCS:22`.
+Both the method and its embedding have optimal SSP coefficient
+equal to 3.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cccc}
+     0 & 0 & 0 & 0& 0 \\
+     \frac13 & \frac13 & 0 & 0 & 0\\
+     \frac23 & \frac13 & \frac13 & 0 & 0\\
+     1 & \frac13 & \frac13 & \frac13 & 0\\
+     \hline
+     2 & \frac14 & \frac14 & \frac14 & \frac14\\
+     1 & \frac{5}{16} & \frac14 & \frac14 & \frac{3}{16}\\
+   \end{array}
+
+.. figure:: /figs/arkode/ARKODE_SSP_ERK_4_1_2_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the SSP-ERK-4-1-2 method. The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.SSP-ERK-10-1-2:
+
+SSP-ERK-10-1-2
+^^^^^^^^^^^^^^
+
+.. index:: SSP-ERK-10-1-2
+
+Accessible via the constant ``ARKODE_SSP_ERK_10_1_2`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_SSP_ERK_10_1_2"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the "SSPERK(10,2)" method from :cite:p:`FCS:22`.
+Both the method and its embedding have optimal SSP coefficient
+equal to 8.97.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cccccccccc}
+     0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac19 & \frac19 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+     \frac29 & \frac19 & \frac19 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+     \frac13 & \frac19 & \frac19 & \frac19 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+     \frac49 & \frac19 & \frac19 & \frac19 & \frac19 & 0 & 0 & 0 & 0 & 0 & 0\\
+     \frac59 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & 0 & 0 & 0 & 0 & 0\\
+     \frac23 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & 0 & 0 & 0 & 0\\
+     \frac79 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & 0 & 0 & 0\\
+     \frac89 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & 0 & 0\\
+     1       & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & \frac19 & 0\\
+     \hline
+     2 & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10}\\
+     1 & \frac{11}{100} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{9}{100}\\
+   \end{array}
+
+.. figure:: /figs/arkode/ARKODE_SSP_ERK_10_1_2_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the SSP-ERK-10-1-2 method. The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.ARK2-ERK:
 
 ARK2-ERK-3-1-2
 ^^^^^^^^^^^^^^
@@ -312,14 +440,93 @@ explicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
    \end{array}
 
 .. figure:: /figs/arkode/ark2_erk_stab_region.png
-   :scale: 65 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the ARK2-ERK method. The method's
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Bogacki_Shampine:
+.. _Butcher.ASCHER-ERK-3-1-2:
+
+Ascher-ERK-3-1-2
+^^^^^^^^^^^^^^^^^
+
+.. index:: Ascher-ERK-3-1-2
+
+Accessible via the constant ``ARKODE_ASCHER_ERK_3_1_2`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_ASCHER_ERK_3_1_2"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+The method is the explicit portion of the "(2,2,2)" additive Runge--Kutta
+method from Section 2.6 of :cite:p:`ARS:97`; the embedding was invented specifically for
+ARKODE.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccc}
+     0 & 0 & 0 & 0 \\
+     \gamma & \gamma & 0 & 0 \\
+     1 & \delta & 1-\delta & 0 \\
+     \hline
+     2 & \delta & 1-\delta & 0 \\
+     1 & 0 & \frac23 & \frac13 \\
+   \end{array}
+
+where :math:`\gamma = \frac{2-\sqrt{2}}{2}` and :math:`\delta = 1-\frac{1}{2\gamma}`.
+
+.. figure:: /figs/arkode/ARKODE_ASCHER_ERK_3_1_2_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the Ascher-ERK-3-1-2 method. The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.SSP-LSPUM-ERK-3-1-2:
+
+SSP-LSPUM-ERK-3-1-2
+^^^^^^^^^^^^^^^^^^^
+
+.. index:: SSP-LSPUM-ERK-3-1-2
+
+Accessible via the constant ``ARKODE_SSP_LSPUM_ERK_3_1_2`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_SSP_LSPUM_ERK_3_1_2"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+The method is the explicit portion of the "SSP2(3,3,2)-LSPUM" additive
+Runge--Kutta method from :cite:p:`H:14`; the embedding was invented
+specifically for ARKODE.  The method has SSP coefficient equal to 1.2,
+and the embedding has SSP coefficient equal to 1.15.
+
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccc}
+     0 & 0 & 0 & 0 \\
+     \frac56 & \frac56 & 0 & 0 \\
+     \frac{11}{12} & \frac{11}{24} & \frac{11}{24} & 0 \\
+     \hline
+     2 & \frac{24}{55} & \frac{1}{5} & \frac{4}{11} \\
+     1 & \frac{4247}{9840} & \frac{21343}{108240} & \frac{49}{132}
+   \end{array}
+
+.. figure:: /figs/arkode/ARKODE_SSP_LSPUM_ERK_3_1_2_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the SSP-LSPUM-ERK-3-1-2 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+
+.. _Butcher.Bogacki-Shampine:
 
 Bogacki-Shampine-4-2-3
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -349,7 +556,7 @@ explicit method (from :cite:p:`Bogacki:89`).
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_1.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Bogacki-Shampine method.  The method's
@@ -358,7 +565,7 @@ explicit method (from :cite:p:`Bogacki:89`).
 
 
 
-.. _Butcher.ARK_4_2_3_E:
+.. _Butcher.ARK-4-2-3-E:
 
 ARK324L2SA-ERK-4-2-3
 ^^^^^^^^^^^^^^^^^^^^
@@ -389,7 +596,7 @@ method from :cite:p:`KenCarp:03`).
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_2.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the explicit ARK-4-2-3 method.  The method's
@@ -407,7 +614,7 @@ Accessible via the constant ``ARKODE_SHU_OSHER_3_2_3`` to
 Accessible via the string ``"ARKODE_SHU_OSHER_3_2_3"`` to
 :c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadERKByName`.
-(from :cite:p:`ShOs:88` with embedding from :cite:p:`FCS:21`).
+(from :cite:p:`ShOs:88` with embedding from :cite:p:`FCS:22`).
 
 .. math::
 
@@ -422,7 +629,7 @@ Accessible via the string ``"ARKODE_SHU_OSHER_3_2_3"`` to
    \end{array}
 
 .. figure:: /figs/arkode/shu_osher_erk_stab_region.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Shu-Osher method.  The method's
@@ -430,7 +637,7 @@ Accessible via the string ``"ARKODE_SHU_OSHER_3_2_3"`` to
 
 
 
-.. _Butcher.Knoth_Wolke:
+.. _Butcher.Knoth-Wolke:
 
 Knoth-Wolke-3-3
 ^^^^^^^^^^^^^^^^^^
@@ -458,13 +665,136 @@ This is the default 3th order slow and fast MRIStep method (from
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_24.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Knoth-Wolke method
 
 
-.. _Butcher.Sofroniou_Spaletta:
+.. _Butcher.SSP-ERK-4-2-3:
+
+SSP-ERK-4-2-3
+^^^^^^^^^^^^^
+
+.. index:: SSP_ERK_4_2_3 method
+
+Accessible via the constant ``ARKODE_SSP_ERK_4_2_3`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`, or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_SSP_ERK_4_2_3"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName`, or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the "SSPERK(4,3)" method from :cite:p:`FCS:22`.
+Both the method and its embedding have SSP coefficient equal to 2.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cccc}
+           0 & 0       & 0       & 0       & 0 \\
+     \frac12 & \frac12 & 0       & 0       & 0 \\
+           1 & \frac12 & \frac12 & 0       & 0 \\
+     \frac12 & \frac16 & \frac16 & \frac16 & 0 \\
+     \hline
+           3 & \frac16 & \frac16 & \frac16 & \frac12
+           2 & \frac14 & \frac14 & \frac14 & \frac14
+   \end{array}
+
+.. figure:: /figs/arkode/ARKODE_SSP_ERK_4_2_3_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the SSP-ERK-4-2-3 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.SSP-ERK-9-2-3:
+
+SSP-ERK-9-2-3
+^^^^^^^^^^^^^
+
+.. index:: SSP_ERK_9_2_3 method
+
+Accessible via the constant ``ARKODE_SSP_ERK_9_2_3`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`, or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_SSP_ERK_9_2_3"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName`, or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the "SSPERK(9,3)" method from :cite:p:`FCS:22`.
+The method has SSP coefficient equal to 6, and the embedding has
+SSP coefficient equal to 1.14.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccccccccc}
+           0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac16 & \frac16 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac13 & \frac16 & \frac16      & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac12 & \frac16 & \frac16      & \frac16      & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac23 & \frac16 & \frac16      & \frac16      & \frac16      & 0 & 0 & 0 & 0 & 0 \\
+     \frac56 & \frac16 & \frac16      & \frac16      & \frac16      & \frac16      & 0 & 0 & 0 & 0 \\
+     \frac12 & \frac16 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & 0 & 0 & 0 \\
+     \frac23 & \frac16 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16 & 0 & 0 \\
+     \frac56 & \frac16 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16 & \frac16 & 0 \\
+     \hline
+           3 & \frac16 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16 & \frac16 & \frac16
+           2 & \frac19 & \frac19      & \frac19      & \frac19      & \frac19      & \frac19      & \frac19 & \frac19 & \frac19
+   \end{array}
+
+.. figure:: /figs/arkode/ARKODE_SSP_ERK_9_2_3_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the SSP-ERK-9-2-3 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.SSP-ERK-10-3-4:
+
+SSP-ERK-10-3-4
+^^^^^^^^^^^^^^
+
+.. index:: SSP_ERK_10_3_4 method
+
+Accessible via the constant ``ARKODE_SSP_ERK_10_3_4`` to
+:c:func:`ARKStepSetTableNum`, :c:func:`ERKStepSetTableNum`, or
+:c:func:`ARKodeButcherTable_LoadERK`.
+Accessible via the string ``"ARKODE_SSP_ERK_10_3_4"`` to
+:c:func:`ARKStepSetTableName`, :c:func:`ERKStepSetTableName`, or
+:c:func:`ARKodeButcherTable_LoadERKByName`.
+This is the "SSPERK(10,4)" method from :cite:p:`FCS:22`.
+The method has SSP coefficient equal to 6.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cccccccccc}
+     0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0& 0 \\
+     \frac16 & \frac16      & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac13 & \frac16      & \frac16      & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+     \frac12 & \frac16      & \frac16      & \frac16      & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+     \frac23 & \frac16      & \frac16      & \frac16      & \frac16      & 0 & 0 & 0 & 0 & 0 & 0\\
+     \frac13 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & 0 & 0 & 0 & 0 & 0\\
+     \frac12 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16      & 0 & 0 & 0 & 0\\
+     \frac23 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16      & \frac16      & 0 & 0 & 0\\
+     \frac56 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16      & \frac16      & \frac16      & 0 & 0\\
+     1 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16      & \frac16      & \frac16      & \frac16 & 0\\
+     \hline
+     4 & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10} & \frac{1}{10}\\
+     3 & \frac15      & 0            & 0            & \frac{3}{10} & 0            & 0            & \frac15      & 0            & \frac{3}{10} & 0
+   \end{array}
+
+.. figure:: /figs/arkode/ARKODE_SSP_ERK_10_3_4_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the SSP-ERK-10-3-4 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.Sofroniou-Spaletta:
 
 Sofroniou-Spaletta-5-3-4
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -494,7 +824,7 @@ Accessible via the string ``"ARKODE_SOFRONIOU_SPALETTA_5_3_4"`` to
    \end{array}
 
 .. figure:: /figs/arkode/sofroniou_spaletta_erk_stab_region.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Sofroniou-Spaletta method.  The method's
@@ -534,7 +864,7 @@ This is the default 4th order explicit method
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_3.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Zonneveld method.  The method's
@@ -544,7 +874,7 @@ This is the default 4th order explicit method
 
 
 
-.. _Butcher.ARK_6_3_4_E:
+.. _Butcher.ARK-6-3-4-E:
 
 ARK436L2SA-ERK-6-3-4
 ^^^^^^^^^^^^^^^^^^^^
@@ -576,7 +906,7 @@ explicit portion of the ARK4(3)6L[2]SA method from :cite:p:`KenCarp:03`).
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_4.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the ARK436L2SA-ERK-6-3-4 method.  The method's
@@ -585,7 +915,7 @@ explicit portion of the ARK4(3)6L[2]SA method from :cite:p:`KenCarp:03`).
 
 
 
-.. _Butcher.ARK_7_3_4_E:
+.. _Butcher.ARK-7-3-4-E:
 
 ARK437L2SA-ERK-7-3-4
 ^^^^^^^^^^^^^^^^^^^^
@@ -624,7 +954,7 @@ portion of the ARK4(3)7L[2]SA method from :cite:p:`KenCarp:19`).
    The Butcher table is too large to fit in the PDF version of this documentation.  Please see the HTML documentation for the table coefficients.
 
 .. figure:: /figs/arkode/stab_region_34.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the ARK437L2SA-ERK-7-3-4 method.  The method's
@@ -633,7 +963,7 @@ portion of the ARK4(3)7L[2]SA method from :cite:p:`KenCarp:19`).
 
 
 
-.. _Butcher.Sayfy_Aburub:
+.. _Butcher.Sayfy-Aburub:
 
 Sayfy-Aburub-6-3-4
 ^^^^^^^^^^^^^^^^^^^^^
@@ -664,7 +994,7 @@ Accessible via the string ``"ARKODE_SAYFY_ABURUB_6_3_4"`` to
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_5.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Sayfy-Aburub-6-3-4 method.  The method's
@@ -705,7 +1035,7 @@ This is the default 5th order explicit method (from :cite:p:`CashKarp:90`).
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_6.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Cash-Karp method.  The method's
@@ -748,7 +1078,7 @@ Accessible via the string ``"ARKODE_FEHLBERG_6_4_5"`` to
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_7.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Fehlberg method.  The method's
@@ -758,7 +1088,7 @@ Accessible via the string ``"ARKODE_FEHLBERG_6_4_5"`` to
 
 
 
-.. _Butcher.Dormand_Prince:
+.. _Butcher.Dormand-Prince:
 
 Dormand-Prince-7-4-5
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -790,7 +1120,7 @@ Accessible via the string ``"ARKODE_DORMAND_PRINCE_7_4_5"`` to
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_8.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Dormand-Prince method.  The method's
@@ -800,7 +1130,7 @@ Accessible via the string ``"ARKODE_DORMAND_PRINCE_7_4_5"`` to
 
 
 
-.. _Butcher.ARK_8_4_5_E:
+.. _Butcher.ARK-8-4-5-E:
 
 ARK548L2SA-ERK-8-4-5
 ^^^^^^^^^^^^^^^^^^^^
@@ -841,7 +1171,7 @@ explicit portion of the ARK5(4)8L[2]SA method from :cite:p:`KenCarp:03`).
 
 
 .. figure:: /figs/arkode/stab_region_9.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the explicit ARK-8-4-5 method.  The method's
@@ -852,7 +1182,7 @@ explicit portion of the ARK5(4)8L[2]SA method from :cite:p:`KenCarp:03`).
 
 
 
-.. _Butcher.ARK_8_4_5b_E:
+.. _Butcher.ARK-8-4-5b-E:
 
 ARK548L2SAb-ERK-8-4-5
 ^^^^^^^^^^^^^^^^^^^^^
@@ -893,11 +1223,11 @@ This is the explicit portion of the 5th order ARK5(4)8L[2]SA method from
 
 
 .. figure:: /figs/arkode/stab_region_35.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the ARK548L2SAb-ERK-8-4-5 method.  The method's
-   region is outlined in blue; the embedding's region is in red.
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
 
@@ -935,7 +1265,7 @@ This is the default 6th order explicit method (from :cite:p:`HEJ:76`).
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_10.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Verner-8-5-6 method.  The method's
@@ -986,7 +1316,7 @@ This is the 6th order explicit method IIIXb-6(5) from :cite:p:`Ver:10`.
 
 
 .. figure:: /figs/arkode/v65b_erk_stab_region.png
-   :scale: 75 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Verner-9-5-6 method.  The method's
@@ -1036,7 +1366,7 @@ This is the default 7th order explicit method (from :cite:p:`Ver:10`).
 
 
 .. figure:: /figs/arkode/v76_erk_stab_region.png
-   :scale: 75 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Verner-10-6-7 method.  The method's
@@ -1083,7 +1413,7 @@ This is the default 8th order explicit method (from :cite:p:`Butcher:08`).
 
 
 .. figure:: /figs/arkode/stab_region_23.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Fehlberg-13-7-8 method.  The method's
@@ -1137,7 +1467,7 @@ This is the 8th order explicit method IIIX-8(7) from :cite:p:`Ver:10`.
 
 
 .. figure:: /figs/arkode/v87_erk_stab_region.png
-   :scale: 75 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Verner-13-7-8 method.  The method's
@@ -1194,7 +1524,7 @@ This is the default 9th order explicit method (from :cite:p:`Ver:10`).
 
 
 .. figure:: /figs/arkode/v98_erk_stab_region.png
-   :scale: 75 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Verner-16-8-9 method.  The method's
@@ -1247,10 +1577,73 @@ This is the default 1st order implicit method.  The method is A-, L-, and B-stab
    \end{array}
 
 .. figure:: /figs/arkode/backward_euler_dirk_stab_region.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the backward Euler method.
+
+
+.. _Butcher.Implicit-Midpoint:
+
+Implicit-Midpoint-1-2
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Implicit-Midpoint-1-2 method
+
+Accessible via the constant ``ARKODE_IMPLICIT_MIDPOINT_1_2`` to
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_IMPLICIT_MIDPOINT_1_2"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+The method is A- and B-stable.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|c}
+     \frac{1}{2} & \frac{1}{2} \\
+     \hline
+     2 & 1
+   \end{array}
+
+.. figure:: /figs/arkode/implicit_midpoint_dirk_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the implicit midpoint method.
+
+
+.. _Butcher.Implicit-Trapezoidal:
+
+Implicit-Trapezoidal-2-2
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: Implicit-Trapezoidal-2-2 method
+
+Accessible via the constant ``ARKODE_IMPLICIT_TRAPEZOIDAL_2_2`` to
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_IMPLICIT_TRAPEZOIDAL_2_2"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+The method is A-stable.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cc}
+     0 & 0 & 0 \\
+     1 & \frac{1}{2} & \frac{1}{2} \\
+     \hline
+     2 & \frac{1}{2} & \frac{1}{2}
+   \end{array}
+
+.. figure:: /figs/arkode/implicit_trapezoidal_dirk_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the implicit trapezoidal method.
 
 
 .. _Butcher.SDIRK-2-1:
@@ -1281,14 +1674,52 @@ are A- and B-stable.
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_11.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the SDIRK-2-1-2 method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ARK2_DIRK:
+.. _Butcher.SSP-SDIRK-2-1-2:
+
+SSP-SDIRK-2-1-2
+^^^^^^^^^^^^^^^
+
+.. index:: SSP-SDIRK-2-1-2
+
+Accessible via the constant ``ARKODE_SSP_SDIRK_2_1_2`` to
+:c:func:`ARKStepSetTableNum`, or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_SSP_SDIRK_2_1_2"`` to
+:c:func:`ARKStepSetTableName`, or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This method was invented specifically for ARKODE.  The method and embedding are
+both A- and B-stable.  The method has SSP coefficient 2.41 and the embedding has
+SSP coefficient 3.34.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cc}
+     \gamma   & \gamma & 0 \\
+     1-\gamma & 1-2\gamma & \gamma \\
+     \hline
+     2 & \frac12 & \frac12 \\
+     1 & \frac{5}{12} & \frac{7}{12} \\
+   \end{array}
+
+where :math:`\gamma = 1 - \frac{1}{\sqrt{2}}`.
+
+.. figure:: /figs/arkode/ARKODE_SSP_SDIRK_2_1_2_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the SSP-SDIRK-2-1-2 method. The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.ARK2-DIRK:
 
 ARK2-DIRK-3-1-2
 ^^^^^^^^^^^^^^^
@@ -1303,6 +1734,7 @@ Accessible via the string ``"ARKODE_ARK2_DIRK_3_1_2"`` to
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
 This is the implicit portion of the default 2nd order additive method (the
 implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
+The method is both A- and L-stable, while the embedding is A-stable.
 
 .. math::
 
@@ -1317,74 +1749,88 @@ implicit portion of the ARK2 method from :cite:p:`giraldo2013implicit`).
    \end{array}
 
 .. figure:: /figs/arkode/ark2_dirk_stab_region.png
-   :scale: 65 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the ARK2-DIRK method. The method's
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.Implicit_Midpoint:
+.. _Butcher.ASCHER-SDIRK-3-1-2:
 
-Implicit-Midpoint-1-2
-^^^^^^^^^^^^^^^^^^^^^
+ASCHER-SDIRK-3-1-2
+^^^^^^^^^^^^^^^^^^
 
-.. index:: Implicit-Midpoint-1-2 method
+.. index:: ASCHER-SDIRK-3-1-2
 
-Accessible via the constant ``ARKODE_IMPLICIT_MIDPOINT_1_2`` to
-:c:func:`ARKStepSetTableNum` or
+Accessible via the constant ``ARKODE_ASCHER_SDIRK_3_1_2`` to
+:c:func:`ARKStepSetTableNum`, or
 :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_IMPLICIT_MIDPOINT_1_2"`` to
-:c:func:`ARKStepSetTableName` or
+Accessible via the string ``"ARKODE_ASCHER_SDIRK_3_1_2"`` to
+:c:func:`ARKStepSetTableName`, or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-The method is A- and B-stable.
+The method is the implicit portion of the "(2,2,2)" additive Runge--Kutta
+method from Section 2.6 of :cite:p:`ARS:97`; the embedding was invented
+specifically for ARKODE.  The method is both A- and L-stable, and the
+embedding is A-stable.
 
 .. math::
 
    \renewcommand{\arraystretch}{1.5}
-   \begin{array}{r|c}
-     \frac{1}{2} & \frac{1}{2} \\
+   \begin{array}{r|ccc}
+     0 & 0 & 0 & 0 \\
+     \gamma & 0 & \gamma & 0 \\
+     1 & 0 & 1-\gamma & \gamma \\
      \hline
-     2 & 1
+     2 & 0 & 1-\gamma & \gamma \\
+     1 & 0 & \frac23 & \frac13 \\
    \end{array}
 
-.. figure:: /figs/arkode/implicit_midpoint_dirk_stab_region.png
-   :scale: 50 %
+where :math:`\gamma = \frac{2-\sqrt{2}}{2}`.
+
+.. figure:: /figs/arkode/ARKODE_ASCHER_SDIRK_3_1_2_stab_region.png
+   :width: 66 %
    :align: center
 
-   Linear stability region for the implicit midpoint method.
+   Linear stability region for the Ascher-SDIRK-3-1-2 method. The method's
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
-.. _Butcher.Implicit_Trapezoidal:
+.. _Butcher.SSP-DIRK-3-1-2:
 
-Implicit-Trapezoidal-2-2
-^^^^^^^^^^^^^^^^^^^^^^^^
+SSP-DIRK-3-1-2
+^^^^^^^^^^^^^^
 
-.. index:: Implicit-Trapezoidal-2-2 method
+.. index:: SSP-DIRK-3-1-2
 
-Accessible via the constant ``ARKODE_IMPLICIT_TRAPEZOIDAL_2_2`` to
-:c:func:`ARKStepSetTableNum` or
+Accessible via the constant ``ARKODE_SSP_DIRK_3_1_2`` to
+:c:func:`ARKStepSetTableNum`, or
 :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_IMPLICIT_TRAPEZOIDAL_2_2"`` to
-:c:func:`ARKStepSetTableName` or
+Accessible via the string ``"ARKODE_SSP_DIRK_3_1_2"`` to
+:c:func:`ARKStepSetTableName`, or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-The method is A-stable.
+This method was invented specifically for ARKODE.  The method is both A- and L-stable,
+while the embedding is A-stable.  Both the method and embedding have SSP coefficient
+equal to 2.4.
 
 .. math::
 
    \renewcommand{\arraystretch}{1.5}
-   \begin{array}{r|cc}
-     0 & 0 & 0 \\
-     1 & \frac{1}{2} & \frac{1}{2} \\
+   \begin{array}{r|ccc}
+     \frac14 & \frac14 & 0       & 0 \\
+     \frac14 & 0       & \frac14 & 0 \\
+     1       & \frac13 & \frac13 & \frac13 \\
      \hline
-     2 & \frac{1}{2} & \frac{1}{2}
+     2 & 0 & 1-\gamma & \gamma \\
+     1 & \frac13-\frac{1}{10} & \frac13 & \frac13+\frac{1}{10} \\
    \end{array}
 
-.. figure:: /figs/arkode/implicit_trapezoidal_dirk_stab_region.png
-   :scale: 50 %
+.. figure:: /figs/arkode/ARKODE_SSP_DIRK_3_1_2_stab_region.png
+   :width: 66 %
    :align: center
 
-   Linear stability region for the implicit trapezoidal method.
+   Linear stability region for the SSP-DIRK-3-1-2 method. The method's
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
 .. _Butcher.Billington:
@@ -1416,7 +1862,7 @@ Here, the higher-order embedding is less stable than the lower-order method
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_12.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Billington method.  The method's
@@ -1456,85 +1902,98 @@ lower-order method (from :cite:p:`Bank:85`).
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_13.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the TRBDF2 method.  The method's
    region is outlined in blue; the embedding's region is in red.
 
 
-.. _Butcher.ESDIRK324L2SA:
 
-ESDIRK324L2SA-4-2-3
+.. _Butcher.SSP-LSPUM-SDIRK-3-1-2:
+
+SSP-LSPUM-SDIRK-3-1-2
 ^^^^^^^^^^^^^^^^^^^^^
 
-.. index:: ESDIRK324L2SA-4-2-3 method
+.. index:: SSP-LSPUM-SDIRK-3-1-2 method
 
-Accessible via the constant ``ARKODE_ESDIRK324L2SA_4_2_3`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK324L2SA_4_2_3"`` to
+Accessible via the constant ``ARKODE_SSP_LSPUM_SDIRK_3_1_2`` to
+:c:func:`ARKStepSetTableNum` or
+:c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_SSP_LSPUM_SDIRK_3_1_2"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK3(2)4L[2]SA method from :cite:p:`KenCarp:19b`.
-Both the method and embedding are A- and L-stable.
+The method is the implicit portion of the "SSP2(3,3,2)-LSPUM" additive
+Runge--Kutta method from :cite:p:`H:14`; the embedding was invented
+specifically for ARKODE.  The method is both A- and L-stable,
+while the embedding is A-stable.  Both the method and embedding have SSP
+coefficient equal to 3.81.
 
-.. figure:: /figs/arkode/stab_region_25.png
-   :scale: 50 %
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccc}
+     \frac{2}{11}    & \frac{2}{11}      & 0 & 0 \\
+     \frac{289}{462} & \frac{205}{462}   & \frac{2}{11}   & 0 \\
+     \frac{751}{924} & \frac{2033}{4620} & \frac{21}{110} & \frac{2}{11} \\
+     \hline
+     2 & \frac{24}{55} & \frac{1}{5} & \frac{4}{11} \\
+     1 & \frac{4247}{9840} & \frac{21343}{108240} & \frac{49}{132}
+   \end{array}
+
+.. figure:: /figs/arkode/ARKODE_SSP_LSPUM_SDIRK_3_1_2_stab_region.png
+   :width: 66 %
    :align: center
 
-   Linear stability region for the ESDIRK324L2SA-4-2-3 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
+   Linear stability region for the SSP-LSPUM-SDIRK-3-1-2 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
 
-.. _Butcher.ESDIRK325L2SA:
+.. _Butcher.SSP-ESDIRK-4-2-3:
 
-ESDIRK325L2SA-5-2-3
-^^^^^^^^^^^^^^^^^^^^^
+SSP-ESDIRK-4-2-3
+^^^^^^^^^^^^^^^^
 
-.. index:: ESDIRK325L2SA-5-2-3 method
+.. index:: SSP-ESDIRK-4-2-3 method
 
-Accessible via the constant ``ARKODE_ESDIRK325L2SA_5_2_3`` to
+Accessible via the constant ``ARKODE_SSP_ESDIRK_4_2_3`` to
 :c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK325L2SA_5_2_3"`` to
+Accessible via the string ``"ARKODE_SSP_ESDIRK_4_2_3"`` to
 :c:func:`ARKStepSetTableName` or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK3(2)5L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
+This method was invented specifically for ARKODE as an implicit method to
+pair with :numref:`Butcher.SSP-ERK-4-2-3` for an embedded additive
+Runge--Kutta method.  The method and embedding are both A-stable.
+Neither the ESDIRK method or its embedding are SSP.
 
-.. figure:: /figs/arkode/stab_region_26.png
-   :scale: 50 %
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cccc}
+     0       & 0 & 0 & 0 & 0 \\
+     \frac12 & -\frac{\sqrt{3}}{6} & \gamma    & 0 & 0 \\
+     1       & 2\gamma             & 1-3\gamma & \gamma & 0 \\
+     \frac12 & \frac16 & \frac13-\gamma & 0 & \gamma \\
+     \hline
+     3       & \frac16 & \frac16 & \frac16 & \frac12 \\
+     2       & \frac14 & \frac14 & \frac14 & \frac14
+   \end{array}
+
+where :math:`\gamma = \frac{3+\sqrt{3}}{6}`.
+
+.. figure:: /figs/arkode/ARKODE_SSP_ESDIRK_4_2_3_stab_region.png
+   :width: 66 %
    :align: center
 
-   Linear stability region for the ESDIRK325L2SA-5-2-3 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
+   Linear stability region for the SSP-ESDIRK-4-2-3 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed (these
+   boundaries lie on top of one another).
 
 
 
-.. _Butcher.ESDIRK32I5L2SA:
-
-ESDIRK32I5L2SA-5-2-3
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK32I5L2SA-5-2-3 method
-
-Accessible via the constant ``ARKODE_ESDIRK32I5L2SA_5_2_3`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK32I5L2SA_5_2_3"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK3(2I)5L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_27.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK32I5L2SA-5-2-3 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-.. _Butcher.Kvaerno_4_2_3:
+.. _Butcher.Kvaerno-4-2-3:
 
 Kvaerno-4-2-3
 ^^^^^^^^^^^^^^^^
@@ -1564,7 +2023,7 @@ Both the method and embedding are A-stable; additionally the method is L-stable
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_14.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Kvaerno-4-2-3 method.  The method's
@@ -1572,10 +2031,80 @@ Both the method and embedding are A-stable; additionally the method is L-stable
 
 
 
+.. _Butcher.ESDIRK324L2SA:
+
+ESDIRK324L2SA-4-2-3
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK324L2SA-4-2-3 method
+
+Accessible via the constant ``ARKODE_ESDIRK324L2SA_4_2_3`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK324L2SA_4_2_3"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK3(2)4L[2]SA method from :cite:p:`KenCarp:19b`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_25.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the ESDIRK324L2SA-4-2-3 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
 
-.. _Butcher.ARK_4_2_3_I:
+.. _Butcher.ESDIRK325L2SA:
+
+ESDIRK325L2SA-5-2-3
+^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK325L2SA-5-2-3 method
+
+Accessible via the constant ``ARKODE_ESDIRK325L2SA_5_2_3`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK325L2SA_5_2_3"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK3(2)5L[2]SA method from :cite:p:`KenCarp:16`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_26.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the ESDIRK325L2SA-5-2-3 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+
+.. _Butcher.ESDIRK32I5L2SA:
+
+ESDIRK32I5L2SA-5-2-3
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK32I5L2SA-5-2-3 method
+
+Accessible via the constant ``ARKODE_ESDIRK32I5L2SA_5_2_3`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK32I5L2SA_5_2_3"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK3(2I)5L[2]SA method from :cite:p:`KenCarp:16`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_27.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the ESDIRK32I5L2SA-5-2-3 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+
+
+.. _Butcher.ARK-4-2-3-I:
 
 ARK324L2SA-DIRK-4-2-3
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1607,7 +2136,7 @@ ARK3(2)4L[2]SA method from :cite:p:`KenCarp:03`).
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_15.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the implicit ARK324L2SA-DIRK-4-2-3 method.  The method's
@@ -1616,10 +2145,7 @@ ARK3(2)4L[2]SA method from :cite:p:`KenCarp:03`).
 
 
 
-
-
-
-.. _Butcher.Cash_5_2_4:
+.. _Butcher.Cash-5-2-4:
 
 Cash-5-2-4
 ^^^^^^^^^^^^^^
@@ -1650,7 +2176,7 @@ Both the method and embedding are A-stable; additionally the method is L-stable
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_16.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Cash-5-2-4 method.  The method's
@@ -1660,8 +2186,7 @@ Both the method and embedding are A-stable; additionally the method is L-stable
 
 
 
-
-.. _Butcher.Cash_5_3_4:
+.. _Butcher.Cash-5-3-4:
 
 Cash-5-3-4
 ^^^^^^^^^^^
@@ -1692,7 +2217,7 @@ Both the method and embedding are A-stable; additionally the method is L-stable
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_17.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Cash-5-3-4 method.  The method's
@@ -1734,7 +2259,7 @@ L-stable, although the embedding has reduced stability
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_18.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the SDIRK-5-3-4 method.  The method's
@@ -1745,9 +2270,7 @@ L-stable, although the embedding has reduced stability
 
 
 
-
-
-.. _Butcher.Kvaerno_5_3_4:
+.. _Butcher.Kvaerno-5-3-4:
 
 Kvaerno-5-3-4
 ^^^^^^^^^^^^^^^^
@@ -1784,7 +2307,7 @@ Both the method and embedding are A-stable (from :cite:p:`Kva:04`).
 
 
 .. figure:: /figs/arkode/stab_region_19.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Kvaerno-5-3-4 method.  The method's
@@ -1795,7 +2318,76 @@ Both the method and embedding are A-stable (from :cite:p:`Kva:04`).
 
 
 
-.. _Butcher.ARK_6_3_4_I:
+.. _Butcher.ESDIRK436L2SA:
+
+ESDIRK436L2SA-6-3-4
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK436L2SA-6-3-4 method
+
+Accessible via the constant ``ARKODE_ESDIRK436L2SA_6_3_4`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK436L2SA_6_3_4"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_28.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the ESDIRK436L2SA-6-3-4 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.ESDIRK43I6L2SA:
+
+ESDIRK43I6L2SA-6-3-4
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ESDIRK43I6L2SA-6-3-4 method
+
+Accessible via the constant ``ARKODE_ESDIRK43I6L2SA_6_3_4`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_ESDIRK43I6L2SA_6_3_4"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the ESDIRK4(3I)6L[2]SA method from :cite:p:`KenCarp:16`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_29.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the ESDIRK43I6L2SA-6-3-4 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.QESDIRK436L2SA:
+
+QESDIRK436L2SA-6-3-4
+^^^^^^^^^^^^^^^^^^^^
+
+.. index:: QESDIRK436L2SA-6-3-4 method
+
+Accessible via the constant ``ARKODE_QESDIRK436L2SA_6_3_4`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_QESDIRK436L2SA_6_3_4"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This is the QESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
+Both the method and embedding are A- and L-stable.
+
+.. figure:: /figs/arkode/stab_region_30.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the QESDIRK436L2SA-6-3-4 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
+
+
+.. _Butcher.ARK-6-3-4-I:
 
 ARK436L2SA-DIRK-6-3-4
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1828,7 +2420,7 @@ the implicit portion of the ARK4(3)6L[2]SA method from :cite:p:`KenCarp:03`).
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_20.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the ARK436L2SA-DIRK-6-3-4 method.  The method's
@@ -1839,7 +2431,7 @@ the implicit portion of the ARK4(3)6L[2]SA method from :cite:p:`KenCarp:03`).
 
 
 
-.. _Butcher.ARK_7_3_4_I:
+.. _Butcher.ARK-7-3-4-I:
 
 ARK437L2SA-DIRK-7-3-4
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1872,80 +2464,11 @@ This is the implicit portion of the 4th order ARK4(3)7L[2]SA method from
    \end{array}
 
 .. figure:: /figs/arkode/stab_region_36.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the ARK437L2SA-DIRK-7-3-4 method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-.. _Butcher.ESDIRK436L2SA:
-
-ESDIRK436L2SA-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK436L2SA-6-3-4 method
-
-Accessible via the constant ``ARKODE_ESDIRK436L2SA_6_3_4`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK436L2SA_6_3_4"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_28.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK436L2SA-6-3-4 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-.. _Butcher.ESDIRK43I6L2SA:
-
-ESDIRK43I6L2SA-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: ESDIRK43I6L2SA-6-3-4 method
-
-Accessible via the constant ``ARKODE_ESDIRK43I6L2SA_6_3_4`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_ESDIRK43I6L2SA_6_3_4"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the ESDIRK4(3I)6L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_29.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the ESDIRK43I6L2SA-6-3-4 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
-
-
-.. _Butcher.QESDIRK436L2SA:
-
-QESDIRK436L2SA-6-3-4
-^^^^^^^^^^^^^^^^^^^^
-
-.. index:: QESDIRK436L2SA-6-3-4 method
-
-Accessible via the constant ``ARKODE_QESDIRK436L2SA_6_3_4`` to
-:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
-Accessible via the string ``"ARKODE_QESDIRK436L2SA_6_3_4"`` to
-:c:func:`ARKStepSetTableName` or
-:c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This is the QESDIRK4(3)6L[2]SA method from :cite:p:`KenCarp:16`.
-Both the method and embedding are A- and L-stable.
-
-.. figure:: /figs/arkode/stab_region_30.png
-   :scale: 50 %
-   :align: center
-
-   Linear stability region for the QESDIRK436L2SA-6-3-4 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
 .. _Butcher.ESDIRK437L2SA:
@@ -1964,14 +2487,14 @@ This is the ESDIRK4(3)7L[2]SA method from :cite:p:`KenCarp:19b`.
 Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_31.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
-   Linear stability region for the ESDIRK437L2SA-7-3-4 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
+   Linear stability region for the ESDIRK437L2SA-7-3-4 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
-.. _Butcher.Kvaerno_7_4_5:
+.. _Butcher.Kvaerno-7-4-5:
 
 Kvaerno-7-4-5
 ^^^^^^^^^^^^^^^^^
@@ -2011,7 +2534,7 @@ L-stable (from :cite:p:`Kva:04`).
 
 
 .. figure:: /figs/arkode/stab_region_21.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the Kvaerno-7-4-5 method.  The method's
@@ -2023,7 +2546,7 @@ L-stable (from :cite:p:`Kva:04`).
 
 
 
-.. _Butcher.ARK_8_4_5_I:
+.. _Butcher.ARK-8-4-5-I:
 
 ARK548L2SA-ESDIRK-8-4-5
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -2066,7 +2589,7 @@ method from :cite:p:`KenCarp:03`).
 
 
 .. figure:: /figs/arkode/stab_region_22.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the implicit ARK548L2SA-ESDIRK-8-4-5 method.  The method's
@@ -2075,7 +2598,7 @@ method from :cite:p:`KenCarp:03`).
 
 
 
-.. _Butcher.ARK_8_4_5b_I:
+.. _Butcher.ARK-8-4-5b-I:
 
 ARK548L2SAb-DIRK-8-4-5
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -2117,11 +2640,11 @@ Both the method and embedding are A-stable; additionally the method is L-stable
 
 
 .. figure:: /figs/arkode/stab_region_37.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
    Linear stability region for the ARK548L2SAb-DIRK-8-4-5 method.  The method's
-   region is outlined in blue; the embedding's region is in red.
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
 .. _Butcher.ESDIRK547L2SA:
@@ -2140,11 +2663,11 @@ This is the ESDIRK5(4)7L[2]SA method from :cite:p:`KenCarp:16`.
 Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_32.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
-   Linear stability region for the ESDIRK547L2SA-7-4-5 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
+   Linear stability region for the ESDIRK547L2SA-7-4-5 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
 .. _Butcher.ESDIRK547L2SA2:
@@ -2163,11 +2686,11 @@ This is the ESDIRK5(4)7L[2]SA2 method from :cite:p:`KenCarp:19b`.
 Both the method and embedding are A- and L-stable.
 
 .. figure:: /figs/arkode/stab_region_33.png
-   :scale: 50 %
+   :width: 66 %
    :align: center
 
-   Linear stability region for the ESDIRK547L2SA2-7-4-5 method method.  The method's
-   region is outlined in blue; the embedding's region is in red.
+   Linear stability region for the ESDIRK547L2SA2-7-4-5 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
 
@@ -2179,44 +2702,281 @@ Additive Butcher tables
 
 In the category of additive Runge--Kutta methods for split implicit and
 explicit calculations, ARKODE includes methods that have orders 2
-through 5, with embeddings that are of orders 1 through 4.  These
-Butcher table pairs are as follows:
+through 5, with embeddings that are of orders 1 through 4.
 
-* :index:`2nd-order pair <ARK-3-1-2 ARK method>`:
-  :numref:`Butcher.ARK2_ERK` with :numref:`Butcher.ARK2_DIRK`,
-  corresponding to Butcher tables ``ARKODE_ARK2_ERK_3_1_2`` and
-  ``ARKODE_ARK2_DIRK_3_1_2`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
+Additionally, for each ARK method we provide a plot of the joint linear
+stability region in the complex plane, as introduced in :cite:p:`Z:15`.  This
+analysis considers the additive Dahlquist test problem
 
-* :index:`3rd-order pair <ARK-4-2-3 ARK method>`:
-  :numref:`Butcher.ARK_4_2_3_E` with :numref:`Butcher.ARK_4_2_3_I`,
-  corresponding to Butcher tables ``ARKODE_ARK324L2SA_ERK_4_2_3`` and
-  ``ARKODE_ARK324L2SA_DIRK_4_2_3`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
+.. math::
 
-* :index:`4th-order pair <ARK-6-3-4 ARK method>`:
-  :numref:`Butcher.ARK_6_3_4_E` with :numref:`Butcher.ARK_6_3_4_I`,
-  corresponding to Butcher tables ``ARKODE_ARK436L2SA_ERK_6_3_4`` and
-  ``ARKODE_ARK436L2SA_DIRK_6_3_4`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
+   \dot{y}(t) = \lambda^I y + \lambda^E y, \quad y(0) = 1,
 
-* :index:`4th-order pair <ARK-7-3-4 ARK method>`:
-  :numref:`Butcher.ARK_7_3_4_E` with :numref:`Butcher.ARK_7_3_4_I`,
-  corresponding to Butcher tables ``ARKODE_ARK437L2SA_ERK_7_3_4`` and
-  ``ARKODE_ARK437L2SA_DIRK_7_3_4`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
+where the additive Runge--Kutta method applies the partition
+:math:`f^I(t,y) = \lambda^I y` and :math:`f^E(t,y) = \lambda^E y`.  Using a
+step size of :math:`h`, with corresponding scaled values
+:math:`\eta^I = h\lambda^I` and :math:`\eta^E = h\lambda^E`, this gives rise
+to the ARK stability function
 
-* :index:`5th-order pair <ARK-8-4-5 ARK method>`:
-  :numref:`Butcher.ARK_8_4_5_E` with :numref:`Butcher.ARK_8_4_5_I`,
-  corresponding to Butcher tables ``ARKODE_ARK548L2SA_ERK_8_4_5`` and
-  ``ARKODE_ARK548L2SA_DIRK_8_4_5`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
+.. math::
 
-* :index:`5th-order pair <ARK-8-4-5b ARK method>`:
-  :numref:`Butcher.ARK_8_4_5b_E` with :numref:`Butcher.ARK_8_4_5b_I`,
-  corresponding to Butcher tables ``ARKODE_ARK548L2SAb_ERK_8_4_5`` and
-  ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` for :c:func:`ARKStepSetTableNum`
-  or :c:func:`ARKStepSetTableName`.
+   R(\eta^I,\eta^E) = 1 + \left(\eta^I b^I + \eta^E b^E\right) [I - \eta^I A^I - \eta^E A^E]^{-1} e.
+
+Then for a given angle :math:`\theta \in \left[0,\frac{\pi}{2}\right]`, we may
+define the joint linear stability region
+
+.. math::
+
+   \mathcal{J}_{\theta} = \left\{ \eta^E \in \mathbb{C}\; :\; \left| R(\eta^I,\eta^E) \right| \le 1,\; \forall \eta^I\in S(\theta)\right\},
+
+where the sector :math:`S(\theta)` is defined as
+
+.. math::
+
+   S(\theta) = \left\{ \eta^I = -a+i b \; :\; a>0,\; b\ge 0,\; \operatorname{atan}\left(\frac{b}{a}\right) \le \theta \right\}.
+
+For each ARK method, we overlay plots of the border of :math:`\mathcal{J}_{\theta}`
+for values :math:`\theta \in \left\{0^o, 20^0, 40^0, 60^0, 80^0\right\}`;
+roughly corresponding with the shape of the explicit stability region under
+the assumption that the implicit method is :math:`A-\theta` stable; typically
+the joint stability region decreases in area as :math:`\theta` increases.
+
+As with traditional Runge--Kutta methods, the value :math:`\eta^E_0 =
+-\varepsilon + 0i` is always within the joint stability region.  So in each
+of the following pictures, the interior of the stability region is the
+connected region that includes :math:`\eta_0`.
+
+These ARK Butcher table pairs, and their corresponding joint stability regions,
+are as follows.
+
+
+.. _Butcher.ARK2-3-1-2:
+
+ARK2-3-1-2
+^^^^^^^^^^
+
+.. index:: ARK2-3-1-2 ARK method
+
+2nd-order method that combines :numref:`Butcher.ARK2-ERK` with :numref:`Butcher.ARK2-DIRK`,
+corresponding to Butcher tables ``ARKODE_ARK2_ERK_3_1_2`` and ``ARKODE_ARK2_DIRK_3_1_2``
+for :c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.  This is the default
+second-order ARK method.
+
+.. figure:: /figs/arkode/ARKODE_ARK2_3_1_2_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_ARK2_ERK_3_1_2`` and
+   ``ARKODE_ARK2_DIRK_3_1_2`` ARK method.  All joint stability regions
+   coincide, so only the :math:`80^o` boundary is visible.
+
+
+.. _Butcher.ASCHER-ARK-3-1-2:
+
+ASCHER-ARK-3-1-2
+^^^^^^^^^^^^^^^^
+
+.. index:: ASCHER-ARK-3-1-2 ARK method
+
+2nd-order method that combines :numref:`Butcher.ASCHER-ERK-3-1-2` with
+:numref:`Butcher.ASCHER-SDIRK-3-1-2`, corresponding to Butcher tables
+``ARKODE_ASCHER_ERK_3_1_2`` and ``ARKODE_ASCHER_SDIRK_3_1_2`` for
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+
+.. figure:: /figs/arkode/ARKODE_ASCHER_ARK_3_1_2_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_ASCHER_ERK_3_1_2`` and
+   ``ARKODE_ASCHER_SDIRK_3_1_2`` ARK method.  All joint stability regions
+   coincide, so only the :math:`80^o` boundary is visible.
+
+
+.. _Butcher.SSP-ARK-2-1-2:
+
+SSP-ARK-2-1-2
+^^^^^^^^^^^^^
+
+.. index:: SSP-ARK-2-1-2 ARK method
+
+2nd-order method that combines :numref:`Butcher.SSP-ERK-2-1-2` with
+:numref:`Butcher.SSP-SDIRK-2-1-2`, corresponding to Butcher tables
+``ARKODE_SSP_ERK_2_1_2`` and ``ARKODE_SSP_SDIRK_2_1_2`` for
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+
+.. figure:: /figs/arkode/ARKODE_SSP_ARK_2_1_2_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_SSP_ERK_2_1_2`` and
+   ``ARKODE_SSP_SDIRK_2_1_2`` ARK method.  All joint stability regions
+   coincide, so only the :math:`80^o` boundary is visible.
+
+
+.. _Butcher.SSP-ARK-3-1-2:
+
+SSP-ARK-3-1-2
+^^^^^^^^^^^^^
+
+.. index:: SSP-ARK-3-1-2 ARK method
+
+2nd-order method that combines :numref:`Butcher.SSP-ERK-3-1-2` with
+:numref:`Butcher.SSP-DIRK-3-1-2`, corresponding to Butcher tables
+``ARKODE_SSP_ERK_3_1_2`` and ``ARKODE_SSP_DIRK_3_1_2`` for
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+
+.. figure:: /figs/arkode/ARKODE_SSP_ARK_3_1_2_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_SSP_ERK_3_1_2`` and
+   ``ARKODE_SSP_DIRK_3_1_2`` ARK method.
+
+
+.. _Butcher.SSP-LSPUM-ARK-3-1-2:
+
+SSP-LSPUM-ARK-3-1-2
+^^^^^^^^^^^^^^^^^^^
+
+.. index:: SSP-LSPUM-ARK-3-1-2 ARK method
+
+2nd-order method that combines :numref:`Butcher.SSP-LSPUM-ERK-3-1-2` with
+:numref:`Butcher.SSP-LSPUM-SDIRK-3-1-2`, corresponding to Butcher tables
+``ARKODE_SSP_LSPUM_ERK_3_1_2`` and ``ARKODE_SSP_LSPUM_SDIRK_3_1_2`` for
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+
+.. figure:: /figs/arkode/ARKODE_SSP_LSPUM_ARK_3_1_2_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_SSP_LSPUM_ERK_3_1_2`` and
+   ``ARKODE_SSP_LSPUM_SDIRK_3_1_2`` ARK method.
+
+
+.. _Butcher.ARK-4-2-3:
+
+ARK3(2)4L[2]SA
+^^^^^^^^^^^^^^
+
+.. index:: ARK3(2)4L[2]SA ARK method
+
+3rd-order method that combines :numref:`Butcher.ARK-4-2-3-E` with
+:numref:`Butcher.ARK-4-2-3-I`, corresponding to Butcher tables
+``ARKODE_ARK324L2SA_ERK_4_2_3`` and ``ARKODE_ARK324L2SA_DIRK_4_2_3``
+for :c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+This is the default third-order ARK method.
+
+.. figure:: /figs/arkode/ARKODE_ARK324L2SA_4_2_3_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_ARK324L2SA_ERK_4_2_3`` and
+   ``ARKODE_ARK324L2SA_DIRK_4_2_3`` ARK method.  The joint stability regions
+   only differ near the imaginary axis, so for most of the region only the
+   :math:`80^o` boundary is visible.
+
+
+.. _Butcher.SSP-ARK-4-2-3:
+
+SSP-ARK-4-2-3
+^^^^^^^^^^^^^
+
+.. index:: SSP-ARK-4-2-3 ARK method
+
+3rd-order method that combines :numref:`Butcher.SSP-ERK-4-2-3` with
+:numref:`Butcher.SSP-ESDIRK-4-2-3`, corresponding to Butcher tables
+``ARKODE_SSP_ERK_4_2_3`` and ``ARKODE_SSP_ESDIRK_4_2_3`` for
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+
+.. figure:: /figs/arkode/ARKODE_SSP_ARK_4_2_3_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_SSP_ERK_4_2_3`` and
+   ``ARKODE_SSP_ESDIRK_4_2_3`` ARK method.  All joint stability regions
+   coincide, so only the :math:`80^o` boundary is visible.
+
+
+.. _Butcher.ARK-6-3-4:
+
+ARK4(3)6L[2]SA
+^^^^^^^^^^^^^^
+
+.. index:: ARK4(3)6L[2]SA ARK method
+
+4th-order method that combines :numref:`Butcher.ARK-6-3-4-E` with
+:numref:`Butcher.ARK-6-3-4-I`, corresponding to Butcher tables
+``ARKODE_ARK436L2SA_ERK_6_3_4`` and ``ARKODE_ARK436L2SA_DIRK_6_3_4``
+for :c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+This is the default fourth-order ARK method.
+
+.. figure:: /figs/arkode/ARKODE_ARK436L2SA_6_3_4_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_ARK436L2SA_ERK_6_3_4``
+   and ``ARKODE_ARK436L2SA_DIRK_6_3_4`` ARK method.
+
+
+.. _Butcher.ARK-7-3-4:
+
+ARK4(3)7L[2]SA
+^^^^^^^^^^^^^^
+
+.. index:: ARK4(3)7L[2]SA ARK method
+
+4th-order method that combines :numref:`Butcher.ARK-7-3-4-E` with
+:numref:`Butcher.ARK-7-3-4-I`, corresponding to Butcher tables
+``ARKODE_ARK437L2SA_ERK_7_3_4`` and ``ARKODE_ARK437L2SA_DIRK_7_3_4``
+for :c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+
+.. figure:: /figs/arkode/ARKODE_ARK437L2SA_7_3_4_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_ARK437L2SA_ERK_7_3_4``
+   and ``ARKODE_ARK437L2SA_DIRK_7_3_4`` ARK method.
+
+
+.. _Butcher.ARK-8-4-5:
+
+ARK5(4)8L[2]SA
+^^^^^^^^^^^^^^
+
+.. index:: ARK5(4)8L[2]SA ARK method
+
+5th-order method that combines :numref:`Butcher.ARK-8-4-5-E` with
+:numref:`Butcher.ARK-8-4-5-I`, corresponding to Butcher tables
+``ARKODE_ARK548L2SA_ERK_8_4_5`` and ``ARKODE_ARK548L2SA_DIRK_8_4_5`` for
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+This is the default fifth-order ARK method.
+
+.. figure:: /figs/arkode/ARKODE_ARK548L2SA_8_4_5_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_ARK548L2SA_ERK_8_4_5``
+   and ``ARKODE_ARK548L2SA_DIRK_8_4_5`` ARK method.
+
+
+.. _Butcher.ARK-8-4-5b:
+
+ARK5(4)8L[2]SAb
+^^^^^^^^^^^^^^^
+
+.. index:: ARK5(4)8L[2]SAb ARK method
+
+5th-order method that combines :numref:`Butcher.ARK-8-4-5b-E` with
+:numref:`Butcher.ARK-8-4-5b-I`, corresponding to Butcher tables
+``ARKODE_ARK548L2SAb_ERK_8_4_5`` and ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` for
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+
+.. figure:: /figs/arkode/ARKODE_ARK548L2SAb_8_4_5_joint_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability region for the ``ARKODE_ARK548L2SAb_ERK_8_4_5``
+   and ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` ARK method.
 
 
 

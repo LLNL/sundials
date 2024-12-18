@@ -35,32 +35,31 @@
      imeth                              type  A-stable  L-stable  QP
     -----------------------------------------------------------------
      ARKODE_BACKWARD_EULER_1_1         SDIRK     Y         Y       Y
-     ARKODE_SDIRK_2_1_2                SDIRK     Y         N       Y
-     ARKODE_ARK2_DIRK_3_1_2           ESDIRK     Y         Y       Y
-     ARKODE_GIRALDO_EDIRK_3_1_2        EDIRK     Y         Y       Y
-     ARKODE_ASCHER_SDIRK_2_1_2         SDIRK     Y         Y       Y
-     ARKODE_SSP_SDIRK_2_1_2            SDIRK     Y         N       Y
-     ARKODE_SSP_DIRK_3_1_2              DIRK     Y         N       Y
      ARKODE_IMPLICIT_MIDPOINT_1_2      SDIRK     Y         N       Y
      ARKODE_IMPLICIT_TRAPEZOIDAL_2_2  ESDIRK     Y         N       Y
+     ARKODE_SDIRK_2_1_2                SDIRK     Y         N       Y
+     ARKODE_SSP_SDIRK_2_1_2*           SDIRK     Y         N       Y
+     ARKODE_ARK2_DIRK_3_1_2*          ESDIRK     Y         Y       Y
+     ARKODE_ASCHER_SDIRK_3_1_2*        SDIRK     Y         Y       Y
+     ARKODE_SSP_DIRK_3_1_2*             DIRK     Y         N       Y
      ARKODE_BILLINGTON_3_3_2           SDIRK     N         N       Y
      ARKODE_TRBDF2_3_3_2              ESDIRK     N         N       Y
-     ARKODE_SSP_LSPUM_SDIRK_3_1_2      SDIRK     Y         Y       Y
-     ARKODE_SSP_ESDIRK_4_2_3          ESDIRK     Y         Y       Y
+     ARKODE_SSP_LSPUM_SDIRK_3_1_2*     SDIRK     Y         Y       Y
+     ARKODE_SSP_ESDIRK_4_2_3*         ESDIRK     Y         Y       Y
      ARKODE_KVAERNO_4_2_3             ESDIRK     Y         Y       Y
-     ARKODE_ARK324L2SA_DIRK_4_2_3*    ESDIRK     Y         Y       N
      ARKODE_ESDIRK324L2SA_4_2_3       ESDIRK     Y         Y       Y
      ARKODE_ESDIRK325L2SA_5_2_3       ESDIRK     Y         Y       Y
      ARKODE_ESDIRK32I5L2SA_5_2_3      ESDIRK     Y         Y       Y
+     ARKODE_ARK324L2SA_DIRK_4_2_3*    ESDIRK     Y         Y       N
      ARKODE_CASH_5_2_4                 SDIRK     Y         Y       Y
      ARKODE_CASH_5_3_4                 SDIRK     Y         Y       Y
      ARKODE_SDIRK_5_3_4                SDIRK     Y         Y       Y
      ARKODE_KVAERNO_5_3_4             ESDIRK     Y         N       Y
-     ARKODE_ARK436L2SA_DIRK_6_3_4*    ESDIRK     Y         Y       N
-     ARKODE_ARK437L2SA_DIRK_7_3_4*    ESDIRK     Y         Y       N
      ARKODE_ESDIRK436L2SA_6_3_4       ESDIRK     Y         Y       N
      ARKODE_ESDIRK43I6L2SA_6_3_4      ESDIRK     Y         Y       N
      ARKODE_QESDIRK436L2SA_6_3_4      ESDIRK     Y         Y       N
+     ARKODE_ARK436L2SA_DIRK_6_3_4*    ESDIRK     Y         Y       N
+     ARKODE_ARK437L2SA_DIRK_7_3_4*    ESDIRK     Y         Y       N
      ARKODE_ESDIRK437L2SA_7_3_4       ESDIRK     Y         Y       N
      ARKODE_KVAERNO_7_4_5             ESDIRK     Y         Y       Y
      ARKODE_ARK548L2SA_DIRK_8_4_5*    ESDIRK     Y         Y       N
@@ -141,30 +140,7 @@ ARK_BUTCHER_TABLE(ARKODE_ARK2_DIRK_3_1_2, { /* ARK2 Implicit Table (A,L stable) 
     return B;
   })
 
-ARK_BUTCHER_TABLE(ARKODE_GIRALDO_EDIRK_3_1_2, { /* Implicit portion of ARK2 method from https://doi.org/10.1137/120876034 */
-    ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
-    B->q = 2;
-    B->p = 1;
-    B->A[1][0] = SUN_RCONST(1.0)-SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(2.0));
-    B->A[1][1] = SUN_RCONST(1.0)-SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(2.0));
-    B->A[2][0] = SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(8.0));
-    B->A[2][1] = SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(8.0));
-    B->A[2][2] = SUN_RCONST(1.0)-SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(2.0));
-
-    B->b[0] = SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(8.0));
-    B->b[1] = SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(8.0));
-    B->b[2] = SUN_RCONST(1.0)-SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(2.0));
-
-    B->d[0] = (SUN_RCONST(4.0)-SUNRsqrt(SUN_RCONST(2.0)))/SUN_RCONST(8.0);
-    B->d[1] = (SUN_RCONST(4.0)-SUNRsqrt(SUN_RCONST(2.0)))/SUN_RCONST(8.0);
-    B->d[2] = SUN_RCONST(1.0)/SUNRsqrt(SUN_RCONST(8.0));
-
-    B->c[1] = SUN_RCONST(2.0)-SUNRsqrt(SUN_RCONST(2.0));
-    B->c[2] = SUN_RCONST(1.0);
-    return B;
-  })
-
-ARK_BUTCHER_TABLE(ARKODE_ASCHER_SDIRK_2_1_2, { /* citation */
+ARK_BUTCHER_TABLE(ARKODE_ASCHER_SDIRK_3_1_2, { /* citation */
     ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
     const sunrealtype gamma = (SUN_RCONST(2.0)-SUNRsqrt(SUN_RCONST(2.0)))/SUN_RCONST(2.0);
     B->q = 2;

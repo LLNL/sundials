@@ -410,8 +410,8 @@ methods reduce to classical :index:`explicit Runge--Kutta methods`
 with orders of accuracy :math:`q = \{2,3,4,5,6,7,8,9\}`, with embeddings
 of orders :math:`p = \{1,2,3,4,5,6,7,8\}`.  These default to the methods in
 sections
-:numref:`Butcher.Heun_Euler`,
-:numref:`Butcher.Bogacki_Shampine`, :numref:`Butcher.Zonneveld`,
+:numref:`Butcher.Heun-Euler`,
+:numref:`Butcher.Bogacki-Shampine`, :numref:`Butcher.Zonneveld`,
 :numref:`Butcher.Cash-Karp`, :numref:`Butcher.Verner-6-5`, and
 :numref:`Butcher.Fehlberg-8-7`, respectively.  As with ARK
 methods, user-defined ERK tables are supported.
@@ -430,8 +430,8 @@ in :eq:`ARKODE_ARK`, and the ARK methods reduce to classical
 classes of methods, ARKODE provides tables with orders of accuracy
 :math:`q = \{2,3,4,5\}`, with embeddings of orders
 :math:`p = \{1,2,3,4\}`. These default to the methods
-:numref:`Butcher.SDIRK-2-1`, :numref:`Butcher.ARK_4_2_3_I`,
-:numref:`Butcher.SDIRK-5-4`, and :numref:`Butcher.ARK_8_4_5_I`,
+:numref:`Butcher.SDIRK-2-1`, :numref:`Butcher.ARK-4-2-3-I`,
+:numref:`Butcher.SDIRK-5-4`, and :numref:`Butcher.ARK-8-4-5-I`,
 respectively.  Again, user-defined DIRK tables are supported.
 
 
