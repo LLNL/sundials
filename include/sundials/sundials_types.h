@@ -94,9 +94,11 @@ typedef float sunrealtype;
 #define SUN_BIG_REAL      FLT_MAX
 #define SUN_SMALL_REAL    FLT_MIN
 #define SUN_UNIT_ROUNDOFF FLT_EPSILON
-// TODO(SBR): In C11, FLT_DECIMAL_DIG would be a better choice
+// TODO(SBR): In C11, FLT_DECIMAL_DIG may be a better choice
 #define SUN_FORMAT_E "% ." SUN_STRING(FLT_DIG) "e"
 #define SUN_FORMAT_G "%." SUN_STRING(FLT_DIG) "g"
+// TODO(SBR): This can probably be removed once a complex format macro is added
+#define SUN_FORMAT_SG "%+." SUN_STRING(FLT_DIG) "g"
 
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
 
@@ -107,6 +109,7 @@ typedef double sunrealtype;
 #define SUN_UNIT_ROUNDOFF DBL_EPSILON
 #define SUN_FORMAT_E      "% ." SUN_STRING(DBL_DIG) "e"
 #define SUN_FORMAT_G      "%." SUN_STRING(DBL_DIG) "g"
+#define SUN_FORMAT_SG     "%+." SUN_STRING(DBL_DIG) "g"
 
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
 
@@ -117,6 +120,7 @@ typedef long double sunrealtype;
 #define SUN_UNIT_ROUNDOFF LDBL_EPSILON
 #define SUN_FORMAT_E      "% ." SUN_STRING(LDBL_DIG) "Le"
 #define SUN_FORMAT_G      "%." SUN_STRING(LDBL_DIG) "Lg"
+#define SUN_FORMAT_SG     "%+." SUN_STRING(LDBL_DIG) "g"
 
 #endif
 
