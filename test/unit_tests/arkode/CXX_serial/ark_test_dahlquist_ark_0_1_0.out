@@ -7,7 +7,7 @@ Dahlquist ODE test problem:
   relative tol = 0.0001
   absolute tol = 1e-06
   interp type  = Lagrange
-  pred type    = Max order (1)
+  pred type    = Trivial (0)
 
 ========================
 Test explicit RK methods
@@ -889,7 +889,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK: ARKODE_SSP_2_1_2
+ERK: ARKODE_SSP_ERK_2_1_2
   stages:             2
   order:              2
   explicit 1st stage: 1
@@ -924,7 +924,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK: ARKODE_SSP_3_1_2
+ERK: ARKODE_SSP_ERK_3_1_2
   stages:             3
   order:              2
   explicit 1st stage: 1
@@ -959,7 +959,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK: ARKODE_SSP_4_1_2
+ERK: ARKODE_SSP_ERK_4_1_2
   stages:             4
   order:              2
   explicit 1st stage: 1
@@ -994,7 +994,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK: ARKODE_SSP_10_1_2
+ERK: ARKODE_SSP_ERK_10_1_2
   stages:             10
   order:              2
   explicit 1st stage: 1
@@ -1029,7 +1029,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK: ARKODE_SSP_4_2_3
+ERK: ARKODE_SSP_ERK_4_2_3
   stages:             4
   order:              3
   explicit 1st stage: 1
@@ -1064,7 +1064,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK: ARKODE_SSP_9_2_3
+ERK: ARKODE_SSP_ERK_9_2_3
   stages:             9
   order:              3
   explicit 1st stage: 1
@@ -1099,7 +1099,7 @@ Fe RHS evals:
 --------------------
 
 ========================
-ERK: ARKODE_SSP_10_3_4
+ERK: ARKODE_SSP_ERK_10_3_4
   stages:             10
   order:              4
   explicit 1st stage: 1
@@ -1134,6 +1134,76 @@ Fe RHS evals:
 --------------------
 
 ========================
+ERK: ARKODE_SSP_LSPUM_ERK_3_1_2
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+
+========================
+ERK: ARKODE_ASCHER_ERK_3_1_2
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+
+========================
 Test implicit RK methods
 ========================
 
@@ -1149,31 +1219,31 @@ DIRK: ARKODE_SDIRK_2_1_2
 Steps: 1
 NLS iters: 2
 Fi RHS evals:
-  actual:   4
-  expected: 4
+  actual:   3
+  expected: 3
 --------------------
 Steps: 2
 NLS iters: 4
 Fi RHS evals:
-  actual:   8
-  expected: 8
+  actual:   6
+  expected: 6
 --------------------
 Steps: 3
 NLS iters: 6
 Fi RHS evals:
-  actual:   12
-  expected: 12
+  actual:   9
+  expected: 9
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   12
-  expected: 12
+  actual:   9
+  expected: 9
 --------------------
 Steps: 4
 NLS iters: 8
 Fi RHS evals:
-  actual:   16
-  expected: 16
+  actual:   12
+  expected: 12
 --------------------
 
 ========================
@@ -1188,31 +1258,31 @@ DIRK: ARKODE_BILLINGTON_3_3_2
 Steps: 1
 NLS iters: 3
 Fi RHS evals:
-  actual:   6
-  expected: 6
+  actual:   4
+  expected: 4
 --------------------
 Steps: 2
 NLS iters: 6
 Fi RHS evals:
-  actual:   12
-  expected: 12
+  actual:   8
+  expected: 8
 --------------------
 Steps: 3
 NLS iters: 9
 Fi RHS evals:
-  actual:   18
-  expected: 18
+  actual:   12
+  expected: 12
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   18
-  expected: 18
+  actual:   12
+  expected: 12
 --------------------
 Steps: 4
 NLS iters: 12
 Fi RHS evals:
-  actual:   24
-  expected: 24
+  actual:   16
+  expected: 16
 --------------------
 
 ========================
@@ -1227,31 +1297,31 @@ DIRK: ARKODE_TRBDF2_3_3_2
 Steps: 1
 NLS iters: 2
 Fi RHS evals:
-  actual:   5
-  expected: 5
+  actual:   3
+  expected: 3
 --------------------
 Steps: 2
 NLS iters: 4
 Fi RHS evals:
-  actual:   9
-  expected: 9
+  actual:   5
+  expected: 5
 --------------------
 Steps: 3
 NLS iters: 6
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 4
 NLS iters: 8
 Fi RHS evals:
-  actual:   17
-  expected: 17
+  actual:   9
+  expected: 9
 --------------------
 
 ========================
@@ -1266,31 +1336,31 @@ DIRK: ARKODE_KVAERNO_4_2_3
 Steps: 1
 NLS iters: 3
 Fi RHS evals:
-  actual:   7
-  expected: 7
+  actual:   4
+  expected: 4
 --------------------
 Steps: 2
 NLS iters: 6
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 3
 NLS iters: 9
 Fi RHS evals:
-  actual:   19
-  expected: 19
+  actual:   10
+  expected: 10
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   19
-  expected: 19
+  actual:   10
+  expected: 10
 --------------------
 Steps: 4
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 
 ========================
@@ -1305,31 +1375,31 @@ DIRK: ARKODE_ARK324L2SA_DIRK_4_2_3
 Steps: 1
 NLS iters: 3
 Fi RHS evals:
-  actual:   7
-  expected: 7
+  actual:   4
+  expected: 4
 --------------------
 Steps: 2
 NLS iters: 6
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 3
 NLS iters: 9
 Fi RHS evals:
-  actual:   19
-  expected: 19
+  actual:   10
+  expected: 10
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   19
-  expected: 19
+  actual:   10
+  expected: 10
 --------------------
 Steps: 4
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 
 ========================
@@ -1344,31 +1414,31 @@ DIRK: ARKODE_CASH_5_2_4
 Steps: 1
 NLS iters: 5
 Fi RHS evals:
-  actual:   10
-  expected: 10
+  actual:   6
+  expected: 6
 --------------------
 Steps: 2
 NLS iters: 10
 Fi RHS evals:
-  actual:   20
-  expected: 20
+  actual:   11
+  expected: 11
 --------------------
 Steps: 3
 NLS iters: 15
 Fi RHS evals:
-  actual:   30
-  expected: 30
+  actual:   16
+  expected: 16
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   30
-  expected: 30
+  actual:   16
+  expected: 16
 --------------------
 Steps: 4
 NLS iters: 20
 Fi RHS evals:
-  actual:   40
-  expected: 40
+  actual:   21
+  expected: 21
 --------------------
 
 ========================
@@ -1383,31 +1453,31 @@ DIRK: ARKODE_CASH_5_3_4
 Steps: 1
 NLS iters: 5
 Fi RHS evals:
-  actual:   10
-  expected: 10
+  actual:   6
+  expected: 6
 --------------------
 Steps: 2
 NLS iters: 10
 Fi RHS evals:
-  actual:   20
-  expected: 20
+  actual:   11
+  expected: 11
 --------------------
 Steps: 3
 NLS iters: 15
 Fi RHS evals:
-  actual:   30
-  expected: 30
+  actual:   16
+  expected: 16
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   30
-  expected: 30
+  actual:   16
+  expected: 16
 --------------------
 Steps: 4
 NLS iters: 20
 Fi RHS evals:
-  actual:   40
-  expected: 40
+  actual:   21
+  expected: 21
 --------------------
 
 ========================
@@ -1422,31 +1492,31 @@ DIRK: ARKODE_SDIRK_5_3_4
 Steps: 1
 NLS iters: 5
 Fi RHS evals:
-  actual:   10
-  expected: 10
+  actual:   6
+  expected: 6
 --------------------
 Steps: 2
 NLS iters: 10
 Fi RHS evals:
-  actual:   20
-  expected: 20
+  actual:   11
+  expected: 11
 --------------------
 Steps: 3
 NLS iters: 15
 Fi RHS evals:
-  actual:   30
-  expected: 30
+  actual:   16
+  expected: 16
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   30
-  expected: 30
+  actual:   16
+  expected: 16
 --------------------
 Steps: 4
 NLS iters: 20
 Fi RHS evals:
-  actual:   40
-  expected: 40
+  actual:   21
+  expected: 21
 --------------------
 
 ========================
@@ -1461,31 +1531,31 @@ DIRK: ARKODE_KVAERNO_5_3_4
 Steps: 1
 NLS iters: 4
 Fi RHS evals:
-  actual:   9
-  expected: 9
+  actual:   5
+  expected: 5
 --------------------
 Steps: 2
 NLS iters: 8
 Fi RHS evals:
-  actual:   17
-  expected: 17
+  actual:   9
+  expected: 9
 --------------------
 Steps: 3
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Steps: 4
 NLS iters: 16
 Fi RHS evals:
-  actual:   33
-  expected: 33
+  actual:   17
+  expected: 17
 --------------------
 
 ========================
@@ -1500,31 +1570,31 @@ DIRK: ARKODE_ARK436L2SA_DIRK_6_3_4
 Steps: 1
 NLS iters: 5
 Fi RHS evals:
-  actual:   11
-  expected: 11
+  actual:   6
+  expected: 6
 --------------------
 Steps: 2
 NLS iters: 10
 Fi RHS evals:
-  actual:   21
-  expected: 21
+  actual:   11
+  expected: 11
 --------------------
 Steps: 3
 NLS iters: 15
 Fi RHS evals:
-  actual:   31
-  expected: 31
+  actual:   16
+  expected: 16
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   31
-  expected: 31
+  actual:   16
+  expected: 16
 --------------------
 Steps: 4
 NLS iters: 20
 Fi RHS evals:
-  actual:   41
-  expected: 41
+  actual:   21
+  expected: 21
 --------------------
 
 ========================
@@ -1539,31 +1609,31 @@ DIRK: ARKODE_KVAERNO_7_4_5
 Steps: 1
 NLS iters: 6
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 2
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Steps: 3
 NLS iters: 18
 Fi RHS evals:
-  actual:   37
-  expected: 37
+  actual:   19
+  expected: 19
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   37
-  expected: 37
+  actual:   19
+  expected: 19
 --------------------
 Steps: 4
 NLS iters: 24
 Fi RHS evals:
-  actual:   49
-  expected: 49
+  actual:   25
+  expected: 25
 --------------------
 
 ========================
@@ -1578,31 +1648,31 @@ DIRK: ARKODE_ARK548L2SA_DIRK_8_4_5
 Steps: 1
 NLS iters: 7
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   8
+  expected: 8
 --------------------
 Steps: 2
 NLS iters: 14
 Fi RHS evals:
-  actual:   29
-  expected: 29
+  actual:   15
+  expected: 15
 --------------------
 Steps: 3
 NLS iters: 21
 Fi RHS evals:
-  actual:   43
-  expected: 43
+  actual:   22
+  expected: 22
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   43
-  expected: 43
+  actual:   22
+  expected: 22
 --------------------
 Steps: 4
 NLS iters: 28
 Fi RHS evals:
-  actual:   57
-  expected: 57
+  actual:   29
+  expected: 29
 --------------------
 
 ========================
@@ -1617,31 +1687,31 @@ DIRK: ARKODE_ARK437L2SA_DIRK_7_3_4
 Steps: 1
 NLS iters: 6
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 2
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Steps: 3
 NLS iters: 18
 Fi RHS evals:
-  actual:   37
-  expected: 37
+  actual:   19
+  expected: 19
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   37
-  expected: 37
+  actual:   19
+  expected: 19
 --------------------
 Steps: 4
 NLS iters: 24
 Fi RHS evals:
-  actual:   49
-  expected: 49
+  actual:   25
+  expected: 25
 --------------------
 
 ========================
@@ -1656,31 +1726,31 @@ DIRK: ARKODE_ARK548L2SAb_DIRK_8_4_5
 Steps: 1
 NLS iters: 7
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   8
+  expected: 8
 --------------------
 Steps: 2
 NLS iters: 14
 Fi RHS evals:
-  actual:   29
-  expected: 29
+  actual:   15
+  expected: 15
 --------------------
 Steps: 3
 NLS iters: 21
 Fi RHS evals:
-  actual:   43
-  expected: 43
+  actual:   22
+  expected: 22
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   43
-  expected: 43
+  actual:   22
+  expected: 22
 --------------------
 Steps: 4
 NLS iters: 28
 Fi RHS evals:
-  actual:   57
-  expected: 57
+  actual:   29
+  expected: 29
 --------------------
 
 ========================
@@ -1695,31 +1765,31 @@ DIRK: ARKODE_ESDIRK324L2SA_4_2_3
 Steps: 1
 NLS iters: 3
 Fi RHS evals:
-  actual:   7
-  expected: 7
+  actual:   4
+  expected: 4
 --------------------
 Steps: 2
 NLS iters: 6
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 3
 NLS iters: 9
 Fi RHS evals:
-  actual:   19
-  expected: 19
+  actual:   10
+  expected: 10
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   19
-  expected: 19
+  actual:   10
+  expected: 10
 --------------------
 Steps: 4
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 
 ========================
@@ -1734,31 +1804,31 @@ DIRK: ARKODE_ESDIRK325L2SA_5_2_3
 Steps: 1
 NLS iters: 4
 Fi RHS evals:
-  actual:   9
-  expected: 9
+  actual:   5
+  expected: 5
 --------------------
 Steps: 2
 NLS iters: 8
 Fi RHS evals:
-  actual:   17
-  expected: 17
+  actual:   9
+  expected: 9
 --------------------
 Steps: 3
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Steps: 4
 NLS iters: 16
 Fi RHS evals:
-  actual:   33
-  expected: 33
+  actual:   17
+  expected: 17
 --------------------
 
 ========================
@@ -1773,31 +1843,31 @@ DIRK: ARKODE_ESDIRK32I5L2SA_5_2_3
 Steps: 1
 NLS iters: 4
 Fi RHS evals:
-  actual:   9
-  expected: 9
+  actual:   5
+  expected: 5
 --------------------
 Steps: 2
 NLS iters: 8
 Fi RHS evals:
-  actual:   17
-  expected: 17
+  actual:   9
+  expected: 9
 --------------------
 Steps: 3
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Steps: 4
 NLS iters: 16
 Fi RHS evals:
-  actual:   33
-  expected: 33
+  actual:   17
+  expected: 17
 --------------------
 
 ========================
@@ -1812,31 +1882,31 @@ DIRK: ARKODE_ESDIRK436L2SA_6_3_4
 Steps: 1
 NLS iters: 5
 Fi RHS evals:
-  actual:   11
-  expected: 11
+  actual:   6
+  expected: 6
 --------------------
 Steps: 2
 NLS iters: 10
 Fi RHS evals:
-  actual:   21
-  expected: 21
+  actual:   11
+  expected: 11
 --------------------
 Steps: 3
 NLS iters: 15
 Fi RHS evals:
-  actual:   31
-  expected: 31
+  actual:   16
+  expected: 16
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   31
-  expected: 31
+  actual:   16
+  expected: 16
 --------------------
 Steps: 4
 NLS iters: 20
 Fi RHS evals:
-  actual:   41
-  expected: 41
+  actual:   21
+  expected: 21
 --------------------
 
 ========================
@@ -1851,31 +1921,31 @@ DIRK: ARKODE_ESDIRK43I6L2SA_6_3_4
 Steps: 1
 NLS iters: 5
 Fi RHS evals:
-  actual:   11
-  expected: 11
+  actual:   6
+  expected: 6
 --------------------
 Steps: 2
 NLS iters: 10
 Fi RHS evals:
-  actual:   21
-  expected: 21
+  actual:   11
+  expected: 11
 --------------------
 Steps: 3
 NLS iters: 15
 Fi RHS evals:
-  actual:   31
-  expected: 31
+  actual:   16
+  expected: 16
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   31
-  expected: 31
+  actual:   16
+  expected: 16
 --------------------
 Steps: 4
 NLS iters: 20
 Fi RHS evals:
-  actual:   41
-  expected: 41
+  actual:   21
+  expected: 21
 --------------------
 
 ========================
@@ -1890,31 +1960,31 @@ DIRK: ARKODE_QESDIRK436L2SA_6_3_4
 Steps: 1
 NLS iters: 5
 Fi RHS evals:
-  actual:   11
-  expected: 11
+  actual:   6
+  expected: 6
 --------------------
 Steps: 2
 NLS iters: 10
 Fi RHS evals:
-  actual:   21
-  expected: 21
+  actual:   11
+  expected: 11
 --------------------
 Steps: 3
 NLS iters: 15
 Fi RHS evals:
-  actual:   31
-  expected: 31
+  actual:   16
+  expected: 16
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   31
-  expected: 31
+  actual:   16
+  expected: 16
 --------------------
 Steps: 4
 NLS iters: 20
 Fi RHS evals:
-  actual:   41
-  expected: 41
+  actual:   21
+  expected: 21
 --------------------
 
 ========================
@@ -1929,31 +1999,31 @@ DIRK: ARKODE_ESDIRK437L2SA_7_3_4
 Steps: 1
 NLS iters: 6
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 2
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Steps: 3
 NLS iters: 18
 Fi RHS evals:
-  actual:   37
-  expected: 37
+  actual:   19
+  expected: 19
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   37
-  expected: 37
+  actual:   19
+  expected: 19
 --------------------
 Steps: 4
 NLS iters: 24
 Fi RHS evals:
-  actual:   49
-  expected: 49
+  actual:   25
+  expected: 25
 --------------------
 
 ========================
@@ -1968,31 +2038,31 @@ DIRK: ARKODE_ESDIRK547L2SA_7_4_5
 Steps: 1
 NLS iters: 6
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 2
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Steps: 3
 NLS iters: 18
 Fi RHS evals:
-  actual:   37
-  expected: 37
+  actual:   19
+  expected: 19
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   37
-  expected: 37
+  actual:   19
+  expected: 19
 --------------------
 Steps: 4
 NLS iters: 24
 Fi RHS evals:
-  actual:   49
-  expected: 49
+  actual:   25
+  expected: 25
 --------------------
 
 ========================
@@ -2007,31 +2077,31 @@ DIRK: ARKODE_ESDIRK547L2SA2_7_4_5
 Steps: 1
 NLS iters: 6
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 2
 NLS iters: 12
 Fi RHS evals:
-  actual:   25
-  expected: 25
+  actual:   13
+  expected: 13
 --------------------
 Steps: 3
 NLS iters: 18
 Fi RHS evals:
-  actual:   37
-  expected: 37
+  actual:   19
+  expected: 19
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   37
-  expected: 37
+  actual:   19
+  expected: 19
 --------------------
 Steps: 4
 NLS iters: 24
 Fi RHS evals:
-  actual:   49
-  expected: 49
+  actual:   25
+  expected: 25
 --------------------
 
 ========================
@@ -2046,31 +2116,31 @@ DIRK: ARKODE_ARK2_DIRK_3_1_2
 Steps: 1
 NLS iters: 2
 Fi RHS evals:
-  actual:   5
-  expected: 5
+  actual:   3
+  expected: 3
 --------------------
 Steps: 2
 NLS iters: 4
 Fi RHS evals:
-  actual:   9
-  expected: 9
+  actual:   5
+  expected: 5
 --------------------
 Steps: 3
 NLS iters: 6
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 4
 NLS iters: 8
 Fi RHS evals:
-  actual:   17
-  expected: 17
+  actual:   9
+  expected: 9
 --------------------
 
 ========================
@@ -2091,25 +2161,25 @@ Fi RHS evals:
 Steps: 2
 NLS iters: 2
 Fi RHS evals:
-  actual:   4
-  expected: 4
+  actual:   3
+  expected: 3
 --------------------
 Steps: 3
 NLS iters: 3
 Fi RHS evals:
-  actual:   6
-  expected: 6
+  actual:   4
+  expected: 4
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   6
-  expected: 6
+  actual:   4
+  expected: 4
 --------------------
 Steps: 4
 NLS iters: 4
 Fi RHS evals:
-  actual:   8
-  expected: 8
+  actual:   5
+  expected: 5
 --------------------
 
 ========================
@@ -2163,31 +2233,31 @@ DIRK: ARKODE_IMPLICIT_TRAPEZOIDAL_2_2
 Steps: 1
 NLS iters: 1
 Fi RHS evals:
-  actual:   3
-  expected: 3
+  actual:   2
+  expected: 2
 --------------------
 Steps: 2
 NLS iters: 2
 Fi RHS evals:
-  actual:   5
-  expected: 5
+  actual:   3
+  expected: 3
 --------------------
 Steps: 3
 NLS iters: 3
 Fi RHS evals:
-  actual:   7
-  expected: 7
+  actual:   4
+  expected: 4
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   7
-  expected: 7
+  actual:   4
+  expected: 4
 --------------------
 Steps: 4
 NLS iters: 4
 Fi RHS evals:
-  actual:   9
-  expected: 9
+  actual:   5
+  expected: 5
 --------------------
 
 ========================
@@ -2202,31 +2272,31 @@ DIRK: ARKODE_SSP_SDIRK_2_1_2
 Steps: 1
 NLS iters: 2
 Fi RHS evals:
-  actual:   4
-  expected: 4
+  actual:   3
+  expected: 3
 --------------------
 Steps: 2
 NLS iters: 4
 Fi RHS evals:
-  actual:   8
-  expected: 8
+  actual:   6
+  expected: 6
 --------------------
 Steps: 3
 NLS iters: 6
 Fi RHS evals:
-  actual:   12
-  expected: 12
+  actual:   9
+  expected: 9
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   12
-  expected: 12
+  actual:   9
+  expected: 9
 --------------------
 Steps: 4
 NLS iters: 8
 Fi RHS evals:
-  actual:   16
-  expected: 16
+  actual:   12
+  expected: 12
 --------------------
 
 ========================
@@ -2241,31 +2311,148 @@ DIRK: ARKODE_SSP_DIRK_3_1_2
 Steps: 1
 NLS iters: 3
 Fi RHS evals:
-  actual:   6
-  expected: 6
+  actual:   4
+  expected: 4
 --------------------
 Steps: 2
 NLS iters: 6
 Fi RHS evals:
-  actual:   12
-  expected: 12
+  actual:   7
+  expected: 7
 --------------------
 Steps: 3
 NLS iters: 9
 Fi RHS evals:
-  actual:   18
-  expected: 18
+  actual:   10
+  expected: 10
 --------------------
 Dense Output
 Fi RHS evals:
-  actual:   18
-  expected: 18
+  actual:   10
+  expected: 10
 --------------------
 Steps: 4
 NLS iters: 12
 Fi RHS evals:
-  actual:   24
-  expected: 24
+  actual:   13
+  expected: 13
+--------------------
+
+========================
+DIRK: ARKODE_SSP_LSPUM_SDIRK_3_1_2
+  stages:             3
+  order:              2
+  explicit 1st stage: 0
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 3
+Fi RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 2
+NLS iters: 6
+Fi RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+Steps: 3
+NLS iters: 9
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 4
+NLS iters: 12
+Fi RHS evals:
+  actual:   16
+  expected: 16
+--------------------
+
+========================
+DIRK: ARKODE_SSP_ESDIRK_4_2_3
+  stages:             4
+  order:              3
+  explicit 1st stage: 1
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 3
+Fi RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 2
+NLS iters: 6
+Fi RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+Steps: 3
+NLS iters: 9
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 4
+NLS iters: 12
+Fi RHS evals:
+  actual:   16
+  expected: 16
+--------------------
+
+========================
+DIRK: ARKODE_ASCHER_SDIRK_3_1_2
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fi RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+NLS iters: 4
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 3
+NLS iters: 6
+Fi RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Dense Output
+Fi RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 4
+NLS iters: 8
+Fi RHS evals:
+  actual:   9
+  expected: 9
 --------------------
 
 =====================
@@ -2287,8 +2474,8 @@ Fe RHS evals:
   actual:   2
   expected: 2
 Fi RHS evals:
-  actual:   3
-  expected: 3
+  actual:   2
+  expected: 2
 --------------------
 Steps: 2
 NLS iters: 2
@@ -2296,8 +2483,8 @@ Fe RHS evals:
   actual:   3
   expected: 3
 Fi RHS evals:
-  actual:   5
-  expected: 5
+  actual:   3
+  expected: 3
 --------------------
 Steps: 3
 NLS iters: 3
@@ -2305,16 +2492,16 @@ Fe RHS evals:
   actual:   4
   expected: 4
 Fi RHS evals:
-  actual:   7
-  expected: 7
+  actual:   4
+  expected: 4
 --------------------
 Dense Output
 Fe RHS evals:
   actual:   4
   expected: 4
 Fi RHS evals:
-  actual:   7
-  expected: 7
+  actual:   4
+  expected: 4
 --------------------
 Steps: 4
 NLS iters: 4
@@ -2322,8 +2509,8 @@ Fe RHS evals:
   actual:   5
   expected: 5
 Fi RHS evals:
-  actual:   9
-  expected: 9
+  actual:   5
+  expected: 5
 --------------------
 
 ========================
@@ -2342,8 +2529,8 @@ Fe RHS evals:
   actual:   3
   expected: 3
 Fi RHS evals:
-  actual:   5
-  expected: 5
+  actual:   3
+  expected: 3
 --------------------
 Steps: 2
 NLS iters: 4
@@ -2351,8 +2538,8 @@ Fe RHS evals:
   actual:   6
   expected: 6
 Fi RHS evals:
-  actual:   10
-  expected: 10
+  actual:   6
+  expected: 6
 --------------------
 Steps: 3
 NLS iters: 6
@@ -2360,16 +2547,16 @@ Fe RHS evals:
   actual:   9
   expected: 9
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   9
+  expected: 9
 --------------------
 Dense Output
 Fe RHS evals:
   actual:   9
   expected: 9
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   9
+  expected: 9
 --------------------
 Steps: 4
 NLS iters: 8
@@ -2377,8 +2564,228 @@ Fe RHS evals:
   actual:   12
   expected: 12
 Fi RHS evals:
-  actual:   20
-  expected: 20
+  actual:   12
+  expected: 12
+--------------------
+
+========================
+DIRK: ARKODE_ASCHER_SDIRK_3_1_2
+ERK: ARKODE_ASCHER_ERK_3_1_2
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fe RHS evals:
+  actual:   3
+  expected: 3
+Fi RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+NLS iters: 4
+Fe RHS evals:
+  actual:   5
+  expected: 5
+Fi RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 3
+NLS iters: 6
+Fe RHS evals:
+  actual:   7
+  expected: 7
+Fi RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   7
+  expected: 7
+Fi RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 4
+NLS iters: 8
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+
+========================
+DIRK: ARKODE_SSP_SDIRK_2_1_2
+ERK: ARKODE_SSP_ERK_2_1_2
+  stages:             2
+  order:              2
+  explicit 1st stage: 0
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 2
+Fe RHS evals:
+  actual:   2
+  expected: 2
+Fi RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+NLS iters: 4
+Fe RHS evals:
+  actual:   4
+  expected: 4
+Fi RHS evals:
+  actual:   6
+  expected: 6
+--------------------
+Steps: 3
+NLS iters: 6
+Fe RHS evals:
+  actual:   6
+  expected: 6
+Fi RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   6
+  expected: 6
+Fi RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+Steps: 4
+NLS iters: 8
+Fe RHS evals:
+  actual:   8
+  expected: 8
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+
+========================
+DIRK: ARKODE_SSP_DIRK_3_1_2
+ERK: ARKODE_SSP_ERK_3_1_2
+  stages:             3
+  order:              2
+  explicit 1st stage: 0
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 3
+Fe RHS evals:
+  actual:   3
+  expected: 3
+Fi RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 2
+NLS iters: 6
+Fe RHS evals:
+  actual:   6
+  expected: 6
+Fi RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+Steps: 3
+NLS iters: 9
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 4
+NLS iters: 12
+Fe RHS evals:
+  actual:   12
+  expected: 12
+Fi RHS evals:
+  actual:   16
+  expected: 16
+--------------------
+
+========================
+DIRK: ARKODE_SSP_LSPUM_SDIRK_3_1_2
+ERK: ARKODE_SSP_LSPUM_ERK_3_1_2
+  stages:             3
+  order:              2
+  explicit 1st stage: 0
+  stiffly accurate:   0
+  first same as last: 0
+========================
+--------------------
+Steps: 1
+NLS iters: 3
+Fe RHS evals:
+  actual:   3
+  expected: 3
+Fi RHS evals:
+  actual:   4
+  expected: 4
+--------------------
+Steps: 2
+NLS iters: 6
+Fe RHS evals:
+  actual:   6
+  expected: 6
+Fi RHS evals:
+  actual:   8
+  expected: 8
+--------------------
+Steps: 3
+NLS iters: 9
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   9
+  expected: 9
+Fi RHS evals:
+  actual:   12
+  expected: 12
+--------------------
+Steps: 4
+NLS iters: 12
+Fe RHS evals:
+  actual:   12
+  expected: 12
+Fi RHS evals:
+  actual:   16
+  expected: 16
 --------------------
 
 ========================
@@ -2397,8 +2804,8 @@ Fe RHS evals:
   actual:   4
   expected: 4
 Fi RHS evals:
-  actual:   7
-  expected: 7
+  actual:   4
+  expected: 4
 --------------------
 Steps: 2
 NLS iters: 6
@@ -2406,8 +2813,8 @@ Fe RHS evals:
   actual:   8
   expected: 8
 Fi RHS evals:
-  actual:   14
-  expected: 14
+  actual:   8
+  expected: 8
 --------------------
 Steps: 3
 NLS iters: 9
@@ -2415,16 +2822,16 @@ Fe RHS evals:
   actual:   12
   expected: 12
 Fi RHS evals:
-  actual:   21
-  expected: 21
+  actual:   12
+  expected: 12
 --------------------
 Dense Output
 Fe RHS evals:
   actual:   12
   expected: 12
 Fi RHS evals:
-  actual:   21
-  expected: 21
+  actual:   12
+  expected: 12
 --------------------
 Steps: 4
 NLS iters: 12
@@ -2432,8 +2839,8 @@ Fe RHS evals:
   actual:   16
   expected: 16
 Fi RHS evals:
-  actual:   28
-  expected: 28
+  actual:   16
+  expected: 16
 --------------------
 
 ========================
@@ -2452,8 +2859,8 @@ Fe RHS evals:
   actual:   6
   expected: 6
 Fi RHS evals:
-  actual:   11
-  expected: 11
+  actual:   6
+  expected: 6
 --------------------
 Steps: 2
 NLS iters: 10
@@ -2461,8 +2868,8 @@ Fe RHS evals:
   actual:   12
   expected: 12
 Fi RHS evals:
-  actual:   22
-  expected: 22
+  actual:   12
+  expected: 12
 --------------------
 Steps: 3
 NLS iters: 15
@@ -2470,16 +2877,16 @@ Fe RHS evals:
   actual:   18
   expected: 18
 Fi RHS evals:
-  actual:   33
-  expected: 33
+  actual:   18
+  expected: 18
 --------------------
 Dense Output
 Fe RHS evals:
   actual:   18
   expected: 18
 Fi RHS evals:
-  actual:   33
-  expected: 33
+  actual:   18
+  expected: 18
 --------------------
 Steps: 4
 NLS iters: 20
@@ -2487,8 +2894,8 @@ Fe RHS evals:
   actual:   24
   expected: 24
 Fi RHS evals:
-  actual:   44
-  expected: 44
+  actual:   24
+  expected: 24
 --------------------
 
 ========================
@@ -2507,8 +2914,8 @@ Fe RHS evals:
   actual:   7
   expected: 7
 Fi RHS evals:
-  actual:   13
-  expected: 13
+  actual:   7
+  expected: 7
 --------------------
 Steps: 2
 NLS iters: 12
@@ -2516,8 +2923,8 @@ Fe RHS evals:
   actual:   14
   expected: 14
 Fi RHS evals:
-  actual:   26
-  expected: 26
+  actual:   14
+  expected: 14
 --------------------
 Steps: 3
 NLS iters: 18
@@ -2525,16 +2932,16 @@ Fe RHS evals:
   actual:   21
   expected: 21
 Fi RHS evals:
-  actual:   39
-  expected: 39
+  actual:   21
+  expected: 21
 --------------------
 Dense Output
 Fe RHS evals:
   actual:   21
   expected: 21
 Fi RHS evals:
-  actual:   39
-  expected: 39
+  actual:   21
+  expected: 21
 --------------------
 Steps: 4
 NLS iters: 24
@@ -2542,8 +2949,8 @@ Fe RHS evals:
   actual:   28
   expected: 28
 Fi RHS evals:
-  actual:   52
-  expected: 52
+  actual:   28
+  expected: 28
 --------------------
 
 ========================
@@ -2562,8 +2969,8 @@ Fe RHS evals:
   actual:   8
   expected: 8
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   8
+  expected: 8
 --------------------
 Steps: 2
 NLS iters: 14
@@ -2571,8 +2978,8 @@ Fe RHS evals:
   actual:   16
   expected: 16
 Fi RHS evals:
-  actual:   30
-  expected: 30
+  actual:   16
+  expected: 16
 --------------------
 Steps: 3
 NLS iters: 21
@@ -2580,16 +2987,16 @@ Fe RHS evals:
   actual:   24
   expected: 24
 Fi RHS evals:
-  actual:   45
-  expected: 45
+  actual:   24
+  expected: 24
 --------------------
 Dense Output
 Fe RHS evals:
   actual:   24
   expected: 24
 Fi RHS evals:
-  actual:   45
-  expected: 45
+  actual:   24
+  expected: 24
 --------------------
 Steps: 4
 NLS iters: 28
@@ -2597,8 +3004,8 @@ Fe RHS evals:
   actual:   32
   expected: 32
 Fi RHS evals:
-  actual:   60
-  expected: 60
+  actual:   32
+  expected: 32
 --------------------
 
 ========================
@@ -2617,8 +3024,8 @@ Fe RHS evals:
   actual:   8
   expected: 8
 Fi RHS evals:
-  actual:   15
-  expected: 15
+  actual:   8
+  expected: 8
 --------------------
 Steps: 2
 NLS iters: 14
@@ -2626,8 +3033,8 @@ Fe RHS evals:
   actual:   16
   expected: 16
 Fi RHS evals:
-  actual:   30
-  expected: 30
+  actual:   16
+  expected: 16
 --------------------
 Steps: 3
 NLS iters: 21
@@ -2635,16 +3042,16 @@ Fe RHS evals:
   actual:   24
   expected: 24
 Fi RHS evals:
-  actual:   45
-  expected: 45
+  actual:   24
+  expected: 24
 --------------------
 Dense Output
 Fe RHS evals:
   actual:   24
   expected: 24
 Fi RHS evals:
-  actual:   45
-  expected: 45
+  actual:   24
+  expected: 24
 --------------------
 Steps: 4
 NLS iters: 28
@@ -2652,8 +3059,8 @@ Fe RHS evals:
   actual:   32
   expected: 32
 Fi RHS evals:
-  actual:   60
-  expected: 60
+  actual:   32
+  expected: 32
 --------------------
 
 
