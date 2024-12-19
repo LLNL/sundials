@@ -200,6 +200,12 @@ include(SundialsBuildOptionsPost)
 include(SundialsSetupConfig)
 
 # ===============================================================
+# Setup testing
+# ===============================================================
+
+include(SundialsSetupTesting)
+
+# ===============================================================
 # Add src and tests; optionally add examples and unit tests.
 # ===============================================================
 
@@ -208,17 +214,17 @@ add_subdirectory(src)
 
 # Add selected examples to the build
 if(_BUILD_EXAMPLES)
-  include(SundialsSetupTesting)
   add_subdirectory(examples)
 endif()
 
 # Add benchmarks to the build
 if(BUILD_BENCHMARKS)
+  include(SundialsSetupBenchmarks)
   add_subdirectory(benchmarks)
 endif()
 
-# Add unit tests to the build if they are enabled
-if(SUNDIALS_TEST_UNITTESTS)
+# Add unit tests to the build
+if(SUNDIALS_TEST_ENABLE_UNIT_TESTS)
   add_subdirectory(test/unit_tests)
 endif()
 

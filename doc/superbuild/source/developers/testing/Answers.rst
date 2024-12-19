@@ -26,7 +26,7 @@ file known as the "answer" file (aka "out" or "output" file). The output typical
 solution and/or some quantities derived from the solution as well as statistics about how the
 integration and/or solve (e.g., number of time steps). When changes are made to SUNDIALS, we ensure
 that these output files do not change unless it is expected/desired. Practically, this is ensured
-by our :ref:`CI testing <CI>`.
+by our CI.
 
 Due to difference in microarichtectures and the nature of floating point arithmetic, it is quite
 possible that the output generated on one machine may differ from the output generated on another.

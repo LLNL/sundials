@@ -13,11 +13,9 @@
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
 # Script that sets up the default SUNDIALS testing environment.
-#
-# Usage: source default.sh
 # ------------------------------------------------------------------------------
 
-echo "./default.sh $*" | tee -a setup_env.log
+echo "./jenkins.sh $*" | tee -a setup_env.log
 
 # ------------------------------------------------------------------------------
 # Check input values

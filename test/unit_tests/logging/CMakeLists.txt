@@ -156,21 +156,13 @@ foreach(test_tuple ${unit_tests})
     string(REPLACE " " ";" test_args "${test_args}")
   endif()
 
-  # For now, only diff when dev test are enabled
-  # TODO(DJG): Update Jenkins diff handling for testing single/extended
-  if(SUNDIALS_TEST_DEVTESTS)
-    set(diff_output "")
-  else()
-    set(diff_output "NODIFF")
-  endif()
-
   # add test to regression tests
   sundials_add_test(
     ${test_name} ${test_target}
     TEST_ARGS ${test_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    LABELS "logging" ${diff_output})
+    LABELS "logging")
 
 endforeach()
 
