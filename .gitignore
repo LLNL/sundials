@@ -19,6 +19,7 @@
 /.pydevproject
 .vscode
 compile_commands.json
+.clangd
 
 # custom test environment setup script
 /test/env/env.sh
@@ -61,6 +62,7 @@ compile_commands.json
 /doc/*/*.log
 
 # directories created by/for Sphinx documentation
+/doc/.venv
 /doc/.pyvenv
 /doc/*/guide/build/
 /doc/*/examples/build/

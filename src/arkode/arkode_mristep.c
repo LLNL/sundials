@@ -4253,7 +4253,7 @@ int mriStep_Hin(ARKodeMem ark_mem, sunrealtype tcur, sunrealtype tout,
 
 /*===============================================================
   User-callable functions for a custom inner integrator
-  ===============================================================*/
+  ---------------------------------------------------------------*/
 
 int MRIStepInnerStepper_Create(SUNContext sunctx, MRIStepInnerStepper* stepper)
 {
@@ -4715,7 +4715,7 @@ int mriStepInnerStepper_ResetSUNStepper(MRIStepInnerStepper stepper,
                                         sunrealtype tR, N_Vector yR)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
-  SUNErrCode err        = SUNStepper_Reset(sunstepper, tR, yR);
+  SUNErrCode err        = SUNStepper_Reset(sunstepper, tR, yR, 0);
   stepper->last_flag    = sunstepper->last_flag;
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   return ARK_SUCCESS;

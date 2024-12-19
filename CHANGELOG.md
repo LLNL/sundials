@@ -69,6 +69,7 @@ Added a utility routine to wrap any valid ARKODE integrator for use as an
 MRIStep inner stepper object, `ARKodeCreateMRIStepInnerStepper`.
 
 The following DIRK schemes now have coefficients accurate to quad precision:
+
 * `ARKODE_BILLINGTON_3_3_2`
 * `ARKODE_KVAERNO_4_2_3`
 * `ARKODE_CASH_5_2_4`
@@ -207,6 +208,7 @@ Guide](./CONTRIBUTING.md) for more details.
 Added support for Kokkos Kernels v4.
 
 Added the following Runge-Kutta Butcher tables
+
 * `ARKODE_FORWARD_EULER_1_1`
 * `ARKODE_RALSTON_EULER_2_1_2`
 * `ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2`
@@ -215,6 +217,7 @@ Added the following Runge-Kutta Butcher tables
 * `ARKODE_IMPLICIT_TRAPEZOIDAL_2_2`
 
 Added the following MRI coupling tables
+
 * `ARKODE_MRI_GARK_FORWARD_EULER`
 * `ARKODE_MRI_GARK_RALSTON2`
 * `ARKODE_MRI_GARK_RALSTON3`
@@ -265,7 +268,7 @@ instead of `SameMajorVersion`. This fixes the issue seen
 
 Fixed a CMake bug that caused an MPI linking error for our C++ examples in some
 instances. Fixes [GitHub Issue
-#464](https://github.com/LLNL/sundials/issues/464).
+# 464](https://github.com/LLNL/sundials/issues/464).
 
 Fixed the runtime library installation path for windows systems. This fix
 changes the default library installation path from
@@ -411,20 +414,20 @@ communicator in place of `MPI_Comm` throughout the SUNDIALS API with a
 `SUNComm`, which is just a typedef to an `int` in builds without MPI
 and a typedef to a `MPI_Comm` in builds with MPI. As a result:
 
-- When MPI is enabled, all SUNDIALS libraries will include MPI symbols and
+* When MPI is enabled, all SUNDIALS libraries will include MPI symbols and
   applications will need to include the path for MPI headers and link against
   the corresponding MPI library.
 
-- All users will need to update their codes because the call to
+* All users will need to update their codes because the call to
   `SUNContext_Create` now takes a `SUNComm` instead
   of type-erased pointer to a communicator. For non-MPI codes,
   pass `SUN_COMM_NULL` to the `comm` argument instead of
   `NULL`. For MPI codes, pass the `MPI_Comm` directly.
 
-- The same change must be made for calls to
+* The same change must be made for calls to
   `SUNLogger_Create` or `SUNProfiler_Create`.
 
-- Some users will need to update their calls to `N_VGetCommunicator`, and
+* Some users will need to update their calls to `N_VGetCommunicator`, and
   update any custom `N_Vector` implementations that provide
   `N_VGetCommunicator`, since it now returns a `SUNComm`.
 

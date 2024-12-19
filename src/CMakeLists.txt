@@ -23,6 +23,7 @@ add_subdirectory(sunlinsol)
 add_subdirectory(sunnonlinsol)
 add_subdirectory(sunmemory)
 add_subdirectory(sunadaptcontroller)
+add_subdirectory(sunadjoint)
 
 # ARKODE library
 if(BUILD_ARKODE)
