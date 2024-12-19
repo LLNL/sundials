@@ -79,7 +79,7 @@
 #
 # -D SUNDIALS_TEST_ANSWER_DIR=<path to answer directory>
 
-macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
+function(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   set(options "NODIFF")
   set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PRECISION"
@@ -272,4 +272,4 @@ macro(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   unset(_pre_exe)
   unset(_post_exe)
 
-endmacro()
+endfunction()

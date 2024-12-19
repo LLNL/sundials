@@ -1,6 +1,6 @@
-# ---------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Programmer(s): Yu Pan @ LLNL
-# ---------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2024, Lawrence Livermore National Security
 # and Southern Methodist University.
@@ -10,25 +10,38 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
-# ---------------------------------------------------------------
-# CMake macro for adding benchmarks to `make benchmark`.
-# ---------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
+# ~~~
+# sundials_add_benchmark(<benchmark name> <executable> <base benchmark name>
+#                        [NUM_CORES cores]
+#                        [BENCHMARK_ARGS args]
+#                        [IDENTIFIER ident]
+#                        [TEST_RUNNER_ARGS args]
+#                        [ENABLE_GPU]
+# ~~~
+#
+# CMake function for adding benchmarks to `make benchmark`.
+#
+# The option NUM_CORES sets the number of cores (GPU count or CPU count) to run
+# on/number of resource sets.
+#
+# The option BENCHMARK_ARGS sets the arguments to pass to the executable.
+#
+# The option IDENTIFIER sets the suffix to append to end of benchmark name
+#
+# The option TEST_RUNNER_ARGS sets the command line arguments to pass to the
+# test executable
+#
+# The option ENABLE_GPU indicates this benchmark should be run with GPUs
 
-  # Define single value parameters the macro takes in to set up the test runner
-  #
-  # NUM_CORES         = number of cores (GPU count or CPU count) to run
-  # on/number of resource sets BENCHMARK_ARGS    = arguments to pass to the
-  # executable IDENTIFIER        = suffix to append to end of benchmark name
+function(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
+
   set(oneValueArgs NUM_CORES BENCHMARK_ARGS IDENTIFIER)
-
-  # TEST_RUNNER_ARGS  = command line arguments to pass to the test executable
   set(multiValueArgs TEST_RUNNER_ARGS)
-
-  # ENABLE_GPU        = indicate this benchmark should be run with GPUs
   set(options ENABLE_GPU)
 
+  # parse inputs and create variables arg_<keyword>
   cmake_parse_arguments(arg "${options}" "${oneValueArgs}" "${multiValueArgs}"
                         ${ARGN})
 
@@ -96,4 +109,4 @@ macro(sundials_add_benchmark NAME EXECUTABLE BASE_BENCHMARK_NAME)
     COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_RUNNER_ARGS})
   add_dependencies(benchmark ${TARGET_NAME})
 
-endmacro()
+endfunction()
