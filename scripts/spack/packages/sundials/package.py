@@ -740,8 +740,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 # Benchmarking
                 self.cache_option_from_variant("BUILD_BENCHMARKS", "benchmarks"),
                 # Profile examples
-                self.cache_option_from_variant("SUNDIALS_TEST_PROFILE", "profile-examples"),
-                self.cache_option_from_variant("SUNDIALS_TEST_DEVTESTS", "profile-examples"),
+                self.cache_option_from_variant("SUNDIALS_TEST_ENABLE_PROFILING", "profile-examples"),
+                self.cache_option_from_variant("SUNDIALS_TEST_ENABLE_DEV_TESTS", "profile-examples"),
                 cmake_cache_string("SPACK_VERSION", ".".join(map(str, spack.spack_version_info)))
 
             ]
@@ -789,8 +789,8 @@ class Sundials(CachedCMakePackage, CudaPackage, ROCmPackage):
                 entries.append(cmake_cache_path("adiak_DIR", spec["adiak"].prefix.lib.cmake + "/adiak"))
 
             if not "caliper-dir=none" in spec:
-                entries.append(self.cache_string_from_variant("SUNDIALS_CALIPER_OUTPUT_DIR", "caliper-dir"))
-
+                entries.append(self.cache_string_from_variant("SUNDIALS_TEST_CALIPER_OUTPUT_DIR", "caliper-dir"))
+                entries.append(self.cache_string_from_variant("SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR", "caliper-dir"))
 
         # Building with Ginkgo
         if "+ginkgo" in spec:
