@@ -189,3 +189,64 @@ if(DEFINED CUDA_ARCH)
       CACHE STRING "CUDA Architectures" FORCE)
   unset(CUDA_ARCH)
 endif()
+
+#
+# Deprecated Testing Options
+#
+
+if(SUNDIALS_TEST_PROFILE)
+  message(DEPRECATION "The CMake option SUNDIALS_TEST_PROFILE is deprecated. "
+                      "Use SUNDIALS_TEST_ENABLE_PROFILING instead.")
+  set(SUNDIALS_TEST_ENABLE_PROFILING
+      ${SUNDIALS_TEST_PROFILE}
+      CACHE BOOL "Profile tests" FORCE)
+  unset(SUNDIALS_TEST_PROFILE)
+endif()
+
+if(SUNDIALS_TEST_NODIFF)
+  message(DEPRECATION "The CMake option SUNDIALS_TEST_NODIFF is deprecated. "
+                      "Use SUNDIALS_TEST_ENABLE_DIFF_OUTPUT instead.")
+  if(SUNDIALS_TEST_NODIFF)
+    set(_new_value OFF)
+  else()
+    set(_new_value ON)
+  endif()
+  set(SUNDIALS_TEST_ENABLE_DIFF_OUTPUT
+      ${_new_value}
+      CACHE BOOL "Compare test output with saved answer files" FORCE)
+  unset(SUNDIALS_TEST_NODIFF)
+  unset(_new_value)
+endif()
+
+if(SUNDIALS_TEST_DEVTESTS)
+  message(DEPRECATION "The CMake option SUNDIALS_TEST_DEVTESTS is deprecated. "
+                      "Use SUNDIALS_TEST_ENABLE_DEV_TESTS instead.")
+  set(SUNDIALS_TEST_ENABLE_DEV_TESTS
+      ${SUNDIALS_TEST_DEVTESTS}
+      CACHE BOOL "Include development tests" FORCE)
+  unset(SUNDIALS_TEST_DEVTESTS)
+endif()
+
+if(SUNDIALS_TEST_UNITTESTS)
+  message(DEPRECATION "The CMake option SUNDIALS_TEST_UNITTESTS is deprecated. "
+                      "Use SUNDIALS_TEST_ENABLE_UNIT_TESTS instead.")
+  set(SUNDIALS_TEST_ENABLE_UNIT_TESTS
+      ${SUNDIALS_TEST_UNITTESTS}
+      CACHE BOOL "Include units tests" FORCE)
+  unset(SUNDIALS_TEST_UNITTESTS)
+endif()
+
+if(SUNDIALS_CALIPER_OUTPUT_DIR)
+  message(
+    DEPRECATION
+      "The CMake option SUNDIALS_CALIPER_OUTPUT_DIR is deprecated. "
+      "Use SUNDIALS_TEST_CALIPER_OUTPUT_DIR and SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR instead."
+  )
+  set(SUNDIALS_TEST_CALIPER_OUTPUT_DIR
+      ${SUNDIALS_TEST_CALIPER_OUTPUT_DIR}
+      CACHE PATH "Location to write test caliper files" FORCE)
+  set(SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR
+      ${SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR}
+      CACHE PATH "Location to write benchmark caliper files" FORCE)
+  unset(SUNDIALS_CALIPER_OUTPUT_DIR)
+endif()
