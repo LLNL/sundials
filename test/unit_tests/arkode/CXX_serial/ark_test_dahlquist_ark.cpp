@@ -811,13 +811,6 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
         nfe_expected += nst;
       }
     }
-
-    if (prob_opts.i_type != interp_type::hermite && save_fn_for_residual &&
-        !explicit_first_stage)
-    {
-      if (stiffly_accurate) { nfe_expected++; }
-      else { nfe_expected += nst; }
-    }
   }
 
   // Expected number of implicit functions evaluations
