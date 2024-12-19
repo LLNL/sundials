@@ -123,11 +123,11 @@ available.
 
    **Example usage:**
 
-      .. code-block:: C
+   .. code-block:: C
 
-         for (i = 0; i < N; i++) {
-            fprintf(outfile, SUN_FORMAT_E "\n", xd[i]);
-         }
+      for (i = 0; i < N; i++) {
+         fprintf(outfile, SUN_FORMAT_E "\n", xd[i]);
+      }
 
 .. c:macro:: SUN_FORMAT_G
 
@@ -137,9 +137,9 @@ available.
 
    **Example usage:**
 
-      .. code-block:: C
+   .. code-block:: C
 
-         SSUNLogInfo(sunctx->logger, "label", "x = " SUN_FORMAT_G, x);
+      SSUNLogInfo(sunctx->logger, "label", "x = " SUN_FORMAT_G, x);
 
 .. c:macro:: SUN_FORMAT_SG
 
@@ -155,7 +155,7 @@ the following utility functions are available.
    format.
 
    :param fp: Pointer to output file.
-   :param fmt: the output format.
+   :param fmt: The output format.
    :param start: :c:macro:`SUNTRUE` if the value is the first in a series of
                  statistics, and :c:macro:`SUNFALSE` otherwise.
    :param name: The name of the statistic.
@@ -166,7 +166,7 @@ the following utility functions are available.
    Writes a long value to a file pointer using the specified format.
 
    :param fp: Pointer to output file.
-   :param fmt: the output format.
+   :param fmt: The output format.
    :param start: :c:macro:`SUNTRUE` if the value is the first in a series of
                  statistics, and :c:macro:`SUNFALSE` otherwise.
    :param name: The name of the statistic.
@@ -177,7 +177,7 @@ the following utility functions are available.
    Writes an array of long values to a file pointer using the specified format.
 
    :param fp: Pointer to output file.
-   :param fmt: the output format.
+   :param fmt: The output format.
    :param start: :c:macro:`SUNTRUE` if the value is the first in a series of
                  statistics, and :c:macro:`SUNFALSE` otherwise.
    :param name: The name of the statistic.
