@@ -192,18 +192,6 @@ SUNErrCode SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
 #define SUN_NLS_CONTINUE   +901 /* not converged, keep iterating      */
 #define SUN_NLS_CONV_RECVR +902 /* convergece failure, try to recover */
 
-/* -----------------------------------------------------------------------------
- * SUNNonlinearSolver messages
- * ---------------------------------------------------------------------------*/
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUN_NLS_MSG_RESIDUAL "\tnonlin. iteration %ld, nonlin. residual: %Lg\n"
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUN_NLS_MSG_RESIDUAL "\tnonlin. iteration %ld, nonlin. residual: %g\n"
-#else
-#define SUN_NLS_MSG_RESIDUAL "\tnonlin. iteration %ld, nonlin. residual: %g\n"
-#endif
-
 #ifdef __cplusplus
 }
 #endif

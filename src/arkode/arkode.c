@@ -886,8 +886,8 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       }
 
       SUNLogInfo(ARK_LOGGER, "begin-step-attempt",
-                 "step = %li, tn = %" RSYM ", h = %" RSYM, ark_mem->nst + 1,
-                 ark_mem->tn, ark_mem->h);
+                 "step = %li, tn = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                 ark_mem->nst + 1, ark_mem->tn, ark_mem->h);
 
       /* Call time stepper module to attempt a step:
             0 => step completed successfully
@@ -951,7 +951,8 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
         kflag = arkCheckTemporalError(ark_mem, &nflag, &nef, dsm);
 
         SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, "end-step-attempt",
-                     "status = failed error test, dsm = %" RSYM ", kflag = %i",
+                     "status = failed error test, dsm = " SUN_FORMAT_G
+                     ", kflag = %i",
                      dsm, kflag);
 
         if (kflag < 0) { break; }
@@ -970,7 +971,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (kflag == ARK_SUCCESS)
       {
         SUNLogInfo(ARK_LOGGER, "end-step-attempt",
-                   "status = success, dsm = %" RSYM, dsm);
+                   "status = success, dsm = " SUN_FORMAT_G, dsm);
         break;
       }
 
@@ -1296,17 +1297,17 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "user_efun = %i\n", ark_mem->user_efun);
   fprintf(outfile, "tstopset = %i\n", ark_mem->tstopset);
   fprintf(outfile, "tstopinterp = %i\n", ark_mem->tstopinterp);
-  fprintf(outfile, "tstop = %" RSYM "\n", ark_mem->tstop);
+  fprintf(outfile, "tstop = " SUN_FORMAT_G "\n", ark_mem->tstop);
   fprintf(outfile, "VabstolMallocDone = %i\n", ark_mem->VabstolMallocDone);
   fprintf(outfile, "MallocDone = %i\n", ark_mem->MallocDone);
   fprintf(outfile, "initsetup = %i\n", ark_mem->initsetup);
   fprintf(outfile, "init_type = %i\n", ark_mem->init_type);
   fprintf(outfile, "firststage = %i\n", ark_mem->firststage);
-  fprintf(outfile, "uround = %" RSYM "\n", ark_mem->uround);
-  fprintf(outfile, "reltol = %" RSYM "\n", ark_mem->reltol);
-  fprintf(outfile, "Sabstol = %" RSYM "\n", ark_mem->Sabstol);
+  fprintf(outfile, "uround = " SUN_FORMAT_G "\n", ark_mem->uround);
+  fprintf(outfile, "reltol = " SUN_FORMAT_G "\n", ark_mem->reltol);
+  fprintf(outfile, "Sabstol = " SUN_FORMAT_G "\n", ark_mem->Sabstol);
   fprintf(outfile, "fixedstep = %i\n", ark_mem->fixedstep);
-  fprintf(outfile, "tolsf = %" RSYM "\n", ark_mem->tolsf);
+  fprintf(outfile, "tolsf = " SUN_FORMAT_G "\n", ark_mem->tolsf);
   fprintf(outfile, "call_fullrhs = %i\n", ark_mem->call_fullrhs);
 
   /* output counters */
@@ -1317,18 +1318,18 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "netf = %li\n", ark_mem->netf);
 
   /* output time-stepping values */
-  fprintf(outfile, "hin = %" RSYM "\n", ark_mem->hin);
-  fprintf(outfile, "h = %" RSYM "\n", ark_mem->h);
-  fprintf(outfile, "hprime = %" RSYM "\n", ark_mem->hprime);
-  fprintf(outfile, "next_h = %" RSYM "\n", ark_mem->next_h);
-  fprintf(outfile, "eta = %" RSYM "\n", ark_mem->eta);
-  fprintf(outfile, "tcur = %" RSYM "\n", ark_mem->tcur);
-  fprintf(outfile, "tretlast = %" RSYM "\n", ark_mem->tretlast);
-  fprintf(outfile, "hmin = %" RSYM "\n", ark_mem->hmin);
-  fprintf(outfile, "hmax_inv = %" RSYM "\n", ark_mem->hmax_inv);
-  fprintf(outfile, "h0u = %" RSYM "\n", ark_mem->h0u);
-  fprintf(outfile, "tn = %" RSYM "\n", ark_mem->tn);
-  fprintf(outfile, "hold = %" RSYM "\n", ark_mem->hold);
+  fprintf(outfile, "hin = " SUN_FORMAT_G "\n", ark_mem->hin);
+  fprintf(outfile, "h = " SUN_FORMAT_G "\n", ark_mem->h);
+  fprintf(outfile, "hprime = " SUN_FORMAT_G "\n", ark_mem->hprime);
+  fprintf(outfile, "next_h = " SUN_FORMAT_G "\n", ark_mem->next_h);
+  fprintf(outfile, "eta = " SUN_FORMAT_G "\n", ark_mem->eta);
+  fprintf(outfile, "tcur = " SUN_FORMAT_G "\n", ark_mem->tcur);
+  fprintf(outfile, "tretlast = " SUN_FORMAT_G "\n", ark_mem->tretlast);
+  fprintf(outfile, "hmin = " SUN_FORMAT_G "\n", ark_mem->hmin);
+  fprintf(outfile, "hmax_inv = " SUN_FORMAT_G "\n", ark_mem->hmax_inv);
+  fprintf(outfile, "h0u = " SUN_FORMAT_G "\n", ark_mem->h0u);
+  fprintf(outfile, "tn = " SUN_FORMAT_G "\n", ark_mem->tn);
+  fprintf(outfile, "hold = " SUN_FORMAT_G "\n", ark_mem->hold);
   fprintf(outfile, "maxnef = %i\n", ark_mem->maxnef);
   fprintf(outfile, "maxncf = %i\n", ark_mem->maxncf);
 
@@ -2739,9 +2740,10 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
                     MSG_ARK_MASSSOLVE_FAIL);
     break;
   case ARK_NLS_SETUP_FAIL:
-    arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, __LINE__, __func__,
-                    __FILE__, "At t = %Lg the nonlinear solver setup failed unrecoverably",
-                    (long double)ark_mem->tcur);
+    arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, __LINE__, __func__, __FILE__,
+                    "At t = " SUN_FORMAT_G
+                    " the nonlinear solver setup failed unrecoverably",
+                    ark_mem->tcur);
     break;
   case ARK_VECTOROP_ERR:
     arkProcessError(ark_mem, ARK_VECTOROP_ERR, __LINE__, __func__, __FILE__,
@@ -2769,8 +2771,9 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_INTERP_FAIL:
     arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = %Lg the interpolation module failed unrecoverably",
-                    (long double)ark_mem->tcur);
+                    "At t = " SUN_FORMAT_G
+                    " the interpolation module failed unrecoverably",
+                    ark_mem->tcur);
     break;
   case ARK_INVALID_TABLE:
     arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
@@ -2778,8 +2781,8 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_RELAX_FAIL:
     arkProcessError(ark_mem, ARK_RELAX_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = %Lg the relaxation module failed",
-                    (long double)ark_mem->tcur);
+                    "At t = " SUN_FORMAT_G " the relaxation module failed",
+                    ark_mem->tcur);
     break;
   case ARK_RELAX_MEM_NULL:
     arkProcessError(ark_mem, ARK_RELAX_MEM_NULL, __LINE__, __func__, __FILE__,
