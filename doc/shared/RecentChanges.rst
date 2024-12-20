@@ -1,6 +1,6 @@
 ** New Features and Enhancements **
 
-Unit tests were separated from examples. To that end, the follow directories 
+Unit tests were separated from examples. To that end, the following directories 
 were moved out of the ``examples/`` directory to the ``test/unit_tests`` directory:
 ``nvector``, ``sunmatrix``, ``sunlinsol``, and ``sunnonlinsol``.
 
