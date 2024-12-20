@@ -78,7 +78,7 @@ web pages.
 #. Update version numbers of third party libraries in the Install Guide
    in doc directory.
 
-#. Open a pull request from the release branch to ``develop``. 
+#. Open a pull request from the release branch to ``develop``.
 
 Release Procedure
 =================
@@ -95,10 +95,10 @@ Release Procedure
       git checkout main
       git pull # main should be up to date with origin/main now
       git merge --ff-only develop # we want to do a fast-forward merge (no merge commit)
-      git tag -m 'SUNDIALS Release vX.Y.Z’ vX.Y.Z
+      git tag -m 'SUNDIALS Release vX.Y.Z' vX.Y.Z
       git push --tags origin main
 
-   .. note:: 
+   .. note::
 
       The final step (pushing to main) requires changing the GitHub repository settings to
       allow whoever is doing the push an exception in the ``main`` branch protection rules.
@@ -107,15 +107,15 @@ Release Procedure
    Use the ``tarscript`` shell script under the ``scripts`` directory. This also compiles the documents
    (user guides and example docs) and creates all tarballs in their final form, appropriate for uploading
    as artifacts to the GitHub release.
-   
-   .. warning:: 
-	
+
+   .. warning::
+
 	   Creating the tarballs on a Mac can cause issues. Furthermore, it is important to wait
-      to create the tarballs until readthedocs finishes building the new release docs so 
-	   that cross-references have valid links. 
+      to create the tarballs until readthedocs finishes building the new release docs so
+	   that cross-references have valid links.
 
 #. Draft the release on GitHub and attach the tarballs as well as the example documentation PDFs.
-   The description of the release is just a copy of the ``CHANGELOG.md`` notes for the release with 
+   The description of the release is just a copy of the ``CHANGELOG.md`` notes for the release with
    hard line-wraps removed.
 
 #. Now prepare SUNDIALS for the next release cycle using the following steps:
@@ -125,7 +125,7 @@ Release Procedure
       git checkout develop
       git checkout -b maintenance/start-new-release-cycle
       pushd scripts/ && ./startReleaseCycle.sh && popd
-      git add . && git commit -m “start new release cycle”
+      git add . && git commit -m 'start new release cycle'
       git push -u origin maintenance/start-new-release-cycle
       # Now open the PR to develop on GitHub.
 
