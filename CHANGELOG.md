@@ -2,6 +2,12 @@
 
 ## Changes to SUNDIALS in release 7.2.1
 
+### New Features and Enhancements
+
+Unit tests were separated from examples. To that end, the follow directories 
+were moved out of the `examples/` directory to the `test/unit_tests` directory:
+`nvector`, `sunmatrix`, `sunlinsol`, and `sunnonlinsol`.
+
 ### Bug Fixes
 
 Fixed a bug in ARKStep where an extra right-hand side evaluation would occur
