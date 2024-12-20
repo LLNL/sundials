@@ -100,7 +100,7 @@ Release Procedure
       git checkout main
       git pull # main should be up to date with origin/main now
       git merge --ff-only develop # we want to do a fast-forward merge (no merge commit)
-      git tag -a vX.Y.Z -m 'SUNDIALS Release vX.Y.Z' vX.Y.Z
+      git tag -a vX.Y.Z -m 'SUNDIALS Release vX.Y.Z'
       git push --tags origin main
 
    .. note::
