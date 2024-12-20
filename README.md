@@ -1,4 +1,7 @@
 # SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers #
+
+[![track SUNDIALS downloads](https://github.com/sundials-codes/sundials-download-tracker/actions/workflows/nightly.yml/badge.svg)](https://github.com/sundials-codes/sundials-download-tracker/actions/workflows/nightly.yml)
+
 ### Version 7.2.1 (Dec 2024) ###
 
 **Center for Applied Scientific Computing, Lawrence Livermore National Laboratory**
