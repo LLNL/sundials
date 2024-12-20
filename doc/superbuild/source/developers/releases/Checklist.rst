@@ -90,13 +90,13 @@ Release Procedure
 
    .. code-block:: shell
 
-	   git checkout develop
+      git checkout develop
       git pull # develop should be up to date with origin/develop now
       git checkout main
       git pull # main should be up to date with origin/main now
       git merge --ff-only develop # we want to do a fast-forward merge (no merge commit)
       git tag -m 'SUNDIALS Release vX.Y.Z’ vX.Y.Z
-	   git push --tags origin main
+      git push --tags origin main
 
    .. note:: 
 
