@@ -65,50 +65,69 @@ This is a list of tasks that need to be done before a SUNDIALS release.
 The order is bottom-up starting with solver source files and ending with
 web pages.
 
-#. Create release branch from trunk in the Git repository
+#. Create release branch ``release/vX.Y.Z`` from develop in the git repo.
+
+#. Update version numbers and release date information using the ``updateVerson.sh``
+   script.
 
 #. If this is a major release, search the SUNDIALS code for
    'DEPRECATION NOTICE' and 'SUNDIALS_DEPRECATED'. All deprecated
    functions should be removed (unless this is the first version
    that they are deprecated).
 
-#. Regenerate the Fortran 2003 interfaces. It is possible nothing will be updated.
-   This is done by running ``make all32 all64`` in the ``swig/`` directory.
-
-#. Update the "Changes in ..." sections in all user guides. The changes should be
-   sorted so that major new features are above bug fixes.
-
-#. Update version numbers and release date information using the ``updateVerson.sh``
-   script. This will update the following files:
-
-   * ``CITATIONS.md``
-   * ``CMakeLists.txt``
-   * ``README.md``
-   * ``src/arkode/README``
-   * ``src/cvode/README``
-   * ``src/cvodes/README``
-   * ``src/ida/README``
-   * ``src/idas/README``
-   * ``src/kinsol/README``
-   * ``doc/arkode/examples/source/conf.py``
-   * ``doc/shared/versions.py``
-   * ``doc/shared/History.rst``
-   * ``doc/shared/sundials.bib``
-   * ``doc/sundials/biblio.bib``
-   * ``scripts/tarscript``
-
-   The following files are no longer maintained:
-
-   * ``html/main.html`` (This is no longer maintained as of at least 2016)
-   * ``sundialsTB/install_STB.m`` (This is no longer maintained as of 2016)
-
 #. Update version numbers of third party libraries in the Install Guide
    in doc directory.
 
-#. Create the new distribution tarballs using the ``tarscript`` shell script
-   under the ``scripts`` directory. This also compiles the documents (user
-   guides and example docs) and creates all tarballs in their final form,
-   appropriate for uploading to the website.
+#. Open a pull request from the release branch to ``develop``. 
+
+Release Procedure
+=================
+
+#. Once the release PR is passing all tests and has been approved, merge it.
+
+#. Sync the main branch with develop. This merge is done locally rather than through
+   a GitHub PR (so that the merge is a fast-forward). The steps are as follows:
+
+   .. code-block:: 
+	git checkout develop
+        git pull # develop should be up to date with origin/develop now
+        git checkout main
+        git pull # main should be up to date with origin/main now
+        git merge --ff-only develop # we want to do a fast-forward merge (no merge commit)
+        git tag -m 'SUNDIALS Release vX.Y.Z’ vX.Y.Z
+	git push --tags origin main
+
+   .. note:: 
+
+	The final step (pushing to main) requires changing the GitHub repository settings to
+	allow whoever is doing the push an exception in the ``main`` branch protection rules.
+
+#. Once readthedocs finishes building the new release, create the tarballs *on a Linux machine*.
+   Use the ``tarscript`` shell script under the ``scripts`` directory. This also compiles the documents
+   (user guides and example docs) and creates all tarballs in their final form, appropriate for uploading
+   as artifacts to the GitHub release.
+   
+   .. warning:: 
+	
+	Creating the tarballs on a Mac can cause issues. Furthermore, it is important to wait
+        to create the tarballs until readthedocs finishes building the new release docs so 
+	that cross-references have valid links. 
+
+#. Draft the release on GitHub and attach the tarballs as well as the example documentation PDFs.
+   The description of the release is just a copy of the ``CHANGELOG.md`` notes for the release with 
+   hard line-wraps removed.
+
+#. Now prepare SUNDIALS for the next release cycle using the following steps:
+
+   .. code-block::
+
+	git checkout develop
+	git checkout -b maintenance/start-new-release-cycle
+	cd scripts/ 
+        ./startReleaseCycle.sh
+	git add . && git commit -m “start new release cycle”
+	git push -u origin maintenance/start-new-release-cycle
+	# Now open the PR to develop on GitHub.
 
 #. Update Internal Drupal Web pages for SUNDIALS:
    https://computing-staging.llnl.gov/user
@@ -118,21 +137,12 @@ web pages.
       * Edit Main Page:
         https://computing-staging.llnl.gov/projects/sundials
 
-        * Update Release History page:
-          https://computing-staging.llnl.gov/projects/sundials/release-history
-        * Add list of primary changes and child page containing
-          full list of changes (this information is shared with
-          "Changes in ..." sections of user guides).
-
       * Edit Download Page:
         https://computing-staging.llnl.gov/projects/sundials/sundials-software
 
         * Update main download table with links to new versions of solvers
         * The documentation links do not need to be updated (they point to the PDFs on the GitHub main branch)
         * Update Previous releases table with new entry for previous release of full SUNDIALS suite.
-
-      * Edit FAQ if necessary:
-        https://computing-staging.llnl.gov/projects/sundials/faq
 
    b) Once each sub page is complete, ask for team review of draft pages:
       https://computing-staging.llnl.gov/projects/sundials
@@ -145,8 +155,6 @@ web pages.
 
 #. After final push, ensure web content and behavior is as expected on the main
    page: http://computing.llnl.gov/projects/sundials
-
-#. Tag the release
 
 
 **Old steps for maintaianed code:**
