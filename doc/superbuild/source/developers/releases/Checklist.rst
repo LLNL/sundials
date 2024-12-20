@@ -121,9 +121,9 @@ Release Procedure
 
    .. warning::
 
-	   Creating the tarballs on a Mac can cause issues. Furthermore, it is important to wait
+      Creating the tarballs on a Mac can cause issues. Furthermore, it is important to wait
       to create the tarballs until readthedocs finishes building the new release docs so
-	   that cross-references have valid links.
+      that cross-references have valid links.
 
 #. Draft the release on GitHub with the title "SUNDIALS vX.Y.Z" and attach the tarballs
    as well as the example documentation PDFs. The description of the release is just a
@@ -151,8 +151,8 @@ Release Procedure
       * Edit Download Page:
         https://computing-staging.llnl.gov/projects/sundials/sundials-software
 
-        * Update main download table with links to new versions of solvers
-        * The documentation links do not need to be updated (they point to the PDFs on the GitHub main branch)
+        * Update main download table with links to new versions of solvers.
+        * The example documentation links need to be updated as well.
         * Update Previous releases table with new entry for previous release of full SUNDIALS suite.
 
    b) Once each sub page is complete, ask for team review of draft pages:
@@ -167,15 +167,3 @@ Release Procedure
 #. After final push, ensure web content and behavior is as expected on the main
    page: http://computing.llnl.gov/projects/sundials
 
-
-**Old steps for maintaianed code:**
-
-#. Create PDF files for SundialsTB:
-
-   a) Create the PDF doc for SundialsTB by running the Matlab program
-      ``texdoc.m`` available in ``sundialsTB/doc``.
-
-   b) The program uses the m2html toolbox, freely available. It creates doc
-      files in PS and PDF formats as ``sundialsTB.ps`` and ``sundialsTB.pdf``.
-
-   c) Follow Radu's instructions in ``sundials/sundialsTB/doc/README_texdoc``.
