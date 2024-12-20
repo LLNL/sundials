@@ -65,10 +65,13 @@ This is a list of tasks that need to be done before a SUNDIALS release.
 The order is bottom-up starting with solver source files and ending with
 web pages.
 
-#. Create release branch ``release/vX.Y.Z`` from develop in the git repo.
+#. Create release branch ``release/vX.Y.Z`` from ``develop`` in the git repo.
 
 #. Update version numbers and release date information using the ``updateVerson.sh``
    script.
+   
+   .. code-block:: shell
+      pushd scripts/ && ./updateVersion.sh && popd
 
 #. If this is a major release, search the SUNDIALS code for
    'DEPRECATION NOTICE' and 'SUNDIALS_DEPRECATED'. All deprecated
@@ -78,12 +81,14 @@ web pages.
 #. Update version numbers of third party libraries in the Install Guide
    in doc directory.
 
-#. Open a pull request from the release branch to ``develop``.
+#. Open a pull request from the release branch to ``develop`` with the title
+   "Release: vX.Y.Z" and description "SUNDIALS Release vX.Y.Z".
 
 Release Procedure
 =================
 
-#. Once the release PR is passing all tests and has been approved, merge it.
+#. Once the release PR is passing all tests and has been approved, merge it. Like all
+   merges to ``develop``, this should be done with the "Squash and merge" option.
 
 #. Sync the main branch with develop. This merge is done locally rather than through
    a GitHub PR (so that the merge is a fast-forward). The steps are as follows:
@@ -95,13 +100,19 @@ Release Procedure
       git checkout main
       git pull # main should be up to date with origin/main now
       git merge --ff-only develop # we want to do a fast-forward merge (no merge commit)
-      git tag -m 'SUNDIALS Release vX.Y.Z' vX.Y.Z
+      git tag -a vX.Y.Z -m 'SUNDIALS Release vX.Y.Z' vX.Y.Z
       git push --tags origin main
 
    .. note::
 
-      The final step (pushing to main) requires changing the GitHub repository settings to
-      allow whoever is doing the push an exception in the ``main`` branch protection rules.
+      The final step (pushing to main) requires temporarily changing the GitHub
+      repository settings to allow whoever is doing the push an exception in the
+      ``main`` branch protection rules.
+      
+   .. danger::
+   
+      Remember to remove this exception to the branch protection rules after making
+      the push to update ``main``.
 
 #. Once readthedocs finishes building the new release, create the tarballs *on a Linux machine*.
    Use the ``tarscript`` shell script under the ``scripts`` directory. This also compiles the documents
@@ -114,9 +125,9 @@ Release Procedure
       to create the tarballs until readthedocs finishes building the new release docs so
 	   that cross-references have valid links.
 
-#. Draft the release on GitHub and attach the tarballs as well as the example documentation PDFs.
-   The description of the release is just a copy of the ``CHANGELOG.md`` notes for the release with
-   hard line-wraps removed.
+#. Draft the release on GitHub with the title "SUNDIALS vX.Y.Z" and attach the tarballs
+   as well as the example documentation PDFs. The description of the release is just a
+   copy of the ``CHANGELOG.md`` notes for the release with hard line-wraps removed.
 
 #. Now prepare SUNDIALS for the next release cycle using the following steps:
 
