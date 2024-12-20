@@ -88,19 +88,20 @@ Release Procedure
 #. Sync the main branch with develop. This merge is done locally rather than through
    a GitHub PR (so that the merge is a fast-forward). The steps are as follows:
 
-   .. code-block:: 
-	git checkout develop
-        git pull # develop should be up to date with origin/develop now
-        git checkout main
-        git pull # main should be up to date with origin/main now
-        git merge --ff-only develop # we want to do a fast-forward merge (no merge commit)
-        git tag -m 'SUNDIALS Release vX.Y.Z’ vX.Y.Z
-	git push --tags origin main
+   .. code-block:: shell
+
+	   git checkout develop
+      git pull # develop should be up to date with origin/develop now
+      git checkout main
+      git pull # main should be up to date with origin/main now
+      git merge --ff-only develop # we want to do a fast-forward merge (no merge commit)
+      git tag -m 'SUNDIALS Release vX.Y.Z’ vX.Y.Z
+	   git push --tags origin main
 
    .. note:: 
 
-	The final step (pushing to main) requires changing the GitHub repository settings to
-	allow whoever is doing the push an exception in the ``main`` branch protection rules.
+      The final step (pushing to main) requires changing the GitHub repository settings to
+      allow whoever is doing the push an exception in the ``main`` branch protection rules.
 
 #. Once readthedocs finishes building the new release, create the tarballs *on a Linux machine*.
    Use the ``tarscript`` shell script under the ``scripts`` directory. This also compiles the documents
@@ -109,9 +110,9 @@ Release Procedure
    
    .. warning:: 
 	
-	Creating the tarballs on a Mac can cause issues. Furthermore, it is important to wait
-        to create the tarballs until readthedocs finishes building the new release docs so 
-	that cross-references have valid links. 
+	   Creating the tarballs on a Mac can cause issues. Furthermore, it is important to wait
+      to create the tarballs until readthedocs finishes building the new release docs so 
+	   that cross-references have valid links. 
 
 #. Draft the release on GitHub and attach the tarballs as well as the example documentation PDFs.
    The description of the release is just a copy of the ``CHANGELOG.md`` notes for the release with 
@@ -119,15 +120,14 @@ Release Procedure
 
 #. Now prepare SUNDIALS for the next release cycle using the following steps:
 
-   .. code-block::
+   .. code-block:: shell
 
-	git checkout develop
-	git checkout -b maintenance/start-new-release-cycle
-	cd scripts/ 
-        ./startReleaseCycle.sh
-	git add . && git commit -m “start new release cycle”
-	git push -u origin maintenance/start-new-release-cycle
-	# Now open the PR to develop on GitHub.
+      git checkout develop
+      git checkout -b maintenance/start-new-release-cycle
+      pushd scripts/ && ./startReleaseCycle.sh && popd
+      git add . && git commit -m “start new release cycle”
+      git push -u origin maintenance/start-new-release-cycle
+      # Now open the PR to develop on GitHub.
 
 #. Update Internal Drupal Web pages for SUNDIALS:
    https://computing-staging.llnl.gov/user
