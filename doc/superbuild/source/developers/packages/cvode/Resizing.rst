@@ -12,13 +12,16 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Packages:
+.. _CVODE.Alg.Resizing:
 
-Packages
-===========
+Resizing
+--------
 
-.. toctree::
-   :maxdepth: 2
+A time step with step size :math:`h_n = t_{n-1} - t_{n}` using a method of order
+:math:`q` begins with the polynomial interpolant, :math:`\pi_{n-1}`, satisfying
+the :math:`q + 1` conditions for Adams methods
 
-   arkode/index.rst
-   cvode/index.rst
+.. math::
+
+   \pi_{n-1}(t_{n-1}) = y_{n-1}
+   \dot{\pi}_{n-1}(t_{n-j}) = \dot{y}_{n-j}, \quad j = 1,2,\ldots,q

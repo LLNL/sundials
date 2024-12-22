@@ -15,7 +15,7 @@
 .. _ARKODE.ERKFullRHS:
 
 ERKStep Full RHS
-================
+----------------
 
 .. digraph:: erk_fullrhs
 
@@ -116,7 +116,7 @@ ERKStep Full RHS
 
 
 ARKStep Full RHS
-================
+----------------
 
 .. digraph:: ark_fullrhs_start
    :caption: ARKStep Full RHS Start

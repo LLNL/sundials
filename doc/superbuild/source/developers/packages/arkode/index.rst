@@ -12,13 +12,12 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Packages:
+.. _ARKODE.Alg:
 
-Packages
-===========
+ARKODE
+======
 
 .. toctree::
    :maxdepth: 2
 
-   arkode/index.rst
-   cvode/index.rst
+   FullRhs
