@@ -17,11 +17,4 @@
 Resizing
 --------
 
-A time step with step size :math:`h_n = t_{n-1} - t_{n}` using a method of order
-:math:`q` begins with the polynomial interpolant, :math:`\pi_{n-1}`, satisfying
-the :math:`q + 1` conditions for Adams methods
-
-.. math::
-
-   \pi_{n-1}(t_{n-1}) = y_{n-1}
-   \dot{\pi}_{n-1}(t_{n-j}) = \dot{y}_{n-j}, \quad j = 1,2,\ldots,q
+In order to resize CVODE we must construct a new Nordsieck array.

@@ -20,4 +20,5 @@ CVODE
 .. toctree::
    :maxdepth: 2
 
+   Nordsieck
    Resizing
