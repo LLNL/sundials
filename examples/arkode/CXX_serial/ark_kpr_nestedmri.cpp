@@ -1630,10 +1630,22 @@ int ReadInputs(std::vector<std::string>& args, Options& opts, SUNContext ctx)
   if (find_arg(args, "--k2f", opts.k2f)) { opts.set_k2f = true; }
   if (find_arg(args, "--k3f", opts.k3f)) { opts.set_k3f = true; }
   if (find_arg(args, "--bias", opts.bias)) { opts.set_bias = true; }
-  if (find_arg(args, "--htol_relch", opts.htol_relch)) { opts.set_htol_relch = true; }
-  if (find_arg(args, "--htol_minfac", opts.htol_minfac)) { opts.set_htol_minfac = true; }
-  if (find_arg(args, "--htol_maxfac", opts.htol_maxfac)) { opts.set_htol_maxfac = true; }
-  if (find_arg(args, "--safety", opts.slow_safety)) { opts.set_slow_safety = true; }
+  if (find_arg(args, "--htol_relch", opts.htol_relch))
+  {
+    opts.set_htol_relch = true;
+  }
+  if (find_arg(args, "--htol_minfac", opts.htol_minfac))
+  {
+    opts.set_htol_minfac = true;
+  }
+  if (find_arg(args, "--htol_maxfac", opts.htol_maxfac))
+  {
+    opts.set_htol_maxfac = true;
+  }
+  if (find_arg(args, "--safety", opts.slow_safety))
+  {
+    opts.set_slow_safety = true;
+  }
 
   // Check inputs for validity
   //   0 < rtol < 1
