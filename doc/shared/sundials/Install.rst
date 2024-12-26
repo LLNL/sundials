@@ -684,7 +684,7 @@ illustration only.
 
    Default: "REF;OMP"
 
-   .. versionchanged: 7.1.0
+   .. versionchanged:: 7.1.0
 
       The ``DPCPP`` option was changed to ``SYCL`` to align with Ginkgo's naming convention.
 
