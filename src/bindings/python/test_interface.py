@@ -1,0 +1,34 @@
+#!/bin/python
+
+import numpy as np
+from pysundials.core import *
+from pysundials.arkode import *
+
+sunctx = SUNContextView()
+nv = NVectorView(N_VNew_Serial(1, sunctx.Convert()))
+
+# Get the array and change a value in it
+arr = N_VGetArrayPointer(nv.Convert()) # Option 1: have to call Convert when passing the NVectorView
+# arr = N_VGetArrayPointer(nv()) # Option 2: map Convert to __call__ for explicit conversion
+# arr = nv.GetArrayPointer() # Option 3: wrap N_V calls as NVectorView class methods
+arr[0] = 0.0
+
+def rhs(t, yvec, ydotvec, user_data):
+  y = N_VGetArrayPointer(yvec)
+  ydot = N_VGetArrayPointer(ydotvec)
+  ydot[0] = 1.0 * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.atan(t)
+  return 0
+
+erk = ERKStepCreate(rhs, 0, nv.Convert(), sunctx.Convert())
+ARKodeSStolerances(erk.Convert(), 1e-6, 1e-6)
+
+tout, tret = 10.0, 0.0
+status = ARKodeEvolve(erk.Convert(), tout, nv.Convert(), tret, ARK_NORMAL)
+print(arr)
+
+# Try again
+erk = ERKStepCreate(rhs, 0, nv.Convert(), sunctx.Convert())
+ARKodeSStolerances(erk.Convert(), 1e-6, 1e-6)
+
+tret = 0.0
+status = ARKodeEvolve(erk.Convert(), tout, nv.Convert(), tret, ARK_NORMAL)
