@@ -113,7 +113,7 @@ BaseObject<ObjectStruct, ObjectOps>::~BaseObject() = default;
 
 namespace experimental {
 
-template<class T, class Deleter>
+template<class T, class Deleter, class Tstruct = T>
 class ClassView : public sundials::ConvertibleTo<T>
 {
 public:
@@ -140,7 +140,6 @@ public:
   operator T() override { return *object_.get(); }
 
   operator T() const override { return *object_.get(); }
-
 private:
   std::unique_ptr<T> object_;
 };

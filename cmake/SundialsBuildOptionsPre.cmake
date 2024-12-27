@@ -212,6 +212,13 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
 endif()
 
 # ---------------------------------------------------------------
+# Options to enable Python interfaces.
+# ---------------------------------------------------------------
+
+set(DOCSTR "Enable Python interfaces")
+sundials_option(BUILD_PYTHON_INTERFACE BOOL "${DOCSTR}" OFF)
+
+# ---------------------------------------------------------------
 # Options for benchmark suite
 # ---------------------------------------------------------------
 

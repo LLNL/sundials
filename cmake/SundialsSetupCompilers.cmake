@@ -421,6 +421,7 @@ endif()
 # ===============================================================
 
 if(BUILD_BENCHMARKS
+   OR BUILD_PYTHON_INTERFACE
    OR SUNDIALS_TEST_ENABLE_UNIT_TESTS
    OR EXAMPLES_ENABLE_CXX
    OR ENABLE_CUDA

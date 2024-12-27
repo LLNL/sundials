@@ -155,3 +155,7 @@ generate_export_header(
 if(BUILD_FORTRAN_MODULE_INTERFACE)
   add_subdirectory("fmod_int${SUNDIALS_INDEX_SIZE}")
 endif()
+
+# if(BUILD_PYTHON_INTERFACE)
+#   add_subdirectory("python")
+# endif()
