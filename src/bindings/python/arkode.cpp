@@ -19,7 +19,10 @@ int erk_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 }
 
 void bind_arkode(nb::module_ &m) {
+  //
   // ARKODE Constants
+  //
+
   m.attr("ARK_NORMAL") = ARK_NORMAL;
   m.attr("ARK_ONE_STEP") = ARK_ONE_STEP;
   m.attr("ARK_ADAPT_CUSTOM") = ARK_ADAPT_CUSTOM;
@@ -94,6 +97,16 @@ void bind_arkode(nb::module_ &m) {
   m.attr("ARK_SUNSTEPPER_ERR") = ARK_SUNSTEPPER_ERR;
   m.attr("ARK_STEP_DIRECTION_ERR") = ARK_STEP_DIRECTION_ERR;
   m.attr("ARK_UNRECOGNIZED_ERROR") = ARK_UNRECOGNIZED_ERROR;
+
+  //
+  // ARKODE functions
+  //
+
+  nb::class_<sundials::experimental::ARKodeView>(m, "ARKodeView")
+    .def(nb::init<>())
+    .def(nb::init<void*>())
+    .def(nb::init_implicit<void*>())
+    .def("Convert", nb::overload_cast<>(&sundials::experimental::ARKodeView::Convert, nb::const_), nb::rv_policy::reference);
 
   m.def("ARKodeResize", &ARKodeResize);
   m.def("ARKodeReset", &ARKodeReset);
@@ -238,20 +251,15 @@ void bind_arkode(nb::module_ &m) {
   m.def("ARKodeGetNumRelaxSolveIters", &ARKodeGetNumRelaxSolveIters);
   // m.def("ARKodeCreateSUNStepper", &ARKodeCreateSUNStepper);
 
+  //
   // ERKStep functions
-  nb::class_<sundials::experimental::ARKodeView>(m, "ARKodeView")
-    .def(nb::init<>())
-    .def(nb::init<void*>())
-    .def(nb::init_implicit<void*>())
-    .def("Convert", nb::overload_cast<>(&sundials::experimental::ARKodeView::Convert, nb::const_), nb::rv_policy::reference);
-
+  //
   m.def("ERKStepCreate", [](std::function<erk_rhsfn_type> rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx) {
     static nb::object the_static_rhs = nb::steal(nb::cast(rhs));
-    auto ark_mem = sundials::experimental::ARKodeView(ERKStepCreate(erk_rhsfn_wrapper, t0, y0, sunctx));
+    auto ark_mem = ERKStepCreate(erk_rhsfn_wrapper, t0, y0, sunctx);
     ARKodeSetUserData(ark_mem, &the_static_rhs);
     return ark_mem;
   });
-
   m.def("ERKStepReInit", &ERKStepReInit);
   m.def("ERKStepSetTable", &ERKStepSetTable);
   m.def("ERKStepSetTableNum", &ERKStepSetTableNum);

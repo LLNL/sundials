@@ -19,7 +19,7 @@ def rhs(t, yvec, ydotvec, user_data):
   ydot[0] = 1.0 * y[0] + 1.0 / (1.0 + t * t) - 1.0 * np.atan(t)
   return 0
 
-erk = ERKStepCreate(rhs, 0, nv.Convert(), sunctx.Convert())
+erk = ARKodeView(ERKStepCreate(rhs, 0, nv.Convert(), sunctx.Convert()))
 ARKodeSStolerances(erk.Convert(), 1e-6, 1e-6)
 
 tout, tret = 10.0, 0.0
@@ -27,7 +27,7 @@ status = ARKodeEvolve(erk.Convert(), tout, nv.Convert(), tret, ARK_NORMAL)
 print(arr)
 
 # Try again
-erk = ERKStepCreate(rhs, 0, nv.Convert(), sunctx.Convert())
+erk = ARKodeView(ERKStepCreate(rhs, 0, nv.Convert(), sunctx.Convert()))
 ARKodeSStolerances(erk.Convert(), 1e-6, 1e-6)
 
 tret = 0.0
