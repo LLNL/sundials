@@ -16,3 +16,5 @@ target_include_directories(pysundials PRIVATE ${SUNDIALS_SOURCE_DIR}/src ${SUNDI
 
 # Link against sundials libraries
 target_link_libraries(pysundials PRIVATE sundials_arkode sundials_nvecserial sundials_core)
+
+configure_file(test_interface.py ${CMAKE_CURRENT_BINARY_DIR}/test_interface.py COPYONLY)
