@@ -11,6 +11,9 @@
 namespace nb = nanobind;
 
 // TODO(CJB): we will need these wrappers for every callback function
+// This method relies on being able to sneak in the std::function
+// in user_data. Unfortunately, we do not have a dedicated pointer like user_data
+// for every single callback function. We will have to change that.
 using erk_rhsfn_type = int(sunrealtype, N_Vector, N_Vector, void*);
 int erk_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data) {
   auto* object = static_cast<nb::object*>(user_data);
