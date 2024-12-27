@@ -7,8 +7,8 @@
 
 namespace nb = nanobind;
 
-void bind_core(nb::module_ &m) {
-
+void bind_core(nb::module_& m)
+{
   // Since Python will automatically garabage collect objects,
   // we need to interface to our C++ RAII views of objects
   // instead of directly to the C objects. Otherwise, a Python
@@ -18,44 +18,58 @@ void bind_core(nb::module_ &m) {
   // Since we are using the C++ views, we do not interface the Destroy functions.
 
   nb::class_<SUNLogger_>(m, "SUNLogger_");
-  m.def("SUNLogger_Create", [](SUNComm comm, int output_rank) {
-    SUNLogger logger;
-    SUNErrCode err = SUNLogger_Create(comm, output_rank, &logger);
-    if (err != SUN_SUCCESS) {
-      throw std::runtime_error("Failed to create SUNLogger");
-    }
-    return logger;
-  });
-  m.def("SUNLogger_CreateFromEnv", [](SUNComm comm) {
-    SUNLogger logger;
-    SUNErrCode err = SUNLogger_CreateFromEnv(comm, &logger);
-    if (err != SUN_SUCCESS) {
-      throw std::runtime_error("Failed to create SUNLogger from environment");
-    }
-    return logger;
-  });
+  m.def("SUNLogger_Create",
+        [](SUNComm comm, int output_rank)
+        {
+          SUNLogger logger;
+          SUNErrCode err = SUNLogger_Create(comm, output_rank, &logger);
+          if (err != SUN_SUCCESS)
+          {
+            throw std::runtime_error("Failed to create SUNLogger");
+          }
+          return logger;
+        });
+  m.def("SUNLogger_CreateFromEnv",
+        [](SUNComm comm)
+        {
+          SUNLogger logger;
+          SUNErrCode err = SUNLogger_CreateFromEnv(comm, &logger);
+          if (err != SUN_SUCCESS)
+          {
+            throw std::runtime_error(
+              "Failed to create SUNLogger from environment");
+          }
+          return logger;
+        });
   m.def("SUNLogger_SetErrorFilename", &SUNLogger_SetErrorFilename);
   m.def("SUNLogger_SetWarningFilename", &SUNLogger_SetWarningFilename);
   m.def("SUNLogger_SetDebugFilename", &SUNLogger_SetDebugFilename);
   m.def("SUNLogger_SetInfoFilename", &SUNLogger_SetInfoFilename);
-  m.def("SUNLogger_QueueMsg", [](SUNLogger logger, SUNLogLevel lvl, const char* scope, const char* label, const char* msg_txt) {
-    SUNErrCode err = SUNLogger_QueueMsg(logger, lvl, scope, label, msg_txt);
-    if (err != SUN_SUCCESS) {
-      throw std::runtime_error("Failed to queue message");
-    }
-  });
+  m.def("SUNLogger_QueueMsg",
+        [](SUNLogger logger, SUNLogLevel lvl, const char* scope,
+           const char* label, const char* msg_txt)
+        {
+          SUNErrCode err = SUNLogger_QueueMsg(logger, lvl, scope, label, msg_txt);
+          if (err != SUN_SUCCESS)
+          {
+            throw std::runtime_error("Failed to queue message");
+          }
+        });
   m.def("SUNLogger_Flush", &SUNLogger_Flush);
   m.def("SUNLogger_GetOutputRank", &SUNLogger_GetOutputRank);
 
   nb::class_<SUNProfiler_>(m, "SUNProfiler_");
-  m.def("SUNProfiler_Create", [](SUNComm comm, const char* title) {
-    SUNProfiler profiler;
-    SUNErrCode err = SUNProfiler_Create(comm, title, &profiler);
-    if (err != SUN_SUCCESS) {
-      throw std::runtime_error("Failed to create SUNProfiler");
-    }
-    return profiler;
-  });
+  m.def("SUNProfiler_Create",
+        [](SUNComm comm, const char* title)
+        {
+          SUNProfiler profiler;
+          SUNErrCode err = SUNProfiler_Create(comm, title, &profiler);
+          if (err != SUN_SUCCESS)
+          {
+            throw std::runtime_error("Failed to create SUNProfiler");
+          }
+          return profiler;
+        });
   m.def("SUNProfiler_Begin", &SUNProfiler_Begin);
   m.def("SUNProfiler_End", &SUNProfiler_End);
   m.def("SUNProfiler_GetTimerResolution", &SUNProfiler_GetTimerResolution);
@@ -67,45 +81,46 @@ void bind_core(nb::module_ &m) {
   nb::class_<sundials::Context>(m, "SUNContextView")
     .def(nb::init<>())
     .def(nb::init<SUNComm>(), nb::arg("comm"))
-    .def("get", nb::overload_cast<>(&sundials::Context::get, nb::const_), nb::rv_policy::reference);
+    .def("get", nb::overload_cast<>(&sundials::Context::get, nb::const_),
+         nb::rv_policy::reference);
 
-  m.def("SUNContext_GetLastError", [](SUNContext sunctx) {
-    return SUNContext_GetLastError(sunctx);
-  });
-  m.def("SUNContext_PeekLastError", [](SUNContext sunctx) {
-    return SUNContext_PeekLastError(sunctx);
-  });
-  m.def("SUNContext_PushErrHandler", [](SUNContext sunctx, SUNErrHandlerFn err_fn, void* err_user_data) {
-    return SUNContext_PushErrHandler(sunctx, err_fn, err_user_data);
-  });
-  m.def("SUNContext_PopErrHandler", [](SUNContext sunctx) {
-    return SUNContext_PopErrHandler(sunctx);
-  });
-  m.def("SUNContext_ClearErrHandlers", [](SUNContext sunctx) {
-    return SUNContext_ClearErrHandlers(sunctx);
-  });
-  m.def("SUNContext_GetProfiler", [](SUNContext sunctx) {
-    SUNProfiler profiler;
-    SUNErrCode err = SUNContext_GetProfiler(sunctx, &profiler);
-    if (err != SUN_SUCCESS) {
-      throw std::runtime_error("Failed to get SUNProfiler");
-    }
-    return profiler;
-  });
-  m.def("SUNContext_SetProfiler", [](SUNContext sunctx, SUNProfiler profiler) {
-    return SUNContext_SetProfiler(sunctx, profiler);
-  });
-  m.def("SUNContext_GetLogger", [](SUNContext sunctx) {
-    SUNLogger logger;
-    SUNErrCode err = SUNContext_GetLogger(sunctx, &logger);
-    if (err != SUN_SUCCESS) {
-      throw std::runtime_error("Failed to get SUNLogger");
-    }
-    return logger;
-  });
-  m.def("SUNContext_SetLogger", [](SUNContext sunctx, SUNLogger logger) {
-    return SUNContext_SetLogger(sunctx, logger);
-  });
+  m.def("SUNContext_GetLastError",
+        [](SUNContext sunctx) { return SUNContext_GetLastError(sunctx); });
+  m.def("SUNContext_PeekLastError",
+        [](SUNContext sunctx) { return SUNContext_PeekLastError(sunctx); });
+  m.def("SUNContext_PushErrHandler",
+        [](SUNContext sunctx, SUNErrHandlerFn err_fn, void* err_user_data)
+        { return SUNContext_PushErrHandler(sunctx, err_fn, err_user_data); });
+  m.def("SUNContext_PopErrHandler",
+        [](SUNContext sunctx) { return SUNContext_PopErrHandler(sunctx); });
+  m.def("SUNContext_ClearErrHandlers",
+        [](SUNContext sunctx) { return SUNContext_ClearErrHandlers(sunctx); });
+  m.def("SUNContext_GetProfiler",
+        [](SUNContext sunctx)
+        {
+          SUNProfiler profiler;
+          SUNErrCode err = SUNContext_GetProfiler(sunctx, &profiler);
+          if (err != SUN_SUCCESS)
+          {
+            throw std::runtime_error("Failed to get SUNProfiler");
+          }
+          return profiler;
+        });
+  m.def("SUNContext_SetProfiler", [](SUNContext sunctx, SUNProfiler profiler)
+        { return SUNContext_SetProfiler(sunctx, profiler); });
+  m.def("SUNContext_GetLogger",
+        [](SUNContext sunctx)
+        {
+          SUNLogger logger;
+          SUNErrCode err = SUNContext_GetLogger(sunctx, &logger);
+          if (err != SUN_SUCCESS)
+          {
+            throw std::runtime_error("Failed to get SUNLogger");
+          }
+          return logger;
+        });
+  m.def("SUNContext_SetLogger", [](SUNContext sunctx, SUNLogger logger)
+        { return SUNContext_SetLogger(sunctx, logger); });
 
   nb::enum_<N_Vector_ID>(m, "N_Vector_ID")
     .value("SUNDIALS_NVEC_SERIAL", SUNDIALS_NVEC_SERIAL)
@@ -132,148 +147,108 @@ void bind_core(nb::module_ &m) {
     .def(nb::init<>())
     .def(nb::init<_generic_N_Vector*>())
     // Option 1: nv.get() must be invoked in Python to convert to N_Vector before calling N_V functions
-    .def("get", nb::overload_cast<>(&sundials::experimental::NVectorView::get, nb::const_), nb::rv_policy::reference)
+    .def("get",
+         nb::overload_cast<>(&sundials::experimental::NVectorView::get,
+                             nb::const_),
+         nb::rv_policy::reference)
     // Option 2: nv.GetArrayPointer() must be invoked in Python and we wrap every N_V function as a class method
-    .def("GetArrayPointer", [](sundials::experimental::NVectorView&& v){ return N_VGetArrayPointer(v); }, nb::rv_policy::reference);
+    .def(
+      "GetArrayPointer",
+      [](sundials::experimental::NVectorView&& v)
+      { return N_VGetArrayPointer(v); },
+      nb::rv_policy::reference);
 
   // I don't think implicit conversion will work unless we make the View classes convertible to the underlying type instead of the pointer type
   // nb::implicitly_convertible<sundials::experimental::NVectorView, _generic_N_Vector*>();
 
-  m.def("N_VNewEmpty", &N_VNewEmpty, nb::rv_policy::reference);
-  // m.def("N_VFreeEmpty", &N_VFreeEmpty);
-  m.def("N_VCopyOps", &N_VCopyOps);
-  m.def("N_VGetVectorID", &N_VGetVectorID);
-  m.def("N_VClone", &N_VClone);
-  m.def("N_VCloneEmpty", &N_VCloneEmpty);
-  // m.def("N_VDestroy", &N_VDestroy);
-  m.def("N_VSpace", &N_VSpace);
-  m.def("N_VGetArrayPointer", [](N_Vector v) {
-    auto ptr = N_VGetArrayPointer(v);
-    if (!ptr) {
-      throw std::runtime_error("Failed to get array pointer");
-    }
-    auto owner = nb::find(v);
-    size_t shape[1] { static_cast<size_t>(N_VGetLength(v)) };
-    return nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig>(ptr, 1, shape, owner);
-  });
-  m.def("N_VGetDeviceArrayPointer", [](N_Vector v) {
-    auto ptr = N_VGetDeviceArrayPointer(v);
-    if (!ptr) {
-      throw std::runtime_error("Failed to get array pointer");
-    }
-    auto owner = nb::find(v);
-    size_t shape[1] { static_cast<size_t>(N_VGetLength(v)) };
-    return nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig>(ptr, 1, shape, owner);
-  });
-  m.def("N_VSetArrayPointer", [](nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> arr, N_Vector v) {
-    if (arr.shape(0) != N_VGetLength(v)) {
-      throw std::runtime_error("Array shape does not match vector length");
-    }
-    N_VSetArrayPointer(arr.data(), v);
-  });
-  m.def("N_VGetCommunicator", &N_VGetCommunicator);
-  m.def("N_VGetLength", &N_VGetLength);
-  m.def("N_VGetLocalLength", &N_VGetLocalLength);
-  m.def("N_VLinearSum", &N_VLinearSum);
-  m.def("N_VConst", &N_VConst);
-  m.def("N_VProd", &N_VProd);
-  m.def("N_VDiv", &N_VDiv);
-  m.def("N_VScale", &N_VScale);
-  m.def("N_VAbs", &N_VAbs);
-  m.def("N_VInv", &N_VInv);
-  m.def("N_VAddConst", &N_VAddConst);
-  m.def("N_VDotProd", &N_VDotProd);
-  m.def("N_VMaxNorm", &N_VMaxNorm);
-  m.def("N_VWrmsNorm", &N_VWrmsNorm);
-  m.def("N_VWrmsNormMask", &N_VWrmsNormMask);
-  m.def("N_VMin", &N_VMin);
-  m.def("N_VWL2Norm", &N_VWL2Norm);
-  m.def("N_VL1Norm", &N_VL1Norm);
-  m.def("N_VCompare", &N_VCompare);
-  m.def("N_VInvTest", &N_VInvTest);
-  m.def("N_VConstrMask", &N_VConstrMask);
-  m.def("N_VMinQuotient", &N_VMinQuotient);
-  // m.def("N_VLinearCombination", [](int nvec, double* c, N_Vector* X, N_Vector z) {
-  //   SUNErrCode err = N_VLinearCombination(nvec, c, X, z);
-  //   if (err != SUN_SUCCESS) {
-  //     throw std::runtime_error("Failed to perform N_VLinearCombination");
-  //   }
-  // });
-  // m.def("N_VScaleAddMulti", [](int nvec, double* c, N_Vector x, N_Vector* Y, N_Vector* Z) {
-  //   SUNErrCode err = N_VScaleAddMulti(nvec, c, x, Y, Z);
-  //   if (err != SUN_SUCCESS) {
-  //     throw std::runtime_error("Failed to perform N_VScaleAddMulti");
-  //   }
-  // });
-  // m.def("N_VDotProdMulti", [](int nvec, N_Vector x, N_Vector* Y, double* dotprods) {
-  //   SUNErrCode err = N_VDotProdMulti(nvec, x, Y, dotprods);
-  //   if (err != SUN_SUCCESS) {
-  //     throw std::runtime_error("Failed to perform N_VDotProdMulti");
-  //   }
-  // });
-  // m.def("N_VLinearSumVectorArray", [](int nvec, double a, N_Vector* X, double b, N_Vector* Y, N_Vector* Z) {
-  //   SUNErrCode err = N_VLinearSumVectorArray(nvec, a, X, b, Y, Z);
-  //   if (err != SUN_SUCCESS) {
-  //     throw std::runtime_error("Failed to perform N_VLinearSumVectorArray");
-  //   }
-  // });
-  // m.def("N_VScaleVectorArray", [](int nvec, double* c, N_Vector* X, N_Vector* Z) {
-  //   SUNErrCode err = N_VScaleVectorArray(nvec, c, X, Z);
-  //   if (err != SUN_SUCCESS) {
-  //     throw std::runtime_error("Failed to perform N_VScaleVectorArray");
-  //   }
-  // });
-  // m.def("N_VConstVectorArray", [](int nvec, double c, N_Vector* Z) {
-  //   SUNErrCode err = N_VConstVectorArray(nvec, c, Z);
-  //   if (err != SUN_SUCCESS) {
-  //     throw std::runtime_error("Failed to perform N_VConstVectorArray");
-  //   }
-  // });
-  // m.def("N_VWrmsNormVectorArray", [](int nvec, N_Vector* X, N_Vector* W, double* nrm) {
-  //   SUNErrCode err = N_VWrmsNormVectorArray(nvec, X, W, nrm);
-  //   if (err != SUN_SUCCESS) {
-  //     throw std::runtime_error("Failed to perform N_VWrmsNormVectorArray");
-  //   }
-  // });
-  // m.def("N_VWrmsNormMaskVectorArray", [](int nvec, N_Vector* X, N_Vector* W, N_Vector id, double* nrm) {
-  //   SUNErrCode err = N_VWrmsNormMaskVectorArray(nvec, X, W, id, nrm);
-  //   if (err != SUN_SUCCESS) {
-  //     throw std::runtime_error("Failed to perform N_VWrmsNormMaskVectorArray");
-  //   }
-  // });
-  // m.def("N_VScaleAddMultiVectorArray", [](int nvec, int nsum, double* c, N_Vector x, N_Vector** Y, N_Vector** Z) {
-  //   SUNErrCode err = N_VScaleAddMultiVectorArray(nvec, nsum, c, x, Y, Z);
-  //   if (err != SUN_SUCCESS) {
-  //     throw std::runtime_error("Failed to perform N_VScaleAddMultiVectorArray");
-  //   }
-  // });
-  // m.def("N_VLinearCombinationVectorArray", [](int nvec, int nsum, double* c, N_Vector** X, N_Vector* Z) {
-  //   SUNErrCode err = N_VLinearCombinationVectorArray(nvec, nsum, c, X, Z);
-  //   if (err != SUN_SUCCESS) {
-  //     throw std::runtime_error("Failed to perform N_VLinearCombinationVectorArray");
-  //   }
-  // });
-  m.def("N_VDotProdLocal", &N_VDotProdLocal);
-  m.def("N_VMaxNormLocal", &N_VMaxNormLocal);
-  m.def("N_VMinLocal", &N_VMinLocal);
-  m.def("N_VL1NormLocal", &N_VL1NormLocal);
-  m.def("N_VWSqrSumLocal", &N_VWSqrSumLocal);
-  m.def("N_VWSqrSumMaskLocal", &N_VWSqrSumMaskLocal);
-  m.def("N_VInvTestLocal", &N_VInvTestLocal);
-  m.def("N_VConstrMaskLocal", &N_VConstrMaskLocal);
-  m.def("N_VMinQuotientLocal", &N_VMinQuotientLocal);
-  // m.def("N_VDotProdMultiLocal", &N_VDotProdMultiLocal);
-  // m.def("N_VDotProdMultiAllReduce", &N_VDotProdMultiAllReduce);
-  m.def("N_VBufSize", &N_VBufSize);
-  m.def("N_VBufPack", &N_VBufPack);
-  m.def("N_VBufUnpack", &N_VBufUnpack);
-  // m.def("N_VNewVectorArray", &N_VNewVectorArray);
-  // m.def("N_VCloneEmptyVectorArray", &N_VCloneEmptyVectorArray);
-  // m.def("N_VCloneVectorArray", &N_VCloneVectorArray);
-  // m.def("N_VDestroyVectorArray", &N_VDestroyVectorArray);
-  // m.def("N_VGetVecAtIndexVectorArray", &N_VGetVecAtIndexVectorArray);
-  // m.def("N_VSetVecAtIndexVectorArray", &N_VSetVecAtIndexVectorArray);
-  m.def("N_VPrint", &N_VPrint);
-  m.def("N_VPrintFile", &N_VPrintFile);
+  m.def("N_VGetArrayPointer",
+        [](N_Vector v)
+        {
+          auto ptr = N_VGetArrayPointer(v);
+          if (!ptr) { throw std::runtime_error("Failed to get array pointer"); }
+          auto owner = nb::find(v);
+          size_t shape[1]{static_cast<size_t>(N_VGetLength(v))};
+          return nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>,
+                             nb::c_contig>(ptr, 1, shape, owner);
+        });
+  m.def("N_VGetDeviceArrayPointer",
+        [](N_Vector v)
+        {
+          auto ptr = N_VGetDeviceArrayPointer(v);
+          if (!ptr) { throw std::runtime_error("Failed to get array pointer"); }
+          auto owner = nb::find(v);
+          size_t shape[1]{static_cast<size_t>(N_VGetLength(v))};
+          return nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>,
+                             nb::c_contig>(ptr, 1, shape, owner);
+        });
+  m.def("N_VSetArrayPointer",
+        [](nb::ndarray<sunrealtype, nb::numpy, nb::ndim<1>, nb::c_contig> arr,
+           N_Vector v)
+        {
+          if (arr.shape(0) != N_VGetLength(v))
+          {
+            throw std::runtime_error(
+              "Array shape does not match vector length");
+          }
+          N_VSetArrayPointer(arr.data(), v);
+        });
 
+  m.def("N_VNewEmpty", N_VNewEmpty, nb::arg("sunctx"),
+        "py::return_value_policy::reference", nb::rv_policy::reference);
+  m.def("N_VCopyOps", N_VCopyOps, nb::arg("w"), nb::arg("v"));
+  m.def("N_VGetVectorID", N_VGetVectorID, nb::arg("w"));
+  m.def("N_VClone", N_VClone, nb::arg("w"));
+  m.def("N_VCloneEmpty", N_VCloneEmpty, nb::arg("w"));
+  m.def("N_VSpace", N_VSpace, nb::arg("v"), nb::arg("lrw"), nb::arg("liw"));
+  m.def("N_VGetCommunicator", N_VGetCommunicator, nb::arg("v"));
+  m.def("N_VGetLength", N_VGetLength, nb::arg("v"));
+  m.def("N_VGetLocalLength", N_VGetLocalLength, nb::arg("v"));
+  m.def("N_VLinearSum", N_VLinearSum, nb::arg("a"), nb::arg("x"), nb::arg("b"),
+        nb::arg("y"), nb::arg("z"));
+  m.def("N_VConst", N_VConst, nb::arg("c"), nb::arg("z"));
+  m.def("N_VProd", N_VProd, nb::arg("x"), nb::arg("y"), nb::arg("z"));
+  m.def("N_VDiv", N_VDiv, nb::arg("x"), nb::arg("y"), nb::arg("z"));
+  m.def("N_VScale", N_VScale, nb::arg("c"), nb::arg("x"), nb::arg("z"));
+  m.def("N_VAbs", N_VAbs, nb::arg("x"), nb::arg("z"));
+  m.def("N_VInv", N_VInv, nb::arg("x"), nb::arg("z"));
+  m.def("N_VAddConst", N_VAddConst, nb::arg("x"), nb::arg("b"), nb::arg("z"));
+  m.def("N_VDotProd", N_VDotProd, nb::arg("x"), nb::arg("y"));
+  m.def("N_VMaxNorm", N_VMaxNorm, nb::arg("x"));
+  m.def("N_VWrmsNorm", N_VWrmsNorm, nb::arg("x"), nb::arg("w"));
+  m.def("N_VWrmsNormMask", N_VWrmsNormMask, nb::arg("x"), nb::arg("w"),
+        nb::arg("id"));
+  m.def("N_VMin", N_VMin, nb::arg("x"));
+  m.def("N_VWL2Norm", N_VWL2Norm, nb::arg("x"), nb::arg("w"));
+  m.def("N_VL1Norm", N_VL1Norm, nb::arg("x"));
+  m.def("N_VCompare", N_VCompare, nb::arg("c"), nb::arg("x"), nb::arg("z"));
+  m.def("N_VInvTest", N_VInvTest, nb::arg("x"), nb::arg("z"));
+  m.def("N_VConstrMask", N_VConstrMask, nb::arg("c"), nb::arg("x"), nb::arg("m"));
+  m.def("N_VMinQuotient", N_VMinQuotient, nb::arg("num"), nb::arg("denom"));
+  // m.def("N_VLinearCombination", N_VLinearCombination, nb::arg("nvec"),
+  //       nb::arg("c"), nb::arg("X"), nb::arg("z"), "fused vector operations");
+  // m.def("N_VScaleAddMulti", N_VScaleAddMulti, nb::arg("nvec"), nb::arg("a"),
+  //       nb::arg("x"), nb::arg("Y"), nb::arg("Z"));
+  // m.def("N_VDotProdMulti", N_VDotProdMulti, nb::arg("nvec"), nb::arg("x"),
+  //       nb::arg("Y"), nb::arg("dotprods"));
+  m.def("N_VDotProdLocal", N_VDotProdLocal, nb::arg("x"), nb::arg("y"));
+  m.def("N_VMaxNormLocal", N_VMaxNormLocal, nb::arg("x"));
+  m.def("N_VMinLocal", N_VMinLocal, nb::arg("x"));
+  m.def("N_VL1NormLocal", N_VL1NormLocal, nb::arg("x"));
+  m.def("N_VWSqrSumLocal", N_VWSqrSumLocal, nb::arg("x"), nb::arg("w"));
+  m.def("N_VWSqrSumMaskLocal", N_VWSqrSumMaskLocal, nb::arg("x"), nb::arg("w"),
+        nb::arg("id"));
+  m.def("N_VInvTestLocal", N_VInvTestLocal, nb::arg("x"), nb::arg("z"));
+  m.def("N_VConstrMaskLocal", N_VConstrMaskLocal, nb::arg("c"), nb::arg("x"),
+        nb::arg("m"));
+  m.def("N_VMinQuotientLocal", N_VMinQuotientLocal, nb::arg("num"),
+        nb::arg("denom"));
+  // m.def("N_VDotProdMultiLocal", N_VDotProdMultiLocal, nb::arg("nvec"),
+  //       nb::arg("x"), nb::arg("Y"), nb::arg("dotprods"));
+  // m.def("N_VDotProdMultiAllReduce", N_VDotProdMultiAllReduce,
+  //       nb::arg("nvec_total"), nb::arg("x"), nb::arg("sum"));
+  m.def("N_VBufSize", N_VBufSize, nb::arg("x"), nb::arg("size"));
+  m.def("N_VBufPack", N_VBufPack, nb::arg("x"), nb::arg("buf"));
+  m.def("N_VBufUnpack", N_VBufUnpack, nb::arg("x"), nb::arg("buf"));
+  m.def("N_VPrint", N_VPrint, nb::arg("v"));
+  m.def("N_VPrintFile", N_VPrintFile, nb::arg("v"), nb::arg("outfile"));
 }

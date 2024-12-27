@@ -205,7 +205,7 @@ struct _generic_N_Vector
  * Functions exported by NVECTOR module
  * ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty(SUNContext sunctx);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty(SUNContext sunctx); // py::return_value_policy::reference
 SUNDIALS_EXPORT void N_VFreeEmpty(N_Vector v);
 SUNDIALS_EXPORT SUNErrCode N_VCopyOps(N_Vector w, N_Vector v);
 
@@ -214,8 +214,8 @@ SUNDIALS_EXPORT SUNErrCode N_VCopyOps(N_Vector w, N_Vector v);
  */
 
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID(N_Vector w);
-SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w);
-SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w);
+SUNDIALS_EXPORT N_Vector N_VClone(N_Vector w); // py::return_value_policy::reference
+SUNDIALS_EXPORT N_Vector N_VCloneEmpty(N_Vector w); // py::return_value_policy::reference
 SUNDIALS_EXPORT void N_VDestroy(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace(N_Vector v, sunindextype* lrw, sunindextype* liw);
 SUNDIALS_EXPORT sunrealtype* N_VGetArrayPointer(N_Vector v);
@@ -330,7 +330,7 @@ SUNDIALS_EXPORT N_Vector* N_VCloneVectorArray(int count, N_Vector w);
 SUNDIALS_EXPORT void N_VDestroyVectorArray(N_Vector* vs, int count);
 
 /* These function are really only for users of the Fortran interface */
-SUNDIALS_EXPORT N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index);
+SUNDIALS_EXPORT N_Vector N_VGetVecAtIndexVectorArray(N_Vector* vs, int index); // py::return_value_policy::reference
 SUNDIALS_EXPORT void N_VSetVecAtIndexVectorArray(N_Vector* vs, int index,
                                                  N_Vector w);
 
