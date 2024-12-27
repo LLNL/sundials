@@ -42,9 +42,9 @@ public:
   Context& operator=(const Context&) = delete;
   Context& operator=(Context&&)      = default;
 
-  SUNContext Convert() override { return *sunctx_.get(); }
+  SUNContext get() override { return *sunctx_.get(); }
 
-  SUNContext Convert() const override { return *sunctx_.get(); }
+  SUNContext get() const override { return *sunctx_.get(); }
 
   operator SUNContext() override { return *sunctx_.get(); }
 

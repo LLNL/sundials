@@ -105,7 +105,7 @@ void bind_arkode(nb::module_ &m) {
   nb::class_<sundials::experimental::ARKodeView>(m, "ARKodeView")
     .def(nb::init<>())
     .def(nb::init<void*>())
-    .def("Convert", nb::overload_cast<>(&sundials::experimental::ARKodeView::Convert, nb::const_), nb::rv_policy::reference);
+    .def("get", nb::overload_cast<>(&sundials::experimental::ARKodeView::get, nb::const_), nb::rv_policy::reference);
 
   m.def("ARKodeResize", &ARKodeResize);
   m.def("ARKodeReset", &ARKodeReset);

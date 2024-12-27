@@ -129,13 +129,13 @@ public:
 
   ~ClassView()
   {
-    if (object_) { Deleter{}(this->Convert()); }
+    if (object_) { Deleter{}(this->get()); }
   };
 
   // Override ConvertibleTo functions
-  T Convert() override { return *object_.get(); }
+  T get() override { return *object_.get(); }
 
-  T Convert() const override { return *object_.get(); }
+  T get() const override { return *object_.get(); }
 
   operator T() override { return *object_.get(); }
 

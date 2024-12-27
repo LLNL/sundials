@@ -67,7 +67,7 @@ void bind_core(nb::module_ &m) {
   nb::class_<sundials::Context>(m, "SUNContextView")
     .def(nb::init<>())
     .def(nb::init<SUNComm>(), nb::arg("comm"))
-    .def("Convert", nb::overload_cast<>(&sundials::Context::Convert, nb::const_), nb::rv_policy::reference);
+    .def("get", nb::overload_cast<>(&sundials::Context::get, nb::const_), nb::rv_policy::reference);
 
   m.def("SUNContext_GetLastError", [](SUNContext sunctx) {
     return SUNContext_GetLastError(sunctx);
@@ -131,8 +131,8 @@ void bind_core(nb::module_ &m) {
   nb::class_<sundials::experimental::NVectorView>(m, "NVectorView")
     .def(nb::init<>())
     .def(nb::init<_generic_N_Vector*>())
-    // Option 1: nv.Convert() must be invoked in Python to convert to N_Vector before calling N_V functions
-    .def("Convert", nb::overload_cast<>(&sundials::experimental::NVectorView::Convert, nb::const_), nb::rv_policy::reference)
+    // Option 1: nv.get() must be invoked in Python to convert to N_Vector before calling N_V functions
+    .def("get", nb::overload_cast<>(&sundials::experimental::NVectorView::get, nb::const_), nb::rv_policy::reference)
     // Option 2: nv.GetArrayPointer() must be invoked in Python and we wrap every N_V function as a class method
     .def("GetArrayPointer", [](sundials::experimental::NVectorView&& v){ return N_VGetArrayPointer(v); }, nb::rv_policy::reference);
 
