@@ -9,8 +9,7 @@ nv = NVectorView(N_VNew_Serial(1, sunctx.Convert()))
 
 # Get the array and change a value in it
 arr = N_VGetArrayPointer(nv.Convert()) # Option 1: have to call Convert when passing the NVectorView
-# arr = N_VGetArrayPointer(nv()) # Option 2: map Convert to __call__ for explicit conversion
-# arr = nv.GetArrayPointer() # Option 3: wrap N_V calls as NVectorView class methods
+# arr = nv.GetArrayPointer() # Option 2: wrap N_V calls as NVectorView class methods
 arr[0] = 0.0
 
 def rhs(t, yvec, ydotvec, user_data):

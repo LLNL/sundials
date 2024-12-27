@@ -10,7 +10,7 @@
 
 namespace nb = nanobind;
 
-// TODO(CJB: we will need these wrappers for every callback function
+// TODO(CJB): we will need these wrappers for every callback function
 using erk_rhsfn_type = int(sunrealtype, N_Vector, N_Vector, void*);
 int erk_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data) {
   auto* object = static_cast<nb::object*>(user_data);
@@ -105,7 +105,6 @@ void bind_arkode(nb::module_ &m) {
   nb::class_<sundials::experimental::ARKodeView>(m, "ARKodeView")
     .def(nb::init<>())
     .def(nb::init<void*>())
-    .def(nb::init_implicit<void*>())
     .def("Convert", nb::overload_cast<>(&sundials::experimental::ARKodeView::Convert, nb::const_), nb::rv_policy::reference);
 
   m.def("ARKodeResize", &ARKodeResize);
@@ -256,7 +255,7 @@ void bind_arkode(nb::module_ &m) {
   //
   m.def("ERKStepCreate", [](std::function<erk_rhsfn_type> rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx) {
     static nb::object the_static_rhs = nb::steal(nb::cast(rhs));
-    auto ark_mem = ERKStepCreate(erk_rhsfn_wrapper, t0, y0, sunctx);
+    void* ark_mem = ERKStepCreate(erk_rhsfn_wrapper, t0, y0, sunctx);
     ARKodeSetUserData(ark_mem, &the_static_rhs);
     return ark_mem;
   });

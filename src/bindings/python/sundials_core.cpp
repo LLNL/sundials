@@ -127,18 +127,17 @@ void bind_core(nb::module_ &m) {
     .value("SUNDIALS_NVEC_CUSTOM", SUNDIALS_NVEC_CUSTOM);
 
   nb::class_<_generic_N_Vector>(m, "_generic_N_Vector");
+
   nb::class_<sundials::experimental::NVectorView>(m, "NVectorView")
     .def(nb::init<>())
     .def(nb::init<_generic_N_Vector*>())
-    // This seems like it should be an option based on the docs [here](https://nanobind.readthedocs.io/en/latest/porting.html#implicit-conversions)
-    // but it does not seem to work because the N_V functions get invoked with _generic_N_Vector not N_Vector.
-    .def(nb::init_implicit<_generic_N_Vector*>())
     // Option 1: nv.Convert() must be invoked in Python to convert to N_Vector before calling N_V functions
     .def("Convert", nb::overload_cast<>(&sundials::experimental::NVectorView::Convert, nb::const_), nb::rv_policy::reference)
-    // Option 2: nv() must be invoked in Python to convert to N_Vector before calling N_V functions
-    .def("__call__", nb::overload_cast<>(&sundials::experimental::NVectorView::Convert, nb::const_), nb::rv_policy::reference)
-    // Option 3: nv.GetArrayPointer() must be invoked in Python and we wrap every N_V function as a class method
+    // Option 2: nv.GetArrayPointer() must be invoked in Python and we wrap every N_V function as a class method
     .def("GetArrayPointer", [](sundials::experimental::NVectorView&& v){ return N_VGetArrayPointer(v); }, nb::rv_policy::reference);
+
+  // I don't think implicit conversion will work unless we make the View classes convertible to the underlying type instead of the pointer type
+  // nb::implicitly_convertible<sundials::experimental::NVectorView, _generic_N_Vector*>();
 
   m.def("N_VNewEmpty", &N_VNewEmpty, nb::rv_policy::reference);
   // m.def("N_VFreeEmpty", &N_VFreeEmpty);
