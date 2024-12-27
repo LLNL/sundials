@@ -1,11 +1,27 @@
+#include <memory>
+#include <iostream>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/function.h>
 
 #include <sundials/sundials_core.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_erkstep.h>
+#include <arkode/arkode.hpp>
 
 namespace nb = nanobind;
+
+using erk_rhsfn_type = int(sunrealtype, N_Vector, N_Vector, void*);
+
+int erk_rhsfn_wrapper(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data) {
+  auto* erk_rhs = static_cast<std::function<erk_rhsfn_type>*>(user_data);
+  fprintf(stderr, ">>> in erk_rhsfn_wrapper: erk_rhs=%p\n", erk_rhs);
+  return (*erk_rhs)(t, y, ydot, user_data);
+}
+
+static std::function<erk_rhsfn_type> global_erk_rhs([](sunrealtype t, N_Vector y, N_Vector ydot, void* user_data) {
+  fprintf(stderr, ">>> in global_erk_rhs\n");
+  return 0;
+});
 
 void bind_arkode(nb::module_ &m) {
   // ARKODE Constants
@@ -228,13 +244,20 @@ void bind_arkode(nb::module_ &m) {
   // m.def("ARKodeCreateSUNStepper", &ARKodeCreateSUNStepper);
 
   // ERKStep functions
-  m.def("ERKStepCreate", [](std::function<int(sunrealtype, N_Vector, N_Vector, void*)> f, sunrealtype t0, N_Vector y0, SUNContext sunctx) {
-    auto f_wrapper = [](sunrealtype t, N_Vector y, N_Vector ydot, void* user_data) -> int {
-      auto& func = *static_cast<std::function<int(sunrealtype, N_Vector, N_Vector, void*)>*>(user_data);
-      return func(t, y, ydot, user_data);
-    };
-    return ERKStepCreate(f_wrapper, t0, y0, sunctx);
+  nb::class_<sundials::experimental::ARKodeView>(m, "ARKodeView")
+    .def(nb::init<>())
+    .def(nb::init<void*>())
+    .def(nb::init_implicit<void*>())
+    .def("Convert", nb::overload_cast<>(&sundials::experimental::ARKodeView::Convert, nb::const_), nb::rv_policy::reference);
+
+  m.def("ERKStepCreate", [](std::function<erk_rhsfn_type> rhs, sunrealtype t0, N_Vector y0, SUNContext sunctx) {
+    static std::function<erk_rhsfn_type> the_static_rhs = std::move(rhs);
+    auto ark_mem = sundials::experimental::ARKodeView(ERKStepCreate(erk_rhsfn_wrapper, t0, y0, sunctx));
+    fprintf(stderr, "rhs:%p\n", &the_static_rhs);
+    ARKodeSetUserData(ark_mem, &the_static_rhs);
+    return ark_mem;
   });
+
   m.def("ERKStepReInit", &ERKStepReInit);
   m.def("ERKStepSetTable", &ERKStepSetTable);
   m.def("ERKStepSetTableNum", &ERKStepSetTableNum);
