@@ -25,8 +25,8 @@ Headings
 
 Section headings follow the Python documentation convention shown below. The
 overline and underline lengths must be at least as long at the title text. The
-``#`` headers should **never** occur in the package documentation
-directories and is reserved for the documentation superbuild.
+``#`` headers are reserved for the documentation super build and should **never**
+occur in the package documentation directories.
 
 * For parts, underline and overline with ``#``
 
@@ -69,8 +69,8 @@ directories and is reserved for the documentation superbuild.
 
   .. code-block:: rst
 
-     Subsubsection Title
-     """""""""""""""""""
+     Paragraph Title
+     """""""""""""""
 
 Capitalization
 --------------

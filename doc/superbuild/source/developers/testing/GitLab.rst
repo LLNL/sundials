@@ -11,91 +11,7 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _CI:
-
-GitHub CI Testing
-=================
-
-There are two categories of CI testing that we run on GitHub via `GitHub actions <https://github.com/LLNL/sundials/actions>`_:
-
-1. Comprehensive (excluding GPUs)
-2. Minimal/Short
-
-The comprehensive testing is run only on one platform (Ubuntu) and utilizes Docker + Spack + the
-latest E4S release to build SUNDIALS in many different configurations with and without third-party
-libraries enabled.
-
-The minimal/short testing runs on more platforms: Windows (MinGW and MSVC), and MacOS but it runs in
-only one configuration (using 64-bit indices and double precision) and without third-party
-libraries.
-
-
-Building the Docker containers for CI
--------------------------------------
-
-Original Setup
-^^^^^^^^^^^^^^
-
-These are the steps that were originally performed by Cody Balos
-to build the Docker container(s) used for the comprehensive CI testing.
-
-1. Create a `spack.yaml` for each configuration of SUNDIALS. E.g., int64 and double:
-
-.. code-block:: yaml
-
-  # This is a Spack Environment file.
-  #
-  # It describes a set of packages to be installed, along with
-  # configuration settings.
-  spack:
-    packages:
-      all:
-        providers:
-          blas: [openblas]
-          mpi: [openmpi]
-    # add package specs to the `specs` list
-    specs:
-    - hypre+int64~internal-superlu
-    - petsc+double+int64
-    - openmpi
-    - openblas+ilp64
-    - suite-sparse
-    - superlu-dist+int64 ^parmetis+int64
-    - trilinos+tpetra gotype=long_long
-    config: {}
-    modules:
-      enable: []
-    repos: []
-    upstreams: {}
-    container:
-      images:
-        os: ubuntu:20.04
-
-2. Run `spack containerize > Dockerfile` in the directory of the `spack.yaml`
-
-3. The Dockerfile produced in step 2 was then manually modified to leverage
-   Spack's buildcache feature and Docker's 'cache' bind-mount. The gist is that
-   if the Spack build fails while building the Docker image, the buildcache
-   makes it possible to reuse the binaries for the packages that were already installed
-   before the build failed. Without the buildcache, the spack build failing would
-   result in all packages needing to be built again when re-attempting to build the Docker image.
-
-4. Run `DOCKER_BUILDKIT docker build -t sundials-ci/<index-size>-<precision>:<tag>`
-
-5. Push
-
-Automated building of new containers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-We currently have six different containers, one for each combination of {int32, int64} and {single,
-double, extended} precision. These containers are pinned to an E4S release. When E4S does a release,
-we can rebuild these containers to use the packages from it. We add E4S as a mirror in the Spack
-environment so that its buildcache can be leveraged.
-
-We also maintain two containers for the {int32, double} pair that are built automatically (in a
-GitHub action) every week against the latest Spack develop commit. This allows us to test against
-the latest versions of dependencies regularly and detect interface breakages.
-
+.. _Testing.GitLab:
 
 GitLab CI Testing
 =================
@@ -237,7 +153,7 @@ Directories and Permissions
 
 * ``/usr/workspace/sundials/ci/.builds`` is where GitLab CI pipelines are run. The permissions
   for this directory are ``drwxrwx---``, but directories within it must be ``drwx------``.
-  Files within it should be ``-rw-rw----`` (can add ``x`` for group and owner as appropriate). 
+  Files within it should be ``-rw-rw----`` (can add ``x`` for group and owner as appropriate).
 
 * ``/usr/workspace/sundials/ci/spack_stuff`` contains the Spack build caches amongst other Spack
   files. The permissions for this directory and directories below should be ``drwxrws---``.
@@ -272,7 +188,7 @@ Spack Build Cache
 
 The ``build_and_test.sh`` script leverage Spack build caches in ``/usr/workspace/sundials/ci/spack_stuff/<SPACK_REF>``
 to speedup builds. These caches store binaries of packages that have been built previously. Separate caches are
-made for each ``SPACK_REF`` to avoid conflicts across Spack versions. 
+made for each ``SPACK_REF`` to avoid conflicts across Spack versions.
 
 
 Running Locally
@@ -281,4 +197,3 @@ Running Locally
 It is possible to run these scripts locally on an LC machine. First set a ``SPACK_REF``
 environment variable to a spack commit that you want to use, and then set a ``SPEC``
 environment variable with a SUNDIALS spack spec that you want to test.
-
