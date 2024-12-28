@@ -149,7 +149,7 @@ static int check_sensitivities(N_Vector answer)
   return 0;
 }
 
-static int check_sensitivities_backward(N_Vector answer)
+static inline int check_sensitivities_backward(N_Vector answer)
 {
   // The correct answer was generated with the Julia ForwardDiff.jl
   // automatic differentiation package.
