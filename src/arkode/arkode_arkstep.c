@@ -2236,12 +2236,10 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkStep_TakeStep_ERK_Adjoint", "start-step",
-                     "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
-                     ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
-#endif
+  SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint", "start-step",
+              "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
+              ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
+
   /* local shortcuts for readability */
   SUNAdjointStepper adj_stepper = (SUNAdjointStepper)ark_mem->user_data;
   sunrealtype* cvals            = step_mem->cvals;
@@ -2307,14 +2305,10 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
       SUNErrCode errcode = SUN_ERR_CHECKPOINT_NOT_FOUND;
       for (int64_t i = 0; i <= adj_stepper->step_idx; ++i, --start_step)
       {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
         int64_t stop_step = adj_stepper->step_idx + 1;
-        SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                           "ARKODE::arkStep_TakeStep_ERK_Adjoint",
-                           "searching-for-checkpoint",
-                           "start_step = %li, stop_step = %li", start_step,
-                           stop_step);
-#endif
+        SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint",
+                    "searching-for-checkpoint",
+                    "start_step = %li, stop_step = %li", start_step, stop_step);
         sunrealtype checkpoint_t;
         errcode =
           SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
@@ -2328,27 +2322,21 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
           start_step++;
           sunrealtype t0 = checkpoint_t;
           sunrealtype tf = ark_mem->tn;
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                             "ARKODE::arkStep_TakeStep_ERK_Adjoint",
-                             "start-recompute",
-                             "start_step = %li, stop_step = %li, t0 = %" RSYM
-                             ", tf = %" RSYM "",
-                             start_step, stop_step, t0, tf);
-#endif
+          SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint",
+                      "start-recompute",
+                      "start_step = %li, stop_step = %li, t0 = %" RSYM
+                      ", tf = %" RSYM "",
+                      start_step, stop_step, t0, tf);
           if (SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, t0, tf,
                                              checkpoint))
           {
             return (ARK_ADJ_RECOMPUTE_FAIL);
           }
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-          SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                             "ARKODE::arkStep_TakeStep_ERK_Adjoint",
-                             "end-recompute",
-                             "start_step = %li, stop_step = %li, t0 = %" RSYM
-                             ", tf = %" RSYM "",
-                             start_step, stop_step, t0, tf);
-#endif
+          SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint",
+                      "end-recompute",
+                      "start_step = %li, stop_step = %li, t0 = %" RSYM
+                      ", tf = %" RSYM "",
+                      start_step, stop_step, t0, tf);
           return arkStep_TakeStep_ERK_Adjoint(ark_mem, dsmPtr, nflagPtr);
         }
       }
@@ -2394,12 +2382,10 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   *dsmPtr   = ZERO;
   *nflagPtr = 0;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkStep_TakeStep_ERK_Adjoint", "end-step",
-                     "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
-                     ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
-#endif
+  SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint", "end-step",
+              "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
+              ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
+
   return (ARK_SUCCESS);
 }
 
