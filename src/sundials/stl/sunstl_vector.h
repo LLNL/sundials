@@ -176,5 +176,6 @@ static inline void MAKE_NAME(SUNStlVectorTtype,
     self->values[i] = nullish;
   }
 
+  free(self);
   *self_ptr = NULL;
 }
