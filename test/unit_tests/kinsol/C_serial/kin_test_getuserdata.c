@@ -20,7 +20,6 @@
 #include "kinsol/kinsol.h"
 #include "nvector/nvector_serial.h"
 
-#define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 
 /* Dummy user-supplied function */

@@ -55,19 +55,8 @@
 #include <sunmatrix/sunmatrix_dense.h>
 #include <vector>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
-
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
-#define TWO  SUN_RCONST(2.0)
 
 using namespace std;
 
