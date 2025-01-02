@@ -12,16 +12,17 @@
    SUNDIALS Copyright End
    -----------------------------------------------------------------------------
 
-.. _Style:
+.. _SourceCode:
 
-Style Guide
+Source Code
 ===========
 
-This chapter covers the SUNDIALS style conventions for formatting source code,
-CMake files, and documentation files to ensure consistency and maintainability.
+This chapter covers the coding and style conventions for SUNDIALS source code
+to ensure consistency and maintainability.
 
 .. toctree::
    :maxdepth: 1
 
-   SourceCode
-   Documentation
+   Rules
+   Naming
+   Style

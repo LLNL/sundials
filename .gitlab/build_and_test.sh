@@ -178,7 +178,8 @@ then
             -DMPIEXEC_EXECUTABLE=$(which $MPIEXEC_EXECUTABLE) \
             -DMPIEXEC_PREFLAGS=${MPIEXEC_PREFLAGS} \
             -DMPIEXEC_POSTFLAGS=${MPIEXEC_POSTFLAGS} \
-            -DSUNDIALS_CALIPER_OUTPUT_DIR="${CALIPER_DIR}/Release/${hostname}/${sundials_version}" \
+            -DSUNDIALS_TEST_CALIPER_OUTPUT_DIR="${CALIPER_DIR}/Release/${hostname}/${sundials_version}" \
+            -DSUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR="${CALIPER_DIR}/Release/${hostname}/${sundials_version}" \
             "${project_dir}"
 
     else

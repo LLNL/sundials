@@ -1749,11 +1749,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     }
   }
 
-  /* For a stiffly accurate implicit or ImEx method with an implicit first
-     stage, save f(tn, yn) if using Hermite interpolation as Fi[0] will be
-     overwritten during the implicit solve */
-  save_fn_for_interp = implicit_stage && stiffly_accurate &&
-                       ark_mem->interp_type == ARK_INTERP_HERMITE;
+  /* Save f(tn, yn) for Hermite interpolation */
+  save_fn_for_interp = ark_mem->interp_type == ARK_INTERP_HERMITE;
 
   /* For an implicit or ImEx method using the trivial predictor with an
      autonomous problem with an identity or fixed mass matrix, save fi(tn, yn)
@@ -1776,7 +1773,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     /* If saving the RHS evaluation for reuse in the residual, call the full RHS
        for all implicit methods or for ImEx methods with an explicit first
        stage. ImEx methods with an implicit first stage may not need to evaluate
-       fe depending on the interpolation type. */
+       fe depending on the interpolation type (covered by save_fn_for_interp) */
     sunbooleantype res_full_rhs = save_fn_for_residual && implicit_stage &&
                                   !imex_method;
 

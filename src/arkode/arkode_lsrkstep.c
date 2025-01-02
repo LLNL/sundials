@@ -2089,8 +2089,8 @@ void lsrkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     /* output sunrealtype quantities */
     // TODO(SRB): temporary fix for complex numbers
     fprintf(outfile,
-            "LSRKStep: dom_eig               = " SUN_FORMAT_G
-            " + (" SUN_FORMAT_G ")i\n",
+            "LSRKStep: dom_eig               = " SUN_FORMAT_G SUN_FORMAT_SG
+            "i\n",
             step_mem->lambdaR, step_mem->lambdaI);
     fprintf(outfile, "LSRKStep: spectral_radius       = " SUN_FORMAT_G "\n",
             step_mem->spectral_radius);

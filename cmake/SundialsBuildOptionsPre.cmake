@@ -33,8 +33,9 @@ endif()
 set(DOCSTR "single, double, or extended")
 sundials_option(SUNDIALS_PRECISION STRING "${DOCSTR}" "DOUBLE")
 string(TOUPPER ${SUNDIALS_PRECISION} _upper_SUNDIALS_PRECISION)
-force_variable(SUNDIALS_PRECISION STRING "${DOCSTR}"
-               ${_upper_SUNDIALS_PRECISION})
+set(SUNDIALS_PRECISION
+    "${_upper_SUNDIALS_PRECISION}"
+    CACHE STRING "${DOCSTR}" FORCE)
 
 # ---------------------------------------------------------------
 # Option to specify index type
@@ -310,26 +311,85 @@ endif()
 # Options for SUNDIALS testing
 # ---------------------------------------------------------------
 
+sundials_option(SUNDIALS_TEST_ENABLE_DEV_TESTS BOOL "Include development tests"
+                OFF ADVANCED)
+
+sundials_option(SUNDIALS_TEST_ENABLE_UNIT_TESTS BOOL "Include unit tests" OFF
+                ADVANCED)
+
+if(SUNDIALS_TEST_ENABLE_UNIT_TESTS)
+  set(_default_gtest ON)
+else()
+  set(_default_gtest OFF)
+endif()
+
+sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL "Include GTest unit tests"
+                ${_default_gtest} ADVANCED)
+
+if(SUNDIALS_TEST_ENABLE_GTEST AND NOT SUNDIALS_TEST_ENABLE_UNIT_TESTS)
+  message(
+    FATAL_ERROR "Unit tests with Google test are enabled but unit tests are OFF"
+  )
+endif()
+
+if(SUNDIALS_TEST_ENABLE_UNIT_TESTS AND NOT SUNDIALS_TEST_ENABLE_GTEST)
+  message(
+    WARNING
+      "Unit tests are enabled but unit tests with Google test are OFF. Some "
+      "unit test will not be run.")
+endif()
+
+if(SUNDIALS_TEST_ENABLE_DEV_TESTS OR SUNDIALS_TEST_ENABLE_UNIT_TESTS)
+  set(_default_diff_output ON)
+else()
+  set(_default_diff_output OFF)
+endif()
+
+sundials_option(
+  SUNDIALS_TEST_ENABLE_DIFF_OUTPUT BOOL
+  "Compare test output with saved answer files" ${_default_diff_output}
+  ADVANCED)
+
+if((SUNDIALS_TEST_ENABLE_DEV_TESTS OR SUNDIALS_TEST_ENABLE_UNIT_TESTS)
+   AND NOT SUNDIALS_TEST_ENABLE_DIFF_OUTPUT)
+  message(
+    WARNING "Development or unit tests are enabled but output comparison is OFF"
+  )
+endif()
+
 sundials_option(
   SUNDIALS_TEST_FLOAT_PRECISION STRING
-  "Precision for floating point comparisons (number of digits)" "-1" ADVANCED)
+  "Precision for floating point comparisons (number of digits)" "4" ADVANCED)
 
 sundials_option(
   SUNDIALS_TEST_INTEGER_PRECISION STRING
-  "Precision for integer comparisons (percent difference)" "-1" ADVANCED)
-
-sundials_option(SUNDIALS_TEST_OUTPUT_DIR PATH
-                "Location to write testing output files" "" ADVANCED)
-
-sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH
-                "Location of testing answer files" "" ADVANCED)
-
-sundials_option(SUNDIALS_TEST_PROFILE BOOL
-                "Use Caliper to profile SUNDIALS tests" OFF ADVANCED)
+  "Precision for integer comparisons (percent difference)" "10" ADVANCED)
 
 sundials_option(
-  SUNDIALS_TEST_NODIFF BOOL
-  "Disable output comparison in the regression test suite" OFF ADVANCED)
+  SUNDIALS_TEST_OUTPUT_DIR PATH "Location to write test output files"
+  "${PROJECT_BINARY_DIR}/Testing/output" ADVANCED)
+
+sundials_option(SUNDIALS_TEST_ANSWER_DIR PATH "Location of test answer files"
+                "" ADVANCED)
+
+if(SUNDIALS_TEST_ENABLE_DIFF_OUTPUT AND NOT SUNDIALS_TEST_ANSWER_DIR)
+  message(
+    WARNING
+      "Test output comparison is enabled but an answer directory was not "
+      "supplied. Using the default answer files may produce erroneous test "
+      "failures due to hardware or round-off differences.")
+endif()
+
+sundials_option(SUNDIALS_TEST_ENABLE_PROFILING BOOL "Profile tests" OFF
+                ADVANCED)
+
+sundials_option(
+  SUNDIALS_TEST_CALIPER_OUTPUT_DIR PATH "Location to write test Caliper files"
+  "${PROJECT_BINARY_DIR}/Testing/caliper" ADVANCED)
+
+# ---------------------------------------------------------------
+# Options for SUNDIALS testing with containers
+# ---------------------------------------------------------------
 
 sundials_option(SUNDIALS_TEST_CONTAINER_EXE PATH "Path to docker or podman" ""
                 ADVANCED)
@@ -343,29 +403,31 @@ sundials_option(
   SUNDIALS_TEST_CONTAINER_MNT STRING
   "Path to project root inside the container" "/sundials" ADVANCED)
 
-# Include development examples in regression tests
-sundials_option(SUNDIALS_TEST_DEVTESTS BOOL
-                "Include development tests in make test" OFF ADVANCED)
-
-# Include unit tests in regression tests
-sundials_option(SUNDIALS_TEST_UNITTESTS BOOL "Include unit tests in make test"
-                OFF ADVANCED)
-
-# Include googletest unit tests in regression tests
-sundials_option(SUNDIALS_TEST_ENABLE_GTEST BOOL "Disable GTest unit tests" ON
-                ADVANCED)
+# ---------------------------------------------------------------
+# Options for SUNDIALS development
+# ---------------------------------------------------------------
 
 sundials_option(SUNDIALS_DEV_IWYU BOOL "Enable include-what-you-use" OFF
                 ADVANCED)
 
 sundials_option(SUNDIALS_DEV_CLANG_TIDY BOOL "Enable clang-tidy" OFF ADVANCED)
 
+# ---------------------------------------------------------------
+# Options for SUNDIALS benchmarks
+# ---------------------------------------------------------------
+
 sundials_option(
   SUNDIALS_SCHEDULER_COMMAND STRING
   "Job scheduler command to use to launch SUNDIALS MPI tests" "" ADVANCED)
 
-sundials_option(SUNDIALS_CALIPER_OUTPUT_DIR PATH
-                "Location to write caliper output files" "" ADVANCED)
+sundials_option(
+  SUNDIALS_BENCHMARK_OUTPUT_DIR PATH "Location to write benchmark output files"
+  "${PROJECT_BINARY_DIR}/Benchmarking/output" ADVANCED)
+
+sundials_option(
+  SUNDIALS_BENCHMARK_CALIPER_OUTPUT_DIR PATH
+  "Location to write benchmark caliper files"
+  "${PROJECT_BINARY_DIR}/Benchmarking/caliper" ADVANCED)
 
 sundials_option(SUNDIALS_BENCHMARK_NUM_CPUS STRING
                 "Number of CPU cores to run benchmarks with" "40" ADVANCED)
