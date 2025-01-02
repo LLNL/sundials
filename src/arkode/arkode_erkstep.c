@@ -1050,7 +1050,7 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
       SUNErrCode errcode = SUN_ERR_CHECKPOINT_NOT_FOUND;
       for (int64_t i = 0; i <= adj_stepper->step_idx; ++i, --start_step)
       {
-        int64_t stop_step = adj_stepper->step_idx + 1;
+        SUNDIALS_MAYBE_UNUSED int64_t stop_step = adj_stepper->step_idx + 1;
         SUNLogDebug(ARK_LOGGER, "ARKODE::erkStep_TakeStep_Adjoint",
                     "searching-for-checkpoint",
                     "start_step = %li, stop_step = %li", start_step, stop_step);
