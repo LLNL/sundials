@@ -386,6 +386,10 @@ int64_t SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
   kvp    = *SUNStlVector_SUNHashMapKeyValue_At(map->buckets, idx);
   *value = kvp->value;
 
+  /* Since we are returning the value only, we must free the key and the kvp itself. */
+  free(kvp->key);
+  free(kvp);
+
   /* Clear the bucket by setting it to NULL */
   SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, NULL);
 

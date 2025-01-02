@@ -23,7 +23,9 @@
 // Helper function to free memory for value
 static void freeKeyValue(SUNHashMapKeyValue* ptr)
 {
-  // NO-OP: nothing we test with needs to be freed
+  if (!ptr || !(*ptr)) { return; }
+  free((*ptr)->key);
+  free(*ptr);
   return;
 }
 

@@ -32,6 +32,12 @@ static void freeNvectorValue(N_Vector* val_ptr)
   *val_ptr = NULL;
 }
 
+static N_Vector make_nvector(sunindextype length, SUNContext sunctx)
+{
+  N_Vector v = N_VNew_Serial(length, sunctx);
+  return v;
+}
+
 class SUNStlVectorPODTest : public testing::Test
 {
 protected:
@@ -156,8 +162,8 @@ TEST_F(SUNStlVectorComplexTest, IsEmpty)
 
 TEST_F(SUNStlVectorComplexTest, PushBack)
 {
-  N_Vector value1 = N_VNew_Serial(1, sunctx);
-  N_Vector value2 = N_VNew_Serial(2, sunctx);
+  N_Vector value1 = make_nvector(1, sunctx);
+  N_Vector value2 = make_nvector(2, sunctx);
 
   SUNStlVector_N_Vector_PushBack(list, value1);
   EXPECT_EQ(list->size, 1);
@@ -172,7 +178,7 @@ TEST_F(SUNStlVectorComplexTest, PushBack)
             N_VGetLength(value2));
 
   // Test resize
-  N_Vector value3 = N_VNew_Serial(3, sunctx);
+  N_Vector value3 = make_nvector(3, sunctx);
   SUNStlVector_N_Vector_PushBack(list, value3);
   EXPECT_EQ(list->size, 3);
   EXPECT_EQ(list->capacity, 3);
@@ -183,7 +189,7 @@ TEST_F(SUNStlVectorComplexTest, PushBack)
 
 TEST_F(SUNStlVectorComplexTest, At)
 {
-  N_Vector value = N_VNew_Serial(1, sunctx);
+  N_Vector value = make_nvector(1, sunctx);
 
   SUNStlVector_N_Vector_PushBack(list, value);
   EXPECT_EQ(*SUNStlVector_N_Vector_At(list, 0), value);
@@ -195,7 +201,7 @@ TEST_F(SUNStlVectorComplexTest, At)
 
 TEST_F(SUNStlVectorComplexTest, Set)
 {
-  N_Vector value1 = N_VNew_Serial(1, sunctx);
+  N_Vector value1 = make_nvector(1, sunctx);
 
   SUNStlVector_N_Vector_PushBack(list, NULL);
   SUNStlVector_N_Vector_Set(list, 0, value1);
@@ -208,8 +214,8 @@ TEST_F(SUNStlVectorComplexTest, Set)
 
 TEST_F(SUNStlVectorComplexTest, PopBack)
 {
-  N_Vector value1 = N_VNew_Serial(1, sunctx);
-  N_Vector value2 = N_VNew_Serial(2, sunctx);
+  N_Vector value1 = make_nvector(1, sunctx);
+  N_Vector value2 = make_nvector(2, sunctx);
 
   SUNStlVector_N_Vector_PushBack(list, value1);
   SUNStlVector_N_Vector_PushBack(list, value2);
@@ -222,4 +228,7 @@ TEST_F(SUNStlVectorComplexTest, PopBack)
   // Pop from empty list
   SUNStlVector_N_Vector_PopBack(list);
   EXPECT_EQ(list->size, 0);
+
+  freeNvectorValue(&value1);
+  freeNvectorValue(&value2);
 }

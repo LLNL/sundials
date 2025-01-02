@@ -108,6 +108,8 @@ static void sunProfilerDestroyKeyValue(SUNHashMapKeyValue* kv_ptr)
 {
   if (!kv_ptr || !(*kv_ptr)) { return; }
   sunTimerStructFree((*kv_ptr)->value);
+  free((*kv_ptr)->key);
+  free(*kv_ptr);
 }
 
 static void sunStartTiming(sunTimerStruct* entry)

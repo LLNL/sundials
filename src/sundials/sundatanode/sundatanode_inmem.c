@@ -71,6 +71,7 @@ static void sunDataNodeInMem_DestroyEmpty(SUNDataNode* node)
   if (!node || !(*node)) { return; }
   if (BASE_PROP(*node, content)) { free(BASE_PROP(*node, content)); }
   BASE_PROP(*node, content) = NULL;
+  free(BASE_PROP(*node, ops));
   free(*node);
   *node = NULL;
 }
@@ -459,6 +460,9 @@ static void sunDataNodeFreeKeyValue(SUNDIALS_MAYBE_UNUSED SUNHashMapKeyValue* kv
 {
   /* Do nothing. We want the user of the class to have to call SUNDataNode_Destroy
      for each SUNDataNode, even child nodes.*/
+  if (!kv_ptr || !(*kv_ptr)) { return; }
+  free((*kv_ptr)->key);
+  free(*kv_ptr);
   return;
 }
 

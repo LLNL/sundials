@@ -344,6 +344,7 @@ SUNErrCode SUNDataNode_Destroy(SUNDataNode* node)
     return (*node)->ops->destroy(node);
   }
 
+  free((*node)->ops);
   free(*node);
   *node = NULL;
 

@@ -129,6 +129,8 @@ static void sunLoggerFreeKeyValue(SUNHashMapKeyValue* kv_ptr)
 {
   if (!kv_ptr || !(*kv_ptr)) { return; }
   sunCloseLogFile((*kv_ptr)->value);
+  free((*kv_ptr)->key);
+  free(*kv_ptr);
 }
 
 SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr)
