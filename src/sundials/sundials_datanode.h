@@ -90,7 +90,6 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
 SUNDIALS_EXPORT
 SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
                                     sundataindex num_elements,
-                                    void (*freeValue)(void* value),
                                     SUNContext sunctx, SUNDataNode* node_out);
 
 SUNDIALS_EXPORT

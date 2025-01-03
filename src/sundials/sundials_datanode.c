@@ -92,7 +92,6 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
 
 SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
                                     sundataindex num_elements,
-                                    void (*freeValue)(void* value),
                                     SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
@@ -102,8 +101,7 @@ SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
   switch (io_mode)
   {
   case (SUNDATAIOMODE_INMEM):
-    SUNCheckCall(SUNDataNode_CreateObject_InMem(num_elements, freeValue, sunctx,
-                                                node_out));
+    SUNCheckCall(SUNDataNode_CreateObject_InMem(num_elements, sunctx, node_out));
     break;
   default:
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);

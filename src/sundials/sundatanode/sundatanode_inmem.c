@@ -95,7 +95,6 @@ SUNErrCode SUNDataNode_CreateList_InMem(sundataindex init_size,
 }
 
 SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex init_size,
-                                          void (*freeValue)(void* value),
                                           SUNContext sunctx,
                                           SUNDataNode* node_out)
 {
@@ -109,7 +108,6 @@ SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex init_size,
   SUNCheckCall(SUNHashMap_New(init_size, sunDataNodeFreeKeyValue, &map));
 
   IMPL_PROP(node, named_children) = map;
-  IMPL_PROP(node, freeValue)      = freeValue;
 
   *node_out = node;
   return SUN_SUCCESS;
