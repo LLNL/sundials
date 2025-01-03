@@ -197,7 +197,6 @@ static void sunHashMapResize(SUNHashMap map)
   }
 
   /* Rehash and reinsert */
-  int64_t old_size = SUNStlVector_SUNHashMapKeyValue_Size(old_buckets);
   for (int64_t i = old_capacity - 1; i >= 0; i--)
   {
     SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(old_buckets, i);
