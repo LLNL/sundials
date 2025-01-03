@@ -22,9 +22,9 @@
 #include "sundials_hashmap_impl.h"
 #include "sundials_macros.h"
 
-#define GET_IMPL(node)        ((SUNDataNode_InMemContent)(node)->content)
-#define IMPL_PROP(node, prop) (GET_IMPL(node)->prop)
-#define BASE_PROP(node, prop) ((node)->prop)
+#define GET_CONTENT(node)       ((SUNDataNode_InMemContent)(node)->content)
+#define IMPL_MEMBER(node, prop) (GET_CONTENT(node)->prop)
+#define BASE_MEMBER(node, prop) ((node)->prop)
 
 static SUNDataNode sunDataNodeInMem_CreateEmpty(SUNContext sunctx)
 {
@@ -69,9 +69,9 @@ static SUNDataNode sunDataNodeInMem_CreateEmpty(SUNContext sunctx)
 static void sunDataNodeInMem_DestroyEmpty(SUNDataNode* node)
 {
   if (!node || !(*node)) { return; }
-  if (BASE_PROP(*node, content)) { free(BASE_PROP(*node, content)); }
-  BASE_PROP(*node, content) = NULL;
-  free(BASE_PROP(*node, ops));
+  if (BASE_MEMBER(*node, content)) { free(BASE_MEMBER(*node, content)); }
+  BASE_MEMBER(*node, content) = NULL;
+  free(BASE_MEMBER(*node, ops));
   free(*node);
   *node = NULL;
 }
@@ -86,8 +86,8 @@ SUNErrCode SUNDataNode_CreateList_InMem(sundataindex init_size,
 
   SUNDataNode node = sunDataNodeInMem_CreateEmpty(sunctx);
 
-  BASE_PROP(node, dtype) = SUNDATANODE_LIST;
-  IMPL_PROP(node, anon_children) =
+  BASE_MEMBER(node, dtype) = SUNDATANODE_LIST;
+  IMPL_MEMBER(node, anon_children) =
     SUNStlVector_SUNDataNode_New(init_size, sunDataNodeFreeValue);
 
   *node_out = node;
@@ -102,12 +102,12 @@ SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex init_size,
 
   SUNDataNode node = sunDataNodeInMem_CreateEmpty(sunctx);
 
-  BASE_PROP(node, dtype) = SUNDATANODE_OBJECT;
+  BASE_MEMBER(node, dtype) = SUNDATANODE_OBJECT;
 
   SUNHashMap map;
   SUNCheckCall(SUNHashMap_New(init_size, sunDataNodeFreeKeyValue, &map));
 
-  IMPL_PROP(node, named_children) = map;
+  IMPL_MEMBER(node, named_children) = map;
 
   *node_out = node;
   return SUN_SUCCESS;
@@ -120,9 +120,9 @@ SUNErrCode SUNDataNode_CreateLeaf_InMem(SUNMemoryHelper mem_helper,
 
   SUNDataNode node = sunDataNodeInMem_CreateEmpty(sunctx);
 
-  BASE_PROP(node, dtype)      = SUNDATANODE_LEAF;
-  IMPL_PROP(node, mem_helper) = mem_helper;
-  IMPL_PROP(node, leaf_data)  = NULL;
+  BASE_MEMBER(node, dtype)      = SUNDATANODE_LEAF;
+  IMPL_MEMBER(node, mem_helper) = mem_helper;
+  IMPL_MEMBER(node, leaf_data)  = NULL;
 
   *node_out = node;
   return SUN_SUCCESS;
@@ -132,7 +132,7 @@ SUNErrCode SUNDataNode_IsLeaf_InMem(const SUNDataNode self,
                                     sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
-  *yes_or_no = BASE_PROP(self, dtype) == SUNDATANODE_LEAF;
+  *yes_or_no = BASE_MEMBER(self, dtype) == SUNDATANODE_LEAF;
   return SUN_SUCCESS;
 }
 
@@ -140,7 +140,7 @@ SUNErrCode SUNDataNode_IsList_InMem(const SUNDataNode self,
                                     sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
-  *yes_or_no = BASE_PROP(self, dtype) == SUNDATANODE_LIST;
+  *yes_or_no = BASE_MEMBER(self, dtype) == SUNDATANODE_LIST;
   return SUN_SUCCESS;
 }
 
@@ -148,7 +148,7 @@ SUNErrCode SUNDataNode_IsObject_InMem(const SUNDataNode self,
                                       sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
-  *yes_or_no = BASE_PROP(self, dtype) == SUNDATANODE_OBJECT;
+  *yes_or_no = BASE_MEMBER(self, dtype) == SUNDATANODE_OBJECT;
   return SUN_SUCCESS;
 }
 
@@ -157,9 +157,9 @@ SUNErrCode SUNDataNode_HasChildren_InMem(const SUNDataNode self,
 {
   SUNFunctionBegin(self->sunctx);
   *yes_or_no =
-    (IMPL_PROP(self, anon_children) &&
-     SUNStlVector_SUNDataNode_Size(IMPL_PROP(self, anon_children)) != 0) ||
-    IMPL_PROP(self, num_named_children) != 0;
+    (IMPL_MEMBER(self, anon_children) &&
+     SUNStlVector_SUNDataNode_Size(IMPL_MEMBER(self, anon_children)) != 0) ||
+    IMPL_MEMBER(self, num_named_children) != 0;
   return SUN_SUCCESS;
 }
 
@@ -167,9 +167,9 @@ SUNErrCode SUNDataNode_AddChild_InMem(SUNDataNode self, SUNDataNode child_node)
 {
   SUNFunctionBegin(self->sunctx);
 
-  SUNAssert(BASE_PROP(self, dtype) == SUNDATANODE_LIST, SUN_ERR_ARG_WRONGTYPE);
-  SUNStlVector_SUNDataNode_PushBack(IMPL_PROP(self, anon_children), child_node);
-  IMPL_PROP(child_node, parent) = self;
+  SUNAssert(BASE_MEMBER(self, dtype) == SUNDATANODE_LIST, SUN_ERR_ARG_WRONGTYPE);
+  SUNStlVector_SUNDataNode_PushBack(IMPL_MEMBER(self, anon_children), child_node);
+  IMPL_MEMBER(child_node, parent) = self;
   return SUN_SUCCESS;
 }
 
@@ -178,16 +178,17 @@ SUNErrCode SUNDataNode_AddNamedChild_InMem(SUNDataNode self, const char* name,
 {
   SUNFunctionBegin(self->sunctx);
 
-  SUNAssert(BASE_PROP(self, dtype) == SUNDATANODE_OBJECT, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssert(BASE_MEMBER(self, dtype) == SUNDATANODE_OBJECT,
+            SUN_ERR_ARG_WRONGTYPE);
 
-  IMPL_PROP(child_node, name) = name;
-  if (SUNHashMap_Insert(IMPL_PROP(self, named_children), name, child_node))
+  IMPL_MEMBER(child_node, name) = name;
+  if (SUNHashMap_Insert(IMPL_MEMBER(self, named_children), name, child_node))
   {
     return SUN_ERR_OP_FAIL;
   }
 
-  IMPL_PROP(child_node, parent) = self;
-  IMPL_PROP(self, num_named_children)++;
+  IMPL_MEMBER(child_node, parent) = self;
+  IMPL_MEMBER(self, num_named_children)++;
 
   return SUN_SUCCESS;
 }
@@ -203,7 +204,7 @@ SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode self, sundataindex index
   if (!has_children) { return SUN_ERR_DATANODE_NODENOTFOUND; }
 
   SUNDataNode* child_node_ptr =
-    SUNStlVector_SUNDataNode_At(IMPL_PROP(self, anon_children), index);
+    SUNStlVector_SUNDataNode_At(IMPL_MEMBER(self, anon_children), index);
   if (child_node_ptr) { *child_node = *child_node_ptr; }
   return SUN_SUCCESS;
 }
@@ -221,7 +222,7 @@ SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode self,
 
   if (has_children)
   {
-    if (SUNHashMap_GetValue(IMPL_PROP(self, named_children), name,
+    if (SUNHashMap_GetValue(IMPL_MEMBER(self, named_children), name,
                             (void**)child_node))
     {
       return SUN_ERR_DATANODE_NODENOTFOUND;
@@ -242,14 +243,14 @@ SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex index,
   if (!has_children) { return SUN_SUCCESS; }
 
   SUNDataNode* child_node_ptr =
-    SUNStlVector_SUNDataNode_At(IMPL_PROP(self, anon_children), index);
+    SUNStlVector_SUNDataNode_At(IMPL_MEMBER(self, anon_children), index);
   if (child_node_ptr)
   {
     *child_node = *child_node_ptr;
     if (*child_node)
     {
-      IMPL_PROP(*child_node, parent) = NULL;
-      SUNStlVector_SUNDataNode_Erase(IMPL_PROP(self, anon_children), index);
+      IMPL_MEMBER(*child_node, parent) = NULL;
+      SUNStlVector_SUNDataNode_Erase(IMPL_MEMBER(self, anon_children), index);
     }
   }
 
@@ -269,13 +270,13 @@ SUNErrCode SUNDataNode_RemoveNamedChild_InMem(const SUNDataNode self,
 
   if (has_children)
   {
-    if (SUNHashMap_Remove(IMPL_PROP(self, named_children), name,
+    if (SUNHashMap_Remove(IMPL_MEMBER(self, named_children), name,
                           (void**)child_node))
     {
       return SUN_ERR_DATANODE_NODENOTFOUND;
     }
-    IMPL_PROP(*child_node, parent) = NULL;
-    IMPL_PROP(self, num_named_children)--;
+    IMPL_MEMBER(*child_node, parent) = NULL;
+    IMPL_MEMBER(self, num_named_children)--;
   }
 
   return SUN_SUCCESS;
@@ -286,7 +287,7 @@ SUNErrCode SUNDataNode_GetData_InMem(const SUNDataNode self, void** data,
 {
   SUNFunctionBegin(self->sunctx);
 
-  SUNMemory leaf_data = (SUNMemory)IMPL_PROP(self, leaf_data);
+  SUNMemory leaf_data = (SUNMemory)IMPL_MEMBER(self, leaf_data);
 
   *data_stride = leaf_data->stride;
   *data_bytes  = leaf_data->bytes;
@@ -302,7 +303,7 @@ SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v,
 
   void* queue = NULL;
 
-  SUNMemory leaf_data = (SUNMemory)IMPL_PROP(self, leaf_data);
+  SUNMemory leaf_data = (SUNMemory)IMPL_MEMBER(self, leaf_data);
 
   SUNMemoryType leaf_mem_type = leaf_data->type;
   SUNMemoryType buffer_mem_type = N_VGetDeviceArrayPointer(v) ? SUNMEMTYPE_DEVICE
@@ -322,10 +323,10 @@ SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v,
   else
   {
     SUNMemory buffer_data = NULL;
-    SUNCheckCall(SUNMemoryHelper_Alloc(IMPL_PROP(self, mem_helper), &buffer_data,
+    SUNCheckCall(SUNMemoryHelper_Alloc(IMPL_MEMBER(self, mem_helper), &buffer_data,
                                        buffer_size, buffer_mem_type, queue));
 
-    SUNCheckCall(SUNMemoryHelper_Copy(IMPL_PROP(self, mem_helper), buffer_data,
+    SUNCheckCall(SUNMemoryHelper_Copy(IMPL_MEMBER(self, mem_helper), buffer_data,
                                       leaf_data, buffer_size, queue));
 
     sunrealtype* data_ptr = leaf_data->ptr;
@@ -334,8 +335,8 @@ SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v,
 
     SUNCheckCall(N_VBufUnpack(v, &data_ptr[1]));
 
-    SUNCheckCall(
-      SUNMemoryHelper_Dealloc(IMPL_PROP(self, mem_helper), buffer_data, queue));
+    SUNCheckCall(SUNMemoryHelper_Dealloc(IMPL_MEMBER(self, mem_helper),
+                                         buffer_data, queue));
   }
 
   return SUN_SUCCESS;
@@ -349,23 +350,23 @@ SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode self, SUNMemoryType src_mem_typ
 
   void* queue = NULL;
 
-  SUNAssert(BASE_PROP(self, dtype) == SUNDATANODE_LEAF, SUN_ERR_ARG_WRONGTYPE);
+  SUNAssert(BASE_MEMBER(self, dtype) == SUNDATANODE_LEAF, SUN_ERR_ARG_WRONGTYPE);
 
-  SUNMemory data_mem_src = SUNMemoryHelper_Wrap(IMPL_PROP(self, mem_helper),
+  SUNMemory data_mem_src = SUNMemoryHelper_Wrap(IMPL_MEMBER(self, mem_helper),
                                                 data, src_mem_type);
   SUNCheckLastErr();
 
   SUNMemory data_mem_dst = NULL;
-  SUNCheckCall(SUNMemoryHelper_AllocStrided(IMPL_PROP(self, mem_helper),
+  SUNCheckCall(SUNMemoryHelper_AllocStrided(IMPL_MEMBER(self, mem_helper),
                                             &data_mem_dst, data_bytes,
                                             data_stride, node_mem_type, queue));
 
-  SUNCheckCall(SUNMemoryHelper_Copy(IMPL_PROP(self, mem_helper), data_mem_dst,
+  SUNCheckCall(SUNMemoryHelper_Copy(IMPL_MEMBER(self, mem_helper), data_mem_dst,
                                     data_mem_src, data_bytes, queue));
 
-  SUNMemoryHelper_Dealloc(IMPL_PROP(self, mem_helper), data_mem_src, queue);
+  SUNMemoryHelper_Dealloc(IMPL_MEMBER(self, mem_helper), data_mem_src, queue);
 
-  IMPL_PROP(self, leaf_data) = data_mem_dst;
+  IMPL_MEMBER(self, leaf_data) = data_mem_dst;
 
   return SUN_SUCCESS;
 }
@@ -387,7 +388,7 @@ SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v,
   /* We allocate 1 extra sunrealtype for storing t */
   SUNMemory leaf_data = NULL;
   SUNCheckCall(
-    SUNMemoryHelper_AllocStrided(IMPL_PROP(self, mem_helper), &leaf_data,
+    SUNMemoryHelper_AllocStrided(IMPL_MEMBER(self, mem_helper), &leaf_data,
                                  buffer_size + sizeof(sunrealtype),
                                  sizeof(sunrealtype), leaf_mem_type, queue));
 
@@ -404,7 +405,7 @@ SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v,
        and then copy it to the node data. */
     SUNMemory buffer_data = NULL;
     SUNCheckCall(
-      SUNMemoryHelper_AllocStrided(IMPL_PROP(self, mem_helper), &buffer_data,
+      SUNMemoryHelper_AllocStrided(IMPL_MEMBER(self, mem_helper), &buffer_data,
                                    buffer_size + sizeof(sunrealtype),
                                    sizeof(sunrealtype), buffer_mem_type, queue));
 
@@ -412,15 +413,15 @@ SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v,
     data_ptr[0]           = t;
     SUNCheckCall(N_VBufPack(v, &data_ptr[1]));
 
-    SUNCheckCall(SUNMemoryHelper_Copy(IMPL_PROP(self, mem_helper), leaf_data,
+    SUNCheckCall(SUNMemoryHelper_Copy(IMPL_MEMBER(self, mem_helper), leaf_data,
                                       buffer_data,
                                       buffer_size + sizeof(sunrealtype), queue));
 
-    SUNCheckCall(
-      SUNMemoryHelper_Dealloc(IMPL_PROP(self, mem_helper), buffer_data, queue));
+    SUNCheckCall(SUNMemoryHelper_Dealloc(IMPL_MEMBER(self, mem_helper),
+                                         buffer_data, queue));
   }
 
-  IMPL_PROP(self, leaf_data) = leaf_data;
+  IMPL_MEMBER(self, leaf_data) = leaf_data;
 
   return SUN_SUCCESS;
 }
@@ -431,21 +432,21 @@ SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node)
 
   void* queue = NULL;
 
-  if (BASE_PROP(*node, dtype) == SUNDATANODE_OBJECT)
+  if (BASE_MEMBER(*node, dtype) == SUNDATANODE_OBJECT)
   {
-    SUNHashMap map = IMPL_PROP(*node, named_children);
+    SUNHashMap map = IMPL_MEMBER(*node, named_children);
     SUNHashMap_Destroy(&map);
   }
-  else if (BASE_PROP(*node, dtype) == SUNDATANODE_LIST)
+  else if (BASE_MEMBER(*node, dtype) == SUNDATANODE_LIST)
   {
-    SUNStlVector_SUNDataNode_Destroy(&IMPL_PROP(*node, anon_children));
+    SUNStlVector_SUNDataNode_Destroy(&IMPL_MEMBER(*node, anon_children));
   }
-  else if (BASE_PROP(*node, dtype) == SUNDATANODE_LEAF)
+  else if (BASE_MEMBER(*node, dtype) == SUNDATANODE_LEAF)
   {
-    if (IMPL_PROP(*node, leaf_data))
+    if (IMPL_MEMBER(*node, leaf_data))
     {
-      SUNCheckCall(SUNMemoryHelper_Dealloc(IMPL_PROP(*node, mem_helper),
-                                           IMPL_PROP(*node, leaf_data), queue));
+      SUNCheckCall(SUNMemoryHelper_Dealloc(IMPL_MEMBER(*node, mem_helper),
+                                           IMPL_MEMBER(*node, leaf_data), queue));
     }
   }
 
