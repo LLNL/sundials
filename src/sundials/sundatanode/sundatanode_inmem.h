@@ -39,6 +39,7 @@ struct SUNDataNode_InMemImpl_
   // Properties for Leaf nodes (nodes that store data)
   SUNMemoryHelper mem_helper;
   SUNMemory leaf_data;
+  void (*freeValue)(void* value);
 
   // Properties for Object nodes (nodes that are a collection of named nodes)
   const char* name;
@@ -53,6 +54,7 @@ SUNErrCode SUNDataNode_CreateList_InMem(sundataindex init_size,
                                         SUNContext sunctx, SUNDataNode* node_out);
 
 SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex init_size,
+                                          void (*freeValue)(void* value),
                                           SUNContext sunctx,
                                           SUNDataNode* node_out);
 

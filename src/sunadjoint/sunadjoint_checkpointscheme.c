@@ -143,8 +143,13 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy(
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return (*check_scheme_ptr)->ops->destroy(check_scheme_ptr);
   }
+  else if (*check_scheme_ptr)
+  {
+    free((*check_scheme_ptr)->ops);
+    free(*check_scheme_ptr);
+  }
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
-  return SUN_ERR_NOT_IMPLEMENTED;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_EnableDense(
