@@ -150,6 +150,20 @@ static SUNErrCode arkSUNStepperSetForcing(SUNStepper stepper, sunrealtype tshift
   return SUN_SUCCESS;
 }
 
+SUNErrCode arkSUNStepperSelfDestruct(SUNStepper stepper)
+{
+  /* This function is useful when we create a ARKodeMem/SUNStepper internally, 
+     and want it to be destroyed with the SUNStepper. */
+  ARKodeMem ark_mem;
+
+  SUNErrCode errcode = SUNStepper_GetContent(stepper, (void**)&ark_mem);
+  if (errcode) { return errcode; }
+
+  ARKodeFree((void**)&ark_mem);
+
+  return SUN_SUCCESS;
+}
+
 int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
 {
   /* unpack ark_mem */

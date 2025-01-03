@@ -692,6 +692,9 @@ int ark_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
 int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper);
 int ark_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol);
 
+/* utility functions for wrapping ARKODE as a SUNStepper */
+SUNErrCode arkSUNStepperSelfDestruct(SUNStepper stepper);
+
 /* XBraid interface functions */
 int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass);
 int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
