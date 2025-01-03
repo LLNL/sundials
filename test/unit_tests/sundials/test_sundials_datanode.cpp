@@ -116,8 +116,6 @@ TEST_F(SUNDataNodeTest, AddChildWorks)
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
-  err = SUNDataNode_Destroy(&child_node);
-  EXPECT_EQ(err, SUN_SUCCESS);
 }
 
 TEST_F(SUNDataNodeTest, AddNamedChildWorks)
@@ -141,8 +139,6 @@ TEST_F(SUNDataNodeTest, AddNamedChildWorks)
   EXPECT_EQ(root_node, GET_PROP(child_node, parent));
 
   err = SUNDataNode_Destroy(&root_node);
-  EXPECT_EQ(err, SUN_SUCCESS);
-  err = SUNDataNode_Destroy(&child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
@@ -180,8 +176,6 @@ TEST_F(SUNDataNodeTest, HasChildrenWorks)
   EXPECT_TRUE(yes_or_no);
 
   err = SUNDataNode_Destroy(&root_node);
-  EXPECT_EQ(err, SUN_SUCCESS);
-  err = SUNDataNode_Destroy(&child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
@@ -315,8 +309,6 @@ TEST_F(SUNDataNodeTest, GetChildWorks)
 
   err = SUNDataNode_Destroy(&root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
-  err = SUNDataNode_Destroy(&child_node);
-  EXPECT_EQ(err, SUN_SUCCESS);
 }
 
 TEST_F(SUNDataNodeTest, GetNamedChildWorks)
@@ -352,8 +344,6 @@ TEST_F(SUNDataNodeTest, GetNamedChildWorks)
   EXPECT_EQ(integer_value, *static_cast<int*>(raw_value));
 
   err = SUNDataNode_Destroy(&root_node);
-  EXPECT_EQ(err, SUN_SUCCESS);
-  err = SUNDataNode_Destroy(&child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 }
 
