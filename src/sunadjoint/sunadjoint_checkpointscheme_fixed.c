@@ -43,8 +43,6 @@ typedef struct SUNAdjointCheckpointScheme_Fixed_Content_*
 #define GET_CONTENT(S)    ((SUNAdjointCheckpointScheme_Fixed_Content)S->content)
 #define PROPERTY(S, prop) (GET_CONTENT(S)->prop)
 
-static void freeCheckpoint(void* value);
-
 SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
   SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval,
   int64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
@@ -77,8 +75,8 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
   content->stepnum_of_current_load   = -2;
   content->io_mode                   = io_mode;
 
-  SUNCheckCall(SUNDataNode_CreateObject(io_mode, estimate, freeCheckpoint,
-                                        sunctx, &content->root_node));
+  SUNCheckCall(
+    SUNDataNode_CreateObject(io_mode, estimate, sunctx, &content->root_node));
 
   check_scheme->content = content;
   *check_scheme_ptr     = check_scheme;
@@ -286,5 +284,3 @@ SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Fixed(
 
   return SUN_SUCCESS;
 }
-
-void freeCheckpoint(void* value) { N_VDestroy((N_Vector)value); }
