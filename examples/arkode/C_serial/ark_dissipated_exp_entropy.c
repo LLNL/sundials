@@ -39,14 +39,14 @@
 
 /* Convince macros for calling precision-specific math functions */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define EXP(x)  (exp((x)))
-#define LOG(x)  (log((x)))
+#define EXP(x) (exp((x)))
+#define LOG(x) (log((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-#define EXP(x)  (expf((x)))
-#define LOG(x)  (logf((x)))
+#define EXP(x) (expf((x)))
+#define LOG(x) (logf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define EXP(x)  (expl((x)))
-#define LOG(x)  (logl((x)))
+#define EXP(x) (expl((x)))
+#define LOG(x) (logl((x)))
 #endif
 
 /* Convince macros for using precision-specific format specifiers */

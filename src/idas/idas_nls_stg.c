@@ -19,8 +19,8 @@
 #include "sundials/sundials_nvector_senswrapper.h"
 
 /* constant macros */
-#define ONE    SUN_RCONST(1.0)    /* real 1.0    */
-#define TWENTY SUN_RCONST(20.0)   /* real 20.0   */
+#define ONE    SUN_RCONST(1.0)  /* real 1.0    */
+#define TWENTY SUN_RCONST(20.0) /* real 20.0   */
 
 /* nonlinear solver parameters */
 #define MAXIT 4 /* default max number of nonlinear iterations    */

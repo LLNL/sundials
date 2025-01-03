@@ -20,7 +20,7 @@
 #include "kinsol/kinsol.h"
 #include "nvector/nvector_serial.h"
 
-#define ONE  SUN_RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 /* Dummy user-supplied function */
 static int F(N_Vector u, N_Vector r, void* user_data) { return 0; }

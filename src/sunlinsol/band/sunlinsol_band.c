@@ -25,7 +25,7 @@
 
 #include "sundials_macros.h"
 
-#define ONE            SUN_RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
