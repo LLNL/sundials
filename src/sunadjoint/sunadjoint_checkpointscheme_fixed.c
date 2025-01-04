@@ -102,7 +102,7 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Fixed(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
-  SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
+  SUNAdjointCheckpointScheme self, int64_t step_num, SUNDIALS_MAYBE_UNUSED int64_t stage_num,
   sunrealtype t, N_Vector state)
 {
   SUNFunctionBegin(self->sunctx);
