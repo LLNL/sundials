@@ -121,8 +121,8 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
 
     /* Store the step node in the root node object. */
     char* key = sunSignedToString(step_num);
-    SUNLogExtraDebug(SUNCTX_->logger, __func__, "insert-new-step",
-                     "step_num = %d", step_num);
+    SUNLogExtraDebug(SUNCTX_->logger, "insert-new-step", "step_num=%d, key=%s",
+                     step_num, key);
     SUNCheckCall(SUNDataNode_AddNamedChild(IMPL_MEMBER(self, root_node), key,
                                            step_data_node));
     free(key);
@@ -136,7 +136,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
                                       &solution_node));
   SUNCheckCall(SUNDataNode_SetDataNvector(solution_node, state, t));
 
-  SUNLogExtraDebug(SUNCTX_->logger, __func__, "insert-stage",
+  SUNLogExtraDebug(SUNCTX_->logger, "insert-stage",
                    "step_num = %d, stage_num = %d, t = %g", step_num, stage_num,
                    t);
   SUNCheckCall(SUNDataNode_AddChild(step_data_node, solution_node));
@@ -159,7 +159,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
   if (step_num != IMPL_MEMBER(self, stepnum_of_current_load))
   {
     char* key = sunSignedToString(step_num);
-    SUNLogExtraDebug(SUNCTX_->logger, __func__, "try-load-new-step",
+    SUNLogExtraDebug(SUNCTX_->logger, "try-load-new-step",
                      "step_num = %d, stage_num = %d", step_num, stage_num);
     errcode = SUNDataNode_GetNamedChild(IMPL_MEMBER(self, root_node), key,
                                         &step_data_node);
@@ -179,18 +179,18 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
 
   if (!step_data_node)
   {
-    SUNLogExtraDebug(SUNCTX_->logger, __func__, "step-not-found",
+    SUNLogExtraDebug(SUNCTX_->logger, "step-not-found",
                      "step_num = %d, stage_num = %d", step_num, stage_num);
     return SUN_ERR_CHECKPOINT_NOT_FOUND;
   }
 
-  SUNLogExtraDebug(SUNCTX_->logger, __func__, "step-loaded",
+  SUNLogExtraDebug(SUNCTX_->logger, "step-loaded",
                    "step_num = %d, stage_num = %d", step_num, stage_num);
 
   SUNDataNode solution_node = NULL;
   if (IMPL_MEMBER(self, keep) || peek)
   {
-    SUNLogExtraDebug(SUNCTX_->logger, __func__, "try-load-stage",
+    SUNLogExtraDebug(SUNCTX_->logger, "try-load-stage",
                      "keep = 1, step_num = %d, stage_num = %d", step_num,
                      stage_num);
     errcode = SUNDataNode_GetChild(step_data_node, stage_num, &solution_node);
@@ -204,7 +204,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
 
     if (has_children)
     {
-      SUNLogExtraDebug(SUNCTX_->logger, __func__, "try-load-stage",
+      SUNLogExtraDebug(SUNCTX_->logger, "try-load-stage",
                        "keep = 0, step_num = %d, stage_num = %d", step_num,
                        stage_num);
       errcode = SUNDataNode_RemoveChild(step_data_node, stage_num,
@@ -217,8 +217,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
     if (!has_children)
     {
       char* key = sunSignedToString(step_num);
-      SUNLogExtraDebug(SUNCTX_->logger, __func__, "remove-step",
-                       "step_num = %d", step_num);
+      SUNLogExtraDebug(SUNCTX_->logger, "remove-step", "step_num = %d", step_num);
       SUNCheckCall(SUNDataNode_RemoveNamedChild(IMPL_MEMBER(self, root_node),
                                                 key, &step_data_node));
       free(key);
@@ -228,13 +227,13 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
 
   if (!solution_node)
   {
-    SUNLogExtraDebug(SUNCTX_->logger, __func__, "stage-not-found",
+    SUNLogExtraDebug(SUNCTX_->logger, "stage-not-found",
                      "step_num = %d, stage_num = %d", step_num, stage_num);
     return SUN_ERR_CHECKPOINT_NOT_FOUND;
   }
 
   SUNCheckCall(SUNDataNode_GetDataNvector(solution_node, *loaded_state, t));
-  SUNLogExtraDebug(SUNCTX_->logger, __func__, "stage-loaded",
+  SUNLogExtraDebug(SUNCTX_->logger, "stage-loaded",
                    "step_num = %d, stage_num = %d, t = %g", step_num, stage_num,
                    *t);
 

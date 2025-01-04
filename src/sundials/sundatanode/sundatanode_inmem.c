@@ -461,9 +461,9 @@ static void sunDataNodeFreeKeyValue(SUNHashMapKeyValue* kv_ptr)
 {
   if (!kv_ptr || !(*kv_ptr)) { return; }
   SUNDataNode node = (SUNDataNode)((*kv_ptr)->value);
-  SUNDataNode_Destroy_InMem(&node);
   free((*kv_ptr)->key);
   free(*kv_ptr);
+  SUNDataNode_Destroy_InMem(&node);
   return;
 }
 

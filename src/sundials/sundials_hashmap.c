@@ -200,7 +200,12 @@ static void sunHashMapResize(SUNHashMap map)
   for (int64_t i = old_capacity - 1; i >= 0; i--)
   {
     SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(old_buckets, i);
-    if (kvp) { SUNHashMap_Insert(map, kvp->key, kvp->value); }
+    if (kvp)
+    {
+      SUNHashMap_Insert(map, kvp->key, kvp->value);
+      free(kvp->key);
+      free(kvp);
+    }
     SUNStlVector_SUNHashMapKeyValue_PopBack(old_buckets);
   }
 
