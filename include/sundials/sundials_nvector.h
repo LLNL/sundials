@@ -60,7 +60,7 @@ extern "C" {
  * Implemented N_Vector types
  * ----------------------------------------------------------------- */
 
-typedef enum
+enum N_Vector_ID
 {
   SUNDIALS_NVEC_SERIAL,
   SUNDIALS_NVEC_PARALLEL,
@@ -79,7 +79,9 @@ typedef enum
   SUNDIALS_NVEC_MPIMANYVECTOR,
   SUNDIALS_NVEC_MPIPLUSX,
   SUNDIALS_NVEC_CUSTOM
-} N_Vector_ID;
+};
+
+typedef enum N_Vector_ID N_Vector_ID;
 
 /* -----------------------------------------------------------------
  * Generic definition of N_Vector
