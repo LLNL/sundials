@@ -111,7 +111,6 @@ Stepping Functions
    :param tret: the time corresponding to the output value ``vret``.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-
 .. c:function:: SUNErrCode SUNStepper_OneStep(SUNStepper stepper, sunrealtype tout, N_Vector vret, sunrealtype* tret)
 
    This function evolves the ODE :eq:`SUNStepper_IVP` *one timestep* towards
@@ -122,7 +121,6 @@ Stepping Functions
    :param vret: on output, the state at time ``tret``.
    :param tret: the time corresponding to the output value ``vret``.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
-
 
 .. c:function:: SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v, N_Vector f, SUNFullRhsMode mode)
 
@@ -420,3 +418,18 @@ abstract base class.
    This type represents a function with the signature similar to
    :c:func:`SUNStepper_Destroy` for freeing the content associated with a
    :c:type:`SUNStepper`.
+
+
+.. _SUNStepper.Description.UserSupplied:
+
+User-Supplied Function Types
+----------------------------
+
+This section describes the functions that users may supply.
+
+.. c:type:: int (*SUNRhsJacFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, \
+                            void* user_data, N_Vector tmp1, N_Vector tmp2, \
+                            N_Vector tmp3);
+
+.. c:type:: int (*SUNRhsJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, \
+                                 N_Vector fy, void* user_data, N_Vector tmp);

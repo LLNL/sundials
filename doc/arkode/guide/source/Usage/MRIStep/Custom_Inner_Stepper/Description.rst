@@ -306,8 +306,8 @@ responsible for evaluating ODE right-hand side function :math:`f^F(t,v)` as well
 as computing and applying the forcing term :eq:`ARKODE_MRI_forcing_poly` to obtain the
 full right-hand side of the inner (fast) ODE :eq:`ARKODE_MRI_IVP`. The functions in
 this section can be used to either apply the inner (fast) forcing or access the
-data necessary to construct the inner (fast) forcing polynomial.  While the first of 
-these is less intrusive and may be used to package an existing black-box IVP solver 
+data necessary to construct the inner (fast) forcing polynomial.  While the first of
+these is less intrusive and may be used to package an existing black-box IVP solver
 as an MRIStepInnerStepper, the latter may be more computationally efficient since it
 does not traverse the data directly.
 
@@ -408,7 +408,7 @@ member functions:
 
    **Return value:**
       An :c:type:`MRIStepInnerEvolveFn` should return 0 if successful, a positive
-      value if a recoverable error occurred (i.e., the function could be successful if 
+      value if a recoverable error occurred (i.e., the function could be successful if
       called over a smaller time interval :math:`[t0,tout]`), or a negative value if
       it failed unrecoverably.
 
@@ -425,7 +425,7 @@ following member functions:
 
    This function computes the full right-hand side function of the inner (fast)
    ODE, :math:`f^F(t,v)` in :eq:`ARKODE_MRI_IVP` for a given value of the independent
-   variable *t* and state vector *y*.  We note that this routine should *not* include 
+   variable *t* and state vector *y*.  We note that this routine should *not* include
    contributions from the forcing term :eq:`ARKODE_MRI_forcing_poly`.
 
    **Arguments:**
@@ -442,7 +442,7 @@ following member functions:
         * ``ARK_FULLRHS_OTHER`` -- called elsewhere e.g., for dense output
 
    **Return value:**
-      An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, or 
+      An :c:type:`MRIStepInnerFullRhsFn` should return 0 if successful, or
       a nonzero value upon failure.
 
    **Example codes:**
@@ -488,8 +488,8 @@ following member functions:
 
    **Return value:**
       An :c:type:`MRIStepInnerGetAccumulatedError` should return 0 if successful, a positive
-      value if a recoverable error occurred (i.e., the function could be successful if 
-      called over a smaller time interval :math:`[t0,tout]`), or a negative value if it 
+      value if a recoverable error occurred (i.e., the function could be successful if
+      called over a smaller time interval :math:`[t0,tout]`), or a negative value if it
       failed unrecoverably.
 
    .. note::
@@ -513,7 +513,7 @@ following member functions:
       * *stepper* -- the inner stepper object.
 
    **Return value:**
-      An :c:type:`MRIStepInnerResetAccumulatedError` should return 0 if successful, or 
+      An :c:type:`MRIStepInnerResetAccumulatedError` should return 0 if successful, or
       a nonzero value upon failure.
 
    .. note::

@@ -96,7 +96,7 @@ static int forcingStep_Init(ARKodeMem ark_mem,
    * state in case a user provided a different initial condition for the
    * ForcingStep integrator and SUNStepper. */
   SUNErrCode err = SUNStepper_Reset(step_mem->stepper[1], ark_mem->tn,
-                                    ark_mem->yn);
+                                    ark_mem->yn, 0);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
@@ -119,7 +119,7 @@ static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  SUNErrCode err = SUNStepper_Reset(step_mem->stepper[0], tR, yR);
+  SUNErrCode err = SUNStepper_Reset(step_mem->stepper[0], tR, yR, 0);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
@@ -127,7 +127,7 @@ static int forcingStep_Reset(ARKodeMem ark_mem, sunrealtype tR, N_Vector yR)
     return ARK_SUNSTEPPER_ERR;
   }
 
-  err = SUNStepper_Reset(step_mem->stepper[1], tR, yR);
+  err = SUNStepper_Reset(step_mem->stepper[1], tR, yR, 0);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
@@ -239,7 +239,7 @@ static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   /* Evolve stepper 0 on its own */
   SUNLogInfo(ARK_LOGGER, "begin-partition", "partition = 0");
 
-  SUNErrCode err = SUNStepper_Reset(s0, ark_mem->tn, ark_mem->yn);
+  SUNErrCode err = SUNStepper_Reset(s0, ark_mem->tn, ark_mem->yn, 0);
   if (err != SUN_SUCCESS)
   {
     SUNLogInfo(ARK_LOGGER, "end-partition",

@@ -26,11 +26,13 @@ target_link_libraries(
   PRIVATE $<TARGET_OBJECTS:sundials_arkode_obj>
           sundials_sunmemsys_obj
           sundials_nvecserial_obj
+          sundials_nvecmanyvector_obj
           sundials_sunlinsolband_obj
           sundials_sunlinsoldense_obj
           sundials_sunnonlinsolnewton_obj
           sundials_sunadaptcontrollerimexgus_obj
           sundials_sunadaptcontrollersoderlind_obj
+          sundials_adjoint_obj
           ${EXE_EXTRA_LINK_LIBS})
 
 # Tell CMake that we depend on the ARKODE library since it does not pick that up
