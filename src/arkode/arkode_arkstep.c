@@ -3663,6 +3663,18 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
   }
 
   SUNErrCode errcode = SUN_SUCCESS;
+
+  /* Setting this ensures that the ARKodeMem underneath the adj_stepper
+     is destroyed with the SUNStepper_Destroy call. */
+  errcode = SUNStepper_SetDestroyFn(adj_stepper, arkSUNStepperSelfDestruct);
+  if (errcode)
+  {
+    retval = ARK_UNRECOGNIZED_ERROR;
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "SUNStepper_SetDestroyFn failed");
+    return retval;
+  }
+
   errcode = SUNAdjointStepper_Create(fwd_stepper, adj_stepper, nst - 1, sf,
                                      ark_mem->tretlast,
                                      ark_mem->checkpoint_scheme,

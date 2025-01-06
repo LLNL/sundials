@@ -524,13 +524,19 @@ int main(int argc, char* argv[])
   // Cleanup
   //
 
+  // adjoint related
   SUNMatDestroy(jac);
   SUNMatDestroy(jacp);
-  N_VDestroy(u);
+  N_VDestroy(sensu0);
+  N_VDestroy(sensp);
   N_VDestroy(sf);
   SUNAdjointCheckpointScheme_Destroy(&checkpoint_scheme);
   SUNAdjointStepper_Destroy(&adj_stepper);
+  SUNMemoryHelper_Destroy(mem_helper);
+  // forward and adjoint related
+  N_VDestroy(u);
   ARKodeFree(&arkode_mem);
+  SUNContext_Free(&sunctx);
 
   return 0;
 }
