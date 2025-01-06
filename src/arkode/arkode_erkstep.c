@@ -1590,7 +1590,7 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   N_Vector Lambda_part     = N_VGetSubvector_ManyVector(sens_partial_stage, 0);
   N_Vector Lambda          = N_VGetSubvector_ManyVector(sens_complete_stage, 0);
-  N_Vector checkpoint      = N_VClone(Lambda_part);
+  N_Vector checkpoint      = N_VGetSubvector_ManyVector(ark_mem->tempv3, 0);
   sunrealtype checkpoint_t = SUN_RCONST(0.0);
 
   errcode = SUNAdjointCheckpointScheme_LoadVector(check_scheme,
@@ -1599,11 +1599,7 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
                                                   &checkpoint, &checkpoint_t);
 
   // Checkpoint was not found, recompute the missing step
-  if (errcode == SUN_ERR_CHECKPOINT_NOT_FOUND)
-  {
-    N_VDestroy(checkpoint);
-    return +1;
-  }
+  if (errcode == SUN_ERR_CHECKPOINT_NOT_FOUND) { return +1; }
 
   if (adj_stepper->JacFn)
   {
@@ -1612,7 +1608,6 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
     adj_stepper->njeval++;
     if (SUNMatMatTransposeVec(adj_stepper->Jac, Lambda_part, Lambda))
     {
-      N_VDestroy(checkpoint);
       return -1;
     };
   }
@@ -1630,45 +1625,30 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   if (adj_stepper->JacPFn)
   {
-    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2)
-    {
-      N_VDestroy(checkpoint);
-      return -1;
-    }
+    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2) { return -1; }
     N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
     adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP, user_data, NULL,
                         NULL, NULL);
     adj_stepper->njpeval++;
     if (SUNMatMatTransposeVec(adj_stepper->JacP, Lambda_part, nu))
     {
-      N_VDestroy(checkpoint);
       return -1;
     }
   }
   else if (adj_stepper->JPvpFn)
   {
-    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2)
-    {
-      N_VDestroy(checkpoint);
-      return -1;
-    }
+    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2) { return -1; }
     N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
     adj_stepper->JPvpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
     adj_stepper->njptimesv++;
   }
   else if (adj_stepper->vJPpFn)
   {
-    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2)
-    {
-      N_VDestroy(checkpoint);
-      return -1;
-    }
+    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2) { return -1; }
     N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
     adj_stepper->vJPpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
     adj_stepper->nvtimesjp++;
   }
-
-  N_VDestroy(checkpoint);
 
   return 0;
 }
