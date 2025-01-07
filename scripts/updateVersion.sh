@@ -373,6 +373,9 @@ sedi "s/x.y.z/${sun_ver}/gI" $fn
 fn="../doc/shared/Changelog.rst"
 sedi "s/x.y.z/${sun_ver}/gI" $fn
 
+fn="../doc/shared/sundials/Install.rst"
+sedi "s/x.y.z/${sun_ver}/gI" $fn
+
 for fn in $(grep -Iirl "x.y.z" ../doc/shared/*)
 do
     sedi "s/x.y.z/${sun_ver}/gI" $fn
