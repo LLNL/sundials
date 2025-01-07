@@ -2156,7 +2156,7 @@ running:
 
    make test_install
 
-.. _Installation.CMake.BuildRunExamples:
+.. _Installation.BuildRunExamples:
 
 Building and Running Examples
 -----------------------------
@@ -2197,6 +2197,8 @@ Unix/Linux) ``Makefile`` files. Note this installation approach also allows the
 option of building the SUNDIALS examples without having to install them. (This
 can be used as a sanity check for the freshly built libraries.)
 
+.. _Installation.UsingSUNDIALS:
+
 Using SUNDIALS in your project
 ------------------------------
 
@@ -2231,6 +2233,8 @@ and you must also link to ``libsundials_cvode``, ``libsundials_nveccuda``, and
 Refer to the :ref:`Installation.LibrariesAndHeaders` section below or the
 documentations sections for the individual SUNDIALS packages and modules of
 interest for the proper includes and libraries to link to.
+
+.. _Installation.CMakeConfigFile:
 
 CMake Projects
 ^^^^^^^^^^^^^^

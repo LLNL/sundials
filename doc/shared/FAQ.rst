@@ -55,7 +55,7 @@ Installation
 
 .. collapse:: Everything installed fine! How do I link the SUNDIALS libraries to my own application?
 
-   Refer to :ref:`Installation.Results`.
+   Refer to :ref:`Installation.UsingSUNDIALS`.
 
 
 CVODE(S) / IDA(S) / ARKODE

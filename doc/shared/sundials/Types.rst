@@ -84,7 +84,7 @@ usage is consistent with the typedef for ``sunrealtype``) and call the appropria
 math library functions directly. Thus, a previously existing piece of C or C++
 code can use SUNDIALS without modifying the code to use ``sunrealtype``,
 ``SUN_RCONST``, or the ``SUNR`` macros so long as the SUNDIALS libraries are built
-to use the corresponding precision (see :numref:`Installation.CMake.Options`).
+to use the corresponding precision (see :numref:`Installation.Options`).
 
 Integer types used for indexing
 -------------------------------
@@ -112,7 +112,7 @@ this usage is consistent with the typedef for ``sunindextype`` on their
 architecture. Thus, a previously existing piece of C or C++ code can use
 SUNDIALS without modifying the code to use ``sunindextype``, so long as the
 SUNDIALS libraries use the appropriate index storage type (for details see
-:numref:`Installation.CMake.Options`).
+:numref:`Installation.Options`).
 
 Boolean type
 ------------
