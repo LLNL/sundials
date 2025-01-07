@@ -2306,9 +2306,9 @@ files are further organized into subdirectories under the ``include`` directory.
    private headers are subject to change without any notice and relying on them
    may break your code.
 
-The installed public header files and libraries are listed for reference in the
-sections below. The file extension ``.LIB`` is typically ``.so`` for shared
-libraries and ``.a`` for static libraries.
+The installed public header files and  libraries are listed for reference in the
+sections below. The  file extension ``.LIB`` is typically ``.so``, ``.dll``, or
+``.dylib`` for shared libraries and ``.a`` or ``.lib`` for static libraries.
 
 .. _Installation.LibrariesAndHeaders.Core:
 
