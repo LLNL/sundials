@@ -25,11 +25,11 @@
 #include <arkode/arkode_butcher_erk.h>
 #include <arkode/arkode_mristep.h>
 
-#include <sunadjoint/sunadjoint_checkpointscheme.h>
-#include <sunadjoint/sunadjoint_stepper.h>
 #include <sundials/priv/sundials_context_impl.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_adaptcontroller.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
+#include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_types.h>

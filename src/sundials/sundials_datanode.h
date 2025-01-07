@@ -19,7 +19,8 @@
 #ifndef _SUNDIALS_DATANODE_H
 #define _SUNDIALS_DATANODE_H
 
-#include <sundials/sundials_core.h>
+#include <sundials/sundials_nvector.h>
+#include <sundials/sundials_types.h>
 
 #include "sundials/sundials_memory.h"
 

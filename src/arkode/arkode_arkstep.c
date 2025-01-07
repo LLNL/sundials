@@ -22,8 +22,8 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#include <sunadjoint/sunadjoint_checkpointscheme.h>
-#include <sunadjoint/sunadjoint_stepper.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
+#include <sundials/sundials_adjointstepper.h>
 
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 

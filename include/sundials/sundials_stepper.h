@@ -13,7 +13,9 @@
 #ifndef _SUNDIALS_STEPPER_H
 #define _SUNDIALS_STEPPER_H
 
-#include <sundials/sundials_core.h>
+#include <sundials/sundials_matrix.h>
+#include <sundials/sundials_nvector.h>
+#include <sundials/sundials_types.h>
 
 #ifdef __cplusplus
 extern "C" {

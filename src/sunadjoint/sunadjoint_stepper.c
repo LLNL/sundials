@@ -10,9 +10,9 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------*/
 
-#include <sunadjoint/sunadjoint_checkpointscheme.h>
-#include <sunadjoint/sunadjoint_stepper.h>
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
+#include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_stepper.h>
 #include "sundials/sundials_types.h"

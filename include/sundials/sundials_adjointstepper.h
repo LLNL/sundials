@@ -15,10 +15,10 @@
 #ifndef _SUNADJOINT_STEPPER_H
 #define _SUNADJOINT_STEPPER_H
 
-#include <sunadjoint/sunadjoint_checkpointscheme.h>
-#include <sundials/sundials_core.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
+#include <sundials/sundials_matrix.h>
+#include <sundials/sundials_nvector.h>
 #include <sundials/sundials_stepper.h>
-
 #include "sundials/sundials_types.h"
 
 struct SUNAdjointStepper_

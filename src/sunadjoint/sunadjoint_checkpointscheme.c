@@ -13,7 +13,7 @@
  * ----------------------------------------------------------------*/
 
 #include <stdint.h>
-#include <sunadjoint/sunadjoint_checkpointscheme.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_core.h>
 
 #include "sundials/priv/sundials_errors_impl.h"

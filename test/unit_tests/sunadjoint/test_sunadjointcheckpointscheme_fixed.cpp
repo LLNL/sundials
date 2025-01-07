@@ -15,8 +15,8 @@
 #include <sys/types.h>
 
 #include <nvector/nvector_serial.h>
-#include <sunadjoint/sunadjoint_checkpointscheme.h>
-#include <sunadjoint/sunadjoint_checkpointscheme_fixed.h>
+#include <sunadjointcheckpointscheme/sunadjoint_checkpointscheme_fixed.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_core.h>
 #include <sunmemory/sunmemory_system.h>
 

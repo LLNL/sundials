@@ -12,9 +12,9 @@
  * SUNAdjointCheckpointScheme_Fixed class definition.
  * ----------------------------------------------------------------*/
 
-#include <sunadjoint/sunadjoint_checkpointscheme.h>
-#include <sunadjoint/sunadjoint_checkpointscheme_fixed.h>
+#include <sunadjointcheckpointscheme/sunadjoint_checkpointscheme_fixed.h>
 #include <sundatanode/sundatanode_inmem.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_core.h>
 
 #include "sundials_datanode.h"
@@ -102,8 +102,8 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Fixed(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
-  SUNAdjointCheckpointScheme self, int64_t step_num, SUNDIALS_MAYBE_UNUSED int64_t stage_num,
-  sunrealtype t, N_Vector state)
+  SUNAdjointCheckpointScheme self, int64_t step_num,
+  SUNDIALS_MAYBE_UNUSED int64_t stage_num, sunrealtype t, N_Vector state)
 {
   SUNFunctionBegin(self->sunctx);
 

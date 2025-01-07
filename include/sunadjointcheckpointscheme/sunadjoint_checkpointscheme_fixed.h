@@ -15,7 +15,7 @@
 #ifndef _sunadjoint_checkpointscheme_fixed_H
 #define _sunadjoint_checkpointscheme_fixed_H
 
-#include <sunadjoint/sunadjoint_checkpointscheme.h>
+#include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_export.h>
 #include <sundials/sundials_types.h>

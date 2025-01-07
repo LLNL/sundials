@@ -30,7 +30,7 @@
 
 #include <arkode/arkode_butcher.h>
 #include <stdio.h>
-#include <sunadjoint/sunadjoint_stepper.h>
+#include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_stepper.h>
 

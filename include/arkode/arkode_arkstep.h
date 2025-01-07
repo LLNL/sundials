@@ -23,7 +23,7 @@
 #include <arkode/arkode_ls.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
-#include <sunadjoint/sunadjoint_stepper.h>
+#include <sundials/sundials_adjointstepper.h>
 #include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
