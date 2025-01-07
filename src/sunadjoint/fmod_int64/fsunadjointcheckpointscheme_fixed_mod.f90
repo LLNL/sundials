@@ -21,7 +21,7 @@
 module fsunadjointcheckpointscheme_fixed_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_core_mod
- use fsunadjointcheckpointscheme_mod
+ use fsunadjoint_mod
  use fsundials_core_mod
  implicit none
  private

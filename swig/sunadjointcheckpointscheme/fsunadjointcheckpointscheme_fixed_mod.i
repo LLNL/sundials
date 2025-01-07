@@ -24,7 +24,6 @@
 %}
 
 %import "../sundials/fsundials_core_mod.i"
-%import "../sunadjoint/fsunadjointcheckpointscheme_mod.i"
 
 // Process and wrap functions in the following files
 %include  "sunadjoint/sunadjoint_checkpointscheme_fixed.h"

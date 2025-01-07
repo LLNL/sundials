@@ -28,7 +28,7 @@ SUNMATRIX=band dense sparse
 SUNLINSOL=band dense lapackdense klu spbcgs spfgmr spgmr sptfqmr pcg
 SUNNONLINSOL=newton fixedpoint
 SUNADAPTCONTROLLER=imexgus soderlind mrihtol
-SUNADJOINT=fsunadjointstepper_mod fsunadjointcheckpointscheme_mod fsunadjointcheckpointscheme_fixed_mod
+SUNADJOINTCHECKPOINTSCHEME=fsunadjointcheckpointscheme_fixed_mod
 
 INCLUDES=-I../include
 
@@ -124,10 +124,10 @@ sunadaptcontroller: $(SUNADAPTCONTROLLER:%:sunadaptcontroller/fsunadaptcontrolle
 		${SWIG} -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/sunadaptcontroller/$${i}/fmod_int${INT_SIZE} -o ../src/sunadaptcontroller/$${i}/fmod_int${INT_SIZE}/fsunadaptcontroller_$${i}_mod.c ${INCLUDES} sunadaptcontroller/fsunadaptcontroller_$${i}_mod.i; \
 	done
 
-sunadjoint: $(SUNADJOINT:%:sunadjoint/%.i)
-	@for i in ${SUNADJOINT} ; do \
+sunadjointcheckpointscheme: $(SUNADJOINTCHECKPOINTSCHEME:%:sunadjointcheckpointscheme/%.i)
+	@for i in ${SUNADJOINTCHECKPOINTSCHEME} ; do \
 		set -x; \
-		${SWIG} -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/sunadjoint/fmod_int${INT_SIZE} -o ../src/sunadjoint/fmod_int${INT_SIZE}/$${i}.c ${INCLUDES} sunadjoint/$${i}.i; \
+		${SWIG} -DGENERATE_INT${INT_SIZE} -fortran -outdir ../src/sunadjointcheckpointscheme/fmod_int${INT_SIZE} -o ../src/sunadjointcheckpointscheme/fmod_int${INT_SIZE}/$${i}.c ${INCLUDES} sunadjointcheckpointscheme/$${i}.i; \
 	done
 
 clean:

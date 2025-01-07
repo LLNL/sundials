@@ -177,17 +177,6 @@ module farkode_mod
  public :: FARKodeSetMinStep
  public :: FARKodeSetMaxStep
  public :: FARKodeSetMaxNumConstrFails
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_SUNAdjointCheckpointScheme
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FARKodeSetAdjointCheckpointScheme
  public :: FARKodeSetAdjointCheckpointIndex
  public :: FARKodeSetAccumulatedErrorType
@@ -283,6 +272,14 @@ module farkode_mod
  public :: FARKBBDPrecReInit
  public :: FARKBBDPrecGetWorkSpace
  public :: FARKBBDPrecGetNumGfnEvals
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
  ! struct struct ARKodeButcherTableMem
  type, public :: ARKodeButcherTableMem
   type(SwigClassWrapper), public :: swigdata
@@ -1036,9 +1033,8 @@ function swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2) &
 bind(C, name="_wrap_FARKodeSetAdjointCheckpointScheme") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -3471,13 +3467,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-type(SWIGTYPE_p_SUNAdjointCheckpointScheme), intent(in) :: checkpoint_scheme
+type(SUNAdjointCheckpointScheme), target, intent(inout) :: checkpoint_scheme
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = checkpoint_scheme%swigdata
+farg2 = c_loc(checkpoint_scheme)
 fresult = swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2)
 swig_result = fresult
 end function

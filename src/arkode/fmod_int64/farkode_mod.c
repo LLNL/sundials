@@ -185,14 +185,6 @@ enum {
 };
 
 
-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
-                        "as a reference", RETURNNULL); \
-  }
-
-
 #define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
     if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
         SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
@@ -200,6 +192,14 @@ enum {
             "as a mutable reference", \
             RETURNNULL); \
     }
+
+
+#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
+  if (!(SWIG_CLASS_WRAPPER).cptr) { \
+    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
+                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
+                        "as a reference", RETURNNULL); \
+  }
 
 
 #define SWIG_check_mutable_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
@@ -242,20 +242,6 @@ enum {
 #include "arkode/arkode_ls.h"
 
 
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
-
-
 #include <stdlib.h>
 #ifdef _MSC_VER
 # ifndef strtoull
@@ -282,6 +268,20 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 
 #include <string.h>
+
+
+typedef struct {
+    void* cptr;
+    int cmemflags;
+} SwigClassWrapper;
+
+
+SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+    SwigClassWrapper result;
+    result.cptr = NULL;
+    result.cmemflags = 0;
+    return result;
+}
 
 
 SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
@@ -1167,15 +1167,14 @@ SWIGEXPORT int _wrap_FARKodeSetMaxNumConstrFails(void *farg1, int const *farg2) 
 }
 
 
-SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointScheme(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointScheme(void *farg1, SUNAdjointCheckpointScheme farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  SUNAdjointCheckpointScheme arg2 ;
+  SUNAdjointCheckpointScheme arg2 = (SUNAdjointCheckpointScheme) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  SWIG_check_nonnull(*farg2, "SUNAdjointCheckpointScheme", "SWIGTYPE_p_SUNAdjointCheckpointScheme", "ARKodeSetAdjointCheckpointScheme(void *,SUNAdjointCheckpointScheme)", return 0);
-  arg2 = *(SUNAdjointCheckpointScheme *)(farg2->cptr);
+  arg2 = (SUNAdjointCheckpointScheme)(farg2);
   result = (int)ARKodeSetAdjointCheckpointScheme(arg1,arg2);
   fresult = (int)(result);
   return fresult;

@@ -45,7 +45,7 @@ struct SUNAdjointStepper_
   SUNContext sunctx;
 };
 
-typedef struct SUNAdjointStepper_* SUNAdjointStepper;
+typedef _SUNDIALS_STRUCT_ SUNAdjointStepper_* SUNAdjointStepper;
 
 #ifdef __cplusplus
 extern "C" {

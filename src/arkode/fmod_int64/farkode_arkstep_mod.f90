@@ -202,17 +202,6 @@ module farkode_arkstep_mod
  public :: FARKStepGetLinReturnFlagName
  public :: FARKStepFree
  public :: FARKStepPrintMem
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_SUNAdjointStepper
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FARKStepCreateAdjointStepper
  public :: FARKStepSetRelaxFn
  public :: FARKStepSetRelaxEtaFail
@@ -1641,10 +1630,9 @@ function swigc_FARKStepCreateAdjointStepper(farg1, farg2, farg3) &
 bind(C, name="_wrap_FARKStepCreateAdjointStepper") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-type(SwigClassWrapper) :: farg3
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -4385,15 +4373,15 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
 type(N_Vector), target, intent(inout) :: sf
-class(SWIGTYPE_p_SUNAdjointStepper), intent(in) :: adj_stepper_ptr
+type(C_PTR), target, intent(inout) :: adj_stepper_ptr
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
-type(SwigClassWrapper) :: farg3 
+type(C_PTR) :: farg3 
 
 farg1 = arkode_mem
 farg2 = c_loc(sf)
-farg3 = adj_stepper_ptr%swigdata
+farg3 = c_loc(adj_stepper_ptr)
 fresult = swigc_FARKStepCreateAdjointStepper(farg1, farg2, farg3)
 swig_result = fresult
 end function

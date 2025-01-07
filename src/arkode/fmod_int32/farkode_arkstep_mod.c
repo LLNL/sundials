@@ -178,22 +178,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
-        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-            "Cannot pass const " TYPENAME " (class " FNAME ") " \
-            "as a mutable reference", \
-            RETURNNULL); \
-    }
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -248,20 +232,6 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 
 #include <string.h>
-
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
 
 SWIGEXPORT void * _wrap_FARKStepCreate(ARKRhsFn farg1, ARKRhsFn farg2, double const *farg3, N_Vector farg4, void *farg5) {
   void * fresult ;
@@ -2457,7 +2427,7 @@ SWIGEXPORT void _wrap_FARKStepPrintMem(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FARKStepCreateAdjointStepper(void *farg1, N_Vector farg2, SwigClassWrapper const *farg3) {
+SWIGEXPORT int _wrap_FARKStepCreateAdjointStepper(void *farg1, N_Vector farg2, void *farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
@@ -2466,8 +2436,7 @@ SWIGEXPORT int _wrap_FARKStepCreateAdjointStepper(void *farg1, N_Vector farg2, S
   
   arg1 = (void *)(farg1);
   arg2 = (N_Vector)(farg2);
-  SWIG_check_mutable(*farg3, "SUNAdjointStepper *", "SWIGTYPE_p_SUNAdjointStepper", "ARKStepCreateAdjointStepper(void *,N_Vector,SUNAdjointStepper *)", return 0);
-  arg3 = (SUNAdjointStepper *)(farg3->cptr);
+  arg3 = (SUNAdjointStepper *)(farg3);
   result = (int)ARKStepCreateAdjointStepper(arg1,arg2,arg3);
   fresult = (int)(result);
   return fresult;
