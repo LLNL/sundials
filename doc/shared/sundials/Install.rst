@@ -711,7 +711,7 @@ Error Checking
 ^^^^^^^^^^^^^^
 
 For more information on error handling in SUNDIALS, see
-:numref:`SUNDIALS.Errors`.
+:ref:`SUNDIALS.Errors`.
 
 .. cmakeoption:: SUNDIALS_ENABLE_ERROR_CHECKS
 
@@ -729,7 +729,7 @@ For more information on error handling in SUNDIALS, see
 Logging
 ^^^^^^^
 
-For more information on logging in SUNDIALS, see :numref:`SUNDIALS.Logging`.
+For more information on logging in SUNDIALS, see :ref:`SUNDIALS.Logging`.
 
 .. cmakeoption:: SUNDIALS_LOGGING_LEVEL
 
@@ -772,7 +772,7 @@ Monitoring
 Profiling
 ^^^^^^^^^
 
-For more information on profiling in SUNDIALS, see :numref:`SUNDIALS.Profiling`.
+For more information on profiling in SUNDIALS, see :ref:`SUNDIALS.Profiling`.
 
 .. cmakeoption:: SUNDIALS_BUILD_WITH_PROFILING
 
@@ -851,7 +851,7 @@ QR SUNLinearSolver <SUNLinSol.cuSolverSp>` will be built (see sections
 :numref:`Installation.LibrariesAndHeaders.Matrix.cuSPARSE`, and
 :numref:`Installation.LibrariesAndHeaders.LinearSolver.cuSPARSE`, respectively,
 for the corresponding header files and libraries). For more information on using
-SUNDIALS with GPUs, see :numref:`SUNDIALS.GPU`.
+SUNDIALS with GPUs, see :ref:`SUNDIALS.GPU`.
 
 To enable CUDA support, set :cmakeop:`ENABLE_CUDA` to ``ON``. If CUDA is
 installed in a nonstandard location, you may need to set
@@ -917,7 +917,7 @@ and the :ref:`Ginkgo SUNLinearSolver <SUNLinSol.Ginkgo>` header files will be
 installed (see sections :numref:`Installation.LibrariesAndHeaders.Matrix.Ginkgo`
 and :numref:`Installation.LibrariesAndHeaders.LinearSolver.Ginkgo`,
 respectively, for the corresponding header files). For more information on using
-SUNDIALS with GPUs, see :numref:`SUNDIALS.GPU`.
+SUNDIALS with GPUs, see :ref:`SUNDIALS.GPU`.
 
 To enable Ginkgo support, set the :cmakeop:`ENABLE_GINKGO` to ``ON`` and set
 :cmakeop:`Ginkgo_DIR` to the root path of the Ginkgo installation. Additionally,
@@ -983,7 +983,7 @@ HIP versions between 5.0.0 to 5.4.3.
 When HIP support is enabled, the :ref:`HIP NVector <NVectors.HIP>` will be built
 (see section :numref:`Installation.LibrariesAndHeaders.Vector.HIP` for the
 corresponding header file and library). For more information on using SUNDIALS
-with GPUs, see :numref:`SUNDIALS.GPU`.
+with GPUs, see :ref:`SUNDIALS.GPU`.
 
 To enable HIP support, set :cmakeop:`ENABLE_HIP` to ``ON`` and set
 :cmakeop:`AMDGPU_TARGETS` to the desired target (e.g., ``gfx705``). In addition,
@@ -1140,7 +1140,7 @@ When Kokkos support is enabled, the :ref:`Kokkos NVector <NVectors.Kokkos>`
 header file will be installed (see section
 :numref:`Installation.LibrariesAndHeaders.Vector.Kokkos` for the corresponding
 header file). For more information on using SUNDIALS with GPUs, see
-:numref:`SUNDIALS.GPU`.
+:ref:`SUNDIALS.GPU`.
 
 To enable Kokkos support, set the :cmakeop:`ENABLE_KOKKOS` to ``ON`` and set
 :cmakeop:`Kokkos_DIR` to root path of the Kokkos installation. For example, the
@@ -1185,7 +1185,7 @@ header files will be installed (see sections
 :numref:`Installation.LibrariesAndHeaders.Matrix.KokkosKernels` and
 :numref:`Installation.LibrariesAndHeaders.LinearSolver.KokkosKernels`,
 respectively, for the corresponding header files). For more information on using
-SUNDIALS with GPUs, see :numref:`SUNDIALS.GPU`.
+SUNDIALS with GPUs, see :ref:`SUNDIALS.GPU`.
 
 To enable KokkosKernels support, set :cmakeop:`ENABLE_KOKKOS` and
 :cmakeop:`ENABLE_KOKKOS_KERNELS` to ``ON`` and set :cmakeop:`Kokkos_DIR` and
@@ -1342,7 +1342,7 @@ When MAGMA support is enabled, the :ref:`MAGMA dense SUNMatrix
 :numref:`Installation.LibrariesAndHeaders.Matrix.MAGMADense` and
 :numref:`Installation.LibrariesAndHeaders.LinearSolver.MAGMADense`,
 respectively, for the corresponding header files and libraries). For more
-information on using SUNDIALS with GPUs, see :numref:`SUNDIALS.GPU`.
+information on using SUNDIALS with GPUs, see :ref:`SUNDIALS.GPU`.
 
 To enable MAGMA support, set :cmakeop:`ENABLE_MAGMA` to ``ON``,
 :cmakeop:`MAGMA_DIR` to the root path of MAGMA installation, and
@@ -1495,7 +1495,7 @@ When oneMKL support is enabled, the :ref:`oneMLK dense SUNMatrix
 :numref:`Installation.LibrariesAndHeaders.Matrix.oneMKLDense` and
 :numref:`Installation.LibrariesAndHeaders.LinearSolver.oneMKLDense`,
 respectively, for the corresponding header files and libraries). For more
-information on using SUNDIALS with GPUs, see :numref:`SUNDIALS.GPU`.
+information on using SUNDIALS with GPUs, see :ref:`SUNDIALS.GPU`.
 
 To enable the SUNDIALS oneMKL interface set :cmakeop:`ENABLE_ONEMKL` to ``ON``
 and :cmakeop:`ONEMKL_DIR` to the root path of oneMKL installation. For example,
