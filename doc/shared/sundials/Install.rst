@@ -117,9 +117,9 @@ CMake can be used from the command line with the ``cmake`` command, or from
 graphical interfaces with the ``ccmake`` or ``cmake-gui`` commands. Below we
 present the installation steps using the command line interface.
 
-Using CMake from the command line is simply a matter of generating the build for
-the desired configuration, building, and installing. For example, the following
-commands will build and install the default configuration:
+Using CMake from the command line is simply a matter of generating the build
+files for the desired configuration, building, and installing. For example, the
+following commands will build and install the default configuration:
 
 .. code-block:: bash
 
