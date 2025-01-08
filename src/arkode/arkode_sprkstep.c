@@ -232,7 +232,9 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
   step_mem->istage = 0;
 
   /* Zero yerr for compensated summation */
-  N_VConst(ZERO, step_mem->yerr);
+  if (ark_mem->use_compensated_sums) {
+    N_VConst(ZERO, step_mem->yerr);
+  }
 
   return (ARK_SUCCESS);
 }
