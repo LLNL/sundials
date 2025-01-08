@@ -15,6 +15,10 @@ jobs:
     if: ${{ github.event_name != 'issue_comment' || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/autofix')) }}
     runs-on: ubuntu-latest
     steps:
+      - name: Install prce
+        run: |
+          sudo apt install libpcre2-dev
+
       - name: Install swig
         run: |
           git clone https://github.com/sundials-codes/swig
