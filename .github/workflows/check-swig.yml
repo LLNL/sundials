@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Install prce
         run: |
-          sudo apt install libpcre2-dev
+          sudo apt install libpcre3-dev
 
       - name: Install swig
         run: |
