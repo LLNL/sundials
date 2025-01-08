@@ -8,8 +8,9 @@
 
 ### Bug Fixes
 
-Fixed bug in the ARKODE SPRKStep `SPRKStepReInit` function that could cause a
-segmentation fault when compensated summation is not used.
+Fixed bug in the ARKODE SPRKStep `SPRKStepReInit` function and `ARKodeReset` function
+with SPRKStep that could cause a segmentation fault when compensated summation is not
+used.
 
 ### Deprecation Notices
 
