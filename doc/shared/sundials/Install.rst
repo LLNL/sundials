@@ -2339,35 +2339,63 @@ SUNDIALS Core
    :align: center
 
    +--------------+----------------------------------------------+
-   | Headers      | sundials/sundials_adaptcontroller.h          |
+   | Headers      | ``sundials/sundials_adaptcontroller.h``      |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_config.h                  |
+   |              | ``sundials/sundials_config.h``               |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_context.h                 |
+   |              | ``sundials/sundials_context.h``              |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_errors.h                  |
+   |              | ``sundials/sundials_errors.h``               |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_iterative.h               |
+   |              | ``sundials/sundials_iterative.h``            |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_linearsolver.h            |
+   |              | ``sundials/sundials_linearsolver.h``         |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_logger.h                  |
+   |              | ``sundials/sundials_logger.h``               |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_math.h                    |
+   |              | ``sundials/sundials_math.h``                 |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_matrix.h                  |
+   |              | ``sundials/sundials_matrix.h``               |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_memory.h                  |
+   |              | ``sundials/sundials_memory.h``               |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_nonlinearsolver.h         |
+   |              | ``sundials/sundials_nonlinearsolver.h``      |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_nvector.h                 |
+   |              | ``sundials/sundials_nvector.h``              |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_profiler.h                |
+   |              | ``sundials/sundials_profiler.h``             |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_types.h                   |
+   |              | ``sundials/sundials_types.h``                |
    |              +----------------------------------------------+
-   |              |  sundials/sundials_version.h                 |
+   |              | ``sundials/sundials_version.h``              |
+   +--------------+----------------------------------------------+
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``sundials/sundials_core.hpp``               |
+   +--------------+----------------------------------------------+
+
+.. table:: Header files included by ``sundials_core.hpp``
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``sundials/sundials_context.hpp``            |
+   |              +----------------------------------------------+
+   |              | ``sundials/sundials_core.h``                 |
+   |              +----------------------------------------------+
+   |              | ``sundials/sundials_linearsolver.hpp``       |
+   |              +----------------------------------------------+
+   |              | ``sundials/sundials_matrix.hpp``             |
+   |              +----------------------------------------------+
+   |              | ``sundials/sundials_memory.hpp``             |
+   |              +----------------------------------------------+
+   |              | ``sundials/sundials_nonlinearsolver.hpp``    |
+   |              +----------------------------------------------+
+   |              | ``sundials/sundials_nvector.hpp``            |
+   |              +----------------------------------------------+
+   |              | ``sundials/sundials_profiler.hpp``           |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Utilities:
