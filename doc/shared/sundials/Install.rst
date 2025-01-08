@@ -2305,6 +2305,11 @@ As noted above, the SUNDIALS the header files and libraries are installed under
 the :cmakeop:`CMAKE_INSTALL_PREFIX` path in the ``include`` and
 :cmakeop:`CMAKE_INSTALL_LIBDIR` subdirectories, respectively. The public header
 files are further organized into subdirectories under the ``include`` directory.
+The installed public header files and libraries are listed for reference in the
+sections below. Additionally, the exported CMake targets are also listed for
+projects using CMake (see :numref:`Installation.CMakeConfigFile`). The file
+extension ``.LIB`` used below is typically ``.so``, ``.dll``, or ``.dylib`` for
+shared libraries and ``.a`` or ``.lib`` for static libraries.
 
 .. warning::
 
@@ -2313,10 +2318,6 @@ files are further organized into subdirectories under the ``include`` directory.
    this directory are private and **should not be included in user code**. The
    private headers are subject to change without any notice and relying on them
    may break your code.
-
-The installed public header files and  libraries are listed for reference in the
-sections below. The  file extension ``.LIB`` is typically ``.so``, ``.dll``, or
-``.dylib`` for shared libraries and ``.a`` or ``.lib`` for static libraries.
 
 .. _Installation.LibrariesAndHeaders.Core:
 
@@ -2329,41 +2330,86 @@ SUNDIALS Core
    +--------------+----------------------------------------------+
    | Libraries    | ``libsundials_core.LIB``                     |
    +--------------+----------------------------------------------+
+   | Headers      | ``sundials/sundials_core.h``                 |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::core``                           |
+   +--------------+----------------------------------------------+
+
+.. table:: Header files included by ``sundials_core.h``
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | sundials/sundials_adaptcontroller.h          |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_config.h                  |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_context.h                 |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_errors.h                  |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_iterative.h               |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_linearsolver.h            |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_logger.h                  |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_math.h                    |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_matrix.h                  |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_memory.h                  |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_nonlinearsolver.h         |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_nvector.h                 |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_profiler.h                |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_types.h                   |
+   |              +----------------------------------------------+
+   |              |  sundials/sundials_version.h                 |
+   +--------------+----------------------------------------------+
+
+.. _Installation.LibrariesAndHeaders.Utilities:
+
+SUNDIALS Utilities
+^^^^^^^^^^^^^^^^^^
+
+SOME OF THESE ARE DEPRECATED AND SHOULD BE REMOVED
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
    | Headers      | ``sundials/sundials_band.h``                 |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_config.h``               |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_context.h``              |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_cuda_policies.hpp``      |
    |              +----------------------------------------------+
    |              | ``sundials/sundials_dense.h``                |
    |              +----------------------------------------------+
    |              | ``sundials/sundials_direct.h``               |
+   +--------------+----------------------------------------------+
+
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``sundials/sundials_cuda_policies.hpp``      |
    |              +----------------------------------------------+
    |              | ``sundials/sundials_hip_policies.hpp``       |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_iterative.h``            |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_linearsolver.h``         |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_math.h``                 |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_matrix.h``               |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_memory.h``               |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_mpi_types.h``            |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_nonlinearsolver.h``      |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_nvector.h``              |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_types.h``                |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_version.h``              |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_xbraid.h``               |
+   +--------------+----------------------------------------------+
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``sundials/sundials_xbraid.h``               |
+   +--------------+----------------------------------------------+
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``sundials/sundials_mpi_types.h``            |
    +--------------+----------------------------------------------+
 
 
@@ -2395,6 +2441,8 @@ CVODE
    |              +----------------------------------------------+
    |              | ``cvode/cvode_proj.h``                       |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::cvode``                          |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Packages.CVODES:
 
@@ -2416,6 +2464,8 @@ CVODES
    |              | ``cvodes/cvodes_diag.h``                     |
    |              +----------------------------------------------+
    |              | ``cvodes/cvodes_ls.h``                       |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::cvodes``                         |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Packages.ARKODE:
@@ -2453,6 +2503,8 @@ ARKODE
    |              +----------------------------------------------+
    |              | ``arkode/arkode_xbraid.h``                   |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::arkode``                         |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Packages.IDA:
 
@@ -2471,6 +2523,8 @@ IDA
    |              +----------------------------------------------+
    |              | ``ida/ida_ls.h``                             |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::ida``                            |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Packages.IDAS:
 
@@ -2486,6 +2540,8 @@ IDAS
    | Headers      | ``idas/idas.h``                              |
    |              +----------------------------------------------+
    |              | ``idas/idas_bbdpre.h``                       |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::idas``                           |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Packages.KINSOL:
@@ -2505,6 +2561,8 @@ KINSOL
    |              +----------------------------------------------+
    |              | ``kinsol/kinsol_ls.h``                       |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::kinsol``                         |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector:
 
@@ -2513,8 +2571,8 @@ Vectors
 
 .. _Installation.LibrariesAndHeaders.Vector.Serial:
 
-Serial NVector
-""""""""""""""
+Serial
+""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2524,11 +2582,13 @@ Serial NVector
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_serial.h``                 |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecserial``                     |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.ManyVector:
 
-ManyVector NVector
-""""""""""""""""""
+ManyVector
+""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2541,8 +2601,8 @@ ManyVector NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.Parallel:
 
-Parallel (MPI) NVector
-""""""""""""""""""""""
+Parallel (MPI)
+""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2555,8 +2615,8 @@ Parallel (MPI) NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.MPIManyVector:
 
-MPI ManyVector NVector
-""""""""""""""""""""""
+MPI ManyVector
+""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2569,8 +2629,8 @@ MPI ManyVector NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.MPIPlusX:
 
-MPI+X NVector
-"""""""""""""
+MPI+X
+"""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2583,8 +2643,8 @@ MPI+X NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.OpenMP:
 
-OpenMP NVector
-""""""""""""""
+OpenMP
+""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2597,8 +2657,8 @@ OpenMP NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.OpenMPDEV:
 
-OpenMPDEV NVector
-"""""""""""""""""
+OpenMPDEV
+"""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2611,8 +2671,8 @@ OpenMPDEV NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.PThreads:
 
-PThreads NVector
-""""""""""""""""
+PThreads
+""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2625,8 +2685,8 @@ PThreads NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.ParHyp:
 
-*hypre* (ParHyp) NVector
-""""""""""""""""""""""""
+*hypre* (ParHyp)
+""""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2639,8 +2699,8 @@ PThreads NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.PETSc:
 
-PETSc NVector
-"""""""""""""
+PETSc
+"""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2653,8 +2713,8 @@ PETSc NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.CUDA:
 
-CUDA NVector
-""""""""""""
+CUDA
+""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2667,8 +2727,8 @@ CUDA NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.HIP:
 
-HIP NVector
-"""""""""""
+HIP
+"""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2681,8 +2741,8 @@ HIP NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.RAJA:
 
-RAJA NVector
-""""""""""""
+RAJA
+""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2697,8 +2757,8 @@ RAJA NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.SYCL:
 
-SYCL NVector
-""""""""""""
+SYCL
+""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2711,8 +2771,8 @@ SYCL NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.Trilinos:
 
-Trilinos Tpetra NVector
-"""""""""""""""""""""""
+Trilinos (Tpetra)
+"""""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2725,8 +2785,8 @@ Trilinos Tpetra NVector
 
 .. _Installation.LibrariesAndHeaders.Vector.Kokkos:
 
-Kokkos NVector
-""""""""""""""
+Kokkos
+""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2742,8 +2802,8 @@ Matrices
 
 .. _Installation.LibrariesAndHeaders.Matrix.Band:
 
-Banded SUNMatrix
-""""""""""""""""
+Banded
+""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2756,8 +2816,8 @@ Banded SUNMatrix
 
 .. _Installation.LibrariesAndHeaders.Matrix.cuSPARSE:
 
-cuSPARSE SUNMatrix
-""""""""""""""""""
+cuSPARSE
+""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2770,8 +2830,8 @@ cuSPARSE SUNMatrix
 
 .. _Installation.LibrariesAndHeaders.Matrix.Dense:
 
-Dense SUNMatrix
-"""""""""""""""
+Dense
+"""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2784,8 +2844,8 @@ Dense SUNMatrix
 
 .. _Installation.LibrariesAndHeaders.Matrix.Ginkgo:
 
-Ginkgo SUNMatrix
-""""""""""""""""
+Ginkgo
+""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2794,10 +2854,22 @@ Ginkgo SUNMatrix
    | Headers      | ``sunmatrix/sunmatrix_ginkgo.hpp``           |
    +--------------+----------------------------------------------+
 
+.. _Installation.LibrariesAndHeaders.Matrix.KokkosKernels:
+
+KokkosKernels Dense
+"""""""""""""""""""
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``sunmatrix/sunmatrix_kokkosdense.hpp``      |
+   +--------------+----------------------------------------------+
+
 .. _Installation.LibrariesAndHeaders.Matrix.MAGMADense:
 
-MAGMA Dense SUNMatrix
-"""""""""""""""""""""
+MAGMA Dense
+"""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2810,8 +2882,8 @@ MAGMA Dense SUNMatrix
 
 .. _Installation.LibrariesAndHeaders.Matrix.oneMKLDense:
 
-oneMKL Dense SUNMatrix
-""""""""""""""""""""""
+oneMKL Dense
+""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2824,8 +2896,8 @@ oneMKL Dense SUNMatrix
 
 .. _Installation.LibrariesAndHeaders.Matrix.Sparse:
 
-Sparse SUNMatrix
-""""""""""""""""
+Sparse
+""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2838,8 +2910,8 @@ Sparse SUNMatrix
 
 .. _Installation.LibrariesAndHeaders.Matrix.SuperLU_DIST:
 
-SuperLU Dist SUNMatrix
-""""""""""""""""""""""
+SuperLU Dist
+""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2850,18 +2922,6 @@ SuperLU Dist SUNMatrix
    | Headers      | ``sunmatrix/sunmatrix_slunrloc.h``           |
    +--------------+----------------------------------------------+
 
-.. _Installation.LibrariesAndHeaders.Matrix.KokkosKernels:
-
-KokkosKernels Dense SUNMatrix
-"""""""""""""""""""""""""""""
-
-.. table:: SUNDIALS shared libraries and header files
-   :align: center
-
-   +--------------+----------------------------------------------+
-   | Headers      | ``sunmatrix/sunmatrix_kokkosdense.hpp``      |
-   +--------------+----------------------------------------------+
-
 .. _Installation.LibrariesAndHeaders.LinearSolver:
 
 Linear Solvers
@@ -2869,8 +2929,8 @@ Linear Solvers
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.Band:
 
-Banded SUNLinearSolver
-""""""""""""""""""""""
+Banded
+""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2883,8 +2943,8 @@ Banded SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.cuSPARSE:
 
-cuSPARSE Batched QR SUNLinearSolver
-"""""""""""""""""""""""""""""""""""
+cuSPARSE Batched QR
+"""""""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2897,8 +2957,8 @@ cuSPARSE Batched QR SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.Dense:
 
-Dense SUNLinearSolver
-"""""""""""""""""""""
+Dense
+"""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2911,8 +2971,8 @@ Dense SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.Ginkgo:
 
-Ginkgo SUNLinearSolver
-""""""""""""""""""""""
+Ginkgo
+""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2923,8 +2983,8 @@ Ginkgo SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.KLU:
 
-KLU SUNLinearSolver
-"""""""""""""""""""
+KLU
+"""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2937,8 +2997,8 @@ KLU SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.KokkosKernels:
 
-KokkosKernels Dense SUNLinearSolver
-"""""""""""""""""""""""""""""""""""
+KokkosKernels Dense
+"""""""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2949,8 +3009,8 @@ KokkosKernels Dense SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.LAPACKBand:
 
-LAPACK Banded SUNLinearSolver
-"""""""""""""""""""""""""""""
+LAPACK Banded
+"""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2963,8 +3023,8 @@ LAPACK Banded SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.LAPACKDense:
 
-LAPACK Dense SUNLinearSolver
-""""""""""""""""""""""""""""
+LAPACK Dense
+""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2977,8 +3037,8 @@ LAPACK Dense SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.MAGMADense:
 
-MAGMA Dense SUNLinearSolver
-"""""""""""""""""""""""""""
+MAGMA Dense
+"""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -2991,8 +3051,8 @@ MAGMA Dense SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.oneMKLDense:
 
-oneMKL Dense SUNLinearSolver
-""""""""""""""""""""""""""""
+oneMKL Dense
+""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3005,8 +3065,8 @@ oneMKL Dense SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.PCG:
 
-Preconditioned Conjugate Gradient (PCG) SUNLinearSolver
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Preconditioned Conjugate Gradient (PCG)
+"""""""""""""""""""""""""""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3019,8 +3079,8 @@ Preconditioned Conjugate Gradient (PCG) SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SPBCGS:
 
-Scaled, Preconditioned Bi-Conjugate Gradient, Stabilized (SPBCGS) SUNLinearSolver
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Scaled, Preconditioned Bi-Conjugate Gradient, Stabilized (SPBCGS)
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3033,8 +3093,8 @@ Scaled, Preconditioned Bi-Conjugate Gradient, Stabilized (SPBCGS) SUNLinearSolve
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SPFGMR:
 
-Scaled, Preconditioned, Flexible, Generalized Minimum Residual (SPFGMR) SUNLinearSolver
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Scaled, Preconditioned, Flexible, Generalized Minimum Residual (SPFGMR)
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3047,8 +3107,8 @@ Scaled, Preconditioned, Flexible, Generalized Minimum Residual (SPFGMR) SUNLinea
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SPGMR:
 
-Scaled, Preconditioned, Generalized Minimum Residual (SPGMR) SUNLinearSolver
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Scaled, Preconditioned, Generalized Minimum Residual (SPGMR)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3061,8 +3121,8 @@ Scaled, Preconditioned, Generalized Minimum Residual (SPGMR) SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SPTFQMR:
 
-Scaled, Preconditioned, Transpose-Free Quasi-Minimum Residual (SPTFQMR) SUNLinearSolver
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Scaled, Preconditioned, Transpose-Free Quasi-Minimum Residual (SPTFQMR)
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3075,8 +3135,8 @@ Scaled, Preconditioned, Transpose-Free Quasi-Minimum Residual (SPTFQMR) SUNLinea
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SuperLU_DIST:
 
-SuperLU_DIST SUNLinearSolver
-""""""""""""""""""""""""""""
+SuperLU_DIST
+""""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3089,8 +3149,8 @@ SuperLU_DIST SUNLinearSolver
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SuperLU_MT:
 
-SuperLU_MT SUNLinearSolver
-""""""""""""""""""""""""""
+SuperLU_MT
+""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3108,8 +3168,8 @@ Nonlinear Solvers
 
 .. _Installation.LibrariesAndHeaders.NonlinearSolver.Newton:
 
-Newton SUNNonlinearSolver
-"""""""""""""""""""""""""
+Newton
+""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3122,8 +3182,8 @@ Newton SUNNonlinearSolver
 
 .. _Installation.LibrariesAndHeaders.NonlinearSolver.FixedPoint:
 
-Fixed-Point SUNNonlinearSolver
-""""""""""""""""""""""""""""""
+Fixed-Point
+"""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3136,8 +3196,8 @@ Fixed-Point SUNNonlinearSolver
 
 .. _Installation.LibrariesAndHeaders.NonlinearSolver.PETScSNES:
 
-PETSc SNES SUNNonlinearSolver
-"""""""""""""""""""""""""""""
+PETSc SNES
+""""""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3153,8 +3213,8 @@ PETSc SNES SUNNonlinearSolver
 Memory Helpers
 ^^^^^^^^^^^^^^
 
-System SUNMemoryHelper
-""""""""""""""""""""""
+System
+""""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3165,8 +3225,8 @@ System SUNMemoryHelper
    | Headers      | ``sunmemory/sunmemory_system.h``             |
    +--------------+----------------------------------------------+
 
-CUDA SUNMemoryHelper
-""""""""""""""""""""
+CUDA
+""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3177,8 +3237,8 @@ CUDA SUNMemoryHelper
    | Headers      | ``sunmemory/sunmemory_cuda.h``               |
    +--------------+----------------------------------------------+
 
-HIP SUNMemoryHelper
-"""""""""""""""""""
+HIP
+"""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
@@ -3189,8 +3249,8 @@ HIP SUNMemoryHelper
    | Headers      | ``sunmemory/sunmemory_hip.h``                |
    +--------------+----------------------------------------------+
 
-SYCL SUNMemoryHelper
-""""""""""""""""""""
+SYCL
+""""
 
 .. table:: SUNDIALS shared libraries and header files
    :align: center
