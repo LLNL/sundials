@@ -18,7 +18,7 @@ class MyODEProblem:
     return 0
 
 class MyODEProblem2:
-  def __init__(self, lamb = 1.0):
+  def __init__(self, lamb = 1.1):
     self.lamb = lamb
 
   def rhs(self, t, yvec, ydotvec):
@@ -28,17 +28,17 @@ class MyODEProblem2:
     return 0
 
 class MyODEProblem3:
-  lamb = 1.0
+  lamb = 1.2
 
   def rhs(t, yvec, ydotvec, user_data):
     y = N_VGetArrayPointer(yvec)
     ydot = N_VGetArrayPointer(ydotvec)
-    ydot[:] = MyODEProblem.rhs_jit(t, y, ydot)
+    ydot[:] = MyODEProblem3.rhs_jit(t, y, ydot)
     return 0
 
   @jax.jit
   def rhs_jit(t, y, ydot):
-    return ydot.at[0].set(MyODEProblem.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * jnp.atan(t))
+    return ydot.at[0].set(MyODEProblem3.lamb * y[0] + 1.0 / (1.0 + t * t) - 1.0 * jnp.atan(t))
 
 # class MyODEProblem4:
 #   lamb = 1.0
