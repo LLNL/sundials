@@ -314,7 +314,7 @@ C99 standard (specifically those features implemented by Visual Studio 2015).
 Additional SUNDIALS features that interface with external C++ libraries or GPU
 programming models require a C++ compiler (e.g., CUDA, HIP, SYCL, Ginkgo,
 Trilinos, etc.). The C++ standard required depends on the particular library or
-programming model used and is noted with relevant options below. The C++
+programming model used and is noted with the relevant options below. The C++
 convenience classes provides by SUNDIALS require C++14 or newer. C++
 applications that require an earlier C++ standard should use the SUNDIALS C API.
 
