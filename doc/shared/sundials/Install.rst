@@ -2239,20 +2239,19 @@ interest for the proper includes and libraries to link to.
 CMake Projects
 ^^^^^^^^^^^^^^
 
-For CMake projects, a SUNDIALS `CMake package configuration file
-<https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html>`__ is
-installed that other CMake projects can load to get all the information needed
-to build against SUNDIALS. In the consuming project's CMake code, the
-``find_package`` command may be used to search for the configuration file, which
-will be installed to ``instdir/SUNDIALS_INSTALL_CMAKEDIR/SUNDIALSConfig.cmake``
-alongside a package version file
-``instdir/SUNDIALS_INSTALL_CMAKEDIR/SUNDIALSConfigVersion.cmake``. Together
-these files contain all the information the consuming project needs to use
-SUNDIALS, including exported CMake targets. The SUNDIALS exported CMake targets
-follow the same naming convention as the generated library binaries, e.g. the
-exported target for CVODE is ``SUNDIALS::cvode``. The CMake code snipped below
-shows how a consuming project might leverage the SUNDIALS package configuration
-file to build against SUNDIALS in their own CMake project.
+For projects that use CMake, the SUNDIALS `CMake package configuration file
+<https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html>`__ is provides
+CMake targets for the consuming project. Use the CMake ``find_package`` command
+to search for the configuration file, which will be installed to
+``INSTALL_DIR/SUNDIALS_INSTALL_CMAKEDIR/SUNDIALSConfig.cmake`` alongside a
+package version file
+``INSTALL_DIR/SUNDIALS_INSTALL_CMAKEDIR/SUNDIALSConfigVersion.cmake``. The
+SUNDIALS CMake targets follow the same naming convention as the generated
+library binaries, e.g. the exported target for CVODE is ``SUNDIALS::cvode``. See
+section :numref:`Installation.LibrariesAndHeaders` for a complete list of
+targets. The CMake code snipped below shows how a consuming project might
+leverage the SUNDIALS package configuration file to build against SUNDIALS in
+their own CMake project.
 
 .. code-block:: cmake
 
@@ -2287,6 +2286,15 @@ file to build against SUNDIALS in their own CMake project.
       specified will match. In prior versions ``SUNDIALSConfig.cmake`` required
       the version found to have the same major version number as the single
       version provided to ``find_package``.
+
+To accommodate installing both static and shared libraries simultaneously,
+targets are created with ``_static`` and ``_shared`` suffixes, respectively, and
+the un-suffixed target is an alias to the ``_shared`` version. For example,
+``SUNDIALS::cvode`` is an alias to ``SUNDIALS::cvode_shared`` in this
+case. Projects that wish to use static libraries should use the ``_static``
+version of the target when both library types are installed. When only static or
+shared libraries (not both) are installed the un-suffixed alias is to
+corresponding library type chosen at configuration time.
 
 .. _Installation.LibrariesAndHeaders:
 
