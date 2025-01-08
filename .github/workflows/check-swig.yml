@@ -15,7 +15,7 @@ jobs:
     if: ${{ github.event_name != 'issue_comment' || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/autofix')) }}
     runs-on: ubuntu-latest
     steps:
-      - name: Install prce
+      - name: Install pcre
         run: |
           sudo apt install libpcre3-dev
 
