@@ -309,7 +309,10 @@ int sprkStep_Reset(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tR,
   retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  if (ark_mem->use_compensated_sums) { N_VConst(SUN_RCONST(0.0), step_mem->yerr); }
+  if (ark_mem->use_compensated_sums)
+  {
+    N_VConst(SUN_RCONST(0.0), step_mem->yerr);
+  }
   return (ARK_SUCCESS);
 }
 
