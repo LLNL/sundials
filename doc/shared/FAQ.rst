@@ -46,11 +46,13 @@ Installation
 
 .. collapse:: How do I install SUNDIALS on Windows systems?
 
-   One way of obtaining Windows libraries for the SUNDIALS solvers is to use cygwin
-   `cygwin <www.cygwin.com>`_, in which case the installation procedure is the same
-   as for any other Linux system.
+   One way of obtaining Windows libraries for the SUNDIALS solvers is to use
+   `cygwin <https://www.cygwin.com/>`__, in which case the installation
+   procedure is the same as for any other Linux/Unix system (see the
+   :ref:`Installation.CMake.Unix` installation section).
 
-   Otherwise, refer to :ref:`Installation.CMake.Windows`.
+   Otherwise, refer to the :ref:`Installation.CMake.Windows` installation
+   section.
 
 
 .. collapse:: Everything installed fine! How do I link the SUNDIALS libraries to my own application?

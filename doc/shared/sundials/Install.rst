@@ -145,15 +145,15 @@ example, to enable MPI add ``-D ENABLE_MPI=ON`` to the ``cmake`` command above:
      -D ENABLE_MPI=ON
 
 See section :numref:`Installation.Options` below for a complete list of SUNDIALS
-configuration options.
+configuration options and additional configuration examples.
 
 .. _Installation.CMake.Windows:
 
 Windows Systems
 ^^^^^^^^^^^^^^^
 
-CMake can also be used to build SUNDIALS on Windows. To build SUNDIALS
-for use with Visual Studio the following steps should be performed:
+CMake can also be used to build SUNDIALS on Windows. To build SUNDIALS for use
+with Visual Studio the following steps should be performed:
 
 #. Create a separate ``BUILD_DIR``
 
@@ -234,9 +234,8 @@ compiler. Other configurations are possible.
 
 Now we can build SUNDIALS. In general, this is the same procedure described in
 the previous sections. The following command builds and installs SUNDIALS with
-MPI, HIP, and the Fortran interface enabled, where ``<install path>`` is your
-desired installation location, and ``<account>`` is your allocation account on
-Frontier:
+MPI, HIP, and the Fortran interface enabled, where ``<account>`` is your
+allocation account on Frontier:
 
 .. code-block:: bash
 
