@@ -20,7 +20,7 @@
 # releases the label string is "".
 sun_major=${1:-7}
 sun_minor=${2:-2}
-sun_patch=${3:-0}
+sun_patch=${3:-1}
 sun_label=${4:-""}
 month=${5:-$(date +"%b")}
 year=${6:-$(date +"%Y")}
@@ -371,6 +371,9 @@ fn="../CHANGELOG.md"
 sedi "s/x.y.z/${sun_ver}/gI" $fn
 
 fn="../doc/shared/Changelog.rst"
+sedi "s/x.y.z/${sun_ver}/gI" $fn
+
+fn="../doc/shared/sundials/Install.rst"
 sedi "s/x.y.z/${sun_ver}/gI" $fn
 
 for fn in $(grep -Iirl "x.y.z" ../doc/shared/*)
