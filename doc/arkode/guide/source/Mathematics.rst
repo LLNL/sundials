@@ -978,7 +978,7 @@ arise from the **separable** Hamiltonian system
 where
 
 .. math::
-   f_1(t, q) \equiv \frac{\partial V(t, q)}{\partial q}, \qquad
+   f_1(t, q) \equiv -\frac{\partial V(t, q)}{\partial q}, \qquad
    f_2(t, p) \equiv \frac{\partial T(t, p)}{\partial p}.
 
 When *H* is autonomous, then *H* is a conserved quantity. Often this corresponds
