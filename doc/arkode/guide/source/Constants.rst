@@ -64,7 +64,7 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
-   | **Relaxtion module input constants**          |                                                            |
+   | **Relaxation module input constants**         |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARK_RELAX_BRENT`                      | Specifies Brent's method as the relaxation nonlinear       |
    |                                               | solver.                                                    |
@@ -151,6 +151,25 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
+   | **LSRK method types**                         |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_LSRK_RKC_2`                    | 2nd order Runge-Kutta-Chebyshev (RKC) method               |
+   |                                               | :c:enumerator:`ARKODE_LSRK_RKC_2`                          |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_LSRK_RKL_2`                    | 2nd order Runge-Kutta-Legendre (RKL) method                |
+   |                                               | :c:enumerator:`ARKODE_LSRK_RKL_2`                          |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_LSRK_SSP_S_2`                  | Optimal 2nd order s-stage SSP RK method                    |
+   |                                               | :c:enumerator:`ARKODE_LSRK_SSP_S_2`                        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_LSRK_SSP_S_3`                  | Optimal 3rd order s-stage SSP RK method                    |
+   |                                               | :c:enumerator:`ARKODE_LSRK_SSP_S_3`                        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKODE_LSRK_SSP_10_4`                 | Optimal 4th order 10-stage SSP RK method                   |
+   |                                               | :c:enumerator:`ARKODE_LSRK_SSP_10_4`                       |
+   +-----------------------------------------------+------------------------------------------------------------+
+   |                                               |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
    | **MRI method types**                          |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_EXPLICIT`                     | Use an explicit (at the slow time scale) MRI method.       |
@@ -158,6 +177,67 @@ contains the ARKODE output constants.
    | :index:`MRISTEP_IMPLICIT`                     | Use an implicit (at the slow time scale) MRI method.       |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_IMEX`                         | Use an ImEx (at the slow time scale) MRI method.           |
+   +-----------------------------------------------+------------------------------------------------------------+
+   |                                               |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | **Default MRI coupling tables**               |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_EXPL_1`               | Use MRIStep's default 1st-order explicit method            |
+   |                                               | (ARKODE_MRI_GARK_FORWARD_EULER).                           |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_EXPL_2`               | Use MRIStep's default 2nd-order explicit method            |
+   |                                               | (ARKODE_MRI_GARK_ERK22b).                                  |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_EXPL_3`               | Use MRIStep's default 3rd-order explicit method            |
+   |                                               | (ARKODE_MIS_KW3).                                          |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_EXPL_4`               | Use MRIStep's default 4th-order explicit method            |
+   |                                               | (ARKODE_MRI_GARK_ERK45a).                                  |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_EXPL_2_AD`            | Use MRIStep's default 2nd-order adaptive explicit method   |
+   |                                               | (ARKODE_MRI_GARK_ERK22a).                                  |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_EXPL_3_AD`            | Use MRIStep's default 3rd-order adaptive explicit method   |
+   |                                               | (ARKODE_MRI_GARK_ERK33a).                                  |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_EXPL_4_AD`            | Use MRIStep's default 4th-order adaptive explicit method   |
+   |                                               | (ARKODE_MRI_GARK_ERK45a).                                  |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_EXPL_5_AD`            | Use MRIStep's default 5th-order adaptive explicit method   |
+   |                                               | (ARKODE_MERK54).                                           |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMPL_SD_1`            | Use MRIStep's default 1st-order solve-decoupled implicit   |
+   |                                               | method (ARKODE_MRI_GARK_BACKWARD_EULER).                   |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMPL_SD_2`            | Use MRIStep's default 2nd-order solve-decoupled implicit   |
+   |                                               | method (ARKODE_MRI_GARK_IRK21a).                           |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMPL_SD_3`            | Use MRIStep's default 3rd-order solve-decoupled implicit   |
+   |                                               | method (ARKODE_MRI_GARK_ESDIRK34a).                        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMPL_SD_4`            | Use MRIStep's default 4th-order solve-decoupled implicit   |
+   |                                               | method (ARKODE_MRI_GARK_ESDIRK46a).                        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMEX_SD_1`            | Use MRIStep's default 1st-order solve-decoupled ImEx       |
+   |                                               | method (ARKODE_IMEX_MRI_GARK_EULER).                       |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMEX_SD_2`            | Use MRIStep's default 2nd-order solve-decoupled ImEx       |
+   |                                               | method (ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL).                 |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMEX_SD_3`            | Use MRIStep's default 3rd-order solve-decoupled ImEx       |
+   |                                               | method (ARKODE_IMEX_MRI_GARK3b).                           |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMEX_SD_4`            | Use MRIStep's default 4th-order solve-decoupled ImEx       |
+   |                                               | method (ARKODE_IMEX_MRI_GARK4).                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMEX_SD_2_AD`         | Use MRIStep's default 2nd-order solve-decoupled adaptive   |
+   |                                               | ImEx method (ARKODE_IMEX_MRI_SR21).                        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMEX_SD_3_AD`         | Use MRIStep's default 3rd-order solve-decoupled adaptive   |
+   |                                               | ImEx method (ARKODE_IMEX_MRI_SR32).                        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`MRISTEP_DEFAULT_IMEX_SD_4_AD`         | Use MRIStep's default 4th-order solve-decoupled adaptive   |
+   |                                               | ImEx method (ARKODE_IMEX_MRI_SR43).                        |
    +-----------------------------------------------+------------------------------------------------------------+
 
 
@@ -293,6 +373,16 @@ contains the ARKODE output constants.
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_STEPPER_UNSUPPORTED`    | -48  | An operation was not supported by the current              |
    |                                     |      | time-stepping module.                                      |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_DOMEIG_FAIL`            | -49  | The dominant eigenvalue function failed. It is either not  |
+   |                                     |      | provided or returns an illegal value.                      |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_MAX_STAGE_LIMIT_FAIL`   | -50  | Stepper failed to achieve stable results. Either reduce    |
+   |                                     |      | the step size or increase the stage_max_limit              |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_SUNSTEPPER_ERR`         | -51  | An error occurred in the SUNStepper module.                |
+   +-------------------------------------+------+------------------------------------------------------------+
+   | :index:`ARK_STEP_DIRECTION_ERR`     | -52  | An error occurred changing the step direction.             |
    +-------------------------------------+------+------------------------------------------------------------+
    | :index:`ARK_UNRECOGNIZED_ERROR`     | -99  | An unknown error was encountered.                          |
    +-------------------------------------+------+------------------------------------------------------------+

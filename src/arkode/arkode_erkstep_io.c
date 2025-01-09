@@ -165,24 +165,41 @@ int ERKStepSetTableName(void* arkode_mem, const char* etable)
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ERKStepGetNumRhsEvals:
+  erkStep_GetNumRhsEvals:
 
-  Returns the current number of calls to f
+  Returns the current number of RHS calls
   ---------------------------------------------------------------*/
+int erkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals)
+{
+  ARKodeERKStepMem step_mem = NULL;
+
+  /* access ARKodeERKStepMem structure */
+  int retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+
+  if (rhs_evals == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "rhs_evals is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  if (partition_index > 0)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Invalid partition index");
+    return ARK_ILL_INPUT;
+  }
+
+  *rhs_evals = step_mem->nfe;
+
+  return ARK_SUCCESS;
+}
+
 int ERKStepGetNumRhsEvals(void* arkode_mem, long int* fevals)
 {
-  ARKodeMem ark_mem;
-  ARKodeERKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeMem and ARKodeERKStepMem structures */
-  retval = erkStep_AccessARKODEStepMem(arkode_mem, __func__, &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS) { return (retval); }
-
-  /* get values from step_mem */
-  *fevals = step_mem->nfe;
-
-  return (ARK_SUCCESS);
+  return ARKodeGetNumRhsEvals(arkode_mem, 0, fevals);
 }
 
 /*---------------------------------------------------------------
@@ -304,12 +321,11 @@ int erkStep_SetDefaults(ARKodeMem ark_mem)
       return (ARK_MEM_FAIL);
     }
   }
-  ark_mem->hadapt_mem->hcontroller = NULL;
   ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PI(ark_mem->sunctx);
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptControllerPI allocation failure");
+                    "SUNAdaptController_PI allocation failure");
     return (ARK_MEM_FAIL);
   }
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;
@@ -374,7 +390,11 @@ int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele)
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* return an error if local truncation error is not computed */
-  if (ark_mem->fixedstep) { return (ARK_STEPPER_UNSUPPORTED); }
+  if ((ark_mem->fixedstep && (ark_mem->AccumErrorType == ARK_ACCUMERROR_NONE)) ||
+      (step_mem->p <= 0))
+  {
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
 
   /* otherwise, copy local truncation error vector to output */
   N_VScale(ONE, ark_mem->tempv1, ele);

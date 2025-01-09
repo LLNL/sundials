@@ -17,35 +17,40 @@
 MRIStep Custom Inner Steppers
 =============================
 
-Recall, MIS and MRI-GARK methods require solving the auxiliary IVP
+Recall that infinitesimal multirate methods require solving a set of auxiliary IVPs
 
 .. math::
-   \dot{v}(t) = f^F(t, v) + r_i(t), \qquad v(t_{n,i-1}^S) = z_{i-1}
+   \dot{v}(t) = f^F(t, v) + r_i(t), \qquad v(t_{i,0}) = v_{i,0},
    :label: ARKODE_MRI_IVP
 
-for :math:`i \geq 2` on the interval :math:`t \in [t_{n,i-1}^S, t_{n,i}^S]`
-where :math:`t_{n,i-1}^S = t_{n-1} + c_{i-1}^S h^S`. The forcing term
-:math:`r_i(t)` presented in :numref:`ARKODE.Mathematics.MRIStep` can be equivalently
-written as
+on intervals :math:`t \in [t_{i,0}, t_{i,f}]`.  For the MIS, MRI-GARK and IMEX-MRI-GARK
+methods implemented in MRIStep, the forcing term :math:`r_i(t)`
+presented in :numref:`ARKODE.Mathematics.MRIStep` can be equivalently written as
 
 .. math::
    r_i(t) =
-   \sum\limits_{k \geq 0} \hat{\omega}^{\{k\}}_i \tau^k
+   \sum\limits_{k \geq 1} \hat{\omega}_{i,k} \tau^{k-1}
    +
-   \sum\limits_{k \geq 0} \hat{\gamma}^{\{k\}}_i \tau^k
+   \sum\limits_{k \geq 1} \hat{\gamma}_{i,k} \tau^{k-1}
    :label: ARKODE_MRI_forcing_poly
 
 where :math:`\tau = (t - t_{n,i-1}^S)/(h^S \Delta c_i^S)` is the normalized time
-with :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)` and the polynomial
-coefficient vectors are
+with :math:`\Delta c_i^S=\left(c^S_i - c^S_{i-1}\right)`, the slow stage times are
+:math:`t_{n,i-1}^S = t_{n-1} + c_{i-1}^S h^S`, and the polynomial coefficient
+vectors are
 
 .. math::
-   \hat{\omega}^{\{k\}}_i = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^{i-1}
-   \omega^{\{k\}}_{i,j}  f^E(t_{n,j}^S, z_j)
+   \hat{\omega}_{i,k} = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^{i-1}
+   \Omega_{i,j,k} f^E(t_{n,j}^S, z_j)
    \quad\text{and}\quad
-   \hat{\gamma}^{\{k\}}_i = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i
-   \gamma^{\{k\}}_{i,j}  f^I(t_{n,j}^S, z_j).
+   \hat{\gamma}_{i,k} = \frac{1}{\Delta c_i^S} \sum\limits_{j=1}^i
+   \Gamma_{i,j,k} f^I(t_{n,j}^S, z_j).
    :label: ARKODE_MRI_forcing_coefficients
+
+The MERK and IMEX-MRI-SR methods included in MRIStep compute the forcing polynomial
+:eq:`ARKODE_MRI_forcing_poly` similarly, with appropriate modifications to
+:math:`\Delta c_i^S`, :math:`t_{n,i-1}^S`, and the coefficients
+:eq:`ARKODE_MRI_forcing_coefficients`.
 
 To evolve the IVP :eq:`ARKODE_MRI_IVP` MRIStep utilizes a generic time integrator
 interface defined by the :c:type:`MRIStepInnerStepper` base class. This section

@@ -25,34 +25,43 @@
   below.
 
   The 'type' column denotes whether the method is explicit (E),
-  or solve-decoupled implicit (ID).
+  solve-decoupled implicit (ID), solve-decoupled ImEx (IED),
+  and/or has stage-restart structure (S).
 
   The 'QP' column denotes whether the coefficients of the method
   are known precisely enough for use in quad precision (128-bit)
   calculations.
 
-     imeth                             order   type    QP
-    -----------------------------------------------------
-     ARKODE_MRI_GARK_FORWARD_EULER     1       E       Y
-     ARKODE_MRI_GARK_RALSTON2          2       E       Y
-     ARKODE_MIS_KW3                    3       E       Y
-     ARKODE_MRI_GARK_ERK22a            2       E       Y
-     ARKODE_MRI_GARK_ERK22b            2       E       Y
-     ARKODE_MRI_GARK_ERK33a            3       E       Y
-     ARKODE_MRI_GARK_RALSTON3          3       E       Y
-     ARKODE_MRI_GARK_ERK45a            4       E       Y
-     ARKODE_MRI_GARK_BACKWARD_EULER    1       ID      Y
-     ARKODE_MRI_GARK_IRK21a            2       ID      Y
-     ARKODE_MRI_GARK_IMPLICIT_MIDPOINT 2       ID      Y
-     ARKODE_MRI_GARK_ESDIRK34a         3       ID      Y
-     ARKODE_MRI_GARK_ESDIRK46a         4       ID      Y
-     ARKODE_IMEX_MRI_GARK_EULER        1       ID      Y
-     ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL  2       ID      Y
-     ARKODE_IMEX_MRI_GARK_MIDPOINT     2       ID      Y
-     ARKODE_IMEX_MRI_GARK3a            3       ID      Y
-     ARKODE_IMEX_MRI_GARK3b            3       ID      Y
-     ARKODE_IMEX_MRI_GARK4             4       ID      Y
-    -----------------------------------------------------
+                                       method  embedding
+     imeth                             order   order      type    QP
+    ----------------------------------------------------------------
+     ARKODE_MRI_GARK_FORWARD_EULER     1       0          E       Y
+     ARKODE_MRI_GARK_ERK22a            2       1          E       Y
+     ARKODE_MRI_GARK_ERK22b            2       1          E       Y
+     ARKODE_MRI_GARK_RALSTON2          2       1          E       Y
+     ARKODE_MIS_KW3                    3       0          E       Y
+     ARKODE_MRI_GARK_ERK33a            3       2          E       Y
+     ARKODE_MRI_GARK_RALSTON3          3       2          E       Y
+     ARKODE_MRI_GARK_ERK45a            4       3          E       Y
+     ARKODE_MERK21                     2       1          ES      Y
+     ARKODE_MERK32                     3       2          ES      Y
+     ARKODE_MERK43                     4       3          ES      Y
+     ARKODE_MERK54                     5       4          ES      Y
+     ARKODE_MRI_GARK_BACKWARD_EULER    1       0          ID      Y
+     ARKODE_MRI_GARK_IRK21a            2       1          ID      Y
+     ARKODE_MRI_GARK_IMPLICIT_MIDPOINT 2       0          ID      Y
+     ARKODE_MRI_GARK_ESDIRK34a         3       2          ID      Y
+     ARKODE_MRI_GARK_ESDIRK46a         4       3          ID      Y
+     ARKODE_IMEX_MRI_GARK_EULER        1       0          ID      Y
+     ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL  2       0          ID      Y
+     ARKODE_IMEX_MRI_GARK_MIDPOINT     2       0          ID      Y
+     ARKODE_IMEX_MRI_GARK3a            3       0          IED     Y
+     ARKODE_IMEX_MRI_GARK3b            3       0          IED     Y
+     ARKODE_IMEX_MRI_GARK4             4       0          IED     Y
+     ARKODE_IMEX_MRI_SR21              2       1          IEDS    Y
+     ARKODE_IMEX_MRI_SR32              3       2          IEDS    Y
+     ARKODE_IMEX_MRI_SR43              4       3          IEDS    Y
+    ----------------------------------------------------------------
 */
 
 
@@ -62,35 +71,35 @@ ARK_MRI_TABLE(ARKODE_MRI_NONE, {
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_FORWARD_EULER, {
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_FORWARD_EULER_1_1);
-    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 1, 0);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_RALSTON2, { /* Roberts et al., SISC 44:A1405 - A1427, 2022 */
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_RALSTON_EULER_2_1_2);
-    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 2, 0);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
 
 ARK_MRI_TABLE(ARKODE_MIS_KW3, { /* Schlegel et al., JCAM 226:345-357, 2009 */
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_KNOTH_WOLKE_3_3);
-    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 3, 0);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK22a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2);
-    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 2, 0);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK22b, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     ARKodeButcherTable B = ARKodeButcherTable_LoadERK(ARKODE_HEUN_EULER_2_1_2);
-    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, 2, 0);
+    MRIStepCoupling C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
@@ -99,7 +108,7 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK33a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     MRIStepCoupling C = MRIStepCoupling_Alloc(2, 4, MRISTEP_EXPLICIT);
 
     C->q = 3;
-    C->p = 0;
+    C->p = 2;
 
     C->c[1] = ONE/SUN_RCONST(3.0);
     C->c[2] = TWO/SUN_RCONST(3.0);
@@ -110,6 +119,9 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK33a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     C->W[0][2][1] =  TWO/SUN_RCONST(3.0);
     C->W[0][3][1] = -TWO/SUN_RCONST(3.0);
     C->W[0][3][2] =  ONE;
+    C->W[0][4][0] =  ONE/SUN_RCONST(12.0);
+    C->W[0][4][1] = -ONE/SUN_RCONST(3.0);
+    C->W[0][4][2] =  SUN_RCONST(7.0)/SUN_RCONST(12.0);
 
     C->W[1][3][0] =  ONE/TWO;
     C->W[1][3][2] = -ONE/TWO;
@@ -120,7 +132,7 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_RALSTON3, { /* Roberts et al., SISC 44:A1405 - A14
     MRIStepCoupling C = MRIStepCoupling_Alloc(2, 4, MRISTEP_EXPLICIT);
 
     C->q = 3;
-    C->p = 0;
+    C->p = 2;
 
     C->c[1] = ONE/TWO;
     C->c[2] = SUN_RCONST(3.0)/SUN_RCONST(4.0);
@@ -132,6 +144,9 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_RALSTON3, { /* Roberts et al., SISC 44:A1405 - A14
     C->W[0][3][0] =  SUN_RCONST(47.0)/SUN_RCONST(36.0);
     C->W[0][3][1] =  -ONE/SUN_RCONST(6.0);
     C->W[0][3][2] =  -SUN_RCONST(8.0)/SUN_RCONST(9.0);
+    C->W[0][4][0] =  ONE/SUN_RCONST(40.0);
+    C->W[0][4][1] =  SUN_RCONST(7.0)/SUN_RCONST(40.0);
+    C->W[0][4][2] =  ONE/SUN_RCONST(20.0);
 
     C->W[1][2][0] =  SUN_RCONST(9.0)/TWO;
     C->W[1][2][1] = -SUN_RCONST(9.0)/TWO;
@@ -142,10 +157,11 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_RALSTON3, { /* Roberts et al., SISC 44:A1405 - A14
   })
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK45a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
+    /* Embedding coefficients CORRECTED in A. Sandu, arxiv:1808.02759, 2018 */
     MRIStepCoupling C = MRIStepCoupling_Alloc(2, 6, MRISTEP_EXPLICIT);
 
     C->q = 4;
-    C->p = 0;
+    C->p = 3;
 
     C->c[1] = SUN_RCONST(0.2);
     C->c[2] = SUN_RCONST(0.4);
@@ -168,6 +184,11 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK45a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     C->W[0][5][2] = -SUN_RCONST(1360217.0)/SUN_RCONST(1139280.0);
     C->W[0][5][3] = -SUN_RCONST(148789.0)/SUN_RCONST(56964.0);
     C->W[0][5][4] =  SUN_RCONST(147889.0)/SUN_RCONST(45120.0);
+    C->W[0][6][0] = -SUN_RCONST(88227.0)/SUN_RCONST(47470.0);
+    C->W[0][6][1] =  SUN_RCONST(756870829.0)/SUN_RCONST(340217490.0);
+    C->W[0][6][2] = -SUN_RCONST(713704111.0)/SUN_RCONST(1360869960.0);
+    C->W[0][6][3] = -SUN_RCONST(31967827.0)/SUN_RCONST(340217490.0);
+    C->W[0][6][4] =  SUN_RCONST(129673.0)/SUN_RCONST(286680.0);
 
     C->W[1][2][0] =  SUN_RCONST(503.0)/SUN_RCONST(80.0);
     C->W[1][2][1] = -SUN_RCONST(503.0)/SUN_RCONST(80.0);
@@ -183,6 +204,8 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ERK45a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     C->W[1][5][2] =  ONE;
     C->W[1][5][3] =  SUN_RCONST(5.0);
     C->W[1][5][4] = -SUN_RCONST(41933.0)/SUN_RCONST(7520.0);
+    C->W[1][6][0] =  SUN_RCONST(6213.0)/SUN_RCONST(1880.0);
+    C->W[1][6][1] = -SUN_RCONST(6213.0)/SUN_RCONST(1880.0);
     return C;
   })
 
@@ -203,9 +226,10 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_BACKWARD_EULER, {
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_IRK21a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     MRIStepCoupling C;
-    ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNFALSE);
+    ARKodeButcherTable B = ARKodeButcherTable_Alloc(3, SUNTRUE);
 
     B->q=2;
+    B->p=1;
 
     B->c[1] = ONE;
     B->c[2] = ONE;
@@ -217,7 +241,9 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_IRK21a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
     B->b[0] = SUN_RCONST(0.5);
     B->b[2] = SUN_RCONST(0.5);
 
-    C = MRIStepCoupling_MIStoMRI(B, 2, 0);
+    B->d[2] = SUN_RCONST(1.0);
+
+    C = MRIStepCoupling_MIStoMRI(B, B->q, B->p);
     ARKodeButcherTable_Free(B);
     return C;
   })
@@ -240,11 +266,11 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_IMPLICIT_MIDPOINT, {
   })
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_ESDIRK34a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(1, 7, MRISTEP_IMPLICIT);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(1, 8, MRISTEP_IMPLICIT);
     sunrealtype beta = SUN_RCONST(0.4358665215084589994160194511935568425);
 
     C->q = 3;
-    C->p = 0;
+    C->p = 2;
 
     C->c[1] = ONE/SUN_RCONST(3.0);
     C->c[2] = ONE/SUN_RCONST(3.0);
@@ -252,6 +278,7 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ESDIRK34a, { /* A. Sandu, SINUM 57:2300-2327, 2019
     C->c[4] = TWO/SUN_RCONST(3.0);
     C->c[5] = ONE;
     C->c[6] = ONE;
+    C->c[7] = ONE;
 
     C->G[0][1][0] =  ONE/SUN_RCONST(3.0);
     C->G[0][2][0] = -beta;
@@ -266,14 +293,18 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ESDIRK34a, { /* A. Sandu, SINUM 57:2300-2327, 2019
     C->G[0][5][4] =  SUN_RCONST(-0.9934660860338359976640778047742273701);
     C->G[0][6][0] = -beta;
     C->G[0][6][6] =  beta;
+    C->G[0][8][0] =  SUN_RCONST(0.2453831999117524372455680781104585876241);
+    C->G[0][8][2] =  SUN_RCONST(0.4204215033044044563073464989473988121422);
+    C->G[0][8][4] = -SUN_RCONST(1.576992606344066224351397232226173387157);
+    C->G[0][8][6] =  SUN_RCONST(0.9111879031279093307984826551683159873903);
     return C;
   })
 
 ARK_MRI_TABLE(ARKODE_MRI_GARK_ESDIRK46a, { /* A. Sandu, SINUM 57:2300-2327, 2019 */
-    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 11, MRISTEP_IMPLICIT);
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 12, MRISTEP_IMPLICIT);
 
     C->q = 4;
-    C->p = 0;
+    C->p = 3;
 
     C->c[1]  = ONE/SUN_RCONST(5.0);
     C->c[2]  = ONE/SUN_RCONST(5.0);
@@ -285,6 +316,7 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ESDIRK46a, { /* A. Sandu, SINUM 57:2300-2327, 2019
     C->c[8]  = SUN_RCONST(4.0)/SUN_RCONST(5.0);
     C->c[9]  = ONE;
     C->c[10] = ONE;
+    C->c[11] = ONE;
 
     C->G[0][1][0]   =  ONE/SUN_RCONST(5.0);
     C->G[0][2][0]   = -ONE/SUN_RCONST(4.0);
@@ -321,6 +353,12 @@ ARK_MRI_TABLE(ARKODE_MRI_GARK_ESDIRK46a, { /* A. Sandu, SINUM 57:2300-2327, 2019
     C->G[0][10][6]  =  SUN_RCONST(127.0)/SUN_RCONST(300.0);
     C->G[0][10][8]  = -SUN_RCONST(313.0)/SUN_RCONST(300.0);
     C->G[0][10][10] =  ONE/SUN_RCONST(4.0);
+    C->G[0][12][0]  = -ONE/SUN_RCONST(4.0);
+    C->G[0][12][2]  =  SUN_RCONST(5595.0)/SUN_RCONST(8804.0);
+    C->G[0][12][4]  = -SUN_RCONST(2445.0)/SUN_RCONST(8804.0);
+    C->G[0][12][6]  = -SUN_RCONST(4225.0)/SUN_RCONST(8804.0);
+    C->G[0][12][8]  =  SUN_RCONST(2205.0)/SUN_RCONST(4402.0);
+    C->G[0][12][10] = -SUN_RCONST(567.0)/SUN_RCONST(4402.0);
 
     C->G[1][3][0]  = -SUN_RCONST(1674554930619.0)/SUN_RCONST(964681845400.0);
     C->G[1][3][2]  =  SUN_RCONST(1674554930619.0)/SUN_RCONST(964681845400.0);
@@ -618,3 +656,465 @@ ARK_MRI_TABLE(ARKODE_IMEX_MRI_GARK4, { /* R. Chinomona & D. Reynolds SINUM 43(5)
     return C;
   })
 
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR21, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 */
+    MRIStepCoupling C = MRIStepCoupling_Alloc(1, 4, MRISTEP_SR);
+
+    C->q = 2;
+    C->p = 1;
+
+    C->c[1] = SUN_RCONST(3.0)/SUN_RCONST(5.0);
+    C->c[2] = SUN_RCONST(4.0)/SUN_RCONST(15.0);
+    C->c[3] = ONE;
+
+    C->W[0][1][0] =  SUN_RCONST(3.0)/SUN_RCONST(5.0);
+    C->W[0][2][0] =  SUN_RCONST(14.0)/SUN_RCONST(165.0);
+    C->W[0][2][1] =  SUN_RCONST(2.0)/SUN_RCONST(11.0);
+    C->W[0][3][0] = -SUN_RCONST(13.0)/SUN_RCONST(54.0);
+    C->W[0][3][1] =  SUN_RCONST(137.0)/SUN_RCONST(270.0);
+    C->W[0][3][2] =  SUN_RCONST(11.0)/SUN_RCONST(15.0);
+    C->W[0][4][0] = -SUN_RCONST(0.25);
+    C->W[0][4][1] =  SUN_RCONST(0.5);
+    C->W[0][4][2] =  SUN_RCONST(0.75);
+
+    C->G[0][1][0] = -SUN_RCONST(11.0)/SUN_RCONST(23.0);
+    C->G[0][1][1] =  SUN_RCONST(11.0)/SUN_RCONST(23.0);
+    C->G[0][2][0] = -SUN_RCONST(6692.0)/SUN_RCONST(52371.0);
+    C->G[0][2][1] = -SUN_RCONST(18355.0)/SUN_RCONST(52371.0);
+    C->G[0][2][2] =  SUN_RCONST(11.0)/SUN_RCONST(23.0);
+    C->G[0][3][0] =  SUN_RCONST(11621.0)/SUN_RCONST(90666.0);
+    C->G[0][3][1] = -SUN_RCONST(215249.0)/SUN_RCONST(226665.0);
+    C->G[0][3][2] =  SUN_RCONST(17287.0)/SUN_RCONST(50370.0);
+    C->G[0][3][3] =  SUN_RCONST(11.0)/SUN_RCONST(23.0);
+    C->G[0][4][0] = -SUN_RCONST(31.0)/SUN_RCONST(12.0);
+    C->G[0][4][1] = -ONE/SUN_RCONST(6.0);
+    C->G[0][4][2] =  SUN_RCONST(11.0)/SUN_RCONST(4.0);
+    return C;
+  })
+
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR32, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 */
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 5, MRISTEP_SR);
+
+    C->q = 3;
+    C->p = 2;
+
+    C->c[1] = SUN_RCONST(23.0)/SUN_RCONST(34.0);
+    C->c[2] = SUN_RCONST(4.0)/SUN_RCONST(5.0);
+    C->c[3] = SUN_RCONST(17.0)/SUN_RCONST(15.0);
+    C->c[4] = ONE;
+
+    C->W[0][1][0] =  SUN_RCONST(23.0)/SUN_RCONST(34.0);
+    C->W[0][2][0] =  SUN_RCONST(71.0)/SUN_RCONST(70.0);
+    C->W[0][2][1] = -SUN_RCONST(3.0)/SUN_RCONST(14.0);
+    C->W[0][3][0] =  SUN_RCONST(124.0)/SUN_RCONST(1155.0);
+    C->W[0][3][1] =  SUN_RCONST(4.0)/SUN_RCONST(7.0);
+    C->W[0][3][2] =  SUN_RCONST(5.0)/SUN_RCONST(11.0);
+    C->W[0][4][0] =  SUN_RCONST(162181.0)/SUN_RCONST(187680.0);
+    C->W[0][4][1] =  SUN_RCONST(119.0)/SUN_RCONST(1380.0);
+    C->W[0][4][2] =  SUN_RCONST(11.0)/SUN_RCONST(32.0);
+    C->W[0][4][3] = -SUN_RCONST(5.0)/SUN_RCONST(17.0);
+    C->W[0][5][0] =  SUN_RCONST(76355.0)/SUN_RCONST(74834.0);
+    C->W[0][5][1] = -SUN_RCONST(46.0)/SUN_RCONST(31.0);
+    C->W[0][5][2] =  SUN_RCONST(67.0)/SUN_RCONST(34.0);
+    C->W[0][5][3] = -SUN_RCONST(36.0)/SUN_RCONST(71.0);
+
+    C->W[1][2][0] = -SUN_RCONST(14453.0)/SUN_RCONST(63825.0);
+    C->W[1][2][1] =  SUN_RCONST(14453.0)/SUN_RCONST(63825.0);
+    C->W[1][3][0] = -SUN_RCONST(2101267877.0)/SUN_RCONST(1206582300.0);
+    C->W[1][3][1] =  SUN_RCONST(2476735438.0)/SUN_RCONST(301645575.0);
+    C->W[1][3][2] = -SUN_RCONST(13575085.0)/SUN_RCONST(2098404.0);
+    C->W[1][4][0] = -SUN_RCONST(762580446799.0)/SUN_RCONST(588660102960.0);
+    C->W[1][4][1] =  SUN_RCONST(11083240219.0)/SUN_RCONST(4328383110.0);
+    C->W[1][4][2] = -SUN_RCONST(211274129.0)/SUN_RCONST(100368304.0);
+    C->W[1][4][3] =  SUN_RCONST(89562055.0)/SUN_RCONST(106641323.0);
+    C->W[1][5][0] = -SUN_RCONST(3732974.0)/SUN_RCONST(2278035.0);
+    C->W[1][5][1] =  SUN_RCONST(13857574.0)/SUN_RCONST(2278035.0);
+    C->W[1][5][2] = -SUN_RCONST(52.0)/SUN_RCONST(9.0);
+    C->W[1][5][3] =  SUN_RCONST(4.0)/SUN_RCONST(3.0);
+
+    C->G[0][1][0] = -SUN_RCONST(4.0)/SUN_RCONST(7.0);
+    C->G[0][1][1] =  SUN_RCONST(4.0)/SUN_RCONST(7.0);
+    C->G[0][2][0] = -SUN_RCONST(2707004.0)/SUN_RCONST(3127425.0);
+    C->G[0][2][1] =  SUN_RCONST(919904.0)/SUN_RCONST(3127425.0);
+    C->G[0][2][2] =  SUN_RCONST(4.0)/SUN_RCONST(7.0);
+    C->G[0][3][0] =  SUN_RCONST(852879271.0)/SUN_RCONST(703839675.0);
+    C->G[0][3][1] = -SUN_RCONST(1575000496.0)/SUN_RCONST(703839675.0);
+    C->G[0][3][2] =  SUN_RCONST(5.0)/SUN_RCONST(11.0);
+    C->G[0][3][3] =  SUN_RCONST(4.0)/SUN_RCONST(7.0);
+    C->G[0][4][0] =  SUN_RCONST(43136869.0)/SUN_RCONST(2019912118.0);
+    C->G[0][4][1] = -SUN_RCONST(73810600.0)/SUN_RCONST(1009956059.0);
+    C->G[0][4][2] = -SUN_RCONST(17653551.0)/SUN_RCONST(87822266.0);
+    C->G[0][4][3] = -SUN_RCONST(13993902.0)/SUN_RCONST(43911133.0);
+    C->G[0][4][4] =  SUN_RCONST(4.0)/SUN_RCONST(7.0);
+    C->G[0][5][0] = -SUN_RCONST(179.0)/SUN_RCONST(4140.0);
+    C->G[0][5][1] =  SUN_RCONST(799.0)/SUN_RCONST(14490.0);
+    C->G[0][5][2] =  ONE/SUN_RCONST(14.0);
+    C->G[0][5][3] = -ONE/SUN_RCONST(12.0);
+    return C;
+  })
+
+ARK_MRI_TABLE(ARKODE_IMEX_MRI_SR43, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, arXiv:2301.00865, 2023 */
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 7, MRISTEP_SR);
+
+    C->q = 4;
+    C->p = 3;
+
+    C->c[1] = ONE/SUN_RCONST(4.0);
+    C->c[2] = SUN_RCONST(3.0)/SUN_RCONST(4.0);
+    C->c[3] = SUN_RCONST(11.0)/SUN_RCONST(20.0);
+    C->c[4] = ONE/SUN_RCONST(2.0);
+    C->c[5] = ONE;
+    C->c[6] = ONE;
+
+    C->W[0][1][0] =  ONE/SUN_RCONST(4.0);
+    C->W[0][2][0] =  SUN_RCONST(9.0)/SUN_RCONST(8.0);
+    C->W[0][2][1] = -SUN_RCONST(3.0)/SUN_RCONST(8.0);
+    C->W[0][3][0] =  SUN_RCONST(187.0)/SUN_RCONST(2340.0);
+    C->W[0][3][1] =  SUN_RCONST(7.0)/SUN_RCONST(9.0);
+    C->W[0][3][2] = -SUN_RCONST(4.0)/SUN_RCONST(13.0);
+    C->W[0][4][0] =  SUN_RCONST(64.0)/SUN_RCONST(165.0);
+    C->W[0][4][1] =  ONE/SUN_RCONST(6.0);
+    C->W[0][4][2] = -SUN_RCONST(3.0)/SUN_RCONST(5.0);
+    C->W[0][4][3] =  SUN_RCONST(6.0)/SUN_RCONST(11.0);
+    C->W[0][5][0] =  SUN_RCONST(1816283.0)/SUN_RCONST(549120.0);
+    C->W[0][5][1] = -SUN_RCONST(2.0)/SUN_RCONST(9.0);
+    C->W[0][5][2] = -SUN_RCONST(4.0)/SUN_RCONST(11.0);
+    C->W[0][5][3] = -ONE/SUN_RCONST(6.0);
+    C->W[0][5][4] = -SUN_RCONST(2561809.0)/SUN_RCONST(1647360.0);
+    C->W[0][6][1] =  SUN_RCONST(7.0)/SUN_RCONST(11.0);
+    C->W[0][6][2] = -SUN_RCONST(2203.0)/SUN_RCONST(264.0);
+    C->W[0][6][3] =  SUN_RCONST(10825.0)/SUN_RCONST(792.0);
+    C->W[0][6][4] = -SUN_RCONST(85.0)/SUN_RCONST(12.0);
+    C->W[0][6][5] =  SUN_RCONST(841.0)/SUN_RCONST(396.0);
+    C->W[0][7][0] =  ONE/SUN_RCONST(400.0);
+    C->W[0][7][1] =  SUN_RCONST(49.0)/SUN_RCONST(12.0);
+    C->W[0][7][2] =  SUN_RCONST(43.0)/SUN_RCONST(6.0);
+    C->W[0][7][3] = -SUN_RCONST(7.0)/SUN_RCONST(10.0);
+    C->W[0][7][4] = -SUN_RCONST(85.0)/SUN_RCONST(12.0);
+    C->W[0][7][5] = -SUN_RCONST(2963.0)/SUN_RCONST(1200.0);
+
+    C->W[1][2][0] = -SUN_RCONST(11.0)/SUN_RCONST(4.0);
+    C->W[1][2][1] =  SUN_RCONST(11.0)/SUN_RCONST(4.0);
+    C->W[1][3][0] = -SUN_RCONST(1228.0)/SUN_RCONST(2925.0);
+    C->W[1][3][1] = -SUN_RCONST(92.0)/SUN_RCONST(225.0);
+    C->W[1][3][2] =  SUN_RCONST(808.0)/SUN_RCONST(975.0);
+    C->W[1][4][0] = -SUN_RCONST(2572.0)/SUN_RCONST(2805.0);
+    C->W[1][4][1] =  SUN_RCONST(167.0)/SUN_RCONST(255.0);
+    C->W[1][4][2] =  SUN_RCONST(199.0)/SUN_RCONST(136.0);
+    C->W[1][4][3] = -SUN_RCONST(1797.0)/SUN_RCONST(1496.0);
+    C->W[1][5][0] = -SUN_RCONST(1816283.0)/SUN_RCONST(274560.0);
+    C->W[1][5][1] =  SUN_RCONST(253.0)/SUN_RCONST(36.0);
+    C->W[1][5][2] = -SUN_RCONST(23.0)/SUN_RCONST(44.0);
+    C->W[1][5][3] =  SUN_RCONST(76.0)/SUN_RCONST(3.0);
+    C->W[1][5][4] = -SUN_RCONST(20775791.0)/SUN_RCONST(823680.0);
+    C->W[1][6][1] =  SUN_RCONST(107.0)/SUN_RCONST(132.0);
+    C->W[1][6][2] =  SUN_RCONST(1289.0)/SUN_RCONST(88.0);
+    C->W[1][6][3] = -SUN_RCONST(9275.0)/SUN_RCONST(792.0);
+    C->W[1][6][5] = -SUN_RCONST(371.0)/SUN_RCONST(99.0);
+    C->W[1][7][0] = -ONE/SUN_RCONST(200.0);
+    C->W[1][7][1] = -SUN_RCONST(137.0)/SUN_RCONST(24.0);
+    C->W[1][7][2] = -SUN_RCONST(235.0)/SUN_RCONST(16.0);
+    C->W[1][7][3] =  SUN_RCONST(1237.0)/SUN_RCONST(80.0);
+    C->W[1][7][5] =  SUN_RCONST(2963.0)/SUN_RCONST(600.0);
+
+    C->G[0][1][0] = -ONE/SUN_RCONST(4.0);
+    C->G[0][1][1] =  ONE/SUN_RCONST(4.0);
+    C->G[0][2][0] =  ONE/SUN_RCONST(4.0);
+    C->G[0][2][1] = -ONE/SUN_RCONST(2.0);
+    C->G[0][2][2] =  ONE/SUN_RCONST(4.0);
+    C->G[0][3][0] =  SUN_RCONST(13.0)/SUN_RCONST(100.0);
+    C->G[0][3][1] = -SUN_RCONST(7.0)/SUN_RCONST(30.0);
+    C->G[0][3][2] = -SUN_RCONST(11.0)/SUN_RCONST(75.0);
+    C->G[0][3][3] =  ONE/SUN_RCONST(4.0);
+    C->G[0][4][0] =  SUN_RCONST(6.0)/SUN_RCONST(85.0);
+    C->G[0][4][1] = -SUN_RCONST(301.0)/SUN_RCONST(1360.0);
+    C->G[0][4][2] = -SUN_RCONST(99.0)/SUN_RCONST(544.0);
+    C->G[0][4][3] =  SUN_RCONST(45.0)/SUN_RCONST(544.0);
+    C->G[0][4][4] =  ONE/SUN_RCONST(4.0);
+    C->G[0][5][1] = -SUN_RCONST(9.0)/SUN_RCONST(4.0);
+    C->G[0][5][2] = -SUN_RCONST(19.0)/SUN_RCONST(48.0);
+    C->G[0][5][3] = -SUN_RCONST(75.0)/SUN_RCONST(16.0);
+    C->G[0][5][4] =  SUN_RCONST(85.0)/SUN_RCONST(12.0);
+    C->G[0][5][5] =  ONE/SUN_RCONST(4.0);
+    return C;
+  })
+
+ARK_MRI_TABLE(ARKODE_MERK21, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 (embedding unpublished) */
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 3, MRISTEP_MERK);
+    sunrealtype c2 = SUN_RCONST(0.5);
+
+    C->q = 2;
+    C->p = 1;
+    C->ngroup = 2;
+    C->group[0][0] = 1;
+    C->group[0][1] = 3;
+    C->group[1][0] = 2;
+
+    C->c[1] = c2;
+    C->c[2] = ONE;
+
+    C->W[0][1][0] =  ONE;
+    C->W[0][2][0] =  ONE;
+    C->W[0][3][0] =  ONE;
+
+    C->W[1][2][0] = -ONE/c2;
+    C->W[1][2][1] =  ONE/c2;
+    return C;
+  })
+
+ARK_MRI_TABLE(ARKODE_MERK32, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 (embedding unpublished) */
+    MRIStepCoupling C = MRIStepCoupling_Alloc(2, 4, MRISTEP_MERK);
+    sunrealtype c2 = SUN_RCONST(0.5);
+
+    C->q = 3;
+    C->p = 2;
+    C->ngroup = 3;
+    C->group[0][0] = 1;
+    C->group[1][0] = 2;
+    C->group[1][1] = 4;
+    C->group[2][0] = 3;
+
+    C->c[1] = c2;
+    C->c[2] = SUN_RCONST(2.0)/SUN_RCONST(3.0);
+    C->c[3] = ONE;
+
+    C->W[0][1][0] =  ONE;
+    C->W[0][2][0] =  ONE;
+    C->W[0][3][0] =  ONE;
+    C->W[0][4][0] =  ONE;
+
+    C->W[1][2][0] = -ONE/c2;
+    C->W[1][2][1] =  ONE/c2;
+    C->W[1][3][0] = -SUN_RCONST(1.5);
+    C->W[1][3][2] =  SUN_RCONST(1.5);
+    C->W[1][4][0] = -ONE/c2;
+    C->W[1][4][1] =  ONE/c2;
+    return C;
+  })
+
+ARK_MRI_TABLE(ARKODE_MERK43, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 (embedding unpublished) */
+    MRIStepCoupling C = MRIStepCoupling_Alloc(3, 7, MRISTEP_MERK);
+    sunrealtype c2 = SUN_RCONST(0.5);
+    sunrealtype c3 = SUN_RCONST(0.5);
+    sunrealtype c4 = ONE/SUN_RCONST(3.0);
+    sunrealtype c5 = SUN_RCONST(5.0)/SUN_RCONST(6.0);
+    sunrealtype c6 = ONE/SUN_RCONST(3.0);
+
+    C->q = 4;
+    C->p = 3;
+    C->ngroup = 4;
+    C->group[0][0] = 1;
+    C->group[1][0] = 3;
+    C->group[1][1] = 2;
+    C->group[2][0] = 5;
+    C->group[2][1] = 4;
+    C->group[2][2] = 7;
+    C->group[3][0] = 6;
+
+    C->c[1] = c2;
+    C->c[2] = c3;
+    C->c[3] = c4;
+    C->c[4] = c5;
+    C->c[5] = c6;
+    C->c[6] = ONE;
+
+    C->W[0][1][0] = ONE;
+    C->W[0][2][0] = ONE;
+    C->W[0][3][0] = ONE;
+    C->W[0][4][0] = ONE;
+    C->W[0][5][0] = ONE;
+    C->W[0][6][0] = ONE;
+    C->W[0][7][0] = ONE;
+
+    C->W[1][2][0] = -ONE/c2;
+    C->W[1][2][1] =  ONE/c2;
+    C->W[1][3][0] = -ONE/c2;
+    C->W[1][3][1] =  ONE/c2;
+    C->W[1][4][0] =  c4/c3/(c3-c4) - c3/c4/(c3-c4);
+    C->W[1][4][2] = -c4/c3/(c3-c4);
+    C->W[1][4][3] =  c3/c4/(c3-c4);
+    C->W[1][5][0] =  c4/c3/(c3-c4) - c3/c4/(c3-c4);
+    C->W[1][5][2] = -c4/c3/(c3-c4);
+    C->W[1][5][3] =  c3/c4/(c3-c4);
+    C->W[1][6][0] =  c6/c5/(c5-c6) - c5/c6/(c5-c6);
+    C->W[1][6][4] = -c6/c5/(c5-c6);
+    C->W[1][6][5] =  c5/c6/(c5-c6);
+    C->W[1][7][0] =  c4/c3/(c3-c4) - c3/c4/(c3-c4);
+    C->W[1][7][2] = -c4/c3/(c3-c4);
+    C->W[1][7][3] =  c3/c4/(c3-c4);
+
+    C->W[2][4][0] =  ONE/c4/(c3-c4) - ONE/c3/(c3-c4);
+    C->W[2][4][2] =  ONE/c3/(c3-c4);
+    C->W[2][4][3] = -ONE/c4/(c3-c4);
+    C->W[2][5][0] =  ONE/c4/(c3-c4) - ONE/c3/(c3-c4);
+    C->W[2][5][2] =  ONE/c3/(c3-c4);
+    C->W[2][5][3] = -ONE/c4/(c3-c4);
+    C->W[2][6][0] =  ONE/c6/(c5-c6) - ONE/c5/(c5-c6);
+    C->W[2][6][4] =  ONE/c5/(c5-c6);
+    C->W[2][6][5] = -ONE/c6/(c5-c6);
+    C->W[2][7][0] =  ONE/c4/(c3-c4) - ONE/c3/(c3-c4);
+    C->W[2][7][2] =  ONE/c3/(c3-c4);
+    C->W[2][7][3] = -ONE/c4/(c3-c4);
+
+    return C;
+  })
+
+ARK_MRI_TABLE(ARKODE_MERK54, { /* A.C. Fish, D.R. Reynolds, S.B. Roberts, JCAM 438:115534, 2024 (embedding unpublished) */
+    MRIStepCoupling C = MRIStepCoupling_Alloc(4, 11, MRISTEP_MERK);
+    sunrealtype c2 = SUN_RCONST(0.5);
+    sunrealtype c3 = SUN_RCONST(0.5);
+    sunrealtype c4 = ONE/SUN_RCONST(3.0);
+    sunrealtype c5 = SUN_RCONST(0.5);
+    sunrealtype c6 = ONE/SUN_RCONST(3.0);
+    sunrealtype c7 = SUN_RCONST(0.25);
+    sunrealtype c8 = SUN_RCONST(0.7);
+    sunrealtype c9 = SUN_RCONST(0.5);
+    sunrealtype c10 = SUN_RCONST(2.0)/SUN_RCONST(3.0);
+    sunrealtype a2  = ONE/c2;
+    sunrealtype a3  = c4/c3/(c4-c3);
+    sunrealtype a4  = c3/c4/(c3-c4);
+    sunrealtype a5  = c6*c7/c5/(c5-c6)/(c5-c7);
+    sunrealtype a6  = c5*c7/c6/(c6-c5)/(c6-c7);
+    sunrealtype a7  = c5*c6/c7/(c7-c5)/(c7-c6);
+    sunrealtype a8  = c9*c10/c8/(c8-c9)/(c8-c10);
+    sunrealtype a9  = c8*c10/c9/(c9-c8)/(c9-c10);
+    sunrealtype a10 = c8*c9/c10/(c10-c8)/(c10-c9);
+    sunrealtype b3  = ONE/c3/(c3-c4);
+    sunrealtype b4  = ONE/c4/(c3-c4);
+    sunrealtype b5  = (c6+c7)/c5/(c5-c6)/(c5-c7);
+    sunrealtype b6  = (c5+c7)/c6/(c6-c5)/(c6-c7);
+    sunrealtype b7  = (c5+c6)/c7/(c7-c5)/(c7-c6);
+    sunrealtype b8  = (c9+c10)/c8/(c8-c9)/(c8-c10);
+    sunrealtype b9  = (c8+c10)/c9/(c9-c8)/(c9-c10);
+    sunrealtype b10 = (c8+c9)/c10/(c10-c8)/(c10-c9);
+    sunrealtype g5  = ONE/c5/(c5-c6)/(c5-c7);
+    sunrealtype g6  = ONE/c6/(c6-c5)/(c6-c7);
+    sunrealtype g7  = ONE/c7/(c7-c5)/(c7-c6);
+    sunrealtype g8  = ONE/c8/(c8-c9)/(c8-c10);
+    sunrealtype g9  = ONE/c9/(c9-c8)/(c9-c10);
+    sunrealtype g10 = ONE/c10/(c10-c8)/(c10-c9);
+
+    C->q = 5;
+    C->p = 4;
+    C->ngroup = 5;
+    C->group[0][0] = 1;
+    C->group[1][0] = 3;
+    C->group[1][1] = 2;
+    C->group[2][0] = 6;
+    C->group[2][1] = 5;
+    C->group[2][2] = 4;
+    C->group[3][0] = 8;
+    C->group[3][1] = 9;
+    C->group[3][2] = 7;
+    C->group[3][3] = 11;
+    C->group[4][0] = 10;
+
+    C->c[1] = c2;
+    C->c[2] = c3;
+    C->c[3] = c4;
+    C->c[4] = c5;
+    C->c[5] = c6;
+    C->c[6] = c7;
+    C->c[7] = c8;
+    C->c[8] = c9;
+    C->c[9] = c10;
+    C->c[10] = ONE;
+
+    C->W[0][1][0]  = ONE;
+    C->W[0][2][0]  = ONE;
+    C->W[0][3][0]  = ONE;
+    C->W[0][4][0]  = ONE;
+    C->W[0][5][0]  = ONE;
+    C->W[0][6][0]  = ONE;
+    C->W[0][7][0]  = ONE;
+    C->W[0][8][0]  = ONE;
+    C->W[0][9][0]  = ONE;
+    C->W[0][10][0] = ONE;
+    C->W[0][11][0] = ONE;
+
+    C->W[1][2][0]  = -a2;
+    C->W[1][2][1]  =  a2;
+    C->W[1][3][0]  = -a2;
+    C->W[1][3][1]  =  a2;
+    C->W[1][4][0]  = -(a3 + a4);
+    C->W[1][4][2]  =  a3;
+    C->W[1][4][3]  =  a4;
+    C->W[1][5][0]  = -(a3 + a4);
+    C->W[1][5][2]  =  a3;
+    C->W[1][5][3]  =  a4;
+    C->W[1][6][0]  = -(a3 + a4);
+    C->W[1][6][2]  =  a3;
+    C->W[1][6][3]  =  a4;
+    C->W[1][7][0]  = -(a5 + a6 + a7);
+    C->W[1][7][4]  =  a5;
+    C->W[1][7][5]  =  a6;
+    C->W[1][7][6]  =  a7;
+    C->W[1][8][0]  = -(a5 + a6 + a7);
+    C->W[1][8][4]  =  a5;
+    C->W[1][8][5]  =  a6;
+    C->W[1][8][6]  =  a7;
+    C->W[1][9][0]  = -(a5 + a6 + a7);
+    C->W[1][9][4]  =  a5;
+    C->W[1][9][5]  =  a6;
+    C->W[1][9][6]  =  a7;
+    C->W[1][10][0] = -(a8 + a9 + a10);
+    C->W[1][10][7] =  a8;
+    C->W[1][10][8] =  a9;
+    C->W[1][10][9] =  a10;
+    C->W[1][11][0] = -(a5 + a6 + a7);
+    C->W[1][11][4] =  a5;
+    C->W[1][11][5] =  a6;
+    C->W[1][11][6] =  a7;
+
+    C->W[2][4][0]  =  b4 - b3;
+    C->W[2][4][2]  =  b3;
+    C->W[2][4][3]  = -b4;
+    C->W[2][5][0]  =  b4 - b3;
+    C->W[2][5][2]  =  b3;
+    C->W[2][5][3]  = -b4;
+    C->W[2][6][0]  =  b4 - b3;
+    C->W[2][6][2]  =  b3;
+    C->W[2][6][3]  = -b4;
+    C->W[2][7][0]  =  b5 + b6 + b7;
+    C->W[2][7][4]  = -b5;
+    C->W[2][7][5]  = -b6;
+    C->W[2][7][6]  = -b7;
+    C->W[2][8][0]  =  b5 + b6 + b7;
+    C->W[2][8][4]  = -b5;
+    C->W[2][8][5]  = -b6;
+    C->W[2][8][6]  = -b7;
+    C->W[2][9][0]  =  b5 + b6 + b7;
+    C->W[2][9][4]  = -b5;
+    C->W[2][9][5]  = -b6;
+    C->W[2][9][6]  = -b7;
+    C->W[2][10][0] =  b8 + b9 + b10;
+    C->W[2][10][7] = -b8;
+    C->W[2][10][8] = -b9;
+    C->W[2][10][9] = -b10;
+    C->W[2][11][0] =  b5 + b6 + b7;
+    C->W[2][11][4] = -b5;
+    C->W[2][11][5] = -b6;
+    C->W[2][11][6] = -b7;
+
+    C->W[3][7][0]  = -(g5 + g6 + g7);
+    C->W[3][7][4]  =  g5;
+    C->W[3][7][5]  =  g6;
+    C->W[3][7][6]  =  g7;
+    C->W[3][8][0]  = -(g5 + g6 + g7);
+    C->W[3][8][4]  =  g5;
+    C->W[3][8][5]  =  g6;
+    C->W[3][8][6]  =  g7;
+    C->W[3][9][0]  = -(g5 + g6 + g7);
+    C->W[3][9][4]  =  g5;
+    C->W[3][9][5]  =  g6;
+    C->W[3][9][6]  =  g7;
+    C->W[3][10][0] = -(g8 + g9 + g10);
+    C->W[3][10][7] =  g8;
+    C->W[3][10][8] =  g9;
+    C->W[3][10][9] =  g10;
+    C->W[3][11][0] = -(g5 + g6 + g7);
+    C->W[3][11][4] =  g5;
+    C->W[3][11][5] =  g6;
+    C->W[3][11][6] =  g7;
+
+    return C;
+  })

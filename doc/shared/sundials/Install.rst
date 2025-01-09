@@ -33,17 +33,17 @@ SUNDIALS release compressed archives (``.tar.gz``) from  the SUNDIALS
 
 The compressed archives allow for downloading of individual SUNDIALS packages.
 The name of the distribution archive is of the form
-``SOLVER-7.1.0.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
-``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``7.1.0``
+``SOLVER-x.y.z.tar.gz``, where ``SOLVER`` is one of: ``sundials``, ``cvode``,
+``cvodes``, ``arkode``, ``ida``, ``idas``, or ``kinsol``, and ``x.y.z``
 represents the version number (of the SUNDIALS suite or of the individual
 solver). After downloading the relevant archives, uncompress and expand the sources,
 by running
 
 .. code-block:: bash
 
-   % tar -zxf SOLVER-7.1.0.tar.gz
+   % tar -zxf SOLVER-x.y.z.tar.gz
 
-This will extract source files under a directory ``SOLVER-7.1.0``.
+This will extract source files under a directory ``SOLVER-x.y.z``.
 
 Starting with version 2.6.0 of SUNDIALS, CMake is the only supported method of
 installation.  The explanations of the installation procedure begin with a few
@@ -51,7 +51,7 @@ common observations:
 
 #. The remainder of this chapter will follow these conventions:
 
-   ``SOLVERDIR`` is the directory ``SOLVER-7.1.0`` created above; i.e. the
+   ``SOLVERDIR`` is the directory ``SOLVER-x.y.z`` created above; i.e. the
    directory containing the SUNDIALS sources.
 
    ``BUILDDIR`` is the (temporary) directory under which SUNDIALS is built.
@@ -533,7 +533,7 @@ illustration only.
    this value with the architecture for their system as the default varies
    across compilers and compiler versions.
 
-   .. versionchanged:: x.y.z
+   .. versionchanged:: 7.2.0
 
       In prior versions ``CMAKE_CUDA_ARCHITECTURES`` defaulted to ``70``.
 
@@ -684,7 +684,7 @@ illustration only.
 
    Default: "REF;OMP"
 
-   .. versionchanged: 7.1.0
+   .. versionchanged:: 7.1.0
 
       The ``DPCPP`` option was changed to ``SYCL`` to align with Ginkgo's naming convention.
 
@@ -865,6 +865,23 @@ illustration only.
    Specify the executable for running MPI programs
 
    Default: ``mpirun``
+
+   .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
+
+.. cmakeoption:: MPIEXEC_PREFLAGS
+
+   Specifies flags that come directly after ``MPIEXEC_EXECUTABLE`` and before
+   ``MPIEXEC_NUMPROC_FLAG`` and ``MPIEXEC_MAX_NUMPROCS``.
+
+   Default: none
+
+   .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
+
+.. cmakeoption:: MPIEXEC_POSTFLAGS
+
+   Specifies flags that come after the executable to run but before any other program arguments.
+
+   Default: none
 
    .. note:: This option is triggered only if MPI is enabled (``ENABLE_MPI`` is ``ON``).
 
@@ -2273,7 +2290,7 @@ SUNDIALS "addons" are community developed code additions for SUNDIALS that can b
 SUNDIALS build system so that they have full access to all internal SUNDIALS symbols. The intent is
 for SUNDIALS addons to function as if they are part of the SUNDIALS library, while allowing them to
 potentially have different licenses (although we encourage BSD-3-Clause still), code style (although
-we encourage them to follow the SUNDIALS style outlined :ref:`here <Style>`).
+we encourage them to follow the SUNDIALS style outlined :ref:`here <SourceCode>`).
 
 .. warning::
 

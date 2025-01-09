@@ -22,6 +22,8 @@
 #include <arkode/arkode_butcher_dirk.h>
 #include <arkode/arkode_butcher_erk.h>
 #include <arkode/arkode_ls.h>
+#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
+#include <sundials/sundials_stepper.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
@@ -36,9 +38,12 @@ typedef enum
 {
   MRISTEP_EXPLICIT,
   MRISTEP_IMPLICIT,
-  MRISTEP_IMEX
+  MRISTEP_IMEX,
+  MRISTEP_MERK,
+  MRISTEP_SR
 } MRISTEP_METHOD_TYPE;
 
+/* MRI coupling table IDs */
 typedef enum
 {
   ARKODE_MRI_NONE    = -1, /* ensure enum is signed int */
@@ -62,14 +67,26 @@ typedef enum
   ARKODE_IMEX_MRI_GARK_EULER,
   ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL,
   ARKODE_IMEX_MRI_GARK_MIDPOINT,
-  ARKODE_MAX_MRI_NUM = ARKODE_IMEX_MRI_GARK_MIDPOINT,
+  ARKODE_MERK21,
+  ARKODE_MERK32,
+  ARKODE_MERK43,
+  ARKODE_MERK54,
+  ARKODE_IMEX_MRI_SR21,
+  ARKODE_IMEX_MRI_SR32,
+  ARKODE_IMEX_MRI_SR43,
+  ARKODE_MAX_MRI_NUM = ARKODE_IMEX_MRI_SR43
 } ARKODE_MRITableID;
 
-/* Default MRI coupling tables for each order */
+/* Default MRI coupling tables for each order and type */
 static const int MRISTEP_DEFAULT_EXPL_1 = ARKODE_MRI_GARK_FORWARD_EULER;
 static const int MRISTEP_DEFAULT_EXPL_2 = ARKODE_MRI_GARK_ERK22b;
 static const int MRISTEP_DEFAULT_EXPL_3 = ARKODE_MIS_KW3;
 static const int MRISTEP_DEFAULT_EXPL_4 = ARKODE_MRI_GARK_ERK45a;
+
+static const int MRISTEP_DEFAULT_EXPL_2_AD = ARKODE_MRI_GARK_ERK22b;
+static const int MRISTEP_DEFAULT_EXPL_3_AD = ARKODE_MRI_GARK_ERK33a;
+static const int MRISTEP_DEFAULT_EXPL_4_AD = ARKODE_MRI_GARK_ERK45a;
+static const int MRISTEP_DEFAULT_EXPL_5_AD = ARKODE_MERK54;
 
 static const int MRISTEP_DEFAULT_IMPL_SD_1 = ARKODE_MRI_GARK_BACKWARD_EULER;
 static const int MRISTEP_DEFAULT_IMPL_SD_2 = ARKODE_MRI_GARK_IRK21a;
@@ -80,6 +97,10 @@ static const int MRISTEP_DEFAULT_IMEX_SD_1 = ARKODE_IMEX_MRI_GARK_EULER;
 static const int MRISTEP_DEFAULT_IMEX_SD_2 = ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL;
 static const int MRISTEP_DEFAULT_IMEX_SD_3 = ARKODE_IMEX_MRI_GARK3b;
 static const int MRISTEP_DEFAULT_IMEX_SD_4 = ARKODE_IMEX_MRI_GARK4;
+
+static const int MRISTEP_DEFAULT_IMEX_SD_2_AD = ARKODE_IMEX_MRI_SR21;
+static const int MRISTEP_DEFAULT_IMEX_SD_3_AD = ARKODE_IMEX_MRI_SR32;
+static const int MRISTEP_DEFAULT_IMEX_SD_4_AD = ARKODE_IMEX_MRI_SR43;
 
 /* ------------------------------------
  * MRIStep Inner Stepper Function Types
@@ -94,18 +115,29 @@ typedef int (*MRIStepInnerFullRhsFn)(MRIStepInnerStepper stepper, sunrealtype t,
 typedef int (*MRIStepInnerResetFn)(MRIStepInnerStepper stepper, sunrealtype tR,
                                    N_Vector yR);
 
+typedef int (*MRIStepInnerGetAccumulatedError)(MRIStepInnerStepper stepper,
+                                               sunrealtype* accum_error);
+
+typedef int (*MRIStepInnerResetAccumulatedError)(MRIStepInnerStepper stepper);
+
+typedef int (*MRIStepInnerSetRTol)(MRIStepInnerStepper stepper, sunrealtype rtol);
+
 /*---------------------------------------------------------------
   MRI coupling data structure and associated utility routines
   ---------------------------------------------------------------*/
 struct MRIStepCouplingMem
 {
-  int nmat;         /* number of MRI coupling matrices                   */
-  int stages;       /* size of coupling matrices (stages * stages)       */
-  int q;            /* method order of accuracy                          */
-  int p;            /* embedding order of accuracy                       */
-  sunrealtype* c;   /* stage abscissae                                   */
-  sunrealtype*** W; /* explicit coupling matrices [nmat][stages][stages] */
-  sunrealtype*** G; /* implicit coupling matrices [nmat][stages][stages] */
+  MRISTEP_METHOD_TYPE type; /* flag to encode the MRI method type                  */
+  int nmat;         /* number of MRI coupling matrices                     */
+  int stages;       /* size of coupling matrices ((stages+1) * stages)     */
+  int q;            /* method order of accuracy                            */
+  int p;            /* embedding order of accuracy                         */
+  sunrealtype* c;   /* stage abscissae                                     */
+  sunrealtype*** W; /* explicit coupling matrices [nmat][stages+1][stages] */
+  sunrealtype*** G; /* implicit coupling matrices [nmat][stages+1][stages] */
+
+  int ngroup;  /* number of stage groups (MERK-specific)              */
+  int** group; /* stages to integrate together (MERK-specific)        */
 };
 
 typedef _SUNDIALS_STRUCT_ MRIStepCouplingMem* MRIStepCoupling;
@@ -160,15 +192,19 @@ SUNDIALS_EXPORT int MRIStepSetPostInnerFn(void* arkode_mem,
                                           MRIStepPostInnerFn postfn);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
-                                          long int* nfsi_evals);
 SUNDIALS_EXPORT int MRIStepGetCurrentCoupling(void* arkode_mem,
                                               MRIStepCoupling* MRIC);
 SUNDIALS_EXPORT int MRIStepGetLastInnerStepFlag(void* arkode_mem, int* flag);
+SUNDIALS_EXPORT int MRIStepGetNumInnerStepperFails(void* arkode_mem,
+                                                   long int* inner_fails);
 
 /* Custom inner stepper functions */
 SUNDIALS_EXPORT int MRIStepInnerStepper_Create(SUNContext sunctx,
                                                MRIStepInnerStepper* stepper);
+
+SUNDIALS_EXPORT int MRIStepInnerStepper_CreateFromSUNStepper(
+  SUNStepper sunstepper, MRIStepInnerStepper* stepper);
+
 SUNDIALS_EXPORT int MRIStepInnerStepper_Free(MRIStepInnerStepper* stepper);
 SUNDIALS_EXPORT int MRIStepInnerStepper_SetContent(MRIStepInnerStepper stepper,
                                                    void* content);
@@ -180,6 +216,12 @@ SUNDIALS_EXPORT int MRIStepInnerStepper_SetFullRhsFn(MRIStepInnerStepper stepper
                                                      MRIStepInnerFullRhsFn fn);
 SUNDIALS_EXPORT int MRIStepInnerStepper_SetResetFn(MRIStepInnerStepper stepper,
                                                    MRIStepInnerResetFn fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetAccumulatedErrorGetFn(
+  MRIStepInnerStepper stepper, MRIStepInnerGetAccumulatedError fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetAccumulatedErrorResetFn(
+  MRIStepInnerStepper stepper, MRIStepInnerResetAccumulatedError fn);
+SUNDIALS_EXPORT int MRIStepInnerStepper_SetRTolFn(MRIStepInnerStepper stepper,
+                                                  MRIStepInnerSetRTol fn);
 SUNDIALS_EXPORT int MRIStepInnerStepper_AddForcing(MRIStepInnerStepper stepper,
                                                    sunrealtype t, N_Vector f);
 SUNDIALS_EXPORT int MRIStepInnerStepper_GetForcingData(
@@ -223,7 +265,7 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetLinear instead")
 int MRIStepSetLinear(void* arkode_mem, int timedepend);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinear instead")
 int MRIStepSetNonlinear(void* arkode_mem);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepSetMaxARKodes instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetMaxNumSteps instead")
 int MRIStepSetMaxNumSteps(void* arkode_mem, long int mxsteps);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNonlinCRDown instead")
 int MRIStepSetNonlinCRDown(void* arkode_mem, sunrealtype crdown);
@@ -247,7 +289,7 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetStopTime instead")
 int MRIStepSetStopTime(void* arkode_mem, sunrealtype tstop);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeClearStopTime instead")
 int MRIStepClearStopTime(void* arkode_mem);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepSetFiARKode instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetFixedStep instead")
 int MRIStepSetFixedStep(void* arkode_mem, sunrealtype hsfixed);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetRootDirection instead")
 int MRIStepSetRootDirection(void* arkode_mem, int* rootdir);
@@ -255,7 +297,7 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetNoInactiveRootWarn instead")
 int MRIStepSetNoInactiveRootWarn(void* arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetUserData instead")
 int MRIStepSetUserData(void* arkode_mem, void* user_data);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepSetPostprocARKodeFn instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetPostprocessStepFn instead")
 int MRIStepSetPostprocessStepFn(void* arkode_mem, ARKPostProcessFn ProcessStep);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeSetPostprocessStageFn instead")
 int MRIStepSetPostprocessStageFn(void* arkode_mem, ARKPostProcessFn ProcessStage);
@@ -294,9 +336,9 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumLinSolvSetups instead")
 int MRIStepGetNumLinSolvSetups(void* arkode_mem, long int* nlinsetups);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetWorkSpace instead")
 int MRIStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetARKodes instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumSteps instead")
 int MRIStepGetNumSteps(void* arkode_mem, long int* nssteps);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetLARKode instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLastStep instead")
 int MRIStepGetLastStep(void* arkode_mem, sunrealtype* hlast);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetCurrentTime instead")
 int MRIStepGetCurrentTime(void* arkode_mem, sunrealtype* tcur);
@@ -335,13 +377,13 @@ int MRIStepGetNumNonlinSolvConvFails(void* arkode_mem, long int* nnfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNonlinSolvStats instead")
 int MRIStepGetNonlinSolvStats(void* arkode_mem, long int* nniters,
                               long int* nnfails);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetARKodeSolveFails instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumStepSolveFails instead")
 int MRIStepGetNumStepSolveFails(void* arkode_mem, long int* nncfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJac instead")
 int MRIStepGetJac(void* arkode_mem, SUNMatrix* J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacTime instead")
 int MRIStepGetJacTime(void* arkode_mem, sunrealtype* t_J);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use MRIStepGetJacARKodes instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacNumSteps instead")
 int MRIStepGetJacNumSteps(void* arkode_mem, long* nst_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLinWorkSpace instead")
 int MRIStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS,
@@ -370,6 +412,9 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void MRIStepFree(void** arkode_mem);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodePrintMem instead")
 void MRIStepPrintMem(void* arkode_mem, FILE* outfile);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRhsEvals instead")
+int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfse_evals,
+                          long int* nfsi_evals);
 
 #ifdef __cplusplus
 }

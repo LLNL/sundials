@@ -803,13 +803,6 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
         nfe_expected += nst;
       }
     }
-
-    if (prob_opts.i_type != interp_type::hermite && save_fn_for_residual &&
-        !explicit_first_stage)
-    {
-      if (stiffly_accurate) { nfe_expected++; }
-      else { nfe_expected += nst; }
-    }
   }
 
   // Expected number of implicit functions evaluations
@@ -866,8 +859,11 @@ int check_rhs_evals(rk_type r_type, void* arkstep_mem, long int nfe_expected,
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
   long int nfe, nfi;
-  flag = ARKStepGetNumRhsEvals(arkstep_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKodeGetNumRhsEvals(arkstep_mem, 0, &nfe);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+
+  flag = ARKodeGetNumRhsEvals(arkstep_mem, 1, &nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
 
   if (r_type == rk_type::expl || r_type == rk_type::imex)
   {

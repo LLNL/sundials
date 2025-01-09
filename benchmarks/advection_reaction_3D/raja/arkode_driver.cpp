@@ -58,7 +58,6 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = true;
@@ -190,8 +189,10 @@ int EvolveProblemDIRK(N_Vector y, UserData* udata, UserOptions* uopt)
   check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
   retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
@@ -246,7 +247,6 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   long int nfe, nfi;          /* RHS stats                    */
   long int nni, ncnf;         /* nonlinear solver stats       */
   long int nli, npsol;        /* linear solver stats          */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = false;
@@ -394,8 +394,10 @@ int EvolveProblemIMEX(N_Vector y, UserData* udata, UserOptions* uopt)
   check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
   retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
@@ -445,7 +447,6 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   int iout;                   /* output counter                */
   long int nst, nst_a, netf;  /* step stats                    */
   long int nfe;               /* RHS stats                     */
-  char fname[MXSTR];
 
   /* Additively split methods should not add the advection and reaction terms */
   udata->add_reactions = true;
@@ -519,8 +520,8 @@ int EvolveProblemExplicit(N_Vector y, UserData* udata, UserOptions* uopt)
   check_retval(&retval, "ARKodeGetNumSteps", 1, udata->myid);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1, udata->myid);
-  retval = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
-  check_retval(&retval, "ERKStepGetNumRhsEvals", 1, udata->myid);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1, udata->myid);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1, udata->myid);
 

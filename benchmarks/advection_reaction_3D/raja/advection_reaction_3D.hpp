@@ -57,7 +57,7 @@ struct UserOptions
   int fused;         /* use fused vector ops          */
   int nout;          /* number of outputs             */
   int save;          /* save solution to disk         */
-  char* outputdir;
+  const char* outputdir;
 };
 
 /*
