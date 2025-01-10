@@ -1,6 +1,7 @@
 **Major Features**
 
 **New Features and Enhancements**
+
 Added the ``ARKODE_RALSTON_3_1_2`` and ``ARKODE_TSITOURAS_7_4_5`` explicit
 Runge-Kutta Butcher tables.
 
