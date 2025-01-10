@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <sundials/sundials_math.h> /* def. of SUNRsqrt, etc. */
 #include <sundials/sundials_types.h> /* definition of type sunrealtype          */
-#include "sundials_arnoldi.h"
+#include <sundials/sundials_arnoldi.h>
 
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)

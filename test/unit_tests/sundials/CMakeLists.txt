@@ -22,7 +22,7 @@ endif()
 
 # Tests for the arnoldi utility routine (estimates dominant eigenvalue)
 if(ENABLE_LAPACK)
-  set(arnoldi_tests
+  set(unit_tests
     "test_arnoldi\;100 10\;"
     "test_arnoldi\;1000 20\;"
     "test_arnoldi\;10000 50\;")
@@ -49,7 +49,11 @@ if(ENABLE_LAPACK)
                         ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
       # libraries to link against
-      target_link_libraries(${test} sundials_sunlinsollapackdense
+      set(_arnoldi_libs sundials_core sundials_nvecserial LAPACK::LAPACK)
+      if(CMAKE_VERSION VERSION_LESS 3.20)
+        list(APPEND _arnoldi_libs BLAS::BLAS)
+      endif()
+      target_link_libraries(${test} ${_arnoldi_libs}
         ${EXE_EXTRA_LINK_LIBS})
 
     endif()
