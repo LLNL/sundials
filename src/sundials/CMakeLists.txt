@@ -69,6 +69,10 @@ if(ENABLE_SYCL)
   list(APPEND sundials_HEADERS sundials_sycl_policies.hpp)
 endif()
 
+if(ENABLE_LAPACK)
+  list(APPEND sundials_HEADERS sundials_arnoldi.h)
+endif()
+
 # If enabled, add the XBraid interface header
 if(ENABLE_XBRAID)
   list(APPEND sundials_HEADERS sundials_xbraid.h)
@@ -101,6 +105,11 @@ set(sundials_SOURCES
 if(ENABLE_MPI)
   list(APPEND sundials_SOURCES sundials_mpi_errors.c)
 endif()
+
+if(ENABLE_LAPACK)
+  list(APPEND sundials_SOURCES sundials_arnoldi.c)
+endif()
+
 
 # Add prefix with complete path to the source files
 add_prefix(${SUNDIALS_SOURCE_DIR}/src/sundials/ sundials_SOURCES)
