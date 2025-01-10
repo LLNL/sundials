@@ -34,6 +34,7 @@
 
 %ignore SUN_FORMAT_E;
 %ignore SUN_FORMAT_G;
+%ignore SUN_FORMAT_SG;
 
 // Handle MPI_Comm and SUNComm
 %include <typemaps.i>
