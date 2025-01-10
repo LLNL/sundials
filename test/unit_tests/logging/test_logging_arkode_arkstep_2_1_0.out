@@ -5,11 +5,11 @@ Using GMRES iterative linear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
- 1.029860256095084e-04    1.224744870309106e+00    1.732050195224277e+00    4.440892098500626e-16    0.000000000000000e+00
- 6.554112583561956e-03    1.224740487151591e+00    1.729572495016884e+00    2.946975996565016e-11    2.206064220189319e-10
- 1.020477566424183e-02    1.224734242922404e+00    1.726048871574017e+00    3.169020601490047e-11    2.147166888732954e-10
+ 1.029860256095084e-04    1.224744870309106e+00    1.732050195224277e+00    2.220446049250313e-16    0.000000000000000e+00
+ 8.582732436244913e-03    1.224737353124336e+00    1.727803079448646e+00    6.165579158334822e-11    2.519142672241514e-10
+ 1.344992439355806e-02    1.224726408387387e+00    1.721638042281484e+00    6.685163533859395e-11    2.568647516909550e-10
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.01020477566424183
+Current time                 = 0.01344992439355806
 Steps                        = 3
 Step attempts                = 3
 Stability limited steps      = 0
@@ -18,23 +18,23 @@ Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.0001029860256095084
-Last step size               = 0.003650663080679877
-Current step size            = 0.021026187632719
-Explicit RHS fn evals        = 20
-Implicit RHS fn evals        = 47
-NLS iters                    = 27
+Last step size               = 0.004867191957313147
+Current step size            = 0.03107313681729517
+Explicit RHS fn evals        = 23
+Implicit RHS fn evals        = 55
+NLS iters                    = 32
 NLS fails                    = 0
-NLS iters per step           = 9
+NLS iters per step           = 10.66666666666667
 LS setups                    = 0
 Jac fn evals                 = 0
-LS RHS fn evals              = 29
+LS RHS fn evals              = 33
 Prec setup evals             = 0
 Prec solves                  = 0
-LS iters                     = 29
+LS iters                     = 33
 LS fails                     = 0
 Jac-times setups             = 0
-Jac-times evals              = 29
-LS iters per NLS iter        = 1.074074074074074
+Jac-times evals              = 33
+LS iters per NLS iter        = 1.03125
 Jac evals per NLS iter       = 0
 Prec evals per NLS iter      = 0
 End ARKStep Logging test

@@ -6,10 +6,10 @@ Using dense direct linear solver
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
  1.029860256095084e-04    1.224744870309106e+00    1.732050195224277e+00    0.000000000000000e+00    0.000000000000000e+00
- 6.554114938847760e-03    1.224740487151368e+00    1.729572493235030e+00    2.654254593892347e-11    2.225244433162743e-10
- 1.020478290001611e-02    1.224734242910499e+00    1.726048863075356e+00    2.852318381485475e-11    2.167570567479515e-10
+ 8.582732436244913e-03    1.224737353125386e+00    1.727803079447940e+00    6.060552060205282e-11    2.512077212912800e-10
+ 1.344992466321410e-02    1.224726408390497e+00    1.721638041863508e+00    6.300071575537913e-11    2.551518996085633e-10
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.01020478290001611
+Current time                 = 0.0134499246632141
 Steps                        = 3
 Step attempts                = 3
 Stability limited steps      = 0
@@ -18,13 +18,13 @@ Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.0001029860256095084
-Last step size               = 0.003650667961168346
-Current step size            = 0.02102619488941004
-Explicit RHS fn evals        = 20
-Implicit RHS fn evals        = 46
-NLS iters                    = 26
+Last step size               = 0.004867192226969185
+Current step size            = 0.03107318825976415
+Explicit RHS fn evals        = 23
+Implicit RHS fn evals        = 54
+NLS iters                    = 31
 NLS fails                    = 0
-NLS iters per step           = 8.666666666666666
+NLS iters per step           = 10.33333333333333
 LS setups                    = 3
 Jac fn evals                 = 1
 LS RHS fn evals              = 0
@@ -35,6 +35,6 @@ LS fails                     = 0
 Jac-times setups             = 0
 Jac-times evals              = 0
 LS iters per NLS iter        = 0
-Jac evals per NLS iter       = 0.03846153846153846
+Jac evals per NLS iter       = 0.03225806451612903
 Prec evals per NLS iter      = 0
 End ARKStep Logging test
