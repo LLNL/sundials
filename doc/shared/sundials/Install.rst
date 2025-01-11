@@ -2226,7 +2226,7 @@ output bundled in the SUNDIALS distribution.
 
 .. _Installation.UsingSUNDIALS:
 
-Using SUNDIALS in your project
+Using SUNDIALS In Your Project
 ------------------------------
 
 After installing SUNDIALS, building your application with SUNDIALS involves two
