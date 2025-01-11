@@ -2426,7 +2426,7 @@ file.
    +--------------+----------------------------------------------+
 
 Like the C core header file, the C++ core header file is a convenient way to
-include all the header files that make up the C++ convenience features.
+include all the header files for the C++ classes.
 
 .. table:: Header files included by ``sundials_core.hpp``
    :align: center
