@@ -2360,7 +2360,12 @@ for shared libraries and ``.a`` or ``.lib`` for static libraries.
 SUNDIALS Core
 ^^^^^^^^^^^^^
 
-.. table:: SUNDIALS shared libraries and header files
+The core library contains the shared infrastructure utilized by SUNDIALS
+packages. All applications using SUNDIALS must link against the core
+library. For codes using the SUNDIALS CMake targets, the core target is
+automatically included by other targets.
+
+.. table:: The SUNDIALS core library, header, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2370,6 +2375,9 @@ SUNDIALS Core
    +--------------+----------------------------------------------+
    | CMake target | ``SUNDIALS::core``                           |
    +--------------+----------------------------------------------+
+
+The core header file is a convenient way to include all the the header files
+that make up the SUNDIALS code infrastructure.
 
 .. table:: Header files included by ``sundials_core.h``
    :align: center
@@ -2406,12 +2414,19 @@ SUNDIALS Core
    |              | ``sundials/sundials_version.h``              |
    +--------------+----------------------------------------------+
 
-.. table:: SUNDIALS shared libraries and header files
+For C++ applications, several convenience classes are provided for interacting
+with SUNDIALS objects. These can be accessed by including the C++ core header
+file.
+
+.. table:: The SUNDIALS C++ core header file
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``sundials/sundials_core.hpp``               |
    +--------------+----------------------------------------------+
+
+Like the C core header file, the C++ core header file is a convenient way to
+include all the header files that make up the C++ convenience features.
 
 .. table:: Header files included by ``sundials_core.hpp``
    :align: center
@@ -2434,48 +2449,30 @@ SUNDIALS Core
    |              | ``sundials/sundials_profiler.hpp``           |
    +--------------+----------------------------------------------+
 
-.. _Installation.LibrariesAndHeaders.Utilities:
+When MPI support is enabled (:cmakeop:`ENABLE_MPI` is ``ON``), the following
+header file provides aliases between MPI data types and SUNDIALS types. The
+``MPI_SUNREALTYPE`` is an alias to ``MPI_FLOAT``, ``MPI_DOUBLE``, or
+``MPI_LONG_DOUBLE`` depending on the value of :cmakeop:`SUNDIALS_PRECISION`. The
+alias ``MPI_SUNINDEXTYPE`` is an alias to ``MPI_INT32_T`` or ``MPI_INT64_T``
+depending on the value of :cmakeop:`SUNDIALS_INDEX_SIZE`.
 
-SUNDIALS Utilities
-^^^^^^^^^^^^^^^^^^
-
-SOME OF THESE ARE DEPRECATED AND SHOULD BE REMOVED
-
-.. table:: SUNDIALS shared libraries and header files
-   :align: center
-
-   +--------------+----------------------------------------------+
-   | Headers      | ``sundials/sundials_band.h``                 |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_dense.h``                |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_direct.h``               |
-   +--------------+----------------------------------------------+
-
-
-.. table:: SUNDIALS shared libraries and header files
-   :align: center
-
-   +--------------+----------------------------------------------+
-   | Headers      | ``sundials/sundials_cuda_policies.hpp``      |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_hip_policies.hpp``       |
-   +--------------+----------------------------------------------+
-
-.. table:: SUNDIALS shared libraries and header files
-   :align: center
-
-   +--------------+----------------------------------------------+
-   | Headers      | ``sundials/sundials_xbraid.h``               |
-   +--------------+----------------------------------------------+
-
-.. table:: SUNDIALS shared libraries and header files
+.. table:: Header file defining aliases between SUNDIALS and MPI data types
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``sundials/sundials_mpi_types.h``            |
    +--------------+----------------------------------------------+
 
+When XBraid support is enabled (:cmakeop:`ENABLE_XBRAID` is ``ON``), the
+following header file defines types and functions for interfacing SUNDIALS with
+XBraid.
+
+.. table:: SUNDIALS header for interfacing with XBraid
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``sundials/sundials_xbraid.h``               |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Packages:
 
@@ -2487,25 +2484,40 @@ SUNDIALS Packages
 CVODE
 """""
 
-.. table:: SUNDIALS shared libraries and header files
+.. table:: CVODE library and header file
    :align: center
 
    +--------------+----------------------------------------------+
    | Libraries    | ``libsundials_cvode.LIB``                    |
    +--------------+----------------------------------------------+
    | Headers      | ``cvode/cvode.h``                            |
-   |              +----------------------------------------------+
-   |              | ``cvode/cvode_bandpre.h``                    |
-   |              +----------------------------------------------+
-   |              | ``cvode/cvode_bbdpre.h``                     |
-   |              +----------------------------------------------+
-   |              | ``cvode/cvode_diag.h``                       |
-   |              +----------------------------------------------+
-   |              | ``cvode/cvode_ls.h``                         |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::cvode``                          |
+   +--------------+----------------------------------------------+
+
+.. table:: Header files included by ``cvode.h``
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``cvode/cvode_ls.h``                         |
    |              +----------------------------------------------+
    |              | ``cvode/cvode_proj.h``                       |
    +--------------+----------------------------------------------+
-   | CMake target | ``SUNDIALS::cvode``                          |
+
+.. table:: CVODE diagonal linear solver
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``cvode/cvode_diag.h``                       |
+   +--------------+----------------------------------------------+
+
+.. table:: CVODE preconditioner modules
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``cvode/cvode_bandpre.h``                    |
+   |              +----------------------------------------------+
+   |              | ``cvode/cvode_bbdpre.h``                     |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Packages.CVODES:
@@ -2513,23 +2525,40 @@ CVODE
 CVODES
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+.. table:: CVODES library and header file
    :align: center
 
    +--------------+----------------------------------------------+
    | Libraries    | ``libsundials_cvodes.LIB``                   |
    +--------------+----------------------------------------------+
    | Headers      | ``cvodes/cvodes.h``                          |
-   |              +----------------------------------------------+
-   |              | ``cvodes/cvodes_bandpre.h``                  |
-   |              +----------------------------------------------+
-   |              | ``cvodes/cvodes_bbdpre.h``                   |
-   |              +----------------------------------------------+
-   |              | ``cvodes/cvodes_diag.h``                     |
-   |              +----------------------------------------------+
-   |              | ``cvodes/cvodes_ls.h``                       |
    +--------------+----------------------------------------------+
    | CMake target | ``SUNDIALS::cvodes``                         |
+   +--------------+----------------------------------------------+
+
+.. table:: Header files included by ``cvodes.h``
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``cvodes/cvodes_ls.h``                       |
+   |              +----------------------------------------------+
+   |              | ``cvodes/cvodes_proj.h``                     |
+   +--------------+----------------------------------------------+
+
+.. table:: CVODES diagonal linear solver
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``cvodes/cvodes_diag.h``                     |
+   +--------------+----------------------------------------------+
+
+.. table:: CVODES preconditioner modules
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``cvodes/cvodes_bandpre.h``                  |
+   |              +----------------------------------------------+
+   |              | ``cvodes/cvodes_bbdpre.h``                   |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Packages.ARKODE:
@@ -2542,32 +2571,59 @@ ARKODE
 
    +--------------+----------------------------------------------+
    | Libraries    | ``libsundials_arkode.LIB``                   |
-   |              +----------------------------------------------+
-   |              | ``libsundials_xbraid.LIB``                   |
    +--------------+----------------------------------------------+
    | Headers      | ``arkode/arkode.h``                          |
    |              +----------------------------------------------+
    |              | ``arkode/arkode_arkstep.h``                  |
    |              +----------------------------------------------+
-   |              | ``arkode/arkode_bandpre.h``                  |
+   |              | ``arkode/arkode_erkstep.h``                  |
    |              +----------------------------------------------+
-   |              | ``arkode/arkode_bbdpre.h``                   |
+   |              | ``arkode/arkode_forcingstep.h``              |
    |              +----------------------------------------------+
-   |              | ``arkode/arkode_butcher.h``                  |
+   |              | ``arkode/arkode_lsrkstep.h``                 |
+   |              +----------------------------------------------+
+   |              | ``arkode/arkode_mristep.h``                  |
+   |              +----------------------------------------------+
+   |              | ``arkode/arkode_splittingstep.h``            |
+   |              +----------------------------------------------+
+   |              | ``arkode/arkode_sprkstep.h``                 |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::arkode``                         |
+   +--------------+----------------------------------------------+
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``arkode/arkode_butcher.h``                  |
    |              +----------------------------------------------+
    |              | ``arkode/arkode_butcher_dirk.h``             |
    |              +----------------------------------------------+
    |              | ``arkode/arkode_butcher_erk.h``              |
    |              +----------------------------------------------+
-   |              | ``arkode/arkode_erkstep.h``                  |
-   |              +----------------------------------------------+
    |              | ``arkode/arkode_ls.h``                       |
    |              +----------------------------------------------+
-   |              | ``arkode/arkode_mristep.h``                  |
-   |              +----------------------------------------------+
-   |              | ``arkode/arkode_xbraid.h``                   |
+   |              | ``arkode/arkode_sprk.h``                     |
    +--------------+----------------------------------------------+
-   | CMake target | ``SUNDIALS::arkode``                         |
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``arkode/arkode_bandpre.h``                  |
+   |              +----------------------------------------------+
+   |              | ``arkode/arkode_bbdpre.h``                   |
+   +--------------+----------------------------------------------+
+
+.. table:: ARKODE interface with XBraid
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Libraries    | ``libsundials_arkode_xbraid.LIB``            |
+   +--------------+----------------------------------------------+
+   | Headers      | ``arkode/arkode_xbraid.h``                   |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::arkode_xbraid``                  |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Packages.IDA:
@@ -2590,6 +2646,20 @@ IDA
    | CMake target | ``SUNDIALS::ida``                            |
    +--------------+----------------------------------------------+
 
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``ida/ida_ls.h``                             |
+   +--------------+----------------------------------------------+
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``ida/ida_bbdpre.h``                         |
+   +--------------+----------------------------------------------+
+
 .. _Installation.LibrariesAndHeaders.Packages.IDAS:
 
 IDAS
@@ -2602,10 +2672,22 @@ IDAS
    | Libraries    | ``libsundials_idas.LIB``                     |
    +--------------+----------------------------------------------+
    | Headers      | ``idas/idas.h``                              |
-   |              +----------------------------------------------+
-   |              | ``idas/idas_bbdpre.h``                       |
    +--------------+----------------------------------------------+
    | CMake target | ``SUNDIALS::idas``                           |
+   +--------------+----------------------------------------------+
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``idas/idas_ls.h``                           |
+   +--------------+----------------------------------------------+
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``idas/idas_bbdpre.h``                       |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Packages.KINSOL:
@@ -2620,12 +2702,22 @@ KINSOL
    | Libraries    | ``libsundials_kinsol.LIB``                   |
    +--------------+----------------------------------------------+
    | Headers      | ``kinsol/kinsol.h``                          |
-   |              +----------------------------------------------+
-   |              | ``kinsol/kinsol_bbdpre.h``                   |
-   |              +----------------------------------------------+
-   |              | ``kinsol/kinsol_ls.h``                       |
    +--------------+----------------------------------------------+
    | CMake target | ``SUNDIALS::kinsol``                         |
+   +--------------+----------------------------------------------+
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``kinsol/kinsol_ls.h``                       |
+   +--------------+----------------------------------------------+
+
+.. table:: SUNDIALS shared libraries and header files
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``kinsol/kinsol_bbdpre.h``                   |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector:
@@ -2662,6 +2754,8 @@ ManyVector
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_manyvector.h``             |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecmanyvector``                 |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.Parallel:
 
@@ -2675,6 +2769,8 @@ Parallel (MPI)
    | Libraries    | ``libsundials_nvecparallel.LIB``             |
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_parallel.h``               |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecparallel``                   |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.MPIManyVector:
@@ -2690,6 +2786,8 @@ MPI ManyVector
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_mpimanyvector.h``          |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecmpimanyvector``              |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.MPIPlusX:
 
@@ -2703,6 +2801,8 @@ MPI+X
    | Libraries    | ``libsundials_nvecmpiplusx.LIB``             |
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_mpiplusx.h``               |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecmpiplusx``                   |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.OpenMP:
@@ -2718,6 +2818,8 @@ OpenMP
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_openmp.h``                 |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecopenmp``                     |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.OpenMPDEV:
 
@@ -2731,6 +2833,8 @@ OpenMPDEV
    | Libraries    | ``libsundials_nvecopenmpdev.LIB``            |
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_openmpdev.h``              |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecopenmpdev``                  |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.PThreads:
@@ -2746,6 +2850,8 @@ PThreads
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_pthreads.h``               |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecpthreads``                   |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.ParHyp:
 
@@ -2759,6 +2865,8 @@ PThreads
    | Libraries    | ``libsundials_nvecparhyp.LIB``               |
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_parhyp.h``                 |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecparhyp``                     |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.PETSc:
@@ -2774,6 +2882,8 @@ PETSc
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_petsc.h``                  |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecpetsc``                      |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.CUDA:
 
@@ -2787,6 +2897,8 @@ CUDA
    | Libraries    | ``libsundials_nveccuda.LIB``                 |
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_cuda.h``                   |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nveccuda``                       |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.HIP:
@@ -2802,6 +2914,8 @@ HIP
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_hip.h``                    |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvechip``                        |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.RAJA:
 
@@ -2815,8 +2929,16 @@ RAJA
    | Libraries    | ``libsundials_nveccudaraja.LIB``             |
    |              +----------------------------------------------+
    |              | ``libsundials_nvechipraja.LIB``              |
+   |              +----------------------------------------------+
+   |              | ``libsundials_nvecsyclraja.LIB``             |
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_raja.h``                   |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nveccudaraja``                   |
+   |              +----------------------------------------------+
+   |              | ``SUNDIALS::nvechipraja``                    |
+   |              +----------------------------------------------+
+   |              | ``SUNDIALS::nvecsyclraja``                   |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.SYCL:
@@ -2832,6 +2954,8 @@ SYCL
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_sycl.h``                   |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvecsycl``                       |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.Trilinos:
 
@@ -2846,6 +2970,8 @@ Trilinos (Tpetra)
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_trilinos.h``               |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nvectrilinos``                   |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Vector.Kokkos:
 
@@ -2857,6 +2983,8 @@ Kokkos
 
    +--------------+----------------------------------------------+
    | Headers      | ``nvector/nvector_kokkos.hpp``               |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::nveckokkos``                     |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Matrix:
@@ -3323,4 +3451,18 @@ SYCL
    | Libraries    | ``libsundials_sunmemsycl.LIB``               |
    +--------------+----------------------------------------------+
    | Headers      | ``sunmemory/sunmemory_sycl.h``               |
+   +--------------+----------------------------------------------+
+
+.. _Installation.LibrariesAndHeaders.ExecutionPolicies:
+
+Execution Policies
+^^^^^^^^^^^^^^^^^^
+
+.. table:: SUNDIALS execution policies
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``sundials/sundials_cuda_policies.hpp``      |
+   |              +----------------------------------------------+
+   |              | ``sundials/sundials_hip_policies.hpp``       |
    +--------------+----------------------------------------------+
