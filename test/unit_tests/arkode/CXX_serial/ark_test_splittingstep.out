@@ -1,4 +1,4 @@
-Forward solution of order 1 with 2 partitions completed with an error of 1.70008e-12
+Forward solution of order 1 with 2 partitions completed with an error of 1.70003e-12
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -28,7 +28,7 @@ Current step size            = 0.008
 Partition 0 evolves          = 250
 Partition 1 evolves          = 125
 
-Forward solution of order 3 with 2 partitions completed with an error of 1.0843e-12
+Forward solution of order 3 with 2 partitions completed with an error of 1.08441e-12
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -43,7 +43,7 @@ Current step size            = 0.008
 Partition 0 evolves          = 375
 Partition 1 evolves          = 375
 
-Forward solution of order 4 with 2 partitions completed with an error of -2.71305e-12
+Forward solution of order 4 with 2 partitions completed with an error of -2.16344e-12
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -106,7 +106,7 @@ Partition 0 evolves          = 375
 Partition 1 evolves          = 625
 Partition 2 evolves          = 375
 
-Forward solution of order 4 with 3 partitions completed with an error of -1.02113e-12
+Forward solution of order 4 with 3 partitions completed with an error of -1.02107e-12
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -156,7 +156,7 @@ Partition 1 evolves          = 250
 Partition 2 evolves          = 250
 Partition 3 evolves          = 125
 
-Forward solution of order 3 with 4 partitions completed with an error of 3.46445e-13
+Forward solution of order 3 with 4 partitions completed with an error of 3.46334e-13
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -173,7 +173,7 @@ Partition 1 evolves          = 625
 Partition 2 evolves          = 625
 Partition 3 evolves          = 375
 
-Forward solution of order 4 with 4 partitions completed with an error of -7.25808e-13
+Forward solution of order 4 with 4 partitions completed with an error of -7.25753e-13
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -226,7 +226,7 @@ Partition 2 evolves          = 250
 Partition 3 evolves          = 250
 Partition 4 evolves          = 125
 
-Forward solution of order 3 with 5 partitions completed with an error of 2.95819e-13
+Forward solution of order 3 with 5 partitions completed with an error of 2.95708e-13
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -244,7 +244,7 @@ Partition 2 evolves          = 625
 Partition 3 evolves          = 625
 Partition 4 evolves          = 375
 
-Forward solution of order 4 with 5 partitions completed with an error of -6.1845e-13
+Forward solution of order 4 with 5 partitions completed with an error of -6.18394e-13
 Current time                 = 1.000000000000001
 Steps                        = 125
 Step attempts                = 125
@@ -367,7 +367,7 @@ Current step size            = 0.1
 Partition 0 evolves          = 286
 Partition 1 evolves          = 275
 
-Reinitialized solution completed with an error of -2.44249e-15
+Reinitialized solution completed with an error of -2.88658e-15
 Current time                 = 2.000000000000001
 Steps                        = 125
 Step attempts                = 125

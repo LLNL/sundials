@@ -32,7 +32,7 @@ Inequality constraint fails  = 0
 Initial step size            = 0.002
 Last step size               = 0.002
 Current step size            = 0.002
-RHS fn evals                 = 2500
+RHS fn evals                 = 2100
 
 Nonlinear Stepper Statistics:
 Current time                 = 1.000000000000001
@@ -46,7 +46,7 @@ Inequality constraint fails  = 0
 Initial step size            = 0.001
 Last step size               = 0.001
 Current step size            = 0.001
-Explicit RHS fn evals        = 5000
+Explicit RHS fn evals        = 4001
 Implicit RHS fn evals        = 0
 NLS iters                    = 0
 NLS fails                    = 0
