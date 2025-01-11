@@ -71,8 +71,8 @@ can get the source files by either cloning the `SUNDIALS GitHub repository
 
    git clone https://github.com/LLNL/sundials
 
-or by downloading release compressed archives (``.tar.gz``) from the `SUNDIALS
-download website
+or by downloading release compressed archives (``.tar.gz`` files) from the
+`SUNDIALS download website
 <https://computing.llnl.gov/projects/sundials/sundials-software>`__. The
 compressed archives allow for downloading the entire SUNDIALS suite or
 individual packages. The name of the distribution archive is of the form
@@ -86,7 +86,7 @@ sources. For example, by running
 
    tar -zxf SOLVER-x.y.z.tar.gz
 
-where the extracted source files will be under the ``SOLVER-x.y.z`` directory.
+the extracted source files will be under the ``SOLVER-x.y.z`` directory.
 
 In the installation steps below we will refer to the following directories:
 
@@ -272,20 +272,20 @@ The build type determines the level of compiler optimization, if debug
 information is included, and if additional error checking code is generated. The
 provided build types are:
 
-* ``Debug`` -- no optimization, debugging information included, additional error
-  checking enabled
+* ``Debug`` -- no optimization flags, debugging information included, additional
+  error checking enabled
 
-* ``Release`` -- high optimization, no debugging information, no additional
-  error checks
-
-* ``RelWithDebInfo`` -- high optimization, debugging information included, no
+* ``Release`` -- high optimization flags, no debugging information, no
   additional error checks
 
-* ``MinSizeRel`` -- minimize size, no debugging information, no additional error
-  checks
+* ``RelWithDebInfo`` -- high optimization flags, debugging information included,
+  no additional error checks
 
-Each build type has a corresponding option for the set of compiler flag that are
-appended to the user-specified compiler flags. See
+* ``MinSizeRel`` -- minimize size flags, no debugging information, no additional
+  error checks
+
+Each build type has a corresponding option for the set of compiler flags that
+are appended to the user-specified compiler flags. See section
 :numref:`Installation.Options.Compilers` for more information.
 
 .. cmakeoption:: CMAKE_BUILD_TYPE
@@ -369,9 +369,9 @@ C Compiler
 
    The C standard used when building SUNDIALS C source files.
 
-   Default: 99
+   Default: ``99``
 
-   Options: 99, 11, 17.
+   Options: ``99``, ``11``, or ``17``
 
 .. cmakeoption:: CMAKE_C_EXTENSIONS
 
@@ -428,9 +428,9 @@ C++ Compiler
 
    The C++ standard used when building SUNDIALS C++ source files.
 
-   Default: 14
+   Default: ``14``
 
-   Options: 14, 17, 20
+   Options: ``14``, ``17``, or ``20``
 
 .. cmakeoption:: CMAKE_CXX_EXTENSIONS
 
@@ -489,9 +489,12 @@ Fortran Compiler
 Install Location
 ^^^^^^^^^^^^^^^^
 
+Use the following options to set where the SUNDIALS headers, library, and CMake
+configuration files will be installed.
+
 .. cmakeoption:: CMAKE_INSTALL_PREFIX
 
-   Install path prefix, prepended onto install directories
+   Install path prefix (``INSTALL_DIR``), prepended onto install directories
 
    Default: ``/usr/local``
 
@@ -504,22 +507,26 @@ Install Location
 
 .. cmakeoption:: CMAKE_INSTALL_LIBDIR
 
-   The directory under which libraries will be installed
+   The directory under :cmakeop:`CMAKE_INSTALL_PREFIX` where libraries will be
+   installed
 
    Default: Set based on the system as ``lib``, ``lib64``, or
    ``lib/<multiarch-tuple>``
 
 .. cmakeoption:: SUNDIALS_INSTALL_CMAKEDIR
 
-   Installation directory for the SUNDIALS CMake files (relative to
-   :cmakeop:`CMAKE_INSTALL_PREFIX`).
+   The directory under :cmakeop:`CMAKE_INSTALL_PREFIX` where the SUNDIALS CMake
+   package configuration files will be installed (see section
+   :numref:`Installation.CMakeConfigFile` for more information)
 
-   Default: ``CMAKE_INSTALL_PREFIX/cmake/sundials``
+   Default: ``cmake/sundials``
 
 .. _Installation.Options.LibraryTypes:
 
 Shared and Static Libraries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Use the following options to set which types of libraries will be installed.
 
 .. cmakeoption:: BUILD_SHARED_LIBS
 
@@ -596,7 +603,8 @@ Math Library
 SUNDIALS Packages
 ^^^^^^^^^^^^^^^^^
 
-The following options can be used to enable/disable particular SUNDIALS packages
+The following options can be used to enable/disable particular SUNDIALS
+packages.
 
 .. cmakeoption:: BUILD_ARKODE
 
@@ -689,13 +697,14 @@ Fortran Interfaces
 
 .. cmakeoption:: BUILD_FORTRAN_MODULE_INTERFACE
 
-   Enable Fortran 2003 interface
+   Build the SUNDIALS Fortran 2003 interface
 
    Default: ``OFF``
 
    .. note::
 
-      The Fortran interface are only compatible with double precision
+      The Fortran interface are only compatible with double precision (i.e.,
+      :cmakeop:`SUNDIALS_PRECISION` must be ``double``).
 
    .. warning::
 
@@ -716,7 +725,7 @@ For more information on error handling in SUNDIALS, see
 
    Build SUNDIALS with more extensive checks for unrecoverable errors.
 
-   Default: ``ON`` when :cmakeop:`CMAKE_BUILD_TYPE` is ``Debug`` otherwise
+   Default: ``ON`` when :cmakeop:`CMAKE_BUILD_TYPE` is ``Debug``, otherwise
    ``OFF``
 
    .. warning::
@@ -791,7 +800,9 @@ Building with Adiak
 ^^^^^^^^^^^^^^^^^^^
 
 `Adiak <http://software.llnl.gov/Adiak/>`__ is a library for recording meta-data
-about HPC simulations.
+about HPC simulations. Adiak is developed by Lawrence Livermore National
+Laboratory and can be obtained from the `Adiak GitHub repository
+<https://github.com/LLNL/Adiak>`__.
 
 .. cmakeoption:: ENABLE_ADIAK
 
@@ -812,8 +823,27 @@ Building with Caliper
 
 `Caliper <https://software.llnl.gov/Caliper/>`__ is a performance analysis
 library providing a code instrumentation and performance measurement framework
-for HPC applications. When profiling and Caliper are both enabled, SUNDIALS will
-utilize Caliper for performance profiling.
+for HPC applications. Caliper is developed by Lawrence Livermore National
+Laboratory and can be obtained from the `Caliper GitHub repository
+<https://github.com/LLNL/Caliper>`__.
+
+When profiling and Caliper are both enabled, SUNDIALS will utilize Caliper for
+performance profiling.
+
+To enable Caliper support, set the :cmakeop:`ENABLE_CALIPER` to ``ON`` and set
+:cmakeop:`CALIPER_DIR` to the root path of the Caliper installation. For
+example, the following command will configure SUNDIALS with profiling and
+Caliper support:
+
+.. code-block:: bash
+
+   cmake \
+     -S SOLVER_DIR \
+     -B BUILD_DIR \
+     -D CMAKE_INSTALL_PREFIX=INSTALL_DIR \
+     -D SUNDIALS_BUILD_WITH_PROFILING=ON \
+     -D ENABLE_CALIPER=ON \
+     -D CALIPER_DIR=/path/to/caliper/installation
 
 .. cmakeoption:: ENABLE_CALIPER
 
@@ -895,7 +925,7 @@ SUNDIALS with CUDA support for a system with an Ampere GPU:
 
    .. versionchanged:: 7.2.0
 
-      In prior versions ``CMAKE_CUDA_ARCHITECTURES`` defaulted to ``70``.
+      In prior versions :cmakeop:`CMAKE_CUDA_ARCHITECTURES` defaulted to ``70``.
 
 .. _Installation.Options.Ginkgo:
 
@@ -918,12 +948,12 @@ and :numref:`Installation.LibrariesAndHeaders.LinearSolver.Ginkgo`,
 respectively, for the corresponding header files). For more information on using
 SUNDIALS with GPUs, see :ref:`SUNDIALS.GPU`.
 
-To enable Ginkgo support, set the :cmakeop:`ENABLE_GINKGO` to ``ON`` and set
+To enable Ginkgo support, set :cmakeop:`ENABLE_GINKGO` to ``ON`` and set
 :cmakeop:`Ginkgo_DIR` to the root path of the Ginkgo installation. Additionally,
 set :cmakeop:`SUNDIALS_GINKGO_BACKENDS` to a semicolon-separated list of Ginkgo
 target architectures/executors. For example, the following command will
 configure SUNDIALS with Ginkgo support using the reference, OpenMP, and CUDA
-backends (targeting Ampere GPUs):
+(targeting Ampere GPUs) backends:
 
 .. code-block:: bash
 
@@ -935,7 +965,8 @@ backends (targeting Ampere GPUs):
      -D Ginkgo_DIR=/path/to/ginkgo/installation \
      -D SUNDIALS_GINKGO_BACKENDS="REF;OMP;CUDA" \
      -D ENABLE_CUDA=ON \
-     -D CMAKE_CUDA_ARCHITECTURES="80"
+     -D CMAKE_CUDA_ARCHITECTURES="80" \
+     -D ENABLE_OPENMP=ON
 
 .. note::
 
@@ -1130,10 +1161,10 @@ Building with Kokkos
 `Kokkos <https://kokkos.github.io/kokkos-core-wiki/>`__ is a modern C++
 (requires at least C++14) programming model for witting performance portable
 code for multicore CPU and GPU-based systems including NVIDIA, AMD, and Intel
-GPUs. Kokkos can be obtained from the `Kokkos GitHub repository
-<https://github.com/kokkos/kokkos>`__. The minimum supported version of Kokkos
-3.7.00. SUNDIALS is regularly tested with the latest versions of Kokkos,
-specifically up to version 4.3.01.
+GPUs. Kokkos is developed by Sandia National Laboratory and can be obtained from
+the `Kokkos GitHub repository <https://github.com/kokkos/kokkos>`__. The minimum
+supported version of Kokkos 3.7.00. SUNDIALS is regularly tested with the latest
+versions of Kokkos, specifically up to version 4.3.01.
 
 When Kokkos support is enabled, the :ref:`Kokkos NVector <NVectors.Kokkos>`
 header file will be installed (see section
@@ -1173,7 +1204,8 @@ Building with KokkosKernels
 
 The `KokkosKernels <https://github.com/kokkos/kokkos-kernels>`__ library is
 built on Kokkos and provides common linear algebra computational kernels.
-KokkosKernels can be obtained from the `KokkosKernels GitHub repository
+KokkosKernels is developed by Sandia National Laboratory and can be obtained
+from the `KokkosKernels GitHub repository
 <https://github.com/kokkos/kokkos-kernels>`__. The minimum supported version of
 KokkosKernels 3.7.00. SUNDIALS is regularly tested with the latest versions of
 KokkosKernels, specifically up to version 4.3.01.
@@ -1375,7 +1407,8 @@ the CUDA backend (targeting Ampere GPUs):
 
 .. cmakeoption:: SUNDIALS_MAGMA_BACKENDS
 
-   Which MAGMA backend to use under the SUNDIALS MAGMA interface.
+   Which MAGMA backend to use under the SUNDIALS MAGMA interface: ``CUDA`` or
+   ``HIP``
 
    Default: ``CUDA``
 
@@ -1485,8 +1518,9 @@ The Intel `oneAPI Math Kernel Library (oneMKL)
 <https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html>`__
 includes CPU and SYCL/DPC++ interfaces for LAPACK dense linear algebra
 routines. The SUNDIALS oneMKL interface targets the SYCL/DPC++ routines, to
-utilize the CPU routine see :numref:`Installation.Options.LAPACK`. SUNDIALS has
-been tested with oneMKL version 2021.4.
+utilize the CPU routine see section
+:numref:`Installation.Options.LAPACK`. SUNDIALS has been tested with oneMKL
+version 2021.4.
 
 When oneMKL support is enabled, the :ref:`oneMLK dense SUNMatrix
 <SUNMatrix.OneMklDense>` and the :ref:`oneMKL dense SUNLinearSolver
@@ -1663,7 +1697,7 @@ configure SUNDIALS with PETSc support:
 Building with PThreads
 ^^^^^^^^^^^^^^^^^^^^^^
 
-POSIX Threads (PThreads) is API for shared memory programming defined by the
+POSIX Threads (PThreads) is an API for shared memory programming defined by the
 Institute of Electrical and Electronics Engineers (IEEE) standard POSIX.1c.
 
 When PThreads support is enabled, the :ref:`PThreads NVector
@@ -2039,6 +2073,7 @@ SUNDIALS with XBraid support:
      -S SOLVER_DIR \
      -B BUILD_DIR \
      -D CMAKE_INSTALL_PREFIX=INSTALL_DIR \
+     -D SUNDIALS_INDEX_SIZE="32" \
      -D ENABLE_MPI=ON \
      -D ENABLE_XBRAID=ON \
      -D XBRAID_DIR=/path/to/xbraid/installation
@@ -2161,15 +2196,16 @@ Building and Running Examples
 -----------------------------
 
 Each of the SUNDIALS solvers is distributed with a set of examples demonstrating
-basic usage. To build and install the examples, set at least of the
+basic usage. To build and install the examples, set at least one of the
 ``EXAMPLES_ENABLE_<language>`` options to ``ON``, and set
-:cmakeop:`EXAMPLES_INSTALL` to ``ON``. CMake will generate ``CMakeLists.txt``
+:cmakeop:`EXAMPLES_INSTALL` to ``ON``. Along side the example sources and
+outputs, CMake will install automatically generated ``CMakeLists.txt``
 configuration files (and ``Makefile`` files if on Linux/Unix) that reference the
 *installed* SUNDIALS headers and libraries.
 
 Either the ``CMakeLists.txt`` file or the traditional ``Makefile`` may be used
-to build the examples as well as serve as a template for creating user developed
-solutions. To use the supplied ``Makefile`` simply run ``make`` to compile and
+to build the examples and serve as a template for building user developed
+problems. To use the supplied ``Makefile`` simply run ``make`` to compile and
 generate the executables. To use CMake from within the installed example
 directory, run ``cmake`` (or ``ccmake`` or ``cmake-gui`` to use the GUI)
 followed by ``make`` to compile the example code.  Note that if CMake is used,
@@ -2182,29 +2218,15 @@ output bundled in the SUNDIALS distribution.
 .. note::
 
    There will potentially be differences in the output due to machine
-   architecture, compiler versions, use of third party libraries etc.
-
-If enabled by the user (with the appropriate toggle for CMake), the examples
-distributed with SUNDIALS will be built together with the solver libraries but
-the installation step will result in exporting (by default in a subdirectory of
-the installation directory) the example sources and sample outputs together with
-automatically generated configuration files that reference the *installed*
-SUNDIALS headers and libraries. As such, these configuration files for the
-SUNDIALS examples can be used as "templates" for your own problems. CMake
-installs ``CMakeLists.txt`` files and also (as an option available only under
-Unix/Linux) ``Makefile`` files. Note this installation approach also allows the
-option of building the SUNDIALS examples without having to install them. (This
-can be used as a sanity check for the freshly built libraries.)
+   architecture, compiler versions, use of third party libraries, etc.
 
 .. _Installation.UsingSUNDIALS:
 
 Using SUNDIALS in your project
 ------------------------------
 
-After building and installing SUNDIALS, using SUNDIALS in your application
-involves two steps: including the right header files and linking to the right
-libraries.
-
+After installing SUNDIALS, building your application with SUNDIALS involves two
+steps: including the right header files and linking to the right libraries.
 Depending on what features of SUNDIALS that your application uses, the header
 files and libraries needed will vary. Starting in v7.0.0, all applications must
 link to ``libsundials_core``. For example, if you want to use CVODE for serial
@@ -2215,10 +2237,9 @@ computations you need the following includes:
    #include <cvode/cvode.h>
    #include <nvector/nvector_serial.h>
 
-and you must also link to ``libsundials_cvode`` and ``libsundials_nvecserial``.
-
-If you wanted to use CVODE with the GMRES linear solver and our CUDA enabled
-vector, you need the following includes:
+and also must link to ``libsundials_cvode`` and ``libsundials_nvecserial``. If
+you wanted to use CVODE with the GMRES linear solver and the CUDA NVector, you
+need the following includes:
 
 .. code-block:: c
 
@@ -2226,12 +2247,12 @@ vector, you need the following includes:
    #include <nvector/nvector_cuda.h>
    #include <sunlinsol/sunlinsol_spgmr.h>
 
-and you must also link to ``libsundials_cvode``, ``libsundials_nveccuda``, and
+and must also link to ``libsundials_cvode``, ``libsundials_nveccuda``, and
 ``libsundials_sunlinsolspgmr``.
 
-Refer to the :ref:`Installation.LibrariesAndHeaders` section below or the
+Refer to section :numref:`Installation.LibrariesAndHeaders` below or the
 documentations sections for the individual SUNDIALS packages and modules of
-interest for the proper includes and libraries to link to.
+interest for the proper includes and libraries to link against.
 
 .. _Installation.CMakeConfigFile:
 
@@ -2239,18 +2260,17 @@ CMake Projects
 ^^^^^^^^^^^^^^
 
 For projects that use CMake, the SUNDIALS `CMake package configuration file
-<https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html>`__ is provides
+<https://cmake.org/cmake/help/v3.18/manual/cmake-packages.7.html>`__ provides
 CMake targets for the consuming project. Use the CMake ``find_package`` command
-to search for the configuration file, which will be installed to
-``INSTALL_DIR/SUNDIALS_INSTALL_CMAKEDIR/SUNDIALSConfig.cmake`` alongside a
-package version file
-``INSTALL_DIR/SUNDIALS_INSTALL_CMAKEDIR/SUNDIALSConfigVersion.cmake``. The
-SUNDIALS CMake targets follow the same naming convention as the generated
-library binaries, e.g. the exported target for CVODE is ``SUNDIALS::cvode``. See
-section :numref:`Installation.LibrariesAndHeaders` for a complete list of
-targets. The CMake code snipped below shows how a consuming project might
-leverage the SUNDIALS package configuration file to build against SUNDIALS in
-their own CMake project.
+to search for the configuration file, ``SUNDIALSConfig.cmake``, which is
+installed alongside a package version file, ``SUNDIALSConfigVersion.cmake``,
+under the ``INSTALL_DIR/SUNDIALS_INSTALL_CMAKEDIR`` directory. The SUNDIALS
+CMake targets follow the same naming convention as the generated library
+binaries, e.g. the exported target for CVODE is ``SUNDIALS::cvode``. See section
+:numref:`Installation.LibrariesAndHeaders` for a complete list of targets. The
+CMake code snippit below shows how a consuming project might leverage the
+SUNDIALS package configuration file to build against SUNDIALS in their own CMake
+project.
 
 .. code-block:: cmake
 
@@ -2292,8 +2312,8 @@ the un-suffixed target is an alias to the ``_shared`` version. For example,
 ``SUNDIALS::cvode`` is an alias to ``SUNDIALS::cvode_shared`` in this
 case. Projects that wish to use static libraries should use the ``_static``
 version of the target when both library types are installed. When only static or
-shared libraries (not both) are installed the un-suffixed alias is to
-corresponding library type chosen at configuration time.
+shared libraries (not both) are installed the un-suffixed alias
+corresponds to the library type chosen at configuration time.
 
 .. _Installation.LibrariesAndHeaders:
 
@@ -2306,9 +2326,9 @@ the :cmakeop:`CMAKE_INSTALL_PREFIX` path in the ``include`` and
 files are further organized into subdirectories under the ``include`` directory.
 The installed public header files and libraries are listed for reference in the
 sections below. Additionally, the exported CMake targets are also listed for
-projects using CMake (see :numref:`Installation.CMakeConfigFile`). The file
-extension ``.LIB`` used below is typically ``.so``, ``.dll``, or ``.dylib`` for
-shared libraries and ``.a`` or ``.lib`` for static libraries.
+projects using CMake (see section :numref:`Installation.CMakeConfigFile`). The
+file extension ``.LIB`` used below is typically ``.so``, ``.dll``, or ``.dylib``
+for shared libraries and ``.a`` or ``.lib`` for static libraries.
 
 .. warning::
 
