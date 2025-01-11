@@ -1412,7 +1412,8 @@ the CUDA backend (targeting Ampere GPUs):
 
    Default: ``CUDA``
 
-   .. >>>> CHANGE THIS SO IT IS HIP OR SYCL IF THOSE ARE ENABLED <<<<<
+   .. TODO(DJG): Change this options so it is HIP or SYCL if those options are
+      enabled
 
 .. _Installation.Options.MPI:
 
@@ -1437,6 +1438,9 @@ When MPI support is enabled, the :ref:`parallel NVector <NVectors.NVParallel>`,
 :numref:`Installation.LibrariesAndHeaders.Vector.MPIManyVector`, and
 :numref:`Installation.LibrariesAndHeaders.Vector.MPIPlusX`,
 respectively, for the corresponding header files and libraries).
+
+.. TODO(DJG): Not all the SUNDIALS core will depend on MPI in if it is enabled
+   and application will need to link to MPI
 
 To enable MPI support, set :cmakeop:`ENABLE_MPI` to ``ON``. If CMake is unable
 to locate an MPI installation, set the relevant ``MPI_<language>_COMPILER``
@@ -2228,18 +2232,17 @@ Using SUNDIALS in your project
 After installing SUNDIALS, building your application with SUNDIALS involves two
 steps: including the right header files and linking to the right libraries.
 Depending on what features of SUNDIALS that your application uses, the header
-files and libraries needed will vary. Starting in v7.0.0, all applications must
-link to ``libsundials_core``. For example, if you want to use CVODE for serial
-computations you need the following includes:
+files and libraries needed will vary. For example, if you want to use CVODE for
+serial computations you need the following includes:
 
 .. code-block:: c
 
    #include <cvode/cvode.h>
    #include <nvector/nvector_serial.h>
 
-and also must link to ``libsundials_cvode`` and ``libsundials_nvecserial``. If
-you wanted to use CVODE with the GMRES linear solver and the CUDA NVector, you
-need the following includes:
+and must link to ``libsundials_cvode`` and ``libsundials_nvecserial``. If you
+wanted to use CVODE with the GMRES linear solver and the CUDA NVector, you need
+the following includes:
 
 .. code-block:: c
 
@@ -2247,8 +2250,17 @@ need the following includes:
    #include <nvector/nvector_cuda.h>
    #include <sunlinsol/sunlinsol_spgmr.h>
 
-and must also link to ``libsundials_cvode``, ``libsundials_nveccuda``, and
+and must link to ``libsundials_cvode``, ``libsundials_nveccuda``, and
 ``libsundials_sunlinsolspgmr``.
+
+.. attention::
+
+   .. versionadded:: 7.0.0
+
+      All applications must also link to ``libsundials_core``. For projects
+      using SUNDIALS CMake targets (see section
+      :numref:`Installation.CMakeConfigFile`), this dependency is automatically
+      included.
 
 Refer to section :numref:`Installation.LibrariesAndHeaders` below or the
 documentations sections for the individual SUNDIALS packages and modules of
@@ -2266,11 +2278,12 @@ to search for the configuration file, ``SUNDIALSConfig.cmake``, which is
 installed alongside a package version file, ``SUNDIALSConfigVersion.cmake``,
 under the ``INSTALL_DIR/SUNDIALS_INSTALL_CMAKEDIR`` directory. The SUNDIALS
 CMake targets follow the same naming convention as the generated library
-binaries, e.g. the exported target for CVODE is ``SUNDIALS::cvode``. See section
-:numref:`Installation.LibrariesAndHeaders` for a complete list of targets. The
-CMake code snippit below shows how a consuming project might leverage the
-SUNDIALS package configuration file to build against SUNDIALS in their own CMake
-project.
+binaries with the ``libsundials_`` prefix replaced by ``SUNDIALS::``. For
+example, the exported target for ``libsundials_cvode`` is
+``SUNDIALS::cvode``. See section :numref:`Installation.LibrariesAndHeaders` for
+a complete list of CMake targets. The CMake code snippit below shows how a
+consuming project might leverage the SUNDIALS package configuration file to
+build against SUNDIALS in their own CMake project.
 
 .. code-block:: cmake
 
@@ -2288,6 +2301,10 @@ project.
 
   # ... or find a version in a range
   find_package(SUNDIALS 7.0.0...7.1.0 REQUIRED)
+
+  # To check if specific components are available in the SUNDIALS installation,
+  # use the COMPONENTS option followed by the desired target names
+  find_package(SUNDIALS REQUIRED COMPONENTS cvode nvecpetsc)
 
   add_executable(myexec main.c)
 
