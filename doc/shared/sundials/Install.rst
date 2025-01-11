@@ -2376,8 +2376,8 @@ automatically included by other targets.
    | CMake target | ``SUNDIALS::core``                           |
    +--------------+----------------------------------------------+
 
-The core header file is a convenient way to include all the the header files
-that make up the SUNDIALS code infrastructure.
+The core header file is a convenient way to include all the header files that
+make up the SUNDIALS code infrastructure.
 
 .. table:: Header files included by ``sundials_core.h``
    :align: center
