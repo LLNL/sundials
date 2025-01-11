@@ -3005,6 +3005,8 @@ Banded
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_band.h``               |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunmatrixband``                  |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Matrix.cuSPARSE:
 
@@ -3018,6 +3020,8 @@ cuSPARSE
    | Libraries    | ``libsundials_sunmatrixcusparse.LIB``        |
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_cusparse.h``           |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunmatrixcusparse``              |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Matrix.Dense:
@@ -3033,6 +3037,8 @@ Dense
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_dense.h``              |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunmatrixdense``                 |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Matrix.Ginkgo:
 
@@ -3045,6 +3051,8 @@ Ginkgo
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_ginkgo.hpp``           |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunmatrixginkgo``                |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Matrix.KokkosKernels:
 
@@ -3056,6 +3064,8 @@ KokkosKernels Dense
 
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_kokkosdense.hpp``      |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunmatrixkokkosdense``           |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Matrix.MAGMADense:
@@ -3071,6 +3081,8 @@ MAGMA Dense
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_magmadense.h``         |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunmatrixmagmadense``            |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Matrix.oneMKLDense:
 
@@ -3084,6 +3096,8 @@ oneMKL Dense
    | Libraries    | ``libsundials_sunmatrixonemkldense.LIB``     |
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_onemkldense.h``        |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunmatrixonemkldense``           |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Matrix.Sparse:
@@ -3099,6 +3113,8 @@ Sparse
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_sparse.h``             |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunmatrixsparse``                |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.Matrix.SuperLU_DIST:
 
@@ -3112,6 +3128,8 @@ SuperLU Dist
    | Libraries    | ``libsundials_sunmatrixslunrloc.LIB``        |
    +--------------+----------------------------------------------+
    | Headers      | ``sunmatrix/sunmatrix_slunrloc.h``           |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunmatrixslunrloc``              |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver:
