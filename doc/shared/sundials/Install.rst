@@ -2546,7 +2546,7 @@ the library given below.
 
 .. warning::
 
-   CVODES is a super set of CVODE and defines the same functions as provided by
+   CVODES is a superset of CVODE and defines the same functions as provided by
    CVODE. As such, applications should not link to both CVODES and CVODE.
 
 .. table:: CVODES library, header file, and CMake target
@@ -2727,6 +2727,12 @@ IDAS
 
 To use the :ref:`IDAS <IDAS>` package, include the header file and link to the
 library given below.
+
+.. warning::
+
+   IDAS is a superset of IDA and defines the same functions as provided by
+   IDA. As such, applications should not link to both IDAS and IDA.
+
 
 .. table:: IDAS library, header file, and CMake target
    :align: center
