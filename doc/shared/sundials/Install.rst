@@ -1794,8 +1794,8 @@ GitHub repository <https://github.com/xiaoyeli/superlu_dist>`__. SuperLU_DIST
 version 7.0.0 or newer is required. SUNDIALS is regularly tested with the latest
 versions of SuperLU_DIST, specifically up to version 8.2.1.
 
-When SuperLU_DIST support is enabled, the  :ref:`SuperLU_DIST SUNMatrix
-<SUNMatrix.SLUNRloc>` and :ref:`SuperLU_DIST SUNLinearSolver
+When SuperLU_DIST support is enabled, the :ref:`SuperLU_DIST (SLUNRloc)
+SUNMatrix <SUNMatrix.SLUNRloc>` and :ref:`SuperLU_DIST SUNLinearSolver
 <SUNLinSol.SuperLUDIST>` will be built (see sections
 :numref:`Installation.LibrariesAndHeaders.Matrix.SuperLU_DIST` and
 :numref:`Installation.LibrariesAndHeaders.LinearSolver.SuperLU_DIST` for the
@@ -3128,7 +3128,10 @@ Matrices
 Banded
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`banded SUNMatrix <SUNMatrix.Band>`, include the header file and
+link to the library given below.
+
+.. table:: The banded SUNMatrix library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3144,7 +3147,10 @@ Banded
 cuSPARSE
 """"""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`cuSPARSE SUNMatrix <SUNMatrix.cuSPARSE>`, include the header
+file and link to the library given below.
+
+.. table:: The cuSPARSE SUNMatrix library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3160,7 +3166,10 @@ cuSPARSE
 Dense
 """""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`dense SUNMatrix <SUNMatrix.Dense>`, include the header file and
+link to the library given below.
+
+.. table:: The dense SUNMatrix library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3176,7 +3185,10 @@ Dense
 Ginkgo
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`Ginkgo SUNMatrix <SUNMatrix.Ginkgo>`, include the header file
+given below.
+
+.. table:: The Ginkgo SUNMatrix library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3190,7 +3202,11 @@ Ginkgo
 KokkosKernels Dense
 """""""""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`KokkosKernels dense SUNMatrix <SUNMatrix.Kokkos>`, include the
+header file given below.
+
+.. table:: The dense KokkosKernels SUNMatrix library, header file, and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3204,7 +3220,10 @@ KokkosKernels Dense
 MAGMA Dense
 """""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`MAGMA dense SUNMatrix <SUNMatrix.MAGMADense>`, include the
+header file and link to the library given below.
+
+.. table:: The dense MAGMA SUNMatrix library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3220,7 +3239,10 @@ MAGMA Dense
 oneMKL Dense
 """"""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`oneMKL dense SUNMatrix <SUNMatrix.OneMklDense>`, include the
+header file and link to the library given below.
+
+.. table:: The dense oneMKL SUNMatrix library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3236,7 +3258,10 @@ oneMKL Dense
 Sparse
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`sparse SUNMatrix <SUNMatrix.Sparse>`, include the header file
+and link to the library given below.
+
+.. table:: The sparse SUNMatrix library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3249,10 +3274,14 @@ Sparse
 
 .. _Installation.LibrariesAndHeaders.Matrix.SuperLU_DIST:
 
-SuperLU Dist
-""""""""""""
+SuperLU_DIST (SLUNRloc)
+"""""""""""""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`SuperLU_DIST (SLUNRloc) SUNMatrix <SUNMatrix.SLUNRloc>`,
+include the header file and link to the library given below.
+
+.. table:: The SuperLU_DIST (SLUNRloc) SUNMatrix library, header file, and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
