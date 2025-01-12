@@ -519,7 +519,7 @@ configuration files will be installed.
    package configuration files will be installed (see section
    :numref:`Installation.CMakeConfigFile` for more information)
 
-   Default: ``cmake/sundials``
+   Default: ``CMAKE_INSTALL_LIBDIR/cmake/sundials``
 
 .. _Installation.Options.LibraryTypes:
 
