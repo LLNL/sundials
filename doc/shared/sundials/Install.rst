@@ -2485,7 +2485,10 @@ SUNDIALS Packages
 CVODE
 """""
 
-.. table:: CVODE library and header file
+To use the :ref:`CVODE <CVODE>` package, include the header file and link to the
+library given below.
+
+.. table:: CVODE library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2496,7 +2499,11 @@ CVODE
    | CMake target | ``SUNDIALS::cvode``                          |
    +--------------+----------------------------------------------+
 
-.. table:: Header files included by ``cvode.h``
+The CVODE header file includes the files below which define functions, types,
+and constants for the CVODE linear solver interface and using projection methods
+with CVODE.
+
+.. table:: Additional header files included by ``cvode.h``
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2505,12 +2512,20 @@ CVODE
    |              | ``cvode/cvode_proj.h``                       |
    +--------------+----------------------------------------------+
 
+CVODE provides a specialized linear solver module for diagonal linear
+systems. Include the header file below to access the related functions.
+
 .. table:: CVODE diagonal linear solver
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``cvode/cvode_diag.h``                       |
    +--------------+----------------------------------------------+
+
+For problems in which the user cannot define a more effective, problem-specific
+preconditioner for Krylov iterative linear solvers, CVODE provides banded
+(``bandpre``) and band-block-diagonal (``bbdpre``) preconditioner
+modules. Include the header files below to access the related functions.
 
 .. table:: CVODE preconditioner modules
    :align: center
@@ -2526,7 +2541,15 @@ CVODE
 CVODES
 """"""
 
-.. table:: CVODES library and header file
+To use the :ref:`CVODES <CVODES>` package, include the header file and link to
+the library given below.
+
+.. warning::
+
+   CVODES is a super set of CVODE and defines the same functions as provided by
+   CVODE. As such, applications should not link to both CVODES and CVODE.
+
+.. table:: CVODES library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2537,7 +2560,11 @@ CVODES
    | CMake target | ``SUNDIALS::cvodes``                         |
    +--------------+----------------------------------------------+
 
-.. table:: Header files included by ``cvodes.h``
+The CVODES header file includes the files below which define functions, types,
+and constants for the CVODES linear solver interface and using projection
+methods with CVODES.
+
+.. table:: Additional header files included by ``cvodes.h``
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2546,12 +2573,20 @@ CVODES
    |              | ``cvodes/cvodes_proj.h``                     |
    +--------------+----------------------------------------------+
 
+CVODES provides a specialized linear solver module for diagonal linear
+systems. Include the header file below to access the related functions.
+
 .. table:: CVODES diagonal linear solver
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``cvodes/cvodes_diag.h``                     |
    +--------------+----------------------------------------------+
+
+For problems in which the user cannot define a more effective, problem-specific
+preconditioner for Krylov iterative linear solvers, CVODES provides banded
+(``bandpre``) and band-block-diagonal (``bbdpre``) preconditioner
+modules. Include the header files below to access the related functions.
 
 .. table:: CVODES preconditioner modules
    :align: center
@@ -2567,15 +2602,16 @@ CVODES
 ARKODE
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`ARKODE <ARKODE>` package, link to the library below and include
+the header file for the desired module.
+
+.. table:: ARKODE library, header files, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
    | Libraries    | ``libsundials_arkode.LIB``                   |
    +--------------+----------------------------------------------+
-   | Headers      | ``arkode/arkode.h``                          |
-   |              +----------------------------------------------+
-   |              | ``arkode/arkode_arkstep.h``                  |
+   | Headers      | ``arkode/arkode_arkstep.h``                  |
    |              +----------------------------------------------+
    |              | ``arkode/arkode_erkstep.h``                  |
    |              +----------------------------------------------+
@@ -2592,11 +2628,18 @@ ARKODE
    | CMake target | ``SUNDIALS::arkode``                         |
    +--------------+----------------------------------------------+
 
-.. table:: SUNDIALS shared libraries and header files
+The ARKODE module header files include the header file for the shared ARKODE
+interface functions, constants, and types (``arkode.h``). As appropriate, the
+module header files also include the ARKODE linear solver interface as well as
+the header files defining method coefficients.
+
+.. table:: Additional header files included by ``arkode_*step.h`` header files
    :align: center
 
    +--------------+----------------------------------------------+
-   | Headers      | ``arkode/arkode_butcher.h``                  |
+   | Headers      | ``arkode/arkode.h``                          |
+   |              +----------------------------------------------+
+   |              | ``arkode/arkode_butcher.h``                  |
    |              +----------------------------------------------+
    |              | ``arkode/arkode_butcher_dirk.h``             |
    |              +----------------------------------------------+
@@ -2607,7 +2650,12 @@ ARKODE
    |              | ``arkode/arkode_sprk.h``                     |
    +--------------+----------------------------------------------+
 
-.. table:: SUNDIALS shared libraries and header files
+For problems in which the user cannot define a more effective, problem-specific
+preconditioner for Krylov iterative linear solvers, ARKODE provides banded
+(``bandpre``) and band-block-diagonal (``bbdpre``) preconditioner
+modules. Include the header files below to access the related functions.
+
+.. table:: ARKODE preconditioner modules
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2616,7 +2664,11 @@ ARKODE
    |              | ``arkode/arkode_bbdpre.h``                   |
    +--------------+----------------------------------------------+
 
-.. table:: ARKODE interface with XBraid
+When XBraid support is enabled (:cmakeop:`ENABLE_XBRAID` is ``ON``), include the
+ARKODE-XBraid interface header file and link to the interface library given
+below to use ARKODE and XBraid together.
+
+.. table:: ARKODE library, header, and CMake target for interfacing with XBraid
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2632,29 +2684,36 @@ ARKODE
 IDA
 """
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`IDA <IDA>` package, include the header file and link to the
+library given below.
+
+.. table:: IDA library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
    | Libraries    | ``libsundials_ida.LIB``                      |
    +--------------+----------------------------------------------+
    | Headers      | ``ida/ida.h``                                |
-   |              +----------------------------------------------+
-   |              | ``ida/ida_bbdpre.h``                         |
-   |              +----------------------------------------------+
-   |              | ``ida/ida_ls.h``                             |
    +--------------+----------------------------------------------+
    | CMake target | ``SUNDIALS::ida``                            |
    +--------------+----------------------------------------------+
 
-.. table:: SUNDIALS shared libraries and header files
+The IDA header file includes the header file below which defines functions,
+types, and constants for the IDA linear solver interface.
+
+.. table:: Additional header files included by ``ida.h``
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``ida/ida_ls.h``                             |
    +--------------+----------------------------------------------+
 
-.. table:: SUNDIALS shared libraries and header files
+For problems in which the user cannot define a more effective, problem-specific
+preconditioner for Krylov iterative linear solvers, IDA provides a
+band-block-diagonal (``bbdpre``) preconditioner module. Include the header
+file below to access the related functions.
+
+.. table:: IDA preconditioner modules
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2666,7 +2725,10 @@ IDA
 IDAS
 """"
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`IDAS <IDAS>` package, include the header file and link to the
+library given below.
+
+.. table:: IDAS library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2677,14 +2739,22 @@ IDAS
    | CMake target | ``SUNDIALS::idas``                           |
    +--------------+----------------------------------------------+
 
-.. table:: SUNDIALS shared libraries and header files
+The IDAS header file includes the header file below which defines functions,
+types, and constants for the IDAS linear solver interface.
+
+.. table:: Additional header files included by ``idas.h``
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``idas/idas_ls.h``                           |
    +--------------+----------------------------------------------+
 
-.. table:: SUNDIALS shared libraries and header files
+For problems in which the user cannot define a more effective, problem-specific
+preconditioner for Krylov iterative linear solvers, IDAS provides a
+band-block-diagonal (``bbdpre``) preconditioner module. Include the header
+file below to access the related functions.
+
+.. table:: IDAS preconditioner modules
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2696,7 +2766,10 @@ IDAS
 KINSOL
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`KINSOL <KINSOL>` package, include the header file and link to
+the library given below.
+
+.. table:: KINSOL library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2707,14 +2780,22 @@ KINSOL
    | CMake target | ``SUNDIALS::kinsol``                         |
    +--------------+----------------------------------------------+
 
-.. table:: SUNDIALS shared libraries and header files
+The KINSOL header file includes the header file below which defines functions,
+types, and constants for the KINSOL linear solver interface.
+
+.. table:: Additional header files included by ``kinsol.h``
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``kinsol/kinsol_ls.h``                       |
    +--------------+----------------------------------------------+
 
-.. table:: SUNDIALS shared libraries and header files
+For problems in which the user cannot define a more effective, problem-specific
+preconditioner for Krylov iterative linear solvers, KINSOL provides a
+band-block-diagonal (``bbdpre``) preconditioner module. Include the header
+file below to access the related functions.
+
+.. table:: KINSOL preconditioner modules
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2731,7 +2812,10 @@ Vectors
 Serial
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`serial NVector <NVectors.NVSerial>`, include the header file
+and link to the library given below.
+
+.. table:: The serial NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2747,7 +2831,10 @@ Serial
 ManyVector
 """"""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`ManyVector NVector <NVectors.ManyVector>`, include the header
+file and link to the library given below.
+
+.. table:: The ManyVector NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2763,7 +2850,10 @@ ManyVector
 Parallel (MPI)
 """"""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`parallel (MPI) NVector <NVectors.NVParallel>`, include the
+header file and link to the library given below.
+
+.. table:: The parallel (MPI) NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2779,7 +2869,10 @@ Parallel (MPI)
 MPI ManyVector
 """"""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`MPI ManyVector NVector <NVectors.MPIManyVector>`, include the
+header file and link to the library given below.
+
+.. table:: The MPI ManyVector NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2795,7 +2888,10 @@ MPI ManyVector
 MPI+X
 """""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`MPI+X NVector <NVectors.MPIPlusX>`, include the header
+file and link to the library given below.
+
+.. table:: The MPI+X NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2811,7 +2907,10 @@ MPI+X
 OpenMP
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`OpenMP NVector <NVectors.OpenMP>`, include the header file and
+link to the library given below.
+
+.. table:: The OpenMP NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2827,7 +2926,11 @@ OpenMP
 OpenMPDEV
 """""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`OpenMP device offload NVector <NVectors.OpenMPDEV>`, include
+the header file and link to the library given below.
+
+.. table:: The OpenMP device offload NVector library, header file, and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2843,7 +2946,10 @@ OpenMPDEV
 PThreads
 """"""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`POSIX Threads NVector <NVectors.PThreads>`, include the header
+file and link to the library given below.
+
+.. table:: The POSIX Threads NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2859,7 +2965,10 @@ PThreads
 *hypre* (ParHyp)
 """"""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`hypre (ParHyp) NVector <NVectors.ParHyp>`, include the header
+file and link to the library given below.
+
+.. table:: The *hypre* (ParHyp) NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2875,7 +2984,10 @@ PThreads
 PETSc
 """""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`PETSc NVector <NVectors.ParHyp>`, include the header file and
+link to the library given below.
+
+.. table:: The PETSc NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2891,7 +3003,10 @@ PETSc
 CUDA
 """"
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`CUDA NVector <NVectors.CUDA>`, include the header
+file and link to the library given below.
+
+.. table:: The CUDA NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2907,7 +3022,10 @@ CUDA
 HIP
 """
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`HIP NVector <NVectors.HIP>`, include the header
+file and link to the library given below.
+
+.. table:: The HIP NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2923,7 +3041,10 @@ HIP
 RAJA
 """"
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`RAJA NVector <NVectors.RAJA>`, include the header
+file and link to the library given below for the desired backend.
+
+.. table:: The RAJA NVector libraries, header file, and CMake targets
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2947,7 +3068,10 @@ RAJA
 SYCL
 """"
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`SYCL NVector <NVectors.SYCL>`, include the header
+file and link to the library given below.
+
+.. table:: The SYCL NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2963,7 +3087,10 @@ SYCL
 Trilinos (Tpetra)
 """""""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`Trilinos (Tpetra) NVector <NVectors.NVTrilinos>`, include the
+header file and link to the library given below.
+
+.. table:: The Trilinos (Tpetra) NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -2979,7 +3106,10 @@ Trilinos (Tpetra)
 Kokkos
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`Kokkos NVector <NVectors.Kokkos>`, include the header
+file and link to the library given below.
+
+.. table:: The Kokkos NVector library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
