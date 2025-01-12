@@ -1440,8 +1440,13 @@ When MPI support is enabled, the :ref:`parallel NVector <NVectors.NVParallel>`,
 :numref:`Installation.LibrariesAndHeaders.Vector.MPIPlusX`,
 respectively, for the corresponding header files and libraries).
 
-.. TODO(DJG): Not all the SUNDIALS core will depend on MPI in if it is enabled
-   and application will need to link to MPI
+.. attention::
+
+   .. versionchanged:: 7.0.0
+
+      When MPI is enabled, all SUNDIALS libraries will include MPI symbols and
+      applications will need to include the path for MPI headers and link against
+      the corresponding MPI library.
 
 To enable MPI support, set :cmakeop:`ENABLE_MPI` to ``ON``. If CMake is unable
 to locate an MPI installation, set the relevant ``MPI_<language>_COMPILER``
