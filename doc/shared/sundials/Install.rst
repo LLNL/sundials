@@ -2815,6 +2815,10 @@ Serial
 To use the :ref:`serial NVector <NVectors.NVSerial>`, include the header file
 and link to the library given below.
 
+When using SUNDIALS time integration packages or the KINSOL package, the serial
+NVector is bundled with the package library and it is not necessary to link to
+the library below when using those packages.
+
 .. table:: The serial NVector library, header file, and CMake target
    :align: center
 
@@ -3131,6 +3135,10 @@ Banded
 To use the :ref:`banded SUNMatrix <SUNMatrix.Band>`, include the header file and
 link to the library given below.
 
+When using SUNDIALS time integration packages or the KINSOL package, the banded
+SUNMatrix is bundled with the package library and it is not necessary to link to
+the library below when using those packages.
+
 .. table:: The banded SUNMatrix library, header file, and CMake target
    :align: center
 
@@ -3168,6 +3176,10 @@ Dense
 
 To use the :ref:`dense SUNMatrix <SUNMatrix.Dense>`, include the header file and
 link to the library given below.
+
+When using SUNDIALS time integration packages or the KINSOL package, the dense
+SUNMatrix is bundled with the package library and it is not necessary to link to
+the library below when using those packages.
 
 .. table:: The dense SUNMatrix library, header file, and CMake target
    :align: center
@@ -3261,6 +3273,10 @@ Sparse
 To use the :ref:`sparse SUNMatrix <SUNMatrix.Sparse>`, include the header file
 and link to the library given below.
 
+When using SUNDIALS time integration packages or the KINSOL package, the sparse
+SUNMatrix is bundled with the package library and it is not necessary to link to
+the library below when using those packages.
+
 .. table:: The sparse SUNMatrix library, header file, and CMake target
    :align: center
 
@@ -3305,6 +3321,10 @@ Banded
 To use the :ref:`banded SUNLinearSolver <SUNLinSol_Band>`, include the header
 file and link to the library given below.
 
+When using SUNDIALS time integration packages or the KINSOL package, the banded
+SUNLinearSolver is bundled with the package library and it is not necessary to
+link to the library below when using those packages.
+
 .. table:: The banded SUNLinearSolver library, header file, and CMake target
    :align: center
 
@@ -3343,6 +3363,10 @@ Dense
 
 To use the :ref:`dense SUNLinearSolver <SUNLinSol_Dense>`, include the header
 file and link to the library given below.
+
+When using SUNDIALS time integration packages or the KINSOL package, the dense
+SUNLinearSolver is bundled with the package library and it is not necessary to
+link to the library below when using those packages.
 
 .. table:: The dense SUNLinearSolver library, header file, and CMake target
    :align: center
@@ -3496,6 +3520,10 @@ Preconditioned Conjugate Gradient (PCG)
 To use the :ref:`PCG SUNLinearSolver <SUNLinSol.PCG>`, include the header file
 and link to the library given below.
 
+When using SUNDIALS time integration packages or the KINSOL package, the PCG
+SUNLinearSolver is bundled with the package library and it is not necessary to
+link to the library below when using those packages.
+
 .. table:: The PCG SUNLinearSolver library, header file, and CMake target
    :align: center
 
@@ -3514,6 +3542,10 @@ Scaled, Preconditioned Bi-Conjugate Gradient, Stabilized (SPBCGS)
 
 To use the :ref:`SPBCGS SUNLinearSolver <SUNLinSol.SPBCGS>`, include the header
 file and link to the library given below.
+
+When using SUNDIALS time integration packages or the KINSOL package, the SPBCGS
+SUNLinearSolver is bundled with the package library and it is not necessary to
+link to the library below when using those packages.
 
 .. table:: The SPBCGS SUNLinearSolver library, header file, and CMake target
    :align: center
@@ -3534,6 +3566,10 @@ Scaled, Preconditioned, Flexible, Generalized Minimum Residual (SPFGMR)
 To use the :ref:`SPFGMR SUNLinearSolver <SUNLinSol.SPFGMR>`, include the header
 file and link to the library given below.
 
+When using SUNDIALS time integration packages or the KINSOL package, the SPFGMR
+SUNLinearSolver is bundled with the package library and it is not necessary to
+link to the library below when using those packages.
+
 .. table:: The SPFGMR SUNLinearSolver library, header file, and CMake target
    :align: center
 
@@ -3553,6 +3589,10 @@ Scaled, Preconditioned, Generalized Minimum Residual (SPGMR)
 To use the :ref:`SPGMR SUNLinearSolver <SUNLinSol.SPGMR>`, include the header
 file and link to the library given below.
 
+When using SUNDIALS time integration packages or the KINSOL package, the SPGMR
+SUNLinearSolver is bundled with the package library and it is not necessary to
+link to the library below when using those packages.
+
 .. table:: The SPGMR SUNLinearSolver library, header file, and CMake target
    :align: center
 
@@ -3571,6 +3611,10 @@ Scaled, Preconditioned, Transpose-Free Quasi-Minimum Residual (SPTFQMR)
 
 To use the :ref:`SPTFQMR SUNLinearSolver <SUNLinSol.SPTFQMR>`, include the
 header file and link to the library given below.
+
+When using SUNDIALS time integration packages or the KINSOL package, the SPTFQMR
+SUNLinearSolver is bundled with the package library and it is not necessary to
+link to the library below when using those packages.
 
 .. table:: The SPTFQMR SUNLinearSolver library, header file, and CMake target
    :align: center
@@ -3635,6 +3679,10 @@ Newton
 To use the :ref:`Newton SUNNonlinearSolver <SUNNonlinSol.Newton>`, include the
 header file and link to the library given below.
 
+When using SUNDIALS time integration packages, the Newton SUNNonlinearSolver is
+bundled with the package library and it is not necessary to link to the library
+below when using those packages.
+
 .. table:: The Newton SUNNonlinearSolver library, header file, and CMake target
    :align: center
 
@@ -3653,6 +3701,10 @@ Fixed-point
 
 To use the :ref:`fixed-point SUNNonlinearSolver <SUNNonlinSol.FixedPoint>`,
 include the header file and link to the library given below.
+
+When using SUNDIALS time integration packages, the fixed-point
+SUNNonlinearSolver is bundled with the package library and it is not necessary
+to link to the library below when using those packages.
 
 .. table:: The Fixed-point SUNNonlinearSolver library, header file, and CMake
            target
