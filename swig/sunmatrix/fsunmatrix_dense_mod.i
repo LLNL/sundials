@@ -45,6 +45,20 @@ SWIGEXPORT double * _wrap_FSUNDenseMatrix_Data(SUNMatrix farg1) {
   return fresult;
 }
 
+#ifdef SUNDIALS_INT32_T
+SWIGEXPORT double * _wrap_FSUNDenseMatrix_Column(SUNMatrix farg1, int32_t const *farg2) {
+  double * fresult ;
+  SUNMatrix arg1 = (SUNMatrix) 0 ;
+  sunindextype arg2 ;
+  sunrealtype *result = 0 ;
+
+  arg1 = (SUNMatrix)(farg1);
+  arg2 = (sunindextype)(*farg2);
+  result = (sunrealtype *)SUNDenseMatrix_Column(arg1,arg2);
+  fresult = result;
+  return fresult;
+}
+#else
 SWIGEXPORT double * _wrap_FSUNDenseMatrix_Column(SUNMatrix farg1, int64_t const *farg2) {
   double * fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
@@ -57,6 +71,7 @@ SWIGEXPORT double * _wrap_FSUNDenseMatrix_Column(SUNMatrix farg1, int64_t const 
   fresult = result;
   return fresult;
 }
+#endif
 %}
 
 %insert("fdecl") %{

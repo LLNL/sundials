@@ -33,7 +33,7 @@ ERKStep supports the following categories:
 * temporal adaptivity
 * relaxation Runge--Kutta methods
 
-ERKStep does not have forcing function support when converted to a
+ERKStep also has forcing function support when converted to a
 :c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
 :c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
 for additional details.
@@ -1644,9 +1644,9 @@ Main solver optional output functions
 
    .. note::
 
-      The file ``scripts/sundials_csv.py`` provides python utility functions to
-      read and output the data from a SUNDIALS CSV output file using the key
-      and value pair format.
+      The Python module ``tools/suntools`` provides utilities to read and output
+      the data from a SUNDIALS CSV output file using the key and value pair
+      format.
 
    .. versionadded:: 5.2.0
 
@@ -1743,7 +1743,7 @@ Main solver optional output functions
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.2.0
 
       Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
@@ -1787,9 +1787,9 @@ Main solver optional output functions
 
          typedef struct ARKodeButcherTableMem {
 
-           int q;           /* method order of accuracy       */
-           int p;           /* embedding order of accuracy    */
-           int stages;      /* number of stages               */
+           int q;              /* method order of accuracy       */
+           int p;              /* embedding order of accuracy    */
+           int stages;         /* number of stages               */
            sunrealtype **A;    /* Butcher table coefficients     */
            sunrealtype *c;     /* canopy node coefficients       */
            sunrealtype *b;     /* root node coefficients         */

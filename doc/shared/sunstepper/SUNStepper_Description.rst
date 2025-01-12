@@ -18,7 +18,7 @@
 The SUNStepper API
 ==================
 
-.. versionadded:: x.y.z
+.. versionadded:: 7.2.0
 
 As with other SUNDIALS classes, the :c:type:`SUNStepper` abstract base class is
 implemented using a C structure containing a ``content`` pointer to the derived
@@ -157,6 +157,17 @@ Stepping Functions
 
    :param stepper: the stepper object.
    :param tstop: stopping time for the stepper.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNStepper_SetStepDirection(SUNStepper stepper, sunrealtype stepdir)
+
+   This function specifies the direction of integration (forward or backward).
+
+   :param stepper: the stepper object.
+   :param stepdir: value whose sign determines the direction. A positive value
+      selects forward integration, a negative value selects backward
+      integration, and zero leaves the current direction unchanged.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
@@ -322,6 +333,16 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
+.. c:function:: SUNErrCode SUNStepper_SetStepDirectionFn(SUNStepper stepper, SUNStepperSetStepDirectionFn fn)
+
+   This function attaches a :c:type:`SUNStepperSetStepDirectionFn` function to a
+   :c:type:`SUNStepper` object.
+
+   :param stepper: a stepper object.
+   :param fn: the :c:type:`SUNStepperSetStepDirectionFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
 .. c:function:: SUNErrCode SUNStepper_SetForcingFn(SUNStepper stepper, SUNStepperSetForcingFn fn)
 
    This function attaches a :c:type:`SUNStepperSetForcingFn` function to a
@@ -380,6 +401,12 @@ abstract base class.
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_SetStopTime`.
+
+
+.. c:type:: SUNErrCode (*SUNStepperSetStepDirectionFn)(SUNStepper stepper, sunrealtype stepdir)
+
+   This type represents a function with the signature of
+   :c:func:`SUNStepper_SetStepDirection`.
 
 
 .. c:type:: SUNErrCode (*SUNStepperSetForcingFn)(SUNStepper stepper, sunrealtype tshift, sunrealtype tscale, N_Vector* forcing, int nforcing)

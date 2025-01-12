@@ -1,0 +1,41 @@
+Start MRIStep Logging test
+Using ImEx-MRI-SR method
+Using Newton nonlinear solver
+Using dense direct linear solver
+           t                        u                        v                      u err                    v err            
+------------------------------------------------------------------------------------------------------------------------------
+ 0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
+ 1.000000000000000e-03    1.224744769394184e+00    1.731993073508899e+00    6.466338575705777e-11    4.683364807078760e-12
+ 2.000000000000000e-03    1.224744463272502e+00    1.731819882893496e+00    1.291351470200652e-10    3.587685704076193e-11
+ 3.000000000000000e-03    1.224743953054848e+00    1.731531408143622e+00    2.215676531136523e-10    1.378700513754438e-07
+------------------------------------------------------------------------------------------------------------------------------
+Current time                 = 0.003
+Steps                        = 3
+Step attempts                = 3
+Stability limited steps      = 0
+Accuracy limited steps       = 0
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 0.001
+Last step size               = 0.001
+Current step size            = 0.001
+Explicit slow RHS fn evals   = 9
+Implicit slow RHS fn evals   = 24
+Inner stepper failures       = 0
+NLS iters                    = 15
+NLS fails                    = 0
+NLS iters per step           = 5
+LS setups                    = 1
+Jac fn evals                 = 1
+LS RHS fn evals              = 0
+Prec setup evals             = 0
+Prec solves                  = 0
+LS iters                     = 0
+LS fails                     = 0
+Jac-times setups             = 0
+Jac-times evals              = 0
+LS iters per NLS iter        = 0
+Jac evals per NLS iter       = 0.06666666666666667
+Prec evals per NLS iter      = 0
+End MRIStep Logging test

@@ -390,21 +390,21 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
 {
   SUNFunctionBegin(A->sunctx);
   sunindextype i, j;
-  char* matrixtype;
-  char* indexname;
+  const char* matrixtype;
+  const char* indexname;
 
   SUNAssertVoid(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
 
   /* perform operation */
   if (SM_SPARSETYPE_S(A) == CSC_MAT)
   {
-    indexname  = (char*)"col";
-    matrixtype = (char*)"CSC";
+    indexname  = "col";
+    matrixtype = "CSC";
   }
   else
   {
-    indexname  = (char*)"row";
-    matrixtype = (char*)"CSR";
+    indexname  = "row";
+    matrixtype = "CSR";
   }
   fprintf(outfile, "\n");
   fprintf(outfile, "%ld by %ld %s matrix, NNZ: %ld \n", (long int)SM_ROWS_S(A),
