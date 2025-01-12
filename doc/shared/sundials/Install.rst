@@ -526,7 +526,8 @@ configuration files will be installed.
 Shared and Static Libraries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use the following options to set which types of libraries will be installed.
+Use the following options to set which types of libraries will be installed. By
+default both static and shared libraries are installed.
 
 .. cmakeoption:: BUILD_SHARED_LIBS
 
@@ -2180,15 +2181,14 @@ Testing the Build and Installation
 
 If SUNDIALS was configured with any ``EXAMPLES_ENABLE_<language>`` options set
 to ``ON``, then a set of regression tests can be run after building with the
-``make`` command by running:
+command:
 
 .. code-block:: bash
 
    make test
 
 Additionally, if :cmakeop:`EXAMPLES_INSTALL` is set to ``ON``, then a set of
-smoke tests can be run after installing with the ``make install`` command by
-running:
+smoke tests can be run after installing with the command:
 
 .. code-block:: bash
 
@@ -2203,8 +2203,8 @@ Each of the SUNDIALS solvers is distributed with a set of examples demonstrating
 basic usage. To build and install the examples, set at least one of the
 ``EXAMPLES_ENABLE_<language>`` options to ``ON``, and set
 :cmakeop:`EXAMPLES_INSTALL` to ``ON``. Along side the example sources and
-outputs, CMake will install automatically generated ``CMakeLists.txt``
-configuration files (and ``Makefile`` files if on Linux/Unix) that reference the
+outputs, automatically generated ``CMakeLists.txt`` configuration files (and
+``Makefile`` files if on Linux/Unix systems) are installed referencing the
 *installed* SUNDIALS headers and libraries.
 
 Either the ``CMakeLists.txt`` file or the traditional ``Makefile`` may be used
@@ -2329,8 +2329,9 @@ the un-suffixed target is an alias to the ``_shared`` version. For example,
 ``SUNDIALS::cvode`` is an alias to ``SUNDIALS::cvode_shared`` in this
 case. Projects that wish to use static libraries should use the ``_static``
 version of the target when both library types are installed. When only static or
-shared libraries (not both) are installed the un-suffixed alias
-corresponds to the library type chosen at configuration time.
+shared libraries (not both) are installed the un-suffixed alias corresponds to
+the library type chosen at configuration time (see section
+:numref:`Installation.Options.LibraryTypes`).
 
 .. _Installation.LibrariesAndHeaders:
 
@@ -2363,7 +2364,7 @@ SUNDIALS Core
 The core library contains the shared infrastructure utilized by SUNDIALS
 packages. All applications using SUNDIALS must link against the core
 library. For codes using the SUNDIALS CMake targets, the core target is
-automatically included by other targets.
+automatically included as needed by other targets.
 
 .. table:: The SUNDIALS core library, header, and CMake target
    :align: center
@@ -2377,7 +2378,7 @@ automatically included by other targets.
    +--------------+----------------------------------------------+
 
 The core header file is a convenient way to include all the header files that
-make up the SUNDIALS code infrastructure.
+make up the SUNDIALS core infrastructure.
 
 .. table:: Header files included by ``sundials_core.h``
    :align: center
@@ -2426,7 +2427,7 @@ file.
    +--------------+----------------------------------------------+
 
 Like the C core header file, the C++ core header file is a convenient way to
-include all the header files for the C++ classes.
+include all the header files for the core C++ classes.
 
 .. table:: Header files included by ``sundials_core.hpp``
    :align: center
@@ -2451,9 +2452,9 @@ include all the header files for the C++ classes.
 
 When MPI support is enabled (:cmakeop:`ENABLE_MPI` is ``ON``), the following
 header file provides aliases between MPI data types and SUNDIALS types. The
-``MPI_SUNREALTYPE`` is an alias to ``MPI_FLOAT``, ``MPI_DOUBLE``, or
+alias ``MPI_SUNREALTYPE`` is one of ``MPI_FLOAT``, ``MPI_DOUBLE``, or
 ``MPI_LONG_DOUBLE`` depending on the value of :cmakeop:`SUNDIALS_PRECISION`. The
-alias ``MPI_SUNINDEXTYPE`` is an alias to ``MPI_INT32_T`` or ``MPI_INT64_T``
+alias ``MPI_SUNINDEXTYPE`` is either ``MPI_INT32_T`` or ``MPI_INT64_T``
 depending on the value of :cmakeop:`SUNDIALS_INDEX_SIZE`.
 
 .. table:: Header file defining aliases between SUNDIALS and MPI data types
