@@ -3746,11 +3746,13 @@ Memory Helpers
 System
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+When using SUNDIALS time integration packages or the KINSOL package, the system
+SUNMemoryHelper is bundled with the package library and it is not necessary to
+link to the library below when using those packages.
+
+.. table:: SUNDIALS system memory helper header file
    :align: center
 
-   +--------------+----------------------------------------------+
-   | Libraries    | ``libsundials_sunmemsys.LIB``                |
    +--------------+----------------------------------------------+
    | Headers      | ``sunmemory/sunmemory_system.h``             |
    +--------------+----------------------------------------------+
@@ -3758,11 +3760,12 @@ System
 CUDA
 """"
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`CUDA SUNMemoryHelper <SUNMemory.CUDA>`, include the header file
+given below when using a CUDA-enabled NVector or SUNMatrix.
+
+.. table:: SUNDIALS CUDA memory helper header file
    :align: center
 
-   +--------------+----------------------------------------------+
-   | Libraries    | ``libsundials_sunmemcuda.LIB``               |
    +--------------+----------------------------------------------+
    | Headers      | ``sunmemory/sunmemory_cuda.h``               |
    +--------------+----------------------------------------------+
@@ -3770,11 +3773,12 @@ CUDA
 HIP
 """
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`HIP SUNMemoryHelper <SUNMemory.HIP>`, include the header file
+given below when using a HIP-enabled NVector or SUNMatrix.
+
+.. table:: SUNDIALS HIP memory helper header file
    :align: center
 
-   +--------------+----------------------------------------------+
-   | Libraries    | ``libsundials_sunmemhip.LIB``                |
    +--------------+----------------------------------------------+
    | Headers      | ``sunmemory/sunmemory_hip.h``                |
    +--------------+----------------------------------------------+
@@ -3782,11 +3786,12 @@ HIP
 SYCL
 """"
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`SYCL SUNMemoryHelper <SUNMemory.SYCL>`, include the header file
+given below when using a SYCL-enabled NVector or SUNMatrix.
+
+.. table:: SUNDIALS SYCL memory helper header file
    :align: center
 
-   +--------------+----------------------------------------------+
-   | Libraries    | ``libsundials_sunmemsycl.LIB``               |
    +--------------+----------------------------------------------+
    | Headers      | ``sunmemory/sunmemory_sycl.h``               |
    +--------------+----------------------------------------------+
@@ -3796,11 +3801,41 @@ SYCL
 Execution Policies
 ^^^^^^^^^^^^^^^^^^
 
-.. table:: SUNDIALS execution policies
+CUDA
+""""
+
+When using a CUDA-enabled NVector or SUNMatrix, include the header file below to
+access the CUDA execution policy C++ classes.
+
+.. table:: SUNDIALS CUDA execution policies header file
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``sundials/sundials_cuda_policies.hpp``      |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_hip_policies.hpp``       |
+   +--------------+----------------------------------------------+
+
+HIP
+"""
+
+When using a HIP-enabled NVector or SUNMatrix, include the header file below to
+access the HIP execution policy C++ classes.
+
+.. table:: SUNDIALS HIP execution policies header file
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``sundials/sundials_hip_policies.hpp``       |
+   +--------------+----------------------------------------------+
+
+SYCL
+""""
+
+When using a SYCL-enabled NVector or SUNMatrix, include the header file below to
+access the SYCL execution policy C++ classes.
+
+.. table:: SUNDIALS SYCL execution policies header file
+   :align: center
+
+   +--------------+----------------------------------------------+
+   | Headers      | ``sundials/sundials_sycl_policies.hpp``      |
    +--------------+----------------------------------------------+
