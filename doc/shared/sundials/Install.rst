@@ -3302,7 +3302,10 @@ Linear Solvers
 Banded
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`banded SUNLinearSolver <SUNLinSol_Band>`, include the header
+file and link to the library given below.
+
+.. table:: The banded SUNLinearSolver library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3310,13 +3313,19 @@ Banded
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_band.h``               |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolband``                  |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.cuSPARSE:
 
 cuSPARSE Batched QR
 """""""""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`cuSPARSE batched QR SUNLinearSolver <SUNLinSol.cuSolverSp>`,
+include the header file and link to the library given below.
+
+.. table:: The cuSPARSE batched QR SUNLinearSolver library, header file, and
+           CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3324,13 +3333,18 @@ cuSPARSE Batched QR
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_cusolversp_batchqr.h`` |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolcusolversp``            |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.Dense:
 
 Dense
 """""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`dense SUNLinearSolver <SUNLinSol_Dense>`, include the header
+file and link to the library given below.
+
+.. table:: The dense SUNLinearSolver library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3338,17 +3352,24 @@ Dense
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_dense.h``              |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsoldense``                 |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.Ginkgo:
 
 Ginkgo
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`Ginkgo SUNLinearSolver <SUNLinSol.Ginkgo>`, include the header
+file given below.
+
+.. table:: The Ginkgo SUNLinearSolver header file and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_ginkgo.hpp``           |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolginkgo``                |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.KLU:
@@ -3356,7 +3377,10 @@ Ginkgo
 KLU
 """
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`KLU SUNLinearSolver <SUNLinSol.KLU>`, include the header file
+and link to the library given below.
+
+.. table:: The KLU SUNLinearSolver library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3364,17 +3388,24 @@ KLU
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_klu.h``                |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolklu``                   |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.KokkosKernels:
 
 KokkosKernels Dense
 """""""""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`KokkosKernels dense SUNLinearSolver <SUNLinSol.Kokkos>`, include the
+header file given below.
+
+.. table:: The KokkosKernels dense SUNLinearSolver header file and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_kokkosdense.hpp``      |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolkokkosdense``           |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.LAPACKBand:
@@ -3382,7 +3413,11 @@ KokkosKernels Dense
 LAPACK Banded
 """""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`LAPACK banded SUNLinearSolver <SUNLinSol_LapackBand>`, include
+the header file and link to the library given below.
+
+.. table:: The LAPACK banded SUNLinearSolver library, header file, and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3390,13 +3425,19 @@ LAPACK Banded
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_lapackband.h``         |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsollapackband``            |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.LAPACKDense:
 
 LAPACK Dense
 """"""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`LAPACK dense SUNLinearSolver <SUNLinSol_LapackDense>`, include
+the header file and link to the library given below.
+
+.. table:: The LAPACK dense SUNLinearSolver library, header file, and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3404,13 +3445,19 @@ LAPACK Dense
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_lapackdense.h``        |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsollapackdense``           |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.MAGMADense:
 
 MAGMA Dense
 """""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`MAGMA dense SUNLinearSolver <SUNLinSol.MAGMADense>`, include
+the header file and link to the library given below.
+
+.. table:: The MAGMA dense SUNLinearSolver library, header file, and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3418,13 +3465,19 @@ MAGMA Dense
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_magmadense.h``         |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolmagmadense``            |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.oneMKLDense:
 
 oneMKL Dense
 """"""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`oneMKL dense SUNLinearSolver <SUNLinSol.OneMklDense>`, include
+the header file and link to the library given below.
+
+.. table:: The oneMKL dense SUNLinearSolver library, header file, and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3432,13 +3485,18 @@ oneMKL Dense
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_onemkldense.h``        |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolonemkldense``           |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.PCG:
 
 Preconditioned Conjugate Gradient (PCG)
 """""""""""""""""""""""""""""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`PCG SUNLinearSolver <SUNLinSol.PCG>`, include the header file
+and link to the library given below.
+
+.. table:: The PCG SUNLinearSolver library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3446,13 +3504,18 @@ Preconditioned Conjugate Gradient (PCG)
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_pcg.h``                |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolpcg``                   |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SPBCGS:
 
 Scaled, Preconditioned Bi-Conjugate Gradient, Stabilized (SPBCGS)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`SPBCGS SUNLinearSolver <SUNLinSol.SPBCGS>`, include the header
+file and link to the library given below.
+
+.. table:: The SPBCGS SUNLinearSolver library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3460,13 +3523,18 @@ Scaled, Preconditioned Bi-Conjugate Gradient, Stabilized (SPBCGS)
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_spbcgs.h``             |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolspbcgs``                |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SPFGMR:
 
 Scaled, Preconditioned, Flexible, Generalized Minimum Residual (SPFGMR)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`SPFGMR SUNLinearSolver <SUNLinSol.SPFGMR>`, include the header
+file and link to the library given below.
+
+.. table:: The SPFGMR SUNLinearSolver library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3474,13 +3542,18 @@ Scaled, Preconditioned, Flexible, Generalized Minimum Residual (SPFGMR)
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_spfgmr.h``             |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolspfgmr``                |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SPGMR:
 
 Scaled, Preconditioned, Generalized Minimum Residual (SPGMR)
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`SPGMR SUNLinearSolver <SUNLinSol.SPGMR>`, include the header
+file and link to the library given below.
+
+.. table:: The SPGMR SUNLinearSolver library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3488,13 +3561,18 @@ Scaled, Preconditioned, Generalized Minimum Residual (SPGMR)
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_spgmr.h``              |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolspgmr``                 |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SPTFQMR:
 
 Scaled, Preconditioned, Transpose-Free Quasi-Minimum Residual (SPTFQMR)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`SPTFQMR SUNLinearSolver <SUNLinSol.SPTFQMR>`, include the
+header file and link to the library given below.
+
+.. table:: The SPTFQMR SUNLinearSolver library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3502,13 +3580,19 @@ Scaled, Preconditioned, Transpose-Free Quasi-Minimum Residual (SPTFQMR)
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_sptfqmr.h``            |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolsptfqmr``               |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SuperLU_DIST:
 
 SuperLU_DIST
 """"""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`SuperLU_DIST SUNLinearSolver <SUNLinSol.SuperLUDIST>`, include
+the header file and link to the library given below.
+
+.. table:: The SuperLU_DIST SUNLinearSolver library, header file, and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3516,19 +3600,26 @@ SuperLU_DIST
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_superludist.h``        |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolsuperludist``           |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.LinearSolver.SuperLU_MT:
 
 SuperLU_MT
 """"""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`SuperLU_MT SUNLinearSolver <SUNLinSol.SuperLUMT>`, include
+the header file and link to the library given below.
+
+.. table:: The SuperLU_MT SUNLinearSolver library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
    | Libraries    | ``libsundials_sunlinsolsuperlumt.LIB``       |
    +--------------+----------------------------------------------+
    | Headers      | ``sunlinsol/sunlinsol_superlumt.h``          |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunlinsolsuperlumt``             |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.NonlinearSolver:
@@ -3541,7 +3632,10 @@ Nonlinear Solvers
 Newton
 """"""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`Newton SUNNonlinearSolver <SUNNonlinSol.Newton>`, include the
+header file and link to the library given below.
+
+.. table:: The Newton SUNNonlinearSolver library, header file, and CMake target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3549,13 +3643,19 @@ Newton
    +--------------+----------------------------------------------+
    | Headers      | ``sunnonlinsol/sunnonlinsol_newton.h``       |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunnonlinsolnewton``             |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.NonlinearSolver.FixedPoint:
 
-Fixed-Point
+Fixed-point
 """""""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`fixed-point SUNNonlinearSolver <SUNNonlinSol.FixedPoint>`,
+include the header file and link to the library given below.
+
+.. table:: The Fixed-point SUNNonlinearSolver library, header file, and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
@@ -3563,19 +3663,27 @@ Fixed-Point
    +--------------+----------------------------------------------+
    | Headers      | ``sunnonlinsol/sunnonlinsol_fixedpoint.h``   |
    +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunnonlinsolfixedpoint``         |
+   +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.NonlinearSolver.PETScSNES:
 
 PETSc SNES
 """"""""""
 
-.. table:: SUNDIALS shared libraries and header files
+To use the :ref:`PETSc SNES SUNNonlinearSolver <SUNNonlinSol.PetscSNES>`, include
+the header file and link to the library given below.
+
+.. table:: The PETSc SNES SUNNonlinearSolver library, header file, and CMake
+           target
    :align: center
 
    +--------------+----------------------------------------------+
    | Libraries    | ``libsundials_sunnonlinsolpetscsnes.LIB``    |
    +--------------+----------------------------------------------+
    | Headers      | ``sunnonlinsol/sunnonlinsol_petscsnes.h``    |
+   +--------------+----------------------------------------------+
+   | CMake target | ``SUNDIALS::sunnonlinsolpetscsnes``          |
    +--------------+----------------------------------------------+
 
 .. _Installation.LibrariesAndHeaders.MemoryHelper:
