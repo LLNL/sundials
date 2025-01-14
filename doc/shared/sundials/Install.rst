@@ -2434,6 +2434,11 @@ file.
 Like the C core header file, the C++ core header file is a convenient way to
 include all the header files for the core C++ classes.
 
+.. warning::
+
+   Features in the ``sundials::experimental`` namespace are not yet part of the
+   public API and are subject to change or removal without notice.
+
 .. table:: Header files included by ``sundials_core.hpp``
    :align: center
 
