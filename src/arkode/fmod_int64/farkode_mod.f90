@@ -98,8 +98,6 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_MAX_STAGE_LIMIT_FAIL = -50_C_INT
  integer(C_INT), parameter, public :: ARK_SUNSTEPPER_ERR = -51_C_INT
  integer(C_INT), parameter, public :: ARK_STEP_DIRECTION_ERR = -52_C_INT
- integer(C_INT), parameter, public :: ARK_ADJ_CHECKPOINT_FAIL = -53_C_INT
- integer(C_INT), parameter, public :: ARK_ADJ_RECOMPUTE_FAIL = -54_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
  ! typedef enum ARKRelaxSolver
  enum, bind(c)
@@ -177,8 +175,6 @@ module farkode_mod
  public :: FARKodeSetMinStep
  public :: FARKodeSetMaxStep
  public :: FARKodeSetMaxNumConstrFails
- public :: FARKodeSetAdjointCheckpointScheme
- public :: FARKodeSetAdjointCheckpointIndex
  public :: FARKodeSetAccumulatedErrorType
  public :: FARKodeResetAccumulatedError
  public :: FARKodeEvolve
@@ -1026,24 +1022,6 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT), intent(in) :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetAdjointCheckpointScheme") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2) &
-bind(C, name="_wrap_FARKodeSetAdjointCheckpointIndex") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_INT64_T), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -3459,38 +3437,6 @@ integer(C_INT) :: farg2
 farg1 = arkode_mem
 farg2 = maxfails
 fresult = swigc_FARKodeSetMaxNumConstrFails(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-type(SUNAdjointCheckpointScheme), target, intent(inout) :: checkpoint_scheme
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = arkode_mem
-farg2 = c_loc(checkpoint_scheme)
-fresult = swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2)
-swig_result = fresult
-end function
-
-function FARKodeSetAdjointCheckpointIndex(arkode_mem, step_index) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arkode_mem
-integer(C_INT64_T), intent(in) :: step_index
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
-
-farg1 = arkode_mem
-farg2 = step_index
-fresult = swigc_FARKodeSetAdjointCheckpointIndex(farg1, farg2)
 swig_result = fresult
 end function
 

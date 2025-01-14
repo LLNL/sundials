@@ -80,10 +80,8 @@ sundials_add_library(
   INCLUDE_SUBDIR arkode
   LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_adjoint_obj
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
-    sundials_nvecmanyvector_obj
     sundials_sunadaptcontrollersoderlind_obj
     sundials_sunadaptcontrollerimexgus_obj
     sundials_sunadaptcontrollermrihtol_obj

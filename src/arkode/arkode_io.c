@@ -1252,7 +1252,7 @@ int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed)
   based on the sign of stepdir. If 0, the direction will remain
   unchanged. Note that if a fixed step size was previously set,
   this function can change the sign of that.
-
+  
   This should only be called after ARKodeReset, or between
   creating a stepper and ARKodeEvolve.
   ---------------------------------------------------------------*/
@@ -2082,41 +2082,6 @@ int ARKodeResetAccumulatedError(void* arkode_mem)
   /* Reset value and counter, and return */
   ark_mem->AccumErrorStart = ark_mem->tn;
   ark_mem->AccumError      = ZERO;
-
-  return (ARK_SUCCESS);
-}
-
-int ARKodeSetAdjointCheckpointScheme(void* arkode_mem,
-                                     SUNAdjointCheckpointScheme checkpoint_scheme)
-
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-
-  ark_mem->checkpoint_scheme = checkpoint_scheme;
-
-  return (ARK_SUCCESS);
-}
-
-int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, int64_t step_index)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem == NULL)
-  {
-    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem)arkode_mem;
-
-  ark_mem->checkpoint_step_idx = step_index;
-
   return (ARK_SUCCESS);
 }
 
@@ -3103,7 +3068,6 @@ char* ARKodeGetReturnFlagName(long int flag)
   case ARK_RELAX_JAC_FAIL: sprintf(name, "ARK_RELAX_JAC_FAIL"); break;
   case ARK_CONTROLLER_ERR: sprintf(name, "ARK_CONTROLLER_ERR"); break;
   case ARK_STEPPER_UNSUPPORTED: sprintf(name, "ARK_STEPPER_UNSUPPORTED"); break;
-  case ARK_ADJ_RECOMPUTE_FAIL: sprintf(name, "ARK_ADJ_RECOMPUTE_FAIL"); break;
   case ARK_DOMEIG_FAIL: sprintf(name, "ARK_DOMEIG_FAIL"); break;
   case ARK_MAX_STAGE_LIMIT_FAIL:
     sprintf(name, "ARK_MAX_STAGE_LIMIT_FAIL");

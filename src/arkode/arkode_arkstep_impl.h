@@ -189,8 +189,6 @@ int arkStep_GetGammas(ARKodeMem ark_mem, sunrealtype* gamma, sunrealtype* gamrat
                       sunbooleantype** jcur, sunbooleantype* dgamma_fail);
 int arkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
-int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
-                                 int* nflagPtr);
 int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
 int arkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int arkStep_SetDefaults(ARKodeMem ark_mem);
@@ -279,14 +277,6 @@ int arkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);
 int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* relax_jac_fn_evals, sunrealtype* delta_e_out);
 int arkStep_GetOrder(ARKodeMem ark_mem);
-
-/* private functions for adjoints */
-int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
-                   N_Vector sens_complete_stage, void* content);
-
-int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
-                                       ARKodeARKStepMem step_mem, int lineno,
-                                       const char* fname, const char* filename);
 
 /*===============================================================
   Reusable ARKStep Error Messages
