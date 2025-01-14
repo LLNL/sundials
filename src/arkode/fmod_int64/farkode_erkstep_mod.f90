@@ -46,6 +46,7 @@ module farkode_erkstep_mod
  public :: FERKStepSetTableName
  public :: FERKStepGetCurrentButcherTable
  public :: FERKStepGetTimestepperStats
+ public :: FERKStepCreateAdjointStepper
  public :: FERKStepResize
  public :: FERKStepReset
  public :: FERKStepSStolerances
@@ -202,6 +203,16 @@ type(C_PTR), value :: farg3
 type(C_PTR), value :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR), value :: farg6
+integer(C_INT) :: fresult
+end function
+
+function swigc_FERKStepCreateAdjointStepper(farg1, farg2, farg3) &
+bind(C, name="_wrap_FERKStepCreateAdjointStepper") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
@@ -1142,6 +1153,25 @@ farg4 = c_loc(step_attempts(1))
 farg5 = c_loc(nfevals(1))
 farg6 = c_loc(netfails(1))
 fresult = swigc_FERKStepGetTimestepperStats(farg1, farg2, farg3, farg4, farg5, farg6)
+swig_result = fresult
+end function
+
+function FERKStepCreateAdjointStepper(arkode_mem, sf, adj_stepper_ptr) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: arkode_mem
+type(N_Vector), target, intent(inout) :: sf
+type(C_PTR), target, intent(inout) :: adj_stepper_ptr
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+
+farg1 = arkode_mem
+farg2 = c_loc(sf)
+farg3 = c_loc(adj_stepper_ptr)
+fresult = swigc_FERKStepCreateAdjointStepper(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

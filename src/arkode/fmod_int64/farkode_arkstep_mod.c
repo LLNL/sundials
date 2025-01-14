@@ -2427,6 +2427,22 @@ SWIGEXPORT void _wrap_FARKStepPrintMem(void *farg1, void *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FARKStepCreateAdjointStepper(void *farg1, N_Vector farg2, void *farg3) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  N_Vector arg2 = (N_Vector) 0 ;
+  SUNAdjointStepper *arg3 = (SUNAdjointStepper *) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (N_Vector)(farg2);
+  arg3 = (SUNAdjointStepper *)(farg3);
+  result = (int)ARKStepCreateAdjointStepper(arg1,arg2,arg3);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FARKStepSetRelaxFn(void *farg1, ARKRelaxFn farg2, ARKRelaxJacFn farg3) {
   int fresult ;
   void *arg1 = (void *) 0 ;
