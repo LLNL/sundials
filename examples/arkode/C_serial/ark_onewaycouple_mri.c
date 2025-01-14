@@ -95,7 +95,7 @@ int main(void)
   sunrealtype t, tout;
   sunrealtype error = SUN_RCONST(0.0);
   int iout;
-  long int nsts, nstf, nfse, nfsi, nff, tmp;
+  long int nsts, nstf, nfse, nff;
 
   /*
    * Initialization
@@ -148,11 +148,8 @@ int main(void)
   if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* Create inner stepper */
-  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1))
-  {
-    return 1;
-  }
+  retval = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   /*
    * Create the slow integrator and set options
@@ -228,14 +225,14 @@ int main(void)
   /* Get some slow integrator statistics */
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfse);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nff, &tmp);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 0, &nff);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");

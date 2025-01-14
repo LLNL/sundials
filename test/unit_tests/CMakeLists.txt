@@ -48,7 +48,16 @@ if(BUILD_KINSOL)
   add_subdirectory(kinsol)
 endif()
 
+add_subdirectory(nvector)
+
+add_subdirectory(sunmatrix)
+
+add_subdirectory(sunlinsol)
+
+add_subdirectory(sunnonlinsol)
+
 if(CXX_FOUND)
+  add_subdirectory(logging)
   add_subdirectory(sunmemory)
   if(SUNDIALS_BUILD_WITH_PROFILING)
     add_subdirectory(profiling)

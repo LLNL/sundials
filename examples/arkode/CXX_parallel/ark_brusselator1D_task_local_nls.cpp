@@ -334,8 +334,10 @@ int EvolveProblemIMEX(SUNContext ctx, N_Vector y, UserData* udata,
   check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1);
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1);
   retval = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
@@ -443,8 +445,8 @@ int EvolveProblemExplicit(SUNContext ctx, N_Vector y, UserData* udata,
   check_retval(&retval, "ARKodeGetNumSteps", 1);
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_retval(&retval, "ARKodeGetNumStepAttempts", 1);
-  retval = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
-  check_retval(&retval, "ERKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_retval(&retval, "ARKodeGetNumErrTestFails", 1);
 
@@ -1088,7 +1090,6 @@ int TaskLocalNewton_GetNumConvFails(SUNNonlinearSolver NLS, long int* nconvfails
 
 SUNNonlinearSolver TaskLocalNewton(SUNContext ctx, N_Vector y)
 {
-  void* tmp_comm;
   SUNNonlinearSolver NLS;
   TaskLocalNewton_Content content;
 
@@ -1414,18 +1415,18 @@ int SetupProblem(int argc, char* argv[], UserData* udata, UserOptions* uopt,
   udata->WFID = NULL;
 
   /* set default integrator options */
-  uopt->order     = 3;          /* method order             */
-  uopt->expl      = 0;          /* imex or explicit         */
-  uopt->t0        = 0.0;        /* initial time             */
-  uopt->tf        = 10.0;       /* final time               */
-  uopt->rtol      = 1.0e-6;     /* relative tolerance       */
-  uopt->atol      = 1.0e-9;     /* absolute tolerance       */
-  uopt->global    = 0;          /* use global NLS           */
-  uopt->fused     = 0;          /* use fused vector ops     */
-  uopt->monitor   = 0;          /* print solution to screen */
-  uopt->printtime = 0;          /* print timing             */
-  uopt->nout      = 40;         /* number of output times   */
-  uopt->outputdir = (char*)"."; /* output directory         */
+  uopt->order     = 3;      /* method order             */
+  uopt->expl      = 0;      /* imex or explicit         */
+  uopt->t0        = 0.0;    /* initial time             */
+  uopt->tf        = 10.0;   /* final time               */
+  uopt->rtol      = 1.0e-6; /* relative tolerance       */
+  uopt->atol      = 1.0e-9; /* absolute tolerance       */
+  uopt->global    = 0;      /* use global NLS           */
+  uopt->fused     = 0;      /* use fused vector ops     */
+  uopt->monitor   = 0;      /* print solution to screen */
+  uopt->printtime = 0;      /* print timing             */
+  uopt->nout      = 40;     /* number of output times   */
+  uopt->outputdir = ".";    /* output directory         */
 
   /* check for input args */
   if (argc > 1)

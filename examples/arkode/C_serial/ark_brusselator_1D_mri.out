@@ -112,7 +112,7 @@
 Final Solver Statistics:
    Slow Steps: nsts = 1001
    Fast Steps: nstf = 3171 (attempted = 3171)
-   Total RHS evals:  Fs = 3004,  Ff = 30611
+   Total RHS evals:  Fs = 3004,  Ff = 31513
    Total number of fast error test failures = 0
    Total linear solver setups = 3118
    Total RHS evals for setting up the linear system = 0

@@ -314,8 +314,10 @@ int main(void)
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
   flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);

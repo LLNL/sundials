@@ -64,7 +64,7 @@ help ()
             all      -- create all possible tarballs
 
         --sunrealtype TYPE
-            Real type precision to use in a custom test. TYPE must be one of:
+            Precision to use in a custom test. TYPE must be one of:
 
             double   -- (default) use double precision
             single   -- use single precision
@@ -83,8 +83,8 @@ help ()
             shared -- build shared libraries
             both   -- build static and shared libraries
 
-        --tpls
-            Enable external third-party libraries in a custom test.
+        --tpls ON/OFF
+            Enable or disable external third-party libraries in a custom test.
 
         --suntesttype TYPE
             SUNDIALS test type for a custom test. TYPE must be one of:
@@ -126,7 +126,7 @@ help ()
 
         $0
         $0 --testtype release --buildjobs 4
-        $0 --phase CONFIG --indexsize 32 --tpls --env env/default.sh
+        $0 --phase CONFIG --indexsize 32 --tpls ON --env env/my_env.sh
 
 EOF
 }
@@ -270,8 +270,20 @@ while [[ $# -gt 0 ]]; do
             shift 2;;
 
         --tpls)
-            tpls="ON"
-            shift;;
+            tpls=$2
+            case "$tpls" in
+                ON|On|on)
+                    tpls=ON
+                    ;;
+                OFF|Off|off)
+                    tpls=OFF
+                    ;;
+                *)
+                    echo "ERROR: Invalid tpl option $tpl"
+                    help
+                    exit 1;;
+            esac
+            shift 2;;
 
         --suntesttype)
             suntesttype=$2
@@ -374,20 +386,10 @@ args_phase=()
 case "$testtype" in
 
     BRANCH)
-        # Don't creat tarballs
+        # Don't create tarballs
         tarball=NONE
 
-        # Address sanitizer tests (TPLs OFF)
-        for is in 32 64; do
-            args_realtypes+=("double")
-            args_indexsizes+=("${is}")
-            args_libtypes+=("static")
-            args_tpls+=("OFF")
-            args_suntests+=("DEV")
-            args_phase+=("BUILD")
-        done
-
-        # Basic development tests
+        # Test configs
         for is in 32 64; do
             args_realtypes+=("double")
             args_indexsizes+=("${is}")
@@ -402,17 +404,7 @@ case "$testtype" in
         # Create sundials tarball
         tarball=sundials
 
-        # Address sanitizer tests (TPLs OFF)
-        for is in 32 64; do
-            args_realtypes+=("double")
-            args_indexsizes+=("${is}")
-            args_libtypes+=("static")
-            args_tpls+=("OFF")
-            args_suntests+=("DEV")
-            args_phase+=("BUILD")
-        done
-
-        # More development tests
+        # Test configs
         for rt in single double extended; do
             for is in 32 64; do
                 args_realtypes+=("${rt}")
@@ -441,10 +433,10 @@ case "$testtype" in
             args_libtypes+=("static")
             args_tpls+=("OFF")
             args_suntests+=("DEV")
-            args_phase+=("BUILD")
+            args_phase+=("TEST")
         done
 
-        # Even more development tests
+        # Test configs
         for rt in single double extended; do
             for is in 32 64; do
                 for lt in static shared; do

@@ -266,7 +266,7 @@ CVODE(S) / IDA(S) / ARKODE
 
    .. math::
 
-      z(t) = int_0^t g(t,y(t)) dt
+      z(t) = \int_0^t g(t,y(t)) dt
 
    for some function :math:`g`. The most efficient way of computing :math:`z` is by appending one additional differential equation to your ODE system:
 

@@ -46,6 +46,8 @@ extern "C" {
  * SUNRexp calls the appropriate version of exp
  *
  * SUNRceil calls the appropriate version of ceil
+ *
+ * SUNRround calls the appropriate version of round
  * -----------------------------------------------------------------
  */
 
@@ -184,6 +186,30 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * Function : SUNRround
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype round_x;
+ *         round_x = SUNRround(x);
+ * -----------------------------------------------------------------
+ * SUNRround(x) returns the smallest integer value not less than x.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRround
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRround(x) (round((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRround(x) (roundf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRround(x) (roundl((x)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
  * Function : SUNRpowerR
  * -----------------------------------------------------------------
  * Usage : sunrealtype base, exponent, ans;
@@ -193,6 +219,7 @@ extern "C" {
  * exponent are of type sunrealtype.
  * -----------------------------------------------------------------
  */
+
 #ifndef SUNRpowerR
 #if defined(SUNDIALS_DOUBLE_PRECISION)
 #define SUNRpowerR(base, exponent) (pow(base, exponent))
@@ -205,6 +232,20 @@ extern "C" {
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
 #endif
 #endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNIpowerI
+ * -----------------------------------------------------------------
+ * Usage : int exponent, base, ans;
+ *         ans = SUNIpowerI(base,exponent);
+ * -----------------------------------------------------------------
+ * SUNIpowerI returns the value of base^exponent, where base and
+ * exponent are of type int and exponent is nonnegative.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int SUNIpowerI(int base, int exponent);
 
 /*
  * -----------------------------------------------------------------

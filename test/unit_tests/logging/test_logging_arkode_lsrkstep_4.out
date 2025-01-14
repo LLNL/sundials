@@ -1,0 +1,22 @@
+Start LSRKStep Logging test
+                      t                      y                  y err
+---------------------------------------------------------------------
+  0.000000000000000e+00  0.000000000000000e+00  0.000000000000000e+00
+  6.103515625000001e-12  6.103515625000000e-12  8.077935669463161e-28
+  4.660370515962586e-09  4.660370515962585e-09  8.271806125530277e-25
+  9.774571052271429e-08  9.774571052271397e-08  0.000000000000000e+00
+---------------------------------------------------------------------
+Current time                 = 9.774571052271429e-08
+Steps                        = 3
+Step attempts                = 3
+Stability limited steps      = 0
+Accuracy limited steps       = 3
+Error test fails             = 0
+NLS step fails               = 0
+Inequality constraint fails  = 0
+Initial step size            = 6.103515625000001e-12
+Last step size               = 9.30853400067517e-08
+Current step size            = 1.861706800135034e-06
+RHS fn evals                 = 14
+Number of stages used        = 4
+End LSRKStep Logging test

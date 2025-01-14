@@ -56,7 +56,8 @@ Final fast integrator statistics:
   Steps            = 722
   Step attempts    = 722
   Error test fails = 0
-  RHS evals        = 5444
+  Fe RHS evals     = 2890
+  Fi RHS evals     = 5444
   NLS iters        = 2554
   NLS fails        = 0
   LS iters         = 8545

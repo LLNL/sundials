@@ -297,8 +297,8 @@ static int OutputStatsERK(void* arkode_mem, UserData& udata)
   if (check_flag(flag, "ARKodeGetNumStepAttempts")) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(flag, "ARKodeGetNumErrTestFails")) { return -1; }
-  flag = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
-  if (check_flag(flag, "ERKStepGetNumRhsEvals")) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  if (check_flag(flag, "ARKodeGetNumRhsEvals")) { return -1; }
 
   cout << "  Steps            = " << nst << endl;
   cout << "  Step attempts    = " << nst_a << endl;
@@ -321,8 +321,10 @@ static int OutputStatsARK(void* arkode_mem, UserData& udata)
   if (check_flag(flag, "ARKodeGetNumStepAttempts")) { return -1; }
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_flag(flag, "ARKodeGetNumErrTestFails")) { return -1; }
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(flag, "ARKStepGetNumRhsEvals")) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  if (check_flag(flag, "ARKodeGetNumRhsEvals")) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_flag(flag, "ARKodeGetNumRhsEvals")) { return -1; }
 
   cout << fixed << setprecision(6);
   cout << "  Steps              = " << nst << endl;
@@ -371,8 +373,10 @@ static int OutputStatsMRIARK(void* arkode_mem, MRIStepInnerStepper fast_mem,
   long int nst, nst_a, netf, nfe, nfi;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(flag, "ARKodeGetNumSteps")) { return -1; }
-  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(flag, "MRIStepGetNumRhsEvals")) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  if (check_flag(flag, "ARKodeGetNumRhsEvals")) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_flag(flag, "ARKodeGetNumRhsEvals")) { return -1; }
 
   cout << fixed << setprecision(6);
   cout << endl << "Slow Integrator:" << endl;
@@ -419,8 +423,10 @@ static int OutputStatsMRIARK(void* arkode_mem, MRIStepInnerStepper fast_mem,
   if (check_flag(flag, "ARKodeGetNumStepAttempts")) { return -1; }
   flag = ARKodeGetNumErrTestFails(fast_arkode_mem, &netf);
   if (check_flag(flag, "ARKodeGetNumErrTestFails")) { return -1; }
-  flag = ARKStepGetNumRhsEvals(fast_arkode_mem, &nfe, &nfi);
-  if (check_flag(flag, "ARKStepGetNumRhsEvals")) { return -1; }
+  flag = ARKodeGetNumRhsEvals(fast_arkode_mem, 0, &nfe);
+  if (check_flag(flag, "ARKodeGetNumRhsEvals")) { return -1; }
+  flag = ARKodeGetNumRhsEvals(fast_arkode_mem, 1, &nfi);
+  if (check_flag(flag, "ARKodeGetNumRhsEvals")) { return -1; }
 
   cout << fixed << setprecision(6);
   cout << endl << "Fast Integrator:" << endl;
@@ -507,8 +513,10 @@ static int OutputStatsMRICVODE(void* arkode_mem, MRIStepInnerStepper fast_mem,
   long int nsts, nfse, nfsi;
   flag = ARKodeGetNumSteps(arkode_mem, &nsts);
   if (check_flag(flag, "ARKodeGetNumSteps")) { return -1; }
-  flag = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  if (check_flag(flag, "MRIStepGetNumRhsEvals")) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfse);
+  if (check_flag(flag, "ARKodeGetNumRhsEvals")) { return -1; }
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfsi);
+  if (check_flag(flag, "ARKodeGetNumRhsEvals")) { return -1; }
 
   long int nni, ncfn;
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
