@@ -263,6 +263,19 @@ All available SUNDIALS CMake options are described in the sections below. The
 default values for some options (e.g., compiler flags and installation paths)
 are for a Linux system and are provided as illustration only.
 
+.. note::
+
+   When using a CMake graphical interface (`ccmake` or `cmake-gui`), multiple
+   configuration passes are performed before generating the build files. For
+   options where the default value depends on the value of another option, the
+   initial value is set on the first configuration pass and is not updated
+   automatically if the related option value is changed in subsequent
+   passes. For example, the default value of :cmakeop:`EXAMPLES_INSTALL_PATH` is
+   ``CMAKE_INSTALL_PREFIX/examples``; if the value of
+   :cmakeop:`CMAKE_INSTALL_PREFIX` is updated, then
+   :cmakeop:`EXAMPLES_INSTALL_PATH` will also need to be updated as its value
+   was set using the :cmakeop:`CMAKE_INSTALL_PREFIX` default.
+
 .. _Installation.Options.BuildType:
 
 Build Type
