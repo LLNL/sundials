@@ -95,10 +95,10 @@ In the installation steps below we will refer to the following directories:
   archive.
 
 * ``BUILD_DIR`` is the (temporary) directory under which SUNDIALS is built.
-  In-source builds are prohibited, the build directory ``BUILD_DIR`` can **not**
+  In-source builds are prohibited; the build directory ``BUILD_DIR`` can **not**
   be the same as ``SOLVER_DIR`` and such an attempt will lead to an error. This
   prevents "polluting" the source tree, simplifies building with different
-  configurations and/or options, and makes it easy clean-up all traces of the
+  configurations and/or options, and makes it easy to clean-up all traces of the
   build by simply removing the build directory.
 
 * ``INSTALL_DIR`` is the directory under which the SUNDIALS exported header
