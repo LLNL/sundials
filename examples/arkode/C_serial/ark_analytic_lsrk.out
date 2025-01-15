@@ -19,7 +19,7 @@ Analytical ODE test problem:
    ---------------------
 
 Final Statistics:
-Current time                 = 10.00468816776983
+Current time                 = 10.0046881677698
 Steps                        = 1454
 Step attempts                = 1457
 Stability limited steps      = 30
@@ -27,9 +27,10 @@ Accuracy limited steps       = 1457
 Error test fails             = 3
 NLS step fails               = 0
 Inequality constraint fails  = 0
-Initial step size            = 1.930101110942615e-10
+Initial step size            = 1.93010111094261e-10
 Last step size               = 0.019104
-Current step size            = 0.02996850857415225
+Current step size            = 0.0299685085741523
+RHS fn evals                 = 160396
 RHS fn evals                 = 160396
 Number of dom_eig updates    = 1
 Max. num. of stages used     = 196
