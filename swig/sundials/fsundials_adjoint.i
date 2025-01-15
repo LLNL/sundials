@@ -34,6 +34,6 @@
 
 
 // Process and wrap functions in the following files
-%include "sunadjoint/sunadjoint_checkpointscheme.h"
-%include "sunadjoint/sunadjoint_stepper.h"
+%include "sundials/sundials_adjointcheckpointscheme.h"
+%include "sundials/sundials_adjointstepper.h"
 
