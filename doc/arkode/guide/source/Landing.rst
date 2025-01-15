@@ -20,7 +20,7 @@
    Woodward. We thank Radu Serban for significant and critical past
    contributions.
 
-   Other contributors to SUNDIALS include: James Almgren-Bell,
+   Other contributors to SUNDIALS include: Mustafa Aggul, James Almgren-Bell,
    Lawrence E. Banks, Peter N. Brown, George Byrne, Rujeko Chinomona,
    Scott D. Cohen, Aaron Collier, Keith E. Grant, Steven L. Lee,
    Shelby L. Lockhart, John Loffeld, Daniel McGreer, Yu Pan, Slaven Peles,
