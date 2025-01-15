@@ -295,6 +295,9 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 #include "sundials/sundials_stepper.h"
 
 
+#include "sundials/sundials_memory.h"
+
+
 #include "sundials/sundials_adjointcheckpointscheme.h"
 #include "sundials/sundials_adjointstepper.h"
 
@@ -3022,6 +3025,230 @@ SWIGEXPORT int _wrap_FSUNStepper_SetDestroyFn(void *farg1, SUNStepperDestroyFn f
   arg2 = (SUNStepperDestroyFn)(farg2);
   result = (SUNErrCode)SUNStepper_SetDestroyFn(arg1,arg2);
   fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FSUNMemoryNewEmpty(void *farg1) {
+  void * fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNMemory result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNMemory)SUNMemoryNewEmpty(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FSUNMemoryHelper_Alias(SUNMemoryHelper farg1, void *farg2) {
+  void * fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  SUNMemory arg2 = (SUNMemory) 0 ;
+  SUNMemory result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  arg2 = (SUNMemory)(farg2);
+  result = (SUNMemory)SUNMemoryHelper_Alias(arg1,arg2);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT void * _wrap_FSUNMemoryHelper_Wrap(SUNMemoryHelper farg1, void *farg2, int const *farg3) {
+  void * fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  void *arg2 = (void *) 0 ;
+  SUNMemoryType arg3 ;
+  SUNMemory result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  arg2 = (void *)(farg2);
+  arg3 = (SUNMemoryType)(*farg3);
+  result = (SUNMemory)SUNMemoryHelper_Wrap(arg1,arg2,arg3);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNMemoryHelper_Alloc(SUNMemoryHelper farg1, void *farg2, size_t const *farg3, int const *farg4, void *farg5) {
+  int fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  SUNMemory *arg2 = (SUNMemory *) 0 ;
+  size_t arg3 ;
+  SUNMemoryType arg4 ;
+  void *arg5 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  arg2 = (SUNMemory *)(farg2);
+  arg3 = (size_t)(*farg3);
+  arg4 = (SUNMemoryType)(*farg4);
+  arg5 = (void *)(farg5);
+  result = (SUNErrCode)SUNMemoryHelper_Alloc(arg1,arg2,arg3,arg4,arg5);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNMemoryHelper_AllocStrided(SUNMemoryHelper farg1, void *farg2, size_t const *farg3, size_t const *farg4, int const *farg5, void *farg6) {
+  int fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  SUNMemory *arg2 = (SUNMemory *) 0 ;
+  size_t arg3 ;
+  size_t arg4 ;
+  SUNMemoryType arg5 ;
+  void *arg6 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  arg2 = (SUNMemory *)(farg2);
+  arg3 = (size_t)(*farg3);
+  arg4 = (size_t)(*farg4);
+  arg5 = (SUNMemoryType)(*farg5);
+  arg6 = (void *)(farg6);
+  result = (SUNErrCode)SUNMemoryHelper_AllocStrided(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNMemoryHelper_Dealloc(SUNMemoryHelper farg1, void *farg2, void *farg3) {
+  int fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  SUNMemory arg2 = (SUNMemory) 0 ;
+  void *arg3 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  arg2 = (SUNMemory)(farg2);
+  arg3 = (void *)(farg3);
+  result = (SUNErrCode)SUNMemoryHelper_Dealloc(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNMemoryHelper_Copy(SUNMemoryHelper farg1, void *farg2, void *farg3, size_t const *farg4, void *farg5) {
+  int fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  SUNMemory arg2 = (SUNMemory) 0 ;
+  SUNMemory arg3 = (SUNMemory) 0 ;
+  size_t arg4 ;
+  void *arg5 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  arg2 = (SUNMemory)(farg2);
+  arg3 = (SUNMemory)(farg3);
+  arg4 = (size_t)(*farg4);
+  arg5 = (void *)(farg5);
+  result = (SUNErrCode)SUNMemoryHelper_Copy(arg1,arg2,arg3,arg4,arg5);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNMemoryHelper_CopyAsync(SUNMemoryHelper farg1, void *farg2, void *farg3, size_t const *farg4, void *farg5) {
+  int fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  SUNMemory arg2 = (SUNMemory) 0 ;
+  SUNMemory arg3 = (SUNMemory) 0 ;
+  size_t arg4 ;
+  void *arg5 = (void *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  arg2 = (SUNMemory)(farg2);
+  arg3 = (SUNMemory)(farg3);
+  arg4 = (size_t)(*farg4);
+  arg5 = (void *)(farg5);
+  result = (SUNErrCode)SUNMemoryHelper_CopyAsync(arg1,arg2,arg3,arg4,arg5);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNMemoryHelper_GetAllocStats(SUNMemoryHelper farg1, int const *farg2, long *farg3, long *farg4, size_t *farg5, size_t *farg6) {
+  int fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  SUNMemoryType arg2 ;
+  unsigned long *arg3 = (unsigned long *) 0 ;
+  unsigned long *arg4 = (unsigned long *) 0 ;
+  size_t *arg5 = (size_t *) 0 ;
+  size_t *arg6 = (size_t *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  arg2 = (SUNMemoryType)(*farg2);
+  arg3 = (unsigned long *)(farg3);
+  arg4 = (unsigned long *)(farg4);
+  arg5 = (size_t *)(farg5);
+  arg6 = (size_t *)(farg6);
+  result = (SUNErrCode)SUNMemoryHelper_GetAllocStats(arg1,arg2,arg3,arg4,arg5,arg6);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT SUNMemoryHelper _wrap_FSUNMemoryHelper_Clone(SUNMemoryHelper farg1) {
+  SUNMemoryHelper fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  SUNMemoryHelper result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  result = (SUNMemoryHelper)SUNMemoryHelper_Clone(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNMemoryHelper_Destroy(SUNMemoryHelper farg1) {
+  int fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  result = (SUNErrCode)SUNMemoryHelper_Destroy(arg1);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT SUNMemoryHelper _wrap_FSUNMemoryHelper_NewEmpty(void *farg1) {
+  SUNMemoryHelper fresult ;
+  SUNContext arg1 = (SUNContext) 0 ;
+  SUNMemoryHelper result;
+  
+  arg1 = (SUNContext)(farg1);
+  result = (SUNMemoryHelper)SUNMemoryHelper_NewEmpty(arg1);
+  fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNMemoryHelper_CopyOps(SUNMemoryHelper farg1, SUNMemoryHelper farg2) {
+  int fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  SUNMemoryHelper arg2 = (SUNMemoryHelper) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  arg2 = (SUNMemoryHelper)(farg2);
+  result = (SUNErrCode)SUNMemoryHelper_CopyOps(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNMemoryHelper_ImplementsRequiredOps(SUNMemoryHelper farg1) {
+  int fresult ;
+  SUNMemoryHelper arg1 = (SUNMemoryHelper) 0 ;
+  int result;
+  
+  arg1 = (SUNMemoryHelper)(farg1);
+  result = (int)SUNMemoryHelper_ImplementsRequiredOps(arg1);
+  fresult = (int)(result);
   return fresult;
 }
 
