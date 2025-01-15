@@ -20,10 +20,10 @@
 %include <stdint.i>
 
 %{
-#include "sunadjoint/sunadjoint_checkpointscheme_fixed.h"
+#include "sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h"
 %}
 
 %import "../sundials/fsundials_core_mod.i"
 
 // Process and wrap functions in the following files
-%include  "sunadjoint/sunadjoint_checkpointscheme_fixed.h"
+%include  "sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h"

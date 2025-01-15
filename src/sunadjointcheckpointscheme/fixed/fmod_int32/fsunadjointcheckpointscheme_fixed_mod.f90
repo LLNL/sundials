@@ -21,23 +21,10 @@
 module fsunadjointcheckpointscheme_fixed_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_core_mod
- use fsunadjoint_mod
- use fsundials_core_mod
  implicit none
  private
 
  ! DECLARATION CONSTRUCTS
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_SUNMemoryHelper
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNAdjointCheckpointScheme_Create_Fixed
  public :: FSUNAdjointCheckpointScheme_ShouldWeSave_Fixed
  public :: FSUNAdjointCheckpointScheme_InsertVector_Fixed
@@ -53,9 +40,8 @@ function swigc_FSUNAdjointCheckpointScheme_Create_Fixed(farg1, farg2, farg3, far
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_Create_Fixed") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 integer(C_INT), intent(in) :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT64_T), intent(in) :: farg3
 integer(C_INT64_T), intent(in) :: farg4
 integer(C_INT), intent(in) :: farg5
@@ -152,7 +138,7 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(SUNDataIOMode), intent(in) :: io_mode
-type(SWIGTYPE_p_SUNMemoryHelper), intent(in) :: mem_helper
+type(SUNMemoryHelper_), target, intent(inout) :: mem_helper
 integer(C_INT64_T), intent(in) :: interval
 integer(C_INT64_T), intent(in) :: estimate
 integer(C_INT), intent(in) :: save_stages
@@ -161,7 +147,7 @@ type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: check_scheme_ptr
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 integer(C_INT64_T) :: farg3 
 integer(C_INT64_T) :: farg4 
 integer(C_INT) :: farg5 
@@ -170,7 +156,7 @@ type(C_PTR) :: farg7
 type(C_PTR) :: farg8 
 
 farg1 = io_mode
-farg2 = mem_helper%swigdata
+farg2 = c_loc(mem_helper)
 farg3 = interval
 farg4 = estimate
 farg5 = save_stages

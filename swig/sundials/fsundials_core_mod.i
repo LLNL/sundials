@@ -26,5 +26,6 @@
 %include "fsundials_nonlinearsolver.i"
 %include "fsundials_adaptcontroller.i"
 %include "fsundials_stepper.i"
+%include "fsundials_memory.i"
 %include "fsundials_adjoint.i"
 %include "fcopyright.i"
