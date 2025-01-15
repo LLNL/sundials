@@ -22,6 +22,8 @@ install(CODE "MESSAGE(\"\nInstall shared components\n\")")
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 set(sundials_HEADERS
     sundials_adaptcontroller.h
+    sundials_adjointcheckpointscheme.h
+    sundials_adjointstepper.h
     sundials_band.h
     sundials_base.hpp
     sundials_context.h
@@ -81,6 +83,8 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 set(sundials_SOURCES
     sundatanode/sundatanode_inmem.c
     sundials_adaptcontroller.c
+    sundials_adjointcheckpointscheme.c
+    sundials_adjointstepper.c
     sundials_band.c
     sundials_context.c
     sundials_dense.c

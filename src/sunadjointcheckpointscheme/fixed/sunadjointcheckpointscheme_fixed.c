@@ -12,11 +12,11 @@
  * SUNAdjointCheckpointScheme_Fixed class definition.
  * ----------------------------------------------------------------*/
 
-#include <sunadjointcheckpointscheme/sunadjoint_checkpointscheme_fixed.h>
-#include <sundatanode/sundatanode_inmem.h>
+#include <sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h>
 #include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_core.h>
 
+#include "sundatanode/sundatanode_inmem.h"
 #include "sundials_datanode.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
