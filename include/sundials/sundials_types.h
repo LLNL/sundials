@@ -120,7 +120,7 @@ typedef long double sunrealtype;
 #define SUN_UNIT_ROUNDOFF LDBL_EPSILON
 #define SUN_FORMAT_E      "% ." SUN_STRING(LDBL_DIG) "Le"
 #define SUN_FORMAT_G      "%." SUN_STRING(LDBL_DIG) "Lg"
-#define SUN_FORMAT_SG     "%+." SUN_STRING(LDBL_DIG) "g"
+#define SUN_FORMAT_SG     "%+." SUN_STRING(LDBL_DIG) "Lg"
 
 #endif
 
