@@ -316,7 +316,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
       cout << setw(18) << "dsm_est_anal  "
            << Hvals[iH] * Hvals[iH] *
                 abs(udata.a * Hvals[iH] / 4.0 + udata.b / 2.0) /
-              (abstol + reltol * abs(vdata[0]));
+                (abstol + reltol * abs(vdata[0]));
       cout << endl;
     }
     else if (method == "ARKODE_MRI_GARK_IRK21a")
@@ -331,8 +331,8 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
                 (abstol + reltol * abs(vdata[0]));
       cout << setw(18) << "dsm_est_anal  "
            << Hvals[iH] * Hvals[iH] *
-              abs(udata.a * Hvals[iH] / 2.0 + udata.b / 2.0) /
-              (abstol + reltol * abs(vdata[0]));
+                abs(udata.a * Hvals[iH] / 2.0 + udata.b / 2.0) /
+                (abstol + reltol * abs(vdata[0]));
       cout << endl;
     }
     else if (method == "ARKODE_IMEX_MRI_SR21")
@@ -349,7 +349,7 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
       cout << setw(18) << "dsm_est_anal  "
            << Hvals[iH] * Hvals[iH] * Hvals[iH] *
                 abs(udata.a * 3137.0 / 50370.0) /
-              (abstol + reltol * abs(vdata[0]));
+                (abstol + reltol * abs(vdata[0]));
       cout << endl;
     }
     else
