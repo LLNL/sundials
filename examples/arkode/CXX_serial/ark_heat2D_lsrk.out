@@ -51,22 +51,21 @@
  -----------------------------------------------------------------------
 
 Final integrator statistics:
-Current time                 = 1
-Steps                        = 617
-Step attempts                = 617
-Stability limited steps      = 0
-Accuracy limited steps       = 617
-Error test fails             = 0
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 2.87768024842502e-06
-Last step size               = 0.000319900197763623
-Current step size            = 0.000319900197763623
-RHS fn evals                 = 17225
-RHS fn evals                 = 17225
-Number of dom_eig updates    = 25
-Max. num. of stages used     = 46
-Max. num. of stages allowed  = 1000
-Max. spectral radius         = 320695.2
-Min. spectral radius         = 320695.2
+Current time                  = 1
+Steps                         = 617
+Step attempts                 = 617
+Stability limited steps       = 0
+Accuracy limited steps        = 617
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 2.87768024842502e-06
+Last step size                = 0.000319900197763623
+Current step size             = 0.000319900197763623
+RHS fn evals                  = 17225
+Number of dom_eig updates     = 25
+Max. num. of stages used      = 46
+Max. num. of stages allowed   = 1000
+Max. spectral radius          = 320695.2
+Min. spectral radius          = 320695.2
   Max error = 8.279696748304533e-04
