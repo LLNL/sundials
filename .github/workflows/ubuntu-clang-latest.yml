@@ -26,11 +26,6 @@ jobs:
         logging_level: [0, 1, 2, 3, 4, 5]
 
     steps:
-    - name: Install LLVM and Clang
-      uses: KyleMayes/install-llvm-action@v2
-      with:
-        version: "14.0"
-
     - uses: actions/checkout@v4
 
     - name: Configure CMake
@@ -70,11 +65,6 @@ jobs:
         profiling: ['OFF', 'ON']
 
     steps:
-    - name: Install LLVM and Clang
-      uses: KyleMayes/install-llvm-action@v2
-      with:
-        version: "14.0"
-
     - uses: actions/checkout@v4
 
     - name: Configure CMake
