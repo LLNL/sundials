@@ -6,7 +6,7 @@ Start ERKStep Logging test
  1.269512694589208e-03    1.224744706901909e+00    1.731957760691857e+00    7.771561172376096e-14    3.164135620181696e-13
  2.436039363568907e-03    1.224744265725872e+00    1.731708225192427e+00    1.558753126573720e-13    5.899725152858082e-13
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.002436039363568907
+Current time                 = 0.00243603936356891
 Steps                        = 3
 Step attempts                = 4
 Stability limited steps      = 0
@@ -14,8 +14,8 @@ Accuracy limited steps       = 4
 Error test fails             = 1
 NLS step fails               = 0
 Inequality constraint fails  = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.001166526668979699
-Current step size            = 0.003648121325513829
+Initial step size            = 0.000102986025609508
+Last step size               = 0.0011665266689797
+Current step size            = 0.00364812132551383
 RHS fn evals                 = 21
 End ERKStep Logging test

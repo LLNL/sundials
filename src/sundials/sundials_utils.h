@@ -25,7 +25,7 @@
 #include <sundials/sundials_types.h>
 
 /* width of name field in sunfprintf_<type> for aligning table output */
-#define SUN_TABLE_WIDTH 28
+#define SUN_TABLE_WIDTH 29
 
 static inline char* sunCombineFileAndLine(int line, const char* file)
 {

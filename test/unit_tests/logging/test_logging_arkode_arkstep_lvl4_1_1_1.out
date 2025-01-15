@@ -5,7 +5,7 @@ Using dense direct linear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.0001029860256095084
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.000102986025609508
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 1, tcur = 2.57465064023771e-05
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
@@ -16,7 +16,7 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 1
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 7.723951920713131e-05
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 7.72395192071313e-05
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -31,7 +31,7 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 5.664231408522962e-05
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 5.66423140852296e-05
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -51,7 +51,7 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 1
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 0.0001029860256095084
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 0.000102986025609508
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -63,13 +63,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.003832189576692273, h_cfl = 1.029860256095084e+26
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.003678901993624582, h_cfl = 5.14930128047542e+25
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 35.72234166578926
-[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 5.009107594385155e-09
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00383218957669227, h_cfl = 1.02986025609508e+26
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00367890199362458, h_cfl = 5.14930128047542e+25
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 35.7223416657893
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 5.00910759438516e-09
  1.029860256095084e-04    1.224744870309106e+00    1.732050195224358e+00    2.220446049250313e-16    8.104628079763643e-14
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.0001029860256095084, h = 0.003678901993624582
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 1, tcur = 0.001022711524015654
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.000102986025609508, h = 0.00367890199362458
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 1, tcur = 0.00102271152401565
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -84,7 +84,7 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 0.002862162520827944
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 0.00286216252082794
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -99,7 +99,7 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 0.002126382122103028
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 0.00212638212210303
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -114,7 +114,7 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 0.001942437022421799
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 0.0019424370224218
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -146,13 +146,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.002326349105082655, h_cfl = 3.678901993624582e+27
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.002233295140879348, h_cfl = 1.839450996812291e+27
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 0.6070548073173944
-[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.008164718360412736
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00232634910508265, h_cfl = 3.67890199362458e+27
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00223329514087935, h_cfl = 1.83945099681229e+27
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 0.607054807317394
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.00816471836041274
  3.781888019234090e-03    1.224743411639714e+00    1.731225239016591e+00    8.112177596331094e-12    2.569811030639357e-11
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.00378188801923409, h = 0.002233295140879348
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 1, tcur = 0.004340211804453927
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.00378188801923409, h = 0.00223329514087935
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 1, tcur = 0.00434021180445393
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -167,7 +167,7 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 0.005456859374893601
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 0.0054568593748936
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -182,7 +182,7 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 0.005010200346717731
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 0.00501020034671773
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -197,7 +197,7 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 0.004898535589673764
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 0.00489853558967376
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -212,7 +212,7 @@ Using dense direct linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 0.006015183160113438
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 0.00601518316011344
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -229,13 +229,13 @@ Using dense direct linear solver
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.01054419843231782, h_cfl = 2.233295140879348e+27
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.01012243049502511, h_cfl = 1.116647570439674e+27
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0105441984323178, h_cfl = 2.23329514087935e+27
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0101224304950251, h_cfl = 1.11664757043967e+27
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 4.53250907582213
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.00111123036409299
  6.015183160113438e-03    1.224741178552313e+00    1.729963074226947e+00    8.796519068710040e-12    8.689449160215190e-11
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.006015183160113438
+Current time                 = 0.00601518316011344
 Steps                        = 3
 Step attempts                = 3
 Stability limited steps      = 0
@@ -243,14 +243,14 @@ Accuracy limited steps       = 3
 Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.002233295140879348
-Current step size            = 0.01012243049502511
+Initial step size            = 0.000102986025609508
+Last step size               = 0.00223329514087935
+Current step size            = 0.0101224304950251
 Explicit RHS fn evals        = 0
 Implicit RHS fn evals        = 44
 NLS iters                    = 26
 NLS fails                    = 0
-NLS iters per step           = 8.666666666666666
+NLS iters per step           = 8.66666666666667
 LS setups                    = 3
 Jac fn evals                 = 1
 LS RHS fn evals              = 0
@@ -261,6 +261,6 @@ LS fails                     = 0
 Jac-times setups             = 0
 Jac-times evals              = 0
 LS iters per NLS iter        = 0
-Jac evals per NLS iter       = 0.03846153846153846
+Jac evals per NLS iter       = 0.0384615384615385
 Prec evals per NLS iter      = 0
 End ARKStep Logging test
