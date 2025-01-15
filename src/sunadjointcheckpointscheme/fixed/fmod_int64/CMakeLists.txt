@@ -11,14 +11,10 @@
 # ---------------------------------------------------------------
 
 sundials_add_f2003_library(
-  sundials_fsunadjoint_mod
-  SOURCES fsunadjointstepper_mod.f90
-          fsunadjointstepper_mod.c
-          fsunadjointcheckpointscheme_mod.f90
-          fsunadjointcheckpointscheme_mod.c
-          fsunadjointcheckpointscheme_fixed_mod.f90
+  sundials_fadjointcheckpointscheme_fixed
+  SOURCES fsunadjointcheckpointscheme_fixed_mod.f90
           fsunadjointcheckpointscheme_fixed_mod.c
   LINK_LIBRARIES PUBLIC sundials_fcore_mod
-  OUTPUT_NAME sundials_fsunadjoint_mod OBJECT_LIB_ONLY)
+  OUTPUT_NAME sundials_fadjointcheckpointscheme_fixed OBJECT_LIB_ONLY)
 
-message(STATUS "Added SUNAdjoint interface")
+message(STATUS "Added SUNADJOINTCHECKPOINTSCHEME_FIXED interface")
