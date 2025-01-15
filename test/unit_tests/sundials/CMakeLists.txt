@@ -21,7 +21,8 @@ if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
     list(GET test_tuple 0 test)
     list(GET test_tuple 1 test_args)
 
-    add_executable(${test} ${test}.cpp ${PROJECT_SOURCE_DIR}/src/sundials/sundials_hashmap.c)
+    add_executable(${test} ${test}.cpp
+      ${PROJECT_SOURCE_DIR}/src/sundials/sundials_hashmap.c)
     target_link_libraries(
       ${test} PRIVATE sundials_core sundials_nvecserial sundials_sunmemsys_obj
                       GTest::gtest_main GTest::gmock)
