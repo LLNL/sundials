@@ -573,7 +573,6 @@ int lsrkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt
   }
   else
   {
-    sunfprintf_long(outfile, fmt, SUNFALSE, "RHS fn evals", step_mem->nfe);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Number of dom_eig updates",
                     step_mem->dom_eig_num_evals);
     sunfprintf_long(outfile, fmt, SUNFALSE, "Max. num. of stages used",
