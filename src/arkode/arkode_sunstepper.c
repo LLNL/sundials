@@ -85,7 +85,8 @@ static SUNErrCode arkSUNStepperFullRhs(SUNStepper stepper, sunrealtype t,
   ----------------------------------------------------------------------------*/
 
 static SUNErrCode arkSUNStepperReset(SUNStepper stepper, sunrealtype tR,
-                                     N_Vector yR)
+                                     N_Vector yR,
+                                     SUNDIALS_MAYBE_UNUSED int64_t ckptIdxR)
 {
   SUNFunctionBegin(stepper->sunctx);
   /* extract the ARKODE memory struct */
