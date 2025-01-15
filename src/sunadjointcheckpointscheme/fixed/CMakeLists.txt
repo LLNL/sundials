@@ -12,13 +12,12 @@
 
 # Create a library out of the generic sundials modules
 sundials_add_library(
-  sundials_adjoint
-  SOURCES sunadjoint_stepper.c sunadjoint_checkpointscheme.c
-          sunadjoint_checkpointscheme_fixed.c
+  sundials_adjointcheckpointscheme_fixed
+  SOURCES sunadjointcheckpointscheme_fixed.c
   HEADERS
     ${SUNDIALS_SOURCE_DIR}/include/sundials/sundials_adjointstepper.h
     ${SUNDIALS_SOURCE_DIR}/include/sundials/sundials_adjointcheckpointscheme.h
-    ${SUNDIALS_SOURCE_DIR}/include/sunadjointcheckpointscheme/sunadjoint_checkpointscheme_fixed.h
+    ${SUNDIALS_SOURCE_DIR}/include/sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h
   LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES sundials_sunmemsys_obj
   INCLUDE_SUBDIR sunadjoint)

@@ -225,7 +225,7 @@ enum
 
 #include <stdint.h>
 
-#include "sunadjointcheckpointscheme/sunadjoint_checkpointscheme_fixed.h"
+#include "sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h"
 
 typedef struct
 {
