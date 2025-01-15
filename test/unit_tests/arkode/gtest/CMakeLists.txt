@@ -32,7 +32,6 @@ target_link_libraries(
           sundials_sunnonlinsolnewton_obj
           sundials_sunadaptcontrollerimexgus_obj
           sundials_sunadaptcontrollersoderlind_obj
-          sundials_adjoint_obj
           ${EXE_EXTRA_LINK_LIBS})
 
 # Tell CMake that we depend on the ARKODE library since it does not pick that up

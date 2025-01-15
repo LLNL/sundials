@@ -20,7 +20,7 @@ sundials_add_library(
     ${SUNDIALS_SOURCE_DIR}/include/sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h
   LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES sundials_sunmemsys_obj
-  INCLUDE_SUBDIR sunadjoint)
+  INCLUDE_SUBDIR sunadjointcheckpointscheme)
 
 # Add F2003 module if the interface is enabled
 if(BUILD_FORTRAN_MODULE_INTERFACE)
