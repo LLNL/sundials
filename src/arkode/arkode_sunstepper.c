@@ -152,7 +152,7 @@ static SUNErrCode arkSUNStepperSetForcing(SUNStepper stepper, sunrealtype tshift
 
 SUNErrCode arkSUNStepperSelfDestruct(SUNStepper stepper)
 {
-  /* This function is useful when we create a ARKodeMem/SUNStepper internally, 
+  /* This function is useful when we create a ARKodeMem/SUNStepper internally,
      and want it to be destroyed with the SUNStepper. */
   ARKodeMem ark_mem;
 
