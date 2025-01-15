@@ -15,8 +15,8 @@
 %include <stdint.i>
 
 %{
-#include "sunadjoint/sunadjoint_stepper.h"
-#include "sunadjoint/sunadjoint_checkpointscheme.h"
+#include "sundials/sundials_adjointcheckpointscheme.h"
+#include "sundials/sundials_adjointstepper.h"
 %}
 
 

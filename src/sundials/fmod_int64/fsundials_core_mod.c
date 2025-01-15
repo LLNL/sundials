@@ -295,8 +295,8 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 #include "sundials/sundials_stepper.h"
 
 
-#include "sunadjoint/sunadjoint_stepper.h"
-#include "sunadjoint/sunadjoint_checkpointscheme.h"
+#include "sundials/sundials_adjointcheckpointscheme.h"
+#include "sundials/sundials_adjointstepper.h"
 
 SWIGEXPORT void _wrap_FSUNLogErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
   int arg1 ;
