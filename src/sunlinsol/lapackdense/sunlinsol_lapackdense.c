@@ -36,7 +36,7 @@
 #error Incompatible sunrealtype for LAPACK; disable LAPACK and rebuild
 #endif
 
-#define ONE  SUN_RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
