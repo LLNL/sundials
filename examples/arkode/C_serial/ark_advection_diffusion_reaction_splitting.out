@@ -37,11 +37,11 @@ Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.06
-Last step size               = 0.03999999999999956
+Last step size               = 0.0399999999999996
 Current step size            = 0.06
-Partition 0 evolves          = 17
 Partition 1 evolves          = 17
 Partition 2 evolves          = 17
+Partition 3 evolves          = 17
 
 Advection Stepper Statistics:
 Current time                 = 1
@@ -52,9 +52,9 @@ Accuracy limited steps       = 64
 Error test fails             = 9
 NLS step fails               = 0
 Inequality constraint fails  = 0
-Initial step size            = 2.059355438929501e-06
-Last step size               = 0.004032057223863014
-Current step size            = 0.004032057223863014
+Initial step size            = 2.0593554389295e-06
+Last step size               = 0.00403205722386301
+Current step size            = 0.00403205722386301
 RHS fn evals                 = 185
 
 Diffusion Stepper Statistics:
@@ -66,14 +66,14 @@ Accuracy limited steps       = 302
 Error test fails             = 55
 NLS step fails               = 0
 Inequality constraint fails  = 0
-Initial step size            = 2.059355438929501e-06
-Last step size               = 0.006555275857754277
-Current step size            = 0.006555275857754277
+Initial step size            = 2.0593554389295e-06
+Last step size               = 0.00655527585775428
+Current step size            = 0.00655527585775428
 Explicit RHS fn evals        = 0
 Implicit RHS fn evals        = 1831
 NLS iters                    = 906
 NLS fails                    = 0
-NLS iters per step           = 3.668016194331984
+NLS iters per step           = 3.66801619433198
 LS setups                    = 213
 Jac fn evals                 = 72
 LS RHS fn evals              = 0
@@ -84,7 +84,7 @@ LS fails                     = 0
 Jac-times setups             = 0
 Jac-times evals              = 0
 LS iters per NLS iter        = 0
-Jac evals per NLS iter       = 0.07947019867549669
+Jac evals per NLS iter       = 0.0794701986754967
 Prec evals per NLS iter      = 0
 
 Reaction Stepper Statistics:
@@ -97,6 +97,6 @@ Error test fails             = 7
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.00180442856879795
-Last step size               = 0.03999999999999956
-Current step size            = 0.03999999999999956
+Last step size               = 0.0399999999999996
+Current step size            = 0.0399999999999996
 RHS fn evals                 = 166
