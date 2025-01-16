@@ -5,7 +5,7 @@ Using GMRES iterative linear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.0001029860256095084
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.000102986025609508
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 5.14930128047542e-05
@@ -18,7 +18,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 1
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 3.419136050235679e-05
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 3.41913605023568e-05
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -34,7 +34,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 1
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 6.385133587789521e-05
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 6.38513358778952e-05
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -50,7 +50,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 1
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 8.753812176808214e-05
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 8.75381217680821e-05
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -71,7 +71,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 5, implicit = 1, tcur = 0.0001029860256095084
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 5, implicit = 1, tcur = 0.000102986025609508
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -94,15 +94,15 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.006719923497867133, h_cfl = 1.029860256095084e+26
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.006451126557952447, h_cfl = 5.14930128047542e+25
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 62.64079538726109
-[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.742325031242378e-10
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00671992349786713, h_cfl = 1.02986025609508e+26
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00645112655795245, h_cfl = 5.14930128047542e+25
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 62.6407953872611
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.74232503124238e-10
  1.029860256095084e-04    1.224744870309106e+00    1.732050195224277e+00    4.440892098500626e-16    0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.0001029860256095084, h = 0.006451126557952447
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.0001029860256095084
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.000102986025609508, h = 0.00645112655795245
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.000102986025609508
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 0.003328549304585732
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 0.00332854930458573
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -126,7 +126,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 0.002244760042849721
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 0.00224476004284972
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -150,7 +150,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 0.004102684491540025
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 3, implicit = 1, tcur = 0.00410268449154003
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -174,7 +174,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 0.005586443599869088
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 4, implicit = 1, tcur = 0.00558644359986909
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -204,7 +204,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 5, implicit = 1, tcur = 0.006554112583561956
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 5, implicit = 1, tcur = 0.00655411258356196
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -236,15 +236,15 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.003802774042374871, h_cfl = 6.451126557952447e+27
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.003650663080679877, h_cfl = 3.225563278976224e+27
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 0.5658954366938629
-[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.004100678731752195
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00380277404237487, h_cfl = 6.45112655795245e+27
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00365066308067988, h_cfl = 3.22556327897622e+27
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 0.565895436693863
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.0041006787317522
  6.554112583561956e-03    1.224740487151591e+00    1.729572495016884e+00    2.946975996565016e-11    2.206064220189319e-10
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.006554112583561956, h = 0.003650663080679877
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.006554112583561956
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.00655411258356196, h = 0.00365066308067988
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 0, implicit = 0, tcur = 0.00655411258356196
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 0.008379444123901894
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 1, implicit = 1, tcur = 0.00837944412390189
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -268,7 +268,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 0.007766132726347675
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 2, implicit = 1, tcur = 0.00776613272634767
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -352,7 +352,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][arkStep_Nls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
-[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 5, implicit = 1, tcur = 0.01020477566424183
+[INFO][rank 0][arkStep_TakeStep_Z][begin-stage] stage = 5, implicit = 1, tcur = 0.0102047756642418
 [INFO][rank 0][arkStep_Nls][begin-nonlinear-solve] tol = 0.1
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -384,13 +384,13 @@ Using GMRES iterative linear solver
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.02190227878408229, h_cfl = 3.650663080679877e+27
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.021026187632719, h_cfl = 1.825331540339938e+27
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.759553036815223
-[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.0004138555190661009
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0219022787840823, h_cfl = 3.65066308067988e+27
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.021026187632719, h_cfl = 1.82533154033994e+27
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 5.75955303681522
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0.000413855519066101
  1.020477566424183e-02    1.224734242922404e+00    1.726048871574017e+00    3.169020601490047e-11    2.147166888732954e-10
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.01020477566424183
+Current time                 = 0.0102047756642418
 Steps                        = 3
 Step attempts                = 3
 Stability limited steps      = 0
@@ -398,8 +398,8 @@ Accuracy limited steps       = 3
 Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.003650663080679877
+Initial step size            = 0.000102986025609508
+Last step size               = 0.00365066308067988
 Current step size            = 0.021026187632719
 Explicit RHS fn evals        = 20
 Implicit RHS fn evals        = 47
@@ -415,7 +415,7 @@ LS iters                     = 29
 LS fails                     = 0
 Jac-times setups             = 0
 Jac-times evals              = 29
-LS iters per NLS iter        = 1.074074074074074
+LS iters per NLS iter        = 1.07407407407407
 Jac evals per NLS iter       = 0
 Prec evals per NLS iter      = 0
 End ARKStep Logging test

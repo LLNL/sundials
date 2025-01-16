@@ -5911,7 +5911,8 @@ static int IDAStep(IDAMem IDA_mem)
   for (;;)
   {
     SUNLogInfo(IDA_LOGGER, "begin-step-attempt",
-               "step = %li, tn = %" RSYM ", h = %" RSYM ", q = %d",
+               "step = %li, tn = " SUN_FORMAT_G ", h = " SUN_FORMAT_G
+               ", q = %d",
                IDA_mem->ida_nst + 1, IDA_mem->ida_tn, IDA_mem->ida_hh,
                IDA_mem->ida_kk);
 
@@ -5967,7 +5968,8 @@ static int IDAStep(IDAMem IDA_mem)
                              &ncf, &(IDA_mem->ida_netf), &nef);
 
       SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER, "end-step-attempt",
-                   "status = failed error test, dsm = %" RSYM ", kflag = %i",
+                   "status = failed error test, dsm = " SUN_FORMAT_G
+                   ", kflag = %i",
                    ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
 
       SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS, IDA_LOGGER,
@@ -6121,7 +6123,8 @@ static int IDAStep(IDAMem IDA_mem)
 
   } /* end loop */
 
-  SUNLogInfo(IDA_LOGGER, "end-step-attempt", "status = success, dsm = %" RSYM,
+  SUNLogInfo(IDA_LOGGER, "end-step-attempt",
+             "status = success, dsm = " SUN_FORMAT_G,
              ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk]);
 
   /* Nonlinear system solve and error test were both successful;
@@ -6718,7 +6721,7 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
   terr_k  = (IDA_mem->ida_kk + 1) * (*err_k);
 
   SUNLogDebug(IDA_LOGGER, "estimate-error-order-k",
-              "err_k = %" RSYM ", terr_k = %" RSYM, *err_k, terr_k);
+              "err_k = " SUN_FORMAT_G ", terr_k = " SUN_FORMAT_G, *err_k, terr_k);
 
   IDA_mem->ida_knew = IDA_mem->ida_kk;
 
@@ -6733,7 +6736,8 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
     terr_km1  = IDA_mem->ida_kk * (*err_km1);
 
     SUNLogDebug(IDA_LOGGER, "estimate-error-order-km1",
-                "err_km1 = %" RSYM ", terr_km1 = %" RSYM, *err_km1, terr_km1);
+                "err_km1 = " SUN_FORMAT_G ", terr_km1 = " SUN_FORMAT_G,
+                *err_km1, terr_km1);
 
     if (IDA_mem->ida_kk > 2)
     {
@@ -6746,7 +6750,8 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
       terr_km2  = (IDA_mem->ida_kk - 1) * (*err_km2);
 
       SUNLogDebug(IDA_LOGGER, "estimate-error-order-km2",
-                  "err_km2 = %" RSYM ", terr_km2 = %" RSYM, err_km2, terr_km2);
+                  "err_km2 = " SUN_FORMAT_G ", terr_km2 = " SUN_FORMAT_G,
+                  err_km2, terr_km2);
 
       /* Decrease order if errors are reduced */
       if (SUNMAX(terr_km1, terr_km2) <= terr_k)
@@ -6767,7 +6772,8 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
   SUNLogDebug(IDA_LOGGER, "new-order", "kk = %i, knew = %i", IDA_mem->ida_kk,
               IDA_mem->ida_knew);
 
-  SUNLogDebug(IDA_LOGGER, "error-estimate", "ck_enorm_k = %" RSYM, ck * enorm_k);
+  SUNLogDebug(IDA_LOGGER, "error-estimate", "ck_enorm_k = " SUN_FORMAT_G,
+              ck * enorm_k);
 
   /* Perform error test */
   if (ck * enorm_k > ONE) { return (ERROR_TEST_FAIL); }
@@ -7279,8 +7285,8 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
       SUNLogDebug(IDA_LOGGER, "first-error-test_fail",
-                  "kk = %i, eta = %" RSYM ", h = %" RSYM, IDA_mem->ida_kk,
-                  IDA_mem->ida_eta, IDA_mem->ida_hh);
+                  "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                  IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
       return (PREDICT_AGAIN);
     }
@@ -7295,8 +7301,8 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
       SUNLogDebug(IDA_LOGGER, "second-error-test-fail",
-                  "kk = %i, eta = %" RSYM ", h = %" RSYM, IDA_mem->ida_kk,
-                  IDA_mem->ida_eta, IDA_mem->ida_hh);
+                  "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                  IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
       return (PREDICT_AGAIN);
     }
@@ -7310,8 +7316,8 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
       SUNLogDebug(IDA_LOGGER, "error-test-fail",
-                  "kk = %i, eta = %" RSYM ", h = %" RSYM, IDA_mem->ida_kk,
-                  IDA_mem->ida_eta, IDA_mem->ida_hh);
+                  "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                  IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
       return (PREDICT_AGAIN);
     }
@@ -7490,7 +7496,8 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
         else { action = RAISE; }
 
         SUNLogDebug(IDA_LOGGER, "order-selection-raise",
-                    "terr_k = %" RSYM ", terr_kp1 = %" RSYM, terr_k, terr_kp1);
+                    "terr_k = " SUN_FORMAT_G ", terr_kp1 = " SUN_FORMAT_G,
+                    terr_k, terr_kp1);
       }
       else
       {
@@ -7500,8 +7507,8 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
         else { action = RAISE; }
 
         SUNLogDebug(IDA_LOGGER, "order-selection-rasie-or-lower",
-                    "terr_km1 = %" RSYM ", terr_k = %" RSYM
-                    ", terr_kp1 = %" RSYM,
+                    "terr_km1 = " SUN_FORMAT_G ", terr_k = " SUN_FORMAT_G
+                    ", terr_kp1 = " SUN_FORMAT_G,
                     terr_km1, terr_k, terr_kp1);
       }
     }
@@ -7549,8 +7556,8 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
     IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
     SUNLogDebug(IDA_LOGGER, "new-step-and-order",
-                "knew = %i, err_knew = %" RSYM ", eta = %" RSYM
-                ", hnew = %" RSYM,
+                "knew = %i, err_knew = " SUN_FORMAT_G ", eta = " SUN_FORMAT_G
+                ", hnew = " SUN_FORMAT_G,
                 IDA_mem->ida_kk, err_knew, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
   } /* end of phase if block */

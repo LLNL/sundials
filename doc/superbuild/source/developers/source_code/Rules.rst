@@ -196,6 +196,9 @@ not adhere to all of these rules.
    ``sunindextype`` for it. Instead use the appropriate integer type (e.g., ``int64_t``) directly.
    Do not use ``sunindextype`` for counters either.
 
+#. Use the print functions, format macros, and output guidelines detailed in
+   :ref:`Style.Output`.
+
 #. Follow the logging style detailed in :ref:`Style.Logging`.
 
 #. Do not use unsigned integer types except for ``size_t`` when the value you are storing
