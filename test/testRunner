@@ -335,7 +335,7 @@ def intCompare(answer, value, percentage):
     # Check if error between value and answer is greater than the allowed percentage
     if answer == value:
         return True
-    if percentage != 0:
+    if percentage != 0 and answer != 0:
         percentageOff = abs(int(100 - (float(value)/float(answer) * 100)))
         if percentageOff <= percentage:
             return True

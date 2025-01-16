@@ -17,6 +17,6 @@ Inequality constraint fails  = 0
 Initial step size            = 0.001
 Last step size               = 0.001
 Current step size            = 0.001
-Partition 0 evolves          = 3
 Partition 1 evolves          = 3
+Partition 2 evolves          = 3
 End ForcingStep Logging test

@@ -686,15 +686,15 @@ void arkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     fprintf(outfile, "ARKStep: implicit Butcher table:\n");
     ARKodeButcherTable_Write(step_mem->Bi, outfile);
   }
-  fprintf(outfile, "ARKStep: gamma = %" RSYM "\n", step_mem->gamma);
-  fprintf(outfile, "ARKStep: gammap = %" RSYM "\n", step_mem->gammap);
-  fprintf(outfile, "ARKStep: gamrat = %" RSYM "\n", step_mem->gamrat);
-  fprintf(outfile, "ARKStep: crate = %" RSYM "\n", step_mem->crate);
-  fprintf(outfile, "ARKStep: eRNrm = %" RSYM "\n", step_mem->eRNrm);
-  fprintf(outfile, "ARKStep: nlscoef = %" RSYM "\n", step_mem->nlscoef);
-  fprintf(outfile, "ARKStep: crdown = %" RSYM "\n", step_mem->crdown);
-  fprintf(outfile, "ARKStep: rdiv = %" RSYM "\n", step_mem->rdiv);
-  fprintf(outfile, "ARKStep: dgmax = %" RSYM "\n", step_mem->dgmax);
+  fprintf(outfile, "ARKStep: gamma = " SUN_FORMAT_G "\n", step_mem->gamma);
+  fprintf(outfile, "ARKStep: gammap = " SUN_FORMAT_G "\n", step_mem->gammap);
+  fprintf(outfile, "ARKStep: gamrat = " SUN_FORMAT_G "\n", step_mem->gamrat);
+  fprintf(outfile, "ARKStep: crate = " SUN_FORMAT_G "\n", step_mem->crate);
+  fprintf(outfile, "ARKStep: eRNrm = " SUN_FORMAT_G "\n", step_mem->eRNrm);
+  fprintf(outfile, "ARKStep: nlscoef = " SUN_FORMAT_G "\n", step_mem->nlscoef);
+  fprintf(outfile, "ARKStep: crdown = " SUN_FORMAT_G "\n", step_mem->crdown);
+  fprintf(outfile, "ARKStep: rdiv = " SUN_FORMAT_G "\n", step_mem->rdiv);
+  fprintf(outfile, "ARKStep: dgmax = " SUN_FORMAT_G "\n", step_mem->dgmax);
 
 #ifdef SUNDIALS_DEBUG_PRINTVEC
   /* output vector quantities */
@@ -1762,8 +1762,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                          step_mem->mass_type != MASS_TIMEDEP;
 
   SUNLogInfoIf(is_start == 1, ARK_LOGGER, "begin-stage",
-               "stage = %i, implicit = %i, tcur = %" RSYM, 0, implicit_stage,
-               ark_mem->tcur);
+               "stage = %i, implicit = %i, tcur = " SUN_FORMAT_G, 0,
+               implicit_stage, ark_mem->tcur);
   SUNLogExtraDebugVecIf(is_start == 1, ARK_LOGGER, "explicit stage",
                         ark_mem->yn, "z_0(:) =");
 
@@ -1877,8 +1877,8 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     else { ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is] * ark_mem->h; }
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, implicit = %i, tcur = %" RSYM, is, implicit_stage,
-               ark_mem->tcur);
+               "stage = %i, implicit = %i, tcur = " SUN_FORMAT_G, is,
+               implicit_stage, ark_mem->tcur);
 
     /* setup time-dependent mass matrix */
     if ((step_mem->mass_type == MASS_TIMEDEP) && (step_mem->msetup != NULL))
