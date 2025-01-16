@@ -35,6 +35,8 @@
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+#include "sundials/sundials_types.h"
+#include "sundials_utils.h"
 
 #include "sundials/sundials_stepper.h"
 #include "sundials_adjointstepper_impl.h"
@@ -84,8 +86,8 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   }
 
   /* Allocate ARKodeARKStepMem structure, and initialize to zero */
-  step_mem = NULL;
-  step_mem = (ARKodeARKStepMem)malloc(sizeof(struct ARKodeARKStepMemRec));
+  step_mem = (ARKodeARKStepMem)sunMalloc(sunctx,
+                                         sizeof(struct ARKodeARKStepMemRec));
   if (step_mem == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -598,35 +600,36 @@ void arkStep_Free(ARKodeMem ark_mem)
     /* free the reusable arrays for fused vector interface */
     if (step_mem->cvals != NULL)
     {
-      free(step_mem->cvals);
+      sunFree(ark_mem->sunctx, step_mem->cvals,
+              step_mem->nfusedopvecs * sizeof(sunrealtype));
       step_mem->cvals = NULL;
-      ark_mem->lrw -= step_mem->nfusedopvecs;
     }
     if (step_mem->Xvecs != NULL)
     {
-      free(step_mem->Xvecs);
+      sunFree(ark_mem->sunctx, step_mem->Xvecs,
+              step_mem->nfusedopvecs * sizeof(N_Vector));
       step_mem->Xvecs = NULL;
-      ark_mem->liw -= step_mem->nfusedopvecs;
     }
     step_mem->nfusedopvecs = 0;
 
     /* free work arrays for MRI forcing */
     if (step_mem->stage_times)
     {
-      free(step_mem->stage_times);
+      sunFree(ark_mem->sunctx, step_mem->stage_times,
+              step_mem->stages * sizeof(sunrealtype));
       step_mem->stage_times = NULL;
-      ark_mem->lrw -= step_mem->stages;
     }
 
     if (step_mem->stage_coefs)
     {
-      free(step_mem->stage_coefs);
+      sunFree(ark_mem->sunctx, step_mem->stage_coefs,
+              step_mem->stages * sizeof(sunrealtype));
       step_mem->stage_coefs = NULL;
-      ark_mem->lrw -= step_mem->stages;
     }
 
     /* free the time stepper module itself */
-    free(ark_mem->step_mem);
+    sunFree(ark_mem->sunctx, ark_mem->step_mem,
+            sizeof(struct ARKodeARKStepMemRec));
     ark_mem->step_mem = NULL;
   }
 }
@@ -1094,17 +1097,17 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
     step_mem->nfusedopvecs = 2 * step_mem->stages + 2 + step_mem->nforcing;
     if (step_mem->cvals == NULL)
     {
-      step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                             sizeof(sunrealtype));
+      step_mem->cvals =
+        (sunrealtype*)sunMalloc(ark_mem->sunctx,
+                                step_mem->nfusedopvecs * sizeof(sunrealtype));
       if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
-      ark_mem->lrw += step_mem->nfusedopvecs;
     }
     if (step_mem->Xvecs == NULL)
     {
-      step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
-                                          sizeof(N_Vector));
+      step_mem->Xvecs =
+        (N_Vector*)sunMalloc(ark_mem->sunctx,
+                             step_mem->nfusedopvecs * sizeof(N_Vector));
       if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
-      ark_mem->liw += step_mem->nfusedopvecs; /* pointers */
     }
 
     /* Allocate workspace for MRI forcing -- need to allocate here as the
@@ -1115,16 +1118,16 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
     {
       if (!(step_mem->stage_times))
       {
-        step_mem->stage_times = (sunrealtype*)calloc(step_mem->stages,
-                                                     sizeof(sunrealtype));
-        ark_mem->lrw += step_mem->stages;
+        step_mem->stage_times =
+          (sunrealtype*)sunMalloc(ark_mem->sunctx,
+                                  step_mem->stages * sizeof(sunrealtype));
       }
 
       if (!(step_mem->stage_coefs))
       {
-        step_mem->stage_coefs = (sunrealtype*)calloc(step_mem->stages,
-                                                     sizeof(sunrealtype));
-        ark_mem->lrw += step_mem->stages;
+        step_mem->stage_coefs =
+          (sunrealtype*)sunMalloc(ark_mem->sunctx,
+                                  step_mem->stages * sizeof(sunrealtype));
       }
     }
 
@@ -3903,29 +3906,27 @@ int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
         /* free current work space */
         if (step_mem->cvals != NULL)
         {
-          free(step_mem->cvals);
-          ark_mem->lrw -= step_mem->nfusedopvecs;
+          sunFree(ark_mem->sunctx, step_mem->cvals,
+                  step_mem->nfusedopvecs * sizeof(sunrealtype));
         }
         if (step_mem->Xvecs != NULL)
         {
-          free(step_mem->Xvecs);
-          ark_mem->liw -= step_mem->nfusedopvecs;
+          sunFree(ark_mem->sunctx, step_mem->Xvecs,
+                  step_mem->nfusedopvecs * sizeof(N_Vector));
         }
 
         /* allocate reusable arrays for fused vector operations */
         step_mem->nfusedopvecs = 2 * step_mem->stages + 2 + nvecs;
 
-        step_mem->cvals = NULL;
-        step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                               sizeof(sunrealtype));
+        step_mem->cvals =
+          (sunrealtype*)sunMalloc(ark_mem->sunctx,
+                                  step_mem->nfusedopvecs * sizeof(sunrealtype));
         if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
-        ark_mem->lrw += step_mem->nfusedopvecs;
 
-        step_mem->Xvecs = NULL;
-        step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
-                                            sizeof(N_Vector));
+        step_mem->Xvecs =
+          (N_Vector*)sunMalloc(ark_mem->sunctx,
+                               step_mem->nfusedopvecs * sizeof(N_Vector));
         if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
-        ark_mem->liw += step_mem->nfusedopvecs;
       }
     }
   }

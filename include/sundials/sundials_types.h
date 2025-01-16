@@ -219,6 +219,9 @@ typedef struct SUNProfiler_* SUNProfiler;
 /* SUNDIALS logger */
 typedef struct SUNLogger_* SUNLogger;
 
+/* SUNDIALS allocator */
+typedef _SUNDIALS_STRUCT_ SUNAllocator_* SUNAllocator;
+
 /* -----------------------------------------------------------------------------
  * SUNDIALS function types
  * ---------------------------------------------------------------------------*/

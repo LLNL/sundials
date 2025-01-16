@@ -30,23 +30,38 @@
 #include <sundials/sundials_profiler.h>
 #include <sundials/sundials_types.h>
 
+#include "sundials/sundials_allocator.h"
 #include "sundials_adiak_metadata.h"
 #include "sundials_macros.h"
+#include "sundials_allocator_system.h"
 
 SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
 {
-  SUNErrCode err       = SUN_SUCCESS;
-  SUNProfiler profiler = NULL;
-  SUNLogger logger     = NULL;
-  SUNContext sunctx    = NULL;
-  SUNErrHandler eh     = NULL;
+  SUNErrCode err         = SUN_SUCCESS;
+  SUNProfiler profiler   = NULL;
+  SUNLogger logger       = NULL;
+  SUNContext sunctx      = NULL;
+  SUNErrHandler eh       = NULL;
+  SUNAllocator allocator = NULL;
 
+  /* Initialize output */
   *sunctx_out = NULL;
-  sunctx      = (SUNContext)malloc(sizeof(struct SUNContext_));
 
-  /* SUNContext_Create cannot assert or log since the SUNContext is not yet
-   * created */
-  if (!sunctx) { return SUN_ERR_MALLOC_FAIL; }
+  /* Cannot assert or log since the SUNContext is not yet created */
+
+  err = SUNAllocator_Create_System(&allocator);
+  if (err) { return SUN_ERR_MALLOC_FAIL; }
+
+  sunctx = (SUNContext)SUNAllocator_Allocate(allocator,
+                                             sizeof(struct SUNContext_),
+                                             SUNMEMTYPE_HOST);
+  if (!sunctx)
+  {
+    (void)SUNAllocator_Destroy(&allocator);
+    return SUN_ERR_MALLOC_FAIL;
+  }
+
+  /* Now we can assert and log errors */
 
   SUNFunctionBegin(sunctx);
 
@@ -94,13 +109,16 @@ SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
     SUNCheckCallNoRet(err);
     if (err) { break; }
 
-    sunctx->logger       = logger;
-    sunctx->own_logger   = logger != NULL;
-    sunctx->profiler     = profiler;
-    sunctx->own_profiler = profiler != NULL;
-    sunctx->last_err     = SUN_SUCCESS;
-    sunctx->err_handler  = eh;
-    sunctx->comm         = comm;
+    sunctx->allocator     = allocator;
+    sunctx->own_allocator = SUNTRUE;
+    sunctx->logger        = logger;
+    sunctx->own_logger    = logger != NULL;
+    sunctx->profiler      = profiler;
+    sunctx->own_profiler  = profiler != NULL;
+    sunctx->last_err      = SUN_SUCCESS;
+    sunctx->err_handler   = eh;
+    sunctx->comm          = comm;
+    sunctx->vec_count     = 0;
   }
   while (0);
 
@@ -110,7 +128,10 @@ SUNErrCode SUNContext_Create(SUNComm comm, SUNContext* sunctx_out)
     SUNCheckCallNoRet(SUNProfiler_Free(&profiler));
 #endif
     SUNCheckCallNoRet(SUNLogger_Destroy(&logger));
-    free(sunctx);
+
+    SUNAllocator_Deallocate(allocator, &sunctx, sizeof(struct SUNContext_),
+                            SUNMEMTYPE_HOST);
+    (void)SUNAllocator_Destroy(&allocator);
   }
   else { *sunctx_out = sunctx; }
 
@@ -253,6 +274,39 @@ SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger)
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNContext_GetAllocator(SUNContext sunctx, SUNAllocator* allocator)
+{
+  if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
+
+  SUNFunctionBegin(sunctx);
+
+  /* get allocator */
+  *allocator = sunctx->allocator;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNContext_PrintAllocStats(SUNContext sunctx, FILE* outfile,
+                                      SUNOutputFormat fmt)
+{
+  if (!sunctx) { return SUN_ERR_SUNCTX_CORRUPT; }
+  if (!outfile) { return SUN_ERR_ARG_CORRUPT; }
+
+  SUNFunctionBegin(sunctx);
+
+  switch (fmt)
+  {
+  case SUN_OUTPUTFORMAT_TABLE:
+    fprintf(outfile, "Vectors allocated = %d\n", sunctx->vec_count);
+    break;
+  case SUN_OUTPUTFORMAT_CSV:
+    fprintf(outfile, "Vectors allocated,%d", sunctx->vec_count);
+    break;
+  default: return SUN_ERR_ARG_OUTOFRANGE;
+  }
+
+  return SUNAllocator_PrintStats(sunctx->allocator, outfile, fmt);
+}
+
 SUNErrCode SUNContext_Free(SUNContext* sunctx)
 {
 #ifdef SUNDIALS_ADIAK_ENABLED
@@ -295,8 +349,20 @@ SUNErrCode SUNContext_Free(SUNContext* sunctx)
 
   SUNContext_ClearErrHandlers(*sunctx);
 
-  free(*sunctx);
+  /* preserve allocator and ownership before deallocating the context */
+  sunbooleantype own_allocator = (*sunctx)->own_allocator;
+  SUNAllocator allocator       = (*sunctx)->allocator;
+
+  /* deallocate context */
+  SUNAllocator_Deallocate(allocator, sunctx, sizeof(struct SUNContext_),
+                          SUNMEMTYPE_HOST);
   *sunctx = NULL;
+
+  /* destroy allocator */
+  if (own_allocator)
+  {
+    if (SUNAllocator_Destroy(&allocator)) { return SUN_ERR_MEM_FAIL; }
+  }
 
   return SUN_SUCCESS;
 }

@@ -22,6 +22,7 @@
 #ifndef _SUNDIALS_CONTEXT_H
 #define _SUNDIALS_CONTEXT_H
 
+#include <stdio.h>
 #include <sundials/priv/sundials_context_impl.h>
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
@@ -60,7 +61,14 @@ SUNDIALS_EXPORT
 SUNErrCode SUNContext_SetLogger(SUNContext sunctx, SUNLogger logger);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNContext_Free(SUNContext* ctx);
+SUNErrCode SUNContext_GetAllocator(SUNContext sunctx, SUNAllocator* allocator);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_PrintAllocStats(SUNContext sunctx, FILE* outfile,
+                                      SUNOutputFormat fmt);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNContext_Free(SUNContext* sunctx);
 
 #ifdef __cplusplus
 }
