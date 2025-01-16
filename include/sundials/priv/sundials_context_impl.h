@@ -30,6 +30,8 @@ extern "C" {
 
 struct SUNContext_
 {
+  SUNAllocator allocator;
+  sunbooleantype own_allocator;
   SUNProfiler profiler;
   sunbooleantype own_profiler;
   SUNLogger logger;
