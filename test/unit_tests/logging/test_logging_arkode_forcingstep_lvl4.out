@@ -247,19 +247,19 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 11, tn = 0.0025, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002625000000000001
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002625
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002625000000000001
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002625
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.002750000000000001
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00275
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002687500000000001
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0026875
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, tn = 0.002750000000000001, h = 0.0002499999999999991
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.002750000000000001
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, tn = 0.00275, h = 0.000249999999999999
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00275
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002875
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
@@ -287,6 +287,6 @@ Inequality constraint fails  = 0
 Initial step size            = 0.001
 Last step size               = 0.001
 Current step size            = 0.001
-Partition 0 evolves          = 3
 Partition 1 evolves          = 3
+Partition 2 evolves          = 3
 End ForcingStep Logging test
