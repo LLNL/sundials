@@ -35,16 +35,6 @@
 #include "sundials/sundials_types.h"  // def. of type 'sunrealtype'
 #include "sunlinsol/sunlinsol_pcg.h"  // access to PCG SUNLinearSolver
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
-
 using namespace std;
 
 // accessor macros between (x,y) location and 1D NVector array
