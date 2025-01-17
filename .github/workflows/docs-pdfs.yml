@@ -29,6 +29,10 @@ jobs:
         with:
           submodules: true
 
+      - name: Install sphinx
+        run: |
+          pip install -r doc/requirements.txt
+
       - name: Build docs
         run: cd doc/${{matrix.package}}/guide && make latexpdf
 
