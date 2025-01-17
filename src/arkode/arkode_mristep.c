@@ -39,7 +39,6 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ARKodeMem ark_mem;         /* outer ARKODE memory   */
   ARKodeMRIStepMem step_mem; /* outer stepper memory  */
   SUNNonlinearSolver NLS;    /* default nonlin solver */
-  sunbooleantype nvectorOK;
   int retval;
 
   /* Check that at least one of fse, fsi is supplied and is to be used*/

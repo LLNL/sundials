@@ -121,7 +121,6 @@ void* lsrkStep_Create_Commons(ARKRhsFn rhs, sunrealtype t0, N_Vector y0,
 {
   ARKodeMem ark_mem;
   ARKodeLSRKStepMem step_mem;
-  sunbooleantype nvectorOK;
   int retval;
 
   /* Check that rhs is supplied */

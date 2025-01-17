@@ -40,7 +40,6 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   SUNNonlinearSolver NLS;
-  sunbooleantype nvectorOK;
   int retval;
 
   /* Check that at least one of fe, fi is supplied and is to be used */

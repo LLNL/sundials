@@ -34,7 +34,6 @@ void* ERKStepCreate(ARKRhsFn f, sunrealtype t0, N_Vector y0, SUNContext sunctx)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  sunbooleantype nvectorOK;
   int retval;
 
   /* Check that f is supplied */
