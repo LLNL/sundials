@@ -243,6 +243,7 @@ cp -r $sundialsdir/include/sunmemory $tmpdir/include/
 cp -r $sundialsdir/include/sunlinsol $tmpdir/include/
 cp -r $sundialsdir/include/sunnonlinsol $tmpdir/include/
 cp -r $sundialsdir/include/sunadaptcontroller $tmpdir/include/
+cp -r $sundialsdir/include/sunadjointcheckpointscheme $tmpdir/include/
 
 cp    $sundialsdir/src/CMakeLists.txt $tmpdir/src/
 cp -r $sundialsdir/src/sundials $tmpdir/src/
