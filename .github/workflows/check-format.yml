@@ -6,9 +6,6 @@ on:
   issue_comment:
     types: [created]
 
-permissions:
-  contents: write
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -19,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/llnl/sundials_spack_cache:llvm-17.0.4-h4lflucc3v2vage45opbo2didtcuigsn.spack
+    permissions:
+      contents: write
     steps:
       - name: Install git
         run: |
