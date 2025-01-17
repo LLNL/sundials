@@ -7,7 +7,7 @@ Analytical ODE test problem:
 Error: 7.26922e-07
 
 Splitting Stepper Statistics:
-Current time                 = 1.000000000000001
+Current time                 = 1
 Steps                        = 100
 Step attempts                = 100
 Stability limited steps      = 0
@@ -18,11 +18,11 @@ Inequality constraint fails  = 0
 Initial step size            = 0.01
 Last step size               = 0.01
 Current step size            = 0.01
-Partition 0 evolves          = 200
 Partition 1 evolves          = 200
+Partition 2 evolves          = 200
 
 Linear Stepper Statistics:
-Current time                 = 1.000000000000001
+Current time                 = 1
 Steps                        = 600
 Step attempts                = 600
 Stability limited steps      = 0
@@ -36,7 +36,7 @@ Current step size            = 0.002
 RHS fn evals                 = 3000
 
 Nonlinear Stepper Statistics:
-Current time                 = 1.000000000000001
+Current time                 = 1
 Steps                        = 1100
 Step attempts                = 1100
 Stability limited steps      = 0
@@ -45,7 +45,7 @@ Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 0.001
-Last step size               = 0.0009289321881345005
+Last step size               = 0.000928932188134501
 Current step size            = 0.001
 Explicit RHS fn evals        = 5500
 Implicit RHS fn evals        = 0
