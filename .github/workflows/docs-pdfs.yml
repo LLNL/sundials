@@ -24,6 +24,17 @@ jobs:
         package: [arkode, cvode, cvodes, ida, idas, kinsol]
 
     steps:
+      - name: Install latex
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends \
+            fonts-texgyre \
+            latexmk \
+            tex-gyre \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-plain-generic
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
