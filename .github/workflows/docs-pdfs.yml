@@ -22,6 +22,10 @@ jobs:
       max-parallel: 2
       matrix:
         package: [arkode, cvode, cvodes, ida, idas, kinsol]
+        # TODO(DJG): when all user guides and example docs use sphinx remove
+        # the example documentation jobs below and use the alternative lines
+        # commented out in this job
+        # type: [guide, examples]
 
     steps:
       - name: Install latex
@@ -46,6 +50,7 @@ jobs:
 
       - name: Build docs
         run: cd doc/${{matrix.package}}/guide && make latexpdf
+        # run: cd doc/${{matrix.package}}/${{matrix.type}} && make latexpdf
 
       - name: Archive files from failed build
         uses: actions/upload-artifact@v4
@@ -53,4 +58,85 @@ jobs:
         with:
           name: latex_build_files
           path: |
-            ${{ github.workspace }}/doc/${{matrix.package}}/guide/build/latex
+            ${{github.workspace}}/doc/${{matrix.package}}/guide/build/latex
+          # path: |
+          # ${{github.workspace}}/doc/${{matrix.package}}/${{matrix.type}}/build/latex
+
+  # Sphinx examples documentation PDFs
+  docs_examples_pdf:
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 2
+      matrix:
+        package: [arkode]
+
+    steps:
+      - name: Install latex
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends \
+            fonts-texgyre \
+            latexmk \
+            tex-gyre \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-plain-generic
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install sphinx
+        run: |
+          pip install -r doc/requirements.txt
+
+      - name: Build docs
+        run: cd doc/${{matrix.package}}/examples && make latexpdf
+
+      - name: Archive files from failed build
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: latex_build_files
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}/examples/build/latex
+
+  # Latex examples documentation PDFs
+  docs_examples_latex_pdf:
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 2
+      matrix:
+        package: [cvode, cvodes, ida, idas, kinsol]
+
+    steps:
+      - name: Install latex
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends \
+            fonts-texgyre \
+            latexmk \
+            tex-gyre \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-plain-generic
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Build docs
+        run: cd doc/${{matrix.package}} && make ex
+
+      - name: Archive files from failed build
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: latex_build_files
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}
+            !${{github.workspace}}/doc/${{matrix.package}}/guide
