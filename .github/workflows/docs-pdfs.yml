@@ -111,6 +111,9 @@ jobs:
           name: ${{matrix.package}}_user_guide
           path: |
             ${{github.workspace}}/doc/${{matrix.package}}/guide/build/latex/*_guide.pdf
+          # name: ${{matrix.package}}_${{matrix.type}}
+          # path: |
+          #   ${{github.workspace}}/doc/${{matrix.package}}/${{matrix.type}}/build/latex/*_${{matrix.type}}.pdf
 
   # Sphinx examples documentation PDFs
   docs_examples_sphinx_pdf:
