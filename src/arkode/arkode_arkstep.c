@@ -66,15 +66,6 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
     return (NULL);
   }
 
-  /* Test if all required vector operations are implemented */
-  nvectorOK = arkStep_CheckNVector(y0);
-  if (!nvectorOK)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
-    return (NULL);
-  }
-
   /* Create ark_mem structure and set default values */
   ark_mem = arkCreate(sunctx);
   if (ark_mem == NULL)
@@ -2168,23 +2159,6 @@ int arkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
   }
   *step_mem = (ARKodeARKStepMem)ark_mem->step_mem;
   return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  arkStep_CheckNVector:
-
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
-  ---------------------------------------------------------------*/
-sunbooleantype arkStep_CheckNVector(N_Vector tmpl)
-{
-  if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
-      (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
-      (tmpl->ops->nvscale == NULL) || (tmpl->ops->nvwrmsnorm == NULL))
-  {
-    return (SUNFALSE);
-  }
-  return (SUNTRUE);
 }
 
 /*---------------------------------------------------------------

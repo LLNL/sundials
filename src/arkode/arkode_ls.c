@@ -114,7 +114,8 @@ int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
   /* Check for compatible LS type, matrix and "atimes" support */
   if (iterative)
   {
-    if (ark_mem->tempv1->ops->nvgetlength == NULL)
+    if ((ark_mem->tempv1->ops->nvgetlength == NULL) ||
+        (ark_mem->tempv1->ops->nvdotprod == NULL))
     {
       arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_NVECTOR);

@@ -417,6 +417,14 @@ int ARKodeSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
+  /* Ensure that the current N_Vector supports N_VDotProd */
+  if (ark_mem->tempv1->ops->nvdotprod == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VDotProd unimplemented (required for relaxation)");
+    return (ARK_ILL_INPUT);
+  }
+
   /* Call stepper-specific routine (if it exists) */
   if (ark_mem->step_setrelaxfn)
   {
