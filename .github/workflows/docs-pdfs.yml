@@ -50,6 +50,14 @@ jobs:
           path: |
             ${{github.workspace}}/doc/install_guide/build/latex
 
+      - name: Archive PDF from successful build
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: install_guide
+          path: |
+            ${{github.workspace}}/doc/install_guide/build/latex/INSTALL_GUIDE.pdf
+
   docs_package_pdf:
     runs-on: ubuntu-latest
 
@@ -97,6 +105,14 @@ jobs:
           # path: |
           # ${{github.workspace}}/doc/${{matrix.package}}/${{matrix.type}}/build/latex
 
+      - name: Archive PDFs from successful build
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ${{matrix.package}}_user_guide
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}/guide/build/latex/*_guide.pdf
+
   # Sphinx examples documentation PDFs
   docs_examples_sphinx_pdf:
     runs-on: ubuntu-latest
@@ -138,6 +154,14 @@ jobs:
           path: |
             ${{github.workspace}}/doc/${{matrix.package}}/examples/build/latex
 
+      - name: Archive PDFs from successful build
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ${{matrix.package}}_examples_docs
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}/examples/build/latex/*_examples.pdf
+
   # Latex examples documentation PDFs
   docs_examples_latex_pdf:
     runs-on: ubuntu-latest
@@ -175,3 +199,11 @@ jobs:
           path: |
             ${{github.workspace}}/doc/${{matrix.package}}
             !${{github.workspace}}/doc/${{matrix.package}}/guide
+
+      - name: Archive PDFs from successful build
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ${{matrix.package}}_examples_docs
+          path: |
+            ${{github.workspace}}/doc/${{matrix.package}}/*_examples.pdf
