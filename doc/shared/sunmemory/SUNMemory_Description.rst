@@ -116,7 +116,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
          The function implementing :c:func:`SUNMemoryHelper_Alloc`
 
-      .. c:member:: SUNErrCode (*alloc)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size, size_t stride, SUNMemoryType mem_type, void* queue)
+      .. c:member:: SUNErrCode (*allocstrided)(SUNMemoryHelper, SUNMemory* memptr, size_t mem_size, size_t stride, SUNMemoryType mem_type, void* queue)
 
          The function implementing :c:func:`SUNMemoryHelper_AllocStrided`
 
