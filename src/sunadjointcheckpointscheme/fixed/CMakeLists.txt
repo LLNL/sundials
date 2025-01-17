@@ -19,7 +19,6 @@ sundials_add_library(
     ${SUNDIALS_SOURCE_DIR}/include/sundials/sundials_adjointcheckpointscheme.h
     ${SUNDIALS_SOURCE_DIR}/include/sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h
   LINK_LIBRARIES PUBLIC sundials_core
-  OBJECT_LIBRARIES sundials_sunmemsys_obj
   INCLUDE_SUBDIR sunadjointcheckpointscheme
   OBJECT_LIB_ONLY)
 
