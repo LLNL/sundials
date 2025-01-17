@@ -280,7 +280,6 @@ int ARKodeSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol)
     return (SUNFALSE);
   }
 
-
   /* Set flag indicating whether abstol == 0 */
   ark_mem->atolmin0 = (abstol == ZERO);
 
@@ -1887,10 +1886,10 @@ sunbooleantype arkCheckNvector(N_Vector tmpl)
   ---------------------------------------------------------------*/
 sunbooleantype arkCheckNvector2(ARKodeMem ark_mem)
 {
-
   /* If using a built-in routine for error/residual weights with abstol==0,
      ensure that N_VMin is available */
-  if ((!ark_mem->user_efun) && (ark_mem->atolmin0) && (!ark_mem->tempv1->ops->nvmin))
+  if ((!ark_mem->user_efun) && (ark_mem->atolmin0) &&
+      (!ark_mem->tempv1->ops->nvmin))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "N_VMin unimplemented (required by error-weight function)");
@@ -1906,16 +1905,18 @@ sunbooleantype arkCheckNvector2(ARKodeMem ark_mem)
 
   /* If the user has not specified a step size (and it will be estimated
      internally), ensure that N_VDiv and N_VMaxNorm are available */
-  if ((ark_mem->h0u == ZERO) && (ark_mem->hin == ZERO) && (!ark_mem->tempv1->ops->nvdiv))
+  if ((ark_mem->h0u == ZERO) && (ark_mem->hin == ZERO) &&
+      (!ark_mem->tempv1->ops->nvdiv))
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "N_VDiv unimplemented (required for initial step estimation)");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VDiv unimplemented (required for initial step estimation)");
     return (SUNFALSE);
   }
-  if ((ark_mem->h0u == ZERO) && (ark_mem->hin == ZERO) && (!ark_mem->tempv1->ops->nvmaxnorm))
+  if ((ark_mem->h0u == ZERO) && (ark_mem->hin == ZERO) &&
+      (!ark_mem->tempv1->ops->nvmaxnorm))
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "N_VMaxNorm unimplemented (required for initial step estimation)");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VMaxNorm unimplemented (required for initial step estimation)");
     return (SUNFALSE);
   }
 
