@@ -24,7 +24,6 @@
 #include <sundials/sundials_config.h>
 #include <sundials/sundials_types.h>
 
-
 /* width of name field in sunfprintf_<type> for aligning table output */
 #define SUN_TABLE_WIDTH 29
 
