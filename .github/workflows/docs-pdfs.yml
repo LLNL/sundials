@@ -15,7 +15,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  docs_user_guide_pdf:
+  docs_install_guide_pdf:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install latex
+        run: |
+          sudo apt update
+          sudo apt install -y --no-install-recommends \
+            fonts-texgyre \
+            latexmk \
+            tex-gyre \
+            texlive-latex-extra \
+            texlive-fonts-recommended \
+            texlive-plain-generic
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install sphinx
+        run: |
+          pip install -r doc/requirements.txt
+
+      - name: Build docs
+        run: cd doc/install_guide && make latexpdf
+
+      - name: Archive files from failed build
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: latex_build_files
+          path: |
+            ${{github.workspace}}/doc/install_guide/build/latex
+
+  docs_package_pdf:
     runs-on: ubuntu-latest
 
     strategy:
@@ -63,7 +98,7 @@ jobs:
           # ${{github.workspace}}/doc/${{matrix.package}}/${{matrix.type}}/build/latex
 
   # Sphinx examples documentation PDFs
-  docs_examples_pdf:
+  docs_examples_sphinx_pdf:
     runs-on: ubuntu-latest
 
     strategy:
