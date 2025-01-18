@@ -47,7 +47,8 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake \
+      run: |
+        cmake \
         --build ${{github.workspace}}/build \
         --parallel $(nproc) \
         --config ${{env.BUILD_TYPE}}
