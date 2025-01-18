@@ -69,7 +69,7 @@ jobs:
     - name: Test (Static)
       working-directory: ${{github.workspace}}/build_static
       # Execute tests
-      run: ctest --output-on-failure
+      run: ctest --output-on-failure --parallel $NUMBER_OF_PROCESSORS
 
     # TODO(CJB): shared libraries with the fortran interfaces turned on
     # fail to link correctly with this toolchain see https://github.com/LLNL/sundials/issues/507.
@@ -96,4 +96,4 @@ jobs:
     - name: Test (Shared)
       working-directory: ${{github.workspace}}/build_shared
       # Execute tests
-      run: ctest --output-on-failure
+      run: ctest --output-on-failure --parallel $NUMBER_OF_PROCESSORS

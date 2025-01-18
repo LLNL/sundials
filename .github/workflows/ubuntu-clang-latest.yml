@@ -47,7 +47,8 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake \
+      run: |
+        cmake \
         --build ${{github.workspace}}/build \
         --parallel $(nproc) \
         --config ${{env.BUILD_TYPE}}
@@ -57,6 +58,7 @@ jobs:
       run: |
         ctest \
         --test-dir ${{github.workspace}}/build \
+        --parallel $(nproc) \
         --label-regex logging \
         --verbose
 
@@ -101,7 +103,11 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: |
+        cmake \
+        --build ${{github.workspace}}/build \
+        --parallel $(nproc) \
+        --config ${{env.BUILD_TYPE}}
 
     - name: Archive build files from failed build
       uses: actions/upload-artifact@v4

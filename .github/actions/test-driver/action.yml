@@ -33,6 +33,7 @@ runs:
         --testtype CUSTOM \
         --env env/docker.sh \
         --buildjobs $(nproc) \
+        --testjobs $(nproc) \
         --tpls ${{ inputs.tpls }} \
         --sunrealtype ${{ inputs.precision }} \
         --indexsize ${{ inputs.indexsize }}
