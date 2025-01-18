@@ -70,6 +70,8 @@ jobs:
     if: ${{ always() && contains(join(needs.*.result, ','), 'failure') && (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/autofix')) }}
     needs: swig_check
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       # Checkout the GitHub created reference for the PR.
       # The only way to do this is by using the "issue" number
