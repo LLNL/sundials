@@ -102,7 +102,7 @@ SUNLinSol_LapackDense module it is assumed that LAPACK has been
 installed on the system prior to installation of
 SUNDIALS, and that SUNDIALS has been configured appropriately to
 link with LAPACK (see
-:numref:`Installation.CMake.ExternalLibraries` for details).
+:numref:`Installation.Options.LAPACK` for details).
 We note that since there do not exist 128-bit floating-point
 factorization and solve routines in LAPACK, this interface cannot be
 compiled when using ``extended`` precision for :c:type:`sunrealtype`.
