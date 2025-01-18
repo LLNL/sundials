@@ -155,7 +155,7 @@ order to use the SUNLinSol_SuperLUMT interface to SuperLU_MT, it is
 assumed that SuperLU_MT has been installed on the system prior to
 installation of SUNDIALS, and that SUNDIALS has been configured
 appropriately to link with SuperLU_MT (see
-:numref:`Installation.CMake.ExternalLibraries` for details).
+:numref:`Installation.Options.SuperLU_MT` for details).
 Additionally, this wrapper only supports single- and
 double-precision calculations, and therefore cannot be compiled if
 SUNDIALS is configured to have :c:type:`sunrealtype` set to ``extended``

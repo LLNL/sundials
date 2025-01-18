@@ -23,12 +23,6 @@
 #include "arkode/arkode_mristep.h"
 #include "nvector/nvector_serial.h"
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#else
-#define GSYM "g"
-#endif
-
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
 

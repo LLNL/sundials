@@ -33,16 +33,6 @@
 #include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
-
 // Constants
 #define NEG_ONE SUN_RCONST(-1.0)
 #define ZERO    SUN_RCONST(0.0)

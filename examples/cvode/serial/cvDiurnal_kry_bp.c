@@ -95,28 +95,20 @@
 #define ATOL (RTOL * FLOOR)      /* scalar absolute tolerance */
 #define NEQ  (NUM_SPECIES * MM)  /* NEQ = number of equations */
 
-/* User-defined vector and matrix accessor macros: IJKth, IJth */
+/* User-defined vector and matrix accessor macro: IJKth */
 
 /* IJKth is defined in order to isolate the translation from the
    mathematical 3-dimensional structure of the dependent variable vector
-   to the underlying 1-dimensional storage. IJth is defined in order to
-   write code which indexes into small dense matrices with a (row,column)
-   pair, where 1 <= row, column <= NUM_SPECIES.
+   to the underlying 1-dimensional storage.
 
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MY-1. The vdata array is obtained via
    the call vdata = N_VGetArrayPointer(v), where v is an N_Vector.
    For each mesh point (j,k), the elements for species i and i+1 are
-   contiguous within vdata.
-
-   IJth(a,i,j) references the (i,j)th entry of the small matrix sunrealtype **a,
-   where 1 <= i,j <= NUM_SPECIES. The small matrix routines in cvode_bandpre.h
-   work with matrices stored by column in a 2-dimensional array. In C,
-   arrays are indexed starting at 0, not 1. */
+   contiguous within vdata. */
 
 #define IJKth(vdata, i, j, k) (vdata[i - 1 + (j) * NUM_SPECIES + (k) * NSMX])
-#define IJth(a, i, j)         (a[j - 1][i - 1])
 
 /* Type : UserData
    contains preconditioner blocks, pivot arrays, and problem constants */
