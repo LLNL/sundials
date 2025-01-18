@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/llnl/sundials_spack_cache:llvm-17.0.4-h4lflucc3v2vage45opbo2didtcuigsn.spack
-    permissions:
-      contents: write
     steps:
       - name: Install git
         run: |
@@ -84,6 +82,8 @@ jobs:
     if: ${{ always() && contains(join(needs.*.result, ','), 'failure') && (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/autofix')) }}
     needs: format_check
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       # Checkout the GitHub created reference for the PR.
       # The only way to do this is by using the "issue" number
