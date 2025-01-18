@@ -1029,7 +1029,6 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub, int dsizex,
 #define rhs      (webdata->rhs)
 #define cext     (webdata->cext)
 #define rates    (webdata->rates)
-#define ns       (webdata->ns)
 #define acoef    (webdata->acoef)
 #define bcoef    (webdata->bcoef)
 
