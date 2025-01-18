@@ -47,7 +47,10 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake \
+        --build ${{github.workspace}}/build \
+        --parallel $(nproc) \
+        --config ${{env.BUILD_TYPE}}
 
     - name: Test
       # Run logging tests

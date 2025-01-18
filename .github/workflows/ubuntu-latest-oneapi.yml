@@ -42,4 +42,7 @@ jobs:
         -D ENABLE_SYCL=ON
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake \
+        --build ${{github.workspace}}/build \
+        --parallel $(nproc) \
+        --config ${{env.BUILD_TYPE}}

@@ -64,7 +64,7 @@ jobs:
 
     - name: Build (Static)
       # Build program
-      run: cmake --build ${GITHUB_WORKSPACE}/build_static --verbose
+      run: cmake --build ${GITHUB_WORKSPACE}/build_static --parallel $NUMBER_OF_PROCESSORS --verbose
 
     - name: Test (Static)
       working-directory: ${{github.workspace}}/build_static
@@ -91,7 +91,7 @@ jobs:
 
     - name: Build (Shared)
       # Build program
-      run: cmake --build ${GITHUB_WORKSPACE}/build_shared --verbose
+      run: cmake --build ${GITHUB_WORKSPACE}/build_shared --parallel $NUMBER_OF_PROCESSORS --verbose
 
     - name: Test (Shared)
       working-directory: ${{github.workspace}}/build_shared
