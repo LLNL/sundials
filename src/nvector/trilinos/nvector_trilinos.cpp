@@ -27,10 +27,8 @@
 
 #include "sundials_macros.h"
 
-#define ZERO   SUN_RCONST(0.0)
-#define HALF   SUN_RCONST(0.5)
-#define ONE    SUN_RCONST(1.0)
-#define ONEPT5 SUN_RCONST(1.5)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
