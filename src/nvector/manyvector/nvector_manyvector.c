@@ -41,7 +41,9 @@
 #endif
 
 #define ZERO SUN_RCONST(0.0)
+#ifdef MANYVECTOR_BUILD_WITH_MPI
 #define ONE  SUN_RCONST(1.0)
+#endif
 
 /* -----------------------------------------------------------------
    ManyVector content accessor macros
