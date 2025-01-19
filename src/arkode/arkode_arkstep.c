@@ -36,8 +36,6 @@
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 
-#define FIXED_LIN_TOL
-
 /*===============================================================
   Exported functions
   ===============================================================*/
