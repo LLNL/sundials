@@ -620,8 +620,8 @@ void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
                      sunindextype liw1, long int* liw);
 void arkFreeVectors(ARKodeMem ark_mem);
 sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem);
-sunbooleantype arkCheckNvector(N_Vector tmpl);
-sunbooleantype arkCheckNvector2(ARKodeMem ark_mem);
+sunbooleantype arkCheckNvectorRequired(N_Vector tmpl);
+sunbooleantype arkCheckNvectorOptional(ARKodeMem ark_mem);
 
 int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout);
 int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,

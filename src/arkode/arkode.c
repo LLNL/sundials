@@ -277,7 +277,7 @@ int ARKodeSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "N_VAddConst unimplemented (required for scalar abstol)");
-    return (SUNFALSE);
+    return (ARK_ILL_INPUT);
   }
 
   /* Set flag indicating whether abstol == 0 */
@@ -451,6 +451,14 @@ int ARKodeResStolerance(void* arkode_mem, sunrealtype rabstol)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_RABSTOL);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Ensure that vector supports N_VAddConst */
+  if (!ark_mem->tempv1->ops->nvaddconst)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar rabstol)");
     return (ARK_ILL_INPUT);
   }
 
@@ -1740,7 +1748,7 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     }
 
     /* Test if all required vector operations are implemented */
-    nvectorOK = arkCheckNvector(y0);
+    nvectorOK = arkCheckNvectorRequired(y0);
     if (!nvectorOK)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -1857,19 +1865,19 @@ sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem)
 }
 
 /*---------------------------------------------------------------
-  arkCheckNvector:
+  arkCheckNvectorRequired:
 
   This routine checks if all absolutely-required vector
   operations are present.  If any of them is missing it returns
   SUNFALSE.
   ---------------------------------------------------------------*/
-sunbooleantype arkCheckNvector(N_Vector tmpl)
+sunbooleantype arkCheckNvectorRequired(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
       (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
       (tmpl->ops->nvdiv == NULL) || (tmpl->ops->nvscale == NULL) ||
       (tmpl->ops->nvabs == NULL) || (tmpl->ops->nvinv == NULL) ||
-      (tmpl->ops->nvmaxnorm == NULL) || (tmpl->ops->nvwrmsnorm == NULL))
+      (tmpl->ops->nvwrmsnorm == NULL))
   {
     return (SUNFALSE);
   }
@@ -1877,14 +1885,14 @@ sunbooleantype arkCheckNvector(N_Vector tmpl)
 }
 
 /*---------------------------------------------------------------
-  arkCheckNvector2:
+  arkCheckNvectorOptional:
 
   This routine perform conditional checks on required vector
   operations are present (i.e., if the current ARKODE
   configuration requires additional N_Vector routines).  If any
   of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-sunbooleantype arkCheckNvector2(ARKodeMem ark_mem)
+sunbooleantype arkCheckNvectorOptional(ARKodeMem ark_mem)
 {
   /* If using a built-in routine for error/residual weights with abstol==0,
      ensure that N_VMin is available */
@@ -1917,6 +1925,22 @@ sunbooleantype arkCheckNvector2(ARKodeMem ark_mem)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
                     __FILE__, "N_VMaxNorm unimplemented (required for initial step estimation)");
+    return (SUNFALSE);
+  }
+
+  /* If using a scalar-valued absolute tolerance (for either the state or
+     residual), then ensure that N_VAddConst is available */
+  if ((ark_mem->itol == ARK_SS) && (!ark_mem->tempv1->ops->nvaddconst))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VAddConst unimplemented (required for scalar abstol)");
+    return (SUNFALSE);
+  }
+  if ( (!ark_mem->rwt_is_ewt) && (ark_mem->ritol == ARK_SS) &&
+       (!ark_mem->tempv1->ops->nvaddconst))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VAddConst unimplemented (required for scalar rabstol)");
     return (SUNFALSE);
   }
 
@@ -1954,7 +1978,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
 
   /* Perform additional N_Vector checks here, now that ARKODE has been
      fully configured by the user */
-  if (!arkCheckNvector2(ark_mem))
+  if (!arkCheckNvectorOptional(ark_mem))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_NVECTOR);

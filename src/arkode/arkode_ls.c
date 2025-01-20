@@ -114,8 +114,7 @@ int ARKodeSetLinearSolver(void* arkode_mem, SUNLinearSolver LS, SUNMatrix A)
   /* Check for compatible LS type, matrix and "atimes" support */
   if (iterative)
   {
-    if ((ark_mem->tempv1->ops->nvgetlength == NULL) ||
-        (ark_mem->tempv1->ops->nvdotprod == NULL))
+    if (ark_mem->tempv1->ops->nvgetlength == NULL)
     {
       arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                       MSG_LS_BAD_NVECTOR);
@@ -725,6 +724,15 @@ int ARKodeSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   }
   else if (nrmfac < ZERO)
   {
+
+    /* Ensure that vector support N_VDotProd */
+    if (ark_mem->tempv1->ops->nvdotprod == NULL)
+    {
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "N_VDotProd unimplemented (required for ARKodeSetLSNormFactor)");
+      return (ARKLS_ILL_INPUT);
+    }
+
     /* compute factor for WRMS norm with dot product */
     N_VConst(ONE, ark_mem->tempv1);
     arkls_mem->nrmfac = SUNRsqrt(N_VDotProd(ark_mem->tempv1, ark_mem->tempv1));
@@ -1677,6 +1685,15 @@ int ARKodeSetMassLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   }
   else if (nrmfac < ZERO)
   {
+
+    /* Ensure that vector support N_VDotProd */
+    if (ark_mem->tempv1->ops->nvdotprod == NULL)
+    {
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "N_VDotProd unimplemented (required for ARKodeSetMassLSNormFactor)");
+      return (ARKLS_ILL_INPUT);
+    }
+
     /* compute factor for WRMS norm with dot product */
     N_VConst(ONE, ark_mem->tempv1);
     arkls_mem->nrmfac = SUNRsqrt(N_VDotProd(ark_mem->tempv1, ark_mem->tempv1));
