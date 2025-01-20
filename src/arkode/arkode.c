@@ -1932,15 +1932,15 @@ sunbooleantype arkCheckNvectorOptional(ARKodeMem ark_mem)
      residual), then ensure that N_VAddConst is available */
   if ((ark_mem->itol == ARK_SS) && (!ark_mem->tempv1->ops->nvaddconst))
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "N_VAddConst unimplemented (required for scalar abstol)");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar abstol)");
     return (SUNFALSE);
   }
-  if ( (!ark_mem->rwt_is_ewt) && (ark_mem->ritol == ARK_SS) &&
-       (!ark_mem->tempv1->ops->nvaddconst))
+  if ((!ark_mem->rwt_is_ewt) && (ark_mem->ritol == ARK_SS) &&
+      (!ark_mem->tempv1->ops->nvaddconst))
   {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "N_VAddConst unimplemented (required for scalar rabstol)");
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar rabstol)");
     return (SUNFALSE);
   }
 

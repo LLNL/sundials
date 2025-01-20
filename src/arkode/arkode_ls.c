@@ -724,12 +724,11 @@ int ARKodeSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   }
   else if (nrmfac < ZERO)
   {
-
     /* Ensure that vector support N_VDotProd */
     if (ark_mem->tempv1->ops->nvdotprod == NULL)
     {
-      arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "N_VDotProd unimplemented (required for ARKodeSetLSNormFactor)");
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "N_VDotProd unimplemented (required for ARKodeSetLSNormFactor)");
       return (ARKLS_ILL_INPUT);
     }
 
@@ -1685,12 +1684,11 @@ int ARKodeSetMassLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   }
   else if (nrmfac < ZERO)
   {
-
     /* Ensure that vector support N_VDotProd */
     if (ark_mem->tempv1->ops->nvdotprod == NULL)
     {
-      arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__, __FILE__,
-                      "N_VDotProd unimplemented (required for ARKodeSetMassLSNormFactor)");
+      arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__,
+                      __FILE__, "N_VDotProd unimplemented (required for ARKodeSetMassLSNormFactor)");
       return (ARKLS_ILL_INPUT);
     }
 
