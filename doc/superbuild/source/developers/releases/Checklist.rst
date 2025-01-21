@@ -115,7 +115,7 @@ Release Procedure
       the push to update ``main``.
 
 #. Once readthedocs finishes building the new release, create the tarballs *on a Linux machine*.
-   Use the ``tarscript`` shell script under the ``scripts`` directory. This also compiles the documents
+   Use the ``tarscript.sh`` shell script under the ``scripts`` directory. This also compiles the documents
    (user guides and example docs) and creates all tarballs in their final form, appropriate for uploading
    as artifacts to the GitHub release.
 

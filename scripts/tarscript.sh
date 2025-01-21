@@ -3,7 +3,7 @@
 # Programmer(s): Radu Serban, David J. Gardner, Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -34,7 +34,7 @@ function print_usage
 
     # Print help message
     echo ""
-    echo "Usage: tarscript [-hsv] [module]"
+    echo "Usage: tarscript.sh [-hsv] [module]"
     echo "   -h       : help"
     echo "   -s       : short (no documentation)"
     echo "   -q       : quiet"
