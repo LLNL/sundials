@@ -8,7 +8,7 @@ Using fixed-point nonlinear solver
  8.582732436244913e-03    1.224737353123003e+00    1.727803079449061e+00    6.298850330210826e-11    2.523286024569416e-10
  1.344993250857926e-02    1.224726408367123e+00    1.721638029753690e+00    6.483680259350422e-11    2.560827105924091e-10
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.01344993250857926
+Current time                 = 0.0101697255559211
 Steps                        = 3
 Step attempts                = 3
 Stability limited steps      = 0
@@ -16,13 +16,13 @@ Accuracy limited steps       = 3
 Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.004867200072334344
-Current step size            = 0.03107316478401382
-Explicit RHS fn evals        = 23
-Implicit RHS fn evals        = 63
-NLS iters                    = 40
+Initial step size            = 0.000102986025609508
+Last step size               = 0.00365349306629522
+Current step size            = 0.0209740196543238
+Explicit RHS fn evals        = 20
+Implicit RHS fn evals        = 55
+NLS iters                    = 35
 NLS fails                    = 0
-NLS iters per step           = 13.33333333333333
+NLS iters per step           = 11.6666666666667
 LS setups                    = 0
 End ARKStep Logging test

@@ -8,7 +8,7 @@ Using fixed-point nonlinear solver
  5.077128011123421e-03    1.224742240522223e+00    1.730563198063739e+00    5.210498699170785e-12    3.727240738271576e-12
  7.971479493571786e-03    1.224738385936593e+00    1.728385952122810e+00    9.707123993507594e-12    3.469446951953614e-12
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.007971479493571786
+Current time                 = 0.00598377247359893
 Steps                        = 3
 Step attempts                = 3
 Stability limited steps      = 0
@@ -16,9 +16,9 @@ Accuracy limited steps       = 3
 Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.002894351482448365
-Current step size            = 0.01488513257624006
+Initial step size            = 0.000102986025609508
+Last step size               = 0.00223612722771332
+Current step size            = 0.010082634983602
 Explicit RHS fn evals        = 0
 Implicit RHS fn evals        = 49
 NLS iters                    = 31

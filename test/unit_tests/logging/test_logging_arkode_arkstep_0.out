@@ -7,7 +7,7 @@ Using ERK method
  4.693175569728394e-03    1.224742623299193e+00    1.730779608948462e+00    8.576761523215737e-11    2.367621654286722e-10
  7.384426414984546e-03    1.224739305893570e+00    1.728905393317606e+00    9.100453723931423e-11    2.464335402407869e-10
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.007384426414984546
+Current time                 = 0.00406950151209344
 Steps                        = 3
 Step attempts                = 3
 Stability limited steps      = 0
@@ -15,10 +15,10 @@ Accuracy limited steps       = 3
 Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.002691250845256152
-Current step size            = 0.01338285379548646
-Explicit RHS fn evals        = 15
+Initial step size            = 0.000102986025609508
+Last step size               = 0.00155158565717385
+Current step size            = 0.00589144841041126
+Explicit RHS fn evals        = 17
 Implicit RHS fn evals        = 0
 NLS iters                    = 0
 NLS fails                    = 0
