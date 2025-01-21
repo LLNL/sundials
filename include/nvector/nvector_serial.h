@@ -55,7 +55,7 @@ struct _N_VectorContent_Serial
 {
   sunindextype length;     /* vector length       */
   sunbooleantype own_data; /* data ownership flag */
-  sunrealtype* data;       /* data array          */
+  sunscalartype* data;       /* data array          */
 };
 
 typedef struct _N_VectorContent_Serial* N_VectorContent_Serial;
@@ -90,7 +90,7 @@ SUNDIALS_EXPORT
 N_Vector N_VNew_Serial(sunindextype vec_length, SUNContext sunctx);
 
 SUNDIALS_EXPORT
-N_Vector N_VMake_Serial(sunindextype vec_length, sunrealtype* v_data,
+N_Vector N_VMake_Serial(sunindextype vec_length, sunscalartype* v_data,
                         SUNContext sunctx);
 
 SUNDIALS_EXPORT
@@ -118,17 +118,17 @@ SUNDIALS_EXPORT
 void N_VSpace_Serial(N_Vector v, sunindextype* lrw, sunindextype* liw);
 
 SUNDIALS_EXPORT
-sunrealtype* N_VGetArrayPointer_Serial(N_Vector v);
+sunscalartype* N_VGetArrayPointer_Serial(N_Vector v);
 
 SUNDIALS_EXPORT
-void N_VSetArrayPointer_Serial(sunrealtype* v_data, N_Vector v);
+void N_VSetArrayPointer_Serial(sunscalartype* v_data, N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT
-void N_VLinearSum_Serial(sunrealtype a, N_Vector x, sunrealtype b, N_Vector y,
+void N_VLinearSum_Serial(sunscalartype a, N_Vector x, sunscalartype b, N_Vector y,
                          N_Vector z);
 SUNDIALS_EXPORT
-void N_VConst_Serial(sunrealtype c, N_Vector z);
+void N_VConst_Serial(sunscalartype c, N_Vector z);
 
 SUNDIALS_EXPORT
 void N_VProd_Serial(N_Vector x, N_Vector y, N_Vector z);
@@ -137,7 +137,7 @@ SUNDIALS_EXPORT
 void N_VDiv_Serial(N_Vector x, N_Vector y, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VScale_Serial(sunrealtype c, N_Vector x, N_Vector z);
+void N_VScale_Serial(sunscalartype c, N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
 void N_VAbs_Serial(N_Vector x, N_Vector z);
@@ -146,7 +146,7 @@ SUNDIALS_EXPORT
 void N_VInv_Serial(N_Vector x, N_Vector z);
 
 SUNDIALS_EXPORT
-void N_VAddConst_Serial(N_Vector x, sunrealtype b, N_Vector z);
+void N_VAddConst_Serial(N_Vector x, sunscalartype b, N_Vector z);
 
 SUNDIALS_EXPORT
 sunrealtype N_VDotProd_Serial(N_Vector x, N_Vector y);
@@ -183,27 +183,27 @@ sunrealtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom);
 
 /* fused vector operations */
 SUNDIALS_EXPORT
-SUNErrCode N_VLinearCombination_Serial(int nvec, sunrealtype* c, N_Vector* V,
+SUNErrCode N_VLinearCombination_Serial(int nvec, sunscalartype* c, N_Vector* V,
                                        N_Vector z);
 SUNDIALS_EXPORT
-SUNErrCode N_VScaleAddMulti_Serial(int nvec, sunrealtype* a, N_Vector x,
+SUNErrCode N_VScaleAddMulti_Serial(int nvec, sunscalartype* a, N_Vector x,
                                    N_Vector* Y, N_Vector* Z);
 SUNDIALS_EXPORT
 SUNErrCode N_VDotProdMulti_Serial(int nvec, N_Vector x, N_Vector* Y,
-                                  sunrealtype* dotprods);
+                                  sunscalartype* dotprods);
 
 /* vector array operations */
 SUNDIALS_EXPORT
-SUNErrCode N_VLinearSumVectorArray_Serial(int nvec, sunrealtype a, N_Vector* X,
-                                          sunrealtype b, N_Vector* Y,
+SUNErrCode N_VLinearSumVectorArray_Serial(int nvec, sunscalartype a, N_Vector* X,
+                                          sunscalartype b, N_Vector* Y,
                                           N_Vector* Z);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VScaleVectorArray_Serial(int nvec, sunrealtype* c, N_Vector* X,
+SUNErrCode N_VScaleVectorArray_Serial(int nvec, sunscalartype* c, N_Vector* X,
                                       N_Vector* Z);
 
 SUNDIALS_EXPORT
-SUNErrCode N_VConstVectorArray_Serial(int nvecs, sunrealtype c, N_Vector* Z);
+SUNErrCode N_VConstVectorArray_Serial(int nvecs, sunscalartype c, N_Vector* Z);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VWrmsNormVectorArray_Serial(int nvecs, N_Vector* X, N_Vector* W,
@@ -215,12 +215,12 @@ SUNErrCode N_VWrmsNormMaskVectorArray_Serial(int nvecs, N_Vector* X, N_Vector* W
 
 SUNDIALS_EXPORT
 SUNErrCode N_VScaleAddMultiVectorArray_Serial(int nvec, int nsum,
-                                              sunrealtype* a, N_Vector* X,
+                                              sunscalartype* a, N_Vector* X,
                                               N_Vector** Y, N_Vector** Z);
 
 SUNDIALS_EXPORT
 SUNErrCode N_VLinearCombinationVectorArray_Serial(int nvec, int nsum,
-                                                  sunrealtype* c, N_Vector** X,
+                                                  sunscalartype* c, N_Vector** X,
                                                   N_Vector* Z);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */

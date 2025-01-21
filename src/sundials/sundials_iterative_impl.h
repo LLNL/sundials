@@ -34,7 +34,7 @@ struct _SUNQRData
 {
   N_Vector vtemp;
   N_Vector vtemp2;
-  sunrealtype* temp_array;
+  sunscalartype* temp_array;
 };
 
 #endif
