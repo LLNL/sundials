@@ -170,10 +170,10 @@ $cmakeNewCopyright =~ s/ #/#/g;
 replaceInFiles($cmakeFilePattern,$fileExcludePattern,$cmakeReplacePattern,$cmakeNewCopyright);
 
 #############################################################################
-# Replace in Python/Shell files
+# Replace in Python/Shell/YAML files
 #############################################################################
 
-my $shFilePattern    = q!(\.py|\.sh|testRunner|updateGitHub|applyGithubPR)$!;
+my $shFilePattern    = q!(\.py|\.sh|\.yml|testRunner)$!;
 my $shReplacePattern = '# (LLNS|LLNS/SMU|SUNDIALS) Copyright Start(.*)Copyright End\n';
 my $shNewCopyright   = $newCopyright;
 
