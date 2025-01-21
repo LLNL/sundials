@@ -3334,7 +3334,10 @@ static int CVApolynomialGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y,
     base    = index - 1;
     content = (CVpolynomialDataMem)(dt_mem[base]->content);
     order   = content->order;
-    if (ca_mem->ca_np - index > order) { base -= index + order - ca_mem->ca_np; }
+    if (ca_mem->ca_np - index > order)
+    {
+      base -= index + order - ca_mem->ca_np;
+    }
   }
 
   /* Recompute Y (divided differences for Newton polynomial) if needed */
