@@ -152,6 +152,9 @@ SUNDIALS_EXPORT
 sunrealtype N_VDotProd_Serial(N_Vector x, N_Vector y);
 
 SUNDIALS_EXPORT
+SUNErrCode N_VDotProdComplex_Serial(N_Vector x, N_Vector y, sunscalartype* result);
+
+SUNDIALS_EXPORT
 sunrealtype N_VMaxNorm_Serial(N_Vector x);
 
 SUNDIALS_EXPORT
