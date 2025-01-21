@@ -263,8 +263,8 @@ void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
 
   for (i = 0; i < N; i++)
   {
-    fprintf(outfile, SUN_FORMAT_E " + i" SUN_FORMAT_E "\n", SUN_CREAL(xd[i]),
-            SUN_CIMAG(xd[i]));
+    fprintf(outfile, SUN_FORMAT_E " + i" SUN_FORMAT_E "\n", SUN_REAL(xd[i]),
+            SUN_IMAG(xd[i]));
   }
 
   return;
@@ -569,7 +569,7 @@ void N_VAbs_Serial(N_Vector x, N_Vector z)
   xd = NV_DATA_S(x);
   zd = NV_DATA_S(z);
 
-  for (i = 0; i < N; i++) { zd[i] = SUNCabs(xd[i]); }
+  for (i = 0; i < N; i++) { zd[i] = SUNabs(xd[i]); }
 
   return;
 }
@@ -620,7 +620,7 @@ sunrealtype N_VDotProd_Serial(N_Vector x, N_Vector y)
 
   for (i = 0; i < N; i++) { sum += xd[i] * yd[i]; }
 
-  return SUN_CREAL(sum);
+  return SUN_REAL(sum);
 }
 
 sunrealtype N_VMaxNorm_Serial(N_Vector x)
@@ -637,10 +637,10 @@ sunrealtype N_VMaxNorm_Serial(N_Vector x)
 
   for (i = 0; i < N; i++)
   {
-    if (SUNCabs(xd[i]) > max) { max = SUNCabs(xd[i]); }
+    if (SUNabs(xd[i]) > max) { max = SUNabs(xd[i]); }
   }
 
-  return SUN_CREAL(max);
+  return SUN_REAL(max);
 }
 
 sunrealtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
@@ -670,7 +670,7 @@ sunrealtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w)
     sum += SUNSQR(prodi);
   }
 
-  return SUN_CREAL(sum);
+  return SUN_REAL(sum);
 }
 
 sunrealtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
@@ -697,14 +697,14 @@ sunrealtype N_VWSqrSumMaskLocal_Serial(N_Vector x, N_Vector w, N_Vector id)
 
   for (i = 0; i < N; i++)
   {
-    if (SUN_CREAL(idd[i]) > ZERO)
+    if (SUN_REAL(idd[i]) > ZERO)
     {
       prodi = xd[i] * wd[i];
       sum += SUNSQR(prodi);
     }
   }
 
-  return SUN_CREAL(sum);
+  return SUN_REAL(sum);
 }
 
 sunrealtype N_VMin_Serial(N_Vector x)
@@ -718,14 +718,14 @@ sunrealtype N_VMin_Serial(N_Vector x)
   N  = NV_LENGTH_S(x);
   xd = NV_DATA_S(x);
 
-  min = SUN_CREAL(xd[0]);
+  min = SUN_REAL(xd[0]);
 
   for (i = 1; i < N; i++)
   {
-    if (SUN_CREAL(xd[i]) < min) { min = SUN_CREAL(xd[i]); }
+    if (SUN_REAL(xd[i]) < min) { min = SUN_REAL(xd[i]); }
   }
 
-  return SUN_CREAL(min);
+  return SUN_REAL(min);
 }
 
 sunrealtype N_VWL2Norm_Serial(N_Vector x, N_Vector w)
@@ -760,9 +760,9 @@ sunrealtype N_VL1Norm_Serial(N_Vector x)
   N  = NV_LENGTH_S(x);
   xd = NV_DATA_S(x);
 
-  for (i = 0; i < N; i++) { sum += SUNCabs(xd[i]); }
+  for (i = 0; i < N; i++) { sum += SUNabs(xd[i]); }
 
-  return SUN_CREAL(sum);
+  return SUN_REAL(sum);
 }
 
 void N_VCompare_Serial(sunrealtype c, N_Vector x, N_Vector z)
@@ -776,7 +776,7 @@ void N_VCompare_Serial(sunrealtype c, N_Vector x, N_Vector z)
   xd = NV_DATA_S(x);
   zd = NV_DATA_S(z);
 
-  for (i = 0; i < N; i++) { zd[i] = (SUNCabs(xd[i]) >= c) ? ONE : ZERO; }
+  for (i = 0; i < N; i++) { zd[i] = (SUNabs(xd[i]) >= c) ? ONE : ZERO; }
 
   return;
 }
@@ -826,9 +826,9 @@ sunbooleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m)
     if (cd[i] == ZERO) { continue; }
 
     /* Check if a set constraint has been violated */
-    sunrealtype tq = SUN_CREAL(xd[i] * cd[i]);
-    if ((SUNRabs(SUN_CREAL(cd[i])) > ONEPT5 && tq <= ZERO) ||
-        (SUNRabs(SUN_CREAL(cd[i])) > HALF && tq < ZERO))
+    sunrealtype tq = SUN_REAL(xd[i] * cd[i]);
+    if ((SUNRabs(SUN_REAL(cd[i])) > ONEPT5 && tq <= ZERO) ||
+        (SUNRabs(SUN_REAL(cd[i])) > HALF && tq < ZERO))
     {
       temp = md[i] = ONE;
     }
@@ -856,13 +856,13 @@ sunrealtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom)
 
   for (i = 0; i < N; i++)
   {
-    if (SUN_CREAL(dd[i]) == ZERO) { continue; }
+    if (SUN_REAL(dd[i]) == ZERO) { continue; }
     else
     {
-      if (!notEvenOnce) { min = SUNMIN(min, SUN_CREAL(nd[i] / dd[i])); }
+      if (!notEvenOnce) { min = SUNMIN(min, SUN_REAL(nd[i] / dd[i])); }
       else
       {
-        min         = SUN_CREAL(nd[i] / dd[i]);
+        min         = SUN_REAL(nd[i] / dd[i]);
         notEvenOnce = SUNFALSE;
       }
     }
@@ -1308,7 +1308,7 @@ SUNErrCode N_VWrmsNormMaskVectorArray_Serial(int nvec, N_Vector* X, N_Vector* W,
     nrm[i] = ZERO;
     for (j = 0; j < N; j++)
     {
-      if (SUN_CREAL(idd[j]) > ZERO) { nrm[i] += SUNSQR(xd[j] * wd[j]); }
+      if (SUN_REAL(idd[j]) > ZERO) { nrm[i] += SUNSQR(xd[j] * wd[j]); }
     }
     nrm[i] = SUNRsqrt(nrm[i] / N);
   }
