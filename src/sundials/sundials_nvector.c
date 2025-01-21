@@ -519,7 +519,7 @@ sunrealtype N_VL1Norm(N_Vector x)
   return (result);
 }
 
-void N_VCompare(sunscalartype c, N_Vector x, N_Vector z)
+void N_VCompare(sunrealtype c, N_Vector x, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
   z->ops->nvcompare(c, x, z);

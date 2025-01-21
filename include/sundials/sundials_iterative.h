@@ -164,7 +164,7 @@ typedef int (*SUNPSolveFn)(void* P_data, N_Vector r, N_Vector z,
  * -----------------------------------------------------------------
  */
 
-typedef int (*SUNQRAddFn)(N_Vector* Q, sunrealtype* R, N_Vector f, int m,
+typedef int (*SUNQRAddFn)(N_Vector* Q, sunscalartype* R, N_Vector f, int m,
                           int mMax, void* QR_data);
 
 /*
@@ -229,7 +229,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, sunrealtype** h, int k, int p,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNClassicalGS(N_Vector* v, sunrealtype** h, int k, int p,
-                          sunrealtype* new_vk_norm, sunrealtype* stemp,
+                          sunrealtype* new_vk_norm, sunscalartype* stemp,
                           N_Vector* vtemp);
 
 /*
@@ -331,7 +331,7 @@ int SUNQRsol(int n, sunrealtype** h, sunrealtype* q, sunrealtype* b);
  */
 
 SUNDIALS_EXPORT
-SUNErrCode SUNQRAdd_MGS(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
+SUNErrCode SUNQRAdd_MGS(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
                         int mMax, void* QRdata);
 
 /*
@@ -369,7 +369,7 @@ SUNErrCode SUNQRAdd_MGS(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
  */
 
 SUNDIALS_EXPORT
-SUNErrCode SUNQRAdd_ICWY(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
+SUNErrCode SUNQRAdd_ICWY(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
                          int mMax, void* QRdata);
 
 /*
@@ -382,7 +382,7 @@ SUNErrCode SUNQRAdd_ICWY(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
  */
 
 SUNDIALS_EXPORT
-SUNErrCode SUNQRAdd_ICWY_SB(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
+SUNErrCode SUNQRAdd_ICWY_SB(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
                             int mMax, void* QRdata);
 
 /*
@@ -417,7 +417,7 @@ SUNErrCode SUNQRAdd_ICWY_SB(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
  */
 
 SUNDIALS_EXPORT
-SUNErrCode SUNQRAdd_CGS2(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
+SUNErrCode SUNQRAdd_CGS2(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
                          int mMax, void* QRdata);
 
 /*
@@ -454,7 +454,7 @@ SUNErrCode SUNQRAdd_CGS2(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
  */
 
 SUNDIALS_EXPORT
-SUNErrCode SUNQRAdd_DCGS2(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
+SUNErrCode SUNQRAdd_DCGS2(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
                           int mMax, void* QRdata);
 
 /*
@@ -467,7 +467,7 @@ SUNErrCode SUNQRAdd_DCGS2(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
  */
 
 SUNDIALS_EXPORT
-SUNErrCode SUNQRAdd_DCGS2_SB(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
+SUNErrCode SUNQRAdd_DCGS2_SB(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
                              int mMax, void* QRdata);
 
 #ifdef __cplusplus

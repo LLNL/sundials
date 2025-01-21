@@ -251,7 +251,7 @@ SUNDIALS_EXPORT sunrealtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id)
 SUNDIALS_EXPORT sunrealtype N_VMin(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWL2Norm(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VL1Norm(N_Vector x);
-SUNDIALS_EXPORT void N_VCompare(sunscalartype c, N_Vector x, N_Vector z);
+SUNDIALS_EXPORT void N_VCompare(sunrealtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT sunbooleantype N_VInvTest(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT sunbooleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT sunrealtype N_VMinQuotient(N_Vector num, N_Vector denom);
