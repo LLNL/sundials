@@ -33,16 +33,6 @@
 
 #include "arkode/arkode_mri_tables_impl.h"
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
-
 enum class interp_type
 {
   none = -1,

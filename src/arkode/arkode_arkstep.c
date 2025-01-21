@@ -28,8 +28,6 @@
 #include "arkode_interp_impl.h"
 #include "sundials/sundials_types.h"
 
-#define FIXED_LIN_TOL
-
 /*===============================================================
   Exported functions
   ===============================================================*/
