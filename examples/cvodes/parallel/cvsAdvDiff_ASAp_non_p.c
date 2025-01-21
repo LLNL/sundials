@@ -713,7 +713,7 @@ static void PrintOutput(sunrealtype g_val, N_Vector uB, UserData data)
   MPI_Comm comm;
   MPI_Status status;
   int j, npes, my_pe;
-  sunindextype i, Ni, indx, local_N, nperpe, nrem;
+  sunindextype i, Ni, index, local_N, nperpe, nrem;
   sunrealtype* uBdata;
   sunrealtype* mu;
 
@@ -742,12 +742,12 @@ static void PrintOutput(sunrealtype g_val, N_Vector uB, UserData data)
     mu = (sunrealtype*)malloc(NEQ * sizeof(sunrealtype));
     if (check_retval((void*)mu, "malloc", 2, my_pe)) { MPI_Abort(comm, 1); }
 
-    indx = 0;
+    index = 0;
     for (j = 0; j < npes; j++)
     {
       Ni = (j < nrem) ? nperpe + 1 : nperpe;
-      MPI_Recv(&mu[indx], (int)Ni, MPI_SUNREALTYPE, j, 0, comm, &status);
-      indx += Ni;
+      MPI_Recv(&mu[index], (int)Ni, MPI_SUNREALTYPE, j, 0, comm, &status);
+      index += Ni;
     }
 
     printf("mu(t0)\n");

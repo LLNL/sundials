@@ -2607,7 +2607,7 @@ static int PrintUserData(UserData* udata)
   cout << "  linear         = " << udata->linear << endl;
   cout << " --------------------------------- " << endl;
   cout << "  lin iters      = " << udata->liniters << endl;
-  cout << "  eps lins       = " << udata->epslin << endl;
+  cout << "  eps lin        = " << udata->epslin << endl;
   cout << "  prectype       = " << udata->prectype << endl;
   cout << "  msbp           = " << udata->msbp << endl;
   cout << "  pfmg_relax     = " << udata->pfmg_relax << endl;

@@ -562,7 +562,7 @@ static int EM(N_Vector u, N_Vector f, void* user_data)
   sunrealtype* mu_bottom_dev = N_VGetDeviceArrayPointer_Cuda(udata->mu_bottom);
   sunrealtype* mu_top_dev    = N_VGetDeviceArrayPointer_Cuda(udata->mu_top);
 
-  // Initilaize output vectors to zero (for sum reduction)
+  // Initialize output vectors to zero (for sum reduction)
   N_VConst(ZERO, udata->mu_bottom);
   N_VConst(ZERO, udata->mu_top);
 

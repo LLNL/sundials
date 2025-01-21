@@ -1117,7 +1117,7 @@ static void Load_yext(sunrealtype* src, ProblemData d)
 /*
  *------------------------------------------------------------------
  * PrintHeader:
- * Print first lins of output (problem description)
+ * Print first lines of output (problem description)
  *------------------------------------------------------------------
  */
 
