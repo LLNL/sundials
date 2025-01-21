@@ -356,13 +356,13 @@ if [ $do_sundials = "T" ]; then
     filename="sundials-"$SUN_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $doc "T" $tar
-    $scriptdir/arkode $tarfile $distrobase $doc $tar
-    $scriptdir/cvode  $tarfile $distrobase $doc $tar
-    $scriptdir/cvodes $tarfile $distrobase $doc $tar
-    $scriptdir/ida    $tarfile $distrobase $doc $tar
-    $scriptdir/idas   $tarfile $distrobase $doc $tar
-    $scriptdir/kinsol $tarfile $distrobase $doc $tar
+    $scriptdir/shared.sh $tarfile $distrobase $doc "T" $tar
+    $scriptdir/arkode.sh $tarfile $distrobase $doc $tar
+    $scriptdir/cvode.sh  $tarfile $distrobase $doc $tar
+    $scriptdir/cvodes.sh $tarfile $distrobase $doc $tar
+    $scriptdir/ida.sh    $tarfile $distrobase $doc $tar
+    $scriptdir/idas.sh   $tarfile $distrobase $doc $tar
+    $scriptdir/kinsol.sh $tarfile $distrobase $doc $tar
 
     ### Don't release MATLAB until brought current with new version(s)
     # $scriptdir/stb $tarfile $distrobase $doc $tar
@@ -379,8 +379,8 @@ if [ $do_arkode = "T" ]; then
     filename="arkode-"$ARK_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
-    $scriptdir/arkode $tarfile $distrobase $doc $tar
+    $scriptdir/shared.sh $tarfile $distrobase $doc "F" $tar
+    $scriptdir/arkode.sh $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 
@@ -407,8 +407,8 @@ if [ $do_cvodes = "T" ]; then
     filename="cvodes-"$CVS_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
-    $scriptdir/cvodes $tarfile $distrobase $doc $tar
+    $scriptdir/shared.sh $tarfile $distrobase $doc "F" $tar
+    $scriptdir/cvodes.sh $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 
@@ -421,8 +421,8 @@ if [ $do_ida = "T" ]; then
     filename="ida-"$IDA_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
-    $scriptdir/ida    $tarfile $distrobase $doc $tar
+    $scriptdir/shared.sh $tarfile $distrobase $doc "F" $tar
+    $scriptdir/ida.sh    $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 
@@ -435,8 +435,8 @@ if [ $do_idas = "T" ]; then
     filename="idas-"$IDAS_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
-    $scriptdir/idas   $tarfile $distrobase $doc $tar
+    $scriptdir/shared.sh $tarfile $distrobase $doc "F" $tar
+    $scriptdir/idas.sh   $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 
@@ -449,8 +449,8 @@ if [ $do_kinsol = "T" ]; then
     filename="kinsol-"$KIN_VER
 
     tarfile=$filename".tar"
-    $scriptdir/shared $tarfile $distrobase $doc "F" $tar
-    $scriptdir/kinsol $tarfile $distrobase $doc $tar
+    $scriptdir/shared.sh $tarfile $distrobase $doc "F" $tar
+    $scriptdir/kinsol.sh $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
 
