@@ -460,7 +460,11 @@ SUNErrCode N_VDotProdComplex(N_Vector x, N_Vector y, sunscalartype* result)
 {
   SUNErrCode err = SUN_SUCCESS;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
-  err = y->ops->nvdotprodcomplex(x, y, result);
+  if (y->ops->nvdotprodcomplex)
+  {
+    err = y->ops->nvdotprodcomplex(x, y, result);
+  }
+  else { *result = (sunscalartype)N_VDotProd(x, y); }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return err;
 }
