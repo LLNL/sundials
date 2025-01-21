@@ -79,26 +79,26 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
   ops->nvgetlength             = NULL;
 
   /* standard vector operations */
-  ops->nvlinearsum       = NULL;
-  ops->nvconst           = NULL;
-  ops->nvprod            = NULL;
-  ops->nvdiv             = NULL;
-  ops->nvscale           = NULL;
-  ops->nvabs             = NULL;
-  ops->nvinv             = NULL;
-  ops->nvaddconst        = NULL;
-  ops->nvdotprod         = NULL;
-  ops->nvdotprod_complex = NULL;
-  ops->nvmaxnorm         = NULL;
-  ops->nvwrmsnorm        = NULL;
-  ops->nvwrmsnormmask    = NULL;
-  ops->nvmin             = NULL;
-  ops->nvwl2norm         = NULL;
-  ops->nvl1norm          = NULL;
-  ops->nvcompare         = NULL;
-  ops->nvinvtest         = NULL;
-  ops->nvconstrmask      = NULL;
-  ops->nvminquotient     = NULL;
+  ops->nvlinearsum      = NULL;
+  ops->nvconst          = NULL;
+  ops->nvprod           = NULL;
+  ops->nvdiv            = NULL;
+  ops->nvscale          = NULL;
+  ops->nvabs            = NULL;
+  ops->nvinv            = NULL;
+  ops->nvaddconst       = NULL;
+  ops->nvdotprod        = NULL;
+  ops->nvdotprodcomplex = NULL;
+  ops->nvmaxnorm        = NULL;
+  ops->nvwrmsnorm       = NULL;
+  ops->nvwrmsnormmask   = NULL;
+  ops->nvmin            = NULL;
+  ops->nvwl2norm        = NULL;
+  ops->nvl1norm         = NULL;
+  ops->nvcompare        = NULL;
+  ops->nvinvtest        = NULL;
+  ops->nvconstrmask     = NULL;
+  ops->nvminquotient    = NULL;
 
   /*
    * OPTIONAL operations.
@@ -127,16 +127,16 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
   ops->nvgetlocallength = NULL;
 
   /* local reduction operations (optional) */
-  ops->nvdotprodlocal         = NULL;
-  ops->nvdotprodlocal_complex = NULL;
-  ops->nvmaxnormlocal         = NULL;
-  ops->nvminlocal             = NULL;
-  ops->nvl1normlocal          = NULL;
-  ops->nvinvtestlocal         = NULL;
-  ops->nvconstrmasklocal      = NULL;
-  ops->nvminquotientlocal     = NULL;
-  ops->nvwsqrsumlocal         = NULL;
-  ops->nvwsqrsummasklocal     = NULL;
+  ops->nvdotprodlocal        = NULL;
+  ops->nvdotprodlocalcomplex = NULL;
+  ops->nvmaxnormlocal        = NULL;
+  ops->nvminlocal            = NULL;
+  ops->nvl1normlocal         = NULL;
+  ops->nvinvtestlocal        = NULL;
+  ops->nvconstrmasklocal     = NULL;
+  ops->nvminquotientlocal    = NULL;
+  ops->nvwsqrsumlocal        = NULL;
+  ops->nvwsqrsummasklocal    = NULL;
 
   /* single buffer reduction operations */
   ops->nvdotprodmultilocal     = NULL;
@@ -455,7 +455,8 @@ sunrealtype N_VDotProd(N_Vector x, N_Vector y)
 
 SUNErrCode N_VDotProdComplex(N_Vector x, N_Vector y, sunscalartype* result)
 {
-  SUNErrCode err = SUN_SUCCESS : SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
+  SUNErrCode err = SUN_SUCCESS;
+  SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
   err = y->ops->nvdotprodcomplex(x, y, result);
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(x));
   return err;
@@ -515,7 +516,7 @@ sunrealtype N_VL1Norm(N_Vector x)
   return (result);
 }
 
-void N_VCompare(sunrealtype c, N_Vector x, N_Vector z)
+void N_VCompare(sunscalartype c, N_Vector x, N_Vector z)
 {
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(x));
   z->ops->nvcompare(c, x, z);
