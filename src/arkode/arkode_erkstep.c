@@ -1274,7 +1274,15 @@ int erkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     }
     else
     {
-      *delta_e_out += step_mem->B->b[i] * N_VDotProd(J_relax, step_mem->F[i]);
+      sunscalartype dot = ZERO;
+      SUNErrCode err    = N_VDotProdComplex(J_relax, step_mem->F[i], &dot);
+      if (err)
+      {
+        arkProcessError(ark_mem, ARK_VECTOROP_ERR, __LINE__, __func__, __FILE__,
+                        MSG_ARK_VECTOROP_ERR);
+        return (ARK_VECTOROP_ERR);
+      }
+      *delta_e_out += step_mem->B->b[i] * dot;
     }
   }
 

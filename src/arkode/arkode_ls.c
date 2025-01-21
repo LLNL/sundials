@@ -726,7 +726,15 @@ int ARKodeSetLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   {
     /* compute factor for WRMS norm with dot product */
     N_VConst(ONE, ark_mem->tempv1);
-    arkls_mem->nrmfac = SUNRsqrt(N_VDotProd(ark_mem->tempv1, ark_mem->tempv1));
+    sunscalartype dot = ZERO;
+    SUNErrCode err = N_VDotProdComplex(ark_mem->tempv1, ark_mem->tempv1, &dot);
+    if (err)
+    {
+      arkProcessError(ark_mem, ARK_VECTOROP_ERR, __LINE__, __func__, __FILE__,
+                      MSG_ARK_VECTOROP_ERR);
+      return (ARK_VECTOROP_ERR);
+    }
+    arkls_mem->nrmfac = SUNRsqrt(dot);
   }
   else
   {
@@ -1678,7 +1686,15 @@ int ARKodeSetMassLSNormFactor(void* arkode_mem, sunrealtype nrmfac)
   {
     /* compute factor for WRMS norm with dot product */
     N_VConst(ONE, ark_mem->tempv1);
-    arkls_mem->nrmfac = SUNRsqrt(N_VDotProd(ark_mem->tempv1, ark_mem->tempv1));
+    sunscalartype dot = ZERO;
+    SUNErrCode err = N_VDotProdComplex(ark_mem->tempv1, ark_mem->tempv1, &dot);
+    if (err)
+    {
+      arkProcessError(ark_mem, ARK_VECTOROP_ERR, __LINE__, __func__, __FILE__,
+                      MSG_ARK_VECTOROP_ERR);
+      return (ARK_VECTOROP_ERR);
+    }
+    arkls_mem->nrmfac = SUNRsqrt(dot);
   }
   else
   {
