@@ -45,16 +45,6 @@
 
 #include "sundials/sundials_nvector.h"
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
-
 /* Problem Constants */
 
 #define NEQ 2 /* number of equations  */

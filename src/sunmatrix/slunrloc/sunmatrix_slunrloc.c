@@ -63,15 +63,6 @@
 
 #define SM_FSTROW_SLUNRLOC(A) (SM_SUPERSTORE_SLUNRLOC(A)->fst_row)
 
-#define SM_DATA_SLUNRLOC(A) ((sunrealtype*)SM_SUPERSTORE_SLUNRLOC(A)->nzval)
-
-#define SM_COLIND_SLUNRLOC(A) (SM_SUPERSTORE_SLUNRLOC(A)->colind)
-
-#define SM_ROWPTRS_SLUNRLOC(A) (SM_SUPERSTORE_SLUNRLOC(A)->rowptr)
-
-/* constants */
-#define ZERO SUN_RCONST(0.0)
-
 /* Private function prototypes */
 static sunbooleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B);
 

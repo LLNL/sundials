@@ -26,7 +26,7 @@ a header only library. To use the SUNLINEARSOLVER_GINKGO ``SUNLinearSolver``, us
 need to include ``sunlinsol/sunlinsol_ginkgo.hpp``. The module is meant to be used with
 the SUNMATRIX_GINKGO module described in :numref:`SUNMatrix.Ginkgo`.
 Instructions on building SUNDIALS  with Ginkgo enabled are given
-in :numref:`Installation.CMake.ExternalLibraries`.  For instructions on
+in :numref:`Installation.Options.Ginkgo`.  For instructions on
 building and using Ginkgo itself, refer to the
 `Ginkgo website and documentation <https://ginkgo-project.github.io/>`_.
 

@@ -105,8 +105,6 @@
   6 /* must equal 2*(number of prey or predators)
                               number of prey = number of predators       */
 
-#define PI SUN_RCONST(3.1415926535898) /* pi */
-
 #define NPEX     2              /* number of processors in the x-direction  */
 #define NPEY     2              /* number of processors in the y-direction  */
 #define MXSUB    10             /* number of x mesh points per subgrid      */

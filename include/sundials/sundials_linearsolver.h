@@ -226,18 +226,6 @@ SUNErrCode SUNLinSolFree(SUNLinearSolver S);
 #define SUNLS_QRFACT_FAIL      807 /* QRfact found singular matrix  */
 #define SUNLS_LUFACT_FAIL      808 /* LUfact found singular matrix  */
 
-/* -----------------------------------------------------------------------------
- * SUNLinearSolver messages
- * ---------------------------------------------------------------------------*/
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUNLS_MSG_RESIDUAL "\t\tlin. iteration %ld, lin. residual: %Lg\n"
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUNLS_MSG_RESIDUAL "\t\tlin. iteration %ld, lin. residual: %g\n"
-#else
-#define SUNLS_MSG_RESIDUAL "\t\tlin. iteration %ld, lin. residual: %g\n"
-#endif
-
 #ifdef __cplusplus
 }
 #endif

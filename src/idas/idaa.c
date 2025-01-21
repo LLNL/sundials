@@ -40,7 +40,9 @@
 /* Shortcuts                                                       */
 /*=================================================================*/
 
+#if defined(SUNDIALS_BUILD_WITH_PROFILING)
 #define IDA_PROFILER IDA_mem->ida_sunctx->profiler
+#endif
 
 /*=================================================================*/
 /*               Private Functions Prototypes                      */
