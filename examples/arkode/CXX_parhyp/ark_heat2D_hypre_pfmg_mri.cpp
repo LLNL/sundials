@@ -61,11 +61,10 @@
 #include "sunlinsol/sunlinsol_spgmr.h" // access to GMRES SUNLinearSolver
 
 // Macros for problem constants
-#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
-#define EIGHT SUN_RCONST(8.0)
+#define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 // Macro to access (x,y) location in 1D NVector array
 #define IDX(x, y, n) ((n) * (y) + (x))
@@ -466,8 +465,8 @@ int main(int argc, char* argv[])
     if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
     // Create inner stepper
-    flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-    if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) { return 1; }
+    flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+    if (check_flag(&flag, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
     // -----------------------------------------------
     // Set up MRIStep slow integrator and set options

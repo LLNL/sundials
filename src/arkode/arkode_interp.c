@@ -270,11 +270,12 @@ void arkInterpPrintMem_Hermite(ARKInterp interp, FILE* outfile)
   {
     fprintf(outfile, "arkode_interp (Hermite): degree = %d\n",
             HINT_DEGREE(interp));
-    fprintf(outfile, "arkode_interp (Hermite): told = %" RSYM "\n",
+    fprintf(outfile, "arkode_interp (Hermite): told = " SUN_FORMAT_G "\n",
             HINT_TOLD(interp));
-    fprintf(outfile, "arkode_interp (Hermite): tnew = %" RSYM "\n",
+    fprintf(outfile, "arkode_interp (Hermite): tnew = " SUN_FORMAT_G "\n",
             HINT_TNEW(interp));
-    fprintf(outfile, "arkode_interp (Hermite): h = %" RSYM "\n", HINT_H(interp));
+    fprintf(outfile, "arkode_interp (Hermite): h = " SUN_FORMAT_G "\n",
+            HINT_H(interp));
 #ifdef SUNDIALS_DEBUG_PRINTVEC
     fprintf(outfile, "arkode_interp (Hermite): fold:\n");
     N_VPrintFile(HINT_FOLD(interp), outfile);
@@ -460,11 +461,8 @@ int arkInterpEvaluate_Hermite(ARKodeMem ark_mem, ARKInterp interp,
   q = SUNMAX(order, 0);               /* respect lower bound  */
   q = SUNMIN(q, HINT_DEGREE(interp)); /* respect max possible */
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkInterpEvaluate_Hermite", "interp-eval",
-                     "tau = %" RSYM ", d = %i, q = %i", tau, d, q);
-#endif
+  SUNLogDebug(ARK_LOGGER, "interp-eval",
+              "tau = " SUN_FORMAT_G ", d = %i, q = %i", tau, d, q);
 
   /* call full RHS if needed -- called just AFTER the end of a step, so yn has
      been updated to ycur */
@@ -909,7 +907,7 @@ void arkInterpFree_Lagrange(ARKodeMem ark_mem, ARKInterp interp)
   {
     if (LINT_YHIST(interp) != NULL)
     {
-      for (i = 0; i < LINT_NMAX(interp); i++)
+      for (i = 0; i < LINT_NMAXALLOC(I); i++)
       {
         if (LINT_YJ(interp, i) != NULL)
         {
@@ -964,7 +962,7 @@ void arkInterpPrintMem_Lagrange(ARKInterp interp, FILE* outfile)
       fprintf(outfile, "arkode_interp (Lagrange): thist =");
       for (i = 0; i < LINT_NMAX(interp); i++)
       {
-        fprintf(outfile, "  %" RSYM, LINT_TJ(interp, i));
+        fprintf(outfile, "  " SUN_FORMAT_G, LINT_TJ(I, i));
       }
       fprintf(outfile, "\n");
     }
@@ -1039,7 +1037,7 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew
     }
     if (LINT_YHIST(interp) != NULL)
     {
-      for (i = 0; i < LINT_NMAX(interp); i++)
+      for (i = 0; i < LINT_NMAXALLOC(I); i++)
       {
         if (LINT_YJ(interp, i) != NULL)
         {
@@ -1203,11 +1201,8 @@ int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype 
   q = SUNMAX(degree, 0);    /* respect lower bound */
   q = SUNMIN(q, nhist - 1); /* respect max possible */
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                     "ARKODE::arkInterpEvaluate_Lagrange", "interp-eval",
-                     "tau = %" RSYM ", d = %i, q = %i", tau, deriv, q);
-#endif
+  SUNLogDebug(ARK_LOGGER, "interp-eval",
+              "tau = " SUN_FORMAT_G ", d = %i, q = %i", tau, deriv, q);
 
   /* error on illegal deriv */
   if ((deriv < 0) || (deriv > 3))

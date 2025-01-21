@@ -85,7 +85,7 @@ applications written in Fortran.
 
 .. _KINSOL.Introduction.Changes:
 
-Changes to SUNDIALS in release 7.1.0
+Changes to SUNDIALS in release X.Y.Z
 ====================================
 
 .. include:: ../../../shared/RecentChanges.rst

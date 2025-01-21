@@ -35,6 +35,11 @@ ARKStep supports *all categories*:
 * non-identity mass matrices
 * relaxation Runge--Kutta methods
 
+ARKStep also has forcing function support when converted to a
+:c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
+:c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
+for additional details.
+
 
 .. _ARKODE.Usage.ARKStep.Initialization:
 
@@ -3055,9 +3060,9 @@ Main solver optional output functions
 
    .. note::
 
-      The file ``scripts/sundials_csv.py`` provides python utility functions to
-      read and output the data from a SUNDIALS CSV output file using the key
-      and value pair format.
+      The Python module ``tools/suntools`` provides utilities to read and output
+      the data from a SUNDIALS CSV output file using the key and value pair
+      format.
 
    .. versionadded:: 5.2.0
 
@@ -3155,7 +3160,7 @@ Main solver optional output functions
       The *nfi_evals* value does not account for calls made to
       :math:`f^I` by a linear solver or preconditioner module.
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.2.0
 
       Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
@@ -4399,7 +4404,11 @@ wrap an ARKStep memory block as an :c:type:`MRIStepInnerStepper`.
 
          /* create an MRIStep object, setting the slow (outer) right-hand side
             functions and the initial condition */
-         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
+         outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx);
 
    **Example codes:**
       * ``examples/arkode/CXX_parallel/ark_diffusion_reaction_p.cpp``
+
+   .. deprecated:: 6.2.0
+
+      Use :c:func:`ARKodeCreateMRIStepInnerStepper` instead.

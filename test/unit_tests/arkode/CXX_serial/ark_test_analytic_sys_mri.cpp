@@ -35,16 +35,6 @@
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
-
 using namespace std;
 
 #define ZERO SUN_RCONST(0.0)
@@ -129,8 +119,8 @@ int main(int argc, char* argv[])
   if (check_flag((void*)inner_mem, "ARKStepCreate", 0)) { return 1; }
 
   MRIStepInnerStepper inner_stepper = NULL;
-  flag = ARKStepCreateMRIStepInnerStepper(inner_mem, &inner_stepper);
-  if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) { return 1; }
+  flag = ARKodeCreateMRIStepInnerStepper(inner_mem, &inner_stepper);
+  if (check_flag(&flag, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   mristep_mem = MRIStepCreate(NULL, f, T0, y, inner_stepper, sunctx);
   if (check_flag((void*)mristep_mem, "MRIStepCreate", 0)) { return 1; }

@@ -28,7 +28,7 @@ jobs:
         precision: ['single', 'double']
         scalar: ['real', 'complex']
         buildtype: ['Debug', 'Release', 'RelWithDebInfo']
-        tpls: ['ON', 'OFF']
+        tpls: ['ON']
         exclude:
           - scalar: complex
             tpls: ON

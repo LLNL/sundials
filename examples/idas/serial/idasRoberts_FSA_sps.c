@@ -69,7 +69,6 @@
 #define TMULT SUN_RCONST(10.0) /* output time factor */
 #define NOUT  12               /* number of output times */
 
-#define NP 3 /* number of problem parameters */
 #define NS 3 /* number of sensitivities computed */
 
 #define ZERO SUN_RCONST(0.0)
@@ -113,7 +112,7 @@ static void PrintSensOutput(N_Vector* uS);
 
 static void PrintFinalStats(void* ida_mem, sunbooleantype sensi);
 
-static int check_retval(void* returnvalue, char* funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -841,7 +840,7 @@ static void PrintFinalStats(void* ida_mem, sunbooleantype sensi)
  *             NULL pointer
  */
 
-static int check_retval(void* returnvalue, char* funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
   int* retval;
 

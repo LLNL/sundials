@@ -54,7 +54,7 @@ if((CMAKE_CXX_COMPILER_ID MATCHES GNU)
 endif()
 
 # ===============================================================
-# Catch incompatibility between CUDA and extended precision.
+# Prohibit CUDA interface when using extended precision.
 # ===============================================================
 
 if(SUNDIALS_PRECISION MATCHES "EXTENDED")

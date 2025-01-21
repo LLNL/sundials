@@ -390,21 +390,21 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
 {
   SUNFunctionBegin(A->sunctx);
   sunindextype i, j;
-  char* matrixtype;
-  char* indexname;
+  const char* matrixtype;
+  const char* indexname;
 
   SUNAssertVoid(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
 
   /* perform operation */
   if (SM_SPARSETYPE_S(A) == CSC_MAT)
   {
-    indexname  = (char*)"col";
-    matrixtype = (char*)"CSC";
+    indexname  = "col";
+    matrixtype = "CSC";
   }
   else
   {
-    indexname  = (char*)"row";
-    matrixtype = (char*)"CSR";
+    indexname  = "row";
+    matrixtype = "CSR";
   }
   fprintf(outfile, "\n");
   fprintf(outfile, "%ld by %ld %s matrix, NNZ: %ld \n", (long int)SM_ROWS_S(A),
@@ -417,20 +417,11 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
     fprintf(outfile, "  ");
     for (i = (SM_INDEXPTRS_S(A))[j]; i < (SM_INDEXPTRS_S(A))[j + 1]; i++)
     {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-      fprintf(outfile, "%ld: %.32Lg   ", (long int)(SM_INDEXVALS_S(A))[i],
-              (SM_DATA_S(A))[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-      fprintf(outfile, "%ld: %.16g   ", (long int)(SM_INDEXVALS_S(A))[i],
-              (SM_DATA_S(A))[i]);
-#else
-      fprintf(outfile, "%ld: %.8g   ", (long int)(SM_INDEXVALS_S(A))[i],
-              (SM_DATA_S(A))[i]);
-#endif
+      fprintf(outfile, "%ld: " SUN_FORMAT_E "  ",
+              (long int)(SM_INDEXVALS_S(A))[i], (SM_DATA_S(A))[i]);
     }
     fprintf(outfile, "\n");
   }
-  fprintf(outfile, "\n");
   return;
 }
 

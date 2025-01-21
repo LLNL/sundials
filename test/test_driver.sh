@@ -132,7 +132,7 @@ help ()
 
         $0
         $0 --testtype release --buildjobs 4
-        $0 --phase CONFIG --indexsize 32 --tpls ON --env env/default.sh
+        $0 --phase CONFIG --indexsize 32 --tpls ON --env env/my_env.sh
 
 EOF
 }
@@ -410,21 +410,10 @@ args_phase=()
 case "$testtype" in
 
     BRANCH)
-        # Don't creat tarballs
+        # Don't create tarballs
         tarball=NONE
 
-        # Address sanitizer tests (TPLs OFF)
-        for is in 32 64; do
-            args_realtypes+=("double")
-            args_scalartypes+=("real")
-            args_indexsizes+=("${is}")
-            args_libtypes+=("static")
-            args_tpls+=("OFF")
-            args_suntests+=("DEV")
-            args_phase+=("BUILD")
-        done
-
-        # Basic development tests
+        # Test configs
         for st in real complex; do
             for is in 32 64; do
                 args_realtypes+=("double")
@@ -442,21 +431,45 @@ case "$testtype" in
         # Create sundials tarball
         tarball=sundials
 
+        # Test configs
+        for rt in single double extended; do
+            for st in real complex; do
+                for is in 32 64; do
+                    args_realtypes+=("${rt}")
+                    args_scalartypes+=("${st}")
+                    args_indexsizes+=("${is}")
+                    args_libtypes+=("static")
+                    args_tpls+=("ON")
+                    # Development test output files created with double
+                    if [[ "${rt}" == "double" ]]; then
+                        args_suntests+=("DEV")
+                    else
+                        args_suntests+=("STD")
+                    fi
+                    args_phase+=("")
+                done
+            done
+        done
+        ;;
+
+    RELEASE)
+        # Create sundials tarball
+        tarball=sundials
+
         # Address sanitizer tests (TPLs OFF)
         for is in 32 64; do
             args_realtypes+=("double")
-            args_scalartypes+=("real")
             args_indexsizes+=("${is}")
             args_libtypes+=("static")
             args_tpls+=("OFF")
             args_suntests+=("DEV")
-            args_phase+=("BUILD")
+            args_phase+=("TEST")
         done
 
-        # More development tests
+        # Test configs
         for rt in single double extended; do
-            for st in real complex; do
-                for is in 32 64; do
+            for is in 32 64; do
+                for lt in static shared; do
                     args_realtypes+=("${rt}")
                     args_scalartypes+=("${st}")
                     args_indexsizes+=("${is}")

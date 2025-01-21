@@ -33,16 +33,6 @@
 #include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
-
 // Constants
 #define NEG_ONE SUN_RCONST(-1.0)
 #define ZERO    SUN_RCONST(0.0)
@@ -802,13 +792,6 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
         // One extra evaluation in each step
         nfe_expected += nst;
       }
-    }
-
-    if (prob_opts.i_type != interp_type::hermite && save_fn_for_residual &&
-        !explicit_first_stage)
-    {
-      if (stiffly_accurate) { nfe_expected++; }
-      else { nfe_expected += nst; }
     }
   }
 

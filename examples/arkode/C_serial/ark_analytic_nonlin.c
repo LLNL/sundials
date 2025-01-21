@@ -34,11 +34,9 @@
 #include <sundials/sundials_types.h> /* def. of type 'sunrealtype' */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
 #else
-#define GSYM "g"
 #define ESYM "e"
 #define FSYM "f"
 #endif

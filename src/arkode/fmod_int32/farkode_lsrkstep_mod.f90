@@ -52,7 +52,7 @@ module farkode_lsrkstep_mod
  public :: FLSRKStepSetDomEigFrequency
  public :: FLSRKStepSetMaxNumStages
  public :: FLSRKStepSetDomEigSafetyFactor
- public :: FLSRKStepSetSSPStageNum
+ public :: FLSRKStepSetNumSSPStages
  public :: FLSRKStepGetNumDomEigUpdates
  public :: FLSRKStepGetMaxNumStages
 
@@ -176,8 +176,8 @@ real(C_DOUBLE), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FLSRKStepSetSSPStageNum(farg1, farg2) &
-bind(C, name="_wrap_FLSRKStepSetSSPStageNum") &
+function swigc_FLSRKStepSetNumSSPStages(farg1, farg2) &
+bind(C, name="_wrap_FLSRKStepSetNumSSPStages") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -444,7 +444,7 @@ fresult = swigc_FLSRKStepSetDomEigSafetyFactor(farg1, farg2)
 swig_result = fresult
 end function
 
-function FLSRKStepSetSSPStageNum(arkode_mem, num_of_stages) &
+function FLSRKStepSetNumSSPStages(arkode_mem, num_of_stages) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -456,7 +456,7 @@ integer(C_INT) :: farg2
 
 farg1 = arkode_mem
 farg2 = num_of_stages
-fresult = swigc_FLSRKStepSetSSPStageNum(farg1, farg2)
+fresult = swigc_FLSRKStepSetNumSSPStages(farg1, farg2)
 swig_result = fresult
 end function
 

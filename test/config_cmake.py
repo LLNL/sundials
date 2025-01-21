@@ -1291,8 +1291,8 @@ def main():
     add_arg(
         group,
         "--dev-tests",
-        "SUNDIALS_TEST_DEVTESTS",
-        "SUNDIALS_TEST_DEVTESTS",
+        "SUNDIALS_TEST_ENABLE_DEV_TESTS",
+        "SUNDIALS_TEST_ENABLE_DEV_TESTS",
         "OFF",
         "BOOL",
         "SUNDIALS development tests",
@@ -1302,8 +1302,8 @@ def main():
     add_arg(
         group,
         "--unit-tests",
-        "SUNDIALS_TEST_UNITTESTS",
-        "SUNDIALS_TEST_UNITTESTS",
+        "SUNDIALS_TEST_ENABLE_UNIT_TESTS",
+        "SUNDIALS_TEST_ENABLE_UNIT_TESTS",
         "OFF",
         "BOOL",
         "SUNDIALS unit tests",

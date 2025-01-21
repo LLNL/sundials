@@ -95,12 +95,12 @@ esac
 
 case "$SUNDIALS_TEST_TYPE" in
     DEV)
-        export SUNDIALS_TEST_DEVTESTS=ON
-        export SUNDIALS_TEST_UNITTESTS=ON
+        export SUNDIALS_TEST_ENABLE_DEV_TESTS=ON
+        export SUNDIALS_TEST_ENABLE_UNIT_TESTS=ON
         ;;
     STD|NONE)
-        export SUNDIALS_TEST_DEVTESTS=OFF
-        export SUNDIALS_TEST_UNITTESTS=OFF
+        export SUNDIALS_TEST_ENABLE_DEV_TESTS=OFF
+        export SUNDIALS_TEST_ENABLE_UNIT_TESTS=OFF
         ;;
     *)
         echo "ERROR: Unknown test type option: $SUNDIALS_TEST_TYPE"
@@ -152,33 +152,6 @@ elif [ -f env/env.sh ]; then
     # shellcheck source=/dev/null
     if ! source env/env.sh "$@"; then
         echo "ERROR: env/env.sh $* failed"
-        return 1;
-    fi
-
-elif [ -f "env/${HOSTNAME}.sh" ]; then
-
-    echo "Setting up environment with sundials/test/env/${HOSTNAME}.sh"
-    # shellcheck source=/dev/null
-    if ! source "env/${HOSTNAME}.sh" "$@"; then
-        echo "ERROR: env/${HOSTNAME}.sh $* failed"
-        return 1;
-    fi
-
-elif [ -f "env/${HOST}.sh" ]; then
-
-    echo "Setting up environment with sundials/test/env/${HOST}.sh"
-    # shellcheck source=/dev/null
-    if ! source "env/${HOST}.sh" "$@"; then
-        echo "ERROR: env/${HOST}.sh $* failed"
-        return 1;
-    fi
-
-elif [ -f env/default.sh ]; then
-
-    echo "Setting up environment with sundials/test/env/default.sh"
-    # shellcheck disable=SC1091
-    if ! source env/default.sh "$@"; then
-        echo "ERROR: env/default.sh $*"
         return 1;
     fi
 

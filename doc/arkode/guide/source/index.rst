@@ -65,6 +65,7 @@ with support by the `US Department of Energy <http://www.doe.gov>`_,
    sunlinsol/index.rst
    sunnonlinsol/index.rst
    sunadaptcontroller/index.rst
+   sunstepper/index.rst
    sunmemory/index.rst
    sundials/Install_link.rst
    Constants

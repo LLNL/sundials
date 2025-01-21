@@ -30,6 +30,11 @@ SPRKStep supports only the basic set of user-callable functions, and
 does not support any of the restricted groups (time adaptivity, implicit
 solvers, etc.).
 
+SPRKStep does not have forcing function support when converted to a
+:c:type:`SUNStepper` or :c:type:`MRIStepInnerStepper`. See
+:c:func:`ARKodeCreateSUNStepper` and :c:func:`ARKStepCreateMRIStepInnerStepper`
+for additional details.
+
 
 .. _ARKODE.Usage.SPRKStep.Initialization:
 
@@ -43,7 +48,7 @@ SPRKStep initialization and deallocation functions
    This function allocates and initializes memory for a problem to
    be solved using the SPRKStep time-stepping module in ARKODE.
 
-   :param f1: the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f_1(t,q) = \frac{\partial V(t,q)}{\partial q}`
+   :param f1: the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f_1(t,q) = -\frac{\partial V(t,q)}{\partial q}`
    :param f2: the name of the C function (of type :c:func:`ARKRhsFn()`) defining :math:`f_2(t,p) = \frac{\partial T(t,p)}{\partial p}`
    :param t0: the initial value of :math:`t`
    :param y0: the initial condition vector :math:`y(t_0)`
@@ -733,9 +738,9 @@ Main solver optional output functions
 
    .. note::
 
-      The file ``scripts/sundials_csv.py`` provides python utility functions to
-      read and output the data from a SUNDIALS CSV output file using the key
-      and value pair format.
+      The Python module ``tools/suntools`` provides utilities to read and output
+      the data from a SUNDIALS CSV output file using the key and value pair
+      format.
 
    .. deprecated:: 6.1.0
 
@@ -784,7 +789,7 @@ Main solver optional output functions
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory was ``NULL``
 
-   .. deprecated:: x.y.z
+   .. deprecated:: 6.2.0
 
       Use :c:func:`ARKodeGetNumRhsEvals` instead.
 
