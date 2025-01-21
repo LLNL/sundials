@@ -104,38 +104,40 @@ N_Vector N_VNewEmpty_Serial(sunindextype length, SUNContext sunctx)
   v->ops->nvgetlocallength  = N_VGetLength_Serial;
 
   /* standard vector operations */
-  v->ops->nvlinearsum    = N_VLinearSum_Serial;
-  v->ops->nvconst        = N_VConst_Serial;
-  v->ops->nvprod         = N_VProd_Serial;
-  v->ops->nvdiv          = N_VDiv_Serial;
-  v->ops->nvscale        = N_VScale_Serial;
-  v->ops->nvabs          = N_VAbs_Serial;
-  v->ops->nvinv          = N_VInv_Serial;
-  v->ops->nvaddconst     = N_VAddConst_Serial;
-  v->ops->nvdotprod      = N_VDotProd_Serial;
-  v->ops->nvmaxnorm      = N_VMaxNorm_Serial;
-  v->ops->nvwrmsnormmask = N_VWrmsNormMask_Serial;
-  v->ops->nvwrmsnorm     = N_VWrmsNorm_Serial;
-  v->ops->nvmin          = N_VMin_Serial;
-  v->ops->nvwl2norm      = N_VWL2Norm_Serial;
-  v->ops->nvl1norm       = N_VL1Norm_Serial;
-  v->ops->nvcompare      = N_VCompare_Serial;
-  v->ops->nvinvtest      = N_VInvTest_Serial;
-  v->ops->nvconstrmask   = N_VConstrMask_Serial;
-  v->ops->nvminquotient  = N_VMinQuotient_Serial;
+  v->ops->nvlinearsum      = N_VLinearSum_Serial;
+  v->ops->nvconst          = N_VConst_Serial;
+  v->ops->nvprod           = N_VProd_Serial;
+  v->ops->nvdiv            = N_VDiv_Serial;
+  v->ops->nvscale          = N_VScale_Serial;
+  v->ops->nvabs            = N_VAbs_Serial;
+  v->ops->nvinv            = N_VInv_Serial;
+  v->ops->nvaddconst       = N_VAddConst_Serial;
+  v->ops->nvdotprod        = N_VDotProd_Serial;
+  v->ops->nvdotprodcomplex = N_VDotProdComplex_Serial;
+  v->ops->nvmaxnorm        = N_VMaxNorm_Serial;
+  v->ops->nvwrmsnormmask   = N_VWrmsNormMask_Serial;
+  v->ops->nvwrmsnorm       = N_VWrmsNorm_Serial;
+  v->ops->nvmin            = N_VMin_Serial;
+  v->ops->nvwl2norm        = N_VWL2Norm_Serial;
+  v->ops->nvl1norm         = N_VL1Norm_Serial;
+  v->ops->nvcompare        = N_VCompare_Serial;
+  v->ops->nvinvtest        = N_VInvTest_Serial;
+  v->ops->nvconstrmask     = N_VConstrMask_Serial;
+  v->ops->nvminquotient    = N_VMinQuotient_Serial;
 
   /* fused and vector array operations are disabled (NULL) by default */
 
   /* local reduction operations */
-  v->ops->nvdotprodlocal     = N_VDotProd_Serial;
-  v->ops->nvmaxnormlocal     = N_VMaxNorm_Serial;
-  v->ops->nvminlocal         = N_VMin_Serial;
-  v->ops->nvl1normlocal      = N_VL1Norm_Serial;
-  v->ops->nvinvtestlocal     = N_VInvTest_Serial;
-  v->ops->nvconstrmasklocal  = N_VConstrMask_Serial;
-  v->ops->nvminquotientlocal = N_VMinQuotient_Serial;
-  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Serial;
-  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Serial;
+  v->ops->nvdotprodlocal        = N_VDotProd_Serial;
+  v->ops->nvdotprodlocalcomplex = N_VDotProdComplex_Serial;
+  v->ops->nvmaxnormlocal        = N_VMaxNorm_Serial;
+  v->ops->nvminlocal            = N_VMin_Serial;
+  v->ops->nvl1normlocal         = N_VL1Norm_Serial;
+  v->ops->nvinvtestlocal        = N_VInvTest_Serial;
+  v->ops->nvconstrmasklocal     = N_VConstrMask_Serial;
+  v->ops->nvminquotientlocal    = N_VMinQuotient_Serial;
+  v->ops->nvwsqrsumlocal        = N_VWSqrSumLocal_Serial;
+  v->ops->nvwsqrsummasklocal    = N_VWSqrSumMaskLocal_Serial;
 
   /* single buffer reduction operations */
   v->ops->nvdotprodmultilocal = N_VDotProdMulti_Serial;
@@ -621,6 +623,25 @@ sunrealtype N_VDotProd_Serial(N_Vector x, N_Vector y)
   for (i = 0; i < N; i++) { sum += xd[i] * yd[i]; }
 
   return SUN_REAL(sum);
+}
+
+SUNErrCode N_VDotProdComplex_Serial(N_Vector x, N_Vector y, sunscalartype* result)
+{
+  sunindextype i, N;
+  sunscalartype sum, *xd, *yd;
+
+  sum = ZERO;
+  xd = yd = NULL;
+
+  N  = NV_LENGTH_S(x);
+  xd = NV_DATA_S(x);
+  yd = NV_DATA_S(y);
+
+  for (i = 0; i < N; i++) { sum += xd[i] * yd[i]; }
+
+  *result = sum;
+
+  return SUN_SUCCESS;
 }
 
 sunrealtype N_VMaxNorm_Serial(N_Vector x)
