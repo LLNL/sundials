@@ -907,7 +907,7 @@ void arkInterpFree_Lagrange(ARKodeMem ark_mem, ARKInterp interp)
   {
     if (LINT_YHIST(interp) != NULL)
     {
-      for (i = 0; i < LINT_NMAXALLOC(I); i++)
+      for (i = 0; i < LINT_NMAXALLOC(interp); i++)
       {
         if (LINT_YJ(interp, i) != NULL)
         {
@@ -962,7 +962,7 @@ void arkInterpPrintMem_Lagrange(ARKInterp interp, FILE* outfile)
       fprintf(outfile, "arkode_interp (Lagrange): thist =");
       for (i = 0; i < LINT_NMAX(interp); i++)
       {
-        fprintf(outfile, "  " SUN_FORMAT_G, LINT_TJ(I, i));
+        fprintf(outfile, "  " SUN_FORMAT_G, LINT_TJ(interp, i));
       }
       fprintf(outfile, "\n");
     }
@@ -1037,7 +1037,7 @@ int arkInterpInit_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype tnew
     }
     if (LINT_YHIST(interp) != NULL)
     {
-      for (i = 0; i < LINT_NMAXALLOC(I); i++)
+      for (i = 0; i < LINT_NMAXALLOC(interp); i++)
       {
         if (LINT_YJ(interp, i) != NULL)
         {
