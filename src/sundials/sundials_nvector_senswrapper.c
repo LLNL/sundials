@@ -301,7 +301,7 @@ void N_VDestroy_SensWrapper(N_Vector v)
   Standard vector operations
   ============================================================================*/
 
-void N_VLinearSum_SensWrapper(sunrealtype a, N_Vector x, sunrealtype b,
+void N_VLinearSum_SensWrapper(sunscalartype a, N_Vector x, sunscalartype b,
                               N_Vector y, N_Vector z)
 {
   int i;
@@ -314,7 +314,7 @@ void N_VLinearSum_SensWrapper(sunrealtype a, N_Vector x, sunrealtype b,
   return;
 }
 
-void N_VConst_SensWrapper(sunrealtype c, N_Vector z)
+void N_VConst_SensWrapper(sunscalartype c, N_Vector z)
 {
   int i;
 
@@ -347,7 +347,7 @@ void N_VDiv_SensWrapper(N_Vector x, N_Vector y, N_Vector z)
   return;
 }
 
-void N_VScale_SensWrapper(sunrealtype c, N_Vector x, N_Vector z)
+void N_VScale_SensWrapper(sunscalartype c, N_Vector x, N_Vector z)
 {
   int i;
 
@@ -383,7 +383,7 @@ void N_VInv_SensWrapper(N_Vector x, N_Vector z)
   return;
 }
 
-void N_VAddConst_SensWrapper(N_Vector x, sunrealtype b, N_Vector z)
+void N_VAddConst_SensWrapper(N_Vector x, sunscalartype b, N_Vector z)
 {
   int i;
 
