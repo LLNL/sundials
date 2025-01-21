@@ -80,7 +80,6 @@ sundials_add_library(
   INCLUDE_SUBDIR arkode
   LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-    sundials_adjoint_obj
     sundials_sunmemsys_obj
     sundials_nvecserial_obj
     sundials_nvecmanyvector_obj
@@ -99,6 +98,7 @@ sundials_add_library(
     sundials_sunlinsolpcg_obj
     sundials_sunnonlinsolnewton_obj
     sundials_sunnonlinsolfixedpoint_obj
+    sundials_adjointcheckpointscheme_fixed_obj
   OUTPUT_NAME sundials_arkode
   VERSION ${arkodelib_VERSION}
   SOVERSION ${arkodelib_SOVERSION})

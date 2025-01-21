@@ -44,7 +44,7 @@
 
 #include <nvector/nvector_manyvector.h>
 #include <nvector/nvector_serial.h>
-#include <sunadjointcheckpointscheme/sunadjoint_checkpointscheme_fixed.h>
+#include <sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h>
 #include <sundials/sundials_adjointstepper.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmemory/sunmemory_system.h>
