@@ -125,7 +125,8 @@ struct _generic_N_Vector_Ops
   void (*nvabs)(N_Vector, N_Vector);
   void (*nvinv)(N_Vector, N_Vector);
   void (*nvaddconst)(N_Vector, sunscalartype, N_Vector);
-  sunscalartype (*nvdotprod)(N_Vector, N_Vector);
+  sunrealtype (*nvdotprod)(N_Vector, N_Vector);
+  SUNErrCode (*nvdotprodcomplex)(N_Vector, N_Vector, sunscalartype*);
   sunrealtype (*nvmaxnorm)(N_Vector);
   sunrealtype (*nvwrmsnorm)(N_Vector, N_Vector);
   sunrealtype (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
@@ -150,8 +151,8 @@ struct _generic_N_Vector_Ops
   SUNErrCode (*nvdotprodmulti)(int, N_Vector, N_Vector*, sunscalartype*);
 
   /* OPTIONAL vector array operations */
-  SUNErrCode (*nvlinearsumvectorarray)(int, sunscalartype, N_Vector*, sunscalartype,
-                                       N_Vector*, N_Vector*);
+  SUNErrCode (*nvlinearsumvectorarray)(int, sunscalartype, N_Vector*,
+                                       sunscalartype, N_Vector*, N_Vector*);
   SUNErrCode (*nvscalevectorarray)(int, sunscalartype*, N_Vector*, N_Vector*);
   SUNErrCode (*nvconstvectorarray)(int, sunscalartype, N_Vector*);
   SUNErrCode (*nvwrmsnormvectorarray)(int, N_Vector*, N_Vector*, sunrealtype*);
@@ -167,7 +168,8 @@ struct _generic_N_Vector_Ops
    */
 
   /* Local reduction kernels (no parallel communication) */
-  sunscalartype (*nvdotprodlocal)(N_Vector, N_Vector);
+  sunrealtype (*nvdotprodlocal)(N_Vector, N_Vector);
+  SUNErrCode (*nvdotprodlocalcomplex)(N_Vector, N_Vector, sunscalartype*);
   sunrealtype (*nvmaxnormlocal)(N_Vector);
   sunrealtype (*nvminlocal)(N_Vector);
   sunrealtype (*nvl1normlocal)(N_Vector);
@@ -236,6 +238,8 @@ SUNDIALS_EXPORT void N_VAbs(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VInv(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VAddConst(N_Vector x, sunrealtype b, N_Vector z);
 SUNDIALS_EXPORT sunrealtype N_VDotProd(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT SUNErrCode N_VDotProdComplex(N_Vector x, N_Vector y,
+                                             sunscalartype* result);
 SUNDIALS_EXPORT sunrealtype N_VMaxNorm(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VWrmsNorm(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT sunrealtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id);
@@ -298,6 +302,8 @@ SUNErrCode N_VLinearCombinationVectorArray(int nvec, int nsum, sunrealtype* c,
 
 /* local reduction kernels (no parallel communication) */
 SUNDIALS_EXPORT sunrealtype N_VDotProdLocal(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT SUNErrCode N_VDotProdLocalComplex(N_Vector x, N_Vector y,
+                                                  sunscalartype* result);
 SUNDIALS_EXPORT sunrealtype N_VMaxNormLocal(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VMinLocal(N_Vector x);
 SUNDIALS_EXPORT sunrealtype N_VL1NormLocal(N_Vector x);
