@@ -3398,10 +3398,7 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
 sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v)
 {
   /* return failure if N_VClone or N_VDestroy is not implemented */
-  if ((!tmpl->ops->nvclone) || (!tmpl->ops->nvdestroy))
-  {
-    return SUNFALSE;
-  }
+  if ((!tmpl->ops->nvclone) || (!tmpl->ops->nvdestroy)) { return SUNFALSE; }
 
   /* allocate the new vector if necessary */
   if (*v == NULL)
