@@ -218,13 +218,13 @@ int SUNQRfact(int n, sunrealtype** h, sunrealtype* q, int job)
       else if (SUNRabs(temp2) >= SUNRabs(temp1))
       {
         temp3 = temp1 / temp2;
-        s     = -ONE / SUNRsqrt(ONE + SUNSQR(temp3));
+        s     = -ONE / SUNCsqrt(ONE + SUNSQR(temp3));
         c     = -s * temp3;
       }
       else
       {
         temp3 = temp2 / temp1;
-        c     = ONE / SUNRsqrt(ONE + SUNSQR(temp3));
+        c     = ONE / SUNCsqrt(ONE + SUNSQR(temp3));
         s     = -c * temp3;
       }
       q[q_ptr]     = c;
@@ -267,13 +267,13 @@ int SUNQRfact(int n, sunrealtype** h, sunrealtype* q, int job)
     else if (SUNRabs(temp2) >= SUNRabs(temp1))
     {
       temp3 = temp1 / temp2;
-      s     = -ONE / SUNRsqrt(ONE + SUNSQR(temp3));
+      s     = -ONE / SUNCsqrt(ONE + SUNSQR(temp3));
       c     = -s * temp3;
     }
     else
     {
       temp3 = temp2 / temp1;
-      c     = ONE / SUNRsqrt(ONE + SUNSQR(temp3));
+      c     = ONE / SUNCsqrt(ONE + SUNSQR(temp3));
       s     = -c * temp3;
     }
     q_ptr        = 2 * n_minus_1;
