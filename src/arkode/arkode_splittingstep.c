@@ -463,15 +463,6 @@ static int splittingStep_SetDefaults(ARKodeMem ark_mem)
 }
 
 /*------------------------------------------------------------------------------
-  This routine checks if all required vector operations are present. If any of
-  them is missing it returns SUNFALSE.
-  ----------------------------------------------------------------------------*/
-static sunbooleantype splittingStep_CheckNVector(N_Vector y)
-{
-  return y->ops->nvlinearsum != NULL && y->ops->nvscale != NULL;
-}
-
-/*------------------------------------------------------------------------------
   This routine checks if all required SUNStepper operations are present. If any
   of them are missing it return SUNFALSE.
   ----------------------------------------------------------------------------*/
@@ -525,14 +516,6 @@ static int splittingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper* steppers,
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
-    return ARK_ILL_INPUT;
-  }
-
-  /* Test if all required vector operations are implemented */
-  if (!splittingStep_CheckNVector(y0))
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
     return ARK_ILL_INPUT;
   }
 

@@ -1252,7 +1252,7 @@ int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed)
   based on the sign of stepdir. If 0, the direction will remain
   unchanged. Note that if a fixed step size was previously set,
   this function can change the sign of that.
-  
+
   This should only be called after ARKodeReset, or between
   creating a stepper and ARKodeEvolve.
   ---------------------------------------------------------------*/
@@ -1499,7 +1499,7 @@ int ARKodeSetConstraints(void* arkode_mem, N_Vector constraints)
 
   /* Test if required vector ops. are defined */
   if (constraints->ops->nvdiv == NULL || constraints->ops->nvmaxnorm == NULL ||
-      constraints->ops->nvcompare == NULL ||
+      constraints->ops->nvcompare == NULL || constraints->ops->nvprod == NULL ||
       constraints->ops->nvconstrmask == NULL ||
       constraints->ops->nvminquotient == NULL)
   {
