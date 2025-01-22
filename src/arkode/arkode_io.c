@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -1499,7 +1499,7 @@ int ARKodeSetConstraints(void* arkode_mem, N_Vector constraints)
 
   /* Test if required vector ops. are defined */
   if (constraints->ops->nvdiv == NULL || constraints->ops->nvmaxnorm == NULL ||
-      constraints->ops->nvcompare == NULL ||
+      constraints->ops->nvcompare == NULL || constraints->ops->nvprod == NULL ||
       constraints->ops->nvconstrmask == NULL ||
       constraints->ops->nvminquotient == NULL)
   {

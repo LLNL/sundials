@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -274,6 +274,14 @@ int ARKodeSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol)
     return (ARK_ILL_INPUT);
   }
 
+  /* Ensure that vector supports N_VAddConst */
+  if (!ark_mem->tempv1->ops->nvaddconst)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar abstol)");
+    return (ARK_ILL_INPUT);
+  }
+
   /* Set flag indicating whether abstol == 0 */
   ark_mem->atolmin0 = (abstol == ZERO);
 
@@ -445,6 +453,14 @@ int ARKodeResStolerance(void* arkode_mem, sunrealtype rabstol)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_RABSTOL);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Ensure that vector supports N_VAddConst */
+  if (!ark_mem->tempv1->ops->nvaddconst)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar rabstol)");
     return (ARK_ILL_INPUT);
   }
 
@@ -1737,7 +1753,7 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     }
 
     /* Test if all required vector operations are implemented */
-    nvectorOK = arkCheckNvector(y0);
+    nvectorOK = arkCheckNvectorRequired(y0);
     if (!nvectorOK)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -1857,23 +1873,87 @@ sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem)
 }
 
 /*---------------------------------------------------------------
-  arkCheckNvector:
+  arkCheckNvectorRequired:
 
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
+  This routine checks if all absolutely-required vector
+  operations are present.  If any of them is missing it returns
+  SUNFALSE.
   ---------------------------------------------------------------*/
-sunbooleantype arkCheckNvector(N_Vector tmpl) /* to be updated?? */
+sunbooleantype arkCheckNvectorRequired(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
       (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
       (tmpl->ops->nvdiv == NULL) || (tmpl->ops->nvscale == NULL) ||
       (tmpl->ops->nvabs == NULL) || (tmpl->ops->nvinv == NULL) ||
-      (tmpl->ops->nvaddconst == NULL) || (tmpl->ops->nvmaxnorm == NULL) ||
       (tmpl->ops->nvwrmsnorm == NULL))
   {
     return (SUNFALSE);
   }
   else { return (SUNTRUE); }
+}
+
+/*---------------------------------------------------------------
+  arkCheckNvectorOptional:
+
+  This routine perform conditional checks on required vector
+  operations are present (i.e., if the current ARKODE
+  configuration requires additional N_Vector routines).  If any
+  of them is missing it returns SUNFALSE.
+  ---------------------------------------------------------------*/
+sunbooleantype arkCheckNvectorOptional(ARKodeMem ark_mem)
+{
+  /* If using a built-in routine for error/residual weights with abstol==0,
+     ensure that N_VMin is available */
+  if ((!ark_mem->user_efun) && (ark_mem->atolmin0) &&
+      (!ark_mem->tempv1->ops->nvmin))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VMin unimplemented (required by error-weight function)");
+    return (SUNFALSE);
+  }
+  if ((!ark_mem->user_rfun) && (!ark_mem->rwt_is_ewt) && (ark_mem->Ratolmin0) &&
+      (!ark_mem->tempv1->ops->nvmin))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VMin unimplemented (required by residual-weight function)");
+    return (SUNFALSE);
+  }
+
+  /* If the user has not specified a step size (and it will be estimated
+     internally), ensure that N_VDiv and N_VMaxNorm are available */
+  if ((ark_mem->h0u == ZERO) && (ark_mem->hin == ZERO) &&
+      (!ark_mem->tempv1->ops->nvdiv))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VDiv unimplemented (required for initial step estimation)");
+    return (SUNFALSE);
+  }
+  if ((ark_mem->h0u == ZERO) && (ark_mem->hin == ZERO) &&
+      (!ark_mem->tempv1->ops->nvmaxnorm))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VMaxNorm unimplemented (required for initial step estimation)");
+    return (SUNFALSE);
+  }
+
+  /* If using a scalar-valued absolute tolerance (for either the state or
+     residual), then ensure that N_VAddConst is available */
+  if ((ark_mem->itol == ARK_SS) && (!ark_mem->tempv1->ops->nvaddconst))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar abstol)");
+    return (SUNFALSE);
+  }
+  if ((!ark_mem->rwt_is_ewt) && (ark_mem->ritol == ARK_SS) &&
+      (!ark_mem->tempv1->ops->nvaddconst))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar rabstol)");
+    return (SUNFALSE);
+  }
+
+  /* If we made it here, then the vector is sufficient */
+  return (SUNTRUE);
 }
 
 /*---------------------------------------------------------------
@@ -1904,19 +1984,12 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     return (ARK_ILL_INPUT);
   }
 
-  /* If using a built-in routine for error/residual weights with abstol==0,
-     ensure that N_VMin is available */
-  if ((!ark_mem->user_efun) && (ark_mem->atolmin0) && (!ark_mem->yn->ops->nvmin))
+  /* Perform additional N_Vector checks here, now that ARKODE has been
+     fully configured by the user */
+  if (!arkCheckNvectorOptional(ark_mem))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "N_VMin unimplemented (required by error-weight function)");
-    return (ARK_ILL_INPUT);
-  }
-  if ((!ark_mem->user_rfun) && (!ark_mem->rwt_is_ewt) && (ark_mem->Ratolmin0) &&
-      (!ark_mem->yn->ops->nvmin))
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "N_VMin unimplemented (required by residual-weight function)");
+                    MSG_ARK_BAD_NVECTOR);
     return (ARK_ILL_INPUT);
   }
 
@@ -3347,6 +3420,9 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
   ---------------------------------------------------------------*/
 sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v)
 {
+  /* return failure if N_VClone or N_VDestroy is not implemented */
+  if ((!tmpl->ops->nvclone) || (!tmpl->ops->nvdestroy)) { return SUNFALSE; }
+
   /* allocate the new vector if necessary */
   if (*v == NULL)
   {

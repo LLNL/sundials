@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -238,7 +238,6 @@ int arkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                 ARKodeMem* ark_mem, ARKodeARKStepMem* step_mem);
 int arkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                           ARKodeARKStepMem* step_mem);
-sunbooleantype arkStep_CheckNVector(N_Vector tmpl);
 int arkStep_SetButcherTables(ARKodeMem ark_mem);
 int arkStep_CheckButcherTables(ARKodeMem ark_mem);
 int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
