@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -269,7 +269,7 @@ sedi "s/UCRL-SM-208114,.*/UCRL-SM-208114, ${date}./" $fn
 # Update tarscript
 # ------------------------------------------------------------------------------
 
-fn="tarscript"
+fn="tarscript.sh"
 sedi "s/SUN_VER=.*/SUN_VER=\"${sun_ver}\"/"    $fn
 sedi "s/CV_VER=.*/CV_VER=\"${cv_ver}\"/"       $fn
 sedi "s/CVS_VER=.*/CVS_VER=\"${cvs_ver}\"/"    $fn
