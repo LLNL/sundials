@@ -4,7 +4,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -2581,7 +2581,7 @@ static int PrintUserData(UserData* udata)
   cout << "  linear         = " << udata->linear << endl;
   cout << " --------------------------------- " << endl;
   cout << "  lin iters      = " << udata->liniters << endl;
-  cout << "  eps lins       = " << udata->epslin << endl;
+  cout << "  eps lin        = " << udata->epslin << endl;
   cout << "  prectype       = " << udata->prectype << endl;
   cout << "  msbp           = " << udata->msbp << endl;
   cout << "  pfmg_relax     = " << udata->pfmg_relax << endl;

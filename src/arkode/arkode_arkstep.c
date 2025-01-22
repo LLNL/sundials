@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -38,7 +38,6 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   SUNNonlinearSolver NLS;
-  sunbooleantype nvectorOK;
   int retval;
 
   /* Check that at least one of fe, fi is supplied and is to be used */
@@ -61,15 +60,6 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, sunrealtype t0, N_Vector y0,
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_SUNCTX);
-    return (NULL);
-  }
-
-  /* Test if all required vector operations are implemented */
-  nvectorOK = arkStep_CheckNVector(y0);
-  if (!nvectorOK)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
     return (NULL);
   }
 
@@ -2166,23 +2156,6 @@ int arkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
   }
   *step_mem = (ARKodeARKStepMem)ark_mem->step_mem;
   return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  arkStep_CheckNVector:
-
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
-  ---------------------------------------------------------------*/
-sunbooleantype arkStep_CheckNVector(N_Vector tmpl)
-{
-  if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
-      (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
-      (tmpl->ops->nvscale == NULL) || (tmpl->ops->nvwrmsnorm == NULL))
-  {
-    return (SUNFALSE);
-  }
-  return (SUNTRUE);
 }
 
 /*---------------------------------------------------------------
