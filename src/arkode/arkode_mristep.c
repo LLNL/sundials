@@ -39,7 +39,6 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ARKodeMem ark_mem;         /* outer ARKODE memory   */
   ARKodeMRIStepMem step_mem; /* outer stepper memory  */
   SUNNonlinearSolver NLS;    /* default nonlin solver */
-  sunbooleantype nvectorOK;
   int retval;
 
   /* Check that at least one of fse, fsi is supplied and is to be used*/
@@ -71,15 +70,6 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_SUNCTX);
-    return (NULL);
-  }
-
-  /* Test if all required vector operations are implemented */
-  nvectorOK = mriStep_CheckNVector(y0);
-  if (!nvectorOK)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
     return (NULL);
   }
 
@@ -3100,23 +3090,6 @@ int mriStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
   }
   *step_mem = (ARKodeMRIStepMem)ark_mem->step_mem;
   return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  mriStep_CheckNVector:
-
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
-  ---------------------------------------------------------------*/
-sunbooleantype mriStep_CheckNVector(N_Vector tmpl)
-{
-  if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
-      (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
-      (tmpl->ops->nvscale == NULL) || (tmpl->ops->nvwrmsnorm == NULL))
-  {
-    return (SUNFALSE);
-  }
-  return (SUNTRUE);
 }
 
 /*---------------------------------------------------------------
