@@ -22,7 +22,7 @@ if(BUILD_ARKODE
     set(benchmark_target "advection_reaction_3D_kokkos.${backend}")
 
     # benchmark source files
-    add_executable(
+    sundials_add_executable(
       ${benchmark_target}
       advection_reaction_3D.cpp
       arkode_driver.cpp

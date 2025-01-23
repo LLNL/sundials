@@ -52,7 +52,7 @@ foreach(example_tuple ${nvector_raja_examples})
   if(NOT TARGET ${example})
 
     # example source files
-    add_executable(${example_target} ${example})
+    sundials_add_executable(${example_target} ${example})
 
     set_source_files_properties(${example_target} PROPERTIES LANGUAGE ${_lang})
 

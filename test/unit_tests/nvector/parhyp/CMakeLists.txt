@@ -62,7 +62,7 @@ foreach(example_tuple ${nvector_parhyp_examples})
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     # link vector test utilities
     target_link_libraries(${example} PRIVATE test_nvector_obj
