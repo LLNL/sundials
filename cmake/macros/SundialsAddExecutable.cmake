@@ -11,31 +11,24 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMake macro for adding executables.
+# CMake function that wraps the add_executable command.
+#
+# It adds one extra single-value argument, SCALAR_TYPE. Otherwise
+# this function behaves exactly as add_executable does.
+#
 # ---------------------------------------------------------------
 
-macro(sundials_add_nvector_benchmark NAME)
+macro(sundials_add_executable NAME)
 
   set(options)
-  set(singleValueArgs)
-  set(multiValueArgs SOURCES SUNDIALS_TARGETS LINK_LIBRARIES INSTALL_SUBDIR)
+  set(singleValueArgs SCALAR_TYPE)
+  set(multiValueArgs )
 
-  cmake_parse_arguments(arg "${options}" "${singleValueArgs}"
-                        "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(sundials_add_executable_ARG "${options}" "${singleValueArgs}" "${multiValueArgs}" ${ARGN})
 
-  set(BENCHMARKS_DIR ${PROJECT_SOURCE_DIR}/benchmarks)
+  string(TOUPPER "${sundials_add_executable_ARG_SCALAR_TYPE}" _scalarUpper)
+  if(NOT _scalarUpper OR _scalarUpper STREQUAL SUNDIALS_SCALAR_TYPE)
+    add_executable(${NAME} ${sundials_add_executable_ARG_UNPARSED_ARGUMENTS})
+  endif()
 
-  add_executable(${NAME} ${BENCHMARKS_DIR}/nvector/test_nvector_performance.c
-                         ${arg_SOURCES})
-
-  set_target_properties(${NAME} PROPERTIES FOLDER "Benchmarks")
-
-  target_include_directories(${NAME} PRIVATE ${BENCHMARKS_DIR}/nvector)
-
-  target_link_libraries(${NAME} PRIVATE ${arg_SUNDIALS_TARGETS}
-                                        ${arg_LINK_LIBRARIES} -lm)
-
-  install(TARGETS ${NAME}
-          DESTINATION "${BENCHMARKS_INSTALL_PATH}/${arg_INSTALL_SUBDIR}")
-
-endmacro(sundials_add_nvector_benchmark)
+endmacro()
