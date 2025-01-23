@@ -49,7 +49,7 @@ foreach(example_tuple ${CVODE_examples})
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.cpp)
+    sundials_add_executable(${example} ${example}.cpp)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")

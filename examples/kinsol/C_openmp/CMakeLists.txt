@@ -36,7 +36,7 @@ foreach(example_tuple ${KINSOL_examples})
   list(GET example_tuple 2 example_type)
 
   # example source files
-  add_executable(${example} ${example}.c)
+  sundials_add_executable(${example} ${example}.c)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

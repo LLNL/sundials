@@ -53,7 +53,7 @@ foreach(example_tuple ${examples_list})
   if(NOT TARGET ${example_target})
 
     # add example source files
-    add_executable(${example_target} ${example})
+    sundials_add_executable(${example_target} ${example})
 
     set_source_files_properties(${example_target} PROPERTIES LANGUAGE ${_lang})
 

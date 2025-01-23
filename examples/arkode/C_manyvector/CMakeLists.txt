@@ -38,7 +38,7 @@ foreach(example_tuple ${ARKODE_examples})
   list(GET example_tuple 1 example_type)
 
   # example source files
-  add_executable(${example} ${example}.c)
+  sundials_add_executable(${example} ${example}.c)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

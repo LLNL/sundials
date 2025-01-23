@@ -62,7 +62,7 @@ foreach(example_tuple ${ARKODE_examples})
 
   # add example executable
   if(NOT TARGET ${example_target})
-    add_executable(${example_target} ${example})
+    sundials_add_executable(${example_target} ${example})
 
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 

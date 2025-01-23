@@ -28,7 +28,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
   if(NOT TARGET ${test})
 
     # test source files
-    add_executable(${test} ${test}.f90)
+    sundials_add_executable(${test} ${test}.f90)
 
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 

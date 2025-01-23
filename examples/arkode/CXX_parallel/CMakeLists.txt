@@ -44,7 +44,7 @@ macro(build_examples examples_to_build lang)
       set_source_files_properties(${example} PROPERTIES LANGUAGE ${lang})
 
       # example source files
-      add_executable(${example_target} ${example})
+      sundials_add_executable(${example_target} ${example})
 
       # folder to organize targets in an IDE
       set_target_properties(${example_target} PROPERTIES FOLDER "Examples")

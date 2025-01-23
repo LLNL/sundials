@@ -40,7 +40,7 @@ foreach(example_tuple ${FIDAS_examples})
       ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  add_executable(${example} ${example}.f90)
+  sundials_add_executable(${example} ${example}.f90)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

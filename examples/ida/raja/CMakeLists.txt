@@ -46,7 +46,7 @@ foreach(example_tuple ${IDA_examples})
   set_source_files_properties(${example} PROPERTIES LANGUAGE ${_lang})
 
   # add example source files
-  add_executable(${example_target} ${example})
+  sundials_add_executable(${example_target} ${example})
 
   set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
