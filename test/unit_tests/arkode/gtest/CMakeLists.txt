@@ -12,7 +12,8 @@
 
 # include location of public and private header files
 
-add_executable(test_arkode_error_handling test_arkode_error_handling.cpp)
+sundials_add_executable(test_arkode_error_handling
+                        test_arkode_error_handling.cpp)
 target_include_directories(
   test_arkode_error_handling
   PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>

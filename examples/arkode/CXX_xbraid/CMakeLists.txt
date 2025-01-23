@@ -55,7 +55,7 @@ foreach(example_tuple ${ARKODE_examples})
   if(NOT TARGET ${example})
 
     # example source files
-    add_executable(${example} ${example}.cpp)
+    sundials_add_executable(${example} ${example}.cpp)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -109,7 +109,7 @@ if(ENABLE_HYPRE AND HYPRE_FOUND)
     if(NOT TARGET ${example})
 
       # example source files
-      add_executable(${example} ${example}.cpp)
+      sundials_add_executable(${example} ${example}.cpp)
 
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")

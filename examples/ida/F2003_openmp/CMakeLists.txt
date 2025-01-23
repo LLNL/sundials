@@ -41,7 +41,7 @@ foreach(example_tuple ${FIDA_examples_OMP})
   get_filename_component(example ${example_file} NAME_WE)
 
   if(NOT TARGET ${example})
-    add_executable(${example} ${example_file})
+    sundials_add_executable(${example} ${example_file})
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

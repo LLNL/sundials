@@ -48,7 +48,7 @@ foreach(example_tuple ${FCVODE_examples})
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    add_executable(${example} ${example}.f90)
+    sundials_add_executable(${example} ${example}.f90)
 
     # libraries to link against
     target_link_libraries(${example} MPI::MPI_Fortran ${SUNDIALS_LIBS})

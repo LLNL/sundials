@@ -25,7 +25,7 @@ foreach(test_tuple ${unit_tests})
   if(NOT TARGET ${test})
 
     # test source files
-    add_executable(${test} ${test}.cu)
+    sundials_add_executable(${test} ${test}.cu)
 
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 
