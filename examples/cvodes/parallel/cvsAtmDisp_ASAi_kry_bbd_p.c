@@ -4,7 +4,7 @@
  *                Lukas Jager and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -1117,7 +1117,7 @@ static void Load_yext(sunrealtype* src, ProblemData d)
 /*
  *------------------------------------------------------------------
  * PrintHeader:
- * Print first lins of output (problem description)
+ * Print first lines of output (problem description)
  *------------------------------------------------------------------
  */
 

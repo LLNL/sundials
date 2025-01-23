@@ -2,7 +2,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -53,7 +53,7 @@ foreach(example_tuple ${sunlinsol_spfgmr_examples})
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c ../../test_sunlinsol.c)
+    sundials_add_executable(${example} ${example}.c ../../test_sunlinsol.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -101,9 +101,8 @@ foreach(example_tuple ${sunlinsol_spfgmr_fortran_examples})
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    add_executable(
-      ${example}
-      ${example}.f90
+    sundials_add_executable(
+      ${example} ${example}.f90
       ${SUNDIALS_SOURCE_DIR}/test/unit_tests/utilities/test_utilities.f90
       ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunlinsol/test_sunlinsol.f90)
 
