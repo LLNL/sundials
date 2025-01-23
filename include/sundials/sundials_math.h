@@ -220,7 +220,7 @@ extern "C" {
 #endif
 
 #ifndef SUNCSQR
-#define SUNCSQR(A) ((A) * SUNCCONJ(A))
+#define SUNCSQR(A) ((sunrealtype) ((A) * SUNCCONJ(A)))
 #endif
 
 #ifndef SUNSQR

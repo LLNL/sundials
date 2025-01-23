@@ -18,34 +18,35 @@
 # CMakeLists.txt file for ARKODE serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is 'develop' for
-# examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;scalartype\;type" where
+# the type is 'develop' for examples excluded from 'make test'
+# in releases
 
 # Examples using SUNDIALS linear solvers
 set(ARKODE_examples
-    "ark_analytic_sys.cpp\;\;develop"
-    "ark_heat2D.cpp\;\;develop"
-    "ark_heat2D_lsrk.cpp\;\;exclude-single"
-    "ark_kpr_Mt.cpp\;0 5\;develop"
-    "ark_kpr_Mt.cpp\;1 4\;develop"
-    "ark_kpr_Mt.cpp\;2 8 0 -10\;develop"
-    "ark_kpr_Mt.cpp\;0 4 1\;develop"
-    "ark_kpr_Mt.cpp\;0 -4\;exclude-single"
-    "ark_kpr_Mt.cpp\;1 -5\;exclude-single"
-    "ark_kpr_Mt.cpp\;2 -5 0 -10\;develop"
-    "ark_kpr_Mt.cpp\;1 -3 0 -10 0\;exclude-single"
-    "ark_kpr_Mt.cpp\;0 3 0 -10 0\;develop"
-    "ark_kpr_Mt.cpp\;2 4 0 -10 0\;develop"
-    "ark_kpr_Mt.cpp\;0 4 0 -10 1 10 1\;develop"
-    "ark_kpr_Mt.cpp\;0 4 0 -10 0 10 1\;develop"
-    "ark_kpr_nestedmri.cpp\;\;exclude-single"
-    "ark_pendulum.cpp\;\;develop")
+    "ark_analytic_sys.cpp\;\;real\;develop"
+    "ark_heat2D.cpp\;\;real\;develop"
+    "ark_heat2D_lsrk.cpp\;\;real\;exclude-single"
+    "ark_kpr_Mt.cpp\;0 5\;real\;develop"
+    "ark_kpr_Mt.cpp\;1 4\;real\;develop"
+    "ark_kpr_Mt.cpp\;2 8 0 -10\;real\;develop"
+    "ark_kpr_Mt.cpp\;0 4 1\;real\;develop"
+    "ark_kpr_Mt.cpp\;0 -4\;real\;exclude-single"
+    "ark_kpr_Mt.cpp\;1 -5\;real\;exclude-single"
+    "ark_kpr_Mt.cpp\;2 -5 0 -10\;real\;develop"
+    "ark_kpr_Mt.cpp\;1 -3 0 -10 0\;real\;exclude-single"
+    "ark_kpr_Mt.cpp\;0 3 0 -10 0\;real\;develop"
+    "ark_kpr_Mt.cpp\;2 4 0 -10 0\;real\;develop"
+    "ark_kpr_Mt.cpp\;0 4 0 -10 1 10 1\;real\;develop"
+    "ark_kpr_Mt.cpp\;0 4 0 -10 0 10 1\;real\;develop"
+    "ark_kpr_nestedmri.cpp\;\;real\;exclude-single"
+    "ark_pendulum.cpp\;\;real\;develop")
 
 # Header files to install
 set(ARKODE_headers)
 
 if(BUILD_CVODE)
-  list(APPEND ARKODE_examples "ark_advection_diffusion_reaction.cpp\;\;develop")
+  list(APPEND ARKODE_examples "ark_advection_diffusion_reaction.cpp\;\;real\;develop")
   list(APPEND ARKODE_headers "ark_advection_diffusion_reaction.hpp")
 endif()
 
@@ -58,7 +59,8 @@ foreach(example_tuple ${ARKODE_examples})
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
-  list(GET example_tuple 2 example_type)
+  list(GET example_tuple 2 scalar_type)
+  list(GET example_tuple 3 example_type)
 
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
@@ -95,7 +97,8 @@ foreach(example_tuple ${ARKODE_examples})
     TEST_ARGS ${example_args}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    EXAMPLE_TYPE ${example_type}
+    SCALAR_TYPE ${scalar_type})
 
 endforeach(example_tuple ${ARKODE_examples})
 
