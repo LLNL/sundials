@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,7 +14,7 @@
 # CMake macro for adding nvector benchmark executables.
 # ---------------------------------------------------------------
 
-macro(sundials_add_nvector_benchmark NAME)
+function(sundials_add_nvector_benchmark NAME)
 
   set(options)
   set(singleValueArgs)
@@ -38,4 +38,4 @@ macro(sundials_add_nvector_benchmark NAME)
   install(TARGETS ${NAME}
           DESTINATION "${BENCHMARKS_INSTALL_PATH}/${arg_INSTALL_SUBDIR}")
 
-endmacro(sundials_add_nvector_benchmark)
+endfunction(sundials_add_nvector_benchmark)

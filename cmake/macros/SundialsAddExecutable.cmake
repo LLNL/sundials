@@ -18,7 +18,7 @@
 #
 # ---------------------------------------------------------------
 
-macro(sundials_add_executable NAME)
+function(sundials_add_executable NAME)
 
   set(options)
   set(singleValueArgs SCALAR_TYPE)
@@ -31,4 +31,4 @@ macro(sundials_add_executable NAME)
     add_executable(${NAME} ${sundials_add_executable_ARG_UNPARSED_ARGUMENTS})
   endif()
 
-endmacro()
+endfunction()
