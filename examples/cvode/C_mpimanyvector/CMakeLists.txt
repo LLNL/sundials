@@ -47,7 +47,7 @@ foreach(example_tuple ${CVODE_examples})
   list(GET example_tuple 3 example_type)
 
   # example source files
-  add_executable(${example} ${example}.c)
+  sundials_add_executable(${example} ${example}.c)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

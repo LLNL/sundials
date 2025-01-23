@@ -59,7 +59,7 @@ foreach(example_tuple ${all_examples})
 
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.cu)
+    sundials_add_executable(${example} ${example}.cu)
 
     # folder for IDEs
     set_target_properties(${example} PROPERTIES FOLDER "Examples")

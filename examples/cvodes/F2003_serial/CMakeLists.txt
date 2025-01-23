@@ -42,7 +42,7 @@ foreach(example_tuple ${FCVODES_examples})
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    add_executable(${example} ${example}.f90)
+    sundials_add_executable(${example} ${example}.f90)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
