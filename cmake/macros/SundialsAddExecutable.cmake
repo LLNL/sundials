@@ -24,12 +24,12 @@ function(sundials_add_executable NAME)
   set(singleValueArgs SCALAR_TYPE)
   set(multiValueArgs)
 
-  cmake_parse_arguments(sundials_add_executable_ARG "${options}"
-                        "${singleValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(arg "${options}" "${singleValueArgs}"
+                        "${multiValueArgs}" ${ARGN})
 
-  string(TOUPPER "${sundials_add_executable_ARG_SCALAR_TYPE}" _scalarUpper)
+  string(TOUPPER "${arg_SCALAR_TYPE}" _scalarUpper)
   if(NOT _scalarUpper OR _scalarUpper STREQUAL SUNDIALS_SCALAR_TYPE)
-    add_executable(${NAME} ${sundials_add_executable_ARG_UNPARSED_ARGUMENTS})
+    add_executable(${NAME} ${arg_UNPARSED_ARGUMENTS})
   endif()
 
 endfunction()
