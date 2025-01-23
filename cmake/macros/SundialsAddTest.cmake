@@ -86,7 +86,7 @@ function(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   set(options "NODIFF")
   set(oneValueArgs "MPI_NPROCS" "FLOAT_PRECISION" "INTEGER_PRECISION"
-                   "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE" "SCALAR_TYPE")
+                   "ANSWER_DIR" "ANSWER_FILE" "EXAMPLE_TYPE")
   set(multiValueArgs "LABELS" "TEST_ARGS" "EXTRA_ARGS")
 
   # parse inputs and create variables arg_<keyword>
@@ -114,12 +114,6 @@ function(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # precision-specific exclusions
   string(TOLOWER "exclude-${SUNDIALS_PRECISION}" _exclude_precision)
   if("${arg_EXAMPLE_TYPE}" STREQUAL _exclude_precision)
-    set(_add_test FALSE)
-  endif()
-
-  # scalartype-specific examples
-  string(TOLOWER "${SUNDIALS_SCALAR_TYPE}" _scalartype)
-  if(NOT ("${arg_SCALAR_TYPE}" STREQUAL _scalartype))
     set(_add_test FALSE)
   endif()
 
