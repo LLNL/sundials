@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -55,7 +55,7 @@ foreach(example_tuple ${nvector_hip_examples})
   # source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
-    add_executable(${example_target} ${example})
+    sundials_add_executable(${example_target} ${example})
 
     # link vector test utilities
     target_link_libraries(${example_target} PRIVATE test_nvector_obj)

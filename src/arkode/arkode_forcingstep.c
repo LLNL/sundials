@@ -2,7 +2,7 @@
  * Programmer(s): Steven B. Roberts @ LLNL
  *------------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -363,15 +363,6 @@ static void forcingStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
 }
 
 /*------------------------------------------------------------------------------
-  This routine checks if all required vector operations are present. If any of
-  them are missing it returns SUNFALSE.
-  ----------------------------------------------------------------------------*/
-static sunbooleantype forcingStep_CheckNVector(N_Vector y)
-{
-  return y->ops->nvlinearsum != NULL;
-}
-
-/*------------------------------------------------------------------------------
   This routine checks if all required SUNStepper operations are present. If any
   of them are missing it return SUNFALSE.
   ----------------------------------------------------------------------------*/
@@ -420,14 +411,6 @@ static int forcingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper stepper1,
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
-    return ARK_ILL_INPUT;
-  }
-
-  /* Test if all required vector operations are implemented */
-  if (!forcingStep_CheckNVector(y0))
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
     return ARK_ILL_INPUT;
   }
 
