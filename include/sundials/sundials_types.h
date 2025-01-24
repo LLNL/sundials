@@ -129,11 +129,9 @@ typedef long double sunrealtype;
 
 /* safeguard the #include to avoid namespace conflicts with Kokkos, CUDA and HIP,
    and define "suncomplextype" based on the requested floating-point precision */
-#if defined(__cplusplus)  /* C++ complex support */
+#ifdef __cplusplus /* C++ complex support */
 
   #include <complex>
-
-  #define suncomplexlib std
 
   #if defined(SUNDIALS_SINGLE_PRECISION)
 typedef std::complex<float>  suncomplextype;
