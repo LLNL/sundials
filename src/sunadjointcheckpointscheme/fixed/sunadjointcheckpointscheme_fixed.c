@@ -163,6 +163,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
                      "step_num = %d, stage_num = %d", step_num, stage_num);
     errcode = SUNDataNode_GetNamedChild(IMPL_MEMBER(self, root_node), key,
                                         &step_data_node);
+    free(key);
     if (errcode == SUN_SUCCESS)
     {
       IMPL_MEMBER(self, current_load_step_node)  = step_data_node;
@@ -173,7 +174,6 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
       step_data_node = NULL;
     }
     else { SUNCheckCall(errcode); }
-    free(key);
   }
   else { step_data_node = IMPL_MEMBER(self, current_load_step_node); }
 
