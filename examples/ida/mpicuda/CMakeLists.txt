@@ -40,7 +40,7 @@ foreach(example_tuple ${IDA_examples})
                               PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
   # add example source files
-  add_executable(${example} ${example}.cu)
+  sundials_add_executable(${example} ${example}.cu)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

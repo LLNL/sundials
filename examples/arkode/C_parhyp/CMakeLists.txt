@@ -32,7 +32,7 @@ foreach(example_tuple ${ARKODE_examples})
   get_filename_component(example_target ${example} NAME_WE)
 
   # create target
-  add_executable(${example_target} ${example})
+  sundials_add_executable(${example_target} ${example})
 
   set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 

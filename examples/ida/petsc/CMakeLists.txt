@@ -60,7 +60,7 @@ foreach(example_tuple ${IDA_examples})
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     # group examples in IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")

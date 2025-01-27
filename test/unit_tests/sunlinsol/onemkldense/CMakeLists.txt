@@ -39,7 +39,7 @@ foreach(example_tuple ${sunlinsols_onemkldense_examples})
   if(NOT TARGET ${example_target})
 
     # example source files
-    add_executable(${example_target} ${example})
+    sundials_add_executable(${example_target} ${example})
 
     # folder for IDEs
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")

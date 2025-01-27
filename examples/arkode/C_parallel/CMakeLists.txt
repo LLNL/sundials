@@ -65,7 +65,7 @@ foreach(example_tuple ${ARKODE_examples})
 
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     # libraries to link against
     target_link_libraries(${example} ${SUNDIALS_LIBS})

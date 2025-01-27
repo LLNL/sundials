@@ -41,7 +41,7 @@ foreach(test_tuple ${tests})
   set(target ${package}_diffusion_2D_mpi)
 
   # create executable
-  add_executable(${target} ${sources})
+  sundials_add_executable(${target} ${sources})
 
   add_dependencies(benchmark ${target})
 

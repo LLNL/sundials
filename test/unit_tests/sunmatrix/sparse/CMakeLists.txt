@@ -50,7 +50,7 @@ foreach(example_tuple ${sunmatrix_sparse_examples})
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c ../test_sunmatrix.c)
+    sundials_add_executable(${example} ${example}.c ../test_sunmatrix.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -98,9 +98,8 @@ foreach(example_tuple ${sunmatrix_sparse_fortran_examples})
     set(CMAKE_Fortran_MODULE_DIRECTORY
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
-    add_executable(
-      ${example}
-      ${example}.f90
+    sundials_add_executable(
+      ${example} ${example}.f90
       ${SUNDIALS_SOURCE_DIR}/test/unit_tests/utilities/test_utilities.f90
       ${SUNDIALS_SOURCE_DIR}/test/unit_tests/sunmatrix/test_sunmatrix.f90)
 

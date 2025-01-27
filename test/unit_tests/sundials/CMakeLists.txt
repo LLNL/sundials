@@ -21,6 +21,10 @@ if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
     list(GET test_tuple 0 test)
     list(GET test_tuple 1 test_args)
 
+    if(NOT SUNDIALS_ENABLE_ERROR_CHECKS AND (${test} STREQUAL "test_sundials_errors"))
+      continue()
+    endif()
+
     add_executable(
       ${test} ${test}.cpp ${PROJECT_SOURCE_DIR}/src/sundials/sundials_hashmap.c)
     target_link_libraries(
