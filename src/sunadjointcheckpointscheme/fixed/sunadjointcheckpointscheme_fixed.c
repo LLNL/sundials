@@ -24,17 +24,17 @@
 
 struct SUNAdjointCheckpointScheme_Fixed_Content_
 {
-  SUNMemoryHelper mem_helper;
   int64_t backup_interval;
   int64_t interval;
+  int64_t stepnum_of_current_insert;
+  int64_t stepnum_of_current_load;
+  SUNMemoryHelper mem_helper;
+  SUNDataNode root_node;
+  SUNDataNode current_insert_step_node;
+  SUNDataNode current_load_step_node;
+  SUNDataIOMode io_mode;
   sunbooleantype save_stages;
   sunbooleantype keep;
-  SUNDataIOMode io_mode;
-  SUNDataNode root_node;
-  int64_t stepnum_of_current_insert;
-  SUNDataNode current_insert_step_node;
-  int64_t stepnum_of_current_load;
-  SUNDataNode current_load_step_node;
 };
 
 typedef struct SUNAdjointCheckpointScheme_Fixed_Content_*
