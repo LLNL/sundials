@@ -60,6 +60,7 @@ static inline int64_t sunHashMapIdxFromKey(SUNHashMap map, const char* key)
 
   **Arguments:**
     * ``capacity`` -- the initial capactity number of the hashmap
+    * ``destroyKeyValue`` -- a callback function that frees the KVP, including both the key and value. 
     * ``map`` -- on input, a SUNHasMap pointer, on output the SUNHashMap will be
                  allocated
 
