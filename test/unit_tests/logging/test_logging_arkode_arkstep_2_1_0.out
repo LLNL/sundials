@@ -9,7 +9,7 @@ Using GMRES iterative linear solver
  6.554112583561956e-03    1.224740487151591e+00    1.729572495016884e+00    2.946975996565016e-11    2.206064220189319e-10
  1.020477566424183e-02    1.224734242922404e+00    1.726048871574017e+00    3.169020601490047e-11    2.147166888732954e-10
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.01020477566424183
+Current time                 = 0.0102047756642418
 Steps                        = 3
 Step attempts                = 3
 Stability limited steps      = 0
@@ -17,8 +17,8 @@ Accuracy limited steps       = 3
 Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.003650663080679877
+Initial step size            = 0.000102986025609508
+Last step size               = 0.00365066308067988
 Current step size            = 0.021026187632719
 Explicit RHS fn evals        = 20
 Implicit RHS fn evals        = 47
@@ -34,7 +34,7 @@ LS iters                     = 29
 LS fails                     = 0
 Jac-times setups             = 0
 Jac-times evals              = 29
-LS iters per NLS iter        = 1.074074074074074
+LS iters per NLS iter        = 1.07407407407407
 Jac evals per NLS iter       = 0
 Prec evals per NLS iter      = 0
 End ARKStep Logging test

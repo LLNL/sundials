@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * ---------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -32,16 +32,6 @@
 
 #include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
 
 // Constants
 #define NEG_ONE SUN_RCONST(-1.0)

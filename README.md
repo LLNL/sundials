@@ -1,4 +1,7 @@
 # SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers #
+
+[![track SUNDIALS downloads](https://github.com/sundials-codes/sundials-download-tracker/actions/workflows/nightly.yml/badge.svg)](https://github.com/sundials-codes/sundials-download-tracker/actions/workflows/nightly.yml)
+
 ### Version 7.2.1 (Dec 2024) ###
 
 **Center for Applied Scientific Computing, Lawrence Livermore National Laboratory**
@@ -92,7 +95,7 @@ David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, Steven B. Roberts, and
 Carol S. Woodward. We thank Radu Serban for significant and critical past
 contributions.
 
-Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
+Other contributors to SUNDIALS include: Mustafa Aggul, James Almgren-Bell, Lawrence E. Banks,
 Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
 Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
 Yu Pan, Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,

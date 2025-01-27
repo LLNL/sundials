@@ -15,6 +15,10 @@ jobs:
     if: ${{ github.event_name != 'issue_comment' || (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/autofix')) }}
     runs-on: ubuntu-latest
     steps:
+      - name: Install pcre
+        run: |
+          sudo apt install libpcre3-dev
+
       - name: Install swig
         run: |
           git clone https://github.com/sundials-codes/swig
@@ -66,6 +70,8 @@ jobs:
     if: ${{ always() && contains(join(needs.*.result, ','), 'failure') && (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/autofix')) }}
     needs: swig_check
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       # Checkout the GitHub created reference for the PR.
       # The only way to do this is by using the "issue" number

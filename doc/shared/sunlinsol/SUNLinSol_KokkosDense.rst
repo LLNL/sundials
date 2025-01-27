@@ -1,7 +1,7 @@
 ..
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -25,7 +25,7 @@ C++ library, the module is also written in modern C++ (it requires C++14) as a
 header only library. To utilize this ``SUNLinearSolver`` user will need to
 include ``sunlinsol/sunlinsol_kokkosdense.hpp``. More instructions on building
 SUNDIALS with Kokkos and KokkosKernels enabled are given in
-:numref:`Installation.CMake.ExternalLibraries`. For instructions on building and
+:numref:`Installation.Options.KokkosKernels`. For instructions on building and
 using Kokkos and KokkosKernels, refer to the
 `Kokkos <https://kokkos.github.io/kokkos-core-wiki/index.html>`_
 and `KokkosKernels <https://github.com/kokkos/kokkos-kernels/wiki>`_.

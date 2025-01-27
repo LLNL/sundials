@@ -2,7 +2,7 @@
  * Programmer: Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -57,12 +57,11 @@
 #define RTOLFD SUN_RCONST(1.0e-06)
 #define ATOLFD SUN_RCONST(1.0e-08)
 
-#define ZERO    SUN_RCONST(0.00)
-#define QUARTER SUN_RCONST(0.25)
-#define HALF    SUN_RCONST(0.50)
-#define ONE     SUN_RCONST(1.00)
-#define TWO     SUN_RCONST(2.00)
-#define FOUR    SUN_RCONST(4.00)
+#define ZERO SUN_RCONST(0.00)
+#define HALF SUN_RCONST(0.50)
+#define ONE  SUN_RCONST(1.00)
+#define TWO  SUN_RCONST(2.00)
+#define FOUR SUN_RCONST(4.00)
 
 typedef struct
 {

@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -126,7 +126,7 @@ require a linear solver, ARKODE may use a variety of SUNLinearSolver modules
 provided with SUNDIALS, or again may utilize a user-supplied module.
 
 
-Changes to SUNDIALS in release 6.2.1
+Changes to SUNDIALS in release X.Y.Z
 ====================================
 
 .. include:: ../../../shared/RecentChanges.rst

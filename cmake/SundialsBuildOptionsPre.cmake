@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -76,10 +76,10 @@ endif()
 # Option to enable/disable error checking
 # ---------------------------------------------------------------
 
-if(CMAKE_BUILD_TYPE MATCHES "Release|RelWithDebInfo")
-  set(_default_err_checks OFF)
-else()
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
   set(_default_err_checks ON)
+else()
+  set(_default_err_checks OFF)
 endif()
 
 set(DOCSTR

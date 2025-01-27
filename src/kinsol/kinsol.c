@@ -3,7 +3,7 @@
  *                John Loffeld, Aaron Collier, and Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -154,7 +154,9 @@
 /* Shortcuts                                                       */
 /*=================================================================*/
 
+#if defined(SUNDIALS_BUILD_WITH_PROFILING)
 #define KIN_PROFILER kin_mem->kin_sunctx->profiler
+#endif
 
 /*
  * =================================================================
