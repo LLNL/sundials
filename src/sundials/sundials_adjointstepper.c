@@ -18,6 +18,7 @@
 #include "sundials/sundials_types.h"
 #include "sundials_macros.h"
 #include "sundials_stepper_impl.h"
+#include "sundials_utils.h"
 
 SUNErrCode SUNAdjointStepper_Create(
   SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper, int64_t final_step_idx,
@@ -229,74 +230,34 @@ SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper self, void* user_data
 SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper self,
                                            FILE* outfile, SUNOutputFormat fmt)
 {
-  switch (fmt)
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Num backwards steps", self->nst);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Num recompute passes",
+                  self->nrecompute);
+  if (self->JacFn)
   {
-  case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Num backwards steps    = %lld\n", (long long)self->nst);
-    fprintf(outfile, "Num recompute passes   = %lld\n",
-            (long long)self->nrecompute);
-    if (self->JacFn)
-    {
-      fprintf(outfile, "Jac fn evals           = %lld\n",
-              (long long)self->njeval);
-    }
-    if (self->JacPFn)
-    {
-      fprintf(outfile, "JacP fn evals          = %lld\n",
-              (long long)self->njpeval);
-    }
-    if (self->JvpFn)
-    {
-      fprintf(outfile, "Jac-times-v evals      = %lld\n",
-              (long long)self->njtimesv);
-    }
-    if (self->JPvpFn)
-    {
-      fprintf(outfile, "JacP-times-v evals     = %lld\n",
-              (long long)self->njptimesv);
-    }
-    if (self->vJpFn)
-    {
-      fprintf(outfile, "v-times-Jac evals      = %lld\n",
-              (long long)self->nvtimesj);
-    }
-    if (self->vJPpFn)
-    {
-      fprintf(outfile, "v-times-Jacp evals     = %lld\n",
-              (long long)self->nvtimesjp);
-    }
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, "Num backwards steps,%lld", (long long)self->nst);
-    fprintf(outfile, "Num recompute passes,%lld", (long long)self->nrecompute);
-    if (self->JacFn)
-    {
-      fprintf(outfile, ",Jac fn evals,%lld", (long long)self->njeval);
-    }
-    if (self->JacPFn)
-    {
-      fprintf(outfile, ",JacP fn evals,%lld", (long long)self->njpeval);
-    }
-    if (self->JvpFn)
-    {
-      fprintf(outfile, ",Jac-times-v evals,%lld", (long long)self->njtimesv);
-    }
-    if (self->JPvpFn)
-    {
-      fprintf(outfile, ",JacP-times-v evals,%lld", (long long)self->njptimesv);
-    }
-    if (self->vJpFn)
-    {
-      fprintf(outfile, ",v-times-Jac evals,%lld", (long long)self->nvtimesj);
-    }
-    if (self->vJPpFn)
-    {
-      fprintf(outfile, ",v-times-Jacp evals,%lld", (long long)self->nvtimesjp);
-    }
-
-    break;
-  default: return SUN_ERR_ARG_INCOMPATIBLE;
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac fn evals", self->njeval);
   }
-
+  if (self->JacPFn)
+  {
+    sunfprintf_long(outfile, fmt, SUNFALSE, "JacP fn evals", self->njpeval);
+  }
+  if (self->JvpFn)
+  {
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times-v evals", self->njtimesv);
+  }
+  if (self->JPvpFn)
+  {
+    sunfprintf_long(outfile, fmt, SUNFALSE, "JacP-times-v evals",
+                    self->njptimesv);
+  }
+  if (self->vJpFn)
+  {
+    sunfprintf_long(outfile, fmt, SUNFALSE, "v-times-Jac evals", self->nvtimesj);
+  }
+  if (self->vJPpFn)
+  {
+    sunfprintf_long(outfile, fmt, SUNFALSE, "v-times-Jacp evals",
+                    self->nvtimesjp);
+  }
   return SUN_SUCCESS;
 }
