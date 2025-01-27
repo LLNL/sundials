@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
       }
 
       flag = SplittingStepSetCoefficients(arkode_mem, coefficients);
-      if (check_flag(&flag, "ARKodeSetFixedStep", 1)) { return 1; }
+      if (check_flag(&flag, "SplittingStepSetCoefficients", 1)) { return 1; }
 
       SplittingStepCoefficients_Destroy(&coefficients);
     }
