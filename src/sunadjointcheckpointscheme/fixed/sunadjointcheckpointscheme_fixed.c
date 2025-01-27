@@ -252,12 +252,10 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy_Fixed(
   SUNFunctionBegin((*self_ptr)->sunctx);
 
   SUNAdjointCheckpointScheme self = *self_ptr;
-  SUNAdjointCheckpointScheme_Fixed_Content content =
-    (SUNAdjointCheckpointScheme_Fixed_Content)self->content;
 
-  SUNCheckCall(SUNDataNode_Destroy(&content->root_node));
+  SUNCheckCall(SUNDataNode_Destroy(&IMPL_MEMBER(self, root_node)));
 
-  free(content);
+  free(GET_CONTENT(self));
   free(self->ops);
   free(self);
 
