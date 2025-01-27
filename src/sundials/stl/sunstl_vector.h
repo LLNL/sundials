@@ -77,8 +77,8 @@ static inline sunbooleantype MAKE_NAME(SUNStlVectorTtype,
   return self->size == 0;
 }
 
-static inline void MAKE_NAME(SUNStlVectorTtype, Resize)(SUNStlVectorTtype self,
-                                                        int64_t new_capacity)
+static inline void MAKE_NAME(SUNStlVectorTtype, Reserve)(SUNStlVectorTtype self,
+                                                         int64_t new_capacity)
 {
   if (new_capacity <= self->capacity) return;
   TTYPE* new_values = (TTYPE*)realloc(self->values, sizeof(TTYPE) * new_capacity);
@@ -92,7 +92,7 @@ static inline void MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype self)
   {
     int64_t new_capacity =
       (int64_t)(ceil(((double)self->capacity) * GROWTH_FACTOR));
-    MAKE_NAME(SUNStlVectorTtype, Resize)(self, new_capacity);
+    MAKE_NAME(SUNStlVectorTtype, Reserve)(self, new_capacity);
   }
 }
 
