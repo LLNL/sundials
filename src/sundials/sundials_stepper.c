@@ -96,13 +96,19 @@ SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR,
-                            int64_t ckptIdxR)
+SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->reset) { return stepper->ops->reset(stepper, tR, yR); }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
+SUNErrCode SUNStepper_ResetCheckpointIndex(SUNStepper stepper, int64_t ckptIdxR)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->reset)
   {
-    return stepper->ops->reset(stepper, tR, yR, ckptIdxR);
+    return stepper->ops->resetcheckpointindex(stepper, ckptIdxR);
   }
   return SUN_ERR_NOT_IMPLEMENTED;
 }
@@ -192,6 +198,14 @@ SUNErrCode SUNStepper_SetResetFn(SUNStepper stepper, SUNStepperResetFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
   stepper->ops->reset = fn;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNStepper_SetResetCheckpointIndexFn(SUNStepper stepper,
+                                                SUNStepperResetCheckpointIndexFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->resetcheckpointindex = fn;
   return SUN_SUCCESS;
 }
 

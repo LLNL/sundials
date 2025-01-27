@@ -4689,7 +4689,7 @@ int mriStepInnerStepper_ResetSUNStepper(MRIStepInnerStepper stepper,
                                         sunrealtype tR, N_Vector yR)
 {
   SUNStepper sunstepper = (SUNStepper)stepper->content;
-  SUNErrCode err        = SUNStepper_Reset(sunstepper, tR, yR, 0);
+  SUNErrCode err        = SUNStepper_Reset(sunstepper, tR, yR);
   stepper->last_flag    = sunstepper->last_flag;
   if (err != SUN_SUCCESS) { return ARK_SUNSTEPPER_ERR; }
   return ARK_SUCCESS;

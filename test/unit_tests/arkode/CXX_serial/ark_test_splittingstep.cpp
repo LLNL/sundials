@@ -321,7 +321,7 @@ static SUNStepper create_exp_stepper(const sundials::Context& ctx,
 
   SUNStepper_SetContent(stepper, new Content(lam, y));
 
-  auto reset = [](SUNStepper s, sunrealtype tR, N_Vector vR, int64_t ckptIdxR)
+  auto reset = [](SUNStepper s, sunrealtype tR, N_Vector vR)
   {
     auto& content = Content::from_stepper(s);
     content.t     = tR;

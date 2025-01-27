@@ -148,6 +148,16 @@ Stepping Functions
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
+.. c:function:: SUNErrCode SUNStepper_ResetCheckpointIndex(SUNStepper stepper, int64_t ckptIdxR)
+
+   This function resets the stepper state to the provided independent variable
+   value and dependent variable vector.
+
+   :param stepper: the stepper object.
+   :param ckptIdxR: the step index to begin checkpointing from
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
 .. c:function:: SUNErrCode SUNStepper_SetStopTime(SUNStepper stepper, sunrealtype tstop)
 
    This function specifies the value of the independent variable :math:`t` past
@@ -320,6 +330,16 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :param fn: the :c:type:`SUNStepperResetFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
+   .. c:function:: SUNErrCode SUNStepper_SetResetFn(SUNStepper stepper, SUNStepperResetFn fn)
+
+
+This function attaches a :c:type:`SUNStepperResetCheckpointIndexFn` function to a
+   :c:type:`SUNStepper` object.
+
+   :param stepper: a stepper object.
+   :param fn: the :c:type:`SUNStepperResetCheckpointIndexFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
 
 .. c:function:: SUNErrCode SUNStepper_SetStopTimeFn(SUNStepper stepper, SUNStepperSetStopTimeFn fn)
 
@@ -394,6 +414,10 @@ abstract base class.
    This type represents a function with the signature of
    :c:func:`SUNStepper_Reset`.
 
+.. c:type:: SUNErrCode (*SUNStepperResetCheckpointIndexFn)(SUNStepper stepper, int64_t ckptIdxR)
+
+   This type represents a function with the signature of
+   :c:func:`SUNStepper_ResetCheckpointIndex`.
 
 .. c:type:: SUNErrCode (*SUNStepperSetStopTimeFn)(SUNStepper stepper, sunrealtype tstop)
 

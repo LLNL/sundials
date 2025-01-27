@@ -28,6 +28,7 @@ struct SUNStepper_Ops_
   SUNStepperOneStepFn onestep;
   SUNStepperFullRhsFn fullrhs;
   SUNStepperResetFn reset;
+  SUNStepperResetCheckpointIndexFn resetcheckpointindex;
   SUNStepperSetStopTimeFn setstoptime;
   SUNStepperSetStepDirectionFn setstepdirection;
   SUNStepperSetForcingFn setforcing;
