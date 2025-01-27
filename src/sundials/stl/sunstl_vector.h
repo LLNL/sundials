@@ -144,9 +144,9 @@ static inline void MAKE_NAME(SUNStlVectorTtype, Erase)(SUNStlVectorTtype self,
   MAKE_NAME(SUNStlVectorTtype, Set)(self, index, nullish);
   for (int64_t i = index; i < self->size - 1; i++)
   {
-    self->values[i]     = self->values[i + 1];
-    self->values[i + 1] = nullish;
+    self->values[i] = self->values[i + 1];
   }
+  MAKE_NAME(SUNStlVectorTtype, Set)(self, self->size - 1, nullish);
   self->size -= 1;
 }
 
