@@ -25,7 +25,7 @@ Start SplittingStep Logging test
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0007
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0007999999999999999
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0008
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.001
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
@@ -67,7 +67,7 @@ Start SplittingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.0005, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0005
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0006000000000000001
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0006
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00065
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
@@ -81,7 +81,7 @@ Start SplittingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, tn = 0.00075, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00075
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0008500000000000001
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00085
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0009
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
@@ -257,13 +257,13 @@ Start SplittingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 11, tn = 0.0025, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0026
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00265
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00275
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0026875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00275
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -271,7 +271,7 @@ Start SplittingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, tn = 0.00275, h = 0.000249999999999999
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00275
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002850000000000001
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00285
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0029
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
@@ -288,17 +288,17 @@ Start SplittingStep Logging test
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
   3.000000000000000e-03  9.969970190148773e-01  2.989985090406932e-06
 ---------------------------------------------------------------------
-Current time                 = 0.003
-Steps                        = 3
-Step attempts                = 3
-Stability limited steps      = 0
-Accuracy limited steps       = 0
-Error test fails             = 0
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 0.001
-Last step size               = 0.001
-Current step size            = 0.001
-Partition 1 evolves          = 3
-Partition 2 evolves          = 3
+Current time                  = 0.003
+Steps                         = 3
+Step attempts                 = 3
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.001
+Last step size                = 0.001
+Current step size             = 0.001
+Partition 1 evolves           = 3
+Partition 2 evolves           = 3
 End SplittingStep Logging test
