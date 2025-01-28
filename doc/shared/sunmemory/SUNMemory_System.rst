@@ -16,7 +16,7 @@
 The SUNMemoryHelper_Sys Implementation
 =======================================
 
-The SUNMemoryHelper_Sys module is an implementation of the ``SUNMemoryHelper``
+The SUNMemoryHelper_Sys module is an implementation of the :c:type:`SUNMemoryHelper`.
 API that interfaces with standard library memory management through malloc/free.
 The implementation defines the constructor
 
