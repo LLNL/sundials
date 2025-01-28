@@ -50,7 +50,7 @@ When solved with a numerical time integration scheme, the solution to the contin
 are numerical approximations of the continuous adjoint sensitivities
 
 .. math::
-   \lambda(t_0) \approx  g_y^T(y(t_0), p),\quad \mu(t_0) \approx g_p^T(y(t_0), p)
+   \lambda(t_0) =  g_y^T(y(t_0), p),\quad \mu(t_0) = g_p^T(y(t_0), p)
    :label: SUNADJOINT_CONTINUOUS_ADJOINT_SOLUTION
 
 For the discrete adjoint approach, we first numerically discretize the original IVP :eq:`SUNADJOINT_IVP`
