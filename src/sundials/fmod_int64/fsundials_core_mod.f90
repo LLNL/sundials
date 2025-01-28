@@ -636,7 +636,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: needsDeleting
   type(C_FUNPTR), public :: insertVector
   type(C_FUNPTR), public :: loadVector
-  type(C_FUNPTR), public :: removeVector
+  type(C_FUNPTR), public :: deleteVector
   type(C_FUNPTR), public :: destroy
   type(C_FUNPTR), public :: enableDense
  end type SUNAdjointCheckpointScheme_Ops
