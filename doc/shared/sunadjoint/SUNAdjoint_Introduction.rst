@@ -29,7 +29,7 @@ most often arises in the form of an optimization problem such as
    \min_{\xi} \bar{\Psi}(\xi) = g(y(t_f), p)
    :label: SUNADJOINT_OPTIMIZATION_PROBLEM
 
-where :math:`\xi \subset \{y(t_0), p\}`. The adjoint method is one approach to obtaining the
+where :math:`\xi \subseteq \{y(t_0), p\}`. The adjoint method is one approach to obtaining the
 gradients that is particularly efficient when there are relatively few functionals and a large
 number of parameters. While :ref:`CVODES <CVODES.Mathematics.ASA>` and
 :ref:`IDAS <IDAS.Mathematics.ASA>` *continuous* adjoint methods
