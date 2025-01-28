@@ -51,6 +51,12 @@ if(SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED")
     FATAL_ERROR "XBraid is not compatible with ${SUNDIALS_PRECISION} precision")
 endif()
 
+# XBraid does not support complex arithmetic
+if(SUNDIALS_SCALAR_TYPE MATCHES "COMPLEX")
+  message(
+    FATAL_ERROR "XBraid is not compatible with complex sunscalartype")
+endif()
+
 # XBraid does not support 64-bit index sizes
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
   message(
