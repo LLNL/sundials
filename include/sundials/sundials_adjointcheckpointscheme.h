@@ -35,11 +35,11 @@ struct SUNAdjointCheckpointScheme_Ops_
                               int64_t stage_num, sunbooleantype* yes_or_no);
 
   SUNErrCode (*insertVector)(SUNAdjointCheckpointScheme, int64_t step_num,
-                             int64_t stage_num, sunrealtype t, N_Vector state);
+                             int64_t stage_num, sunrealtype t, N_Vector y);
 
   SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme, int64_t step_num,
                            int64_t stage_num, sunbooleantype peek,
-                           N_Vector* out, sunrealtype* tout);
+                           N_Vector* yout, sunrealtype* tout);
 
   SUNErrCode (*deleteVector)(SUNAdjointCheckpointScheme, int64_t step_num,
                              int64_t stage_num, N_Vector* out);

@@ -103,7 +103,7 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Fixed(
 
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
   SUNAdjointCheckpointScheme self, int64_t step_num,
-  SUNDIALS_MAYBE_UNUSED int64_t stage_num, sunrealtype t, N_Vector state)
+  SUNDIALS_MAYBE_UNUSED int64_t stage_num, sunrealtype t, N_Vector y)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -134,7 +134,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
   SUNCheckCall(SUNDataNode_CreateLeaf(IMPL_MEMBER(self, io_mode),
                                       IMPL_MEMBER(self, mem_helper), SUNCTX_,
                                       &solution_node));
-  SUNCheckCall(SUNDataNode_SetDataNvector(solution_node, state, t));
+  SUNCheckCall(SUNDataNode_SetDataNvector(solution_node, y, t));
 
   SUNLogExtraDebug(SUNCTX_->logger, "insert-stage",
                    "step_num = %d, stage_num = %d, t = %g", step_num, stage_num,
@@ -146,7 +146,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
 
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
   SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
-  sunbooleantype peek, N_Vector* loaded_state, sunrealtype* t)
+  sunbooleantype peek, N_Vector* yout, sunrealtype* t)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -232,7 +232,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
     return SUN_ERR_CHECKPOINT_NOT_FOUND;
   }
 
-  SUNCheckCall(SUNDataNode_GetDataNvector(solution_node, *loaded_state, t));
+  SUNCheckCall(SUNDataNode_GetDataNvector(solution_node, *yout, t));
   SUNLogExtraDebug(SUNCTX_->logger, "stage-loaded",
                    "step_num = %d, stage_num = %d, t = %g", step_num, stage_num,
                    *t);

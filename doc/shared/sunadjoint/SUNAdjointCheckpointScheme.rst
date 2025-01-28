@@ -62,11 +62,11 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 
       Function pointer to determine if a checkpoint should be deleted at the current timestep.
 
-   .. c:member:: SUNErrCode (*insertVector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector state)
+   .. c:member:: SUNErrCode (*insertVector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector y)
 
       Function pointer to insert a checkpoint state represented as a :c:type:`N_Vector`.
 
-   .. c:member:: SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
+   .. c:member:: SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
 
       Function pointer to load a checkpoint state represented as a :c:type:`N_Vector`.
 
@@ -119,7 +119,7 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme cs, \
-   int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector state)
+   int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector y)
 
    Inserts the vector as the checkpoint for (step_num, stage_num).
 
@@ -127,12 +127,12 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param t: the time of the checkpoint
-   :param state: the state vector to checkpoint
+   :param y: the state vector to checkpoint
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme cs, \
-   int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
+   int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
 
    Loads the checkpointed vector for (step_num, stage_num).
 
@@ -142,7 +142,7 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
    :param peek: if true, then the checkpoint will be loaded but not deleted regardless
       of other implementation-specific settings. If false, then the checkpoint may be
       deleted depending on the implementation.
-   :param out: the loaded state vector
+   :param yout: the loaded state vector
    :param tout: on output, the time of the checkpoint
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
