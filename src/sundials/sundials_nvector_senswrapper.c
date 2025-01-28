@@ -54,25 +54,26 @@ N_Vector N_VNewEmpty_SensWrapper(int nvecs, SUNContext sunctx)
   v->ops->nvdestroy    = N_VDestroy_SensWrapper;
 
   /* standard vector operations */
-  v->ops->nvlinearsum    = N_VLinearSum_SensWrapper;
-  v->ops->nvconst        = N_VConst_SensWrapper;
-  v->ops->nvprod         = N_VProd_SensWrapper;
-  v->ops->nvdiv          = N_VDiv_SensWrapper;
-  v->ops->nvscale        = N_VScale_SensWrapper;
-  v->ops->nvabs          = N_VAbs_SensWrapper;
-  v->ops->nvinv          = N_VInv_SensWrapper;
-  v->ops->nvaddconst     = N_VAddConst_SensWrapper;
-  v->ops->nvdotprod      = N_VDotProd_SensWrapper;
-  v->ops->nvmaxnorm      = N_VMaxNorm_SensWrapper;
-  v->ops->nvwrmsnormmask = N_VWrmsNormMask_SensWrapper;
-  v->ops->nvwrmsnorm     = N_VWrmsNorm_SensWrapper;
-  v->ops->nvmin          = N_VMin_SensWrapper;
-  v->ops->nvwl2norm      = N_VWL2Norm_SensWrapper;
-  v->ops->nvl1norm       = N_VL1Norm_SensWrapper;
-  v->ops->nvcompare      = N_VCompare_SensWrapper;
-  v->ops->nvinvtest      = N_VInvTest_SensWrapper;
-  v->ops->nvconstrmask   = N_VConstrMask_SensWrapper;
-  v->ops->nvminquotient  = N_VMinQuotient_SensWrapper;
+  v->ops->nvlinearsum      = N_VLinearSum_SensWrapper;
+  v->ops->nvconst          = N_VConst_SensWrapper;
+  v->ops->nvprod           = N_VProd_SensWrapper;
+  v->ops->nvdiv            = N_VDiv_SensWrapper;
+  v->ops->nvscale          = N_VScale_SensWrapper;
+  v->ops->nvabs            = N_VAbs_SensWrapper;
+  v->ops->nvinv            = N_VInv_SensWrapper;
+  v->ops->nvaddconst       = N_VAddConst_SensWrapper;
+  v->ops->nvdotprod        = N_VDotProd_SensWrapper;
+  v->ops->nvdotprodcomplex = N_VDotProdComplex_SensWrapper;
+  v->ops->nvmaxnorm        = N_VMaxNorm_SensWrapper;
+  v->ops->nvwrmsnormmask   = N_VWrmsNormMask_SensWrapper;
+  v->ops->nvwrmsnorm       = N_VWrmsNorm_SensWrapper;
+  v->ops->nvmin            = N_VMin_SensWrapper;
+  v->ops->nvwl2norm        = N_VWL2Norm_SensWrapper;
+  v->ops->nvl1norm         = N_VL1Norm_SensWrapper;
+  v->ops->nvcompare        = N_VCompare_SensWrapper;
+  v->ops->nvinvtest        = N_VInvTest_SensWrapper;
+  v->ops->nvconstrmask     = N_VConstrMask_SensWrapper;
+  v->ops->nvminquotient    = N_VMinQuotient_SensWrapper;
 
   /* create content */
   content = NULL;
@@ -172,25 +173,26 @@ N_Vector N_VCloneEmpty_SensWrapper(N_Vector w)
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
 
   /* standard vector operations */
-  ops->nvlinearsum    = w->ops->nvlinearsum;
-  ops->nvconst        = w->ops->nvconst;
-  ops->nvprod         = w->ops->nvprod;
-  ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale;
-  ops->nvabs          = w->ops->nvabs;
-  ops->nvinv          = w->ops->nvinv;
-  ops->nvaddconst     = w->ops->nvaddconst;
-  ops->nvdotprod      = w->ops->nvdotprod;
-  ops->nvmaxnorm      = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
-  ops->nvmin          = w->ops->nvmin;
-  ops->nvwl2norm      = w->ops->nvwl2norm;
-  ops->nvl1norm       = w->ops->nvl1norm;
-  ops->nvcompare      = w->ops->nvcompare;
-  ops->nvinvtest      = w->ops->nvinvtest;
-  ops->nvconstrmask   = w->ops->nvconstrmask;
-  ops->nvminquotient  = w->ops->nvminquotient;
+  ops->nvlinearsum      = w->ops->nvlinearsum;
+  ops->nvconst          = w->ops->nvconst;
+  ops->nvprod           = w->ops->nvprod;
+  ops->nvdiv            = w->ops->nvdiv;
+  ops->nvscale          = w->ops->nvscale;
+  ops->nvabs            = w->ops->nvabs;
+  ops->nvinv            = w->ops->nvinv;
+  ops->nvaddconst       = w->ops->nvaddconst;
+  ops->nvdotprod        = w->ops->nvdotprod;
+  ops->nvdotprodcomplex = w->ops->nvdotprodcomplex;
+  ops->nvmaxnorm        = w->ops->nvmaxnorm;
+  ops->nvwrmsnormmask   = w->ops->nvwrmsnormmask;
+  ops->nvwrmsnorm       = w->ops->nvwrmsnorm;
+  ops->nvmin            = w->ops->nvmin;
+  ops->nvwl2norm        = w->ops->nvwl2norm;
+  ops->nvl1norm         = w->ops->nvl1norm;
+  ops->nvcompare        = w->ops->nvcompare;
+  ops->nvinvtest        = w->ops->nvinvtest;
+  ops->nvconstrmask     = w->ops->nvconstrmask;
+  ops->nvminquotient    = w->ops->nvminquotient;
 
   /* fused vector operations */
   ops->nvlinearcombination = w->ops->nvlinearcombination;
@@ -408,6 +410,25 @@ sunrealtype N_VDotProd_SensWrapper(N_Vector x, N_Vector y)
   }
 
   return (sum);
+}
+
+SUNErrCode N_VDotProdComplex_SensWrapper(N_Vector x, N_Vector y,
+                                         sunscalartype* sum)
+{
+  SUNErrCode retval;
+  int i;
+  sunscalartype contrib;
+
+  *sum = SUN_CCONST(ZERO, ZERO);
+
+  for (i = 0; i < NV_NVECS_SW(x); i++)
+  {
+    retval = N_VDotProdComplex(NV_VEC_SW(x, i), NV_VEC_SW(y, i), &contrib);
+    if (retval != SUN_SUCCESS) { return (retval); }
+    *sum += contrib;
+  }
+
+  return (SUN_SUCCESS);
 }
 
 sunrealtype N_VMaxNorm_SensWrapper(N_Vector x)
