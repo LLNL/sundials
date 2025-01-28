@@ -16,9 +16,9 @@
  *
  * There are two sets of dense solver routines listed in
  * this file: one set uses type DlsMat defined below and the
- * other set uses the type sunrealtype ** for dense matrix arguments.
+ * other set uses the type sunscalartype ** for dense matrix arguments.
  * Routines that work with the type DlsMat begin with "Dense".
- * Routines that work with sunrealtype** begin with "dense".
+ * Routines that work with sunscalartype** begin with "dense".
  * -----------------------------------------------------------------*/
 
 #ifndef _SUNDIALS_DENSE_H
@@ -73,15 +73,15 @@ SUNDIALS_EXPORT
 sunindextype SUNDlsMat_DenseGETRF(SUNDlsMat A, sunindextype* p);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DenseGETRS(SUNDlsMat A, sunindextype* p, sunrealtype* b);
+void SUNDlsMat_DenseGETRS(SUNDlsMat A, sunindextype* p, sunscalartype* b);
 
 SUNDIALS_EXPORT
-sunindextype SUNDlsMat_denseGETRF(sunrealtype** a, sunindextype m,
+sunindextype SUNDlsMat_denseGETRF(sunscalartype** a, sunindextype m,
                                   sunindextype n, sunindextype* p);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseGETRS(sunrealtype** a, sunindextype n, sunindextype* p,
-                          sunrealtype* b);
+void SUNDlsMat_denseGETRS(sunscalartype** a, sunindextype n, sunindextype* p,
+                          sunscalartype* b);
 
 /*
  * ----------------------------------------------------------------------------
@@ -89,6 +89,8 @@ void SUNDlsMat_denseGETRS(sunrealtype** a, sunindextype n, sunindextype* p,
  * ----------------------------------------------------------------------------
  * SUNDlsMat_DensePOTRF computes the Cholesky factorization of a real symmetric
  * positive definite matrix A.
+ *
+ * NOTE: these do not work with complex-valued sunscalartype.
  * ----------------------------------------------------------------------------
  * SUNDlsMat_DensePOTRS solves a system of linear equations A*X = B with a
  * symmetric positive definite matrix A using the Cholesky factorization A =
@@ -121,6 +123,8 @@ void SUNDlsMat_densePOTRS(sunrealtype** a, sunindextype m, sunrealtype* b);
  * Q * R (with M>= N).
  *
  * SUNDlsMat_DenseGEQRF requires a temporary work vector wrk of length M.
+ *
+ * NOTE: these do not work with complex-valued sunscalartype.
  * -----------------------------------------------------------------------------
  * SUNDlsMat_DenseORMQR computes the product w = Q * v where Q is a real orthogonal
  * matrix defined as the product of k elementary reflectors
@@ -171,7 +175,7 @@ SUNDIALS_EXPORT
 void SUNDlsMat_DenseCopy(SUNDlsMat A, SUNDlsMat B);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseCopy(sunrealtype** a, sunrealtype** b, sunindextype m,
+void SUNDlsMat_denseCopy(sunscalartype** a, sunscalartype** b, sunindextype m,
                          sunindextype n);
 
 /*
@@ -188,10 +192,10 @@ void SUNDlsMat_denseCopy(sunrealtype** a, sunrealtype** b, sunindextype m,
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DenseScale(sunrealtype c, SUNDlsMat A);
+void SUNDlsMat_DenseScale(sunscalartype c, SUNDlsMat A);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseScale(sunrealtype c, sunrealtype** a, sunindextype m,
+void SUNDlsMat_denseScale(sunscalartype c, sunscalartype** a, sunindextype m,
                           sunindextype n);
 
 /*
@@ -199,12 +203,12 @@ void SUNDlsMat_denseScale(sunrealtype c, sunrealtype** a, sunindextype m,
  * Function: SUNDlsMat_denseAddIdentity
  * -----------------------------------------------------------------------------
  * SUNDlsMat_denseAddIdentity adds the identity matrix to the n-by-n matrix
- * stored in a sunrealtype** array.
+ * stored in a sunscalartype** array.
  * -----------------------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseAddIdentity(sunrealtype** a, sunindextype n);
+void SUNDlsMat_denseAddIdentity(sunscalartype** a, sunindextype n);
 
 /*
  * -----------------------------------------------------------------------------
@@ -221,10 +225,10 @@ void SUNDlsMat_denseAddIdentity(sunrealtype** a, sunindextype n);
  */
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DenseMatvec(SUNDlsMat A, sunrealtype* x, sunrealtype* y);
+void SUNDlsMat_DenseMatvec(SUNDlsMat A, sunscalartype* x, sunscalartype* y);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_denseMatvec(sunrealtype** a, sunrealtype* x, sunrealtype* y,
+void SUNDlsMat_denseMatvec(sunscalartype** a, sunscalartype* x, sunscalartype* y,
                            sunindextype m, sunindextype n);
 
 #ifdef __cplusplus
