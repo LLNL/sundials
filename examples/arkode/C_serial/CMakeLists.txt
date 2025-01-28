@@ -3,7 +3,7 @@
 #                David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -130,7 +130,7 @@ foreach(example_tuple ${ARKODE_examples})
 
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     # folder for IDEs
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -173,7 +173,7 @@ if(BUILD_SUNLINSOL_KLU)
     list(GET example_tuple 1 example_type)
 
     # example source files
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -208,7 +208,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     list(GET example_tuple 1 example_type)
 
     # example source files
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

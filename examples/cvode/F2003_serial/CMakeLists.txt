@@ -3,7 +3,7 @@
 #                modified by Daniel M. Margolis @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -66,7 +66,7 @@ foreach(example_tuple ${FCVODE_examples})
       ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  add_executable(${example} ${example}.f90)
+  sundials_add_executable(${example} ${example}.f90)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -104,7 +104,7 @@ if(BUILD_SUNLINSOL_KLU)
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    add_executable(${example} ${example}.f90)
+    sundials_add_executable(${example} ${example}.f90)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -142,7 +142,7 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     list(GET example_tuple 1 example_type)
 
     # example source files
-    add_executable(${example} ${example}.f90)
+    sundials_add_executable(${example} ${example}.f90)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
