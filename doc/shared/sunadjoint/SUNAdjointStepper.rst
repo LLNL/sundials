@@ -112,6 +112,8 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
    .. c:member:: int64_t nrecompute
 
+      Holds the count of the number of partial recomputations of the forward problem. 
+
    .. c:member:: void* user_data
 
       A pointer that is passed back to user-supplied functions
