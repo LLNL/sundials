@@ -632,8 +632,8 @@ module fsundials_core_mod
  public :: FSUNMemoryHelper_ImplementsRequiredOps
  ! struct struct SUNAdjointCheckpointScheme_Ops_
  type, bind(C), public :: SUNAdjointCheckpointScheme_Ops
-  type(C_FUNPTR), public :: shouldWeSave
-  type(C_FUNPTR), public :: shouldWeDelete
+  type(C_FUNPTR), public :: needsSaving
+  type(C_FUNPTR), public :: needsDeleting
   type(C_FUNPTR), public :: insertVector
   type(C_FUNPTR), public :: loadVector
   type(C_FUNPTR), public :: removeVector

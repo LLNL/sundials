@@ -53,7 +53,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
   SUNAdjointCheckpointScheme check_scheme = NULL;
   SUNCheckCall(SUNAdjointCheckpointScheme_NewEmpty(sunctx, &check_scheme));
 
-  check_scheme->ops->shouldWeSave = SUNAdjointCheckpointScheme_ShouldWeSave_Fixed;
+  check_scheme->ops->needsSaving = SUNAdjointCheckpointScheme_ShouldWeSave_Fixed;
   check_scheme->ops->insertVector = SUNAdjointCheckpointScheme_InsertVector_Fixed;
   check_scheme->ops->loadVector  = SUNAdjointCheckpointScheme_LoadVector_Fixed;
   check_scheme->ops->enableDense = SUNAdjointCheckpointScheme_EnableDense_Fixed;

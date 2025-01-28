@@ -27,12 +27,12 @@ typedef _SUNDIALS_STRUCT_ SUNAdjointCheckpointScheme_* SUNAdjointCheckpointSchem
 
 struct SUNAdjointCheckpointScheme_Ops_
 {
-  SUNErrCode (*shouldWeSave)(SUNAdjointCheckpointScheme, int64_t step_num,
-                             int64_t stage_num, sunrealtype t,
-                             sunbooleantype* yes_or_no);
+  SUNErrCode (*needsSaving)(SUNAdjointCheckpointScheme, int64_t step_num,
+                            int64_t stage_num, sunrealtype t,
+                            sunbooleantype* yes_or_no);
 
-  SUNErrCode (*shouldWeDelete)(SUNAdjointCheckpointScheme, int64_t step_num,
-                               int64_t stage_num, sunbooleantype* yes_or_no);
+  SUNErrCode (*needsDeleting)(SUNAdjointCheckpointScheme, int64_t step_num,
+                              int64_t stage_num, sunbooleantype* yes_or_no);
 
   SUNErrCode (*insertVector)(SUNAdjointCheckpointScheme, int64_t step_num,
                              int64_t stage_num, sunrealtype t, N_Vector state);

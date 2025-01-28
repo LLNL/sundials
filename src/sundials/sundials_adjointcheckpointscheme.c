@@ -37,13 +37,13 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
   ops                                = malloc(sizeof(*ops));
   SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
 
-  ops->shouldWeSave   = NULL;
-  ops->shouldWeDelete = NULL;
-  ops->insertVector   = NULL;
-  ops->loadVector     = NULL;
-  ops->removeVector   = NULL;
-  ops->enableDense    = NULL;
-  ops->destroy        = NULL;
+  ops->needsSaving   = NULL;
+  ops->needsDeleting = NULL;
+  ops->insertVector  = NULL;
+  ops->loadVector    = NULL;
+  ops->removeVector  = NULL;
+  ops->enableDense   = NULL;
+  ops->destroy       = NULL;
 
   check_scheme->ops = ops;
   *check_scheme_ptr = check_scheme;
@@ -58,10 +58,10 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (check_scheme->ops->shouldWeSave)
+  if (check_scheme->ops->needsSaving)
   {
-    SUNErrCode err = check_scheme->ops->shouldWeSave(check_scheme, step_num,
-                                                     stage_num, t, yes_or_no);
+    SUNErrCode err = check_scheme->ops->needsSaving(check_scheme, step_num,
+                                                    stage_num, t, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -76,10 +76,10 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (check_scheme->ops->shouldWeDelete)
+  if (check_scheme->ops->needsDeleting)
   {
-    SUNErrCode err = check_scheme->ops->shouldWeDelete(check_scheme, step_num,
-                                                       stage_num, yes_or_no);
+    SUNErrCode err = check_scheme->ops->needsDeleting(check_scheme, step_num,
+                                                      stage_num, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }

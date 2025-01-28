@@ -54,11 +54,11 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 
 .. c:struct:: SUNAdjointCheckpointScheme_Ops_
 
-   .. c:member:: SUNErrCode (*shouldWeSave)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
+   .. c:member:: SUNErrCode (*needsSaving)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
       Function pointer to determine if a checkpoint should be saved at the current timestep.
 
-   .. c:member:: SUNErrCode (*shouldWeDelete)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunbooleantype* yes_or_no)
+   .. c:member:: SUNErrCode (*needsDeleting)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunbooleantype* yes_or_no)
 
       Function pointer to determine if a checkpoint should be deleted at the current timestep.
 
