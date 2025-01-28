@@ -175,8 +175,6 @@ extern "C" {
  * SUNexp uses whichever of the above is mapped to sunrealtype
  *
  * SUNRceil calls the appropriate version of ceil (real numbers)
- * SUNCceil calls the appropriate version of ceil on the real part of the argument
- * SUNceil uses whichever of the above is mapped to sunrealtype
  *
  * SUNRround calls the appropriate version of round
  * -----------------------------------------------------------------
@@ -401,19 +399,12 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * Function : SUNRceil, SUNCceil, SUNceil
+ * Function : SUNRceil
  * -----------------------------------------------------------------
  * Usage : sunrealtype ceil_x;
  *         ceil_x = SUNRceil(x);
- *         suncomplextype ceil_y;
- *         ceil_y = SUNCceil(y);
- *         sunscalartype ceil_z;
- *         ceil_z = SUNceil(z);
  * -----------------------------------------------------------------
  * SUNRceil(x) returns the smallest integer value not less than x.
- * SUNCceil(x) returns the smallest integer value not less than the
- * real part of x.
- * SUNceil(z) uses whichever of the above is mapped to sunscalartype.
  * -----------------------------------------------------------------
  */
 
@@ -427,18 +418,6 @@ extern "C" {
 #else
 #error \
   "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
-#endif
-
-#ifndef SUNCceil
-#define SUNCceil(x) (SUNRceil(SUN_REAL((x))))
-#endif
-
-#ifndef SUNceil
-#if defined(SUNDIALS_SCALAR_TYPE_REAL)
-#define SUNceil(x) SUNRceil(x)
-#else
-#define SUNceil(x) SUNCceil(x)
 #endif
 #endif
 
