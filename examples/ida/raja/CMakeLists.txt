@@ -14,11 +14,13 @@
 # CMakeLists.txt file for IDA raja examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is 'develop' for examples
-# excluded from 'make test' in releases
+# Example lists are tuples "name\;type\;scalartype" where the type
+# is 'develop' for examples excluded from 'make test' in releases,
+# and 'scalartype' is either 'real' or 'complex' if the example
+# should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
-set(IDA_examples "idaHeat2D_kry_raja.cpp\;develop")
+set(IDA_examples "idaHeat2D_kry_raja.cpp\;develop\;real")
 
 # Add source directory to include directories
 include_directories(.)
@@ -39,6 +41,7 @@ foreach(example_tuple ${IDA_examples})
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_type)
+  list(GET example_tuple 2 example_scalartype)
 
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
@@ -46,21 +49,25 @@ foreach(example_tuple ${IDA_examples})
   set_source_files_properties(${example} PROPERTIES LANGUAGE ${_lang})
 
   # add example source files
-  sundials_add_executable(${example_target} ${example})
+  sundials_add_executable(${example_target} ${example}
+    SCALAR_TYPE ${example_scalartype})
 
-  set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+  if(TARGET ${example_target})
+    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-  # libraries to link against
-  target_link_libraries(
-    ${example_target} PRIVATE sundials_ida sundials_nvecraja
-                              ${EXE_EXTRA_LINK_LIBS} ${OTHER_LIBS})
+    # libraries to link against
+    target_link_libraries(
+      ${example_target} PRIVATE sundials_ida sundials_nvecraja
+                                ${EXE_EXTRA_LINK_LIBS} ${OTHER_LIBS})
 
-  # add example to regression tests
-  sundials_add_test(
-    ${example_target} ${example_target}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example_target}.out
-    EXAMPLE_TYPE ${example_type})
+    # add example to regression tests
+    sundials_add_test(
+      ${example_target} ${example_target}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example_target}.out
+      EXAMPLE_TYPE ${example_type})
+
+  endif()
 
 endforeach(example_tuple ${IDA_examples})
 

@@ -16,17 +16,21 @@
 # CMakeLists.txt file for CVODE CUDA examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is 'develop' for
-# examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type\;scalartype" where
+# the type is 'develop' for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-    "cvAdvDiff_kry_cuda\;\;develop" "cvAdvDiff_kry_cuda_managed\;\;develop"
-    "cvAdvDiff_diag_cuda\;0 0\;develop" "cvAdvDiff_diag_cuda\;0 1\;develop"
-    "cvAdvDiff_diag_cuda\;1 1\;develop")
+    "cvAdvDiff_kry_cuda\;\;develop\;real"
+    "cvAdvDiff_kry_cuda_managed\;\;develop\;real"
+    "cvAdvDiff_diag_cuda\;0 0\;develop\;real"
+    "cvAdvDiff_diag_cuda\;0 1\;develop\;real"
+    "cvAdvDiff_diag_cuda\;1 1\;develop\;real")
 
 # Examples using cuSolverSP linear solvers
-set(CVODE_examples_cusolver "cvRoberts_block_cusolversp_batchqr\;\;develop")
+set(CVODE_examples_cusolver "cvRoberts_block_cusolversp_batchqr\;\;develop\;real")
 
 if(SUNDIALS_INDEX_SIZE MATCHES "32")
   set(all_examples "${CVODE_examples_cusolver}")
@@ -53,42 +57,50 @@ foreach(example_tuple ${all_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalartype)
 
   set_source_files_properties(${example}.cu
                               PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
   if(NOT TARGET ${example})
     # example source files
-    sundials_add_executable(${example} ${example}.cu)
+    sundials_add_executable(${example} ${example}.cu
+      SCALAR_TYPE ${example_scalartype})
 
-    # folder for IDEs
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      # folder for IDEs
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS}
-                                             ${EXE_EXTRA_LINK_LIBS})
+      # libraries to link against
+      target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS}
+                                               ${EXE_EXTRA_LINK_LIBS})
+    endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  if(TARGET ${example})
+
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
+
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
+
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.cu ${test_name}.out
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda)
+    endif()
   endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
-
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.cu ${test_name}.out
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda)
-  endif()
 endforeach(example_tuple ${CVODE_examples})
 
 # create Makefile and CMakeLists.txt for examples

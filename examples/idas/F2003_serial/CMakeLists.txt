@@ -14,13 +14,16 @@
 # CMakeLists.txt file for the F2003 IDAS serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is 'develop' for examples
-# excluded from 'make test' in releases
-set(FIDAS_examples "idasAkzoNob_ASAi_dns_f2003\;develop")
+# Example lists are tuples "name\;type\;scalartype" where the type
+# is 'develop' for examples excluded from 'make test' in releases,
+# and 'scalartype' is either 'real' or 'complex' if the example
+# should only be built for a single scalar type
+
+set(FIDAS_examples "idasAkzoNob_ASAi_dns_f2003\;develop\;real")
 
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
   # Examples using SUNDIALS linear solvers
-  list(APPEND FIDAS_examples "idasHeat2D_kry_f2003\;develop")
+  list(APPEND FIDAS_examples "idasHeat2D_kry_f2003\;develop\;real")
 endif()
 
 # Specify libraries to link against
@@ -34,31 +37,36 @@ foreach(example_tuple ${FIDAS_examples})
   # parse the example tuple
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_type)
+  list(GET example_tuple 2 example_scalartype)
 
   # Install fortran modules to a unique directory to avoid naming collisions
   set(CMAKE_Fortran_MODULE_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  sundials_add_executable(${example} ${example}.f90)
+  sundials_add_executable(${example} ${example}.f90
+    SCALAR_TYPE ${example_scalartype})
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  if(TARGET ${example})
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-  # add example to regression tests
-  sundials_add_test(
-    ${example} ${example}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+    # add example to regression tests
+    sundials_add_test(
+      ${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
 
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.f90 ${example}.out
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/F2003_serial)
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.f90 ${example}.out
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/F2003_serial)
+    endif()
   endif()
+
 endforeach(example_tuple ${FIDAS_examples})
 
 # create Makefile and CMakeLists.txt for examples

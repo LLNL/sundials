@@ -29,6 +29,7 @@ macro(build_examples examples_to_build lang)
     list(GET example_tuple 4 number_of_tasks)
     list(GET example_tuple 5 example_type)
     list(GET example_tuple 6 example_precision)
+    list(GET example_tuple 7 example_scalartype)
 
     # extract the file name without extension
     get_filename_component(example_target ${example} NAME_WE)
@@ -44,57 +45,62 @@ macro(build_examples examples_to_build lang)
       set_source_files_properties(${example} PROPERTIES LANGUAGE ${lang})
 
       # example source files
-      sundials_add_executable(${example_target} ${example})
+      sundials_add_executable(${example_target} ${example}
+        SCALAR_TYPE ${example_scalartype})
 
-      # folder to organize targets in an IDE
-      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+        if(TARGET ${example_target})
+        # folder to organize targets in an IDE
+        set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-      # ensure the linker language is reset to CXX
-      set_target_properties(${example_target} PROPERTIES LINKER_LANGUAGE CXX)
+        # ensure the linker language is reset to CXX
+        set_target_properties(${example_target} PROPERTIES LINKER_LANGUAGE CXX)
 
-      # libraries to link against
-      target_include_directories(${example_target}
-                                 PRIVATE ${MPI_CXX_INCLUDE_DIRS})
+        # libraries to link against
+        target_include_directories(${example_target}
+                                   PRIVATE ${MPI_CXX_INCLUDE_DIRS})
 
-      target_link_libraries(
-        ${example_target} PRIVATE ${OTHER_LIBS} ${SUNDIALS_LIBS}
-                                  ${MPI_CXX_LIBRARIES})
+        target_link_libraries(
+          ${example_target} PRIVATE ${OTHER_LIBS} ${SUNDIALS_LIBS}
+                                    ${MPI_CXX_LIBRARIES})
 
-      # compile definitions
-      if(example_defines)
-        target_compile_definitions(${example_target} PUBLIC ${example_defines})
+        # compile definitions
+        if(example_defines)
+          target_compile_definitions(${example_target} PUBLIC ${example_defines})
+        endif()
+      endif()
+    endif()
+
+    if(TARGET ${example_target})
+
+      # check if example args are provided and set the test name
+      if(example_args)
+        string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+      else()
+        set(test_name ${example_target})
       endif()
 
-    endif()
+      # add example to regression tests
+      sundials_add_test(
+        ${test_name} ${example_target}
+        TEST_ARGS ${example_args}
+        MPI_NPROCS ${number_of_tasks}
+        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        ANSWER_FILE ${test_name}.out
+        EXAMPLE_TYPE ${example_type}
+        FLOAT_PRECISION ${example_precision})
 
-    # check if example args are provided and set the test name
-    if(example_args)
-      string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
-    else()
-      set(test_name ${example_target})
-    endif()
+      # Not all examples are added to the generated CMake file installed the
+      # output and source files here
+      if(EXAMPLES_INSTALL)
 
-    # add example to regression tests
-    sundials_add_test(
-      ${test_name} ${example_target}
-      TEST_ARGS ${example_args}
-      MPI_NPROCS ${number_of_tasks}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type}
-      FLOAT_PRECISION ${example_precision})
+        # Find all .out files for this example
+        file(GLOB example_out ${example_target}*.out)
 
-    # Not all examples are added to the generated CMake file installed the
-    # output and source files here
-    if(EXAMPLES_INSTALL)
+        # Install example source and out files
+        install(FILES ${example} ${example_out}
+                DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel)
 
-      # Find all .out files for this example
-      file(GLOB example_out ${example_target}*.out)
-
-      # Install example source and out files
-      install(FILES ${example} ${example_out}
-              DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/CXX_parallel)
-
+      endif()
     endif()
 
   endforeach()
@@ -122,8 +128,8 @@ set(OTHER_LIBS ${EXE_EXTRA_LINK_LIBS})
 # ------------
 
 set(parallel_examples
-    "ark_heat2D_p.cpp\;\;--np 2 2\;1\;4\;develop\;default"
-    "ark_heat2D_lsrk_p.cpp\;\;--np 2 2\;1\;4\;exclude-single\;default")
+    "ark_heat2D_p.cpp\;\;--np 2 2\;1\;4\;develop\;default\;real"
+    "ark_heat2D_lsrk_p.cpp\;\;--np 2 2\;1\;4\;exclude-single\;default\;real")
 
 set(SUNDIALS_LIBS sundials_arkode sundials_nvecparallel)
 build_examples(parallel_examples CXX)
@@ -137,10 +143,10 @@ list(APPEND ARKODE_extras plot_heat2D_p.py)
 
 if(BUILD_CVODE)
   set(examples_cvode
-      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --imex\;1\;4\;exclude-single\;default"
-      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-arkstep\;1\;4\;exclude-single\;default"
-      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-global\;1\;4\;exclude-single\;default"
-      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-local\;1\;4\;exclude-single\;default"
+      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --imex\;1\;4\;exclude-single\;default\;real"
+      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-arkstep\;1\;4\;exclude-single\;default\;real"
+      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-global\;1\;4\;exclude-single\;default\;real"
+      "ark_diffusion_reaction_p.cpp\;\;--np 2 2 --mri-cvode-local\;1\;4\;exclude-single\;default\;real"
   )
   set(SUNDIALS_LIBS sundials_arkode sundials_cvode sundials_nvecparallel
                     sundials_nvecmpiplusx)
@@ -178,9 +184,9 @@ if(ENABLE_RAJA
   # -------------
 
   set(serial_raja_examples
-      "ark_brusselator1D_task_local_nls.cpp\;USE_SERIAL_NVEC\;--monitor\;1\;4\;develop\;2"
-      "ark_brusselator1D_task_local_nls.cpp\;USE_SERIAL_NVEC\;--monitor --global-nls\;1\;4\;develop\;2"
-      "ark_brusselator1D_task_local_nls.cpp\;USE_SERIAL_NVEC\;--monitor --explicit --tf 1\;1\;4\;develop\;2"
+      "ark_brusselator1D_task_local_nls.cpp\;USE_SERIAL_NVEC\;--monitor\;1\;4\;develop\;2\;real"
+      "ark_brusselator1D_task_local_nls.cpp\;USE_SERIAL_NVEC\;--monitor --global-nls\;1\;4\;develop\;2\;real"
+      "ark_brusselator1D_task_local_nls.cpp\;USE_SERIAL_NVEC\;--monitor --explicit --tf 1\;1\;4\;develop\;2\;real"
   )
   set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx)
   build_examples(serial_raja_examples CXX)
@@ -193,9 +199,9 @@ if(ENABLE_RAJA
 
     if(BUILD_NVECTOR_CUDA)
       set(cuda_raja_examples
-          "ark_brusselator1D_task_local_nls.cpp\;USE_CUDA_NVEC\;--monitor\;1\;4\;develop\;2"
-          "ark_brusselator1D_task_local_nls.cpp\;USE_CUDAUVM_NVEC\;--monitor\;1\;4\;exclude\;2"
-          "ark_brusselator1D_task_local_nls.cpp\;USE_CUDA_NVEC\;--monitor --global-nls\;1\;4\;develop\;2"
+          "ark_brusselator1D_task_local_nls.cpp\;USE_CUDA_NVEC\;--monitor\;1\;4\;develop\;2\;real"
+          "ark_brusselator1D_task_local_nls.cpp\;USE_CUDAUVM_NVEC\;--monitor\;1\;4\;exclude\;2\;real"
+          "ark_brusselator1D_task_local_nls.cpp\;USE_CUDA_NVEC\;--monitor --global-nls\;1\;4\;develop\;2\;real"
       )
       set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nveccuda)
       build_examples(cuda_raja_examples CUDA)
@@ -203,7 +209,7 @@ if(ENABLE_RAJA
 
     if(BUILD_NVECTOR_RAJA AND (SUNDIALS_RAJA_BACKENDS MATCHES "CUDA"))
       set(raja_raja_examples
-          "ark_brusselator1D_task_local_nls.cpp\;USE_RAJA_NVEC\;--monitor\;1\;4\;exclude\;2"
+          "ark_brusselator1D_task_local_nls.cpp\;USE_RAJA_NVEC\;--monitor\;1\;4\;exclude\;2\;real"
       )
       set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvecraja)
       build_examples(raja_raja_examples CUDA)
@@ -215,7 +221,7 @@ if(ENABLE_RAJA
 
     if(BUILD_NVECTOR_HIP AND (RAJA_BACKENDS MATCHES "HIP"))
       set(hip_raja_examples
-          "ark_brusselator1D_task_local_nls.cpp\;USE_HIP_NVEC\;--monitor\;1\;4\;exclude\;2"
+          "ark_brusselator1D_task_local_nls.cpp\;USE_HIP_NVEC\;--monitor\;1\;4\;exclude\;2\;real"
       )
       set(SUNDIALS_LIBS sundials_arkode sundials_nvecmpiplusx sundials_nvechip)
       build_examples(hip_raja_examples CXX)
@@ -227,7 +233,7 @@ if(ENABLE_RAJA
 
     if(BUILD_NVECTOR_OPENMPDEV AND (RAJA_BACKENDS MATCHES "TARGET_OPENMP"))
       set(openmpdev_raja_examples
-          "ark_brusselator1D_task_local_nls.cpp\;USE_OMPDEV_NVEC\;--monitor\;1\;4\;exclude\;2"
+          "ark_brusselator1D_task_local_nls.cpp\;USE_OMPDEV_NVEC\;--monitor\;1\;4\;exclude\;2\;real"
       )
       set(CMAKE_EXE_LINKER_FLAGS
           "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_CXX_FLAGS}")

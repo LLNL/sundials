@@ -12,10 +12,10 @@
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type"
+# Example lists are tuples "name\;args\;type\;scalartype"
 
 # Examples that support CPU and GPU Ginkgo backends
-set(cpu_gpu_examples "cv_heat2D_ginkgo.cpp\;\;develop")
+set(cpu_gpu_examples "cv_heat2D_ginkgo.cpp\;\;develop\;real")
 
 sundials_add_examples_ginkgo(
   cpu_gpu_examples
@@ -23,7 +23,7 @@ sundials_add_examples_ginkgo(
   BACKENDS REF OMP CUDA HIP SYCL)
 
 # Examples that only support CPU Ginkgo backends
-set(cpu_examples "cv_kpr_ginkgo.cpp\;\;develop")
+set(cpu_examples "cv_kpr_ginkgo.cpp\;\;develop\;real")
 
 sundials_add_examples_ginkgo(
   cpu_examples

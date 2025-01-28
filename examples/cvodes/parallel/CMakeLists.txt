@@ -14,20 +14,23 @@
 # CMakeLists.txt file for CVODES parallel examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
-# develop for examples excluded from 'make test' in releases
+# Example lists are tuples
+#   "name\;args\;nodes\;tasks\;type\;scalartype"
+# where the type is develop for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
 set(CVODES_examples
-    "cvsAdvDiff_ASAp_non_p\;\;2\;2\;exclude-single"
-    "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;exclude-single"
-    "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;exclude-single"
-    "cvsAdvDiff_non_p\;\;2\;2\;exclude-single"
-    "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;exclude-single"
-    "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;exclude-single"
-    "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;exclude-single"
-    "cvsDiurnal_kry_bbd_p\;\;2\;4\;exclude-single"
-    "cvsDiurnal_kry_p\;\;2\;4\;exclude-single")
+    "cvsAdvDiff_ASAp_non_p\;\;2\;2\;exclude-single\;real"
+    "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;exclude-single\;real"
+    "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;exclude-single\;real"
+    "cvsAdvDiff_non_p\;\;2\;2\;exclude-single\;real"
+    "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;exclude-single\;real"
+    "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;exclude-single\;real"
+    "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;exclude-single\;real"
+    "cvsDiurnal_kry_bbd_p\;\;2\;4\;exclude-single\;real"
+    "cvsDiurnal_kry_p\;\;2\;4\;exclude-single\;real")
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
@@ -53,47 +56,53 @@ foreach(example_tuple ${CVODES_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
+  list(GET example_tuple 5 example_scalartype)
 
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    sundials_add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c
+      SCALAR_TYPE ${example_scalartype})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+      # libraries to link against
+      target_link_libraries(${example} ${SUNDIALS_LIBS})
 
-    if(NOT MPI_C_COMPILER)
-      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+      if(NOT MPI_C_COMPILER)
+        target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+      endif()
     endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  if(TARGET ${example})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example}
+      TEST_ARGS ${example_args}
+      MPI_NPROCS ${number_of_tasks}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
 
-  # find all .out files for this example
-  file(GLOB example_out ${example}*.out)
+    # find all .out files for this example
+    file(GLOB example_out ${example}*.out)
 
-  # install example source and .out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example_out}
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel)
+    # install example source and .out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.c ${example_out}
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/parallel)
+    endif()
   endif()
 
 endforeach(example_tuple ${CVODES_examples})

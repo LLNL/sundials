@@ -15,13 +15,15 @@
 # CMakeLists.txt file for the ARKode F2003 module serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;type" where the type is 'develop' for examples
-# excluded from 'make test' in releases
+# Example lists are tuples "name\;type\;scalartype" where the
+# type is 'develop' for examples excluded from 'make test' in
+# releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
-set(FARKODE_examples "ark_analytic_f2003\;\;develop")
+set(FARKODE_examples "ark_analytic_f2003\;\;develop\;real")
 
 # Regression tests
-set(FARKODE_tests "test_ark_butcher_f2003\;develop")
+set(FARKODE_tests "test_ark_butcher_f2003\;develop\;real")
 
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
 
@@ -29,24 +31,24 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
   list(
     APPEND
     FARKODE_examples
-    "ark_bruss_f2003\;\;develop"
-    "ark_diurnal_kry_bp_f2003\;\;develop"
-    "ark_roberts_dns_f2003\;\;develop"
-    "ark_kpr_mri_f2003\;\;develop"
-    "ark_kpr_mri_f2003\;0 0.002\;develop"
-    "ark_kpr_mri_f2003\;1 0.002\;develop"
-    "ark_kpr_mri_f2003\;2 0.005\;develop"
-    "ark_kpr_mri_f2003\;3 0.01\;develop"
-    "ark_kpr_mri_f2003\;4 0.002\;develop"
-    "ark_kpr_mri_f2003\;5 0.002\;develop"
-    "ark_kpr_mri_f2003\;6 0.005\;develop"
-    "ark_kpr_mri_f2003\;7 0.001\;develop"
-    "ark_kpr_mri_f2003\;8 0.001\;develop"
-    "ark_kpr_mri_f2003\;9 0.001\;develop")
+    "ark_bruss_f2003\;\;develop\;real"
+    "ark_diurnal_kry_bp_f2003\;\;develop\;real"
+    "ark_roberts_dns_f2003\;\;develop\;real"
+    "ark_kpr_mri_f2003\;\;develop\;real"
+    "ark_kpr_mri_f2003\;0 0.002\;develop\;real"
+    "ark_kpr_mri_f2003\;1 0.002\;develop\;real"
+    "ark_kpr_mri_f2003\;2 0.005\;develop\;real"
+    "ark_kpr_mri_f2003\;3 0.01\;develop\;real"
+    "ark_kpr_mri_f2003\;4 0.002\;develop\;real"
+    "ark_kpr_mri_f2003\;5 0.002\;develop\;real"
+    "ark_kpr_mri_f2003\;6 0.005\;develop\;real"
+    "ark_kpr_mri_f2003\;7 0.001\;develop\;real"
+    "ark_kpr_mri_f2003\;8 0.001\;develop\;real"
+    "ark_kpr_mri_f2003\;9 0.001\;develop\;real")
 
-  set(FARKODE_examples_KLU "ark_bruss1D_FEM_klu_f2003\;develop")
+  set(FARKODE_examples_KLU "ark_bruss1D_FEM_klu_f2003\;develop\;real")
 
-  set(FARKODE_examples_LAPACK "ark_roberts_dnsL_f2003\;\;develop")
+  set(FARKODE_examples_LAPACK "ark_roberts_dnsL_f2003\;\;develop\;real")
 
 endif()
 
@@ -64,6 +66,7 @@ foreach(example_tuple ${FARKODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalartype)
 
   if(NOT TARGET ${example})
     # Install fortran modules to a unique directory to avoid naming collisions
@@ -71,35 +74,42 @@ foreach(example_tuple ${FARKODE_examples})
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    sundials_add_executable(${example} ${example}.f90)
+    sundials_add_executable(${example} ${example}.f90
+      SCALAR_TYPE ${example_scalartype})
 
-    # folder for IDEs
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      # folder for IDEs
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+      # libraries to link against
+      target_link_libraries(${example} ${SUNDIALS_LIBS})
+
+    endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  if(TARGET ${example})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
+
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
+
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.f90 ${test_name}.out
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial)
+    endif()
   endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
-
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.f90 ${test_name}.out
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_serial)
-  endif()
 endforeach(example_tuple ${FARKODE_examples})
 
 # Add the build and install targets for each KLU example (if needed)

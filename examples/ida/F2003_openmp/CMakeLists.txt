@@ -15,13 +15,15 @@
 # CMakeLists.txt file for the F2003 IDA OpenMP examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is 'develop' for
-# examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type\;scalartype" where
+# the type is 'develop' for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
   # Examples using SUNDIALS linear solvers
-  set(FIDA_examples_OMP "idaHeat2D_kry_omp_f2003.f90\;4\;exclude"
-                        "idaHeat2D_kry_omp_f2003.f90\;8\;exclude")
+  set(FIDA_examples_OMP "idaHeat2D_kry_omp_f2003.f90\;4\;exclude\;real"
+                        "idaHeat2D_kry_omp_f2003.f90\;8\;exclude\;real")
 endif()
 
 # Specify libraries to link against
@@ -36,46 +38,53 @@ foreach(example_tuple ${FIDA_examples_OMP})
   list(GET example_tuple 0 example_file)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalartype)
 
   # extract the file name without extension
   get_filename_component(example ${example_file} NAME_WE)
 
   if(NOT TARGET ${example})
-    sundials_add_executable(${example} ${example_file})
+    sundials_add_executable(${example} ${example_file}
+      SCALAR_TYPE ${example_scalartype})
 
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(
-      ${example} sundials_ida sundials_fida_mod sundials_nvecopenmp
-      sundials_fnvecopenmp_mod ${SUNDIALS_LIBS})
+      # libraries to link against
+      target_link_libraries(
+        ${example} sundials_ida sundials_fida_mod sundials_nvecopenmp
+        sundials_fnvecopenmp_mod ${SUNDIALS_LIBS})
 
-    # Install fortran modules to a unique directory to avoid naming collisions
-    set(CMAKE_Fortran_MODULE_DIRECTORY
-        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
+      # Install fortran modules to a unique directory to avoid naming collisions
+      set(CMAKE_Fortran_MODULE_DIRECTORY
+          ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
+    endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  if(TARGET ${example})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
+
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
+
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.f90 ${test_name}.out
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp)
+    endif()
   endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
-
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.f90 ${test_name}.out
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/F2003_openmp)
-  endif()
 endforeach(example_tuple ${FIDA_examples_OMP})
 
 # create Makefile and CMakeLists.txt for examples
