@@ -148,6 +148,9 @@ typedef std::complex<double> suncomplextype;
 typedef std::complex<long double> suncomplextype;
   #endif
 
+typedef std::complex<float> suncomplexfloat;
+typedef std::complex<double> suncomplexdouble;
+
   #define SUN_I              (suncomplextype(SUN_RCONST(0.0), SUN_RCONST(1.0)))
   #define SUN_CCONST(x, y)   (suncomplextype((x), (y)))
 
@@ -172,6 +175,14 @@ typedef _Lcomplex             suncomplextype;
     #else
 typedef long double _Complex  suncomplextype;
     #endif
+  #endif
+
+  #if defined(WIN32) || defined(_WIN32)
+typedef _Fcomplex suncomplexfloat;
+typedef _Dcomplex suncomplexdouble;
+  #else
+typedef float  _Complex suncomplexfloat;
+typedef double _Complex suncomplexdouble;
   #endif
 
   #define SUN_I              (_Complex_I)

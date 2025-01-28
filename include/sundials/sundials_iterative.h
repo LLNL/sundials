@@ -147,7 +147,7 @@ typedef int (*SUNPSolveFn)(void* P_data, N_Vector r, N_Vector z,
  * A QRAddFn updates a given QR factorization defined by the input
  * parameters:
  *   Q : N_Vector *
- *   R : sunrealtype *
+ *   R : sunscalartype *
  * with the input vector
  *   f : N_Vector
  *
@@ -204,7 +204,7 @@ typedef int (*SUNQRAddFn)(N_Vector* Q, sunscalartype* R, N_Vector f, int m,
  */
 
 SUNDIALS_EXPORT
-SUNErrCode SUNModifiedGS(N_Vector* v, sunrealtype** h, int k, int p,
+SUNErrCode SUNModifiedGS(N_Vector* v, sunscalartype** h, int k, int p,
                          sunrealtype* new_vk_norm);
 
 /*
@@ -217,7 +217,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, sunrealtype** h, int k, int p,
  * k, p, and new_vk_norm are as described in the documentation
  * for SUNModifiedGS.
  *
- * stemp is a length k+1 array of sunrealtype which can be used as
+ * stemp is a length k+1 array of sunscalartype which can be used as
  * workspace by the SUNClassicalGS routine.
  *
  * vtemp is an N_Vector array of k+1 vectors which can be used as
@@ -228,7 +228,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, sunrealtype** h, int k, int p,
  */
 
 SUNDIALS_EXPORT
-SUNErrCode SUNClassicalGS(N_Vector* v, sunrealtype** h, int k, int p,
+SUNErrCode SUNClassicalGS(N_Vector* v, sunscalartype** h, int k, int p,
                           sunrealtype* new_vk_norm, sunscalartype* stemp,
                           N_Vector* vtemp);
 
@@ -265,7 +265,7 @@ SUNErrCode SUNClassicalGS(N_Vector* v, sunrealtype** h, int k, int p,
  */
 
 SUNDIALS_EXPORT
-int SUNQRfact(int n, sunrealtype** h, sunrealtype* q, int job);
+int SUNQRfact(int n, sunscalartype** h, sunscalartype* q, int job);
 
 /*
  * -----------------------------------------------------------------
@@ -300,7 +300,7 @@ int SUNQRfact(int n, sunrealtype** h, sunrealtype* q, int job);
  */
 
 SUNDIALS_EXPORT
-int SUNQRsol(int n, sunrealtype** h, sunrealtype* q, sunrealtype* b);
+int SUNQRsol(int n, sunscalartype** h, sunscalartype* q, sunscalartype* b);
 
 /*
  * -----------------------------------------------------------------
@@ -309,7 +309,7 @@ int SUNQRsol(int n, sunrealtype** h, sunrealtype* q, sunrealtype* b);
  * SUNQRAdd_MGS uses Modified Gram Schmidt to update the QR factorization
  * stored in user inputs
  *   - N_Vector *Q
- *   - sunrealtype *R
+ *   - sunscalartype *R
  * to include the orthonormalized vector input by
  *   - N_Vector df.
  *
@@ -341,8 +341,8 @@ SUNErrCode SUNQRAdd_MGS(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
  * SUNQRAdd_ICWY uses the Inverse Compact WY Modified Gram Schmidt
  * method to update the QR factorization stored in user inputs
  *   - N_Vector *Q
- *   - sunrealtype *R
- *   - sunrealtype *T (held within (void *) QRdata)
+ *   - sunscalartype *R
+ *   - sunscalartype *T (held within (void *) QRdata)
  * to include the orthonormalized vector input by
  *   - N_Vector df.
  * where the factorization to be updated is of the form
@@ -359,7 +359,7 @@ SUNErrCode SUNQRAdd_MGS(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
  *          vectors or arrays required for the QRAdd routine
  *
  * QRdata should contain :
- *        N_Vector vtemp, sunrealtype *temp_array (this will be used for T)
+ *        N_Vector vtemp, sunscalartype *temp_array (this will be used for T)
  *
  * On return, Q, R, and T contain the updated Q T R factors, if
  * SUNQRAdd_ICWY was successful.
@@ -392,7 +392,7 @@ SUNErrCode SUNQRAdd_ICWY_SB(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
  * SUNQRAdd_CGS2 uses a Classical Gram Schmidt with Reorthogonalization
  * formulation to update the QR factorization stored in user inputs
  *   - N_Vector *Q
- *   - sunrealtype *R
+ *   - sunscalartype *R
  * to include the orthonormalized vector input by
  *   - N_Vector df.
  *
@@ -407,7 +407,7 @@ SUNErrCode SUNQRAdd_ICWY_SB(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
  *          vectors or arrays required for the QRAdd routine
  *
  * QRdata should contain :
- *        N_Vector vtemp, N_Vector vtemp2, sunrealtype *temp_array
+ *        N_Vector vtemp, N_Vector vtemp2, sunscalartype *temp_array
  *
  * On return, Q and R contain the updated Q R factors, if
  * SUNQRAdd_CGS2 was successful.
@@ -429,7 +429,7 @@ SUNErrCode SUNQRAdd_CGS2(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
  * reducing number of inner products) to update the QR factorization
  * stored in user inputs
  *   - N_Vector *Q
- *   - sunrealtype *R
+ *   - sunscalartype *R
  * to include the orthonormalized vector input by
  *   - N_Vector df.
  *
@@ -444,7 +444,7 @@ SUNErrCode SUNQRAdd_CGS2(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
  *          vectors or arrays required for the QRAdd routine
  *
  * QRdata should contain :
- *        N_Vector vtemp, N_Vector vtemp2, sunrealtype *temp_array
+ *        N_Vector vtemp, N_Vector vtemp2, sunscalartype *temp_array
  *
  * On return, Q and R contain the updated Q R factors, if
  * SUNQRAdd_DCGS2 was successful.

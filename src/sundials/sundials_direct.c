@@ -37,14 +37,14 @@ SUNDlsMat SUNDlsMat_NewDenseMat(sunindextype M, sunindextype N)
   A = (SUNDlsMat)malloc(sizeof *A);
   if (A == NULL) { return (NULL); }
 
-  A->data = (sunrealtype*)malloc(M * N * sizeof(sunrealtype));
+  A->data = (sunscalartype*)malloc(M * N * sizeof(sunscalartype));
   if (A->data == NULL)
   {
     free(A);
     A = NULL;
     return (NULL);
   }
-  A->cols = (sunrealtype**)malloc(N * sizeof(sunrealtype*));
+  A->cols = (sunscalartype**)malloc(N * sizeof(sunscalartype*));
   if (A->cols == NULL)
   {
     free(A->data);
@@ -66,19 +66,19 @@ SUNDlsMat SUNDlsMat_NewDenseMat(sunindextype M, sunindextype N)
   return (A);
 }
 
-sunrealtype** SUNDlsMat_newDenseMat(sunindextype m, sunindextype n)
+sunscalartype** SUNDlsMat_newDenseMat(sunindextype m, sunindextype n)
 {
   sunindextype j;
-  sunrealtype** a;
+  sunscalartype** a;
 
   if ((n <= 0) || (m <= 0)) { return (NULL); }
 
   a = NULL;
-  a = (sunrealtype**)malloc(n * sizeof(sunrealtype*));
+  a = (sunscalartype**)malloc(n * sizeof(sunscalartype*));
   if (a == NULL) { return (NULL); }
 
   a[0] = NULL;
-  a[0] = (sunrealtype*)malloc(m * n * sizeof(sunrealtype));
+  a[0] = (sunscalartype*)malloc(m * n * sizeof(sunscalartype));
   if (a[0] == NULL)
   {
     free(a);
@@ -105,7 +105,7 @@ SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu, sunindextype ml,
 
   colSize = smu + ml + 1;
   A->data = NULL;
-  A->data = (sunrealtype*)malloc(N * colSize * sizeof(sunrealtype));
+  A->data = (sunscalartype*)malloc(N * colSize * sizeof(sunscalartype));
   if (A->data == NULL)
   {
     free(A);
@@ -114,7 +114,7 @@ SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu, sunindextype ml,
   }
 
   A->cols = NULL;
-  A->cols = (sunrealtype**)malloc(N * sizeof(sunrealtype*));
+  A->cols = (sunscalartype**)malloc(N * sizeof(sunscalartype*));
   if (A->cols == NULL)
   {
     free(A->data);
@@ -138,21 +138,21 @@ SUNDlsMat SUNDlsMat_NewBandMat(sunindextype N, sunindextype mu, sunindextype ml,
   return (A);
 }
 
-sunrealtype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu,
-                                   sunindextype ml)
+sunscalartype** SUNDlsMat_newBandMat(sunindextype n, sunindextype smu,
+                                     sunindextype ml)
 {
-  sunrealtype** a;
+  sunscalartype** a;
   sunindextype j, colSize;
 
   if (n <= 0) { return (NULL); }
 
   a = NULL;
-  a = (sunrealtype**)malloc(n * sizeof(sunrealtype*));
+  a = (sunscalartype**)malloc(n * sizeof(sunscalartype*));
   if (a == NULL) { return (NULL); }
 
   colSize = smu + ml + 1;
   a[0]    = NULL;
-  a[0]    = (sunrealtype*)malloc(n * colSize * sizeof(sunrealtype));
+  a[0]    = (sunscalartype*)malloc(n * colSize * sizeof(sunscalartype));
   if (a[0] == NULL)
   {
     free(a);
@@ -174,7 +174,7 @@ void SUNDlsMat_DestroyMat(SUNDlsMat A)
   A = NULL;
 }
 
-void SUNDlsMat_destroyMat(sunrealtype** a)
+void SUNDlsMat_destroyMat(sunscalartype** a)
 {
   free(a[0]);
   a[0] = NULL;
@@ -230,26 +230,26 @@ sunindextype* SUNDlsMat_newIndexArray(sunindextype n)
   return (v);
 }
 
-sunrealtype* SUNDlsMat_NewRealArray(sunindextype N)
+sunscalartype* SUNDlsMat_NewRealArray(sunindextype N)
 {
-  sunrealtype* vec;
+  sunscalartype* vec;
 
   if (N <= 0) { return (NULL); }
 
   vec = NULL;
-  vec = (sunrealtype*)malloc(N * sizeof(sunrealtype));
+  vec = (sunscalartype*)malloc(N * sizeof(sunscalartype));
 
   return (vec);
 }
 
-sunrealtype* SUNDlsMat_newRealArray(sunindextype m)
+sunscalartype* SUNDlsMat_newRealArray(sunindextype m)
 {
-  sunrealtype* v;
+  sunscalartype* v;
 
   if (m <= 0) { return (NULL); }
 
   v = NULL;
-  v = (sunrealtype*)malloc(m * sizeof(sunrealtype));
+  v = (sunscalartype*)malloc(m * sizeof(sunscalartype));
 
   return (v);
 }
@@ -285,7 +285,7 @@ void SUNDlsMat_AddIdentity(SUNDlsMat A)
 void SUNDlsMat_SetToZero(SUNDlsMat A)
 {
   sunindextype i, j, colSize;
-  sunrealtype* col_j;
+  sunscalartype* col_j;
 
   switch (A->type)
   {
@@ -315,7 +315,7 @@ void SUNDlsMat_SetToZero(SUNDlsMat A)
 void SUNDlsMat_PrintMat(SUNDlsMat A, FILE* outfile)
 {
   sunindextype i, j, start, finish;
-  sunrealtype** a;
+  sunscalartype** a;
 
   switch (A->type)
   {
