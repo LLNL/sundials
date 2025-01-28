@@ -17,13 +17,16 @@
 # CMakeLists.txt file for CVODE C++ serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the type is
-# develop for examples excluded from 'make test' in releases
+# Example lists are tuples
+#   "name\;args\;nodes\;tasks\;type\;scalartype"
+# where the type is develop for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-    "cv_heat2D.cpp\;\;\;\;exclude-single" "cv_kpr.cpp\;\;\;\;develop"
-    "cv_kpr.cpp\;cvode.init_step 0.01\;\;\;develop")
+    "cv_heat2D.cpp\;\;\;\;exclude-single" "cv_kpr.cpp\;\;\;\;develop\;real"
+    "cv_kpr.cpp\;cvode.init_step 0.01\;\;\;develop\;real")
 
 # Add the build and install targets for each example
 foreach(example_tuple ${CVODE_examples})
@@ -34,6 +37,7 @@ foreach(example_tuple ${CVODE_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
+  list(GET example_tuple 5 example_scalartype)
 
   # extract the file name without extension
   get_filename_component(example_target ${example} NAME_WE)
@@ -42,38 +46,44 @@ foreach(example_tuple ${CVODE_examples})
   # source files once for testing with different inputs
   if(NOT TARGET ${example_target})
     # example source files
-    sundials_add_executable(${example_target} ${example})
+    sundials_add_executable(${example_target} ${example}
+      SCALAR_TYPE ${example_scalartype})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example_target})
+      # folder to organize targets in an IDE
+      set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
 
-    # directories to include
-    target_include_directories(${example_target}
-                               PRIVATE ${PROJECT_SOURCE_DIR}/examples/utilities)
+      # directories to include
+      target_include_directories(${example_target}
+                                 PRIVATE ${PROJECT_SOURCE_DIR}/examples/utilities)
 
-    # libraries to link against
-    target_link_libraries(${example_target} sundials_cvode sundials_nvecserial
-                          ${EXE_EXTRA_LINK_LIBS})
+      # libraries to link against
+      target_link_libraries(${example_target} sundials_cvode sundials_nvecserial
+                            ${EXE_EXTRA_LINK_LIBS})
 
-    if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
-      target_link_libraries(${example_target} sundials_cvode_fused_stubs)
+      if(SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS)
+        target_link_libraries(${example_target} sundials_cvode_fused_stubs)
+      endif()
     endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example_target})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
-  endif()
+  if(TARGET ${example_target})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example_target})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example_target}_${example_args})
+    endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example_target}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example_target}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
+
+  endif()
 
 endforeach(example_tuple ${CVODE_examples})
 

@@ -17,22 +17,25 @@
 # CMakeLists.txt file for IDA PETSc examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args;\nodes\;tasks\;type" where the type is
-# develop for examples excluded from 'make test' in releases
+# Example lists are tuples
+#   "name\;args;\nodes\;tasks\;type\;scalartype"
+# where the type is develop for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
-    "idaHeat2D_petsc_spgmr\;\;1\;4\;develop"
-    "idaHeat2D_petsc_snes\;\;1\;4\;develop"
-    "idaHeat2D_petsc_snes\;-pre\;1\;4\;develop")
+    "idaHeat2D_petsc_spgmr\;\;1\;4\;develop\;real"
+    "idaHeat2D_petsc_snes\;\;1\;4\;develop\;real"
+    "idaHeat2D_petsc_snes\;-pre\;1\;4\;develop\;real")
 
 # Previous tests with PETSc v3.17.1 installed with Spack v0.18.1 had identical
 # results with 32 and 64-bit indexing. Now with PETSc v3.21.4 installed with
 # Spack v0.23.0.dev0 (73fc86cbc3ae6dea5f69e3a0516e1a7691864fa3) the results are
 # slightly different.
 if(SUNDIALS_INDEX_SIZE STREQUAL "32")
-  list(APPEND IDA_examples "idaHeat2D_petsc_snes\;-jac\;1\;4\;develop"
-       "idaHeat2D_petsc_snes\;-jac -pre\;1\;4\;develop")
+  list(APPEND IDA_examples "idaHeat2D_petsc_snes\;-jac\;1\;4\;develop\;real"
+       "idaHeat2D_petsc_snes\;-jac -pre\;1\;4\;develop\;real")
 endif()
 
 if(MPI_C_COMPILER)
@@ -59,46 +62,52 @@ foreach(example_tuple ${IDA_examples})
   list(GET example_tuple 2 number_of_nodes)
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
+  list(GET example_tuple 5 example_scalartype)
 
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
-    sundials_add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c
+      SCALAR_TYPE ${example_scalartype})
 
-    # group examples in IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      # group examples in IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+      # libraries to link against
+      target_link_libraries(${example} ${SUNDIALS_LIBS})
 
-    if(NOT MPI_C_COMPILER)
-      target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+      if(NOT MPI_C_COMPILER)
+        target_link_libraries(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
+      endif()
     endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  if(TARGET ${example})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example}
+      TEST_ARGS ${example_args}
+      MPI_NPROCS ${number_of_tasks}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
 
-  # find all .out files for this example
-  file(GLOB example_out ${example}*.out)
+    # find all .out files for this example
+    file(GLOB example_out ${example}*.out)
 
-  # install example
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example_out}
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
+    # install example
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.c ${example_out}
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc)
+    endif()
   endif()
 
 endforeach(example_tuple ${IDA_examples})

@@ -17,12 +17,14 @@
 # CMakeLists.txt file for CVODE OpenMP examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is 'develop' for
-# examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type\;scalartype" where
+# the type is 'develop' for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
-set(CVODE_examples "cvAdvDiff_bnd_omp\;4\;develop"
-                   # "cvAdvDiffReac_kry_omp\;4\;develop"
+set(CVODE_examples "cvAdvDiff_bnd_omp\;4\;develop\;real"
+                   # "cvAdvDiffReac_kry_omp\;4\;develop\;real"
 )
 
 # Specify libraries to link against
@@ -43,27 +45,31 @@ foreach(example_tuple ${CVODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalartype)
 
   # example source files
-  sundials_add_executable(${example} ${example}.c)
+  sundials_add_executable(${example} ${example}.c
+    SCALAR_TYPE ${example_scalartype})
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  if(TARGET ${example})
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  sundials_add_test(
-    ${example} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+    # add to regression tests
+    sundials_add_test(
+      ${example} ${example}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
-  # libraries to link against
-  target_link_libraries(${example} ${SUNDIALS_LIBS})
+    # libraries to link against
+    target_link_libraries(${example} ${SUNDIALS_LIBS})
 
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_openmp)
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.c ${example}.out
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/C_openmp)
+    endif()
   endif()
 
 endforeach(example_tuple ${CVODE_examples})

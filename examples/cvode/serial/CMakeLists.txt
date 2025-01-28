@@ -18,43 +18,45 @@
 # CMakeLists.txt file for CVODE serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is 'develop' for
-# examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type\;scalartype" where
+# the type is 'develop' for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
-    "cvAdvDiff_bnd\;\;develop"
-    "cvAnalytic_mels\;\;develop"
-    "cvDirectDemo_ls\;\;develop"
-    "cvDisc_dns\;\;develop"
-    "cvDiurnal_kry_bp\;\;develop"
-    "cvDiurnal_kry\;\;develop"
-    "cvKrylovDemo_ls\;\;develop"
-    "cvKrylovDemo_ls\;1\;develop"
-    "cvKrylovDemo_ls\;2\;develop"
-    "cvKrylovDemo_prec\;\;develop"
-    "cvParticle_dns\;\;develop"
-    "cvPendulum_dns\;\;exclude-single"
-    "cvRoberts_dns\;\;"
-    "cvRoberts_dns_constraints\;\;develop"
-    "cvRoberts_dns_negsol\;\;exclude-single"
-    "cvRoberts_dns_uw\;\;develop"
-    "cvRocket_dns\;\;develop")
+    "cvAdvDiff_bnd\;\;develop\;real"
+    "cvAnalytic_mels\;\;develop\;real"
+    "cvDirectDemo_ls\;\;develop\;real"
+    "cvDisc_dns\;\;develop\;real"
+    "cvDiurnal_kry_bp\;\;develop\;real"
+    "cvDiurnal_kry\;\;develop\;real"
+    "cvKrylovDemo_ls\;\;develop\;real"
+    "cvKrylovDemo_ls\;1\;develop\;real"
+    "cvKrylovDemo_ls\;2\;develop\;real"
+    "cvKrylovDemo_prec\;\;develop\;real"
+    "cvParticle_dns\;\;develop\;real"
+    "cvPendulum_dns\;\;exclude-single\;real"
+    "cvRoberts_dns\;\;\;real"
+    "cvRoberts_dns_constraints\;\;develop\;real"
+    "cvRoberts_dns_negsol\;\;exclude-single\;real"
+    "cvRoberts_dns_uw\;\;develop\;real"
+    "cvRocket_dns\;\;develop\;real")
 
 if(SUNDIALS_BUILD_WITH_MONITORING)
-  list(APPEND CVODE_examples "cvKrylovDemo_ls\;0 1\;develop")
+  list(APPEND CVODE_examples "cvKrylovDemo_ls\;0 1\;develop\;real")
 endif()
 
 # Examples using LAPACK linear solvers
-set(CVODE_examples_BL "cvAdvDiff_bndL\;\;exclude-single"
-                      "cvRoberts_dnsL\;\;exclude-single")
+set(CVODE_examples_BL "cvAdvDiff_bndL\;\;exclude-single\;real"
+                      "cvRoberts_dnsL\;\;exclude-single\;real")
 
 # Examples using KLU linear solver
-set(CVODE_examples_KLU "cvRoberts_block_klu\;\;develop"
-                       "cvRoberts_klu\;\;develop")
+set(CVODE_examples_KLU "cvRoberts_block_klu\;\;develop\;real"
+                       "cvRoberts_klu\;\;develop\;real")
 
 # Examples using SuperLU_MT linear solver
-set(CVODE_examples_SUPERLUMT "cvRoberts_sps\;\;develop")
+set(CVODE_examples_SUPERLUMT "cvRoberts_sps\;\;develop\;real")
 
 # Auxiliary files to install
 set(CVODE_extras plot_cvParticle.py plot_cvPendulum.py cvRoberts_dns_stats.csv)
@@ -77,42 +79,48 @@ foreach(example_tuple ${CVODE_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalartype)
 
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    sundials_add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c
+      SCALAR_TYPE ${example_scalartype})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+      # libraries to link against
+      target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+    endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  if(TARGET ${example})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type})
 
-  # find all .out files for this example
-  file(GLOB example_out ${example}*.out)
+    # find all .out files for this example
+    file(GLOB example_out ${example}*.out)
 
-  # install example source and .out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example_out}
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+    # install example source and .out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.c ${example_out}
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/serial)
+    endif()
   endif()
 
 endforeach(example_tuple ${CVODE_examples})

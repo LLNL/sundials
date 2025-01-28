@@ -18,41 +18,44 @@
 # CMakeLists.txt file for IDAS serial examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is 'develop' for
-# examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type\;scalartype" where
+# the type is 'develop' for examples excluded from 'make test' in
+# releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
 set(IDAS_examples
-    "idasAkzoNob_ASAi_dns\;\;exclude-single"
-    "idasAkzoNob_dns\;\;exclude-single"
-    "idasAnalytic_mels\;\;exclude-single"
-    "idasAnalytic_mels\;idas.init_step 1e-5\;exclude-single"
-    "idasFoodWeb_bnd\;\;develop"
-    "idasHeat2D_bnd\;\;exclude-single"
-    "idasHeat2D_kry\;\;exclude-single"
-    "idasHessian_ASA_FSA\;\;exclude-single"
-    "idasKrylovDemo_ls\;\;develop"
-    "idasKrylovDemo_ls\;1\;develop"
-    "idasKrylovDemo_ls\;2\;develop"
-    "idasRoberts_ASAi_dns\;\;exclude-single"
-    "idasRoberts_FSA_dns\;-sensi stg t\;exclude-single"
-    "idasRoberts_dns\;\;"
-    "idasSlCrank_dns\;\;exclude-single"
-    "idasSlCrank_FSA_dns\;\;exclude-single")
+    "idasAkzoNob_ASAi_dns\;\;exclude-single\;real"
+    "idasAkzoNob_dns\;\;exclude-single\;real"
+    "idasAnalytic_mels\;\;exclude-single\;real"
+    "idasAnalytic_mels\;idas.init_step 1e-5\;exclude-single\;real"
+    "idasFoodWeb_bnd\;\;develop\;real"
+    "idasHeat2D_bnd\;\;exclude-single\;real"
+    "idasHeat2D_kry\;\;exclude-single\;real"
+    "idasHessian_ASA_FSA\;\;exclude-single\;real"
+    "idasKrylovDemo_ls\;\;develop\;real"
+    "idasKrylovDemo_ls\;1\;develop\;real"
+    "idasKrylovDemo_ls\;2\;develop\;real"
+    "idasRoberts_ASAi_dns\;\;exclude-single\;real"
+    "idasRoberts_FSA_dns\;-sensi stg t\;exclude-single\;real"
+    "idasRoberts_dns\;\;\;real"
+    "idasSlCrank_dns\;\;exclude-single\;real"
+    "idasSlCrank_FSA_dns\;\;exclude-single\;real")
 
 # Examples using LAPACK linear solvers
 set(IDAS_examples_BL)
 
 # Examples using KLU linear solver
 set(IDAS_examples_KLU
-    "idasRoberts_ASAi_klu\;\;develop"
-    "idasRoberts_FSA_klu\;-sensi stg t\;develop" "idasRoberts_klu\;\;develop")
+    "idasRoberts_ASAi_klu\;\;develop\;real"
+    "idasRoberts_FSA_klu\;-sensi stg t\;develop\;real"
+    "idasRoberts_klu\;\;develop\;real")
 
 # Examples using SuperLU_MT linear solver
 set(IDAS_examples_SUPERLUMT
-    "idasRoberts_ASAi_sps\;\;exclude-single"
-    "idasRoberts_FSA_sps\;-sensi stg t\;exclude-single"
-    "idasRoberts_sps\;\;exclude-single")
+    "idasRoberts_ASAi_sps\;\;exclude-single\;real"
+    "idasRoberts_FSA_sps\;-sensi stg t\;exclude-single\;real"
+    "idasRoberts_sps\;\;exclude-single\;real")
 
 # Auxiliary files to install
 set(IDAS_extras
@@ -73,73 +76,25 @@ foreach(example_tuple ${IDAS_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalartype)
 
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    sundials_add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c
+      SCALAR_TYPE ${example_scalartype})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
-  endif()
-
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
-
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type})
-
-  # find all .out files for this example
-  file(GLOB example_out ${example}*.out)
-
-  # install example source and .out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example_out}
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
-  endif()
-
-endforeach(example_tuple ${IDAS_examples})
-
-# Add the build and install targets for each LAPACK example (if needed)
-if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
-
-  # Sundials LAPACK linear solver modules
-  set(SUNLINSOLLAPACK_LIBS sundials_sunlinsollapackband
-                           sundials_sunlinsollapackdense)
-
-  foreach(example_tuple ${IDAS_examples_BL})
-
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
-
-    # check if this example has already been added, only need to add example
-    # source files once for testing with different inputs
-    if(NOT TARGET ${example})
-      # example source files
-      sundials_add_executable(${example} ${example}.c)
-
+    if(TARGET ${example})
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
       # libraries to link against
-      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
+      target_link_libraries(${example} ${SUNDIALS_LIBS})
     endif()
+  endif()
 
+  if(TARGET ${example})
     # check if example args are provided and set the test name
     if("${example_args}" STREQUAL "")
       set(test_name ${example})
@@ -162,6 +117,66 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     if(EXAMPLES_INSTALL)
       install(FILES ${example}.c ${example_out}
               DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+    endif()
+  endif()
+
+endforeach(example_tuple ${IDAS_examples})
+
+# Add the build and install targets for each LAPACK example (if needed)
+if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
+
+  # Sundials LAPACK linear solver modules
+  set(SUNLINSOLLAPACK_LIBS sundials_sunlinsollapackband
+                           sundials_sunlinsollapackdense)
+
+  foreach(example_tuple ${IDAS_examples_BL})
+
+    # parse the example tuple
+    list(GET example_tuple 0 example)
+    list(GET example_tuple 1 example_args)
+    list(GET example_tuple 2 example_type)
+    list(GET example_tuple 3 example_scalartype)
+
+    # check if this example has already been added, only need to add example
+    # source files once for testing with different inputs
+    if(NOT TARGET ${example})
+      # example source files
+      sundials_add_executable(${example} ${example}.c
+        SCALAR_TYPE ${example_scalartype})
+
+      if(TARGET ${example})
+        # folder to organize targets in an IDE
+        set_target_properties(${example} PROPERTIES FOLDER "Examples")
+
+        # libraries to link against
+        target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
+      endif()
+    endif()
+
+    if(TARGET ${example})
+      # check if example args are provided and set the test name
+      if("${example_args}" STREQUAL "")
+        set(test_name ${example})
+      else()
+        string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+      endif()
+
+      # add example to regression tests
+      sundials_add_test(
+        ${test_name} ${example}
+        TEST_ARGS ${example_args}
+        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        ANSWER_FILE ${test_name}.out
+        EXAMPLE_TYPE ${example_type})
+
+      # find all .out files for this example
+      file(GLOB example_out ${example}*.out)
+
+      # install example source and .out files
+      if(EXAMPLES_INSTALL)
+        install(FILES ${example}.c ${example_out}
+                DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+      endif()
     endif()
 
   endforeach(example_tuple ${IDAS_examples_BL})
@@ -183,42 +198,48 @@ if(BUILD_SUNLINSOL_KLU)
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_args)
     list(GET example_tuple 2 example_type)
+    list(GET example_tuple 3 example_scalartype)
 
     # check if this example has already been added, only need to add example
     # source files once for testing with different inputs
     if(NOT TARGET ${example})
       # example source files
-      sundials_add_executable(${example} ${example}.c)
+      sundials_add_executable(${example} ${example}.c
+        SCALAR_TYPE ${example_scalartype})
 
-      # folder to organize targets in an IDE
-      set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      if(TARGET ${example})
+        # folder to organize targets in an IDE
+        set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-      # libraries to link against
-      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
+        # libraries to link against
+        target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
+      endif()
     endif()
 
-    # check if example args are provided and set the test name
-    if("${example_args}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    endif()
+    if(TARGET ${example})
+      # check if example args are provided and set the test name
+      if("${example_args}" STREQUAL "")
+        set(test_name ${example})
+      else()
+        string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+      endif()
 
-    # add example to regression tests
-    sundials_add_test(
-      ${test_name} ${example}
-      TEST_ARGS ${example_args}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type})
+      # add example to regression tests
+      sundials_add_test(
+        ${test_name} ${example}
+        TEST_ARGS ${example_args}
+        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        ANSWER_FILE ${test_name}.out
+        EXAMPLE_TYPE ${example_type})
 
-    # find all .out files for this example
-    file(GLOB example_out ${example}*.out)
+      # find all .out files for this example
+      file(GLOB example_out ${example}*.out)
 
-    # install example source and .out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-              DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+      # install example source and .out files
+      if(EXAMPLES_INSTALL)
+        install(FILES ${example}.c ${example_out}
+                DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+      endif()
     endif()
 
   endforeach(example_tuple ${IDAS_examples_KLU})
@@ -240,48 +261,54 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     list(GET example_tuple 0 example)
     list(GET example_tuple 1 example_args)
     list(GET example_tuple 2 example_type)
+    list(GET example_tuple 3 example_scalartype)
 
     # check if this example has already been added, only need to add example
     # source files once for testing with different inputs
     if(NOT TARGET ${example})
       # add example source files
-      sundials_add_executable(${example} ${example}.c)
+      sundials_add_executable(${example} ${example}.c
+        SCALAR_TYPE ${example_scalartype})
 
-      # folder to organize targets in an IDE
-      set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      if(TARGET ${example})
+        # folder to organize targets in an IDE
+        set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-      # libraries to link against
-      target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
+        # libraries to link against
+        target_link_libraries(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
+      endif()
     endif()
 
-    # check if example args are provided and set the test name
-    if("${example_args}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    endif()
+    if(TARGET ${example})
+      # check if example args are provided and set the test name
+      if("${example_args}" STREQUAL "")
+        set(test_name ${example})
+      else()
+        string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+      endif()
 
-    # Do not include SuperLUMT examples in testing when the indextype is
-    # int64_t. Answer files were generated with int32_t and minor differences in
-    # output occur causing a false positive when testing. These tests can be
-    # re-enabled when type specific answer files are added.
-    if(SUNDIALS_INDEX_SIZE MATCHES "32")
-      # add example to regression tests
-      sundials_add_test(
-        ${test_name} ${example}
-        TEST_ARGS ${example_args}
-        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-        ANSWER_FILE ${test_name}.out
-        EXAMPLE_TYPE ${example_type})
-    endif()
+      # Do not include SuperLUMT examples in testing when the indextype is
+      # int64_t. Answer files were generated with int32_t and minor differences in
+      # output occur causing a false positive when testing. These tests can be
+      # re-enabled when type specific answer files are added.
+      if(SUNDIALS_INDEX_SIZE MATCHES "32")
+        # add example to regression tests
+        sundials_add_test(
+          ${test_name} ${example}
+          TEST_ARGS ${example_args}
+          ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+          ANSWER_FILE ${test_name}.out
+          EXAMPLE_TYPE ${example_type})
+      endif()
 
-    # find all .out files for this example
-    file(GLOB example_out ${example}*.out)
+      # find all .out files for this example
+      file(GLOB example_out ${example}*.out)
 
-    # install example source and .out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-              DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+      # install example source and .out files
+      if(EXAMPLES_INSTALL)
+        install(FILES ${example}.c ${example_out}
+                DESTINATION ${EXAMPLES_INSTALL_PATH}/idas/serial)
+      endif()
     endif()
 
   endforeach(example_tuple ${IDAS_examples_SUPERLUMT})

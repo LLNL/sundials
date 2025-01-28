@@ -17,12 +17,16 @@
 # CMakeLists.txt file for ARKODE OpenMP examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type\;float precision\;int precision"
-# where the type is 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples
+#   "name\;args\;type\;float precision\;int precision\;scalartype"
+# where the type is 'develop' for examples excluded from
+# 'make test' in releases, and 'scalartype' is either 'real' or
+# 'complex' if the example should only be built for a single scalar
+# type
 
 # Examples using SUNDIALS linear solvers
-set(ARKODE_examples "ark_brusselator1D_omp\;4\;exclude-single\;default\;default"
-                    "ark_heat1D_omp\;4\;develop\;default\;10")
+set(ARKODE_examples "ark_brusselator1D_omp\;4\;exclude-single\;default\;default\;real"
+                    "ark_heat1D_omp\;4\;develop\;default\;10\;real")
 
 # Auxiliary files to install
 set(ARKODE_extras_OMP plot_brusselator1D.py)
@@ -36,30 +40,35 @@ foreach(example_tuple ${ARKODE_examples})
   list(GET example_tuple 2 example_type)
   list(GET example_tuple 3 example_float_precision)
   list(GET example_tuple 4 example_int_precision)
+  list(GET example_tuple 5 example_scalartype)
 
   # example source files
-  sundials_add_executable(${example} ${example}.c)
+  sundials_add_executable(${example} ${example}.c
+    SCALAR_TYPE ${example_scalartype})
 
-  set_target_properties(${example} PROPERTIES FOLDER "Examples")
+  if(TARGET ${example})
+    # folder for IDEs
+    set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  sundials_add_test(
-    ${example} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type}
-    FLOAT_PRECISION ${example_float_precision}
-    INTEGER_PRECISION ${example_int_precision})
+    # add to regression tests
+    sundials_add_test(
+      ${example} ${example}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type}
+      FLOAT_PRECISION ${example_float_precision}
+      INTEGER_PRECISION ${example_int_precision})
 
-  # libraries to link against
-  target_link_libraries(${example} sundials_arkode sundials_nvecopenmp
-                        ${EXE_EXTRA_LINK_LIBS})
+    # libraries to link against
+    target_link_libraries(${example} sundials_arkode sundials_nvecopenmp
+                          ${EXE_EXTRA_LINK_LIBS})
 
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmp)
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.c ${example}.out
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/C_openmp)
+    endif()
   endif()
 
 endforeach(example_tuple ${ARKODE_examples})

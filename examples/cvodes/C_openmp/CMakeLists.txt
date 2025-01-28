@@ -17,11 +17,13 @@
 # CMakeLists.txt file for CVODES OpenMP examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is 'develop' for
-# examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;type\;scalartype" where
+# the type is 'develop' for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
 
 # Examples using SUNDIALS linear solvers
-set(CVODES_examples_OMP "cvsAdvDiff_bnd_omp\;4\;develop")
+set(CVODES_examples_OMP "cvsAdvDiff_bnd_omp\;4\;develop\;real")
 
 # Specify libraries to link against
 set(CVODES_LIB sundials_cvodes)
@@ -37,32 +39,38 @@ foreach(example_tuple ${CVODES_examples_OMP})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalartype)
 
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    sundials_add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c
+      SCALAR_TYPE ${example_scalartype})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+      # libraries to link against
+      target_link_libraries(${example} ${SUNDIALS_LIBS})
+    endif()
   endif()
 
-  # add example to regression tests
-  sundials_add_test(
-    ${example} ${example}
-    TEST_ARGS ${example_args}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${example}.out
-    EXAMPLE_TYPE ${example_type})
+  if(TARGET ${example})
+    # add example to regression tests
+    sundials_add_test(
+      ${example} ${example}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
-  # install example source and .out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.c ${example}.out
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp)
+    # install example source and .out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.c ${example}.out
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/C_openmp)
+    endif()
   endif()
 
 endforeach(example_tuple ${CVODES_examples_OMP})

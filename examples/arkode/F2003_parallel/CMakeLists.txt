@@ -18,18 +18,21 @@
 # CMakeLists.txt file for the ARKode F2003 module parallel examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;nodes\;tasks\;type" where the type is develop
-# for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;nodes\;tasks\;type\;scalartype"
+# where the type is develop for examples excluded from 'make test'
+# in releases, and 'scalartype' is either 'real' or 'complex' if
+# the example should only be built for a single scalar type
+
 set(FARKODE_examples
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2"
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2"
-    "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2"
+    "ark_brusselator1D_task_local_nls_f2003\;--monitor\;1\;4\;develop\;2\;real"
+    "ark_brusselator1D_task_local_nls_f2003\;--monitor --global-nls\;1\;4\;develop\;2\;real"
+    "ark_brusselator1D_task_local_nls_f2003\;--monitor --explicit --tf 3\;1\;4\;develop\;2\;real"
 )
 
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
-  list(APPEND FARKODE_examples "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2"
-       "ark_diag_non_f2003\;\;1\;4\;develop\;2"
-       "ark_heat2D_f2003\;\;1\;4\;develop\;2")
+  list(APPEND FARKODE_examples "ark_diag_kry_bbd_f2003\;\;1\;4\;develop\;2\;real"
+       "ark_diag_non_f2003\;\;1\;4\;develop\;2\;real"
+       "ark_heat2D_f2003\;\;1\;4\;develop\;2\;real")
 endif()
 
 # Set-up linker flags and link libraries
@@ -54,6 +57,7 @@ foreach(example_tuple ${FARKODE_examples})
   list(GET example_tuple 3 number_of_tasks)
   list(GET example_tuple 4 example_type)
   list(GET example_tuple 5 example_precision)
+  list(GET example_tuple 6 example_scalartype)
 
   if(NOT TARGET ${example})
     # Install fortran modules to a unique directory to avoid naming collisions
@@ -61,38 +65,44 @@ foreach(example_tuple ${FARKODE_examples})
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    sundials_add_executable(${example} ${example}.f90)
+    sundials_add_executable(${example} ${example}.f90
+      SCALAR_TYPE ${example_scalartype})
 
-    # libraries to link against
-    target_link_libraries(${example} MPI::MPI_Fortran ${SUNDIALS_LIBS})
+    if(TARGET ${example})
+      # libraries to link against
+      target_link_libraries(${example} MPI::MPI_Fortran ${SUNDIALS_LIBS})
 
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    endif()
   endif()
 
-  # check if example args are provided and set the test name
-  if("${example_args}" STREQUAL "")
-    set(test_name ${example})
-  else()
-    string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-  endif()
+  if(TARGET ${example})
 
-  # add example to regression tests
-  sundials_add_test(
-    ${test_name} ${example}
-    TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
-    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    ANSWER_FILE ${test_name}.out
-    EXAMPLE_TYPE ${example_type}
-    FLOAT_PRECISION ${example_precision})
+    # check if example args are provided and set the test name
+    if("${example_args}" STREQUAL "")
+      set(test_name ${example})
+    else()
+      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    endif()
 
-  # find all .out files for this example
-  file(GLOB example_out ${example}*.out)
+    # add example to regression tests
+    sundials_add_test(
+      ${test_name} ${example}
+      TEST_ARGS ${example_args}
+      MPI_NPROCS ${number_of_tasks}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${test_name}.out
+      EXAMPLE_TYPE ${example_type}
+      FLOAT_PRECISION ${example_precision})
 
-  # install example source and out files
-  if(EXAMPLES_INSTALL)
-    install(FILES ${example}.f90 ${example_out}
-            DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
+    # find all .out files for this example
+    file(GLOB example_out ${example}*.out)
+
+    # install example source and out files
+    if(EXAMPLES_INSTALL)
+      install(FILES ${example}.f90 ${example_out}
+              DESTINATION ${EXAMPLES_INSTALL_PATH}/arkode/F2003_parallel)
+    endif()
   endif()
 
 endforeach(example_tuple ${FARKODE_examples})
