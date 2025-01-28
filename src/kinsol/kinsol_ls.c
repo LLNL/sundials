@@ -3,7 +3,7 @@
  *                David J. Gardner, Radu Serban and Aaron Collier @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -28,10 +28,8 @@
 #include "kinsol_ls_impl.h"
 
 /* constants */
-#define MIN_INC_MULT SUN_RCONST(1000.0)
-#define ZERO         SUN_RCONST(0.0)
-#define ONE          SUN_RCONST(1.0)
-#define TWO          SUN_RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /*==================================================================
   KINLS Exported functions -- Required
@@ -516,7 +514,7 @@ int KINGetNumLinIters(void* kinmem, long int* nliters)
 }
 
 /*------------------------------------------------------------------
-  KINGetNumLinConvFails returns the total numbe of convergence
+  KINGetNumLinConvFails returns the total number of convergence
   failures
   ------------------------------------------------------------------*/
 int KINGetNumLinConvFails(void* kinmem, long int* nlcfails)
@@ -792,7 +790,7 @@ int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, KINMem kin_mem,
   /* Save pointer to the array in tmp2 */
   tmp2_data = N_VGetArrayPointer(tmp2);
 
-  /* Rename work vectors for readibility */
+  /* Rename work vectors for readability */
   ftemp  = tmp1;
   jthCol = tmp2;
 
@@ -1076,7 +1074,7 @@ int kinLsInitialize(KINMem kin_mem)
     return (KINLS_ILL_INPUT);
   }
 
-  /** error-checking is complete, begin initializtions **/
+  /** error-checking is complete, begin initializations **/
 
   /* Initialize counters */
   kinLsInitializeCounters(kinls_mem);
@@ -1252,7 +1250,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
   if (kinls_mem->iterative)
   {
-    KINPrintInfo(kin_mem, PRNT_NLI, "KINLS", "kinLsSolve", INFO_NLI, nli_inc);
+    KINPrintInfo(kin_mem, PRNT_NLI, "KINLS", __func__, INFO_NLI, nli_inc);
   }
 #endif
 
@@ -1336,7 +1334,7 @@ int kinLsSolve(KINMem kin_mem, N_Vector xx, N_Vector bb, sunrealtype* sJpnorm,
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGLEVEL_INFO
   if (kin_mem->kin_inexact_ls)
   {
-    KINPrintInfo(kin_mem, PRNT_EPS, "KINLS", "kinLsSolve", INFO_EPS, res_norm,
+    KINPrintInfo(kin_mem, PRNT_EPS, "KINLS", __func__, INFO_EPS, res_norm,
                  kin_mem->kin_eps);
   }
 #endif

@@ -4,7 +4,7 @@
  * Based on kinLaplace_picard_bnd.c by Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -116,7 +116,7 @@ int main(void)
   if (check_retval((void*)scale, "N_VNew_Serial", 0)) { return (1); }
 
   /* ----------------------------------------------------------------------------------
-   * Initialize and allocate memory for KINSOL, set parametrs for Anderson acceleration
+   * Initialize and allocate memory for KINSOL, set parameters for Anderson acceleration
    * ---------------------------------------------------------------------------------- */
 
   kmem = KINCreate(sunctx);

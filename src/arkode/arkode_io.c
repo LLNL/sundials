@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -55,13 +55,6 @@ int ARKodeSetDefaults(void* arkode_mem)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  /* Set stepper defaults (if provided) */
-  if (ark_mem->step_setdefaults)
-  {
-    retval = ark_mem->step_setdefaults(arkode_mem);
-    if (retval != ARK_SUCCESS) { return retval; }
-  }
-
   /* Set default values for integrator optional inputs */
   ark_mem->use_compensated_sums = SUNFALSE;
   ark_mem->fixedstep            = SUNFALSE; /* default to use adaptive steps */
@@ -106,6 +99,14 @@ int ARKodeSetDefaults(void* arkode_mem)
   ark_mem->hadapt_mem->p          = 0;       /* no default embedding order */
   ark_mem->hadapt_mem->q          = 0;       /* no default method order */
   ark_mem->hadapt_mem->adjust     = ADJUST;  /* controller order adjustment */
+
+  /* Set stepper defaults (if provided) */
+  if (ark_mem->step_setdefaults)
+  {
+    retval = ark_mem->step_setdefaults(arkode_mem);
+    if (retval != ARK_SUCCESS) { return retval; }
+  }
+
   return (ARK_SUCCESS);
 }
 
@@ -147,6 +148,7 @@ int ARKodeSetOrder(void* arkode_mem, int ord)
       interpolation module.
     itype == ARK_INTERP_LAGRANGE specifies the Lagrange (stiff)
       interpolation module.
+    itype == ARK_INTERP_NONE disables interpolation.
 
   Return values:
      ARK_SUCCESS on success.
@@ -889,8 +891,6 @@ int ARKodeSetUserData(void* arkode_mem, void* user_data)
   ---------------------------------------------------------------*/
 int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
 {
-  int retval;
-  long int lenrw, leniw;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
   {
@@ -908,52 +908,14 @@ int ARKodeSetAdaptController(void* arkode_mem, SUNAdaptController C)
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
-  /* Remove current SUNAdaptController object
-     (delete if owned, and then nullify pointer) */
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
+  /* If the stepper has provided a custom function, then call it and return */
+  if (ark_mem->step_setadaptcontroller)
   {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
+    return (ark_mem->step_setadaptcontroller(ark_mem, C));
   }
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
-    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
-    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
-    if (retval != SUN_SUCCESS)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptController_Destroy failure");
-      return (ARK_MEM_FAIL);
-    }
-  }
-  ark_mem->hadapt_mem->hcontroller = NULL;
 
-  /* On NULL-valued input, create default SUNAdaptController object */
-  if (C == NULL)
-  {
-    C = SUNAdaptController_PID(ark_mem->sunctx);
-    if (C == NULL)
-    {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptControllerPID allocation failure");
-      return (ARK_MEM_FAIL);
-    }
-    ark_mem->hadapt_mem->owncontroller = SUNTRUE;
-  }
-  else { ark_mem->hadapt_mem->owncontroller = SUNFALSE; }
-
-  /* Attach new SUNAdaptController object */
-  retval = SUNAdaptController_Space(C, &lenrw, &leniw);
-  if (retval == SUN_SUCCESS)
-  {
-    ark_mem->liw += leniw;
-    ark_mem->lrw += lenrw;
-  }
-  ark_mem->hadapt_mem->hcontroller = C;
-
-  return (ARK_SUCCESS);
+  /* Otherwise, call a utility routine to replace the current controller object */
+  return (arkReplaceAdaptController(ark_mem, C, SUNFALSE));
 }
 
 /*---------------------------------------------------------------
@@ -1043,8 +1005,11 @@ int ARKodeSetInitStep(void* arkode_mem, sunrealtype hin)
   ark_mem->h0u = ZERO;
 
   /* Reset error controller (e.g., error and step size history) */
-  retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
-  if (retval != SUN_SUCCESS) { return (ARK_CONTROLLER_ERR); }
+  if (ark_mem->hadapt_mem->hcontroller != NULL)
+  {
+    retval = SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
+    if (retval != SUN_SUCCESS) { return (ARK_CONTROLLER_ERR); }
+  }
 
   return (ARK_SUCCESS);
 }
@@ -1281,6 +1246,93 @@ int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed)
 }
 
 /*---------------------------------------------------------------
+  ARKodeSetStepDirection:
+
+  Specifies the direction of integration (forward or backward)
+  based on the sign of stepdir. If 0, the direction will remain
+  unchanged. Note that if a fixed step size was previously set,
+  this function can change the sign of that.
+
+  This should only be called after ARKodeReset, or between
+  creating a stepper and ARKodeEvolve.
+  ---------------------------------------------------------------*/
+int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
+{
+  /* stepdir is a sunrealtype because the direction typically comes from a time
+   * step h or tend-tstart which are sunrealtypes. If stepdir was in int,
+   * conversions would be required which can cause undefined behavior when
+   * greater than MAX_INT */
+  int retval;
+  ARKodeMem ark_mem;
+  sunrealtype h;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* do not change direction once the module has been initialized i.e., after calling
+     ARKodeEvolve unless ReInit or Reset are called. */
+  if (!ark_mem->initsetup)
+  {
+    arkProcessError(ark_mem, ARK_STEP_DIRECTION_ERR, __LINE__, __func__,
+                    __FILE__, "Step direction cannot be specified after module initialization.");
+    return ARK_STEP_DIRECTION_ERR;
+  }
+
+  if (stepdir != ZERO)
+  {
+    retval = ARKodeGetStepDirection(arkode_mem, &h);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "Unable to access step direction");
+      return retval;
+    }
+
+    if (h != ZERO && ((h > ZERO) != (stepdir > ZERO)))
+    {
+      /* Reverse the sign of h. If adaptive, h will be overwritten anyway by the
+       * initial step estimation since ARKodeReset must be called before this.
+       * However, the sign of h will be used to check if the integration
+       * direction and stop time are consistent, e.g., in ARKodeSetStopTime, so
+       * we should not set h = 0. */
+      ark_mem->h = -h;
+      /* Clear previous initial step and force an initial step recomputation.
+       * Normally, this would not occur after a reset, but it is necessary here
+       * because the timestep used in one direction may not be suitable for the
+       * other */
+      ark_mem->h0u = ZERO;
+      /* Reverse the step if in fixed mode. If adaptive, reset to 0 to clear any
+       * old value from a call to ARKodeSetInit */
+      ark_mem->hin = ark_mem->fixedstep ? -h : ZERO;
+
+      /* Reset error controller (e.g., error and step size history) */
+      if (ark_mem->hadapt_mem && ark_mem->hadapt_mem->hcontroller)
+      {
+        SUNErrCode err =
+          SUNAdaptController_Reset(ark_mem->hadapt_mem->hcontroller);
+        if (err != SUN_SUCCESS)
+        {
+          arkProcessError(ark_mem, ARK_CONTROLLER_ERR, __LINE__, __func__,
+                          __FILE__, "Unable to reset error controller object");
+          return ARK_CONTROLLER_ERR;
+        }
+      }
+    }
+  }
+
+  if (ark_mem->step_setstepdirection != NULL)
+  {
+    return ark_mem->step_setstepdirection(ark_mem, stepdir);
+  }
+
+  return ARK_SUCCESS;
+}
+
+/*---------------------------------------------------------------
   ARKodeSetRootDirection:
 
   Specifies the direction of zero-crossings to be monitored.
@@ -1447,7 +1499,7 @@ int ARKodeSetConstraints(void* arkode_mem, N_Vector constraints)
 
   /* Test if required vector ops. are defined */
   if (constraints->ops->nvdiv == NULL || constraints->ops->nvmaxnorm == NULL ||
-      constraints->ops->nvcompare == NULL ||
+      constraints->ops->nvcompare == NULL || constraints->ops->nvprod == NULL ||
       constraints->ops->nvconstrmask == NULL ||
       constraints->ops->nvminquotient == NULL)
   {
@@ -1639,6 +1691,14 @@ int ARKodeSetErrorBias(void* arkode_mem, sunrealtype bias)
     arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
                     __FILE__, "time-stepping module does not support temporal adaptivity");
     return (ARK_STEPPER_UNSUPPORTED);
+  }
+
+  /* Return an error if there is not a current SUNAdaptController */
+  if (ark_mem->hadapt_mem->hcontroller == NULL)
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__,
+                    __FILE__, "SUNAdaptController NULL -- must be set before setting the error bias");
+    return (ARK_MEM_NULL);
   }
 
   /* set allowed value, otherwise set default */
@@ -1981,9 +2041,85 @@ int ARKodeSetMaxConvFails(void* arkode_mem, int maxncf)
   return (ARK_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  ARKodeSetAccumulatedErrorType:
+
+  This routine sets the accumulated temporal error estimation
+  strategy.
+  ---------------------------------------------------------------*/
+int ARKodeSetAccumulatedErrorType(void* arkode_mem, ARKAccumError accum_type)
+{
+  int retval = ARKodeResetAccumulatedError(arkode_mem);
+  if (retval != ARK_SUCCESS) { return retval; }
+  ((ARKodeMem)arkode_mem)->AccumErrorType = accum_type;
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKodeResetAccumulatedError:
+
+  This routine resets the accumulated temporal error estimate.
+  ---------------------------------------------------------------*/
+int ARKodeResetAccumulatedError(void* arkode_mem)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Guard against use for non-adaptive time stepper modules */
+  if (!ark_mem->step_supports_adaptive)
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support temporal adaptivity");
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+
+  /* Reset value and counter, and return */
+  ark_mem->AccumErrorStart = ark_mem->tn;
+  ark_mem->AccumError      = ZERO;
+  return (ARK_SUCCESS);
+}
+
 /*===============================================================
   ARKODE optional output utility functions
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  ARKodeGetNumStepAttempts:
+
+  Returns the current number of RHS evaluations
+  ---------------------------------------------------------------*/
+int ARKodeGetNumRhsEvals(void* arkode_mem, int partition_index,
+                         long int* num_rhs_evals)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return ARK_MEM_NULL;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Call stepper routine (if provided) */
+  if (ark_mem->step_getnumrhsevals)
+  {
+    return ark_mem->step_getnumrhsevals(arkode_mem, partition_index,
+                                        num_rhs_evals);
+  }
+  else
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__,
+                    "time-stepping module does not support this function");
+    return ARK_STEPPER_UNSUPPORTED;
+  }
+}
 
 /*---------------------------------------------------------------
   ARKodeGetNumStepAttempts:
@@ -2082,6 +2218,35 @@ int ARKodeGetCurrentStep(void* arkode_mem, sunrealtype* hcur)
   ark_mem = (ARKodeMem)arkode_mem;
 
   *hcur = ark_mem->next_h;
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKodeGetStepDirection:
+
+  Gets the direction of integration (forward or backward) based
+  on the sign of stepdir. A value of 0 indicates integration can
+  proceed in either direction.
+  ---------------------------------------------------------------*/
+int ARKodeGetStepDirection(void* arkode_mem, sunrealtype* stepdir)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  if (stepdir == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "stepdir cannot be NULL");
+  }
+
+  *stepdir = (ark_mem->fixedstep || ark_mem->h == ZERO) ? ark_mem->hin
+                                                        : ark_mem->h;
   return (ARK_SUCCESS);
 }
 
@@ -2378,6 +2543,56 @@ int ARKodeGetStepStats(void* arkode_mem, long int* nsteps, sunrealtype* hinused,
   *hlast   = ark_mem->hold;
   *hcur    = ark_mem->next_h;
   *tcur    = ark_mem->tcur;
+  return (ARK_SUCCESS);
+}
+
+/*---------------------------------------------------------------
+  ARKodeGetAccumulatedError:
+
+  This routine returns the accumulated temporal error estimate.
+  ---------------------------------------------------------------*/
+int ARKodeGetAccumulatedError(void* arkode_mem, sunrealtype* accum_error)
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Return an error if the stepper cannot accumulate temporal error */
+  if (!ark_mem->step_supports_adaptive)
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support accumulated error estimation");
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+
+  /* Get time since last accumulated error reset */
+  sunrealtype time_interval = ark_mem->tcur - ark_mem->AccumErrorStart;
+
+  /* Fill output based on error accumulation type */
+  if (ark_mem->AccumErrorType == ARK_ACCUMERROR_MAX)
+  {
+    *accum_error = ark_mem->AccumError * ark_mem->reltol;
+  }
+  else if (ark_mem->AccumErrorType == ARK_ACCUMERROR_SUM)
+  {
+    *accum_error = ark_mem->AccumError * ark_mem->reltol;
+  }
+  else if (ark_mem->AccumErrorType == ARK_ACCUMERROR_AVG)
+  {
+    *accum_error = ark_mem->AccumError * ark_mem->reltol / time_interval;
+  }
+  else
+  {
+    arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
+                    "temporal error accumulation is currently disabled");
+    return (ARK_WARNING);
+  }
+
   return (ARK_SUCCESS);
 }
 
@@ -2720,54 +2935,31 @@ int ARKodePrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  switch (fmt)
+  if (fmt != SUN_OUTPUTFORMAT_TABLE && fmt != SUN_OUTPUTFORMAT_CSV)
   {
-  case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Current time                 = %" RSYM "\n", ark_mem->tcur);
-    fprintf(outfile, "Steps                        = %ld\n", ark_mem->nst);
-    fprintf(outfile, "Step attempts                = %ld\n",
-            ark_mem->nst_attempts);
-    fprintf(outfile, "Stability limited steps      = %ld\n",
-            ark_mem->hadapt_mem->nst_exp);
-    fprintf(outfile, "Accuracy limited steps       = %ld\n",
-            ark_mem->hadapt_mem->nst_acc);
-    fprintf(outfile, "Error test fails             = %ld\n", ark_mem->netf);
-    fprintf(outfile, "NLS step fails               = %ld\n", ark_mem->ncfn);
-    fprintf(outfile, "Inequality constraint fails  = %ld\n",
-            ark_mem->nconstrfails);
-    fprintf(outfile, "Initial step size            = %" RSYM "\n", ark_mem->h0u);
-    fprintf(outfile, "Last step size               = %" RSYM "\n", ark_mem->hold);
-    fprintf(outfile, "Current step size            = %" RSYM "\n",
-            ark_mem->next_h);
-    if (ark_mem->root_mem)
-    {
-      ark_root_mem = (ARKodeRootMem)ark_mem->root_mem;
-      fprintf(outfile, "Root fn evals                = %ld\n", ark_root_mem->nge);
-    }
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, "Time,%" RSYM, ark_mem->tcur);
-    fprintf(outfile, ",Steps,%ld", ark_mem->nst);
-    fprintf(outfile, ",Step attempts,%ld", ark_mem->nst_attempts);
-    fprintf(outfile, ",Stability limited steps,%ld",
-            ark_mem->hadapt_mem->nst_exp);
-    fprintf(outfile, ",Accuracy limited steps,%ld", ark_mem->hadapt_mem->nst_acc);
-    fprintf(outfile, ",Error test fails,%ld", ark_mem->netf);
-    fprintf(outfile, ",NLS step fails,%ld", ark_mem->ncfn);
-    fprintf(outfile, ",Inequality constraint fails,%ld", ark_mem->nconstrfails);
-    fprintf(outfile, ",Initial step size,%" RSYM, ark_mem->h0u);
-    fprintf(outfile, ",Last step size,%" RSYM, ark_mem->hold);
-    fprintf(outfile, ",Current step size,%" RSYM, ark_mem->next_h);
-    if (ark_mem->root_mem)
-    {
-      ark_root_mem = (ARKodeRootMem)ark_mem->root_mem;
-      fprintf(outfile, ",Roof fn evals,%ld", ark_root_mem->nge);
-    }
-    break;
-  default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Invalid formatting option.");
     return (ARK_ILL_INPUT);
+  }
+
+  sunfprintf_real(outfile, fmt, SUNTRUE, "Current time", ark_mem->tcur);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Steps", ark_mem->nst);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Step attempts", ark_mem->nst_attempts);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Stability limited steps",
+                  ark_mem->hadapt_mem->nst_exp);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Accuracy limited steps",
+                  ark_mem->hadapt_mem->nst_acc);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Error test fails", ark_mem->netf);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS step fails", ark_mem->ncfn);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Inequality constraint fails",
+                  ark_mem->nconstrfails);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size", ark_mem->h0u);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size", ark_mem->hold);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size", ark_mem->next_h);
+  if (ark_mem->root_mem)
+  {
+    ark_root_mem = (ARKodeRootMem)ark_mem->root_mem;
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Root fn evals", ark_root_mem->nge);
   }
 
   /* Print relaxation stats */
@@ -2853,6 +3045,12 @@ char* ARKodeGetReturnFlagName(long int flag)
   case ARK_RELAX_JAC_FAIL: sprintf(name, "ARK_RELAX_JAC_FAIL"); break;
   case ARK_CONTROLLER_ERR: sprintf(name, "ARK_CONTROLLER_ERR"); break;
   case ARK_STEPPER_UNSUPPORTED: sprintf(name, "ARK_STEPPER_UNSUPPORTED"); break;
+  case ARK_DOMEIG_FAIL: sprintf(name, "ARK_DOMEIG_FAIL"); break;
+  case ARK_MAX_STAGE_LIMIT_FAIL:
+    sprintf(name, "ARK_MAX_STAGE_LIMIT_FAIL");
+    break;
+  case ARK_SUNSTEPPER_ERR: sprintf(name, "ARK_SUNSTEPPER_ERR"); break;
+  case ARK_STEP_DIRECTION_ERR: sprintf(name, "ARK_STEP_DIRECTION_ERR"); break;
   case ARK_UNRECOGNIZED_ERROR: sprintf(name, "ARK_UNRECOGNIZED_ERROR"); break;
   default: sprintf(name, "NONE");
   }
@@ -2884,11 +3082,12 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   fprintf(fp, "ARKODE solver parameters:\n");
   if (ark_mem->hmin != ZERO)
   {
-    fprintf(fp, "  Minimum step size = %" RSYM "\n", ark_mem->hmin);
+    fprintf(fp, "  Minimum step size = " SUN_FORMAT_G "\n", ark_mem->hmin);
   }
   if (ark_mem->hmax_inv != ZERO)
   {
-    fprintf(fp, "  Maximum step size = %" RSYM "\n", ONE / ark_mem->hmax_inv);
+    fprintf(fp, "  Maximum step size = " SUN_FORMAT_G "\n",
+            ONE / ark_mem->hmax_inv);
   }
   if (ark_mem->fixedstep) { fprintf(fp, "  Fixed time-stepping enabled\n"); }
   if (ark_mem->itol == ARK_WF)
@@ -2897,10 +3096,12 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   }
   else
   {
-    fprintf(fp, "  Solver relative tolerance = %" RSYM "\n", ark_mem->reltol);
+    fprintf(fp, "  Solver relative tolerance = " SUN_FORMAT_G "\n",
+            ark_mem->reltol);
     if (ark_mem->itol == ARK_SS)
     {
-      fprintf(fp, "  Solver absolute tolerance = %" RSYM "\n", ark_mem->Sabstol);
+      fprintf(fp, "  Solver absolute tolerance = " SUN_FORMAT_G "\n",
+              ark_mem->Sabstol);
     }
     else { fprintf(fp, "  Vector-valued solver absolute tolerance\n"); }
   }
@@ -2914,7 +3115,7 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
     {
       if (ark_mem->ritol == ARK_SS)
       {
-        fprintf(fp, "  Absolute residual tolerance = %" RSYM "\n",
+        fprintf(fp, "  Absolute residual tolerance = " SUN_FORMAT_G "\n",
                 ark_mem->SRabstol);
       }
       else { fprintf(fp, "  Vector-valued residual absolute tolerance\n"); }
@@ -2922,32 +3123,37 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   }
   if (ark_mem->hin != ZERO)
   {
-    fprintf(fp, "  Initial step size = %" RSYM "\n", ark_mem->hin);
+    fprintf(fp, "  Initial step size = " SUN_FORMAT_G "\n", ark_mem->hin);
   }
   fprintf(fp, "\n");
-  fprintf(fp, "  Maximum step increase (first step) = %" RSYM "\n",
+  fprintf(fp, "  Maximum step increase (first step) = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->etamx1);
-  fprintf(fp, "  Step reduction factor on multiple error fails = %" RSYM "\n",
+  fprintf(fp,
+          "  Step reduction factor on multiple error fails = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->etamxf);
   fprintf(fp, "  Minimum error fails before above factor is used = %i\n",
           ark_mem->hadapt_mem->small_nef);
-  fprintf(fp,
-          "  Step reduction factor on nonlinear convergence failure = %" RSYM
-          "\n",
+  fprintf(fp, "  Step reduction factor on nonlinear convergence failure = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->etacf);
-  fprintf(fp, "  Explicit safety factor = %" RSYM "\n", ark_mem->hadapt_mem->cfl);
-  fprintf(fp, "  Safety factor = %" RSYM "\n", ark_mem->hadapt_mem->safety);
-  fprintf(fp, "  Growth factor = %" RSYM "\n", ark_mem->hadapt_mem->growth);
-  fprintf(fp, "  Step growth lower bound = %" RSYM "\n",
+  fprintf(fp, "  Explicit safety factor = " SUN_FORMAT_G "\n",
+          ark_mem->hadapt_mem->cfl);
+  fprintf(fp, "  Safety factor = " SUN_FORMAT_G "\n",
+          ark_mem->hadapt_mem->safety);
+  fprintf(fp, "  Growth factor = " SUN_FORMAT_G "\n",
+          ark_mem->hadapt_mem->growth);
+  fprintf(fp, "  Step growth lower bound = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->lbound);
-  fprintf(fp, "  Step growth upper bound = %" RSYM "\n",
+  fprintf(fp, "  Step growth upper bound = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->ubound);
   if (ark_mem->hadapt_mem->expstab == arkExpStab)
   {
     fprintf(fp, "  Default explicit stability function\n");
   }
   else { fprintf(fp, "  User provided explicit stability function\n"); }
-  (void)SUNAdaptController_Write(ark_mem->hadapt_mem->hcontroller, fp);
+  if (ark_mem->hadapt_mem->hcontroller != NULL)
+  {
+    (void)SUNAdaptController_Write(ark_mem->hadapt_mem->hcontroller, fp);
+  }
 
   fprintf(fp, "  Maximum number of error test failures = %i\n", ark_mem->maxnef);
   fprintf(fp, "  Maximum number of convergence test failures = %i\n",
@@ -2958,6 +3164,73 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
   {
     return (ark_mem->step_writeparameters(ark_mem, fp));
   }
+
+  return (ARK_SUCCESS);
+}
+
+/*===============================================================
+  ARKODE-IO internal utility functions
+  ===============================================================*/
+
+/*---------------------------------------------------------------
+  arkReplaceAdaptController
+
+  Replaces the current SUNAdaptController time step controller
+  object. If a NULL-valued SUNAdaptController is input, the
+  default will be re-enabled.
+  ---------------------------------------------------------------*/
+int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C,
+                              sunbooleantype take_ownership)
+{
+  int retval;
+  long int lenrw, leniw;
+
+  /* Remove current SUNAdaptController object
+     (delete if owned, and then nullify pointer) */
+  if (ark_mem->hadapt_mem->owncontroller &&
+      (ark_mem->hadapt_mem->hcontroller != NULL))
+  {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
+
+    retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
+    ark_mem->hadapt_mem->owncontroller = SUNFALSE;
+    if (retval != SUN_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "SUNAdaptController_Destroy failure");
+      return (ARK_MEM_FAIL);
+    }
+  }
+  ark_mem->hadapt_mem->hcontroller = NULL;
+
+  /* On NULL-valued input, create default SUNAdaptController object */
+  if (C == NULL)
+  {
+    C = SUNAdaptController_PID(ark_mem->sunctx);
+    if (C == NULL)
+    {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
+                      "SUNAdaptControllerPID allocation failure");
+      return (ARK_MEM_FAIL);
+    }
+    ark_mem->hadapt_mem->owncontroller = SUNTRUE;
+  }
+  else { ark_mem->hadapt_mem->owncontroller = take_ownership; }
+
+  /* Attach new SUNAdaptController object */
+  retval = SUNAdaptController_Space(C, &lenrw, &leniw);
+  if (retval == SUN_SUCCESS)
+  {
+    ark_mem->liw += leniw;
+    ark_mem->lrw += lenrw;
+  }
+  ark_mem->hadapt_mem->hcontroller = C;
 
   return (ARK_SUCCESS);
 }
@@ -2991,7 +3264,7 @@ int arkSetForcePass(void* arkode_mem, sunbooleantype force_pass)
 /*---------------------------------------------------------------
   arkGetLastKFlag:
 
-  The last kflag value retured by the temporal error test.
+  The last kflag value returned by the temporal error test.
   ---------------------------------------------------------------*/
 int arkGetLastKFlag(void* arkode_mem, int* last_kflag)
 {
@@ -3050,15 +3323,17 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
 
   /* Remove current SUNAdaptController object
      (delete if owned, and then nullify pointer) */
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
+  if (ark_mem->hadapt_mem->owncontroller &&
+      (ark_mem->hadapt_mem->hcontroller != NULL))
   {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
-  }
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
+
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUN_SUCCESS)
@@ -3251,15 +3526,17 @@ int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
 
   /* Remove current SUNAdaptController object
      (delete if owned, and then nullify pointer) */
-  retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
-                                    &leniw);
-  if (retval == SUN_SUCCESS)
+  if (ark_mem->hadapt_mem->owncontroller &&
+      (ark_mem->hadapt_mem->hcontroller != NULL))
   {
-    ark_mem->liw -= leniw;
-    ark_mem->lrw -= lenrw;
-  }
-  if (ark_mem->hadapt_mem->owncontroller)
-  {
+    retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,
+                                      &leniw);
+    if (retval == SUN_SUCCESS)
+    {
+      ark_mem->liw -= leniw;
+      ark_mem->lrw -= lenrw;
+    }
+
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
     ark_mem->hadapt_mem->owncontroller = SUNFALSE;
     if (retval != SUN_SUCCESS)

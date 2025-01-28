@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -20,7 +20,7 @@ add_subdirectory(C_serial)
 # C++ unit tests
 if(CXX_FOUND)
   add_subdirectory(CXX_serial)
-  if (SUNDIALS_TEST_ENABLE_GTEST)
+  if(SUNDIALS_TEST_ENABLE_GTEST)
     add_subdirectory(gtest)
   endif()
 endif()

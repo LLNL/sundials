@@ -1,0 +1,68 @@
+/*---------------------------------------------------------------
+ * Programmer(s): Steven B. Roberts @ LLNL
+ *---------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ *---------------------------------------------------------------
+ * This file defines splitting coefficients using X-macros
+ *--------------------------------------------------------------*/
+
+/*
+  When adding a new method, enter the coefficients below and add
+  a new enum entry to include/arkode/arkode_splittingstep_coefficients.h
+*/
+
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_NONE, {
+    return NULL;
+  })
+
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_LIE_TROTTER_1_1_2, {
+    return SplittingStepCoefficients_LieTrotter(2);
+ })
+
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_STRANG_2_2_2, {
+    return SplittingStepCoefficients_Strang(2);
+ })
+
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_BEST_2_2_2, {
+    const SplittingStepCoefficients coefficients = SplittingStepCoefficients_Alloc(1, 2, 2);
+    coefficients->order = 2;
+    coefficients->alpha[0] = SUN_RCONST(1.0);
+    coefficients->beta[0][1][0] = SUN_RCONST(1.0) - SUNRsqrt(SUN_RCONST(0.5));
+    coefficients->beta[0][1][1] = SUNRsqrt(SUN_RCONST(0.5));
+    coefficients->beta[0][2][0] = SUN_RCONST(1.0);
+    coefficients->beta[0][2][1] = SUN_RCONST(1.0);
+    return coefficients;
+ })
+
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_SUZUKI_3_3_2, {
+    return SplittingStepCoefficients_ThirdOrderSuzuki(2);
+ })
+
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_RUTH_3_3_2, {
+    const SplittingStepCoefficients coefficients = SplittingStepCoefficients_Alloc(1, 3, 2);
+    coefficients->order = 3;
+    coefficients->alpha[0] = SUN_RCONST(1.0);
+    coefficients->beta[0][1][0] = SUN_RCONST(1.0);
+    coefficients->beta[0][1][1] = -SUN_RCONST(1.0) / SUN_RCONST(24.0);
+    coefficients->beta[0][2][0] = SUN_RCONST(1.0) / SUN_RCONST(3.0);
+    coefficients->beta[0][2][1] = SUN_RCONST(17.0) / SUN_RCONST(24.0);
+    coefficients->beta[0][3][0] = SUN_RCONST(1.0);
+    coefficients->beta[0][3][1] = SUN_RCONST(1.0);
+    return coefficients;
+ })
+
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_YOSHIDA_4_4_2, {
+    return SplittingStepCoefficients_TripleJump(2, 4);
+ })
+
+ARK_SPLITTING_COEFFICIENTS(ARKODE_SPLITTING_YOSHIDA_8_6_2, {
+    return SplittingStepCoefficients_TripleJump(2, 6);
+ })

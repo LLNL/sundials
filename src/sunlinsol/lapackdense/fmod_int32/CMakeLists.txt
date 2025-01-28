@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ----------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,16 +15,17 @@
 # object library
 # ----------------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunlinsollapackdense_mod
-  SOURCES
-    fsunlinsol_lapackdense_mod.f90 fsunlinsol_lapackdense_mod.c
-  LINK_LIBRARIES
-    PUBLIC sundials_fsunmatrixdense_mod sundials_fcore_mod
-  OUTPUT_NAME
-    sundials_fsunlinsollapackdense_mod
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-    ${sunlinsollib_SOVERSION}
-)
+# Disable warnings from unused SWIG macros which we can't control
+if(ENABLE_ALL_WARNINGS)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-macros")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-macros")
+endif()
+
+sundials_add_f2003_library(
+  sundials_fsunlinsollapackdense_mod
+  SOURCES fsunlinsol_lapackdense_mod.f90 fsunlinsol_lapackdense_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fsunmatrixdense_mod sundials_fcore_mod
+  OUTPUT_NAME sundials_fsunlinsollapackdense_mod
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 message(STATUS "Added SUNLINSOL_LAPACKDENSE F2003 interface")

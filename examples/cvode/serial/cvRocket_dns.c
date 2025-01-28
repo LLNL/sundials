@@ -2,7 +2,7 @@
  * Programmer(s): Alan C. Hindmarsh @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -44,16 +44,6 @@
 #include <sunmatrix/sunmatrix_dense.h>
 
 #include "sundials/sundials_nvector.h"
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
 
 /* Problem Constants */
 
@@ -151,7 +141,7 @@ int main(void)
   if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the right-hand side function in
-   * y'=f(t,y), the inital time T0, and the initial dependent variable vector y. */
+   * y'=f(t,y), the initial time T0, and the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
   if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 

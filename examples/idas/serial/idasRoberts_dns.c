@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -44,12 +44,8 @@
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
 #else
 #define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
 #endif
 
 /* Problem Constants */
@@ -176,7 +172,7 @@ int main(void)
   if (check_retval(&retval, "IDASetJacFn", 1)) { return (1); }
 
   /* Create Newton SUNNonlinearSolver object. IDA uses a
-   * Newton SUNNonlinearSolver by default, so it is unecessary
+   * Newton SUNNonlinearSolver by default, so it is unnecessary
    * to create it and attach it. It is done in this example code
    * solely for demonstration purposes. */
   NLS = SUNNonlinSol_Newton(yy, ctx);
@@ -434,7 +430,7 @@ static int check_retval(void* returnvalue, const char* funcname, int opt)
 }
 
 /* compare the solution at the final time 4e10s to a reference solution computed
-   using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
+   using a relative tolerance of 1e-8 and absolute tolerance of 1e-14 */
 static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, N_Vector atol)
 {
   int passfail = 0; /* answer pass (0) or fail (1) retval */

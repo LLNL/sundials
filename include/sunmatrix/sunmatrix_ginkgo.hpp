@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -28,7 +28,7 @@
 namespace sundials {
 namespace ginkgo {
 
-// Forward decalaration of regular Matrix class
+// Forward declaration of regular Matrix class
 template<typename GkoMatType>
 class Matrix;
 
@@ -324,8 +324,14 @@ void Matvec(Matrix<GkoMatType>& A, N_Vector x, N_Vector y)
 template<typename GkoMatType>
 void ScaleAdd(const sunrealtype c, Matrix<GkoMatType>& A, Matrix<GkoMatType>& B)
 {
+#if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 8)
+  // Identity constructor always creates a square matrix
+  const auto I{
+    gko::matrix::Identity<sunrealtype>::create(A.GkoExec(), A.GkoSize()[1])};
+#else
   const auto I{
     gko::matrix::Identity<sunrealtype>::create(A.GkoExec(), A.GkoSize())};
+#endif
   const auto one{gko::initialize<GkoDenseMat>({1.0}, A.GkoExec())};
   const auto cmat{gko::initialize<GkoDenseMat>({c}, A.GkoExec())};
   // A = B + cA

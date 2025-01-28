@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -135,7 +135,7 @@ private:
 };
 
 /*
- * A kernel execution policy for performing a reduction across indvidual thread
+ * A kernel execution policy for performing a reduction across individual thread
  * blocks. The number of threads per block (blockSize) can be set to any valid
  * multiple of the CUDA warp size. The number of blocks (gridSize) can be set to
  * any value greater or equal to 0. If it is set to 0, then the grid size will

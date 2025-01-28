@@ -3,7 +3,7 @@
  * Programmer(s): Daniel R. Reynolds and Ting Yan @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -204,7 +204,7 @@ static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate,
 static void WebRates(sunrealtype xx, sunrealtype yy, sunrealtype* cxy,
                      sunrealtype* ratesxy, UserData webdata);
 static sunrealtype dotprod(sunindextype size, sunrealtype* x1, sunrealtype* x2);
-static int check_retval(void* returnvalue, char* funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -469,8 +469,8 @@ static int Precond(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
 
       for (js = 0; js < NUM_SPECIES; js++)
       {
-        inc = sqru *
-              (MAX(fabs(cxy[js]), MAX(hh * fabs(cpxy[js]), ONE / ewtxy[js])));
+        inc   = sqru * (MAX(SUNRabs(cxy[js]),
+                            MAX(hh * SUNRabs(cpxy[js]), ONE / ewtxy[js])));
         cctmp = cxy[js];
         cxy[js] += inc;
         fac = -ONE / inc;
@@ -501,7 +501,7 @@ static int Precond(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
 
 static int PSolve(sunrealtype tt, N_Vector cc, N_Vector cp, N_Vector rr,
                   N_Vector rvec, N_Vector zvec, sunrealtype cj,
-                  sunrealtype dalta, void* user_data)
+                  sunrealtype delta, void* user_data)
 {
   sunrealtype **Pxy, *zxy;
   sunindextype* pivot;
@@ -862,7 +862,7 @@ static sunrealtype dotprod(sunindextype size, sunrealtype* x1, sunrealtype* x2)
  *            NULL pointer
  */
 
-static int check_retval(void* returnvalue, char* funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
   int* retval;
 

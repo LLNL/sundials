@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -86,11 +86,9 @@
 #include <vector>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
 #else
-#define GSYM "g"
 #define ESYM "e"
 #define FSYM "f"
 #endif
@@ -245,7 +243,7 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "Ytrue", 1)) { return 1; }
 
   // Initialize ARKStep. Specify the right-hand side function(s) for
-  // M(t) * y' = fe(t,y) + fi(t,y), the inital time T0, and the
+  // M(t) * y' = fe(t,y) + fi(t,y), the initial time T0, and the
   // initial dependent variable vector y.
   if (rk_type == 0)
   { // ARK method
@@ -575,8 +573,10 @@ static int adaptive_run(void* arkode_mem, N_Vector y, sunrealtype T0,
   if (check_retval(&retval, "ARKodeGetNumSteps", 1)) { return 1; }
   retval = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   if (check_retval(&retval, "ARKodeGetNumStepAttempts", 1)) { return 1; }
-  retval = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_retval(&retval, "ARKStepGetNumRhsEvals", 1)) { return 1; }
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  if (check_retval(&retval, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  if (check_retval(&retval, "ARKodeGetNumRhsEvals", 1)) { return 1; }
   retval = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   if (check_retval(&retval, "ARKodeGetNumErrTestFails", 1)) { return 1; }
   retval = ARKodeGetNumMassSetups(arkode_mem, &nmset);

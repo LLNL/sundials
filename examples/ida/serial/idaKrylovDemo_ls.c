@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -414,7 +414,7 @@ int resHeat(sunrealtype tt, N_Vector uu, N_Vector up, N_Vector rr, void* user_da
  * PsetupHeat: setup for diagonal preconditioner.
  *
  * The optional user-supplied functions PsetupHeat and
- * PsolveHeat together must define the left preconditoner
+ * PsolveHeat together must define the left preconditioner
  * matrix P approximating the system Jacobian matrix
  *                   J = dF/du + cj*dF/du'
  * (where the DAE system is F(t,u,u') = 0), and solve the linear

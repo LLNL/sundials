@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -226,8 +226,8 @@ int main(int argc, char* argv[])
 
   // Create inner stepper
   MRIStepInnerStepper inner_stepper;
-  flag = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_flag(flag, "ARKStepCreateMRIStepInnerStepper")) { return 1; }
+  flag = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_flag(flag, "ARKodeCreateMRIStepInnerStepper")) { return 1; }
 
   // Create MRIStep memory structure
   void* arkode_mem = MRIStepCreate(nullptr, f, ZERO, y, inner_stepper, sunctx);

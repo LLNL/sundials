@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
 
   /* Call ARKStepCreate to initialize the ARK timestepper module and
      specify the right-hand side functions in y'=fe(t,y)+fi(t,y),
-     the inital time T0, and the initial dependent variable vector y. */
+     the initial time T0, and the initial dependent variable vector y. */
   arkode_mem = ARKStepCreate(fe, fi, T0, y, ctx);
   if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
 
@@ -249,8 +249,10 @@ int main(int argc, char* argv[])
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
   check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);

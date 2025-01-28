@@ -3,7 +3,7 @@
 #                and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -18,25 +18,17 @@
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_DENSE\n\")")
 
 # Add the sunlinsol_dense library
-sundials_add_library(sundials_sunlinsoldense
-  SOURCES
-    sunlinsol_dense.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_dense.h
-  INCLUDE_SUBDIR
-    sunlinsol
-  LINK_LIBRARIES
-    PUBLIC sundials_core
+sundials_add_library(
+  sundials_sunlinsoldense
+  SOURCES sunlinsol_dense.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_dense.h
+  INCLUDE_SUBDIR sunlinsol
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC sundials_sunmatrixdense
-  OUTPUT_NAME
-    sundials_sunlinsoldense
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-    ${sunlinsollib_SOVERSION}
-)
+  LINK_LIBRARIES PUBLIC sundials_sunmatrixdense
+  OUTPUT_NAME sundials_sunlinsoldense
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_DENSE module")
 

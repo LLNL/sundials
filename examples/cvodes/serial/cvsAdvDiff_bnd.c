@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -154,7 +154,7 @@ int main(void)
   if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
-   * user's right hand side function in u'=f(t,u), the inital time T0, and
+   * user's right hand side function in u'=f(t,u), the initial time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
   if (check_retval(&retval, "CVodeInit", 1)) { return (1); }

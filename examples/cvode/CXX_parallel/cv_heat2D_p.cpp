@@ -3,7 +3,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -60,11 +60,10 @@
 #include "sunlinsol/sunlinsol_spgmr.h" // access to SPGMR SUNLinearSolver
 
 // Macros for problem constants
-#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
-#define EIGHT SUN_RCONST(8.0)
+#define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 // Macro to access (x,y) location in 1D NVector array
 #define IDX(x, y, n) ((n) * (y) + (x))
@@ -154,7 +153,7 @@ struct UserData
   sunrealtype* Ssend;
   sunrealtype* Nsend;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -175,7 +174,7 @@ struct UserData
   // Inverse of Jacobian diagonal for preconditioner
   N_Vector d;
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   int nout;      // number of output times
   ofstream uout; // output file stream
@@ -418,7 +417,7 @@ int main(int argc, char* argv[])
     sunrealtype dTout = udata->tf / udata->nout;
     sunrealtype tout  = dTout;
 
-    // Inital output
+    // Initial output
     flag = OpenOutput(udata);
     if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 
@@ -1486,7 +1485,7 @@ static void InputHelp()
   cout << "  --noforcing             : disable forcing term" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;

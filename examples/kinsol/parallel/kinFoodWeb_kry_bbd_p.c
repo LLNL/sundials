@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -106,8 +106,6 @@
   6 /* must equal 2*(number of prey or predators)
                               number of prey = number of predators       */
 
-#define PI SUN_RCONST(3.1415926535898) /* pi */
-
 #define NPEX     2              /* number of processors in the x-direction  */
 #define NPEY     2              /* number of processors in the y-direction  */
 #define MXSUB    10             /* number of x mesh points per subgrid      */
@@ -128,7 +126,6 @@
 #define AY       SUN_RCONST(1.0)    /* total range of y variable */
 #define FTOL     SUN_RCONST(1.e-7)  /* ftol tolerance */
 #define STOL     SUN_RCONST(1.e-13) /* stol tolerance */
-#define THOUSAND SUN_RCONST(1000.0) /* one thousand */
 #define ZERO     SUN_RCONST(0.0)    /* 0. */
 #define ONE      SUN_RCONST(1.0)    /* 1. */
 #define PREYIN   SUN_RCONST(1.0)    /* initial guess for prey concentrations. */

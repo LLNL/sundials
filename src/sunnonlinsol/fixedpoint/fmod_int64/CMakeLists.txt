@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,17 +15,18 @@
 # object library
 # ---------------------------------------------------------------
 
-sundials_add_f2003_library(sundials_fsunnonlinsolfixedpoint_mod
-  SOURCES
-    fsunnonlinsol_fixedpoint_mod.f90 fsunnonlinsol_fixedpoint_mod.c
-  LINK_LIBRARIES
-    PUBLIC sundials_fcore_mod
-  OUTPUT_NAME
-    sundials_fsunnonlinsolfixedpoint_mod
-  VERSION
-    ${sunnonlinsollib_VERSION}
-  SOVERSION
-    ${sunnonlinsollib_SOVERSION}
-)
+# Disable warnings from unused SWIG macros which we can't control
+if(ENABLE_ALL_WARNINGS)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-macros")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-macros")
+endif()
+
+sundials_add_f2003_library(
+  sundials_fsunnonlinsolfixedpoint_mod
+  SOURCES fsunnonlinsol_fixedpoint_mod.f90 fsunnonlinsol_fixedpoint_mod.c
+  LINK_LIBRARIES PUBLIC sundials_fcore_mod
+  OUTPUT_NAME sundials_fsunnonlinsolfixedpoint_mod
+  VERSION ${sunnonlinsollib_VERSION}
+  SOVERSION ${sunnonlinsollib_SOVERSION})
 
 message(STATUS "Added SUNNONLINSOL_FIXEDPOINT F2003 interface")

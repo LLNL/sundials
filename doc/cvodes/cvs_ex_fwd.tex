@@ -252,7 +252,7 @@ the main program will then set the scaling parameters
 \id{pbar} (\id{pbar}$_i$ = \id{p}$_i$, which can typically be used for 
 nonzero model parameters). 
 Next, the program allocates memory for \id{yS}, by calling the {\nvecs} function 
-\id{N\_VCloneVectorArray\_Serial}, and initializaes all sensitivity variables to $0.0$.
+\id{N\_VCloneVectorArray\_Serial}, and initializes all sensitivity variables to $0.0$.
 
 The call to \id{CVodeSensInit1} specifies the sensitivity solution
 method through the argument \id{sensi\_meth} (read from the command
@@ -290,7 +290,7 @@ to \id{N\_VDestroy\_Serial}, \id{N\_VDestroyVectorArray\_Serial},
 
 The user-supplied functions \id{f} (for the right-hand side of the original ODEs) and
 \id{Jac} (for the system Jacobian) are identical to those in \id{cvRoberts\_dns.c},
-with the notable exeption that model parameters are extracted from the user-defined
+with the notable exception that model parameters are extracted from the user-defined
 data structure \id{data}, which must first be cast to the \id{UserData} type.
 Similarly, the user-supplied function \id{ewt} is identical to that in
 \id{cvRoberts\_dns\_uw.c}.  The user-supplied function \id{fS} computes the

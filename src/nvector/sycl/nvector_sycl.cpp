@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -709,15 +709,8 @@ void N_VPrintFile_Sycl(N_Vector X, FILE* outfile)
 
   for (i = 0; i < NVEC_SYCL_CONTENT(X)->length; i++)
   {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-    fprintf(outfile, "%35.32Lg\n", NVEC_SYCL_HDATAp(X)[i]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-    fprintf(outfile, "%19.16g\n", NVEC_SYCL_HDATAp(X)[i]);
-#else
-    fprintf(outfile, "%11.8g\n", NVEC_SYCL_HDATAp(X)[i]);
-#endif
+    fprintf(outfile, SUN_FORMAT_E "\n", NVEC_SYCL_HDATAp(X)[i]);
   }
-  fprintf(outfile, "\n");
 
   return;
 }
@@ -870,7 +863,7 @@ void N_VDestroy_Sycl(N_Vector v)
   return;
 }
 
-void N_VSpace_Sycl(N_Vector X, long int* lrw, long int* liw)
+void N_VSpace_Sycl(N_Vector X, sunindextype* lrw, sunindextype* liw)
 {
   *lrw = NVEC_SYCL_CONTENT(X)->length;
   *liw = 2;
@@ -1146,7 +1139,7 @@ sunrealtype N_VWrmsNorm_Sycl(N_Vector x, N_Vector w)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(x);
   const sunrealtype sum = N_VWSqrSumLocal_Sycl(x, w);
-  return std::sqrt(sum / N);
+  return ::sycl::sqrt(sum / N);
 }
 
 sunrealtype N_VWSqrSumMaskLocal_Sycl(N_Vector x, N_Vector w, N_Vector id)
@@ -1192,7 +1185,7 @@ sunrealtype N_VWrmsNormMask_Sycl(N_Vector x, N_Vector w, N_Vector id)
 {
   const sunindextype N  = NVEC_SYCL_LENGTH(x);
   const sunrealtype sum = N_VWSqrSumMaskLocal_Sycl(x, w, id);
-  return std::sqrt(sum / N);
+  return ::sycl::sqrt(sum / N);
 }
 
 sunrealtype N_VMin_Sycl(N_Vector x)
@@ -1233,7 +1226,7 @@ sunrealtype N_VMin_Sycl(N_Vector x)
 
 sunrealtype N_VWL2Norm_Sycl(N_Vector x, N_Vector w)
 {
-  return std::sqrt(N_VWSqrSumLocal_Sycl(x, w));
+  return ::sycl::sqrt(N_VWSqrSumLocal_Sycl(x, w));
 }
 
 sunrealtype N_VL1Norm_Sycl(N_Vector x)
@@ -2285,14 +2278,14 @@ static int FusedBuffer_CopyRealArray(N_Vector v, sunrealtype* rdata, int nval,
     return SUN_ERR_GENERIC;
   }
 
-  sunrealtype* h_buffer = (sunrealtype*)((char*)(vcp->fused_buffer_host->ptr) +
-                                         vcp->fused_buffer_offset);
+  sunrealtype* h_buffer = reinterpret_cast<sunrealtype*>(
+    (char*)(vcp->fused_buffer_host->ptr) + vcp->fused_buffer_offset);
 
   for (int j = 0; j < nval; j++) { h_buffer[j] = rdata[j]; }
 
   /* Set shortcut to the device buffer and update offset*/
-  *shortcut = (sunrealtype*)((char*)(vcp->fused_buffer_dev->ptr) +
-                             vcp->fused_buffer_offset);
+  *shortcut = reinterpret_cast<sunrealtype*>(
+    (char*)(vcp->fused_buffer_dev->ptr) + vcp->fused_buffer_offset);
 
   vcp->fused_buffer_offset += nval * sizeof(sunrealtype);
 
@@ -2314,14 +2307,14 @@ static int FusedBuffer_CopyPtrArray1D(N_Vector v, N_Vector* X, int nvec,
     return SUN_ERR_GENERIC;
   }
 
-  sunrealtype** h_buffer = (sunrealtype**)((char*)(vcp->fused_buffer_host->ptr) +
-                                           vcp->fused_buffer_offset);
+  sunrealtype** h_buffer = reinterpret_cast<sunrealtype**>(
+    (char*)(vcp->fused_buffer_host->ptr) + vcp->fused_buffer_offset);
 
   for (int j = 0; j < nvec; j++) { h_buffer[j] = NVEC_SYCL_DDATAp(X[j]); }
 
   /* Set shortcut to the device buffer and update offset*/
-  *shortcut = (sunrealtype**)((char*)(vcp->fused_buffer_dev->ptr) +
-                              vcp->fused_buffer_offset);
+  *shortcut = reinterpret_cast<sunrealtype**>(
+    (char*)(vcp->fused_buffer_dev->ptr) + vcp->fused_buffer_offset);
 
   vcp->fused_buffer_offset += nvec * sizeof(sunrealtype*);
 
@@ -2342,8 +2335,8 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
     return SUN_ERR_GENERIC;
   }
 
-  sunrealtype** h_buffer = (sunrealtype**)((char*)(vcp->fused_buffer_host->ptr) +
-                                           vcp->fused_buffer_offset);
+  sunrealtype** h_buffer = reinterpret_cast<sunrealtype**>(
+    (char*)(vcp->fused_buffer_host->ptr) + vcp->fused_buffer_offset);
 
   for (int j = 0; j < nvec; j++)
   {
@@ -2354,8 +2347,8 @@ static int FusedBuffer_CopyPtrArray2D(N_Vector v, N_Vector** X, int nvec,
   }
 
   /* Set shortcut to the device buffer and update offset*/
-  *shortcut = (sunrealtype**)((char*)(vcp->fused_buffer_dev->ptr) +
-                              vcp->fused_buffer_offset);
+  *shortcut = reinterpret_cast<sunrealtype**>(
+    (char*)(vcp->fused_buffer_dev->ptr) + vcp->fused_buffer_offset);
 
   /* Update the offset */
   vcp->fused_buffer_offset += nvec * nsum * sizeof(sunrealtype*);

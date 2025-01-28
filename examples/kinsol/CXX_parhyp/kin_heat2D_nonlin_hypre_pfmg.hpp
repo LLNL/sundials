@@ -3,7 +3,7 @@
  *                David Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -32,11 +32,10 @@
 #include "sunlinsol/sunlinsol_pcg.h" // access to PCG SUNLinearSolver
 
 // Macros for problem constants
-#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
-#define EIGHT SUN_RCONST(8.0)
+#define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 // Macro to access (x,y) location in 1D NVector array
 #define IDX(x, y, n) ((n) * (y) + (x))
@@ -126,7 +125,7 @@ struct UserData
   sunrealtype* Ssend;
   sunrealtype* Nsend;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -135,7 +134,7 @@ struct UserData
   // Fixed Point Solver settings
   sunrealtype rtol;    // relative tolerance
   int maa;             // m for Anderson Acceleration
-  sunrealtype damping; // daming for Anderson Acceleration
+  sunrealtype damping; // damping for Anderson Acceleration
   int orthaa;          // orthogonalization routine for AA
   int maxits;          // max number of fixed point iterations
 
@@ -184,7 +183,7 @@ struct UserData
                          //   3 - nonsymmetric R/B Gauss-Seidel
   HYPRE_Int pfmg_nrelax; // number of pre and post relaxation sweeps (2)
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   ofstream uout; // output file stream
   ofstream rout; // output residual file stream

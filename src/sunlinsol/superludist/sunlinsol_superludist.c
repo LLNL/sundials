@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -28,7 +28,6 @@
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
-#define TWO  SUN_RCONST(2.0)
 
 /*
  * -----------------------------------------------------------------
@@ -249,7 +248,7 @@ int SUNLinSolSolve_SuperLUDIST(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   if (retval != 0)
   {
     /* retval should never be < 0, and if it is > than ncol it means a memory
-       allocation error occured. If 0 < retval <= ncol, then U is singular and
+       allocation error occurred. If 0 < retval <= ncol, then U is singular and
        the solve couldn't be completed. */
     if (retval < 0 || retval > Asuper->ncol)
     {
@@ -277,7 +276,7 @@ SUNErrCode SUNLinSolFree_SuperLUDIST(SUNLinearSolver S)
   if (S == NULL) { return SUN_SUCCESS; }
 
   /* Call SuperLU DIST destroy/finalize routines,
-     but don't free the sturctures themselves - that is the user's job */
+     but don't free the structures themselves - that is the user's job */
   xDestroy_LU(SLU_SIZE(S), SLU_GRID(S), SLU_LU(S));
   dSolveFinalize(SLU_OPTIONS(S), SLU_SOLVESTRUCT(S));
 

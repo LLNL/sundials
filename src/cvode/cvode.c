@@ -3,7 +3,7 @@
  *                and Dan Shumaker @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -1158,7 +1158,7 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
   {
     cv_mem->cv_tretlast = *tret = cv_mem->cv_tn;
 
-    /* Check inputs for corectness */
+    /* Check inputs for correctness */
 
     ier = cvInitialSetup(cv_mem);
     if (ier != CV_SUCCESS)
@@ -2422,14 +2422,10 @@ static int cvStep(CVodeMem cv_mem)
 
   for (;;)
   {
-    SUNLogInfo(CV_LOGGER, __func__, "begin-step-attempt",
-               "step = %li, t_n = %" RSYM ", h = %" RSYM ", q = %d",
+    SUNLogInfo(CV_LOGGER, "begin-step-attempt",
+               "step = %li, tn = " SUN_FORMAT_G ", h = " SUN_FORMAT_G
+               ", q = %d",
                cv_mem->cv_nst + 1, cv_mem->cv_tn, cv_mem->cv_h, cv_mem->cv_q);
-
-#ifdef SUNDIALS_LOGGING_EXTRA_DEBUG
-    SUNLogDebug(CV_LOGGER, __func__, "being-step-solution", "y_n(:) =", "");
-    N_VPrintFile(cv_mem->cv_y, CV_LOGGER->debug_fp);
-#endif
 
     cvPredict(cv_mem);
     cvSetMethod(cv_mem);
@@ -2447,8 +2443,7 @@ static int cvStep(CVodeMem cv_mem)
     // }
 
     SUNLogInfoIf(kflag == PREDICT_AGAIN || kflag != DO_ERROR_TEST, CV_LOGGER,
-                 __func__, "end-step-attempt",
-                 "status = failed solve, kflag = %i\n", kflag);
+                 "end-step-attempt", "status = failed solve, kflag = %i", kflag);
 
     /* Go back in loop if we need to predict again (nflag=PREV_CONV_FAIL) */
     if (kflag == PREDICT_AGAIN) { continue; }
@@ -2464,8 +2459,8 @@ static int cvStep(CVodeMem cv_mem)
       /* Perform projection (nflag=CV_SUCCESS) */
       pflag = cvDoProjection(cv_mem, &nflag, saved_t, &npf);
 
-      SUNLogInfoIf(pflag != CV_SUCCESS, CV_LOGGER, __func__, "end-step-attempt",
-                   "status = failed projection, pflag = %i\n", pflag);
+      SUNLogInfoIf(pflag != CV_SUCCESS, CV_LOGGER, "end-step-attempt",
+                   "status = failed projection, pflag = %i", pflag);
 
       /* Go back in loop if we need to predict again (nflag=PREV_PROJ_FAIL) */
       if (pflag == PREDICT_AGAIN) { continue; }
@@ -2477,9 +2472,10 @@ static int cvStep(CVodeMem cv_mem)
     /* Perform error test (nflag=CV_SUCCESS) */
     eflag = cvDoErrorTest(cv_mem, &nflag, saved_t, &nef, &dsm);
 
-    SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, __func__, "end-step-attempt",
-                 "status = failed error test, dsm = %" RSYM ", eflag = %i\n", dsm,
-                 eflag);
+    SUNLogInfoIf(eflag != CV_SUCCESS, CV_LOGGER, "end-step-attempt",
+                 "status = failed error test, dsm = " SUN_FORMAT_G
+                 ", eflag = %i",
+                 dsm, eflag);
 
     /* Go back in loop if we need to predict again (nflag=PREV_ERR_FAIL) */
     if (eflag == TRY_AGAIN) { continue; }
@@ -2490,6 +2486,10 @@ static int cvStep(CVodeMem cv_mem)
     /* Error test passed (eflag=CV_SUCCESS), break from loop */
     break;
   }
+
+  SUNLogInfo(CV_LOGGER, "end-step-attempt",
+             "status = success, dsm = " SUN_FORMAT_G, dsm);
+
   /* Nonlinear system solve and error test were both successful.
      Update data, and consider change of step and/or order.       */
 
@@ -2857,8 +2857,7 @@ static void cvPredict(CVodeMem cv_mem)
     }
   }
 
-  SUNLogExtraDebugVec(CV_LOGGER, __func__, "return",
-                      "zn_0(:) =", cv_mem->cv_zn[0], "");
+  SUNLogExtraDebugVec(CV_LOGGER, "return", cv_mem->cv_zn[0], "zn_0(:) =");
 }
 
 /*
@@ -3197,6 +3196,8 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   cv_mem->cv_stiff = SUN_RCONST(0.0);
   cv_mem->cv_nslow = 0;
 
+  SUNLogInfo(CV_LOGGER, "begin-nonlinear-solve", "tol = %.16g", cv_mem->cv_tq[4]);
+
   /* solve the nonlinear system */
   flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_zn[0], cv_mem->cv_acor,
                            cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
@@ -3211,7 +3212,13 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   cv_mem->cv_nns += cv_mem->cv_nslow;
 
   /* if the solve failed return */
-  if (flag != SUN_SUCCESS) { return (flag); }
+  if (flag != SUN_SUCCESS)
+  {
+    SUNLogInfo(CV_LOGGER, "end-nonlinear-solve",
+               "status = failed, flag = %i, iters = %li", flag, nni_inc);
+
+    return (flag);
+  }
 
   /* solve successful */
 
@@ -3223,6 +3230,9 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   {
     cv_mem->cv_acnrm = N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
   }
+
+  SUNLogInfo(CV_LOGGER, "end-nonlinear-solve", "status = success, iters = %li",
+             nni_inc);
 
   /* update Jacobian status */
   cv_mem->cv_jcur = SUNFALSE;
@@ -3513,9 +3523,9 @@ static int cvDoErrorTest(CVodeMem cv_mem, int* nflagPtr, sunrealtype saved_t,
 
   dsm = cv_mem->cv_acnrm * cv_mem->cv_tq[2];
 
-  SUNLogDebug(CV_LOGGER, __func__, "error-test",
-              "step = %li, h = %" RSYM ", dsm = %" RSYM, cv_mem->cv_nst,
-              cv_mem->cv_h, dsm);
+  SUNLogDebug(CV_LOGGER, "error-test",
+              "step = %li, h = " SUN_FORMAT_G ", dsm = " SUN_FORMAT_G,
+              cv_mem->cv_nst, cv_mem->cv_h, dsm);
 
   /* If est. local error norm dsm passes test, return CV_SUCCESS */
   *dsmPtr = dsm;
@@ -3566,8 +3576,7 @@ int cvEtfSetEta(CVodeMem cv_mem, const int nef, const sunrealtype dsm)
 
     cvRescale(cv_mem);
 
-    SUNLogDebug(CV_LOGGER, __func__, "new-step-eta", "eta = %" RSYM,
-                cv_mem->cv_eta);
+    SUNLogDebug(CV_LOGGER, "new-step-eta", "eta = " SUN_FORMAT_G, cv_mem->cv_eta);
 
     return (TRY_AGAIN);
   }
@@ -3582,7 +3591,7 @@ int cvEtfSetEta(CVodeMem cv_mem, const int nef, const sunrealtype dsm)
     cv_mem->cv_q--;
     cv_mem->cv_qwait = cv_mem->cv_L;
     cvRescale(cv_mem);
-    SUNLogDebug(CV_LOGGER, __func__, "new-step-eta-mxnef1", "eta = %" RSYM,
+    SUNLogDebug(CV_LOGGER, "new-step-eta-mxnef1", "eta = " SUN_FORMAT_G,
                 cv_mem->cv_eta);
     return (TRY_AGAIN);
   }
@@ -3605,7 +3614,7 @@ int cvEtfSetEta(CVodeMem cv_mem, const int nef, const sunrealtype dsm)
 
   N_VScale(cv_mem->cv_h, cv_mem->cv_tempv, cv_mem->cv_zn[1]);
 
-  SUNLogDebug(CV_LOGGER, __func__, "new-step-eta-mxnef1-q1", "eta = %" RSYM,
+  SUNLogDebug(CV_LOGGER, "new-step-eta-mxnef1-q1", "eta = " SUN_FORMAT_G,
               cv_mem->cv_eta);
 
   return (TRY_AGAIN);
@@ -3677,8 +3686,8 @@ static void cvOkCompleteStep(CVodeMem cv_mem)
   }
 #endif
 
-  SUNLogDebug(CV_LOGGER, __func__, "return", "nst = %d, nscon = %d",
-              cv_mem->cv_nst, cv_mem->cv_nscon);
+  SUNLogDebug(CV_LOGGER, "return", "nst = %d, nscon = %d", cv_mem->cv_nst,
+              cv_mem->cv_nscon);
 }
 
 /*
@@ -3737,9 +3746,10 @@ static void cvOkPrepareNextStep(CVodeMem cv_mem, sunrealtype dsm)
     }
   }
 
-  SUNLogDebug(CV_LOGGER, __func__, "return",
-              "eta = %" RSYM ", hprime = %" RSYM ", halpha = %" RSYM ", qprime = %d, qwait = %d",
-              cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_halpha, cv_mem->cv_qprime,
+  SUNLogDebug(CV_LOGGER, "return",
+              "eta = " SUN_FORMAT_G ", hprime = " SUN_FORMAT_G
+              ", qprime = %d, qwait = %d",
+              cv_mem->cv_eta, cv_mem->cv_hprime, cv_mem->cv_qprime,
               cv_mem->cv_qwait);
 
   if (cv_mem->lsodkr_strategy) { cvMaybeSwitchToFixedPoint(cv_mem); }
@@ -5008,7 +5018,7 @@ int cvEwtSet(N_Vector ycur, N_Vector weight, void* data)
 /*
  * cvEwtSetSS
  *
- * This routine sets ewt as decribed above in the case tol_type = CV_SS.
+ * This routine sets ewt as described above in the case tol_type = CV_SS.
  * If the absolute tolerance is zero, it tests for non-positive components
  * before inverting. cvEwtSetSS returns 0 if ewt is successfully set to a
  * positive vector and -1 otherwise. In the latter case, ewt is considered
@@ -5048,7 +5058,7 @@ static int cvEwtSetSS(CVodeMem cv_mem, N_Vector ycur, N_Vector weight)
 /*
  * cvEwtSetSV
  *
- * This routine sets ewt as decribed above in the case tol_type = CV_SV.
+ * This routine sets ewt as described above in the case tol_type = CV_SV.
  * If any absolute tolerance is zero, it tests for non-positive components
  * before inverting. cvEwtSetSV returns 0 if ewt is successfully set to a
  * positive vector and -1 otherwise. In the latter case, ewt is considered
@@ -5100,7 +5110,8 @@ void cvProcessError(CVodeMem cv_mem, int error_code, int line, const char* func,
 
   /* Compose the message */
   va_start(ap, msgfmt);
-  size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
+  size_t msglen = 1;
+  if (msgfmt) { msglen += vsnprintf(NULL, 0, msgfmt, ap); }
   va_end(ap);
 
   char* msg = (char*)malloc(msglen);

@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -118,7 +118,7 @@ struct UserOptions
   int nout;      /* number of outputs            */
   int monitor;   /* print solution to screen     */
   int printtime; /* print timing information     */
-  char* outputdir;
+  const char* outputdir;
 };
 
 /*
@@ -148,7 +148,7 @@ struct UserData
   N_Vector vmask;
   N_Vector wmask;
 
-  /* problem paramaters */
+  /* problem parameters */
   int nvar;    /* number of species            */
   long int nx; /* number of intervals globally */
   int nxl;     /* number of intervals locally  */
@@ -197,7 +197,7 @@ typedef struct
   SUNNonlinearSolver local_nls;
 }* TaskLocalNewton_Content;
 
-/* Content accessor macors */
+/* Content accessor macros */
 #define GET_NLS_CONTENT(NLS) ((TaskLocalNewton_Content)(NLS->content))
 #define LOCAL_NLS(NLS)       (GET_NLS_CONTENT(NLS)->local_nls)
 

@@ -1,7 +1,7 @@
 ..
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -27,7 +27,7 @@ written in modern C++ (it requires C++14) as a header only library. To utilize
 this ``SUNMatrix`` users will need to include
 ``sunmatrix/sunmatrix_kokkosdense.hpp``. More instructions on building SUNDIALS
 with Kokkos and KokkosKernels enabled are given in
-:numref:`Installation.CMake.ExternalLibraries`. For instructions on building and
+:numref:`Installation.Options.KokkosKernels`. For instructions on building and
 using Kokkos and KokkosKernels, refer to the
 `Kokkos <https://kokkos.github.io/kokkos-core-wiki/index.html>`_
 and `KokkosKernels <https://github.com/kokkos/kokkos-kernels/wiki>`_.
@@ -142,7 +142,7 @@ class.
 
       :param rows: number of matrix rows
       :param cols: number of matrix columns
-      :param ex: an execuation space
+      :param ex: an execution space
       :param sunctx: the SUNDIALS simulation context object (:c:type:`SUNContext`)
 
    .. cpp:function:: DenseMatrix(size_type blocks, size_type block_rows, \
@@ -166,7 +166,7 @@ class.
       :param blocks: number of matrix blocks
       :param block_rows: number of rows in a block
       :param block_cols: number of columns in a block
-      :param ex: an execuation space
+      :param ex: an execution space
       :param sunctx: the SUNDIALS simulation context object (:c:type:`SUNContext`)
 
    .. cpp:function:: DenseMatrix(DenseMatrix&& that_matrix) noexcept

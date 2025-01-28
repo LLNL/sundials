@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -162,7 +162,7 @@ options as the vector they are cloned from while vectors created with
 **Notes**
 
 * When there is a need to access components of an ``N_Vector_Petsc v``, it
-  is recommeded to extract the PETSc vector via ``x_vec = N_VGetVector_Petsc(v);``
+  is recommended to extract the PETSc vector via ``x_vec = N_VGetVector_Petsc(v);``
   and then access components using appropriate PETSc functions.
 
 * The functions :c:func:`N_VNewEmpty_Petsc` and :c:func:`N_VMake_Petsc`, set the

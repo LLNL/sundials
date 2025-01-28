@@ -1,7 +1,7 @@
 ..
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -70,7 +70,7 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
    .. c:enumerator:: SUNMEMTYPE_PINNED
 
-      Page-locked memory accesible on the host
+      Page-locked memory accessible on the host
 
    .. c:enumerator:: SUNMEMTYPE_DEVICE
 

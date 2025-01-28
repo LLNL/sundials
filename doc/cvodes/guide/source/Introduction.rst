@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -46,7 +46,7 @@ capabilities of both VODE and VODPK have been combined in the C-language package
 CVODE :cite:p:`CoHi:96`.
 
 At present, CVODE may utilize a variety of Krylov methods provided in SUNDIALS
-that can be used in conjuction with Newton iteration: these include the GMRES
+that can be used in conjunction with Newton iteration: these include the GMRES
 (Generalized Minimal RESidual) :cite:p:`SaSc:86`, FGMRES (Flexible Generalized
 Minimum RESidual) :cite:p:`Saa:93`, Bi-CGStab (Bi-Conjugate Gradient Stabilized)
 :cite:p:`Van:92`, TFQMR (Transpose-Free Quasi-Minimal Residual)
@@ -77,7 +77,7 @@ resulting in PVODE :cite:p:`ByHi:99`, the parallel variant of CVODE.
 
 CVODES is written with a functionality that is a superset of that of the pair
 CVODE/PVODE. Sensitivity analysis capabilities, both forward and adjoint, have
-been added to the main integrator. Enabling forward sensititivity computations
+been added to the main integrator. Enabling forward sensitivity computations
 in CVODES will result in the code integrating the so-called *sensitivity
 equations* simultaneously with the original IVP, yielding both the solution and
 its sensitivity with respect to parameters in the model. Adjoint sensitivity
@@ -109,7 +109,7 @@ greater ease of interfacing the solver to applications written in extended
 Fortran.
 
 
-Changes to SUNDIALS in release 7.1.0
+Changes to SUNDIALS in release X.Y.Z
 ====================================
 
 .. include:: ../../../shared/RecentChanges.rst
@@ -181,7 +181,7 @@ The structure of this document is as follows:
    addition to those already described in Chapter :numref:`CVODES.Usage.SIM`.
    Following that we provide detailed descriptions of the
    user-callable interface routines specific to forward sensitivity analysis and
-   of the additonal optional user-defined routines.
+   of the additional optional user-defined routines.
 
 -  Chapter :numref:`CVODES.Usage.ADJ` describes the usage of CVODES for adjoint sensitivity analysis. We begin
    by describing the CVODES checkpointing implementation for interpolation of

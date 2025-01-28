@@ -4,7 +4,7 @@
  * Based on an example from Jean-Luc Fattebert @ ORNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -46,11 +46,9 @@
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"
-#define FSYM "Lf"
 #else
 #define GSYM "g"
 #define ESYM "e"
-#define FSYM "f"
 #endif
 
 /* Precision specific math function macros */
@@ -479,7 +477,7 @@ static void InputHelp(void)
   printf("  --alpha <vel>      : particle velocity\n");
   printf("  --orbits <orbits>  : number of orbits to perform\n");
   printf("  --rtol <rtol>      : relative tolerance\n");
-  printf("  --atol <atol>      : absoltue tolerance\n");
+  printf("  --atol <atol>      : absolute tolerance\n");
   printf("  --proj <1 or 0>    : enable (1) / disable (0) projection\n");
   printf("  --projerr <1 or 0> : enable (1) / disable (0) error projection\n");
   printf("  --nout <nout>      : outputs per period\n");

@@ -2,7 +2,7 @@
  * Programmer(s): Rujeko Chinomona @SMU and @LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -365,7 +365,7 @@ int main(int argc, char* argv[])
    */
 
   /* Initialize the fast integrator. Specify the fast right-hand side
-     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the inital time T0,
+     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the initial time T0,
      and the initial dependent variable vector y. */
   switch (solve_type)
   {
@@ -523,18 +523,15 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* Create inner stepper */
-  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1))
-  {
-    return 1;
-  }
+  retval = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   /*
    * Create the slow integrator and set options
    */
 
   /* Initialize the slow integrator. Specify the slow right-hand side
-     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the inital time
+     function in y'=fs(t,y)+ff(t,y) = fse(t,y)+fsi(t,y)+ff(t,y), the initial time
      T0, the initial dependent variable vector y, and the fast integrator. */
   switch (solve_type)
   {
@@ -752,14 +749,18 @@ int main(int argc, char* argv[])
   /* Get some slow integrator statistics */
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfse);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfsi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nffe, &nffi);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 0, &nffe);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 1, &nffi);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");

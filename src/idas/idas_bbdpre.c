@@ -4,7 +4,7 @@
  *        Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -741,7 +741,7 @@ int IDABBDPrecInitB(void* ida_mem, int which, sunindextype NlocalB,
   void* ida_memB;
   int flag;
 
-  /* Check if ida_mem is allright. */
+  /* Check if ida_mem is all right. */
   if (ida_mem == NULL)
   {
     IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,
@@ -815,7 +815,7 @@ int IDABBDPrecReInitB(void* ida_mem, int which, sunindextype mudqB,
   void* ida_memB;
   int flag;
 
-  /* Check if ida_mem is allright. */
+  /* Check if ida_mem is all right. */
   if (ida_mem == NULL)
   {
     IDAProcessError(NULL, IDALS_MEM_NULL, __LINE__, __func__, __FILE__,

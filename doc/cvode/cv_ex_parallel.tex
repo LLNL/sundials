@@ -149,7 +149,7 @@ arising from a PDE system. The solution method is BDF with Newton
 iteration and {\spgmr}. The left preconditioner is the block-diagonal
 part of the Newton matrix, with $2 \times 2$ blocks, and the
 corresponding diagonal blocks of the Jacobian are saved each time the
-preconditioner is generated, for re-use later under certain conditions.
+preconditioner is generated, for reuse later under certain conditions.
 
 The organization of the \id{cvDiurnal\_kry\_p} program deserves some comments. The
 right-hand side routine \id{f} calls two other routines: \id{ucomm}, which

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -34,11 +34,9 @@
 #include <sundials/sundials_types.h> /* def. of type 'sunrealtype' */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
 #else
-#define GSYM "g"
 #define ESYM "e"
 #define FSYM "f"
 #endif
@@ -83,7 +81,7 @@ int main(void)
   NV_Ith_S(y, 0) = 0.0; /* Specify initial condition */
 
   /* Call ERKStepCreate to initialize the ERK timestepper module and
-     specify the right-hand side function in y'=f(t,y), the inital time
+     specify the right-hand side function in y'=f(t,y), the initial time
      T0, and the initial dependent variable vector y. */
   arkode_mem = ERKStepCreate(f, T0, y, ctx);
   if (check_flag((void*)arkode_mem, "ERKStepCreate", 0)) { return 1; }

@@ -7,7 +7,7 @@
  * Rujeko Chinomona @ SMU.
  * ------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -25,11 +25,11 @@
  *   dv/dt =  50u
  *   dw/dt = -w+u+v
  *
- * for t in the interval [0.0, 1.0] with intial conditions u(0)=1.0,
+ * for t in the interval [0.0, 1.0] with initial conditions u(0)=1.0,
  * v(0)=0.0, and w(0)=2.0. In this problem the slow time scale (w)
  * depends on the fast components (u and v), but the fast components
  * are independent of the slow component. This system has the
- * analytic soltuion,
+ * analytic solution,
  *
  *   u(t) = cos(50t)
  *   v(t) = sin(50t)
@@ -95,7 +95,7 @@ int main(void)
   sunrealtype t, tout;
   sunrealtype error = SUN_RCONST(0.0);
   int iout;
-  long int nsts, nstf, nfse, nfsi, nff, tmp;
+  long int nsts, nstf, nfse, nff;
 
   /*
    * Initialization
@@ -134,7 +134,7 @@ int main(void)
    */
 
   /* Initialize the fast integrator. Specify the explicit fast right-hand side
-     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the initial time T0, and the
      initial dependent variable vector y. */
   inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
   if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
@@ -148,18 +148,15 @@ int main(void)
   if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* Create inner stepper */
-  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1))
-  {
-    return 1;
-  }
+  retval = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   /*
    * Create the slow integrator and set options
    */
 
   /* Initialize the slow integrator. Specify the explicit slow right-hand side
-     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the initial time T0, the
      initial dependent variable vector y, and the fast integrator. */
   arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
   if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }
@@ -228,14 +225,14 @@ int main(void)
   /* Get some slow integrator statistics */
   retval = ARKodeGetNumSteps(arkode_mem, &nsts);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = MRIStepGetNumRhsEvals(arkode_mem, &nfse, &nfsi);
-  check_retval(&retval, "MRIStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfse);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Get some fast integrator statistics */
   retval = ARKodeGetNumSteps(inner_arkode_mem, &nstf);
   check_retval(&retval, "ARKodeGetNumSteps", 1);
-  retval = ARKStepGetNumRhsEvals(inner_arkode_mem, &nff, &tmp);
-  check_retval(&retval, "ARKStepGetNumRhsEvals", 1);
+  retval = ARKodeGetNumRhsEvals(inner_arkode_mem, 0, &nff);
+  check_retval(&retval, "ARKodeGetNumRhsEvals", 1);
 
   /* Print some final statistics */
   printf("\nFinal Solver Statistics:\n");

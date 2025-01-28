@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * ---------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
   int ngroups = 100;
   if (argc > 1) { ngroups = atoi(argv[1]); }
 
-  // Use a direct or iterative linear sovler
+  // Use a direct or iterative linear solver
   bool direct = true;
   if (argc > 2) { direct = (atoi(argv[2])) ? true : false; }
 

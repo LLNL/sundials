@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -48,11 +48,10 @@
 #endif
 
 // Macros for problem constants
-#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
-#define EIGHT SUN_RCONST(8.0)
+#define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 // Macro to access (x,y) location in 1D NVector array
 #define IDX(x, y, n) ((n) * (y) + (x))
@@ -159,7 +158,7 @@ struct UserData
   sunrealtype* Ssend = NULL;
   sunrealtype* Nsend = NULL;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -192,7 +191,7 @@ private:
 
 struct UserOutput
 {
-  // Ouput variables
+  // Output variables
   int output     = 1;    // 0 = no output, 1 = stats output, 2 = output to disk
   int nout       = 20;   // number of output times
   N_Vector error = NULL; // error vector

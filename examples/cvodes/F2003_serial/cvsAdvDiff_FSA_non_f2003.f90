@@ -2,7 +2,7 @@
 ! Programmer(s): David J. Gardner, and Cody J. Balos @ LLNL
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2024, Lawrence Livermore National Security
+! Copyright (c) 2002-2025, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -255,7 +255,7 @@ program main
   retval = FCVodeInit(cvodes_mem, c_funloc(RhsFn), T0, u)
   call check_retval(retval, "FCVodeInit")
 
-  ! Set relative and absolute tolerences
+  ! Set relative and absolute tolerances
   retval = FCVodeSStolerances(cvodes_mem, reltol, abstol)
   call check_retval(retval, "FCVodeSStolerances")
 

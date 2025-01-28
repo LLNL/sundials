@@ -4,7 +4,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
 
     /* Allocate sensitivity solution vectors uuS and upS and set them
        to an initial guess for the sensitivity ICs (the IC for uuS are
-       0.0 since the state IC do not depend on the porblem parameters;
+       0.0 since the state IC do not depend on the problem parameters;
        however, the derivatives upS may not and therefore we will have
        to call IDACalcIC to find them) */
 

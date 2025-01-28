@@ -2,7 +2,7 @@
  * Programmer: Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -38,7 +38,7 @@ void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
                          const char* label, const char* txt, va_list args,
                          char** log_msg)
 {
-  char* prefix;
+  const char* prefix;
   char* formatted_txt;
   int msg_length;
 
@@ -53,16 +53,16 @@ void sunCreateLogMessage(SUNLogLevel lvl, int rank, const char* scope,
     fprintf(stderr, "[FATAL LOGGER ERROR] %s\n", "message size too large");
   }
 
-  if (lvl == SUN_LOGLEVEL_DEBUG) { prefix = (char*)"DEBUG"; }
-  else if (lvl == SUN_LOGLEVEL_WARNING) { prefix = (char*)"WARNING"; }
-  else if (lvl == SUN_LOGLEVEL_INFO) { prefix = (char*)"INFO"; }
-  else if (lvl == SUN_LOGLEVEL_ERROR) { prefix = (char*)"ERROR"; }
+  if (lvl == SUN_LOGLEVEL_DEBUG) { prefix = "DEBUG"; }
+  else if (lvl == SUN_LOGLEVEL_WARNING) { prefix = "WARNING"; }
+  else if (lvl == SUN_LOGLEVEL_INFO) { prefix = "INFO"; }
+  else if (lvl == SUN_LOGLEVEL_ERROR) { prefix = "ERROR"; }
 
-  msg_length = sunsnprintf(NULL, 0, "[%s][rank %d][%s][%s] %s\n", prefix, rank,
-                           scope, label, formatted_txt);
+  msg_length = snprintf(NULL, 0, "[%s][rank %d][%s][%s] %s\n", prefix, rank,
+                        scope, label, formatted_txt);
   *log_msg   = (char*)malloc(msg_length + 1);
-  sunsnprintf(*log_msg, msg_length + 1, "[%s][rank %d][%s][%s] %s\n", prefix,
-              rank, scope, label, formatted_txt);
+  snprintf(*log_msg, msg_length + 1, "[%s][rank %d][%s][%s] %s\n", prefix, rank,
+           scope, label, formatted_txt);
   free(formatted_txt);
 }
 
@@ -333,12 +333,12 @@ SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
       return retval;
     }
 
-    va_list args;
-    va_start(args, msg_txt);
-
     if (logger->queuemsg)
     {
+      va_list args;
+      va_start(args, msg_txt);
       retval = logger->queuemsg(logger, lvl, scope, label, msg_txt, args);
+      va_end(args);
     }
     else
     {
@@ -347,7 +347,10 @@ SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
       if (sunLoggerIsOutputRank(logger, &rank))
       {
         char* log_msg = NULL;
+        va_list args;
+        va_start(args, msg_txt);
         sunCreateLogMessage(lvl, rank, scope, label, msg_txt, args, &log_msg);
+        va_end(args);
 
         switch (lvl)
         {
@@ -372,8 +375,6 @@ SUNErrCode SUNLogger_QueueMsg(SUNLogger logger, SUNLogLevel lvl,
         free(log_msg);
       }
     }
-
-    va_end(args);
   }
 #else
   /* silence warnings when all logging is disabled */

@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -23,24 +23,16 @@ elseif(SUNDIALS_MAGMA_BACKENDS MATCHES "HIP")
 endif()
 
 # Add the sunlinsol_magmadense library
-sundials_add_library(sundials_sunlinsolmagmadense
-  SOURCES
-    sunlinsol_magmadense.cpp
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_magmadense.h
-  INCLUDE_SUBDIR
-    sunlinsol
-  LINK_LIBRARIES
-    PUBLIC sundials_core
+sundials_add_library(
+  sundials_sunlinsolmagmadense
+  SOURCES sunlinsol_magmadense.cpp
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_magmadense.h
+  INCLUDE_SUBDIR sunlinsol
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC SUNDIALS::MAGMA ${_libs_needed}
-  OUTPUT_NAME
-    sundials_sunlinsolmagmadense
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-    ${sunlinsollib_SOVERSION}
-)
+  LINK_LIBRARIES PUBLIC SUNDIALS::MAGMA ${_libs_needed}
+  OUTPUT_NAME sundials_sunlinsolmagmadense
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_MAGMADENSE module")

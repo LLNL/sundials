@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -47,7 +47,7 @@ and VODPK have been combined in the C-language package
 CVODE :cite:p:`CoHi:96`.
 
 At present, CVODE may utilize a variety of Krylov methods provided
-in SUNDIALS that can be used in conjuction with Newton iteration:
+in SUNDIALS that can be used in conjunction with Newton iteration:
 these include the GMRES (Generalized Minimal
 RESidual) :cite:p:`SaSc:86`, FGMRES (Flexible Generalized
 Minimum RESidual) :cite:p:`Saa:93`, Bi-CGStab (Bi-Conjugate
@@ -108,7 +108,7 @@ implementations.
 .. efficiency of C, and the greater ease of interfacing the solver to
 .. applications written in extended Fortran.
 
-Changes to SUNDIALS in release 7.1.0
+Changes to SUNDIALS in release X.Y.Z
 ====================================
 
 .. include:: ../../../shared/RecentChanges.rst

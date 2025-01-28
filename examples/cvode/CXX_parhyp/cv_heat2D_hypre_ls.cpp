@@ -3,7 +3,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -61,11 +61,10 @@
 #include "sundials/sundials_matrix.h"       // definition SUNMatrix
 
 // Macros for problem constants
-#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
-#define EIGHT SUN_RCONST(8.0)
+#define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 // Macro to access (x,y) location in 1D NVector array
 #define IDX(x, y, n) ((n) * (y) + (x))
@@ -161,7 +160,7 @@ struct UserData
   sunrealtype* Ssend;
   sunrealtype* Nsend;
 
-  // Send requests for neighor exchange
+  // Send requests for neighbor exchange
   MPI_Request reqSW;
   MPI_Request reqSE;
   MPI_Request reqSS;
@@ -187,7 +186,7 @@ struct UserData
                          //   3 - nonsymmetric R/B Gauss-Seidel
   HYPRE_Int pfmg_nrelax; // number of pre and post relaxation sweeps (2)
 
-  // Ouput variables
+  // Output variables
   int output;    // output level
   int nout;      // number of output times
   ofstream uout; // output file stream
@@ -379,6 +378,13 @@ int main(int argc, char* argv[])
     // SUNDIALS context
     sundials::Context sunctx(comm_w);
 
+    // Initialize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+    flag = HYPRE_Init();
+    if (check_flag(&flag, "HYPRE_Init", 1)) { return 1; }
+#endif
+
     // Set output process flag
     bool outproc = (myid == 0);
 
@@ -485,7 +491,7 @@ int main(int argc, char* argv[])
     sunrealtype dTout = udata->tf / udata->nout;
     sunrealtype tout  = dTout;
 
-    // Inital output
+    // Initial output
     flag = OpenOutput(udata);
     if (check_flag(&flag, "OpenOutput", 1)) { return 1; }
 
@@ -558,6 +564,13 @@ int main(int argc, char* argv[])
     // --------------------
     // Clean up and return
     // --------------------
+
+    // Finalize hypre if v2.20.0 or newer
+#if HYPRE_RELEASE_NUMBER >= 22000 || SUN_HYPRE_VERSION_MAJOR > 2 || \
+  (SUN_HYPRE_VERSION_MAJOR == 2 && SUN_HYPRE_VERSION_MINOR >= 20)
+    flag = HYPRE_Finalize();
+    if (check_flag(&flag, "HYPRE_Finalize", 1)) { return 1; }
+#endif
 
     CVodeFree(&cvode_mem); // Free integrator memory
     SUNLinSolFree(LS);     // Free linear solver
@@ -1794,7 +1807,7 @@ static void InputHelp()
   cout << "  --noforcing             : disable forcing term" << endl;
   cout << "  --tf <time>             : final time" << endl;
   cout << "  --rtol <rtol>           : relative tolerance" << endl;
-  cout << "  --atol <atol>           : absoltue tolerance" << endl;
+  cout << "  --atol <atol>           : absolute tolerance" << endl;
   cout << "  --gmres                 : use GMRES linear solver" << endl;
   cout << "  --liniters <iters>      : max number of iterations" << endl;
   cout << "  --epslin <factor>       : linear tolerance factor" << endl;
@@ -2551,7 +2564,7 @@ int HypreLS_Setup(SUNLinearSolver LS, SUNMatrix A)
     flag = HYPRE_StructPFMGCreate(udata->comm_c, &(HLS_PRECOND(LS)));
     if (flag != 0) { return (flag); }
 
-    // Signal that the inital guess is zero
+    // Signal that the initial guess is zero
     flag = HYPRE_StructPFMGSetZeroGuess(HLS_PRECOND(LS));
     if (flag != 0) { return (flag); }
 
@@ -2675,14 +2688,14 @@ int HypreLS_Solve(SUNLinearSolver LS, SUNMatrix A, N_Vector x, N_Vector b,
                                   HLS_X(LS));
   }
 
-  // If a convergence error occured, clear the error, and return with a
+  // If a convergence error occurred, clear the error, and return with a
   // recoverable error.
   if (flag == HYPRE_ERROR_CONV)
   {
     HYPRE_ClearError(HYPRE_ERROR_CONV);
     return SUNLS_CONV_FAIL;
   }
-  // If any other error occured return with an unrecoverable error.
+  // If any other error occurred return with an unrecoverable error.
   else if (flag != 0) { return SUN_ERR_EXT_FAIL; }
 
   // Update iteration count

@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -122,7 +122,7 @@ initialization (:c:func:`SUNNonlinSolInitialize`), setup
       * *mem* -- the SUNDIALS integrator memory structure.
 
    **Return value:**
-      The return value is zero for a successul solve, a positive value
+      The return value is zero for a successful solve, a positive value
       for a recoverable error (i.e., the solve failed and the integrator
       should reduce the step size and reattempt the step), and a negative
       value for an unrecoverable error (i.e., the solve failed the and
@@ -357,7 +357,7 @@ module have types defined in the header file
       * *mem* -- is the SUNDIALS integrator memory structure.
 
    **Return value:**
-      The return value is zero for a successul solve, a positive value for
+      The return value is zero for a successful solve, a positive value for
       a recoverable error, and a negative value for an unrecoverable error.
 
    **Notes:**
@@ -383,7 +383,7 @@ module have types defined in the header file
       * *mem* -- is the SUNDIALS integrator memory structure.
 
    **Return value:**
-      The return value is zero for a successul solve, a positive value for
+      The return value is zero for a successful solve, a positive value for
       a recoverable error, and a negative value for an unrecoverable error.
 
    **Notes:**
@@ -415,7 +415,7 @@ module have types defined in the header file
       * *mem* -- is the SUNDIALS integrator memory structure.
 
    **Return value:**
-      The return value is zero for a successul solve, a positive value for
+      The return value is zero for a successful solve, a positive value for
       a recoverable error, and a negative value for an unrecoverable error.
 
    **Notes:**

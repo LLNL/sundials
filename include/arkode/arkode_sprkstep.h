@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -57,8 +57,6 @@ SUNDIALS_EXPORT int SPRKStepSetMethodName(void* arkode_mem, const char* method);
 /* Optional output functions */
 SUNDIALS_EXPORT int SPRKStepGetCurrentMethod(void* arkode_mem,
                                              ARKodeSPRKTable* sprk_storage);
-SUNDIALS_EXPORT int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1,
-                                           long int* nf2);
 
 /* --------------------------------------------------------------------------
  * Deprecated Functions -- all are superseded by shared ARKODE-level routines
@@ -126,6 +124,8 @@ int SPRKStepGetStepStats(void* arkode_mem, long int* nsteps,
                          sunrealtype* hcur, sunrealtype* tcur);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeFree instead")
 void SPRKStepFree(void** arkode_mem);
+SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumRhsEvals instead")
+int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2);
 
 #ifdef __cplusplus
 }

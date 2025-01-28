@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -25,24 +25,16 @@ elseif(MPI_C_FOUND)
 endif()
 
 # Create the library
-sundials_add_library(sundials_nvecmpiplusx
-  SOURCES
-    nvector_mpiplusx.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpiplusx.h
-  INCLUDE_SUBDIR
-    nvector
-  LINK_LIBRARIES
-    PUBLIC sundials_core
-  OBJECT_LIBRARIES
-    sundials_nvecmpimanyvector_obj
-  OUTPUT_NAME
-    sundials_nvecmpiplusx
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
-)
+sundials_add_library(
+  sundials_nvecmpiplusx
+  SOURCES nvector_mpiplusx.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_mpiplusx.h
+  INCLUDE_SUBDIR nvector
+  LINK_LIBRARIES PUBLIC sundials_core
+  OBJECT_LIBRARIES sundials_nvecmpimanyvector_obj
+  OUTPUT_NAME sundials_nvecmpiplusx
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_MPIPLUSX module")
 

@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2024, Lawrence Livermore National Security
+// Copyright (c) 2002-2025, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -25,4 +25,5 @@
 %include "fsundials_linearsolver.i"
 %include "fsundials_nonlinearsolver.i"
 %include "fsundials_adaptcontroller.i"
+%include "fsundials_stepper.i"
 %include "fcopyright.i"

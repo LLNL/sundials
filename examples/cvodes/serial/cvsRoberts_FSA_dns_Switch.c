@@ -37,13 +37,9 @@
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix                */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
 #define ESYM "Le"
-#define FSYM "Lf"
 #else
-#define GSYM "g"
 #define ESYM "e"
-#define FSYM "f"
 #endif
 
 /* Problem Constants */
@@ -74,7 +70,7 @@ static int Jac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* udata,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* User provided routine called by the solver to compute
- * r.h.s. sensititivy. */
+ * r.h.s. sensitivity. */
 static int fS(int Ns, sunrealtype t, N_Vector y, N_Vector ydot, int iS,
               N_Vector yS, N_Vector ySdot, void* udata, N_Vector tmp1,
               N_Vector tmp2);
@@ -149,7 +145,7 @@ int main(int argc, char* argv[])
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function y'=f(t,y), the initial time T0, and
-   * the intiial dependenet variable vector y0. */
+   * the initial dependenet variable vector y0. */
   retval = CVodeInit(cvode_mem, f, T0, y0);
   if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
@@ -180,7 +176,7 @@ int main(int argc, char* argv[])
   retval = CVodeSetLinearSolver(cvode_mem, LS, A);
   if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return (1); }
 
-  /* Specifiy the Jacobian approximation routine to be used */
+  /* Specify the Jacobian approximation routine to be used */
   retval = CVodeSetJacFn(cvode_mem, Jac);
   if (check_retval(&retval, "CVodeSetJacFn", 1)) { return (1); }
 
@@ -188,7 +184,7 @@ int main(int argc, char* argv[])
   data->sensi   = SUNTRUE;         /* sensitivity ON                */
   data->meth    = CV_SIMULTANEOUS; /* simultaneous corrector method */
   data->errconS = SUNTRUE;         /* full error control            */
-  data->fsDQ    = SUNFALSE;        /* user-provided sensitvity RHS  */
+  data->fsDQ    = SUNFALSE;        /* user-provided sensitivity RHS  */
 
   Ns = 3;
 

@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -251,7 +251,7 @@ static int Problem1(void)
       }
       if (iout % 2 == 0)
       {
-        er = fabs(NV_Ith_S(y, 0)) / abstol;
+        er = SUNRabs(NV_Ith_S(y, 0)) / abstol;
         if (er > ero) { ero = er; }
         if (er > P1_TOL_FACTOR)
         {
@@ -319,7 +319,7 @@ static int Problem1(void)
       }
       if (iout % 2 == 0)
       {
-        er = fabs(NV_Ith_S(y, 0)) / abstol;
+        er = SUNRabs(NV_Ith_S(y, 0)) / abstol;
         if (er > ero) { ero = er; }
         if (er > P1_TOL_FACTOR)
         {
@@ -700,7 +700,7 @@ static sunrealtype MaxError(N_Vector y, sunrealtype t)
     {
       k  = i + j * P2_MESHX;
       yt = pow(t, i + j) * ex * ifact_inv * jfact_inv;
-      er = fabs(ydata[k] - yt);
+      er = SUNRabs(ydata[k] - yt);
       if (er > maxError) { maxError = er; }
       ifact_inv /= (i + 1);
     }

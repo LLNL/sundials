@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -47,11 +47,9 @@
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
 #define ESYM "Le"
-#define FSYM "Lf"
 #else
 #define GSYM "g"
 #define ESYM "e"
-#define FSYM "f"
 #endif
 
 /* constants */
@@ -408,7 +406,7 @@ sunrealtype* adapt_mesh(N_Vector y, sunindextype* Nnew, UserData udata)
     ydd = Y[i - 1] - TWO * Y[i] + Y[i + 1];
 
     /* check for refinement */
-    if (fabs(ydd) > udata->refine_tol)
+    if (SUNRabs(ydd) > udata->refine_tol)
     {
       marks[i - 1] = 1;
       marks[i]     = 1;

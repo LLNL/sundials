@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * --------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -35,7 +35,7 @@ struct _braid_Vector_struct
   N_Vector y;
 };
 
-/* Poiner to vector wrapper (same as braid_Vector) */
+/* Pointer to vector wrapper (same as braid_Vector) */
 typedef struct _braid_Vector_struct* SUNBraidVector;
 
 /* -----------------------------

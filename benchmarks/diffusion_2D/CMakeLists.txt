@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -12,13 +12,13 @@
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
 
-if(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA)
+if(BUILD_ARKODE
+   OR BUILD_CVODE
+   OR BUILD_IDA)
 
   # Shared sources
-  set(shared_sources
-    diffusion_2D.hpp
-    diffusion_2D.cpp
-    preconditioner_jacobi.cpp)
+  set(shared_sources diffusion_2D.hpp diffusion_2D.cpp
+                     preconditioner_jacobi.cpp)
 
   # Benchmark prefix
   set(benchmark_prefix ${SUNDIALS_SOURCE_DIR}/benchmarks/diffusion_2D/)
@@ -33,7 +33,6 @@ if(BUILD_ARKODE OR BUILD_CVODE OR BUILD_IDA)
     add_subdirectory(mpi_gpu)
   endif()
 
-  install(FILES README.md
-    DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
+  install(FILES README.md DESTINATION "${BENCHMARKS_INSTALL_PATH}/diffusion_2D")
 
 endif()

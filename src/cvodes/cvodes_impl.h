@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -29,14 +29,6 @@
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
-#endif
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM  ".32Lg"
-#define RSYMW "19.32Lg"
-#else
-#define RSYM  ".16g"
-#define RSYMW "23.16g"
 #endif
 
 /*=================================================================*/
@@ -305,7 +297,7 @@ typedef struct CVodeMemRec
     Quadrature Sensitivity Related Data
     -----------------------------------*/
 
-  sunbooleantype cv_quadr_sensi; /* SUNTRUE if computing sensitivties of quadrs. */
+  sunbooleantype cv_quadr_sensi; /* SUNTRUE if computing sensitivities of quadrs. */
 
   CVQuadSensRhsFn cv_fQS;  /* fQS = (dfQ/dy)*yS + (dfQ/dp)                 */
   void* cv_fQS_data;       /* data pointer passed to fQS                   */
@@ -430,7 +422,7 @@ typedef struct CVodeMemRec
   sunrealtype cv_acnrmS;       /* | acorS |                                   */
   sunbooleantype cv_acnrmScur; /* is | acorS | current?                       */
   sunrealtype cv_acnrmQS;      /* | acorQS |                                  */
-  sunrealtype cv_nlscoef;      /* coeficient in nonlinear convergence test    */
+  sunrealtype cv_nlscoef;      /* coefficient in nonlinear convergence test   */
   int* cv_ncfS1;               /* Array of Ns local counters for conv.
                                 * failures (used in CVStep for STAGGERED1)    */
 
@@ -881,7 +873,7 @@ struct CVodeBMemRec
  * Type : struct CVadjMemRec
  * -----------------------------------------------------------------
  * The type CVadjMem is type pointer to struct CVadjMemRec.
- * This structure contins fields to store all information
+ * This structure contains fields to store all information
  * necessary for adjoint sensitivity analysis.
  * -----------------------------------------------------------------
  */
@@ -1188,31 +1180,13 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
  * =================================================================
  */
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define MSG_TIME       "t = %Lg"
-#define MSG_TIME_H     "t = %Lg and h = %Lg"
-#define MSG_TIME_INT   "t = %Lg is not between tcur - hu = %Lg and tcur = %Lg."
-#define MSG_TIME_TOUT  "tout = %Lg"
-#define MSG_TIME_TSTOP "tstop = %Lg"
-
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define MSG_TIME       "t = %lg"
-#define MSG_TIME_H     "t = %lg and h = %lg"
-#define MSG_TIME_INT   "t = %lg is not between tcur - hu = %lg and tcur = %lg."
-#define MSG_TIME_TOUT  "tout = %lg"
-#define MSG_TIME_TSTOP "tstop = %lg"
-
-#else
-
-#define MSG_TIME       "t = %g"
-#define MSG_TIME_H     "t = %g and h = %g"
-#define MSG_TIME_INT   "t = %g is not between tcur - hu = %g and tcur = %g."
-#define MSG_TIME_TOUT  "tout = %g"
-#define MSG_TIME_TSTOP "tstop = %g"
-
-#endif
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
+#define MSG_TIME_INT                                                \
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* Initialization and I/O error messages */
 
@@ -1446,8 +1420,9 @@ int cvSensRhs1InternalDQ(int Ns, sunrealtype t, N_Vector y, N_Vector ydot,
 #define MSGCV_BAD_TBOUT                                                  \
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
-#define MSGCV_BACK_ERROR  "Error occured while integrating backward problem # %d"
-#define MSGCV_BAD_TINTERP "Bad t = %g for interpolation."
+#define MSGCV_BACK_ERROR \
+  "Error occurred while integrating backward problem # %d"
+#define MSGCV_BAD_TINTERP "Bad t = " SUN_FORMAT_G " for interpolation."
 #define MSGCV_WRONG_INTERP \
   "This function cannot be called for the specified interp type."
 

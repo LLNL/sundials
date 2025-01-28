@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -207,7 +207,7 @@ set and all operations are copied when cloning a matrix.
    SUNMATRIX_CUSPARSE      CUDA sparse CSR matrix
    SUNMATRIX_CUSTOM        User-provided custom matrix
    SUNMATRIX_DENSE         Dense :math:`M \times N` matrix
-   SUNMATRIX_GINKGO        SUNMatrix wraper for Ginkgo matrices
+   SUNMATRIX_GINKGO        SUNMatrix wrapper for Ginkgo matrices
    SUNMATRIX_MAGMADENSE    Dense :math:`M \times N` matrix
    SUNMATRIX_ONEMKLDENSE   oneMKL dense :math:`M \times N` matrix
    SUNMATRIX_SLUNRLOC      SUNMatrix wrapper for SuperLU_DIST SuperMatrix

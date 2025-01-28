@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -104,7 +104,7 @@ operations below.
    Returns a pointer to a ``sunrealtype`` array from the ``N_Vector``
    *v*.  Note that this assumes that the internal data in the
    ``N_Vector`` is a contiguous array of ``sunrealtype`` and is
-   accesible from the CPU.
+   accessible from the CPU.
 
    This routine is
    only used in the solver-specific interfaces to the dense and banded

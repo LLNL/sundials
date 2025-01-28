@@ -3,7 +3,7 @@
 #                and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -18,23 +18,16 @@
 install(CODE "MESSAGE(\"\nInstall SUNLINSOL_PCG\n\")")
 
 # Add the sunlinsol_pcg library
-sundials_add_library(sundials_sunlinsolpcg
-  SOURCES
-    sunlinsol_pcg.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_pcg.h
-  INCLUDE_SUBDIR
-    sunlinsol
-  LINK_LIBRARIES
-    PUBLIC sundials_core
+sundials_add_library(
+  sundials_sunlinsolpcg
+  SOURCES sunlinsol_pcg.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunlinsol/sunlinsol_pcg.h
+  INCLUDE_SUBDIR sunlinsol
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  OUTPUT_NAME
-    sundials_sunlinsolpcg
-  VERSION
-    ${sunlinsollib_VERSION}
-  SOVERSION
-  ${sunlinsollib_SOVERSION}
-)
+  OUTPUT_NAME sundials_sunlinsolpcg
+  VERSION ${sunlinsollib_VERSION}
+  SOVERSION ${sunlinsollib_SOVERSION})
 
 message(STATUS "Added SUNLINSOL_PCG module")
 

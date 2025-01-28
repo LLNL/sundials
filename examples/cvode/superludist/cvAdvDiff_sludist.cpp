@@ -5,7 +5,7 @@
  * George Byrne, and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -66,7 +66,6 @@
 #define HALF SUN_RCONST(0.5)
 #define ONE  SUN_RCONST(1.0)
 #define TWO  SUN_RCONST(2.0)
-#define FIVE SUN_RCONST(5.0)
 
 /* Type : UserData
    contains grid constants, parallel machine parameters, work array. */
@@ -228,7 +227,7 @@ int main(int argc, char* argv[])
   }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
-   * user's right hand side function in u'=f(t,u), the inital time T0, and
+   * user's right hand side function in u'=f(t,u), the initial time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
   if (check_retval(&retval, "CVodeInit", 1, my_pe)) { MPI_Abort(grid.comm, 1); }

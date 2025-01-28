@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,19 +14,20 @@
 # CMakeLists.txt file for the F2003 manyvector NVECTOR object library
 # ---------------------------------------------------------------
 
+# Disable warnings from unused SWIG macros which we can't control
+if(ENABLE_ALL_WARNINGS)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-macros")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-macros")
+endif()
+
 if(BUILD_NVECTOR_MANYVECTOR)
-  sundials_add_f2003_library(sundials_fnvecmanyvector_mod
-    SOURCES
-      fnvector_manyvector_mod.f90 fnvector_manyvector_mod.c
-    LINK_LIBRARIES
-      PUBLIC sundials_fcore_mod
-    OUTPUT_NAME
-      sundials_fnvecmanyvector_mod
-    VERSION
-      ${nveclib_VERSION}
-    SOVERSION
-      ${nveclib_SOVERSION}
-  )
+  sundials_add_f2003_library(
+    sundials_fnvecmanyvector_mod
+    SOURCES fnvector_manyvector_mod.f90 fnvector_manyvector_mod.c
+    LINK_LIBRARIES PUBLIC sundials_fcore_mod
+    OUTPUT_NAME sundials_fnvecmanyvector_mod
+    VERSION ${nveclib_VERSION}
+    SOVERSION ${nveclib_SOVERSION})
   message(STATUS "Added NVECTOR_MANYVECTOR F2003 Interface")
 endif()
 
@@ -44,18 +45,13 @@ if(BUILD_NVECTOR_MPIMANYVECTOR)
     set(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
   endif()
 
-  sundials_add_f2003_library(sundials_fnvecmpimanyvector_mod
-    SOURCES
-      fnvector_mpimanyvector_mod.f90 fnvector_mpimanyvector_mod.c
-    LINK_LIBRARIES
-      PUBLIC sundials_fcore_mod
-    OUTPUT_NAME
-      sundials_fnvecmpimanyvector_mod
-    VERSION
-      ${nveclib_VERSION}
-    SOVERSION
-      ${nveclib_SOVERSION}
-  )
+  sundials_add_f2003_library(
+    sundials_fnvecmpimanyvector_mod
+    SOURCES fnvector_mpimanyvector_mod.f90 fnvector_mpimanyvector_mod.c
+    LINK_LIBRARIES PUBLIC sundials_fcore_mod
+    OUTPUT_NAME sundials_fnvecmpimanyvector_mod
+    VERSION ${nveclib_VERSION}
+    SOVERSION ${nveclib_SOVERSION})
 
   message(STATUS "Added NVECTOR_MPIMANYVECTOR F2003 Interface")
 endif()

@@ -1,7 +1,7 @@
 ..
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -26,13 +26,13 @@ file known as the "answer" file (aka "out" or "output" file). The output typical
 solution and/or some quantities derived from the solution as well as statistics about how the
 integration and/or solve (e.g., number of time steps). When changes are made to SUNDIALS, we ensure
 that these output files do not change unless it is expected/desired. Practically, this is ensured
-by our :ref:`CI testing <CI>`.
+by our CI.
 
 Due to difference in microarichtectures and the nature of floating point arithmetic, it is quite
 possible that the output generated on one machine may differ from the output generated on another.
 As such, we specify that the the answer files that are embedded in ``examples/`` (the ``.out``
 files) should match what is produced on the Jenkins CI machine.  We also have a `separate git
-repostiory <https://github.com/sundials-codes/answers>`_ which holds answers for other  machines,
+repository <https://github.com/sundials-codes/answers>`_ which holds answers for other  machines,
 such as the GitHub Actions virtual machines.
 
 

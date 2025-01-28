@@ -28,7 +28,7 @@
   linear         = 0
  --------------------------------- 
   lin iters      = 10
-  eps lins       = -1
+  eps lin        = -1
   prectype       = 1
   msbp           = 0
   pfmg_relax     = 2
@@ -56,7 +56,8 @@ Final fast integrator statistics:
   Steps            = 722
   Step attempts    = 722
   Error test fails = 0
-  RHS evals        = 5444
+  Fe RHS evals     = 2890
+  Fi RHS evals     = 5444
   NLS iters        = 2554
   NLS fails        = 0
   LS iters         = 8545

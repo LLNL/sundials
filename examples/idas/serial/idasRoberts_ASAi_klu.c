@@ -3,7 +3,7 @@
  *      Based on idasRoberts_ASAi_dns.c and modified to use KLU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -122,7 +122,7 @@ static int rhsQB(sunrealtype tt, N_Vector yy, N_Vector yp, N_Vector yyB,
 /* Prototypes of private functions */
 static void PrintOutput(sunrealtype tfinal, N_Vector yB, N_Vector ypB,
                         N_Vector qB);
-static int check_retval(void* returnvalue, char* funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
   if (check_retval((void*)q, "N_VNew_Serial", 0)) { return (1); }
   Ith(q, 1) = ZERO;
 
-  /* Set the scalar realtive and absolute tolerances reltolQ and abstolQ */
+  /* Set the scalar relative and absolute tolerances reltolQ and abstolQ */
   reltolQ = RTOL;
   abstolQ = ATOLQ;
 
@@ -808,7 +808,7 @@ static void PrintOutput(sunrealtype tfinal, N_Vector yB, N_Vector ypB, N_Vector 
  *             NULL pointer
  */
 
-static int check_retval(void* returnvalue, char* funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
   int* retval;
 

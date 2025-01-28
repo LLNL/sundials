@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -25,24 +25,16 @@ else()
 endif()
 
 # Create the library
-sundials_add_library(sundials_nvecpetsc
-  SOURCES
-    nvector_petsc.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_petsc.h
-  INCLUDE_SUBDIR
-    nvector
-  LINK_LIBRARIES
-    PUBLIC sundials_core
+sundials_add_library(
+  sundials_nvecpetsc
+  SOURCES nvector_petsc.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/nvector/nvector_petsc.h
+  INCLUDE_SUBDIR nvector
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC SUNDIALS::PETSC
-  OUTPUT_NAME
-    sundials_nvecpetsc
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
-)
+  LINK_LIBRARIES PUBLIC SUNDIALS::PETSC
+  OUTPUT_NAME sundials_nvecpetsc
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(STATUS "Added NVECTOR_PETSC module")

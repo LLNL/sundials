@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -120,7 +120,7 @@
 #define BB    ONE                /* BB = b */
 #define DPREY ONE
 #define DPRED SUN_RCONST(0.5)
-#define ALPH  ONE
+#define ALPHA ONE
 #define NP    3
 #define NS    (2 * NP)
 
@@ -295,7 +295,7 @@ int main(int argc, char* argv[])
   LS = SUNLinSol_SPGMR(c, SUN_PREC_LEFT, 0, sunctx);
   if (check_retval((void*)LS, "SUNLinSol_SPGMR", 0)) { return (1); }
 
-  /* Attach the linear sovler */
+  /* Attach the linear solver */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
   if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 
@@ -358,7 +358,7 @@ int main(int argc, char* argv[])
   LSB = SUNLinSol_SPGMR(cB, SUN_PREC_LEFT, 0, sunctx);
   if (check_retval((void*)LSB, "SUNLinSol_SPGMR", 0)) { return (1); }
 
-  /* Attach the linear sovler */
+  /* Attach the linear solver */
   retval = CVodeSetLinearSolverB(cvode_mem, indexB, LSB, NULL);
   if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) { return 1; }
 
@@ -516,7 +516,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
   f1 = N_VGetArrayPointer(wdata->vtemp);
 
   fac = N_VWrmsNorm(fc, rewt);
-  r0  = SUN_RCONST(1000.0) * fabs(gamma) * uround * (NEQ + 1) * fac;
+  r0  = SUN_RCONST(1000.0) * SUNRabs(gamma) * uround * (NEQ + 1) * fac;
   if (r0 == ZERO) { r0 = ONE; }
 
   for (igy = 0; igy < ngy; igy++)
@@ -534,7 +534,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
         /* Generate the jth column as a difference quotient */
         jj   = if0 + j;
         save = cdata[jj];
-        r    = MAX(srur * fabs(save), r0 / rewtdata[jj]);
+        r    = MAX(srur * SUNRabs(save), r0 / rewtdata[jj]);
         cdata[jj] += r;
         fac = -gamma / r;
         fblock(t, cdata, jx, jy, f1, wdata);
@@ -736,7 +736,7 @@ static int PrecondB(sunrealtype t, N_Vector c, N_Vector cB, N_Vector fcB,
 
   f1  = N_VGetArrayPointer(wdata->vtempB);
   fac = N_VWrmsNorm(fcB, rewt);
-  r0  = SUN_RCONST(1000.0) * fabs(gamma) * uround * NEQ * fac;
+  r0  = SUN_RCONST(1000.0) * SUNRabs(gamma) * uround * NEQ * fac;
   if (r0 == ZERO) { r0 = ONE; }
 
   for (igy = 0; igy < ngy; igy++)
@@ -754,7 +754,7 @@ static int PrecondB(sunrealtype t, N_Vector c, N_Vector cB, N_Vector fcB,
         /* Generate the jth column as a difference quotient */
         jj   = if0 + j;
         save = cdata[jj];
-        r    = MAX(srur * fabs(save), r0 / rewtdata[jj]);
+        r    = MAX(srur * SUNRabs(save), r0 / rewtdata[jj]);
         cdata[jj] += r;
         fac = gamma / r;
         fblock(t, cdata, jx, jy, f1, wdata);
@@ -1014,7 +1014,7 @@ static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t,
     for (i = 0; i < ns; i++) { rate[i] += c[j] * acoef[i][j]; }
   }
 
-  fac = ONE + ALPH * x * y;
+  fac = ONE + ALPHA * x * y;
   for (i = 0; i < ns; i++) { rate[i] = c[i] * (bcoef[i] * fac + rate[i]); }
 }
 
@@ -1034,7 +1034,7 @@ static void WebRatesB(sunrealtype x, sunrealtype y, sunrealtype t,
   acoef = wdata->acoef;
   bcoef = wdata->bcoef;
 
-  fac = ONE + ALPH * x * y;
+  fac = ONE + ALPHA * x * y;
 
   for (i = 0; i < ns; i++) { rate[i] = bcoef[i] * fac; }
 
@@ -1291,7 +1291,7 @@ static void PrintOutput(N_Vector cB, int ns, int mxns, WebData wdata)
       for (jx = 0; jx < MX; jx++)
       {
         cij = cdata[(i - 1) + jx * ns + jy * mxns];
-        if (fabs(cij) > cmax)
+        if (SUNRabs(cij) > cmax)
         {
           cmax = cij;
           x    = jx * wdata->dx;

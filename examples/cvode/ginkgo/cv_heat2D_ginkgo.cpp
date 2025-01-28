@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -117,11 +117,19 @@ int main(int argc, char* argv[])
   // ---------------------------------------
 
 #if defined(USE_CUDA)
+#if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 7)
+  auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create())};
+#else
   auto gko_exec{gko::CudaExecutor::create(0, gko::OmpExecutor::create(), false,
                                           gko::allocation_mode::device)};
+#endif
 #elif defined(USE_HIP)
+#if GKO_VERSION_MAJOR > 1 || (GKO_VERSION_MAJOR == 1 && GKO_VERSION_MINOR >= 7)
+  auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create())};
+#else
   auto gko_exec{gko::HipExecutor::create(0, gko::OmpExecutor::create(), false,
                                          gko::allocation_mode::device)};
+#endif
 #elif defined(USE_SYCL)
   auto gko_exec{gko::DpcppExecutor::create(0, gko::ReferenceExecutor::create())};
 #elif defined(USE_OMP)
@@ -223,7 +231,7 @@ int main(int argc, char* argv[])
   sunrealtype dTout = udata.tf / udata.nout;
   sunrealtype tout  = dTout;
 
-  // Inital output
+  // Initial output
   flag = OpenOutput(udata);
   if (check_flag(flag, "OpenOutput")) { return 1; }
 

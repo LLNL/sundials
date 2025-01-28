@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -34,16 +34,6 @@
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
 
 using namespace std;
 
@@ -81,7 +71,7 @@ int main(int argc, char* argv[])
   sunindextype NEQ   = 3;                  // number of dependent vars.
   sunrealtype reltol = SUN_RCONST(1.0e-6); // tolerances
   sunrealtype abstol = SUN_RCONST(1.0e-10);
-  sunrealtype lamda  = SUN_RCONST(-100.0); // stiffness parameter
+  sunrealtype lambda = SUN_RCONST(-100.0); // stiffness parameter
 
   // general problem variables
   int flag;                       // reusable error-checking flag
@@ -110,7 +100,7 @@ int main(int argc, char* argv[])
 
   // Initial problem output
   cout << "\nAnalytical ODE test problem:\n";
-  cout << "   lamda  = " << lamda << "\n";
+  cout << "   lambda = " << lambda << "\n";
   cout << "   reltol = " << reltol << "\n";
   cout << "   abstol = " << abstol << "\n\n";
   if (fixedpoint) { cout << "   Fixed-point nonlinear solver\n"; }
@@ -129,8 +119,8 @@ int main(int argc, char* argv[])
   if (check_flag((void*)inner_mem, "ARKStepCreate", 0)) { return 1; }
 
   MRIStepInnerStepper inner_stepper = NULL;
-  flag = ARKStepCreateMRIStepInnerStepper(inner_mem, &inner_stepper);
-  if (check_flag(&flag, "ARKStepCreateMRIStepInnerStepper", 1)) { return 1; }
+  flag = ARKodeCreateMRIStepInnerStepper(inner_mem, &inner_stepper);
+  if (check_flag(&flag, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   mristep_mem = MRIStepCreate(NULL, f, T0, y, inner_stepper, sunctx);
   if (check_flag((void*)mristep_mem, "MRIStepCreate", 0)) { return 1; }
@@ -163,7 +153,7 @@ int main(int argc, char* argv[])
 
   // Set routines
   flag = ARKodeSetUserData(arkstep_mem,
-                           (void*)&lamda); // Pass lamda to user functions
+                           (void*)&lambda); // Pass lambda to user functions
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
   flag = ARKodeSStolerances(arkstep_mem, reltol, abstol); // Specify tolerances
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
@@ -175,7 +165,7 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   flag = ARKodeSetUserData(mristep_mem,
-                           (void*)&lamda); // Pass lamda to user functions
+                           (void*)&lambda); // Pass lambda to user functions
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
   flag = ARKodeSStolerances(mristep_mem, reltol, abstol); // Specify tolerances
   if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
@@ -243,8 +233,10 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeGetCurrentTime", 1)) { return 1; }
   flag = ARKodeGetNumSteps(arkstep_mem, &ark_nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
-  flag = ARKStepGetNumRhsEvals(arkstep_mem, &ark_nfe, &ark_nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKodeGetNumRhsEvals(arkstep_mem, 0, &ark_nfe);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKodeGetNumRhsEvals(arkstep_mem, 1, &ark_nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvIters(arkstep_mem, &ark_nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvConvFails(arkstep_mem, &ark_ncfn);
@@ -284,8 +276,10 @@ int main(int argc, char* argv[])
   if (check_flag(&flag, "ARKodeGetCurrentTime", 1)) { return 1; }
   flag = ARKodeGetNumSteps(mristep_mem, &mri_nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
-  flag = MRIStepGetNumRhsEvals(mristep_mem, &mri_nfse, &mri_nfsi);
-  if (check_flag(&flag, "MRIStepGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKodeGetNumRhsEvals(mristep_mem, 0, &mri_nfse);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKodeGetNumRhsEvals(mristep_mem, 1, &mri_nfsi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvIters(mristep_mem, &mri_nni);
   if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) { return 1; }
   flag = ARKodeGetNumNonlinSolvConvFails(mristep_mem, &mri_ncfn);

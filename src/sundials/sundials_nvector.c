@@ -4,7 +4,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -102,7 +102,7 @@ N_Vector N_VNewEmpty(SUNContext sunctx)
   /*
    * OPTIONAL operations.
    *
-   * These operations provide default implementations that may be overriden.
+   * These operations provide default implementations that may be overridden.
    */
 
   /* fused vector operations (optional) */
@@ -226,7 +226,7 @@ SUNErrCode N_VCopyOps(N_Vector w, N_Vector v)
   /*
    * OPTIONAL operations.
    *
-   * These operations provide default implementations that may be overriden.
+   * These operations provide default implementations that may be overridden.
    */
 
   /* fused vector operations */

@@ -1,0 +1,66 @@
+##############################################################################
+# Copyright (c) 2022-24, Lawrence Livermore National Security, LLC and RADIUSS
+# project contributors. See the COPYRIGHT file for details.
+#
+# SPDX-License-Identifier: (MIT)
+##############################################################################
+# ------------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ------------------------------------------------------------------------------
+
+##########################################
+# Overridden shared radiuss-shared-ci jobs
+##########################################
+
+# We duplicate the shared jobs description and add necessary changes for this
+# project. We keep ${PROJECT_<MACHINE>_VARIANTS} and ${PROJECT_<MACHINE>_DEPS}
+# So that the comparison with the original job is easier.
+
+# No overridden jobs so far.
+
+########################
+# Extra jobs
+########################
+
+.sundials_job_on_dane:
+  variables:
+    MPIEXEC_EXECUTABLE: "srun"
+  extends: [.custom_job, .job_on_dane]
+
+dane_clang_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: clang@14.0.6
+        INDEX_SPEC: [~int64]
+        PRECISION_SPEC: [double]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +f2003+mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos+kokkos-kernels~trilinos ^openblas"
+  extends: .sundials_job_on_dane
+
+dane_gcc_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: gcc@10.3.1
+        INDEX_SPEC: [~int64]
+        PRECISION_SPEC: [double]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} +f2003+mpi+openmp+hypre+superlu-dist+lapack+klu+petsc+ginkgo+kokkos+kokkos-kernels~trilinos ^netlib-lapack"
+  extends: .sundials_job_on_dane
+
+dane_intel_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: intel@2023.2.1
+        INDEX_SPEC: [~int64]
+        PRECISION_SPEC: [double]
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 ${INDEX_SPEC} precision=${PRECISION_SPEC} ~f2003+mpi+openmp+hypre+superlu-dist+lapack~klu+petsc+ginkgo+kokkos+kokkos-kernels~trilinos ^intel-oneapi-mkl"
+  extends: .sundials_job_on_dane

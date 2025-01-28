@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -28,14 +28,6 @@
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
-#endif
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM  ".32Lg"
-#define RSYMW "41.32Lg"
-#else
-#define RSYM  ".16g"
-#define RSYMW "23.16g"
 #endif
 
 /*=================================================================*/
@@ -324,7 +316,7 @@ typedef struct IDAMemRec
   sunrealtype ida_ss; /* scalar used in Newton iteration convergence test  */
   sunrealtype ida_oldnrm; /* norm of previous nonlinear solver update          */
   sunrealtype ida_epsNewt; /* test constant in Newton convergence test          */
-  sunrealtype ida_epcon; /* coeficient of the Newton covergence test          */
+  sunrealtype ida_epcon; /* coefficient of the Newton convergence test          */
   sunrealtype ida_toldel; /* tolerance in direct test on Newton corrections    */
 
   sunrealtype ida_ssS; /* scalar ss for staggered sensitivities             */
@@ -333,7 +325,7 @@ typedef struct IDAMemRec
     Limits
     ------*/
 
-  int ida_maxncf; /* max numer of convergence failures                 */
+  int ida_maxncf; /* max number of convergence failures                 */
   int ida_maxnef; /* max number of error test failures                 */
 
   int ida_maxord;       /* max value of method order k:                      */
@@ -746,7 +738,7 @@ struct IDABMemRec
  * Type : struct IDAadjMemRec
  * -----------------------------------------------------------------
  * The type IDAadjMem is type pointer to struct IDAadjMemRec.
- * This structure contins fields to store all information
+ * This structure contains fields to store all information
  * necessary for adjoint sensitivity analysis.
  * -----------------------------------------------------------------
  */
@@ -833,7 +825,7 @@ struct IDAadjMemRec
   sunbooleantype ia_storeSensi;  /* store sensitivities?           */
   sunbooleantype ia_interpSensi; /* interpolate sensitivities?     */
 
-  sunbooleantype ia_noInterp; /* interpolations are temporarly  */
+  sunbooleantype ia_noInterp; /* interpolations are temporarily */
                               /* disabled ( IDACalcICB )        */
 
   /* Workspace for polynomial interpolation */
@@ -988,31 +980,13 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
  * =================================================================
  */
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define MSG_TIME       "t = %Lg, "
-#define MSG_TIME_H     "t = %Lg and h = %Lg, "
-#define MSG_TIME_INT   "t = %Lg is not between tcur - hu = %Lg and tcur = %Lg."
-#define MSG_TIME_TOUT  "tout = %Lg"
-#define MSG_TIME_TSTOP "tstop = %Lg"
-
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define MSG_TIME       "t = %lg, "
-#define MSG_TIME_H     "t = %lg and h = %lg, "
-#define MSG_TIME_INT   "t = %lg is not between tcur - hu = %lg and tcur = %lg."
-#define MSG_TIME_TOUT  "tout = %lg"
-#define MSG_TIME_TSTOP "tstop = %lg"
-
-#else
-
-#define MSG_TIME       "t = %g, "
-#define MSG_TIME_H     "t = %g and h = %g, "
-#define MSG_TIME_INT   "t = %g is not between tcur - hu = %g and tcur = %g."
-#define MSG_TIME_TOUT  "tout = %g"
-#define MSG_TIME_TSTOP "tstop = %g"
-
-#endif
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
+#define MSG_TIME_INT                                                \
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* General errors */
 
@@ -1243,8 +1217,9 @@ int IDASensResDQ(int Ns, sunrealtype t, N_Vector yy, N_Vector yp,
 #define MSGAM_BAD_TBOUT                                                  \
   "The final time tBout is outside the interval over which the forward " \
   "problem was solved."
-#define MSGAM_BACK_ERROR  "Error occured while integrating backward problem # %d"
-#define MSGAM_BAD_TINTERP "Bad t = %g for interpolation."
+#define MSGAM_BACK_ERROR \
+  "Error occurred while integrating backward problem # %d"
+#define MSGAM_BAD_TINTERP "Bad t = " SUN_FORMAT_G " for interpolation."
 #define MSGAM_BAD_T       "Bad t for interpolation."
 #define MSGAM_WRONG_INTERP \
   "This function cannot be called for the specified interp type."

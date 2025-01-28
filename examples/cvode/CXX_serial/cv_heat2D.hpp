@@ -3,7 +3,7 @@
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -32,11 +32,10 @@
 #include <example_utilities.hpp>
 
 // Macros for problem constants
-#define PI    SUN_RCONST(3.141592653589793238462643383279502884197169)
-#define ZERO  SUN_RCONST(0.0)
-#define ONE   SUN_RCONST(1.0)
-#define TWO   SUN_RCONST(2.0)
-#define EIGHT SUN_RCONST(8.0)
+#define PI   SUN_RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
+#define TWO  SUN_RCONST(2.0)
 
 // -----------------------------------------------------------------------------
 // User data structure
@@ -81,7 +80,7 @@ struct UserData
   // Inverse of Jacobian diagonal for preconditioner
   N_Vector d = nullptr;
 
-  // Ouput variables
+  // Output variables
   bool output = false; // write solution to disk
   int nout    = 20;    // number of output times
   std::ofstream uout;  // output file stream
@@ -163,7 +162,7 @@ static void InputHelp()
             << "  --kx <ky>          : y diffusion coefficient\n"
             << "  --tf <time>        : final time\n"
             << "  --rtol <rtol>      : relative tolerance\n"
-            << "  --atol <atol>      : absoltue tolerance\n"
+            << "  --atol <atol>      : absolute tolerance\n"
             << "  --gmres            : use GMRES linear solver\n"
             << "  --noprec           : disable preconditioner\n"
             << "  --liniters <iters> : max number of iterations\n"

@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -36,7 +36,7 @@
  *
  * Reference: D.B. Ozyurt and P.I. Barton, SISC 26(5) 1725-1743, 2005.
  *
- * Error handling was suppressed for code readibility reasons.
+ * Error handling was suppressed for code readability reasons.
  * -----------------------------------------------------------------*/
 
 #include <idas/idas.h> /* prototypes for IDA fcts., consts.    */
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   printf("     G = int_t0^tB0 g(t,p,y) dt\n");
   printf("     g(t,p,y) = y3\n\n\n");
 
-  /* Alocate and initialize user data. */
+  /* Allocate and initialize user data. */
   data       = (UserData)malloc(sizeof(*data));
   data->p[0] = P1;
   data->p[1] = P2;

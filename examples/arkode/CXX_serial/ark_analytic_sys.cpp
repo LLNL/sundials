@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -27,11 +27,11 @@
  * y(0) = [1,1,1]'.
  *
  * The stiffness of the problem is directly proportional to the
- * value of "lamda".  The value of lamda should be negative to
+ * value of "lambda".  The value of lambda should be negative to
  * result in a well-posed ODE; for values with magnitude larger than
  * 100 the problem becomes quite stiff.
  *
- * In this example, we choose lamda = -100.
+ * In this example, we choose lambda = -100.
  *
  * This program solves the problem with the DIRK method,
  * Newton iteration with the dense linear solver, and a
@@ -54,11 +54,9 @@
 #include <sunmatrix/sunmatrix_dense.h> // access to dense SUNMatrix
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
 #define ESYM "Le"
 #define FSYM "Lf"
 #else
-#define GSYM "g"
 #define ESYM "e"
 #define FSYM "f"
 #endif
@@ -86,7 +84,7 @@ int main()
   sunindextype NEQ   = 3;                  // number of dependent vars.
   sunrealtype reltol = SUN_RCONST(1.0e-6); // tolerances
   sunrealtype abstol = SUN_RCONST(1.0e-10);
-  sunrealtype lamda  = SUN_RCONST(-100.0); // stiffness parameter
+  sunrealtype lambda = SUN_RCONST(-100.0); // stiffness parameter
 
   // general problem variables
   int flag;                  // reusable error-checking flag
@@ -97,7 +95,7 @@ int main()
 
   // Initial problem output
   cout << "\nAnalytical ODE test problem:\n";
-  cout << "    lamda = " << lamda << "\n";
+  cout << "   lambda = " << lambda << "\n";
   cout << "   reltol = " << reltol << "\n";
   cout << "   abstol = " << abstol << "\n\n";
 
@@ -167,7 +165,7 @@ int main()
   if (check_flag((void*)LS, "SUNLinSol_Dense", 0)) { return 1; }
 
   /* Call ARKStepCreate to initialize the ARK timestepper memory and
-     specify the right-hand side function in y'=f(t,y), the inital time
+     specify the right-hand side function in y'=f(t,y), the initial time
      T0, and the initial dependent variable vector y.  Note: since
      this problem is fully implicit, we set f_E to NULL and f_I to f. */
   arkode_mem = ARKStepCreate(NULL, f, T0, y, sunctx);
@@ -175,7 +173,7 @@ int main()
 
   // Set routines
   flag = ARKodeSetUserData(arkode_mem,
-                           (void*)&lamda); // Pass lamda to user functions
+                           (void*)&lambda); // Pass lambda to user functions
   if (check_flag(&flag, "ARKodeSetUserData", 1)) { return 1; }
 
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol); // Specify tolerances
@@ -239,8 +237,10 @@ int main()
   check_flag(&flag, "ARKodeGetNumSteps", 1);
   flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
   flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);

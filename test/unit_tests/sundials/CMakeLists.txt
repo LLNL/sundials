@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -12,9 +12,10 @@
 
 if(SUNDIALS_ENABLE_ERROR_CHECKS)
   if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
-    add_executable(test_sundials_errors test_sundials_errors.cpp)
-    target_link_libraries(test_sundials_errors
-      PRIVATE sundials_core sundials_nvecserial GTest::gtest_main GTest::gmock)
+    sundials_add_executable(test_sundials_errors test_sundials_errors.cpp)
+    target_link_libraries(
+      test_sundials_errors PRIVATE sundials_core sundials_nvecserial
+                                   GTest::gtest_main GTest::gmock)
     gtest_discover_tests(test_sundials_errors)
   endif()
 endif()

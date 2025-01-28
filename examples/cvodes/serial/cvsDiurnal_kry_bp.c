@@ -3,7 +3,7 @@
  *                Radu Serban @LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -96,28 +96,20 @@
 #define ATOL (RTOL * FLOOR)      /* scalar absolute tolerance */
 #define NEQ  (NUM_SPECIES * MM)  /* NEQ = number of equations */
 
-/* User-defined vector and matrix accessor macros: IJKth, IJth */
+/* User-defined vector and matrix accessor macro: IJKth */
 
 /* IJKth is defined in order to isolate the translation from the
    mathematical 3-dimensional structure of the dependent variable vector
-   to the underlying 1-dimensional storage. IJth is defined in order to
-   write code which indexes into small dense matrices with a (row,column)
-   pair, where 1 <= row, column <= NUM_SPECIES.
+   to the underlying 1-dimensional storage.
 
    IJKth(vdata,i,j,k) references the element in the vdata array for
    species i at mesh point (j,k), where 1 <= i <= NUM_SPECIES,
    0 <= j <= MX-1, 0 <= k <= MY-1. The vdata array is obtained via
    the call vdata = N_VGetArrayPointer(v), where v is an N_Vector.
    For each mesh point (j,k), the elements for species i and i+1 are
-   contiguous within vdata.
-
-   IJth(a,i,j) references the (i,j)th entry of the small matrix sunrealtype **a,
-   where 1 <= i,j <= NUM_SPECIES. The small matrix routines in dense.h
-   work with matrices stored by column in a 2-dimensional array. In C,
-   arrays are indexed starting at 0, not 1. */
+   contiguous within vdata. */
 
 #define IJKth(vdata, i, j, k) (vdata[i - 1 + (j) * NUM_SPECIES + (k) * NSMX])
-#define IJth(a, i, j)         (a[j - 1][i - 1])
 
 /* Type : UserData
    contains problem constants */
@@ -188,7 +180,7 @@ int main(void)
   if (check_retval(&retval, "CVodeSetUserData", 1)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
-   * user's right hand side function in u'=f(t,u), the inital time T0, and
+   * user's right hand side function in u'=f(t,u), the initial time T0, and
    * the initial dependent variable vector u. */
   retval = CVodeInit(cvode_mem, f, T0, u);
   if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
@@ -203,7 +195,7 @@ int main(void)
   LS = SUNLinSol_SPGMR(u, SUN_PREC_LEFT, 0, sunctx);
   if (check_retval((void*)LS, "SUNLinSol_SPGMR", 0)) { return (1); }
 
-  /* Call CVodeSetLinearSolver to attach the linear sovler to CVode */
+  /* Call CVodeSetLinearSolver to attach the linear solver to CVode */
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
   if (check_retval(&retval, "CVodeSetLinearSolver", 1)) { return 1; }
 

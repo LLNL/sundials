@@ -4,7 +4,7 @@
  *      Based on idaFoodWeb_bnd.c and parallelized with OpenMP
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -189,7 +189,7 @@ static void Fweb(sunrealtype tcalc, N_Vector cc, N_Vector crate,
 static void WebRates(sunrealtype xx, sunrealtype yy, sunrealtype* cxy,
                      sunrealtype* ratesxy, UserData webdata);
 static sunrealtype dotprod(sunindextype size, sunrealtype* x1, sunrealtype* x2);
-static int check_retval(void* returnvalue, char* funcname, int opt);
+static int check_retval(void* returnvalue, const char* funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -220,7 +220,7 @@ int main(int argc, char* argv[])
   num_threads = 1; /* default value */
 #ifdef _OPENMP
   num_threads =
-    omp_get_max_threads(); /* overwrite with OMP_NUM_THREADS enviroment variable */
+    omp_get_max_threads(); /* overwrite with OMP_NUM_THREADS environment variable */
 #endif
   if (argc > 1)
   { /* overwrite with command line value, if supplied */
@@ -727,7 +727,7 @@ static sunrealtype dotprod(sunindextype size, sunrealtype* x1, sunrealtype* x2)
  *            NULL pointer
  */
 
-static int check_retval(void* returnvalue, char* funcname, int opt)
+static int check_retval(void* returnvalue, const char* funcname, int opt)
 {
   int* retval;
 

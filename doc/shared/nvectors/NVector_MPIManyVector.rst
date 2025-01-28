@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -27,7 +27,7 @@ construction of distinct NVECTOR modules for each component, that are then
 combined together to form the NVECTOR_MPIMANYVECTOR.  Three potential
 use cases for this module include:
 
-A. *Heterogenous computational architectures (single-node or multi-node)*:
+A. *Heterogeneous computational architectures (single-node or multi-node)*:
    for data partitioning between different computing resources on a node,
    architecture-specific subvectors may be created for each partition.
    For example, a user could create one MPI-parallel component based on

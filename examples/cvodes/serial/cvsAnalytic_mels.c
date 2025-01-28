@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -15,11 +15,11 @@
  *
  * The following is a simple example problem with analytical solution,
  * solution,
- *    dy/dt = lamda*y + 1/(1+t^2) - lamda*atan(t)
+ *    dy/dt = lambda*y + 1/(1+t^2) - lambda*atan(t)
  * for t in the interval [0.0, 10.0], with initial condition: y=0.
  *
  * The stiffness of the problem is directly proportional to the
- * value of "lamda".  The value of lamda should be negative to
+ * value of "lambda".  The value of lambda should be negative to
  * result in a well-posed ODE; for values with magnitude larger
  * than 100 the problem becomes quite stiff.
  *
@@ -75,7 +75,7 @@ int main(void)
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
   sunrealtype reltol = SUN_RCONST(1.0e-6); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-10);
-  sunrealtype lamda  = SUN_RCONST(-100.0); /* stiffness parameter */
+  sunrealtype lambda = SUN_RCONST(-100.0); /* stiffness parameter */
 
   /* general problem variables */
   int retval;                /* reusable error-checking flag */
@@ -87,7 +87,7 @@ int main(void)
 
   /* Initial diagnostics output */
   printf("\nAnalytical ODE test problem:\n");
-  printf("    lamda = %" GSYM "\n", lamda);
+  printf("   lambda = %" GSYM "\n", lambda);
   printf("   reltol = %.1" ESYM "\n", reltol);
   printf("   abstol = %.1" ESYM "\n\n", abstol);
 
@@ -106,13 +106,13 @@ int main(void)
   if (check_retval((void*)cvode_mem, "CVodeCreate", 0)) { return (1); }
 
   /* Call CVodeInit to initialize the integrator memory and specify the
-   * user's right hand side function in y'=f(t,y), the inital time T0, and
+   * user's right hand side function in y'=f(t,y), the initial time T0, and
    * the initial dependent variable vector y. */
   retval = CVodeInit(cvode_mem, f, T0, y);
   if (check_retval(&retval, "CVodeInit", 1)) { return (1); }
 
   /* Call CVodeSetUserData to specify the stiffness factor */
-  retval = CVodeSetUserData(cvode_mem, (void*)&lamda);
+  retval = CVodeSetUserData(cvode_mem, (void*)&lambda);
   if (check_retval(&retval, "CVodeSetUserData", 1)) { return (1); }
 
   /* Call CVodeSStolerances to specify the scalar relative and absolute tolerances */
@@ -200,12 +200,12 @@ int main(void)
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
-  sunrealtype lamda = rdata[0];       /* set shortcut for stiffness parameter */
-  sunrealtype u     = NV_Ith_S(y, 0); /* access current solution value */
+  sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
+  sunrealtype u      = NV_Ith_S(y, 0); /* access current solution value */
 
   /* fill in the RHS function: "NV_Ith_S" accesses the 0th entry of ydot */
-  NV_Ith_S(ydot, 0) = lamda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
-                      lamda * atan(t);
+  NV_Ith_S(ydot, 0) = lambda * u + SUN_RCONST(1.0) / (SUN_RCONST(1.0) + t * t) -
+                      lambda * atan(t);
 
   return 0; /* return with success */
 }
@@ -249,7 +249,7 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   sunrealtype tcur, gamma, rl1;
   void* user_data;
   sunrealtype* rdata;
-  sunrealtype lamda;
+  sunrealtype lambda;
 
   /* retrieve implicit system data from CVode */
   retval = CVodeGetNonlinearSystemData(LS->content, &tcur, &ypred, &y, &fn,
@@ -260,11 +260,11 @@ static int MatrixEmbeddedLSSolve(SUNLinearSolver LS, SUNMatrix A, N_Vector x,
   }
 
   /* extract stiffness parameter from user_data */
-  rdata = (sunrealtype*)user_data;
-  lamda = rdata[0];
+  rdata  = (sunrealtype*)user_data;
+  lambda = rdata[0];
 
-  /* perform linear solve: (1-gamma*lamda)*x = b */
-  NV_Ith_S(x, 0) = NV_Ith_S(b, 0) / (1 - gamma * lamda);
+  /* perform linear solve: (1-gamma*lambda)*x = b */
+  NV_Ith_S(x, 0) = NV_Ith_S(b, 0) / (1 - gamma * lambda);
 
   /* return with success */
   return (SUN_SUCCESS);
@@ -334,8 +334,8 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol, sunrealtype at
 
   /* compute solution error */
   ans = atan(t);
-  ewt = SUN_RCONST(1.0) / (rtol * fabs(ans) + atol);
-  err = ewt * fabs(NV_Ith_S(y, 0) - ans);
+  ewt = SUN_RCONST(1.0) / (rtol * SUNRabs(ans) + atol);
+  err = ewt * SUNRabs(NV_Ith_S(y, 0) - ans);
 
   /* is the solution within the tolerances? */
   passfail = (err < SUN_RCONST(1.0)) ? 0 : 1;

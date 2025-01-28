@@ -5,7 +5,7 @@
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -345,7 +345,7 @@ int CVBandPrecGetNumRhsEvals(void* cvode_mem, long int* nfevalsBP)
 
   gamma   is the scalar appearing in the Newton matrix.
 
-  bp_data is a pointer to preconditoner data (set by CVBandPrecInit)
+  bp_data is a pointer to preconditioner data (set by CVBandPrecInit)
 
   The value to be returned by the CVBandPrecSetup function is
     0  if successful, or
@@ -428,7 +428,7 @@ static int CVBandPrecSetup(sunrealtype t, N_Vector y, N_Vector fy,
 
   r is the right-hand side vector of the linear system.
 
-  bp_data is a pointer to preconditoner data (set by CVBandPrecInit)
+  bp_data is a pointer to preconditioner data (set by CVBandPrecInit)
 
   z is the output vector computed by CVBandPrecSolve.
 

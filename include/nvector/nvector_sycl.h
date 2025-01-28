@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -105,7 +105,7 @@ static inline sunrealtype* N_VGetDeviceArrayPointer_Sycl(N_Vector x)
  * NVECTOR API functions
  * ----------------------------------------------------------------- */
 
-static inline N_Vector_ID N_VGetVectorID_Sycl(N_Vector v)
+static inline N_Vector_ID N_VGetVectorID_Sycl(N_Vector)
 {
   return SUNDIALS_NVEC_SYCL;
 }

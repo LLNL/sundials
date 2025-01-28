@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -197,18 +197,6 @@ SUNErrCode SUNNonlinSolGetResNrm(SUNNonlinearSolver NLS, sunrealtype* resnrm);
 #define SUN_NLS_CONV_RECVR +902 /* convergence failure, try to recover */
 #define SUN_NLS_CONV_SLOW  +903 /* converging, but slowly */
 #define SUN_NLS_DIVERGING  +904 /* solver is diverging */
-
-/* -----------------------------------------------------------------------------
- * SUNNonlinearSolver messages
- * ---------------------------------------------------------------------------*/
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define SUN_NLS_MSG_RESIDUAL "\tnonlin. iteration %ld, nonlin. residual: %Lg\n"
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-#define SUN_NLS_MSG_RESIDUAL "\tnonlin. iteration %ld, nonlin. residual: %g\n"
-#else
-#define SUN_NLS_MSG_RESIDUAL "\tnonlin. iteration %ld, nonlin. residual: %g\n"
-#endif
 
 #ifdef __cplusplus
 }

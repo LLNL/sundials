@@ -2,7 +2,7 @@
    Author(s): David J. Gardner @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -248,7 +248,7 @@ the :ref:`Workflow` section.
   reordering, squashing, updating commit messages, etc.) before pushing to the
   remote repository.
 
-  Rebase the commited but not pushed changes on the current branch and execute
+  Rebase the committed but not pushed changes on the current branch and execute
   a given command (``cmd``) between each step in the rebase
 
   .. code-block:: none

@@ -5,7 +5,7 @@
  *     code, written by Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -84,9 +84,14 @@ extern "C" {
 /* Create a typedef for the KLU solver function pointer to suppress compiler
  * warning messages about sunindextype vs internal KLU index types. */
 
+#if SUITESPARSE_MAIN_VERSION >= 6
+typedef int (*KLUSolveFn)(sun_klu_symbolic*, sun_klu_numeric*, sunindextype,
+                          sunindextype, double*, sun_klu_common*);
+#else
 typedef sunindextype (*KLUSolveFn)(sun_klu_symbolic*, sun_klu_numeric*,
                                    sunindextype, sunindextype, double*,
                                    sun_klu_common*);
+#endif
 
 struct _SUNLinearSolverContent_KLU
 {

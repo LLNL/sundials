@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -292,7 +292,7 @@ man_pages = [
 texinfo_documents = [
   ('index', 'IDAS', u'IDAS Documentation',
    u'Alan C. Hindmarsh, Radu Serban, Cody J. Balos, David J. Gardner, Daniel R. Reynolds, and Carol S. Woodward', 'IDAS',
-   'Time integration package for multi-rate systems of ordinary differntial equations.',
+   'Time integration package for multi-rate systems of ordinary differential equations.',
    'Miscellaneous'),
 ]
 

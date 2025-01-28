@@ -2,7 +2,7 @@
    Programmer(s): Cody J. Balos @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -125,7 +125,7 @@ In addition, the module provides the following user-callable routines:
    The function ``SUNLinSol_cuSolverSp_batchQR_GetDeviceSpace``
    returns the cuSOLVER batch QR method internal buffer size, in bytes,
    in the argument ``cuSolverInternal`` and the cuSOLVER
-   batch QR workspace buffer size, in bytes, in the agrument
+   batch QR workspace buffer size, in bytes, in the argument
    ``cuSolverWorkspace``. The size of the internal buffer is
    proportional to the number of matrix blocks while the size
    of the workspace is almost independent of the number of blocks.

@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -54,17 +54,25 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile)
 {
   if (hadapt_mem != NULL)
   {
-    fprintf(outfile, "ark_hadapt: etamax = %" RSYM "\n", hadapt_mem->etamax);
-    fprintf(outfile, "ark_hadapt: etamx1 = %" RSYM "\n", hadapt_mem->etamx1);
-    fprintf(outfile, "ark_hadapt: etamxf = %" RSYM "\n", hadapt_mem->etamxf);
-    fprintf(outfile, "ark_hadapt: etamin = %" RSYM "\n", hadapt_mem->etamin);
+    fprintf(outfile, "ark_hadapt: etamax = " SUN_FORMAT_G "\n",
+            hadapt_mem->etamax);
+    fprintf(outfile, "ark_hadapt: etamx1 = " SUN_FORMAT_G "\n",
+            hadapt_mem->etamx1);
+    fprintf(outfile, "ark_hadapt: etamxf = " SUN_FORMAT_G "\n",
+            hadapt_mem->etamxf);
+    fprintf(outfile, "ark_hadapt: etamin = " SUN_FORMAT_G "\n",
+            hadapt_mem->etamin);
     fprintf(outfile, "ark_hadapt: small_nef = %i\n", hadapt_mem->small_nef);
-    fprintf(outfile, "ark_hadapt: etacf = %" RSYM "\n", hadapt_mem->etacf);
-    fprintf(outfile, "ark_hadapt: cfl = %" RSYM "\n", hadapt_mem->cfl);
-    fprintf(outfile, "ark_hadapt: safety = %" RSYM "\n", hadapt_mem->safety);
-    fprintf(outfile, "ark_hadapt: growth = %" RSYM "\n", hadapt_mem->growth);
-    fprintf(outfile, "ark_hadapt: lbound = %" RSYM "\n", hadapt_mem->lbound);
-    fprintf(outfile, "ark_hadapt: ubound = %" RSYM "\n", hadapt_mem->ubound);
+    fprintf(outfile, "ark_hadapt: etacf = " SUN_FORMAT_G "\n", hadapt_mem->etacf);
+    fprintf(outfile, "ark_hadapt: cfl = " SUN_FORMAT_G "\n", hadapt_mem->cfl);
+    fprintf(outfile, "ark_hadapt: safety = " SUN_FORMAT_G "\n",
+            hadapt_mem->safety);
+    fprintf(outfile, "ark_hadapt: growth = " SUN_FORMAT_G "\n",
+            hadapt_mem->growth);
+    fprintf(outfile, "ark_hadapt: lbound = " SUN_FORMAT_G "\n",
+            hadapt_mem->lbound);
+    fprintf(outfile, "ark_hadapt: ubound = " SUN_FORMAT_G "\n",
+            hadapt_mem->ubound);
     fprintf(outfile, "ark_hadapt: nst_acc = %li\n", hadapt_mem->nst_acc);
     fprintf(outfile, "ark_hadapt: nst_exp = %li\n", hadapt_mem->nst_exp);
     fprintf(outfile, "ark_hadapt: pq = %i\n", hadapt_mem->pq);
@@ -82,7 +90,10 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile)
       fprintf(outfile, "  ark_hadapt: stability function data pointer = %p\n",
               hadapt_mem->estab_data);
     }
-    (void)SUNAdaptController_Write(hadapt_mem->hcontroller, outfile);
+    if (hadapt_mem->hcontroller != NULL)
+    {
+      (void)SUNAdaptController_Write(hadapt_mem->hcontroller, outfile);
+    }
   }
 }
 
@@ -97,6 +108,13 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   int retval;
   sunrealtype h_acc, h_cfl, int_dir;
   int controller_order;
+
+  /* Return with no stepsize adjustment if the controller is NULL */
+  if (hadapt_mem->hcontroller == NULL)
+  {
+    ark_mem->eta = ONE;
+    return (ARK_SUCCESS);
+  }
 
   /* Request error-based step size from adaptivity controller */
   if (hadapt_mem->pq == 0)
@@ -133,11 +151,8 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   }
   if (h_cfl <= ZERO) { h_cfl = SUN_RCONST(1.0e30) * SUNRabs(hcur); }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",
-                     "new-step-before-bounds",
-                     "h_acc = %" RSYM ", h_cfl = %" RSYM, h_acc, h_cfl);
-#endif
+  SUNLogDebug(ARK_LOGGER, "new-step-before-bounds",
+              "h_acc = " SUN_FORMAT_G ", h_cfl = " SUN_FORMAT_G, h_acc, h_cfl);
 
   /* enforce safety factors */
   h_acc *= hadapt_mem->safety;
@@ -149,11 +164,8 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   /* enforce minimum bound time step reduction */
   h_acc = int_dir * SUNMAX(SUNRabs(h_acc), SUNRabs(hadapt_mem->etamin * hcur));
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_INFO, "ARKODE::arkAdapt",
-                     "new-step-after-max-min-bounds",
-                     "h_acc = %" RSYM ", h_cfl = %" RSYM, h_acc, h_cfl);
-#endif
+  SUNLogDebug(ARK_LOGGER, "new-step-after-max-min-bounds",
+              "h_acc = " SUN_FORMAT_G ", h_cfl = " SUN_FORMAT_G, h_acc, h_cfl);
 
   /* increment the relevant step counter, set desired step */
   if (SUNRabs(h_acc) < SUNRabs(h_cfl)) { hadapt_mem->nst_acc++; }
@@ -179,10 +191,7 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   /* enforce maximum time step size */
   ark_mem->eta /= SUNMAX(ONE, SUNRabs(hcur) * ark_mem->hmax_inv * ark_mem->eta);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkAdapt",
-                     "new-step-eta", "eta = %" RSYM, ark_mem->eta);
-#endif
+  SUNLogDebug(ARK_LOGGER, "new-step-eta", "eta = " SUN_FORMAT_G, ark_mem->eta);
 
   return (retval);
 }

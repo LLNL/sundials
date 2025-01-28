@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -15,7 +15,8 @@
 # ---------------------------------------------------------------
 
 # We need this to ensure the installed templates have MPI when ENABLE_MPI=TRUE,
-# at least until we convert all of the templates to use the SUNDIALS CMake target.
+# at least until we convert all of the templates to use the SUNDIALS CMake
+# target.
 
 # ===================================================================
 # Configure compilers for installed examples
@@ -24,10 +25,14 @@
 foreach(lang ${_SUNDIALS_ENABLED_LANGS})
   if(ENABLE_MPI)
     if(DEFINED MPI_${lang}_COMPILER)
-      set(_EXAMPLES_${lang}_COMPILER "${MPI_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
+      set(_EXAMPLES_${lang}_COMPILER
+          "${MPI_${lang}_COMPILER}"
+          CACHE INTERNAL "${lang} compiler for installed examples")
     endif()
   else()
-    set(_EXAMPLES_${lang}_COMPILER "${CMAKE_${lang}_COMPILER}" CACHE INTERNAL "${lang} compiler for installed examples")
+    set(_EXAMPLES_${lang}_COMPILER
+        "${CMAKE_${lang}_COMPILER}"
+        CACHE INTERNAL "${lang} compiler for installed examples")
   endif()
 endforeach()
 
@@ -62,7 +67,9 @@ if(EXAMPLES_INSTALL)
   if(CXX_FOUND)
     set(CXX "${_EXAMPLES_CXX_COMPILER}")
     set(CXX_LNKR "${_EXAMPLES_CXX_COMPILER}")
-    set(CXXFLAGS "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX${CMAKE_CXX_STANDARD}_STANDARD_COMPILE_OPTION}")
+    set(CXXFLAGS
+        "${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX${CMAKE_CXX_STANDARD}_STANDARD_COMPILE_OPTION}"
+    )
     set(CXX_LDFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
     list2string(EXE_EXTRA_LINK_LIBS CXX_LIBS)
   endif()
@@ -134,20 +141,3 @@ endif()
 if(BUILD_KINSOL)
   add_subdirectory(kinsol)
 endif()
-
-# Add CPODES examples
-if(BUILD_CPODES)
-  add_subdirectory(cpodes)
-endif()
-
-# Add the nvector examples
-add_subdirectory(nvector)
-
-# Add the sunmatrix examples
-add_subdirectory(sunmatrix)
-
-# Add the sunlinearsolver examples
-add_subdirectory(sunlinsol)
-
-# Add the sunnonlinearsolver examples
-add_subdirectory(sunnonlinsol)

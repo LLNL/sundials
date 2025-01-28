@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Example Programs for ARKODE'
-copyright = u'2012-2021, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082'
+copyright = u'2012-2025, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, and Cody J. Balos, release number LLNL-SM-668082'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -442,7 +442,7 @@ man_pages = [
 texinfo_documents = [
   ('index', 'ARKODE_example', u'ARKODE Example Documentation',
    u'Daniel R. Reynolds', 'ARKODE_example',
-   'Example programs for the ARKODE time integration package for multi-rate systems of ordinary differntial equations.',
+   'Example programs for the ARKODE time integration package for multi-rate systems of ordinary differential equations.',
    'Miscellaneous'),
 ]
 

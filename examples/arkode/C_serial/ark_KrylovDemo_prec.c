@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -65,7 +65,7 @@
  * subset of the ns by ns blocks).
  *
  * Four different runs are made for this problem. The product
- * preconditoner is applied on the left and on the right. In each
+ * preconditioner is applied on the left and on the right. In each
  * case, both the modified and classical Gram-Schmidt options are
  * tested. In the series of runs, ARKStepCreate, SUNLinSol_SPGMR and
  * ARKodeSetLinearSolver are called only for the first run, whereas
@@ -124,6 +124,16 @@
 #endif
 #endif
 
+#ifndef ABS
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define ABS(x) (fabs((x)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define ABS(x) (fabsf((x)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define ABS(x) (fabsl((x)))
+#endif
+#endif
+
 /* Constants */
 
 #define ZERO SUN_RCONST(0.0)
@@ -137,7 +147,7 @@
 #define BB    ONE                /* BB = b */
 #define DPREY ONE
 #define DPRED SUN_RCONST(0.5)
-#define ALPH  ONE
+#define ALPHA ONE
 #define NP    3
 #define NS    (2 * NP)
 
@@ -167,8 +177,8 @@
 
 /* Spgmr Constants */
 
-#define MAXL 0    /* => use default = MIN(NEQ, 5)            */
-#define DELT ZERO /* => use default = 0.05                   */
+#define MAXL  0    /* => use default = MIN(NEQ, 5)            */
+#define DELTA ZERO /* => use default = 0.05                   */
 
 /* Output Constants */
 
@@ -322,7 +332,7 @@ int main(int argc, char* argv[])
         flag = SUNLinSol_SPGMRSetGSType(LS, gstype);
         if (check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) { return (1); }
 
-        flag = ARKodeSetEpsLin(arkode_mem, DELT);
+        flag = ARKodeSetEpsLin(arkode_mem, DELTA);
         if (check_flag(&flag, "ARKodeSetEpsLin", 1)) { return (1); }
 
         flag = ARKodeSetPreconditioner(arkode_mem, Precond, PSolve);
@@ -535,17 +545,17 @@ static void PrintIntro(void)
   printf("Matrix parameters: a = %.2Lg   e = %.2Lg   g = %.2Lg\n", AA, EE, GG);
   printf("b parameter = %.2Lg\n", BB);
   printf("Diffusion coefficients: Dprey = %.2Lg   Dpred = %.2Lg\n", DPREY, DPRED);
-  printf("Rate parameter alpha = %.2Lg\n\n", ALPH);
+  printf("Rate parameter alpha = %.2Lg\n\n", ALPHA);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n", AA, EE, GG);
   printf("b parameter = %.2g\n", BB);
   printf("Diffusion coefficients: Dprey = %.2g   Dpred = %.2g\n", DPREY, DPRED);
-  printf("Rate parameter alpha = %.2g\n\n", ALPH);
+  printf("Rate parameter alpha = %.2g\n\n", ALPHA);
 #else
   printf("Matrix parameters: a = %.2g   e = %.2g   g = %.2g\n", AA, EE, GG);
   printf("b parameter = %.2g\n", BB);
   printf("Diffusion coefficients: Dprey = %.2g   Dpred = %.2g\n", DPREY, DPRED);
-  printf("Rate parameter alpha = %.2g\n\n", ALPH);
+  printf("Rate parameter alpha = %.2g\n\n", ALPHA);
 #endif
   printf("Mesh dimensions (mx,my) are %d, %d.  ", MX, MY);
   printf("Total system size is neq = %d \n\n", NEQ);
@@ -633,8 +643,10 @@ static void PrintOutput(void* arkode_mem, sunrealtype t)
 
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
   flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
   check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
   flag = ARKodeGetLastStep(arkode_mem, &hu);
@@ -668,8 +680,10 @@ static void PrintFinalStats(void* arkode_mem)
   check_flag(&flag, "ARKodeGetWorkSpace", 1);
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 0, &nfe);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
+  flag = ARKodeGetNumRhsEvals(arkode_mem, 1, &nfi);
+  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
   flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
   flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
@@ -818,7 +832,7 @@ static void WebRates(sunrealtype x, sunrealtype y, sunrealtype t,
     for (i = 0; i < ns; i++) { rate[i] += c[j] * acoef[i][j]; }
   }
 
-  fac = ONE + ALPH * x * y;
+  fac = ONE + ALPHA * x * y;
   for (i = 0; i < ns; i++) { rate[i] = c[i] * (bcoef[i] * fac + rate[i]); }
 }
 
@@ -878,7 +892,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
   f1 = N_VGetArrayPointer(wdata->tmp);
 
   fac = N_VWrmsNorm(fc, rewt);
-  r0  = SUN_RCONST(1000.0) * fabs(gamma) * uround * NEQ * fac;
+  r0  = SUN_RCONST(1000.0) * ABS(gamma) * uround * NEQ * fac;
   if (r0 == ZERO) { r0 = ONE; }
 
   for (igy = 0; igy < ngy; igy++)
@@ -896,7 +910,7 @@ static int Precond(sunrealtype t, N_Vector c, N_Vector fc, sunbooleantype jok,
         /* Generate the jth column as a difference quotient */
         jj   = if0 + j;
         save = cdata[jj];
-        r    = MAX(srur * fabs(save), r0 / rewtdata[jj]);
+        r    = MAX(srur * ABS(save), r0 / rewtdata[jj]);
         cdata[jj] += r;
         fac = -gamma / r;
         fblock(t, cdata, jx, jy, f1, wdata);

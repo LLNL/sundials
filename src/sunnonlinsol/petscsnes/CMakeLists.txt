@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -24,24 +24,16 @@ else()
 endif()
 
 # Create the library
-sundials_add_library(sundials_sunnonlinsolpetscsnes
-  SOURCES
-    sunnonlinsol_petscsnes.c
-  HEADERS
-    ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_petscsnes.h
-  INCLUDE_SUBDIR
-    sunnonlinsol
-  LINK_LIBRARIES
-    PUBLIC sundials_core
+sundials_add_library(
+  sundials_sunnonlinsolpetscsnes
+  SOURCES sunnonlinsol_petscsnes.c
+  HEADERS ${SUNDIALS_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_petscsnes.h
+  INCLUDE_SUBDIR sunnonlinsol
+  LINK_LIBRARIES PUBLIC sundials_core
   OBJECT_LIBRARIES
-  LINK_LIBRARIES
-    PUBLIC sundials_nvecpetsc SUNDIALS::PETSC
-  OUTPUT_NAME
-    sundials_sunnonlinsolpetscsnes
-  VERSION
-    ${nveclib_VERSION}
-  SOVERSION
-    ${nveclib_SOVERSION}
-)
+  LINK_LIBRARIES PUBLIC sundials_nvecpetsc SUNDIALS::PETSC
+  OUTPUT_NAME sundials_sunnonlinsolpetscsnes
+  VERSION ${nveclib_VERSION}
+  SOVERSION ${nveclib_SOVERSION})
 
 message(STATUS "Added SUNNONLINSOL_PETSCSNES module")

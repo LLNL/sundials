@@ -4,7 +4,7 @@
  * Based an example program by Rujeko Chinomona @ SMU.
  * ------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -135,11 +135,11 @@ int main(void)
   if (check_retval(&retval, "SetInitialCondition", 1)) { return 1; }
 
   /*
-   * Create the slow integrator and set options
+   * Create the fast integrator and set options
    */
 
   /* Initialize the fast integrator. Specify the explicit fast right-hand side
-     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, and the
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the initial time T0, and the
      initial dependent variable vector y. */
   inner_arkode_mem = ARKStepCreate(ff, NULL, T0, y, ctx);
   if (check_retval((void*)inner_arkode_mem, "ARKStepCreate", 0)) { return 1; }
@@ -157,18 +157,15 @@ int main(void)
   if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
   /* Create inner stepper */
-  retval = ARKStepCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
-  if (check_retval(&retval, "ARKStepCreateMRIStepInnerStepper", 1))
-  {
-    return 1;
-  }
+  retval = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
+  if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
 
   /*
    * Create the slow integrator and set options
    */
 
   /* Initialize the slow integrator. Specify the explicit slow right-hand side
-     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the inital time T0, the
+     function in y'=fe(t,y)+fi(t,y)+ff(t,y), the initial time T0, the
      initial dependent variable vector y, and the fast integrator. */
   arkode_mem = MRIStepCreate(fs, NULL, T0, y, inner_stepper, ctx);
   if (check_retval((void*)arkode_mem, "MRIStepCreate", 0)) { return 1; }

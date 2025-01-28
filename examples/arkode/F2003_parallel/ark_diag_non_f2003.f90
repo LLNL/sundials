@@ -3,7 +3,7 @@
 !                modified by Daniel M. Margolis @ SMU
 !-----------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2025, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -235,9 +235,9 @@ program driver
       call MPI_Abort(comm, 1, ierr)
     end if
 
-    retval = FERKStepGetNumRhsEvals(arkode_mem, nfe)
+    retval = FARKodeGetNumRhsEvals(arkode_mem, 0, nfe)
     if (retval /= 0) then
-      print *, "Error: FERKStepGetNumRhsEvals returned ", retval
+      print *, "Error: FARKodeGetNumRhsEvals returned ", retval
       call MPI_Abort(comm, 1, ierr)
     end if
 
@@ -281,9 +281,9 @@ program driver
     call MPI_Abort(comm, 1, ierr)
   end if
 
-  retval = FERKStepGetNumRhsEvals(arkode_mem, nfe)
+  retval = FARKodeGetNumRhsEvals(arkode_mem, 0, nfe)
   if (retval /= 0) then
-    print *, "Error: FERKStepGetNumRhsEvals returned ", retval
+    print *, "Error: FARKodeGetNumRhsEvals returned ", retval
     call MPI_Abort(comm, 1, ierr)
   end if
 

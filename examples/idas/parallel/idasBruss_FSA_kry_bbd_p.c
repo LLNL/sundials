@@ -3,7 +3,7 @@
  *                Cosmin Petra and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -563,7 +563,7 @@ static void SetInitialProfiles(N_Vector uv, N_Vector uvp, N_Vector id,
 
 /*
  * Print first lines of output (problem description)
- * and table headerr
+ * and table header
  */
 
 static void PrintHeader(sunindextype SystemSize, int maxl, sunindextype mudq,
@@ -1057,11 +1057,8 @@ static void BSend(MPI_Comm comm, int my_pe, int ixsub, int jysub, int dsizex,
 #define nsmxsub2 (data->nsmxsub2)
 #define dx       (data->dx)
 #define dy       (data->dy)
-#define cox      (data->cox)
-#define coy      (data->coy)
 #define gridext  (data->gridext)
 #define eps      (data->eps)
-#define ns       (data->ns)
 
 /*
  * reslocal: Compute res = F(t,uv,uvp).
@@ -1192,7 +1189,7 @@ static int reslocal(sunindextype Nlocal, sunrealtype tt, N_Vector uv,
     }
   }
 
-  /* Algebraic equation correspoding to boundary mesh point. */
+  /* Algebraic equation corresponding to boundary mesh point. */
   if (jysub == 0)
   {
     for (ix = 0; ix < mxsub; ix++)

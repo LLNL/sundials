@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -96,7 +96,7 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunc
   M       = A->M;
   nblocks = A->nblocks;
 
-  /* Check that the matirx and vector dimensions agree */
+  /* Check that the matrix and vector dimensions agree */
   if (M * nblocks != N_VGetLength(y)) { return (NULL); }
 
   /* Create the linear solver */

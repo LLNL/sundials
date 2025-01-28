@@ -5,7 +5,7 @@
  * Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -27,10 +27,8 @@
 
 #include "sundials_macros.h"
 
-#define ZERO   SUN_RCONST(0.0)
-#define HALF   SUN_RCONST(0.5)
-#define ONE    SUN_RCONST(1.0)
-#define ONEPT5 SUN_RCONST(1.5)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------
@@ -238,7 +236,7 @@ void N_VSpace_Trilinos(N_Vector x, sunindextype* lrw, sunindextype* liw)
 /*
  * MPI communicator accessor
  */
-SUNComm N_VGetCommunicator_Trilinos(N_Vector x)
+SUNComm N_VGetCommunicator_Trilinos(SUNDIALS_MAYBE_UNUSED N_Vector x)
 {
 #ifdef SUNDIALS_TRILINOS_HAVE_MPI
   Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);

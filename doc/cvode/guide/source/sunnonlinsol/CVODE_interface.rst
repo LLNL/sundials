@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -111,7 +111,7 @@ might need access to the current value of :math:`\gamma` to compute Jacobian dat
       custom  ``SUNNonlinearSolver`` object.  When supplying a custom
       :c:type:`SUNNonlinSolSysFn` to an existing  ``SUNNonlinearSolver`` object,
       the user should call :c:func:`CVodeGetNonlinearSystemData` inside the
-      nonlinear system  function to access the requisite data for evaluting
+      nonlinear system  function to access the requisite data for evaluating
       the nonlinear system function of their choosing. Additionlly, if the
       ``SUNNonlinearSolver`` object  (existing or custom) leverages the
       :c:type:`SUNNonlinSolLSetupFn` and/or :c:type:`SUNNonlinSolLSolveFn`

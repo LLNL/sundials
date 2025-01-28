@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -67,7 +67,7 @@ typedef struct ARKodeSPRKStepMemRec
   ===============================================================*/
 
 /* Interface routines supplied to ARKODE */
-int sprkStep_Init(ARKodeMem ark_mem, int init_type);
+int sprkStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type);
 int sprkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                      int mode);
 int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
@@ -83,13 +83,14 @@ int sprkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                     sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 void sprkStep_Free(ARKodeMem ark_mem);
 void sprkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
+int sprkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                            long int* rhs_evals);
 
 /* Internal utility routines */
 int sprkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                  ARKodeMem* ark_mem, ARKodeSPRKStepMem* step_mem);
 int sprkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                            ARKodeSPRKStepMem* step_mem);
-sunbooleantype sprkStep_CheckNVector(N_Vector tmpl);
 
 /* f1 = p' (Force evaluation) */
 int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,

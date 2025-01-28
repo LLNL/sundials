@@ -3,7 +3,7 @@
 # Programmer(s): Daniel R. Reynolds @ SMU
 # ----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -20,16 +20,16 @@ import pylab as plt
 import numpy as np
 
 # load solution data file
-data = np.loadtxt('solution.txt', dtype=np.double)
+data = np.loadtxt("solution.txt", dtype=np.double)
 
 # determine number of time steps, number of fields
-nt,nv = np.shape(data)
+nt, nv = np.shape(data)
 
 # extract time array
-times = data[:,0]
+times = data[:, 0]
 
 # parse comment line to determine solution names
-f = open('solution.txt', 'r')
+f = open("solution.txt", "r")
 commentline = f.readline()
 commentsplit = commentline.split()
 names = commentsplit[2:]
@@ -38,18 +38,16 @@ names = commentsplit[2:]
 plt.figure()
 
 # add curves to figure
-for i in range(nv-1):
-    plt.plot(times,data[:,i+1],label=names[i])
-plt.xlabel('t')
-if (nv > 2):
-    plt.ylabel('solutions')
+for i in range(nv - 1):
+    plt.plot(times, data[:, i + 1], label=names[i])
+plt.xlabel("t")
+if nv > 2:
+    plt.ylabel("solutions")
 else:
-    plt.ylabel('solution')
-plt.legend(loc='upper right', shadow=True)
+    plt.ylabel("solution")
+plt.legend(loc="upper right", shadow=True)
 plt.grid()
-plt.savefig('solution.png')
-
-
+plt.savefig("solution.png")
 
 
 ##### end of script #####

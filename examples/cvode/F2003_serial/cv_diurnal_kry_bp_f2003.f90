@@ -4,7 +4,7 @@
 !                cvode/fcmix_serial/fcvDiurnal_kry_bp.f
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2023, Lawrence Livermore National Security
+! Copyright (c) 2002-2025, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -80,7 +80,7 @@ module diurnal_bp_mod
   real(c_double), parameter  :: twohr = 7200.0d0
   real(c_double), parameter  :: rtol = 1.0d-5
   real(c_double), parameter  :: floor = 100.0d0
-  real(c_double), parameter  :: delt = 0.0d0
+  real(c_double), parameter  :: delta = 0.0d0
   real(c_double), parameter  :: atol = rtol*floor
   integer(c_int), parameter  :: Jpretype = 1
   integer(c_int), parameter  :: iGStype = 1

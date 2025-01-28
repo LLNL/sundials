@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -140,7 +140,7 @@ struct _generic_N_Vector_Ops
   /*
    * OPTIONAL operations.
    *
-   * These operations provide default implementations that may be overriden.
+   * These operations provide default implementations that may be overridden.
    */
 
   /* OPTIONAL fused vector operations */

@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -53,5 +53,5 @@ if(CMAKE_USE_PTHREADS_INIT)
 else()
   set(PTHREADS_FOUND FALSE)
   message(STATUS "Checking if Pthreads is available... FAILED")
-  print_error("Could not determine Pthreads compiler flags")
+  message(FATAL_ERROR "Could not determine Pthreads compiler flags")
 endif()

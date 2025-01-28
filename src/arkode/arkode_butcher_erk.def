@@ -3,7 +3,7 @@
  *                Steven B. Roberts @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -29,7 +29,7 @@
   Methods in an ARK pair are marked with a *.
 
   Methods that satisfy the additional third order multirate
-  infinitesimal step condition and are suppored by the MRIStep
+  infinitesimal step condition and are supported by the MRIStep
   module (c_i > c_{i-1} and c_s != 1) are marked with a ^.
 
   The 'QP' column denotes whether the coefficients of the method

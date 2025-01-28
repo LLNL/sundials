@@ -2,7 +2,7 @@
 // Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2024, Lawrence Livermore National Security
+// Copyright (c) 2002-2025, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -19,7 +19,7 @@
 // include code common to all nvector implementations
 %include "fnvector.i"
 
-// include the header file in the swig wraper
+// include the header file in the swig wrapper
 %{
 #include "nvector/nvector_pthreads.h"
 %}

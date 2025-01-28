@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -164,11 +164,9 @@
 #define FOUR      SUN_RCONST(4.0)    /* real 4.0    */
 #define FIVE      SUN_RCONST(5.0)    /* real 5.0    */
 #define TEN       SUN_RCONST(10.0)   /* real 10.0   */
-#define TWELVE    SUN_RCONST(12.0)   /* real 12.0   */
 #define TWENTY    SUN_RCONST(20.0)   /* real 20.0   */
 #define HUNDRED   SUN_RCONST(100.0)  /* real 100.0  */
 #define PT9       SUN_RCONST(0.9)    /* real 0.9    */
-#define PT99      SUN_RCONST(0.99)   /* real 0.99   */
 #define PT1       SUN_RCONST(0.1)    /* real 0.1    */
 #define PT01      SUN_RCONST(0.01)   /* real 0.01   */
 #define PT001     SUN_RCONST(0.001)  /* real 0.001  */
@@ -767,7 +765,7 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
  * IDAReInit
  *
  * IDAReInit re-initializes IDA's memory for a problem, assuming
- * it has already beeen allocated in a prior IDAInit call.
+ * it has already been allocated in a prior IDAInit call.
  * All problem specification inputs are checked for errors.
  * The problem size Neq is assumed to be unchanged since the call
  * to IDAInit, and the maximum order maxord must not be larger.
@@ -1080,7 +1078,7 @@ int IDAQuadInit(void* ida_mem, IDAQuadRhsFn rhsQ, N_Vector yQ0)
   IDA_mem->ida_quadr          = SUNTRUE;
   IDA_mem->ida_quadMallocDone = SUNTRUE;
 
-  /* Quadrature initialization was successfull */
+  /* Quadrature initialization was successful */
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
   return (IDA_SUCCESS);
 }
@@ -1115,7 +1113,7 @@ int IDAQuadReInit(void* ida_mem, N_Vector yQ0)
 
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
-  /* Ckeck if quadrature was initialized */
+  /* Check if quadrature was initialized */
   if (IDA_mem->ida_quadMallocDone == SUNFALSE)
   {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, __LINE__, __func__, __FILE__,
@@ -1141,7 +1139,7 @@ int IDAQuadReInit(void* ida_mem, N_Vector yQ0)
   /* Quadrature integration turned ON */
   IDA_mem->ida_quadr = SUNTRUE;
 
-  /* Quadrature re-initialization was successfull */
+  /* Quadrature re-initialization was successful */
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
   return (IDA_SUCCESS);
 }
@@ -1173,7 +1171,7 @@ int IDAQuadSStolerances(void* ida_mem, sunrealtype reltolQ, sunrealtype abstolQ)
   }
   IDA_mem = (IDAMem)ida_mem;
 
-  /* Ckeck if quadrature was initialized */
+  /* Check if quadrature was initialized */
   if (IDA_mem->ida_quadMallocDone == SUNFALSE)
   {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, __LINE__, __func__, __FILE__,
@@ -1219,7 +1217,7 @@ int IDAQuadSVtolerances(void* ida_mem, sunrealtype reltolQ, N_Vector abstolQ)
   }
   IDA_mem = (IDAMem)ida_mem;
 
-  /* Ckeck if quadrature was initialized */
+  /* Check if quadrature was initialized */
   if (IDA_mem->ida_quadMallocDone == SUNFALSE)
   {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, __LINE__, __func__, __FILE__,
@@ -1472,7 +1470,7 @@ int IDASensInit(void* ida_mem, int Ns, int ism, IDASensResFn fS, N_Vector* yS0,
   if (ism == IDA_SIMULTANEOUS) { IDA_mem->ownNLSsim = SUNTRUE; }
   else { IDA_mem->ownNLSstg = SUNTRUE; }
 
-  /* Sensitivity initialization was successfull */
+  /* Sensitivity initialization was successful */
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
   return (IDA_SUCCESS);
 }
@@ -1647,7 +1645,7 @@ int IDASensReInit(void* ida_mem, int ism, N_Vector* yS0, N_Vector* ypS0)
     }
   }
 
-  /* Sensitivity re-initialization was successfull */
+  /* Sensitivity re-initialization was successful */
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
   return (IDA_SUCCESS);
 }
@@ -1873,7 +1871,7 @@ int IDAQuadSensInit(void* ida_mem, IDAQuadSensRhsFn rhsQS, N_Vector* yQS0)
     return (IDA_NO_SENS);
   }
 
-  /* Verifiy yQS0 parameter. */
+  /* Verify yQS0 parameter. */
   if (yQS0 == NULL)
   {
     IDAProcessError(NULL, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -1924,7 +1922,7 @@ int IDAQuadSensInit(void* ida_mem, IDAQuadSensRhsFn rhsQS, N_Vector* yQS0)
   IDA_mem->ida_nrQeS  = 0;
   IDA_mem->ida_netfQS = 0;
 
-  /* Everything allright, set the flags and return with success. */
+  /* Everything all right, set the flags and return with success. */
   IDA_mem->ida_quadr_sensi        = SUNTRUE;
   IDA_mem->ida_quadSensMallocDone = SUNTRUE;
 
@@ -1964,7 +1962,7 @@ int IDAQuadSensReInit(void* ida_mem, N_Vector* yQS0)
     return (IDA_NO_QUADSENS);
   }
 
-  /* Verifiy yQS0 parameter. */
+  /* Verify yQS0 parameter. */
   if (yQS0 == NULL)
   {
     IDAProcessError(NULL, IDA_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -1991,7 +1989,7 @@ int IDAQuadSensReInit(void* ida_mem, N_Vector* yQS0)
   IDA_mem->ida_nrQeS  = 0;
   IDA_mem->ida_netfQS = 0;
 
-  /* Everything allright, set the flags and return with success. */
+  /* Everything all right, set the flags and return with success. */
   IDA_mem->ida_quadr_sensi = SUNTRUE;
 
   SUNDIALS_MARK_FUNCTION_END(IDA_PROFILER);
@@ -3144,7 +3142,7 @@ int IDAGetDky(void* ida_mem, sunrealtype t, int k, N_Vector dky)
 
   for (i = 0; i <= k; i++)
   {
-    /* The below reccurence is used to compute the k-th derivative of the solution:
+    /* The below recurrence is used to compute the k-th derivative of the solution:
        c_j^(k) = ( k * c_{j-1}^(k-1) + c_{j-1}^{k} (Delta+psi_{j-1}) ) / psi_j
 
        Translated in indexes notation:
@@ -3258,7 +3256,7 @@ int IDAGetQuadDky(void* ida_mem, sunrealtype t, int k, N_Vector dkyQ)
 
   SUNDIALS_MARK_FUNCTION_BEGIN(IDA_PROFILER);
 
-  /* Ckeck if quadrature was initialized */
+  /* Check if quadrature was initialized */
   if (IDA_mem->ida_quadr != SUNTRUE)
   {
     IDAProcessError(IDA_mem, IDA_NO_QUAD, __LINE__, __func__, __FILE__,
@@ -3584,7 +3582,7 @@ int IDAGetSensDky1(void* ida_mem, sunrealtype t, int k, int is, N_Vector dkyS)
       psij_1 = IDA_mem->ida_psi[i - 1];
     }
 
-    /* Update cjk based on the reccurence */
+    /* Update cjk based on the recurrence */
     for (j = i + 1; j <= IDA_mem->ida_kused - k + i; j++)
     {
       cjk[j] = (i * cjk_1[j - 1] + cjk[j - 1] * (delt + psij_1)) /
@@ -3898,7 +3896,7 @@ int IDAGetQuadSensDky1(void* ida_mem, sunrealtype t, int k, int is, N_Vector dky
       psij_1 = IDA_mem->ida_psi[i - 1];
     }
 
-    /* Update cjk based on the reccurence */
+    /* Update cjk based on the recurrence */
     for (j = i + 1; j <= IDA_mem->ida_kused - k + i; j++)
     {
       cjk[j] = (i * cjk_1[j - 1] + cjk[j - 1] * (delt + psij_1)) /
@@ -5211,7 +5209,7 @@ int IDAEwtSet(N_Vector ycur, N_Vector weight, void* data)
 /*
  * IDAEwtSetSS
  *
- * This routine sets ewt as decribed above in the case itol=IDA_SS.
+ * This routine sets ewt as described above in the case itol=IDA_SS.
  * If the absolute tolerance is zero, it tests for non-positive components
  * before inverting. IDAEwtSetSS returns 0 if ewt is successfully set to a
  * positive vector and -1 otherwise. In the latter case, ewt is considered
@@ -5234,7 +5232,7 @@ static int IDAEwtSetSS(IDAMem IDA_mem, N_Vector ycur, N_Vector weight)
 /*
  * IDAEwtSetSV
  *
- * This routine sets ewt as decribed above in the case itol=IDA_SV.
+ * This routine sets ewt as described above in the case itol=IDA_SV.
  * If the absolute tolerance is zero, it tests for non-positive components
  * before inverting. IDAEwtSetSV returns 0 if ewt is successfully set to a
  * positive vector and -1 otherwise. In the latter case, ewt is considered
@@ -5890,7 +5888,7 @@ static int IDAStep(IDAMem IDA_mem)
   saved_t = IDA_mem->ida_tn;
   ncf = nef = 0;
 
-  if (IDA_mem->ida_nst == ZERO)
+  if (IDA_mem->ida_nst == 0)
   {
     IDA_mem->ida_kk     = 1;
     IDA_mem->ida_kused  = 0;
@@ -5910,11 +5908,11 @@ static int IDAStep(IDAMem IDA_mem)
 
   for (;;)
   {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAStep",
-                       "start-step-attempt", "step = %li, h = %" RSYM,
-                       IDA_mem->ida_nst, IDA_mem->ida_hh);
-#endif
+    SUNLogInfo(IDA_LOGGER, "begin-step-attempt",
+               "step = %li, tn = " SUN_FORMAT_G ", h = " SUN_FORMAT_G
+               ", q = %d",
+               IDA_mem->ida_nst + 1, IDA_mem->ida_tn, IDA_mem->ida_hh,
+               IDA_mem->ida_kk);
 
     /*-----------------------
       Set method coefficients
@@ -5967,6 +5965,15 @@ static int IDAStep(IDAMem IDA_mem)
       kflag = IDAHandleNFlag(IDA_mem, nflag, err_k, err_km1, &(IDA_mem->ida_ncfn),
                              &ncf, &(IDA_mem->ida_netf), &nef);
 
+      SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER, "end-step-attempt",
+                   "status = failed error test, dsm = " SUN_FORMAT_G
+                   ", kflag = %i",
+                   ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+      SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS, IDA_LOGGER,
+                   "end-step-attempt", "status = failed solve, kflag = %i",
+                   kflag);
+
       /* exit on nonrecoverable failure */
       if (kflag != PREDICT_AGAIN) { return (kflag); }
 
@@ -5997,6 +6004,14 @@ static int IDAStep(IDAMem IDA_mem)
                                &(IDA_mem->ida_ncfnQ), &ncf,
                                &(IDA_mem->ida_netfQ), &nef);
 
+        SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER,
+                     "end-step-attempt", "status = failed quad error test, dsmQ = %.16g, kflag = %i",
+                     ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+        SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS,
+                     IDA_LOGGER, "end-step-attempt",
+                     "status = failed quad solve, kflag = %i", kflag);
+
         /* exit on nonrecoverable failure */
         if (kflag != PREDICT_AGAIN) { return (kflag); }
 
@@ -6017,6 +6032,9 @@ static int IDAStep(IDAMem IDA_mem)
 
       retval = IDA_mem->ida_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
                                 IDA_mem->ida_delta, IDA_mem->ida_user_data);
+
+      SUNLogInfoIf(retval != 0, IDA_LOGGER, "end-step-attempt",
+                   "status = failed res eval, retval = %i", retval);
 
       if (retval < 0) { return (IDA_RES_FAIL); }
       if (retval > 0) { continue; }
@@ -6041,6 +6059,14 @@ static int IDAStep(IDAMem IDA_mem)
         kflag = IDAHandleNFlag(IDA_mem, nflag, err_k, err_km1,
                                &(IDA_mem->ida_ncfnQ), &ncf,
                                &(IDA_mem->ida_netfQ), &nef);
+
+        SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER,
+                     "end-step-attempt", "status = failed sens error test, dsmS = %.16g, kflag = %i",
+                     ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+        SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS,
+                     IDA_LOGGER, "end-step-attempt",
+                     "status = failed sens solve, kflag = %i", kflag);
 
         /* exit on nonrecoverable failure */
         if (kflag != PREDICT_AGAIN) { return (kflag); }
@@ -6073,6 +6099,14 @@ static int IDAStep(IDAMem IDA_mem)
                                &(IDA_mem->ida_ncfnQ), &ncf,
                                &(IDA_mem->ida_netfQ), &nef);
 
+        SUNLogInfoIf(nflag == ERROR_TEST_FAIL, IDA_LOGGER,
+                     "end-step-attempt", "status = failed quad sens error test, dsmQS = %.16g, kflag = %i",
+                     ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk], kflag);
+
+        SUNLogInfoIf(nflag != ERROR_TEST_FAIL && kflag != IDA_SUCCESS,
+                     IDA_LOGGER, "end-step-attempt",
+                     "status = failed quad sens solve, kflag = %i", kflag);
+
         /* exit on nonrecoverable failure */
         if (kflag != PREDICT_AGAIN) { return (kflag); }
 
@@ -6086,6 +6120,10 @@ static int IDAStep(IDAMem IDA_mem)
     break;
 
   } /* end loop */
+
+  SUNLogInfo(IDA_LOGGER, "end-step-attempt",
+             "status = success, dsm = " SUN_FORMAT_G,
+             ck * err_k / IDA_mem->ida_sigma[IDA_mem->ida_kk]);
 
   /* Nonlinear system solve and error test were both successful;
      update data, and consider change of step and/or order */
@@ -6329,6 +6367,9 @@ static int IDANls(IDAMem IDA_mem)
     if (retval > 0) { return (IDA_NLS_SETUP_RECVR); }
   }
 
+  SUNLogInfo(IDA_LOGGER, "begin-nonlinear-solve", "tol = %.16g",
+             IDA_mem->ida_epsNewt);
+
   /* solve the nonlinear system */
   if (sensi_sim)
   {
@@ -6356,16 +6397,15 @@ static int IDANls(IDAMem IDA_mem)
     IDA_mem->ida_nnf += nnf_inc;
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDANls",
-                     "nls-return", "flag = %i, iters = %li, fails = %li",
-                     retval, nni_inc, nnf_inc);
-#endif
-
   /* return if nonlinear solver failed */
-  if (retval != SUN_SUCCESS) { return (retval); }
+  if (retval != SUN_SUCCESS)
+  {
+    SUNLogInfo(IDA_LOGGER, "end-nonlinear-solve",
+               "status = failed, flag = %i, iters = %li", retval, nni_inc);
+    return (retval);
+  }
 
-  /* update the state using the final correction from the nonlinear solver */
+  /* update yy and yp based on the final correction from the nonlinear solver */
   N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee,
                IDA_mem->ida_yy);
   N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, IDA_mem->ida_ee,
@@ -6379,6 +6419,9 @@ static int IDANls(IDAMem IDA_mem)
     N_VLinearSumVectorArray(IDA_mem->ida_Ns, ONE, IDA_mem->ida_ypSpredict,
                             IDA_mem->ida_cj, IDA_mem->ida_eeS, IDA_mem->ida_ypS);
   }
+
+  SUNLogInfo(IDA_LOGGER, "end-nonlinear-solve", "status = success, iters = %li",
+             nni_inc);
 
   /* If otherwise successful, check and enforce inequality constraints. */
 
@@ -6675,11 +6718,8 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
   *err_k  = IDA_mem->ida_sigma[IDA_mem->ida_kk] * enorm_k;
   terr_k  = (IDA_mem->ida_kk + 1) * (*err_k);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                     "estimate-error-order-k",
-                     "err_k = %" RSYM ", terr_k = %" RSYM, *err_k, terr_k);
-#endif
+  SUNLogDebug(IDA_LOGGER, "estimate-error-order-k",
+              "err_k = " SUN_FORMAT_G ", terr_k = " SUN_FORMAT_G, *err_k, terr_k);
 
   IDA_mem->ida_knew = IDA_mem->ida_kk;
 
@@ -6693,12 +6733,9 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
     *err_km1  = IDA_mem->ida_sigma[IDA_mem->ida_kk - 1] * enorm_km1;
     terr_km1  = IDA_mem->ida_kk * (*err_km1);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                       "estimate-error-order-km1",
-                       "err_km1 = %" RSYM ", terr_km1 = %" RSYM, *err_km1,
-                       terr_km1);
-#endif
+    SUNLogDebug(IDA_LOGGER, "estimate-error-order-km1",
+                "err_km1 = " SUN_FORMAT_G ", terr_km1 = " SUN_FORMAT_G,
+                *err_km1, terr_km1);
 
     if (IDA_mem->ida_kk > 2)
     {
@@ -6710,12 +6747,9 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
       *err_km2  = IDA_mem->ida_sigma[IDA_mem->ida_kk - 2] * enorm_km2;
       terr_km2  = (IDA_mem->ida_kk - 1) * (*err_km2);
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                         "estimate-error-order-km2",
-                         "err_km2 = %" RSYM ", terr_km2 = %" RSYM, *err_km2,
-                         terr_km2);
-#endif
+      SUNLogDebug(IDA_LOGGER, "estimate-error-order-km2",
+                  "err_km2 = " SUN_FORMAT_G ", terr_km2 = " SUN_FORMAT_G,
+                  err_km2, terr_km2);
 
       /* Decrease order if errors are reduced */
       if (SUNMAX(terr_km1, terr_km2) <= terr_k)
@@ -6733,14 +6767,11 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
     }
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                     "new-order", "kk = %i, knew = %i", IDA_mem->ida_kk,
-                     IDA_mem->ida_knew);
+  SUNLogDebug(IDA_LOGGER, "new-order", "kk = %i, knew = %i", IDA_mem->ida_kk,
+              IDA_mem->ida_knew);
 
-  SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDATestError",
-                     "error-estimate", "ck_enorm_k = %" RSYM, ck * enorm_k);
-#endif
+  SUNLogDebug(IDA_LOGGER, "error-estimate", "ck_enorm_k = " SUN_FORMAT_G,
+              ck * enorm_k);
 
   /* Perform error test */
   if (ck * enorm_k > ONE) { return (ERROR_TEST_FAIL); }
@@ -7251,12 +7282,9 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAHandleNFlag",
-                         "first-error-test_fail",
-                         "kk = %i, eta = %" RSYM ", h = %" RSYM,
-                         IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
-#endif
+      SUNLogDebug(IDA_LOGGER, "first-error-test_fail",
+                  "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                  IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
       return (PREDICT_AGAIN);
     }
@@ -7270,12 +7298,9 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAHandleNFlag",
-                         "second-error-test-fail",
-                         "kk = %i, eta = %" RSYM ", h = %" RSYM,
-                         IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
-#endif
+      SUNLogDebug(IDA_LOGGER, "second-error-test-fail",
+                  "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                  IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
       return (PREDICT_AGAIN);
     }
@@ -7288,12 +7313,9 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, sunrealtype err_k,
                                 IDA_mem->ida_hmin / SUNRabs(IDA_mem->ida_hh));
       IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-      SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDAHandleNFlag",
-                         "error-test-fail",
-                         "kk = %i, eta = %" RSYM ", h = %" RSYM,
-                         IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
-#endif
+      SUNLogDebug(IDA_LOGGER, "error-test-fail",
+                  "kk = %i, eta = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                  IDA_mem->ida_kk, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
       return (PREDICT_AGAIN);
     }
@@ -7385,7 +7407,7 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
      stepsize and order are set by the usual local error algorithm.
 
      Note that, after the first step, the order is not increased, as not all
-     of the neccessary information is available yet. */
+     of the necessary information is available yet. */
 
   if (IDA_mem->ida_phase == 0)
   {
@@ -7471,12 +7493,9 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
         if (terr_kp1 >= HALF * terr_k) { action = MAINTAIN; }
         else { action = RAISE; }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-        SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO,
-                           "IDAS::IDACompleteStep", "order-selection-raise",
-                           "terr_k = %" RSYM ", terr_kp1 = %" RSYM, terr_k,
-                           terr_kp1);
-#endif
+        SUNLogDebug(IDA_LOGGER, "order-selection-raise",
+                    "terr_k = " SUN_FORMAT_G ", terr_kp1 = " SUN_FORMAT_G,
+                    terr_k, terr_kp1);
       }
       else
       {
@@ -7485,13 +7504,10 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
         else if (terr_kp1 >= terr_k) { action = MAINTAIN; }
         else { action = RAISE; }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-        SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDACompleteStep",
-                           "order-selection-rasie-or-lower",
-                           "terr_km1 = %" RSYM ", terr_k = %" RSYM
-                           ", terr_kp1 = %" RSYM,
-                           terr_km1, terr_k, terr_kp1);
-#endif
+        SUNLogDebug(IDA_LOGGER, "order-selection-rasie-or-lower",
+                    "terr_km1 = " SUN_FORMAT_G ", terr_k = " SUN_FORMAT_G
+                    ", terr_kp1 = " SUN_FORMAT_G,
+                    terr_km1, terr_k, terr_kp1);
       }
     }
 
@@ -7537,14 +7553,10 @@ static void IDACompleteStep(IDAMem IDA_mem, sunrealtype err_k, sunrealtype err_k
     }
     IDA_mem->ida_hh *= IDA_mem->ida_eta;
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-    SUNLogger_QueueMsg(IDA_LOGGER, SUN_LOGLEVEL_INFO, "IDAS::IDACompleteStep",
-                       "new-step-and-order",
-                       "knew = %i, err_knew = %" RSYM ", eta = %" RSYM
-                       ", hnew = %" RSYM,
-                       IDA_mem->ida_kk, err_knew, IDA_mem->ida_eta,
-                       IDA_mem->ida_hh);
-#endif
+    SUNLogDebug(IDA_LOGGER, "new-step-and-order",
+                "knew = %i, err_knew = " SUN_FORMAT_G ", eta = " SUN_FORMAT_G
+                ", hnew = " SUN_FORMAT_G,
+                IDA_mem->ida_kk, err_knew, IDA_mem->ida_eta, IDA_mem->ida_hh);
 
   } /* end of phase if block */
 
@@ -8763,7 +8775,8 @@ void IDAProcessError(IDAMem IDA_mem, int error_code, int line, const char* func,
 
   /* Compose the message */
   va_start(ap, msgfmt);
-  size_t msglen = vsnprintf(NULL, 0, msgfmt, ap) + 1;
+  size_t msglen = 1;
+  if (msgfmt) { msglen += vsnprintf(NULL, 0, msgfmt, ap); }
   va_end(ap);
 
   char* msg = (char*)malloc(msglen);

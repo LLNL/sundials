@@ -28,7 +28,7 @@ and device at every iteration, it is recommended that user evaluates
 model at the device. In the example, model right hand side and Jacobian-vector
 product are implemented as {\cuda} kernels \id{fKernel} and \id{jtvKernel},
 respectively. User provided {\CC} functions \id{f} and \id{jtv}, which are called
-directly by {\cvode}, set thread partitioning and launch thier respective 
+directly by {\cvode}, set thread partitioning and launch their respective 
 {\cuda} kernels. Vector data on the device is accessed using 
 \id{N\_VGetDeviceArrayPointer\_Cuda} function.
 

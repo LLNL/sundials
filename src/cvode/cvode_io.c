@@ -2,7 +2,7 @@
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -859,7 +859,7 @@ int CVodeSetMaxNonlinIters(void* cvode_mem, int maxcor)
 /*
  * CVodeSetNonlinConvCoef
  *
- * Specifies the coeficient in the nonlinear solver convergence
+ * Specifies the coefficient in the nonlinear solver convergence
  * test
  */
 
@@ -997,8 +997,8 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
   {
     if (aa_vectors != cv_mem->NLS_aavectors) {
       cv_mem->NLS_aavectors = aa_vectors;
-      
-      if (cv_mem->NLS_fixedpoint) 
+
+      if (cv_mem->NLS_fixedpoint)
       {
         SUNNonlinSolFree(cv_mem->NLS_fixedpoint);
       }
@@ -1051,7 +1051,7 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
   if (alpharef >= SUN_RCONST(0.0) && alpharef < SUN_RCONST(1.0)) {
     cv_mem->cv_alpharef = alpharef;
   }
-  if (hystersis_fixed >= 0) { 
+  if (hystersis_fixed >= 0) {
     cv_mem->switchtofixed_delay = hystersis_fixed;
   }
   if (hystersis_newton >= 0) {
@@ -1063,7 +1063,7 @@ int CVodeSetNonlinearSolverAlgorithm(void* cvode_mem, int algorithm, int max_nli
   if (precondition_newton >= 0) {
     cv_mem->switchtonewton_precondition_count = precondition_newton;
   }
-  
+
   return CV_SUCCESS;
 }
 
@@ -1279,7 +1279,7 @@ int CVodeGetNumErrTestFails(void* cvode_mem, long int* netfails)
 /*
  * CVodeGetLastOrder
  *
- * Returns the order on the last succesful step
+ * Returns the order on the last successful step
  */
 
 int CVodeGetLastOrder(void* cvode_mem, int* qlast)
@@ -1777,151 +1777,71 @@ int CVodePrintAllStats(void* cvode_mem, FILE* outfile, SUNOutputFormat fmt)
 
   cv_mem = (CVodeMem)cvode_mem;
 
-  long int total_rhs_evals = cv_mem->cv_nfe;
-  switch (fmt)
+  if (fmt != SUN_OUTPUTFORMAT_TABLE && fmt != SUN_OUTPUTFORMAT_CSV)
   {
-  case SUN_OUTPUTFORMAT_TABLE:
-    /* step and method stats */
-    fprintf(outfile, "Current time                 = %" RSYM "\n", cv_mem->cv_tn);
-    fprintf(outfile, "Steps                        = %ld\n", cv_mem->cv_nst);
-    fprintf(outfile, "Error test fails             = %ld\n", cv_mem->cv_netf);
-    fprintf(outfile, "NLS step fails               = %ld\n", cv_mem->cv_ncfn);
-    fprintf(outfile, "Initial step size            = %" RSYM "\n",
-            cv_mem->cv_h0u);
-    fprintf(outfile, "Last step size               = %" RSYM "\n", cv_mem->cv_hu);
-    fprintf(outfile, "Current step size            = %" RSYM "\n",
-            cv_mem->cv_next_h);
-    fprintf(outfile, "Last method order            = %d\n", cv_mem->cv_qu);
-    fprintf(outfile, "Current method order         = %d\n", cv_mem->cv_next_q);
-    fprintf(outfile, "Stab. lim. order reductions  = %ld\n", cv_mem->cv_nor);
-
-    /* function evaluations */
-    fprintf(outfile, "Integrator RHS fn evals      = %ld\n", cv_mem->cv_nfe);
-
-    /* nonlinear solver stats */
-    fprintf(outfile, "NLS iters                    = %ld\n", cv_mem->cv_nni);
-    fprintf(outfile, "NLS fails                    = %ld\n", cv_mem->cv_nnf);
-    if (cv_mem->cv_nst > 0)
-    {
-      fprintf(outfile, "NLS iters per step           = %" RSYM "\n",
-              (sunrealtype)cv_mem->cv_nni / (sunrealtype)cv_mem->cv_nst);
-    }
-    fprintf(outfile, "NLS slow                     = %ld\n", cv_mem->cv_nns);
-    fprintf(outfile, "NLS switch                   = %ld\n", cv_mem->cv_nswitch);
-
-    /* linear solver stats */
-    fprintf(outfile, "LS setups                    = %ld\n", cv_mem->cv_nsetups);
-    if (cv_mem->cv_lmem)
-    {
-      cvls_mem = (CVLsMem)(cv_mem->cv_lmem);
-      fprintf(outfile, "Jac fn evals                 = %ld\n", cvls_mem->nje);
-      fprintf(outfile, "LS RHS fn evals              = %ld\n", cvls_mem->nfeDQ);
-      fprintf(outfile, "Prec setup evals             = %ld\n", cvls_mem->npe);
-      fprintf(outfile, "Prec solves                  = %ld\n", cvls_mem->nps);
-      fprintf(outfile, "LS iters                     = %ld\n", cvls_mem->nli);
-      fprintf(outfile, "LS fails                     = %ld\n", cvls_mem->ncfl);
-      fprintf(outfile, "Jac-times setups             = %ld\n",
-              cvls_mem->njtsetup);
-      fprintf(outfile, "Jac-times evals              = %ld\n", cvls_mem->njtimes);
-      if (cv_mem->cv_nni > 0)
-      {
-        fprintf(outfile, "LS iters per NLS iter        = %" RSYM "\n",
-                (sunrealtype)cvls_mem->nli / (sunrealtype)cv_mem->cv_nni);
-        fprintf(outfile, "Jac evals per NLS iter       = %" RSYM "\n",
-                (sunrealtype)cvls_mem->nje / (sunrealtype)cv_mem->cv_nni);
-        fprintf(outfile, "Prec evals per NLS iter      = %" RSYM "\n",
-                (sunrealtype)cvls_mem->npe / (sunrealtype)cv_mem->cv_nni);
-      }
-      total_rhs_evals += cvls_mem->nfeDQ;
-    }
-
-    /* rootfinding stats */
-    fprintf(outfile, "Root fn evals                = %ld\n", cv_mem->cv_nge);
-
-    /* projection stats */
-    if (cv_mem->proj_mem)
-    {
-      cvproj_mem = (CVodeProjMem)(cv_mem->proj_mem);
-      fprintf(outfile, "Projection fn evals          = %ld\n", cvproj_mem->nproj);
-      fprintf(outfile, "Projection fails             = %ld\n",
-              cvproj_mem->npfails);
-    }
-    fprintf(outfile, "Total RHS fn evals           = %ld\n", total_rhs_evals);
-    break;
-
-  case SUN_OUTPUTFORMAT_CSV:
-    /* step and method stats */
-    fprintf(outfile, "Time,%" RSYM, cv_mem->cv_tn);
-    fprintf(outfile, ",Steps,%ld", cv_mem->cv_nst);
-    fprintf(outfile, ",Error test fails,%ld", cv_mem->cv_netf);
-    fprintf(outfile, ",NLS step fails,%ld", cv_mem->cv_ncfn);
-    fprintf(outfile, ",Initial step size,%" RSYM, cv_mem->cv_h0u);
-    fprintf(outfile, ",Last step size,%" RSYM, cv_mem->cv_hu);
-    fprintf(outfile, ",Current step size,%" RSYM, cv_mem->cv_next_h);
-    fprintf(outfile, ",Last method order,%d", cv_mem->cv_qu);
-    fprintf(outfile, ",Current method order,%d", cv_mem->cv_next_q);
-    fprintf(outfile, ",Stab. lim. order reductions,%ld", cv_mem->cv_nor);
-
-    /* function evaluations */
-    fprintf(outfile, ",RHS fn evals,%ld", cv_mem->cv_nfe);
-
-    /* nonlinear solver stats */
-    fprintf(outfile, ",NLS iters,%ld", cv_mem->cv_nni);
-    fprintf(outfile, ",NLS fails,%ld", cv_mem->cv_nnf);
-    if (cv_mem->cv_nst > 0)
-    {
-      fprintf(outfile, ",NLS iters per step,%" RSYM,
-              (sunrealtype)cv_mem->cv_nni / (sunrealtype)cv_mem->cv_nst);
-    }
-    else { fprintf(outfile, ",NLS iters per step,0"); }
-
-    /* linear solver stats */
-    fprintf(outfile, ",LS setups,%ld", cv_mem->cv_nsetups);
-    if (cv_mem->cv_lmem)
-    {
-      cvls_mem = (CVLsMem)(cv_mem->cv_lmem);
-      fprintf(outfile, ",Jac fn evals,%ld", cvls_mem->nje);
-      fprintf(outfile, ",LS RHS fn evals,%ld", cvls_mem->nfeDQ);
-      fprintf(outfile, ",Prec setup evals,%ld", cvls_mem->npe);
-      fprintf(outfile, ",Prec solves,%ld", cvls_mem->nps);
-      fprintf(outfile, ",LS iters,%ld", cvls_mem->nli);
-      fprintf(outfile, ",LS fails,%ld", cvls_mem->ncfl);
-      fprintf(outfile, ",Jac-times setups,%ld", cvls_mem->njtsetup);
-      fprintf(outfile, ",Jac-times evals,%ld", cvls_mem->njtimes);
-      if (cv_mem->cv_nni > 0)
-      {
-        fprintf(outfile, ",LS iters per NLS iter,%" RSYM,
-                (sunrealtype)cvls_mem->nli / (sunrealtype)cv_mem->cv_nni);
-        fprintf(outfile, ",Jac evals per NLS iter,%" RSYM,
-                (sunrealtype)cvls_mem->nje / (sunrealtype)cv_mem->cv_nni);
-        fprintf(outfile, ",Prec evals per NLS iter,%" RSYM,
-                (sunrealtype)cvls_mem->npe / (sunrealtype)cv_mem->cv_nni);
-      }
-      else
-      {
-        fprintf(outfile, ",LS iters per NLS iter,0");
-        fprintf(outfile, ",Jac evals per NLS iter,0");
-        fprintf(outfile, ",Prec evals per NLS iter,0");
-      }
-    }
-
-    /* rootfinding stats */
-    fprintf(outfile, ",Root fn evals,%ld", cv_mem->cv_nge);
-
-    /* projection stats */
-    if (cv_mem->proj_mem)
-    {
-      cvproj_mem = (CVodeProjMem)(cv_mem->proj_mem);
-      fprintf(outfile, ",Projection fn evals,%ld", cvproj_mem->nproj);
-      fprintf(outfile, ",Projection fails,%ld", cvproj_mem->npfails);
-    }
-    fprintf(outfile, "\n");
-    break;
-
-  default:
     cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
                    "Invalid formatting option.");
     return (CV_ILL_INPUT);
+  }
+
+  /* step and method stats */
+  sunfprintf_real(outfile, fmt, SUNTRUE, "Current time", cv_mem->cv_tn);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Steps", cv_mem->cv_nst);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Error test fails", cv_mem->cv_netf);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS step fails", cv_mem->cv_ncfn);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Initial step size", cv_mem->cv_h0u);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Last step size", cv_mem->cv_hu);
+  sunfprintf_real(outfile, fmt, SUNFALSE, "Current step size", cv_mem->cv_next_h);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Last method order", cv_mem->cv_qu);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Current method order",
+                  cv_mem->cv_next_q);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Stab. lim. order reductions",
+                  cv_mem->cv_nor);
+  /* function evaluations */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "RHS fn evals", cv_mem->cv_nfe);
+  /* nonlinear solver stats */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS iters", cv_mem->cv_nni);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "NLS fails", cv_mem->cv_nnf);
+  if (cv_mem->cv_nst > 0)
+  {
+    sunfprintf_real(outfile, fmt, SUNFALSE, "NLS iters per step",
+                    (sunrealtype)cv_mem->cv_nni / (sunrealtype)cv_mem->cv_nst);
+  }
+  sunfprintf_long(outfile, fmt, "NLS slow", cv_mem->cv_nns);
+  sunfprintf_long(outfile, fmt, "NLS switch", cv_mem->cv_nswitch);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "LS setups", cv_mem->cv_nsetups);
+  if (cv_mem->cv_lmem)
+  {
+    cvls_mem = (CVLsMem)(cv_mem->cv_lmem);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac fn evals", cvls_mem->nje);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS RHS fn evals", cvls_mem->nfeDQ);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec setup evals", cvls_mem->npe);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Prec solves", cvls_mem->nps);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS iters", cvls_mem->nli);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "LS fails", cvls_mem->ncfl);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times setups",
+                    cvls_mem->njtsetup);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Jac-times evals", cvls_mem->njtimes);
+    if (cv_mem->cv_nni > 0)
+    {
+      sunfprintf_real(outfile, fmt, SUNFALSE, "LS iters per NLS iter",
+                      (sunrealtype)cvls_mem->nli / (sunrealtype)cv_mem->cv_nni);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Jac evals per NLS iter",
+                      (sunrealtype)cvls_mem->nje / (sunrealtype)cv_mem->cv_nni);
+      sunfprintf_real(outfile, fmt, SUNFALSE, "Prec evals per NLS iter",
+                      (sunrealtype)cvls_mem->npe / (sunrealtype)cv_mem->cv_nni);
+    }
+  }
+  /* rootfinding stats */
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Root fn evals", cv_mem->cv_nge);
+  /* projection stats */
+  if (cv_mem->proj_mem)
+  {
+    cvproj_mem = (CVodeProjMem)(cv_mem->proj_mem);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Projection fn evals",
+                    cvproj_mem->nproj);
+    sunfprintf_long(outfile, fmt, SUNFALSE, "Projection fails",
+                    cvproj_mem->npfails);
   }
 
   return (CV_SUCCESS);

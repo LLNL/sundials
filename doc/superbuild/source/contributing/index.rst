@@ -1,7 +1,7 @@
 ..
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -16,7 +16,7 @@
 Contributing
 ============
 
-There are two primary ways of contributing to SUNDIALS. The first way is by particpating
+There are two primary ways of contributing to SUNDIALS. The first way is by participating
 in the development of SUNDIALS directly through contributions of code to the primary
 `SUNDIALS repository <https://github.com/LLNL/sundials>`_. This is the best way to contribute
 bug fixes and minor improvements.  At this time, the SUNDIALS team does not have the resources
@@ -130,7 +130,7 @@ SUNDIALS build system so that they have full access to all internal SUNDIALS sym
 The intent is for SUNDIALS addons to function as if they are part of the SUNDIALS library,
 while allowing them to potentially have different licenses
 (although we encourage BSD-3-Clause still), code style
-(although we encourage them to follow the SUNDIALS style outlined :ref:`here <Style>`),
+(although we encourage them to follow the SUNDIALS style outlined :ref:`here <SourceCode>`),
 and they **are not maintained by the SUNDIALS team**.
 
 Creating an addon

@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -36,13 +36,11 @@ endif()
 # Section 2: Check to make sure options are compatible
 # -----------------------------------------------------------------------------
 
-
 # -----------------------------------------------------------------------------
 # Section 3: Find the TPL
 # -----------------------------------------------------------------------------
-find_package(KokkosKernels REQUIRED
-  HINTS "${KokkosKernels_DIR}"
-  NO_DEFAULT_PATH)
+find_package(KokkosKernels REQUIRED HINTS "${KokkosKernels_DIR}"
+             NO_DEFAULT_PATH)
 
 message(STATUS "Kokkos Kernels VERSION: ${KokkosKernels_VERSION}")
 
@@ -52,8 +50,12 @@ message(STATUS "Kokkos Kernels VERSION: ${KokkosKernels_VERSION}")
 
 if(KokkosKernels_FOUND AND (NOT KOKKOS_KERNELS_WORKS))
   message(STATUS "Checking if Kokkos Kernels works... OK")
-  set(KOKKOS_KERNELS_WORKS TRUE CACHE BOOL
-    "Kokkos Kernels works with SUNDIALS as configured" FORCE)
+  set(KOKKOS_KERNELS_WORKS
+      TRUE
+      CACHE BOOL "Kokkos Kernels works with SUNDIALS as configured" FORCE)
 elseif(KokkosKernels_FOUND AND KOKKOS_WORKS)
-  message(STATUS "Skipped Kokkos Kernels tests, assuming Kokkos Kernels works with SUNDIALS.")
+  message(
+    STATUS
+      "Skipped Kokkos Kernels tests, assuming Kokkos Kernels works with SUNDIALS."
+  )
 endif()

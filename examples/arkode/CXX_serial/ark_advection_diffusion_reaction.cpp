@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
   sunrealtype dTout = udata.tf / uopts.nout;
   sunrealtype tout  = dTout;
 
-  // Inital output
+  // Initial output
   flag = OpenOutput(udata, uopts);
   if (check_flag(flag, "OpenOutput")) { return 1; }
 
@@ -783,8 +783,8 @@ int SetupMRIARK(SUNContext ctx, UserData& udata, UserOptions& uopts, N_Vector y,
   if (check_flag(flag, "ARKodeSetMaxNumSteps")) { return 1; }
 
   // Wrap ARKODE as an MRIStepInnerStepper
-  flag = ARKStepCreateMRIStepInnerStepper(fast_arkode_mem, fast_mem);
-  if (check_flag(flag, "ARKStepCreateMRIStepInnerStepper")) { return 1; }
+  flag = ARKodeCreateMRIStepInnerStepper(fast_arkode_mem, fast_mem);
+  if (check_flag(flag, "ARKodeCreateMRIStepInnerStepper")) { return 1; }
 
   // -------------------------
   // Setup the slow integrator

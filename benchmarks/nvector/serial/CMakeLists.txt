@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,8 +16,8 @@
 
 message(STATUS "Added Serial NVECTOR benchmark")
 
-sundials_add_nvector_benchmark(nvector_serial_benchmark
+sundials_add_nvector_benchmark(
+  nvector_serial_benchmark
   SOURCES test_nvector_performance_serial.c
   SUNDIALS_TARGETS sundials_nvecserial
-  INSTALL_SUBDIR nvector/serial
-  )
+  INSTALL_SUBDIR nvector/serial)

@@ -3,7 +3,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -45,7 +45,9 @@
 /* Shortcuts                                                       */
 /*=================================================================*/
 
+#if defined(SUNDIALS_BUILD_WITH_PROFILING)
 #define CV_PROFILER cv_mem->cv_sunctx->profiler
+#endif
 
 /*
  * =================================================================
@@ -62,7 +64,7 @@ static void CVAbckpbDelete(CVodeBMem* cvB_memPtr);
 static int CVAdataStore(CVodeMem cv_mem, CVckpntMem ck_mem);
 static int CVAckpntGet(CVodeMem cv_mem, CVckpntMem ck_mem);
 
-static int CVAfindIndex(CVodeMem cv_mem, sunrealtype t, long int* indx,
+static int CVAfindIndex(CVodeMem cv_mem, sunrealtype t, long int* index,
                         sunbooleantype* newpoint);
 
 static sunbooleantype CVAhermiteMalloc(CVodeMem cv_mem);
@@ -174,7 +176,7 @@ int CVodeAdjInit(void* cvode_mem, long int steps, int interp)
 
   ca_mem->ca_nsteps = steps;
 
-  /* Last index used in CVAfindIndex, initailize to invalid value */
+  /* Last index used in CVAfindIndex, initialize to invalid value */
   ca_mem->ca_ilast = -1;
 
   /* Allocate space for the array of Data Point structures */
@@ -606,7 +608,7 @@ int CVodeF(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
       ca_mem->ca_IMstore(cv_mem, dt_mem[cv_mem->cv_nst % ca_mem->ca_nsteps]);
     }
 
-    /* Set t1 field of the current ckeck point structure
+    /* Set t1 field of the current check point structure
        for the case in which there will be no future
        check points */
     ca_mem->ck_mem->ck_t1 = cv_mem->cv_tn;
@@ -1611,7 +1613,7 @@ int CVodeB(void* cvode_mem, sunrealtype tBout, int itaskB)
 
     if (itaskB == CV_ONE_STEP) { break; }
 
-    /* If all backward problems have succesfully reached tBout, return now */
+    /* If all backward problems have successfully reached tBout, return now */
 
     reachedTBout = SUNTRUE;
 
@@ -2535,17 +2537,17 @@ static int CVAckpntGet(CVodeMem cv_mem, CVckpntMem ck_mem)
 /*
  * CVAfindIndex
  *
- * Finds the index in the array of data point strctures such that
- *     dt_mem[indx-1].t <= t < dt_mem[indx].t
- * If indx is changed from the previous invocation, then newpoint = SUNTRUE
+ * Finds the index in the array of data point structures such that
+ *     dt_mem[index-1].t <= t < dt_mem[index].t
+ * If index is changed from the previous invocation, then newpoint = SUNTRUE
  *
- * If t is beyond the leftmost limit, but close enough, indx=0.
+ * If t is beyond the leftmost limit, but close enough, index=0.
  *
  * Returns CV_SUCCESS if successful and CV_GETY_BADT if unable to
- * find indx (t is too far beyond limits).
+ * find index (t is too far beyond limits).
  */
 
-static int CVAfindIndex(CVodeMem cv_mem, sunrealtype t, long int* indx,
+static int CVAfindIndex(CVodeMem cv_mem, sunrealtype t, long int* index,
                         sunbooleantype* newpoint)
 {
   CVadjMem ca_mem;
@@ -2569,28 +2571,28 @@ static int CVAfindIndex(CVodeMem cv_mem, sunrealtype t, long int* indx,
     ca_mem->ca_IMnewData = SUNFALSE;
   }
 
-  /* Search for indx starting from ilast */
+  /* Search for index starting from ilast */
   to_left  = (sign * (t - dt_mem[ca_mem->ca_ilast - 1]->t) < ZERO);
   to_right = (sign * (t - dt_mem[ca_mem->ca_ilast]->t) > ZERO);
 
   if (to_left)
   {
-    /* look for a new indx to the left */
+    /* look for a new index to the left */
 
     *newpoint = SUNTRUE;
 
-    *indx = ca_mem->ca_ilast;
+    *index = ca_mem->ca_ilast;
     for (;;)
     {
-      if (*indx == 0) { break; }
-      if (sign * (t - dt_mem[*indx - 1]->t) <= ZERO) { (*indx)--; }
+      if (*index == 0) { break; }
+      if (sign * (t - dt_mem[*index - 1]->t) <= ZERO) { (*index)--; }
       else { break; }
     }
 
-    if (*indx == 0) { ca_mem->ca_ilast = 1; }
-    else { ca_mem->ca_ilast = *indx; }
+    if (*index == 0) { ca_mem->ca_ilast = 1; }
+    else { ca_mem->ca_ilast = *index; }
 
-    if (*indx == 0)
+    if (*index == 0)
     {
       /* t is beyond leftmost limit. Is it too far? */
       if (SUNRabs(t - dt_mem[0]->t) > FUZZ_FACTOR * cv_mem->cv_uround)
@@ -2601,24 +2603,24 @@ static int CVAfindIndex(CVodeMem cv_mem, sunrealtype t, long int* indx,
   }
   else if (to_right)
   {
-    /* look for a new indx to the right */
+    /* look for a new index to the right */
 
     *newpoint = SUNTRUE;
 
-    *indx = ca_mem->ca_ilast;
+    *index = ca_mem->ca_ilast;
     for (;;)
     {
-      if (sign * (t - dt_mem[*indx]->t) > ZERO) { (*indx)++; }
+      if (sign * (t - dt_mem[*index]->t) > ZERO) { (*index)++; }
       else { break; }
     }
 
-    ca_mem->ca_ilast = *indx;
+    ca_mem->ca_ilast = *index;
   }
   else
   {
     /* ilast is still OK */
 
-    *indx = ca_mem->ca_ilast;
+    *index = ca_mem->ca_ilast;
   }
 
   return (CV_SUCCESS);
@@ -2916,7 +2918,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y, N_Vector* 
   N_Vector *yS0 = NULL, *ySd0 = NULL, *yS1, *ySd1;
 
   int flag, is, NS;
-  long int indx;
+  long int index;
   sunbooleantype newpoint;
 
   /* local variables for fused vector oerations */
@@ -2934,13 +2936,13 @@ static int CVAhermiteGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y, N_Vector* 
 
   /* Get the index in dt_mem */
 
-  flag = CVAfindIndex(cv_mem, t, &indx, &newpoint);
+  flag = CVAfindIndex(cv_mem, t, &index, &newpoint);
   if (flag != CV_SUCCESS) { return (flag); }
 
   /* If we are beyond the left limit but close enough,
      then return y at the left limit. */
 
-  if (indx == 0)
+  if (index == 0)
   {
     content0 = (CVhermiteDataMem)(dt_mem[0]->content);
     N_VScale(ONE, content0->y, y);
@@ -2958,11 +2960,11 @@ static int CVAhermiteGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y, N_Vector* 
 
   /* Extract stuff from the appropriate data points */
 
-  t0    = dt_mem[indx - 1]->t;
-  t1    = dt_mem[indx]->t;
+  t0    = dt_mem[index - 1]->t;
+  t1    = dt_mem[index]->t;
   delta = t1 - t0;
 
-  content0 = (CVhermiteDataMem)(dt_mem[indx - 1]->content);
+  content0 = (CVhermiteDataMem)(dt_mem[index - 1]->content);
   y0       = content0->y;
   yd0      = content0->yd;
   if (ca_mem->ca_IMinterpSensi)
@@ -2975,7 +2977,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y, N_Vector* 
   {
     /* Recompute Y0 and Y1 */
 
-    content1 = (CVhermiteDataMem)(dt_mem[indx]->content);
+    content1 = (CVhermiteDataMem)(dt_mem[index]->content);
 
     y1  = content1->y;
     yd1 = content1->yd;
@@ -3191,7 +3193,7 @@ static sunbooleantype CVApolynomialMalloc(CVodeMem cv_mem)
 /*
  * CVApolynomialFree
  *
- * This routine frees the memeory allocated for data storage.
+ * This routine frees the memory allocated for data storage.
  */
 
 static void CVApolynomialFree(CVodeMem cv_mem)
@@ -3275,7 +3277,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y,
   CVpolynomialDataMem content;
 
   int flag, dir, order, i, j, is, NS, retval;
-  long int indx, base;
+  long int index, base;
   sunbooleantype newpoint;
   sunrealtype dt, factor;
 
@@ -3288,13 +3290,13 @@ static int CVApolynomialGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y,
 
   /* Get the index in dt_mem */
 
-  flag = CVAfindIndex(cv_mem, t, &indx, &newpoint);
+  flag = CVAfindIndex(cv_mem, t, &index, &newpoint);
   if (flag != CV_SUCCESS) { return (flag); }
 
   /* If we are beyond the left limit but close enough,
      then return y at the left limit. */
 
-  if (indx == 0)
+  if (index == 0)
   {
     content = (CVpolynomialDataMem)(dt_mem[0]->content);
     N_VScale(ONE, content->y, y);
@@ -3311,7 +3313,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y,
 
   /* Scaling factor */
 
-  dt = SUNRabs(dt_mem[indx]->t - dt_mem[indx - 1]->t);
+  dt = SUNRabs(dt_mem[index]->t - dt_mem[index - 1]->t);
 
   /* Find the direction of the forward integration */
 
@@ -3322,17 +3324,20 @@ static int CVApolynomialGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y,
 
   if (dir == 1)
   {
-    base    = indx;
+    base    = index;
     content = (CVpolynomialDataMem)(dt_mem[base]->content);
     order   = content->order;
-    if (indx < order) { base += order - indx; }
+    if (index < order) { base += order - index; }
   }
   else
   {
-    base    = indx - 1;
+    base    = index - 1;
     content = (CVpolynomialDataMem)(dt_mem[base]->content);
     order   = content->order;
-    if (ca_mem->ca_np - indx > order) { base -= indx + order - ca_mem->ca_np; }
+    if (ca_mem->ca_np - index > order)
+    {
+      base -= index + order - ca_mem->ca_np;
+    }
   }
 
   /* Recompute Y (divided differences for Newton polynomial) if needed */

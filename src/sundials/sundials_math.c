@@ -3,7 +3,7 @@
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -21,6 +21,15 @@
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
+
+int SUNIpowerI(int base, int exponent)
+{
+  int i;
+  int prod = 1;
+
+  for (i = 1; i <= exponent; i++) { prod *= base; }
+  return (prod);
+}
 
 sunrealtype SUNRpowerI(sunrealtype base, int exponent)
 {

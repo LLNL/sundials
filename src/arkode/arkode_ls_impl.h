@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -234,7 +234,7 @@ int arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);
 int arkLsMassSolve(ARKodeMem ark_mem, N_Vector b, sunrealtype nlscoef);
 int arkLsMassFree(ARKodeMem ark_mem);
 
-/* Auxilliary functions */
+/* Auxiliary functions */
 int arkLsInitializeCounters(ARKLsMem arkls_mem);
 int arkLsInitializeMassCounters(ARKLsMassMem arkls_mem);
 int arkLs_AccessARKODELMem(void* arkode_mem, const char* fname,

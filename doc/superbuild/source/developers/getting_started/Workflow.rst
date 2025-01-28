@@ -2,7 +2,7 @@
    Author(s): David J. Gardner @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -149,7 +149,7 @@ branches and the ``master`` for maintenance branches.
    work.
 
 #. During the development cycle it is a good practice to periodically push local
-   commits to the remote repo. To push your locally commited changes use:
+   commits to the remote repo. To push your locally committed changes use:
 
    .. code-block:: none
 
@@ -259,7 +259,7 @@ Manually resolve the conflicts in an editor:
 
       $ git rebase --continue
 
-#. If desired, push the updated local brach to the remote repo with
+#. If desired, push the updated local branch to the remote repo with
 
    .. code-block:: none
 
@@ -293,7 +293,7 @@ merge tool:
 
       $ git rebase --continue
 
-#. If desired, push the updated local brach to the remote repo with
+#. If desired, push the updated local branch to the remote repo with
 
    .. code-block:: none
 

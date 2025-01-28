@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -60,6 +60,15 @@ typedef struct ARKodeERKStepMemRec
   /* Reusable arrays for fused vector operations */
   sunrealtype* cvals;
   N_Vector* Xvecs;
+  int nfusedopvecs; /* length of cvals and Xvecs arrays */
+
+  /* Data for using ERKStep with external polynomial forcing */
+  sunrealtype tshift;       /* time normalization shift       */
+  sunrealtype tscale;       /* time normalization scaling     */
+  N_Vector* forcing;        /* array of forcing vectors       */
+  int nforcing;             /* number of forcing vectors      */
+  sunrealtype* stage_times; /* workspace for applying forcing */
+  sunrealtype* stage_coefs; /* workspace for applying forcing */
 
 }* ARKodeERKStepMem;
 
@@ -68,11 +77,10 @@ typedef struct ARKodeERKStepMemRec
   ===============================================================*/
 
 /* Interface routines supplied to ARKODE */
-int erkStep_Init(ARKodeMem ark_mem, int init_type);
+int erkStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type);
 int erkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
                     int mode);
 int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr);
-int erkStep_SetUserData(ARKodeMem ark_mem, void* user_data);
 int erkStep_SetDefaults(ARKodeMem ark_mem);
 int erkStep_SetOrder(ARKodeMem ark_mem, int ord);
 int erkStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile, SUNOutputFormat fmt);
@@ -82,17 +90,22 @@ int erkStep_Resize(ARKodeMem ark_mem, N_Vector y0, sunrealtype hscale,
                    sunrealtype t0, ARKVecResizeFn resize, void* resize_data);
 void erkStep_Free(ARKodeMem ark_mem);
 void erkStep_PrintMem(ARKodeMem ark_mem, FILE* outfile);
+int erkStep_GetNumRhsEvals(ARKodeMem ark_mem, int partition_index,
+                           long int* rhs_evals);
 int erkStep_GetEstLocalErrors(ARKodeMem ark_mem, N_Vector ele);
+int erkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
+                            sunrealtype tscale, N_Vector* f, int nvecs);
 
 /* Internal utility routines */
 int erkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                 ARKodeMem* ark_mem, ARKodeERKStepMem* step_mem);
 int erkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                           ARKodeERKStepMem* step_mem);
-sunbooleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsm);
+void erkStep_ApplyForcing(ARKodeERKStepMem step_mem, sunrealtype* stage_times,
+                          sunrealtype* stage_coefs, int jmax, int* nvec);
 
 /* private functions for relaxation */
 int erkStep_SetRelaxFn(ARKodeMem ark_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac);

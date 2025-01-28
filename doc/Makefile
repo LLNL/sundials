@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -22,9 +22,9 @@ DIRS = arkode/guide arkode/examples \
        kinsol/guide
 
 # prefix with desired command to create unique dependencies/targets
-LATEXDIRS = $(DIRS:%=latexpdf-%)
+LATEXDIRS = $(DIRS:%=latexpdf-%) latexpdf-install_guide
 HTMLDIRS = $(DIRS:%=html-%) html-superbuild
-CLEANDIRS = $(DIRS:%=clean-%) clean-superbuild
+CLEANDIRS = $(DIRS:%=clean-%) clean-superbuild clean-install_guide
 
 latexpdf: $(LATEXDIRS)
 $(LATEXDIRS):

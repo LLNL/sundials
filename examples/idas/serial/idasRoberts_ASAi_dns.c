@@ -2,7 +2,7 @@
  * Programmer(s): Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
   if (check_retval((void*)q, "N_VNew_Serial", 0)) { return (1); }
   Ith(q, 1) = ZERO;
 
-  /* Set the scalar realtive and absolute tolerances reltolQ and abstolQ */
+  /* Set the scalar relative and absolute tolerances reltolQ and abstolQ */
   reltolQ = RTOL;
   abstolQ = ATOLQ;
 

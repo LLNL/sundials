@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -289,7 +289,7 @@ public:
     return gko_solver_.get();
   }
 
-  /// Solve the linear system Ax = b to the specificed tolerance.
+  /// Solve the linear system Ax = b to the specified tolerance.
   /// \param b the right-hand side vector
   /// \param x the solution vector
   /// \param tol the tolerance to solve the system to

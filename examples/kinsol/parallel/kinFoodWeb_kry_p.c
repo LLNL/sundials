@@ -3,7 +3,7 @@
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -104,8 +104,6 @@
 #define NUM_SPECIES \
   6 /* must equal 2*(number of prey or predators)
                               number of prey = number of predators       */
-
-#define PI SUN_RCONST(3.1415926535898) /* pi */
 
 #define NPEX     2              /* number of processors in the x-direction  */
 #define NPEY     2              /* number of processors in the y-direction  */
@@ -466,7 +464,7 @@ static int Precondbd(N_Vector cc, N_Vector cscale, N_Vector fval,
       for (j = 0; j < NUM_SPECIES; j++)
       {
         csave = cxy[j]; /* Save the j,jx,jy element of cc */
-        r     = MAX(sqruround * fabs(csave), r0 / scxy[j]);
+        r     = MAX(sqruround * SUNRabs(csave), r0 / scxy[j]);
         cxy[j] += r; /* Perturb the j,jx,jy element of cc */
         fac = ONE / r;
 

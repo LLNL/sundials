@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -13,7 +13,7 @@
  * SUNDIALS Copyright End
  * ----------------------------------------------------------------------------
  * This is the implementation file for the SuperLU SuperMatrix SLU_NR_loc
- * format compatibile SUNMatrix.
+ * format compatible SUNMatrix.
  * ----------------------------------------------------------------------------
  */
 
@@ -63,15 +63,6 @@
 
 #define SM_FSTROW_SLUNRLOC(A) (SM_SUPERSTORE_SLUNRLOC(A)->fst_row)
 
-#define SM_DATA_SLUNRLOC(A) ((sunrealtype*)SM_SUPERSTORE_SLUNRLOC(A)->nzval)
-
-#define SM_COLIND_SLUNRLOC(A) (SM_SUPERSTORE_SLUNRLOC(A)->colind)
-
-#define SM_ROWPTRS_SLUNRLOC(A) (SM_SUPERSTORE_SLUNRLOC(A)->rowptr)
-
-/* constants */
-#define ZERO SUN_RCONST(0.0)
-
 /* Private function prototypes */
 static sunbooleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B);
 
@@ -87,7 +78,7 @@ SUNMatrix SUNMatrix_SLUNRloc(SuperMatrix* A_super, gridinfo_t* grid,
   SUNMatrix A;
   SUNMatrixContent_SLUNRloc content;
 
-  /* Check for valid intputs */
+  /* Check for valid inputs */
   if (A_super == NULL || grid == NULL) { return (NULL); }
 
   if (A_super->Stype != SLU_NR_loc || A_super->Dtype != SLU_D ||

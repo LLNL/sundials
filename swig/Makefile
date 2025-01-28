@@ -2,7 +2,7 @@
 # Programmer: Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -16,7 +16,7 @@
 
 SWIG ?= swig
 
-ARKODE=farkode_mod farkode_arkstep_mod farkode_erkstep_mod farkode_sprkstep_mod farkode_mristep_mod
+ARKODE=farkode_mod farkode_arkstep_mod farkode_erkstep_mod farkode_sprkstep_mod farkode_mristep_mod farkode_lsrkstep_mod farkode_splittingstep_mod farkode_forcingstep_mod
 CVODE=fcvode_mod
 CVODES=fcvodes_mod
 IDA=fida_mod
@@ -27,7 +27,7 @@ NVECTOR=openmp pthreads serial parallel manyvector mpiplusx
 SUNMATRIX=band dense sparse
 SUNLINSOL=band dense lapackdense klu spbcgs spfgmr spgmr sptfqmr pcg
 SUNNONLINSOL=newton fixedpoint
-SUNADAPTCONTROLLER=imexgus soderlind
+SUNADAPTCONTROLLER=imexgus soderlind mrihtol
 
 INCLUDES=-I../include
 

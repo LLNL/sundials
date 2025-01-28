@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -90,7 +90,7 @@ public:
     return *this;
   }
 
-  // We have a pure virtual destructor to make this an asbtract class
+  // We have a pure virtual destructor to make this an abstract class
   virtual ~BaseObject() = 0;
 
   // Getters

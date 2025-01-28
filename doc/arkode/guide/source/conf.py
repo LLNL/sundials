@@ -1,6 +1,6 @@
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -51,7 +51,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'User Documentation for ARKODE'
-copyright = u"""2012-{year}, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos""".format(year = year)
+copyright = u"""2012-{year}, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Cody J. Balos, Rujeko Chinomona, and Mustafa Aggul""".format(year = year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -217,8 +217,9 @@ tex_author = r'''
     Daniel R. Reynolds$^1$,
     David J. Gardner$^2$,
     Carol S. Woodward$^2$,
+    Cody J. Balos$^2$
     Rujeko Chinomona$^3$, and
-    Cody J. Balos$^2$ \\
+    Mustafa Aggul$^1$ \\
     \\
     {\em $^1$Department of Mathematics, Southern Methodist University} \\
     {\em $^2$Center for Applied Scientific Computing, Lawrence Livermore National Laboratory} \\
@@ -275,7 +276,7 @@ latex_elements = {
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'ARKODE', u'ARKODE Documentation',
-     [u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos'], 1)
+     [u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Cody J. Balos, Rujeko Chinomona, and Mustafa Aggul'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -289,8 +290,8 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'ARKODE', u'ARKODE Documentation',
-   u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Rujeko Chinomona, and Cody J. Balos', 'ARKODE',
-   'Time integration package for multi-rate systems of ordinary differntial equations.',
+   u'Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Cody J. Balos, Rujeko Chinomona, and Mustafa Aggul', 'ARKODE',
+   'Time integration package for multi-rate systems of ordinary differential equations.',
    'Miscellaneous'),
 ]
 

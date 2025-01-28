@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -21,10 +21,348 @@ Changelog
 
 .. SED_REPLACEMENT_KEY
 
-Changes to SUNDIALS in release 7.1.0
+Changes to SUNDIALS in release X.Y.Z
 ====================================
 
 .. include:: RecentChanges_link.rst
+
+Changes to SUNDIALS in release 7.2.1
+====================================
+
+**New Features and Enhancements**
+
+Unit tests were separated from examples. To that end, the following directories 
+were moved out of the ``examples/`` directory to the ``test/unit_tests`` directory:
+``nvector``, ``sunmatrix``, ``sunlinsol``, and ``sunnonlinsol``.
+
+**Bug Fixes**
+
+Fixed a bug in ARKStep where an extra right-hand side evaluation would occur
+each time step when enabling the :c:func:`ARKodeSetAutonomous` option and using
+an IMEX method where the DIRK table has an implicit first stage and is not stiffly
+accurate.
+
+Changes to SUNDIALS in release 7.2.0
+====================================
+
+**Major Features**
+
+Added a time-stepping module to ARKODE for low storage Runge--Kutta methods,
+:ref:`LSRKStep <ARKODE.Usage.LSRKStep>`. This currently supports five explicit
+low-storage methods: the second-order Runge--Kutta--Chebyshev and
+Runge--Kutta--Legendre methods, and the second- through fourth-order optimal
+strong stability preserving Runge--Kutta methods. All methods include
+embeddings for temporal adaptivity.
+
+Added an operator splitting module, :ref:`SplittingStep
+<ARKODE.Usage.SplittingStep>`, and forcing method module, :ref:`ForcingStep
+<ARKODE.Usage.ForcingStep>`, to ARKODE. These modules support a broad range of
+operator-split time integration methods for multiphysics applications.
+
+Added support for multirate time step adaptivity controllers, based on the
+recently introduced :c:type:`SUNAdaptController` base class, to ARKODE's MRIStep
+module. As a part of this, we added embeddings for existing MRI-GARK methods,
+as well as support for embedded MERK and IMEX-MRI-SR methods. Added new default
+MRI methods for temporally adaptive versus fixed-step runs.
+
+**New Features and Enhancements**
+
+*Logging*
+
+The information level logging output in ARKODE, CVODE(S), and IDA(S) has been
+updated to be more uniform across the packages and a new ``tools`` directory has
+been added with a Python module, ``suntools``, containing utilities for parsing
+logging output. The Python utilities for parsing CSV output have been relocated
+from the ``scripts`` directory to the Python module.
+
+*SUNStepper*
+
+Added the :c:type:`SUNStepper` base class to represent a generic solution
+procedure for IVPs. This is used by the :ref:`SplittingStep
+<ARKODE.Usage.SplittingStep>` and :ref:`ForcingStep <ARKODE.Usage.ForcingStep>`
+modules of ARKODE. A SUNStepper can be created from an ARKODE memory block with
+the new function :c:func:`ARKodeCreateSUNStepper`. To enable interoperability
+with :c:type:`MRIStepInnerStepper`, the function
+:c:func:`MRIStepInnerStepper_CreateFromSUNStepper` was added.
+
+*ARKODE*
+
+Added functionality to ARKODE to accumulate a temporal error estimate over
+multiple time steps. See the routines :c:func:`ARKodeSetAccumulatedErrorType`,
+:c:func:`ARKodeResetAccumulatedError`, and :c:func:`ARKodeGetAccumulatedError`
+for details.
+
+Added the :c:func:`ARKodeSetStepDirection` and :c:func:`ARKodeGetStepDirection`
+functions to change and query the direction of integration.
+
+Added the function :c:func:`MRIStepGetNumInnerStepperFails` to retrieve the
+number of recoverable failures reported by the MRIStepInnerStepper.
+
+Added a utility routine to wrap any valid ARKODE integrator for use as an
+MRIStep inner stepper object, :c:func:`ARKodeCreateMRIStepInnerStepper`.
+
+The following DIRK schemes now have coefficients accurate to quad precision:
+
+* ``ARKODE_BILLINGTON_3_3_2``
+* ``ARKODE_KVAERNO_4_2_3``
+* ``ARKODE_CASH_5_2_4``
+* ``ARKODE_CASH_5_3_4``
+* ``ARKODE_KVAERNO_5_3_4``
+* ``ARKODE_KVAERNO_7_4_5``
+
+*CMake*
+
+The default value of :cmakeop:`CMAKE_CUDA_ARCHITECTURES` is no longer set to
+``70`` and is now determined automatically by CMake. The previous default was
+only valid for Volta GPUs while the automatically selected value will vary
+across compilers and compiler versions. As such, users are encouraged to
+override this value with the architecture for their system.
+
+The build system has been updated to utilize the CMake LAPACK imported target
+which should ease building SUNDIALS with LAPACK libraries that require setting
+specific linker flags e.g., MKL.
+
+*Third Party Libraries*
+
+The Trilinos Tpetra NVector interface has been updated to utilize CMake
+imported targets added in Trilinos 14 to improve support for different Kokkos
+backends with Trilinos. As such, Trilinos 14 or newer is required and the
+``Trilinos_INTERFACE_*`` CMake options have been removed.
+
+Example programs using *hypre* have been updated to support v2.20 and newer.
+
+**Bug Fixes**
+
+*CMake*
+
+Fixed a CMake bug regarding usage of missing "print_warning" macro that was only
+triggered when the deprecated ``CUDA_ARCH`` option was used.
+
+Fixed a CMake configuration issue related to aliasing an ``ALIAS`` target when
+using ``ENABLE_KLU=ON`` in combination with a static-only build of SuiteSparse.
+
+Fixed a CMake issue which caused third-party CMake variables to be unset.  Users
+may see more options in the CMake GUI now as a result of the fix.  See details
+in GitHub Issue `#538 <https://github.com/LLNL/sundials/issues/538>`__.
+
+*NVector*
+
+Fixed a build failure with the SYCL NVector when using Intel oneAPI 2025.0
+compilers. See GitHub Issue `#596 <https://github.com/LLNL/sundials/issues/596>`__.
+
+Fixed compilation errors when building the Trilinos Teptra NVector with CUDA
+support.
+
+*SUNMatrix*
+
+Fixed a `bug <https://github.com/LLNL/sundials/issues/581>`__ in the sparse
+matrix implementation of :c:func:`SUNMatScaleAddI` which caused out of bounds
+writes unless ``indexvals`` were in ascending order for each row/column.
+
+*SUNLinearSolver*
+
+Fixed a bug in the SPTFQMR linear solver where recoverable preconditioner errors
+were reported as unrecoverable.
+
+*ARKODE*
+
+Fixed :c:func:`ARKodeResize` not using the default ``hscale`` when an argument
+of ``0`` was provided.
+
+Fixed a memory leak that could occur if :c:func:`ARKodeSetDefaults` is called
+repeatedly.
+
+Fixed the loading of ARKStep's default first order explicit method.
+
+Fixed loading the default IMEX-MRI method if :c:func:`ARKodeSetOrder` is used to
+specify a third or fourth order method. Previously, the default second order
+method was loaded in both cases.
+
+Fixed potential memory leaks and out of bounds array accesses that could occur
+in the ARKODE Lagrange interpolation module when changing the method order or
+polynomial degree after re-initializing an integrator.
+
+Fixed a bug in ARKODE when enabling rootfinding with fixed step sizes and the
+initial value of the rootfinding function is zero. In this case, uninitialized
+right-hand side data was used to compute a state value near the initial
+condition to determine if any rootfinding functions are initially active.
+
+Fixed a bug in MRIStep where the data supplied to the Hermite interpolation
+module did not include contributions from the fast right-hand side
+function. With this fix, users will see one additional fast right-hand side
+function evaluation per slow step with the Hermite interpolation option.
+
+Fixed a bug in SPRKStep when using compensated summations where the error vector
+was not initialized to zero.
+
+*CVODE(S)*
+
+Fixed a bug where :c:func:`CVodeSetProjFailEta` would ignore the `eta`
+parameter.
+
+*Fortran Interfaces*
+
+Fixed a bug in the 32-bit ``sunindextype`` Fortran interfaces to
+:c:func:`N_VGetSubvectorArrayPointer_ManyVector`,
+:c:func:`N_VGetSubvectorArrayPointer_MPIManyVector`,
+:c:func:`SUNBandMatrix_Column` and :c:func:`SUNDenseMatrix_Column` where 64-bit
+``sunindextype`` interface functions were used.
+
+**Deprecation Notices**
+
+Deprecated the ARKStep-specific utility routine for wrapping an ARKStep instance
+as an MRIStep inner stepper object,
+:c:func:`ARKStepCreateMRIStepInnerStepper`. Use
+:c:func:`ARKodeCreateMRIStepInnerStepper` instead.
+
+The ARKODE stepper specific functions to retrieve the number of right-hand side
+function evaluations have been deprecated. Use :c:func:`ARKodeGetNumRhsEvals`
+instead.
+
+Changes to SUNDIALS in release 7.1.1
+====================================
+
+**Bug Fixes**
+
+Fixed a `bug <https://github.com/LLNL/sundials/pull/523>`__ in v7.1.0 with the
+SYCL N_Vector ``N_VSpace`` function.
+
+Changes to SUNDIALS in release 7.1.0
+====================================
+
+**Major Features**
+
+Created shared user interface functions for ARKODE to allow more uniform control
+over time-stepping algorithms, improved extensibility, and simplified code
+maintenance. The corresponding stepper-specific user-callable functions are now
+deprecated and will be removed in a future major release.
+
+Added CMake infrastructure that enables externally maintained addons/plugins to
+be *optionally* built with SUNDIALS. See :ref:`Contributing` for details.
+
+**New Features and Enhancements**
+
+Added support for Kokkos Kernels v4.
+
+Added the following Runge-Kutta Butcher tables
+
+* ``ARKODE_FORWARD_EULER_1_1``
+* ``ARKODE_RALSTON_EULER_2_1_2``
+* ``ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2``
+* ``ARKODE_BACKWARD_EULER_1_1``
+* ``ARKODE_IMPLICIT_MIDPOINT_1_2``
+* ``ARKODE_IMPLICIT_TRAPEZOIDAL_2_2``
+
+Added the following MRI coupling tables
+
+* ``ARKODE_MRI_GARK_FORWARD_EULER``
+* ``ARKODE_MRI_GARK_RALSTON2``
+* ``ARKODE_MRI_GARK_RALSTON3``
+* ``ARKODE_MRI_GARK_BACKWARD_EULER``
+* ``ARKODE_MRI_GARK_IMPLICIT_MIDPOINT``
+* ``ARKODE_IMEX_MRI_GARK_EULER``
+* ``ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL``
+* ``ARKODE_IMEX_MRI_GARK_MIDPOINT``
+
+Added :c:func:`ARKodeButcherTable_ERKIDToName` and
+:c:func:`ARKodeButcherTable_DIRKIDToName` to convert a Butcher table ID to a
+string representation.
+
+Added the function :c:func:`ARKodeSetAutonomous` in ARKODE to indicate that the
+implicit right-hand side function does not explicitly depend on time. When using
+the trivial predictor, an autonomous problem may reuse implicit function
+evaluations across stage solves to reduce the total number of function
+evaluations.
+
+Users may now disable interpolated output in ARKODE by passing
+``ARK_INTERP_NONE`` to :c:func:`ARKodeSetInterpolantType`. When interpolation is
+disabled, rootfinding is not supported, implicit methods must use the trivial
+predictor (the default option), and interpolation at stop times cannot be used
+(interpolating at stop times is disabled by default). With interpolation
+disabled, calling :c:func:`ARKodeEvolve` in ``ARK_NORMAL`` mode will return at
+or past the requested output time (setting a stop time may still be used to halt
+the integrator at a specific time). Disabling interpolation will reduce the
+memory footprint of an integrator by two or more state vectors (depending on the
+interpolant type and degree) which can be beneficial when interpolation is not
+needed e.g., when integrating to a final time without output in between or using
+an explicit fast time scale integrator with an MRI method.
+
+Added "Resize" capability to ARKODE's SPRKStep time-stepping module.
+
+Enabled the Fortran interfaces to build with 32-bit ``sunindextype``.
+
+**Bug Fixes**
+
+Updated the CMake variable ``HIP_PLATFORM`` default to ``amd`` as the previous
+default, ``hcc``, is no longer recognized in ROCm 5.7.0 or newer. The new
+default is also valid in older version of ROCm (at least back to version 4.3.1).
+
+Renamed the DPCPP value for the :cmakeop:`SUNDIALS_GINKGO_BACKENDS` CMake option
+to ``SYCL`` to match Ginkgo's updated naming convention.
+
+Changed the CMake version compatibility mode for SUNDIALS to ``AnyNewerVersion``
+instead of ``SameMajorVersion``. This fixes the issue seen `here
+<https://github.com/AMReX-Codes/amrex/pull/3835>`__.
+
+Fixed a CMake bug that caused an MPI linking error for our C++ examples in some
+instances. Fixes `GitHub Issue #464
+<https://github.com/LLNL/sundials/issues/464>`__.
+
+Fixed the runtime library installation path for windows systems. This fix
+changes the default library installation path from
+``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR`` to
+``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_BINDIR``.
+
+Fixed conflicting ``.lib`` files between shared and static libs when using
+``MSVC`` on Windows
+
+Fixed invalid ``SUNDIALS_EXPORT`` generated macro when building both shared and
+static libs.
+
+Fixed a bug in some Fortran examples where ``c_null_ptr`` was passed as an
+argument to a function pointer instead of ``c_null_funptr``. This caused
+compilation issues with the Cray Fortran compiler.
+
+Fixed a bug in the HIP execution policies where ``WARP_SIZE`` would not be set
+with ROCm 6.0.0 or newer.
+
+Fixed a bug that caused error messages to be cut off in some cases. Fixes
+`GitHub Issue #461 <https://github.com/LLNL/sundials/issues/461>`__.
+
+Fixed a memory leak when an error handler was added to a
+:c:type:`SUNContext`. Fixes `GitHub Issue #466
+<https://github.com/LLNL/sundials/issues/466>`__.
+
+Fixed a bug where :c:func:`MRIStepEvolve` would not handle a recoverable error
+produced from evolving the inner stepper.
+
+Added missing ``SetRootDirection`` and ``SetNoInactiveRootWarn`` functions to
+ARKODE's SPRKStep time-stepping module.
+
+Fixed a bug in :c:func:`ARKodeSPRKTable_Create` where the coefficient arrays
+were not allocated.
+
+Fix bug on LLP64 platforms (like Windows 64-bit) where ``KLU_INDEXTYPE`` could be
+32 bits wide even if ``SUNDIALS_INT64_T`` is defined.
+
+Check if size of ``SuiteSparse_long`` is 8 if the size of ``sunindextype`` is 8
+when using KLU.
+
+Fixed several build errors with the Fortran interfaces on Windows systems.
+
+**Deprecation Notices**
+
+Numerous ARKODE stepper-specific functions are now deprecated in favor of
+ARKODE-wide functions.
+
+Deprecated the `ARKStepSetOptimalParams` function. Since this function does not have an
+ARKODE-wide equivalent, instructions have been added to the user guide for how
+to retain the current functionality using other user-callable functions.
+
+The unsupported implementations of ``N_VGetArrayPointer`` and
+``N_VSetArrayPointer`` for the *hypre* and PETSc vectors are now deprecated.
+Users should access the underlying wrapped external library vector objects
+instead with ``N_VGetVector_ParHyp`` and ``N_VGetVector_Petsc``, respectively.
 
 Changes to SUNDIALS in release 7.0.0
 ====================================
@@ -42,7 +380,7 @@ be built with additional error checking by default. See
 SUNDIALS now requires using a compiler that supports a subset of the C99
 standard. Note with the Microsoft C/C++ compiler the subset of C99 features
 utilized by SUNDIALS are available starting with `Visual Studio 2015
-<https://learn.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-170#c-standard-library-features-1>`_.
+<https://learn.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-170#c-standard-library-features-1>`__.
 
 *Minimum CMake Version*
 
@@ -152,7 +490,7 @@ and a typedef to a ``MPI_Comm`` in builds with MPI. As a result:
 
 The change away from type-erased pointers for :c:type:`SUNComm` fixes problems
 like the one described in
-`GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`_.
+`GitHub Issue #275 <https://github.com/LLNL/sundials/issues/275>`__.
 
 The SUNLogger is now always MPI-aware if MPI is enabled in SUNDIALS and the
 ``SUNDIALS_LOGGING_ENABLE_MPI`` CMake option and macro definition were removed
@@ -213,12 +551,12 @@ interface.
 
 **Bug Fixes**
 
-Fixed `GitHub Issue #329 <https://github.com/LLNL/sundials/issues/329>`_ so
+Fixed `GitHub Issue #329 <https://github.com/LLNL/sundials/issues/329>`__ so
 that C++20 aggregate initialization can be used.
 
 Fixed integer overflow in the internal SUNDIALS hashmap. This resolves
-`GitHub Issues #409 <https://github.com/LLNL/sundials/issues/409>`_ and
-`#249 <https://github.com/LLNL/sundials/issues/249>`_.
+`GitHub Issues #409 <https://github.com/LLNL/sundials/issues/409>`__ and
+`#249 <https://github.com/LLNL/sundials/issues/249>`__.
 
 **Deprecation Notice**
 
@@ -286,7 +624,7 @@ an :c:type:`MRIStepInnerFullRhsFn` optional.
 **Bug Fixes**
 
 Changed the :c:type:`SUNProfiler` so that it does not rely on ``MPI_WTime`` in
-any case. This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`_.
+any case. This fixes `GitHub Issue #312 <https://github.com/LLNL/sundials/issues/312>`__.
 
 Fixed scaling bug in ``SUNMatScaleAddI_Sparse`` for non-square matrices.
 
@@ -442,7 +780,7 @@ Added support for the SYCL backend with RAJA 2022.x.y.
 **Bug Fixes**
 
 Fixed an underflow bug during root finding in ARKODE, CVODE, CVODES, IDA and
-IDAS. This fixes `GitHub Issue #57 <https://github.com/LLNL/sundials/issues/57>`_.
+IDAS. This fixes `GitHub Issue #57 <https://github.com/LLNL/sundials/issues/57>`__.
 
 Fixed an issue with finding oneMKL when using the ``icpx`` compiler with the
 ``-fsycl`` flag as the C++ compiler instead of ``dpcpp``.
@@ -479,13 +817,13 @@ e.g., CUDA, HIP, RAJA, Trilinos, SuperLU_DIST, MAGMA, Ginkgo, and Kokkos.
 
 **Major Features**
 
-Added support for the `Ginkgo <https://ginkgo-project.github.io/>`_ linear
+Added support for the `Ginkgo <https://ginkgo-project.github.io/>`__ linear
 algebra library. This support includes new SUNDIALS matrix and linear solver
 implementations, see the sections :numref:`SUNMatrix.Ginkgo` and
 :numref:`SUNLinSol.Ginkgo`.
 
 Added new SUNDIALS vector, dense matrix, and dense linear solver implementations
-utilizing the `Kokkos Ecosystem <https://kokkos.org/>`_ for performance
+utilizing the `Kokkos Ecosystem <https://kokkos.org/>`__ for performance
 portability, see sections :numref:`NVectors.Kokkos`, :numref:`SUNMatrix.Kokkos`,
 and :numref:`SUNLinSol.Kokkos` for more information.
 
@@ -557,7 +895,7 @@ functions when they are available and the user may provide the math library to
 link to via the advanced CMake option :cmakeop:`SUNDIALS_MATH_LIBRARY`.
 
 Changed ``SUNDIALS_LOGGING_ENABLE_MPI`` CMake option default to be ``OFF``. This
-fixes `GitHub Issue #177 <https://github.com/LLNL/sundials/issues/177>`_.
+fixes `GitHub Issue #177 <https://github.com/LLNL/sundials/issues/177>`__.
 
 Changes to SUNDIALS in release 6.2.0
 ====================================
@@ -907,7 +1245,7 @@ namespace.
 A capability to profile/instrument SUNDIALS library code has been added. This
 can be enabled with the CMake option :cmakeop:`SUNDIALS_BUILD_WITH_PROFILING`. A
 built-in profiler will be used by default, but the `Caliper
-<https://github.com/LLNL/Caliper>`_ library can also be used instead with the
+<https://github.com/LLNL/Caliper>`__ library can also be used instead with the
 CMake option :cmakeop:`ENABLE_CALIPER`. See the documentation section on
 profiling for more details.
 
@@ -1854,7 +2192,7 @@ implemented a custom :c:type:`SUNMatrix` will need to at least update their code
 to set the corresponding ``ops`` structure member, ``matvecsetup``, to ``NULL``.
 
 The generic :c:type:`SUNMatrix` API now defines error codes to be returned by
-matrix operations. Operations which return an integer flag indiciating
+matrix operations. Operations which return an integer flag indicating
 success/failure may return different values than previously.
 
 A new :c:type:`SUNMatrix` (and :c:type:`SUNLinearSolver`) implementation was
@@ -1967,7 +2305,7 @@ function signatures have been changed including :c:func:`MRIStepCreate` which
 now takes an ARKStep memory structure for the fast integration as an input.
 
 The reinitialization functions :c:func:`ERKStepReInit`, :c:func:`ARKStepReInit`,
-and :c:func:`MRIStepReInit` have been updated to retain the minimum and maxiumum
+and :c:func:`MRIStepReInit` have been updated to retain the minimum and maximum
 step size values from before reinitialization rather than resetting them to the
 default values.
 
@@ -1993,7 +2331,7 @@ being built.
 
 Fixed a memory leak in the PETSc :c:type:`N_Vector` clone function.
 
-Fixed a memeory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
+Fixed a memory leak in the ARKODE, CVODE, and IDA F77 interfaces when not using
 the default nonlinear solver.
 
 Fixed a bug in the ARKStep time-stepping module in ARKODE that would result in
@@ -2511,7 +2849,7 @@ these vectors both move all data to the GPU device upon construction, and
 speedup will only be realized if the user also conducts the right-hand-side
 function evaluation on the device. In addition, these vectors assume the problem
 fits on one GPU. For further information about RAJA, users are referred to the
-`RAJA web site <https://software.llnl.gov/RAJA/>`_.
+`RAJA web site <https://software.llnl.gov/RAJA/>`__.
 
 Added the type :c:type:`sunindextype` to support using 32-bit or 64-bit integer
 types for indexing arrays within all SUNDIALS structures. :c:type:`sunindextype`
@@ -2535,11 +2873,11 @@ The file ``include/sundials_fconfig.h`` was added. This file contains SUNDIALS
 type information for use in Fortran programs.
 
 Added support for many xSDK-compliant build system keys. For more information on
-on xSDK compliance the `xSDK policies <https://xsdk.info/policies/>`_. The xSDK
+on xSDK compliance the `xSDK policies <https://xsdk.info/policies/>`__. The xSDK
 is a movement in scientific software to provide a foundation for the rapid and
 efficient production of high-quality, sustainable extreme-scale scientific
 applications. For more information visit the
-`xSDK web site <https://xsdk.info>`_.
+`xSDK web site <https://xsdk.info>`__.
 
 Added functions :c:func:`SUNDIALSGetVersion` and
 :c:func:`SUNDIALSGetVersionNumber` to get SUNDIALS release version information
@@ -2733,7 +3071,7 @@ with sparse direct solvers.
 
 *KINSOL*
 
-The Picard iteration return was chanegd to always return the newest iterate upon
+The Picard iteration return was changed to always return the newest iterate upon
 success.
 
 A minor bug in the line search was fixed to prevent an infinite loop when the

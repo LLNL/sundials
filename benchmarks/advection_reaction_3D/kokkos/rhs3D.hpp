@@ -3,7 +3,7 @@
  *                David J. Gardner, Cody J. Balos @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -23,7 +23,7 @@
  * --------------------------------------------------------------*/
 
 /* Compute the advection term f(t,y) = -c (grad * y). This is done using
-   upwind 1st order finite differences.  At present, only periodic boudary
+   upwind 1st order finite differences.  At present, only periodic boundary
    conditions are supported, which are handled via MPI's Cartesian
    communicator (even for serial runs). */
 static int Advection(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)

@@ -4,7 +4,7 @@
  * Based on kinRoboKin_dns.c by Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -131,7 +131,7 @@ int main(void)
   if (check_retval((void*)J, "SUNSparseMatrix", 0)) { return (1); }
 
   /* Create SuperLUMT solver object */
-  num_threads = 2; /* number fo threads to use */
+  num_threads = 2; /* number of threads to use */
   LS          = SUNLinSol_SuperLUMT(y, J, num_threads, sunctx);
   if (check_retval((void*)LS, "SUNLinSol_SuperLUMT", 0)) { return (1); }
 

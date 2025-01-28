@@ -26,32 +26,32 @@ c1 (bot.left/middle/top rt.) =    1.404e+04     2.029e+04     1.561e+04
 c2 (bot.left/middle/top rt.) =    3.387e+11     4.894e+11     3.765e+11
 
 t = 4.32e+04   no. steps = 402   order = 4   stepsize = 4.48e+02
-c1 (bot.left/middle/top rt.) =    1.915e-07    -6.130e-06     4.395e-07
+c1 (bot.left/middle/top rt.) =    1.929e-07    -6.029e-06     4.403e-07
 c2 (bot.left/middle/top rt.) =    3.382e+11     1.355e+11     3.804e+11
 
-t = 5.04e+04   no. steps = 422   order = 4   stepsize = 3.17e+02
-c1 (bot.left/middle/top rt.) =   -7.746e-11    -3.073e-08    -3.512e-11
+t = 5.04e+04   no. steps = 421   order = 4   stepsize = 3.30e+02
+c1 (bot.left/middle/top rt.) =    1.559e-09     6.319e-07     6.062e-10
 c2 (bot.left/middle/top rt.) =    3.358e+11     4.930e+11     3.864e+11
 
-t = 5.76e+04   no. steps = 436   order = 5   stepsize = 3.58e+02
-c1 (bot.left/middle/top rt.) =    1.801e-11     7.177e-09     8.588e-12
+t = 5.76e+04   no. steps = 435   order = 5   stepsize = 4.67e+02
+c1 (bot.left/middle/top rt.) =   -2.660e-12    -1.080e-09    -1.030e-12
 c2 (bot.left/middle/top rt.) =    3.320e+11     9.650e+11     3.909e+11
 
-t = 6.48e+04   no. steps = 449   order = 5   stepsize = 5.95e+02
-c1 (bot.left/middle/top rt.) =   -2.845e-14    -1.063e-11    -1.382e-14
+t = 6.48e+04   no. steps = 447   order = 5   stepsize = 7.06e+02
+c1 (bot.left/middle/top rt.) =   -7.375e-15    -2.742e-12    -2.920e-15
 c2 (bot.left/middle/top rt.) =    3.313e+11     8.922e+11     3.963e+11
 
-t = 7.20e+04   no. steps = 461   order = 5   stepsize = 5.95e+02
-c1 (bot.left/middle/top rt.) =    2.710e-16     1.011e-13     1.307e-16
+t = 7.20e+04   no. steps = 457   order = 5   stepsize = 7.06e+02
+c1 (bot.left/middle/top rt.) =   -1.202e-17    -4.105e-15    -5.445e-18
 c2 (bot.left/middle/top rt.) =    3.330e+11     6.186e+11     4.039e+11
 
-t = 7.92e+04   no. steps = 473   order = 5   stepsize = 5.95e+02
-c1 (bot.left/middle/top rt.) =    5.698e-16     2.058e-13     2.690e-16
+t = 7.92e+04   no. steps = 467   order = 5   stepsize = 7.06e+02
+c1 (bot.left/middle/top rt.) =   -8.193e-21    -1.461e-15    -7.837e-19
 c2 (bot.left/middle/top rt.) =    3.334e+11     6.669e+11     4.120e+11
 
-t = 8.64e+04   no. steps = 485   order = 5   stepsize = 5.95e+02
-c1 (bot.left/middle/top rt.) =    2.707e-16     1.899e-17     2.156e-15
-c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.163e+11
+t = 8.64e+04   no. steps = 477   order = 5   stepsize = 7.06e+02
+c1 (bot.left/middle/top rt.) =   -7.290e-20    -3.730e-15    -4.364e-20
+c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.162e+11
 
 
 Final Statistics.. 
@@ -59,12 +59,12 @@ Final Statistics..
 lenrw   =  2696     leniw   =    65
 lenrwls =  2454     leniwls =    42
 lenrwbp =  2800     leniwbp =   622
-nst     =   485
-nfe     =   616     nfetot  =  1258
-nfeLS   =   597     nfeBP   =    45
-nni     =   613     nli     =   597
+nst     =   477
+nfe     =   613     nfetot  =  1267
+nfeLS   =   614     nfeBP   =    40
+nni     =   610     nli     =   614
 nsetups =    85     netf    =    28
-npe     =     9     nps     =  1134
+npe     =     8     nps     =  1142
 ncfn    =     0     ncfl    =     0
 
 
