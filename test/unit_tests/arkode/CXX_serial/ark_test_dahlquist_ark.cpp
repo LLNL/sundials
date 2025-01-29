@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * ---------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -32,16 +32,6 @@
 
 #include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
 
 // Constants
 #define NEG_ONE SUN_RCONST(-1.0)
@@ -803,13 +793,6 @@ int expected_rhs_evals(ProblemOptions& prob_opts, int stages, int order,
         nfe_expected += nst;
       }
     }
-
-    if (prob_opts.i_type != interp_type::hermite && save_fn_for_residual &&
-        !explicit_first_stage)
-    {
-      if (stiffly_accurate) { nfe_expected++; }
-      else { nfe_expected += nst; }
-    }
   }
 
   // Expected number of implicit functions evaluations
@@ -866,8 +849,11 @@ int check_rhs_evals(rk_type r_type, void* arkstep_mem, long int nfe_expected,
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) { return 1; }
 
   long int nfe, nfi;
-  flag = ARKStepGetNumRhsEvals(arkstep_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) { return 1; }
+  flag = ARKodeGetNumRhsEvals(arkstep_mem, 0, &nfe);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
+
+  flag = ARKodeGetNumRhsEvals(arkstep_mem, 1, &nfi);
+  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) { return 1; }
 
   if (r_type == rk_type::expl || r_type == rk_type::imex)
   {

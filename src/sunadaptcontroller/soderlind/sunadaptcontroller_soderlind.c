@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -367,29 +367,18 @@ SUNErrCode SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE* fptr)
   SUNFunctionBegin(C->sunctx);
   SUNAssert(fptr, SUN_ERR_ARG_CORRUPT);
   fprintf(fptr, "Soderlind SUNAdaptController module:\n");
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-  fprintf(fptr, "  k1 = %32Lg\n", SODERLIND_K1(C));
-  fprintf(fptr, "  k2 = %32Lg\n", SODERLIND_K2(C));
-  fprintf(fptr, "  k3 = %32Lg\n", SODERLIND_K3(C));
-  fprintf(fptr, "  k4 = %32Lg\n", SODERLIND_K4(C));
-  fprintf(fptr, "  k5 = %32Lg\n", SODERLIND_K5(C));
-  fprintf(fptr, "  bias factor = %22Lg\n", SODERLIND_BIAS(C));
-  fprintf(fptr, "  previous error = %22Lg\n", SODERLIND_EP(C));
-  fprintf(fptr, "  previous-previous error = %22Lg\n", SODERLIND_EPP(C));
-  fprintf(fptr, "  previous step = %22Lg\n", SODERLIND_HP(C));
-  fprintf(fptr, "  previous-previous step = %22Lg\n", SODERLIND_HPP(C));
-#else
-  fprintf(fptr, "  k1 = %16g\n", SODERLIND_K1(C));
-  fprintf(fptr, "  k2 = %16g\n", SODERLIND_K2(C));
-  fprintf(fptr, "  k3 = %16g\n", SODERLIND_K3(C));
-  fprintf(fptr, "  k4 = %16g\n", SODERLIND_K4(C));
-  fprintf(fptr, "  k5 = %16g\n", SODERLIND_K5(C));
-  fprintf(fptr, "  bias factor = %16g\n", SODERLIND_BIAS(C));
-  fprintf(fptr, "  previous error = %16g\n", SODERLIND_EP(C));
-  fprintf(fptr, "  previous-previous error = %16g\n", SODERLIND_EPP(C));
-  fprintf(fptr, "  previous step = %16g\n", SODERLIND_HP(C));
-  fprintf(fptr, "  previous-previous step = %16g\n", SODERLIND_HPP(C));
-#endif
+  fprintf(fptr, "  k1 = " SUN_FORMAT_G "\n", SODERLIND_K1(C));
+  fprintf(fptr, "  k2 = " SUN_FORMAT_G "\n", SODERLIND_K2(C));
+  fprintf(fptr, "  k3 = " SUN_FORMAT_G "\n", SODERLIND_K3(C));
+  fprintf(fptr, "  k4 = " SUN_FORMAT_G "\n", SODERLIND_K4(C));
+  fprintf(fptr, "  k5 = " SUN_FORMAT_G "\n", SODERLIND_K5(C));
+  fprintf(fptr, "  bias factor = " SUN_FORMAT_G "\n", SODERLIND_BIAS(C));
+  fprintf(fptr, "  previous error = " SUN_FORMAT_G "\n", SODERLIND_EP(C));
+  fprintf(fptr, "  previous-previous error = " SUN_FORMAT_G "\n",
+          SODERLIND_EPP(C));
+  fprintf(fptr, "  previous step = " SUN_FORMAT_G "\n", SODERLIND_HP(C));
+  fprintf(fptr, "  previous-previous step = " SUN_FORMAT_G "\n",
+          SODERLIND_HPP(C));
   fprintf(fptr, "  firststeps = %i\n", SODERLIND_FIRSTSTEPS(C));
   return SUN_SUCCESS;
 }

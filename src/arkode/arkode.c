@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -135,7 +135,7 @@ int ARKodeResize(void* arkode_mem, N_Vector y0, sunrealtype hscale,
     }
   }
 
-  /* Determining change in vector sizes */
+  /* Determine change in vector sizes */
   lrw1 = liw1 = 0;
   if (y0->ops->nvspace != NULL) { N_VSpace(y0, &lrw1, &liw1); }
   lrw_diff      = lrw1 - ark_mem->lrw1;
@@ -269,6 +269,14 @@ int ARKodeSStolerances(void* arkode_mem, sunrealtype reltol, sunrealtype abstol)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_ABSTOL);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Ensure that vector supports N_VAddConst */
+  if (!ark_mem->tempv1->ops->nvaddconst)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar abstol)");
     return (ARK_ILL_INPUT);
   }
 
@@ -443,6 +451,14 @@ int ARKodeResStolerance(void* arkode_mem, sunrealtype rabstol)
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_BAD_RABSTOL);
+    return (ARK_ILL_INPUT);
+  }
+
+  /* Ensure that vector supports N_VAddConst */
+  if (!ark_mem->tempv1->ops->nvaddconst)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar rabstol)");
     return (ARK_ILL_INPUT);
   }
 
@@ -735,6 +751,10 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     - loop over attempts at a new step:
       * try to take step (via time stepper module),
         handle solver convergence or other failures
+      * if the stepper requests ARK_RETRY_STEP, we
+        retry the step without accumulating failures.
+        A stepper should never request this multiple
+        times in a row.
       * perform constraint-handling (if selected)
       * check temporal error
       * if all of the above pass, complete step by
@@ -812,7 +832,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
     /* Check for too much accuracy requested */
     nrm            = N_VWrmsNorm(ark_mem->yn, ark_mem->ewt);
     ark_mem->tolsf = ark_mem->uround * nrm;
-    if (ark_mem->tolsf > ONE)
+    if (ark_mem->tolsf > ONE && !ark_mem->fixedstep)
     {
       arkProcessError(ark_mem, ARK_TOO_MUCH_ACC, __LINE__, __func__, __FILE__,
                       MSG_ARK_TOO_MUCH_ACC, ark_mem->tcur);
@@ -865,32 +885,45 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
 
     /* Looping point for step attempts */
     dsm      = ZERO;
+    kflag    = ARK_SUCCESS;
     attempts = ncf = nef = constrfails = ark_mem->last_kflag = 0;
     relax_fails                                              = 0;
     nflag                                                    = FIRST_CALL;
     for (;;)
     {
-      /* increment attempt counters */
-      attempts++;
-      ark_mem->nst_attempts++;
+      /* increment attempt counters
+         Note: kflag can only equal ARK_RETRY_STEP if the stepper rejected
+         the current step size before performing calculations. Thus, we do
+         not include those when keeping track of step "attempts". */
+      if (kflag != ARK_RETRY_STEP)
+      {
+        attempts++;
+        ark_mem->nst_attempts++;
+      }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-      SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::ARKodeEvolve",
-                         "start-step",
-                         "step = %li, attempt = %i, h = %" RSYM
-                         ", tcur = %" RSYM,
-                         ark_mem->nst, attempts, ark_mem->h, ark_mem->tcur);
-#endif
+      SUNLogInfo(ARK_LOGGER, "begin-step-attempt",
+                 "step = %li, tn = " SUN_FORMAT_G ", h = " SUN_FORMAT_G,
+                 ark_mem->nst + 1, ark_mem->tn, ark_mem->h);
 
       /* Call time stepper module to attempt a step:
             0 => step completed successfully
            >0 => step encountered recoverable failure; reduce step if possible
            <0 => step encountered unrecoverable failure */
       kflag = ark_mem->step((void*)ark_mem, &dsm, &nflag);
-      if (kflag < 0) { break; }
+      if (kflag < 0)
+      {
+        /* Log fatal errors here, other returns handled below */
+        SUNLogInfo(ARK_LOGGER, "end-step-attempt",
+                   "status = failed step, kflag = %i", kflag);
+        break;
+      }
 
       /* handle solver convergence failures */
       kflag = arkCheckConvergence(ark_mem, &nflag, &ncf);
+
+      SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, "end-step-attempt",
+                   "status = failed step, kflag = %i", kflag);
+
       if (kflag < 0) { break; }
 
       /* Perform relaxation:
@@ -901,6 +934,10 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (ark_mem->relax_enabled && (kflag == ARK_SUCCESS))
       {
         kflag = arkRelax(ark_mem, &relax_fails, &dsm);
+
+        SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, "end-step-attempt",
+                     "status = failed relaxtion, kflag = %i", kflag);
+
         if (kflag < 0) { break; }
       }
 
@@ -908,6 +945,10 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (ark_mem->constraintsSet && (kflag == ARK_SUCCESS))
       {
         kflag = arkCheckConstraints(ark_mem, &constrfails, &nflag);
+
+        SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, "end-step-attempt",
+                     "status = failed constraints, kflag = %i", kflag);
+
         if (kflag < 0) { break; }
       }
 
@@ -916,6 +957,7 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (ark_mem->fixedstep)
       {
         ark_mem->eta = ONE;
+        SUNLogInfo(ARK_LOGGER, "end-step-attempt", "status = success");
         break;
       }
 
@@ -923,6 +965,12 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       if (kflag == ARK_SUCCESS)
       {
         kflag = arkCheckTemporalError(ark_mem, &nflag, &nef, dsm);
+
+        SUNLogInfoIf(kflag != ARK_SUCCESS, ARK_LOGGER, "end-step-attempt",
+                     "status = failed error test, dsm = " SUN_FORMAT_G
+                     ", kflag = %i",
+                     dsm, kflag);
+
         if (kflag < 0) { break; }
       }
 
@@ -931,11 +979,17 @@ int ARKodeEvolve(void* arkode_mem, sunrealtype tout, N_Vector yout,
       {
         ark_mem->last_kflag = kflag;
         kflag               = ARK_SUCCESS;
+        SUNLogInfo(ARK_LOGGER, "end-step-attempt", "status = success");
         break;
       }
 
       /* break attempt loop on successful step */
-      if (kflag == ARK_SUCCESS) { break; }
+      if (kflag == ARK_SUCCESS)
+      {
+        SUNLogInfo(ARK_LOGGER, "end-step-attempt",
+                   "status = success, dsm = " SUN_FORMAT_G, dsm);
+        break;
+      }
 
       /* unsuccessful step, if |h| = hmin, return ARK_ERR_FAILURE */
       if (SUNRabs(ark_mem->h) <= ark_mem->hmin * ONEPSM)
@@ -1259,17 +1313,17 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "user_efun = %i\n", ark_mem->user_efun);
   fprintf(outfile, "tstopset = %i\n", ark_mem->tstopset);
   fprintf(outfile, "tstopinterp = %i\n", ark_mem->tstopinterp);
-  fprintf(outfile, "tstop = %" RSYM "\n", ark_mem->tstop);
+  fprintf(outfile, "tstop = " SUN_FORMAT_G "\n", ark_mem->tstop);
   fprintf(outfile, "VabstolMallocDone = %i\n", ark_mem->VabstolMallocDone);
   fprintf(outfile, "MallocDone = %i\n", ark_mem->MallocDone);
   fprintf(outfile, "initsetup = %i\n", ark_mem->initsetup);
   fprintf(outfile, "init_type = %i\n", ark_mem->init_type);
   fprintf(outfile, "firststage = %i\n", ark_mem->firststage);
-  fprintf(outfile, "uround = %" RSYM "\n", ark_mem->uround);
-  fprintf(outfile, "reltol = %" RSYM "\n", ark_mem->reltol);
-  fprintf(outfile, "Sabstol = %" RSYM "\n", ark_mem->Sabstol);
+  fprintf(outfile, "uround = " SUN_FORMAT_G "\n", ark_mem->uround);
+  fprintf(outfile, "reltol = " SUN_FORMAT_G "\n", ark_mem->reltol);
+  fprintf(outfile, "Sabstol = " SUN_FORMAT_G "\n", ark_mem->Sabstol);
   fprintf(outfile, "fixedstep = %i\n", ark_mem->fixedstep);
-  fprintf(outfile, "tolsf = %" RSYM "\n", ark_mem->tolsf);
+  fprintf(outfile, "tolsf = " SUN_FORMAT_G "\n", ark_mem->tolsf);
   fprintf(outfile, "call_fullrhs = %i\n", ark_mem->call_fullrhs);
 
   /* output counters */
@@ -1280,18 +1334,18 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "netf = %li\n", ark_mem->netf);
 
   /* output time-stepping values */
-  fprintf(outfile, "hin = %" RSYM "\n", ark_mem->hin);
-  fprintf(outfile, "h = %" RSYM "\n", ark_mem->h);
-  fprintf(outfile, "hprime = %" RSYM "\n", ark_mem->hprime);
-  fprintf(outfile, "next_h = %" RSYM "\n", ark_mem->next_h);
-  fprintf(outfile, "eta = %" RSYM "\n", ark_mem->eta);
-  fprintf(outfile, "tcur = %" RSYM "\n", ark_mem->tcur);
-  fprintf(outfile, "tretlast = %" RSYM "\n", ark_mem->tretlast);
-  fprintf(outfile, "hmin = %" RSYM "\n", ark_mem->hmin);
-  fprintf(outfile, "hmax_inv = %" RSYM "\n", ark_mem->hmax_inv);
-  fprintf(outfile, "h0u = %" RSYM "\n", ark_mem->h0u);
-  fprintf(outfile, "tn = %" RSYM "\n", ark_mem->tn);
-  fprintf(outfile, "hold = %" RSYM "\n", ark_mem->hold);
+  fprintf(outfile, "hin = " SUN_FORMAT_G "\n", ark_mem->hin);
+  fprintf(outfile, "h = " SUN_FORMAT_G "\n", ark_mem->h);
+  fprintf(outfile, "hprime = " SUN_FORMAT_G "\n", ark_mem->hprime);
+  fprintf(outfile, "next_h = " SUN_FORMAT_G "\n", ark_mem->next_h);
+  fprintf(outfile, "eta = " SUN_FORMAT_G "\n", ark_mem->eta);
+  fprintf(outfile, "tcur = " SUN_FORMAT_G "\n", ark_mem->tcur);
+  fprintf(outfile, "tretlast = " SUN_FORMAT_G "\n", ark_mem->tretlast);
+  fprintf(outfile, "hmin = " SUN_FORMAT_G "\n", ark_mem->hmin);
+  fprintf(outfile, "hmax_inv = " SUN_FORMAT_G "\n", ark_mem->hmax_inv);
+  fprintf(outfile, "h0u = " SUN_FORMAT_G "\n", ark_mem->h0u);
+  fprintf(outfile, "tn = " SUN_FORMAT_G "\n", ark_mem->tn);
+  fprintf(outfile, "hold = " SUN_FORMAT_G "\n", ark_mem->hold);
   fprintf(outfile, "maxnef = %i\n", ark_mem->maxnef);
   fprintf(outfile, "maxncf = %i\n", ark_mem->maxncf);
 
@@ -1329,7 +1383,7 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile, "yn:\n");
   N_VPrintFile(ark_mem->yn, outfile);
   fprintf(outfile, "fn:\n");
-  N_VPrintFile(ark_mem->fn, outfile);
+  if (ark_mem->fn) { N_VPrintFile(ark_mem->fn, outfile); }
   fprintf(outfile, "tempv1:\n");
   N_VPrintFile(ark_mem->tempv1, outfile);
   fprintf(outfile, "tempv2:\n");
@@ -1346,6 +1400,66 @@ void ARKodePrintMem(void* arkode_mem, FILE* outfile)
 
   /* Call stepper PrintMem function (if provided) */
   if (ark_mem->step_printmem) { ark_mem->step_printmem(ark_mem, outfile); }
+}
+
+/*------------------------------------------------------------------------------
+  ARKodeCreateMRIStepInnerStepper
+
+  Wraps an ARKODE integrator as an MRIStep inner stepper.
+  ----------------------------------------------------------------------------*/
+
+int ARKodeCreateMRIStepInnerStepper(void* inner_arkode_mem,
+                                    MRIStepInnerStepper* stepper)
+{
+  ARKodeMem ark_mem;
+  int retval;
+
+  /* Check if ark_mem exists */
+  if (inner_arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)inner_arkode_mem;
+
+  /* return with an error if the ARKODE solver does not support forcing */
+  if (ark_mem->step_setforcing == NULL)
+  {
+    arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                    __FILE__, "time-stepping module does not support forcing");
+    return (ARK_STEPPER_UNSUPPORTED);
+  }
+
+  retval = MRIStepInnerStepper_Create(ark_mem->sunctx, stepper);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetContent(*stepper, inner_arkode_mem);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetEvolveFn(*stepper, ark_MRIStepInnerEvolve);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetFullRhsFn(*stepper, ark_MRIStepInnerFullRhs);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetResetFn(*stepper, ark_MRIStepInnerReset);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval =
+    MRIStepInnerStepper_SetAccumulatedErrorGetFn(*stepper,
+                                                 ark_MRIStepInnerGetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval =
+    MRIStepInnerStepper_SetAccumulatedErrorResetFn(*stepper,
+                                                   ark_MRIStepInnerResetAccumulatedError);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  retval = MRIStepInnerStepper_SetRTolFn(*stepper, ark_MRIStepInnerSetRTol);
+  if (retval != ARK_SUCCESS) { return (retval); }
+
+  return (ARK_SUCCESS);
 }
 
 /*===============================================================
@@ -1429,13 +1543,17 @@ ARKodeMem arkCreate(SUNContext sunctx)
   ark_mem->step_setmaxnonliniters         = NULL;
   ark_mem->step_setnonlinconvcoef         = NULL;
   ark_mem->step_setstagepredictfn         = NULL;
+  ark_mem->step_getnumrhsevals            = NULL;
+  ark_mem->step_setstepdirection          = NULL;
   ark_mem->step_getnumlinsolvsetups       = NULL;
+  ark_mem->step_setadaptcontroller        = NULL;
   ark_mem->step_getestlocalerrors         = NULL;
   ark_mem->step_getcurrentgamma           = NULL;
   ark_mem->step_getnonlinearsystemdata    = NULL;
   ark_mem->step_getnumnonlinsolviters     = NULL;
   ark_mem->step_getnumnonlinsolvconvfails = NULL;
   ark_mem->step_getnonlinsolvstats        = NULL;
+  ark_mem->step_setforcing                = NULL;
   ark_mem->step_mem                       = NULL;
   ark_mem->step_supports_adaptive         = SUNFALSE;
   ark_mem->step_supports_implicit         = SUNFALSE;
@@ -1506,6 +1624,10 @@ ARKodeMem arkCreate(SUNContext sunctx)
   /* Initial step size has not been determined yet */
   ark_mem->h   = ZERO;
   ark_mem->h0u = ZERO;
+
+  /* Accumulated error estimation strategy */
+  ark_mem->AccumErrorType = ARK_ACCUMERROR_NONE;
+  ark_mem->AccumError     = ZERO;
 
   /* Set default values for integrator and stepper optional inputs */
   iret = ARKodeSetDefaults(ark_mem);
@@ -1626,7 +1748,7 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     }
 
     /* Test if all required vector operations are implemented */
-    nvectorOK = arkCheckNvector(y0);
+    nvectorOK = arkCheckNvectorRequired(y0);
     if (!nvectorOK)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -1705,6 +1827,9 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     ark_mem->hadapt_mem->nst_acc = 0;
     ark_mem->hadapt_mem->nst_exp = 0;
 
+    /* Accumulated error estimate */
+    ark_mem->AccumError = ZERO;
+
     /* Indicate that calling the full RHS function is not required, this flag is
        updated to SUNTRUE by the interpolation module initialization function
        and/or the stepper initialization function in arkInitialSetup */
@@ -1740,23 +1865,87 @@ sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem)
 }
 
 /*---------------------------------------------------------------
-  arkCheckNvector:
+  arkCheckNvectorRequired:
 
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
+  This routine checks if all absolutely-required vector
+  operations are present.  If any of them is missing it returns
+  SUNFALSE.
   ---------------------------------------------------------------*/
-sunbooleantype arkCheckNvector(N_Vector tmpl) /* to be updated?? */
+sunbooleantype arkCheckNvectorRequired(N_Vector tmpl)
 {
   if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
       (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
       (tmpl->ops->nvdiv == NULL) || (tmpl->ops->nvscale == NULL) ||
       (tmpl->ops->nvabs == NULL) || (tmpl->ops->nvinv == NULL) ||
-      (tmpl->ops->nvaddconst == NULL) || (tmpl->ops->nvmaxnorm == NULL) ||
       (tmpl->ops->nvwrmsnorm == NULL))
   {
     return (SUNFALSE);
   }
   else { return (SUNTRUE); }
+}
+
+/*---------------------------------------------------------------
+  arkCheckNvectorOptional:
+
+  This routine perform conditional checks on required vector
+  operations are present (i.e., if the current ARKODE
+  configuration requires additional N_Vector routines).  If any
+  of them is missing it returns SUNFALSE.
+  ---------------------------------------------------------------*/
+sunbooleantype arkCheckNvectorOptional(ARKodeMem ark_mem)
+{
+  /* If using a built-in routine for error/residual weights with abstol==0,
+     ensure that N_VMin is available */
+  if ((!ark_mem->user_efun) && (ark_mem->atolmin0) &&
+      (!ark_mem->tempv1->ops->nvmin))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VMin unimplemented (required by error-weight function)");
+    return (SUNFALSE);
+  }
+  if ((!ark_mem->user_rfun) && (!ark_mem->rwt_is_ewt) && (ark_mem->Ratolmin0) &&
+      (!ark_mem->tempv1->ops->nvmin))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VMin unimplemented (required by residual-weight function)");
+    return (SUNFALSE);
+  }
+
+  /* If the user has not specified a step size (and it will be estimated
+     internally), ensure that N_VDiv and N_VMaxNorm are available */
+  if ((ark_mem->h0u == ZERO) && (ark_mem->hin == ZERO) &&
+      (!ark_mem->tempv1->ops->nvdiv))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VDiv unimplemented (required for initial step estimation)");
+    return (SUNFALSE);
+  }
+  if ((ark_mem->h0u == ZERO) && (ark_mem->hin == ZERO) &&
+      (!ark_mem->tempv1->ops->nvmaxnorm))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "N_VMaxNorm unimplemented (required for initial step estimation)");
+    return (SUNFALSE);
+  }
+
+  /* If using a scalar-valued absolute tolerance (for either the state or
+     residual), then ensure that N_VAddConst is available */
+  if ((ark_mem->itol == ARK_SS) && (!ark_mem->tempv1->ops->nvaddconst))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar abstol)");
+    return (SUNFALSE);
+  }
+  if ((!ark_mem->rwt_is_ewt) && (ark_mem->ritol == ARK_SS) &&
+      (!ark_mem->tempv1->ops->nvaddconst))
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VAddConst unimplemented (required for scalar rabstol)");
+    return (SUNFALSE);
+  }
+
+  /* If we made it here, then the vector is sufficient */
+  return (SUNTRUE);
 }
 
 /*---------------------------------------------------------------
@@ -1779,21 +1968,6 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
   sunrealtype tout_hin, rh, htmp;
   sunbooleantype conOK;
 
-  /* Set up the time stepper module */
-  if (ark_mem->step_init == NULL)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Time stepper module is missing");
-    return (ARK_ILL_INPUT);
-  }
-  retval = ark_mem->step_init(ark_mem, ark_mem->init_type);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                    "Error in initialization of time stepper module");
-    return (retval);
-  }
-
   /* Check that user has supplied an initial step size if fixedstep mode is on */
   if ((ark_mem->fixedstep) && (ark_mem->hin == ZERO))
   {
@@ -1802,19 +1976,12 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     return (ARK_ILL_INPUT);
   }
 
-  /* If using a built-in routine for error/residual weights with abstol==0,
-     ensure that N_VMin is available */
-  if ((!ark_mem->user_efun) && (ark_mem->atolmin0) && (!ark_mem->yn->ops->nvmin))
+  /* Perform additional N_Vector checks here, now that ARKODE has been
+     fully configured by the user */
+  if (!arkCheckNvectorOptional(ark_mem))
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "N_VMin unimplemented (required by error-weight function)");
-    return (ARK_ILL_INPUT);
-  }
-  if ((!ark_mem->user_rfun) && (!ark_mem->rwt_is_ewt) && (ark_mem->Ratolmin0) &&
-      (!ark_mem->yn->ops->nvmin))
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
-                    __FILE__, "N_VMin unimplemented (required by residual-weight function)");
+                    MSG_ARK_BAD_NVECTOR);
     return (ARK_ILL_INPUT);
   }
 
@@ -1859,6 +2026,21 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     return (ARK_ILL_INPUT);
   }
 
+  /* Set up the time stepper module */
+  if (ark_mem->step_init == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "Time stepper module is missing");
+    return (ARK_ILL_INPUT);
+  }
+  retval = ark_mem->step_init(ark_mem, tout, ark_mem->init_type);
+  if (retval != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "Error in initialization of time stepper module");
+    return (retval);
+  }
+
   /* Load initial residual weights */
   if (ark_mem->rwt_is_ewt)
   { /* update pointer to ewt */
@@ -1883,17 +2065,23 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     }
   }
 
-  /* Create default Hermite interpolation module (if needed) */
+  /* Create default interpolation module (if needed) */
   if (ark_mem->interp_type != ARK_INTERP_NONE && !(ark_mem->interp))
   {
-    ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    if (ark_mem->interp_type == ARK_INTERP_LAGRANGE)
+    {
+      ark_mem->interp = arkInterpCreate_Lagrange(ark_mem, ark_mem->interp_degree);
+    }
+    else
+    {
+      ark_mem->interp = arkInterpCreate_Hermite(ark_mem, ark_mem->interp_degree);
+    }
     if (ark_mem->interp == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
                       "Unable to allocate interpolation module");
       return ARK_MEM_FAIL;
     }
-    ark_mem->interp_type = ARK_INTERP_HERMITE;
   }
 
   /* Fill initial interpolation data (if needed) */
@@ -1932,7 +2120,8 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
 
   /* If fullrhs will be called (to estimate initial step, explicit steppers, Hermite
      interpolation module, and possibly (but not always) arkRootCheck1), then
-     ensure that it is provided, and space is allocated for fn. */
+     ensure that it is provided, and space is allocated for fn.  Otherwise,
+     we should free ark_mem->fn if it is allocated. */
   if (ark_mem->call_fullrhs || (ark_mem->h0u == ZERO && ark_mem->hin == ZERO) ||
       ark_mem->root_mem)
   {
@@ -1949,6 +2138,10 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
                       MSG_ARK_MEM_FAIL);
       return (ARK_MEM_FAIL);
     }
+  }
+  else
+  {
+    if (ark_mem->fn != NULL) { arkFreeVec(ark_mem, &ark_mem->fn); }
   }
 
   /* initialization complete */
@@ -1969,9 +2162,11 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     /* Estimate initial h if not set */
     if (ark_mem->h == ZERO)
     {
-      /* Again, temporarily set h for estimating an optimal value */
+      /* If necessary, temporarily set h as it is used to compute the tolerance
+         in a potential mass matrix solve when computing the full rhs */
       ark_mem->h = SUNRabs(tout - ark_mem->tcur);
       if (ark_mem->h == ZERO) { ark_mem->h = ONE; }
+
       /* Estimate the first step size */
       tout_hin = tout;
       if (ark_mem->tstopset &&
@@ -1985,6 +2180,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
         istate = arkHandleFailure(ark_mem, hflag);
         return (istate);
       }
+
       /* Use first step growth factor for estimated h */
       ark_mem->hadapt_mem->etamax = ark_mem->hadapt_mem->etamx1;
     }
@@ -2042,13 +2238,7 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
     if (ark_mem->root_mem->nrtfn > 0)
     {
       retval = arkRootCheck1((void*)ark_mem);
-
-      if (retval == ARK_RTFUNC_FAIL)
-      {
-        arkProcessError(ark_mem, ARK_RTFUNC_FAIL, __LINE__, __func__, __FILE__,
-                        MSG_ARK_RTFUNC_FAILED, ark_mem->tcur);
-        return (ARK_RTFUNC_FAIL);
-      }
+      if (retval != ARK_SUCCESS) { return retval; }
     }
   }
 
@@ -2502,11 +2692,19 @@ int arkCompleteStep(ARKodeMem ark_mem, sunrealtype dsm)
     }
   }
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-  SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG, "ARKODE::arkCompleteStep",
-                     "end-step", "step = %li, h = %" RSYM ", tcur = %" RSYM,
-                     ark_mem->nst, ark_mem->h, ark_mem->tcur);
-#endif
+  /* store this step's contribution to accumulated temporal error */
+  if (ark_mem->AccumErrorType != ARK_ACCUMERROR_NONE)
+  {
+    if (ark_mem->AccumErrorType == ARK_ACCUMERROR_MAX)
+    {
+      ark_mem->AccumError = SUNMAX(dsm, ark_mem->AccumError);
+    }
+    else if (ark_mem->AccumErrorType == ARK_ACCUMERROR_SUM)
+    {
+      ark_mem->AccumError += dsm;
+    }
+    else /* ARK_ACCUMERROR_AVG */ { ark_mem->AccumError += (dsm * ark_mem->h); }
+  }
 
   /* apply user-supplied step postprocessing function (if supplied) */
   if (ark_mem->ProcessStep != NULL)
@@ -2615,9 +2813,10 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
                     MSG_ARK_MASSSOLVE_FAIL);
     break;
   case ARK_NLS_SETUP_FAIL:
-    arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, __LINE__, __func__,
-                    __FILE__, "At t = %Lg the nonlinear solver setup failed unrecoverably",
-                    (long double)ark_mem->tcur);
+    arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, __LINE__, __func__, __FILE__,
+                    "At t = " SUN_FORMAT_G
+                    " the nonlinear solver setup failed unrecoverably",
+                    ark_mem->tcur);
     break;
   case ARK_VECTOROP_ERR:
     arkProcessError(ark_mem, ARK_VECTOROP_ERR, __LINE__, __func__, __FILE__,
@@ -2645,8 +2844,9 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_INTERP_FAIL:
     arkProcessError(ark_mem, ARK_INTERP_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = %Lg the interpolation module failed unrecoverably",
-                    (long double)ark_mem->tcur);
+                    "At t = " SUN_FORMAT_G
+                    " the interpolation module failed unrecoverably",
+                    ark_mem->tcur);
     break;
   case ARK_INVALID_TABLE:
     arkProcessError(ark_mem, ARK_INVALID_TABLE, __LINE__, __func__, __FILE__,
@@ -2654,8 +2854,8 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     break;
   case ARK_RELAX_FAIL:
     arkProcessError(ark_mem, ARK_RELAX_FAIL, __LINE__, __func__, __FILE__,
-                    "At t = %Lg the relaxation module failed",
-                    (long double)ark_mem->tcur);
+                    "At t = " SUN_FORMAT_G " the relaxation module failed",
+                    ark_mem->tcur);
     break;
   case ARK_RELAX_MEM_NULL:
     arkProcessError(ark_mem, ARK_RELAX_MEM_NULL, __LINE__, __func__, __FILE__,
@@ -2668,6 +2868,18 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
   case ARK_RELAX_JAC_FAIL:
     arkProcessError(ark_mem, ARK_RELAX_JAC_FAIL, __LINE__, __func__, __FILE__,
                     "The relaxation Jacobian failed unrecoverably");
+    break;
+  case ARK_DOMEIG_FAIL:
+    arkProcessError(ark_mem, ARK_DOMEIG_FAIL, __LINE__, __func__, __FILE__,
+                    "The dominant eigenvalue function failed unrecoverably");
+    break;
+  case ARK_MAX_STAGE_LIMIT_FAIL:
+    arkProcessError(ark_mem, ARK_MAX_STAGE_LIMIT_FAIL, __LINE__, __func__,
+                    __FILE__, "The max stage limit failed unrecoverably");
+    break;
+  case ARK_SUNSTEPPER_ERR:
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "An inner SUNStepper error occurred");
     break;
   default:
     /* This return should never happen */
@@ -2984,7 +3196,15 @@ int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr)
 {
   ARKodeHAdaptMem hadapt_mem;
 
+  /* If nonlinear solver succeeded, return with ARK_SUCCESS */
   if (*nflagPtr == ARK_SUCCESS) { return (ARK_SUCCESS); }
+  /* Returns with an ARK_RETRY_STEP flag occur at a stage well before
+  any algebraic solvers are involved. On the other hand,
+  the arkCheckConvergence function handles the results from algebraic
+  solvers, which never take place with an ARK_RETRY_STEP flag.
+  Therefore, we immediately return from arkCheckConvergence,
+  as it is irrelevant in the case of an ARK_RETRY_STEP */
+  if (*nflagPtr == ARK_RETRY_STEP) { return (ARK_RETRY_STEP); }
 
   /* The nonlinear soln. failed; increment ncfn */
   ark_mem->ncfn++;
@@ -3177,6 +3397,9 @@ int arkCheckTemporalError(ARKodeMem ark_mem, int* nflagPtr, int* nefPtr,
   ---------------------------------------------------------------*/
 sunbooleantype arkAllocVec(ARKodeMem ark_mem, N_Vector tmpl, N_Vector* v)
 {
+  /* return failure if N_VClone or N_VDestroy is not implemented */
+  if ((!tmpl->ops->nvclone) || (!tmpl->ops->nvdestroy)) { return SUNFALSE; }
+
   /* allocate the new vector if necessary */
   if (*v == NULL)
   {
@@ -3565,6 +3788,188 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
   free(msg);
 
   return;
+}
+
+/*---------------------------------------------------------------
+  Utility routines for ARKODE to serve as an MRIStepInnerStepper
+  ---------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerEvolve
+
+  Implementation of MRIStepInnerStepperEvolveFn to advance the inner (fast)
+  ODE IVP.  Since the raw return value from an MRIStepInnerStepper is
+  meaningless, aside from whether it is 0 (success), >0 (recoverable failure),
+  and <0 (unrecoverable failure), we map various ARKODE return values
+  accordingly.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerEvolve(MRIStepInnerStepper stepper,
+                           SUNDIALS_MAYBE_UNUSED sunrealtype t0,
+                           sunrealtype tout, N_Vector y)
+{
+  void* arkode_mem; /* arkode memory             */
+  ARKodeMem ark_mem;
+  sunrealtype tret;           /* return time               */
+  sunrealtype tshift, tscale; /* time normalization values */
+  N_Vector* forcing;          /* forcing vectors           */
+  int nforcing;               /* number of forcing vectors */
+  int retval;                 /* return value              */
+
+  /* extract the ARKODE memory struct */
+  retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return -1; }
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return -1;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* get the forcing data */
+  retval = MRIStepInnerStepper_GetForcingData(stepper, &tshift, &tscale,
+                                              &forcing, &nforcing);
+  if (retval != ARK_SUCCESS) { return -1; }
+
+  /* set the inner forcing data */
+  retval = ark_mem->step_setforcing(ark_mem, tshift, tscale, forcing, nforcing);
+  if (retval != ARK_SUCCESS) { return -1; }
+
+  /* set the stop time */
+  retval = ARKodeSetStopTime(arkode_mem, tout);
+  if (retval != ARK_SUCCESS) { return -1; }
+
+  /* evolve inner ODE, consider all positive return values as 'success' */
+  retval = ARKodeEvolve(arkode_mem, tout, y, &tret, ARK_NORMAL);
+  if (retval > 0) { retval = 0; }
+
+  /* set a recoverable failure for a few ARKODE failure modes;
+     on other ARKODE errors return with an unrecoverable failure */
+  if (retval < 0)
+  {
+    if ((retval == ARK_TOO_MUCH_WORK) || (retval == ARK_CONV_FAILURE) ||
+        (retval == ARK_ERR_FAILURE))
+    {
+      retval = 1;
+    }
+    else { return -1; }
+  }
+
+  /* disable inner forcing */
+  if (ark_mem->step_setforcing(ark_mem, ZERO, ONE, NULL, 0) != ARK_SUCCESS)
+  {
+    return -1;
+  }
+
+  return retval;
+}
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerFullRhs
+
+  Implementation of MRIStepInnerStepperFullRhsFn to compute the full inner
+  (fast) ODE IVP RHS.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerFullRhs(MRIStepInnerStepper stepper, sunrealtype t,
+                            N_Vector y, N_Vector f, int mode)
+{
+  void* arkode_mem; /* arkode memory */
+  ARKodeMem ark_mem;
+  int retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return -1; }
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return -1;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+  retval  = ark_mem->step_fullrhs(arkode_mem, t, y, f, mode);
+  if (retval == ARK_SUCCESS) { return 0; }
+  return -1;
+}
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerReset
+
+  Implementation of MRIStepInnerStepperResetFn to reset the inner (fast) stepper
+  state.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerReset(MRIStepInnerStepper stepper, sunrealtype tR, N_Vector yR)
+{
+  void* arkode_mem;
+  int retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return -1; }
+  retval = ARKodeReset(arkode_mem, tR, yR);
+  if (retval == ARK_SUCCESS) { return 0; }
+  return -1;
+}
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerGetAccumulatedError
+
+  Implementation of MRIStepInnerGetAccumulatedError to retrieve the accumulated
+  temporal error estimate from the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerGetAccumulatedError(MRIStepInnerStepper stepper,
+                                        sunrealtype* accum_error)
+{
+  void* arkode_mem;
+  int retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return -1; }
+  retval = ARKodeGetAccumulatedError(arkode_mem, accum_error);
+  if (retval == ARK_SUCCESS) { return 0; }
+  if (retval > 0) { return 1; }
+  return -1;
+}
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerResetAccumulatedError
+
+  Implementation of MRIStepInnerResetAccumulatedError to reset the accumulated
+  temporal error estimator in the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerResetAccumulatedError(MRIStepInnerStepper stepper)
+{
+  void* arkode_mem;
+  int retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return -1; }
+  retval = ARKodeResetAccumulatedError(arkode_mem);
+  if (retval == ARK_SUCCESS) { return 0; }
+  return -1;
+}
+
+/*------------------------------------------------------------------------------
+  ark_MRIStepInnerSetRTol
+
+  Implementation of MRIStepInnerSetRTol to set a relative tolerance for the
+  upcoming evolution using the inner (fast) stepper.
+  ----------------------------------------------------------------------------*/
+
+int ark_MRIStepInnerSetRTol(MRIStepInnerStepper stepper, sunrealtype rtol)
+{
+  void* arkode_mem;
+  ARKodeMem ark_mem;
+  int retval = MRIStepInnerStepper_GetContent(stepper, &arkode_mem);
+  if (retval != ARK_SUCCESS) { return -1; }
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return -1;
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+  if (rtol > ZERO)
+  {
+    ark_mem->reltol = rtol;
+    return 0;
+  }
+  else { return -1; }
 }
 
 /*===============================================================

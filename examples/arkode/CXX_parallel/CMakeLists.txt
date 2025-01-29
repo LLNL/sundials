@@ -3,7 +3,7 @@
 #                Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -44,7 +44,7 @@ macro(build_examples examples_to_build lang)
       set_source_files_properties(${example} PROPERTIES LANGUAGE ${lang})
 
       # example source files
-      add_executable(${example_target} ${example})
+      sundials_add_executable(${example_target} ${example})
 
       # folder to organize targets in an IDE
       set_target_properties(${example_target} PROPERTIES FOLDER "Examples")
@@ -121,9 +121,12 @@ set(OTHER_LIBS ${EXE_EXTRA_LINK_LIBS})
 # MPI examples
 # ------------
 
-set(serial_examples "ark_heat2D_p.cpp\;\;--np 2 2\;1\;4\;develop\;default")
+set(parallel_examples
+    "ark_heat2D_p.cpp\;\;--np 2 2\;1\;4\;develop\;default"
+    "ark_heat2D_lsrk_p.cpp\;\;--np 2 2\;1\;4\;exclude-single\;default")
+
 set(SUNDIALS_LIBS sundials_arkode sundials_nvecparallel)
-build_examples(serial_examples CXX)
+build_examples(parallel_examples CXX)
 
 # Auxiliary files to install
 list(APPEND ARKODE_extras plot_heat2D_p.py)
@@ -238,7 +241,7 @@ endif()
 
 if(EXAMPLES_INSTALL)
 
-  set(examples_to_install "${serial_examples}")
+  set(examples_to_install "${parallel_examples}")
   set(_sundials_targets arkode nvecparallel)
 
   if(examples_cvode)

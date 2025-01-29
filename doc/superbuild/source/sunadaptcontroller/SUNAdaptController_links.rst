@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -13,3 +13,4 @@
 .. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_Description.rst
 .. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_Soderlind.rst
 .. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_ImExGus.rst
+.. include:: ../../../shared/sunadaptcontroller/SUNAdaptController_MRIHTol.rst

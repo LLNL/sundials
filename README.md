@@ -1,5 +1,8 @@
 # SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers #
-### Version 7.1.1 (Jun 2024) ###
+
+[![track SUNDIALS downloads](https://github.com/sundials-codes/sundials-download-tracker/actions/workflows/nightly.yml/badge.svg)](https://github.com/sundials-codes/sundials-download-tracker/actions/workflows/nightly.yml)
+
+### Version 7.2.1 (Dec 2024) ###
 
 **Center for Applied Scientific Computing, Lawrence Livermore National Laboratory**
 
@@ -92,12 +95,28 @@ David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, Steven B. Roberts, and
 Carol S. Woodward. We thank Radu Serban for significant and critical past
 contributions.
 
-Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
+Other contributors to SUNDIALS include: Mustafa Aggul, James Almgren-Bell, Lawrence E. Banks,
 Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
 Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
 Yu Pan, Slaven Peles, Cosmin Petra, H. Hunter Schwartz, Jean M. Sexton,
 Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
 Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
+
+## Acknowledgements ##
+
+This material is based on work supported by the U.S. Department of Energy,
+Office of Science, Office of Advanced Scientific Computing Research, Scientific
+Discovery through Advanced Computing (SciDAC) program via the Frameworks,
+Algorithms, and Scalable Technologies for Mathematics (FASTMath) Institute under
+DOE awards DE-AC52-07NA27344 and DE-SC-0021354.
+
+This material is also based on work supported by the U.S. Department of Energy,
+Office of Science, Office of Advanced Scientific Computing Research,
+Next-Generation Scientific Software Technologies program under contract
+DE-AC52-07NA27344.  Additional support is also provided by SciDAC
+partnerships with the U.S. Department of Energy’s FES, NP, BES, OE, and BER
+offices as well as the LLNL Institutional Scientific Capability Portfolio.
+
 
 ## License ##
 

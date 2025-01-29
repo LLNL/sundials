@@ -2,7 +2,7 @@
 ! Programmer(s): Daniel R. Reynolds @ SMU
 ! ------------------------------------------------------------------
 ! SUNDIALS Copyright Start
-! Copyright (c) 2002-2024, Lawrence Livermore National Security
+! Copyright (c) 2002-2025, Lawrence Livermore National Security
 ! and Southern Methodist University.
 ! All rights reserved.
 !
@@ -433,7 +433,8 @@ subroutine ARKStepStats(arkode_mem)
 
   ierr = FARKodeGetNumSteps(arkode_mem, nsteps)
   ierr = FARKodeGetNumStepAttempts(arkode_mem, nst_a)
-  ierr = FARKStepGetNumRhsEvals(arkode_mem, nfe, nfi)
+  ierr = FARKodeGetNumRhsEvals(arkode_mem, 0, nfe)
+  ierr = FARKodeGetNumRhsEvals(arkode_mem, 1, nfi)
   ierr = FARKodeGetNumLinRhsEvals(arkode_mem, nfeLS)
   ierr = FARKodeGetNumLinSolvSetups(arkode_mem, nlinsetups)
   ierr = FARKodeGetNumJacEvals(arkode_mem, nje)

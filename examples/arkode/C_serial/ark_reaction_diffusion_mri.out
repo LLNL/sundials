@@ -38,7 +38,7 @@
    -------------------------
 
 Final Slow Statistics:
-Current time                 = 3.000999999999781
+Current time                 = 3.00099999999978
 Steps                        = 3001
 Step attempts                = 3001
 Stability limited steps      = 0
@@ -51,13 +51,14 @@ Last step size               = 0.001
 Current step size            = 0.001
 Explicit slow RHS fn evals   = 9004
 Implicit slow RHS fn evals   = 0
+Inner stepper failures       = 0
 NLS iters                    = 0
 NLS fails                    = 0
 NLS iters per step           = 0
 LS setups                    = 0
 
 Final Fast Statistics:
-Current time                 = 3.000999999999781
+Current time                 = 3.00099999999978
 Steps                        = 153051
 Step attempts                = 153051
 Stability limited steps      = 0
@@ -66,9 +67,9 @@ Error test fails             = 0
 NLS step fails               = 0
 Inequality constraint fails  = 0
 Initial step size            = 2e-05
-Last step size               = 9.999999998289147e-06
+Last step size               = 9.99999999828915e-06
 Current step size            = 2e-05
-Explicit RHS fn evals        = 459183
+Explicit RHS fn evals        = 462155
 Implicit RHS fn evals        = 0
 NLS iters                    = 0
 NLS fails                    = 0

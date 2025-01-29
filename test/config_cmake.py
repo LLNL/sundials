@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -1279,8 +1279,8 @@ def main():
     add_arg(
         group,
         "--dev-tests",
-        "SUNDIALS_TEST_DEVTESTS",
-        "SUNDIALS_TEST_DEVTESTS",
+        "SUNDIALS_TEST_ENABLE_DEV_TESTS",
+        "SUNDIALS_TEST_ENABLE_DEV_TESTS",
         "OFF",
         "BOOL",
         "SUNDIALS development tests",
@@ -1290,8 +1290,8 @@ def main():
     add_arg(
         group,
         "--unit-tests",
-        "SUNDIALS_TEST_UNITTESTS",
-        "SUNDIALS_TEST_UNITTESTS",
+        "SUNDIALS_TEST_ENABLE_UNIT_TESTS",
+        "SUNDIALS_TEST_ENABLE_UNIT_TESTS",
         "OFF",
         "BOOL",
         "SUNDIALS unit tests",

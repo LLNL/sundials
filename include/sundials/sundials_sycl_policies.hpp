@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -50,13 +50,14 @@ public:
     : blockDim_(ex.blockDim_)
   {}
 
-  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+  virtual size_t gridSize(size_t numWorkUnits = 0, size_t /* blockDim */ = 0) const
   {
     /* ceil(n/m) = floor((n + m - 1) / m) */
     return (numWorkUnits + blockSize() - 1) / blockSize();
   }
 
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+  virtual size_t blockSize(size_t /* numWorkUnits */ = 0,
+                           size_t /* gridDim */      = 0) const
   {
     return blockDim_;
   }
@@ -86,12 +87,14 @@ public:
     : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_)
   {}
 
-  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+  virtual size_t gridSize(size_t /* numWorkUnits */ = 0,
+                          size_t /* blockDim */     = 0) const
   {
     return gridDim_;
   }
 
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+  virtual size_t blockSize(size_t /* numWorkUnits */ = 0,
+                           size_t /* gridDim */      = 0) const
   {
     return blockDim_;
   }
@@ -124,7 +127,7 @@ public:
     : blockDim_(ex.blockDim_), gridDim_(ex.gridDim_)
   {}
 
-  virtual size_t gridSize(size_t numWorkUnits = 0, size_t blockDim = 0) const
+  virtual size_t gridSize(size_t numWorkUnits = 0, size_t /* blockDim */ = 0) const
   {
     if (gridDim_ == 0)
     {
@@ -133,7 +136,8 @@ public:
     return gridDim_;
   }
 
-  virtual size_t blockSize(size_t numWorkUnits = 0, size_t gridDim = 0) const
+  virtual size_t blockSize(size_t /* numWorkUnits */ = 0,
+                           size_t /* gridDim */      = 0) const
   {
     return blockDim_;
   }

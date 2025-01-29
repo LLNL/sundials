@@ -2,7 +2,7 @@
    Programmer(s): Cody J. Balos @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -143,12 +143,28 @@ contributors. The current SUNDIALS team consists of Cody J.  Balos,
 David J. Gardner, Alan C. Hindmarsh, Daniel R. Reynolds, and Carol S.
 Woodward. We thank Radu Serban for significant and critical past contributions.
 
-Other contributors to SUNDIALS include: James Almgren-Bell, Lawrence E. Banks,
+Other contributors to SUNDIALS include: Mustafa Aggul, James Almgren-Bell, Lawrence E. Banks,
 Peter N. Brown, George Byrne, Rujeko Chinomona, Scott D. Cohen, Aaron Collier,
 Keith E. Grant, Steven L. Lee, Shelby L. Lockhart, John Loffeld, Daniel McGreer,
 Yu Pan, Slaven Peles, Cosmin Petra, Steven B. Roberts, H. Hunter Schwartz,
 Jean M. Sexton, Dan Shumaker, Steve G. Smith, Shahbaj Sohal, Allan G. Taylor,
 Hilari C. Tiedeman, Chris White, Ting Yan, and Ulrike M. Yang.
+
+Acknowledgments
+===============
+
+This material is based on work supported by the U.S. Department of Energy,
+Office of Science, Office of Advanced Scientific Computing Research, Scientific
+Discovery through Advanced Computing (SciDAC) program via the Frameworks,
+Algorithms, and Scalable Technologies for Mathematics (FASTMath) Institute under
+DOE awards DE-AC52-07NA27344 and DE-SC-0021354.
+
+This material is also based on work supported by the U.S. Department of Energy,
+Office of Science, Office of Advanced Scientific Computing Research,
+Next-Generation Scientific Software Technologies program under contract
+DE-AC52-07NA27344.  Additional support is also provided by SciDAC
+partnerships with the U.S. Department of Energy’s FES, NP, BES, OE, and BER
+offices as well as the LLNL Institutional Scientific Capability Portfolio.
 
 SUNDIALS License and Notices
 ============================
@@ -174,6 +190,7 @@ SUNDIALS License and Notices
    sunlinsol/index.rst
    sunnonlinsol/index.rst
    sunadaptcontroller/index.rst
+   sunstepper/index.rst
    sunmemory/index.rst
    History_link.rst
    Changelog_link.rst

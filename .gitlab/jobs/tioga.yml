@@ -1,0 +1,92 @@
+##############################################################################
+# Copyright (c) 2022-24, Lawrence Livermore National Security, LLC and RADIUSS
+# project contributors. See the COPYRIGHT file for details.
+#
+# SPDX-License-Identifier: (MIT)
+##############################################################################
+# ------------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ------------------------------------------------------------------------------
+
+##########################################
+# Overridden shared radiuss-shared-ci jobs
+##########################################
+
+# We duplicate the shared jobs description and add necessary changes for this
+# project. We keep ${PROJECT_<MACHINE>_VARIANTS} and ${PROJECT_<MACHINE>_DEPS}
+# So that the comparison with the original job is easier.
+
+# No overridden jobs so far.
+
+########################
+# Extra jobs
+########################
+
+.sundials_job_on_tioga:
+  variables:
+    MPIEXEC_EXECUTABLE: "flux"
+    MPIEXEC_PREFLAGS: "run"
+  extends: [.custom_job, .job_on_tioga]
+
+# --- Builds with HIP
+
+# Builds fine but non-mpi tests fail to execute due to a missing so:
+#   error while loading shared libraries: libpgmath.so: cannot open shared object file: No such file or directory
+# This seems like it might be an LC environment issue, so disabling the job for now.
+tioga_rocmcc_571_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: rocmcc@5.7.1
+        AMDGPU_TARGET: [gfx90a]
+  variables:
+    ON_TIOGA: "OFF" # disable until we can figure out libpgmath.so error
+    # have to use ginkgo@master because our spack version does not have ginkgo@1.8.0: yet (which seems to be needed)
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi+magma+ginkgo+kokkos ^magma+rocm amdgpu_target=${AMDGPU_TARGET} ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+  before_script:
+    - module load rocmcc/5.7.1-magic
+  extends: [.sundials_job_on_tioga]
+
+tioga_rocmcc_620_tpls:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: rocmcc@6.2.0
+        AMDGPU_TARGET: [gfx90a]
+  variables:
+    # have to use ginkgo@master because our spack version does not have ginkgo@1.8.0: yet (which seems to be needed)
+    # similarly, we need a newer magma than available to compile with 'rocm@6:' so we turn it off
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double amdgpu_target=${AMDGPU_TARGET} +rocm+mpi~magma+ginkgo+kokkos ^ginkgo@master+rocm amdgpu_target=${AMDGPU_TARGET} ^kokkos+rocm amdgpu_target=${AMDGPU_TARGET}"
+  before_script:
+    - module load rocmcc/6.2.0-magic
+  extends: [.sundials_job_on_tioga]
+
+# --- Builds without HIP
+
+tioga_cce_1800_mpi_only:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: cce@18.0.0
+  variables:
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 precision=double +mpi"
+  extends: [.sundials_job_on_tioga]
+
+
+# --- Benchmark jobs
+
+tioga_rocmcc_620_benchmark:
+  parallel:
+    matrix:
+      - COMPILER_SPEC: rocmcc@6.2.0
+        AMDGPU_TARGET: [gfx90a]
+        CALIPER_DIR: /usr/workspace/sundials/ci/performance/califiles
+  variables:
+    ON_TIOGA: "OFF" # disable until we re-baseline on Tioga
+    SPEC: "%${COMPILER_SPEC} cstd=99 cxxstd=14 build_type=Release precision=double scheduler=flux caliper-dir=${CALIPER_DIR} ~int64 +benchmarks+profiling+caliper+adiak+mpi+openmp+rocm+raja amdgpu_target=${AMDGPU_TARGET} ^raja+rocm~openmp~examples~exercises amdgpu_target=${AMDGPU_TARGET} ^caliper+adiak+rocm amdgpu_target=${AMDGPU_TARGET}"
+  extends: [.sundials_job_on_tioga]

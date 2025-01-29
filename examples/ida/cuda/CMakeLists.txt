@@ -2,7 +2,7 @@
 # Programmer(s): Slaven Peles and Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -41,7 +41,7 @@ foreach(example_tuple ${IDA_examples})
                               PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
   # add example source files
-  add_executable(${example} ${example}.cu)
+  sundials_add_executable(${example} ${example}.cu)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

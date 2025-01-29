@@ -2,7 +2,7 @@
 # Programmer(s): Eddy Banks and David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -33,9 +33,9 @@
 
 # check for valid thread type
 string(TOUPPER ${SUPERLUMT_THREAD_TYPE} _upper_SUPERLUMT_THREAD_TYPE)
-force_variable(
-  SUPERLUMT_THREAD_TYPE STRING "SuperLU_MT threading type: OPENMP or PTHREAD"
-  ${_upper_SUPERLUMT_THREAD_TYPE})
+set(SUPERLUMT_THREAD_TYPE
+    "${_upper_SUPERLUMT_THREAD_TYPE}"
+    CACHE STRING "SuperLU_MT threading type: OPENMP or PTHREAD" FORCE)
 
 if(SUPERLUMT_THREAD_TYPE
    AND NOT SUPERLUMT_THREAD_TYPE STREQUAL "OPENMP"

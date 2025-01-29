@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -26,6 +26,7 @@ set(ARKODE_unit_tests
     "ark_test_arkstepsetforcing\;1 3 2.0 10.0"
     "ark_test_arkstepsetforcing\;1 3 2.0 10.0 2.0 8.0"
     "ark_test_arkstepsetforcing\;1 3 2.0 10.0 1.0 5.0"
+    "ark_test_forcingstep\;"
     "ark_test_getuserdata\;"
     "ark_test_innerstepper\;"
     "ark_test_interp\;-100"
@@ -33,6 +34,7 @@ set(ARKODE_unit_tests
     "ark_test_interp\;-1000000"
     "ark_test_mass\;"
     "ark_test_reset\;"
+    "ark_test_splittingstep_coefficients\;"
     "ark_test_tstop\;")
 
 # Add the build and install targets for each test
@@ -47,7 +49,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
   if(NOT TARGET ${test})
 
     # test source files
-    add_executable(${test} ${test}.c)
+    sundials_add_executable(${test} ${test}.c)
 
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 

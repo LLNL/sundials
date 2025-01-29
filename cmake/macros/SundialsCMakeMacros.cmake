@@ -3,7 +3,7 @@
 #                Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -14,15 +14,6 @@
 # ---------------------------------------------------------------
 # CMake macros used throughout the SUNDIALS build system
 # ---------------------------------------------------------------
-
-# Macro to force a cache variable to take on the value
-
-# show variable (set as cache) and overwrite (force) its value
-macro(FORCE_VARIABLE var type doc val)
-  set(${var}
-      "${val}"
-      CACHE "${type}" "${doc}" FORCE)
-endmacro(FORCE_VARIABLE)
 
 # Macros to append a common suffix or prefix to the elements of a list
 
@@ -95,3 +86,4 @@ include(SundialsInstallExamples)
 include(SundialsInstallExamplesGinkgo)
 include(SundialsOption)
 include(SundialsAddBenchmark)
+include(SundialsAddNvectorBenchmark)

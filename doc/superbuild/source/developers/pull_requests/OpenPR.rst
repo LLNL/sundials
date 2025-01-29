@@ -2,7 +2,7 @@
    Author(s): David J. Gardner @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -43,6 +43,15 @@ merged, delete the local copy the branch:
 
    $ git checkout PARENT
    $ git branch -D <branch-name>
+
+
+.. note::
+
+   When you open a PR, various "checks" will run on your code. You can see the status of these
+   checks at the bottom of the PR page on GitHub. Any fixes needed to pass the checks for
+   formatting, spelling, and SWIG updates can be automatically addressed by leaving a comment
+   ``/autofix``. Checks that build the code, run more extensive tests, etc., will not automatically
+   be fixed.
 
 
 .. warning::

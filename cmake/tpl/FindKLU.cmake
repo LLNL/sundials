@@ -2,7 +2,7 @@
 # Programmer(s): Steven Smith and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -40,7 +40,14 @@ if(NOT
 
   if(TARGET SuiteSparse::KLU)
     if(NOT TARGET SUNDIALS::KLU)
-      add_library(SUNDIALS::KLU ALIAS SuiteSparse::KLU)
+      # For static-only builds of SuiteSparse, SuiteSparse::KLU will itself be
+      # an ALIAS target which can't be aliased.
+      get_target_property(klu_aliased_target SuiteSparse::KLU ALIASED_TARGET)
+      if(klu_aliased_target)
+        add_library(SUNDIALS::KLU ALIAS ${klu_aliased_target})
+      else()
+        add_library(SUNDIALS::KLU ALIAS SuiteSparse::KLU)
+      endif()
       set(KLU_SUITESPARSE_TARGET ON)
       mark_as_advanced(KLU_SUITESPARSE_TARGET)
     endif()

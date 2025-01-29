@@ -2,7 +2,7 @@
 # Programmer(s): Radu Serban and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -49,6 +49,7 @@ set(sundials_HEADERS
     sundials_nvector.hpp
     sundials_profiler.h
     sundials_profiler.hpp
+    sundials_stepper.h
     sundials_types_deprecated.h
     sundials_types.h
     sundials_version.h)
@@ -95,6 +96,7 @@ set(sundials_SOURCES
     sundials_nonlinearsolver.c
     sundials_nvector_senswrapper.c
     sundials_nvector.c
+    sundials_stepper.c
     sundials_profiler.c
     sundials_version.c)
 

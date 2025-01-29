@@ -2,7 +2,7 @@
 // Programmer: Cody J. Balos @ LLNL
 // ---------------------------------------------------------------
 // SUNDIALS Copyright Start
-// Copyright (c) 2002-2024, Lawrence Livermore National Security
+// Copyright (c) 2002-2025, Lawrence Livermore National Security
 // and Southern Methodist University.
 // All rights reserved.
 //
@@ -31,6 +31,20 @@
 %include "nvector/nvector_manyvector.h"
 
 %insert("wrapper") %{
+#ifdef SUNDIALS_INT32_T
+SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_ManyVector(N_Vector farg1, int32_t const *farg2) {
+  double * fresult ;
+  N_Vector arg1 = (N_Vector) 0 ;
+  sunindextype arg2 ;
+  sunrealtype *result = 0 ;
+
+  arg1 = (N_Vector)(farg1);
+  arg2 = (sunindextype)(*farg2);
+  result = (sunrealtype *)N_VGetSubvectorArrayPointer_ManyVector(arg1,arg2);
+  fresult = result;
+  return fresult;
+}
+#else
 SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_ManyVector(N_Vector farg1, int64_t const *farg2) {
   double * fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
@@ -43,6 +57,7 @@ SWIGEXPORT double * _wrap_FN_VGetSubvectorArrayPointer_ManyVector(N_Vector farg1
   fresult = result;
   return fresult;
 }
+#endif
 %}
 
 %insert("fdecl") %{

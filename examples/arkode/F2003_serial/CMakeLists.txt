@@ -3,7 +3,7 @@
 #                modified by Daniel M. Margolis @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -71,7 +71,7 @@ foreach(example_tuple ${FARKODE_examples})
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    add_executable(${example} ${example}.f90)
+    sundials_add_executable(${example} ${example}.f90)
 
     # folder for IDEs
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -122,7 +122,7 @@ if(BUILD_SUNLINSOL_KLU)
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # create the cmake executable target
-    add_executable(${example} ${example}.f90)
+    sundials_add_executable(${example} ${example}.f90)
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
     # add example to regression tests
@@ -163,7 +163,7 @@ if(BUILD_SUNLINSOL_LAPACKDENSE)
         ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
     # example source files
-    add_executable(${example} ${example}.f90)
+    sundials_add_executable(${example} ${example}.f90)
 
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -199,7 +199,7 @@ foreach(example_tuple ${FARKODE_tests})
       ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  add_executable(${example} ${example}.f90)
+  sundials_add_executable(${example} ${example}.f90)
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

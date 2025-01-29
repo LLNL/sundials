@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -55,7 +55,9 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
       WARNING
         "F2003 examples are not compatible with ${SUNDIALS_PRECISION} precision. "
         "Setting EXAMPLES_ENABLE_F2003 to OFF.")
-    force_variable(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" OFF)
+    set(EXAMPLES_ENABLE_F2003
+        OFF
+        CACHE BOOL "${DOCSTR}" FORCE)
   endif()
 else()
 
@@ -65,7 +67,9 @@ else()
       WARNING
         "EXAMPLES_ENABLE_F2003 is ON but BUILD_FORTRAN_MODULE_INTERFACE is OFF. "
         "Setting EXAMPLES_ENABLE_F2003 to OFF.")
-    force_variable(EXAMPLES_ENABLE_F2003 BOOL "${DOCSTR}" OFF)
+    set(EXAMPLES_ENABLE_F2003
+        OFF
+        CACHE BOOL "${DOCSTR}" FORCE)
   endif()
 
 endif()

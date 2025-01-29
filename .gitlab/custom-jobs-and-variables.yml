@@ -1,0 +1,84 @@
+###############################################################################
+# Copyright (c) 2022-23, Lawrence Livermore National Security, LLC and RADIUSS
+# project contributors.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# SPDX-License-Identifier: (MIT)
+###############################################################################
+# Modifications to this file have been made under the folllowing copyright.
+# -----------------------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# -----------------------------------------------------------------------------
+
+# We define the following GitLab pipeline variables:
+variables:
+# In some pipelines we create only one allocation shared among jobs in
+# order to save time and resources. This allocation has to be uniquely
+# named so that we are sure to retrieve it and avoid collisions.
+  ALLOC_NAME: ${CI_PROJECT_NAME}_ci_${CI_PIPELINE_ID}
+
+# Dane
+# Arguments for top level allocation
+  DANE_SHARED_ALLOC: "--exclusive --reservation=ci --time=60 --nodes=1"
+# Arguments for job level allocation
+  DANE_JOB_ALLOC: "--time=55 --nodes=1 --overlap"
+# Add variables that should apply to all the jobs on a machine:
+#  DANE_MY_VAR: "..."
+
+# Tioga
+# Arguments for top level allocation
+  TIOGA_SHARED_ALLOC: "--exclusive --queue pci --time-limit=60m --nodes=1"
+# Arguments for job level allocation
+  TIOGA_JOB_ALLOC: "--time-limit=55m --nodes=1"
+# Add variables that should apply to all the jobs on a machine:
+#  TIOGA_MY_VAR: "..."
+
+# Number of threads to use for builds.
+  BUILD_JOBS: 32
+
+# Sets CMAKE_VERBOSE_MAKEFILE to TRUE when "ON".
+  VERBOSE_BUILD: "ON"
+
+# Passes --verbose to CTest when "ON".
+  VERBOSE_TEST: "ON"
+
+# Should the Dane pipeline run? Set to  "ON" or "OFF" to enable/disable.
+  ON_DANE: "ON"
+
+# Should the Tioga pipeline run? Set to "ON" or "OFF" to enable/disable.
+  ON_TIOGA: "ON"
+
+# If "ON", then the SUNDIALS benchmark problems are run and generate profiles.
+  BENCHMARK: "OFF"
+
+# Number of nodes to use for benchmarks. Default is 4.
+  BENCHMARK_NNODES: 4
+
+# What queue to submit the benchmarks too. Default is pbatch (for Livermore).
+  BENCHMARK_QUEUE: "pbatch"
+
+# Configuration shared by build and test jobs specific to this project.
+# Not all configuration can be shared. Here projects can fine tune the
+# CI behavior.
+# See Umpire for an example (export junit test reports).
+.custom_job:
+  variables:
+    SPACK_DISABLE_LOCAL_CONFIG: "true"
+    SPACK_USER_CACHE_PATH: /tmp/spack
