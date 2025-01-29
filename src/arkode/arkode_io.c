@@ -1292,7 +1292,7 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
       return retval;
     }
 
-    if (h != ZERO && ((h > ZERO) != (stepdir > ZERO)))
+    if (h != SUNRcopysign(h, stepdir))
     {
       /* Reverse the sign of h. If adaptive, h will be overwritten anyway by the
        * initial step estimation since ARKodeReset must be called before this.
