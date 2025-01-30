@@ -382,7 +382,7 @@ static int cvNlsResidualSensStg(N_Vector ycorStg, N_Vector resStg, void* cvode_m
   CVodeMem cv_mem;
   int retval;
   N_Vector *ycorS, *resS;
-  sunrealtype cvals[3];
+  sunscalartype cvals[3];
   N_Vector* XXvecs[3];
 
   if (cvode_mem == NULL)
