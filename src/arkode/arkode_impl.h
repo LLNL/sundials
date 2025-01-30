@@ -660,7 +660,7 @@ int arkPredict_MaximumOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess)
 int arkPredict_VariableOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess);
 int arkPredict_CutoffOrder(ARKodeMem ark_mem, sunrealtype tau, N_Vector yguess);
 int arkPredict_Bootstrap(ARKodeMem ark_mem, sunrealtype hj, sunrealtype tau,
-                         int nvec, sunrealtype* cvals, N_Vector* Xvecs,
+                         int nvec, sunscalartype* cvals, N_Vector* Xvecs,
                          N_Vector yguess);
 int arkCheckConvergence(ARKodeMem ark_mem, int* nflagPtr, int* ncfPtr);
 int arkCheckConstraints(ARKodeMem ark_mem, int* constrfails, int* nflag);

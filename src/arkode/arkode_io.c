@@ -1578,6 +1578,13 @@ int ARKodeSetConstraints(void* arkode_mem, N_Vector constraints)
     return (ARK_STEPPER_UNSUPPORTED);
   }
 
+  /* Guard against use with complex-valued sunscalartype */
+#ifdef SUNDIALS_SCALAR_TYPE_COMPLEX
+  arkProcessError(ark_mem, ARK_STEPPER_UNSUPPORTED, __LINE__, __func__,
+                  __FILE__, "constraints are incompatible with complex-valued sunscalartype");
+  return (ARK_STEPPER_UNSUPPORTED);
+#endif
+
   /* If there are no constraints, destroy data structures */
   if (constraints == NULL)
   {

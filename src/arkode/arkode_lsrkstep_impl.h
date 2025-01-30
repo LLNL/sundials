@@ -174,7 +174,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunbooleantype init_warmup;        /* flag indicating initial warm-up*/
 
   /* Reusable fused vector operation arrays */
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
   int nfusedopvecs; /* length of cvals and Xvecs arrays */
 

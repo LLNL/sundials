@@ -221,8 +221,8 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
      is called before mriStep_Init when nesting MRI methods */
   step_mem->nfusedopvecs = 3;
   step_mem->cvals        = NULL;
-  step_mem->cvals        = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                                sizeof(sunrealtype));
+  step_mem->cvals        = (sunscalartype*)calloc(step_mem->nfusedopvecs,
+                                                  sizeof(*step_mem->cvals));
   if (step_mem->cvals == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -232,7 +232,7 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   }
   ark_mem->lrw += step_mem->nfusedopvecs;
   step_mem->Xvecs = NULL;
-  step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs, sizeof(N_Vector));
+  step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs, sizeof(*step_mem->Xvecs));
   if (step_mem->Xvecs == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -1099,8 +1099,8 @@ int mriStep_Init(ARKodeMem ark_mem, sunrealtype tout, int init_type)
       }
       step_mem->nfusedopvecs = 0;
 
-      step_mem->cvals = (sunrealtype*)calloc(fused_workspace_size,
-                                             sizeof(*step_mem->cvals));
+      step_mem->cvals = (sunscalartype*)calloc(fused_workspace_size,
+                                               sizeof(*step_mem->cvals));
       if (step_mem->cvals == NULL)
       {
         arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -3798,7 +3798,7 @@ int mriStep_ComputeInnerForcing(SUNDIALS_MAYBE_UNUSED ARKodeMem ark_mem,
 {
   sunrealtype rcdiff;
   int j, k, nmat, nstore, retval;
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
   sunbooleantype implicit_rhs = step_mem->implicit_rhs;
   sunbooleantype explicit_rhs = step_mem->explicit_rhs;
@@ -3948,7 +3948,7 @@ int mriStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   sunrealtype tau;
   sunrealtype h;
   ARKodeMRIStepMem step_mem;
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
 
   /* access ARKodeMRIStepMem structure */
@@ -4086,7 +4086,7 @@ int mriStep_StageSetup(ARKodeMem ark_mem)
   /* local data */
   ARKodeMRIStepMem step_mem;
   int retval, i, j, nvec;
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
 
   /* access ARKodeMRIStepMem structure */
@@ -4771,7 +4771,7 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
   /* Allocate fused operation workspace arrays */
   if (stepper->vecs == NULL)
   {
-    stepper->vecs = (N_Vector*)calloc(count + 1, sizeof(N_Vector));
+    stepper->vecs = (N_Vector*)calloc(count + 1, sizeof(*stepper->vecs));
     if (stepper->vecs == NULL)
     {
       mriStepInnerStepper_FreeVecs(stepper);
@@ -4781,7 +4781,7 @@ int mriStepInnerStepper_AllocVecs(MRIStepInnerStepper stepper, int count,
 
   if (stepper->vals == NULL)
   {
-    stepper->vals = (sunrealtype*)calloc(count + 1, sizeof(sunrealtype));
+    stepper->vals = (sunscalartype*)calloc(count + 1, sizeof(*stepper->vals));
     if (stepper->vals == NULL)
     {
       mriStepInnerStepper_FreeVecs(stepper);
@@ -4975,13 +4975,13 @@ int mriStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
 
         step_mem->cvals = NULL;
         step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                               sizeof(sunrealtype));
+                                               sizeof(*step_mem->cvals));
         if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
         ark_mem->lrw += step_mem->nfusedopvecs;
 
         step_mem->Xvecs = NULL;
         step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
-                                            sizeof(N_Vector));
+                                            sizeof(*step_mem->Xvecs));
         if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
         ark_mem->liw += step_mem->nfusedopvecs;
       }
