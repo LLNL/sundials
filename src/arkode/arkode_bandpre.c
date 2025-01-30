@@ -463,21 +463,20 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
  ARKBandPDQJac:
 
  This routine generates a banded difference quotient approximation to
- the Jacobian of f(t,y). It assumes that a band matrix of type
- SUNDlsMat is stored column-wise, and that elements within each column
- are contiguous. This makes it possible to get the address of a column
- of J via the macro SUNDLS_BAND_COL and to write a simple for loop to set
- each of the elements of a column in succession.
+ the Jacobian of f(t,y). It uses the SUNBandMatrix module for storage,
+ and the SUNLinSol_Band module for factorization and solution of the
+ preconditioner.
 ---------------------------------------------------------------*/
 static int ARKBandPDQJac(ARKBandPrecData pdata, sunrealtype t, N_Vector y,
                          N_Vector fy, N_Vector ftemp, N_Vector ytemp)
 {
   ARKodeMem ark_mem;
   ARKRhsFn fi;
-  sunrealtype fnorm, minInc, inc, inc_inv, yj, srur, conj;
+  sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;
+  sunscalartype yj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  sunrealtype *col_j, *ewt_data, *fy_data, *ftemp_data;
-  sunrealtype *y_data, *ytemp_data, *cns_data;
+  sunscalartype *col_j, *ewt_data, *fy_data, *ftemp_data;
+  sunscalartype *y_data, *ytemp_data, *cns_data;
   int retval;
 
   ark_mem = (ARKodeMem)pdata->arkode_mem;
@@ -515,20 +514,20 @@ static int ARKBandPDQJac(ARKBandPrecData pdata, sunrealtype t, N_Vector y,
     /* Increment all y_j in group. */
     for (j = group - 1; j < pdata->N; j += width)
     {
-      inc = SUNMAX(srur * SUNRabs(y_data[j]), minInc / ewt_data[j]);
+      inc = SUNMAX(srur * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
       yj  = y_data[j];
 
       /* Adjust sign(inc) again if yj has an inequality constraint. */
       if (ark_mem->constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((yj + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 
@@ -546,19 +545,19 @@ static int ARKBandPDQJac(ARKBandPrecData pdata, sunrealtype t, N_Vector y,
       yj            = y_data[j];
       ytemp_data[j] = y_data[j];
       col_j         = SUNBandMatrix_Column(pdata->savedJ, j);
-      inc           = SUNMAX(srur * SUNRabs(y_data[j]), minInc / ewt_data[j]);
+      inc           = SUNMAX(srur * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
 
       /* Adjust sign(inc) as before. */
       if (ark_mem->constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((yj + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 

@@ -594,10 +594,11 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, sunrealtype t, N_Vector y,
                        N_Vector gy, N_Vector ytemp, N_Vector gtemp)
 {
   ARKodeMem ark_mem;
-  sunrealtype gnorm, minInc, inc, inc_inv, yj, conj;
+  sunrealtype gnorm, minInc, inc, inc_inv, conj;
+  sunscalartype yj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  sunrealtype *y_data, *ewt_data, *gy_data, *gtemp_data;
-  sunrealtype *ytemp_data, *col_j, *cns_data;
+  sunscalartype *y_data, *ewt_data, *gy_data, *gtemp_data;
+  sunscalartype *ytemp_data, *col_j, *cns_data;
   int retval;
 
   ark_mem = (ARKodeMem)pdata->arkode_mem;
@@ -641,20 +642,20 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, sunrealtype t, N_Vector y,
     /* Increment all y_j in group */
     for (j = group - 1; j < pdata->n_local; j += width)
     {
-      inc = SUNMAX(pdata->dqrely * SUNRabs(y_data[j]), minInc / ewt_data[j]);
+      inc = SUNMAX(pdata->dqrely * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
       yj  = y_data[j];
 
       /* Adjust sign(inc) again if yj has an inequality constraint. */
       if (ark_mem->constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((yj + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 
@@ -672,18 +673,18 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, sunrealtype t, N_Vector y,
       yj            = y_data[j];
       ytemp_data[j] = y_data[j];
       col_j         = SUNBandMatrix_Column(pdata->savedJ, j);
-      inc = SUNMAX(pdata->dqrely * SUNRabs(y_data[j]), minInc / ewt_data[j]);
+      inc = SUNMAX(pdata->dqrely * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
 
       if (ark_mem->constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((yj + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 

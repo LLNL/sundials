@@ -1081,15 +1081,15 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
     step_mem->nfusedopvecs = 2 * step_mem->stages + 2 + step_mem->nforcing;
     if (step_mem->cvals == NULL)
     {
-      step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                             sizeof(sunrealtype));
+      step_mem->cvals = (sunscalartype*)calloc(step_mem->nfusedopvecs,
+                                             sizeof(*step_mem->cvals));
       if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
       ark_mem->lrw += step_mem->nfusedopvecs;
     }
     if (step_mem->Xvecs == NULL)
     {
       step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
-                                          sizeof(N_Vector));
+                                          sizeof(*step_mem->Xvecs));
       if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
       ark_mem->liw += step_mem->nfusedopvecs; /* pointers */
     }
@@ -1287,7 +1287,7 @@ int arkStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
   ARKodeARKStepMem step_mem;
   int nvec, retval;
   sunbooleantype recomputeRHS;
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
   sunrealtype stage_coefs = ONE;
 
@@ -2490,7 +2490,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   sunrealtype tau;
   sunrealtype h;
   ARKodeARKStepMem step_mem;
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
 
   /* access ARKodeARKStepMem structure */
@@ -2722,7 +2722,7 @@ int arkStep_StageSetup(ARKodeMem ark_mem, sunbooleantype implicit)
   int retval, i, j, jmax, nvec;
   sunrealtype* cj;
   sunrealtype** Aij;
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
 
   /* access ARKodeARKStepMem structure */
@@ -2848,7 +2848,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   sunrealtype* bj;
   sunrealtype* dj;
   sunbooleantype stiffly_accurate;
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
 
@@ -3022,7 +3022,7 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsmPtr)
   int retval, j, nvec;
   N_Vector y, yerr;
   sunbooleantype stiffly_accurate;
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
 
@@ -3178,12 +3178,12 @@ void arkStep_ApplyForcing(ARKodeARKStepMem step_mem, sunrealtype* stage_times,
   int j, k;
 
   /* Shortcuts to step_mem data */
-  sunrealtype* vals  = step_mem->cvals;
-  N_Vector* vecs     = step_mem->Xvecs;
-  sunrealtype tshift = step_mem->tshift;
-  sunrealtype tscale = step_mem->tscale;
-  int nforcing       = step_mem->nforcing;
-  N_Vector* forcing  = step_mem->forcing;
+  sunscalartype* vals = step_mem->cvals;
+  N_Vector* vecs      = step_mem->Xvecs;
+  sunrealtype tshift  = step_mem->tshift;
+  sunrealtype tscale  = step_mem->tscale;
+  int nforcing        = step_mem->nforcing;
+  N_Vector* forcing   = step_mem->forcing;
 
   /* Offset into vals and vecs arrays */
   int offset = *nvec;
@@ -3280,14 +3280,14 @@ int arkStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
         step_mem->nfusedopvecs = 2 * step_mem->stages + 2 + nvecs;
 
         step_mem->cvals = NULL;
-        step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                               sizeof(sunrealtype));
+        step_mem->cvals = (sunscalartype*)calloc(step_mem->nfusedopvecs,
+                                                 sizeof(*step_mem->cvals));
         if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
         ark_mem->lrw += step_mem->nfusedopvecs;
 
         step_mem->Xvecs = NULL;
         step_mem->Xvecs = (N_Vector*)calloc(step_mem->nfusedopvecs,
-                                            sizeof(N_Vector));
+                                            sizeof(*step_mem->Xvecs));
         if (step_mem->Xvecs == NULL) { return (ARK_MEM_FAIL); }
         ark_mem->liw += step_mem->nfusedopvecs;
       }
@@ -3333,7 +3333,7 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
                         long int* num_relax_jac_evals, sunrealtype* delta_e_out)
 {
   int i, j, nvec, retval;
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
   ARKodeARKStepMem step_mem;
   N_Vector z_stage = ark_mem->tempv2;
@@ -3426,24 +3426,19 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
     }
 
     /* Update estimate of relaxation function change */
-    if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+    sunscalartype dot = ZERO;
+    if (J_relax->ops->nvdotprodlocalcomplex && J_relax->ops->nvdotprodmultiallreduce)
     {
-      *delta_e_out += bi * N_VDotProdLocal(J_relax, rhs_tmp);
+      SUNCheckCall(N_VDotProdLocalComplex(J_relax, rhs_tmp, &dot));
     }
     else {
-      sunscalartype dot = ZERO;
-      SUNErrCode err = N_VDotProdComplex(J_relax, rhs_tmp, &dot);
-      if (err)
-      {
-        arkProcessError(ark_mem, ARK_VECTOROP_ERR, __LINE__, __func__, __FILE__,
-                        MSG_ARK_VECTOROP_ERR);
-        return ARK_VECTOROP_ERR;
-      }
-      *delta_e_out += bi * dot;
+      SUNCheckCall(N_VDotProdComplex(J_relax, rhs_tmp, &dot));
     }
+    // TODO DRR: verify what to do with complex-valued contributions to delta_e_out
+    *delta_e_out += bi * SUN_REAL(dot);
   }
 
-  if (J_relax->ops->nvdotprodlocal && J_relax->ops->nvdotprodmultiallreduce)
+  if (J_relax->ops->nvdotprodlocalcomplex && J_relax->ops->nvdotprodmultiallreduce)
   {
     retval = N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
     if (retval) { return ARK_VECTOROP_ERR; }

@@ -158,7 +158,7 @@ typedef struct ARKodeMRIStepMemRec
   int nforcing;              /* number of forcing vectors   */
 
   /* Reusable arrays for fused vector operations */
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
 
 }* ARKodeMRIStepMem;
@@ -197,7 +197,7 @@ struct _MRIStepInnerStepper
   sunrealtype tscale;     /* time normalization scaling          */
 
   /* fused op workspace */
-  sunrealtype* vals;
+  sunscalartype* vals;
   N_Vector* vecs;
 
   /* Space requirements */

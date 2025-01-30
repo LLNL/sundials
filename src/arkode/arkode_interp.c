@@ -442,7 +442,7 @@ int arkInterpEvaluate_Hermite(ARKodeMem ark_mem, ARKInterp interp,
   int q, retval;
   sunrealtype tval, a0, a1, tau2, tau3, tau4, tau5;
   sunrealtype h, h2, h3, h4, h5;
-  sunrealtype a[6];
+  sunscalartype a[6];
   N_Vector X[6];
 
   /* set constants */
@@ -1186,7 +1186,7 @@ int arkInterpEvaluate_Lagrange(ARKodeMem ark_mem, ARKInterp interp, sunrealtype 
   /* local variables */
   int q, retval, i, j;
   sunrealtype tval;
-  sunrealtype a[6];
+  sunscalartype a[6];
   N_Vector X[6];
   int nhist;
   sunrealtype* thist;

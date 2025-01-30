@@ -58,7 +58,7 @@ typedef struct ARKodeERKStepMemRec
   long int nfe; /* num fe calls               */
 
   /* Reusable arrays for fused vector operations */
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
   int nfusedopvecs; /* length of cvals and Xvecs arrays */
 

@@ -161,7 +161,7 @@ typedef struct ARKodeLSRKStepMemRec
   sunbooleantype is_SSP;             /* flag indicating SSP method*/
 
   /* Reusable fused vector operation arrays */
-  sunrealtype* cvals;
+  sunscalartype* cvals;
   N_Vector* Xvecs;
   int nfusedopvecs; /* length of cvals and Xvecs arrays */
 

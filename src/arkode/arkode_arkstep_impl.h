@@ -149,9 +149,9 @@ typedef struct ARKodeARKStepMemRec
   long int nls_fails; /* num nonlinear solver fails */
 
   /* Reusable arrays for fused vector operations */
-  sunrealtype* cvals; /* scalar array for fused ops       */
-  N_Vector* Xvecs;    /* array of vectors for fused ops   */
-  int nfusedopvecs;   /* length of cvals and Xvecs arrays */
+  sunscalartype* cvals; /* scalar array for fused ops       */
+  N_Vector* Xvecs;      /* array of vectors for fused ops   */
+  int nfusedopvecs;     /* length of cvals and Xvecs arrays */
 
   /* Data for using ARKStep with external polynomial forcing */
   sunbooleantype expforcing; /* add forcing to explicit RHS */

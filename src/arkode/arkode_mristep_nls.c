@@ -461,7 +461,7 @@ int mriStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   ARKodeMem ark_mem;
   ARKodeMRIStepMem step_mem;
   int retval;
-  sunrealtype c[3];
+  sunscalartype c[3];
   N_Vector X[3];
 
   /* access ARKodeMem and ARKodeMRIStepMem structures */
