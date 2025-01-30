@@ -746,13 +746,13 @@ int CVodeInit(void* cvode_mem, CVRhsFn f, sunrealtype t0, N_Vector y0)
 
   /* Allocate temporary work arrays for fused vector ops */
   cv_mem->cv_cvals = NULL;
-  cv_mem->cv_cvals = (sunrealtype*)malloc(L_MAX * sizeof(sunrealtype));
+  cv_mem->cv_cvals = (sunscalartype*)malloc(L_MAX * sizeof(*cv_mem->cv_cvals));
 
   cv_mem->cv_Xvecs = NULL;
-  cv_mem->cv_Xvecs = (N_Vector*)malloc(L_MAX * sizeof(N_Vector));
+  cv_mem->cv_Xvecs = (N_Vector*)malloc(L_MAX * sizeof(*cv_mem->cv_Xvecs));
 
   cv_mem->cv_Zvecs = NULL;
-  cv_mem->cv_Zvecs = (N_Vector*)malloc(L_MAX * sizeof(N_Vector));
+  cv_mem->cv_Zvecs = (N_Vector*)malloc(L_MAX * sizeof(*cv_mem->cv_Zvecs));
 
   if ((cv_mem->cv_cvals == NULL) || (cv_mem->cv_Xvecs == NULL) ||
       (cv_mem->cv_Zvecs == NULL))
@@ -1500,9 +1500,9 @@ int CVodeSensInit(void* cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector* yS
     free(cv_mem->cv_Zvecs);
     cv_mem->cv_Zvecs = NULL;
 
-    cv_mem->cv_cvals = (sunrealtype*)malloc((Ns * L_MAX) * sizeof(sunrealtype));
-    cv_mem->cv_Xvecs = (N_Vector*)malloc((Ns * L_MAX) * sizeof(N_Vector));
-    cv_mem->cv_Zvecs = (N_Vector*)malloc((Ns * L_MAX) * sizeof(N_Vector));
+    cv_mem->cv_cvals = (sunscalartype*)malloc((Ns * L_MAX) * sizeof(*cv_mem->cv_cvals));
+    cv_mem->cv_Xvecs = (N_Vector*)malloc((Ns * L_MAX) * sizeof(*cv_mem->cv_Xvecs));
+    cv_mem->cv_Zvecs = (N_Vector*)malloc((Ns * L_MAX) * sizeof(*cv_mem->cv_Zvecs));
 
     if ((cv_mem->cv_cvals == NULL) || (cv_mem->cv_Xvecs == NULL) ||
         (cv_mem->cv_Zvecs == NULL))
@@ -1730,9 +1730,9 @@ int CVodeSensInit1(void* cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1,
     free(cv_mem->cv_Zvecs);
     cv_mem->cv_Zvecs = NULL;
 
-    cv_mem->cv_cvals = (sunrealtype*)malloc((Ns * L_MAX) * sizeof(sunrealtype));
-    cv_mem->cv_Xvecs = (N_Vector*)malloc((Ns * L_MAX) * sizeof(N_Vector));
-    cv_mem->cv_Zvecs = (N_Vector*)malloc((Ns * L_MAX) * sizeof(N_Vector));
+    cv_mem->cv_cvals = (sunscalartype*)malloc((Ns * L_MAX) * sizeof(*cv_mem->cv_cvals));
+    cv_mem->cv_Xvecs = (N_Vector*)malloc((Ns * L_MAX) * sizeof(*cv_mem->cv_Xvecs));
+    cv_mem->cv_Zvecs = (N_Vector*)malloc((Ns * L_MAX) * sizeof(*cv_mem->cv_Zvecs));
 
     if ((cv_mem->cv_cvals == NULL) || (cv_mem->cv_Xvecs == NULL) ||
         (cv_mem->cv_Zvecs == NULL))
@@ -6303,9 +6303,10 @@ static void cvIncreaseBDF(CVodeMem cv_mem)
   int is;
 
   for (i = 0; i <= cv_mem->cv_qmax; i++) { cv_mem->cv_l[i] = ZERO; }
-  cv_mem->cv_l[2] = alpha1 = prod = xiold = ONE;
-  alpha0                                  = -ONE;
-  hsum                                    = cv_mem->cv_hscale;
+  cv_mem->cv_l[2] = ONE;
+  alpha1          = prod = xiold = ONE;
+  alpha0          = -ONE;
+  hsum            = cv_mem->cv_hscale;
   if (cv_mem->cv_q > 1)
   {
     for (j = 1; j < cv_mem->cv_q; j++)
@@ -6641,7 +6642,7 @@ static void cvSet(CVodeMem cv_mem)
   case CV_ADAMS: cvSetAdams(cv_mem); break;
   case CV_BDF: cvSetBDF(cv_mem); break;
   }
-  cv_mem->cv_rl1   = ONE / cv_mem->cv_l[1];
+  cv_mem->cv_rl1   = ONE / SUN_REAL(cv_mem->cv_l[1]);
   cv_mem->cv_gamma = cv_mem->cv_h * cv_mem->cv_rl1;
   if (cv_mem->cv_nst == 0) { cv_mem->cv_gammap = cv_mem->cv_gamma; }
   cv_mem->cv_gamrat = (cv_mem->cv_nst > 0) ? cv_mem->cv_gamma / cv_mem->cv_gammap
@@ -6672,7 +6673,8 @@ static void cvSetAdams(CVodeMem cv_mem)
 
   if (cv_mem->cv_q == 1)
   {
-    cv_mem->cv_l[0] = cv_mem->cv_l[1] = cv_mem->cv_tq[1] = cv_mem->cv_tq[5] = ONE;
+    cv_mem->cv_l[0] = cv_mem->cv_l[1] = ONE;
+    cv_mem->cv_tq[1] = cv_mem->cv_tq[5] = ONE;
     cv_mem->cv_tq[2] = HALF;
     cv_mem->cv_tq[3] = ONE / TWELVE;
     cv_mem->cv_tq[4] = cv_mem->cv_nlscoef / cv_mem->cv_tq[2]; /* = 0.1 / tq[2] */
@@ -6740,7 +6742,7 @@ static void cvAdamsFinish(CVodeMem cv_mem, sunrealtype m[], sunrealtype M[],
   xi_inv = ONE / xi;
 
   cv_mem->cv_tq[2] = M[1] * M0_inv / xi;
-  cv_mem->cv_tq[5] = xi / cv_mem->cv_l[cv_mem->cv_q];
+  cv_mem->cv_tq[5] = xi / SUN_REAL(cv_mem->cv_l[cv_mem->cv_q]);
 
   if (cv_mem->cv_qwait == 1)
   {
@@ -6810,7 +6812,8 @@ static void cvSetBDF(CVodeMem cv_mem)
   sunrealtype alpha0, alpha0_hat, xi_inv, xistar_inv, hsum;
   int i, j;
 
-  cv_mem->cv_l[0] = cv_mem->cv_l[1] = xi_inv = xistar_inv = ONE;
+  cv_mem->cv_l[0] = cv_mem->cv_l[1] = ONE;
+  xi_inv = xistar_inv = ONE;
   for (i = 2; i <= cv_mem->cv_q; i++) { cv_mem->cv_l[i] = ZERO; }
   alpha0 = alpha0_hat = -ONE;
   hsum                = cv_mem->cv_h;
@@ -6836,10 +6839,10 @@ static void cvSetBDF(CVodeMem cv_mem)
 
     /* j = q */
     alpha0 -= ONE / cv_mem->cv_q;
-    xistar_inv = -cv_mem->cv_l[1] - alpha0;
+    xistar_inv = -SUN_REAL(cv_mem->cv_l[1]) - alpha0;
     hsum += cv_mem->cv_tau[cv_mem->cv_q - 1];
     xi_inv     = cv_mem->cv_h / hsum;
-    alpha0_hat = -cv_mem->cv_l[1] - xi_inv;
+    alpha0_hat = -SUN_REAL(cv_mem->cv_l[1]) - xi_inv;
 
     if (cv_mem->proj_enabled)
     {
@@ -6876,12 +6879,12 @@ static void cvSetTqBDF(CVodeMem cv_mem, sunrealtype hsum, sunrealtype alpha0,
   A2               = ONE + cv_mem->cv_q * A1;
   cv_mem->cv_tq[2] = SUNRabs(A1 / (alpha0 * A2));
   cv_mem->cv_tq[5] =
-    SUNRabs(A2 * xistar_inv / (cv_mem->cv_l[cv_mem->cv_q] * xi_inv));
+    SUNRabs(A2 * xistar_inv / (SUN_REAL(cv_mem->cv_l[cv_mem->cv_q]) * xi_inv));
   if (cv_mem->cv_qwait == 1)
   {
     if (cv_mem->cv_q > 1)
     {
-      C                = xistar_inv / cv_mem->cv_l[cv_mem->cv_q];
+      C                = xistar_inv / SUN_REAL(cv_mem->cv_l[cv_mem->cv_q]);
       A3               = alpha0 + ONE / cv_mem->cv_q;
       A4               = alpha0_hat + xi_inv;
       Cpinv            = (ONE - A4 + A3) / A3;
@@ -9446,12 +9449,15 @@ sunrealtype cvSensNorm(CVodeMem cv_mem, N_Vector* xS, N_Vector* wS)
   int is;
   sunrealtype nrm;
 
-  (void)N_VWrmsNormVectorArray(cv_mem->cv_Ns, xS, wS, cv_mem->cv_cvals);
+  /* use cv_cvals for norm storage, but need sunrealtype* datatype */
+  sunrealtype* nrmvals = (sunrealtype*) cv_mem->cv_cvals;
 
-  nrm = cv_mem->cv_cvals[0];
+  (void)N_VWrmsNormVectorArray(cv_mem->cv_Ns, xS, wS, nrmvals);
+
+  nrm = nrmvals[0];
   for (is = 1; is < cv_mem->cv_Ns; is++)
   {
-    if (cv_mem->cv_cvals[is] > nrm) { nrm = cv_mem->cv_cvals[is]; }
+    if (nrmvals[is] > nrm) { nrm = nrmvals[is]; }
   }
 
   return (nrm);
@@ -9489,12 +9495,15 @@ static sunrealtype cvQuadSensNorm(CVodeMem cv_mem, N_Vector* xQS, N_Vector* wQS)
   int is;
   sunrealtype nrm;
 
-  (void)N_VWrmsNormVectorArray(cv_mem->cv_Ns, xQS, wQS, cv_mem->cv_cvals);
+  /* use cv_cvals for norm storage, but need sunrealtype* datatype */
+  sunrealtype* nrmvals = (sunrealtype*) cv_mem->cv_cvals;
 
-  nrm = cv_mem->cv_cvals[0];
+  (void)N_VWrmsNormVectorArray(cv_mem->cv_Ns, xQS, wQS, nrmvals);
+
+  nrm = nrmvals[0];
   for (is = 1; is < cv_mem->cv_Ns; is++)
   {
-    if (cv_mem->cv_cvals[is] > nrm) { nrm = cv_mem->cv_cvals[is]; }
+    if (nrmvals[is] > nrm) { nrm = nrmvals[is]; }
   }
 
   return (nrm);
@@ -9652,7 +9661,7 @@ int cvSensRhs1InternalDQ(SUNDIALS_MAYBE_UNUSED int Ns, sunrealtype t, N_Vector y
   sunrealtype norms, ratio;
 
   /* local variables for fused vector operations */
-  sunrealtype cvals[3];
+  sunscalartype cvals[3];
   N_Vector Xvecs[3];
 
   /* cvode_mem is passed here as user data */

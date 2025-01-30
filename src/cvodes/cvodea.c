@@ -2923,7 +2923,7 @@ static int CVAhermiteGetY(CVodeMem cv_mem, sunrealtype t, N_Vector y, N_Vector* 
 
   /* local variables for fused vector oerations */
   int retval;
-  sunrealtype cvals[4];
+  sunscalartype cvals[4];
   N_Vector Xvecs[4];
   N_Vector* XXvecs[4];
 

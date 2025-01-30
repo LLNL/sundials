@@ -457,7 +457,7 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
   int retval;
   N_Vector ycor, res;
   N_Vector *ycorS, *resS;
-  sunrealtype cvals[3];
+  sunscalartype cvals[3];
   N_Vector* XXvecs[3];
 
   if (cvode_mem == NULL)
