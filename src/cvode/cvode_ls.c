@@ -388,7 +388,9 @@ int CVodeSetLSNormFactor(void* cvode_mem, sunrealtype nrmfac)
   {
     /* compute factor for WRMS norm with dot product */
     N_VConst(ONE, cvls_mem->ytemp);
-    cvls_mem->nrmfac = SUNRsqrt(N_VDotProd(cvls_mem->ytemp, cvls_mem->ytemp));
+    sunscalartype dot = ZERO;
+    SUNCheckCall(N_VDotProdComplex(cvls_mem->ytemp, cvls_mem->ytemp, &dot));
+    cvls_mem->nrmfac = SUNRsqrt(SUN_REAL(dot));
   }
   else
   {
@@ -1050,8 +1052,9 @@ int cvLsDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
 int cvLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                    CVodeMem cv_mem, N_Vector tmp1)
 {
-  sunrealtype fnorm, minInc, inc, inc_inv, yjsaved, srur, conj;
-  sunrealtype *y_data, *ewt_data, *cns_data;
+  sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;
+  sunscalartype yjsaved;
+  sunscalartype *y_data, *ewt_data, *cns_data;
   N_Vector ftemp, jthCol;
   sunindextype j, N;
   CVLsMem cvls_mem;
@@ -1093,19 +1096,19 @@ int cvLsDenseDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     N_VSetArrayPointer(SUNDenseMatrix_Column(Jac, j), jthCol);
 
     yjsaved = y_data[j];
-    inc     = SUNMAX(srur * SUNRabs(yjsaved), minInc / ewt_data[j]);
+    inc     = SUNMAX(srur * SUNabs(yjsaved), minInc / SUN_REAL(ewt_data[j]));
 
     /* Adjust sign(inc) if y_j has an inequality constraint. */
     if (cv_mem->cv_constraintsSet)
     {
-      conj = cns_data[j];
+      conj = SUN_REAL(cns_data[j]);
       if (SUNRabs(conj) == ONE)
       {
-        if ((yjsaved + inc) * conj < ZERO) { inc = -inc; }
+        if ((SUN_REAL(yjsaved) + inc) * conj < ZERO) { inc = -inc; }
       }
       else if (SUNRabs(conj) == TWO)
       {
-        if ((yjsaved + inc) * conj <= ZERO) { inc = -inc; }
+        if ((SUN_REAL(yjsaved) + inc) * conj <= ZERO) { inc = -inc; }
       }
     }
 
@@ -1144,8 +1147,8 @@ int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
 {
   N_Vector ftemp, ytemp;
   sunrealtype fnorm, minInc, inc, inc_inv, srur, conj;
-  sunrealtype *col_j, *ewt_data, *fy_data, *ftemp_data;
-  sunrealtype *y_data, *ytemp_data, *cns_data;
+  sunscalartype *col_j, *ewt_data, *fy_data, *ftemp_data;
+  sunscalartype *y_data, *ytemp_data, *cns_data;
   sunindextype group, i, j, width, ngroups, i1, i2;
   sunindextype N, mupper, mlower;
   CVLsMem cvls_mem;
@@ -1197,19 +1200,19 @@ int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     /* Increment all y_j in group */
     for (j = group - 1; j < N; j += width)
     {
-      inc = SUNMAX(srur * SUNRabs(y_data[j]), minInc / ewt_data[j]);
+      inc = SUNMAX(srur * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
 
       /* Adjust sign(inc) if yj has an inequality constraint. */
       if (cv_mem->cv_constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((ytemp_data[j] + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(ytemp_data[j]) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((ytemp_data[j] + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(ytemp_data[j]) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 
@@ -1226,19 +1229,19 @@ int cvLsBandDQJac(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     {
       ytemp_data[j] = y_data[j];
       col_j         = SUNBandMatrix_Column(Jac, j);
-      inc           = SUNMAX(srur * SUNRabs(y_data[j]), minInc / ewt_data[j]);
+      inc           = SUNMAX(srur * SUNabs(y_data[j]), minInc / SUN_REAL(ewt_data[j]));
 
       /* Adjust sign(inc) as before. */
       if (cv_mem->cv_constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((ytemp_data[j] + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(ytemp_data[j]) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((ytemp_data[j] + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(ytemp_data[j]) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 
