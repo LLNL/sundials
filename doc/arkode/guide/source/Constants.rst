@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -74,141 +74,80 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
-   | **Implicit Butcher table specification**      |                                                            |
+   | **Default explicit Butcher tables**           |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_BACKWARD_EULER_1_1`            | Use the Backward-Euler-1-1 SDIRK method.                   |
+   | :index:`ARKSTEP_DEFAULT_ERK_1`                | Use ARKStep's default first-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_FORWARD_EULER_1_1`.                  |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SDIRK_2_1_2`                   | Use the SDIRK-2-1-2 SDIRK method.                          |
+   | :index:`ARKSTEP_DEFAULT_ERK_2`                | Use ARKStep's default second-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_RALSTON_3_1_2`.                      |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ARK2_DIRK_3_1_2`               | Use the ARK2-DIRK-3-1-2 SDIRK method.                      |
+   | :index:`ARKSTEP_DEFAULT_ERK_3`                | Use ARKStep's default third-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_BOGACKI_SHAMPINE_4_2_3`.             |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMPLICIT_MIDPOINT_1_2`         | Use the Implicit-Midpoint-1-2 SDIRK method.                |
+   | :index:`ARKSTEP_DEFAULT_ERK_4`                | Use ARKStep's default fourth-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_SOFRONIOU_SPALETTA_5_3_4`.           |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMPLICIT_TRAPEZOIDAL_2_2`      | Use the Implicit-Trapezoidal-2-2 ESDIRK method.            |
+   | :index:`ARKSTEP_DEFAULT_ERK_5`                | Use ARKStep's default fifth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_TSITOURAS_7_4_5`.                    |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_BILLINGTON_3_3_2`              | Use the Billington-3-3-2 SDIRK method.                     |
+   | :index:`ARKSTEP_DEFAULT_ERK_6`                | Use ARKStep's default sixth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_VERNER_9_5_6`.                       |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ESDIRK324L2SA_4_2_3`           | Use the ESDIRK324L2SA-4-2-3 ESDIRK method.                 |
+   | :index:`ARKSTEP_DEFAULT_ERK_7`                | Use ARKStep's default seventh-order ERK method             |
+   |                                               | :c:enumerator:`ARKODE_VERNER_10_6_7`.                      |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ESDIRK325L2SA_5_2_3`           | Use the ESDIRK325L2SA-5-2-3 ESDIRK method.                 |
+   | :index:`ARKSTEP_DEFAULT_ERK_8`                | Use ARKStep's default eighth-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_VERNER_13_7_8`.                      |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ESDIRK32I5L2SA_5_2_3`          | Use the ESDIRK32I5L2SA-5-2-3 ESDIRK method.                |
+   | :index:`ARKSTEP_DEFAULT_ERK_9`                | Use ARKStep's default ninth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_VERNER_16_8_9`.                      |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_TRBDF2_3_3_2`                  | Use the TRBDF2-3-3-2 ESDIRK method.                        |
+   | :index:`ERKSTEP_DEFAULT_1`                    | Use ERKStep's default first-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_FORWARD_EULER_1_1`.                  |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_KVAERNO_4_2_3`                 | Use the Kvaerno-4-2-3 ESDIRK method.                       |
+   | :index:`ERKSTEP_DEFAULT_2`                    | Use ERKStep's default second-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_RALSTON_3_1_2`.                      |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ARK324L2SA_DIRK_4_2_3`         | Use the ARK-4-2-3 ESDIRK method.                           |
+   | :index:`ERKSTEP_DEFAULT_3`                    | Use ERKStep's default third-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_BOGACKI_SHAMPINE_4_2_3`.             |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_CASH_5_2_4`                    | Use the Cash-5-2-4 SDIRK method.                           |
+   | :index:`ERKSTEP_DEFAULT_4`                    | Use ERKStep's default fourth-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_SOFRONIOU_SPALETTA_5_3_4`.           |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_CASH_5_3_4`                    | Use the Cash-5-3-4 SDIRK method.                           |
+   | :index:`ERKSTEP_DEFAULT_5`                    | Use ERKStep's default fifth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_TSITOURAS_7_4_5`.                    |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SDIRK_5_3_4`                   | Use the SDIRK-5-3-4 SDIRK method.                          |
+   | :index:`ERKSTEP_DEFAULT_6`                    | Use ERKStep's default sixth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_VERNER_9_5_6`.                       |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_KVAERNO_5_3_4`                 | Use the Kvaerno-5-3-4 ESDIRK method.                       |
+   | :index:`ERKSTEP_DEFAULT_7`                    | Use ERKStep's default seventh-order ERK method             |
+   |                                               | :c:enumerator:`ARKODE_VERNER_10_6_7`.                      |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ARK436L2SA_DIRK_6_3_4`         | Use the ARK-6-3-4 ESDIRK method.                           |
+   | :index:`ERKSTEP_DEFAULT_8`                    | Use ERKStep's default eighth-order ERK method              |
+   |                                               | :c:enumerator:`ARKODE_VERNER_13_7_8`.                      |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_KVAERNO_7_4_5`                 | Use the Kvaerno-7-4-5 ESDIRK method.                       |
+   | :index:`ERKSTEP_DEFAULT_9`                    | Use ERKStep's default ninth-order ERK method               |
+   |                                               | :c:enumerator:`ARKODE_VERNER_16_8_9`.                      |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ESDIRK436L2SA_6_3_4`           | Use the ESDIRK436L2SA-6-3-4 method.                        |
+   |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ESDIRK43I6L2SA_6_3_4`          | Use the ESDIRK43I6L2SA-6-3-4 method.                       |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_QESDIRK436L2SA_6_3_4`          | Use the QESDIRK436L2SA-6-3-4 method.                       |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ESDIRK437L2SA_7_3_4`           | Use the ESDIRK437L2SA-7-3-4 method.                        |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ARK548L2SA_DIRK_8_4_5`         | Use the ARK-8-4-5 ESDIRK method.                           |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ARK437L2SA_DIRK_7_3_4`         | Use the ARK-7-3-4 ESDIRK method.                           |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ARK548L2SAb_DIRK_8_4_5`        | Use the ARK-8-4-5b ESDIRK method.                          |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ESDIRK547L2SA_7_4_5`           | Use the ESDIRK547L2SA-7-4-5 ESDIRK method.                 |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_ESDIRK547L2SA2_7_4_5`          | Use the ESDIRK547L2SA2-7-4-5 ESDIRK method.                |
+   | **Default implicit Butcher tables**           |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKSTEP_DEFAULT_DIRK_1`               | Use ARKStep's default first-order DIRK method              |
-   |                                               | (ARKODE_BACKWARD_EULER_1_1).                               |
+   |                                               | :c:enumerator:`ARKODE_BACKWARD_EULER_1_1`.                 |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKSTEP_DEFAULT_DIRK_2`               | Use ARKStep's default second-order DIRK method             |
-   |                                               | (ARKODE_ARK2_DIRK_3_1_2).                                  |
+   |                                               | :c:enumerator:`ARKODE_ARK2_DIRK_3_1_2`.                    |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKSTEP_DEFAULT_DIRK_3`               | Use ARKStep's default third-order DIRK method              |
-   |                                               | (ARKODE_ESDIRK325L2SA_5_2_3).                              |
+   |                                               | :c:enumerator:`ARKODE_ESDIRK325L2SA_5_2_3`.                |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKSTEP_DEFAULT_DIRK_4`               | Use ARKStep's default fourth-order DIRK method             |
-   |                                               | (ARKODE_ESDIRK436L2SA_6_3_4).                              |
+   |                                               | :c:enumerator:`ARKODE_ESDIRK436L2SA_6_3_4`.                |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKSTEP_DEFAULT_DIRK_5`               | Use ARKStep's default fifth-order DIRK method              |
-   |                                               | (ARKODE_ESDIRK547L2SA2_7_4_5).                             |
-   +-----------------------------------------------+------------------------------------------------------------+
-   |                                               |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | **ImEx Butcher table specification**          |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | ARKODE_ARK2_ERK_3_1_2 &                       | Use the :index:`ARK-3-1-2 ARK method`.                     |
-   | ARKODE_ARK2_DIRK_3_1_2                        |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | ARKODE_ARK324L2SA_ERK_4_2_3 &                 | Use the :index:`ARK-4-2-3 ARK method`.                     |
-   | ARKODE_ARK324L2SA_DIRK_4_2_3                  |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | ARKODE_ARK436L2SA_ERK_6_3_4 &                 | Use the :index:`ARK-6-3-4 ARK method`.                     |
-   | ARKODE_ARK436L2SA_DIRK_6_3_4                  |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | ARKODE_ARK437L2SA_ERK_7_3_4 &                 | Use the :index:`ARK-7-3-4 ARK method`.                     |
-   | ARKODE_ARK437L2SA_DIRK_7_3_4                  |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | ARKODE_ARK548L2SA_ERK_8_4_5 &                 | Use the :index:`ARK-8-4-5 ARK method`.                     |
-   | ARKODE_ARK548L2SA_DIRK_8_4_5                  |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | ARKODE_ARK548L2SAb_ERK_8_4_5 &                | Use the :index:`ARK-8-4-5b ARK method`.                    |
-   | ARKODE_ARK548L2SAb_DIRK_8_4_5                 |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKSTEP_DEFAULT_ARK_ETABLE_2` &       | Use ARKStep's default second-order ARK method              |
-   | :index:`ARKSTEP_DEFAULT_ARK_ITABLE_2`         | (ARKODE_ARK2_ERK_3_1_2 and ARKODE_ARK2_DIRK_3_1_2).        |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKSTEP_DEFAULT_ARK_ETABLE_3` &       | Use ARKStep's default third-order ARK method               |
-   | :index:`ARKSTEP_DEFAULT_ARK_ITABLE_3`         | (ARKODE_ARK324L2SA_ERK_4_2_3 and                           |
-   |                                               | ARKODE_ARK324L2SA_DIRK_4_2_3).                             |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKSTEP_DEFAULT_ARK_ETABLE_4` &       | Use ARKStep's default fourth-order ARK method              |
-   | :index:`ARKSTEP_DEFAULT_ARK_ITABLE_4`         | (ARKODE_ARK437L2SA_ERK_7_3_4 and                           |
-   |                                               | ARKODE_ARK437L2SA_DIRK_7_3_4).                             |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKSTEP_DEFAULT_ARK_ETABLE_5` &       | Use ARKStep's default fifth-order ARK method               |
-   | :index:`ARKSTEP_DEFAULT_ARK_ITABLE_5`         | (ARKODE_ARK548L2SAb_ERK_8_4_5 and                          |
-   |                                               | ARKODE_ARK548L2SAb_DIRK_8_4_5).                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   |                                               |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | **Symplectic Method storage specification**   |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_EULER_1_1`                | Symplectic Euler 1st order method with 1 stage.            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_LEAPFROG_2_2`             | Symplectic Leapfrog 2nd order method with 2 stages.        |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_PSEUDO_LEAPFROG_2_2`      | Symplectic Pseudo Leapfrog 2nd order method with 2 stages. |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_RUTH_3_3`                 | Symplectic Ruth 3rd order method with 3 stages.            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_MCLACHLAN_2_2`            | Symplectic McLachlan 2nd order method with 2 stages.       |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_MCLACHLAN_3_3`            | Symplectic McLachlan 3rd order method with 3 stages.       |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_CANDY_ROZMUS_4_4`         | Symplectic Candy-Rozmus 4th order method with 4 stages.    |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_MCLACHLAN_4_4`            | Symplectic McLachlan 4th order method with 4 stages.       |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_MCLACHLAN_5_6`            | Symplectic McLachlan 5th order method with 6 stages.       |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_YOSHIDA_6_8`              | Symplectic Yoshida 6th order method with 8 stages.         |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_SUZUKI_UMENO_8_16`        | Symplectic McLachlan 8th order method with 16 stages.      |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPRK_SOFRONIOU_10_36`          | Symplectic Sofroniou 10th order method with 36 stages.     |
+   |                                               | :c:enumerator:`ARKODE_ESDIRK547L2SA2_7_4_5`.               |
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
@@ -231,30 +170,6 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
-   | **Splitting Coefficients specification**      |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPLITTING_LIE_TROTTER_1_1_2`   | 1st order Lie-Trotter splitting for problems with two      |
-   |                                               | partitions.                                                |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPLITTING_STRANG_2_2_2`        | 2nd order Strang splitting for problems with two           |
-   |                                               | partitions.                                                |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPLITTING_BEST_2_2_2`          | 2nd order splitting with optimal error for problems with   |
-   |                                               | two partitions.                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPLITTING_SUZUKI_3_3_2`        | 3rd order Suzuki splitting for problems with two           |
-   |                                               | partitions.                                                |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPLITTING_RUTH_3_3_2`          | 3rd order Ruth splitting for problems with two partitions. |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPLITTING_YOSHIDA_4_4_2`       | 4th order Yoshida splitting for problems with two          |
-   |                                               | partitions.                                                |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_SPLITTING_YOSHIDA_8_6_2`       | 6th order Yoshida splitting for problems with two          |
-   |                                               | partitions.                                                |
-   +-----------------------------------------------+------------------------------------------------------------+
-   |                                               |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
    | **MRI method types**                          |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_EXPLICIT`                     | Use an explicit (at the slow time scale) MRI method.       |
@@ -265,59 +180,7 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
-   | **MRI coupling table specification**          |                                                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_FORWARD_EULER`        | Use the forward Euler MRI-GARK method.                     |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_ERK22a`               | Use the ERK22a MRI-GARK method.                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_ERK22b`               | Use the ERK22b MRI-GARK method.                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_RALSTON2`             | Use the second order Ralston MRI-GARK method.              |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MIS_KW3`                       | Use the Knoth-Wolke-3 MIS method (non-embedded).           |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_ERK33a`               | Use the ERK33a MRI-GARK method.                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_RALSTON3`             | Use the third order Ralston MRI-GARK method.               |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_ERK45a`               | Use the ERK45a MRI-GARK method.                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MERK21`                        | Use the MERK21 method.                                     |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MERK32`                        | Use the MERK32 method.                                     |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MERK43`                        | Use the MERK43 method.                                     |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MERK54`                        | Use the MERK54 method.                                     |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_BACKWARD_EULER`       | Use the backward Euler MRI-GARK method.                    |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_IRK21a`               | Use the IRK21a MRI-GARK method.                            |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_IMPLICIT_MIDPOINT`    | Use the implicit midpoint MRI-GARK method.                 |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_ESDIRK34a`            | Use the ESDIRK34a MRI-GARK method.                         |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_MRI_GARK_ESDIRK46a`            | Use the ESDIRK46a MRI-GARK method.                         |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_GARK_EULER`           | Use the Euler IMEX-MRI-GARK method.                        |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_GARK_TRAPEZOIDAL`     | Use the trapezoidal rule IMEX-MRI-GARK method.             |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_GARK_MIDPOINT`        | Use the midpoint rule IMEX-MRI-GARK method.                |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_GARK3a`               | Use the IMEX-MRI-GARK3a method (non-embedded).             |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_GARK3b`               | Use the IMEX-MRI-GARK3b method (non-embedded).             |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_GARK4`                | Use the IMEX-MRI-GARK4 method (non-embedded).              |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_SR21`                 | Use the IMEX-MRI-SR21 method.                              |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_SR32`                 | Use the IMEX-MRI-SR32 method.                              |
-   +-----------------------------------------------+------------------------------------------------------------+
-   | :index:`ARKODE_IMEX_MRI_SR43`                 | Use the IMEX-MRI-SR43 method.                              |
+   | **Default MRI coupling tables**               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`MRISTEP_DEFAULT_EXPL_1`               | Use MRIStep's default 1st-order explicit method            |
    |                                               | (ARKODE_MRI_GARK_FORWARD_EULER).                           |

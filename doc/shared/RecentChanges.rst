@@ -2,6 +2,10 @@
 
 **New Features and Enhancements**
 
+Added new temporal adaptivity controller utility constructors,
+:c:func:`SUNAdaptController_H0211`, :c:func:`SUNAdaptController_H211`, and
+:c:func:`SUNAdaptController_H312`.
+
 Added the ``ARKODE_RALSTON_3_1_2`` and ``ARKODE_TSITOURAS_7_4_5`` explicit
 Runge-Kutta Butcher tables.
 
@@ -35,18 +39,14 @@ Improved the efficiency of default ARKODE methods with the following changes:
 |                    | ``ARKODE_ARK548L2SA_DIRK_8_4_5``    | ``ARKODE_ARK548L2SAb_DIRK_8_4_5``    |
 +--------------------+-------------------------------------+--------------------------------------+
 
-Added new temporal adaptivity controller utility constructors, :c:func:`SUNAdaptController_H0211`, :c:func:`SUNAdaptController_H211`, and :c:func:`SUNAdaptController_H312`.
-
 **Bug Fixes**
 
-Removed error floors from the SUNAdaptController implementations which could
-unnecessarily limit the time size growth, particularly after the first step.
+Fixed bug in :c:func:`ARKodeSetFixedStep` where it could return ``ARK_SUCCESS``
+despite an error occurring.
 
-On the first two time steps, the Soderlind controller uses an I controller
-instead of omitting unavailable terms.
-
-Fixed :c:func:`ARKodeResize` not using the default `hscale` when an argument of `0` was
-provided.
+Fixed the behavior of :cmakeop:`SUNDIALS_ENABLE_ERROR_CHECKS` so additional
+runtime error checks are disabled by default with all release build types.
+Previously, ``MinSizeRel`` builds enabled additional error checking by default.
 
 Fixed bug in the ARKODE SPRKStep :c:func:`SPRKStepReInit` function and
 :c:func:`ARKodeReset` function with SPRKStep that could cause a segmentation

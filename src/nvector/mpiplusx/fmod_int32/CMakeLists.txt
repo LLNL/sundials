@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -13,6 +13,12 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 MPIPlusX NVECTOR object library
 # ---------------------------------------------------------------
+
+# Disable warnings from unused SWIG macros which we can't control
+if(ENABLE_ALL_WARNINGS)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-macros")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-macros")
+endif()
 
 if(MPI_C_COMPILER)
   # use MPI wrapper as the compiler

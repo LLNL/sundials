@@ -8,18 +8,16 @@ Dissipated Exponential Entropy problem:
  step   t              u              e              u_err          delta e
  -------------------------------------------------------------------------------
     0   0.000000e+00   5.000000e-01   1.648721e+00   0.000000e+00   0.000000e+00
-   40   5.092477e-01  -1.095523e-01   8.962353e-01   2.657564e-09  -7.524860e-01
-   80   1.755130e+00  -8.593651e-01   4.234308e-01   5.763892e-09  -1.225290e+00
  -------------------------------------------------------------------------------
 
 Final Solver Statistics:
-   Internal solver steps = 116 (attempted = 118)
+   Internal solver steps = 39 (attempted = 41)
    Total number of error test failures = 2
-   Total RHS evals:  Fe = 590,  Fi = 0
-   Total Relaxation Fn evals    = 353
-   Total Relaxation Jac evals   = 707
+   Total RHS evals:  Fe = 205,  Fi = 0
+   Total Relaxation Fn evals    = 153
+   Total Relaxation Jac evals   = 276
    Total Relaxation fails       = 0
    Total Relaxation bound fails = 0
    Total Relaxation NLS fails   = 0
-   Total Relaxation NLS iters   = 117
+   Total Relaxation NLS iters   = 71
 

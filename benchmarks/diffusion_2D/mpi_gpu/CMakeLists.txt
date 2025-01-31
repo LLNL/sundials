@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -67,7 +67,7 @@ foreach(test_tuple ${tests})
 
   endif()
 
-  add_executable(${target} ${sources})
+  sundials_add_executable(${target} ${sources})
 
   # if("${backend}" STREQUAL "USE_CUDA") sundials_add_benchmark(${target}
   # ${target} diffusion_2D ENABLE_GPU NUM_CORES ${SUNDIALS_BENCHMARK_NUM_GPUS} )

@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -49,7 +49,7 @@ foreach(test_tuple ${ARKODE_unit_tests})
   if(NOT TARGET ${test})
 
     # test source files
-    add_executable(${test} ${test}.c)
+    sundials_add_executable(${test} ${test}.c)
 
     set_target_properties(${test} PROPERTIES FOLDER "unit_tests")
 

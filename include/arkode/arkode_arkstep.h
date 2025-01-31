@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -33,6 +33,10 @@ extern "C" {
  * ----------------- */
 
 /* Default Butcher tables for each method/order */
+
+/* Ideally these defaults would be declared with types ARKODE_ERKTableID and
+ * ARKODE_DIRKTableID, but this causes swig to unnecessarily append `C_INT` to
+ * the variable names */
 
 /*    explicit */
 static const int ARKSTEP_DEFAULT_ERK_1 = ARKODE_FORWARD_EULER_1_1;

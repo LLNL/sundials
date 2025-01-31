@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -91,7 +91,6 @@ int sprkStep_AccessARKODEStepMem(void* arkode_mem, const char* fname,
                                  ARKodeMem* ark_mem, ARKodeSPRKStepMem* step_mem);
 int sprkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
                            ARKodeSPRKStepMem* step_mem);
-sunbooleantype sprkStep_CheckNVector(N_Vector tmpl);
 
 /* f1 = p' (Force evaluation) */
 int sprkStep_f1(ARKodeSPRKStepMem step_mem, sunrealtype tcur, N_Vector ycur,

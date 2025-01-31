@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -40,14 +40,6 @@
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
-#endif
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM  ".32Lg"
-#define RSYMW "41.32Lg"
-#else
-#define RSYM  ".16g"
-#define RSYMW "23.16g"
 #endif
 
 /*===============================================================
@@ -628,7 +620,8 @@ void arkFreeVecArray(int count, N_Vector** v, sunindextype lrw1, long int* lrw,
                      sunindextype liw1, long int* liw);
 void arkFreeVectors(ARKodeMem ark_mem);
 sunbooleantype arkCheckTimestepper(ARKodeMem ark_mem);
-sunbooleantype arkCheckNvector(N_Vector tmpl);
+sunbooleantype arkCheckNvectorRequired(N_Vector tmpl);
+sunbooleantype arkCheckNvectorOptional(ARKodeMem ark_mem);
 
 int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout);
 int arkStopTests(ARKodeMem ark_mem, sunrealtype tout, N_Vector yout,
@@ -688,31 +681,13 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   Reusable ARKODE Error Messages
   ===============================================================*/
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define MSG_TIME       "t = %Lg"
-#define MSG_TIME_H     "t = %Lg and h = %Lg"
-#define MSG_TIME_INT   "t = %Lg is not between tcur - hold = %Lg and tcur = %Lg."
-#define MSG_TIME_TOUT  "tout = %Lg"
-#define MSG_TIME_TSTOP "tstop = %Lg"
-
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define MSG_TIME       "t = %lg"
-#define MSG_TIME_H     "t = %lg and h = %lg"
-#define MSG_TIME_INT   "t = %lg is not between tcur - hold = %lg and tcur = %lg."
-#define MSG_TIME_TOUT  "tout = %lg"
-#define MSG_TIME_TSTOP "tstop = %lg"
-
-#else
-
-#define MSG_TIME       "t = %g"
-#define MSG_TIME_H     "t = %g and h = %g"
-#define MSG_TIME_INT   "t = %g is not between tcur - hold = %g and tcur = %g."
-#define MSG_TIME_TOUT  "tout = %g"
-#define MSG_TIME_TSTOP "tstop = %g"
-
-#endif
+#define MSG_TIME   "t = " SUN_FORMAT_G
+#define MSG_TIME_H "t = " SUN_FORMAT_G " and h = " SUN_FORMAT_G
+#define MSG_TIME_INT                                                \
+  "t = " SUN_FORMAT_G " is not between tcur - hold = " SUN_FORMAT_G \
+  " and tcur = " SUN_FORMAT_G
+#define MSG_TIME_TOUT  "tout = " SUN_FORMAT_G
+#define MSG_TIME_TSTOP "tstop = " SUN_FORMAT_G
 
 /* Initialization and I/O error messages */
 #define MSG_ARK_NO_MEM         "arkode_mem = NULL illegal."

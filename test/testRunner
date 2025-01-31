@@ -6,7 +6,7 @@
 # Acknowledgement: Based on code from Chris White @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -335,7 +335,7 @@ def intCompare(answer, value, percentage):
     # Check if error between value and answer is greater than the allowed percentage
     if answer == value:
         return True
-    if percentage != 0:
+    if percentage != 0 and answer != 0:
         percentageOff = abs(int(100 - (float(value)/float(answer) * 100)))
         if percentageOff <= percentage:
             return True
@@ -354,7 +354,7 @@ def floatCompare(answer, value, precision):
     if precision == 0:
         if answer == value:
             return True
-    elif round(answer, precision) == round(value, precision):
+    elif round(answer - value, precision) == 0:
         return True
     print("Error: Floating point difference found:\n Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(precision) + " decimals")
     return False
