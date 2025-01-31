@@ -3,8 +3,8 @@
 **New Features and Enhancements**
 
 Added new temporal adaptivity controller utility constructors,
-:c:func:`SUNAdaptController_H0211`, :c:func:`SUNAdaptController_H211`, and
-:c:func:`SUNAdaptController_H312`.
+``SUNAdaptController_H0211``, ``SUNAdaptController_H211``, and
+``SUNAdaptController_H312``.
 
 Added the ``ARKODE_RALSTON_3_1_2`` and ``ARKODE_TSITOURAS_7_4_5`` explicit
 Runge-Kutta Butcher tables.
