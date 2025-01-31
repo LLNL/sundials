@@ -113,7 +113,7 @@ int main(void)
      specify the right-hand side function in y'=f(t,y), the initial time
      T0, and the initial dependent variable vector y. */
   arkode_mem = LSRKStepCreateSSP(f, T0, y, ctx);
-  if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
+  if (check_flag((void*)arkode_mem, "LSRKStepCreateSSP", 0)) { return 1; }
 
   /* Set routines */
   flag = ARKodeSetUserData(arkode_mem,
@@ -122,7 +122,7 @@ int main(void)
 
   /* Specify tolerances */
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   /* Specify max number of steps allowed */
   flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
