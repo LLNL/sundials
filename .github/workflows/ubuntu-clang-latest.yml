@@ -61,7 +61,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: build_files
+        name: build_files_logging_level_${{ matrix.logging_level }}
         path: |
           ${{ github.workspace }}/build
           !${{ github.workspace }}/build/Testing/output
@@ -70,7 +70,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: output_files
+        name: output_files_logging_level_${{ matrix.logging_level }}
         path: |
           ${{ github.workspace }}/build/Testing/
 
@@ -104,7 +104,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: build_files
+        name: build_files_profiling_${{ matrix.profiling }}
         path: |
           ${{ github.workspace }}/build
           !${{ github.workspace }}/build/Testing/output
@@ -113,6 +113,6 @@ jobs:
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: output_files
+        name: output_files_profiling_${{ matrix.profiling }}
         path: |
           ${{ github.workspace }}/build/Testing/
