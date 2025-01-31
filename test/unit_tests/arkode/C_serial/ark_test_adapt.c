@@ -104,7 +104,7 @@ static int check_steps(void* const arkode_mem, const N_Vector y,
   return 0;
 }
 
-int main()
+int main(void)
 {
   SUNContext sunctx;
   int retval = SUNContext_Create(SUN_COMM_NULL, &sunctx);
