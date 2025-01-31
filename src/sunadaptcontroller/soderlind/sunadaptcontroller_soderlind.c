@@ -328,13 +328,6 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
     *hnew               = h * SUNRpowerR(e, k);
   }
 
-  if (!isfinite(*hnew))
-  {
-    /* hnew can be INFINITY or NAN if multiple e's are 0 or there are overflows.
-     * In that case, make hnew INFINITY with the same sign as h */
-    *hnew = SUNRcopysign(INFINITY, h);
-  }
-
   /* return with success */
   return SUN_SUCCESS;
 }

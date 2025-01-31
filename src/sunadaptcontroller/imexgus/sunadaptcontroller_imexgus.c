@@ -152,13 +152,6 @@ SUNErrCode SUNAdaptController_EstimateStep_ImExGus(SUNAdaptController C,
                        SUNRpowerR(e1, k1e) * SUNRpowerR(e2, k2e));
   }
 
-  if (!isfinite(*hnew))
-  {
-    /* hnew can be INFINITY or NAN if multiple e's are 0 or there are overflows.
-     * In that case, make hnew INFINITY with the same sign as h */
-    *hnew = SUNRcopysign(INFINITY, h);
-  }
-
   /* return with success */
   return SUN_SUCCESS;
 }

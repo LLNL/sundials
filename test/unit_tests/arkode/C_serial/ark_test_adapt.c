@@ -153,8 +153,9 @@ int main()
   /* Try another non-default controller */
   ERKStepReInit(arkode_mem, f, SUN_RCONST(0.0), y);
   SUNAdaptController controller2 = SUNAdaptController_Soderlind(sunctx);
-  SUNAdaptController_SetParams_PI(controller2, SUN_RCONST(0.123),
-                                  SUN_RCONST(-0.456));
+  SUNAdaptController_SetParams_Soderlind(controller2, SUN_RCONST(0.123),
+                                  SUN_RCONST(-0.456), SUN_RCONST(0.789),
+                                  SUN_RCONST(-1.0), SUN_RCONST(-2.0));
   ARKodeSetAdaptController(arkode_mem, controller2);
   retval = check_steps(arkode_mem, y, SUN_RCONST(-0.1), SUN_RCONST(4.0),
                        SUN_RCONST(10.0));
