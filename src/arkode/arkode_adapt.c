@@ -164,13 +164,10 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
     h_cfl *= hadapt_mem->cfl;
     SUNLogDebug(ARK_LOGGER, "new-step-cfl", "h_cfl = " SUN_FORMAT_G, h_cfl);
 
-    if (h_cfl > ZERO)
+    if (h_cfl > ZERO && h_cfl < h_acc)
     {
-      if (h_cfl < h_acc)
-      {
-        hadapt_mem->nst_exp++;
-        h_acc = h_cfl;
-      }
+      hadapt_mem->nst_exp++;
+      h_acc = h_cfl;
     }
     else { hadapt_mem->nst_acc++; }
   }
