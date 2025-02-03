@@ -2603,7 +2603,7 @@ sunrealtype arkUpperBoundH0(ARKodeMem ark_mem, sunrealtype tdist)
   N_VAbs(ark_mem->yn, temp2);
   ark_mem->efun(ark_mem->yn, temp1, ark_mem->e_data);
   N_VInv(temp1, temp1);
-  N_VLinearSum(H0_UBFACTOR, temp2, ONE, temp1, temp1);
+  N_VLinearSum(ONE, temp1, H0_UBFACTOR, temp2, temp1);
 
   N_VAbs(ark_mem->fn, temp2);
 

@@ -364,7 +364,7 @@ static int CVDiagSetup(CVodeMem cv_mem, SUNDIALS_MAYBE_UNUSED int convfail,
 
   /* Construct M = I - gamma*J with J = diag(deltaf_i/deltay_i) */
   N_VLinearSum(ONE, M, -ONE, fpred, M);
-  N_VLinearSum(FRACT, ftemp, -h, M, M);
+  N_VLinearSum(-h, M, FRACT, ftemp, M);
   N_VProd(ftemp, ewt, y);
   /* Protect against deltay_i being at roundoff level */
   N_VCompare(uround, y, bit);

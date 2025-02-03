@@ -2798,7 +2798,7 @@ static int IDANls(IDAMem IDA_mem)
     N_VCompare(ONEPT5, IDA_mem->ida_constraints, tmp); /* a[i] =1 when |c[i]| = 2 */
     N_VProd(tmp, IDA_mem->ida_constraints, tmp); /* a * c                   */
     N_VDiv(tmp, IDA_mem->ida_ewt, tmp);          /* a * c * wt              */
-    N_VLinearSum(ONE, IDA_mem->ida_yy, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt    */
+    N_VLinearSum(-PT1, tmp, ONE, IDA_mem->ida_yy, tmp); /* y - 0.1 * a * c * wt    */
     N_VProd(tmp, mm, tmp); /* v = mm*(y-.1*a*c*wt)    */
 
     vnorm = IDAWrmsNorm(IDA_mem, tmp, IDA_mem->ida_ewt, SUNFALSE); /* ||v|| */
@@ -2903,8 +2903,8 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
     if (IDA_mem->ida_kk > 2)
     {
       /* Compute error at order k-2 */
-      N_VLinearSum(ONE, IDA_mem->ida_phi[IDA_mem->ida_kk - 1], ONE,
-                   IDA_mem->ida_delta, IDA_mem->ida_delta);
+      N_VLinearSum(ONE, IDA_mem->ida_delta, ONE,
+                   IDA_mem->ida_phi[IDA_mem->ida_kk - 1], IDA_mem->ida_delta);
       enorm_km2 = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt,
                               IDA_mem->ida_suppressalg);
       err_km2   = IDA_mem->ida_sigma[IDA_mem->ida_kk - 2] * enorm_km2;

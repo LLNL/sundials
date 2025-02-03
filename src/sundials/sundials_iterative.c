@@ -514,7 +514,7 @@ SUNErrCode SUNQRAdd_CGS2(N_Vector* Q, sunrealtype* R, N_Vector df, int m,
 
     /* y = df - Q_k-1 s_k */
     SUNCheckCall(N_VLinearCombination(m, R + m * mMax, Q, qrdata->vtemp2));
-    N_VLinearSum(ONE, qrdata->vtemp, -ONE, qrdata->vtemp2, qrdata->vtemp2);
+    N_VLinearSum(-ONE, qrdata->vtemp2, ONE, qrdata->vtemp, qrdata->vtemp2);
     SUNCheckLastErr();
 
     /* z_k = Q_k-1^T y */

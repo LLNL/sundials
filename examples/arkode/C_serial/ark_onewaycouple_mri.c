@@ -309,7 +309,7 @@ static int ans(sunrealtype t, N_Vector ytrue, void* user_data)
 static int err(N_Vector y, N_Vector ytrue, sunrealtype* e)
 {
   /* compute the error and store it in ytrue */
-  N_VLinearSum(SUN_RCONST(1.0), y, SUN_RCONST(-1.0), ytrue, ytrue);
+  N_VLinearSum(SUN_RCONST(-1.0), ytrue, SUN_RCONST(1.0), y, ytrue);
 
   /* compute the max norm of the error */
   *e = N_VMaxNorm(ytrue);

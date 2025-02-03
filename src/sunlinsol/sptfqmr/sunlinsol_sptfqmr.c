@@ -393,7 +393,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
       return (LASTFLAG(S));
     }
-    N_VLinearSum(ONE, b, -ONE, r_star, r_star);
+    N_VLinearSum(-ONE, r_star, ONE, b, r_star);
     SUNCheckLastErr();
   }
 
@@ -661,13 +661,13 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         omega    = N_VDotProd(r[0], r[0]);
         SUNCheckLastErr();
         omega = SUNRsqrt(SUNRsqrt(omega) * temp_val);
-        N_VLinearSum(ONE, u, SUNSQR(v_bar) * eta / alpha, d, d);
+        N_VLinearSum(SUNSQR(v_bar) * eta / alpha, d, ONE, u, d);
         SUNCheckLastErr();
       }
       else
       {
         omega = temp_val;
-        N_VLinearSum(ONE, q, SUNSQR(v_bar) * eta / alpha, d, d);
+        N_VLinearSum(SUNSQR(v_bar) * eta / alpha, d, ONE, q, d);
         SUNCheckLastErr();
       }
 

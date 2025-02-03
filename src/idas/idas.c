@@ -6442,7 +6442,7 @@ static int IDANls(IDAMem IDA_mem)
     N_VCompare(ONEPT5, IDA_mem->ida_constraints, tmp); /* a[i] =1 when |c[i]| = 2 */
     N_VProd(tmp, IDA_mem->ida_constraints, tmp); /* a * c                   */
     N_VDiv(tmp, IDA_mem->ida_ewt, tmp);          /* a * c * wt              */
-    N_VLinearSum(ONE, IDA_mem->ida_yy, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt    */
+    N_VLinearSum(-PT1, tmp, ONE, IDA_mem->ida_yy, tmp); /* y - 0.1 * a * c * wt    */
     N_VProd(tmp, mm, tmp); /* v = mm*(y-.1*a*c*wt)    */
 
     vnorm = IDAWrmsNorm(IDA_mem, tmp, IDA_mem->ida_ewt, SUNFALSE); /* ||v|| */
@@ -6740,8 +6740,8 @@ static int IDATestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
     if (IDA_mem->ida_kk > 2)
     {
       /* Compute error at order k-2 */
-      N_VLinearSum(ONE, IDA_mem->ida_phi[IDA_mem->ida_kk - 1], ONE,
-                   IDA_mem->ida_delta, IDA_mem->ida_delta);
+      N_VLinearSum(ONE, IDA_mem->ida_delta, ONE,
+                   IDA_mem->ida_phi[IDA_mem->ida_kk - 1], IDA_mem->ida_delta);
       enorm_km2 = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt,
                               IDA_mem->ida_suppressalg);
       *err_km2  = IDA_mem->ida_sigma[IDA_mem->ida_kk - 2] * enorm_km2;
@@ -6838,7 +6838,7 @@ static int IDAQuadTestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
       if (IDA_mem->ida_kk > 2)
       {
         /* Update error at order k-2 */
-        N_VLinearSum(ONE, IDA_mem->ida_phiQ[IDA_mem->ida_kk - 1], ONE, tempv,
+        N_VLinearSum(ONE, tempv, ONE, IDA_mem->ida_phiQ[IDA_mem->ida_kk - 1],
                      tempv);
         errQ_km2 = IDA_mem->ida_sigma[IDA_mem->ida_kk - 2] *
                    N_VWrmsNorm(tempv, IDA_mem->ida_ewtQ);
@@ -6934,9 +6934,9 @@ static int IDASensTestError(IDAMem IDA_mem, sunrealtype ck, sunrealtype* err_k,
       if (IDA_mem->ida_kk > 2)
       {
         /* Update error at order k-2 */
-        retval = N_VLinearSumVectorArray(IDA_mem->ida_Ns, ONE,
+        retval = N_VLinearSumVectorArray(IDA_mem->ida_Ns, ONE, tempv, ONE,
                                          IDA_mem->ida_phiS[IDA_mem->ida_kk - 1],
-                                         ONE, tempv, tempv);
+                                         tempv);
         if (retval != IDA_SUCCESS) { return (IDA_VECTOROP_ERR); }
 
         errS_km2 = IDA_mem->ida_sigma[IDA_mem->ida_kk - 2] *
@@ -7035,9 +7035,9 @@ static int IDAQuadSensTestError(IDAMem IDA_mem, sunrealtype ck,
       if (IDA_mem->ida_kk > 2)
       {
         /* Update error at order k-2 */
-        retval = N_VLinearSumVectorArray(IDA_mem->ida_Ns, ONE,
+        retval = N_VLinearSumVectorArray(IDA_mem->ida_Ns, ONE, tempv, ONE,
                                          IDA_mem->ida_phiQS[IDA_mem->ida_kk - 1],
-                                         ONE, tempv, tempv);
+                                         tempv);
         if (retval != IDA_SUCCESS) { return (IDA_VECTOROP_ERR); }
 
         errQS_km2 = IDA_mem->ida_sigma[IDA_mem->ida_kk - 2] *

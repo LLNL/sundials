@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
     Solution(tret, y, solution, &udata);
 
     /* Compute L2 error */
-    N_VLinearSum(SUN_RCONST(1.0), y, -SUN_RCONST(1.0), solution, solution);
+    N_VLinearSum(-SUN_RCONST(1.0), solution, SUN_RCONST(1.0), y, solution);
     err = sqrt(N_VDotProd(solution, solution));
 
     /* Output current integration status */

@@ -1244,7 +1244,7 @@ int lsrkStep_TakeStepSSPs2(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     SUNLogExtraDebugVec(ARK_LOGGER, "embedded solution", ark_mem->tempv1,
                         "y_embedded(:) =");
 
-    N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->tempv1, ark_mem->tempv1);
+    N_VLinearSum(-ONE, ark_mem->tempv1, ONE, ark_mem->ycur, ark_mem->tempv1);
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
 
@@ -1526,7 +1526,7 @@ int lsrkStep_TakeStepSSPs3(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
   {
     SUNLogExtraDebugVec(ARK_LOGGER, "embedded solution", ark_mem->tempv1,
                         "y_embedded(:) =");
-    N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->tempv1, ark_mem->tempv1);
+    N_VLinearSum(-ONE, ark_mem->tempv1, ONE, ark_mem->ycur, ark_mem->tempv1);
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
 
@@ -1738,7 +1738,7 @@ int lsrkStep_TakeStepSSP43(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr
     SUNLogExtraDebugVec(ARK_LOGGER, "embedded solution", ark_mem->tempv1,
                         "y_embedded(:) =");
 
-    N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->tempv1, ark_mem->tempv1);
+    N_VLinearSum(-ONE, ark_mem->tempv1, ONE, ark_mem->ycur, ark_mem->tempv1);
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
 
@@ -1870,8 +1870,8 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   N_VLinearSum(SUN_RCONST(1.0) / SUN_RCONST(25.0), ark_mem->tempv2,
                SUN_RCONST(9.0) / SUN_RCONST(25.0), ark_mem->ycur,
                ark_mem->tempv2);
-  N_VLinearSum(SUN_RCONST(15.0), ark_mem->tempv2, SUN_RCONST(-5.0),
-               ark_mem->ycur, ark_mem->ycur);
+  N_VLinearSum(SUN_RCONST(-5.0), ark_mem->ycur, SUN_RCONST(15.0),
+               ark_mem->tempv2, ark_mem->ycur);
 
   /* apply user-supplied stage postprocessing function (if supplied) */
   if (ark_mem->ProcessStage != NULL)
@@ -1967,7 +1967,7 @@ int lsrkStep_TakeStepSSP104(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   {
     SUNLogExtraDebugVec(ARK_LOGGER, "embedded solution", ark_mem->tempv1,
                         "y_embedded(:) =");
-    N_VLinearSum(ONE, ark_mem->ycur, -ONE, ark_mem->tempv1, ark_mem->tempv1);
+    N_VLinearSum(-ONE, ark_mem->tempv1, ONE, ark_mem->ycur, ark_mem->tempv1);
     *dsmPtr = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
   }
 

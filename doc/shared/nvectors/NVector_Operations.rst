@@ -204,7 +204,7 @@ operations below.
    .. math::
       z_i = a x_i + b y_i, \quad i=0,\ldots,n-1.
 
-   The output vector *z* can be the same as either of the input vectors (*x* or *y*).
+   The output vector *z* can be the same as the input vector (*x*).
 
 
    Usage:

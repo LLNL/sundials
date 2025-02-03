@@ -1431,12 +1431,12 @@ int mriStep_FullRHS(ARKodeMem ark_mem, sunrealtype t, N_Vector y, N_Vector f,
     else if (step_mem->implicit_rhs)
     {
       /* implicit */
-      N_VLinearSum(ONE, step_mem->Fsi[0], ONE, f, f);
+      N_VLinearSum(ONE, f, ONE, step_mem->Fsi[0], f);
     }
     else
     {
       /* explicit */
-      N_VLinearSum(ONE, step_mem->Fse[0], ONE, f, f);
+      N_VLinearSum(ONE, f, ONE, step_mem->Fse[0], f);
     }
 
     break;

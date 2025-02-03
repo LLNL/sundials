@@ -336,7 +336,7 @@ static int cvNlsResidualSensStg1(N_Vector ycor, N_Vector res, void* cvode_mem)
 
   /* compute the sensitivity resiudal */
   N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_znS[1][is], ONE, ycor, res);
-  N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftempS[is], ONE, res, res);
+  N_VLinearSum(ONE, res, -cv_mem->cv_gamma, cv_mem->cv_ftempS[is], res);
 
   return (CV_SUCCESS);
 }

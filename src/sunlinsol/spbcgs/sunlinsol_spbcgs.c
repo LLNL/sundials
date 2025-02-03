@@ -391,7 +391,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
       return (LASTFLAG(S));
     }
-    N_VLinearSum(ONE, b, -ONE, r_star, r_star);
+    N_VLinearSum(-ONE, r_star, ONE, b, r_star);
     SUNCheckLastErr();
   }
 

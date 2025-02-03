@@ -2357,9 +2357,9 @@ int arkLsATimes(void* arkode_mem, N_Vector v, N_Vector z)
   {
     retval = arkLsMTimes(arkode_mem, v, arkls_mem->ytemp);
     if (retval != 0) { return (retval); }
-    N_VLinearSum(ONE, arkls_mem->ytemp, -gamma, z, z);
+    N_VLinearSum(-gamma, z, ONE, arkls_mem->ytemp, z);
   }
-  else { N_VLinearSum(ONE, v, -gamma, z, z); }
+  else { N_VLinearSum(-gamma, z, ONE, v, z); }
 
   return (0);
 }

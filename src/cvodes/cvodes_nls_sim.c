@@ -483,7 +483,7 @@ static int cvNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* cvode_m
 
   /* compute the resiudal */
   N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res);
-  N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res);
+  N_VLinearSum(ONE, res, -cv_mem->cv_gamma, cv_mem->cv_ftemp, res);
 
   /* extract sensitivity and residual vectors from the vector wrapper */
   ycorS = NV_VECS_SW(ycorSim) + 1;

@@ -506,7 +506,7 @@ static int ComputeError(sunrealtype t, N_Vector y, N_Vector e, sunrealtype* ec,
   /* solution error */
   retval = ComputeSolution(t, e, udata);
   if (check_retval(&retval, "ComputeSolution", 1)) { return (1); }
-  N_VLinearSum(ONE, y, -ONE, e, e);
+  N_VLinearSum(-ONE, e, ONE, y, e);
 
   /* constraint error */
   *ec = ydata[0] * ydata[0] + ydata[1] * ydata[1] - ONE;

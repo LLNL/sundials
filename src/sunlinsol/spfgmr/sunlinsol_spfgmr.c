@@ -450,7 +450,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
       return (LASTFLAG(S));
     }
-    N_VLinearSum(ONE, b, -ONE, vtemp, vtemp);
+    N_VLinearSum(-ONE, vtemp, ONE, b, vtemp);
     SUNCheckLastErr();
   }
 

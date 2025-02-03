@@ -80,7 +80,7 @@ int cvCheckConstraints_fused(const N_Vector c, const N_Vector ewt,
   N_VCompare(ONEPT5, c, tmp);           /* a[i]=1 when |c[i]|=2  */
   N_VProd(tmp, c, tmp);                 /* a * c                 */
   N_VDiv(tmp, ewt, tmp);                /* a * c * wt            */
-  N_VLinearSum(ONE, y, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt  */
+  N_VLinearSum(-PT1, tmp, ONE, y, tmp); /* y - 0.1 * a * c * wt  */
   N_VProd(tmp, mm, tmp);                /* v = mm*(y-0.1*a*c*wt) */
   return 0;
 }
@@ -96,7 +96,7 @@ int cvNlsResid_fused(const sunrealtype rl1, const sunrealtype ngamma,
                      const N_Vector ftemp, N_Vector res)
 {
   N_VLinearSum(rl1, zn1, ONE, ycor, res);
-  N_VLinearSum(ngamma, ftemp, ONE, res, res);
+  N_VLinearSum(ONE, res, ngamma, ftemp, res);
   return 0;
 }
 
@@ -129,7 +129,7 @@ int cvDiagSetup_buildM(SUNDIALS_MAYBE_UNUSED const sunrealtype fract,
                        N_Vector y, N_Vector M)
 {
   N_VLinearSum(ONE, M, -ONE, fpred, M);
-  N_VLinearSum(FRACT, ftemp, -h, M, M);
+  N_VLinearSum(-h, M, FRACT, ftemp, M);
   N_VProd(ftemp, ewt, y);
   /* Protect against deltay_i being at roundoff level */
   N_VCompare(uround, y, bit);

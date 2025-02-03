@@ -91,7 +91,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
 
     ClearCache();
     start_time = get_time();
-    N_VLinearSum(ONE, X, ONE, Y, Y);
+    N_VLinearSum(ONE, Y, ONE, X, Y);
     sync_device(X);
     stop_time = get_time();
 
@@ -114,7 +114,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
 
     ClearCache();
     start_time = get_time();
-    N_VLinearSum(NEG_ONE, X, ONE, Y, Y);
+    N_VLinearSum(ONE, Y, NEG_ONE, X, Y);
     sync_device(X);
     stop_time = get_time();
 
@@ -138,7 +138,7 @@ int Test_N_VLinearSum(N_Vector X, sunindextype local_length, int ntests)
 
     ClearCache();
     start_time = get_time();
-    N_VLinearSum(a, X, ONE, Y, Y);
+    N_VLinearSum(ONE, Y, a, X, Y);
     sync_device(X);
     stop_time = get_time();
 
@@ -1573,7 +1573,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int nvecs,
   {
     ClearCache();
     start_time = get_time();
-    for (j = 0; j < nvecs; j++) { N_VLinearSum(c[j], X, ONE, Y[j], Y[j]); }
+    for (j = 0; j < nvecs; j++) { N_VLinearSum(ONE, Y[j], c[j], X, Y[j]); }
     sync_device(X);
     stop_time = get_time();
 
@@ -2270,7 +2270,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
     {
       for (j = 0; j < nsums; j++)
       {
-        N_VLinearSum(c[j], X[k], ONE, Y[j][k], Y[j][k]);
+        N_VLinearSum(ONE, Y[j][k], c[j], X[k], Y[j][k]);
       }
     }
     sync_device(V);
@@ -2344,7 +2344,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
     {
       for (j = 0; j < nsums; j++)
       {
-        N_VLinearSum(c[j], X[k], ONE, Y[j][k], Z[j][k]);
+        N_VLinearSum(ONE, Y[j][k], c[j], X[k], Z[j][k]);
       }
     }
     sync_device(V);

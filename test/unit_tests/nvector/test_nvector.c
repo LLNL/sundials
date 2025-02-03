@@ -570,7 +570,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
   N_VConst(NEG_TWO, Y);
 
   start_time = get_time();
-  N_VLinearSum(ONE, X, ONE, Y, Y);
+  N_VLinearSum(ONE, Y, ONE, X, Y);
   sync_device(X);
   stop_time = get_time();
 
@@ -600,7 +600,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
   N_VConst(TWO, Y);
 
   start_time = get_time();
-  N_VLinearSum(NEG_ONE, X, ONE, Y, Y);
+  N_VLinearSum(ONE, Y, NEG_ONE, X, Y);
   sync_device(X);
   stop_time = get_time();
 
@@ -630,7 +630,7 @@ int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,
   N_VConst(NEG_TWO, Y);
 
   start_time = get_time();
-  N_VLinearSum(HALF, X, ONE, Y, Y);
+  N_VLinearSum(ONE, Y, HALF, X, Y);
   sync_device(X);
   stop_time = get_time();
 
@@ -2756,7 +2756,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
   N_VConst(NEG_ONE, Y[2]);
 
   start_time = get_time();
-  ierr       = N_VLinearSumVectorArray(3, ONE, X, ONE, Y, Y);
+  ierr       = N_VLinearSumVectorArray(3, ONE, Y, ONE, X, Y);
   sync_device(V);
   stop_time = get_time();
 
@@ -2799,7 +2799,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
   N_VConst(NEG_ONE, Y[2]);
 
   start_time = get_time();
-  ierr       = N_VLinearSumVectorArray(3, NEG_ONE, X, ONE, Y, Y);
+  ierr       = N_VLinearSumVectorArray(3, ONE, Y, NEG_ONE, X, Y);
   sync_device(V);
   stop_time = get_time();
 
@@ -2842,7 +2842,7 @@ int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid
   N_VConst(TWO, Y[2]);
 
   start_time = get_time();
-  ierr       = N_VLinearSumVectorArray(3, HALF, X, ONE, Y, Y);
+  ierr       = N_VLinearSumVectorArray(3, ONE, Y, HALF, X, Y);
   sync_device(V);
   stop_time = get_time();
 
