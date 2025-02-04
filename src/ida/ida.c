@@ -1510,7 +1510,7 @@ int IDAGetDky(void* ida_mem, sunrealtype t, int k, N_Vector dky)
   IDAMem IDA_mem;
   sunrealtype tfuzz, tp, delt, psij_1;
   int i, j, retval;
-  sunrealtype cjk[MXORDP1];
+  sunscalartype cjk[MXORDP1];
   sunrealtype cjk_1[MXORDP1];
 
   /* Check ida_mem */
