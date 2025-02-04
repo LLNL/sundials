@@ -412,7 +412,9 @@ int IDASetLSNormFactor(void* ida_mem, sunrealtype nrmfac)
   {
     /* compute factor for WRMS norm with dot product */
     N_VConst(ONE, idals_mem->ytemp);
-    idals_mem->nrmfac = SUNRsqrt(N_VDotProd(idals_mem->ytemp, idals_mem->ytemp));
+    sunscalartype dot = ZERO;
+    SUNCheckCall(N_VDotProdComplex(idals_mem->ytemp, idals_mem->ytemp, &dot));
+    idals_mem->nrmfac = SUNRsqrt(SUN_REAL(dot));
   }
   else
   {
@@ -1001,8 +1003,9 @@ int idaLsDQJac(sunrealtype t, sunrealtype c_j, N_Vector y, N_Vector yp,
 int idaLsDenseDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
                     N_Vector rr, SUNMatrix Jac, IDAMem IDA_mem, N_Vector tmp1)
 {
-  sunrealtype inc, inc_inv, yj, ypj, srur, conj;
-  sunrealtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
+  sunrealtype inc, inc_inv, srur, conj;
+  sunscalartype yj, ypj;
+  sunscalartype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
   N_Vector rtemp, jthCol;
   sunindextype j, N;
   IDALsMem idals_mem;
@@ -1044,23 +1047,23 @@ int idaLsDenseDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
     adjustments using yp_j and ewt_j if this is small, and a further
     adjustment to give it the same sign as hh*yp_j. */
 
-    inc = SUNMAX(srur * SUNMAX(SUNRabs(yj), SUNRabs(IDA_mem->ida_hh * ypj)),
-                 ONE / ewt_data[j]);
+    inc = SUNMAX(srur * SUNMAX(SUNabs(yj), SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj))),
+                 ONE / SUN_REAL(ewt_data[j]));
 
-    if (IDA_mem->ida_hh * ypj < ZERO) { inc = -inc; }
-    inc = (yj + inc) - yj;
+    if (IDA_mem->ida_hh * SUN_REAL(ypj) < ZERO) { inc = -inc; }
+    inc = (SUN_REAL(yj) + inc) - SUN_REAL(yj);
 
     /* Adjust sign(inc) again if y_j has an inequality constraint. */
     if (IDA_mem->ida_constraintsSet)
     {
-      conj = cns_data[j];
+      conj = SUN_REAL(cns_data[j]);
       if (SUNRabs(conj) == ONE)
       {
-        if ((yj + inc) * conj < ZERO) { inc = -inc; }
+        if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
       }
       else if (SUNRabs(conj) == TWO)
       {
-        if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+        if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
       }
     }
 
@@ -1105,9 +1108,10 @@ int idaLsBandDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
                    N_Vector rr, SUNMatrix Jac, IDAMem IDA_mem, N_Vector tmp1,
                    N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype inc, inc_inv, yj, ypj, srur, conj, ewtj;
-  sunrealtype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
-  sunrealtype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
+  sunrealtype inc, inc_inv, srur, conj, ewtj;
+  sunscalartype yj, ypj;
+  sunscalartype *y_data, *yp_data, *ewt_data, *cns_data = NULL;
+  sunscalartype *ytemp_data, *yptemp_data, *rtemp_data, *r_data, *col_j;
   N_Vector rtemp, ytemp, yptemp;
   sunindextype i, j, i1, i2, width, ngroups, group;
   sunindextype N, mupper, mlower;
@@ -1157,27 +1161,27 @@ int idaLsBandDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
     {
       yj   = y_data[j];
       ypj  = yp_data[j];
-      ewtj = ewt_data[j];
+      ewtj = SUN_REAL(ewt_data[j]);
 
       /* Set increment inc to yj based on sqrt(uround)*abs(yj), with
         adjustments using ypj and ewtj if this is small, and a further
         adjustment to give it the same sign as hh*ypj. */
-      inc = SUNMAX(srur * SUNMAX(SUNRabs(yj), SUNRabs(IDA_mem->ida_hh * ypj)),
+      inc = SUNMAX(srur * SUNMAX(SUNabs(yj), SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj))),
                    ONE / ewtj);
-      if (IDA_mem->ida_hh * ypj < ZERO) { inc = -inc; }
-      inc = (yj + inc) - yj;
+      if (IDA_mem->ida_hh * SUN_REAL(ypj) < ZERO) { inc = -inc; }
+      inc = (SUN_REAL(yj) + inc) - SUN_REAL(yj);
 
       /* Adjust sign(inc) again if yj has an inequality constraint. */
       if (IDA_mem->ida_constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((yj + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 
@@ -1198,23 +1202,23 @@ int idaLsBandDQJac(sunrealtype tt, sunrealtype c_j, N_Vector yy, N_Vector yp,
       yj = ytemp_data[j] = y_data[j];
       ypj = yptemp_data[j] = yp_data[j];
       col_j                = SUNBandMatrix_Column(Jac, j);
-      ewtj                 = ewt_data[j];
+      ewtj                 = SUN_REAL(ewt_data[j]);
 
       /* Set increment inc exactly as above. */
-      inc = SUNMAX(srur * SUNMAX(SUNRabs(yj), SUNRabs(IDA_mem->ida_hh * ypj)),
+      inc = SUNMAX(srur * SUNMAX(SUNabs(yj), SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj))),
                    ONE / ewtj);
-      if (IDA_mem->ida_hh * ypj < ZERO) { inc = -inc; }
-      inc = (yj + inc) - yj;
+      if (IDA_mem->ida_hh * SUN_REAL(ypj) < ZERO) { inc = -inc; }
+      inc = (SUN_REAL(yj) + inc) - SUN_REAL(yj);
       if (IDA_mem->ida_constraintsSet)
       {
-        conj = cns_data[j];
+        conj = SUN_REAL(cns_data[j]);
         if (SUNRabs(conj) == ONE)
         {
-          if ((yj + inc) * conj < ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj < ZERO) { inc = -inc; }
         }
         else if (SUNRabs(conj) == TWO)
         {
-          if ((yj + inc) * conj <= ZERO) { inc = -inc; }
+          if ((SUN_REAL(yj) + inc) * conj <= ZERO) { inc = -inc; }
         }
       }
 
