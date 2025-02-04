@@ -53,9 +53,9 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
   SUNAdjointCheckpointScheme check_scheme = NULL;
   SUNCheckCall(SUNAdjointCheckpointScheme_NewEmpty(sunctx, &check_scheme));
 
-  check_scheme->ops->needsSaving = SUNAdjointCheckpointScheme_ShouldWeSave_Fixed;
-  check_scheme->ops->insertVector = SUNAdjointCheckpointScheme_InsertVector_Fixed;
-  check_scheme->ops->loadVector  = SUNAdjointCheckpointScheme_LoadVector_Fixed;
+  check_scheme->ops->needssaving = SUNAdjointCheckpointScheme_NeedsSaving_Fixed;
+  check_scheme->ops->insertvector = SUNAdjointCheckpointScheme_InsertVector_Fixed;
+  check_scheme->ops->loadvector  = SUNAdjointCheckpointScheme_LoadVector_Fixed;
   check_scheme->ops->enableDense = SUNAdjointCheckpointScheme_EnableDense_Fixed;
   check_scheme->ops->destroy     = SUNAdjointCheckpointScheme_Destroy_Fixed;
 
@@ -84,7 +84,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Fixed(
+SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving_Fixed(
   SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
   SUNDIALS_MAYBE_UNUSED sunrealtype t, sunbooleantype* yes_or_no)
 {

@@ -12,8 +12,8 @@
  * SUNAdjointCheckpointScheme_Fixed class declaration.
  * ----------------------------------------------------------------*/
 
-#ifndef _sunadjointcheckpointscheme_fixed_H
-#define _sunadjointcheckpointscheme_fixed_H
+#ifndef _SUNADJOINTCHECKPOINTSCHEME_FIXED_H
+#define _SUNADJOINTCHECKPOINTSCHEME_FIXED_H
 
 #include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_core.h>
@@ -31,7 +31,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
   SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave_Fixed(
+SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving_Fixed(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
   sunrealtype t, sunbooleantype* yes_or_no);
 
@@ -41,9 +41,9 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
   sunrealtype t, N_Vector state);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete_Fixed(
+SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting_Fixed(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
-  sunbooleantype* yes_or_no);
+  sunrealtype t, sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Fixed(

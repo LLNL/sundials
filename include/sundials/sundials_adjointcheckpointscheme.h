@@ -27,17 +27,18 @@ typedef _SUNDIALS_STRUCT_ SUNAdjointCheckpointScheme_* SUNAdjointCheckpointSchem
 
 struct SUNAdjointCheckpointScheme_Ops_
 {
-  SUNErrCode (*needsSaving)(SUNAdjointCheckpointScheme, int64_t step_num,
+  SUNErrCode (*needssaving)(SUNAdjointCheckpointScheme, int64_t step_num,
                             int64_t stage_num, sunrealtype t,
                             sunbooleantype* yes_or_no);
 
-  SUNErrCode (*needsDeleting)(SUNAdjointCheckpointScheme, int64_t step_num,
-                              int64_t stage_num, sunbooleantype* yes_or_no);
+  SUNErrCode (*needsdeleting)(SUNAdjointCheckpointScheme, int64_t step_num,
+                              int64_t stage_num, sunrealtype t,
+                              sunbooleantype* yes_or_no);
 
-  SUNErrCode (*insertVector)(SUNAdjointCheckpointScheme, int64_t step_num,
+  SUNErrCode (*insertvector)(SUNAdjointCheckpointScheme, int64_t step_num,
                              int64_t stage_num, sunrealtype t, N_Vector y);
 
-  SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme, int64_t step_num,
+  SUNErrCode (*loadvector)(SUNAdjointCheckpointScheme, int64_t step_num,
                            int64_t stage_num, sunbooleantype peek,
                            N_Vector* yout, sunrealtype* tout);
 
@@ -61,17 +62,17 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(SUNContext sunctx,
                                                SUNAdjointCheckpointScheme*);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(SUNAdjointCheckpointScheme,
-                                                   int64_t step_num,
-                                                   int64_t stage_num,
-                                                   sunrealtype t,
-                                                   sunbooleantype* yes_or_no);
+SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme,
+                                                  int64_t step_num,
+                                                  int64_t stage_num,
+                                                  sunrealtype t,
+                                                  sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(SUNAdjointCheckpointScheme,
-                                                     int64_t step_num,
-                                                     int64_t stage_num,
-                                                     sunbooleantype* yes_or_no);
+SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme,
+                                                    int64_t step_num,
+                                                    int64_t stage_num,
+                                                    sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme,

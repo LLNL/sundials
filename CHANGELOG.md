@@ -285,8 +285,7 @@ instead of `SameMajorVersion`. This fixes the issue seen
 [here](https://github.com/AMReX-Codes/amrex/pull/3835).
 
 Fixed a CMake bug that caused an MPI linking error for our C++ examples in some
-instances. Fixes [GitHub Issue
-# 464](https://github.com/LLNL/sundials/issues/464).
+instances. Fixes [GitHub Issue #464](https://github.com/LLNL/sundials/issues/464).
 
 Fixed the runtime library installation path for windows systems. This fix
 changes the default library installation path from

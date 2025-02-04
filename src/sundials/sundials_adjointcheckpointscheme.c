@@ -37,10 +37,10 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
   ops                                = malloc(sizeof(*ops));
   SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
 
-  ops->needsSaving   = NULL;
-  ops->needsDeleting = NULL;
-  ops->insertVector  = NULL;
-  ops->loadVector    = NULL;
+  ops->needssaving   = NULL;
+  ops->needsdeleting = NULL;
+  ops->insertvector  = NULL;
+  ops->loadvector    = NULL;
   ops->deleteVector  = NULL;
   ops->enableDense   = NULL;
   ops->destroy       = NULL;
@@ -51,16 +51,16 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(
+SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
   sunrealtype t, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (check_scheme->ops->needsSaving)
+  if (check_scheme->ops->needssaving)
   {
-    SUNErrCode err = check_scheme->ops->needsSaving(check_scheme, step_num,
+    SUNErrCode err = check_scheme->ops->needssaving(check_scheme, step_num,
                                                     stage_num, t, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
@@ -69,16 +69,16 @@ SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(
+SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
   sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (check_scheme->ops->needsDeleting)
+  if (check_scheme->ops->needsdeleting)
   {
-    SUNErrCode err = check_scheme->ops->needsDeleting(check_scheme, step_num,
+    SUNErrCode err = check_scheme->ops->needsdeleting(check_scheme, step_num,
                                                       stage_num, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
@@ -93,9 +93,9 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector(
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
-  if (check_scheme->ops->insertVector)
+  if (check_scheme->ops->insertvector)
   {
-    SUNErrCode err = check_scheme->ops->insertVector(check_scheme, step_num,
+    SUNErrCode err = check_scheme->ops->insertvector(check_scheme, step_num,
                                                      stage_num, t, state);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
@@ -110,9 +110,9 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
-  if (check_scheme->ops->loadVector)
+  if (check_scheme->ops->loadvector)
   {
-    SUNErrCode err = check_scheme->ops->loadVector(check_scheme, step_num,
+    SUNErrCode err = check_scheme->ops->loadvector(check_scheme, step_num,
                                                    stage_num, peek, out, tout);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;

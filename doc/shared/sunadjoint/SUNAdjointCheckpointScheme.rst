@@ -23,10 +23,10 @@ of the adjoint model.
 
 .. c:enum:: SUNDataIOMode
 
-.. c:enumerator:: SUNDATAIOMODE_INMEM
+   .. c:enumerator:: SUNDATAIOMODE_INMEM
 
-   The IO mode for data that is stored in addressable random access memory.
-   The location of the memory (e.g., CPU or GPU) is not specified by this mode.
+      The IO mode for data that is stored in addressable random access memory.
+      The location of the memory (e.g., CPU or GPU) is not specified by this mode.
 
 
 A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
@@ -49,24 +49,26 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
       The SUNDIALS simulation context.
 
 
+The virtual table structure is defined as
+
 .. c:type:: struct SUNAdjointCheckpointScheme_Ops_ *SUNAdjointCheckpointScheme_Ops
 
 
 .. c:struct:: SUNAdjointCheckpointScheme_Ops_
 
-   .. c:member:: SUNErrCode (*needsSaving)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
+   .. c:member:: SUNErrCode (*needssaving)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
       Function pointer to determine if a checkpoint should be saved at the current timestep.
 
-   .. c:member:: SUNErrCode (*needsDeleting)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunbooleantype* yes_or_no)
+   .. c:member:: SUNErrCode (*needsdeleting)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
       Function pointer to determine if a checkpoint should be deleted at the current timestep.
 
-   .. c:member:: SUNErrCode (*insertVector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector y)
+   .. c:member:: SUNErrCode (*insertvector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector y)
 
       Function pointer to insert a checkpoint state represented as a :c:type:`N_Vector`.
 
-   .. c:member:: SUNErrCode (*loadVector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
+   .. c:member:: SUNErrCode (*loadvector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
 
       Function pointer to load a checkpoint state represented as a :c:type:`N_Vector`.
 
@@ -86,14 +88,12 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(SUNContext sunctx, \
    SUNAdjointCheckpointScheme* cs_ptr)
 
-   Allocates a new object but without any content.
-
    :param sunctx: The SUNDIALS simulation context
    :param cs_ptr: on output, the pointer to the new :c:type:`SUNAdjointCheckpointScheme` object
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeSave(SUNAdjointCheckpointScheme cs, \
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme cs, \
    int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
    Determines if the (step_num, stage_num) should be checkpointed or not.
@@ -106,7 +106,7 @@ A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_ShouldWeDelete(SUNAdjointCheckpointScheme cs, \
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme cs, \
    int64_t step_num, int64_t stage_num, sunbooleantype* yes_or_no)
 
    Determines if the (step_num, stage_num) checkpoint should be deleted or not.
@@ -201,9 +201,9 @@ Base-class Method Overrides
 
 The ``SUNAdjointCheckpointScheme_Fixed`` module implements the following :c:type:`SUNAdjointCheckpointScheme` functions:
 
-* :c:func:`SUNAdjointCheckpointScheme_ShouldWeSave`
+* :c:func:`SUNAdjointCheckpointScheme_NeedsSaving`
 * :c:func:`SUNAdjointCheckpointScheme_InsertVector`
-* :c:func:`SUNAdjointCheckpointScheme_ShouldWeDelete`
+* :c:func:`SUNAdjointCheckpointScheme_NeedsDeleting`
 * :c:func:`SUNAdjointCheckpointScheme_RemoveVector`
 * :c:func:`SUNAdjointCheckpointScheme_LoadVector`
 * :c:func:`SUNAdjointCheckpointScheme_Destroy`
