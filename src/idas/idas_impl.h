@@ -22,6 +22,7 @@
 
 #include <idas/idas.h>
 #include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
 
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
@@ -192,7 +193,7 @@ typedef struct IDAMemRec
   sunrealtype ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values       */
   sunrealtype ida_beta[MXORDP1]; /* ratios of current to previous product of psi's */
   sunrealtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
-  sunrealtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
+  sunscalartype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
 
   /*-------------------------
     N_Vectors for integration
@@ -505,8 +506,8 @@ typedef struct IDAMemRec
   /* Arrays for Fused Vector Operations */
 
   /* scalar arrays */
-  sunrealtype* ida_cvals;
-  sunrealtype ida_dvals[MAXORD_DEFAULT];
+  sunscalartype* ida_cvals;
+  sunscalartype ida_dvals[MAXORD_DEFAULT];
 
   /* vector  arrays */
   N_Vector* ida_Xvecs;
@@ -625,7 +626,7 @@ struct IDAckpntMemRec
   sunrealtype ck_alpha[MXORDP1];
   sunrealtype ck_beta[MXORDP1];
   sunrealtype ck_sigma[MXORDP1];
-  sunrealtype ck_gamma[MXORDP1];
+  sunscalartype ck_gamma[MXORDP1];
 
   /* How many phi, phiS, phiQ and phiQS were allocated? */
   int ck_phi_alloc;

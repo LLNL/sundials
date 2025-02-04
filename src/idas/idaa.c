@@ -2831,7 +2831,7 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, sunrealtype t, N_Vector yy,
 
   /* local variables for fused vector oerations */
   int retval;
-  sunrealtype cvals[4];
+  sunscalartype cvals[4];
   N_Vector Xvecs[4];
   N_Vector* XXvecs[4];
 

@@ -639,7 +639,7 @@ static int IBBDDQJac(IBBDPrecData pdata, sunrealtype tt, sunrealtype cj,
          adjustment to give it the same sign as hh*ypj. */
       inc = pdata->rel_yy *
             SUNMAX(SUNabs(yj),
-                   SUNMAX(SUNabs(IDA_mem->ida_hh * ypj), ONE / ewtj));
+                   SUNMAX(SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj)), ONE / ewtj));
       if (IDA_mem->ida_hh * SUN_REAL(ypj) < ZERO) { inc = -inc; }
       inc = (SUN_REAL(yj) + inc) - SUN_REAL(yj);
 
@@ -678,7 +678,7 @@ static int IBBDDQJac(IBBDPrecData pdata, sunrealtype tt, sunrealtype cj,
       /* Set increment inc as before .*/
       inc = pdata->rel_yy *
             SUNMAX(SUNabs(yj),
-                   SUNMAX(SUNabs(IDA_mem->ida_hh * ypj), ONE / ewtj));
+                   SUNMAX(SUNRabs(IDA_mem->ida_hh * SUN_REAL(ypj)), ONE / ewtj));
       if (IDA_mem->ida_hh * SUN_REAL(ypj) < ZERO) { inc = -inc; }
       inc = (SUN_REAL(yj) + inc) - SUN_REAL(yj);
       if (IDA_mem->ida_constraintsSet)

@@ -641,13 +641,13 @@ int IDAInit(void* ida_mem, IDAResFn res, sunrealtype t0, N_Vector yy0,
 
   /* Allocate temporary work arrays for fused vector ops */
   IDA_mem->ida_cvals = NULL;
-  IDA_mem->ida_cvals = (sunrealtype*)malloc(MXORDP1 * sizeof(sunrealtype));
+  IDA_mem->ida_cvals = (sunscalartype*)malloc(MXORDP1 * sizeof(*IDA_mem->ida_cvals));
 
   IDA_mem->ida_Xvecs = NULL;
-  IDA_mem->ida_Xvecs = (N_Vector*)malloc(MXORDP1 * sizeof(N_Vector));
+  IDA_mem->ida_Xvecs = (N_Vector*)malloc(MXORDP1 * sizeof(*IDA_mem->ida_Xvecs));
 
   IDA_mem->ida_Zvecs = NULL;
-  IDA_mem->ida_Zvecs = (N_Vector*)malloc(MXORDP1 * sizeof(N_Vector));
+  IDA_mem->ida_Zvecs = (N_Vector*)malloc(MXORDP1 * sizeof(*IDA_mem->ida_Zvecs));
 
   if ((IDA_mem->ida_cvals == NULL) || (IDA_mem->ida_Xvecs == NULL) ||
       (IDA_mem->ida_Zvecs == NULL))
@@ -1370,9 +1370,9 @@ int IDASensInit(void* ida_mem, int Ns, int ism, IDASensResFn fS, N_Vector* yS0,
     IDA_mem->ida_Zvecs = NULL;
 
     IDA_mem->ida_cvals =
-      (sunrealtype*)malloc((Ns * MXORDP1) * sizeof(sunrealtype));
-    IDA_mem->ida_Xvecs = (N_Vector*)malloc((Ns * MXORDP1) * sizeof(N_Vector));
-    IDA_mem->ida_Zvecs = (N_Vector*)malloc((Ns * MXORDP1) * sizeof(N_Vector));
+      (sunscalartype*)malloc((Ns * MXORDP1) * sizeof(*IDA_mem->ida_cvals));
+    IDA_mem->ida_Xvecs = (N_Vector*)malloc((Ns * MXORDP1) * sizeof(*IDA_mem->ida_Xvecs));
+    IDA_mem->ida_Zvecs = (N_Vector*)malloc((Ns * MXORDP1) * sizeof(*IDA_mem->ida_Zvecs));
 
     if ((IDA_mem->ida_cvals == NULL) || (IDA_mem->ida_Xvecs == NULL) ||
         (IDA_mem->ida_Zvecs == NULL))
@@ -3089,7 +3089,7 @@ int IDAGetDky(void* ida_mem, sunrealtype t, int k, N_Vector dky)
   IDAMem IDA_mem;
   sunrealtype tfuzz, tp, delt, psij_1;
   int i, j, retval;
-  sunrealtype cjk[MXORDP1];
+  sunscalartype cjk[MXORDP1];
   sunrealtype cjk_1[MXORDP1];
 
   /* Check ida_mem */
@@ -3243,7 +3243,7 @@ int IDAGetQuadDky(void* ida_mem, sunrealtype t, int k, N_Vector dkyQ)
   IDAMem IDA_mem;
   sunrealtype tfuzz, tp, delt, psij_1;
   int i, j, retval;
-  sunrealtype cjk[MXORDP1];
+  sunscalartype cjk[MXORDP1];
   sunrealtype cjk_1[MXORDP1];
 
   /* Check ida_mem */
@@ -3500,7 +3500,7 @@ int IDAGetSensDky1(void* ida_mem, sunrealtype t, int k, int is, N_Vector dkyS)
   IDAMem IDA_mem;
   sunrealtype tfuzz, tp, delt, psij_1;
   int i, j, retval;
-  sunrealtype cjk[MXORDP1];
+  sunscalartype cjk[MXORDP1];
   sunrealtype cjk_1[MXORDP1];
 
   /* Check all inputs for legality */
@@ -3806,7 +3806,7 @@ int IDAGetQuadSensDky1(void* ida_mem, sunrealtype t, int k, int is, N_Vector dky
   IDAMem IDA_mem;
   sunrealtype tfuzz, tp, delt, psij_1;
   int i, j, retval;
-  sunrealtype cjk[MXORDP1];
+  sunscalartype cjk[MXORDP1];
   sunrealtype cjk_1[MXORDP1];
 
   /* Check all inputs for legality */
@@ -7796,21 +7796,22 @@ sunrealtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector* xS, N_Vector* wS,
 {
   int is;
   sunrealtype nrm;
+  sunrealtype* nrmvals = (sunrealtype*) IDA_mem->ida_cvals;
 
   if (mask)
   {
     (void)N_VWrmsNormMaskVectorArray(IDA_mem->ida_Ns, xS, wS, IDA_mem->ida_id,
-                                     IDA_mem->ida_cvals);
+                                     nrmvals);
   }
   else
   {
-    (void)N_VWrmsNormVectorArray(IDA_mem->ida_Ns, xS, wS, IDA_mem->ida_cvals);
+    (void)N_VWrmsNormVectorArray(IDA_mem->ida_Ns, xS, wS, nrmvals);
   }
 
-  nrm = IDA_mem->ida_cvals[0];
+  nrm = nrmvals[0];
   for (is = 1; is < IDA_mem->ida_Ns; is++)
   {
-    if (IDA_mem->ida_cvals[is] > nrm) { nrm = IDA_mem->ida_cvals[is]; }
+    if (nrmvals[is] > nrm) { nrm = nrmvals[is]; }
   }
 
   return (nrm);
@@ -7830,13 +7831,14 @@ static sunrealtype IDAQuadSensWrmsNorm(IDAMem IDA_mem, N_Vector* xQS,
 {
   int is;
   sunrealtype nrm;
+  sunrealtype* nrmvals = (sunrealtype*) IDA_mem->ida_cvals;
 
-  (void)N_VWrmsNormVectorArray(IDA_mem->ida_Ns, xQS, wQS, IDA_mem->ida_cvals);
+  (void)N_VWrmsNormVectorArray(IDA_mem->ida_Ns, xQS, wQS, nrmvals);
 
-  nrm = IDA_mem->ida_cvals[0];
+  nrm = nrmvals[0];
   for (is = 1; is < IDA_mem->ida_Ns; is++)
   {
-    if (IDA_mem->ida_cvals[is] > nrm) { nrm = IDA_mem->ida_cvals[is]; }
+    if (nrmvals[is] > nrm) { nrm = nrmvals[is]; }
   }
 
   return (nrm);
