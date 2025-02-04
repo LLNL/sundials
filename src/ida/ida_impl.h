@@ -23,6 +23,7 @@
 
 #include <ida/ida.h>
 #include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
 
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
@@ -117,11 +118,11 @@ typedef struct IDAMemRec
 
   N_Vector ida_phi[MXORDP1]; /* phi = (maxord+1) arrays of divided differences */
 
-  sunrealtype ida_psi[MXORDP1]; /* differences in t (sums of recent step sizes)   */
-  sunrealtype ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values       */
-  sunrealtype ida_beta[MXORDP1]; /* ratios of current to previous product of psi's */
-  sunrealtype ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
-  sunrealtype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
+  sunrealtype   ida_psi[MXORDP1];   /* differences in t (sums of recent step sizes)   */
+  sunrealtype   ida_alpha[MXORDP1]; /* ratios of current stepsize to psi values       */
+  sunscalartype ida_beta[MXORDP1];  /* ratios of current to previous product of psi's */
+  sunrealtype   ida_sigma[MXORDP1]; /* product successive alpha values and factorial  */
+  sunscalartype ida_gamma[MXORDP1]; /* sum of reciprocals of psi values               */
 
   /*-------------------------
     N_Vectors for integration
@@ -317,8 +318,8 @@ typedef struct IDAMemRec
   /* Arrays for Fused Vector Operations */
 
   /* scalar arrays */
-  sunrealtype ida_cvals[MXORDP1];
-  sunrealtype ida_dvals[MAXORD_DEFAULT];
+  sunscalartype ida_cvals[MXORDP1];
+  sunscalartype ida_dvals[MAXORD_DEFAULT];
 
   /* vector  arrays */
   N_Vector ida_Xvecs[MXORDP1];
