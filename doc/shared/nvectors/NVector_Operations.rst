@@ -204,7 +204,7 @@ operations below.
    .. math::
       z_i = a x_i + b y_i, \quad i=0,\ldots,n-1.
 
-   The output vector *z* can be the same as the input vector (*x*).
+   The output vector *z* can be the same as the input vector *x* but not *y*.
 
 
    Usage:
@@ -606,6 +606,8 @@ of its mathematical operations below.
    where *a* and *b* are scalars, :math:`x_j` and :math:`y_j` are
    vectors in the vector arrays *X* and *Y* respectively, and
    :math:`z_j` is a vector in the output vector array *Z*. The operation returns a :c:type:`SUNErrCode`.
+   
+   The output vector array *Z* can be the same as the input vector array *X* but not *Y*.
 
    Usage:
 
