@@ -26,8 +26,8 @@ struct SUNAdjointCheckpointScheme_Fixed_Content_
 {
   int64_t backup_interval;
   int64_t interval;
-  int64_t stepnum_of_current_insert;
-  int64_t stepnum_of_current_load;
+  int64_t step_num_of_current_insert;
+  int64_t step_num_of_current_load;
   SUNMemoryHelper mem_helper;
   SUNDataNode root_node;
   SUNDataNode current_insert_step_node;
@@ -121,7 +121,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
 
     /* Store the step node in the root node object. */
     char* key = sunSignedToString(step_num);
-    SUNLogExtraDebug(SUNCTX_->logger, "insert-new-step", "step_num=%d, key=%s",
+    SUNLogExtraDebug(SUNCTX_->logger, "insert-new-step", "step_num = %d, key = %s",
                      step_num, key);
     SUNCheckCall(SUNDataNode_AddNamedChild(IMPL_MEMBER(self, root_node), key,
                                            step_data_node));
@@ -255,7 +255,7 @@ SUNErrCode SUNAdjointCheckpointScheme_Destroy_Fixed(
 
   SUNCheckCall(SUNDataNode_Destroy(&IMPL_MEMBER(self, root_node)));
 
-  free(GET_CONTENT(self));
+  free(self->content);
   free(self->ops);
   free(self);
 
