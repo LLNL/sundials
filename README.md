@@ -19,7 +19,7 @@ nonlinear algebraic systems:
 
 * ARKODE - for integrating stiff, nonstiff, and multirate ODEs of the form
 
-  $$M(t) \, y' = f_1(t,y) + f_2(t,y), \quad y(t_0) = y_0$$
+  $$M(t) y' = f_1(t,y) + f_2(t,y), \quad y(t_0) = y_0$$
 
 * CVODE - for integrating stiff and nonstiff ODEs of the form
 
