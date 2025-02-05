@@ -142,6 +142,7 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
 static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
                                    PopBack)(SUNStlVectorTtype self)
 {
+  /* `static` results in implicit empty initialization in C99. */
   static TTYPE nullish;
   if (self->size == 0) return SUN_SUCCESS;
   self->size--;
