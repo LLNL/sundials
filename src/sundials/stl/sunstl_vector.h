@@ -56,18 +56,18 @@ struct SUNStlVectorTtype_s
 // Some std::vector implementations use 2, but 1.5 will be more conservative in terms
 // of the memory usage but yields a larger constant factor in terms of the
 // amortized constant time complexity.
-#define GROWTH_FACTOR 1.5
+#define GROWTH_FACTOR 1.5L
 
 static inline SUNStlVectorTtype MAKE_NAME(SUNStlVectorTtype,
                                           New)(int64_t init_capacity,
                                                void (*destroyValue)(TTYPE*))
 {
-  SUNStlVectorTtype self =
-    (SUNStlVectorTtype)malloc(sizeof(struct SUNStlVectorTtype_s));
-  self->size         = 0;
-  self->capacity     = init_capacity > 0 ? init_capacity : 1;
-  self->values       = (TTYPE*)malloc(sizeof(TTYPE) * self->capacity);
-  self->destroyValue = destroyValue;
+  if (init_capacity < 0 || !destroyValue) { return NULL; }
+  SUNStlVectorTtype self = (SUNStlVectorTtype)malloc(sizeof(*self));
+  self->size             = 0;
+  self->capacity         = init_capacity;
+  self->values           = (TTYPE*)malloc(sizeof(TTYPE) * self->capacity);
+  self->destroyValue     = destroyValue;
   return self;
 }
 
@@ -93,8 +93,11 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype se
 {
   if (self->size == self->capacity)
   {
+    /* It is possible, although unlikely, that new_capacity overflows a long double.
+       We explicitly cast capacity to a long double to silence any implicit
+       conversion compiler warning. */
     int64_t new_capacity =
-      (int64_t)(ceil(((double)self->capacity) * GROWTH_FACTOR));
+      (int64_t)(ceil(((long double)self->capacity) * GROWTH_FACTOR));
     return MAKE_NAME(SUNStlVectorTtype, Reserve)(self, new_capacity);
   }
   return SUN_SUCCESS;

@@ -21,33 +21,13 @@
 #include <sundials/sundials_stepper.h>
 #include "sundials/sundials_types.h"
 
-struct SUNAdjointStepper_
-{
-  int64_t nst, njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp,
-    nrecompute;
-  int64_t step_idx, final_step_idx;
-
-  SUNStepper adj_sunstepper;
-  SUNStepper fwd_sunstepper;
-  SUNAdjointCheckpointScheme checkpoint_scheme;
-
-  SUNMatrix Jac, JacP;
-  SUNRhsJacFn JacFn, JacPFn;
-  SUNRhsJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
-
-  void* user_data;
-  void* content;
-  SUNContext sunctx;
-
-  sunrealtype tf;
-  int last_flag;
-};
-
-typedef _SUNDIALS_STRUCT_ SUNAdjointStepper_* SUNAdjointStepper;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct SUNAdjointStepper_;
+
+typedef _SUNDIALS_STRUCT_ SUNAdjointStepper_* SUNAdjointStepper;
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_Create(

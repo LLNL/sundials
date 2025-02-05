@@ -5,9 +5,10 @@
 Adjoint Sensitivity Analysis
 ############################
 
-This section presents the ``SUNAdjointStepper`` and ``SUNAdjointCheckpointScheme`` classes.
-The ``SUNAdjointStepper`` represents a generic adjoint sensitivity analysis (ASA) procedure
-to obtain the adjoint sensitivities of an IVP of the form
+This section presents the :c:type:`SUNAdjointStepper` and
+:c:type:`SUNAdjointCheckpointScheme` classes. The :c:type:`SUNAdjointStepper`
+represents a generic adjoint sensitivity analysis (ASA) procedure to obtain the adjoint
+sensitivities of an IVP of the form
 
 .. math::
    \dot{y}(t) = f(t, y, p), \qquad y(t_0) = y_0, \qquad y \in \mathbb{R}^N,
@@ -54,7 +55,7 @@ are numerical approximations of the continuous adjoint sensitivities
    :label: SUNADJOINT_CONTINUOUS_ADJOINT_SOLUTION
 
 For the discrete adjoint approach, we first numerically discretize the original IVP :eq:`SUNADJOINT_IVP`
-using either a time integration scheme :math:`\varphi` so that
+using either a time integration scheme, :math:`\varphi`, so that
 
 .. math::
    y_0 = y(t_0),\quad y_n = \varphi(y_{n-k}, \cdots, y_{n-1}, p), \quad k = n, \cdots, 1.

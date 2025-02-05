@@ -72,6 +72,7 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme,
                                                     int64_t step_num,
                                                     int64_t stage_num,
+                                                    sunrealtype t,
                                                     sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT

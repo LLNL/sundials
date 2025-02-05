@@ -20,6 +20,28 @@
 #include "sundials_stepper_impl.h"
 #include "sundials_utils.h"
 
+struct SUNAdjointStepper_
+{
+  int64_t nst, njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp,
+    nrecompute;
+  int64_t step_idx, final_step_idx;
+
+  SUNStepper adj_sunstepper;
+  SUNStepper fwd_sunstepper;
+  SUNAdjointCheckpointScheme checkpoint_scheme;
+
+  SUNMatrix Jac, JacP;
+  SUNRhsJacFn JacFn, JacPFn;
+  SUNRhsJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
+
+  void* user_data;
+  void* content;
+  SUNContext sunctx;
+
+  sunrealtype tf;
+  int last_flag;
+};
+
 SUNErrCode SUNAdjointStepper_Create(
   SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper, int64_t final_step_idx,
   SUNDIALS_MAYBE_UNUSED N_Vector sf, sunrealtype tf,

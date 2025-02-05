@@ -96,23 +96,23 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
    .. c:member:: int64_t njtimesv
 
-      Holds the count of the number of :math:`(\partial f/\partial y)^T v` evaluations.
+      Holds the count of the number of :math:`(\partial f/\partial y)^* v` evaluations.
 
    .. c:member:: int64_t njptimesv
 
-      Holds the count of the number of :math:`(\partial f/\partial p)^T v` evaluations.
+      Holds the count of the number of :math:`(\partial f/\partial p)^* v` evaluations.
 
    .. c:member:: int64_t nvtimesj
 
-      Holds the count of the number of :math:`v^T(\partial f/\partial y)` evaluations.
+      Holds the count of the number of :math:`v^*(\partial f/\partial y)` evaluations.
 
    .. c:member:: int64_t nvtimesjp
 
-      Holds the count of the number of :math:`v^T(\partial f/\partial p)` evaluations.
+      Holds the count of the number of :math:`v^*(\partial f/\partial p)` evaluations.
 
    .. c:member:: int64_t nrecompute
 
-      Holds the count of the number of partial recomputations of the forward problem. 
+      Holds the count of the number of partial recomputations of the forward problem.
 
    .. c:member:: void* user_data
 
@@ -136,13 +136,13 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    Creates the ``SUNAdjointStepper`` object needed to solve the adjoint problem.
 
    :param fwd_sunstepper: The :c:type:`SUNStepper` to be used for forward computations of the original ODE.
-   :param adj_sunstepper: The :c:type:`SUNStepper` to be usef for the backward integration of the adjoint ODE.
+   :param adj_sunstepper: The :c:type:`SUNStepper` to be used for the backward integration of the adjoint ODE.
    :param final_step_idx: The index (step number) of the step corresponding to ``t_f`` for the forward ODE.
    :param sf: The terminal condition for the adjoint ODE.
-   :param tf: The terminal time for the forward ODE and (which is the initial time for the adjoint ODE).
-   :param checkpoint_scheme: The :c:type:`SUNAdjointCheckpointScheme` object that determines the checkpointing strategy to use. This should be the same scheme provided to the forward integrator/stepper.
-   :param sunctx: The :c:type:`SUNContext` for the simulation context.
-   :param adj_stepper: The :c:type:`SUNAdjointStepper` to construct (will be ``NULL`` on failure)
+   :param tf: The terminal time for the forward ODE (the initial time for the adjoint ODE).
+   :param checkpoint_scheme: The :c:type:`SUNAdjointCheckpointScheme` object that determines the checkpointing strategy to use. This should be the same object provided to the forward integrator/stepper.
+   :param sunctx: The :c:type:`SUNContext` for the simulation.
+   :param adj_stepper: The :c:type:`SUNAdjointStepper` to construct (will be ``NULL`` on failure).
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 

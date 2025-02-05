@@ -58,11 +58,11 @@ The virtual table structure is defined as
 
    .. c:member:: SUNErrCode (*needssaving)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
-      Function pointer to determine if a checkpoint should be saved at the current timestep.
+      Function pointer to determine if a checkpoint should be saved at the current time step.
 
    .. c:member:: SUNErrCode (*needsdeleting)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
-      Function pointer to determine if a checkpoint should be deleted at the current timestep.
+      Function pointer to determine if a checkpoint should be deleted at the current time step.
 
    .. c:member:: SUNErrCode (*insertvector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector y)
 
@@ -91,52 +91,52 @@ The virtual table structure is defined as
    :param sunctx: The SUNDIALS simulation context
    :param cs_ptr: on output, the pointer to the new :c:type:`SUNAdjointCheckpointScheme` object
 
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
+   :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme cs, \
    int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
    Determines if the (step_num, stage_num) should be checkpointed or not.
 
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
+   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param t: the time of the checkpoint
    :param yes_or_no: boolean indicating if the checkpoint should be saved or not
 
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
+   :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme cs, \
    int64_t step_num, int64_t stage_num, sunbooleantype* yes_or_no)
 
    Determines if the (step_num, stage_num) checkpoint should be deleted or not.
 
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
+   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param yes_or_no: boolean indicating if the checkpoint should be deleted or not
 
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
+   :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme cs, \
    int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector y)
 
    Inserts the vector as the checkpoint for (step_num, stage_num).
 
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
+   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param t: the time of the checkpoint
    :param y: the state vector to checkpoint
 
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
+   :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme cs, \
    int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
 
    Loads the checkpointed vector for (step_num, stage_num).
 
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
+   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param peek: if true, then the checkpoint will be loaded but not deleted regardless
@@ -145,29 +145,29 @@ The virtual table structure is defined as
    :param yout: the loaded state vector
    :param tout: on output, the time of the checkpoint
 
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
+   :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme cs, \
    int64_t step_num, int64_t stage_num, N_Vector* out)
 
    Removes the checkpointed vector for (step_num, stage_num).
 
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
+   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param out: the loaded state vector
 
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
+   :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_EnableDense(SUNAdjointCheckpointScheme cs, \
    sunbooleantype on_or_off)
 
    Enables or disables dense checkpointing (checkpointing every step/stage).
 
-   :param cs: The :c:type:`SUNAdjointCheckpointScheme` object
+   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
    :param on_or_off: if true, dense checkpointing will be turned on, if false it will be turned off.
 
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
+   :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Destroy(SUNAdjointCheckpointScheme* cs_ptr)
 
@@ -175,7 +175,7 @@ The virtual table structure is defined as
 
    :param cs_ptr: pointer to a :c:type:`SUNAdjointCheckpointScheme` object
 
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
+   :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 
 .. _SUNAdjoint.CheckpointScheme.Fixed:
@@ -183,11 +183,11 @@ The virtual table structure is defined as
 The SUNAdjointCheckpointScheme_Fixed Module
 ===========================================
 
-The SUNAdjointCheckpointScheme_Fixed module implements a scheme where a checkpoint is saved at some
-fixed interval (in timesteps). The module supports checkpointing of time step states only, or timestep
+The ``SUNAdjointCheckpointScheme_Fixed`` module implements a scheme where a checkpoint is saved at some
+fixed interval (in time steps). The module supports checkpointing of time step states only, or time step
 states with intermediate stage states as well (for multistage methods). When used with a
-fixed timestep size then the number of checkpoints that will be saved is fixed. However, with
-adaptive timesteps the number of checkpoints stored with this scheme is unbounded.
+fixed time step size then the number of checkpoints that will be saved is fixed. However, with
+adaptive time steps the number of checkpoints stored with this scheme is unbounded.
 
 The diagram below illustrates how checkpoints are stored with this scheme:
 
@@ -227,4 +227,4 @@ The ``SUNAdjointCheckpointScheme_Fixed`` module also implements the following mo
    :param keep: Keep data stored even after it is not needed anymore.
    :param sunctx: The :c:type:`SUNContext` for the simulation.
    :param check_scheme_ptr: Pointer to the newly constructed object.
-   :return: A :c:type:`SUNErrCode` indicating success or failure.
+   :returns: A :c:type:`SUNErrCode` indicating success or failure.

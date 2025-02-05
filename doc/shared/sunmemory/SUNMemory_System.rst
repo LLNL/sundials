@@ -22,7 +22,7 @@ The implementation defines the constructor
 
 .. c:function:: SUNMemoryHelper SUNMemoryHelper_Sys(SUNContext sunctx)
 
-   Allocates and returns a ``SUNMemoryHelper`` object for handling system memory
+   Allocates and returns a :c:type:`SUNMemoryHelper` object for handling system memory
    if successful. Otherwise, it returns ``NULL``.
 
 .. _SUNMemory.Sys.Operations:

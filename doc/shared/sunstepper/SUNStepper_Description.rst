@@ -150,8 +150,8 @@ Stepping Functions
 
 .. c:function:: SUNErrCode SUNStepper_ResetCheckpointIndex(SUNStepper stepper, int64_t ckptIdxR)
 
-   This function resets the stepper state to the provided independent variable
-   value and dependent variable vector.
+   This function resets the stepper state to the independent variable
+   value and dependent variable vector contained in the given checkpoint index.
 
    :param stepper: the stepper object.
    :param ckptIdxR: the step index to begin checkpointing from
@@ -330,10 +330,9 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :param fn: the :c:type:`SUNStepperResetFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-   .. c:function:: SUNErrCode SUNStepper_SetResetFn(SUNStepper stepper, SUNStepperResetFn fn)
+.. c:function:: SUNErrCode SUNStepper_SetResetFn(SUNStepper stepper, SUNStepperResetCheckpointIndexFn fn)
 
-
-This function attaches a :c:type:`SUNStepperResetCheckpointIndexFn` function to a
+   This function attaches a :c:type:`SUNStepperResetCheckpointIndexFn` function to a
    :c:type:`SUNStepper` object.
 
    :param stepper: a stepper object.

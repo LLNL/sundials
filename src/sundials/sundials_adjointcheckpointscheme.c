@@ -71,7 +71,7 @@ SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(
 
 SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
-  sunbooleantype* yes_or_no)
+  sunrealtype t, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
@@ -79,7 +79,7 @@ SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(
   if (check_scheme->ops->needsdeleting)
   {
     SUNErrCode err = check_scheme->ops->needsdeleting(check_scheme, step_num,
-                                                      stage_num, yes_or_no);
+                                                      stage_num, t, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
