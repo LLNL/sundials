@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include <sundials/sundials_math.h>
@@ -33,6 +34,347 @@
 /*===============================================================
   ARKODE optional input functions
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  ARKodeSetFromCommandLine:
+
+  Parses the command line to control scalar-valued ARKODE options.
+
+  (this leverages a few typedefs and static utility routines)
+  ---------------------------------------------------------------*/
+typedef int (*arkIntSetFn)(void*,int);
+typedef int (*arkLongSetFn)(void*,long int);
+typedef int (*arkRealSetFn)(void*,sunrealtype);
+typedef int (*arkBoolSetFn)(void*);
+static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, char *argv[],
+                             const char* argtest, arkIntSetFn fname,
+                             sunbooleantype *arg_used)
+{
+  *arg_used = SUNFALSE;
+  if (strcmp(argv[*i], argtest) == 0)
+  {
+    int iarg = atoi(argv[++(*i)]);
+    if (fname((void*) ark_mem, iarg) != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s %s",
+                      argv[(*i)-1], argv[*i]);
+      return ARK_ILL_INPUT;
+    }
+    *arg_used = SUNTRUE;
+  }
+  return ARK_SUCCESS;
+}
+
+static int CheckAndSetLongArg(ARKodeMem ark_mem, int *i, char *argv[],
+                              const char* argtest, arkLongSetFn fname,
+                              sunbooleantype *arg_used)
+{
+  *arg_used = SUNFALSE;
+  if (strcmp(argv[*i], argtest) == 0)
+  {
+    long int iarg = atol(argv[++(*i)]);
+    if (fname((void*) ark_mem, iarg) != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s %s",
+                      argv[(*i)-1], argv[*i]);
+      return ARK_ILL_INPUT;
+    }
+    *arg_used = SUNTRUE;
+  }
+  return ARK_SUCCESS;
+}
+
+static int CheckAndSetRealArg(ARKodeMem ark_mem, int *i, char *argv[],
+                              const char* argtest, arkRealSetFn fname,
+                              sunbooleantype *arg_used)
+{
+  *arg_used = SUNFALSE;
+  if (strcmp(argv[*i], argtest) == 0)
+  {
+    sunrealtype rarg = atof(argv[++(*i)]);
+    if (fname((void*) ark_mem, rarg) != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s %s",
+                      argv[(*i)-1], argv[*i]);
+      return ARK_ILL_INPUT;
+    }
+    *arg_used = SUNTRUE;
+  }
+  return ARK_SUCCESS;
+}
+
+static int CheckAndSetBoolArg(ARKodeMem ark_mem, int *i, char *argv[],
+                              const char* argtest, arkBoolSetFn fname,
+                              sunbooleantype *arg_used)
+{
+  *arg_used = SUNFALSE;
+  if (strcmp(argv[*i], argtest) == 0)
+  {
+    if (fname((void*) ark_mem) != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s", argv[*i]);
+      return ARK_ILL_INPUT;
+    }
+    *arg_used = SUNTRUE;
+  }
+  return ARK_SUCCESS;
+}
+
+int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
+{
+  ARKodeMem ark_mem;
+  if (arkode_mem == NULL)
+  {
+    arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_ARK_NO_MEM);
+    return (ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Set list of integer command-line arguments, and the corresponding set routine */
+  int num_int_keys = 15;
+  char* int_keys[] = {"arkode.order",
+                      "arkode.interpolant_degree",
+                      "arkode.linear",
+                      "arkode.autonomous",
+                      "arkode.deduce_implicit_rhs",
+                      "arkode.lsetup_frequency",
+                      "arkode.predictor_method",
+                      "arkode.max_nonlin_iters",
+                      "arkode.max_hnil_warns",
+                      "arkode.interpolate_stop_time",
+                      "arkode.max_num_constr_fails",
+                      "arkode.adaptivity_adjustment",
+                      "arkode.small_num_efails",
+                      "arkode.max_err_test_fails",
+                      "arkode.max_conv_fails"};
+  arkIntSetFn int_set[] = {ARKodeSetOrder,
+                           ARKodeSetInterpolantDegree,
+                           ARKodeSetLinear,
+                           ARKodeSetAutonomous,
+                           ARKodeSetDeduceImplicitRhs,
+                           ARKodeSetLSetupFrequency,
+                           ARKodeSetPredictorMethod,
+                           ARKodeSetMaxNonlinIters,
+                           ARKodeSetMaxHnilWarns,
+                           ARKodeSetInterpolateStopTime,
+                           ARKodeSetMaxNumConstrFails,
+                           ARKodeSetAdaptivityAdjustment,
+                           ARKodeSetSmallNumEFails,
+                           ARKodeSetMaxErrTestFails,
+                           ARKodeSetMaxConvFails};
+
+  int num_long_keys = 1;
+  char* long_keys[] = {"arkode.max_num_steps"};
+  arkLongSetFn long_set[] = {ARKodeSetMaxNumSteps};
+
+  int num_real_keys = 18;
+  char* real_keys[] = {"arkode.nonlin_crdown",
+                       "arkode.nonlin_rdiv",
+                       "arkode.delta_gamma_max",
+                       "arkode.nonlin_conv_coef",
+                       "arkode.init_step",
+                       "arkode.min_step",
+                       "arkode.max_step",
+                       "arkode.stop_time",
+                       "arkode.fixed_step",
+                       "arkode.step_direction",
+                       "arkode.cfl_fraction",
+                       "arkode.safety_factor",
+                       "arkode.error_bias",
+                       "arkode.max_growth",
+                       "arkode.min_reduction",
+                       "arkode.max_first_growth",
+                       "arkode.max_efail_growth",
+                       "arkode.max_cfail_growth"};
+  arkRealSetFn real_set[] = {ARKodeSetNonlinCRDown,
+                             ARKodeSetNonlinRDiv,
+                             ARKodeSetDeltaGammaMax,
+                             ARKodeSetNonlinConvCoef,
+                             ARKodeSetInitStep,
+                             ARKodeSetMinStep,
+                             ARKodeSetMaxStep,
+                             ARKodeSetStopTime,
+                             ARKodeSetFixedStep,
+                             ARKodeSetStepDirection,
+                             ARKodeSetCFLFraction,
+                             ARKodeSetSafetyFactor,
+                             ARKodeSetErrorBias,
+                             ARKodeSetMaxGrowth,
+                             ARKodeSetMinReduction,
+                             ARKodeSetMaxFirstGrowth,
+                             ARKodeSetMaxEFailGrowth,
+                             ARKodeSetMaxCFailGrowth};
+
+  int num_bool_keys = 4;
+  char* bool_keys[] = {"arkode.nonlinear",
+                       "arkode.clear_stop_time",
+                       "arkode.no_inactive_root_warn",
+                       "arkode.reset_accumulated_error"};
+  arkBoolSetFn bool_set[] = {ARKodeSetNonlinear,
+                             ARKodeClearStopTime,
+                             ARKodeSetNoInactiveRootWarn,
+                             ARKodeResetAccumulatedError};
+
+  int i, j, retval;
+  for (i = 1; i < argc; i++)
+  {
+    sunbooleantype arg_used = SUNFALSE;
+
+    /* skip command-line arguments that do not begin with "arkode." */
+    if (strncmp(argv[i], "arkode.", 7) != 0) { continue; }
+
+    /* check all "int" command-line options */
+    for (j = 0; j < num_int_keys; j++)
+    {
+      if (CheckAndSetIntArg(ark_mem, &i, argv, int_keys[j],
+                            int_set[j], &arg_used) != ARK_SUCCESS)
+      {
+        return ARK_ILL_INPUT;
+      }
+      if (arg_used) break;
+    }
+    if (arg_used) continue;
+
+    /* check all long int command-line options */
+    for (j = 0; j < num_long_keys; j++)
+    {
+      if (CheckAndSetLongArg(ark_mem, &i, argv, long_keys[j],
+                             long_set[j], &arg_used) != ARK_SUCCESS)
+      {
+        return ARK_ILL_INPUT;
+      }
+      if (arg_used) break;
+    }
+    if (arg_used) continue;
+
+    /* check all real command-line options */
+    for (j = 0; j < num_real_keys; j++)
+    {
+      if (CheckAndSetRealArg(ark_mem, &i, argv, real_keys[j],
+                             real_set[j], &arg_used) != ARK_SUCCESS)
+      {
+        return ARK_ILL_INPUT;
+      }
+      if (arg_used) break;
+    }
+    if (arg_used) continue;
+
+    /* check all bool command-line options */
+    for (j = 0; j < num_bool_keys; j++)
+    {
+      if (CheckAndSetBoolArg(ark_mem, &i, argv, bool_keys[j],
+                             bool_set[j], &arg_used) != ARK_SUCCESS)
+      {
+        return ARK_ILL_INPUT;
+      }
+      if (arg_used) break;
+    }
+    if (arg_used) continue;
+
+    /*** handle all remaining command-line options ***/
+
+    if (strcmp(argv[i], "arkode.interpolant_type") == 0)
+    {
+      i++;
+      retval = 1;
+      if (strcmp(argv[i], "ARK_INTERP_HERMITE") == 0)
+      {
+        retval = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);
+      }
+      else if (strcmp(argv[i], "ARK_INTERP_LAGRANGE") == 0)
+      {
+        retval = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_LAGRANGE);
+      }
+      else if (strcmp(argv[i], "ARK_INTERP_NONE") == 0)
+      {
+        retval = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_NONE);
+      }
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s %s",
+                        argv[i-1], argv[i]);
+        return ARK_ILL_INPUT;
+      }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    if (strcmp(argv[i], "arkode.tolerances") == 0)
+    {
+      sunrealtype rtol = atof(argv[++i]);
+      sunrealtype atol = atof(argv[++i]);
+      retval = ARKodeSStolerances(arkode_mem, rtol, atol);
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s %s %s",
+                        argv[i-2], argv[i-1], argv[i]);
+        return ARK_ILL_INPUT;
+      }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    if (strcmp(argv[i], "arkode.fixed_step_bounds") == 0)
+    {
+      sunrealtype lb = atof(argv[++i]);
+      sunrealtype ub = atof(argv[++i]);
+      retval = ARKodeSetFixedStepBounds(arkode_mem, lb, ub);
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s %s %s",
+                        argv[i-2], argv[i-1], argv[i]);
+        return ARK_ILL_INPUT;
+      }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    if (strcmp(argv[i], "arkode.accum_error_type") == 0)
+    {
+      i++;
+      retval = 1;
+      if (strcmp(argv[i], "ARK_ACCUMERROR_NONE") == 0)
+      {
+        retval = ARKodeSetAccumulatedErrorType(arkode_mem, ARK_ACCUMERROR_NONE);
+      }
+      else if (strcmp(argv[i], "ARK_ACCUMERROR_MAX") == 0)
+      {
+        retval = ARKodeSetAccumulatedErrorType(arkode_mem, ARK_ACCUMERROR_MAX);
+      }
+      else if (strcmp(argv[i], "ARK_ACCUMERROR_SUM") == 0)
+      {
+        retval = ARKodeSetAccumulatedErrorType(arkode_mem, ARK_ACCUMERROR_SUM);
+      }
+      else if (strcmp(argv[i], "ARK_ACCUMERROR_AVG") == 0)
+      {
+        retval = ARKodeSetAccumulatedErrorType(arkode_mem, ARK_ACCUMERROR_AVG);
+      }
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s %s",
+                        argv[i-1], argv[i]);
+        return ARK_ILL_INPUT;
+      }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    /* warn for uninterpreted arkode.X arguments */
+    arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
+                    "WARNING: argument %s was not handled\n", argv[i]);
+  }
+
+  return (ARK_SUCCESS);
+}
 
 /*---------------------------------------------------------------
   ARKodeSetDefaults:

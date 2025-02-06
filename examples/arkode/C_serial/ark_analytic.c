@@ -62,7 +62,7 @@ static int check_ans(N_Vector y, sunrealtype t, sunrealtype rtol,
                      sunrealtype atol);
 
 /* Main Program */
-int main(void)
+int main(int argc, char* argv[])
 {
   /* general problem parameters */
   sunrealtype T0     = SUN_RCONST(0.0);    /* initial time */
@@ -129,6 +129,10 @@ int main(void)
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
   flag = ARKodeSetLinear(arkode_mem, 0);
   if (check_flag(&flag, "ARKodeSetLinear", 1)) { return 1; }
+
+  /* Override any current settings with command-line options */
+  flag = ARKodeSetFromCommandLine(arkode_mem, argc, argv);
+  if (check_flag(&flag, "ARKodeSetFromCommandLine", 1)) { return 1; }
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt", "w");
