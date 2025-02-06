@@ -137,21 +137,21 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
 
   /* Set list of integer command-line arguments, and the corresponding set routine */
   int num_int_keys = 15;
-  char* int_keys[] = {"arkode.order",
-                      "arkode.interpolant_degree",
-                      "arkode.linear",
-                      "arkode.autonomous",
-                      "arkode.deduce_implicit_rhs",
-                      "arkode.lsetup_frequency",
-                      "arkode.predictor_method",
-                      "arkode.max_nonlin_iters",
-                      "arkode.max_hnil_warns",
-                      "arkode.interpolate_stop_time",
-                      "arkode.max_num_constr_fails",
-                      "arkode.adaptivity_adjustment",
-                      "arkode.small_num_efails",
-                      "arkode.max_err_test_fails",
-                      "arkode.max_conv_fails"};
+  const char* int_keys[] = {"arkode.order",
+                            "arkode.interpolant_degree",
+                            "arkode.linear",
+                            "arkode.autonomous",
+                            "arkode.deduce_implicit_rhs",
+                            "arkode.lsetup_frequency",
+                            "arkode.predictor_method",
+                            "arkode.max_nonlin_iters",
+                            "arkode.max_hnil_warns",
+                            "arkode.interpolate_stop_time",
+                            "arkode.max_num_constr_fails",
+                            "arkode.adaptivity_adjustment",
+                            "arkode.small_num_efails",
+                            "arkode.max_err_test_fails",
+                            "arkode.max_conv_fails"};
   arkIntSetFn int_set[] = {ARKodeSetOrder,
                            ARKodeSetInterpolantDegree,
                            ARKodeSetLinear,
@@ -169,28 +169,28 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
                            ARKodeSetMaxConvFails};
 
   int num_long_keys = 1;
-  char* long_keys[] = {"arkode.max_num_steps"};
+  const char* long_keys[] = {"arkode.max_num_steps"};
   arkLongSetFn long_set[] = {ARKodeSetMaxNumSteps};
 
   int num_real_keys = 18;
-  char* real_keys[] = {"arkode.nonlin_crdown",
-                       "arkode.nonlin_rdiv",
-                       "arkode.delta_gamma_max",
-                       "arkode.nonlin_conv_coef",
-                       "arkode.init_step",
-                       "arkode.min_step",
-                       "arkode.max_step",
-                       "arkode.stop_time",
-                       "arkode.fixed_step",
-                       "arkode.step_direction",
-                       "arkode.cfl_fraction",
-                       "arkode.safety_factor",
-                       "arkode.error_bias",
-                       "arkode.max_growth",
-                       "arkode.min_reduction",
-                       "arkode.max_first_growth",
-                       "arkode.max_efail_growth",
-                       "arkode.max_cfail_growth"};
+  const char* real_keys[] = {"arkode.nonlin_crdown",
+                             "arkode.nonlin_rdiv",
+                             "arkode.delta_gamma_max",
+                             "arkode.nonlin_conv_coef",
+                             "arkode.init_step",
+                             "arkode.min_step",
+                             "arkode.max_step",
+                             "arkode.stop_time",
+                             "arkode.fixed_step",
+                             "arkode.step_direction",
+                             "arkode.cfl_fraction",
+                             "arkode.safety_factor",
+                             "arkode.error_bias",
+                             "arkode.max_growth",
+                             "arkode.min_reduction",
+                             "arkode.max_first_growth",
+                             "arkode.max_efail_growth",
+                             "arkode.max_cfail_growth"};
   arkRealSetFn real_set[] = {ARKodeSetNonlinCRDown,
                              ARKodeSetNonlinRDiv,
                              ARKodeSetDeltaGammaMax,
@@ -211,10 +211,10 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
                              ARKodeSetMaxCFailGrowth};
 
   int num_bool_keys = 4;
-  char* bool_keys[] = {"arkode.nonlinear",
-                       "arkode.clear_stop_time",
-                       "arkode.no_inactive_root_warn",
-                       "arkode.reset_accumulated_error"};
+  const char* bool_keys[] = {"arkode.nonlinear",
+                             "arkode.clear_stop_time",
+                             "arkode.no_inactive_root_warn",
+                             "arkode.reset_accumulated_error"};
   arkBoolSetFn bool_set[] = {ARKodeSetNonlinear,
                              ARKodeClearStopTime,
                              ARKodeSetNoInactiveRootWarn,
