@@ -389,7 +389,7 @@ static int cvNlsResidual(N_Vector ycor, N_Vector res, void* cvode_mem)
 #endif
   {
     N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res);
-    N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res);
+    N_VLinearSum(ONE, res, -cv_mem->cv_gamma, cv_mem->cv_ftemp, res);
   }
 
   return (CV_SUCCESS);

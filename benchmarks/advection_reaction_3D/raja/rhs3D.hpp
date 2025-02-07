@@ -422,7 +422,7 @@ static int AdvectionReactionResidual(sunrealtype t, N_Vector y, N_Vector ydot,
   if (check_retval((void*)&retval, "Reaction", 1, udata->myid)) { return (-1); }
 
   /* F = ydot - h(t,y) = ydot + c y_x - g(t,y) */
-  N_VLinearSum(1.0, ydot, -1.0, F, F);
+  N_VLinearSum(-1.0, F, 1.0, ydot, F);
 
   /* return success */
   return (0);

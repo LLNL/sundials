@@ -6,6 +6,10 @@
 
 ### New Features and Enhancements
 
+The `N_VLinearSum` and `N_VLinearSumVectorArray` operations now assume that the output 
+can be used as input only in the first component, ensuring compatibility with external 
+libraries and providing additional flexibility.
+
 ### Bug Fixes
 
 Fixed bug in `ARKodeSetFixedStep` where it could return `ARK_SUCCESS` despite

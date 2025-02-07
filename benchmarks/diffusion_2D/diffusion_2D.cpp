@@ -71,7 +71,7 @@ int diffusion(sunrealtype t, N_Vector u, N_Vector up, N_Vector res,
   if (check_flag(&flag, "laplacian", 1)) return -1;
 
   // Compute the residual
-  N_VLinearSum(ONE, up, -ONE, res, res);
+  N_VLinearSum(-ONE, res, ONE, up, res);
 
   return 0;
 }
@@ -893,7 +893,7 @@ int SolutionError(sunrealtype t, N_Vector u, N_Vector e, UserData* udata)
   if (flag != 0) { return -1; }
 
   // Compute absolute error
-  N_VLinearSum(ONE, u, -ONE, e, e);
+  N_VLinearSum(-ONE, e, ONE, u, e);
   N_VAbs(e, e);
 
   return 0;

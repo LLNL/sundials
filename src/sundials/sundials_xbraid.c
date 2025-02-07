@@ -168,7 +168,7 @@ int SUNBraidVector_Sum(SUNDIALS_MAYBE_UNUSED braid_App app, braid_Real alpha,
   if (x->y == NULL || y->y == NULL) { return SUNBRAID_MEMFAIL; }
 
   /* Compute linear sum */
-  N_VLinearSum(alpha, x->y, beta, y->y, y->y);
+  N_VLinearSum(beta, y->y, alpha, x->y, y->y);
   return SUNBRAID_SUCCESS;
 }
 

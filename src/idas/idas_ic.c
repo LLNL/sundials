@@ -953,7 +953,7 @@ static int IDANewyyp(IDAMem IDA_mem, sunrealtype lambda)
     N_VProd(IDA_mem->ida_id, IDA_mem->ida_delta, IDA_mem->ida_dtemp);
     N_VLinearSum(ONE, IDA_mem->ida_yp0, -IDA_mem->ida_cj * lambda,
                  IDA_mem->ida_dtemp, IDA_mem->ida_ypnew);
-    N_VLinearSum(ONE, IDA_mem->ida_delta, -ONE, IDA_mem->ida_dtemp,
+    N_VLinearSum(-ONE, IDA_mem->ida_dtemp, ONE, IDA_mem->ida_delta,
                  IDA_mem->ida_dtemp);
     N_VLinearSum(ONE, IDA_mem->ida_yy0, -lambda, IDA_mem->ida_dtemp,
                  IDA_mem->ida_ynew);
@@ -991,7 +991,7 @@ static int IDANewy(IDAMem IDA_mem)
   if (IDA_mem->ida_icopt == IDA_YA_YDP_INIT)
   {
     N_VProd(IDA_mem->ida_id, IDA_mem->ida_delta, IDA_mem->ida_dtemp);
-    N_VLinearSum(ONE, IDA_mem->ida_delta, -ONE, IDA_mem->ida_dtemp,
+    N_VLinearSum(-ONE, IDA_mem->ida_dtemp, ONE, IDA_mem->ida_delta,
                  IDA_mem->ida_dtemp);
     N_VLinearSum(ONE, IDA_mem->ida_yy0, -ONE, IDA_mem->ida_dtemp,
                  IDA_mem->ida_ynew);
@@ -1342,7 +1342,7 @@ static int IDASensNewyyp(IDAMem IDA_mem, sunrealtype lambda)
       N_VProd(IDA_mem->ida_id, IDA_mem->ida_deltaS[is], IDA_mem->ida_dtemp);
       N_VLinearSum(ONE, IDA_mem->ida_ypS0[is], -IDA_mem->ida_cj * lambda,
                    IDA_mem->ida_dtemp, IDA_mem->ida_ypS0new[is]);
-      N_VLinearSum(ONE, IDA_mem->ida_deltaS[is], -ONE, IDA_mem->ida_dtemp,
+      N_VLinearSum(-ONE, IDA_mem->ida_dtemp, ONE, IDA_mem->ida_deltaS[is],
                    IDA_mem->ida_dtemp);
       N_VLinearSum(ONE, IDA_mem->ida_yyS0[is], -lambda, IDA_mem->ida_dtemp,
                    IDA_mem->ida_yyS0new[is]);

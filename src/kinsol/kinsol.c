@@ -2803,7 +2803,7 @@ static int KINPicardFcnEval(KINMem kin_mem, N_Vector gval, N_Vector uval,
     if (retval == 0)
     {
       /* Update gval = uval + gval since gval = -L^{-1}F(uu)  */
-      N_VLinearSum(ONE, uval, ONE, gval, gval);
+      N_VLinearSum(ONE, gval, ONE, uval, gval);
       return (KIN_SUCCESS);
     }
     else if (retval < 0) { return (KIN_LSOLVE_FAIL); }
@@ -3061,7 +3061,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       }
       N_VLinearSum(c, kin_mem->kin_q_aa[i], s, kin_mem->kin_q_aa[i + 1],
                    kin_mem->kin_vtemp2);
-      N_VLinearSum(-s, kin_mem->kin_q_aa[i], c, kin_mem->kin_q_aa[i + 1],
+      N_VLinearSum(c, kin_mem->kin_q_aa[i + 1], -s, kin_mem->kin_q_aa[i],
                    kin_mem->kin_q_aa[i + 1]);
       N_VScale(ONE, kin_mem->kin_vtemp2, kin_mem->kin_q_aa[i]);
     }

@@ -3102,7 +3102,7 @@ int arkStep_ComputeSolutions_MassFixed(ARKodeMem ark_mem, sunrealtype* dsmPtr)
     }
 
     /* compute y = yn + update */
-    N_VLinearSum(ONE, ark_mem->yn, ONE, y, y);
+    N_VLinearSum(ONE, y, ONE, ark_mem->yn, y);
   }
 
   /* compute yerr (if step adaptivity enabled) */

@@ -531,7 +531,7 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
       }
       N_VLinearSum(c, Q[i], s, Q[i + 1], vtemp);
       SUNCheckLastErr();
-      N_VLinearSum(-s, Q[i], c, Q[i + 1], Q[i + 1]);
+      N_VLinearSum(c, Q[i + 1], -s, Q[i], Q[i + 1]);
       SUNCheckLastErr();
       N_VScale(ONE, vtemp, Q[i]);
       SUNCheckLastErr();

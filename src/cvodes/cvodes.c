@@ -5576,7 +5576,7 @@ static sunrealtype cvUpperBoundH0(CVodeMem cv_mem, sunrealtype tdist)
   N_VAbs(cv_mem->cv_zn[0], temp2);
   cv_mem->cv_efun(cv_mem->cv_zn[0], temp1, cv_mem->cv_e_data);
   N_VInv(temp1, temp1);
-  N_VLinearSum(HUB_FACTOR, temp2, ONE, temp1, temp1);
+  N_VLinearSum(ONE, temp1, HUB_FACTOR, temp2, temp1);
 
   N_VAbs(cv_mem->cv_zn[1], temp2);
 
@@ -5593,7 +5593,7 @@ static sunrealtype cvUpperBoundH0(CVodeMem cv_mem, sunrealtype tdist)
     N_VAbs(cv_mem->cv_znQ[0], tempQ2);
     cvQuadEwtSet(cv_mem, cv_mem->cv_znQ[0], tempQ1);
     N_VInv(tempQ1, tempQ1);
-    N_VLinearSum(HUB_FACTOR, tempQ2, ONE, tempQ1, tempQ1);
+    N_VLinearSum(ONE, tempQ1, HUB_FACTOR, tempQ2, tempQ1);
 
     N_VAbs(cv_mem->cv_znQ[1], tempQ2);
 
@@ -5614,7 +5614,7 @@ static sunrealtype cvUpperBoundH0(CVodeMem cv_mem, sunrealtype tdist)
     {
       N_VAbs(cv_mem->cv_znS[0][is], temp2);
       N_VInv(tempS1[is], temp1);
-      N_VLinearSum(HUB_FACTOR, temp2, ONE, temp1, temp1);
+      N_VLinearSum(ONE, temp1, HUB_FACTOR, temp2, temp1);
 
       N_VAbs(cv_mem->cv_znS[1][is], temp2);
 
@@ -5639,7 +5639,7 @@ static sunrealtype cvUpperBoundH0(CVodeMem cv_mem, sunrealtype tdist)
     {
       N_VAbs(cv_mem->cv_znQS[0][is], tempQ2);
       N_VInv(tempQS1[is], tempQ1);
-      N_VLinearSum(HUB_FACTOR, tempQ2, ONE, tempQ1, tempQ1);
+      N_VLinearSum(ONE, tempQ1, HUB_FACTOR, tempQ2, tempQ1);
 
       N_VAbs(cv_mem->cv_znQS[1][is], tempQ2);
 
@@ -7069,7 +7069,7 @@ static int cvCheckConstraints(CVodeMem cv_mem)
   N_VCompare(ONEPT5, cv_mem->cv_constraints, tmp); /* a[i]=1 when |c[i]|=2  */
   N_VProd(tmp, cv_mem->cv_constraints, tmp);       /* a * c                 */
   N_VDiv(tmp, cv_mem->cv_ewt, tmp);                /* a * c * wt            */
-  N_VLinearSum(ONE, cv_mem->cv_y, -PT1, tmp, tmp); /* y - 0.1 * a * c * wt  */
+  N_VLinearSum(-PT1, tmp, ONE, cv_mem->cv_y, tmp); /* y - 0.1 * a * c * wt  */
   N_VProd(tmp, mm, tmp);                           /* v = mm*(y-0.1*a*c*wt) */
 
   vnorm = N_VWrmsNorm(tmp, cv_mem->cv_ewt); /* ||v|| */

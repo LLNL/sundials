@@ -907,7 +907,7 @@ int cvLsATimes(void* cvode_mem, N_Vector v, N_Vector z)
   if (retval != 0) { return (retval); }
 
   /* add contribution from identity matrix */
-  N_VLinearSum(ONE, v, -cv_mem->cv_gamma, z, z);
+  N_VLinearSum(-cv_mem->cv_gamma, z, ONE, v, z);
 
   return (0);
 }

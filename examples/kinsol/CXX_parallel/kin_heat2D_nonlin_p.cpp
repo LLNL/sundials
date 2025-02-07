@@ -620,13 +620,13 @@ static int FPFunction(N_Vector u, N_Vector f, void* user_data)
   // Add c(u)
   retval = c(u, udata->vtemp, user_data);
   if (check_retval(&retval, "c(u)", 1)) { return 1; }
-  N_VLinearSum(ONE, udata->vtemp, ONE, f, f);
+  N_VLinearSum(ONE, f, ONE, udata->vtemp, f);
 
   // Add u
-  N_VLinearSum(ONE, u, ONE, f, f);
+  N_VLinearSum(ONE, f, ONE, u, f);
 
   // Subtract b
-  N_VLinearSum(-ONE, udata->b, ONE, f, f);
+  N_VLinearSum(ONE, f, -ONE, udata->b, f);
 
   // Stop timer
   double t2 = MPI_Wtime();
@@ -746,7 +746,7 @@ static int SetupRHS(void* user_data)
   if (check_retval(&retval, "c(u)", 1)) { return 1; }
 
   // b = kx u_xx (u_exact) + ky u_yy (u_exact) + c(u_exact)
-  N_VLinearSum(ONE, udata->vtemp, ONE, udata->b, udata->b);
+  N_VLinearSum(ONE, udata->b, ONE, udata->vtemp, udata->b);
 
   // Return success
   return 0;
@@ -1284,7 +1284,7 @@ static int SolutionError(N_Vector u, N_Vector e, UserData* udata)
   if (retval != 0) { return -1; }
 
   // Compute absolute error
-  N_VLinearSum(ONE, u, -ONE, e, e);
+  N_VLinearSum(-ONE, e, ONE, u, e);
   N_VAbs(e, e);
 
   return 0;

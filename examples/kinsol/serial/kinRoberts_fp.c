@@ -349,7 +349,7 @@ static int check_ans(N_Vector u, sunrealtype rtol, sunrealtype atol)
   N_VInv(ewt, ewt);
 
   /* compute the solution error */
-  N_VLinearSum(ONE, u, -ONE, ref, ref);
+  N_VLinearSum(-ONE, ref, ONE, u, ref);
   err = N_VWrmsNorm(ref, ewt);
 
   /* is the solution within the tolerances? */

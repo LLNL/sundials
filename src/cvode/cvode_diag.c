@@ -375,7 +375,7 @@ static int CVDiagSetup(CVodeMem cv_mem, SUNDIALS_MAYBE_UNUSED int convfail,
 #endif
   {
     N_VLinearSum(ONE, M, -ONE, fpred, M);
-    N_VLinearSum(FRACT, ftemp, -h, M, M);
+    N_VLinearSum(-h, M, FRACT, ftemp, M);
     N_VProd(ftemp, ewt, y);
     /* Protect against deltay_i being at roundoff level */
     N_VCompare(uround, y, bit);

@@ -335,7 +335,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
 
       return (LASTFLAG(S));
     }
-    N_VLinearSum(ONE, b, -ONE, r, r);
+    N_VLinearSum(-ONE, r, ONE, b, r);
     SUNCheckLastErr();
   }
 
@@ -502,7 +502,7 @@ int SUNLinSolSolve_PCG(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix nul,
     beta = rz / rz_old;
 
     /* Update p = z + beta*p */
-    N_VLinearSum(ONE, z, beta, p, p);
+    N_VLinearSum(beta, p, ONE, z, p);
     SUNCheckLastErr();
 
     SUNLogInfo(S->sunctx->logger, "end-linear-iterate", "status = continue");

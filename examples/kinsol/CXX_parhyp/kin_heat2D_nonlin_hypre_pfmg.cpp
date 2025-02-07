@@ -642,7 +642,7 @@ static int SetupRHS(void* user_data)
   if (check_retval(&retval, "c(u)", 1)) { return 1; }
 
   // b = Au_exact + c(u_xact)
-  N_VLinearSum(ONE, udata->vtemp, ONE, udata->b, udata->b);
+  N_VLinearSum(ONE, udata->b, ONE, udata->vtemp, udata->b);
 
   // Return success
   return 0;
@@ -1762,7 +1762,7 @@ static int SolutionError(N_Vector u, N_Vector e, UserData* udata)
   if (retval != 0) { return -1; }
 
   // Compute absolute error
-  N_VLinearSum(ONE, u, -ONE, e, e);
+  N_VLinearSum(-ONE, e, ONE, u, e);
   N_VAbs(e, e);
 
   return 0;
