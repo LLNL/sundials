@@ -395,10 +395,6 @@ def read_header(args):
         print("ERROR: nt != nrows", info["nt"], np.shape(data)[0])
         sys.exit()
 
-    if (info["nvar"] * info["nx"] * info["ny"]) != (np.shape(data)[1] - 1):
-        print("ERROR: nvar * nx * ny != ncols - 1")
-        sys.exit()
-
     # check x-dimension lower and upper bounds
     if info["xl"] is None:
         print("WARNING: xl not provided, using xl = 0")
