@@ -451,8 +451,49 @@ User-Supplied Function Types
 This section describes the functions that users may supply.
 
 .. c:type:: int (*SUNRhsJacFn)(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, \
-                            void* user_data, N_Vector tmp1, N_Vector tmp2, \
-                            N_Vector tmp3);
+                               void* user_data, N_Vector tmp1, N_Vector tmp2, \
+                               N_Vector tmp3);
+
+   This function computes the Jacobian of the ODE right hand side function. 
+
+   **Parameters:**
+
+   * **t**: the current value of the independent variable.
+   * **y**: the current value of the dependent variable vector, namely
+             the predicted value of :math:`y(t)`.
+   * **fy**: the current value of the vector :math:`f(t,y)`.
+   * **Jac**: the output Jacobian matrix.
+   * **user_data**: a pointer to user data, the same as the *user_data*
+                     parameter that was passed to :c:func:`SUNStepperSetUserData`.
+   * **tmp***: pointers to memory allocated to variables of type :c:type:`N_Vector`
+               which can be used by an as temporary storage or work space.
+
+   **Returns:**
+
+      A :c:type:`SUNRhsJacFn` function should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if an
+      unrecoverable error occurred.
 
 .. c:type:: int (*SUNRhsJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, \
-                                 N_Vector fy, void* user_data, N_Vector tmp);
+                                    N_Vector fy, void* user_data, N_Vector tmp);
+
+   This function computes the product of the Jacobian function and the ODE right hand side function.
+
+   **Parameters:**
+
+   * **v**:  the vector to multiply.
+   * **Jv**: the output vector computed.
+   * **t**: the current value of the independent variable.
+   * **y**: the current value of the dependent variable vector, namely
+             the predicted value of :math:`y(t)`.
+   * **fy**: the current value of the vector :math:`f(t,y)`.
+   * **user_data**: a pointer to user data, the same as the *user_data*
+                     parameter that was passed to :c:func:`SUNStepperSetUserData`.
+   * **tmp**: a :c:type:`N_Vector` which can be used by an as temporary storage 
+              or work space.
+
+   **Returns:**
+
+      A :c:type:`SUNRhsJacTimesFn` function should return 0 if successful, a positive
+      value if a recoverable error occurred, or a negative value if an
+      unrecoverable error occurred.
