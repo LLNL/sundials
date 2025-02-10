@@ -50,7 +50,8 @@ SUNErrCode SUNAdjointStepper_Create(
 {
   SUNFunctionBegin(sunctx);
 
-  SUNAdjointStepper adj_stepper = malloc(sizeof(struct SUNAdjointStepper_));
+  SUNAdjointStepper adj_stepper = NULL;
+  adj_stepper = (SUNAdjointStepper)malloc(sizeof(*adj_stepper));
   SUNAssert(adj_stepper, SUN_ERR_MALLOC_FAIL);
 
   adj_stepper->fwd_sunstepper    = fwd_sunstepper;

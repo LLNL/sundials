@@ -16,8 +16,8 @@
 #include "sundials/sundials_memory.h"
 #include "sundials_hashmap_impl.h"
 
-#ifndef SUNDATANODE_INMEM_H_
-#define SUNDATANODE_INMEM_H_
+#ifndef _SUNDATANODE_INMEM_H
+#define _SUNDATANODE_INMEM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,9 +27,9 @@ extern "C" {
 #include "stl/sunstl_vector.h"
 #undef TTYPE
 
-typedef struct SUNDataNode_InMemImpl_* SUNDataNode_InMemContent;
+typedef struct SUNDataNode_InMemContent_* SUNDataNode_InMemContent;
 
-struct SUNDataNode_InMemImpl_
+struct SUNDataNode_InMemContent_
 {
   // Reference to the parent node of this node.
   SUNDataNode parent;
@@ -110,4 +110,4 @@ SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node);
 }
 #endif
 
-#endif // SUNDATANODE_INMEM_H_
+#endif // _SUNDATANODE_INMEM_H
