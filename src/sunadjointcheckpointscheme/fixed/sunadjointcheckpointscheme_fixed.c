@@ -24,10 +24,10 @@
 
 struct SUNAdjointCheckpointScheme_Fixed_Content_
 {
-  int64_t backup_interval;
-  int64_t interval;
-  int64_t step_num_of_current_insert;
-  int64_t step_num_of_current_load;
+  suncountertype backup_interval;
+  suncountertype interval;
+  suncountertype step_num_of_current_insert;
+  suncountertype step_num_of_current_load;
   SUNMemoryHelper mem_helper;
   SUNDataNode root_node;
   SUNDataNode current_insert_step_node;
@@ -44,8 +44,8 @@ typedef struct SUNAdjointCheckpointScheme_Fixed_Content_*
 #define IMPL_MEMBER(S, prop) (GET_CONTENT(S)->prop)
 
 SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
-  SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval,
-  int64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
+  SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, suncountertype interval,
+  suncountertype estimate, sunbooleantype save_stages, sunbooleantype keep,
   SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
 {
   SUNFunctionBegin(sunctx);
@@ -64,16 +64,16 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
   content = malloc(sizeof(*content));
   SUNAssert(content, SUN_ERR_MALLOC_FAIL);
 
-  content->mem_helper                = mem_helper;
-  content->interval                  = interval;
-  content->save_stages               = save_stages;
-  content->keep                      = keep;
-  content->root_node                 = NULL;
-  content->current_insert_step_node  = NULL;
-  content->stepnum_of_current_insert = -2;
-  content->current_load_step_node    = NULL;
-  content->stepnum_of_current_load   = -2;
-  content->io_mode                   = io_mode;
+  content->mem_helper                 = mem_helper;
+  content->interval                   = interval;
+  content->save_stages                = save_stages;
+  content->keep                       = keep;
+  content->root_node                  = NULL;
+  content->current_insert_step_node   = NULL;
+  content->step_num_of_current_insert = -2;
+  content->current_load_step_node     = NULL;
+  content->step_num_of_current_load   = -2;
+  content->io_mode                    = io_mode;
 
   SUNCheckCall(
     SUNDataNode_CreateObject(io_mode, estimate, sunctx, &content->root_node));
@@ -85,8 +85,9 @@ SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving_Fixed(
-  SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
-  SUNDIALS_MAYBE_UNUSED sunrealtype t, sunbooleantype* yes_or_no)
+  SUNAdjointCheckpointScheme self, suncountertype step_num,
+  suncountertype stage_num, SUNDIALS_MAYBE_UNUSED sunrealtype t,
+  sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -102,8 +103,8 @@ SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving_Fixed(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
-  SUNAdjointCheckpointScheme self, int64_t step_num,
-  SUNDIALS_MAYBE_UNUSED int64_t stage_num, sunrealtype t, N_Vector y)
+  SUNAdjointCheckpointScheme self, suncountertype step_num,
+  SUNDIALS_MAYBE_UNUSED suncountertype stage_num, sunrealtype t, N_Vector y)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -112,17 +113,17 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
      We keep a pointer to the list node until this step is over for
      fast access when inserting stages. */
   SUNDataNode step_data_node = NULL;
-  if (step_num != IMPL_MEMBER(self, stepnum_of_current_insert))
+  if (step_num != IMPL_MEMBER(self, step_num_of_current_insert))
   {
     SUNCheckCall(SUNDataNode_CreateList(IMPL_MEMBER(self, io_mode), 0, SUNCTX_,
                                         &step_data_node));
-    IMPL_MEMBER(self, current_insert_step_node)  = step_data_node;
-    IMPL_MEMBER(self, stepnum_of_current_insert) = step_num;
+    IMPL_MEMBER(self, current_insert_step_node)   = step_data_node;
+    IMPL_MEMBER(self, step_num_of_current_insert) = step_num;
 
     /* Store the step node in the root node object. */
     char* key = sunSignedToString(step_num);
-    SUNLogExtraDebug(SUNCTX_->logger, "insert-new-step", "step_num = %d, key = %s",
-                     step_num, key);
+    SUNLogExtraDebug(SUNCTX_->logger, "insert-new-step",
+                     "step_num = %d, key = %s", step_num, key);
     SUNCheckCall(SUNDataNode_AddNamedChild(IMPL_MEMBER(self, root_node), key,
                                            step_data_node));
     free(key);
@@ -145,8 +146,8 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
 }
 
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
-  SUNAdjointCheckpointScheme self, int64_t step_num, int64_t stage_num,
-  sunbooleantype peek, N_Vector* yout, sunrealtype* t)
+  SUNAdjointCheckpointScheme self, suncountertype step_num,
+  suncountertype stage_num, sunbooleantype peek, N_Vector* yout, sunrealtype* t)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -156,7 +157,7 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
      the step and stage solutions. We keep a pointer to the list node until
      this step is over for fast access when loading stages. */
   SUNDataNode step_data_node = NULL;
-  if (step_num != IMPL_MEMBER(self, stepnum_of_current_load))
+  if (step_num != IMPL_MEMBER(self, step_num_of_current_load))
   {
     char* key = sunSignedToString(step_num);
     SUNLogExtraDebug(SUNCTX_->logger, "try-load-new-step",
@@ -166,8 +167,8 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
     free(key);
     if (errcode == SUN_SUCCESS)
     {
-      IMPL_MEMBER(self, current_load_step_node)  = step_data_node;
-      IMPL_MEMBER(self, stepnum_of_current_load) = step_num;
+      IMPL_MEMBER(self, current_load_step_node)   = step_data_node;
+      IMPL_MEMBER(self, step_num_of_current_load) = step_num;
     }
     else if (errcode == SUN_ERR_DATANODE_NODENOTFOUND)
     {

@@ -56,23 +56,23 @@ The virtual table structure is defined as
 
 .. c:struct:: SUNAdjointCheckpointScheme_Ops_
 
-   .. c:member:: SUNErrCode (*needssaving)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
+   .. c:member:: SUNErrCode (*needssaving)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
       Function pointer to determine if a checkpoint should be saved at the current time step.
 
-   .. c:member:: SUNErrCode (*needsdeleting)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
+   .. c:member:: SUNErrCode (*needsdeleting)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
       Function pointer to determine if a checkpoint should be deleted at the current time step.
 
-   .. c:member:: SUNErrCode (*insertvector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector y)
+   .. c:member:: SUNErrCode (*insertvector)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, sunrealtype t, N_Vector y)
 
       Function pointer to insert a checkpoint state represented as a :c:type:`N_Vector`.
 
-   .. c:member:: SUNErrCode (*loadvector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
+   .. c:member:: SUNErrCode (*loadvector)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, sunrealtype t, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
 
       Function pointer to load a checkpoint state represented as a :c:type:`N_Vector`.
 
-   .. c:member:: SUNErrCode (*deleteVector)(SUNAdjointCheckpointScheme cs, int64_t step_num, int64_t stage_num, N_Vector* out)
+   .. c:member:: SUNErrCode (*deleteVector)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, N_Vector* out)
 
       Function pointer to remove a checkpoint state represented as a :c:type:`N_Vector`.
 
@@ -94,7 +94,7 @@ The virtual table structure is defined as
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme cs, \
-   int64_t step_num, int64_t stage_num, sunrealtype t, sunbooleantype* yes_or_no)
+   suncountertype step_num, suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
    Determines if the (step_num, stage_num) should be checkpointed or not.
 
@@ -107,7 +107,7 @@ The virtual table structure is defined as
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme cs, \
-   int64_t step_num, int64_t stage_num, sunbooleantype* yes_or_no)
+   suncountertype step_num, suncountertype stage_num, sunbooleantype* yes_or_no)
 
    Determines if the (step_num, stage_num) checkpoint should be deleted or not.
 
@@ -119,7 +119,7 @@ The virtual table structure is defined as
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme cs, \
-   int64_t step_num, int64_t stage_num, sunrealtype t, N_Vector y)
+   suncountertype step_num, suncountertype stage_num, sunrealtype t, N_Vector y)
 
    Inserts the vector as the checkpoint for (step_num, stage_num).
 
@@ -132,7 +132,7 @@ The virtual table structure is defined as
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme cs, \
-   int64_t step_num, int64_t stage_num, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
+   suncountertype step_num, suncountertype stage_num, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
 
    Loads the checkpointed vector for (step_num, stage_num).
 
@@ -148,7 +148,7 @@ The virtual table structure is defined as
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme cs, \
-   int64_t step_num, int64_t stage_num, N_Vector* out)
+   suncountertype step_num, suncountertype stage_num, N_Vector* out)
 
    Removes the checkpointed vector for (step_num, stage_num).
 
@@ -215,7 +215,7 @@ Implementation Specific Methods
 
 The ``SUNAdjointCheckpointScheme_Fixed`` module also implements the following module-specific functions:
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval, int64_t estimate, sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, suncountertype interval, suncountertype estimate, sunbooleantype save_stages, sunbooleantype keep, SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr)
 
    Creates a new :c:type:`SUNAdjointCheckpointScheme` object that checkpoints at a fixed interval.
 

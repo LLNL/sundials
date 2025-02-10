@@ -30,10 +30,13 @@ struct SUNAdjointStepper_;
 typedef _SUNDIALS_STRUCT_ SUNAdjointStepper_* SUNAdjointStepper;
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_Create(
-  SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper, int64_t final_step_idx,
-  N_Vector sf, sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme,
-  SUNContext sunctx, SUNAdjointStepper* adj_stepper);
+SUNErrCode SUNAdjointStepper_Create(SUNStepper fwd_sunstepper,
+                                    SUNStepper adj_sunstepper,
+                                    suncountertype final_step_idx, N_Vector sf,
+                                    sunrealtype tf,
+                                    SUNAdjointCheckpointScheme checkpoint_scheme,
+                                    SUNContext sunctx,
+                                    SUNAdjointStepper* adj_stepper);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper adj, N_Vector y0,
@@ -51,8 +54,9 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper adj_stepper,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
-                                          int64_t start_idx, sunrealtype t0,
-                                          sunrealtype tf, N_Vector y0);
+                                          suncountertype start_idx,
+                                          sunrealtype t0, sunrealtype tf,
+                                          N_Vector y0);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper, SUNRhsJacFn JacFn,
@@ -71,6 +75,38 @@ SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper,
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper, void* user_data);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointStepper_GetNumSteps(SUNAdjointStepper adj_stepper,
+                                         suncountertype* num_steps);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointStepper_GetNumJacEvals(SUNAdjointStepper adj_stepper,
+                                            suncountertype* num_jac_evals);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointStepper_GetNumJacPEvals(SUNAdjointStepper adj_stepper,
+                                             suncountertype* num_jac_p_evals);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointStepper_GetNumJacTimesVecEvals(
+  SUNAdjointStepper adj_stepper, suncountertype* num_jac_times_vec_evals);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointStepper_GetNumJacPTimesVecEvals(
+  SUNAdjointStepper adj_stepper, suncountertype* num_jac_p_times_vec_evals);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointStepper_GetNumVecTimesJacEvals(
+  SUNAdjointStepper adj_stepper, suncountertype* num_vec_times_jac_evals);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointStepper_GetNumVecTimesJacPEvals(
+  SUNAdjointStepper adj_stepper, suncountertype* num_vec_times_jac_p_evals);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointStepper_GetNumRecompute(SUNAdjointStepper adj_stepper,
+                                             suncountertype* num_recompute);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper adj_stepper,
