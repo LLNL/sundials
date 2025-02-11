@@ -53,6 +53,14 @@ set(DOCSTR "Integer type to use for indices in SUNDIALS")
 sundials_option(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "" ADVANCED)
 
 # ---------------------------------------------------------------
+# Option to specify counter type
+# ---------------------------------------------------------------
+
+set(DOCSTR "Integer type to use for counters in SUNDIALS")
+sundials_option(SUNDIALS_COUNTER_TYPE LIST "${DOCSTR}" "int64_t" ADVANCED)
+
+
+# ---------------------------------------------------------------
 # Option to enable monitoring
 # ---------------------------------------------------------------
 

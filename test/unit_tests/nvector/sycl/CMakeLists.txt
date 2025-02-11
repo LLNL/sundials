@@ -41,7 +41,7 @@ foreach(example_tuple ${nvector_sycl_examples})
   if(NOT TARGET ${example_target})
 
     # example source files
-    add_executable(${example_target} ${example})
+    sundials_add_executable(${example_target} ${example})
 
     # folder to organize targets in an IDE
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")

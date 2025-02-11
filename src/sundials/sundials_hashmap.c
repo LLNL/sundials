@@ -48,7 +48,7 @@ static uint64_t fnv1a_hash(const char* str)
 
 static inline int64_t sunHashMapIdxFromKey(SUNHashMap map, const char* key)
 {
-  /* We want the index to be in (0, SUNHashMap_Capacity(map)) */
+  /* We want the index to be in [0, SUNHashMap_Capacity(map)) */
   int64_t end = SUNHashMap_Capacity(map) - 1;
   int64_t idx = end == 0 ? end : (int64_t)(fnv1a_hash(key) % end);
   return idx;
@@ -60,6 +60,7 @@ static inline int64_t sunHashMapIdxFromKey(SUNHashMap map, const char* key)
 
   **Arguments:**
     * ``capacity`` -- the initial capactity number of the hashmap
+    * ``destroyKeyValue`` -- a callback function that frees both the key and value.
     * ``map`` -- on input, a SUNHasMap pointer, on output the SUNHashMap will be
                  allocated
 
@@ -77,8 +78,7 @@ SUNErrCode SUNHashMap_New(int64_t capacity,
 
   if (!map) { return SUN_ERR_MALLOC_FAIL; }
 
-  (*map)->capacity        = capacity;
-  (*map)->destroyKeyValue = destroyKeyValue;
+  (*map)->capacity = capacity;
 
   SUNStlVector_SUNHashMapKeyValue buckets =
     SUNStlVector_SUNHashMapKeyValue_New(capacity, destroyKeyValue);
@@ -188,7 +188,7 @@ static void sunHashMapResize(SUNHashMap map)
 
   SUNStlVector_SUNHashMapKeyValue old_buckets = map->buckets;
   map->buckets = SUNStlVector_SUNHashMapKeyValue_New(new_capacity,
-                                                     map->destroyKeyValue);
+                                                     map->buckets->destroyValue);
 
   /* Set all buckets to NULL */
   for (int64_t i = 0; i < new_capacity; i++)
@@ -264,8 +264,13 @@ int64_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   kvp = (SUNHashMapKeyValue)malloc(sizeof(*kvp));
 
   /* Copy the original_key so that the hashmap owns it */
-  int64_t len    = strlen(key) + 1;
+  size_t len     = strlen(key) + 1;
   char* key_copy = malloc(sizeof(*key) * len);
+  if (!key_copy)
+  {
+    free(kvp);
+    return SUNHASHMAP_ERROR;
+  }
   strcpy(key_copy, key);
 
   kvp->key   = key_copy;
@@ -314,7 +319,7 @@ int64_t SUNHashMap_GetValue(SUNHashMap map, const char* key, void** value)
   int64_t retval;
   sunbooleantype collision;
 
-  if (map == NULL || key == NULL || value == NULL) { return (-1); }
+  if (map == NULL || key == NULL || value == NULL) { return SUNHASHMAP_ERROR; }
 
   idx = sunHashMapIdxFromKey(map, key);
 
@@ -448,6 +453,7 @@ SUNErrCode SUNHashMap_Sort(SUNHashMap map, SUNHashMapKeyValue** sorted,
   **Returns:**
     * A SUNErrCode indicating success or a failure
  */
+SUNDIALS_MAYBE_UNUSED
 SUNErrCode SUNHashMap_Values(SUNHashMap map, void*** values, int64_t value_size)
 {
   int count = 0;

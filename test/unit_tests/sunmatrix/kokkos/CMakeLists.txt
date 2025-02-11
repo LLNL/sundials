@@ -40,8 +40,8 @@ foreach(example_tuple ${examples_list})
 
     if(NOT TARGET ${example_target})
       # example source files
-      add_executable(${example_target} ${example} ../test_sunmatrix.c
-                                       ../test_sunmatrix.h)
+      sundials_add_executable(${example_target} ${example} ../test_sunmatrix.c
+                              ../test_sunmatrix.h)
 
       # folder for IDEs
       set_target_properties(${example_target} PROPERTIES FOLDER "Examples")

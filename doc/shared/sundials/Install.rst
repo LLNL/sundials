@@ -589,6 +589,16 @@ Index Size
       deprecated and a user will only need to use the
       :cmakeop:`SUNDIALS_INDEX_SIZE` option in most cases.
 
+
+.. cmakeoption:: SUNDIALS_COUNTER_TYPE
+
+   The integer type used for SUNDIALS counters.
+
+   Default: `int64_t`
+
+   .. versionadded:: x.y.z
+
+
 .. _Installation.Options.Precision:
 
 Precision
@@ -2401,46 +2411,50 @@ make up the SUNDIALS core infrastructure.
 .. table:: Header files included by ``sundials_core.h``
    :align: center
 
-   +--------------+----------------------------------------------+
-   | Headers      | ``sundials/sundials_adaptcontroller.h``      |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_config.h``               |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_context.h``              |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_errors.h``               |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_iterative.h``            |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_linearsolver.h``         |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_logger.h``               |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_math.h``                 |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_matrix.h``               |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_memory.h``               |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_nonlinearsolver.h``      |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_nvector.h``              |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_profiler.h``             |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_types.h``                |
-   |              +----------------------------------------------+
-   |              | ``sundials/sundials_version.h``              |
-   +--------------+----------------------------------------------+
+   +--------------+-------------------------------------------------+
+   | Headers      | ``sundials/sundials_adaptcontroller.h``         |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_adjointstepper.h``          |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_adjointcheckpointscheme.h`` |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_config.h``                  |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_context.h``                 |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_errors.h``                  |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_iterative.h``               |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_linearsolver.h``            |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_logger.h``                  |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_math.h``                    |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_matrix.h``                  |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_memory.h``                  |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_nonlinearsolver.h``         |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_nvector.h``                 |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_profiler.h``                |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_types.h``                   |
+   |              +-------------------------------------------------+
+   |              | ``sundials/sundials_version.h``                 |
+   +--------------+-------------------------------------------------+
 
 For C++ applications, several convenience classes are provided for interacting
 with SUNDIALS objects. These can be accessed by including the C++ core header
 file.
 
 .. table:: The SUNDIALS C++ core header file
-   :align: center
+   :align: center   
 
-   +--------------+----------------------------------------------+
+   +--------------+-------------------------------------------------+
    | Headers      | ``sundials/sundials_core.hpp``               |
    +--------------+----------------------------------------------+
 
@@ -3868,3 +3882,28 @@ access the SYCL execution policy C++ classes.
    +--------------+----------------------------------------------+
    | Headers      | ``sundials/sundials_sycl_policies.hpp``      |
    +--------------+----------------------------------------------+
+
+
+Adjoint Sensitivity
+^^^^^^^^^^^^^^^^^^^
+
+.. table:: SUNDIALS adjoint sensitivity module header files
+   :align: center
+
+   +--------------+-------------------------------------------------+
+   | Headers      | ``sundials/sundials_adjointstepper.h``          |
+   +--------------+-------------------------------------------------+
+   |              | ``sundials/sundials_adjointcheckpointscheme.h`` | 
+   +--------------+-------------------------------------------------+
+
+Fixed checkpointing
+""""""""""""""""""""
+
+For fixed-interval adjoint checkpointing, include the header file below:
+
+.. table:: SUNDIALS fixed adjoint checkpointing header files
+   :align: center
+
+   +--------------+---------------------------------------------------------------------+
+   | Headers      | ``sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h``   |
+   +--------------+---------------------------------------------------------------------+

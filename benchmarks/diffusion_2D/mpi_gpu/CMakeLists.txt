@@ -67,7 +67,7 @@ foreach(test_tuple ${tests})
 
   endif()
 
-  add_executable(${target} ${sources})
+  sundials_add_executable(${target} ${sources})
 
   # if("${backend}" STREQUAL "USE_CUDA") sundials_add_benchmark(${target}
   # ${target} diffusion_2D ENABLE_GPU NUM_CORES ${SUNDIALS_BENCHMARK_NUM_GPUS} )

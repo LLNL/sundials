@@ -53,7 +53,7 @@ foreach(example_tuple ${FARKODE_examples})
       ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  add_executable(${example} ${example}.f90 ${FARKODEsources})
+  sundials_add_executable(${example} ${example}.f90 ${FARKODEsources})
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
@@ -87,7 +87,7 @@ foreach(example_tuple ${FARKODE_tests})
       ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${example}.dir)
 
   # example source files
-  add_executable(${example} ${example}.f90 ${FARKODEsources})
+  sundials_add_executable(${example} ${example}.f90 ${FARKODEsources})
 
   set_target_properties(${example} PROPERTIES FOLDER "Examples")
 

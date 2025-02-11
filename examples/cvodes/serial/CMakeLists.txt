@@ -99,7 +99,7 @@ foreach(example_tuple ${CVODES_examples})
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -152,7 +152,7 @@ if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
     # source files once for testing with different inputs
     if(NOT TARGET ${example})
       # example source files
-      add_executable(${example} ${example}.c)
+      sundials_add_executable(${example} ${example}.c)
 
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -209,7 +209,7 @@ if(BUILD_SUNLINSOL_KLU)
     # source files once for testing with different inputs
     if(NOT TARGET ${example})
       # add example source files
-      add_executable(${example} ${example}.c)
+      sundials_add_executable(${example} ${example}.c)
 
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")
@@ -266,7 +266,7 @@ if(BUILD_SUNLINSOL_SUPERLUMT)
     # source files once for testing with different inputs
     if(NOT TARGET ${example})
       # add example source files
-      add_executable(${example} ${example}.c)
+      sundials_add_executable(${example} ${example}.c)
 
       # folder to organize targets in an IDE
       set_target_properties(${example} PROPERTIES FOLDER "Examples")

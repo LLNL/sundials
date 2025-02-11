@@ -26,12 +26,12 @@
 #define IMPL_MEMBER(node, prop) (GET_CONTENT(node)->prop)
 #define BASE_MEMBER(node, prop) ((node)->prop)
 
-static SUNDataNode sunDataNodeInMem_CreateEmpty(SUNContext sunctx)
+static SUNDataNode sunDataNode_CreateEmpty_InMem(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
   SUNDataNode node;
-  SUNCheckCallNoRet(SUNDataNode_CreateEmpty(sunctx, &node));
+  SUNCheckCallNull(SUNDataNode_CreateEmpty(sunctx, &node));
 
   node->ops->hasChildren      = SUNDataNode_HasChildren_InMem;
   node->ops->isLeaf           = SUNDataNode_IsLeaf_InMem;
@@ -50,8 +50,8 @@ static SUNDataNode sunDataNodeInMem_CreateEmpty(SUNContext sunctx)
   node->ops->destroy          = SUNDataNode_Destroy_InMem;
 
   SUNDataNode_InMemContent content =
-    (SUNDataNode_InMemContent)malloc(sizeof(struct SUNDataNode_InMemImpl_));
-  SUNAssertNoRet(content, SUN_ERR_MEM_FAIL);
+    (SUNDataNode_InMemContent)malloc(sizeof(*content));
+  SUNAssertNull(content, SUN_ERR_MEM_FAIL);
 
   content->parent             = NULL;
   content->mem_helper         = NULL;
@@ -66,7 +66,7 @@ static SUNDataNode sunDataNodeInMem_CreateEmpty(SUNContext sunctx)
   return node;
 }
 
-static void sunDataNodeInMem_DestroyEmpty(SUNDataNode* node)
+static void sunDataNode_DestroyEmpty_InMem(SUNDataNode* node)
 {
   if (!node || !(*node)) { return; }
   if (BASE_MEMBER(*node, content)) { free(BASE_MEMBER(*node, content)); }
@@ -76,19 +76,24 @@ static void sunDataNodeInMem_DestroyEmpty(SUNDataNode* node)
   *node = NULL;
 }
 
-static void sunDataNodeFreeKeyValue(SUNHashMapKeyValue* kv_ptr);
-static void sunDataNodeFreeValue(SUNDataNode* nodeptr);
+static void sunDataNode_FreeKeyValue_InMem(SUNHashMapKeyValue* kv_ptr);
+static void sunDataNode_FreeValue_InMem(SUNDataNode* nodeptr);
 
 SUNErrCode SUNDataNode_CreateList_InMem(sundataindex init_size,
                                         SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
 
-  SUNDataNode node = sunDataNodeInMem_CreateEmpty(sunctx);
+  SUNDataNode node = sunDataNode_CreateEmpty_InMem(sunctx);
 
   BASE_MEMBER(node, dtype) = SUNDATANODE_LIST;
   IMPL_MEMBER(node, anon_children) =
-    SUNStlVector_SUNDataNode_New(init_size, sunDataNodeFreeValue);
+    SUNStlVector_SUNDataNode_New(init_size, sunDataNode_FreeValue_InMem);
+  if (IMPL_MEMBER(node, anon_children) == NULL)
+  {
+    sunDataNode_DestroyEmpty_InMem(&node);
+    return SUN_ERR_MEM_FAIL;
+  }
 
   *node_out = node;
   return SUN_SUCCESS;
@@ -100,12 +105,12 @@ SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex init_size,
 {
   SUNFunctionBegin(sunctx);
 
-  SUNDataNode node = sunDataNodeInMem_CreateEmpty(sunctx);
+  SUNDataNode node = sunDataNode_CreateEmpty_InMem(sunctx);
 
   BASE_MEMBER(node, dtype) = SUNDATANODE_OBJECT;
 
   SUNHashMap map;
-  SUNCheckCall(SUNHashMap_New(init_size, sunDataNodeFreeKeyValue, &map));
+  SUNCheckCall(SUNHashMap_New(init_size, sunDataNode_FreeKeyValue_InMem, &map));
 
   IMPL_MEMBER(node, named_children) = map;
 
@@ -118,7 +123,7 @@ SUNErrCode SUNDataNode_CreateLeaf_InMem(SUNMemoryHelper mem_helper,
 {
   SUNFunctionBegin(sunctx);
 
-  SUNDataNode node = sunDataNodeInMem_CreateEmpty(sunctx);
+  SUNDataNode node = sunDataNode_CreateEmpty_InMem(sunctx);
 
   BASE_MEMBER(node, dtype)      = SUNDATANODE_LEAF;
   IMPL_MEMBER(node, mem_helper) = mem_helper;
@@ -205,8 +210,13 @@ SUNErrCode SUNDataNode_GetChild_InMem(const SUNDataNode self, sundataindex index
 
   SUNDataNode* child_node_ptr =
     SUNStlVector_SUNDataNode_At(IMPL_MEMBER(self, anon_children), index);
-  if (child_node_ptr) { *child_node = *child_node_ptr; }
-  return SUN_SUCCESS;
+
+  if (child_node_ptr)
+  {
+    *child_node = *child_node_ptr;
+    return SUN_SUCCESS;
+  }
+  else { return SUN_ERR_DATANODE_NODENOTFOUND; }
 }
 
 SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode self,
@@ -227,9 +237,9 @@ SUNErrCode SUNDataNode_GetNamedChild_InMem(const SUNDataNode self,
     {
       return SUN_ERR_DATANODE_NODENOTFOUND;
     }
+    return SUN_SUCCESS;
   }
-
-  return SUN_SUCCESS;
+  else { return SUN_ERR_DATANODE_NODENOTFOUND; }
 }
 
 SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex index,
@@ -240,7 +250,11 @@ SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex index,
   sunbooleantype has_children;
   SUNCheckCall(SUNDataNode_HasChildren_InMem(self, &has_children));
 
-  if (!has_children) { return SUN_SUCCESS; }
+  if (!has_children)
+  {
+    *child_node = NULL;
+    return SUN_SUCCESS;
+  }
 
   SUNDataNode* child_node_ptr =
     SUNStlVector_SUNDataNode_At(IMPL_MEMBER(self, anon_children), index);
@@ -252,7 +266,9 @@ SUNErrCode SUNDataNode_RemoveChild_InMem(SUNDataNode self, sundataindex index,
       IMPL_MEMBER(*child_node, parent) = NULL;
       SUNStlVector_SUNDataNode_Erase(IMPL_MEMBER(self, anon_children), index);
     }
+    else { return SUN_ERR_DATANODE_NODENOTFOUND; }
   }
+  else { return SUN_ERR_DATANODE_NODENOTFOUND; }
 
   return SUN_SUCCESS;
 }
@@ -278,6 +294,8 @@ SUNErrCode SUNDataNode_RemoveNamedChild_InMem(const SUNDataNode self,
     IMPL_MEMBER(*child_node, parent) = NULL;
     IMPL_MEMBER(self, num_named_children)--;
   }
+
+  *child_node = NULL;
 
   return SUN_SUCCESS;
 }
@@ -450,14 +468,14 @@ SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node)
     }
   }
 
-  sunDataNodeInMem_DestroyEmpty(node);
+  sunDataNode_DestroyEmpty_InMem(node);
   *node = NULL;
 
   return SUN_SUCCESS;
 }
 
 /* This function is the callback provided to the child hashmap as the destroy function. */
-static void sunDataNodeFreeKeyValue(SUNHashMapKeyValue* kv_ptr)
+static void sunDataNode_FreeKeyValue_InMem(SUNHashMapKeyValue* kv_ptr)
 {
   if (!kv_ptr || !(*kv_ptr)) { return; }
   SUNDataNode node = (SUNDataNode)((*kv_ptr)->value);
@@ -468,7 +486,7 @@ static void sunDataNodeFreeKeyValue(SUNHashMapKeyValue* kv_ptr)
 }
 
 /* This function is the callback provided to the child stlvector as the destroy function. */
-static void sunDataNodeFreeValue(SUNDataNode* nodeptr)
+static void sunDataNode_FreeValue_InMem(SUNDataNode* nodeptr)
 {
   SUNDataNode_Destroy_InMem(nodeptr);
   return;

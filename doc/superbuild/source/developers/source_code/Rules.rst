@@ -54,6 +54,9 @@ not adhere to all of these rules.
 
      /* TODO(DJG): Update to new API in the next major release (Issue #256) */
 
+
+#. If statements and loops should always have braces even if they are one line.
+
 #. All SUNDIALS data structures should hold onto a ``SUNContext`` object. Exceptions
    are the ``SUNLogger`` and ``SUNProfiler`` classes.
 
@@ -179,8 +182,6 @@ not adhere to all of these rules.
          // ...
       }
 
-#. If statements and loops should always have braces even if they are one line.
-
 #. Return statements should not unnecessarily use parentheses. Prefer ``return
    x;`` to ``return(x);``. Note, however, lots of older SUNDIALS source code
    uses ``return(x);``.
@@ -194,14 +195,24 @@ not adhere to all of these rules.
    the dimensions of a vector, matrix, etc.. E.g., if you have a variable that
    represents the number of integer "words" allocated in a workspace do not use
    ``sunindextype`` for it. Instead use the appropriate integer type (e.g., ``int64_t``) directly.
-   Do not use ``sunindextype`` for counters either.
+   For counters, use ``suncountertype``.
+
+#. Do not use unsigned integer types except for ``size_t`` when the value you are storing
+   is a memory size. Unsigned integer types must never be used in parts of the
+   SUNDIALS API that will be interfaced to Fortran since the Fortran standard does
+   not include unsigned integers.
 
 #. Use the print functions, format macros, and output guidelines detailed in
    :ref:`Style.Output`.
 
 #. Follow the logging style detailed in :ref:`Style.Logging`.
 
-#. Do not use unsigned integer types except for ``size_t`` when the value you are storing
-   is a memory size. Unsigned integer types must never be used in parts of the
-   SUNDIALS API that will be interfaced to Fortran since the Fortran standard does
-   not include unsigned integers.
+#. Use `sizeof(variable)` rather than `sizeof(type)`. E.g.,
+
+   .. code-block:: c
+
+      int a = 1;
+      int array_length = 10;
+      int* array1 = malloc(array_length * sizeof(a)); // Do this
+      int* array2 = malloc(array_length * sizeof(int)); // Don't do this
+      

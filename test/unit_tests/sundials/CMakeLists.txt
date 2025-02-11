@@ -11,8 +11,12 @@
 # ---------------------------------------------------------------
 
 # List of test tuples of the form "name\;args"
-set(unit_tests "test_sundials_errors\;" "test_sundials_datanode\;"
-               "test_sundials_stlvector\;" "test_sundials_hashmap\;")
+set(unit_tests "test_sundials_datanode\;" "test_sundials_stlvector\;"
+               "test_sundials_hashmap\;")
+
+if(SUNDIALS_ENABLE_ERROR_CHECKS)
+  list(APPEND unit_tests "test_sundials_errors\;")
+endif()
 
 # Add the build and install targets for each test
 if(TARGET GTest::gtest_main AND TARGET GTest::gmock)

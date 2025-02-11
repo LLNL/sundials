@@ -91,7 +91,7 @@ foreach(test_tuple ${unit_tests})
   if(NOT TARGET ${test_target})
 
     # Test source files
-    add_executable(${test_target} ${test})
+    sundials_add_executable(${test_target} ${test})
 
     # Folder to organize targets in an IDE
     set_target_properties(${test_target} PROPERTIES FOLDER "unit_tests")

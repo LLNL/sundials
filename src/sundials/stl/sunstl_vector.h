@@ -56,18 +56,18 @@ struct SUNStlVectorTtype_s
 // Some std::vector implementations use 2, but 1.5 will be more conservative in terms
 // of the memory usage but yields a larger constant factor in terms of the
 // amortized constant time complexity.
-#define GROWTH_FACTOR 1.5
+#define GROWTH_FACTOR 1.5L
 
 static inline SUNStlVectorTtype MAKE_NAME(SUNStlVectorTtype,
                                           New)(int64_t init_capacity,
                                                void (*destroyValue)(TTYPE*))
 {
-  SUNStlVectorTtype self =
-    (SUNStlVectorTtype)malloc(sizeof(struct SUNStlVectorTtype_s));
-  self->size         = 0;
-  self->capacity     = init_capacity > 0 ? init_capacity : 1;
-  self->values       = (TTYPE*)malloc(sizeof(TTYPE) * self->capacity);
-  self->destroyValue = destroyValue;
+  if (init_capacity < 0 || !destroyValue) { return NULL; }
+  SUNStlVectorTtype self = (SUNStlVectorTtype)malloc(sizeof(*self));
+  self->size             = 0;
+  self->capacity         = init_capacity;
+  self->values           = (TTYPE*)malloc(sizeof(TTYPE) * self->capacity);
+  self->destroyValue     = destroyValue;
   return self;
 }
 
@@ -77,33 +77,42 @@ static inline sunbooleantype MAKE_NAME(SUNStlVectorTtype,
   return self->size == 0;
 }
 
-static inline void MAKE_NAME(SUNStlVectorTtype, Resize)(SUNStlVectorTtype self,
-                                                        int64_t new_capacity)
+static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
+                                   Reserve)(SUNStlVectorTtype self,
+                                            int64_t new_capacity)
 {
-  if (new_capacity <= self->capacity) return;
+  if (new_capacity <= self->capacity) { return SUN_SUCCESS; }
   TTYPE* new_values = (TTYPE*)realloc(self->values, sizeof(TTYPE) * new_capacity);
+  if (!new_values) { return SUN_ERR_MALLOC_FAIL; }
   self->values   = new_values;
   self->capacity = new_capacity;
+  return SUN_SUCCESS;
 }
 
-static inline void MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype self)
+static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype self)
 {
   if (self->size == self->capacity)
   {
+    /* It is possible, although unlikely, that new_capacity overflows a long double.
+       We explicitly cast capacity to a long double to silence any implicit
+       conversion compiler warning. */
     int64_t new_capacity =
-      (int64_t)(ceil(((double)self->capacity) * GROWTH_FACTOR));
-    MAKE_NAME(SUNStlVectorTtype, Resize)(self, new_capacity);
+      (int64_t)(ceil(((long double)self->capacity) * GROWTH_FACTOR));
+    return MAKE_NAME(SUNStlVectorTtype, Reserve)(self, new_capacity);
   }
+  return SUN_SUCCESS;
 }
 
-static inline void MAKE_NAME(SUNStlVectorTtype,
-                             PushBack)(SUNStlVectorTtype self, TTYPE element)
+static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
+                                   PushBack)(SUNStlVectorTtype self, TTYPE element)
 {
   if (self->size == self->capacity)
   {
-    MAKE_NAME(SUNStlVectorTtype, Grow)(self);
+    SUNErrCode err = MAKE_NAME(SUNStlVectorTtype, Grow)(self);
+    if (err != SUN_SUCCESS) { return err; }
   }
   self->values[self->size++] = element;
+  return SUN_SUCCESS;
 }
 
 static inline TTYPE* MAKE_NAME(SUNStlVectorTtype, At)(SUNStlVectorTtype self,
@@ -117,37 +126,49 @@ static inline TTYPE* MAKE_NAME(SUNStlVectorTtype, At)(SUNStlVectorTtype self,
   return &(self->values[index]);
 }
 
-static inline void MAKE_NAME(SUNStlVectorTtype, Set)(SUNStlVectorTtype self,
-                                                     int64_t index, TTYPE element)
+static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
+                                   Set)(SUNStlVectorTtype self, int64_t index,
+                                        TTYPE element)
 {
   if (index >= self->size || index < 0)
   {
     // Handle index out of bounds
-    return;
+    return SUN_ERR_OUTOFRANGE;
   }
   self->values[index] = element;
+  return SUN_SUCCESS;
 }
 
-static inline void MAKE_NAME(SUNStlVectorTtype, PopBack)(SUNStlVectorTtype self)
+static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
+                                   PopBack)(SUNStlVectorTtype self)
 {
+  /* `static` results in implicit empty initialization in C99. */
   static TTYPE nullish;
-  if (self->size == 0) return;
+  if (self->size == 0) return SUN_SUCCESS;
   self->size--;
-  MAKE_NAME(SUNStlVectorTtype, Set)(self, self->size, nullish);
+  return MAKE_NAME(SUNStlVectorTtype, Set)(self, self->size, nullish);
 }
 
-static inline void MAKE_NAME(SUNStlVectorTtype, Erase)(SUNStlVectorTtype self,
-                                                       int64_t index)
+static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
+                                   Erase)(SUNStlVectorTtype self, int64_t index)
 {
   static TTYPE nullish;
-  if (self->size == 0) return;
-  MAKE_NAME(SUNStlVectorTtype, Set)(self, index, nullish);
+  if (self->size == 0) return SUN_SUCCESS;
+  if (index >= self->size || index < 0) return SUN_ERR_OUTOFRANGE;
+
+  SUNErrCode err = MAKE_NAME(SUNStlVectorTtype, Set)(self, index, nullish);
+  if (err != SUN_SUCCESS) return err;
+
   for (int64_t i = index; i < self->size - 1; i++)
   {
-    self->values[i]     = self->values[i + 1];
-    self->values[i + 1] = nullish;
+    self->values[i] = self->values[i + 1];
   }
+
+  err = MAKE_NAME(SUNStlVectorTtype, Set)(self, self->size - 1, nullish);
+  if (err != SUN_SUCCESS) return err;
+
   self->size -= 1;
+  return SUN_SUCCESS;
 }
 
 static inline int64_t MAKE_NAME(SUNStlVectorTtype, Size)(SUNStlVectorTtype self)
