@@ -81,19 +81,20 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
+  SUNErrCode err = SUN_SUCCESS;
   switch (io_mode)
   {
   case (SUNDATAIOMODE_INMEM):
-    SUNCheckCall(SUNDataNode_CreateList_InMem(num_elements, sunctx, node_out));
+    err = SUNDataNode_CreateList_InMem(num_elements, sunctx, node_out);
     break;
-  default:
-    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
-    return SUN_ERR_ARG_OUTOFRANGE;
+  default: err = SUN_ERR_ARG_OUTOFRANGE;
   }
 
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
 
-  return SUN_SUCCESS;
+  SUNCheck(err);
+
+  return err;
 }
 
 SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
@@ -104,19 +105,20 @@ SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
+  SUNErrCode err = SUN_SUCCESS;
   switch (io_mode)
   {
   case (SUNDATAIOMODE_INMEM):
-    SUNCheckCall(SUNDataNode_CreateObject_InMem(num_elements, sunctx, node_out));
+    err = SUNDataNode_CreateObject_InMem(num_elements, sunctx, node_out);
     break;
-  default:
-    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
-    return SUN_ERR_ARG_OUTOFRANGE;
+  default: err = SUN_ERR_ARG_OUTOFRANGE;
   }
 
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
 
-  return SUN_SUCCESS;
+  SUNCheck(err);
+
+  return err;
 }
 
 SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode self, sunbooleantype* yes_or_no)
