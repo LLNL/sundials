@@ -489,6 +489,7 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
   SUNHashMap_Values(p->map, (void***)&values, sizeof(sunTimerStruct));
   sunTimerStruct* reduced =
     (sunTimerStruct*)malloc(map_size * sizeof(sunTimerStruct));
+  if (!reduced) { return SUN_ERR_MALLOC_FAIL; }
   for (int i = 0; i < map_size; ++i) { reduced[i] = *values[i]; }
 
   /* Register MPI datatype for sunTimerStruct */
@@ -527,7 +528,7 @@ SUNErrCode sunCollectTimers(SUNProfiler p)
   MPI_Op_free(&MPI_sunTimerStruct_MAXANDSUM);
 
   /* Update the values that are in this rank's hash map. */
-  for (int64_t i = 0; i < map_size; ++i)
+  for (int i = 0; i < map_size; ++i)
   {
     values[i]->average = reduced[i].average / (double)nranks;
     values[i]->maximum = reduced[i].maximum;
