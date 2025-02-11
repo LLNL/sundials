@@ -91,7 +91,8 @@ SUNErrCode SUNHashMap_New(int64_t capacity,
   /* Initialize all buckets to NULL */
   for (int64_t i = 0; i < capacity; i++)
   {
-    SUNStlVector_SUNHashMapKeyValue_PushBack(buckets, NULL);
+    SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_PushBack(buckets, NULL);
+    if (err) { return err; };
   }
 
   (*map)->buckets = buckets;
@@ -181,7 +182,7 @@ static int64_t sunHashMapLinearProbeInsert(int64_t idx, SUNHashMapKeyValue kv,
   return SUNHASHMAP_ERROR; /* keep looking */
 }
 
-static void sunHashMapResize(SUNHashMap map)
+static SUNErrCode sunHashMapResize(SUNHashMap map)
 {
   int64_t old_capacity = SUNHashMap_Capacity(map);
   int64_t new_capacity = old_capacity * 2;
@@ -193,7 +194,8 @@ static void sunHashMapResize(SUNHashMap map)
   /* Set all buckets to NULL */
   for (int64_t i = 0; i < new_capacity; i++)
   {
-    SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
+    SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
+    if (err) { return err; }
   }
 
   /* Rehash and reinsert */
@@ -206,10 +208,13 @@ static void sunHashMapResize(SUNHashMap map)
       free(kvp->key);
       free(kvp);
     }
-    SUNStlVector_SUNHashMapKeyValue_PopBack(old_buckets);
+    SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_PopBack(old_buckets);
+    if (err) { return err; }
   }
 
   SUNStlVector_SUNHashMapKeyValue_Destroy(&old_buckets);
+
+  return 0;
 }
 
 /*
@@ -253,7 +258,8 @@ int64_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
     else if (retval == SUNHashMap_Capacity(map))
     {
       /* the map is out of empty buckets, so we grow it */
-      sunHashMapResize(map);
+      SUNErrCode err = sunHashMapResize(map);
+      if (err) { return err; }
       return SUNHashMap_Insert(map, key, value);
     }
 
@@ -277,9 +283,7 @@ int64_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   kvp->value = value;
 
   /* Insert the key-value pair */
-  SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, kvp);
-
-  return (0);
+  return SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, kvp);
 }
 
 static int64_t sunHashMapLinearProbeGet(int64_t idx, SUNHashMapKeyValue kv,
@@ -402,9 +406,7 @@ int64_t SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
   free(kvp);
 
   /* Clear the bucket by setting it to NULL */
-  SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, NULL);
-
-  return (0);
+  return SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, NULL);
 }
 
 /*

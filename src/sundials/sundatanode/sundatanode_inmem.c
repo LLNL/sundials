@@ -33,20 +33,20 @@ static SUNDataNode sunDataNode_CreateEmpty_InMem(SUNContext sunctx)
   SUNDataNode node;
   SUNCheckCallNull(SUNDataNode_CreateEmpty(sunctx, &node));
 
-  node->ops->hasChildren      = SUNDataNode_HasChildren_InMem;
-  node->ops->isLeaf           = SUNDataNode_IsLeaf_InMem;
-  node->ops->isList           = SUNDataNode_IsList_InMem;
-  node->ops->isObject         = SUNDataNode_IsObject_InMem;
-  node->ops->addChild         = SUNDataNode_AddChild_InMem;
-  node->ops->addNamedChild    = SUNDataNode_AddNamedChild_InMem;
-  node->ops->getChild         = SUNDataNode_GetChild_InMem;
-  node->ops->getNamedChild    = SUNDataNode_GetNamedChild_InMem;
-  node->ops->removeChild      = SUNDataNode_RemoveChild_InMem;
-  node->ops->removeNamedChild = SUNDataNode_RemoveNamedChild_InMem;
-  node->ops->getData          = SUNDataNode_GetData_InMem;
-  node->ops->getDataNvector   = SUNDataNode_GetDataNvector_InMem;
-  node->ops->setData          = SUNDataNode_SetData_InMem;
-  node->ops->setDataNvector   = SUNDataNode_SetDataNvector_InMem;
+  node->ops->haschildren      = SUNDataNode_HasChildren_InMem;
+  node->ops->isleaf           = SUNDataNode_IsLeaf_InMem;
+  node->ops->islist           = SUNDataNode_IsList_InMem;
+  node->ops->isobject         = SUNDataNode_IsObject_InMem;
+  node->ops->addchild         = SUNDataNode_AddChild_InMem;
+  node->ops->addnamedchild    = SUNDataNode_AddNamedChild_InMem;
+  node->ops->getchild         = SUNDataNode_GetChild_InMem;
+  node->ops->getnamedchild    = SUNDataNode_GetNamedChild_InMem;
+  node->ops->removechild      = SUNDataNode_RemoveChild_InMem;
+  node->ops->removenamedchild = SUNDataNode_RemoveNamedChild_InMem;
+  node->ops->getdata          = SUNDataNode_GetData_InMem;
+  node->ops->getdatanvector   = SUNDataNode_GetDataNvector_InMem;
+  node->ops->setdata          = SUNDataNode_SetData_InMem;
+  node->ops->setdatanvector   = SUNDataNode_SetDataNvector_InMem;
   node->ops->destroy          = SUNDataNode_Destroy_InMem;
 
   SUNDataNode_InMemContent content =

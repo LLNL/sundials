@@ -30,15 +30,15 @@ SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
   ops = (SUNDataNode_Ops)malloc(sizeof(*ops));
   SUNAssert(self, SUN_ERR_MEM_FAIL);
 
-  ops->hasChildren = NULL;
-  ops->isLeaf      = NULL;
-  ops->isList      = NULL;
-  ops->isObject    = NULL;
-  ops->addChild    = NULL;
-  ops->getChild    = NULL;
-  ops->removeChild = NULL;
-  ops->getData     = NULL;
-  ops->setData     = NULL;
+  ops->haschildren = NULL;
+  ops->isleaf      = NULL;
+  ops->islist      = NULL;
+  ops->isobject    = NULL;
+  ops->addchild    = NULL;
+  ops->getchild    = NULL;
+  ops->removechild = NULL;
+  ops->getdata     = NULL;
+  ops->setdata     = NULL;
   ops->destroy     = NULL;
 
   self->dtype   = 0;
@@ -92,7 +92,7 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
 
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
 
-  SUNCheck(err);
+  SUNCheck(err, err);
 
   return err;
 }
@@ -116,7 +116,7 @@ SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
 
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
 
-  SUNCheck(err);
+  SUNCheck(err, err);
 
   return err;
 }
@@ -127,9 +127,9 @@ SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode self, sunbooleantype* yes_or_no)
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->isLeaf)
+  if (self->ops->isleaf)
   {
-    SUNErrCode err = self->ops->isLeaf(self, yes_or_no);
+    SUNErrCode err = self->ops->isleaf(self, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -145,9 +145,9 @@ SUNErrCode SUNDataNode_IsList(const SUNDataNode self, sunbooleantype* yes_or_no)
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->isList)
+  if (self->ops->islist)
   {
-    SUNErrCode err = self->ops->isList(self, yes_or_no);
+    SUNErrCode err = self->ops->islist(self, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -163,9 +163,9 @@ SUNErrCode SUNDataNode_HasChildren(const SUNDataNode self,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->hasChildren)
+  if (self->ops->haschildren)
   {
-    SUNErrCode err = self->ops->hasChildren(self, yes_or_no);
+    SUNErrCode err = self->ops->haschildren(self, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -180,9 +180,9 @@ SUNErrCode SUNDataNode_AddChild(SUNDataNode self, SUNDataNode child_node)
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->addChild)
+  if (self->ops->addchild)
   {
-    SUNErrCode err = self->ops->addChild(self, child_node);
+    SUNErrCode err = self->ops->addchild(self, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -198,9 +198,9 @@ SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode self, const char* name,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->addNamedChild)
+  if (self->ops->addnamedchild)
   {
-    SUNErrCode err = self->ops->addNamedChild(self, name, child_node);
+    SUNErrCode err = self->ops->addnamedchild(self, name, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -216,9 +216,9 @@ SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex index,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->getChild)
+  if (self->ops->getchild)
   {
-    SUNErrCode err = self->ops->getChild(self, index, child_node);
+    SUNErrCode err = self->ops->getchild(self, index, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -234,9 +234,9 @@ SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode self, const char* name,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->getNamedChild)
+  if (self->ops->getnamedchild)
   {
-    SUNErrCode err = self->ops->getNamedChild(self, name, child_node);
+    SUNErrCode err = self->ops->getnamedchild(self, name, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -252,9 +252,9 @@ SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode self, const char* name
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->removeNamedChild)
+  if (self->ops->removenamedchild)
   {
-    SUNErrCode err = self->ops->removeNamedChild(self, name, child_node);
+    SUNErrCode err = self->ops->removenamedchild(self, name, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -270,9 +270,9 @@ SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex index,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->removeChild)
+  if (self->ops->removechild)
   {
-    SUNErrCode err = self->ops->removeChild(self, index, child_node);
+    SUNErrCode err = self->ops->removechild(self, index, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -288,9 +288,9 @@ SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->getData)
+  if (self->ops->getdata)
   {
-    SUNErrCode err = self->ops->getData(self, data, data_stride, data_bytes);
+    SUNErrCode err = self->ops->getdata(self, data, data_stride, data_bytes);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -305,9 +305,9 @@ SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector v, sunrealtype*
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->getDataNvector)
+  if (self->ops->getdatanvector)
   {
-    SUNErrCode err = self->ops->getDataNvector(self, v, t);
+    SUNErrCode err = self->ops->getdatanvector(self, v, t);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -324,9 +324,9 @@ SUNErrCode SUNDataNode_SetData(SUNDataNode self, SUNMemoryType src_mem_type,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->setData)
+  if (self->ops->setdata)
   {
-    SUNErrCode err = self->ops->setData(self, src_mem_type, node_mem_type, data,
+    SUNErrCode err = self->ops->setdata(self, src_mem_type, node_mem_type, data,
                                         data_stride, data_bytes);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
@@ -342,9 +342,9 @@ SUNErrCode SUNDataNode_SetDataNvector(SUNDataNode self, N_Vector v, sunrealtype 
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->setDataNvector)
+  if (self->ops->setdatanvector)
   {
-    SUNErrCode err = self->ops->setDataNvector(self, v, t);
+    SUNErrCode err = self->ops->setdatanvector(self, v, t);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
