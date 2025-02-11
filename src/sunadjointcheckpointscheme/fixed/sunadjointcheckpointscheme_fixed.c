@@ -214,6 +214,8 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
       else { SUNCheckCall(errcode); }
     }
 
+    /* If we just removed the last stage (so has_children==false),
+       then we should remove the step too. */
     SUNCheckCall(SUNDataNode_HasChildren(step_data_node, &has_children));
     if (!has_children)
     {

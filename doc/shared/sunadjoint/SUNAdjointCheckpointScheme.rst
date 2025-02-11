@@ -162,7 +162,8 @@ The virtual table structure is defined as
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_EnableDense(SUNAdjointCheckpointScheme cs, \
    sunbooleantype on_or_off)
 
-   Enables or disables dense checkpointing (checkpointing every step/stage).
+   Enables or disables dense checkpointing (checkpointing every step/stage). When dense checkpointing
+   is disabled, the checkpointing interval that was set when the object was created is restored.
 
    :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
    :param on_or_off: if true, dense checkpointing will be turned on, if false it will be turned off.
