@@ -150,8 +150,7 @@ Stepping Functions
 
 .. c:function:: SUNErrCode SUNStepper_ResetCheckpointIndex(SUNStepper stepper, int64_t ckptIdxR)
 
-   This function resets the stepper state to the independent variable
-   value and dependent variable vector contained in the given checkpoint index.
+   This function resets the index at which new checkpoints will be inserted to `ckptIdxR`.
 
    :param stepper: the stepper object.
    :param ckptIdxR: the step index to begin checkpointing from
@@ -454,7 +453,7 @@ This section describes the functions that users may supply.
                                void* user_data, N_Vector tmp1, N_Vector tmp2, \
                                N_Vector tmp3);
 
-   This function computes the Jacobian of the ODE right hand side function. 
+   This function computes the Jacobian of the ODE right hand side function.
 
    **Parameters:**
 
@@ -489,7 +488,7 @@ This section describes the functions that users may supply.
    * **fy**: the current value of the vector :math:`f(t,y)`.
    * **user_data**: a pointer to user data, the same as the *user_data*
                      parameter that was passed to :c:func:`SUNStepperSetUserData`.
-   * **tmp**: a :c:type:`N_Vector` which can be used by an as temporary storage 
+   * **tmp**: a :c:type:`N_Vector` which can be used by an as temporary storage
               or work space.
 
    **Returns:**
