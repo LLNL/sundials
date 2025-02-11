@@ -76,8 +76,8 @@ static void sunDataNode_DestroyEmpty_InMem(SUNDataNode* node)
   *node = NULL;
 }
 
-static void sunDataNode_FreeKeyValue_InMem(SUNHashMapKeyValue* kv_ptr);
-static void sunDataNode_FreeValue_InMem(SUNDataNode* nodeptr);
+static SUNErrCode sunDataNode_FreeKeyValue_InMem(SUNHashMapKeyValue* kv_ptr);
+static SUNErrCode sunDataNode_FreeValue_InMem(SUNDataNode* nodeptr);
 
 SUNErrCode SUNDataNode_CreateList_InMem(sundataindex init_size,
                                         SUNContext sunctx, SUNDataNode* node_out)
@@ -475,19 +475,19 @@ SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node)
 }
 
 /* This function is the callback provided to the child hashmap as the destroy function. */
-static void sunDataNode_FreeKeyValue_InMem(SUNHashMapKeyValue* kv_ptr)
+static SUNErrCode sunDataNode_FreeKeyValue_InMem(SUNHashMapKeyValue* kv_ptr)
 {
-  if (!kv_ptr || !(*kv_ptr)) { return; }
+  if (!kv_ptr || !(*kv_ptr)) { return SUN_SUCCESS; }
   SUNDataNode node = (SUNDataNode)((*kv_ptr)->value);
   free((*kv_ptr)->key);
   free(*kv_ptr);
   SUNDataNode_Destroy_InMem(&node);
-  return;
+  return SUN_SUCCESS;
 }
 
 /* This function is the callback provided to the child stlvector as the destroy function. */
-static void sunDataNode_FreeValue_InMem(SUNDataNode* nodeptr)
+static SUNErrCode sunDataNode_FreeValue_InMem(SUNDataNode* nodeptr)
 {
   SUNDataNode_Destroy_InMem(nodeptr);
-  return;
+  return SUN_SUCCESS;
 }

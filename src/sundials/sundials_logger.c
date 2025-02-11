@@ -125,12 +125,13 @@ static sunbooleantype sunLoggerIsOutputRank(SUNDIALS_MAYBE_UNUSED SUNLogger logg
   return retval;
 }
 
-static void sunLoggerFreeKeyValue(SUNHashMapKeyValue* kv_ptr)
+static SUNErrCode sunLoggerFreeKeyValue(SUNHashMapKeyValue* kv_ptr)
 {
-  if (!kv_ptr || !(*kv_ptr)) { return; }
+  if (!kv_ptr || !(*kv_ptr)) { return SUN_SUCCESS; }
   sunCloseLogFile((*kv_ptr)->value);
   free((*kv_ptr)->key);
   free(*kv_ptr);
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNLogger_Create(SUNComm comm, int output_rank, SUNLogger* logger_ptr)

@@ -48,7 +48,7 @@ struct SUNStlVectorTtype_s
   int64_t size;
   int64_t capacity;
   TTYPE* values;
-  void (*destroyValue)(TTYPE*);
+  SUNErrCode (*destroyValue)(TTYPE*);
 };
 
 // This constant controls how much space will be allocated when a resize is needed.
@@ -60,7 +60,7 @@ struct SUNStlVectorTtype_s
 
 static inline SUNStlVectorTtype MAKE_NAME(SUNStlVectorTtype,
                                           New)(int64_t init_capacity,
-                                               void (*destroyValue)(TTYPE*))
+                                               SUNErrCode (*destroyValue)(TTYPE*))
 {
   if (init_capacity < 0 || !destroyValue) { return NULL; }
   SUNStlVectorTtype self = (SUNStlVectorTtype)malloc(sizeof(*self));
@@ -133,6 +133,8 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
   if (index >= self->size || index < 0)
   {
     // Handle index out of bounds
+    fprintf(stderr, ">>> out of bounds: index = %lld, size=%lld\n", index,
+            self->size);
     return SUN_ERR_OUTOFRANGE;
   }
   self->values[index] = element;
@@ -145,8 +147,11 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
   /* `static` results in implicit empty initialization in C99. */
   static TTYPE nullish;
   if (self->size == 0) return SUN_SUCCESS;
+  SUNErrCode err = MAKE_NAME(SUNStlVectorTtype, Set)(self, self->size - 1,
+                                                     nullish);
+  if (err) { return err; }
   self->size--;
-  return MAKE_NAME(SUNStlVectorTtype, Set)(self, self->size, nullish);
+  return SUN_SUCCESS;
 }
 
 static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
@@ -182,22 +187,25 @@ static inline int64_t MAKE_NAME(SUNStlVectorTtype,
   return self->capacity;
 }
 
-static inline void MAKE_NAME(SUNStlVectorTtype,
-                             Destroy)(SUNStlVectorTtype* self_ptr)
+static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
+                                   Destroy)(SUNStlVectorTtype* self_ptr)
 {
   static TTYPE nullish;
 
-  if (!self_ptr || !(*self_ptr)) return;
+  if (!self_ptr || !(*self_ptr)) return SUN_SUCCESS;
 
   SUNStlVectorTtype self = *self_ptr;
 
   for (int64_t i = 0; i < MAKE_NAME(SUNStlVectorTtype, Size)(self); i++)
   {
-    self->destroyValue(&(self->values[i]));
+    SUNErrCode err = self->destroyValue(&(self->values[i]));
+    if (err) { return err; }
     self->values[i] = nullish;
   }
 
   free(self->values);
   free(self);
   *self_ptr = NULL;
+
+  return SUN_SUCCESS;
 }

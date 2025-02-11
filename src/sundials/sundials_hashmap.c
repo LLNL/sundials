@@ -68,7 +68,7 @@ static inline int64_t sunHashMapIdxFromKey(SUNHashMap map, const char* key)
     * A SUNErrCode indicating success or a failure
  */
 SUNErrCode SUNHashMap_New(int64_t capacity,
-                          void (*destroyKeyValue)(SUNHashMapKeyValue* kv_ptr),
+                          SUNErrCode (*destroyKeyValue)(SUNHashMapKeyValue* kv_ptr),
                           SUNHashMap* map)
 {
   if (capacity <= 0) { return SUN_ERR_ARG_OUTOFRANGE; }
@@ -128,7 +128,8 @@ SUNErrCode SUNHashMap_Destroy(SUNHashMap* map)
 {
   if (map == NULL) { return SUN_SUCCESS; }
 
-  SUNStlVector_SUNHashMapKeyValue_Destroy(&(*map)->buckets);
+  SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_Destroy(&(*map)->buckets);
+  if (err) { return err; }
   free(*map);
   *map = NULL;
 
@@ -199,7 +200,8 @@ static SUNErrCode sunHashMapResize(SUNHashMap map)
   }
 
   /* Rehash and reinsert */
-  for (int64_t i = old_capacity - 1; i >= 0; i--)
+  for (int64_t i = SUNStlVector_SUNHashMapKeyValue_Size(old_buckets) - 1;
+       i >= 0; i--)
   {
     SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(old_buckets, i);
     if (kvp)
@@ -212,9 +214,7 @@ static SUNErrCode sunHashMapResize(SUNHashMap map)
     if (err) { return err; }
   }
 
-  SUNStlVector_SUNHashMapKeyValue_Destroy(&old_buckets);
-
-  return 0;
+  return SUNStlVector_SUNHashMapKeyValue_Destroy(&old_buckets);
 }
 
 /*
