@@ -11,21 +11,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
 -2.000000000000000e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0002
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
--1.999000000000000e+00
+-1.999200000000000e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0003
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
--1.999000500000000e+00
+-1.998800600000000e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0005
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
--1.998000999500000e+00
+-1.998000817636364e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.000375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0005
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
--1.998500562328109e+00
+-1.998000999666750e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -39,21 +39,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
 -1.998000999666750e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00075
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0007
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
--1.997001999166917e+00
+-1.997201799266883e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00075
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0008
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
--1.997002498667167e+00
+-1.996802798467250e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.001
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
--1.996003997168083e+00
+-1.996003815486219e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.000875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.001
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
--1.996503060683062e+00
+-1.996003997334666e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -73,21 +73,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  1.000000000000000e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0001
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.997505152294373e-01
+ 9.998004096935331e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00015
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.997504528660264e-01
+ 9.997005471751909e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00025
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.995009368416509e-01
+ 9.995009595157127e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0001875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00025
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.996257143504459e-01
+ 9.995009368546337e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -101,21 +101,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.995009368546337e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00035
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.992513896309703e-01
+ 9.993012965831953e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0004
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.992513272675214e-01
+ 9.992014090897950e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0005
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.990017488211632e-01
+ 9.990017714952387e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0004375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0005
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.991265575370675e-01
+ 9.990017488341454e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -129,21 +129,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.990017488341454e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0006
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.987521392196275e-01
+ 9.988020586475305e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00065
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.987520768561716e-01
+ 9.987021462040131e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00075
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.985024360501318e-01
+ 9.985024587242103e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0006875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00075
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.986272759419805e-01
+ 9.985024360631136e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -157,21 +157,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.985024360631136e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00085
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.982527641200968e-01
+ 9.983026960112048e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0009
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.982527017566651e-01
+ 9.982027586425544e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.001
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.980029986533536e-01
+ 9.980030213274235e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0009375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.001
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.981278696899268e-01
+ 9.980029986663349e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -194,21 +194,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
 -1.998002000666000e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0012
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
--1.997002999665667e+00
+-1.997202799865734e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0013
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
--1.997003499166167e+00
+-1.996803798866201e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0015
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
--1.996004997166834e+00
+-1.996004815484879e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.001375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0015
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
--1.996504060931845e+00
+-1.996004997333418e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -222,21 +222,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
 -1.996004997333418e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00175
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0017
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
--1.995006994834751e+00
+-1.995206595334484e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00175
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0018
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
--1.995007493836000e+00
+-1.994807993136517e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.002
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
--1.994009989839582e+00
+-1.994009808339218e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.001875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
--1.994508554790276e+00
+-1.994009990005998e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -256,21 +256,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.980029986663349e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0011
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.977537628971357e-01
+ 9.978036075609540e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00115
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.977537006582141e-01
+ 9.977038447925554e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00125
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.975044337598309e-01
+ 9.975044563886328e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0011875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00125
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.976290866589280e-01
+ 9.975044337727803e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -284,21 +284,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.975044337727803e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00135
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.972551357996222e-01
+ 9.973049929017438e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0014
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.972550735607247e-01
+ 9.972052052580127e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0015
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.970057444895323e-01
+ 9.970057671183257e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0014375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0015
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.971304284711325e-01
+ 9.970057445024809e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -312,21 +312,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.970057445024809e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0016
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.967563843876727e-01
+ 9.968062539156340e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00165
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.967563221488307e-01
+ 9.967064414215357e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00175
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.965069309671917e-01
+ 9.965069535959652e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0016875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00175
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.966316460000991e-01
+ 9.965069309801400e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -340,21 +340,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.965069309801400e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00185
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.962575087860992e-01
+ 9.963073907274147e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0019
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.962574465473436e-01
+ 9.962075534079582e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.002
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.960079933177304e-01
+ 9.960080159464726e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0019375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.961327393706944e-01
+ 9.960079933306779e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -377,21 +377,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
 -1.996004001329334e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00225
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0022
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
--1.995005999328669e+00
+-1.995205599728802e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00225
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0023
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
--1.995006498329670e+00
+-1.994806997729737e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0025
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
--1.994008994831004e+00
+-1.994008813330731e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0025
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
--1.994507559532915e+00
+-1.994008994997421e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -405,21 +405,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
 -1.994008994997421e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00275
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0027
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
--1.993011990499922e+00
+-1.993211391399422e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00275
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0028
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
--1.993012489002171e+00
+-1.992813187803121e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.003
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
--1.992015982508419e+00
+-1.992015801189555e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.003
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
--1.992514048894827e+00
+-1.992015982674670e+00
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -439,21 +439,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.960079933306779e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0021
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.957590070612821e-01
+ 9.958088018251445e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00215
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.957589449468495e-01
+ 9.957091390060410e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00225
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.955099276727747e-01
+ 9.955099502563172e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0021875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00225
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.956344557130311e-01
+ 9.955099276856904e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -467,21 +467,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.955099276856904e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00235
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.952608794612281e-01
+ 9.953106866136181e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0024
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.952608173468820e-01
+ 9.952109990188071e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0025
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.950117381489210e-01
+ 9.950117607324322e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0024375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0025
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.951362971471998e-01
+ 9.950117381618361e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -495,21 +495,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.950117381618361e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0026
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.947626280446779e-01
+ 9.948124475731190e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00265
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.947625659304488e-01
+ 9.947127352275907e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00275
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.945134248710263e-01
+ 9.945134474544952e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0026875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00275
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.946380147961006e-01
+ 9.945134248839409e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -523,21 +523,21 @@ Start ForcingStep Logging test
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_0(:) =
  9.945134248839409e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00285
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_1(:) =
- 9.942642529365655e-01
+ 9.943140848285603e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0029
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_2(:) =
- 9.942641908224847e-01
+ 9.942143477573482e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.003
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_3(:) =
- 9.940149879641341e-01
+ 9.940150105475493e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0029375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.003
 [DEBUG][rank 0][erkStep_TakeStep][stage RHS] F_4(:) =
- 9.941396087847225e-01
+ 9.940149879770479e-01
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [DEBUG][rank 0][erkStep_TakeStep][updated solution] ycur(:) =
@@ -552,17 +552,17 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
   3.000000000000000e-03  9.970030029929939e-01  2.993993026279007e-06
 ---------------------------------------------------------------------
-Current time                 = 0.003
-Steps                        = 3
-Step attempts                = 3
-Stability limited steps      = 0
-Accuracy limited steps       = 0
-Error test fails             = 0
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 0.001
-Last step size               = 0.001
-Current step size            = 0.001
-Partition 1 evolves          = 3
-Partition 2 evolves          = 3
+Current time                  = 0.003
+Steps                         = 3
+Step attempts                 = 3
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.001
+Last step size                = 0.001
+Current step size             = 0.001
+Partition 1 evolves           = 3
+Partition 2 evolves           = 3
 End ForcingStep Logging test
