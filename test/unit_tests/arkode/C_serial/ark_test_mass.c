@@ -137,7 +137,11 @@ static int solve(const char* im, const char* ex, int steps,
 
   /* Specify a time step so no extra mass evaluations occur from initial step
    * size procedure */
-  retval = ARKodeSetInitStep(arkode_mem, 0.01);
+  retval = ARKodeSetInitStep(arkode_mem, 0.001);
+  if (check_retval(&retval, "ARKodeSetInitStep", 1)) return 1;
+
+  /* TODO(SBR): remove once the default adjustment is changed */
+  retval = ARKodeSetAdaptivityAdjustment(arkode_mem, 0);
   if (check_retval(&retval, "ARKodeSetInitStep", 1)) return 1;
 
   /* Use Lagrange interpolation because Hermite may need addition mass matrix
