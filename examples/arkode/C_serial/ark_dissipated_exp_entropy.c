@@ -186,6 +186,10 @@ int main(int argc, char* argv[])
   else { arkode_mem = ARKStepCreate(f, NULL, t0, y, ctx); }
   if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
 
+  /* Set order */
+  flag = ARKodeSetOrder(arkode_mem, 2);
+  if (check_flag(flag, "ARKodeSetOrder")) { return 1; }
+
   /* Specify tolerances */
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(flag, "ARKodeSStolerances")) { return 1; }
@@ -213,11 +217,6 @@ int main(int argc, char* argv[])
     /* Set Jacobian routine */
     flag = ARKodeSetJacFn(arkode_mem, Jac);
     if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
-
-    /* Select a Butcher table with non-negative b values */
-    flag = ARKStepSetTableName(arkode_mem, "ARKODE_ARK2_DIRK_3_1_2",
-                               "ARKODE_ERK_NONE");
-    if (check_flag(flag, "ARKStepSetTableName")) { return 1; }
 
     /* Tighten nonlinear solver tolerance */
     flag = ARKodeSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
