@@ -6,17 +6,17 @@ Start SplittingStep Logging test
   2.000000000000000e-03  9.979980073386400e-01  1.995328022363907e-06
   3.000000000000000e-03  9.969970190148773e-01  2.989985090406932e-06
 ---------------------------------------------------------------------
-Current time                 = 0.003
-Steps                        = 3
-Step attempts                = 3
-Stability limited steps      = 0
-Accuracy limited steps       = 0
-Error test fails             = 0
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 0.001
-Last step size               = 0.001
-Current step size            = 0.001
-Partition 1 evolves          = 3
-Partition 2 evolves          = 3
+Current time                  = 0.003
+Steps                         = 3
+Step attempts                 = 3
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.001
+Last step size                = 0.001
+Current step size             = 0.001
+Partition 1 evolves           = 3
+Partition 2 evolves           = 3
 End SplittingStep Logging test

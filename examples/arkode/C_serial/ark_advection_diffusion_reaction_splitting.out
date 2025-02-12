@@ -9,94 +9,94 @@
    ----------------------
     0.000000    0.100000
     0.060000    0.126735
-    0.120000    0.154225
-    0.180000    0.185713
-    0.240000    0.221939
-    0.300000    0.263178
+    0.120000    0.154226
+    0.180000    0.185715
+    0.240000    0.221940
+    0.300000    0.263179
     0.360000    0.309221
     0.420000    0.359242
-    0.480000    0.411736
-    0.540000    0.464562
-    0.600000    0.515253
-    0.660000    0.561485
-    0.720000    0.601561
-    0.780000    0.634693
-    0.840000    0.660982
-    0.900000    0.681150
-    0.960000    0.696244
-    1.000000    0.702991
+    0.480000    0.411737
+    0.540000    0.464563
+    0.600000    0.515254
+    0.660000    0.561486
+    0.720000    0.601562
+    0.780000    0.634695
+    0.840000    0.660985
+    0.900000    0.681153
+    0.960000    0.696246
+    1.000000    0.702993
    ----------------------
 
 Splitting Stepper Statistics:
-Current time                 = 1
-Steps                        = 17
-Step attempts                = 17
-Stability limited steps      = 0
-Accuracy limited steps       = 0
-Error test fails             = 0
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 0.06
-Last step size               = 0.0399999999999996
-Current step size            = 0.06
-Partition 1 evolves          = 17
-Partition 2 evolves          = 17
-Partition 3 evolves          = 17
+Current time                  = 1
+Steps                         = 17
+Step attempts                 = 17
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.06
+Last step size                = 0.0399999999999996
+Current step size             = 0.06
+Partition 1 evolves           = 17
+Partition 2 evolves           = 17
+Partition 3 evolves           = 17
 
 Advection Stepper Statistics:
-Current time                 = 1
-Steps                        = 55
-Step attempts                = 64
-Stability limited steps      = 0
-Accuracy limited steps       = 64
-Error test fails             = 9
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 2.0593554389295e-06
-Last step size               = 0.00403205722386301
-Current step size            = 0.00403205722386301
-RHS fn evals                 = 185
+Current time                  = 1
+Steps                         = 57
+Step attempts                 = 66
+Stability limited steps       = 0
+Accuracy limited steps        = 66
+Error test fails              = 9
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 2.0593554389295e-06
+Last step size                = 0.0163569988235519
+Current step size             = 0.0163569988235519
+RHS fn evals                  = 191
 
 Diffusion Stepper Statistics:
-Current time                 = 1
-Steps                        = 247
-Step attempts                = 302
-Stability limited steps      = 0
-Accuracy limited steps       = 302
-Error test fails             = 55
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 2.0593554389295e-06
-Last step size               = 0.00655527585775428
-Current step size            = 0.00655527585775428
-Explicit RHS fn evals        = 0
-Implicit RHS fn evals        = 1831
-NLS iters                    = 906
-NLS fails                    = 0
-NLS iters per step           = 3.66801619433198
-LS setups                    = 213
-Jac fn evals                 = 72
-LS RHS fn evals              = 0
-Prec setup evals             = 0
-Prec solves                  = 0
-LS iters                     = 0
-LS fails                     = 0
-Jac-times setups             = 0
-Jac-times evals              = 0
-LS iters per NLS iter        = 0
-Jac evals per NLS iter       = 0.0794701986754967
-Prec evals per NLS iter      = 0
+Current time                  = 1
+Steps                         = 176
+Step attempts                 = 237
+Stability limited steps       = 0
+Accuracy limited steps        = 237
+Error test fails              = 61
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 2.0593554389295e-06
+Last step size                = 0.0033239408957002
+Current step size             = 0.0033239408957002
+Explicit RHS fn evals         = 0
+Implicit RHS fn evals         = 1915
+NLS iters                     = 948
+NLS fails                     = 0
+NLS iters per step            = 5.38636363636364
+LS setups                     = 203
+Jac fn evals                  = 78
+LS RHS fn evals               = 0
+Prec setup evals              = 0
+Prec solves                   = 0
+LS iters                      = 0
+LS fails                      = 0
+Jac-times setups              = 0
+Jac-times evals               = 0
+LS iters per NLS iter         = 0
+Jac evals per NLS iter        = 0.0822784810126582
+Prec evals per NLS iter       = 0
 
 Reaction Stepper Statistics:
-Current time                 = 1
-Steps                        = 42
-Step attempts                = 49
-Stability limited steps      = 0
-Accuracy limited steps       = 49
-Error test fails             = 7
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 0.00180442856879795
-Last step size               = 0.0399999999999996
-Current step size            = 0.0399999999999996
-RHS fn evals                 = 166
+Current time                  = 1
+Steps                         = 42
+Step attempts                 = 49
+Stability limited steps       = 0
+Accuracy limited steps        = 49
+Error test fails              = 7
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.00180442856879795
+Last step size                = 0.0399999999999996
+Current step size             = 0.0399999999999996
+RHS fn evals                  = 166

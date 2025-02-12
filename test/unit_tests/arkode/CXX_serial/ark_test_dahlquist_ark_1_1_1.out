@@ -889,6 +889,76 @@ Fe RHS evals:
 --------------------
 
 ========================
+ERK: ARKODE_RALSTON_3_1_2
+  stages:             3
+  order:              2
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   3
+  expected: 3
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   5
+  expected: 5
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   9
+  expected: 9
+--------------------
+
+========================
+ERK: ARKODE_TSITOURAS_7_4_5
+  stages:             7
+  order:              5
+  explicit 1st stage: 1
+  stiffly accurate:   1
+  first same as last: 1
+========================
+--------------------
+Steps: 1
+Fe RHS evals:
+  actual:   7
+  expected: 7
+--------------------
+Steps: 2
+Fe RHS evals:
+  actual:   13
+  expected: 13
+--------------------
+Steps: 3
+Fe RHS evals:
+  actual:   19
+  expected: 19
+--------------------
+Dense Output
+Fe RHS evals:
+  actual:   19
+  expected: 19
+--------------------
+Steps: 4
+Fe RHS evals:
+  actual:   25
+  expected: 25
+--------------------
+
+========================
 Test implicit RK methods
 ========================
 

@@ -28,10 +28,10 @@ MRIStep Solver Statistics:
    Internal solver steps = 1000
    Total RHS evals:  Fe = 2001
    Total linear solver setups = 1
-   Total linear iterations = 4722
-   Total number of Jacobian-vector products = 4722
+   Total linear iterations = 4717
+   Total number of Jacobian-vector products = 4717
    Total number of Preconditioner setups = 1
-   Total number of Preconditioner solves = 4722
+   Total number of Preconditioner solves = 4717
    Total number of linear solver convergence failures = 0
    Total number of Newton iterations = 1000
    Total number of nonlinear solver convergence failures = 0
