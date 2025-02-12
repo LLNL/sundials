@@ -37,12 +37,11 @@ Improved the efficiency of default ARKODE methods with the following changes:
 
 **Bug Fixes**
 
-Removed error floors from the :c:type:`SUNAdaptController`` implementations
+Removed error floors from the ```SUNAdaptController`` implementations
 which could unnecessarily limit the time size growth, particularly after the
 first step.
 
-On the first two time steps, the
-:ref:`Soderlind controller <SUNAdaptController.Soderlind>` uses an I controller
+On the first two time steps, the Soderlind controller uses an I controller
 instead of omitting unavailable terms.
 
 Fixed bug in :c:func:`ARKodeSetFixedStep` where it could return ``ARK_SUCCESS``
