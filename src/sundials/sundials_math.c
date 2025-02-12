@@ -73,7 +73,7 @@ sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
    * isunordered (which throw warnings for some compilers and flags), we use
    * !isless. The seemingly equivalent >= can have undefined behavior for NANs.
    */
-  return !isless(diff, SUNMAX(10 * DBL_EPSILON, tol * norm));
+  return !isless(diff, SUNMAX(10 * SUN_UNIT_ROUNDOFF, tol * norm));
 }
 
 sunrealtype SUNStrToReal(const char* str)
