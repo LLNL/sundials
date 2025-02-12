@@ -2342,7 +2342,7 @@ ARKODE_SPRK_YOSHIDA_6_8
 Accessible via the constant (or string) ``ARKODE_SPRK_YOSHIDA_6_8`` to
 :c:func:`ARKodeSPRKTable_Load` or :c:func:`ARKodeSPRKTable_LoadByName`.
 This is the 6th order method given by Yoshida in :cite:p:`Yoshida:90`
-and the 6th order method.
+and the default 6th order method.
 
 
 ARKODE_SPRK_SUZUKI_UMENO_8_16
