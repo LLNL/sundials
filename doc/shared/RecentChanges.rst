@@ -1,12 +1,18 @@
-** New Features and Enhancements **
+**Major Features**
 
-Unit tests were separated from examples. To that end, the following directories 
-were moved out of the ``examples/`` directory to the ``test/unit_tests`` directory:
-``nvector``, ``sunmatrix``, ``sunlinsol``, and ``sunnonlinsol``.
+**New Features and Enhancements**
 
 **Bug Fixes**
 
-Fixed a bug in ARKStep where an extra right-hand side evaluation would occur
-each time step when enabling the :c:func:`ARKodeSetAutonomous` option and using
-an IMEX method where the DIRK table has an implicit first stage and is not stiffly
-accurate.
+Fixed bug in :c:func:`ARKodeSetFixedStep` where it could return ``ARK_SUCCESS``
+despite an error occurring.
+
+Fixed the behavior of :cmakeop:`SUNDIALS_ENABLE_ERROR_CHECKS` so additional
+runtime error checks are disabled by default with all release build types.
+Previously, ``MinSizeRel`` builds enabled additional error checking by default.
+
+Fixed bug in the ARKODE SPRKStep :c:func:`SPRKStepReInit` function and
+:c:func:`ARKodeReset` function with SPRKStep that could cause a segmentation
+fault when compensated summation is not used.
+
+**Deprecation Notices**

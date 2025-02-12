@@ -2,7 +2,7 @@
  * Programmer(s): Steven B. Roberts @ LLNL
  *------------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -323,32 +323,14 @@ static int forcingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 static int forcingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
                                      SUNOutputFormat fmt)
 {
-  // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
   ARKodeForcingStepMem step_mem = NULL;
   int retval = forcingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  switch (fmt)
-  {
-  case SUN_OUTPUTFORMAT_TABLE:
-    for (int k = 0; k < NUM_PARTITIONS; k++)
-    {
-      fprintf(outfile, "Partition %i evolves          = %ld\n", k,
-              step_mem->n_stepper_evolves[k]);
-    }
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    for (int k = 0; k < NUM_PARTITIONS; k++)
-    {
-      fprintf(outfile, ",Partition %i evolves,%ld", k,
-              step_mem->n_stepper_evolves[k]);
-    }
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return ARK_ILL_INPUT;
-  }
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Partition 1 evolves",
+                  step_mem->n_stepper_evolves[0]);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Partition 2 evolves",
+                  step_mem->n_stepper_evolves[1]);
 
   return ARK_SUCCESS;
 }
@@ -378,15 +360,6 @@ static void forcingStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
     fprintf(outfile, "ForcingStep: partition %i: n_stepper_evolves = %li\n", k,
             step_mem->n_stepper_evolves[k]);
   }
-}
-
-/*------------------------------------------------------------------------------
-  This routine checks if all required vector operations are present. If any of
-  them are missing it returns SUNFALSE.
-  ----------------------------------------------------------------------------*/
-static sunbooleantype forcingStep_CheckNVector(N_Vector y)
-{
-  return y->ops->nvlinearsum != NULL;
 }
 
 /*------------------------------------------------------------------------------
@@ -438,14 +411,6 @@ static int forcingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper stepper1,
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
-    return ARK_ILL_INPUT;
-  }
-
-  /* Test if all required vector operations are implemented */
-  if (!forcingStep_CheckNVector(y0))
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
     return ARK_ILL_INPUT;
   }
 

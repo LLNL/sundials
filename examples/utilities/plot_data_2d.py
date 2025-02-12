@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -393,10 +393,6 @@ def read_header(args):
     # sanity checks
     if info["nt"] != np.shape(data)[0]:
         print("ERROR: nt != nrows", info["nt"], np.shape(data)[0])
-        sys.exit()
-
-    if (info["nvar"] * info["nx"] * info["ny"]) != (np.shape(data)[1] - 1):
-        print("ERROR: nvar * nx * ny != ncols - 1")
         sys.exit()
 
     # check x-dimension lower and upper bounds

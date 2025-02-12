@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -978,7 +978,7 @@ arise from the **separable** Hamiltonian system
 where
 
 .. math::
-   f_1(t, q) \equiv \frac{\partial V(t, q)}{\partial q}, \qquad
+   f_1(t, q) \equiv -\frac{\partial V(t, q)}{\partial q}, \qquad
    f_2(t, p) \equiv \frac{\partial T(t, p)}{\partial p}.
 
 When *H* is autonomous, then *H* is a conserved quantity. Often this corresponds

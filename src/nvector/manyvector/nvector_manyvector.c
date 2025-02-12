@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -41,7 +41,9 @@
 #endif
 
 #define ZERO SUN_RCONST(0.0)
-#define ONE  SUN_RCONST(1.0)
+#ifdef MANYVECTOR_BUILD_WITH_MPI
+#define ONE SUN_RCONST(1.0)
+#endif
 
 /* -----------------------------------------------------------------
    ManyVector content accessor macros

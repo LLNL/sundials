@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -414,7 +414,7 @@ Accessible via the string ``"ARKODE_SHU_OSHER_3_2_3"`` to
    \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccc}
      0 & 0 & 0 & 0 \\
-     1 & 0 & 0 & 0 \\
+     1 & 1 & 0 & 0 \\
      \frac{1}{2} & \frac{1}{4} & \frac{1}{4} & 0 \\
      \hline
      3 & \frac{1}{6} & \frac{1}{6} & \frac{2}{3} \\

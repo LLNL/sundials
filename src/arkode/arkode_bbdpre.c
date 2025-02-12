@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -65,7 +65,8 @@ int ARKBBDPrecInit(void* arkode_mem, sunindextype Nlocal, sunindextype mudq,
   if (retval != ARK_SUCCESS) { return (retval); }
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
-  if (ark_mem->tempv1->ops->nvgetarraypointer == NULL)
+  if ((ark_mem->tempv1->ops->nvgetarraypointer == NULL) ||
+      (ark_mem->tempv1->ops->nvsetarraypointer == NULL))
   {
     arkProcessError(ark_mem, ARKLS_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_BBD_BAD_NVECTOR);

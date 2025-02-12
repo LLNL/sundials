@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -59,16 +59,10 @@
 #define ONEPTZEROSIX SUN_RCONST(1.06)
 #define TWO          SUN_RCONST(2.0)
 #define THREE        SUN_RCONST(3.0)
-#define SIX          SUN_RCONST(6.0)
 #define TEN          SUN_RCONST(10.0)
 #define TWENTY       SUN_RCONST(20.0)
 #define EIGHTYONE    SUN_RCONST(81.0)
 #define PI           SUN_RCONST(3.141592653589793238462643383279502884197169)
-
-// Analytic solution
-#define XTRUE HALF
-#define YTRUE ONE
-#define ZTRUE -PI / SIX
 
 #define SQR(x) ((x) * (x))
 

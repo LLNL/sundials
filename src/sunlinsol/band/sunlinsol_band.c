@@ -2,7 +2,7 @@
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -25,9 +25,7 @@
 
 #include "sundials_macros.h"
 
-#define ZERO           SUN_RCONST(0.0)
-#define ONE            SUN_RCONST(1.0)
-#define ROW(i, j, smu) (i - j + smu)
+#define ONE SUN_RCONST(1.0)
 
 /*
  * -----------------------------------------------------------------

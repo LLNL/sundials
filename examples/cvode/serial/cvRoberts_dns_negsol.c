@@ -2,7 +2,7 @@
  * Programmers: Radu Serban and Alan Hindmarsh @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -51,8 +51,6 @@
 #define T1    SUN_RCONST(0.4)  /* first output time      */
 #define TMULT SUN_RCONST(10.0) /* output time factor     */
 #define NOUT  14               /* number of output times */
-
-#define ZERO SUN_RCONST(0.0)
 
 /* Functions Called by the Solver */
 

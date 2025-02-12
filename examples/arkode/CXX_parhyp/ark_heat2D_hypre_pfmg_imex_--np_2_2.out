@@ -28,7 +28,7 @@
   linear         = 0
  --------------------------------- 
   lin iters      = 10
-  eps lins       = -1
+  eps lin        = -1
   prectype       = 1
   msbp           = 0
   pfmg_relax     = 2
