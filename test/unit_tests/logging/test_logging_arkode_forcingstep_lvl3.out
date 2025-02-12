@@ -7,13 +7,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.0005
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0002
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00025
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0003
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0005
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.000375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0005
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -21,13 +21,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.0005, h = 0.0005
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0005
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00075
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0007
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00075
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0008
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.001
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.000875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.001
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -37,13 +37,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0001
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00015
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0001875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -51,13 +51,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 0.00025, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00035
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0004
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0005
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0004375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0005
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -65,13 +65,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.0005, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0005
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0006
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00065
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00075
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0006875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00075
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -79,13 +79,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, tn = 0.00075, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00075
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.000875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00085
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.000875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0009
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.001
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0009375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.001
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -98,13 +98,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 0.001, h = 0.0005
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0012
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0013
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0015
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.001375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0015
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -112,13 +112,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 4, tn = 0.0015, h = 0.0005
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0015
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00175
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0017
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00175
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0018
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.002
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.001875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -128,13 +128,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, tn = 0.001, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.001
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0011
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00115
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00125
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0011875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00125
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -142,13 +142,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, tn = 0.00125, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00125
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00135
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0014
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0015
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0014375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0015
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -156,13 +156,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 7, tn = 0.0015, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0015
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0016
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00165
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00175
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0016875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00175
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -170,13 +170,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 8, tn = 0.00175, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00175
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.001875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00185
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.001875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0019
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.002
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0019375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -189,13 +189,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 5, tn = 0.002, h = 0.0005
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00225
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0022
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00225
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0023
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -203,13 +203,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 6, tn = 0.0025, h = 0.0005
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00275
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0027
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00275
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0028
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.003
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.002875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.003
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -219,13 +219,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 9, tn = 0.002, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.002
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0021
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002125
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00215
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00225
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0021875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00225
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -233,13 +233,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 10, tn = 0.00225, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00225
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00235
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0024
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.0025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0024375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -247,13 +247,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 11, tn = 0.0025, h = 0.00025
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.0025
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.0026
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002625
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.00265
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.00275
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0026875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.00275
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -261,13 +261,13 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 12, tn = 0.00275, h = 0.000249999999999999
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 0, tcur = 0.00275
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.002875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 1, tcur = 0.00285
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.002875
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 2, tcur = 0.0029
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 3, tcur = 0.003
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
-[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.0029375
+[INFO][rank 0][erkStep_TakeStep][begin-stage] stage = 4, tcur = 0.003
 [INFO][rank 0][erkStep_TakeStep][end-stage] status = success
 [INFO][rank 0][erkStep_TakeStep][begin-compute-solution] 
 [INFO][rank 0][erkStep_TakeStep][end-compute-solution] status = success
@@ -276,17 +276,17 @@ Start ForcingStep Logging test
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success
   3.000000000000000e-03  9.970030029929939e-01  2.993993026279007e-06
 ---------------------------------------------------------------------
-Current time                 = 0.003
-Steps                        = 3
-Step attempts                = 3
-Stability limited steps      = 0
-Accuracy limited steps       = 0
-Error test fails             = 0
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 0.001
-Last step size               = 0.001
-Current step size            = 0.001
-Partition 1 evolves          = 3
-Partition 2 evolves          = 3
+Current time                  = 0.003
+Steps                         = 3
+Step attempts                 = 3
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.001
+Last step size                = 0.001
+Current step size             = 0.001
+Partition 1 evolves           = 3
+Partition 2 evolves           = 3
 End ForcingStep Logging test

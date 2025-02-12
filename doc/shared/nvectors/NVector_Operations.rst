@@ -596,7 +596,7 @@ operation, we give the name, usage of the function, and a description
 of its mathematical operations below.
 
 
-.. c:function:: SUNErrCode N_VLinearSumVectorArray(int nv, sunrealtype a, N_Vector X, sunrealtype b, N_Vector* Y, N_Vector* Z)
+.. c:function:: SUNErrCode N_VLinearSumVectorArray(int nv, sunrealtype a, N_Vector* X, sunrealtype b, N_Vector* Y, N_Vector* Z)
 
    This routine computes the linear sum of two vector arrays of *nv* vectors with :math:`n` elements:
 

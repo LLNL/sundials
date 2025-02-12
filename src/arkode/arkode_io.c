@@ -1240,9 +1240,7 @@ int ARKodeSetFixedStep(void* arkode_mem, sunrealtype hfixed)
   else { ark_mem->fixedstep = SUNFALSE; }
 
   /* Notify ARKODE to use hfixed as the initial step size, and return */
-  retval = ARKodeSetInitStep(arkode_mem, hfixed);
-
-  return (ARK_SUCCESS);
+  return ARKodeSetInitStep(arkode_mem, hfixed);
 }
 
 /*---------------------------------------------------------------
