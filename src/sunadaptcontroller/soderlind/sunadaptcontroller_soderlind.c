@@ -90,8 +90,7 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   C->ops->space        = SUNAdaptController_Space_Soderlind;
 
   /* Create content */
-  C->content = (SUNAdaptControllerContent_Soderlind)malloc(
-    sizeof(struct _SUNAdaptControllerContent_Soderlind));
+  C->content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof(*(C->content)));
   SUNAssertNull(C->content, SUN_ERR_MALLOC_FAIL);
 
   /* Fill content with default/reset values */
