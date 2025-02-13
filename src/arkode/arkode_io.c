@@ -93,7 +93,7 @@ int ARKodeSetDefaults(void* arkode_mem)
   ark_mem->hadapt_mem->growth = GROWTH; /* step adaptivity growth factor */
   ark_mem->hadapt_mem->lbound = HFIXED_LB; /* step adaptivity no-change lower bound */
   ark_mem->hadapt_mem->ubound = HFIXED_UB; /* step adaptivity no-change upper bound */
-  ark_mem->hadapt_mem->expstab    = NULL;   /* internal explicit stability fn */
+  ark_mem->hadapt_mem->expstab    = NULL;   /* no explicit stability fn */
   ark_mem->hadapt_mem->estab_data = NULL;   /* no explicit stability fn data */
   ark_mem->hadapt_mem->pq         = PQ;     /* embedding order */
   ark_mem->hadapt_mem->p          = 0;      /* no default embedding order */
@@ -3137,7 +3137,7 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
           ark_mem->hadapt_mem->ubound);
   if (ark_mem->hadapt_mem->expstab == NULL)
   {
-    fprintf(fp, "  Default explicit stability function\n");
+    fprintf(fp, "  No explicit stability function supplied\n");
   }
   else { fprintf(fp, "  User provided explicit stability function\n"); }
   if (ark_mem->hadapt_mem->hcontroller != NULL)

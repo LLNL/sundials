@@ -37,7 +37,7 @@ Improved the efficiency of default ARKODE methods with the following changes:
 
 **Bug Fixes**
 
-Removed error floors from the ```SUNAdaptController`` implementations
+Removed error floors from the :c:type:`SUNAdaptController` implementations
 which could unnecessarily limit the time size growth, particularly after the
 first step.
 

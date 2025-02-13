@@ -196,7 +196,6 @@ SUNErrCode SUNAdaptController_SetErrorBias(SUNAdaptController C, sunrealtype bia
   SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
-  SUNAssert(bias >= SUN_RCONST(1.0), SUN_ERR_ARG_OUTOFRANGE);
   if (C->ops->seterrorbias) { ier = C->ops->seterrorbias(C, bias); }
   return (ier);
 }

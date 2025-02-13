@@ -353,7 +353,7 @@ def floatCompare(answer, value, precision):
     # Check if two floating point numbers are the same to a given number of digits
     if answer == value:
         return True
-    elif round(answer - value, precision) == 0:
+    if precision != 0 and round(answer - value, precision) == 0:
         return True
     print("Error: Floating point difference found:\n Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(precision) + " decimals")
     return False
