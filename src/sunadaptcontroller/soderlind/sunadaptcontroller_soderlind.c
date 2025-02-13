@@ -78,6 +78,7 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   /* Create an empty controller object */
   SUNAdaptController C = SUNAdaptController_NewEmpty(sunctx);
   SUNCheckLastErrNull();
+  SUNAdaptControllerContent_Soderlind content = NULL;
 
   /* Attach operations */
   C->ops->gettype      = SUNAdaptController_GetType_Soderlind;
@@ -90,8 +91,9 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   C->ops->space        = SUNAdaptController_Space_Soderlind;
 
   /* Create content */
-  C->content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof(*(C->content)));
-  SUNAssertNull(C->content, SUN_ERR_MALLOC_FAIL);
+  content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof(*content));
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
+  C->content = content;
 
   /* Fill content with default/reset values */
   SUNCheckCallNull(SUNAdaptController_SetDefaults_Soderlind(C));
