@@ -1,7 +1,7 @@
 ARKODE solver parameters:
   Solver relative tolerance = 1e-06
-  Solver absolute tolerance = 9.999999999999999e-12
-  Absolute residual tolerance = 9.999999999999999e-12
+  Solver absolute tolerance = 1e-11
+  Absolute residual tolerance = 1e-11
 
   Maximum step increase (first step) = 10000
   Step reduction factor on multiple error fails = 0.3
@@ -14,16 +14,16 @@ ARKODE solver parameters:
   Step growth upper bound = 1.5
   Default explicit stability function
 Soderlind SUNAdaptController module:
-  k1 =             0.58
-  k2 =            -0.21
-  k3 =              0.1
-  k4 =                0
-  k5 =                0
-  bias factor =              1.5
-  previous error =                1
-  previous-previous error =                1
-  previous step =                1
-  previous-previous step =                1
+  k1 = 0.58
+  k2 = -0.21
+  k3 = 0.1
+  k4 = 0
+  k5 = 0
+  bias factor = 1.5
+  previous error = 1
+  previous-previous error = 1
+  previous step = 1
+  previous-previous step = 1
   firststeps = 0
   Maximum number of error test failures = 7
   Maximum number of convergence test failures = 10
@@ -58,16 +58,16 @@ ARKStep time step module parameters:
   
   General Solver Stats:
     Total internal steps taken    =       61
-    Total internal steps attempts =       62
+    Total internal steps attempts =       64
     Total rhs exp function calls  =        0
-    Total rhs imp function calls  =     1124
-    Total jac function calls      =       19
+    Total rhs imp function calls  =     1166
+    Total jac function calls      =       18
     Total mass function calls     =        1
-    Num lin solver setup calls    =       51
-    Num error test failures       =        0
-    Last internal step size       = 2.80780E-01
-    Next internal step size       = 2.80780E-01
+    Num lin solver setup calls    =       52
+    Num error test failures       =        2
+    Last internal step size       = 2.48235E-01
+    Next internal step size       = 2.48235E-01
     Current internal time         = 1.00000E+01
-    Num nonlinear solver iters    =      813
-    Num nonlinear solver fails    =       18
+    Num nonlinear solver iters    =      845
+    Num nonlinear solver fails    =       17
   
