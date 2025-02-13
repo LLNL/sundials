@@ -81,7 +81,8 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile)
     fprintf(outfile, "ark_hadapt: adjust = %i\n", hadapt_mem->adjust);
     if (hadapt_mem->expstab == NULL)
     {
-      fprintf(outfile, "  ark_hadapt: No explicit stability function supplied\n");
+      fprintf(outfile,
+              "  ark_hadapt: No explicit stability function supplied\n");
     }
     else
     {
