@@ -12,7 +12,7 @@ ARKODE solver parameters:
   Growth factor = 20
   Step growth lower bound = 1
   Step growth upper bound = 1.5
-  Default explicit stability function
+  No explicit stability function supplied
 Soderlind SUNAdaptController module:
   k1 = 0.58
   k2 = -0.21
