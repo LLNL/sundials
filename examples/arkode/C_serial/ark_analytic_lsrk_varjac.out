@@ -1,7 +1,3 @@
-[ERROR][rank 0][/var/lib/jenkins/workspace/SUNDIALS_PR-548/test/tarballs/sundials-7.2.1/src/arkode/arkode.c:824][ARKodeEvolve] At t = 0.808058307775222, mxstep steps taken before reaching tout.
-
-SUNDIALS_ERROR: ARKodeEvolve() failed with flag = -1
-
 
 Analytical ODE test problem with a variable Jacobian:
 The stiffness of the problem is directly proportional to
@@ -14,25 +10,35 @@ The stiffness of the problem is directly proportional to
 
         t           u
    ---------------------
+    1.000000    0.785398
+    2.000000    1.107149
+    3.000000    1.249046
+    4.000000    1.325818
+    5.000000    1.373401
+    6.000000    1.405648
+    7.000000    1.428899
+    8.000000    1.446441
+    9.000000    1.460139
+   10.000000    1.471128
    ---------------------
 
 Final Statistics:
-Current time                  = 0.808058307775222
-Steps                         = 1000
-Step attempts                 = 1003
-Stability limited steps       = 0
-Accuracy limited steps        = 1003
+Current time                  = 10.0003194490991
+Steps                         = 2302
+Step attempts                 = 2305
+Stability limited steps       = 1
+Accuracy limited steps        = 2305
 Error test fails              = 3
 NLS step fails                = 0
 Inequality constraint fails   = 0
 Initial step size             = 1.93010111094261e-10
-Last step size                = 0.00271516910406374
-Current step size             = 0.00271516910406374
-RHS fn evals                  = 35224
-Number of dom_eig updates     = 42
-Max. num. of stages used      = 77
+Last step size                = 0.0240996931265322
+Current step size             = 0.0240996931265322
+RHS fn evals                  = 163572
+Number of dom_eig updates     = 94
+Max. num. of stages used      = 196
 Max. num. of stages allowed   = 200
-Max. spectral radius          = 1009901.88886512
+Max. spectral radius          = 1010099.72769748
 Min. spectral radius          = 1009899
 
-ACCURACY at the final time   = 6.35103e-12
+ACCURACY at the final time   = 2.74891e-13
