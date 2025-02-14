@@ -30,6 +30,7 @@ import sys
 import argparse
 import re
 import datetime
+import math
 
 def main():
     parser = argparse.ArgumentParser(description='Sundials test runner for use in ctest.')
@@ -351,9 +352,8 @@ def isFloat(value):
 
 def floatCompare(answer, value, precision):
     # Check if two floating point numbers are the same to a given number of digits
-    if answer == value:
-        return True
-    if precision != 0 and round(answer - value, precision) == 0:
+    tol = 10**-precision
+    if math.isclose(answer, value, rel_tol=tol):
         return True
     print("Error: Floating point difference found:\n Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(precision) + " decimals")
     return False
