@@ -352,7 +352,7 @@ def isFloat(value):
 
 def floatCompare(answer, value, precision):
     # Check if two floating point numbers are the same to a given number of digits
-    tol = 10**-precision
+    tol = 0 if precision == 0 else 10**-precision
     if math.isclose(answer, value, rel_tol=tol, abs_tol=tol):
         return True
     print("Error: Floating point difference found:\n Value = " + str(value) + ", Answer = " + str(answer) + ", allowance = " + str(precision) + " decimals")
