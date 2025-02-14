@@ -6,10 +6,6 @@
 
 ### New Features and Enhancements
 
-Added new temporal adaptivity controller utility constructors,
-`SUNAdaptController_H0211`, `SUNAdaptController_H211`, and
-`SUNAdaptController_H312`.
-
 Added the `ARKODE_RALSTON_3_1_2` and `ARKODE_TSITOURAS_7_4_5` explicit
 Runge-Kutta Butcher tables.
 
@@ -30,6 +26,12 @@ Improved the efficiency of default ARKODE methods with the following changes:
 | 5th Order ARK      | `ARKODE_ARK548L2SA_ERK_8_4_5` and `ARKODE_ARK548L2SA_DIRK_8_4_5` | `ARKODE_ARK548L2SAb_ERK_8_4_5` and `ARKODE_ARK548L2SAb_DIRK_8_4_5` |
 
 ### Bug Fixes
+
+Removed error floors from the `SUNAdaptController` implementations which could
+unnecessarily limit the time size growth, particularly after the first step.
+
+On the first two time steps, the Soderlind controller uses an I controller
+instead of omitting unavailable terms.
 
 Fixed bug in `ARKodeSetFixedStep` where it could return `ARK_SUCCESS` despite
 an error occurring.

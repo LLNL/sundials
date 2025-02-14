@@ -186,6 +186,30 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * Function : SUNRpowerR
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype base, exponent, ans;
+ *         ans = SUNRpowerR(base,exponent);
+ * -----------------------------------------------------------------
+ * SUNRpowerR returns the value of base^exponent, where both base and
+ * exponent are of type sunrealtype.
+ * -----------------------------------------------------------------
+ */
+#ifndef SUNRpowerR
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRpowerR(base, exponent) (pow(base, exponent))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRpowerR(base, exponent) (powf(base, exponent))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRpowerR(base, exponent) (powl(base, exponent))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
  * Function : SUNRround
  * -----------------------------------------------------------------
  * Usage : sunrealtype round_x;

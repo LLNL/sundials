@@ -151,6 +151,25 @@ contains the ARKODE output constants.
    +-----------------------------------------------+------------------------------------------------------------+
    |                                               |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
+   | **Default ImEx Butcher tables**               |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ARK_ETABLE_2` &       | Use ARKStep's default second-order ARK method              |
+   | :index:`ARKSTEP_DEFAULT_ARK_ITABLE_2`         | (ARKODE_ARK2_ERK_3_1_2 and ARKODE_ARK2_DIRK_3_1_2).        |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ARK_ETABLE_3` &       | Use ARKStep's default third-order ARK method               |
+   | :index:`ARKSTEP_DEFAULT_ARK_ITABLE_3`         | (ARKODE_ARK324L2SA_ERK_4_2_3 and                           |
+   |                                               | ARKODE_ARK324L2SA_DIRK_4_2_3).                             |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ARK_ETABLE_4` &       | Use ARKStep's default fourth-order ARK method              |
+   | :index:`ARKSTEP_DEFAULT_ARK_ITABLE_4`         | (ARKODE_ARK436L2SA_ERK_6_3_4 and                           |
+   |                                               | ARKODE_ARK436L2SA_DIRK_6_3_4).                             |
+   +-----------------------------------------------+------------------------------------------------------------+
+   | :index:`ARKSTEP_DEFAULT_ARK_ETABLE_5` &       | Use ARKStep's default fifth-order ARK method               |
+   | :index:`ARKSTEP_DEFAULT_ARK_ITABLE_5`         | (ARKODE_ARK548L2SA_ERK_8_4_5 and                           |
+   |                                               | ARKODE_ARK548L2SA_DIRK_8_4_5).                             |
+   +-----------------------------------------------+------------------------------------------------------------+
+   |                                               |                                                            |
+   +-----------------------------------------------+------------------------------------------------------------+
    | **LSRK method types**                         |                                                            |
    +-----------------------------------------------+------------------------------------------------------------+
    | :index:`ARKODE_LSRK_RKC_2`                    | 2nd order Runge-Kutta-Chebyshev (RKC) method               |

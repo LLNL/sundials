@@ -78,6 +78,7 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   /* Create an empty controller object */
   SUNAdaptController C = SUNAdaptController_NewEmpty(sunctx);
   SUNCheckLastErrNull();
+  SUNAdaptControllerContent_Soderlind content = NULL;
 
   /* Attach operations */
   C->ops->gettype      = SUNAdaptController_GetType_Soderlind;
@@ -90,9 +91,9 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx)
   C->ops->space        = SUNAdaptController_Space_Soderlind;
 
   /* Create content */
-  C->content = (SUNAdaptControllerContent_Soderlind)malloc(
-    sizeof(struct _SUNAdaptControllerContent_Soderlind));
-  SUNAssertNull(C->content, SUN_ERR_MALLOC_FAIL);
+  content = (SUNAdaptControllerContent_Soderlind)malloc(sizeof(*content));
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
+  C->content = content;
 
   /* Fill content with default/reset values */
   SUNCheckCallNull(SUNAdaptController_SetDefaults_Soderlind(C));
@@ -386,13 +387,6 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
     const sunrealtype k = -SUN_RCONST(1.0) / ord;
     const sunrealtype e = SODERLIND_BIAS(C) * dsm;
     *hnew               = h * SUNRpowerR(e, k);
-  }
-
-  if (!isfinite(*hnew))
-  {
-    /* hnew can be INFINITY or NAN if multiple e's are 0 or there are overflows.
-     * In that case, make hnew INFINITY with the same sign as h */
-    *hnew = SUNRcopysign(INFINITY, h);
   }
 
   /* return with success */

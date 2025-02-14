@@ -79,9 +79,10 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE* outfile)
     fprintf(outfile, "ark_hadapt: p = %i\n", hadapt_mem->p);
     fprintf(outfile, "ark_hadapt: q = %i\n", hadapt_mem->q);
     fprintf(outfile, "ark_hadapt: adjust = %i\n", hadapt_mem->adjust);
-    if (hadapt_mem->expstab == arkExpStab)
+    if (hadapt_mem->expstab == NULL)
     {
-      fprintf(outfile, "  ark_hadapt: Default explicit stability function\n");
+      fprintf(outfile,
+              "  ark_hadapt: No explicit stability function supplied\n");
     }
     else
     {
@@ -106,7 +107,7 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
              sunrealtype tcur, sunrealtype hcur, sunrealtype dsm)
 {
   int retval;
-  sunrealtype h_acc, h_cfl;
+  sunrealtype h_acc;
   int controller_order;
 
   /* Return with no stepsize adjustment if the controller is NULL */
@@ -138,22 +139,11 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
     return (ARK_CONTROLLER_ERR);
   }
 
-  /* Call explicit stability function */
-  retval = hadapt_mem->expstab(ycur, tcur, &h_cfl, hadapt_mem->estab_data);
-  if (retval != ARK_SUCCESS)
-  {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Error in explicit stability function.");
-    return (ARK_ILL_INPUT);
-  }
-  if (h_cfl <= ZERO) { h_cfl = INFINITY; }
-
-  SUNLogDebug(ARK_LOGGER, "new-step-before-bounds",
-              "h_acc = " SUN_FORMAT_G ", h_cfl = " SUN_FORMAT_G, h_acc, h_cfl);
+  SUNLogDebug(ARK_LOGGER, "new-step-before-bounds", "h_acc = " SUN_FORMAT_G,
+              h_acc);
 
   /* enforce safety factors */
   h_acc *= hadapt_mem->safety;
-  h_cfl *= hadapt_mem->cfl;
 
   /* enforce maximum bound on time step growth */
   h_acc = SUNMIN(SUNRabs(h_acc), SUNRabs(hadapt_mem->etamax * hcur));
@@ -161,16 +151,28 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
   /* enforce minimum bound time step reduction */
   h_acc = SUNMAX(h_acc, SUNRabs(hadapt_mem->etamin * hcur));
 
-  SUNLogDebug(ARK_LOGGER, "new-step-after-max-min-bounds",
-              "h_acc = " SUN_FORMAT_G ", h_cfl = " SUN_FORMAT_G, h_acc, h_cfl);
-
-  /* increment the relevant step counter, set desired step */
-  if (h_acc <= h_cfl) { hadapt_mem->nst_acc++; }
-  else
+  if (hadapt_mem->expstab != NULL)
   {
-    hadapt_mem->nst_exp++;
-    h_acc = h_cfl;
+    sunrealtype h_cfl = ZERO;
+    retval = hadapt_mem->expstab(ycur, tcur, &h_cfl, hadapt_mem->estab_data);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      "Error in explicit stability function.");
+      return (ARK_ILL_INPUT);
+    }
+
+    h_cfl *= hadapt_mem->cfl;
+    SUNLogDebug(ARK_LOGGER, "new-step-cfl", "h_cfl = " SUN_FORMAT_G, h_cfl);
+
+    if (h_cfl > ZERO && h_cfl < h_acc)
+    {
+      hadapt_mem->nst_exp++;
+      h_acc = h_cfl;
+    }
+    else { hadapt_mem->nst_acc++; }
   }
+  else { hadapt_mem->nst_acc++; }
 
   /* enforce adaptivity bounds to retain Jacobian/preconditioner accuracy */
   if (dsm <= ONE)
@@ -182,6 +184,9 @@ int arkAdapt(ARKodeMem ark_mem, ARKodeHAdaptMem hadapt_mem, N_Vector ycur,
     }
   }
   h_acc = SUNRcopysign(h_acc, hcur);
+
+  SUNLogDebug(ARK_LOGGER, "new-step-after-max-min-bounds",
+              "h_acc = " SUN_FORMAT_G, h_acc);
 
   /* set basic value of ark_eta */
   ark_mem->eta = h_acc / hcur;
