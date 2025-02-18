@@ -263,21 +263,6 @@ SUNDIALS_EXPORT sunrealtype SUNRpowerI(sunrealtype base, int exponent);
 
 /*
  * -----------------------------------------------------------------
- * Function : SUNRpowerR
- * -----------------------------------------------------------------
- * Usage : sunrealtype base, exponent, ans;
- *         ans = SUNRpowerR(base,exponent);
- * -----------------------------------------------------------------
- * SUNRpowerR returns the value of base^exponent, where both base and
- * exponent are of type sunrealtype. If base < ZERO, then SUNRpowerR
- * returns ZERO.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
-
-/*
- * -----------------------------------------------------------------
  * Function : SUNRCompare
  * -----------------------------------------------------------------
  * Usage : int isNotEqual;
