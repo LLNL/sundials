@@ -2,6 +2,11 @@
 
 **New Features and Enhancements**
 
+The :c:func:`N_VLinearSum` and :c:func:`N_VLinearSumVectorArray` operations are no longer required to
+support the use case where the output could be the same as the second input.  While all SUNDIALS
+vector implementations still support this use case, the change facilitates user-supplied vectors
+and external libraries.
+
 **Bug Fixes**
 
 Fixed bug in :c:func:`ARKodeSetFixedStep` where it could return ``ARK_SUCCESS``
