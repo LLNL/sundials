@@ -614,6 +614,12 @@ of its mathematical operations below.
    :math:`z_j` is a vector in the output vector array *Z*. The operation returns a :c:type:`SUNErrCode`.
    
    The output vector array *Z* can be the same as the input vector array *X* but not *Y*.
+      
+   .. versionchanged:: x.y.z
+   
+      Prior versions of SUNDIALS assumed that some of the output vectors :math:`z_j` could be used as
+      **any** of the input vectors.  While all of the `N_Vector` implementations included with SUNDIALS
+      still allow this use case, the API no longer requires it. 
 
    Usage:
 
