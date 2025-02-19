@@ -3609,11 +3609,11 @@ int arkSetAdaptivityFn(void* arkode_mem, ARKAdaptFn hfun, void* h_data)
   C = NULL;
   if (hfun == NULL)
   {
-    C = SUNAdaptController_PID(ark_mem->sunctx);
+    C = SUNAdaptController_I(ark_mem->sunctx);
     if (C == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptController_PID allocation failure");
+                      "SUNAdaptController_I allocation failure");
       return (ARK_MEM_FAIL);
     }
   }

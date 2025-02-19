@@ -539,7 +539,8 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
       return (ARK_MEM_FAIL);
     }
   }
-  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_PID(ark_mem->sunctx);
+  // TODO(SBR): is this necessary to set here?
+  ark_mem->hadapt_mem->hcontroller = SUNAdaptController_I(ark_mem->sunctx);
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
