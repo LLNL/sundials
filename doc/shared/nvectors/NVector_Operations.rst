@@ -205,6 +205,12 @@ operations below.
       z_i = a x_i + b y_i, \quad i=0,\ldots,n-1.
 
    The output vector *z* can be the same as the input vector *x* but not *y*.
+   
+   .. versionchanged:: x.y.z
+   
+      Prior versions of SUNDIALS assumed that the output vector *z* could be used as  **either** of the input 
+      vectors (*x* or *y*).  While all of the `N_Vector` implementations included with SUNDIALS still allow the
+      output vector *z* to be the same as the input vector *x* or *y*, the API no longer requires it. 
 
 
    Usage:
