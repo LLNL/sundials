@@ -6,8 +6,9 @@
 
 ### New Features and Enhancements
 
-The `N_VLinearSum` and `N_VLinearSumVectorArray` operations now assume that the output 
-can be used as input only in the first component, ensuring compatibility with external 
+The `N_VLinearSum` and `N_VLinearSumVectorArray` operations are no longer required to support the use
+case where the output could be the same as the second input.  While all SUNDIALS vector implementations 
+still support this use case, the change facilitates user-supplied vectors and external libraries.
 libraries and providing additional flexibility.
 
 ### Bug Fixes
