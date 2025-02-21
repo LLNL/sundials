@@ -983,7 +983,7 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     if (kin_mem->kin_cv == NULL)
     {
       kin_mem->kin_cv =
-        (sunrealtype*)malloc(2 * (kin_mem->kin_m_aa + 1) * sizeof(sunrealtype));
+        (sunscalartype*)malloc(2 * (kin_mem->kin_m_aa + 1) * sizeof(*kin_mem->kin_cv));
       if (kin_mem->kin_cv == NULL)
       {
         KINProcessError(kin_mem, 0, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
@@ -2968,14 +2968,14 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   sunbooleantype dotprodSB = SUNFALSE;
 
   /* local shortcuts for fused vector operation */
-  int nvec        = 0;
-  sunrealtype* cv = kin_mem->kin_cv;
-  N_Vector* Xv    = kin_mem->kin_Xv;
+  int nvec          = 0;
+  sunscalartype* cv = kin_mem->kin_cv;
+  N_Vector* Xv      = kin_mem->kin_Xv;
 
   /* local dot product flag for single buffer reductions */
   if ((kin_mem->kin_vtemp2->ops->nvdotprodlocal ||
        kin_mem->kin_vtemp2->ops->nvdotprodmultilocal) &&
-      kin_mem->kin_vtemp2->ops->nvdotprodmultiallreduce)
+       kin_mem->kin_vtemp2->ops->nvdotprodmultiallreduce)
   {
     dotprodSB = SUNTRUE;
   }
@@ -3016,8 +3016,10 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   if (iter == 1)
   {
     /* second iteration */
-    R[0] =
-      SUNRsqrt(N_VDotProd(kin_mem->kin_df_aa[i_pt], kin_mem->kin_df_aa[i_pt]));
+    sunscalartype dot = ZERO;
+    SUNCheckCall(N_VDotProdComplex(kin_mem->kin_df_aa[i_pt], kin_mem->kin_dg_aa[i_pt],
+                                   &dot));
+    R[0] = SUNRsqrt(SUN_REAL(dot));
     alfa = ONE / R[0];
     N_VScale(alfa, kin_mem->kin_df_aa[i_pt], kin_mem->kin_q_aa[i_pt]);
     ipt_map[0] = 0;

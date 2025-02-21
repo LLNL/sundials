@@ -471,8 +471,8 @@ static int KINBBDPrecSolve(SUNDIALS_MAYBE_UNUSED N_Vector uu,
                            void* bbd_data)
 {
   KBBDPrecData pdata;
-  sunrealtype* vd;
-  sunrealtype* zd;
+  sunscalartype* vd;
+  sunscalartype* zd;
   int i, retval;
 
   pdata = (KBBDPrecData)bbd_data;
@@ -542,7 +542,7 @@ static int KBBDDQJac(KBBDPrecData pdata, N_Vector uu, N_Vector uscale,
   sunrealtype inc, inc_inv;
   int retval;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  sunrealtype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
+  sunscalartype *udata, *uscdata, *gudata, *gtempdata, *utempdata, *col_j;
 
   kin_mem = (KINMem)pdata->kin_mem;
 
@@ -577,7 +577,7 @@ static int KBBDDQJac(KBBDPrecData pdata, N_Vector uu, N_Vector uscale,
     /* increment all u_j in group */
     for (j = group - 1; j < pdata->n_local; j += width)
     {
-      inc = pdata->rel_uu * SUNMAX(SUNRabs(udata[j]), (ONE / uscdata[j]));
+      inc = pdata->rel_uu * SUNMAX(SUNabs(udata[j]), (ONE / SUN_REAL(uscdata[j])));
       utempdata[j] += inc;
     }
 
@@ -591,7 +591,7 @@ static int KBBDDQJac(KBBDPrecData pdata, N_Vector uu, N_Vector uscale,
     {
       utempdata[j] = udata[j];
       col_j        = SUNBandMatrix_Column(pdata->PP, j);
-      inc     = pdata->rel_uu * SUNMAX(SUNRabs(udata[j]), (ONE / uscdata[j]));
+      inc     = pdata->rel_uu * SUNMAX(SUNabs(udata[j]), (ONE / SUN_REAL(uscdata[j])));
       inc_inv = ONE / inc;
       i1      = SUNMAX(0, (j - pdata->mukeep));
       i2      = SUNMIN((j + pdata->mlkeep), (pdata->n_local - 1));
