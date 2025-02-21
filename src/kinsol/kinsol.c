@@ -2682,9 +2682,9 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   sunrealtype onembeta;
 
   /* local shortcuts for fused vector operation */
-  int nvec        = 0;
-  sunrealtype* cv = kin_mem->kin_cv;
-  N_Vector* Xv    = kin_mem->kin_Xv;
+  int nvec          = 0;
+  sunscalartype* cv = kin_mem->kin_cv;
+  N_Vector* Xv      = kin_mem->kin_Xv;
 
   /* Compute residual F(x) = G(x_old) - x_old */
   N_VLinearSum(ONE, gval, -ONE, xold, fv);
@@ -2774,7 +2774,11 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
 
   if (kin_mem->kin_current_depth == 1)
   {
-    R[0] = SUNRsqrt(N_VDotProd(kin_mem->kin_df_aa[0], kin_mem->kin_df_aa[0]));
+    /* second iteration */
+    sunscalartype dot = ZERO;
+    SUNCheckCall(N_VDotProdComplex(kin_mem->kin_df_aa[0], kin_mem->kin_df_aa[0],
+                                   &dot));
+    R[0] = SUNRsqrt(SUN_REAL(dot));
     alfa = ONE / R[0];
     N_VScale(alfa, kin_mem->kin_df_aa[0], kin_mem->kin_q_aa[0]);
   }

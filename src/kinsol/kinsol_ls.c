@@ -777,8 +777,9 @@ int kinLsDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, void* kinmem,
 int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, KINMem kin_mem,
                     N_Vector tmp1, N_Vector tmp2)
 {
-  sunrealtype inc, inc_inv, ujsaved, ujscale, sign;
-  sunrealtype *tmp2_data, *u_data, *uscale_data;
+  sunrealtype inc, inc_inv, ujscale, sign;
+  sunscalartype ujsaved;
+  sunscalartype *tmp2_data, *u_data, *uscale_data;
   N_Vector ftemp, jthCol;
   sunindextype j, N;
   KINLsMem kinls_mem;
@@ -810,11 +811,11 @@ int kinLsDenseDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, KINMem kin_mem,
     /* Set data address of jthCol, and save u_j values and scaling */
     N_VSetArrayPointer(SUNDenseMatrix_Column(Jac, j), jthCol);
     ujsaved = u_data[j];
-    ujscale = ONE / uscale_data[j];
+    ujscale = ONE / SUN_REAL(uscale_data[j]);
 
     /* Compute increment */
-    sign = (ujsaved >= ZERO) ? ONE : -ONE;
-    inc  = kin_mem->kin_sqrt_relfunc * SUNMAX(SUNRabs(ujsaved), ujscale) * sign;
+    sign = (SUN_REAL(ujsaved) >= ZERO) ? ONE : -ONE;
+    inc  = kin_mem->kin_sqrt_relfunc * SUNMAX(SUNabs(ujsaved), ujscale) * sign;
 
     /* Increment u_j, call F(u), and return if error occurs */
     u_data[j] += inc;
@@ -858,7 +859,7 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, KINMem kin_mem,
   N_Vector futemp, utemp;
   sunindextype group, i, j, width, ngroups, i1, i2;
   sunindextype N, mupper, mlower;
-  sunrealtype *col_j, *fu_data, *futemp_data, *u_data, *utemp_data, *uscale_data;
+  sunscalartype *col_j, *fu_data, *futemp_data, *u_data, *utemp_data, *uscale_data;
   KINLsMem kinls_mem;
   int retval = 0;
 
@@ -894,7 +895,7 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, KINMem kin_mem,
     for (j = group - 1; j < N; j += width)
     {
       inc = kin_mem->kin_sqrt_relfunc *
-            SUNMAX(SUNRabs(u_data[j]), ONE / SUNRabs(uscale_data[j]));
+            SUNMAX(SUNabs(u_data[j]), ONE / SUNabs(uscale_data[j]));
       utemp_data[j] += inc;
     }
 
@@ -908,7 +909,7 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, KINMem kin_mem,
       utemp_data[j] = u_data[j];
       col_j         = SUNBandMatrix_Column(Jac, j);
       inc           = kin_mem->kin_sqrt_relfunc *
-            SUNMAX(SUNRabs(u_data[j]), ONE / SUNRabs(uscale_data[j]));
+            SUNMAX(SUNabs(u_data[j]), ONE / SUNabs(uscale_data[j]));
       inc_inv = ONE / inc;
       i1      = SUNMAX(0, j - mupper);
       i2      = SUNMIN(j + mlower, N - 1);
@@ -975,7 +976,9 @@ int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
   sutsv = N_VDotProd(Jv, kin_mem->kin_vtemp1);
 
   /* compute dot product (Du*v).(Du*v) */
-  vtv = N_VDotProd(kin_mem->kin_vtemp1, kin_mem->kin_vtemp1);
+  sunscalartype dot = ZERO;
+  SUNCheckCall(N_VDotProdComplex(kin_mem->kin_vtemp1, kin_mem->kin_vtemp1, &dot));
+  vtv = SUN_REAL(dot);
 
   /* compute differencing factor -- this is from p. 469, Brown and Saad paper */
   sq1norm = N_VL1Norm(kin_mem->kin_vtemp1);

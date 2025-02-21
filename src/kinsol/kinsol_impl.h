@@ -27,6 +27,7 @@
 
 #include <kinsol/kinsol.h>
 #include <sundials/priv/sundials_context_impl.h>
+#include <sundials/priv/sundials_errors_impl.h>
 
 #include "sundials_iterative_impl.h"
 #include "sundials_logger_impl.h"
@@ -199,7 +200,7 @@ typedef struct KINMemRec
                                  set for AA                                      */
   sunbooleantype kin_damping_aa; /* flag to apply damping in AA                     */
   sunbooleantype kin_dot_prod_sb; /* use single buffer dot product */
-  sunrealtype* kin_cv; /* scalar array for fused vector operations        */
+  sunscalartype* kin_cv; /* scalar array for fused vector operations        */
   N_Vector* kin_Xv;    /* vector array for fused vector operations        */
 
   /* space requirements for vector storage */
