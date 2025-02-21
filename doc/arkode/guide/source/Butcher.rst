@@ -696,7 +696,7 @@ Both the method and its embedding have SSP coefficient equal to 2.
            1 & \frac12 & \frac12 & 0       & 0 \\
      \frac12 & \frac16 & \frac16 & \frac16 & 0 \\
      \hline
-           3 & \frac16 & \frac16 & \frac16 & \frac12
+           3 & \frac16 & \frac16 & \frac16 & \frac12\\
            2 & \frac14 & \frac14 & \frac14 & \frac14
    \end{array}
 
@@ -739,7 +739,7 @@ SSP coefficient equal to 1.14.
      \frac23 & \frac16 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16 & 0 & 0 \\
      \frac56 & \frac16 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16 & \frac16 & 0 \\
      \hline
-           3 & \frac16 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16 & \frac16 & \frac16
+           3 & \frac16 & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac{1}{15} & \frac16 & \frac16 & \frac16\\
            2 & \frac19 & \frac19      & \frac19      & \frac19      & \frac19      & \frac19      & \frac19 & \frac19 & \frac19
    \end{array}
 
@@ -1809,9 +1809,10 @@ Accessible via the constant ``ARKODE_SSP_DIRK_3_1_2`` to
 Accessible via the string ``"ARKODE_SSP_DIRK_3_1_2"`` to
 :c:func:`ARKStepSetTableName`, or
 :c:func:`ARKodeButcherTable_LoadDIRKByName`.
-This method was invented specifically for ARKODE.  The method is both A- and L-stable,
-while the embedding is A-stable.  Both the method and embedding have SSP coefficient
-equal to 2.4.
+The original method is the "IMEX-SSP2(3,3,2)" stiffly accurate method from
+:cite:p:`PR2005`, with an embedding invented specifically for ARKODE.  The method
+is both A- and L-stable, while the embedding is A-stable.  Both the method and
+embedding have SSP coefficient equal to 2.4.
 
 .. math::
 
@@ -1821,7 +1822,7 @@ equal to 2.4.
      \frac14 & 0       & \frac14 & 0 \\
      1       & \frac13 & \frac13 & \frac13 \\
      \hline
-     2 & 0 & 1-\gamma & \gamma \\
+     2 & \frac13 & \frac13 & \frac13 \\
      1 & \frac13-\frac{1}{10} & \frac13 & \frac13+\frac{1}{10} \\
    \end{array}
 
@@ -1991,6 +1992,49 @@ where :math:`\gamma = \frac{3+\sqrt{3}}{6}`.
    region is outlined in red; the embedding's region is in blue dashed (these
    boundaries lie on top of one another).
 
+
+
+.. _Butcher.SSP-ESDIRK-9-2-3:
+
+SSP-ESDIRK-9-2-3
+^^^^^^^^^^^^^^^^
+
+.. index:: SSP-ESDIRK-9-2-3 method
+
+Accessible via the constant ``ARKODE_SSP_ESDIRK_9_2_3`` to
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKodeButcherTable_LoadDIRK`.
+Accessible via the string ``"ARKODE_SSP_ESDIRK_9_2_3"`` to
+:c:func:`ARKStepSetTableName` or
+:c:func:`ARKodeButcherTable_LoadDIRKByName`.
+This method was invented specifically for ARKODE as an implicit method to
+pair with :numref:`Butcher.SSP-ERK-9-2-3` for an embedded additive
+Runge--Kutta method.  The method and embedding are both A/L-stable.
+Neither the ESDIRK method or its embedding are SSP.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccccccccc}
+           0 &  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac16 & -\frac{2}{15} & \frac{3}{10} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac13 & -\frac16 & \frac12      & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac12 &  0       & \frac12      & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac23 & -\frac{2}{15} & \frac12 & 0 & 0 & \frac{3}{10} & 0 & 0 & 0 & 0 \\
+     \frac56 & \frac{10750067225}{15104505504} & \frac12 & 0 & 0 & -\frac{5715232057}{15104505504} & 0 & 0 & 0 & 0 \\
+     \frac12 & \frac{211}{2178} & \frac{17}{5445} & 0 & 0 & \frac{1}{10} & 0 & \frac{3}{10} & 0 & 0 \\
+     \frac23 & \frac{16853104507}{56641895640} & \frac{17}{5445} & 0 & 0 & \frac{1}{10} & 0 & \frac{2767149}{10402552} & 0 & 0 \\
+     \frac56 & \frac{1860170351}{11328379128} & \frac{17}{5445} & 0 & 0 & \frac{1}{10} & 0 & \frac{2767149}{10402552} & 0 & \frac{3}{10} \\
+     \hline
+           3 & \frac{3130013}{1058750} & -\frac{46374583}{9528750} & 0 & 0 & \frac{3281263}{1361250} & 0 & \frac{6789401}{3176250} & 0 & -\frac{2600638}{1588125}\\
+           2 & \frac{2941}{30250} & \frac{7251}{30250} & 0 & 0 & \frac{933}{1210} & 0 & -\frac{27}{250} & 0 & 0
+   \end{array}
+
+.. figure:: /figs/arkode/ARKODE_SSP_ERK_9_2_3_stab_region.png
+   :width: 66 %
+   :align: center
+
+   Linear stability region for the SSP-ESDIRK-9-2-3 method.  The method's
+   region is outlined in red; the embedding's region is in blue dashed.
 
 
 .. _Butcher.Kvaerno-4-2-3:
@@ -2722,24 +2766,23 @@ to the ARK stability function
 
    R(\eta^I,\eta^E) = 1 + \left(\eta^I b^I + \eta^E b^E\right) [I - \eta^I A^I - \eta^E A^E]^{-1} e.
 
-Then for a given angle :math:`\theta \in \left[0,\frac{\pi}{2}\right]`, we may
-define the joint linear stability region
+Then for a given angle :math:`\theta \in \left[0,\frac{\pi}{2}\right]` and radius :math:`\rho>0`, we may define the joint linear stability region
 
 .. math::
 
-   \mathcal{J}_{\theta} = \left\{ \eta^E \in \mathbb{C}\; :\; \left| R(\eta^I,\eta^E) \right| \le 1,\; \forall \eta^I\in S(\theta)\right\},
+   \mathcal{J}_{\theta,\rho} = \left\{ \eta^E \in \mathbb{C}\; :\; \left| R(\eta^I,\eta^E) \right| \le 1,\; \forall \eta^I\in S(\theta,\rho)\right\},
 
-where the sector :math:`S(\theta)` is defined as
+where the sector :math:`S(\theta,\rho)` is defined as
 
 .. math::
 
-   S(\theta) = \left\{ \eta^I = -a+i b \; :\; a>0,\; b\ge 0,\; \operatorname{atan}\left(\frac{b}{a}\right) \le \theta \right\}.
+   S(\theta,\rho) = \left\{ \eta^I = -a+i b \; :\; a>0,\; b\ge 0,\; |\eta^I|\le \rho,\; \operatorname{atan}\left(\frac{b}{a}\right) \le \theta \right\}.
 
-For each ARK method, we overlay plots of the border of :math:`\mathcal{J}_{\theta}`
-for values :math:`\theta \in \left\{0^o, 20^0, 40^0, 60^0, 80^0\right\}`;
-roughly corresponding with the shape of the explicit stability region under
-the assumption that the implicit method is :math:`A-\theta` stable; typically
-the joint stability region decreases in area as :math:`\theta` increases.
+For each ARK method, we overlay plots of the border of :math:`\mathcal{J}_{\theta,\rho}`
+for values :math:`\theta \in \left\{0^o, 20^0, 40^0, 60^0, 80^0\right\}` and
+:math:`\rho=10^8`; roughly corresponding with the shape of the explicit stability region
+under the assumption that the implicit method is :math:`A-\theta` stable; typically
+the joint stability region decreases in area as :math:`\theta` and :math:`\rho` increase.
 
 As with traditional Runge--Kutta methods, the value :math:`\eta^E_0 =
 -\varepsilon + 0i` is always within the joint stability region.  So in each
@@ -2766,9 +2809,9 @@ second-order ARK method.
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_ARK2_ERK_3_1_2`` and
-   ``ARKODE_ARK2_DIRK_3_1_2`` ARK method.  All joint stability regions
-   coincide, so only the :math:`80^o` boundary is visible.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_ARK2_ERK_3_1_2`` and ``ARKODE_ARK2_DIRK_3_1_2`` ARK method.  All
+   joint stability regions coincide, so only the :math:`80^o` boundary is visible.
 
 
 .. _Butcher.ASCHER-ARK-3-1-2:
@@ -2787,9 +2830,10 @@ ASCHER-ARK-3-1-2
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_ASCHER_ERK_3_1_2`` and
-   ``ARKODE_ASCHER_SDIRK_3_1_2`` ARK method.  All joint stability regions
-   coincide, so only the :math:`80^o` boundary is visible.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_ASCHER_ERK_3_1_2`` and ``ARKODE_ASCHER_SDIRK_3_1_2`` ARK method.
+   All joint stability regions coincide, so only the :math:`80^o` boundary
+   is visible.
 
 
 .. _Butcher.SSP-ARK-2-1-2:
@@ -2808,9 +2852,10 @@ SSP-ARK-2-1-2
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_SSP_ERK_2_1_2`` and
-   ``ARKODE_SSP_SDIRK_2_1_2`` ARK method.  All joint stability regions
-   coincide, so only the :math:`80^o` boundary is visible.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_SSP_ERK_2_1_2`` and ``ARKODE_SSP_SDIRK_2_1_2`` ARK method.  All
+   joint stability regions coincide, so only the :math:`80^o` boundary is
+   visible.
 
 
 .. _Butcher.SSP-ARK-3-1-2:
@@ -2829,8 +2874,8 @@ SSP-ARK-3-1-2
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_SSP_ERK_3_1_2`` and
-   ``ARKODE_SSP_DIRK_3_1_2`` ARK method.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_SSP_ERK_3_1_2`` and ``ARKODE_SSP_DIRK_3_1_2`` ARK method.
 
 
 .. _Butcher.SSP-LSPUM-ARK-3-1-2:
@@ -2849,8 +2894,9 @@ SSP-LSPUM-ARK-3-1-2
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_SSP_LSPUM_ERK_3_1_2`` and
-   ``ARKODE_SSP_LSPUM_SDIRK_3_1_2`` ARK method.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_SSP_LSPUM_ERK_3_1_2`` and ``ARKODE_SSP_LSPUM_SDIRK_3_1_2`` ARK
+   method.
 
 
 .. _Butcher.ARK-4-2-3:
@@ -2870,10 +2916,10 @@ This is the default third-order ARK method.
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_ARK324L2SA_ERK_4_2_3`` and
-   ``ARKODE_ARK324L2SA_DIRK_4_2_3`` ARK method.  The joint stability regions
-   only differ near the imaginary axis, so for most of the region only the
-   :math:`80^o` boundary is visible.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_ARK324L2SA_ERK_4_2_3`` and ``ARKODE_ARK324L2SA_DIRK_4_2_3`` ARK method.
+   The joint stability regions only differ near the imaginary axis, so for most
+   of the region only the :math:`80^o` boundary is visible.
 
 
 .. _Butcher.SSP-ARK-4-2-3:
@@ -2892,9 +2938,42 @@ SSP-ARK-4-2-3
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_SSP_ERK_4_2_3`` and
-   ``ARKODE_SSP_ESDIRK_4_2_3`` ARK method.  All joint stability regions
-   coincide, so only the :math:`80^o` boundary is visible.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_SSP_ERK_4_2_3`` and ``ARKODE_SSP_ESDIRK_4_2_3`` ARK method.
+   All joint stability regions coincide, so only the :math:`80^o` boundary
+   is visible.
+
+.. figure:: /figs/arkode/ARKODE_SSP_ARK_4_2_3_joint_stab_region_rho1.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,1}` for the
+   ``ARKODE_SSP_ERK_4_2_3`` and ``ARKODE_SSP_ESDIRK_4_2_3`` ARK method.
+   Note that when the implicit partition is nonstiff, the joint stability
+   region more closely aligns with the ``ARKODE_SSP_ERK_4_2_3`` stability
+   region.
+
+
+.. _Butcher.SSP-ARK-9-2-3:
+
+SSP-ARK-9-2-3
+^^^^^^^^^^^^^
+
+.. index:: SSP-ARK-9-2-3 ARK method
+
+3rd-order method that combines :numref:`Butcher.SSP-ERK-9-2-3` with
+:numref:`Butcher.SSP-ESDIRK-9-2-3`, corresponding to Butcher tables
+``ARKODE_SSP_ERK_9_2_3`` and ``ARKODE_SSP_ESDIRK_9_2_3`` for
+:c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
+
+.. figure:: /figs/arkode/ARKODE_SSP_ARK_9_2_3_joint_stab_region_rho1.png
+   :width: 66 %
+   :align: center
+
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,1}` for the
+   ``ARKODE_SSP_ERK_9_2_3`` and ``ARKODE_SSP_ESDIRK_9_2_3`` ARK method.
+   All joint stability regions coincide, so only the :math:`80^o` boundary is visible.
+   The joint stability region is empty for the stiff implicit :math:`\rho=10^8`.
 
 
 .. _Butcher.ARK-6-3-4:
@@ -2914,8 +2993,9 @@ This is the default fourth-order ARK method.
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_ARK436L2SA_ERK_6_3_4``
-   and ``ARKODE_ARK436L2SA_DIRK_6_3_4`` ARK method.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_ARK436L2SA_ERK_6_3_4`` and ``ARKODE_ARK436L2SA_DIRK_6_3_4`` ARK
+   method.
 
 
 .. _Butcher.ARK-7-3-4:
@@ -2934,8 +3014,9 @@ for :c:func:`ARKStepSetTableNum` or :c:func:`ARKStepSetTableName`.
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_ARK437L2SA_ERK_7_3_4``
-   and ``ARKODE_ARK437L2SA_DIRK_7_3_4`` ARK method.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_ARK437L2SA_ERK_7_3_4`` and ``ARKODE_ARK437L2SA_DIRK_7_3_4`` ARK
+   method.
 
 
 .. _Butcher.ARK-8-4-5:
@@ -2955,8 +3036,9 @@ This is the default fifth-order ARK method.
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_ARK548L2SA_ERK_8_4_5``
-   and ``ARKODE_ARK548L2SA_DIRK_8_4_5`` ARK method.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_ARK548L2SA_ERK_8_4_5`` and ``ARKODE_ARK548L2SA_DIRK_8_4_5`` ARK
+   method.
 
 
 .. _Butcher.ARK-8-4-5b:
@@ -2975,8 +3057,9 @@ ARK5(4)8L[2]SAb
    :width: 66 %
    :align: center
 
-   Joint linear stability region for the ``ARKODE_ARK548L2SAb_ERK_8_4_5``
-   and ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` ARK method.
+   Joint linear stability regions :math:`\mathcal{J}_{\theta,10^8}` for the
+   ``ARKODE_ARK548L2SAb_ERK_8_4_5`` and ``ARKODE_ARK548L2SAb_DIRK_8_4_5`` ARK
+   method.
 
 
 
