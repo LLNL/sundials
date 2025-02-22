@@ -433,13 +433,13 @@ N_Vector MVAPPEND(N_VGetSubvector)(N_Vector v, sunindextype vec_num)
    the N_Vector array.  If vec_num is outside of applicable bounds, or if
    the subvector does not support the N_VGetArrayPointer routine, then
    NULL is returned. */
-sunrealtype* MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v,
+sunscalartype* MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v,
                                                    sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
   SUNAssertNull(vec_num >= 0, SUN_ERR_ARG_OUTOFRANGE);
   SUNAssertNull(vec_num < MANYVECTOR_NUM_SUBVECS(v), SUN_ERR_ARG_OUTOFRANGE);
-  sunrealtype* arr = NULL;
+  sunscalartype* arr = NULL;
   if (MANYVECTOR_SUBVEC(v, vec_num)->ops->nvgetarraypointer)
   {
     arr = N_VGetArrayPointer(MANYVECTOR_SUBVEC(v, vec_num));
@@ -452,7 +452,7 @@ sunrealtype* MVAPPEND(N_VGetSubvectorArrayPointer)(N_Vector v,
    the N_Vector array.  If vec_num is outside of applicable bounds, or if
    the subvector does not support the N_VSetArrayPointer routine, then
    -1 is returned; otherwise this routine returns 0. */
-SUNErrCode MVAPPEND(N_VSetSubvectorArrayPointer)(sunrealtype* v_data, N_Vector v,
+SUNErrCode MVAPPEND(N_VSetSubvectorArrayPointer)(sunscalartype* v_data, N_Vector v,
                                                  sunindextype vec_num)
 {
   SUNFunctionBegin(v->sunctx);
@@ -620,7 +620,7 @@ sunindextype MVAPPEND(N_VGetSubvectorLocalLength)(N_Vector v, sunindextype vec_n
 /* Performs the linear sum z = a*x + b*y by calling N_VLinearSum on all subvectors;
    this routine does not check that x, y and z are ManyVectors, if they have the
    same number of subvectors, or if these subvectors are compatible. */
-void MVAPPEND(N_VLinearSum)(sunrealtype a, N_Vector x, sunrealtype b,
+void MVAPPEND(N_VLinearSum)(sunscalartype a, N_Vector x, sunscalartype b,
                             N_Vector y, N_Vector z)
 {
   SUNFunctionBegin(x->sunctx);
@@ -635,7 +635,7 @@ void MVAPPEND(N_VLinearSum)(sunrealtype a, N_Vector x, sunrealtype b,
 }
 
 /* Performs the operation z = c by calling N_VConst on all subvectors. */
-void MVAPPEND(N_VConst)(sunrealtype c, N_Vector z)
+void MVAPPEND(N_VConst)(sunscalartype c, N_Vector z)
 {
   SUNFunctionBegin(z->sunctx);
   sunindextype i;
@@ -682,7 +682,7 @@ void MVAPPEND(N_VDiv)(N_Vector x, N_Vector y, N_Vector z)
 /* Performs the operation z_j = c*x_j by calling N_VScale on all subvectors;
    this routine does not check that x and z are ManyVectors, if they have the
    same number of subvectors, or if these subvectors are compatible. */
-void MVAPPEND(N_VScale)(sunrealtype c, N_Vector x, N_Vector z)
+void MVAPPEND(N_VScale)(sunscalartype c, N_Vector x, N_Vector z)
 {
   SUNFunctionBegin(x->sunctx);
   sunindextype i;
@@ -727,7 +727,7 @@ void MVAPPEND(N_VInv)(N_Vector x, N_Vector z)
 /* Performs the operation z_j = x_j + b by calling N_VAddConst on all subvectors;
    this routine does not check that x and z are ManyVectors, if they have the
    same number of subvectors, or if these subvectors are compatible. */
-void MVAPPEND(N_VAddConst)(N_Vector x, sunrealtype b, N_Vector z)
+void MVAPPEND(N_VAddConst)(N_Vector x, sunscalartype b, N_Vector z)
 {
   SUNFunctionBegin(x->sunctx);
   sunindextype i;
@@ -1405,13 +1405,13 @@ sunrealtype N_VMinQuotient_MPIManyVector(N_Vector num, N_Vector denom)
    ----------------------------------------------------------------- */
 
 SUNErrCode MVAPPEND(N_VDotProdMultiLocal)(int nvec, N_Vector x, N_Vector* Y,
-                                          sunrealtype* dotprods)
+                                          sunscalartype* dotprods)
 {
   SUNFunctionBegin(x->sunctx);
   int j;
   sunindextype i;
   N_Vector* Ysub;
-  sunrealtype* contrib;
+  sunscalartype* contrib;
 
   /* create temporary workspace arrays */
   Ysub = NULL;
@@ -1419,7 +1419,7 @@ SUNErrCode MVAPPEND(N_VDotProdMultiLocal)(int nvec, N_Vector x, N_Vector* Y,
   SUNAssert(Ysub, SUN_ERR_MALLOC_FAIL);
 
   contrib = NULL;
-  contrib = (sunrealtype*)malloc(nvec * sizeof(sunrealtype));
+  contrib = (sunscalartype*)malloc(nvec * sizeof(*contrib));
   SUNAssert(contrib, SUN_ERR_MALLOC_FAIL);
 
   /* initialize output */
@@ -1475,7 +1475,7 @@ SUNErrCode N_VDotProdMultiAllReduce_MPIManyVector(int nvec_total, N_Vector x,
    array-of-arrays of N_Vectors that comprise X.  This routine will be
    passed an array of ManyVectors, so to call the subvector-specific routines
    we must unravel the subvectors while retaining an array of outer vectors. */
-SUNErrCode MVAPPEND(N_VLinearCombination)(int nvec, sunrealtype* c, N_Vector* X,
+SUNErrCode MVAPPEND(N_VLinearCombination)(int nvec, sunscalartype* c, N_Vector* X,
                                           N_Vector z)
 {
   SUNFunctionBegin(z->sunctx);
@@ -1511,7 +1511,7 @@ SUNErrCode MVAPPEND(N_VLinearCombination)(int nvec, sunrealtype* c, N_Vector* X,
    N_Vectors that comprise Y and Z.  This routine will be passed an array of
    ManyVectors, so to call the subvector-specific routines we must unravel
    the subvectors while retaining an array of outer vectors. */
-SUNErrCode MVAPPEND(N_VScaleAddMulti)(int nvec, sunrealtype* a, N_Vector x,
+SUNErrCode MVAPPEND(N_VScaleAddMulti)(int nvec, sunscalartype* a, N_Vector x,
                                       N_Vector* Y, N_Vector* Z)
 {
   SUNFunctionBegin(x->sunctx);
@@ -1554,7 +1554,7 @@ SUNErrCode MVAPPEND(N_VScaleAddMulti)(int nvec, sunrealtype* a, N_Vector x,
    N_VDotProdMulti on all subvectors, where we would require num_subvectors separate
    reductions). */
 SUNErrCode MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y,
-                                     sunrealtype* dotprods)
+                                     sunscalartype* dotprods)
 {
   SUNFunctionBegin(x->sunctx);
   sunindextype i;
@@ -1592,8 +1592,8 @@ SUNErrCode MVAPPEND(N_VDotProdMulti)(int nvec, N_Vector x, N_Vector* Y,
    N_Vectors that comprise X, Y and Z.  This routine will be passed arrays of
    ManyVectors, so to call the subvector-specific routines we must unravel
    the subvectors while retaining arrays of outer vectors. */
-SUNErrCode MVAPPEND(N_VLinearSumVectorArray)(int nvec, sunrealtype a,
-                                             N_Vector* X, sunrealtype b,
+SUNErrCode MVAPPEND(N_VLinearSumVectorArray)(int nvec, sunscalartype a,
+                                             N_Vector* X, sunscalartype b,
                                              N_Vector* Y, N_Vector* Z)
 {
   SUNFunctionBegin(X[0]->sunctx);
@@ -1644,7 +1644,7 @@ SUNErrCode MVAPPEND(N_VLinearSumVectorArray)(int nvec, sunrealtype a,
    N_Vectors that comprise X and Z.  This routine will be passed arrays of
    ManyVectors, so to call the subvector-specific routines we must unravel
    the subvectors while retaining arrays of outer vectors. */
-SUNErrCode MVAPPEND(N_VScaleVectorArray)(int nvec, sunrealtype* c, N_Vector* X,
+SUNErrCode MVAPPEND(N_VScaleVectorArray)(int nvec, sunscalartype* c, N_Vector* X,
                                          N_Vector* Z)
 {
   SUNFunctionBegin(X[0]->sunctx);
@@ -1688,7 +1688,7 @@ SUNErrCode MVAPPEND(N_VScaleVectorArray)(int nvec, sunrealtype* c, N_Vector* X,
    N_Vectors that comprise Z.  This routine will be passed an array of
    ManyVectors, so to call the subvector-specific routines we must unravel
    the subvectors while retaining an array of outer vectors. */
-SUNErrCode MVAPPEND(N_VConstVectorArray)(int nvec, sunrealtype c, N_Vector* Z)
+SUNErrCode MVAPPEND(N_VConstVectorArray)(int nvec, sunscalartype c, N_Vector* Z)
 {
   SUNFunctionBegin(Z[0]->sunctx);
   sunindextype i, j;

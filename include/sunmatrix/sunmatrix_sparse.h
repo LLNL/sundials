@@ -21,7 +21,7 @@
  * Notes:
  *   - The definition of the generic SUNMatrix structure can be found
  *     in the header file sundials_matrix.h.
- *   - The definition of the type 'sunrealtype' can be found in the
+ *   - The definition of the type 'sunscalartype' can be found in the
  *     header file sundials_types.h, and it may be changed (at the
  *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
@@ -60,7 +60,7 @@ struct _SUNMatrixContent_Sparse
   sunindextype N;
   sunindextype NNZ;
   sunindextype NP;
-  sunrealtype* data;
+  sunscalartype* data;
   int sparsetype;
   sunindextype* indexvals;
   sunindextype* indexptrs;
@@ -143,7 +143,7 @@ SUNDIALS_EXPORT
 int SUNSparseMatrix_SparseType(SUNMatrix A);
 
 SUNDIALS_EXPORT
-sunrealtype* SUNSparseMatrix_Data(SUNMatrix A);
+sunscalartype* SUNSparseMatrix_Data(SUNMatrix A);
 
 SUNDIALS_EXPORT
 sunindextype* SUNSparseMatrix_IndexValues(SUNMatrix A);
@@ -167,10 +167,10 @@ SUNDIALS_EXPORT
 SUNErrCode SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B);
+SUNErrCode SUNMatScaleAdd_Sparse(sunscalartype c, SUNMatrix A, SUNMatrix B);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A);
+SUNErrCode SUNMatScaleAddI_Sparse(sunscalartype c, SUNMatrix A);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);

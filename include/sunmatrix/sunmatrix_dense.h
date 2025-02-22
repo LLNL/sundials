@@ -20,7 +20,7 @@
  * Notes:
  *   - The definition of the generic SUNMatrix structure can be found
  *     in the header file sundials_matrix.h.
- *   - The definition of the type 'sunrealtype' can be found in the
+ *   - The definition of the type 'sunscalartype' can be found in the
  *     header file sundials_types.h, and it may be changed (at the
  *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
@@ -46,9 +46,9 @@ struct _SUNMatrixContent_Dense
 {
   sunindextype M;
   sunindextype N;
-  sunrealtype* data;
+  sunscalartype* data;
   sunindextype ldata;
-  sunrealtype** cols;
+  sunscalartype** cols;
 };
 
 typedef struct _SUNMatrixContent_Dense* SUNMatrixContent_Dense;
@@ -85,18 +85,18 @@ SUNDIALS_EXPORT void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile);
 SUNDIALS_EXPORT sunindextype SUNDenseMatrix_Rows(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNDenseMatrix_Columns(SUNMatrix A);
 SUNDIALS_EXPORT sunindextype SUNDenseMatrix_LData(SUNMatrix A);
-SUNDIALS_EXPORT sunrealtype* SUNDenseMatrix_Data(SUNMatrix A);
-SUNDIALS_EXPORT sunrealtype** SUNDenseMatrix_Cols(SUNMatrix A);
-SUNDIALS_EXPORT sunrealtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j);
+SUNDIALS_EXPORT sunscalartype* SUNDenseMatrix_Data(SUNMatrix A);
+SUNDIALS_EXPORT sunscalartype** SUNDenseMatrix_Cols(SUNMatrix A);
+SUNDIALS_EXPORT sunscalartype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j);
 
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID_Dense(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone_Dense(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy_Dense(SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatZero_Dense(SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B);
-SUNDIALS_EXPORT SUNErrCode SUNMatScaleAdd_Dense(sunrealtype c, SUNMatrix A,
+SUNDIALS_EXPORT SUNErrCode SUNMatScaleAdd_Dense(sunscalartype c, SUNMatrix A,
                                                 SUNMatrix B);
-SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_Dense(sunrealtype c, SUNMatrix A);
+SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_Dense(sunscalartype c, SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x,
                                               N_Vector y);
 SUNDIALS_EXPORT SUNErrCode SUNMatSpace_Dense(SUNMatrix A, long int* lenrw,
