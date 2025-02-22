@@ -53,6 +53,12 @@
 // Assume sunrealtype* is an array of doubles
 %apply double[] { sunrealtype* };
 
+// Assume suncomplextype* is an array of double _Complex
+//%apply double _Complex[] { suncomplextype* };
+
+// Assume sunscalartype* is an array of double _Complex
+//%apply double _Complex[] { sunscalartype* };
+
 #ifdef GENERATE_INT32
 %apply int[] { sunindextype* };
 #else

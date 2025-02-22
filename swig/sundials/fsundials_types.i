@@ -19,6 +19,7 @@
 %fortranconst;
 
 %include <stdint.i>
+%include <complex.i>
 
 #ifdef GENERATE_INT32
 // Inform SWIG of the configure-provided types
@@ -29,7 +30,9 @@
 #define SUNDIALS_INT64_T
 #define SUNDIALS_INDEX_TYPE int64_t
 #endif
+
 #define SUNDIALS_DOUBLE_PRECISION
+#define SUNDIALS_SCALAR_TYPE_COMPLEX
 #define sunbooleantype int
 
 %ignore SUN_FORMAT_E;

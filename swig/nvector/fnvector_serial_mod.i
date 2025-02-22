@@ -31,8 +31,8 @@
 %include "nvector/nvector_serial.h"
 
 %insert("wrapper") %{
-SWIGEXPORT double * _wrap_FN_VGetArrayPointer_Serial(N_Vector farg1) {
-  double * fresult ;
+SWIGEXPORT double _Complex* _wrap_FN_VGetArrayPointer_Serial(N_Vector farg1) {
+  double _Complex* fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunrealtype *result = 0 ;
 

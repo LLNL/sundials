@@ -21,7 +21,7 @@ jobs:
 
       - name: Install swig
         run: |
-          git clone https://github.com/sundials-codes/swig
+          git clone --depth=1 -b backport-complex-support https://github.com/sundials-codes/swig
           cd swig
           ./autogen.sh
           ./configure --prefix=/usr/

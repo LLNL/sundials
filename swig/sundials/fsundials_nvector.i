@@ -32,8 +32,8 @@
 %include "sundials/sundials_nvector.h"
 
 %insert("wrapper") %{
-SWIGEXPORT double * _wrap_FN_VGetArrayPointer(N_Vector farg1) {
-  double * fresult ;
+SWIGEXPORT double _Complex* _wrap_FN_VGetArrayPointer(N_Vector farg1) {
+  double _Complex* fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunrealtype *result = 0 ;
   arg1 = (N_Vector)(farg1);
@@ -43,8 +43,8 @@ SWIGEXPORT double * _wrap_FN_VGetArrayPointer(N_Vector farg1) {
 }
 
 
-SWIGEXPORT double * _wrap_FN_VGetDeviceArrayPointer(N_Vector farg1) {
-  double * fresult ;
+SWIGEXPORT double _Complex* _wrap_FN_VGetDeviceArrayPointer(N_Vector farg1) {
+  double _Complex* fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
   sunrealtype *result = 0 ;
   arg1 = (N_Vector)(farg1);
@@ -81,7 +81,7 @@ end function
 function FN_VGetArrayPointer(v) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE), dimension(:), pointer :: swig_result
+complex(C_DOUBLE_COMPLEX), dimension(:), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: v
 type(C_PTR) :: fresult
 type(C_PTR) :: farg1
@@ -94,7 +94,7 @@ end function
 function FN_VGetDeviceArrayPointer(v) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
-real(C_DOUBLE), dimension(:), pointer :: swig_result
+complex(C_DOUBLE_COMPLEX), dimension(:), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: v
 type(C_PTR) :: fresult
 type(C_PTR) :: farg1
