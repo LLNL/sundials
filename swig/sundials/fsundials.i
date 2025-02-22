@@ -15,6 +15,8 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
+%include <complex.i>
+
 // By default, wrap all constants as native fortran PARAMETERs
 %fortranconst;
 

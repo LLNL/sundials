@@ -203,6 +203,21 @@
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
+#ifdef __STDC_NO_COMPLEX__
+#error "This generated file requires C complex number support"
+#endif
+
+
+#include <complex.h>
+
+#define SWIG_ccomplex_construct(REAL, IMAG) ((REAL) + I * (IMAG))
+
+
+#include <complex.h>
+
+#define SWIG_ccomplex_construct(REAL, IMAG) ((REAL) + I * (IMAG))
+
+
 #include "sundials/sundials_nvector.h"
 
 
@@ -976,13 +991,13 @@ SWIGEXPORT int _wrap_FN_VEnableWrmsNormMaskVectorArray_Serial(N_Vector farg1, in
 
 
 
-SWIGEXPORT double _Complex* _wrap_FN_VGetArrayPointer_Serial(N_Vector farg1) {
-  double _Complex* fresult ;
+SWIGEXPORT sunscalartype* _wrap_FN_VGetArrayPointer_Serial(N_Vector farg1) {
+  sunscalartype* fresult ;
   N_Vector arg1 = (N_Vector) 0 ;
-  sunrealtype *result = 0 ;
+  sunscalartype *result = 0 ;
 
   arg1 = (N_Vector)(farg1);
-  result = (sunrealtype *)N_VGetArrayPointer_Serial(arg1);
+  result = (sunscalartype *)N_VGetArrayPointer_Serial(arg1);
   fresult = result;
   return fresult;
 }
