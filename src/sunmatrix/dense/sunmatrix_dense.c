@@ -87,10 +87,10 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx)
   content->cols  = NULL;
 
   /* Allocate content */
-  content->data = (sunrealtype*)calloc(M * N, sizeof(sunrealtype));
+  content->data = (sunscalartype*)calloc(M * N, sizeof(sunscalartype));
   SUNAssertNull(content->data, SUN_ERR_MALLOC_FAIL);
 
-  content->cols = (sunrealtype**)malloc(N * sizeof(sunrealtype*));
+  content->cols = (sunscalartype**)malloc(N * sizeof(sunscalartype*));
   SUNAssertNull(content->cols, SUN_ERR_MALLOC_FAIL);
   for (j = 0; j < N; j++) { content->cols[j] = content->data + j * M; }
 
@@ -146,21 +146,21 @@ sunindextype SUNDenseMatrix_LData(SUNMatrix A)
   return SM_LDATA_D(A);
 }
 
-sunrealtype* SUNDenseMatrix_Data(SUNMatrix A)
+sunscalartype* SUNDenseMatrix_Data(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
   SUNAssertNull(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
   return SM_DATA_D(A);
 }
 
-sunrealtype** SUNDenseMatrix_Cols(SUNMatrix A)
+sunscalartype** SUNDenseMatrix_Cols(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
   SUNAssertNull(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
   return SM_COLS_D(A);
 }
 
-sunrealtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j)
+sunscalartype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j)
 {
   SUNFunctionBegin(A->sunctx);
   SUNAssertNull(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
@@ -226,7 +226,7 @@ SUNErrCode SUNMatZero_Dense(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
   sunindextype i;
-  sunrealtype* Adata;
+  sunscalartype* Adata;
 
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
 
@@ -258,7 +258,7 @@ SUNErrCode SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNMatScaleAddI_Dense(sunrealtype c, SUNMatrix A)
+SUNErrCode SUNMatScaleAddI_Dense(sunscalartype c, SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
   sunindextype i, j;
@@ -278,7 +278,7 @@ SUNErrCode SUNMatScaleAddI_Dense(sunrealtype c, SUNMatrix A)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNMatScaleAdd_Dense(sunrealtype c, SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatScaleAdd_Dense(sunscalartype c, SUNMatrix A, SUNMatrix B)
 {
   SUNFunctionBegin(A->sunctx);
   sunindextype i, j;
@@ -302,7 +302,7 @@ SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SUNFunctionBegin(A->sunctx);
   sunindextype i, j;
-  sunrealtype *col_j, *xd, *yd;
+  sunscalartype *col_j, *xd, *yd;
 
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_DENSE, SUN_ERR_ARG_WRONGTYPE);
   SUNCheck(compatibleMatrixAndVectors(A, x, y), SUN_ERR_ARG_DIMSMISMATCH);

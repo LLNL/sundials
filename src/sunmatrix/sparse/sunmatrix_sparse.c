@@ -125,7 +125,7 @@ SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N, sunindextype NNZ,
   content->indexptrs = NULL;
 
   /* Allocate content */
-  content->data = (sunrealtype*)calloc(NNZ, sizeof(sunrealtype));
+  content->data = (sunscalartype*)calloc(NNZ, sizeof(sunscalartype));
   SUNAssertNull(content->data, SUN_ERR_MALLOC_FAIL);
 
   content->indexvals = (sunindextype*)calloc(NNZ, sizeof(sunindextype));
@@ -168,7 +168,7 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, sunrealtype droptol,
   {
     for (i = 0; i < M; i++)
     {
-      nnz += (SUNRabs(SM_ELEMENT_D(Ad, i, j)) > droptol);
+      nnz += (SUNabs(SM_ELEMENT_D(Ad, i, j)) > droptol);
     }
   }
 
@@ -348,7 +348,7 @@ SUNErrCode SUNSparseMatrix_Realloc(SUNMatrix A)
                                              nzmax * sizeof(sunindextype));
   SUNAssert(SM_INDEXVALS_S(A), SUN_ERR_MALLOC_FAIL);
 
-  SM_DATA_S(A) = (sunrealtype*)realloc(SM_DATA_S(A), nzmax * sizeof(sunrealtype));
+  SM_DATA_S(A) = (sunscalartype*)realloc(SM_DATA_S(A), nzmax * sizeof(sunscalartype));
   SUNAssert(SM_DATA_S(A), SUN_ERR_MALLOC_FAIL);
 
   SM_NNZ_S(A) = nzmax;
@@ -374,7 +374,7 @@ SUNErrCode SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ)
                                              NNZ * sizeof(sunindextype));
   SUNAssert(SM_INDEXVALS_S(A), SUN_ERR_MALLOC_FAIL);
 
-  SM_DATA_S(A) = (sunrealtype*)realloc(SM_DATA_S(A), NNZ * sizeof(sunrealtype));
+  SM_DATA_S(A) = (sunscalartype*)realloc(SM_DATA_S(A), NNZ * sizeof(sunscalartype));
   SUNAssert(SM_DATA_S(A), SUN_ERR_MALLOC_FAIL);
 
   SM_NNZ_S(A) = NNZ;
@@ -464,7 +464,7 @@ int SUNSparseMatrix_SparseType(SUNMatrix A)
   return SM_SPARSETYPE_S(A);
 }
 
-sunrealtype* SUNSparseMatrix_Data(SUNMatrix A)
+sunscalartype* SUNSparseMatrix_Data(SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
   SUNAssertNull(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);
@@ -586,8 +586,8 @@ SUNErrCode SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B)
                                                A_nz * sizeof(sunindextype));
     SUNAssert(SM_INDEXVALS_S(B), SUN_ERR_MALLOC_FAIL);
 
-    SM_DATA_S(B) = (sunrealtype*)realloc(SM_DATA_S(B),
-                                         A_nz * sizeof(sunrealtype));
+    SM_DATA_S(B) = (sunscalartype*)realloc(SM_DATA_S(B),
+                                         A_nz * sizeof(sunscalartype));
     SUNAssert(SM_DATA_S(B), SUN_ERR_MALLOC_FAIL);
 
     SM_NNZ_S(B) = A_nz;
@@ -613,7 +613,7 @@ SUNErrCode SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
+SUNErrCode SUNMatScaleAddI_Sparse(sunscalartype c, SUNMatrix A)
 {
   SUNFunctionBegin(A->sunctx);
   const sunindextype N = SM_SPARSETYPE_S(A) == CSC_MAT ? SM_COLUMNS_S(A)
@@ -625,7 +625,7 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
   SUNAssert(Ap, SUN_ERR_ARG_CORRUPT);
   sunindextype* Ai = SM_INDEXVALS_S(A);
   SUNAssert(Ai, SUN_ERR_ARG_CORRUPT);
-  sunrealtype* Ax = SM_DATA_S(A);
+  sunscalartype* Ax = SM_DATA_S(A);
   SUNAssert(Ax, SUN_ERR_ARG_CORRUPT);
 
   sunindextype newvals = 0;
@@ -684,12 +684,12 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B)
+SUNErrCode SUNMatScaleAdd_Sparse(sunscalartype c, SUNMatrix A, SUNMatrix B)
 {
   sunindextype j, i, p, nz, newvals, M, N, cend;
   sunbooleantype newmat;
   sunindextype *w, *Ap, *Ai, *Bp, *Bi, *Cp, *Ci;
-  sunrealtype *x, *Ax, *Bx, *Cx;
+  sunscalartype *x, *Ax, *Bx, *Cx;
   SUNMatrix C;
   SUNFunctionBegin(A->sunctx);
 
@@ -728,7 +728,7 @@ SUNErrCode SUNMatScaleAdd_Sparse(sunrealtype c, SUNMatrix A, SUNMatrix B)
   /* create work arrays for row indices and nonzero column values */
   w = (sunindextype*)malloc(M * sizeof(sunindextype));
   SUNAssert(w, SUN_ERR_MALLOC_FAIL);
-  x = (sunrealtype*)malloc(M * sizeof(sunrealtype));
+  x = (sunscalartype*)malloc(M * sizeof(sunscalartype));
   SUNAssert(x, SUN_ERR_MALLOC_FAIL);
 
   /* determine if A already contains the sparsity pattern of B */
@@ -1006,7 +1006,7 @@ SUNErrCode Matvec_SparseCSC(SUNMatrix A, N_Vector x, N_Vector y)
 {
   sunindextype i, j;
   sunindextype *Ap, *Ai;
-  sunrealtype *Ax, *xd, *yd;
+  sunscalartype *Ax, *xd, *yd;
   SUNFunctionBegin(A->sunctx);
 
   /* access data from CSC structure (return if failure) */
@@ -1047,7 +1047,7 @@ SUNErrCode Matvec_SparseCSR(SUNMatrix A, N_Vector x, N_Vector y)
 {
   sunindextype i, j;
   sunindextype *Ap, *Aj;
-  sunrealtype *Ax, *xd, *yd;
+  sunscalartype *Ax, *xd, *yd;
   SUNFunctionBegin(A->sunctx);
 
   /* access data from CSR structure (return if failure) */
@@ -1087,7 +1087,7 @@ SUNErrCode format_convert(const SUNMatrix A, SUNMatrix B)
 {
   SUNFunctionBegin(A->sunctx);
 
-  sunrealtype *Ax, *Bx;
+  sunscalartype *Ax, *Bx;
   sunindextype *Ap, *Aj;
   sunindextype *Bp, *Bi;
   sunindextype n_row, n_col, nnz;
