@@ -45,7 +45,7 @@
 typedef int (*arkIntSetFn)(void*,int);
 typedef int (*arkLongSetFn)(void*,long int);
 typedef int (*arkRealSetFn)(void*,sunrealtype);
-typedef int (*arkBoolSetFn)(void*);
+typedef int (*arkActionSetFn)(void*);
 static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, char *argv[],
                              const char* argtest, arkIntSetFn fname,
                              sunbooleantype *arg_used)
@@ -53,7 +53,8 @@ static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, char *argv[],
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i], argtest) == 0)
   {
-    int iarg = atoi(argv[++(*i)]);
+    int iarg = atoi(argv[*i]);
+    (*i) += 1;
     if (fname((void*) ark_mem, iarg) != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -106,9 +107,9 @@ static int CheckAndSetRealArg(ARKodeMem ark_mem, int *i, char *argv[],
   return ARK_SUCCESS;
 }
 
-static int CheckAndSetBoolArg(ARKodeMem ark_mem, int *i, char *argv[],
-                              const char* argtest, arkBoolSetFn fname,
-                              sunbooleantype *arg_used)
+static int CheckAndSetActionArg(ARKodeMem ark_mem, int *i, char *argv[],
+                                const char* argtest, arkActionSetFn fname,
+                                sunbooleantype *arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i], argtest) == 0)
@@ -124,7 +125,7 @@ static int CheckAndSetBoolArg(ARKodeMem ark_mem, int *i, char *argv[],
   return ARK_SUCCESS;
 }
 
-int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
+int ARKodeSetFromCommandLine(void* arkode_mem, int argc, const char* argv[])
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
@@ -210,15 +211,15 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
                              ARKodeSetMaxEFailGrowth,
                              ARKodeSetMaxCFailGrowth};
 
-  int num_bool_keys = 4;
-  const char* bool_keys[] = {"arkode.nonlinear",
-                             "arkode.clear_stop_time",
-                             "arkode.no_inactive_root_warn",
-                             "arkode.reset_accumulated_error"};
-  arkBoolSetFn bool_set[] = {ARKodeSetNonlinear,
-                             ARKodeClearStopTime,
-                             ARKodeSetNoInactiveRootWarn,
-                             ARKodeResetAccumulatedError};
+  int num_action_keys = 4;
+  const char* action_keys[] = {"arkode.nonlinear",
+                               "arkode.clear_stop_time",
+                               "arkode.no_inactive_root_warn",
+                               "arkode.reset_accumulated_error"};
+  arkActionSetFn action_set[] = {ARKodeSetNonlinear,
+                                 ARKodeClearStopTime,
+                                 ARKodeSetNoInactiveRootWarn,
+                                 ARKodeResetAccumulatedError};
 
   int i, j, retval;
   for (i = 1; i < argc; i++)
@@ -265,11 +266,11 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
     }
     if (arg_used) continue;
 
-    /* check all bool command-line options */
-    for (j = 0; j < num_bool_keys; j++)
+    /* check all action command-line options */
+    for (j = 0; j < num_action_keys; j++)
     {
-      if (CheckAndSetBoolArg(ark_mem, &i, argv, bool_keys[j],
-                             bool_set[j], &arg_used) != ARK_SUCCESS)
+      if (CheckAndSetActionArg(ark_mem, &i, argv, action_keys[j],
+                               action_set[j], &arg_used) != ARK_SUCCESS)
       {
         return ARK_ILL_INPUT;
       }
@@ -306,7 +307,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
       continue;
     }
 
-    if (strcmp(argv[i], "arkode.tolerances") == 0)
+    if (strcmp(argv[i], "arkode.scalar_tolerances") == 0)
     {
       sunrealtype rtol = atof(argv[++i]);
       sunrealtype atol = atof(argv[++i]);
