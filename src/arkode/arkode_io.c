@@ -46,7 +46,7 @@ typedef int (*arkIntSetFn)(void*,int);
 typedef int (*arkLongSetFn)(void*,long int);
 typedef int (*arkRealSetFn)(void*,sunrealtype);
 typedef int (*arkActionSetFn)(void*);
-static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, char *argv[],
+static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, const char *argv[],
                              const char* argtest, arkIntSetFn fname,
                              sunbooleantype *arg_used)
 {
@@ -67,7 +67,7 @@ static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, char *argv[],
   return ARK_SUCCESS;
 }
 
-static int CheckAndSetLongArg(ARKodeMem ark_mem, int *i, char *argv[],
+static int CheckAndSetLongArg(ARKodeMem ark_mem, int *i, const char *argv[],
                               const char* argtest, arkLongSetFn fname,
                               sunbooleantype *arg_used)
 {
@@ -87,7 +87,7 @@ static int CheckAndSetLongArg(ARKodeMem ark_mem, int *i, char *argv[],
   return ARK_SUCCESS;
 }
 
-static int CheckAndSetRealArg(ARKodeMem ark_mem, int *i, char *argv[],
+static int CheckAndSetRealArg(ARKodeMem ark_mem, int *i, const char *argv[],
                               const char* argtest, arkRealSetFn fname,
                               sunbooleantype *arg_used)
 {
@@ -107,7 +107,7 @@ static int CheckAndSetRealArg(ARKodeMem ark_mem, int *i, char *argv[],
   return ARK_SUCCESS;
 }
 
-static int CheckAndSetActionArg(ARKodeMem ark_mem, int *i, char *argv[],
+static int CheckAndSetActionArg(ARKodeMem ark_mem, int *i, const char *argv[],
                                 const char* argtest, arkActionSetFn fname,
                                 sunbooleantype *arg_used)
 {
