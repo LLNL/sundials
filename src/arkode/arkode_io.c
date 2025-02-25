@@ -226,7 +226,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
     sunbooleantype arg_used = SUNFALSE;
 
     /* skip command-line arguments that do not begin with "arkode." */
-    if (strncmp(argv[i], "arkode.", 7) != 0) { continue; }
+    static const char *prefix = "arkode.";
+    if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
 
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
@@ -281,7 +282,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
     if (strcmp(argv[i], "arkode.interpolant_type") == 0)
     {
       i++;
-      retval = 1;
+      retval = ARK_ILL_INPUT;
       if (strcmp(argv[i], "ARK_INTERP_HERMITE") == 0)
       {
         retval = ARKodeSetInterpolantType(arkode_mem, ARK_INTERP_HERMITE);

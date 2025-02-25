@@ -216,7 +216,7 @@ typedef enum
 
 /* Command-line control over ARKODE options */
 SUNDIALS_EXPORT int ARKodeSetFromCommandLine(void* arkode_mem, int argc,
-                                             char* argv[]);
+                                             const char* argv[]);
 
 /* Resize and Reset functions */
 SUNDIALS_EXPORT int ARKodeResize(void* arkode_mem, N_Vector ynew,
