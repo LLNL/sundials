@@ -126,6 +126,10 @@ module farkode_mod
  type, public :: SWIGTYPE_p_p_char
   type(SwigClassWrapper), public :: swigdata
  end type
+ type, bind(C) :: SwigArrayWrapper
+  type(C_PTR), public :: data = C_NULL_PTR
+  integer(C_SIZE_T), public :: size = 0
+ end type
  public :: FARKodeSetFromCommandLine
  public :: FARKodeResize
  public :: FARKodeReset
@@ -204,10 +208,6 @@ module farkode_mod
  public :: FARKodeGetRootInfo
  public :: FARKodeGetUserData
  public :: FARKodePrintAllStats
- type, bind(C) :: SwigArrayWrapper
-  type(C_PTR), public :: data = C_NULL_PTR
-  integer(C_SIZE_T), public :: size = 0
- end type
  public :: FARKodeGetReturnFlagName
  public :: FARKodeWriteParameters
  public :: FARKodeGetNumExpSteps
@@ -483,14 +483,16 @@ module farkode_mod
 
 ! WRAPPER DECLARATIONS
 interface
-function swigc_FARKodeSetFromCommandLine(farg1, farg2, farg3) &
+function swigc_FARKodeSetFromCommandLine(farg1, farg2, farg3, farg4) &
 bind(C, name="_wrap_FARKodeSetFromCommandLine") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
+import :: swigarraywrapper
 import :: swigclasswrapper
 type(C_PTR), value :: farg1
-integer(C_INT), intent(in) :: farg2
-type(SwigClassWrapper) :: farg3
+type(SwigArrayWrapper) :: farg2
+integer(C_INT), intent(in) :: farg3
+type(SwigClassWrapper) :: farg4
 integer(C_INT) :: fresult
 end function
 
@@ -2477,22 +2479,44 @@ end interface
 
 contains
  ! MODULE SUBPROGRAMS
-function FARKodeSetFromCommandLine(arkode_mem, argc, argv) &
+
+subroutine SWIG_string_to_chararray(string, chars, wrap)
+  use, intrinsic :: ISO_C_BINDING
+  character(kind=C_CHAR, len=*), intent(IN) :: string
+  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
+  type(SwigArrayWrapper), intent(OUT) :: wrap
+  integer :: i
+
+  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
+  do i=1,len(string)
+    chars(i) = string(i:i)
+  end do
+  i = len(string) + 1
+  chars(i) = C_NULL_CHAR ! C string compatibility
+  wrap%data = c_loc(chars)
+  wrap%size = len(string)
+end subroutine
+
+function FARKodeSetFromCommandLine(arkode_mem, arkid, argc, argv) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
+character(kind=C_CHAR, len=*), target :: arkid
+character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
 integer(C_INT), intent(in) :: argc
 class(SWIGTYPE_p_p_char), intent(in) :: argv
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT) :: farg2 
-type(SwigClassWrapper) :: farg3 
+type(SwigArrayWrapper) :: farg2 
+integer(C_INT) :: farg3 
+type(SwigClassWrapper) :: farg4 
 
 farg1 = arkode_mem
-farg2 = argc
-farg3 = argv%swigdata
-fresult = swigc_FARKodeSetFromCommandLine(farg1, farg2, farg3)
+call SWIG_string_to_chararray(arkid, farg2_chars, farg2)
+farg3 = argc
+farg4 = argv%swigdata
+fresult = swigc_FARKodeSetFromCommandLine(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 
@@ -5385,24 +5409,6 @@ farg1 = imethod
 fresult = swigc_FARKodeButcherTable_LoadDIRK(farg1)
 swig_result = fresult
 end function
-
-
-subroutine SWIG_string_to_chararray(string, chars, wrap)
-  use, intrinsic :: ISO_C_BINDING
-  character(kind=C_CHAR, len=*), intent(IN) :: string
-  character(kind=C_CHAR), dimension(:), target, allocatable, intent(OUT) :: chars
-  type(SwigArrayWrapper), intent(OUT) :: wrap
-  integer :: i
-
-  allocate(character(kind=C_CHAR) :: chars(len(string) + 1))
-  do i=1,len(string)
-    chars(i) = string(i:i)
-  end do
-  i = len(string) + 1
-  chars(i) = C_NULL_CHAR ! C string compatibility
-  wrap%data = c_loc(chars)
-  wrap%size = len(string)
-end subroutine
 
 function FARKodeButcherTable_LoadDIRKByName(imethod) &
 result(swig_result)

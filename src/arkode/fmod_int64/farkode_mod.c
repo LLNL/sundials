@@ -242,20 +242,6 @@ enum {
 #include "arkode/arkode_ls.h"
 
 
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
-
-
 #include <stdlib.h>
 #ifdef _MSC_VER
 # ifndef strtoull
@@ -278,6 +264,20 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
   result.data = NULL;
   result.size = 0;
   return result;
+}
+
+
+typedef struct {
+    void* cptr;
+    int cmemflags;
+} SwigClassWrapper;
+
+
+SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
+    SwigClassWrapper result;
+    result.cptr = NULL;
+    result.cmemflags = 0;
+    return result;
 }
 
 
@@ -315,18 +315,20 @@ SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
   }
 }
 
-SWIGEXPORT int _wrap_FARKodeSetFromCommandLine(void *farg1, int const *farg2, SwigClassWrapper const *farg3) {
+SWIGEXPORT int _wrap_FARKodeSetFromCommandLine(void *farg1, SwigArrayWrapper *farg2, int const *farg3, SwigClassWrapper const *farg4) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  int arg2 ;
-  char **arg3 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char **arg4 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (int)(*farg2);
-  SWIG_check_mutable(*farg3, "char **", "SWIGTYPE_p_p_char", "ARKodeSetFromCommandLine(void *,int,char *[])", return 0);
-  arg3 = (char **)(farg3->cptr);
-  result = (int)ARKodeSetFromCommandLine(arg1,arg2,arg3);
+  arg2 = (char *)(farg2->data);
+  arg3 = (int)(*farg3);
+  SWIG_check_mutable(*farg4, "char **", "SWIGTYPE_p_p_char", "ARKodeSetFromCommandLine(void *,char const *,int,char *[])", return 0);
+  arg4 = (char **)(farg4->cptr);
+  result = (int)ARKodeSetFromCommandLine(arg1,(char const *)arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
 }
