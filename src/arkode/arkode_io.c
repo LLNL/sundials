@@ -75,7 +75,7 @@ struct arkKeyActionPair
 };
 
 static int CheckAndSetIntArg(ARKodeMem ark_mem, int* i, char* argv[],
-                             const int offset, const char* argtest,
+                             const size_t offset, const char* argtest,
                              arkIntSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
@@ -97,7 +97,7 @@ static int CheckAndSetIntArg(ARKodeMem ark_mem, int* i, char* argv[],
 }
 
 static int CheckAndSetLongArg(ARKodeMem ark_mem, int* i, char* argv[],
-                              const int offset, const char* argtest,
+                              const size_t offset, const char* argtest,
                               arkLongSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
@@ -119,7 +119,7 @@ static int CheckAndSetLongArg(ARKodeMem ark_mem, int* i, char* argv[],
 }
 
 static int CheckAndSetRealArg(ARKodeMem ark_mem, int* i, char* argv[],
-                              const int offset, const char* argtest,
+                              const size_t offset, const char* argtest,
                               arkRealSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
@@ -141,7 +141,7 @@ static int CheckAndSetRealArg(ARKodeMem ark_mem, int* i, char* argv[],
 }
 
 static int CheckAndSetActionArg(ARKodeMem ark_mem, int* i, char* argv[],
-                                const int offset, const char* argtest,
+                                const size_t offset, const char* argtest,
                                 arkActionSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
@@ -232,7 +232,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
 
     /* set offset length to disregard for subsequent command-line tests */
-    int offset = strlen(prefix);
+    size_t offset = strlen(prefix);
 
     /* check against supplied arkid input:
        if not supplied, then just process remaining text as a normal argument;
