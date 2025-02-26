@@ -224,7 +224,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid,
 
     /* check against supplied arkid input:
        if not supplied, then just process remaining text as a normal argument;
-       if supplied, verify that it matches the supplied arkid, and update offset */
+       if supplied, verify that it matches the supplied arkid, and update offset
+       to trim both the arkid and the trailing "." */
     if (strlen(arkid) > 0)
     {
       if (strncmp(argv[i]+offset, arkid, strlen(arkid)) != 0) { continue; }
