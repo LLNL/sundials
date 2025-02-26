@@ -43,9 +43,25 @@
   (this leverages a few typedefs and static utility routines)
   ---------------------------------------------------------------*/
 typedef int (*arkIntSetFn)(void*,int);
+struct arkKeyIntPair {
+  const char* key;
+  arkIntSetFn set;
+};
 typedef int (*arkLongSetFn)(void*,long int);
+struct arkKeyLongPair {
+  const char* key;
+  arkLongSetFn set;
+};
 typedef int (*arkRealSetFn)(void*,sunrealtype);
+struct arkKeyRealPair {
+  const char* key;
+  arkRealSetFn set;
+};
 typedef int (*arkActionSetFn)(void*);
+struct arkKeyActionPair {
+  const char* key;
+  arkActionSetFn set;
+};
 static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, const char *argv[],
                              const char* argtest, arkIntSetFn fname,
                              sunbooleantype *arg_used)
@@ -53,8 +69,8 @@ static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, const char *argv[],
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i], argtest) == 0)
   {
-    int iarg = atoi(argv[*i]);
     (*i) += 1;
+    int iarg = atoi(argv[*i]);
     if (fname((void*) ark_mem, iarg) != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -74,7 +90,8 @@ static int CheckAndSetLongArg(ARKodeMem ark_mem, int *i, const char *argv[],
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i], argtest) == 0)
   {
-    long int iarg = atol(argv[++(*i)]);
+    (*i) += 1;
+    long int iarg = atol(argv[*i]);
     if (fname((void*) ark_mem, iarg) != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -94,7 +111,8 @@ static int CheckAndSetRealArg(ARKodeMem ark_mem, int *i, const char *argv[],
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i], argtest) == 0)
   {
-    sunrealtype rarg = atof(argv[++(*i)]);
+    (*i) += 1;
+    sunrealtype rarg = atof(argv[*i]);
     if (fname((void*) ark_mem, rarg) != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
@@ -137,89 +155,55 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, const char* argv[])
   ark_mem = (ARKodeMem)arkode_mem;
 
   /* Set list of integer command-line arguments, and the corresponding set routine */
+  static struct arkKeyIntPair int_pairs[] =
+    {{"arkode.order",                 ARKodeSetOrder},
+     {"arkode.interpolant_degree",    ARKodeSetInterpolantDegree},
+     {"arkode.linear",                ARKodeSetLinear},
+     {"arkode.autonomous",            ARKodeSetAutonomous},
+     {"arkode.deduce_implicit_rhs",   ARKodeSetDeduceImplicitRhs},
+     {"arkode.lsetup_frequency",      ARKodeSetLSetupFrequency},
+     {"arkode.predictor_method",      ARKodeSetPredictorMethod},
+     {"arkode.max_nonlin_iters",      ARKodeSetMaxNonlinIters},
+     {"arkode.max_hnil_warns",        ARKodeSetMaxHnilWarns},
+     {"arkode.interpolate_stop_time", ARKodeSetInterpolateStopTime},
+     {"arkode.max_num_constr_fails",  ARKodeSetMaxNumConstrFails},
+     {"arkode.adaptivity_adjustment", ARKodeSetAdaptivityAdjustment},
+     {"arkode.small_num_efails",      ARKodeSetSmallNumEFails},
+     {"arkode.max_err_test_fails",    ARKodeSetMaxErrTestFails},
+     {"arkode.max_conv_fails",        ARKodeSetMaxConvFails}};
   int num_int_keys = 15;
-  const char* int_keys[] = {"arkode.order",
-                            "arkode.interpolant_degree",
-                            "arkode.linear",
-                            "arkode.autonomous",
-                            "arkode.deduce_implicit_rhs",
-                            "arkode.lsetup_frequency",
-                            "arkode.predictor_method",
-                            "arkode.max_nonlin_iters",
-                            "arkode.max_hnil_warns",
-                            "arkode.interpolate_stop_time",
-                            "arkode.max_num_constr_fails",
-                            "arkode.adaptivity_adjustment",
-                            "arkode.small_num_efails",
-                            "arkode.max_err_test_fails",
-                            "arkode.max_conv_fails"};
-  arkIntSetFn int_set[] = {ARKodeSetOrder,
-                           ARKodeSetInterpolantDegree,
-                           ARKodeSetLinear,
-                           ARKodeSetAutonomous,
-                           ARKodeSetDeduceImplicitRhs,
-                           ARKodeSetLSetupFrequency,
-                           ARKodeSetPredictorMethod,
-                           ARKodeSetMaxNonlinIters,
-                           ARKodeSetMaxHnilWarns,
-                           ARKodeSetInterpolateStopTime,
-                           ARKodeSetMaxNumConstrFails,
-                           ARKodeSetAdaptivityAdjustment,
-                           ARKodeSetSmallNumEFails,
-                           ARKodeSetMaxErrTestFails,
-                           ARKodeSetMaxConvFails};
 
+  static struct arkKeyLongPair long_pairs[] =
+    {{"arkode.max_num_steps", ARKodeSetMaxNumSteps}};
   int num_long_keys = 1;
-  const char* long_keys[] = {"arkode.max_num_steps"};
-  arkLongSetFn long_set[] = {ARKodeSetMaxNumSteps};
 
+  static struct arkKeyRealPair real_pairs[] =
+    {{"arkode.nonlin_crdown",    ARKodeSetNonlinCRDown},
+     {"arkode.nonlin_rdiv",      ARKodeSetNonlinRDiv},
+     {"arkode.delta_gamma_max",  ARKodeSetDeltaGammaMax},
+     {"arkode.nonlin_conv_coef", ARKodeSetNonlinConvCoef},
+     {"arkode.init_step",        ARKodeSetInitStep},
+     {"arkode.min_step",         ARKodeSetMinStep},
+     {"arkode.max_step",         ARKodeSetMaxStep},
+     {"arkode.stop_time",        ARKodeSetStopTime},
+     {"arkode.fixed_step",       ARKodeSetFixedStep},
+     {"arkode.step_direction",   ARKodeSetStepDirection},
+     {"arkode.cfl_fraction",     ARKodeSetCFLFraction},
+     {"arkode.safety_factor",    ARKodeSetSafetyFactor},
+     {"arkode.error_bias",       ARKodeSetErrorBias},
+     {"arkode.max_growth",       ARKodeSetMaxGrowth},
+     {"arkode.min_reduction",    ARKodeSetMinReduction},
+     {"arkode.max_first_growth", ARKodeSetMaxFirstGrowth},
+     {"arkode.max_efail_growth", ARKodeSetMaxEFailGrowth},
+     {"arkode.max_cfail_growth", ARKodeSetMaxCFailGrowth}};
   int num_real_keys = 18;
-  const char* real_keys[] = {"arkode.nonlin_crdown",
-                             "arkode.nonlin_rdiv",
-                             "arkode.delta_gamma_max",
-                             "arkode.nonlin_conv_coef",
-                             "arkode.init_step",
-                             "arkode.min_step",
-                             "arkode.max_step",
-                             "arkode.stop_time",
-                             "arkode.fixed_step",
-                             "arkode.step_direction",
-                             "arkode.cfl_fraction",
-                             "arkode.safety_factor",
-                             "arkode.error_bias",
-                             "arkode.max_growth",
-                             "arkode.min_reduction",
-                             "arkode.max_first_growth",
-                             "arkode.max_efail_growth",
-                             "arkode.max_cfail_growth"};
-  arkRealSetFn real_set[] = {ARKodeSetNonlinCRDown,
-                             ARKodeSetNonlinRDiv,
-                             ARKodeSetDeltaGammaMax,
-                             ARKodeSetNonlinConvCoef,
-                             ARKodeSetInitStep,
-                             ARKodeSetMinStep,
-                             ARKodeSetMaxStep,
-                             ARKodeSetStopTime,
-                             ARKodeSetFixedStep,
-                             ARKodeSetStepDirection,
-                             ARKodeSetCFLFraction,
-                             ARKodeSetSafetyFactor,
-                             ARKodeSetErrorBias,
-                             ARKodeSetMaxGrowth,
-                             ARKodeSetMinReduction,
-                             ARKodeSetMaxFirstGrowth,
-                             ARKodeSetMaxEFailGrowth,
-                             ARKodeSetMaxCFailGrowth};
 
+  static struct arkKeyActionPair action_pairs[] =
+    {{"arkode.nonlinear",               ARKodeSetNonlinear},
+     {"arkode.clear_stop_time",         ARKodeClearStopTime},
+     {"arkode.no_inactive_root_warn",   ARKodeSetNoInactiveRootWarn},
+     {"arkode.reset_accumulated_error", ARKodeResetAccumulatedError}};
   int num_action_keys = 4;
-  const char* action_keys[] = {"arkode.nonlinear",
-                               "arkode.clear_stop_time",
-                               "arkode.no_inactive_root_warn",
-                               "arkode.reset_accumulated_error"};
-  arkActionSetFn action_set[] = {ARKodeSetNonlinear,
-                                 ARKodeClearStopTime,
-                                 ARKodeSetNoInactiveRootWarn,
-                                 ARKodeResetAccumulatedError};
 
   int i, j, retval;
   for (i = 1; i < argc; i++)
@@ -233,8 +217,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, const char* argv[])
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      if (CheckAndSetIntArg(ark_mem, &i, argv, int_keys[j],
-                            int_set[j], &arg_used) != ARK_SUCCESS)
+      if (CheckAndSetIntArg(ark_mem, &i, argv, int_pairs[j].key,
+                            int_pairs[j].set, &arg_used) != ARK_SUCCESS)
       {
         return ARK_ILL_INPUT;
       }
@@ -245,8 +229,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, const char* argv[])
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      if (CheckAndSetLongArg(ark_mem, &i, argv, long_keys[j],
-                             long_set[j], &arg_used) != ARK_SUCCESS)
+      if (CheckAndSetLongArg(ark_mem, &i, argv, long_pairs[j].key,
+                             long_pairs[j].set, &arg_used) != ARK_SUCCESS)
       {
         return ARK_ILL_INPUT;
       }
@@ -257,8 +241,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, const char* argv[])
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      if (CheckAndSetRealArg(ark_mem, &i, argv, real_keys[j],
-                             real_set[j], &arg_used) != ARK_SUCCESS)
+      if (CheckAndSetRealArg(ark_mem, &i, argv, real_pairs[j].key,
+                             real_pairs[j].set, &arg_used) != ARK_SUCCESS)
       {
         return ARK_ILL_INPUT;
       }
@@ -269,8 +253,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, int argc, const char* argv[])
     /* check all action command-line options */
     for (j = 0; j < num_action_keys; j++)
     {
-      if (CheckAndSetActionArg(ark_mem, &i, argv, action_keys[j],
-                               action_set[j], &arg_used) != ARK_SUCCESS)
+      if (CheckAndSetActionArg(ark_mem, &i, argv, action_pairs[j].key,
+                               action_pairs[j].set, &arg_used) != ARK_SUCCESS)
       {
         return ARK_ILL_INPUT;
       }
