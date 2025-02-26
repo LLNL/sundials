@@ -62,7 +62,7 @@ struct arkKeyActionPair {
   const char* key;
   arkActionSetFn set;
 };
-static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, const char *argv[],
+static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, char *argv[],
                              const char* argtest, arkIntSetFn fname,
                              sunbooleantype *arg_used)
 {
@@ -83,7 +83,7 @@ static int CheckAndSetIntArg(ARKodeMem ark_mem, int *i, const char *argv[],
   return ARK_SUCCESS;
 }
 
-static int CheckAndSetLongArg(ARKodeMem ark_mem, int *i, const char *argv[],
+static int CheckAndSetLongArg(ARKodeMem ark_mem, int *i, char *argv[],
                               const char* argtest, arkLongSetFn fname,
                               sunbooleantype *arg_used)
 {
@@ -104,7 +104,7 @@ static int CheckAndSetLongArg(ARKodeMem ark_mem, int *i, const char *argv[],
   return ARK_SUCCESS;
 }
 
-static int CheckAndSetRealArg(ARKodeMem ark_mem, int *i, const char *argv[],
+static int CheckAndSetRealArg(ARKodeMem ark_mem, int *i, char *argv[],
                               const char* argtest, arkRealSetFn fname,
                               sunbooleantype *arg_used)
 {
@@ -125,7 +125,7 @@ static int CheckAndSetRealArg(ARKodeMem ark_mem, int *i, const char *argv[],
   return ARK_SUCCESS;
 }
 
-static int CheckAndSetActionArg(ARKodeMem ark_mem, int *i, const char *argv[],
+static int CheckAndSetActionArg(ARKodeMem ark_mem, int *i, char *argv[],
                                 const char* argtest, arkActionSetFn fname,
                                 sunbooleantype *arg_used)
 {
@@ -143,7 +143,7 @@ static int CheckAndSetActionArg(ARKodeMem ark_mem, int *i, const char *argv[],
   return ARK_SUCCESS;
 }
 
-int ARKodeSetFromCommandLine(void* arkode_mem, int argc, const char* argv[])
+int ARKodeSetFromCommandLine(void* arkode_mem, int argc, char* argv[])
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
