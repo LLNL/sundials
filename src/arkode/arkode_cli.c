@@ -152,7 +152,7 @@ static int CheckAndSetActionArg(ARKodeMem ark_mem, int* i, char* argv[],
   (this leverages a multiple typedefs and static utility routines)
   ---------------------------------------------------------------*/
 
-  int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
+int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
                              char* argv[])
 {
   ARKodeMem ark_mem;
@@ -216,6 +216,7 @@ static int CheckAndSetActionArg(ARKodeMem ark_mem, int* i, char* argv[],
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   int i, j, retval;
+  sunbooleantype write_parameters = SUNFALSE;
   for (i = 1; i < argc; i++)
   {
     sunbooleantype arg_used = SUNFALSE;
@@ -371,9 +372,34 @@ static int CheckAndSetActionArg(ARKodeMem ark_mem, int* i, char* argv[],
       continue;
     }
 
-    /* warn for uninterpreted arkode.X arguments */
+    if (strcmp(argv[i] + offset, "writeparameters") == 0)
+    {
+      write_parameters = SUNTRUE;
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    /* warn for uninterpreted arkid.X arguments */
     arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                     "WARNING: argument %s was not handled\n", argv[i]);
+  }
+
+  /* Call stepper-specific SetFromCommandLine routine (if supplied) */
+
+
+  /* Call ARKodeWriteParameters (if requested) now that all
+     command-line options have been set -- WARNING: this knows
+     nothing about MPI, so it could be redundantly written by all
+     processes if requested. */
+  if (write_parameters)
+  {
+    retval = ARKodeWriteParameters(arkode_mem, stdout);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "error writing parameters to stdout");
+      return retval;
+    }
   }
 
   return (ARK_SUCCESS);
