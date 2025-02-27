@@ -132,7 +132,7 @@ SUNErrCode SUNLinSolInitialize_Band(SUNLinearSolver S)
 int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 {
   SUNFunctionBegin(S->sunctx);
-  sunrealtype** A_cols;
+  sunscalartype** A_cols;
   sunindextype* pivots;
 
   SUNAssert(A, SUN_ERR_ARG_CORRUPT);
@@ -164,7 +164,7 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
                         SUNDIALS_MAYBE_UNUSED sunrealtype tol)
 {
   SUNFunctionBegin(S->sunctx);
-  sunrealtype **A_cols, *xdata;
+  sunscalartype **A_cols, *xdata;
   sunindextype* pivots;
 
   /* copy b into x */

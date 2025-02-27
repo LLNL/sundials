@@ -326,7 +326,7 @@ void SUNDlsMat_PrintMat(SUNDlsMat A, FILE* outfile)
     {
       for (j = 0; j < A->N; j++)
       {
-        fprintf(outfile, SUN_FORMAT_E "  ", SUNDLS_DENSE_ELEM(A, i, j));
+        fprintf(outfile, SUN_FORMAT_E "  ", SUN_REAL(SUNDLS_DENSE_ELEM(A, i, j)));
       }
       fprintf(outfile, "\n");
     }
@@ -344,7 +344,7 @@ void SUNDlsMat_PrintMat(SUNDlsMat A, FILE* outfile)
       for (j = 0; j < start; j++) { fprintf(outfile, "%12s  ", ""); }
       for (j = start; j <= finish; j++)
       {
-        fprintf(outfile, SUN_FORMAT_E "  ", a[j][i - j + A->s_mu]);
+        fprintf(outfile, SUN_FORMAT_E "  ", SUN_REAL(a[j][i - j + A->s_mu]));
       }
       fprintf(outfile, "\n");
     }

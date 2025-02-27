@@ -192,7 +192,7 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, sunrealtype droptol,
       (SM_INDEXPTRS_S(As))[j] = nnz;
       for (i = 0; i < M; i++)
       {
-        if (SUNRabs(SM_ELEMENT_D(Ad, i, j)) > droptol)
+        if (SUNabs(SM_ELEMENT_D(Ad, i, j)) > droptol)
         {
           (SM_INDEXVALS_S(As))[nnz] = i;
           (SM_DATA_S(As))[nnz++]    = SM_ELEMENT_D(Ad, i, j);
@@ -208,7 +208,7 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix Ad, sunrealtype droptol,
       (SM_INDEXPTRS_S(As))[i] = nnz;
       for (j = 0; j < N; j++)
       {
-        if (SUNRabs(SM_ELEMENT_D(Ad, i, j)) > droptol)
+        if (SUNabs(SM_ELEMENT_D(Ad, i, j)) > droptol)
         {
           (SM_INDEXVALS_S(As))[nnz] = j;
           (SM_DATA_S(As))[nnz++]    = SM_ELEMENT_D(Ad, i, j);
@@ -251,7 +251,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ab, sunrealtype droptol,
     for (i = SUNMAX(0, j - SM_UBAND_B(Ab));
          i <= SUNMIN(M - 1, j + SM_LBAND_B(Ab)); i++)
     {
-      nnz += (SUNRabs(SM_ELEMENT_B(Ab, i, j)) > droptol);
+      nnz += (SUNabs(SM_ELEMENT_B(Ab, i, j)) > droptol);
     }
   }
 
@@ -269,7 +269,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ab, sunrealtype droptol,
       for (i = SUNMAX(0, j - SM_UBAND_B(Ab));
            i <= SUNMIN(M - 1, j + SM_LBAND_B(Ab)); i++)
       {
-        if (SUNRabs(SM_ELEMENT_B(Ab, i, j)) > droptol)
+        if (SUNabs(SM_ELEMENT_B(Ab, i, j)) > droptol)
         {
           (SM_INDEXVALS_S(As))[nnz] = i;
           (SM_DATA_S(As))[nnz++]    = SM_ELEMENT_B(Ab, i, j);
@@ -286,7 +286,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ab, sunrealtype droptol,
       for (j = SUNMAX(0, i - SM_LBAND_B(Ab));
            j <= SUNMIN(N - 1, i + SM_UBAND_B(Ab)); j++)
       {
-        if (SUNRabs(SM_ELEMENT_B(Ab, i, j)) > droptol)
+        if (SUNabs(SM_ELEMENT_B(Ab, i, j)) > droptol)
         {
           (SM_INDEXVALS_S(As))[nnz] = j;
           (SM_DATA_S(As))[nnz++]    = SM_ELEMENT_B(Ab, i, j);
@@ -424,7 +424,7 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
     for (i = (SM_INDEXPTRS_S(A))[j]; i < (SM_INDEXPTRS_S(A))[j + 1]; i++)
     {
       fprintf(outfile, "%ld: " SUN_FORMAT_E "  ",
-              (long int)(SM_INDEXVALS_S(A))[i], (SM_DATA_S(A))[i]);
+              (long int)(SM_INDEXVALS_S(A))[i], SUN_REAL((SM_DATA_S(A))[i]));
     }
     fprintf(outfile, "\n");
   }

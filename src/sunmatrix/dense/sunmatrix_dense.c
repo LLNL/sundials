@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sundials/sundials_math.h>
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_errors.h>
 #include <sunmatrix/sunmatrix_dense.h>
@@ -118,7 +119,7 @@ void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile)
   {
     for (j = 0; j < SM_COLUMNS_D(A); j++)
     {
-      fprintf(outfile, SUN_FORMAT_E "  ", SM_ELEMENT_D(A, i, j));
+      fprintf(outfile, SUN_FORMAT_E "  ", SUN_REAL(SM_ELEMENT_D(A, i, j)));
     }
     fprintf(outfile, "\n");
   }
