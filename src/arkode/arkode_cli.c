@@ -23,7 +23,7 @@
 #include "arkode_impl.h"
 
 /*===============================================================
-  Command-line input utility routines
+  Command-line input utility routines -- create more of these: TwoInt, TwoReal, String, TwoString.  Remove direct calls to arkProcessError, and instead have the calling routine return a slightly more generic error message that omits the extra arguments.  Propagate both this set of routines and the function types to the SUNDIALS level, so that they can be used across all integrators.
   ===============================================================*/
 
 int arkCheckAndSetIntArg(ARKodeMem ark_mem, int* i, char* argv[],

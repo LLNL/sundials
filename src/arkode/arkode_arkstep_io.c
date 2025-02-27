@@ -629,6 +629,19 @@ int ARKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
   ===============================================================*/
 
 /*---------------------------------------------------------------
+  arkStep_SetFromCommandLine:
+
+  Provides command-line control over ARKStep-specific "set" routines.
+  ---------------------------------------------------------------*/
+int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
+                               const size_t offset, sunbooleantype* arg_used)
+{
+
+  return (ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
   arkStep_SetRelaxFn:
 
   Sets up the relaxation module using ARKStep's utility routines.
