@@ -18,15 +18,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
-#include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
-#include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-
 #include "arkode/arkode.h"
 #include "arkode_impl.h"
-#include "arkode_interp_impl.h"
-#include "arkode_user_controller.h"
 
 /*===============================================================
   Command-line input utility types and routines

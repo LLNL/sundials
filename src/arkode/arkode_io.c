@@ -17,7 +17,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sunadaptcontroller/sunadaptcontroller_imexgus.h>
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include <sundials/sundials_math.h>
