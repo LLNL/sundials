@@ -349,13 +349,17 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->Hes == NULL)
   {
     content->Hes =
-      (sunrealtype**)malloc((content->maxl + 1) * sizeof(sunrealtype*));
+      // (sunrealtype**)malloc((content->maxl + 1) * sizeof(sunrealtype*));
+      (suncomplextype**)malloc((content->maxl + 1) *
+                               sizeof(suncomplextype*)); //Amihere
     SUNAssert(content->Hes, SUN_ERR_MALLOC_FAIL);
 
     for (k = 0; k <= content->maxl; k++)
     {
       content->Hes[k] = NULL;
-      content->Hes[k] = (sunrealtype*)malloc(content->maxl * sizeof(sunrealtype));
+      // content->Hes[k] = (sunrealtype*)malloc(content->maxl * sizeof(sunrealtype));
+      content->Hes[k] = (suncomplextype*)malloc(
+        content->maxl * sizeof(suncomplextype)); //Amihere
       SUNAssert(content->Hes[k], SUN_ERR_MALLOC_FAIL);
     }
   }
@@ -364,21 +368,26 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->givens == NULL)
   {
     content->givens =
-      (sunrealtype*)malloc(2 * content->maxl * sizeof(sunrealtype));
+      // (sunrealtype*)malloc(2 * content->maxl * sizeof(sunrealtype));
+      (suncomplextype*)malloc(2 * content->maxl * sizeof(suncomplextype)); //Amihere
     SUNAssert(content->givens, SUN_ERR_MALLOC_FAIL);
   }
 
   /*    y and g vectors */
   if (content->yg == NULL)
   {
-    content->yg = (sunrealtype*)malloc((content->maxl + 1) * sizeof(sunrealtype));
+    // content->yg = (sunrealtype*)malloc((content->maxl + 1) * sizeof(sunrealtype));
+    content->yg = (suncomplextype*)malloc((content->maxl + 1) *
+                                          sizeof(suncomplextype)); //Amihere
     SUNAssert(content->yg, SUN_ERR_MALLOC_FAIL);
   }
 
   /*    cv vector for fused vector ops */
   if (content->cv == NULL)
   {
-    content->cv = (sunrealtype*)malloc((content->maxl + 1) * sizeof(sunrealtype));
+    // content->cv = (sunrealtype*)malloc((content->maxl + 1) * sizeof(sunrealtype));
+    content->cv = (suncomplextype*)malloc((content->maxl + 1) *
+                                          sizeof(suncomplextype)); //Amihere
     SUNAssert(content->cv, SUN_ERR_MALLOC_FAIL);
   }
 
@@ -465,7 +474,8 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
   /* local data and shortcut variables */
   N_Vector *V, xcor, vtemp, s1, s2;
-  sunrealtype **Hes, *givens, *yg, *res_norm;
+  suncomplextype **Hes, *givens, *yg;
+  sunrealtype* res_norm;
   sunrealtype beta, rotation_product, r_norm, s_product, rho;
   sunbooleantype preOnLeft, preOnRight, scale2, scale1, converged;
   sunbooleantype* zeroguess;
@@ -474,7 +484,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   void *A_data, *P_data;
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
-  sunrealtype* cv;
+  suncomplextype* cv;
   N_Vector* Xv;
   int status;
 
@@ -718,15 +728,12 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       }
 
       /*  Orthogonalize V[l+1] against previous V[i]: V[l+1] = w_tilde */
+      sunrealtype nrm = SUN_REAL(Hes[l_plus_1][l]);
       if (gstype == SUN_CLASSICAL_GS)
       {
-        SUNCheckCall(
-          SUNClassicalGS(V, Hes, l_plus_1, l_max, &(Hes[l_plus_1][l]), cv, Xv));
+        SUNCheckCall(SUNClassicalGS(V, Hes, l_plus_1, l_max, &nrm, cv, Xv));
       }
-      else
-      {
-        SUNCheckCall(SUNModifiedGS(V, Hes, l_plus_1, l_max, &(Hes[l_plus_1][l])));
-      }
+      else { SUNCheckCall(SUNModifiedGS(V, Hes, l_plus_1, l_max, &nrm)); }
 
       /*  Update the QR factorization of Hes */
       if (SUNQRfact(krydim, Hes, givens, l) != 0)

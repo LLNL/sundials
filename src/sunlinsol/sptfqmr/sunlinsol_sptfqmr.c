@@ -15,8 +15,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for the SPTFQMR implementation of
- * the SUNLINSOL package.
+ * This is the implementation file for a complex-valued SUNLinearSolver
+ * (note that this is just SUNDIALS' SPTFQMR-Complex solver).
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -395,8 +395,10 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   SUNFunctionBegin(S->sunctx);
 
   /* local data and shortcut variables */
-  sunrealtype alpha, tau, eta, beta, c, sigma, v_bar, omega;
-  sunrealtype rho[2];
+  sunrealtype tau, c, v_bar, omega;
+  sunscalartype alpha, beta, eta, sigma;
+  sunscalartype rho[2];
+
   sunrealtype r_init_norm, r_curr_norm;
   sunrealtype temp_val;
   sunbooleantype preOnLeft, preOnRight, scale_x, scale_b, converged, b_ok;
@@ -408,7 +410,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   sunrealtype* res_norm;
   int* nli;
   N_Vector sx, sb, r_star, q, d, v, p, *r, u, vtemp1, vtemp2, vtemp3;
-  sunrealtype cv[3];
+  sunscalartype cv[3];
   N_Vector Xv[3];
   int status = SUN_SUCCESS;
 
@@ -537,7 +539,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
   /* Compute norm of initial residual (r_0) to see if we really need
      to do anything */
-  *res_norm = r_init_norm = SUNRsqrt(rho[0]);
+  *res_norm = r_init_norm = SUNsqrt(rho[0]);
 
   if (r_init_norm <= delta)
   {
@@ -658,7 +660,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     (*nli)++;
 
     /* sigma = r_star^T*v */
-    sigma = N_VDotProd(r_star, v);
+    sigma = N_VDotProd(v, r_star);
     SUNCheckLastErr();
 
     /* alpha = rho[0]/sigma */
@@ -926,15 +928,11 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
             SUNCheckLastErr();
           }
 
-          if (scale_b)
-          {
-            N_VProd(sb, vtemp3, vtemp3);
-            SUNCheckLastErr();
-          }
+          if (scale_b) { N_VProd(sb, vtemp3, vtemp3); }
         }
         N_VLinearSum(ONE, vtemp3, -ONE, vtemp2, vtemp1);
         SUNCheckLastErr();
-        r_curr_norm = N_VDotProd(vtemp1, vtemp1);
+        r_curr_norm = (sunrealtype)N_VDotProd(vtemp1, vtemp1);
         SUNCheckLastErr();
         *res_norm = r_curr_norm = SUNRsqrt(r_curr_norm);
 
@@ -959,7 +957,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     if (converged == SUNTRUE) { break; }
 
     /* rho[1] = r_star^T*r_[1] */
-    rho[1] = N_VDotProd(r_star, r[1]);
+    rho[1] = N_VDotProd(r[1], r_star);
     SUNCheckLastErr();
 
     /* beta = rho[1]/rho[0] */

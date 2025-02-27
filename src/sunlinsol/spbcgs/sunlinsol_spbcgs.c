@@ -399,7 +399,8 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   SUNFunctionBegin(S->sunctx);
 
   /* local data and shortcut variables */
-  sunrealtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
+  suncomplextype alpha, beta, omega, beta_denom, beta_num;
+  sunrealtype omega_denom, r_norm, rho;
   N_Vector r_star, r, p, q, u, Ap, vtemp;
   sunbooleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
   sunbooleantype* zeroguess;
@@ -413,7 +414,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   int status;
 
   /* local variables for fused vector operations */
-  sunrealtype cv[3];
+  suncomplextype cv[3];
   N_Vector Xv[3];
 
   /* Make local shortcuts to solver variables. */
@@ -532,9 +533,16 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   SUNCheckLastErr();
 
   /* Set r_norm to L2 norm of r_star = sb P1_inv r_0, and
-     return if small */
+      return if small */
 
-  *res_norm = r_norm = rho = SUNRsqrt(beta_denom);
+  // *res_norm = r_norm = rho = SUNRsqrt(beta_denom);
+  *res_norm = r_norm = rho = SUNRsqrt((sunrealtype)N_VDotProd(r_star, r_star));
+
+  // #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+  //   SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+  //                      "SUNLinSolSolve_SPBCGS", "initial-residual",
+  //                      "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
+  // #endif
 
   if (r_norm <= delta)
   {
@@ -660,7 +668,9 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
     /* Calculate alpha = <r,r_star>/<Ap,r_star> */
 
-    alpha = N_VDotProd(Ap, r_star);
+    // AMIHERE: ORIGINALLY, THIS SHOULD BE dot(r_star, Ap) BUT THE DEFNITION OF INNER PRODUCT IS THE OPPOSITE IN MATLAB.
+    // HENCE, IN MATLAB dot(r_star, Ap) WORKS BUT NOT dot(Ap, r_star).
+    alpha = N_VDotProd(r_star, Ap);
     SUNCheckLastErr();
     alpha = beta_denom / alpha;
 
@@ -760,6 +770,9 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     omega_denom = N_VDotProd(u, u);
     SUNCheckLastErr();
     if (omega_denom == ZERO) { omega_denom = ONE; }
+
+    // AMIHERE: ORIGINALLY, THIS SHOULD BE dot(u, q) BUT THE DEFNITION OF INNER PRODUCT IS THE OPPOSITE IN MATLAB.
+    // HENCE, IN MATLAB dot(u, q) WORKS BUT NOT dot(q, u).
     omega = N_VDotProd(u, q);
     SUNCheckLastErr();
     omega /= omega_denom;
@@ -782,6 +795,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       Xv[2] = q;
 
       SUNCheckCall(N_VLinearCombination(3, cv, Xv, x));
+      N_VLinearCombination(3, cv, Xv, x);
     }
 
     /* Update the residual r = q - omega*u */
@@ -791,11 +805,14 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
     /* Set rho = norm(r) and check convergence */
 
-    *res_norm = rho = SUNRsqrt(N_VDotProd(r, r));
+    *res_norm = rho = SUNRsqrt((sunrealtype)N_VDotProd(r, r));
     SUNCheckLastErr();
 
-    SUNLogInfo(S->sunctx->logger, "linear-iterate",
-               "cur-iter = %i, res-norm = %.16g", *nli, *res_norm);
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+                       "SUNLinSolSolve_SPBCGS", "iterate-residual",
+                       "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
+#endif
 
     if (rho <= delta)
     {
@@ -806,7 +823,9 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     /* Not yet converged, continue iteration */
     /* Update beta = <rnew,r_star> / <rold,r_start> * alpha / omega */
 
-    beta_num = N_VDotProd(r, r_star);
+    // AMIHERE: ORIGINALLY, THIS SHOULD BE dot(r_star, r) BUT THE DEFNITION OF INNER PRODUCT IS THE OPPOSITE IN MATLAB.
+    // HENCE, IN MATLAB dot(r_star, r) WORKS BUT NOT dot(r, r_star).
+    beta_num = N_VDotProd(r_star, r);
     SUNCheckLastErr();
     beta = ((beta_num / beta_denom) * (alpha / omega));
 
@@ -815,12 +834,14 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     Xv[0] = p;
 
     cv[1] = -alpha * (beta_num / beta_denom);
+    //  cv[1] =  -beta * (omega);
     Xv[1] = Ap;
 
     cv[2] = ONE;
     Xv[2] = r;
 
     SUNCheckCall(N_VLinearCombination(3, cv, Xv, p));
+    N_VLinearCombination(3, cv, Xv, p);
 
     /* update beta_denom for next iteration */
     beta_denom = beta_num;
