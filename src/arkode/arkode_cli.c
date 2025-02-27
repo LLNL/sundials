@@ -23,44 +23,12 @@
 #include "arkode_impl.h"
 
 /*===============================================================
-  Command-line input utility types and routines
+  Command-line input utility routines
   ===============================================================*/
 
-typedef int (*arkIntSetFn)(void*, int);
-
-struct arkKeyIntPair
-{
-  const char* key;
-  arkIntSetFn set;
-};
-
-typedef int (*arkLongSetFn)(void*, long int);
-
-struct arkKeyLongPair
-{
-  const char* key;
-  arkLongSetFn set;
-};
-
-typedef int (*arkRealSetFn)(void*, sunrealtype);
-
-struct arkKeyRealPair
-{
-  const char* key;
-  arkRealSetFn set;
-};
-
-typedef int (*arkActionSetFn)(void*);
-
-struct arkKeyActionPair
-{
-  const char* key;
-  arkActionSetFn set;
-};
-
-static int CheckAndSetIntArg(ARKodeMem ark_mem, int* i, char* argv[],
-                             const size_t offset, const char* argtest,
-                             arkIntSetFn fname, sunbooleantype* arg_used)
+int arkCheckAndSetIntArg(ARKodeMem ark_mem, int* i, char* argv[],
+                         const size_t offset, const char* argtest,
+                         arkIntSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i] + offset, argtest) == 0)
@@ -80,9 +48,9 @@ static int CheckAndSetIntArg(ARKodeMem ark_mem, int* i, char* argv[],
   return ARK_SUCCESS;
 }
 
-static int CheckAndSetLongArg(ARKodeMem ark_mem, int* i, char* argv[],
-                              const size_t offset, const char* argtest,
-                              arkLongSetFn fname, sunbooleantype* arg_used)
+int arkCheckAndSetLongArg(ARKodeMem ark_mem, int* i, char* argv[],
+                          const size_t offset, const char* argtest,
+                          arkLongSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i] + offset, argtest) == 0)
@@ -102,9 +70,9 @@ static int CheckAndSetLongArg(ARKodeMem ark_mem, int* i, char* argv[],
   return ARK_SUCCESS;
 }
 
-static int CheckAndSetRealArg(ARKodeMem ark_mem, int* i, char* argv[],
-                              const size_t offset, const char* argtest,
-                              arkRealSetFn fname, sunbooleantype* arg_used)
+int arkCheckAndSetRealArg(ARKodeMem ark_mem, int* i, char* argv[],
+                          const size_t offset, const char* argtest,
+                          arkRealSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i] + offset, argtest) == 0)
@@ -124,9 +92,9 @@ static int CheckAndSetRealArg(ARKodeMem ark_mem, int* i, char* argv[],
   return ARK_SUCCESS;
 }
 
-static int CheckAndSetActionArg(ARKodeMem ark_mem, int* i, char* argv[],
-                                const size_t offset, const char* argtest,
-                                arkActionSetFn fname, sunbooleantype* arg_used)
+int arkCheckAndSetActionArg(ARKodeMem ark_mem, int* i, char* argv[],
+                            const size_t offset, const char* argtest,
+                            arkActionSetFn fname, sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i] + offset, argtest) == 0)
@@ -153,7 +121,7 @@ static int CheckAndSetActionArg(ARKodeMem ark_mem, int* i, char* argv[],
   ---------------------------------------------------------------*/
 
 int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
-                             char* argv[])
+  char* argv[])
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
@@ -238,8 +206,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      retval = CheckAndSetIntArg(ark_mem, &i, argv, offset, int_pairs[j].key,
-                                 int_pairs[j].set, &arg_used);
+      retval = arkCheckAndSetIntArg(ark_mem, &i, argv, offset, int_pairs[j].key,
+                                    int_pairs[j].set, &arg_used);
       if (retval != ARK_SUCCESS) { return retval; }
       if (arg_used) break;
     }
@@ -248,8 +216,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      retval = CheckAndSetLongArg(ark_mem, &i, argv, offset, long_pairs[j].key,
-                                  long_pairs[j].set, &arg_used);
+      retval = arkCheckAndSetLongArg(ark_mem, &i, argv, offset, long_pairs[j].key,
+                                     long_pairs[j].set, &arg_used);
       if (retval != ARK_SUCCESS) { return retval; }
       if (arg_used) break;
     }
@@ -258,8 +226,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      retval = CheckAndSetRealArg(ark_mem, &i, argv, offset, real_pairs[j].key,
-                                  real_pairs[j].set, &arg_used);
+      retval = arkCheckAndSetRealArg(ark_mem, &i, argv, offset, real_pairs[j].key,
+                                     real_pairs[j].set, &arg_used);
       if (retval != ARK_SUCCESS) { return retval; }
       if (arg_used) break;
     }
@@ -268,9 +236,9 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all action command-line options */
     for (j = 0; j < num_action_keys; j++)
     {
-      retval = CheckAndSetActionArg(ark_mem, &i, argv, offset,
-                                    action_pairs[j].key, action_pairs[j].set,
-                                    &arg_used);
+      retval = arkCheckAndSetActionArg(ark_mem, &i, argv, offset,
+                                       action_pairs[j].key, action_pairs[j].set,
+        &arg_used);
       if (retval != ARK_SUCCESS) { return retval; }
       if (arg_used) break;
     }
@@ -379,12 +347,25 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       continue;
     }
 
+    /* Call stepper-specific SetFromCommandLine routine (if supplied) to
+       process this command-line argument */
+    if (ark_mem->step_setfromcommandline)
+    {
+      retval = ark_mem->step_setfromcommandline(ark_mem, &i, argv,
+                                                offset, &arg_used);
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s", argv[i]);
+        return retval;
+      }
+      if (arg_used) { continue; }
+    }
+
     /* warn for uninterpreted arkid.X arguments */
     arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                     "WARNING: argument %s was not handled\n", argv[i]);
   }
-
-  /* Call stepper-specific SetFromCommandLine routine (if supplied) */
 
 
   /* Call ARKodeWriteParameters (if requested) now that all
