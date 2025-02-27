@@ -226,21 +226,18 @@ static int CheckAndSetActionArg(ARKodeMem ark_mem, int* i, char* argv[],
   {
     sunbooleantype arg_used = SUNFALSE;
 
-    /* skip command-line arguments that do not begin with "arkode." */
-    static const char* prefix = "arkode.";
-    if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
-
-    /* set offset length to disregard for subsequent command-line tests */
-    size_t offset = strlen(prefix);
-
-    /* check against supplied arkid input:
-       if not supplied, then just process remaining text as a normal argument;
-       if supplied, verify that it matches the supplied arkid, and update offset
-       to trim both the arkid and the trailing "." */
-    if (strlen(arkid) > 0)
+    /* if arkid is supplied, skip command-line arguments that do not begin with arkid;
+       else, skip command-line arguments that do not begin with "arkode." */
+    size_t offset;
+    if (strlen(arkid) > 0) {
+      if (strncmp(argv[i], arkid, strlen(arkid)) != 0) { continue; }
+      offset = strlen(arkid) + 1;
+    }
+    else
     {
-      if (strncmp(argv[i] + offset, arkid, strlen(arkid)) != 0) { continue; }
-      offset += strlen(arkid) + 1;
+      static const char* prefix = "arkode.";
+      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      offset = strlen(prefix);
     }
 
     /* check all "int" command-line options */
