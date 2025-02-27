@@ -188,11 +188,11 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"small_num_efails", ARKodeSetSmallNumEFails},
      {"max_err_test_fails", ARKodeSetMaxErrTestFails},
      {"max_conv_fails", ARKodeSetMaxConvFails}};
-  int num_int_keys = 15;
+  static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   static struct arkKeyLongPair long_pairs[] = {
     {"max_num_steps", ARKodeSetMaxNumSteps}};
-  int num_long_keys = 1;
+  static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
   static struct arkKeyRealPair real_pairs[] =
     {{"nonlin_crdown", ARKodeSetNonlinCRDown},
@@ -213,14 +213,14 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"max_first_growth", ARKodeSetMaxFirstGrowth},
      {"max_efail_growth", ARKodeSetMaxEFailGrowth},
      {"max_cfail_growth", ARKodeSetMaxCFailGrowth}};
-  int num_real_keys = 18;
+  static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
   static struct arkKeyActionPair action_pairs[] =
     {{"nonlinear", ARKodeSetNonlinear},
      {"clear_stop_time", ARKodeClearStopTime},
      {"no_inactive_root_warn", ARKodeSetNoInactiveRootWarn},
      {"reset_accumulated_error", ARKodeResetAccumulatedError}};
-  int num_action_keys = 4;
+  static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   int i, j, retval;
   for (i = 1; i < argc; i++)
