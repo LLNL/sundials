@@ -865,7 +865,7 @@ particular scheme and properties such as the order of accuracy.
 An alternative representation of the SplittingStep solution is
 
 .. math::
-   y_n = \sum_{i=1}^P \alpha_i \left(
+   y_n = \sum_{i=1}^r \alpha_i \left(
    \phi^P_{\gamma_{i,s,P} h_n} \circ
    \phi^{P-1}_{\gamma_{i,s,P-1} h_n} \circ \dots \circ
    \phi^{1}_{\gamma_{i,s,1} h_n} \circ
