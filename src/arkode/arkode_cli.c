@@ -19,98 +19,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sundials/sundials_types.h>
+#include <sundials/priv/sundials_cli.h>
 #include "arkode/arkode.h"
 #include "arkode_impl.h"
-
-/*===============================================================
-  Command-line input utility routines -- create more of these: TwoInt, TwoReal, String, TwoString.  Remove direct calls to arkProcessError, and instead have the calling routine return a slightly more generic error message that omits the extra arguments.  Propagate both this set of routines and the function types to the SUNDIALS level, so that they can be used across all integrators.
-  ===============================================================*/
-
-int arkCheckAndSetIntArg(ARKodeMem ark_mem, int* i, char* argv[],
-                         const size_t offset, const char* argtest,
-                         arkIntSetFn fname, sunbooleantype* arg_used)
-{
-  *arg_used = SUNFALSE;
-  if (strcmp(argv[*i] + offset, argtest) == 0)
-  {
-    (*i) += 1;
-    int iarg   = atoi(argv[*i]);
-    int retval = fname((void*)ark_mem, iarg);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s %s",
-                      argv[(*i) - 1], argv[*i]);
-      return retval;
-    }
-    *arg_used = SUNTRUE;
-  }
-  return ARK_SUCCESS;
-}
-
-int arkCheckAndSetLongArg(ARKodeMem ark_mem, int* i, char* argv[],
-                          const size_t offset, const char* argtest,
-                          arkLongSetFn fname, sunbooleantype* arg_used)
-{
-  *arg_used = SUNFALSE;
-  if (strcmp(argv[*i] + offset, argtest) == 0)
-  {
-    (*i) += 1;
-    long int iarg = atol(argv[*i]);
-    int retval    = fname((void*)ark_mem, iarg);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s %s",
-                      argv[(*i) - 1], argv[*i]);
-      return retval;
-    }
-    *arg_used = SUNTRUE;
-  }
-  return ARK_SUCCESS;
-}
-
-int arkCheckAndSetRealArg(ARKodeMem ark_mem, int* i, char* argv[],
-                          const size_t offset, const char* argtest,
-                          arkRealSetFn fname, sunbooleantype* arg_used)
-{
-  *arg_used = SUNFALSE;
-  if (strcmp(argv[*i] + offset, argtest) == 0)
-  {
-    (*i) += 1;
-    sunrealtype rarg = atof(argv[*i]);
-    int retval       = fname((void*)ark_mem, rarg);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s %s",
-                      argv[(*i) - 1], argv[*i]);
-      return retval;
-    }
-    *arg_used = SUNTRUE;
-  }
-  return ARK_SUCCESS;
-}
-
-int arkCheckAndSetActionArg(ARKodeMem ark_mem, int* i, char* argv[],
-                            const size_t offset, const char* argtest,
-                            arkActionSetFn fname, sunbooleantype* arg_used)
-{
-  *arg_used = SUNFALSE;
-  if (strcmp(argv[*i] + offset, argtest) == 0)
-  {
-    int retval = fname((void*)ark_mem);
-    if (retval != ARK_SUCCESS)
-    {
-      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                      "error setting command-line argument: %s", argv[*i]);
-      return retval;
-    }
-    *arg_used = SUNTRUE;
-  }
-  return ARK_SUCCESS;
-}
-
 
 /*---------------------------------------------------------------
   ARKodeSetFromCommandLine:
@@ -133,7 +44,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
   ark_mem = (ARKodeMem)arkode_mem;
 
   /* Set list of integer command-line arguments, and the corresponding set routine */
-  static struct arkKeyIntPair int_pairs[] =
+  static struct sunKeyIntPair int_pairs[] =
     {{"order", ARKodeSetOrder},
      {"interpolant_degree", ARKodeSetInterpolantDegree},
      {"linear", ARKodeSetLinear},
@@ -151,11 +62,11 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"max_conv_fails", ARKodeSetMaxConvFails}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
-  static struct arkKeyLongPair long_pairs[] = {
+  static struct sunKeyLongPair long_pairs[] = {
     {"max_num_steps", ARKodeSetMaxNumSteps}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static struct arkKeyRealPair real_pairs[] =
+  static struct sunKeyRealPair real_pairs[] =
     {{"nonlin_crdown", ARKodeSetNonlinCRDown},
      {"nonlin_rdiv", ARKodeSetNonlinRDiv},
      {"delta_gamma_max", ARKodeSetDeltaGammaMax},
@@ -176,7 +87,12 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"max_cfail_growth", ARKodeSetMaxCFailGrowth}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct arkKeyActionPair action_pairs[] =
+  static struct sunKeyTwoRealPair tworeal_pairs[] =
+    {{"scalar_tolerances", ARKodeSStolerances},
+     {"fixed_step_bounds", ARKodeSetFixedStepBounds}};
+  static const int num_tworeal_keys = sizeof(tworeal_pairs) / sizeof(*tworeal_pairs);
+
+  static struct sunKeyActionPair action_pairs[] =
     {{"nonlinear", ARKodeSetNonlinear},
      {"clear_stop_time", ARKodeClearStopTime},
      {"no_inactive_root_warn", ARKodeSetNoInactiveRootWarn},
@@ -206,9 +122,15 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      retval = arkCheckAndSetIntArg(ark_mem, &i, argv, offset, int_pairs[j].key,
+      retval = sunCheckAndSetIntArg(arkode_mem, &i, argv, offset, int_pairs[j].key,
                                     int_pairs[j].set, &arg_used);
-      if (retval != ARK_SUCCESS) { return retval; }
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s",
+                        int_pairs[j].key);
+        return retval;
+      }
       if (arg_used) break;
     }
     if (arg_used) continue;
@@ -216,9 +138,15 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      retval = arkCheckAndSetLongArg(ark_mem, &i, argv, offset, long_pairs[j].key,
+      retval = sunCheckAndSetLongArg(arkode_mem, &i, argv, offset, long_pairs[j].key,
                                      long_pairs[j].set, &arg_used);
-      if (retval != ARK_SUCCESS) { return retval; }
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s",
+                        long_pairs[j].key);
+        return retval;
+      }
       if (arg_used) break;
     }
     if (arg_used) continue;
@@ -226,9 +154,31 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      retval = arkCheckAndSetRealArg(ark_mem, &i, argv, offset, real_pairs[j].key,
+      retval = sunCheckAndSetRealArg(arkode_mem, &i, argv, offset, real_pairs[j].key,
                                      real_pairs[j].set, &arg_used);
-      if (retval != ARK_SUCCESS) { return retval; }
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s",
+                        real_pairs[j].key);
+        return retval;
+      }
+      if (arg_used) break;
+    }
+    if (arg_used) continue;
+
+    /* check all pair-of-real command-line options */
+    for (j = 0; j < num_tworeal_keys; j++)
+    {
+      retval = sunCheckAndSetTwoRealArg(arkode_mem, &i, argv, offset, tworeal_pairs[j].key,
+                                        tworeal_pairs[j].set, &arg_used);
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s",
+                        tworeal_pairs[j].key);
+        return retval;
+      }
       if (arg_used) break;
     }
     if (arg_used) continue;
@@ -236,10 +186,16 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all action command-line options */
     for (j = 0; j < num_action_keys; j++)
     {
-      retval = arkCheckAndSetActionArg(ark_mem, &i, argv, offset,
+      retval = sunCheckAndSetActionArg(arkode_mem, &i, argv, offset,
                                        action_pairs[j].key, action_pairs[j].set,
-        &arg_used);
-      if (retval != ARK_SUCCESS) { return retval; }
+                                       &arg_used);
+      if (retval != ARK_SUCCESS)
+      {
+        arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                        "error setting command-line argument: %s",
+                        action_pairs[j].key);
+        return retval;
+      }
       if (arg_used) break;
     }
     if (arg_used) continue;
@@ -267,42 +223,6 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s %s",
                         argv[i - 1], argv[i]);
-        return retval;
-      }
-      arg_used = SUNTRUE;
-      continue;
-    }
-
-    if (strcmp(argv[i] + offset, "scalar_tolerances") == 0)
-    {
-      i++;
-      sunrealtype rtol = atof(argv[i]);
-      i++;
-      sunrealtype atol = atof(argv[i]);
-      retval           = ARKodeSStolerances(arkode_mem, rtol, atol);
-      if (retval != ARK_SUCCESS)
-      {
-        arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s %s %s",
-                        argv[i - 2], argv[i - 1], argv[i]);
-        return retval;
-      }
-      arg_used = SUNTRUE;
-      continue;
-    }
-
-    if (strcmp(argv[i] + offset, "fixed_step_bounds") == 0)
-    {
-      i++;
-      sunrealtype lb = atof(argv[i]);
-      i++;
-      sunrealtype ub = atof(argv[i]);
-      retval         = ARKodeSetFixedStepBounds(arkode_mem, lb, ub);
-      if (retval != ARK_SUCCESS)
-      {
-        arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s %s %s",
-                        argv[i - 2], argv[i - 1], argv[i]);
         return retval;
       }
       arg_used = SUNTRUE;

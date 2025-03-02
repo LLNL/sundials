@@ -81,6 +81,7 @@ add_prefix(${SUNDIALS_SOURCE_DIR}/include/sundials/ sundials_HEADERS)
 set(sundials_SOURCES
     sundials_adaptcontroller.c
     sundials_band.c
+    sundials_cli.c
     sundials_context.c
     sundials_dense.c
     sundials_direct.c
@@ -135,7 +136,8 @@ sundials_add_library(
 # Install private headers
 install(
   FILES ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_context_impl.h
-        ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_errors_impl.h
+  ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_errors_impl.h
+  ${SUNDIALS_SOURCE_DIR}/include/sundials/priv/sundials_cli.h
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sundials/priv")
 
 if(ENABLE_MPI)

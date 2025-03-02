@@ -599,47 +599,6 @@ void arkProcessError(ARKodeMem ark_mem, int error_code, int line,
                      const char* func, const char* file, const char* msgfmt, ...);
 
 /*===============================================================
-  ARKODE COMMAND-LINE INPUT UTILITY TYPES AND ROUTINES
-  ===============================================================*/
-
-typedef int (*arkIntSetFn)(void*, int);
-struct arkKeyIntPair
-{
-  const char* key;
-  arkIntSetFn set;
-};
-typedef int (*arkLongSetFn)(void*, long int);
-struct arkKeyLongPair
-{
-  const char* key;
-  arkLongSetFn set;
-};
-typedef int (*arkRealSetFn)(void*, sunrealtype);
-struct arkKeyRealPair
-{
-  const char* key;
-  arkRealSetFn set;
-};
-typedef int (*arkActionSetFn)(void*);
-struct arkKeyActionPair
-{
-  const char* key;
-  arkActionSetFn set;
-};
-int arkCheckAndSetIntArg(ARKodeMem ark_mem, int* i, char* argv[],
-                         const size_t offset, const char* argtest,
-                         arkIntSetFn fname, sunbooleantype* arg_used);
-int arkCheckAndSetLongArg(ARKodeMem ark_mem, int* i, char* argv[],
-                          const size_t offset, const char* argtest,
-                          arkLongSetFn fname, sunbooleantype* arg_used);
-int arkCheckAndSetRealArg(ARKodeMem ark_mem, int* i, char* argv[],
-                          const size_t offset, const char* argtest,
-                          arkRealSetFn fname, sunbooleantype* arg_used);
-int arkCheckAndSetActionArg(ARKodeMem ark_mem, int* i, char* argv[],
-                            const size_t offset, const char* argtest,
-                            arkActionSetFn fname, sunbooleantype* arg_used);
-
-/*===============================================================
   ARKODE PRIVATE FUNCTION PROTOTYPES
   ===============================================================*/
 
