@@ -43,7 +43,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
-  /* Set list of integer command-line arguments, and the corresponding set routine */
+  /* Set lists of command-line arguments, and the corresponding set routines */
   static struct sunKeyIntPair int_pairs[] =
     {{"order", ARKodeSetOrder},
      {"interpolant_degree", ARKodeSetInterpolantDegree},
@@ -273,12 +273,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     {
       retval = ark_mem->step_setfromcommandline(ark_mem, &i, argv,
                                                 offset, &arg_used);
-      if (retval != ARK_SUCCESS)
-      {
-        arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
-                        "error setting command-line argument: %s", argv[i]);
-        return retval;
-      }
+      if (retval != ARK_SUCCESS) { return retval; }
       if (arg_used) { continue; }
     }
 

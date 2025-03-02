@@ -81,7 +81,7 @@ SUNDIALS_EXPORT int sunCheckAndSetTwoRealArg(void* mem, int* i,
    sunTwoRealSetFn fname, sunbooleantype* arg_used);
 
 /* utilities for char* "set" routines */
-typedef int (*sunCharSetFn)(void*, char* argv);
+typedef int (*sunCharSetFn)(void*, const char*);
 struct sunKeyCharPair
 {
   const char* key;
@@ -92,7 +92,7 @@ SUNDIALS_EXPORT int sunCheckAndSetCharArg(void* mem, int* i,
    sunCharSetFn fname, sunbooleantype* arg_used);
 
 /* utilities for pair-of-char* "set" routines */
-typedef int (*sunTwoCharSetFn)(void*, char* argv1, char* argv2);
+typedef int (*sunTwoCharSetFn)(void*, const char*, const char*);
 struct sunKeyTwoCharPair
 {
   const char* key;
