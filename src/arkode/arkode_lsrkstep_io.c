@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
+#include <sundials/priv/sundials_cli.h>
 
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include "arkode_lsrkstep_impl.h"
@@ -264,10 +265,10 @@ int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps)
 
 /*---------------------------------------------------------------
   LSRKStepSetMaxNumStages sets the maximum number of stages allowed.
-  If the combination of the maximum number of stages and the current 
-  time step size in the LSRKStep module does not allow for a stable 
-  step, the step routine returns to ARKODE for an updated (refined) 
-  step size. The number of such returns is tracked in a counter, 
+  If the combination of the maximum number of stages and the current
+  time step size in the LSRKStep module does not allow for a stable
+  step, the step routine returns to ARKODE for an updated (refined)
+  step size. The number of such returns is tracked in a counter,
   which can be accessed using ARKodeGetNumExpSteps.
   ---------------------------------------------------------------*/
 int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit)
@@ -385,8 +386,8 @@ int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages)
       break;
 
     case ARKODE_LSRK_SSP_S_3:
-      /* The SSP3 method differs significantly when s = 4. Therefore, the case 
-      where num_of_stages = 4 is considered separately to avoid unnecessary 
+      /* The SSP3 method differs significantly when s = 4. Therefore, the case
+      where num_of_stages = 4 is considered separately to avoid unnecessary
       boolean checks and improve computational efficiency. */
 
       /* We check that num_of_stages is a perfect square. Note the call to sqrt
@@ -490,6 +491,102 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
 /*===============================================================
   Private functions attached to ARKODE
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  lsrkStep_SetFromCommandLine:
+
+  Provides command-line control over LSRKStep-specific "set" routines.
+  ---------------------------------------------------------------*/
+int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
+                                const size_t offset, sunbooleantype* arg_used)
+{
+
+  /* Set lists of command-line arguments, and the corresponding set routines */
+  static struct sunKeyCharPair char_pairs[] =
+    {{"sts_method", LSRKStepSetSTSMethodByName},
+     {"ssp_method", LSRKStepSetSSPMethodByName}};
+  static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
+
+  static struct sunKeyLongPair long_pairs[] =
+    {{"dom_eig_frequency", LSRKStepSetDomEigFrequency}};
+  static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
+
+  static struct sunKeyIntPair int_pairs[] =
+    {{"max_num_stages", LSRKStepSetMaxNumStages},
+     {"num_ssp_stages", LSRKStepSetNumSSPStages}};
+  static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
+
+  static struct sunKeyRealPair real_pairs[] =
+    {{"dom_eig_safety_factor", LSRKStepSetDomEigSafetyFactor}};
+  static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
+
+  /* check all "char" command-line options */
+  int j, retval;
+  for (j = 0; j < num_char_keys; j++)
+  {
+    retval = sunCheckAndSetCharArg((void*) ark_mem, i, argv, offset,
+                                   char_pairs[j].key,
+                                   char_pairs[j].set, arg_used);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      char_pairs[j].key);
+      return retval;
+    }
+    if (*arg_used) { return ARK_SUCCESS; }
+  }
+
+  /* check all "long int" command-line options */
+  for (j = 0; j < num_long_keys; j++)
+  {
+    retval = sunCheckAndSetLongArg((void*) ark_mem, i, argv, offset,
+                                   long_pairs[j].key, long_pairs[j].set,
+                                   arg_used);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      long_pairs[j].key);
+      return retval;
+    }
+    if (*arg_used) { return ARK_SUCCESS; }
+  }
+
+  /* check all "int" command-line options */
+  for (j = 0; j < num_int_keys; j++)
+  {
+    retval = sunCheckAndSetIntArg((void*) ark_mem, i, argv, offset,
+                                  int_pairs[j].key, int_pairs[j].set,
+                                  arg_used);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      int_pairs[j].key);
+      return retval;
+    }
+    if (*arg_used) { return ARK_SUCCESS; }
+  }
+
+  /* check all "real" command-line options */
+  for (j = 0; j < num_real_keys; j++)
+  {
+    retval = sunCheckAndSetRealArg((void*) ark_mem, i, argv, offset,
+                                   real_pairs[j].key, real_pairs[j].set,
+                                   arg_used);
+    if (retval != ARK_SUCCESS)
+    {
+      arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                      "error setting command-line argument: %s",
+                      real_pairs[j].key);
+      return retval;
+    }
+    if (*arg_used) { return ARK_SUCCESS; }
+  }
+
+  return (ARK_SUCCESS);
+}
 
 /*---------------------------------------------------------------
   lsrkStep_SetDefaults:
