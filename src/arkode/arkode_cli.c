@@ -18,8 +18,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sundials/sundials_types.h>
 #include <sundials/priv/sundials_cli.h>
+#include <sundials/sundials_types.h>
 #include "arkode/arkode.h"
 #include "arkode_impl.h"
 
@@ -32,7 +32,7 @@
   ---------------------------------------------------------------*/
 
 int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
-  char* argv[])
+                             char* argv[])
 {
   ARKodeMem ark_mem;
   if (arkode_mem == NULL)
@@ -87,10 +87,12 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"max_cfail_growth", ARKodeSetMaxCFailGrowth}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct sunKeyTwoRealPair tworeal_pairs[] =
-    {{"scalar_tolerances", ARKodeSStolerances},
-     {"fixed_step_bounds", ARKodeSetFixedStepBounds}};
-  static const int num_tworeal_keys = sizeof(tworeal_pairs) / sizeof(*tworeal_pairs);
+  static struct sunKeyTwoRealPair tworeal_pairs[] = {{"scalar_tolerances",
+                                                      ARKodeSStolerances},
+                                                     {"fixed_step_bounds",
+                                                      ARKodeSetFixedStepBounds}};
+  static const int num_tworeal_keys               = sizeof(tworeal_pairs) /
+                                      sizeof(*tworeal_pairs);
 
   static struct sunKeyActionPair action_pairs[] =
     {{"nonlinear", ARKodeSetNonlinear},
@@ -108,7 +110,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* if arkid is supplied, skip command-line arguments that do not begin with arkid;
        else, skip command-line arguments that do not begin with "arkode." */
     size_t offset;
-    if (strlen(arkid) > 0) {
+    if (strlen(arkid) > 0)
+    {
       if (strncmp(argv[i], arkid, strlen(arkid)) != 0) { continue; }
       offset = strlen(arkid) + 1;
     }
@@ -122,8 +125,9 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      retval = sunCheckAndSetIntArg(arkode_mem, &i, argv, offset, int_pairs[j].key,
-                                    int_pairs[j].set, &arg_used);
+      retval = sunCheckAndSetIntArg(arkode_mem, &i, argv, offset,
+                                    int_pairs[j].key, int_pairs[j].set,
+                                    &arg_used);
       if (retval != ARK_SUCCESS)
       {
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -138,8 +142,9 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      retval = sunCheckAndSetLongArg(arkode_mem, &i, argv, offset, long_pairs[j].key,
-                                     long_pairs[j].set, &arg_used);
+      retval = sunCheckAndSetLongArg(arkode_mem, &i, argv, offset,
+                                     long_pairs[j].key, long_pairs[j].set,
+                                     &arg_used);
       if (retval != ARK_SUCCESS)
       {
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -154,8 +159,9 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      retval = sunCheckAndSetRealArg(arkode_mem, &i, argv, offset, real_pairs[j].key,
-                                     real_pairs[j].set, &arg_used);
+      retval = sunCheckAndSetRealArg(arkode_mem, &i, argv, offset,
+                                     real_pairs[j].key, real_pairs[j].set,
+                                     &arg_used);
       if (retval != ARK_SUCCESS)
       {
         arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -170,7 +176,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     /* check all pair-of-real command-line options */
     for (j = 0; j < num_tworeal_keys; j++)
     {
-      retval = sunCheckAndSetTwoRealArg(arkode_mem, &i, argv, offset, tworeal_pairs[j].key,
+      retval = sunCheckAndSetTwoRealArg(arkode_mem, &i, argv, offset,
+                                        tworeal_pairs[j].key,
                                         tworeal_pairs[j].set, &arg_used);
       if (retval != ARK_SUCCESS)
       {
@@ -263,7 +270,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     if (strcmp(argv[i] + offset, "writeparameters") == 0)
     {
       write_parameters = SUNTRUE;
-      arg_used = SUNTRUE;
+      arg_used         = SUNTRUE;
       continue;
     }
 
@@ -271,8 +278,8 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
        process this command-line argument */
     if (ark_mem->step_setfromcommandline)
     {
-      retval = ark_mem->step_setfromcommandline(ark_mem, &i, argv,
-                                                offset, &arg_used);
+      retval = ark_mem->step_setfromcommandline(ark_mem, &i, argv, offset,
+                                                &arg_used);
       if (retval != ARK_SUCCESS) { return retval; }
       if (arg_used) { continue; }
     }
@@ -281,7 +288,6 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
     arkProcessError(ark_mem, ARK_WARNING, __LINE__, __func__, __FILE__,
                     "WARNING: argument %s was not handled\n", argv[i]);
   }
-
 
   /* Call ARKodeWriteParameters (if requested) now that all
      command-line options have been set -- WARNING: this knows

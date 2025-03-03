@@ -18,22 +18,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sundials/sundials_types.h>
 #include <sundials/priv/sundials_cli.h>
+#include <sundials/sundials_types.h>
 
 /*===============================================================
   Command-line input utility routines
   ===============================================================*/
 
-int sunCheckAndSetIntArg(void* mem, int* i, char* argv[],
-                         const size_t offset, const char* argtest,
-                         sunIntSetFn fname, sunbooleantype* arg_used)
+int sunCheckAndSetIntArg(void* mem, int* i, char* argv[], const size_t offset,
+                         const char* argtest, sunIntSetFn fname,
+                         sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i] + offset, argtest) == 0)
   {
     (*i) += 1;
-    int iarg = atoi(argv[*i]);
+    int iarg   = atoi(argv[*i]);
     int retval = fname(mem, iarg);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
@@ -51,7 +51,7 @@ int sunCheckAndSetTwoIntArg(void* mem, int* i, char* argv[],
     (*i) += 1;
     int iarg1 = atoi(argv[*i]);
     (*i) += 1;
-    int iarg2 = atoi(argv[*i]);
+    int iarg2  = atoi(argv[*i]);
     int retval = fname(mem, iarg1, iarg2);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
@@ -59,32 +59,32 @@ int sunCheckAndSetTwoIntArg(void* mem, int* i, char* argv[],
   return SUN_SUCCESS;
 }
 
-int sunCheckAndSetLongArg(void* mem, int* i, char* argv[],
-                          const size_t offset, const char* argtest,
-                          sunLongSetFn fname, sunbooleantype* arg_used)
+int sunCheckAndSetLongArg(void* mem, int* i, char* argv[], const size_t offset,
+                          const char* argtest, sunLongSetFn fname,
+                          sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i] + offset, argtest) == 0)
   {
     (*i) += 1;
     long int iarg = atol(argv[*i]);
-    int retval = fname(mem, iarg);
+    int retval    = fname(mem, iarg);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
   }
   return SUN_SUCCESS;
 }
 
-int sunCheckAndSetRealArg(void* mem, int* i, char* argv[],
-                          const size_t offset, const char* argtest,
-                          sunRealSetFn fname, sunbooleantype* arg_used)
+int sunCheckAndSetRealArg(void* mem, int* i, char* argv[], const size_t offset,
+                          const char* argtest, sunRealSetFn fname,
+                          sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i] + offset, argtest) == 0)
   {
     (*i) += 1;
     sunrealtype rarg = atof(argv[*i]);
-    int retval = fname(mem, rarg);
+    int retval       = fname(mem, rarg);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
   }
@@ -102,16 +102,16 @@ int sunCheckAndSetTwoRealArg(void* mem, int* i, char* argv[],
     sunrealtype rarg1 = atof(argv[*i]);
     (*i) += 1;
     sunrealtype rarg2 = atof(argv[*i]);
-    int retval = fname(mem, rarg1, rarg2);
+    int retval        = fname(mem, rarg1, rarg2);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
   }
   return SUN_SUCCESS;
 }
 
-int sunCheckAndSetCharArg(void* mem, int* i, char* argv[],
-                          const size_t offset, const char* argtest,
-                          sunCharSetFn fname, sunbooleantype* arg_used)
+int sunCheckAndSetCharArg(void* mem, int* i, char* argv[], const size_t offset,
+                          const char* argtest, sunCharSetFn fname,
+                          sunbooleantype* arg_used)
 {
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i] + offset, argtest) == 0)
@@ -131,7 +131,7 @@ int sunCheckAndSetTwoCharArg(void* mem, int* i, char* argv[],
   *arg_used = SUNFALSE;
   if (strcmp(argv[*i] + offset, argtest) == 0)
   {
-    int retval = fname(mem, argv[*i+1], argv[*i+2]);
+    int retval = fname(mem, argv[*i + 1], argv[*i + 2]);
     (*i) += 2;
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
@@ -152,4 +152,3 @@ int sunCheckAndSetActionArg(void* mem, int* i, char* argv[],
   }
   return SUN_SUCCESS;
 }
-

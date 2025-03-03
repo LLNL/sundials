@@ -21,9 +21,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sundials/priv/sundials_cli.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <sundials/priv/sundials_cli.h>
 
 #include "arkode_erkstep_impl.h"
 
@@ -264,18 +264,18 @@ int ERKStepGetTimestepperStats(void* arkode_mem, long int* expsteps,
 int erkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
                                const size_t offset, sunbooleantype* arg_used)
 {
-
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyCharPair char_pairs[] = {{"table_name", ERKStepSetTableName}};
+  static struct sunKeyCharPair char_pairs[] = {
+    {"table_name", ERKStepSetTableName}};
   static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
 
   /* check all "char" command-line options */
   int j, retval;
   for (j = 0; j < num_char_keys; j++)
   {
-    retval = sunCheckAndSetCharArg((void*) ark_mem, i, argv, offset,
-                                  char_pairs[j].key,
-                                  char_pairs[j].set, arg_used);
+    retval = sunCheckAndSetCharArg((void*)ark_mem, i, argv, offset,
+                                   char_pairs[j].key, char_pairs[j].set,
+                                   arg_used);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,

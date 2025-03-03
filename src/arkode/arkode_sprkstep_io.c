@@ -21,9 +21,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sundials/priv/sundials_cli.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <sundials/priv/sundials_cli.h>
 
 #include "arkode/arkode.h"
 #include "arkode/arkode_sprk.h"
@@ -217,21 +217,22 @@ int SPRKStepGetNumRhsEvals(void* arkode_mem, long int* nf1, long int* nf2)
 int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
                                 const size_t offset, sunbooleantype* arg_used)
 {
-
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyCharPair char_pairs[] = {{"method_name", SPRKStepSetMethodName}};
+  static struct sunKeyCharPair char_pairs[] = {
+    {"method_name", SPRKStepSetMethodName}};
   static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
 
-  static struct sunKeyIntPair int_pairs[] = {{"use_compensated_sums", SPRKStepSetUseCompensatedSums}};
+  static struct sunKeyIntPair int_pairs[] = {
+    {"use_compensated_sums", SPRKStepSetUseCompensatedSums}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   /* check all "char" command-line options */
   int j, retval;
   for (j = 0; j < num_char_keys; j++)
   {
-    retval = sunCheckAndSetCharArg((void*) ark_mem, i, argv, offset,
-                                  char_pairs[j].key, char_pairs[j].set,
-                                  arg_used);
+    retval = sunCheckAndSetCharArg((void*)ark_mem, i, argv, offset,
+                                   char_pairs[j].key, char_pairs[j].set,
+                                   arg_used);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -245,9 +246,8 @@ int sprkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   /* check all "int" command-line options */
   for (j = 0; j < num_int_keys; j++)
   {
-    retval = sunCheckAndSetIntArg((void*) ark_mem, i, argv, offset,
-                                  int_pairs[j].key, int_pairs[j].set,
-                                  arg_used);
+    retval = sunCheckAndSetIntArg((void*)ark_mem, i, argv, offset,
+                                  int_pairs[j].key, int_pairs[j].set, arg_used);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,

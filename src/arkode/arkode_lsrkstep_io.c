@@ -17,9 +17,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sundials/priv/sundials_cli.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
-#include <sundials/priv/sundials_cli.h>
 
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
 #include "arkode_lsrkstep_impl.h"
@@ -500,33 +500,34 @@ int LSRKStepGetMaxNumStages(void* arkode_mem, int* stage_max)
 int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
                                 const size_t offset, sunbooleantype* arg_used)
 {
-
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyCharPair char_pairs[] =
-    {{"sts_method", LSRKStepSetSTSMethodByName},
-     {"ssp_method", LSRKStepSetSSPMethodByName}};
+  static struct sunKeyCharPair char_pairs[] = {{"sts_method",
+                                                LSRKStepSetSTSMethodByName},
+                                               {"ssp_method",
+                                                LSRKStepSetSSPMethodByName}};
   static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
 
-  static struct sunKeyLongPair long_pairs[] =
-    {{"dom_eig_frequency", LSRKStepSetDomEigFrequency}};
+  static struct sunKeyLongPair long_pairs[] = {
+    {"dom_eig_frequency", LSRKStepSetDomEigFrequency}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static struct sunKeyIntPair int_pairs[] =
-    {{"max_num_stages", LSRKStepSetMaxNumStages},
-     {"num_ssp_stages", LSRKStepSetNumSSPStages}};
+  static struct sunKeyIntPair int_pairs[] = {{"max_num_stages",
+                                              LSRKStepSetMaxNumStages},
+                                             {"num_ssp_stages",
+                                              LSRKStepSetNumSSPStages}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
-  static struct sunKeyRealPair real_pairs[] =
-    {{"dom_eig_safety_factor", LSRKStepSetDomEigSafetyFactor}};
+  static struct sunKeyRealPair real_pairs[] = {
+    {"dom_eig_safety_factor", LSRKStepSetDomEigSafetyFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
   /* check all "char" command-line options */
   int j, retval;
   for (j = 0; j < num_char_keys; j++)
   {
-    retval = sunCheckAndSetCharArg((void*) ark_mem, i, argv, offset,
-                                   char_pairs[j].key,
-                                   char_pairs[j].set, arg_used);
+    retval = sunCheckAndSetCharArg((void*)ark_mem, i, argv, offset,
+                                   char_pairs[j].key, char_pairs[j].set,
+                                   arg_used);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -540,7 +541,7 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   /* check all "long int" command-line options */
   for (j = 0; j < num_long_keys; j++)
   {
-    retval = sunCheckAndSetLongArg((void*) ark_mem, i, argv, offset,
+    retval = sunCheckAndSetLongArg((void*)ark_mem, i, argv, offset,
                                    long_pairs[j].key, long_pairs[j].set,
                                    arg_used);
     if (retval != ARK_SUCCESS)
@@ -556,9 +557,8 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   /* check all "int" command-line options */
   for (j = 0; j < num_int_keys; j++)
   {
-    retval = sunCheckAndSetIntArg((void*) ark_mem, i, argv, offset,
-                                  int_pairs[j].key, int_pairs[j].set,
-                                  arg_used);
+    retval = sunCheckAndSetIntArg((void*)ark_mem, i, argv, offset,
+                                  int_pairs[j].key, int_pairs[j].set, arg_used);
     if (retval != ARK_SUCCESS)
     {
       arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
@@ -572,7 +572,7 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   /* check all "real" command-line options */
   for (j = 0; j < num_real_keys; j++)
   {
-    retval = sunCheckAndSetRealArg((void*) ark_mem, i, argv, offset,
+    retval = sunCheckAndSetRealArg((void*)ark_mem, i, argv, offset,
                                    real_pairs[j].key, real_pairs[j].set,
                                    arg_used);
     if (retval != ARK_SUCCESS)
