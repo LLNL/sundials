@@ -529,6 +529,11 @@ int main(int argc, char* argv[])
   retval = ARKodeSetFixedStep(inner_arkode_mem, hf);
   if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
+  /* Override any current settings with command-line options -- enforce
+     the prefix "inner" */
+     retval = ARKodeSetFromCommandLine(inner_arkode_mem, "inner", argc, argv);
+     if (check_retval(&retval, "ARKodeSetFromCommandLine", 1)) { return 1; }
+
   /* Create inner stepper */
   retval = ARKodeCreateMRIStepInnerStepper(inner_arkode_mem, &inner_stepper);
   if (check_retval(&retval, "ARKodeCreateMRIStepInnerStepper", 1)) { return 1; }
@@ -678,6 +683,11 @@ int main(int argc, char* argv[])
   /* Set the slow step size */
   retval = ARKodeSetFixedStep(arkode_mem, hs);
   if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
+
+  /* Override any current settings with command-line options -- enforce
+     the prefix "outer" */
+  retval = ARKodeSetFromCommandLine(arkode_mem, "outer", argc, argv);
+  if (check_retval(&retval, "ARKodeSetFromCommandLine", 1)) { return 1; }
 
   /*
    * Integrate ODE
