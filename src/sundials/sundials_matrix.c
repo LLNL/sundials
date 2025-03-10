@@ -54,17 +54,17 @@ SUNMatrix SUNMatNewEmpty(SUNContext sunctx)
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
-  ops->getid           = NULL;
-  ops->clone           = NULL;
-  ops->destroy         = NULL;
-  ops->zero            = NULL;
-  ops->copy            = NULL;
-  ops->scaleadd        = NULL;
-  ops->scaleaddi       = NULL;
-  ops->matvecsetup     = NULL;
-  ops->matvec          = NULL;
-  ops->mattransposevec = NULL;
-  ops->space           = NULL;
+  ops->getid                    = NULL;
+  ops->clone                    = NULL;
+  ops->destroy                  = NULL;
+  ops->zero                     = NULL;
+  ops->copy                     = NULL;
+  ops->scaleadd                 = NULL;
+  ops->scaleaddi                = NULL;
+  ops->matvecsetup              = NULL;
+  ops->matvec                   = NULL;
+  ops->mathermitiantransposevec = NULL;
+  ops->space                    = NULL;
 
   /* attach ops and initialize content to NULL */
   A->ops     = ops;
@@ -224,11 +224,14 @@ SUNErrCode SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
   return (ier);
 }
 
-SUNErrCode SUNMatMatTransposeVec(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatHermitianTransposeVec(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SUNErrCode ier;
   SUNDIALS_MARK_FUNCTION_BEGIN(getSUNProfiler(A));
-  if (A->ops->mattransposevec) { ier = A->ops->mattransposevec(A, x, y); }
+  if (A->ops->mathermitiantransposevec)
+  {
+    ier = A->ops->mathermitiantransposevec(A, x, y);
+  }
   else { ier = SUN_ERR_NOT_IMPLEMENTED; }
   SUNDIALS_MARK_FUNCTION_END(getSUNProfiler(A));
   return (ier);

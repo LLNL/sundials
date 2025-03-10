@@ -61,16 +61,16 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N, SUNContext sunctx)
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  A->ops->getid           = SUNMatGetID_Dense;
-  A->ops->clone           = SUNMatClone_Dense;
-  A->ops->destroy         = SUNMatDestroy_Dense;
-  A->ops->zero            = SUNMatZero_Dense;
-  A->ops->copy            = SUNMatCopy_Dense;
-  A->ops->scaleadd        = SUNMatScaleAdd_Dense;
-  A->ops->scaleaddi       = SUNMatScaleAddI_Dense;
-  A->ops->matvec          = SUNMatMatvec_Dense;
-  A->ops->mattransposevec = SUNMatMatTransposeVec_Dense;
-  A->ops->space           = SUNMatSpace_Dense;
+  A->ops->getid                    = SUNMatGetID_Dense;
+  A->ops->clone                    = SUNMatClone_Dense;
+  A->ops->destroy                  = SUNMatDestroy_Dense;
+  A->ops->zero                     = SUNMatZero_Dense;
+  A->ops->copy                     = SUNMatCopy_Dense;
+  A->ops->scaleadd                 = SUNMatScaleAdd_Dense;
+  A->ops->scaleaddi                = SUNMatScaleAddI_Dense;
+  A->ops->matvec                   = SUNMatMatvec_Dense;
+  A->ops->mathermitiantransposevec = SUNMatHermitianTransposeVec_Dense;
+  A->ops->space                    = SUNMatSpace_Dense;
 
   /* Create content */
   content = NULL;
@@ -330,7 +330,7 @@ SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNMatMatTransposeVec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatHermitianTransposeVec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SUNFunctionBegin(A->sunctx);
 

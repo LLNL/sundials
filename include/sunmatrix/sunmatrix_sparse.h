@@ -176,7 +176,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNMatMatTransposeVec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
+SUNErrCode SUNMatHermitianTransposeVec_Sparse(SUNMatrix A, N_Vector x,
+                                              N_Vector y);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNMatSpace_Sparse(SUNMatrix A, long int* lenrw, long int* leniw);

@@ -335,7 +335,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: scaleaddi
   type(C_FUNPTR), public :: matvecsetup
   type(C_FUNPTR), public :: matvec
-  type(C_FUNPTR), public :: mattransposevec
+  type(C_FUNPTR), public :: mathermitiantransposevec
   type(C_FUNPTR), public :: space
  end type SUNMatrix_Ops
  ! struct struct _generic_SUNMatrix
@@ -356,7 +356,7 @@ module fsundials_core_mod
  public :: FSUNMatScaleAddI
  public :: FSUNMatMatvecSetup
  public :: FSUNMatMatvec
- public :: FSUNMatMatTransposeVec
+ public :: FSUNMatHermitianTransposeVec
  public :: FSUNMatSpace
  enum, bind(c)
   enumerator :: SUN_PREC_NONE
@@ -1647,8 +1647,8 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNMatMatTransposeVec(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNMatMatTransposeVec") &
+function swigc_FSUNMatHermitianTransposeVec(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNMatHermitianTransposeVec") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -4526,7 +4526,7 @@ fresult = swigc_FSUNMatMatvec(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNMatMatTransposeVec(a, x, y) &
+function FSUNMatHermitianTransposeVec(a, x, y) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -4541,7 +4541,7 @@ type(C_PTR) :: farg3
 farg1 = c_loc(a)
 farg2 = c_loc(x)
 farg3 = c_loc(y)
-fresult = swigc_FSUNMatMatTransposeVec(farg1, farg2, farg3)
+fresult = swigc_FSUNMatHermitianTransposeVec(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

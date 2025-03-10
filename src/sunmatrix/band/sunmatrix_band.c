@@ -77,16 +77,16 @@ SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu, sunindextype ml,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  A->ops->getid           = SUNMatGetID_Band;
-  A->ops->clone           = SUNMatClone_Band;
-  A->ops->destroy         = SUNMatDestroy_Band;
-  A->ops->zero            = SUNMatZero_Band;
-  A->ops->copy            = SUNMatCopy_Band;
-  A->ops->scaleadd        = SUNMatScaleAdd_Band;
-  A->ops->scaleaddi       = SUNMatScaleAddI_Band;
-  A->ops->matvec          = SUNMatMatvec_Band;
-  A->ops->mattransposevec = SUNMatMatTransposeVec_Band;
-  A->ops->space           = SUNMatSpace_Band;
+  A->ops->getid                    = SUNMatGetID_Band;
+  A->ops->clone                    = SUNMatClone_Band;
+  A->ops->destroy                  = SUNMatDestroy_Band;
+  A->ops->zero                     = SUNMatZero_Band;
+  A->ops->copy                     = SUNMatCopy_Band;
+  A->ops->scaleadd                 = SUNMatScaleAdd_Band;
+  A->ops->scaleaddi                = SUNMatScaleAddI_Band;
+  A->ops->matvec                   = SUNMatMatvec_Band;
+  A->ops->mathermitiantransposevec = SUNMatHermitianTransposeVec_Band;
+  A->ops->space                    = SUNMatSpace_Band;
 
   /* Create content */
   content = NULL;
@@ -410,7 +410,7 @@ SUNErrCode SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNMatMatTransposeVec_Band(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatHermitianTransposeVec_Band(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SUNFunctionBegin(A->sunctx);
   sunindextype i, j, is, ie;
