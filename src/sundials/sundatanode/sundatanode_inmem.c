@@ -26,7 +26,7 @@
 #define IMPL_MEMBER(node, prop) (GET_CONTENT(node)->prop)
 #define BASE_MEMBER(node, prop) ((node)->prop)
 
-static SUNDataNode sunDataNode_CreateEmpty_InMem(SUNContext sunctx)
+static SUNDataNode sunDataNode_CreateCommon_InMem(SUNContext sunctx)
 {
   SUNFunctionBegin(sunctx);
 
@@ -66,7 +66,7 @@ static SUNDataNode sunDataNode_CreateEmpty_InMem(SUNContext sunctx)
   return node;
 }
 
-static void sunDataNode_DestroyEmpty_InMem(SUNDataNode* node)
+static void sunDataNode_DestroyCommon_InMem(SUNDataNode* node)
 {
   if (!node || !(*node)) { return; }
   if (BASE_MEMBER(*node, content)) { free(BASE_MEMBER(*node, content)); }
@@ -84,14 +84,14 @@ SUNErrCode SUNDataNode_CreateList_InMem(sundataindex init_size,
 {
   SUNFunctionBegin(sunctx);
 
-  SUNDataNode node = sunDataNode_CreateEmpty_InMem(sunctx);
+  SUNDataNode node = sunDataNode_CreateCommon_InMem(sunctx);
 
   BASE_MEMBER(node, dtype) = SUNDATANODE_LIST;
   IMPL_MEMBER(node, anon_children) =
     SUNStlVector_SUNDataNode_New(init_size, sunDataNode_FreeValue_InMem);
   if (IMPL_MEMBER(node, anon_children) == NULL)
   {
-    sunDataNode_DestroyEmpty_InMem(&node);
+    sunDataNode_DestroyCommon_InMem(&node);
     return SUN_ERR_MEM_FAIL;
   }
 
@@ -105,7 +105,7 @@ SUNErrCode SUNDataNode_CreateObject_InMem(sundataindex init_size,
 {
   SUNFunctionBegin(sunctx);
 
-  SUNDataNode node = sunDataNode_CreateEmpty_InMem(sunctx);
+  SUNDataNode node = sunDataNode_CreateCommon_InMem(sunctx);
 
   BASE_MEMBER(node, dtype) = SUNDATANODE_OBJECT;
 
@@ -123,7 +123,7 @@ SUNErrCode SUNDataNode_CreateLeaf_InMem(SUNMemoryHelper mem_helper,
 {
   SUNFunctionBegin(sunctx);
 
-  SUNDataNode node = sunDataNode_CreateEmpty_InMem(sunctx);
+  SUNDataNode node = sunDataNode_CreateCommon_InMem(sunctx);
 
   BASE_MEMBER(node, dtype)      = SUNDATANODE_LEAF;
   IMPL_MEMBER(node, mem_helper) = mem_helper;
@@ -319,42 +319,43 @@ SUNErrCode SUNDataNode_GetDataNvector_InMem(const SUNDataNode self, N_Vector v,
 {
   SUNFunctionBegin(self->sunctx);
 
+  /* Use the default queue for the memory helper */
   void* queue = NULL;
 
   SUNMemory leaf_data = (SUNMemory)IMPL_MEMBER(self, leaf_data);
 
   SUNMemoryType leaf_mem_type = leaf_data->type;
-  SUNMemoryType buffer_mem_type = N_VGetDeviceArrayPointer(v) ? SUNMEMTYPE_DEVICE
-                                                              : SUNMEMTYPE_HOST;
 
   sunindextype buffer_size = 0;
   SUNCheckCall(N_VBufSize(v, &buffer_size));
   SUNAssert((buffer_size + sizeof(sunrealtype)) == leaf_data->bytes,
             SUN_ERR_ARG_INCOMPATIBLE);
 
-  if (leaf_mem_type == buffer_mem_type)
+  if (leaf_mem_type != SUNMEMTYPE_HOST)
   {
-    sunrealtype* data_ptr = leaf_data->ptr;
+    /* BufUnpack assumes the data is on the host. So if the leaf has it elsewhere,
+       we need to move it to the host first. */
+    SUNMemory leaf_host_data = NULL;
+    SUNCheckCall(SUNMemoryHelper_Alloc(IMPL_MEMBER(self, mem_helper),
+                                       &leaf_host_data, leaf_data->bytes,
+                                       SUNMEMTYPE_HOST, queue));
+
+    SUNCheckCall(SUNMemoryHelper_Copy(IMPL_MEMBER(self, mem_helper),
+                                      leaf_host_data, leaf_data, buffer_size,
+                                      queue));
+
+    sunrealtype* data_ptr = leaf_host_data->ptr;
     *t                    = data_ptr[0];
-    SUNCheckCall(N_VBufUnpack(v, &data_ptr[1]));
-  }
-  else
-  {
-    SUNMemory buffer_data = NULL;
-    SUNCheckCall(SUNMemoryHelper_Alloc(IMPL_MEMBER(self, mem_helper), &buffer_data,
-                                       buffer_size, buffer_mem_type, queue));
-
-    SUNCheckCall(SUNMemoryHelper_Copy(IMPL_MEMBER(self, mem_helper), buffer_data,
-                                      leaf_data, buffer_size, queue));
-
-    sunrealtype* data_ptr = leaf_data->ptr;
-    *t                    = data_ptr[0];
-    data_ptr              = buffer_data->ptr;
-
     SUNCheckCall(N_VBufUnpack(v, &data_ptr[1]));
 
     SUNCheckCall(SUNMemoryHelper_Dealloc(IMPL_MEMBER(self, mem_helper),
-                                         buffer_data, queue));
+                                         leaf_host_data, queue));
+  }
+  else
+  {
+    sunrealtype* data_ptr = leaf_data->ptr;
+    *t                    = data_ptr[0];
+    SUNCheckCall(N_VBufUnpack(v, &data_ptr[1]));
   }
 
   return SUN_SUCCESS;
@@ -366,6 +367,7 @@ SUNErrCode SUNDataNode_SetData_InMem(SUNDataNode self, SUNMemoryType src_mem_typ
 {
   SUNFunctionBegin(self->sunctx);
 
+  /* Use the default queue for the memory helper */
   void* queue = NULL;
 
   SUNAssert(BASE_MEMBER(self, dtype) == SUNDATANODE_LEAF, SUN_ERR_ARG_WRONGTYPE);
@@ -394,11 +396,10 @@ SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v,
 {
   SUNFunctionBegin(self->sunctx);
 
+  /* Use the default queue for the memory helper */
   void* queue = NULL;
 
   SUNMemoryType leaf_mem_type = SUNMEMTYPE_HOST;
-  SUNMemoryType buffer_mem_type = N_VGetDeviceArrayPointer(v) ? SUNMEMTYPE_DEVICE
-                                                              : SUNMEMTYPE_HOST;
 
   sunindextype buffer_size = 0;
   SUNCheckCall(N_VBufSize(v, &buffer_size));
@@ -410,34 +411,10 @@ SUNErrCode SUNDataNode_SetDataNvector_InMem(SUNDataNode self, N_Vector v,
                                  buffer_size + sizeof(sunrealtype),
                                  sizeof(sunrealtype), leaf_mem_type, queue));
 
-  if (leaf_mem_type == buffer_mem_type)
-  {
-    sunrealtype* data_ptr = leaf_data->ptr;
-    data_ptr[0]           = t;
-    SUNCheckCall(N_VBufPack(v, &data_ptr[1]));
-  }
-  else
-  {
-    /* If the node memory type is not the same as the N_Vector's memory type,
-       then we will first need to create a buffer of the same type as the N_Vector's
-       and then copy it to the node data. */
-    SUNMemory buffer_data = NULL;
-    SUNCheckCall(
-      SUNMemoryHelper_AllocStrided(IMPL_MEMBER(self, mem_helper), &buffer_data,
-                                   buffer_size + sizeof(sunrealtype),
-                                   sizeof(sunrealtype), buffer_mem_type, queue));
-
-    sunrealtype* data_ptr = buffer_data->ptr;
-    data_ptr[0]           = t;
-    SUNCheckCall(N_VBufPack(v, &data_ptr[1]));
-
-    SUNCheckCall(SUNMemoryHelper_Copy(IMPL_MEMBER(self, mem_helper), leaf_data,
-                                      buffer_data,
-                                      buffer_size + sizeof(sunrealtype), queue));
-
-    SUNCheckCall(SUNMemoryHelper_Dealloc(IMPL_MEMBER(self, mem_helper),
-                                         buffer_data, queue));
-  }
+  /* BufPack will handle any necessary copies from the device and will fill data_ptr on the host */
+  sunrealtype* data_ptr = leaf_data->ptr;
+  data_ptr[0]           = t;
+  SUNCheckCall(N_VBufPack(v, &data_ptr[1]));
 
   IMPL_MEMBER(self, leaf_data) = leaf_data;
 
@@ -448,6 +425,7 @@ SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node)
 {
   SUNFunctionBegin((*node)->sunctx);
 
+  /* Use the default queue for the memory helper */
   void* queue = NULL;
 
   if (BASE_MEMBER(*node, dtype) == SUNDATANODE_OBJECT)
@@ -468,7 +446,7 @@ SUNErrCode SUNDataNode_Destroy_InMem(SUNDataNode* node)
     }
   }
 
-  sunDataNode_DestroyEmpty_InMem(node);
+  sunDataNode_DestroyCommon_InMem(node);
   *node = NULL;
 
   return SUN_SUCCESS;
