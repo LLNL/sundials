@@ -318,6 +318,7 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Cuda(SUNMemoryHelper helper, SUNMemory dst,
   cudaStream_t stream = 0;
 
   if (queue != NULL) { stream = *((cudaStream_t*)queue); }
+  else if (helper->queue != NULL) { *((cudaStream_t*)helper->queue); }
 
   switch (src->type)
   {

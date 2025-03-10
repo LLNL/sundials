@@ -62,6 +62,7 @@ SUNMemoryHelper SUNMemoryHelper_NewEmpty(SUNContext sunctx)
   /* Set all ops to NULL */
   memset(helper->ops, 0, sizeof(struct SUNMemoryHelper_Ops_));
   helper->content = NULL;
+  helper->queue   = NULL;
   helper->sunctx  = sunctx;
 
   return helper;
@@ -246,4 +247,13 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper helper)
     }
   }
   else { return (helper->ops->clone(helper)); }
+}
+
+SUNErrCode SUNMemoryHelper_SetDefaultQueue(SUNMemoryHelper helper, void* queue)
+{
+  SUNFunctionBegin(helper->sunctx);
+
+  helper->queue = queue;
+
+  return SUN_SUCCESS;
 }
