@@ -18,8 +18,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sundials/priv/sundials_cli.h>
 #include <sundials/sundials_types.h>
+#include "sundials_cli.h"
 #include "arkode/arkode.h"
 #include "arkode_impl.h"
 
