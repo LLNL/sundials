@@ -267,7 +267,7 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
       continue;
     }
 
-    if (strcmp(argv[i] + offset, "writeparameters") == 0)
+    if (strcmp(argv[i] + offset, "write_parameters") == 0)
     {
       write_parameters = SUNTRUE;
       arg_used         = SUNTRUE;
