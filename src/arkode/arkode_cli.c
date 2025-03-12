@@ -21,14 +21,13 @@
 #include <sundials/sundials_types.h>
 #include "sundials_cli.h"
 #include "arkode/arkode.h"
+#include "arkode/arkode_ls.h"
 #include "arkode_impl.h"
 
 /*---------------------------------------------------------------
   ARKodeSetFromCommandLine:
 
   Parses the command line to control scalar-valued ARKODE options.
-
-  (this leverages a multiple typedefs and static utility routines)
   ---------------------------------------------------------------*/
 
 int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
@@ -59,11 +58,13 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"adaptivity_adjustment", ARKodeSetAdaptivityAdjustment},
      {"small_num_efails", ARKodeSetSmallNumEFails},
      {"max_err_test_fails", ARKodeSetMaxErrTestFails},
-     {"max_conv_fails", ARKodeSetMaxConvFails}};
+     {"max_conv_fails", ARKodeSetMaxConvFails},
+     {"linear_solution_scaling", ARKodeSetLinearSolutionScaling}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   static struct sunKeyLongPair long_pairs[] = {
-    {"max_num_steps", ARKodeSetMaxNumSteps}};
+    {"max_num_steps", ARKodeSetMaxNumSteps},
+    {"jac_eval_frequency", ARKodeSetJacEvalFrequency}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
   static struct sunKeyRealPair real_pairs[] =
@@ -84,7 +85,11 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"min_reduction", ARKodeSetMinReduction},
      {"max_first_growth", ARKodeSetMaxFirstGrowth},
      {"max_efail_growth", ARKodeSetMaxEFailGrowth},
-     {"max_cfail_growth", ARKodeSetMaxCFailGrowth}};
+     {"max_cfail_growth", ARKodeSetMaxCFailGrowth},
+     {"eps_lin", ARKodeSetEpsLin},
+     {"mass_eps_lin", ARKodeSetMassEpsLin},
+     {"ls_norm_factor", ARKodeSetLSNormFactor},
+     {"mass_ls_norm_factor", ARKodeSetMassLSNormFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
   static struct sunKeyTwoRealPair tworeal_pairs[] = {{"scalar_tolerances",
