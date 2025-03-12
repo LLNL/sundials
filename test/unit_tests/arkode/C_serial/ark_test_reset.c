@@ -119,6 +119,7 @@ int main(void)
   /* Initially evolve to dTout, and check result */
   retval = ARKodeSetStopTime(arkode_mem, t + dTout);
   check_retval(&retval, "ARKodeSetStopTime", 1);
+  ARKodeReset(arkode_mem, t, y);
   retval = ARKodeEvolve(arkode_mem, t + dTout, y, &t, ARK_NORMAL);
   if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
   if (check_ans(y, t, rtol, atol))
@@ -401,6 +402,7 @@ int main(void)
 /* f routine to compute the ODE RHS function f(t,y). */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
+  printf("Time: %g\n", t);
   sunrealtype* rdata = (sunrealtype*)user_data; /* cast user_data to sunrealtype */
   sunrealtype lambda = rdata[0]; /* set shortcut for stiffness parameter */
   sunrealtype u      = NV_Ith_S(y, 0); /* access current solution value */
