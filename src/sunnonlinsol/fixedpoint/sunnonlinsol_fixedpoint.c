@@ -420,7 +420,8 @@ static SUNErrCode AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   SUNFunctionBegin(NLS->sunctx);
   /* local variables */
   int nvec, i_pt, i, j, lAA, maa, *ipt_map;
-  sunrealtype a, b, rtemp, c, s, beta, onembeta, *cvals, *R, *gamma;
+  sunrealtype a, b, rtemp, c, s, beta, onembeta, *R;
+  sunscalartype *cvals, *gamma; // TODO(CJB): unclear if these should actually be sunscalartype
   N_Vector fv, vtemp, gold, fold, *df, *dg, *Q, *Xvecs;
   sunbooleantype damping;
 
@@ -637,11 +638,10 @@ static SUNErrCode AllocateContent(SUNNonlinearSolver NLS, N_Vector y)
     FP_CONTENT(NLS)->R = (sunrealtype*)malloc((m * m) * sizeof(sunrealtype));
     SUNAssert(FP_CONTENT(NLS)->R, SUN_ERR_MALLOC_FAIL);
 
-    FP_CONTENT(NLS)->gamma = (sunrealtype*)malloc(m * sizeof(sunrealtype));
+    FP_CONTENT(NLS)->gamma = malloc(m * sizeof(*FP_CONTENT(NLS)->gamma));
     SUNAssert(FP_CONTENT(NLS)->gamma, SUN_ERR_MALLOC_FAIL);
 
-    FP_CONTENT(NLS)->cvals =
-      (sunrealtype*)malloc(2 * (m + 1) * sizeof(sunrealtype));
+    FP_CONTENT(NLS)->cvals = malloc(2 * (m + 1) * sizeof(*FP_CONTENT(NLS)->cvals));
     SUNAssert(FP_CONTENT(NLS)->cvals, SUN_ERR_MALLOC_FAIL);
 
     FP_CONTENT(NLS)->df = N_VCloneVectorArray(m, y);
