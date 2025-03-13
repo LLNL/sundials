@@ -107,13 +107,13 @@ SUNDIALS_EXPORT
 sunindextype SUNDlsMat_DensePOTRF(SUNDlsMat A);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_DensePOTRS(SUNDlsMat A, sunrealtype* b);
+void SUNDlsMat_DensePOTRS(SUNDlsMat A, sunscalartype* b);
 
 SUNDIALS_EXPORT
-sunindextype SUNDlsMat_densePOTRF(sunrealtype** a, sunindextype m);
+sunindextype SUNDlsMat_densePOTRF(sunscalartype** a, sunindextype m);
 
 SUNDIALS_EXPORT
-void SUNDlsMat_densePOTRS(sunrealtype** a, sunindextype m, sunrealtype* b);
+void SUNDlsMat_densePOTRS(sunscalartype** a, sunindextype m, sunscalartype* b);
 
 /*
  * -----------------------------------------------------------------------------
@@ -144,20 +144,20 @@ void SUNDlsMat_densePOTRS(sunrealtype** a, sunindextype m, sunrealtype* b);
  */
 
 SUNDIALS_EXPORT
-int SUNDlsMat_DenseGEQRF(SUNDlsMat A, sunrealtype* beta, sunrealtype* wrk);
+int SUNDlsMat_DenseGEQRF(SUNDlsMat A, sunscalartype* beta, sunscalartype* wrk);
 
 SUNDIALS_EXPORT
-int SUNDlsMat_DenseORMQR(SUNDlsMat A, sunrealtype* beta, sunrealtype* vn,
-                         sunrealtype* vm, sunrealtype* wrk);
+int SUNDlsMat_DenseORMQR(SUNDlsMat A, sunscalartype* beta, sunscalartype* vn,
+                         sunscalartype* vm, sunscalartype* wrk);
 
 SUNDIALS_EXPORT
-int SUNDlsMat_denseGEQRF(sunrealtype** a, sunindextype m, sunindextype n,
-                         sunrealtype* beta, sunrealtype* wrk);
+int SUNDlsMat_denseGEQRF(sunscalartype** a, sunindextype m, sunindextype n,
+                         sunscalartype* beta, sunscalartype* wrk);
 
 SUNDIALS_EXPORT
-int SUNDlsMat_denseORMQR(sunrealtype** a, sunindextype m, sunindextype n,
-                         sunrealtype* beta, sunrealtype* v, sunrealtype* w,
-                         sunrealtype* wrk);
+int SUNDlsMat_denseORMQR(sunscalartype** a, sunindextype m, sunindextype n,
+                         sunscalartype* beta, sunscalartype* v, sunscalartype* w,
+                         sunscalartype* wrk);
 
 /*
  * ----------------------------------------------------------------------------

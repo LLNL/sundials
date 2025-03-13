@@ -66,13 +66,13 @@ struct _SUNLinearSolverContent_SPFGMR
   N_Vector s2;
   N_Vector* V;
   N_Vector* Z;
-  sunrealtype** Hes;
-  sunrealtype* givens;
+  sunscalartype** Hes;
+  sunscalartype* givens;
   N_Vector xcor;
-  sunrealtype* yg;
+  sunscalartype* yg;
   N_Vector vtemp;
 
-  sunrealtype* cv;
+  sunscalartype* cv;
   N_Vector* Xv;
 };
 

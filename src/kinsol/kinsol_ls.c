@@ -945,7 +945,8 @@ int kinLsBandDQJac(N_Vector u, N_Vector fu, SUNMatrix Jac, KINMem kin_mem,
 int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
                   SUNDIALS_MAYBE_UNUSED sunbooleantype* new_u, void* kinmem)
 {
-  sunrealtype sigma, sigma_inv, sutsv, sq1norm, sign, vtv;
+  sunrealtype sigma, sigma_inv, sq1norm, sign, vtv;
+  sunscalartype sutsv;
   KINMem kin_mem;
   KINLsMem kinls_mem;
   int retval;
@@ -970,7 +971,7 @@ int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
   N_VProd(u, kin_mem->kin_uscale, Jv);
 
   /* compute dot product (Du*u).(Du*v) */
-  sutsv = N_VDotProd(Jv, kin_mem->kin_vtemp1);
+  SUNCheckCall(N_VDotProdComplex(Jv, kin_mem->kin_vtemp1, &sutsv));
 
   /* compute dot product (Du*v).(Du*v) */
   sunscalartype dot = ZERO;
@@ -979,8 +980,8 @@ int kinLsDQJtimes(N_Vector v, N_Vector Jv, N_Vector u,
 
   /* compute differencing factor -- this is from p. 469, Brown and Saad paper */
   sq1norm = N_VL1Norm(kin_mem->kin_vtemp1);
-  sign    = (sutsv >= ZERO) ? ONE : -ONE;
-  sigma = sign * (kin_mem->kin_sqrt_relfunc) * SUNMAX(SUNRabs(sutsv), sq1norm) /
+  sign    = (SUN_REAL(sutsv) >= ZERO) ? ONE : -ONE;
+  sigma = sign * (kin_mem->kin_sqrt_relfunc) * SUNMAX(SUNabs(sutsv), sq1norm) /
           vtv;
   sigma_inv = ONE / sigma;
 
