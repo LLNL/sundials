@@ -299,6 +299,7 @@ int SUNQRfact(int n, sunscalartype** h, sunscalartype* q, int job);
 SUNDIALS_EXPORT
 int SUNQRsol(int n, sunscalartype** h, sunscalartype* q, sunscalartype* b);
 
+#if !defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
 /*
  * -----------------------------------------------------------------
  * Function: SUNQRAdd_MGS
@@ -466,6 +467,8 @@ SUNErrCode SUNQRAdd_DCGS2(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
 SUNDIALS_EXPORT
 SUNErrCode SUNQRAdd_DCGS2_SB(N_Vector* Q, sunscalartype* R, N_Vector df, int m,
                              int mMax, void* QRdata);
+
+#endif
 
 #ifdef __cplusplus
 }
