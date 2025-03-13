@@ -159,7 +159,6 @@ int main(int argc, char* argv[])
   N_VConst(ZERO, y);
   Ith(y, 1) = ONE;
 
-
   /* ----------------------------
    * Call KINSol to solve problem
    * ---------------------------- */

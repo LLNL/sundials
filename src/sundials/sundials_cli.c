@@ -15,11 +15,11 @@
  * to ARKODE.
  *--------------------------------------------------------------*/
 
+#include "sundials_cli.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sundials/sundials_types.h>
-#include "sundials_cli.h"
 
 /*===============================================================
   Command-line input utility routines
@@ -86,7 +86,7 @@ int sunCheckAndSetIntRealArg(void* mem, int* i, char* argv[],
     int iarg = atoi(argv[*i]);
     (*i) += 1;
     sunrealtype rarg = atof(argv[*i]);
-    int retval = fname(mem, iarg, rarg);
+    int retval       = fname(mem, iarg, rarg);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
   }
@@ -107,7 +107,7 @@ int sunCheckAndSetIntRealRealArg(void* mem, int* i, char* argv[],
     sunrealtype rarg1 = atof(argv[*i]);
     (*i) += 1;
     sunrealtype rarg2 = atof(argv[*i]);
-    int retval = fname(mem, iarg, rarg1, rarg2);
+    int retval        = fname(mem, iarg, rarg1, rarg2);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
   }
@@ -125,7 +125,7 @@ int sunCheckAndSetIntLongArg(void* mem, int* i, char* argv[],
     int iarg = atoi(argv[*i]);
     (*i) += 1;
     long int larg = atol(argv[*i]);
-    int retval = fname(mem, iarg, larg);
+    int retval    = fname(mem, iarg, larg);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
   }

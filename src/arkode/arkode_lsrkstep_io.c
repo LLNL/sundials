@@ -21,8 +21,8 @@
 #include <sundials/sundials_types.h>
 
 #include <sunadaptcontroller/sunadaptcontroller_soderlind.h>
-#include "sundials_cli.h"
 #include "arkode_lsrkstep_impl.h"
+#include "sundials_cli.h"
 
 /*===============================================================
   Exported optional input functions.

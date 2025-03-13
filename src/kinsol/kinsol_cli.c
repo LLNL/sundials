@@ -19,10 +19,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sundials/sundials_types.h>
-#include "sundials_cli.h"
 #include "kinsol/kinsol.h"
 #include "kinsol/kinsol_ls.h"
 #include "kinsol_impl.h"
+#include "sundials_cli.h"
 
 /*---------------------------------------------------------------
   KINSetFromCommandLine:
@@ -30,52 +30,49 @@
   Parses the command line to control scalar-valued KINSOL options.
   ---------------------------------------------------------------*/
 
-int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc,
-                          char* argv[])
+int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[])
 {
   KINMem kin_mem;
   if (kinmem == NULL)
   {
-    KINProcessError(NULL, KIN_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSG_NO_MEM);
+    KINProcessError(NULL, KIN_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
     return (KIN_MEM_NULL);
   }
   kin_mem = (KINMem)kinmem;
 
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyIntPair int_pairs[] = {
-    {"orth_aa", KINSetOrthAA},
-    {"return_newest", KINSetReturnNewest},
-    {"no_init_setup", KINSetNoInitSetup},
-    {"no_res_mon", KINSetNoResMon},
-    {"eta_form", KINSetEtaForm},
-    {"no_min_eps", KINSetNoMinEps}};
+  static struct sunKeyIntPair int_pairs[] = {{"orth_aa", KINSetOrthAA},
+                                             {"return_newest", KINSetReturnNewest},
+                                             {"no_init_setup", KINSetNoInitSetup},
+                                             {"no_res_mon", KINSetNoResMon},
+                                             {"eta_form", KINSetEtaForm},
+                                             {"no_min_eps", KINSetNoMinEps}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
-  static struct sunKeyLongPair long_pairs[] = {
-    {"m_aa", KINSetMAA},
-    {"delay_aa", KINSetDelayAA},
-    {"num_max_iters", KINSetNumMaxIters},
-    {"max_setup_calls", KINSetMaxSetupCalls},
-    {"max_sub_setup_calls", KINSetMaxSubSetupCalls},
-    {"max_beta_fails", KINSetMaxBetaFails}};
+  static struct sunKeyLongPair long_pairs[] =
+    {{"m_aa", KINSetMAA},
+     {"delay_aa", KINSetDelayAA},
+     {"num_max_iters", KINSetNumMaxIters},
+     {"max_setup_calls", KINSetMaxSetupCalls},
+     {"max_sub_setup_calls", KINSetMaxSubSetupCalls},
+     {"max_beta_fails", KINSetMaxBetaFails}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static struct sunKeyRealPair real_pairs[] = {
-    {"damping", KINSetDamping},
-    {"damping_aa", KINSetDampingAA},
-    {"eta_const_value", KINSetEtaConstValue},
-    {"res_mon_const_value", KINSetResMonConstValue},
-    {"max_newton_step", KINSetMaxNewtonStep},
-    {"rel_err_func", KINSetRelErrFunc},
-    {"func_norm_tol", KINSetFuncNormTol},
-    {"scaled_step_tol", KINSetScaledStepTol}};
+  static struct sunKeyRealPair real_pairs[] =
+    {{"damping", KINSetDamping},
+     {"damping_aa", KINSetDampingAA},
+     {"eta_const_value", KINSetEtaConstValue},
+     {"res_mon_const_value", KINSetResMonConstValue},
+     {"max_newton_step", KINSetMaxNewtonStep},
+     {"rel_err_func", KINSetRelErrFunc},
+     {"func_norm_tol", KINSetFuncNormTol},
+     {"scaled_step_tol", KINSetScaledStepTol}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct sunKeyTwoRealPair tworeal_pairs[] = {
-    {"eta_params", KINSetEtaParams},
-    {"res_mon_params", KINSetResMonParams}};
-  static const int num_tworeal_keys = sizeof(tworeal_pairs) / sizeof(*tworeal_pairs);
+  static struct sunKeyTwoRealPair tworeal_pairs[] =
+    {{"eta_params", KINSetEtaParams}, {"res_mon_params", KINSetResMonParams}};
+  static const int num_tworeal_keys = sizeof(tworeal_pairs) /
+                                      sizeof(*tworeal_pairs);
 
   int i, j, retval;
   for (i = 1; i < argc; i++)
@@ -100,9 +97,8 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc,
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      retval = sunCheckAndSetIntArg(kinmem, &i, argv, offset,
-                                    int_pairs[j].key, int_pairs[j].set,
-                                    &arg_used);
+      retval = sunCheckAndSetIntArg(kinmem, &i, argv, offset, int_pairs[j].key,
+                                    int_pairs[j].set, &arg_used);
       if (retval != KIN_SUCCESS)
       {
         KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
@@ -117,9 +113,8 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc,
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      retval = sunCheckAndSetLongArg(kinmem, &i, argv, offset,
-                                     long_pairs[j].key, long_pairs[j].set,
-                                     &arg_used);
+      retval = sunCheckAndSetLongArg(kinmem, &i, argv, offset, long_pairs[j].key,
+                                     long_pairs[j].set, &arg_used);
       if (retval != KIN_SUCCESS)
       {
         KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,
@@ -134,9 +129,8 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc,
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      retval = sunCheckAndSetRealArg(kinmem, &i, argv, offset,
-                                     real_pairs[j].key, real_pairs[j].set,
-                                     &arg_used);
+      retval = sunCheckAndSetRealArg(kinmem, &i, argv, offset, real_pairs[j].key,
+                                     real_pairs[j].set, &arg_used);
       if (retval != KIN_SUCCESS)
       {
         KINProcessError(kin_mem, retval, __LINE__, __func__, __FILE__,

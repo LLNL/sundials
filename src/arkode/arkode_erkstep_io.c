@@ -24,8 +24,8 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#include "sundials_cli.h"
 #include "arkode_erkstep_impl.h"
+#include "sundials_cli.h"
 
 /*===============================================================
   Exported optional input functions.

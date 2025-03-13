@@ -24,10 +24,10 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#include "sundials_cli.h"
 #include "arkode/arkode.h"
 #include "arkode/arkode_sprk.h"
 #include "arkode_sprkstep_impl.h"
+#include "sundials_cli.h"
 
 /*===============================================================
   Exported optional input functions.

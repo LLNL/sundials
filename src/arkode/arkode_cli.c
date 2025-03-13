@@ -19,10 +19,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sundials/sundials_types.h>
-#include "sundials_cli.h"
 #include "arkode/arkode.h"
 #include "arkode/arkode_ls.h"
 #include "arkode_impl.h"
+#include "sundials_cli.h"
 
 /*---------------------------------------------------------------
   ARKodeSetFromCommandLine:
@@ -62,9 +62,10 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
      {"linear_solution_scaling", ARKodeSetLinearSolutionScaling}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
-  static struct sunKeyLongPair long_pairs[] = {
-    {"max_num_steps", ARKodeSetMaxNumSteps},
-    {"jac_eval_frequency", ARKodeSetJacEvalFrequency}};
+  static struct sunKeyLongPair long_pairs[] = {{"max_num_steps",
+                                                ARKodeSetMaxNumSteps},
+                                               {"jac_eval_frequency",
+                                                ARKodeSetJacEvalFrequency}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
   static struct sunKeyRealPair real_pairs[] =
