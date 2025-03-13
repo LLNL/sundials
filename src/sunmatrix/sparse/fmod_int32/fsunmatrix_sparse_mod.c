@@ -203,10 +203,44 @@
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
+#ifdef __STDC_NO_COMPLEX__
+#error "This generated file requires C complex number support"
+#endif
+
+
+#include <complex.h>
+
+#define SWIG_ccomplex_construct(REAL, IMAG) ((REAL) + I * (IMAG))
+
+
+#include <complex.h>
+
+#define SWIG_ccomplex_construct(REAL, IMAG) ((REAL) + I * (IMAG))
+
+
 #include "sundials/sundials_matrix.h"
 
 
 #include "sunmatrix/sunmatrix_sparse.h"
+
+
+
+
+
+typedef struct {
+  double real;
+  double imag;
+} SwigComplex_double;
+
+
+
+
+SWIGINTERN SwigComplex_double SWIG_create_complex_double(double real, double imag) {
+  SwigComplex_double result;
+  result.real = real;
+  result.imag = imag;
+  return result;
+}
 
 SWIGEXPORT SUNMatrix _wrap_FSUNSparseMatrix(int32_t const *farg1, int32_t const *farg2, int32_t const *farg3, int const *farg4, void *farg5) {
   SUNMatrix fresult ;
@@ -442,14 +476,14 @@ SWIGEXPORT int _wrap_FSUNMatCopy_Sparse(SUNMatrix farg1, SUNMatrix farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNMatScaleAdd_Sparse(double const *farg1, SUNMatrix farg2, SUNMatrix farg3) {
+SWIGEXPORT int _wrap_FSUNMatScaleAdd_Sparse(SwigComplex_double *farg1, SUNMatrix farg2, SUNMatrix farg3) {
   int fresult ;
-  sunrealtype arg1 ;
+  sunscalartype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNMatrix arg3 = (SUNMatrix) 0 ;
   SUNErrCode result;
   
-  arg1 = (sunrealtype)(*farg1);
+  arg1 = SWIG_ccomplex_construct(farg1->real, farg1->imag);
   arg2 = (SUNMatrix)(farg2);
   arg3 = (SUNMatrix)(farg3);
   result = (SUNErrCode)SUNMatScaleAdd_Sparse(arg1,arg2,arg3);
@@ -458,13 +492,13 @@ SWIGEXPORT int _wrap_FSUNMatScaleAdd_Sparse(double const *farg1, SUNMatrix farg2
 }
 
 
-SWIGEXPORT int _wrap_FSUNMatScaleAddI_Sparse(double const *farg1, SUNMatrix farg2) {
+SWIGEXPORT int _wrap_FSUNMatScaleAddI_Sparse(SwigComplex_double *farg1, SUNMatrix farg2) {
   int fresult ;
-  sunrealtype arg1 ;
+  sunscalartype arg1 ;
   SUNMatrix arg2 = (SUNMatrix) 0 ;
   SUNErrCode result;
   
-  arg1 = (sunrealtype)(*farg1);
+  arg1 = SWIG_ccomplex_construct(farg1->real, farg1->imag);
   arg2 = (SUNMatrix)(farg2);
   result = (SUNErrCode)SUNMatScaleAddI_Sparse(arg1,arg2);
   fresult = (SUNErrCode)(result);
