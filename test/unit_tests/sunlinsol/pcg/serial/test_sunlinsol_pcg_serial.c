@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
   UserData ProbData;   /* problem data structure    */
   int maxl, print_timing;
   sunindextype i;
-  sunrealtype* vecdata;
+  sunscalartype* vecdata;
   double tol;
   SUNContext sunctx;
 
@@ -347,7 +347,7 @@ int main(int argc, char* argv[])
 int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
 {
   /* local variables */
-  sunrealtype *v, *z, *s;
+  sunscalartype *v, *z, *s;
   sunindextype i, N;
   UserData* ProbData;
 
@@ -385,7 +385,7 @@ int PSetup(void* Data) { return 0; }
 int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, sunrealtype tol, int lr)
 {
   /* local variables */
-  sunrealtype *r, *z, *d, *s;
+  sunscalartype *r, *z, *d, *s;
   sunindextype i;
   UserData* ProbData;
 
@@ -449,7 +449,8 @@ int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 {
   int failure = 0;
   long int i;
-  sunrealtype *Xdata, *Ydata, maxerr;
+  sunscalartype *Xdata, *Ydata;
+  sunrealtype maxerr_real, maxerr_imag;
 
   Xdata = N_VGetArrayPointer(X);
   Ydata = N_VGetArrayPointer(Y);
@@ -462,13 +463,16 @@ int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
 
   if (failure > ZERO)
   {
-    maxerr = ZERO;
+    maxerr_real = ZERO;
+    maxerr_imag = ZERO;
     for (i = 0; i < problem_size; i++)
     {
-      maxerr = SUNMAX(SUNRabs(Xdata[i] - Ydata[i]) / SUNRabs(Xdata[i]), maxerr);
+      sunscalartype diff = Xdata[i] - Ydata[i];
+      maxerr_real = SUNMAX(SUNRabs(SUN_REAL(diff)) / SUNRabs(SUN_REAL(Xdata[i])), maxerr_real);
+      maxerr_imag = SUNMAX(SUNRabs(SUN_IMAG(diff)) / SUNRabs(SUN_IMAG(Xdata[i])), maxerr_real);
     }
-    printf("check err failure: maxerr = %" GSYM " (tol = %" GSYM ")\n", maxerr,
-           tol);
+    printf("check err failure: maxerr = %" GSYM " + %" GSYM "i (tol = %" GSYM ")\n", maxerr_real,
+          maxerr_imag, tol);
     return (1);
   }
   else { return (0); }

@@ -22,9 +22,11 @@
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
+
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_core.h>
-#include "sundials/sundials_errors.h"
+
+#include "sundials_iterative_impl.h"
 
 #define FACTOR SUN_RCONST(1000.0)
 #define ZERO   SUN_RCONST(0.0)
