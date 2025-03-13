@@ -75,6 +75,63 @@ int sunCheckAndSetLongArg(void* mem, int* i, char* argv[], const size_t offset,
   return SUN_SUCCESS;
 }
 
+int sunCheckAndSetIntRealArg(void* mem, int* i, char* argv[],
+                             const size_t offset, const char* argtest,
+                             sunIntRealSetFn fname, sunbooleantype* arg_used)
+{
+  *arg_used = SUNFALSE;
+  if (strcmp(argv[*i] + offset, argtest) == 0)
+  {
+    (*i) += 1;
+    int iarg = atoi(argv[*i]);
+    (*i) += 1;
+    sunrealtype rarg = atof(argv[*i]);
+    int retval = fname(mem, iarg, rarg);
+    if (retval != SUN_SUCCESS) { return retval; }
+    *arg_used = SUNTRUE;
+  }
+  return SUN_SUCCESS;
+}
+
+int sunCheckAndSetIntRealRealArg(void* mem, int* i, char* argv[],
+                                 const size_t offset, const char* argtest,
+                                 sunIntRealRealSetFn fname,
+                                 sunbooleantype* arg_used)
+{
+  *arg_used = SUNFALSE;
+  if (strcmp(argv[*i] + offset, argtest) == 0)
+  {
+    (*i) += 1;
+    int iarg = atoi(argv[*i]);
+    (*i) += 1;
+    sunrealtype rarg1 = atof(argv[*i]);
+    (*i) += 1;
+    sunrealtype rarg2 = atof(argv[*i]);
+    int retval = fname(mem, iarg, rarg1, rarg2);
+    if (retval != SUN_SUCCESS) { return retval; }
+    *arg_used = SUNTRUE;
+  }
+  return SUN_SUCCESS;
+}
+
+int sunCheckAndSetIntLongArg(void* mem, int* i, char* argv[],
+                             const size_t offset, const char* argtest,
+                             sunIntLongSetFn fname, sunbooleantype* arg_used)
+{
+  *arg_used = SUNFALSE;
+  if (strcmp(argv[*i] + offset, argtest) == 0)
+  {
+    (*i) += 1;
+    int iarg = atoi(argv[*i]);
+    (*i) += 1;
+    long int larg = atol(argv[*i]);
+    int retval = fname(mem, iarg, larg);
+    if (retval != SUN_SUCCESS) { return retval; }
+    *arg_used = SUNTRUE;
+  }
+  return SUN_SUCCESS;
+}
+
 int sunCheckAndSetRealArg(void* mem, int* i, char* argv[], const size_t offset,
                           const char* argtest, sunRealSetFn fname,
                           sunbooleantype* arg_used)

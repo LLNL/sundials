@@ -68,6 +68,51 @@ SUNDIALS_EXPORT int sunCheckAndSetLongArg(void* mem, int* i, char* argv[],
                                           const char* argtest, sunLongSetFn fname,
                                           sunbooleantype* arg_used);
 
+/* utilities for pair int/sunrealtype "set" routines */
+typedef int (*sunIntRealSetFn)(void*, int, sunrealtype);
+
+struct sunKeyIntRealPair
+{
+  const char* key;
+  sunIntRealSetFn set;
+};
+
+SUNDIALS_EXPORT int sunCheckAndSetIntRealArg(void* mem, int* i, char* argv[],
+                                             const size_t offset,
+                                             const char* argtest,
+                                             sunIntRealSetFn fname,
+                                             sunbooleantype* arg_used);
+
+/* utilities for triplet int/sunrealtype/sunrealtype "set" routines */
+typedef int (*sunIntRealRealSetFn)(void*, int, sunrealtype, sunrealtype);
+
+struct sunKeyIntRealRealPair
+{
+  const char* key;
+  sunIntRealRealSetFn set;
+};
+
+SUNDIALS_EXPORT int sunCheckAndSetIntRealRealArg(void* mem, int* i, char* argv[],
+                                                 const size_t offset,
+                                                 const char* argtest,
+                                                 sunIntRealRealSetFn fname,
+                                                 sunbooleantype* arg_used);
+
+/* utilities for pair int/long int "set" routines */
+typedef int (*sunIntLongSetFn)(void*, int, long int);
+
+struct sunKeyIntLongPair
+{
+  const char* key;
+  sunIntLongSetFn set;
+};
+
+SUNDIALS_EXPORT int sunCheckAndSetIntLongArg(void* mem, int* i, char* argv[],
+                                             const size_t offset,
+                                             const char* argtest,
+                                             sunIntLongSetFn fname,
+                                             sunbooleantype* arg_used);
+
 /* utilities for sunrealtype "set" routines */
 typedef int (*sunRealSetFn)(void*, sunrealtype);
 
