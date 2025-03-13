@@ -166,10 +166,12 @@ int main(int argc, char* argv[])
       }
 
       /* Fill vector with uniform random data in [-1,1] */
-      sunrealtype* xdata = N_VGetHostArrayPointer_Cuda(X);
+      sunscalartype* xdata = N_VGetHostArrayPointer_Cuda(X);
       for (sunindextype j = 0; j < length; j++)
       {
-        xdata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+        sunrealtype rand_real = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+        sunrealtype rand_imag = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
+        xdata[j] = rand_real;// + rand_imag * SUN_I;
       }
       N_VCopyToDevice_Cuda(X);
 
@@ -198,8 +200,8 @@ int main(int argc, char* argv[])
       }
 
       /* Fill vectors with uniform random data in [-1,1] */
-      sunrealtype* ydata = N_VGetHostArrayPointer_Cuda(Y);
-      sunrealtype* zdata = N_VGetHostArrayPointer_Cuda(Z);
+      sunscalartype* ydata = N_VGetHostArrayPointer_Cuda(Y);
+      sunscalartype* zdata = N_VGetHostArrayPointer_Cuda(Z);
       for (sunindextype j = 0; j < length; j++)
       {
         ydata[j] = ((sunrealtype)rand() / (sunrealtype)RAND_MAX) * 2 - 1;
@@ -405,7 +407,7 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype length)
 {
   int failure = 0;
   sunindextype i;
-  sunrealtype* Xdata;
+  sunscalartype* Xdata;
 
   N_VCopyFromDevice_Cuda(X);
   Xdata = N_VGetHostArrayPointer_Cuda(X);
@@ -413,7 +415,7 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype length)
   /* check vector data */
   for (i = 0; i < length; i++)
   {
-    if (failure += SUNRCompare(Xdata[i], ans))
+    if (failure += SUNRCompare(SUN_REAL(Xdata[i]), ans))
     {
       printf("check_ans fail: Xdata[%ld] = %f, expected Xdata[%ld] = %f\n",
              (long int)i, Xdata[i], (long int)i, ans);
@@ -444,7 +446,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
                        sunrealtype val)
 {
   sunindextype i;
-  sunrealtype* xd;
+  sunscalartype* xd;
 
   /* set elements [is,ie] of the data array */
   N_VCopyFromDevice_Cuda(X);
@@ -457,7 +459,7 @@ sunrealtype get_element(N_Vector X, sunindextype i)
 {
   /* get i-th element of data array */
   N_VCopyFromDevice_Cuda(X);
-  return (N_VGetHostArrayPointer_Cuda(X))[i];
+  return SUN_REAL((N_VGetHostArrayPointer_Cuda(X))[i]);
 }
 
 double max_time(N_Vector X, double time)

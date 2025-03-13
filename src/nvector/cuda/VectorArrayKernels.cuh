@@ -61,12 +61,12 @@ __global__ void scaleAddMultiKernel(int nv, T* c, T* xd, T** yd, T** zd, I n)
  * Dot product of one vector with nv other vectors.
  *
  */
-template<typename T, typename I, template<typename, typename> class GridReducer>
+template<typename T, typename I, template<typename, typename, typename> class GridReducer>
 __global__ void dotProdMultiKernel(int nv, const T* xd, T** yd, T* out, I n)
 {
   // REQUIRES nv blocks (i.e. gridDim.x == nv)
   using op       = sundials::reductions::impl::plus<T>;
-  constexpr T Id = op::identity();
+  const T Id = op::identity();
   const I k      = blockIdx.x;
 
   // Initialize to zero.
@@ -75,7 +75,7 @@ __global__ void dotProdMultiKernel(int nv, const T* xd, T** yd, T* out, I n)
   { // each thread computes n/blockDim.x elements
     sum += xd[i] * yd[k][i];
   }
-  GridReducer<T, op>{}(sum, Id, &out[k], nullptr);
+  GridReducer<T, op, T>{}(sum, Id, &out[k], nullptr);
 }
 
 /*
@@ -125,12 +125,12 @@ __global__ void constVectorArrayKernel(int nv, T c, T** zd, I n)
  * WRMS norm of nv vectors.
  *
  */
-template<typename T, typename I, template<typename, typename> class GridReducer>
+template<typename T, typename I, template<typename, typename, typename> class GridReducer>
 __global__ void wL2NormSquareVectorArrayKernel(int nv, T** xd, T** wd, T* out, I n)
 {
   // REQUIRES nv blocks (i.e. gridDim.x == nv)
   using op       = sundials::reductions::impl::plus<T>;
-  constexpr T Id = op::identity();
+  const T Id = op::identity();
   const I k      = blockIdx.x;
 
   // Initialize to zero.
@@ -139,29 +139,29 @@ __global__ void wL2NormSquareVectorArrayKernel(int nv, T** xd, T** wd, T* out, I
   { // each thread computes n/blockDim.x elements
     sum += xd[k][i] * wd[k][i] * xd[k][i] * wd[k][i];
   }
-  GridReducer<T, op>{}(sum, Id, &out[k], nullptr);
+  GridReducer<T, op, T>{}(sum, Id, &out[k], nullptr);
 }
 
 /*
  * Masked WRMS norm of nv vectors.
  *
  */
-template<typename T, typename I, template<typename, typename> class GridReducer>
+template<typename T, typename I, template<typename, typename, typename> class GridReducer>
 __global__ void wL2NormSquareMaskVectorArrayKernel(int nv, T** xd, T** wd,
                                                    T* id, T* out, I n)
 {
   // REQUIRES nv blocks (i.e. gridDim.x == nv)
   using op       = sundials::reductions::impl::plus<T>;
-  constexpr T Id = op::identity();
+  const T Id = op::identity();
   const I k      = blockIdx.x;
 
   // Initialize to zero.
   T sum = 0.0;
   for (I i = threadIdx.x; i < n; i += blockDim.x)
   { // each thread computes n/blockDim.x elements
-    if (id[i] > 0.0) sum += xd[k][i] * wd[k][i] * xd[k][i] * wd[k][i];
+    if (SUN_REAL(id[i]) > 0.0) sum += xd[k][i] * wd[k][i] * xd[k][i] * wd[k][i];
   }
-  GridReducer<T, op>{}(sum, Id, &out[k], nullptr);
+  GridReducer<T, op, T>{}(sum, Id, &out[k], nullptr);
 }
 
 /*
