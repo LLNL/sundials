@@ -114,9 +114,10 @@ sunrealtype N_VWSqrSumLocal_Kokkos(N_Vector x, N_Vector w)
   Kokkos::parallel_reduce(
     "N_VWSqrSumLocal", typename VectorType::range_policy(0, xvec->Length()),
     KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      update += (xdata(i) * wdata(i) * xdata(i) * wdata(i));
+      sunrealtype abs_val = std::abs(xdata(i) * wdata(i));
+      if (abs_val > update) update = abs_val;
     },
-    gpu_result);
+    Kokkos::Max<sunrealtype>(gpu_result));
 
   return gpu_result;
 }
@@ -135,12 +136,14 @@ sunrealtype N_VWSqrSumMaskLocal_Kokkos(N_Vector x, N_Vector w, N_Vector id)
 
   sunrealtype gpu_result{0.0};
   Kokkos::parallel_reduce(
-    "N_VWSqrSumMaskLocal", typename VectorType::range_policy(0, xvec->Length()),
+    "N_VWSqrSumLocal", typename VectorType::range_policy(0, xvec->Length()),
     KOKKOS_LAMBDA(const size_type i, sunrealtype& update) {
-      if (iddata(i) > sunrealtype{0.0})
-        update += (xdata(i) * wdata(i) * xdata(i) * wdata(i));
+      if (iddata(i) > sunrealtype{0.0}) {
+        sunrealtype abs_val = std::abs(xdata(i) * wdata(i));
+        if (abs_val > update) update = abs_val;
+      }
     },
-    gpu_result);
+    Kokkos::Max<sunrealtype>(gpu_result));
 
   return gpu_result;
 }
@@ -444,23 +447,21 @@ void N_VScale_Kokkos(sunrealtype c, N_Vector x, N_Vector z)
 template<class VectorType>
 sunrealtype N_VWL2Norm_Kokkos(N_Vector x, N_Vector w)
 {
-  return std::sqrt(impl::N_VWSqrSumLocal_Kokkos<VectorType>(x, w));
+  return impl::N_VWSqrSumLocal_Kokkos<VectorType>(x, w);
 }
 
 template<class VectorType>
 sunrealtype N_VWrmsNorm_Kokkos(N_Vector x, N_Vector w)
 {
   auto xvec{GetVec<VectorType>(x)};
-  return std::sqrt(impl::N_VWSqrSumLocal_Kokkos<VectorType>(x, w) /
-                   static_cast<sunrealtype>(xvec->Length()));
+  return impl::N_VWSqrSumLocal_Kokkos<VectorType>(x, w);
 }
 
 template<class VectorType>
 sunrealtype N_VWrmsNormMask_Kokkos(N_Vector x, N_Vector w, N_Vector id)
 {
   auto xvec{GetVec<VectorType>(x)};
-  return std::sqrt(impl::N_VWSqrSumMaskLocal_Kokkos<VectorType>(x, w, id) /
-                   static_cast<sunrealtype>(xvec->Length()));
+  return impl::N_VWSqrSumMaskLocal_Kokkos<VectorType>(x, w, id);
 }
 
 } // namespace impl
