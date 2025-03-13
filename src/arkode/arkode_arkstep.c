@@ -4076,8 +4076,10 @@ int arkStep_RelaxDeltaE(ARKodeMem ark_mem, ARKRelaxJacFn relax_jac_fn,
 
   if (J_relax->ops->nvdotprodlocalcomplex && J_relax->ops->nvdotprodmultiallreduce)
   {
-    retval = N_VDotProdMultiAllReduce(1, J_relax, delta_e_out);
+    sunscalartype delta_e_out_tmp = SUN_REAL(*delta_e_out);
+    retval = N_VDotProdMultiAllReduce(1, J_relax, &delta_e_out_tmp);
     if (retval) { return ARK_VECTOROP_ERR; }
+    *delta_e_out = SUN_REAL(delta_e_out_tmp);
   }
 
   *delta_e_out *= ark_mem->h;

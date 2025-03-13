@@ -4974,8 +4974,7 @@ int mriStep_SetInnerForcing(ARKodeMem ark_mem, sunrealtype tshift,
         step_mem->nfusedopvecs = 2 * step_mem->MRIC->stages + 2 + nvecs;
 
         step_mem->cvals = NULL;
-        step_mem->cvals = (sunrealtype*)calloc(step_mem->nfusedopvecs,
-                                               sizeof(*step_mem->cvals));
+        step_mem->cvals = calloc(step_mem->nfusedopvecs, sizeof(*step_mem->cvals));
         if (step_mem->cvals == NULL) { return (ARK_MEM_FAIL); }
         ark_mem->lrw += step_mem->nfusedopvecs;
 
