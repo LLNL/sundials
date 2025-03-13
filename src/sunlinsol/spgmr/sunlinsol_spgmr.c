@@ -95,7 +95,7 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl,
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_SPGMR)malloc(sizeof *content);
-  // SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   S->content = content;
@@ -212,7 +212,7 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
     content->max_restarts = SUNSPGMR_MAXRS_DEFAULT;
   }
 
-  // SUNAssert(content->ATimes, SUN_ERR_ARG_CORRUPT);
+  SUNAssert(content->ATimes, SUN_ERR_ARG_CORRUPT);
 
   if ((content->pretype != SUN_PREC_LEFT) &&
       (content->pretype != SUN_PREC_RIGHT) && (content->pretype != SUN_PREC_BOTH))
@@ -220,8 +220,8 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
     content->pretype = SUN_PREC_NONE;
   }
 
-  // SUNAssert((content->pretype == SUN_PREC_NONE) || (content->Psolve != NULL),
-  //           SUN_ERR_ARG_CORRUPT);
+  SUNAssert((content->pretype == SUN_PREC_NONE) || (content->Psolve != NULL),
+            SUN_ERR_ARG_CORRUPT);
 
   /* allocate solver-specific memory (where the size depends on the
       choice of maxl) here */
@@ -237,18 +237,16 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->Hes == NULL)
   {
     content->Hes =
-      // (sunrealtype**)malloc((content->maxl + 1) * sizeof(sunrealtype*));
       (suncomplextype**)malloc((content->maxl + 1) *
-                               sizeof(suncomplextype*)); //Amihere
-    // SUNAssert(content->Hes, SUN_ERR_MALLOC_FAIL);
+                               sizeof(suncomplextype*));
+    SUNAssert(content->Hes, SUN_ERR_MALLOC_FAIL);
 
     for (k = 0; k <= content->maxl; k++)
     {
       content->Hes[k] = NULL;
-      // content->Hes[k] = (sunrealtype*)malloc(content->maxl * sizeof(sunrealtype));
       content->Hes[k] = (suncomplextype*)malloc(
-        content->maxl * sizeof(suncomplextype)); //Amihere
-      // SUNAssert(content->Hes[k], SUN_ERR_MALLOC_FAIL);
+        content->maxl * sizeof(suncomplextype));
+      SUNAssert(content->Hes[k], SUN_ERR_MALLOC_FAIL);
     }
   }
 
@@ -256,34 +254,31 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->givens == NULL)
   {
     content->givens =
-      // (sunrealtype*)malloc(2 * content->maxl * sizeof(sunrealtype));
-      (suncomplextype*)malloc(2 * content->maxl * sizeof(suncomplextype)); //Amihere
-    // SUNAssert(content->givens, SUN_ERR_MALLOC_FAIL);
+      (suncomplextype*)malloc(2 * content->maxl * sizeof(suncomplextype));
+    SUNAssert(content->givens, SUN_ERR_MALLOC_FAIL);
   }
 
   /*    y and g vectors */
   if (content->yg == NULL)
   {
-    // content->yg = (sunrealtype*)malloc((content->maxl + 1) * sizeof(sunrealtype));
     content->yg = (suncomplextype*)malloc((content->maxl + 1) *
-                                          sizeof(suncomplextype)); //Amihere
-    // SUNAssert(content->yg, SUN_ERR_MALLOC_FAIL);
+                                          sizeof(suncomplextype));
+    SUNAssert(content->yg, SUN_ERR_MALLOC_FAIL);
   }
 
   /*    cv vector for fused vector ops */
   if (content->cv == NULL)
   {
-    // content->cv = (sunrealtype*)malloc((content->maxl + 1) * sizeof(sunrealtype));
     content->cv = (suncomplextype*)malloc((content->maxl + 1) *
-                                          sizeof(suncomplextype)); //Amihere
-    // SUNAssert(content->cv, SUN_ERR_MALLOC_FAIL);
+                                          sizeof(suncomplextype));
+    SUNAssert(content->cv, SUN_ERR_MALLOC_FAIL);
   }
 
   /*    Xv vector for fused vector ops */
   if (content->Xv == NULL)
   {
     content->Xv = (N_Vector*)malloc((content->maxl + 1) * sizeof(N_Vector));
-    // SUNAssert(content->Xv, SUN_ERR_MALLOC_FAIL);
+    SUNAssert(content->Xv, SUN_ERR_MALLOC_FAIL);
   }
 
   return SUN_SUCCESS;

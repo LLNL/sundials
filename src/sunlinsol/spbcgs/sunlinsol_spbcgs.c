@@ -55,7 +55,7 @@
 SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl,
                                  SUNContext sunctx)
 {
-  // SUNFunctionBegin(sunctx);
+  SUNFunctionBegin(sunctx);
   SUNLinearSolver S;
   SUNLinearSolverContent_SPBCGS content;
 
@@ -98,7 +98,7 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl,
   /* Create content */
   content = NULL;
   content = (SUNLinearSolverContent_SPBCGS)malloc(sizeof *content);
-  // SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
+  SUNAssertNull(content, SUN_ERR_MALLOC_FAIL);
 
   /* Attach content */
   S->content = content;
@@ -423,14 +423,13 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* Set r_norm to L2 norm of r_star = sb P1_inv r_0, and
       return if small */
 
-  // *res_norm = r_norm = rho = SUNRsqrt(beta_denom);
-  *res_norm = r_norm = rho = SUNRsqrt((sunrealtype)N_VDotProd(r_star, r_star));
+  *res_norm = r_norm = rho = SUNRsqrt(N_VDotProd(r_star, r_star));
 
-  // #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  //   SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
-  //                      "SUNLinSolSolve_SPBCGS", "initial-residual",
-  //                      "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
-  // #endif
+#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
+    SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
+                       "SUNLinSolSolve_SPBCGS", "initial-residual",
+                       "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
+#endif
 
   if (r_norm <= delta)
   {
@@ -535,8 +534,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     /* Calculate alpha = <r,r_star>/<Ap,r_star> */
 
-    // AMIHERE: ORIGINALLY, THIS SHOULD BE dot(r_star, Ap) BUT THE DEFNITION OF INNER PRODUCT IS THE OPPOSITE IN MATLAB.
-    // HENCE, IN MATLAB dot(r_star, Ap) WORKS BUT NOT dot(Ap, r_star).
     alpha = N_VDotProd(r_star, Ap);
     SUNCheckLastErr();
     alpha = beta_denom / alpha;
@@ -626,8 +623,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     SUNCheckLastErr();
     if (omega_denom == ZERO) { omega_denom = ONE; }
 
-    // AMIHERE: ORIGINALLY, THIS SHOULD BE dot(u, q) BUT THE DEFNITION OF INNER PRODUCT IS THE OPPOSITE IN MATLAB.
-    // HENCE, IN MATLAB dot(u, q) WORKS BUT NOT dot(q, u).
     omega = N_VDotProd(u, q);
     SUNCheckLastErr();
     omega /= omega_denom;
@@ -678,8 +673,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     /* Not yet converged, continue iteration */
     /* Update beta = <rnew,r_star> / <rold,r_start> * alpha / omega */
 
-    // AMIHERE: ORIGINALLY, THIS SHOULD BE dot(r_star, r) BUT THE DEFNITION OF INNER PRODUCT IS THE OPPOSITE IN MATLAB.
-    // HENCE, IN MATLAB dot(r_star, r) WORKS BUT NOT dot(r, r_star).
     beta_num = N_VDotProd(r_star, r);
     SUNCheckLastErr();
     beta = ((beta_num / beta_denom) * (alpha / omega));
@@ -689,7 +682,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     Xv[0] = p;
 
     cv[1] = -alpha * (beta_num / beta_denom);
-    //  cv[1] =  -beta * (omega);
     Xv[1] = Ap;
 
     cv[2] = ONE;
@@ -767,7 +759,7 @@ sunindextype SUNLinSolLastFlag_SPBCGS(SUNLinearSolver S)
 SUNErrCode SUNLinSolSpace_SPBCGS(SUNLinearSolver S, long int* lenrwLS,
                                  long int* leniwLS)
 {
-  // SUNFunctionBegin(S->sunctx);
+  SUNFunctionBegin(S->sunctx);
   sunindextype liw1, lrw1;
   if (SPBCGS_CONTENT(S)->vtemp->ops->nvspace)
   {
