@@ -18,7 +18,7 @@
 install(CODE "MESSAGE(\"\nInstall KINSOL\n\")")
 
 # Add variable kinsol_SOURCES with the sources for the KINSOL library
-set(kinsol_SOURCES kinsol.c kinsol_bbdpre.c kinsol_io.c kinsol_ls.c)
+set(kinsol_SOURCES kinsol.c kinsol_bbdpre.c kinsol_cli.c kinsol_io.c kinsol_ls.c)
 
 # Add variable kinsol_HEADERS with the exported KINSOL header files
 set(kinsol_HEADERS kinsol.h kinsol_bbdpre.h kinsol_ls.h)
