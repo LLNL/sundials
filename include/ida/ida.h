@@ -114,6 +114,10 @@ SUNDIALS_EXPORT int IDAWFtolerances(void* ida_mem, IDAEwtFn efun);
 /* Initial condition calculation function */
 SUNDIALS_EXPORT int IDACalcIC(void* ida_mem, int icopt, sunrealtype tout1);
 
+/* Command-line control over scalar-valued set routines */
+SUNDIALS_EXPORT int IDASetFromCommandLine(void* ida_mem, const char* idaid,
+                                          int argc, char* argv[]);
+
 /* Initial condition calculation optional input functions */
 SUNDIALS_EXPORT int IDASetNonlinConvCoefIC(void* ida_mem, sunrealtype epiccon);
 SUNDIALS_EXPORT int IDASetMaxNumStepsIC(void* ida_mem, int maxnh);

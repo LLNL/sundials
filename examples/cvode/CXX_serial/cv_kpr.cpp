@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
   flag                 = CVodeSetUserData(cvode_mem, udata);
   if (check_flag(flag, "CVodeSetUserData")) { return 1; }
 
-  /* Override any current settings with command-line options */
+  // Override any current settings with command-line options
   flag = CVodeSetFromCommandLine(cvode_mem, "", argc, argv);
   if (check_flag(flag, "CVodeSetFromCommandLine")) { return 1; }
 
