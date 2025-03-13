@@ -17,13 +17,12 @@
  * -----------------------------------------------------------------
  */
 
-#include <nvector/nvector_serial.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sundials/sundials_iterative.h>
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+
+#include <sundials/sundials_core.h>
 #include <sunlinsol/sunlinsol_spbcgs.h>
+#include <nvector/nvector_serial.h>
 
 #include "test_sunlinsol.h"
 
@@ -555,7 +554,7 @@ int check_vector(N_Vector X, N_Vector Y, sunrealtype tol)
   /* check vector data */
   for (i = 0; i < problem_size; i++)
   {
-    failure += SUNRCompareTol(Xdata[i], Ydata[i], tol);
+    failure += SUNCompareTol(Xdata[i], Ydata[i], tol);
   }
 
   if (failure > ZERO)
