@@ -154,7 +154,7 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl,
   * Function to set the type of preconditioning for SPBCGS to use
   */
 
-SUNErrCode SUNLinSol_SPBCGS_SetPrecType(SUNLinearSolver S, int pretype)
+SUNErrCode SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S, int pretype)
 {
   SUNFunctionBegin(S->sunctx);
   /* Check for legal pretype */
@@ -171,7 +171,7 @@ SUNErrCode SUNLinSol_SPBCGS_SetPrecType(SUNLinearSolver S, int pretype)
   * Function to set the maximum number of iterations for SPBCGS to use
   */
 
-SUNErrCode SUNLinSol_SPBCGS_SetMaxl(SUNLinearSolver S, int maxl)
+SUNErrCode SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl)
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -303,7 +303,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   SUNFunctionBegin(S->sunctx);
 
   /* local data and shortcut variables */
-  suncomplextype alpha, beta, omega, beta_denom, beta_num;
+  sunscalartype alpha, beta, omega, beta_denom, beta_num;
   sunrealtype omega_denom, r_norm, rho;
   N_Vector r_star, r, p, q, u, Ap, vtemp;
   sunbooleantype preOnLeft, preOnRight, scale_x, scale_b, converged;
@@ -318,7 +318,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   int status;
 
   /* local variables for fused vector operations */
-  suncomplextype cv[3];
+  sunscalartype cv[3];
   N_Vector Xv[3];
 
   /* Make local shortcuts to solver variables. */

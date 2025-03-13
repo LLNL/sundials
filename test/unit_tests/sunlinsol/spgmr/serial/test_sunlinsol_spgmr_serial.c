@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
   UserData ProbData;   /* problem data structure    */
   int gstype, pretype, maxl, print_timing;
   sunindextype i;
-  sunrealtype* vecdata;
+  sunscalartype* vecdata;
   double tol;
   SUNContext sunctx;
 

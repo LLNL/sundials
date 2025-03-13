@@ -143,7 +143,7 @@ SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype, int maxl,
 * one of SUN_PREC_LEFT, SUN_PREC_RIGHT or SUN_PREC_BOTH; otherwise turns off
 */
 
-SUNErrCode SUNLinSol_SPFGMR_SetPrecType(SUNLinearSolver S, int pretype)
+SUNErrCode SUNLinSol_SPFGMRSetPrecType(SUNLinearSolver S, int pretype)
 {
   /* Check for legal pretype */
   pretype = ((pretype == SUN_PREC_LEFT) || (pretype == SUN_PREC_RIGHT) ||
@@ -160,7 +160,7 @@ SUNErrCode SUNLinSol_SPFGMR_SetPrecType(SUNLinearSolver S, int pretype)
 * Function to set the type of Gram-Schmidt orthogonalization for SPFGMR to use
 */
 
-SUNErrCode SUNLinSol_SPFGMR_SetGSType(SUNLinearSolver S, int gstype)
+SUNErrCode SUNLinSol_SPFGMRSetGSType(SUNLinearSolver S, int gstype)
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -177,7 +177,7 @@ SUNErrCode SUNLinSol_SPFGMR_SetGSType(SUNLinearSolver S, int gstype)
 * Function to set the maximum number of FGMRES restarts to allow
 */
 
-SUNErrCode SUNLinSol_SPFGMR_SetMaxRestarts(SUNLinearSolver S, int maxrs)
+SUNErrCode SUNLinSol_SPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 {
   /* Illegal maxrs implies use of default value */
   if (maxrs < 0) { maxrs = SUNSPFGMR_MAXRS_DEFAULT; }

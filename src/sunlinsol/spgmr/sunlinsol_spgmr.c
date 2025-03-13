@@ -138,7 +138,7 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl,
   * Function to set the type of preconditioning for SPGMR to use
   */
 
-SUNErrCode SUNLinSol_SPGMR_SetPrecType(SUNLinearSolver S, int pretype)
+SUNErrCode SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype)
 {
   SUNFunctionBegin(S->sunctx);
   /* Check for legal pretype */
@@ -155,7 +155,7 @@ SUNErrCode SUNLinSol_SPGMR_SetPrecType(SUNLinearSolver S, int pretype)
   * Function to set the type of Gram-Schmidt orthogonalization for SPGMR to use
   */
 
-SUNErrCode SUNLinSol_SPGMR_SetGSType(SUNLinearSolver S, int gstype)
+SUNErrCode SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
 {
   SUNFunctionBegin(S->sunctx);
   /* Check for legal gstype */
@@ -171,7 +171,7 @@ SUNErrCode SUNLinSol_SPGMR_SetGSType(SUNLinearSolver S, int gstype)
   * Function to set the maximum number of GMRES restarts to allow
   */
 
-SUNErrCode SUNLinSol_SPGMR_SetMaxRestarts(SUNLinearSolver S, int maxrs)
+SUNErrCode SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 {
   /* Illegal maxrs implies use of default value */
   if (maxrs < 0) { maxrs = SUNSPGMR_MAXRS_DEFAULT; }
@@ -237,15 +237,15 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->Hes == NULL)
   {
     content->Hes =
-      (suncomplextype**)malloc((content->maxl + 1) *
-                               sizeof(suncomplextype*));
+      (sunscalartype**)malloc((content->maxl + 1) *
+                               sizeof(sunscalartype*));
     SUNAssert(content->Hes, SUN_ERR_MALLOC_FAIL);
 
     for (k = 0; k <= content->maxl; k++)
     {
       content->Hes[k] = NULL;
-      content->Hes[k] = (suncomplextype*)malloc(
-        content->maxl * sizeof(suncomplextype));
+      content->Hes[k] = (sunscalartype*)malloc(
+        content->maxl * sizeof(sunscalartype));
       SUNAssert(content->Hes[k], SUN_ERR_MALLOC_FAIL);
     }
   }
@@ -254,23 +254,23 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->givens == NULL)
   {
     content->givens =
-      (suncomplextype*)malloc(2 * content->maxl * sizeof(suncomplextype));
+      (sunscalartype*)malloc(2 * content->maxl * sizeof(sunscalartype));
     SUNAssert(content->givens, SUN_ERR_MALLOC_FAIL);
   }
 
   /*    y and g vectors */
   if (content->yg == NULL)
   {
-    content->yg = (suncomplextype*)malloc((content->maxl + 1) *
-                                          sizeof(suncomplextype));
+    content->yg = (sunscalartype*)malloc((content->maxl + 1) *
+                                          sizeof(sunscalartype));
     SUNAssert(content->yg, SUN_ERR_MALLOC_FAIL);
   }
 
   /*    cv vector for fused vector ops */
   if (content->cv == NULL)
   {
-    content->cv = (suncomplextype*)malloc((content->maxl + 1) *
-                                          sizeof(suncomplextype));
+    content->cv = (sunscalartype*)malloc((content->maxl + 1) *
+                                          sizeof(sunscalartype));
     SUNAssert(content->cv, SUN_ERR_MALLOC_FAIL);
   }
 
@@ -357,7 +357,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
 
   /* local data and shortcut variables */
   N_Vector *V, xcor, vtemp, s1, s2;
-  suncomplextype **Hes, *givens, *yg;
+  sunscalartype **Hes, *givens, *yg;
   sunrealtype* res_norm;
   sunrealtype beta, rotation_product, r_norm, s_product, rho;
   sunbooleantype preOnLeft, preOnRight, scale2, scale1, converged;
@@ -367,7 +367,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
   void *A_data, *P_data;
   SUNATimesFn atimes;
   SUNPSolveFn psolve;
-  suncomplextype* cv;
+  sunscalartype* cv;
   N_Vector* Xv;
   int status;
 
