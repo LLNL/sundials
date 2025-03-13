@@ -49,8 +49,11 @@ contains
     type(SUNMatrix), pointer :: A          ! dummy SUNMatrix
     type(N_Vector), pointer :: x, xhat, b ! test vectors
     type(UserData), pointer :: probdata   ! problem data
-    real(c_double), pointer :: xdata(:)   ! x vector data
-    real(c_double)                 :: tmpr       ! temporary real value
+
+#if defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+    complex(c_double_complex), pointer :: xdata(:)   ! x vector data
+#endif
+    real(c_double)          :: tmpr       ! temporary real value
     integer(kind=myindextype)     :: j
     integer(c_int)                 :: tmp
 
@@ -117,13 +120,13 @@ contains
     fails = fails + ATimes(c_loc(probdata), x, b)
 
     ! Run tests with this setup
-    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_NONE); 
-    fails = fails + Test_FSUNLinSolSetup(LS, A, 0); 
-    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0); 
-    fails = fails + Test_FSUNLinSolLastFlag(LS, 0); 
-    fails = fails + Test_FSUNLinSolNumIters(LS, 0); 
-    fails = fails + Test_FSUNLinSolResNorm(LS, 0); 
-    fails = fails + Test_FSUNLinSolResid(LS, 0); 
+    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_NONE);
+    fails = fails + Test_FSUNLinSolSetup(LS, A, 0);
+    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0);
+    fails = fails + Test_FSUNLinSolLastFlag(LS, 0);
+    fails = fails + Test_FSUNLinSolNumIters(LS, 0);
+    fails = fails + Test_FSUNLinSolResNorm(LS, 0);
+    fails = fails + Test_FSUNLinSolResid(LS, 0);
     if (fails /= 0) then
       print *, 'FAIL: FSUNLinSol_SPGMR module, problem 1'
     else
@@ -144,13 +147,13 @@ contains
     fails = fails + ATimes(c_loc(probdata), x, b)
 
     ! Run tests with this setup
-    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, pretype); 
-    fails = fails + Test_FSUNLinSolSetup(LS, A, 0); 
-    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0); 
-    fails = fails + Test_FSUNLinSolLastFlag(LS, 0); 
-    fails = fails + Test_FSUNLinSolNumIters(LS, 0); 
-    fails = fails + Test_FSUNLinSolResNorm(LS, 0); 
-    fails = fails + Test_FSUNLinSolResid(LS, 0); 
+    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, pretype);
+    fails = fails + Test_FSUNLinSolSetup(LS, A, 0);
+    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0);
+    fails = fails + Test_FSUNLinSolLastFlag(LS, 0);
+    fails = fails + Test_FSUNLinSolNumIters(LS, 0);
+    fails = fails + Test_FSUNLinSolResNorm(LS, 0);
+    fails = fails + Test_FSUNLinSolResid(LS, 0);
     if (fails /= 0) then
       print *, 'FAIL: FSUNLinSol_SPGMR module, problem 2'
     else
@@ -175,13 +178,13 @@ contains
     fails = fails + ATimes(c_loc(probdata), x, b)
 
     ! Run tests with this setup
-    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_NONE); 
-    fails = fails + Test_FSUNLinSolSetup(LS, A, 0); 
-    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0); 
-    fails = fails + Test_FSUNLinSolLastFlag(LS, 0); 
-    fails = fails + Test_FSUNLinSolNumIters(LS, 0); 
-    fails = fails + Test_FSUNLinSolResNorm(LS, 0); 
-    fails = fails + Test_FSUNLinSolResid(LS, 0); 
+    fails = fails + FSUNLinSol_SPGMRSetPrecType(LS, SUN_PREC_NONE);
+    fails = fails + Test_FSUNLinSolSetup(LS, A, 0);
+    fails = fails + Test_FSUNLinSolSolve(LS, A, x, b, tol, 0);
+    fails = fails + Test_FSUNLinSolLastFlag(LS, 0);
+    fails = fails + Test_FSUNLinSolNumIters(LS, 0);
+    fails = fails + Test_FSUNLinSolResNorm(LS, 0);
+    fails = fails + Test_FSUNLinSolResid(LS, 0);
     if (fails /= 0) then
       print *, 'FAIL: FSUNLinSol_SPGMR module, problem 3'
     else
@@ -211,7 +214,11 @@ contains
     type(c_ptr), value :: udata
     type(N_Vector) :: vvec, zvec
     type(UserData), pointer :: probdata
+#if defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+    complex(c_double_complex), pointer :: v(:), z(:), s1(:), s2(:)
+#else
     real(c_double), pointer :: v(:), z(:), s1(:), s2(:)
+#endif
     integer(c_long) :: i, N
 
     call c_f_pointer(udata, probdata)
@@ -255,7 +262,11 @@ contains
     real(c_double)             :: tol
     integer(c_int)             :: lr
     type(UserData), pointer    :: probdata
+#if defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+    complex(c_double_complex), pointer :: r(:), z(:), d(:)
+#else
     real(c_double), pointer    :: r(:), z(:), d(:)
+#endif
     integer(kind=myindextype) :: i, N
 
     call c_f_pointer(udata, probdata)
@@ -283,7 +294,11 @@ integer(c_int) function check_vector(X, Y, tol) result(failure)
   type(N_Vector)  :: x, y
   real(c_double)  :: tol, maxerr
   integer(kind=myindextype) :: i, xlen, ylen
+#if defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+  complex(c_double_complex), pointer :: xdata(:), ydata(:)
+#else
   real(c_double), pointer :: xdata(:), ydata(:)
+#endif
 
   failure = 0
 
