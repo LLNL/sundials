@@ -12,7 +12,7 @@
  * SUNDIALS Copyright End
  *---------------------------------------------------------------
  * This file provides command-line control over optional inputs
- * to CVODE.
+ * to IDA.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -20,114 +20,108 @@
 #include <string.h>
 #include <sundials/sundials_types.h>
 #include "sundials_cli.h"
-#include "cvodes/cvodes.h"
-#include "cvodes/cvodes_ls.h"
-#include "cvodes/cvodes_proj.h"
-#include "cvodes_impl.h"
+#include "idas/idas.h"
+#include "idas/idas_ls.h"
+#include "idas_impl.h"
 
 /*---------------------------------------------------------------
-  CVodeSetFromCommandLine:
+  IDASetFromCommandLine:
 
-  Parses the command line to control scalar-valued CVODE options.
+  Parses the command line to control scalar-valued IDA options.
   ---------------------------------------------------------------*/
 
-int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
-                            char* argv[])
+int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
+                          char* argv[])
 {
-  CVodeMem cv_mem;
-  if (cvode_mem == NULL)
+  IDAMem IDA_mem;
+  if (ida_mem == NULL)
   {
-    cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__,
-                    MSGCV_NO_MEM);
-    return (CV_MEM_NULL);
+    IDAProcessError(NULL, IDA_MEM_NULL, __LINE__, __func__, __FILE__,
+                    MSG_NO_MEM);
+    return (IDA_MEM_NULL);
   }
-  cv_mem = (CVodeMem)cvode_mem;
+  IDA_mem = (IDAMem)ida_mem;
 
   /* Set lists of command-line arguments, and the corresponding set routines */
   static struct sunKeyIntPair int_pairs[] = {
-    {"max_conv_fails", CVodeSetMaxConvFails},
-    {"max_err_test_fails", CVodeSetMaxErrTestFails},
-    {"max_hnil_warns", CVodeSetMaxHnilWarns},
-    {"max_nonlin_iters", CVodeSetMaxNonlinIters},
-    {"max_order", CVodeSetMaxOrd},
-    {"stab_lim_det", CVodeSetStabLimDet},
-    {"interpolate_stop_time", CVodeSetInterpolateStopTime},
-    {"num_efails_eta_max_err_fail", CVodeSetNumFailsEtaMaxErrFail},
-    {"quad_err_con", CVodeSetQuadErrCon},
-    {"sens_err_con", CVodeSetSensErrCon},
-    {"sens_max_nonlin_iters", CVodeSetSensMaxNonlinIters},
-    {"quad_sens_err_con", CVodeSetQuadSensErrCon},
-    {"linear_solution_scaling", CVodeSetLinearSolutionScaling},
-    {"proj_err_est", CVodeSetProjErrEst},
-    {"max_num_proj_fails", CVodeSetMaxNumProjFails}};
+    {"max_num_steps_ic", IDASetMaxNumStepsIC},
+    {"max_num_jacs_ic", IDASetMaxNumJacsIC},
+    {"max_num_iters_ic", IDASetMaxNumItersIC},
+    {"linesearch_off_ic", IDASetLineSearchOffIC},
+    {"max_backs_ic", IDASetMaxBacksIC},
+    {"max_order", IDASetMaxOrd},
+    {"max_err_test_fails", IDASetMaxErrTestFails},
+    {"suppress_alg", IDASetSuppressAlg},
+    {"max_conv_fails", IDASetMaxConvFails},
+    {"max_nonlin_iters", IDASetMaxNonlinIters},
+    {"quad_err_con", IDASetQuadErrCon},
+    {"sens_err_con", IDASetSensErrCon},
+    {"sens_max_nonlin_iters", IDASetSensMaxNonlinIters},
+    {"quad_sens_err_con", IDASetQuadSensErrCon},
+    {"linear_solution_scaling", IDASetLinearSolutionScaling}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   static struct sunKeyLongPair long_pairs[] = {
-    {"lsetup_frequency", CVodeSetLSetupFrequency},
-    {"max_num_steps", CVodeSetMaxNumSteps},
-    {"monitor_frequency", CVodeSetMonitorFrequency},
-    {"jac_eval_frequency", CVodeSetJacEvalFrequency},
-    {"proj_frequency", CVodeSetProjFrequency}};
+    {"max_num_steps", IDASetMaxNumSteps}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
   static struct sunKeyRealPair real_pairs[] = {
-    {"dgmax_lsetup", CVodeSetDeltaGammaMaxLSetup},
-    {"init_step", CVodeSetInitStep},
-    {"max_step", CVodeSetMaxStep},
-    {"min_step", CVodeSetMinStep},
-    {"nonlin_conv_coef", CVodeSetNonlinConvCoef},
-    {"stop_time", CVodeSetStopTime},
-    {"eta_max_first_step", CVodeSetEtaMaxFirstStep},
-    {"eta_max_early_step", CVodeSetEtaMaxEarlyStep},
-    {"eta_max", CVodeSetEtaMax},
-    {"eta_min", CVodeSetEtaMin},
-    {"eta_min_err_fail", CVodeSetEtaMinErrFail},
-    {"eta_max_err_fail", CVodeSetEtaMaxErrFail},
-    {"eta_conv_fail", CVodeSetEtaConvFail},
-    {"delta_gamma_max_bad_jac", CVodeSetDeltaGammaMaxBadJac},
-    {"eps_lin", CVodeSetEpsLin},
-    {"ls_norm_factor", CVodeSetLSNormFactor},
-    {"eps_proj", CVodeSetEpsProj},
-    {"proj_fail_eta", CVodeSetProjFailEta}};
+    {"nonlin_conv_coef_ic", IDASetNonlinConvCoefIC},
+    {"step_tolerance_ic", IDASetStepToleranceIC},
+    {"delta_cj_lsetup", IDASetDeltaCjLSetup},
+    {"init_step", IDASetInitStep},
+    {"max_step", IDASetMaxStep},
+    {"min_step", IDASetMinStep},
+    {"stop_time", IDASetStopTime},
+    {"eta_min", IDASetEtaMin},
+    {"eta_max", IDASetEtaMax},
+    {"eta_low", IDASetEtaLow},
+    {"eta_min_err_fail", IDASetEtaMinErrFail},
+    {"eta_conv_fail", IDASetEtaConvFail},
+    {"nonlin_conv_coef", IDASetNonlinConvCoef},
+    {"eps_lin", IDASetEpsLin},
+    {"ls_norm_factor", IDASetLSNormFactor},
+    {"increment_factor", IDASetIncrementFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
   static struct sunKeyTwoRealPair tworeal_pairs[] = {
-    {"eta_fixed_step_bounds", CVodeSetEtaFixedStepBounds},
-    {"scalar_tolerances", CVodeSStolerances},
-    {"quad_scalar_tolerances", CVodeQuadSStolerances}};
+    {"eta_fixed_step_bounds", IDASetEtaFixedStepBounds},
+    {"scalar_tolerances", IDASStolerances},
+    {"quad_scalar_tolerances", IDAQuadSStolerances}};
   static const int num_tworeal_keys = sizeof(tworeal_pairs) / sizeof(*tworeal_pairs);
 
   static struct sunKeyTwoIntPair twoint_pairs[] = {
-    {"max_ord_b", CVodeSetMaxOrdB},
-    {"stab_lim_det_b", CVodeSetStabLimDetB},
-    {"quad_err_con_b", CVodeSetQuadErrConB},
-    {"linear_solution_scaling_b", CVodeSetLinearSolutionScalingB}};
+    {"max_ord_b", IDASetMaxOrdB},
+    {"suppress_alg_b", IDASetSuppressAlgB},
+    {"quad_err_con_b", IDASetQuadErrConB},
+    {"linear_solution_scaling_b", IDASetLinearSolutionScalingB}};
   static const int num_twoint_keys = sizeof(twoint_pairs) / sizeof(*twoint_pairs);
 
   static struct sunKeyActionPair action_pairs[] = {
-    {"clear_stop_time", CVodeClearStopTime},
-    {"adj_no_sensi", CVodeSetAdjNoSensi},
-    {"no_inactive_root_warn", CVodeSetNoInactiveRootWarn}};
+    {"clear_stop_time", IDAClearStopTime},
+    {"no_inactive_root_warn", IDASetNoInactiveRootWarn},
+    {"sens_toggle_off", IDASensToggleOff},
+    {"adj_no_sensi", IDAAdjSetNoSensi}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   static struct sunKeyIntRealPair int_real_pairs[] = {
-    {"sens_dq_method", CVodeSetSensDQMethod},
-    {"init_step_b", CVodeSetInitStepB},
-    {"min_step_b", CVodeSetMinStepB},
-    {"max_step_b", CVodeSetMaxStepB},
-    {"eps_lin_b", CVodeSetEpsLinB},
-    {"ls_norm_factor_b", CVodeSetLSNormFactorB}};
+    {"sens_dq_method", IDASetSensDQMethod},
+    {"init_step_b", IDASetInitStepB},
+    {"max_step_b", IDASetMaxStepB},
+    {"eps_lin_b", IDASetEpsLinB},
+    {"ls_norm_factor_b", IDASetLSNormFactorB},
+    {"increment_factor_b", IDASetIncrementFactorB}};
   static const int num_int_real_keys = sizeof(int_real_pairs) /
                                        sizeof(*int_real_pairs);
 
   static struct sunKeyIntRealRealPair int_real_real_pairs[] = {
-    {"scalar_tolerances_b", CVodeSStolerancesB},
-    {"quad_scalar_tolerances_b", CVodeQuadSStolerancesB}};
+    {"scalar_tolerances_b", IDASStolerancesB},
+    {"quad_scalar_tolerances_b", IDAQuadSStolerancesB}};
   static const int num_int_real_real_keys = sizeof(int_real_real_pairs) /
                                             sizeof(*int_real_real_pairs);
 
   static struct sunKeyIntLongPair int_long_pairs[] = {
-    {"max_num_steps_b", CVodeSetMaxNumStepsB}};
+    {"max_num_steps_b", IDASetMaxNumStepsB}};
   static const int num_int_long_keys = sizeof(int_long_pairs) /
                                        sizeof(*int_long_pairs);
 
@@ -136,17 +130,17 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
   {
     sunbooleantype arg_used = SUNFALSE;
 
-    /* if cvid is supplied, skip command-line arguments that do not begin with cvid;
-       else, skip command-line arguments that do not begin with "cvodes." */
+    /* if idaid is supplied, skip command-line arguments that do not begin with idaid;
+       else, skip command-line arguments that do not begin with "idas." */
     size_t offset;
-    if (strlen(cvid) > 0)
+    if (strlen(idaid) > 0)
     {
-      if (strncmp(argv[i], cvid, strlen(cvid)) != 0) { continue; }
-      offset = strlen(cvid) + 1;
+      if (strncmp(argv[i], idaid, strlen(idaid)) != 0) { continue; }
+      offset = strlen(idaid) + 1;
     }
     else
     {
-      static const char* prefix = "cvodes.";
+      static const char* prefix = "idas.";
       if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
       offset = strlen(prefix);
     }
@@ -154,12 +148,12 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all "int" command-line options */
     for (j = 0; j < num_int_keys; j++)
     {
-      retval = sunCheckAndSetIntArg(cvode_mem, &i, argv, offset,
+      retval = sunCheckAndSetIntArg(ida_mem, &i, argv, offset,
                                     int_pairs[j].key, int_pairs[j].set,
                                     &arg_used);
-      if (retval != CV_SUCCESS)
+      if (retval != IDA_SUCCESS)
       {
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         int_pairs[j].key);
         return retval;
@@ -171,12 +165,12 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all long int command-line options */
     for (j = 0; j < num_long_keys; j++)
     {
-      retval = sunCheckAndSetLongArg(cvode_mem, &i, argv, offset,
+      retval = sunCheckAndSetLongArg(ida_mem, &i, argv, offset,
                                      long_pairs[j].key, long_pairs[j].set,
                                      &arg_used);
-      if (retval != CV_SUCCESS)
+      if (retval != IDA_SUCCESS)
       {
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         long_pairs[j].key);
         return retval;
@@ -188,12 +182,12 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all real command-line options */
     for (j = 0; j < num_real_keys; j++)
     {
-      retval = sunCheckAndSetRealArg(cvode_mem, &i, argv, offset,
+      retval = sunCheckAndSetRealArg(ida_mem, &i, argv, offset,
                                      real_pairs[j].key, real_pairs[j].set,
                                      &arg_used);
-      if (retval != CV_SUCCESS)
+      if (retval != IDA_SUCCESS)
       {
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         real_pairs[j].key);
         return retval;
@@ -205,12 +199,12 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all pair-of-int command-line options */
     for (j = 0; j < num_twoint_keys; j++)
     {
-      retval = sunCheckAndSetTwoIntArg(cvode_mem, &i, argv, offset,
+      retval = sunCheckAndSetTwoIntArg(ida_mem, &i, argv, offset,
                                        twoint_pairs[j].key,
                                        twoint_pairs[j].set, &arg_used);
-      if (retval != CV_SUCCESS)
+      if (retval != IDA_SUCCESS)
       {
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         twoint_pairs[j].key);
         return retval;
@@ -222,12 +216,12 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all pair-of-real command-line options */
     for (j = 0; j < num_tworeal_keys; j++)
     {
-      retval = sunCheckAndSetTwoRealArg(cvode_mem, &i, argv, offset,
+      retval = sunCheckAndSetTwoRealArg(ida_mem, &i, argv, offset,
                                         tworeal_pairs[j].key,
                                         tworeal_pairs[j].set, &arg_used);
-      if (retval != CV_SUCCESS)
+      if (retval != IDA_SUCCESS)
       {
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         tworeal_pairs[j].key);
         return retval;
@@ -239,12 +233,12 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all action command-line options */
     for (j = 0; j < num_action_keys; j++)
     {
-      retval = sunCheckAndSetActionArg(cvode_mem, &i, argv, offset,
+      retval = sunCheckAndSetActionArg(ida_mem, &i, argv, offset,
                                        action_pairs[j].key, action_pairs[j].set,
                                        &arg_used);
-      if (retval != CV_SUCCESS)
+      if (retval != IDA_SUCCESS)
       {
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         action_pairs[j].key);
         return retval;
@@ -256,13 +250,13 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all int+real command-line options */
     for (j = 0; j < num_int_real_keys; j++)
     {
-      retval = sunCheckAndSetIntRealArg(cvode_mem, &i, argv, offset,
+      retval = sunCheckAndSetIntRealArg(ida_mem, &i, argv, offset,
                                         int_real_pairs[j].key,
                                         int_real_pairs[j].set,
                                         &arg_used);
-      if (retval != CV_SUCCESS)
+      if (retval != IDA_SUCCESS)
       {
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         int_real_pairs[j].key);
         return retval;
@@ -274,13 +268,13 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all int+long command-line options */
     for (j = 0; j < num_int_long_keys; j++)
     {
-      retval = sunCheckAndSetIntLongArg(cvode_mem, &i, argv, offset,
+      retval = sunCheckAndSetIntLongArg(ida_mem, &i, argv, offset,
                                         int_long_pairs[j].key,
                                         int_long_pairs[j].set,
                                         &arg_used);
-      if (retval != CV_SUCCESS)
+      if (retval != IDA_SUCCESS)
       {
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         int_long_pairs[j].key);
         return retval;
@@ -292,13 +286,13 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     /* check all int+real+real command-line options */
     for (j = 0; j < num_int_real_real_keys; j++)
     {
-      retval = sunCheckAndSetIntRealRealArg(cvode_mem, &i, argv, offset,
+      retval = sunCheckAndSetIntRealRealArg(ida_mem, &i, argv, offset,
                                             int_real_real_pairs[j].key,
                                             int_real_real_pairs[j].set,
                                             &arg_used);
-      if (retval != CV_SUCCESS)
+      if (retval != IDA_SUCCESS)
       {
-        cvProcessError(cv_mem, retval, __LINE__, __func__, __FILE__,
+        IDAProcessError(IDA_mem, retval, __LINE__, __func__, __FILE__,
                         "error setting command-line argument: %s",
                         int_real_real_pairs[j].key);
         return retval;
@@ -307,12 +301,12 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
     }
     if (arg_used) continue;
 
-    /* warn for uninterpreted cvid.X arguments */
-    cvProcessError(cv_mem, CV_WARNING, __LINE__, __func__, __FILE__,
+    /* warn for uninterpreted idaid.X arguments */
+    IDAProcessError(IDA_mem, IDA_WARNING, __LINE__, __func__, __FILE__,
                     "WARNING: argument %s was not handled\n", argv[i]);
   }
 
-  return (CV_SUCCESS);
+  return (IDA_SUCCESS);
 }
 
 /*===============================================================
