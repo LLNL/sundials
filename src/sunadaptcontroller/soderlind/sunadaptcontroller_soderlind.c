@@ -29,18 +29,19 @@
  * Macro accessors
  * --------------- */
 
-#define SODERLIND_CONTENT(C)    ((SUNAdaptControllerContent_Soderlind)(C->content))
-#define SODERLIND_K1(C)         (SODERLIND_CONTENT(C)->k1)
-#define SODERLIND_K2(C)         (SODERLIND_CONTENT(C)->k2)
-#define SODERLIND_K3(C)         (SODERLIND_CONTENT(C)->k3)
-#define SODERLIND_K4(C)         (SODERLIND_CONTENT(C)->k4)
-#define SODERLIND_K5(C)         (SODERLIND_CONTENT(C)->k5)
-#define SODERLIND_BIAS(C)       (SODERLIND_CONTENT(C)->bias)
-#define SODERLIND_EP(C)         (SODERLIND_CONTENT(C)->ep)
-#define SODERLIND_EPP(C)        (SODERLIND_CONTENT(C)->epp)
-#define SODERLIND_HP(C)         (SODERLIND_CONTENT(C)->hp)
-#define SODERLIND_HPP(C)        (SODERLIND_CONTENT(C)->hpp)
-#define SODERLIND_FIRSTSTEPS(C) (SODERLIND_CONTENT(C)->firststeps)
+#define SODERLIND_CONTENT(C)     ((SUNAdaptControllerContent_Soderlind)(C->content))
+#define SODERLIND_K1(C)          (SODERLIND_CONTENT(C)->k1)
+#define SODERLIND_K2(C)          (SODERLIND_CONTENT(C)->k2)
+#define SODERLIND_K3(C)          (SODERLIND_CONTENT(C)->k3)
+#define SODERLIND_K4(C)          (SODERLIND_CONTENT(C)->k4)
+#define SODERLIND_K5(C)          (SODERLIND_CONTENT(C)->k5)
+#define SODERLIND_BIAS(C)        (SODERLIND_CONTENT(C)->bias)
+#define SODERLIND_EP(C)          (SODERLIND_CONTENT(C)->ep)
+#define SODERLIND_EPP(C)         (SODERLIND_CONTENT(C)->epp)
+#define SODERLIND_HP(C)          (SODERLIND_CONTENT(C)->hp)
+#define SODERLIND_HPP(C)         (SODERLIND_CONTENT(C)->hpp)
+#define SODERLIND_FIRSTSTEPS(C)  (SODERLIND_CONTENT(C)->firststeps)
+#define SODERLIND_HISTORYSIZE(C) (SODERLIND_CONTENT(C)->historysize)
 
 /* ------------------
  * Default parameters
@@ -117,6 +118,16 @@ SUNErrCode SUNAdaptController_SetParams_Soderlind(SUNAdaptController C,
   SODERLIND_K3(C) = k3;
   SODERLIND_K4(C) = k4;
   SODERLIND_K5(C) = k5;
+
+  if (k5 != SUN_RCONST(0.0) || k3 != SUN_RCONST(0.0))
+  {
+    SODERLIND_HISTORYSIZE(C) = 2;
+  }
+  else if (k4 != SUN_RCONST(0.0) || k5 != SUN_RCONST(0.0))
+  {
+    SODERLIND_HISTORYSIZE(C) = 1;
+  }
+  else { SODERLIND_HISTORYSIZE(C) = 0; }
   return SUN_SUCCESS;
 }
 
@@ -284,31 +295,37 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
   SUNFunctionBegin(C->sunctx);
 
   /* order parameter to use */
-  const int ord = p + 1;
+  const int ord        = p + 1;
+  const sunrealtype e1 = SODERLIND_BIAS(C) * dsm;
 
-  if (SODERLIND_FIRSTSTEPS(C) > 1)
+  /* Handle the case of insufficient history */
+  if (SODERLIND_FIRSTSTEPS(C) < SODERLIND_HISTORYSIZE(C))
   {
-    /* After the first 2 steps, there is sufficient history */
-    const sunrealtype k1    = -SODERLIND_K1(C) / ord;
-    const sunrealtype k2    = -SODERLIND_K2(C) / ord;
-    const sunrealtype k3    = -SODERLIND_K3(C) / ord;
-    const sunrealtype k4    = SODERLIND_K4(C);
-    const sunrealtype k5    = SODERLIND_K5(C);
-    const sunrealtype e1    = SODERLIND_BIAS(C) * dsm;
-    const sunrealtype e2    = SODERLIND_EP(C);
-    const sunrealtype e3    = SODERLIND_EPP(C);
-    const sunrealtype hrat  = h / SODERLIND_HP(C);
-    const sunrealtype hrat2 = SODERLIND_HP(C) / SODERLIND_HPP(C);
-
-    *hnew = h * SUNRpowerR(e1, k1) * SUNRpowerR(e2, k2) * SUNRpowerR(e3, k3) *
-            SUNRpowerR(hrat, k4) * SUNRpowerR(hrat2, k5);
+    /* Fall back onto an I controller */
+    *hnew = h * SUNRpowerR(e1, -SUN_RCONST(1.0) / ord);
+    return SUN_SUCCESS;
   }
-  else
+
+  const sunrealtype k1 = -SODERLIND_K1(C) / ord;
+  *hnew                = h * SUNRpowerR(e1, k1);
+
+  /* This branching is not ideal, but it's more efficient than computing extra
+   * math operations with degenerate k values. */
+  /* TODO(SBR): Consider making separate subclasses for I and PI controllers for
+   * improved efficiency */
+  if (SODERLIND_HISTORYSIZE(C) > 0)
   {
-    /* Use an I controller if insufficient history */
-    const sunrealtype k = -SUN_RCONST(1.0) / ord;
-    const sunrealtype e = SODERLIND_BIAS(C) * dsm;
-    *hnew               = h * SUNRpowerR(e, k);
+    const sunrealtype k2    = -SODERLIND_K2(C) / ord;
+    const sunrealtype hrat1 = h / SODERLIND_HP(C);
+    *hnew *= SUNRpowerR(SODERLIND_EP(C), k2) * SUNRpowerR(hrat1, SODERLIND_K4(C));
+
+    if (SODERLIND_HISTORYSIZE(C) > 1)
+    {
+      const sunrealtype k3    = -SODERLIND_K3(C) / ord;
+      const sunrealtype hrat2 = SODERLIND_HP(C) / SODERLIND_HPP(C);
+      *hnew                   = SUNRpowerR(SODERLIND_EPP(C), k3) *
+              SUNRpowerR(hrat2, SODERLIND_K5(C));
+    }
   }
 
   /* return with success */
@@ -329,13 +346,10 @@ SUNErrCode SUNAdaptController_Reset_Soderlind(SUNAdaptController C)
 SUNErrCode SUNAdaptController_SetDefaults_Soderlind(SUNAdaptController C)
 {
   SUNFunctionBegin(C->sunctx);
-  SODERLIND_K1(C)   = DEFAULT_K1;
-  SODERLIND_K2(C)   = DEFAULT_K2;
-  SODERLIND_K3(C)   = DEFAULT_K3;
-  SODERLIND_K4(C)   = DEFAULT_K4;
-  SODERLIND_K5(C)   = DEFAULT_K5;
   SODERLIND_BIAS(C) = DEFAULT_BIAS;
-  return SUN_SUCCESS;
+  return SUNAdaptController_SetParams_Soderlind(C, DEFAULT_K1, DEFAULT_K2,
+                                                DEFAULT_K3, DEFAULT_K4,
+                                                DEFAULT_K5);
 }
 
 SUNErrCode SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE* fptr)
@@ -356,6 +370,7 @@ SUNErrCode SUNAdaptController_Write_Soderlind(SUNAdaptController C, FILE* fptr)
   fprintf(fptr, "  previous-previous step = " SUN_FORMAT_G "\n",
           SODERLIND_HPP(C));
   fprintf(fptr, "  firststeps = %i\n", SODERLIND_FIRSTSTEPS(C));
+  fprintf(fptr, "  historysize = %i\n", SODERLIND_HISTORYSIZE(C));
   return SUN_SUCCESS;
 }
 
@@ -379,7 +394,10 @@ SUNErrCode SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C,
   SODERLIND_EP(C)  = SODERLIND_BIAS(C) * dsm;
   SODERLIND_HPP(C) = SODERLIND_HP(C);
   SODERLIND_HP(C)  = h;
-  if (SODERLIND_FIRSTSTEPS(C) < 2) { SODERLIND_FIRSTSTEPS(C) += 1; }
+  if (SODERLIND_FIRSTSTEPS(C) < SODERLIND_HISTORYSIZE(C))
+  {
+    SODERLIND_FIRSTSTEPS(C) += 1;
+  }
   return SUN_SUCCESS;
 }
 
@@ -390,6 +408,6 @@ SUNErrCode SUNAdaptController_Space_Soderlind(SUNAdaptController C,
   SUNAssert(lenrw, SUN_ERR_ARG_CORRUPT);
   SUNAssert(leniw, SUN_ERR_ARG_CORRUPT);
   *lenrw = 10;
-  *leniw = 1;
+  *leniw = 2;
   return SUN_SUCCESS;
 }
