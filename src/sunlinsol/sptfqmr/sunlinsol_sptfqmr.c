@@ -539,7 +539,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
   /* Compute norm of initial residual (r_0) to see if we really need
      to do anything */
-  *res_norm = r_init_norm = SUN_REAL(SUNsqrt(rho[0]));
+  *res_norm = r_init_norm = SUNRsqrt(SUN_REAL(rho[0]));
 
   if (r_init_norm <= delta)
   {
@@ -755,9 +755,9 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
       if (m == 0)
       {
         SUNCheckCall(N_VDotProdComplex(r[1], r[1], &temp_scalar));
-        temp_real = SUN_REAL(SUNsqrt(temp_scalar));
+        temp_real = SUNRsqrt(SUN_REAL(temp_scalar));
         SUNCheckCall(N_VDotProdComplex(r[0], r[0], &temp_scalar));
-        omega = SUNRsqrt(SUN_REAL(SUNsqrt(temp_scalar)) * temp_real);
+        omega = SUNRsqrt(SUNRsqrt(SUN_REAL(temp_scalar)) * temp_real);
         N_VLinearSum(ONE, u, SUNSQR(v_bar) * eta / alpha, d, d);
         SUNCheckLastErr();
       }
@@ -934,7 +934,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         N_VLinearSum(ONE, vtemp3, -ONE, vtemp2, vtemp1);
         SUNCheckLastErr();
         SUNCheckCall(N_VDotProdComplex(vtemp1, vtemp1, &temp_scalar));
-        *res_norm = r_curr_norm = SUN_REAL(SUNsqrt(temp_scalar));
+        *res_norm = r_curr_norm = SUNRsqrt(SUN_REAL(temp_scalar));
 
         /* Exit inner loop if inequality condition is satisfied
            (meaning exit if we have converged) */

@@ -592,7 +592,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
   /* Set r_norm = beta to L2 norm of V[0] = s1 P1_inv r_0, and
      return if small  */
   SUNCheckCall(N_VDotProdComplex(V[0], V[0], &tmp));
-  *res_norm = r_norm = beta = SUNRsqrt(tmp);
+  *res_norm = r_norm = beta = SUNRsqrt(SUN_REAL(tmp));
 
   if (r_norm <= delta)
   {

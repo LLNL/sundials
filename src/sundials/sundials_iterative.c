@@ -52,7 +52,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, sunscalartype** h, int k, int p,
   sunrealtype new_norm_2, vk_norm;
 
   SUNCheckCall(N_VDotProdComplex(v[k], v[k], &temp));
-  vk_norm   = SUNRsqrt(temp);
+  vk_norm   = SUNRsqrt(SUN_REAL(temp));
   k_minus_1 = k - 1;
   i0        = SUNMAX(k - p, 0);
 
@@ -68,7 +68,7 @@ SUNErrCode SUNModifiedGS(N_Vector* v, sunscalartype** h, int k, int p,
   /* Compute the norm of the new vector at v[k] */
 
   SUNCheckCall(N_VDotProdComplex(v[k], v[k], &temp));
-  *new_vk_norm = SUNRsqrt(temp);
+  *new_vk_norm = SUNRsqrt(SUN_REAL(temp));
 
   /* If the norm of the new vector at v[k] is less than
      FACTOR (== 1000) times unit roundoff times the norm of the
@@ -147,7 +147,7 @@ SUNErrCode SUNClassicalGS(N_Vector* v, sunscalartype** h, int k, int p,
   /* Compute the norm of the new vector at v[k] */
 
   SUNCheckCall(N_VDotProdComplex(v[k], v[k], &temp));
-  *new_vk_norm = SUNRsqrt(temp);
+  *new_vk_norm = SUNRsqrt(SUN_REAL(temp));
 
   /* Reorthogonalize if necessary */
 
@@ -167,7 +167,7 @@ SUNErrCode SUNClassicalGS(N_Vector* v, sunscalartype** h, int k, int p,
     SUNCheckCall(N_VLinearCombination(k + 1, stemp, vtemp, v[k]));
 
     SUNCheckCall(N_VDotProdComplex(v[k], v[k], &temp));
-    *new_vk_norm = SUNRsqrt(temp);
+    *new_vk_norm = SUNRsqrt(SUN_REAL(temp));
   }
 
   return SUN_SUCCESS;
