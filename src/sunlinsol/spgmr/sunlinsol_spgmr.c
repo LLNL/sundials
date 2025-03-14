@@ -349,15 +349,14 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   if (content->Hes == NULL)
   {
     content->Hes =
-      (sunscalartype**)malloc((content->maxl + 1) *
-                               sizeof(sunscalartype*));
+      (sunscalartype**)malloc((content->maxl + 1) * sizeof(sunscalartype*));
     SUNAssert(content->Hes, SUN_ERR_MALLOC_FAIL);
 
     for (k = 0; k <= content->maxl; k++)
     {
       content->Hes[k] = NULL;
-      content->Hes[k] = (sunscalartype*)malloc(
-        content->maxl * sizeof(sunscalartype));
+      content->Hes[k] =
+        (sunscalartype*)malloc(content->maxl * sizeof(sunscalartype));
       SUNAssert(content->Hes[k], SUN_ERR_MALLOC_FAIL);
     }
   }
@@ -373,16 +372,16 @@ SUNErrCode SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
   /*    y and g vectors */
   if (content->yg == NULL)
   {
-    content->yg = (sunscalartype*)malloc((content->maxl + 1) *
-                                          sizeof(sunscalartype));
+    content->yg =
+      (sunscalartype*)malloc((content->maxl + 1) * sizeof(sunscalartype));
     SUNAssert(content->yg, SUN_ERR_MALLOC_FAIL);
   }
 
   /*    cv vector for fused vector ops */
   if (content->cv == NULL)
   {
-    content->cv = (sunscalartype*)malloc((content->maxl + 1) *
-                                          sizeof(sunscalartype));
+    content->cv =
+      (sunscalartype*)malloc((content->maxl + 1) * sizeof(sunscalartype));
     SUNAssert(content->cv, SUN_ERR_MALLOC_FAIL);
   }
 
@@ -469,7 +468,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
   /* local data and shortcut variables */
   N_Vector *V, xcor, vtemp, s1, s2;
-  sunscalartype **Hes, *givens, *yg;
+  sunscalartype **Hes, *givens, *yg, tmp;
   sunrealtype* res_norm;
   sunrealtype beta, rotation_product, r_norm, s_product, rho;
   sunbooleantype preOnLeft, preOnRight, scale2, scale1, converged;
@@ -592,9 +591,8 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
   /* Set r_norm = beta to L2 norm of V[0] = s1 P1_inv r_0, and
      return if small  */
-  r_norm = N_VDotProd(V[0], V[0]);
-  SUNCheckLastErr();
-  *res_norm = r_norm = beta = SUNRsqrt(r_norm);
+  SUNCheckCall(N_VDotProdComplex(V[0], V[0], &tmp));
+  *res_norm = r_norm = beta = SUNRsqrt(tmp);
 
   if (r_norm <= delta)
   {
@@ -729,6 +727,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
         SUNCheckCall(SUNClassicalGS(V, Hes, l_plus_1, l_max, &nrm, cv, Xv));
       }
       else { SUNCheckCall(SUNModifiedGS(V, Hes, l_plus_1, l_max, &nrm)); }
+      Hes[l_plus_1][l] = nrm;
 
       /*  Update the QR factorization of Hes */
       if (SUNQRfact(krydim, Hes, givens, l) != 0)
@@ -917,7 +916,6 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
 
     *zeroguess  = SUNFALSE;
     LASTFLAG(S) = SUNLS_RES_REDUCED;
-
     SUNLogInfo(S->sunctx->logger, "end-linear-iterate",
                "status = failed residual reduced");
 

@@ -447,7 +447,7 @@ SUNErrCode SUNLinSolSetZeroGuess_SPFGMR(SUNLinearSolver S, sunbooleantype onoff)
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A)
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -476,14 +476,14 @@ int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                          N_Vector b, sunrealtype delta)
+int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
+                          N_Vector x, N_Vector b, sunrealtype delta)
 {
   SUNFunctionBegin(S->sunctx);
 
   /* local data and shortcut variables */
   N_Vector *V, *Z, xcor, vtemp, s1, s2;
-  sunscalartype **Hes, *givens, *yg;
+  sunscalartype **Hes, *givens, *yg, tmp;
   sunrealtype* res_norm;
   sunrealtype beta, rotation_product, r_norm, s_product, rho;
   sunbooleantype preOnRight, scale1, scale2, converged;
@@ -583,9 +583,8 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   }
 
   /* Set r_norm = beta to L2 norm of V[0] = s1 r_0, and return if small */
-  r_norm = N_VDotProd(V[0], V[0]);
-  SUNCheckLastErr();
-  *res_norm = r_norm = beta = SUNRsqrt(r_norm);
+  SUNCheckCall(N_VDotProdComplex(V[0], V[0], &tmp));
+  *res_norm = r_norm = beta = SUNRsqrt(tmp);
 
   if (r_norm <= delta)
   {
@@ -695,7 +694,7 @@ int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
         SUNCheckCall(SUNClassicalGS(V, Hes, l + 1, l_max, &nrm, cv, Xv));
       }
       else { SUNCheckCall(SUNModifiedGS(V, Hes, l + 1, l_max, &nrm)); }
-
+      Hes[l + 1][l] = nrm;
       /* Update the QR factorization of Hes. */
       if (SUNQRfact(krydim, Hes, givens, l) != 0)
       {
