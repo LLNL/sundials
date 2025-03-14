@@ -182,8 +182,6 @@ SUNErrCode SUNClassicalGS(N_Vector* v, sunscalartype** h, int k, int p,
 int SUNQRfact(int n, sunscalartype** h, sunscalartype* q, int job)
 {
   sunscalartype c, s, temp1, temp2, temp3;
-  sunscalartype RotationColumn1, RotationColumn2, RotationColumn, signf,
-    denomCS, sumCS;
   sunscalartype absTemp1, absTemp2;
   int i, j, k, q_ptr, n_minus_1, code = 0;
 
