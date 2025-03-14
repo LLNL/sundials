@@ -75,14 +75,15 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed(farg1, farg2, farg3, farg4) &
+function swigc_FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT64_T), intent(in) :: farg2
 integer(C_INT64_T), intent(in) :: farg3
-type(C_PTR), value :: farg4
+real(C_DOUBLE), intent(in) :: farg4
+type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -97,16 +98,17 @@ type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointCheckpointScheme_LoadVector_Fixed(farg1, farg2, farg3, farg4, farg5, farg6) &
+function swigc_FSUNAdjointCheckpointScheme_LoadVector_Fixed(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_LoadVector_Fixed") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT64_T), intent(in) :: farg2
 integer(C_INT64_T), intent(in) :: farg3
-integer(C_INT), intent(in) :: farg4
-type(C_PTR), value :: farg5
+real(C_DOUBLE), intent(in) :: farg4
+integer(C_INT), intent(in) :: farg5
 type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
 integer(C_INT) :: fresult
 end function
 
@@ -145,15 +147,15 @@ integer(C_INT), intent(in) :: save_stages
 integer(C_INT), intent(in) :: keep
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: check_scheme_ptr
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-integer(C_INT64_T) :: farg3
-integer(C_INT64_T) :: farg4
-integer(C_INT) :: farg5
-integer(C_INT) :: farg6
-type(C_PTR) :: farg7
-type(C_PTR) :: farg8
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_INT64_T) :: farg3 
+integer(C_INT64_T) :: farg4 
+integer(C_INT) :: farg5 
+integer(C_INT) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
 
 farg1 = io_mode
 farg2 = c_loc(mem_helper)
@@ -176,12 +178,12 @@ integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-real(C_DOUBLE) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(check_scheme)
 farg2 = step_num
@@ -201,12 +203,12 @@ integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 type(N_Vector), target, intent(inout) :: state
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-real(C_DOUBLE) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(check_scheme)
 farg2 = step_num
@@ -217,25 +219,28 @@ fresult = swigc_FSUNAdjointCheckpointScheme_InsertVector_Fixed(farg1, farg2, far
 swig_result = fresult
 end function
 
-function FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed(check_scheme, step_num, stage_num, yes_or_no) &
+function FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed(check_scheme, step_num, stage_num, t, yes_or_no) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: check_scheme
 integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
+real(C_DOUBLE), intent(in) :: t
 integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(check_scheme)
 farg2 = step_num
 farg3 = stage_num
-farg4 = c_loc(yes_or_no(1))
-fresult = swigc_FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed(farg1, farg2, farg3, farg4)
+farg4 = t
+farg5 = c_loc(yes_or_no(1))
+fresult = swigc_FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
@@ -247,11 +252,11 @@ type(SUNAdjointCheckpointScheme), target, intent(inout) :: check_scheme
 integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
 type(C_PTR) :: out
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = c_loc(check_scheme)
 farg2 = step_num
@@ -261,31 +266,34 @@ fresult = swigc_FSUNAdjointCheckpointScheme_RemoveVector_Fixed(farg1, farg2, far
 swig_result = fresult
 end function
 
-function FSUNAdjointCheckpointScheme_LoadVector_Fixed(check_scheme, step_num, stage_num, peek, out, tout) &
+function FSUNAdjointCheckpointScheme_LoadVector_Fixed(check_scheme, step_num, stage_num, t, peek, out, tout) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: check_scheme
 integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
+real(C_DOUBLE), intent(in) :: t
 integer(C_INT), intent(in) :: peek
 type(C_PTR) :: out
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tout
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-integer(C_INT) :: farg4
-type(C_PTR) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+real(C_DOUBLE) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
 
 farg1 = c_loc(check_scheme)
 farg2 = step_num
 farg3 = stage_num
-farg4 = peek
-farg5 = out
-farg6 = c_loc(tout(1))
-fresult = swigc_FSUNAdjointCheckpointScheme_LoadVector_Fixed(farg1, farg2, farg3, farg4, farg5, farg6)
+farg4 = t
+farg5 = peek
+farg6 = out
+farg7 = c_loc(tout(1))
+fresult = swigc_FSUNAdjointCheckpointScheme_LoadVector_Fixed(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
 
@@ -294,8 +302,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR), target, intent(inout) :: check_scheme_ptr
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(check_scheme_ptr)
 fresult = swigc_FSUNAdjointCheckpointScheme_Destroy_Fixed(farg1)
@@ -308,9 +316,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: check_scheme
 integer(C_INT), intent(in) :: on_or_off
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = c_loc(check_scheme)
 farg2 = on_or_off
