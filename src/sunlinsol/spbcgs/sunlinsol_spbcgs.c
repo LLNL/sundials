@@ -189,12 +189,12 @@ SUNErrCode SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl)
   * -----------------------------------------------------------------
   */
 
-SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S)
+SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_ITERATIVE);
 }
 
-SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S)
+SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNDIALS_MAYBE_UNUSED SUNLinearSolver S)
 {
   return (SUNLINEARSOLVER_SPBCGS);
 }
@@ -268,7 +268,7 @@ SUNErrCode SUNLinSolSetZeroGuess_SPBCGS(SUNLinearSolver S, sunbooleantype onoff)
   return SUN_SUCCESS;
 }
 
-int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
+int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A)
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -297,8 +297,8 @@ int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
   return (LASTFLAG(S));
 }
 
-int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
-                          N_Vector b, sunrealtype delta)
+int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
+                          N_Vector x, N_Vector b, sunrealtype delta)
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -439,12 +439,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       return if small */
 
   *res_norm = r_norm = rho = SUNRsqrt(SUN_REAL(beta_denom));
-
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
-                     "SUNLinSolSolve_SPBCGS", "initial-residual",
-                     "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
-#endif
 
   if (r_norm <= delta)
   {
@@ -690,7 +684,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       Xv[2] = q;
 
       SUNCheckCall(N_VLinearCombination(3, cv, Xv, x));
-      N_VLinearCombination(3, cv, Xv, x);
     }
 
     /* Update the residual r = q - omega*u */
@@ -731,7 +724,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     Xv[2] = r;
 
     SUNCheckCall(N_VLinearCombination(3, cv, Xv, p));
-    N_VLinearCombination(3, cv, Xv, p);
 
     /* update beta_denom for next iteration */
     beta_denom = beta_num;
