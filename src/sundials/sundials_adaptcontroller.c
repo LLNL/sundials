@@ -46,17 +46,18 @@ SUNAdaptController SUNAdaptController_NewEmpty(SUNContext sunctx)
   SUNAssertNull(ops, SUN_ERR_MALLOC_FAIL);
 
   /* initialize operations to NULL */
-  ops->gettype         = NULL;
-  ops->destroy         = NULL;
-  ops->reset           = NULL;
-  ops->estimatestep    = NULL;
-  ops->estimatesteptol = NULL;
-  ops->setdefaults     = NULL;
-  ops->write           = NULL;
-  ops->seterrorbias    = NULL;
-  ops->updateh         = NULL;
-  ops->updatemrihtol   = NULL;
-  ops->space           = NULL;
+  ops->gettype            = NULL;
+  ops->destroy            = NULL;
+  ops->reset              = NULL;
+  ops->estimatestep       = NULL;
+  ops->estimatesteptol    = NULL;
+  ops->setfromcommandline = NULL;
+  ops->setdefaults        = NULL;
+  ops->write              = NULL;
+  ops->seterrorbias       = NULL;
+  ops->updateh            = NULL;
+  ops->updatemrihtol      = NULL;
+  ops->space              = NULL;
 
   /* attach ops and initialize content to NULL */
   C->ops     = ops;
@@ -165,6 +166,20 @@ SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
   SUNFunctionBegin(C->sunctx);
   if (C->ops->reset) { ier = C->ops->reset(C); }
+  return (ier);
+}
+
+SUNErrCode SUNAdaptController_SetFromCommandLine(SUNAdaptController C,
+                                                 const char* Cid,
+                                                 int argc, char* argv[])
+{
+  SUNErrCode ier = SUN_SUCCESS;
+  if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }
+  SUNFunctionBegin(C->sunctx);
+  if (C->ops->setfromcommandline)
+  {
+    ier = C->ops->setfromcommandline(C, Cid, argc, argv);
+  }
   return (ier);
 }
 

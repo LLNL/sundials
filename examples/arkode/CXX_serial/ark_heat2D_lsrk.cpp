@@ -303,6 +303,8 @@ int main(int argc, char* argv[])
     case (ARK_ADAPT_IMP_GUS): C = SUNAdaptController_ImpGus(ctx); break;
     case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
     }
+    flag = SUNAdaptController_SetFromCommandLine(C, "sunadaptcontroller", argc, argv);
+    if (check_flag(&flag, "SUNAdaptControllerSetFromCommandLine", 1)) { return 1; }
     flag = ARKodeSetAdaptController(arkode_mem, C);
     if (check_flag(&flag, "ARKodeSetAdaptController", 1)) { return 1; }
   }
@@ -653,13 +655,6 @@ static int ReadInputs(int* argc, char*** argv, UserData* udata)
     // Help
     else if (arg == "--help")
     {
-      InputHelp();
-      return -1;
-    }
-    // Unknown input
-    else
-    {
-      cerr << "ERROR: Invalid input " << arg << endl;
       InputHelp();
       return -1;
     }
