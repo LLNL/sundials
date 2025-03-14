@@ -53,7 +53,7 @@ SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Fixed(
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
-  sunbooleantype peek, N_Vector* out, sunrealtype* tout);
+  sunrealtype t, sunbooleantype peek, N_Vector* out, sunrealtype* tout);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Destroy_Fixed(
