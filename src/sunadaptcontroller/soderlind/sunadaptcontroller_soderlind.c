@@ -146,12 +146,8 @@ SUNErrCode SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1
                                             sunrealtype k2, sunrealtype k3)
 {
   SUNFunctionBegin(C->sunctx);
-  SODERLIND_K1(C) = k1;
-  SODERLIND_K2(C) = k2;
-  SODERLIND_K3(C) = k3;
-  SODERLIND_K4(C) = SUN_RCONST(0.0);
-  SODERLIND_K5(C) = SUN_RCONST(0.0);
-  return SUN_SUCCESS;
+  return SUNAdaptController_SetParams_Soderlind(C, k1, k2, k3, SUN_RCONST(0.0),
+                                                SUN_RCONST(0.0));
 }
 
 /* -----------------------------------------------------------------
@@ -179,12 +175,8 @@ SUNErrCode SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1,
                                            sunrealtype k2)
 {
   SUNFunctionBegin(C->sunctx);
-  SODERLIND_K1(C) = k1;
-  SODERLIND_K2(C) = k2;
-  SODERLIND_K3(C) = SUN_RCONST(0.0);
-  SODERLIND_K4(C) = SUN_RCONST(0.0);
-  SODERLIND_K5(C) = SUN_RCONST(0.0);
-  return SUN_SUCCESS;
+  return SUNAdaptController_SetParams_Soderlind(C, k1, k2, SUN_RCONST(0.0),
+                                                SUN_RCONST(0.0), SUN_RCONST(0.0));
 }
 
 /* -----------------------------------------------------------------
@@ -210,12 +202,9 @@ SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 SUNErrCode SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
 {
   SUNFunctionBegin(C->sunctx);
-  SODERLIND_K1(C) = k1;
-  SODERLIND_K2(C) = SUN_RCONST(0.0);
-  SODERLIND_K3(C) = SUN_RCONST(0.0);
-  SODERLIND_K4(C) = SUN_RCONST(0.0);
-  SODERLIND_K5(C) = SUN_RCONST(0.0);
-  return SUN_SUCCESS;
+  return SUNAdaptController_SetParams_Soderlind(C, k1, SUN_RCONST(0.0),
+                                                SUN_RCONST(0.0), SUN_RCONST(0.0),
+                                                SUN_RCONST(0.0));
 }
 
 /* -----------------------------------------------------------------
@@ -243,12 +232,8 @@ SUNErrCode SUNAdaptController_SetParams_ExpGus(SUNAdaptController C,
                                                sunrealtype k1, sunrealtype k2)
 {
   SUNFunctionBegin(C->sunctx);
-  SODERLIND_K1(C) = k1 + k2;
-  SODERLIND_K2(C) = -k2;
-  SODERLIND_K3(C) = SUN_RCONST(0.0);
-  SODERLIND_K4(C) = SUN_RCONST(0.0);
-  SODERLIND_K5(C) = SUN_RCONST(0.0);
-  return SUN_SUCCESS;
+  return SUNAdaptController_SetParams_Soderlind(C, k1 + k2, -k2, SUN_RCONST(0.0),
+                                                SUN_RCONST(0.0), SUN_RCONST(0.0));
 }
 
 /* -----------------------------------------------------------------
@@ -276,11 +261,8 @@ SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C,
                                                sunrealtype k1, sunrealtype k2)
 {
   SUNFunctionBegin(C->sunctx);
-  SODERLIND_K1(C) = k1 + k2;
-  SODERLIND_K2(C) = -k2;
-  SODERLIND_K3(C) = SUN_RCONST(0.0);
-  SODERLIND_K4(C) = SUN_RCONST(1.0);
-  SODERLIND_K5(C) = SUN_RCONST(0.0);
+  return SUNAdaptController_SetParams_Soderlind(C, k1 + k2, -k2, SUN_RCONST(0.0),
+                                                SUN_RCONST(1.0), SUN_RCONST(0.0));
   return SUN_SUCCESS;
 }
 
@@ -323,7 +305,7 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
   }
   else
   {
-    /* Use an I controller on the first two steps */
+    /* Use an I controller if insufficient history */
     const sunrealtype k = -SUN_RCONST(1.0) / ord;
     const sunrealtype e = SODERLIND_BIAS(C) * dsm;
     *hnew               = h * SUNRpowerR(e, k);
