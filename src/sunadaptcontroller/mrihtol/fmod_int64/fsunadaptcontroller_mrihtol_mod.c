@@ -297,6 +297,20 @@ SWIGINTERN void SWIG_assign(SwigClassWrapper* self, SwigClassWrapper other) {
   }
 }
 
+
+typedef struct {
+    void* data;
+    size_t size;
+} SwigArrayWrapper;
+
+
+SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
+  SwigArrayWrapper result;
+  result.data = NULL;
+  result.size = 0;
+  return result;
+}
+
 SWIGEXPORT void _wrap_SUNAdaptControllerContent_MRIHTol__HControl_set(SwigClassWrapper const *farg1, SUNAdaptController farg2) {
   struct SUNAdaptControllerContent_MRIHTol_ *arg1 = (struct SUNAdaptControllerContent_MRIHTol_ *) 0 ;
   SUNAdaptController arg2 = (SUNAdaptController) 0 ;
@@ -460,6 +474,25 @@ SWIGEXPORT SUNAdaptController _wrap_FSUNAdaptController_MRIHTol(SUNAdaptControll
   arg3 = (SUNContext)(farg3);
   result = (SUNAdaptController)SUNAdaptController_MRIHTol(arg1,arg2,arg3);
   fresult = result;
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController farg1, SwigArrayWrapper *farg2, int const *farg3, SwigClassWrapper const *farg4) {
+  int fresult ;
+  SUNAdaptController arg1 = (SUNAdaptController) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char **arg4 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNAdaptController)(farg1);
+  arg2 = (char *)(farg2->data);
+  arg3 = (int)(*farg3);
+  SWIG_check_mutable(*farg4, "char **", "SWIGTYPE_p_p_char", "SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController,char const *,int,char *[])", return 0);
+  arg4 = (char **)(farg4->cptr);
+  result = (SUNErrCode)SUNAdaptController_SetFromCommandLine_MRIHTol(arg1,(char const *)arg2,arg3,arg4);
+  fresult = (SUNErrCode)(result);
   return fresult;
 }
 
