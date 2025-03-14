@@ -323,8 +323,8 @@ SUNErrCode SUNAdaptController_EstimateStep_Soderlind(SUNAdaptController C,
     {
       const sunrealtype k3    = -SODERLIND_K3(C) / ord;
       const sunrealtype hrat2 = SODERLIND_HP(C) / SODERLIND_HPP(C);
-      *hnew                   = SUNRpowerR(SODERLIND_EPP(C), k3) *
-              SUNRpowerR(hrat2, SODERLIND_K5(C));
+      *hnew *= SUNRpowerR(SODERLIND_EPP(C), k3) *
+               SUNRpowerR(hrat2, SODERLIND_K5(C));
     }
   }
 
