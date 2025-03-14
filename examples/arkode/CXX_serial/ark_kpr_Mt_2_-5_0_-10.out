@@ -10,13 +10,13 @@ Nonlinear Kvaerno-Prothero-Robinson test problem with mass matrix:
 
  Fixed-step runs:
  -----------------------------------------------------
-   h = 1.000e-01,  error = 2.677e-07
-   h = 5.000e-02,  error = 3.387e-09,  order = 6.30
-   h = 2.500e-02,  error = 4.832e-11,  order = 6.13
-   h = 1.250e-02,  error = 7.523e-13,  order = 6.01
-   h = 6.250e-03,  error = 1.326e-14,  order = 5.83
-   h = 3.125e-03,  error = 6.999e-15,  order = 0.92
-   h = 1.563e-03,  error = 1.539e-14,  order = -1.14
-   h = 7.813e-04,  error = 2.720e-14,  order = -0.82
+   h = 1.000e-01,  error = 3.326e-07
+   h = 5.000e-02,  error = 5.227e-09,  order = 5.99
+   h = 2.500e-02,  error = 1.028e-10,  order = 5.67
+   h = 1.250e-02,  error = 2.405e-12,  order = 5.42
+   h = 6.250e-03,  error = 6.356e-14,  order = 5.24
+   h = 3.125e-03,  error = 6.933e-15,  order = 3.20
+   h = 1.563e-03,  error = 1.453e-14,  order = -1.07
+   h = 7.813e-04,  error = 2.683e-14,  order = -0.88
  -----------------------------------------------------
- Order: max = 6.30,  avg = 3.32,  overall = 3.52 [SUCCESS]
+ Order: max = 5.99,  avg = 3.37,  overall = 3.62 [SUCCESS]

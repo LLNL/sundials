@@ -1,63 +1,63 @@
 
 2-species diurnal advection-diffusion problem
 
-t = 7.20e+03   no. steps = 980   stepsize = 3.07e+00
+t = 7.20e+03   no. steps = 88   stepsize = 6.86e+01
 At bottom left:  c1, c2 =    1.047e+04    2.527e+11 
 At top right:    c1, c2 =    1.119e+04    2.700e+11 
 
-t = 1.44e+04   no. steps = 2730   stepsize = 6.90e+00
+t = 1.44e+04   no. steps = 139   stepsize = 3.62e+02
 At bottom left:  c1, c2 =    6.659e+06    2.582e+11 
 At top right:    c1, c2 =    7.301e+06    2.833e+11 
 
-t = 2.16e+04   no. steps = 3533   stepsize = 1.04e+01
+t = 2.16e+04   no. steps = 162   stepsize = 4.97e+02
 At bottom left:  c1, c2 =    2.665e+07    2.993e+11 
 At top right:    c1, c2 =    2.931e+07    3.313e+11 
 
-t = 2.88e+04   no. steps = 4707   stepsize = 4.53e+00
+t = 2.88e+04   no. steps = 185   stepsize = 1.52e+02
 At bottom left:  c1, c2 =    8.702e+06    3.380e+11 
 At top right:    c1, c2 =    9.650e+06    3.751e+11 
 
-t = 3.60e+04   no. steps = 5973   stepsize = 2.55e+00
+t = 3.60e+04   no. steps = 223   stepsize = 7.59e+01
 At bottom left:  c1, c2 =    1.404e+04    3.387e+11 
 At top right:    c1, c2 =    1.561e+04    3.765e+11 
 
-t = 4.32e+04   no. steps = 7161   stepsize = 4.81e+02
-At bottom left:  c1, c2 =   -5.680e-13    3.382e+11 
-At top right:    c1, c2 =    1.958e-12    3.804e+11 
+t = 4.32e+04   no. steps = 277   stepsize = 1.38e+03
+At bottom left:  c1, c2 =    3.855e-07    3.382e+11 
+At top right:    c1, c2 =   -1.938e-06    3.804e+11 
 
-t = 5.04e+04   no. steps = 7176   stepsize = 4.29e+02
-At bottom left:  c1, c2 =   -6.614e-11    3.358e+11 
-At top right:    c1, c2 =    9.416e-11    3.864e+11 
+t = 5.04e+04   no. steps = 282   stepsize = 1.38e+03
+At bottom left:  c1, c2 =   -2.156e-19    3.358e+11 
+At top right:    c1, c2 =   -3.573e-18    3.864e+11 
 
-t = 5.76e+04   no. steps = 7196   stepsize = 2.18e+02
-At bottom left:  c1, c2 =    4.884e-13    3.320e+11 
-At top right:    c1, c2 =    3.038e-13    3.909e+11 
+t = 5.76e+04   no. steps = 288   stepsize = 1.04e+03
+At bottom left:  c1, c2 =   -1.943e-18    3.320e+11 
+At top right:    c1, c2 =   -3.570e-17    3.909e+11 
 
-t = 6.48e+04   no. steps = 7209   stepsize = 6.39e+02
-At bottom left:  c1, c2 =    3.911e-12    3.313e+11 
-At top right:    c1, c2 =   -1.118e-11    3.963e+11 
+t = 6.48e+04   no. steps = 293   stepsize = 1.62e+03
+At bottom left:  c1, c2 =    2.477e-18    3.313e+11 
+At top right:    c1, c2 =    2.501e-17    3.963e+11 
 
-t = 7.20e+04   no. steps = 7220   stepsize = 6.39e+02
-At bottom left:  c1, c2 =   -2.160e-12    3.330e+11 
-At top right:    c1, c2 =   -2.041e-11    4.039e+11 
+t = 7.20e+04   no. steps = 297   stepsize = 1.62e+03
+At bottom left:  c1, c2 =    2.039e-18    3.330e+11 
+At top right:    c1, c2 =   -1.043e-16    4.039e+11 
 
-t = 7.92e+04   no. steps = 7231   stepsize = 6.39e+02
-At bottom left:  c1, c2 =   -2.099e-26    3.334e+11 
-At top right:    c1, c2 =   -4.407e-25    4.120e+11 
+t = 7.92e+04   no. steps = 302   stepsize = 1.62e+03
+At bottom left:  c1, c2 =   -3.886e-18    3.334e+11 
+At top right:    c1, c2 =    5.869e-17    4.120e+11 
 
-t = 8.64e+04   no. steps = 7243   stepsize = 6.39e+02
-At bottom left:  c1, c2 =   -5.876e-25    3.352e+11 
-At top right:    c1, c2 =   -9.344e-24    4.163e+11 
+t = 8.64e+04   no. steps = 306   stepsize = 1.62e+03
+At bottom left:  c1, c2 =    2.010e-18    3.352e+11 
+At top right:    c1, c2 =   -1.278e-17    4.163e+11 
 
 
 Final Statistics: 
 
-lenrw   =  3302     leniw   =   255
+lenrw   =  3518     leniw   =   266
 lenrwls =  2455     leniwls =   126
-nst     =  7243     nfe     =     0
-nfi     = 76825     nfels   = 105271
-nni     = 40467     nli     = 105271
-nsetups =   439     netf    =    28
-npe     =   122     nps     = 142747
-ncfn    =     0     ncfl    =   141
+nst     =   306     nfe     =     0
+nfi     =  3871     nfels   =  8115
+nni     =  2278     nli     =  8115
+nsetups =    55     netf    =    12
+npe     =     6     nps     = 10299
+ncfn    =     1     ncfl    =   555
 
