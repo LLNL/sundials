@@ -440,12 +440,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
   *res_norm = r_norm = rho = SUNRsqrt(SUN_REAL(beta_denom));
 
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_INFO
-  SUNLogger_QueueMsg(S->sunctx->logger, SUN_LOGLEVEL_INFO,
-                     "SUNLinSolSolve_SPBCGS", "initial-residual",
-                     "nli = %li, resnorm = %.16g", (long int)0, *res_norm);
-#endif
-
   if (r_norm <= delta)
   {
     *zeroguess  = SUNFALSE;
@@ -690,7 +684,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       Xv[2] = q;
 
       SUNCheckCall(N_VLinearCombination(3, cv, Xv, x));
-      N_VLinearCombination(3, cv, Xv, x);
     }
 
     /* Update the residual r = q - omega*u */
@@ -731,7 +724,6 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     Xv[2] = r;
 
     SUNCheckCall(N_VLinearCombination(3, cv, Xv, p));
-    N_VLinearCombination(3, cv, Xv, p);
 
     /* update beta_denom for next iteration */
     beta_denom = beta_num;
