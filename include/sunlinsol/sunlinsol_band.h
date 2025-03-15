@@ -73,7 +73,8 @@ int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x, N_Vector b,
 SUNDIALS_EXPORT
 sunindextype SUNLinSolLastFlag_Band(SUNLinearSolver S);
 
-SUNDIALS_EXPORT
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 SUNErrCode SUNLinSolSpace_Band(SUNLinearSolver S, long int* lenrwLS,
                                long int* leniwLS);
 

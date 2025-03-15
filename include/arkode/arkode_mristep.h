@@ -159,8 +159,10 @@ SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Create(int nmat, int stages,
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_MIStoMRI(ARKodeButcherTable B,
                                                          int q, int p);
 SUNDIALS_EXPORT MRIStepCoupling MRIStepCoupling_Copy(MRIStepCoupling MRIC);
-SUNDIALS_EXPORT void MRIStepCoupling_Space(MRIStepCoupling MRIC,
-                                           sunindextype* liw, sunindextype* lrw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+void MRIStepCoupling_Space(MRIStepCoupling MRIC, sunindextype* liw,
+                           sunindextype* lrw);
 SUNDIALS_EXPORT void MRIStepCoupling_Free(MRIStepCoupling MRIC);
 SUNDIALS_EXPORT void MRIStepCoupling_Write(MRIStepCoupling MRIC, FILE* outfile);
 
