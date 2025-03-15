@@ -40,6 +40,9 @@ used.
 
 ### Deprecation Notices
 
+All work space functions, e.g., `CVodeGetWorkSpace` and `ARKodeGetLinWorkSpace`,
+have been deprecated and will be removed in version 8.0.0.
+
 ## Changes to SUNDIALS in release 7.2.1
 
 ### New Features and Enhancements
