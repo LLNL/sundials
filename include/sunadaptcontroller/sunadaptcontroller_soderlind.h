@@ -41,7 +41,10 @@ struct _SUNAdaptControllerContent_Soderlind
   sunrealtype epp;  /* error from 2 steps ago */
   sunrealtype hp;   /* previous step size */
   sunrealtype hpp;  /* step size from 2 steps ago */
-  int firststeps;   /* flag to handle first few steps */
+  /* TODO(SRB): Consider removing firststeps. We can use a negative ep to
+   * indicate we are on the first or second step */
+  int firststeps;  /* flag to handle first few steps */
+  int historysize; /* number of past step sizes or errors needed */
 };
 
 typedef struct _SUNAdaptControllerContent_Soderlind* SUNAdaptControllerContent_Soderlind;

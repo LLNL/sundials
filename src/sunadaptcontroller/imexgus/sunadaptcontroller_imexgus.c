@@ -166,12 +166,9 @@ SUNErrCode SUNAdaptController_Reset_ImExGus(SUNAdaptController C)
 SUNErrCode SUNAdaptController_SetDefaults_ImExGus(SUNAdaptController C)
 {
   SUNFunctionBegin(C->sunctx);
-  SACIMEXGUS_K1E(C)  = DEFAULT_K1E;
-  SACIMEXGUS_K2E(C)  = DEFAULT_K2E;
-  SACIMEXGUS_K1I(C)  = DEFAULT_K1I;
-  SACIMEXGUS_K2I(C)  = DEFAULT_K2I;
   SACIMEXGUS_BIAS(C) = DEFAULT_BIAS;
-  return SUN_SUCCESS;
+  return SUNAdaptController_SetParams_ImExGus(C, DEFAULT_K1E, DEFAULT_K2E,
+                                              DEFAULT_K1I, DEFAULT_K2I);
 }
 
 SUNErrCode SUNAdaptController_Write_ImExGus(SUNAdaptController C, FILE* fptr)

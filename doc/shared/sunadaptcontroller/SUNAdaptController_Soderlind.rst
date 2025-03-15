@@ -51,6 +51,7 @@ SUNAdaptController class, and defines its *content* field as:
      sunrealtype hp;
      sunrealtype hpp;
      int firststeps;
+     int historysize;
    };
 
 These entries of the *content* field contain the following information:
@@ -68,6 +69,8 @@ These entries of the *content* field contain the following information:
 
 * ``firststeps`` - counter to handle first two steps (where previous
   step sizes and errors are unavailable).
+
+* ``historysize`` - number of past step sizes or errors needed.
 
 The header file to be included when using this module is
 ``sunadaptcontroller/sunadaptcontroller_soderlind.h``.
