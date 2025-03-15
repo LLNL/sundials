@@ -2,7 +2,7 @@
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -323,17 +323,10 @@ void SUNDlsMat_PrintMat(SUNDlsMat A, FILE* outfile)
     {
       for (j = 0; j < A->N; j++)
       {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-        fprintf(outfile, "%12Lg  ", SUNDLS_DENSE_ELEM(A, i, j));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-        fprintf(outfile, "%12g  ", SUNDLS_DENSE_ELEM(A, i, j));
-#else
-        fprintf(outfile, "%12g  ", SUNDLS_DENSE_ELEM(A, i, j));
-#endif
+        fprintf(outfile, SUN_FORMAT_E "  ", SUNDLS_DENSE_ELEM(A, i, j));
       }
       fprintf(outfile, "\n");
     }
-    fprintf(outfile, "\n");
 
     break;
 
@@ -348,17 +341,10 @@ void SUNDlsMat_PrintMat(SUNDlsMat A, FILE* outfile)
       for (j = 0; j < start; j++) { fprintf(outfile, "%12s  ", ""); }
       for (j = start; j <= finish; j++)
       {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-        fprintf(outfile, "%12Lg  ", a[j][i - j + A->s_mu]);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-        fprintf(outfile, "%12g  ", a[j][i - j + A->s_mu]);
-#else
-        fprintf(outfile, "%12g  ", a[j][i - j + A->s_mu]);
-#endif
+        fprintf(outfile, SUN_FORMAT_E "  ", a[j][i - j + A->s_mu]);
       }
       fprintf(outfile, "\n");
     }
-    fprintf(outfile, "\n");
 
     break;
   }

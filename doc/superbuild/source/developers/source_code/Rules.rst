@@ -2,7 +2,7 @@
    Author(s): David J. Gardner, Cody J. Balos @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -195,5 +195,8 @@ not adhere to all of these rules.
    represents the number of integer "words" allocated in a workspace do not use
    ``sunindextype`` for it. Instead use the appropriate integer type (e.g., ``uint64_t``) directly.
    Do not use ``sunindextype`` for counters either.
+
+#. Use the print functions, format macros, and output guidelines detailed in
+   :ref:`Style.Output`.
 
 #. Follow the logging style detailed in :ref:`Style.Logging`.

@@ -3,7 +3,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  * ----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -62,15 +62,6 @@
 #define SM_LOCALNNZ_SLUNRLOC(A) (SM_SUPERSTORE_SLUNRLOC(A)->nnz_loc)
 
 #define SM_FSTROW_SLUNRLOC(A) (SM_SUPERSTORE_SLUNRLOC(A)->fst_row)
-
-#define SM_DATA_SLUNRLOC(A) ((sunrealtype*)SM_SUPERSTORE_SLUNRLOC(A)->nzval)
-
-#define SM_COLIND_SLUNRLOC(A) (SM_SUPERSTORE_SLUNRLOC(A)->colind)
-
-#define SM_ROWPTRS_SLUNRLOC(A) (SM_SUPERSTORE_SLUNRLOC(A)->rowptr)
-
-/* constants */
-#define ZERO SUN_RCONST(0.0)
 
 /* Private function prototypes */
 static sunbooleantype SMCompatible_SLUNRloc(SUNMatrix A, SUNMatrix B);

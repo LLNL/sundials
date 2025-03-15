@@ -3,7 +3,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -514,11 +514,11 @@ if [ "$tarball" != NONE ]; then
     cd scripts
 
     echo "START TARSCRIPT"
-    time ./tarscript $tarball | tee -a tar.log
+    time ./tarscript.sh $tarball | tee -a tar.log
 
     # Check tarscript return code
     rc=${PIPESTATUS[0]}
-    echo -e "\ntarscript returned $rc\n" | tee -a tar.log
+    echo -e "\ntarscript.sh returned $rc\n" | tee -a tar.log
     if [ "$rc" -ne 0 ]; then exit 1; fi
 
     # Relocate log and tarballs

@@ -1,7 +1,7 @@
 ..
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -21,7 +21,7 @@ This section describes the SUNNonlinSol interface to the
 `PETSc SNES nonlinear solver(s) <https://petsc.org/release/docs/manual/snes/>`_.
 To enable the SUNonlinSol_PetscSNES module, SUNDIALS must be
 configured to use PETSc. Instructions on how to do this are given in
-:numref:`Installation.CMake.ExternalLibraries.PETSc`. To access the
+:numref:`Installation.Options.PETSc`. To access the
 SUNNonlinSol_PetscSNES module, include the header file
 ``sunnonlinsol/sunnonlinsol_petscsnes.h``. The library to link to is
 ``libsundials_sunnonlinsolpetsc.lib`` where ``.lib`` is typically ``.so`` for

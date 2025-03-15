@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -20,8 +20,7 @@
 #include "kinsol/kinsol.h"
 #include "nvector/nvector_serial.h"
 
-#define ZERO SUN_RCONST(0.0)
-#define ONE  SUN_RCONST(1.0)
+#define ONE SUN_RCONST(1.0)
 
 /* Dummy user-supplied function */
 static int F(N_Vector u, N_Vector r, void* user_data) { return 0; }

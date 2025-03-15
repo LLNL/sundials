@@ -3,7 +3,7 @@
                   Steven B. Roberts @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -265,17 +265,23 @@ void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE* outfile)
     fprintf(outfile, "      ");
     for (j = 0; j < B->stages; j++)
     {
-      fprintf(outfile, "%" RSYM "  ", B->A[i][j]);
+      fprintf(outfile, SUN_FORMAT_E "  ", B->A[i][j]);
     }
     fprintf(outfile, "\n");
   }
 
   fprintf(outfile, "  c = ");
-  for (i = 0; i < B->stages; i++) { fprintf(outfile, "%" RSYM "  ", B->c[i]); }
+  for (i = 0; i < B->stages; i++)
+  {
+    fprintf(outfile, SUN_FORMAT_E "  ", B->c[i]);
+  }
   fprintf(outfile, "\n");
 
   fprintf(outfile, "  b = ");
-  for (i = 0; i < B->stages; i++) { fprintf(outfile, "%" RSYM "  ", B->b[i]); }
+  for (i = 0; i < B->stages; i++)
+  {
+    fprintf(outfile, SUN_FORMAT_E "  ", B->b[i]);
+  }
   fprintf(outfile, "\n");
 
   if (B->d != NULL)
@@ -283,7 +289,7 @@ void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE* outfile)
     fprintf(outfile, "  d = ");
     for (i = 0; i < B->stages; i++)
     {
-      fprintf(outfile, "%" RSYM "  ", B->d[i]);
+      fprintf(outfile, SUN_FORMAT_E "  ", B->d[i]);
     }
     fprintf(outfile, "\n");
   }

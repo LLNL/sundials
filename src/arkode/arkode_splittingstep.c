@@ -2,7 +2,7 @@
  * Programmer(s): Steven B. Roberts @ LLNL
  *------------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -227,8 +227,9 @@ static int splittingStep_SequentialMethod(ARKodeMem ark_mem,
       sunrealtype t_end   = ark_mem->tn + beta_end * ark_mem->h;
 
       SUNLogInfo(ARK_LOGGER, "begin-partition",
-                 "partition = %i, t_start = %" RSYM ", t_end = %" RSYM, k,
-                 t_start, t_end);
+                 "partition = %i, t_start = " SUN_FORMAT_G
+                 ", t_end = " SUN_FORMAT_G,
+                 k, t_start, t_end);
 
       SUNStepper stepper = step_mem->steppers[k];
       /* TODO(SBR): A potential future optimization is removing this reset and
@@ -356,31 +357,16 @@ static int splittingStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 static int splittingStep_PrintAllStats(ARKodeMem ark_mem, FILE* outfile,
                                        SUNOutputFormat fmt)
 {
-  // TODO(SBR): update when https://github.com/LLNL/sundials/pull/517 merged
   ARKodeSplittingStepMem step_mem = NULL;
   int retval = splittingStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return retval; }
 
-  switch (fmt)
+  char name_buf[SUN_TABLE_WIDTH];
+  for (int k = 0; k < step_mem->partitions; k++)
   {
-  case SUN_OUTPUTFORMAT_TABLE:
-    for (int k = 0; k < step_mem->partitions; k++)
-    {
-      fprintf(outfile, "Partition %i evolves          = %ld\n", k,
-              step_mem->n_stepper_evolves[k]);
-    }
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    for (int k = 0; k < step_mem->partitions; k++)
-    {
-      fprintf(outfile, ",Partition %i evolves,%ld", k,
-              step_mem->n_stepper_evolves[k]);
-    }
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return ARK_ILL_INPUT;
+    snprintf(name_buf, sizeof(name_buf), "Partition %i evolves", k + 1);
+    sunfprintf_long(outfile, fmt, SUNFALSE, name_buf,
+                    step_mem->n_stepper_evolves[k]);
   }
 
   return ARK_SUCCESS;
@@ -477,15 +463,6 @@ static int splittingStep_SetDefaults(ARKodeMem ark_mem)
 }
 
 /*------------------------------------------------------------------------------
-  This routine checks if all required vector operations are present. If any of
-  them is missing it returns SUNFALSE.
-  ----------------------------------------------------------------------------*/
-static sunbooleantype splittingStep_CheckNVector(N_Vector y)
-{
-  return y->ops->nvlinearsum != NULL && y->ops->nvscale != NULL;
-}
-
-/*------------------------------------------------------------------------------
   This routine checks if all required SUNStepper operations are present. If any
   of them are missing it return SUNFALSE.
   ----------------------------------------------------------------------------*/
@@ -539,14 +516,6 @@ static int splittingStep_CheckArgs(ARKodeMem ark_mem, SUNStepper* steppers,
   {
     arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_Y0);
-    return ARK_ILL_INPUT;
-  }
-
-  /* Test if all required vector operations are implemented */
-  if (!splittingStep_CheckNVector(y0))
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
     return ARK_ILL_INPUT;
   }
 

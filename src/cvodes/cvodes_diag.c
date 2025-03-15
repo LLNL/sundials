@@ -3,7 +3,7 @@
  * Programmer(s): Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -50,24 +50,22 @@ static int CVDiagFree(CVodeMem cv_mem);
 
 /* Readability Replacements */
 
-#define lrw1         (cv_mem->cv_lrw1)
-#define liw1         (cv_mem->cv_liw1)
-#define f            (cv_mem->cv_f)
-#define uround       (cv_mem->cv_uround)
-#define tn           (cv_mem->cv_tn)
-#define h            (cv_mem->cv_h)
-#define rl1          (cv_mem->cv_rl1)
-#define gamma        (cv_mem->cv_gamma)
-#define ewt          (cv_mem->cv_ewt)
-#define nfe          (cv_mem->cv_nfe)
-#define zn           (cv_mem->cv_zn)
-#define linit        (cv_mem->cv_linit)
-#define lsetup       (cv_mem->cv_lsetup)
-#define lsolve       (cv_mem->cv_lsolve)
-#define lfree        (cv_mem->cv_lfree)
-#define lmem         (cv_mem->cv_lmem)
-#define vec_tmpl     (cv_mem->cv_tempv)
-#define setupNonNull (cv_mem->cv_setupNonNull)
+#define lrw1     (cv_mem->cv_lrw1)
+#define liw1     (cv_mem->cv_liw1)
+#define f        (cv_mem->cv_f)
+#define uround   (cv_mem->cv_uround)
+#define tn       (cv_mem->cv_tn)
+#define h        (cv_mem->cv_h)
+#define rl1      (cv_mem->cv_rl1)
+#define gamma    (cv_mem->cv_gamma)
+#define ewt      (cv_mem->cv_ewt)
+#define zn       (cv_mem->cv_zn)
+#define linit    (cv_mem->cv_linit)
+#define lsetup   (cv_mem->cv_lsetup)
+#define lsolve   (cv_mem->cv_lsolve)
+#define lfree    (cv_mem->cv_lfree)
+#define lmem     (cv_mem->cv_lmem)
+#define vec_tmpl (cv_mem->cv_tempv)
 
 #define gammasv   (cvdiag_mem->di_gammasv)
 #define M         (cvdiag_mem->di_M)

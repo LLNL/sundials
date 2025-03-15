@@ -2,7 +2,7 @@
 # Programmer(s): David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -41,7 +41,7 @@ foreach(test_tuple ${unit_tests})
   if(NOT TARGET ${test_target})
 
     # Test source files
-    add_executable(${test_target} ${test})
+    sundials_add_executable(${test_target} ${test})
 
     # Folder to organize targets in an IDE
     set_target_properties(${test_target} PROPERTIES FOLDER "unit_tests")
