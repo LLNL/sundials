@@ -181,12 +181,10 @@ SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S,
 {
   SUNFunctionBegin(S->sunctx);
 
-  int i, j;
+  int i;
   SUNErrCode retval;
   for (i = 1; i < argc; i++)
   {
-    sunbooleantype arg_used = SUNFALSE;
-
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spbcgs." */
     size_t offset;
@@ -209,7 +207,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSol_KLUSetOrdering(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 

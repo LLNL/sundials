@@ -162,12 +162,10 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
 {
   SUNFunctionBegin(S->sunctx);
 
-  int i, j;
+  int i;
   SUNErrCode retval;
   for (i = 1; i < argc; i++)
   {
-    sunbooleantype arg_used = SUNFALSE;
-
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spbcgs." */
     size_t offset;
@@ -190,7 +188,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSol_SPTFQMRSetPrecType(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -201,7 +198,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSol_SPTFQMRSetMaxl(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -212,7 +208,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSolSetZeroGuess_SPTFQMR(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 

@@ -140,12 +140,10 @@ SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S,
 {
   SUNFunctionBegin(S->sunctx);
 
-  int i, j;
+  int i;
   SUNErrCode retval;
   for (i = 1; i < argc; i++)
   {
-    sunbooleantype arg_used = SUNFALSE;
-
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spbcgs." */
     size_t offset;
@@ -168,7 +166,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSol_PCGSetPrecType(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -179,7 +176,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSol_PCGSetMaxl(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -190,7 +186,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSolSetZeroGuess_PCG(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 

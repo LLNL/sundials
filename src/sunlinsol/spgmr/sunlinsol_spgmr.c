@@ -147,12 +147,10 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
 {
   SUNFunctionBegin(S->sunctx);
 
-  int i, j;
+  int i;
   SUNErrCode retval;
   for (i = 1; i < argc; i++)
   {
-    sunbooleantype arg_used = SUNFALSE;
-
     /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
        else, skip command-line arguments that do not begin with "spgmr." */
     size_t offset;
@@ -175,7 +173,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSol_SPGMRSetPrecType(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -186,7 +183,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSol_SPGMRSetGSType(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -197,7 +193,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSol_SPGMRSetMaxRestarts(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -208,7 +203,6 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
       int iarg = atoi(argv[i]);
       retval = SUNLinSolSetZeroGuess_SPGMR(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
