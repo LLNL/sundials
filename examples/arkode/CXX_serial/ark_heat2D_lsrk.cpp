@@ -59,6 +59,7 @@
 
 #include "arkode/arkode_lsrkstep.h" // access to LSRKStep
 #include "nvector/nvector_serial.h" // access to the serial N_Vector
+#include "sundials/sundials_adaptcontroller.h"
 #include "sunadaptcontroller/sunadaptcontroller_imexgus.h"
 #include "sunadaptcontroller/sunadaptcontroller_soderlind.h"
 
@@ -303,8 +304,8 @@ int main(int argc, char* argv[])
     case (ARK_ADAPT_IMP_GUS): C = SUNAdaptController_ImpGus(ctx); break;
     case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
     }
-    flag = SUNAdaptController_SetFromCommandLine(C, "sunadaptcontroller", argc,
-                                                 argv);
+    flag = (int) SUNAdaptController_SetFromCommandLine(C, "sunadaptcontroller",
+                                                       argc, argv);
     if (check_flag(&flag, "SUNAdaptControllerSetFromCommandLine", 1))
     {
       return 1;
