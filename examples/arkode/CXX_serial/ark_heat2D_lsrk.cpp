@@ -304,8 +304,8 @@ int main(int argc, char* argv[])
     case (ARK_ADAPT_IMP_GUS): C = SUNAdaptController_ImpGus(ctx); break;
     case (ARK_ADAPT_IMEX_GUS): C = SUNAdaptController_ImExGus(ctx); break;
     }
-    flag = SUNAdaptController_SetFromCommandLine(C, "sunadaptcontroller",
-                                                 argc, argv);
+    flag = SUNAdaptController_SetFromCommandLine(C, "sunadaptcontroller", argc,
+                                                 argv);
     if (check_flag(&flag, "SUNAdaptControllerSetFromCommandLine", 1))
     {
       return 1;
