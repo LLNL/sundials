@@ -22,8 +22,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <sundials/sundials_errors.h>
 #include <sundials/priv/sundials_errors_impl.h>
+#include <sundials/sundials_errors.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_superlumt.h>
 
