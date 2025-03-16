@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
@@ -25,6 +26,7 @@
 
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
+#include "sundials_cli.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -69,21 +71,22 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  S->ops->gettype           = SUNLinSolGetType_PCG;
-  S->ops->getid             = SUNLinSolGetID_PCG;
-  S->ops->setatimes         = SUNLinSolSetATimes_PCG;
-  S->ops->setpreconditioner = SUNLinSolSetPreconditioner_PCG;
-  S->ops->setscalingvectors = SUNLinSolSetScalingVectors_PCG;
-  S->ops->setzeroguess      = SUNLinSolSetZeroGuess_PCG;
-  S->ops->initialize        = SUNLinSolInitialize_PCG;
-  S->ops->setup             = SUNLinSolSetup_PCG;
-  S->ops->solve             = SUNLinSolSolve_PCG;
-  S->ops->numiters          = SUNLinSolNumIters_PCG;
-  S->ops->resnorm           = SUNLinSolResNorm_PCG;
-  S->ops->resid             = SUNLinSolResid_PCG;
-  S->ops->lastflag          = SUNLinSolLastFlag_PCG;
-  S->ops->space             = SUNLinSolSpace_PCG;
-  S->ops->free              = SUNLinSolFree_PCG;
+  S->ops->gettype            = SUNLinSolGetType_PCG;
+  S->ops->getid              = SUNLinSolGetID_PCG;
+  S->ops->setatimes          = SUNLinSolSetATimes_PCG;
+  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_PCG;
+  S->ops->setpreconditioner  = SUNLinSolSetPreconditioner_PCG;
+  S->ops->setscalingvectors  = SUNLinSolSetScalingVectors_PCG;
+  S->ops->setzeroguess       = SUNLinSolSetZeroGuess_PCG;
+  S->ops->initialize         = SUNLinSolInitialize_PCG;
+  S->ops->setup              = SUNLinSolSetup_PCG;
+  S->ops->solve              = SUNLinSolSolve_PCG;
+  S->ops->numiters           = SUNLinSolNumIters_PCG;
+  S->ops->resnorm            = SUNLinSolResNorm_PCG;
+  S->ops->resid              = SUNLinSolResid_PCG;
+  S->ops->lastflag           = SUNLinSolLastFlag_PCG;
+  S->ops->space              = SUNLinSolSpace_PCG;
+  S->ops->free               = SUNLinSolFree_PCG;
 
   /* Create content */
   content = NULL;
@@ -125,6 +128,74 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
   SUNCheckLastErrNull();
 
   return (S);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S,
+                                           const char* LSid,
+                                           int argc, char* argv[])
+{
+  SUNFunctionBegin(S->sunctx);
+
+  int i, j;
+  SUNErrCode retval;
+  for (i = 1; i < argc; i++)
+  {
+    sunbooleantype arg_used = SUNFALSE;
+
+    /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
+       else, skip command-line arguments that do not begin with "spbcgs." */
+    size_t offset;
+    if (strlen(LSid) > 0)
+    {
+      if (strncmp(argv[i], LSid, strlen(LSid)) != 0) { continue; }
+      offset = strlen(LSid) + 1;
+    }
+    else
+    {
+      static const char* prefix = "pcg.";
+      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      offset = strlen(prefix);
+    }
+
+    /* control over PrecType function */
+    if (strcmp(argv[i] + offset, "prec_type") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval = SUNLinSol_PCGSetPrecType(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    /* control over Maxl function */
+    if (strcmp(argv[i] + offset, "maxl") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval = SUNLinSol_PCGSetMaxl(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    /* control over ZeroGuess function */
+    if (strcmp(argv[i] + offset, "zero_guess") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval = SUNLinSolSetZeroGuess_PCG(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+  }
+  return SUN_SUCCESS;
 }
 
 /* ----------------------------------------------------------------------------

@@ -14,9 +14,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_magmadense.h>
 #include <sunmatrix/sunmatrix_magmadense.h>
+#include "sundials_cli.h"
 
 /* Interfaces to match 'sunrealtype' with the correct MAGMA functions */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
@@ -105,14 +107,15 @@ SUNLinearSolver SUNLinSol_MagmaDense(N_Vector y, SUNMatrix Amat, SUNContext sunc
   if (S == NULL) { return (NULL); }
 
   /* Attach operations */
-  S->ops->gettype    = SUNLinSolGetType_MagmaDense;
-  S->ops->getid      = SUNLinSolGetID_MagmaDense;
-  S->ops->initialize = SUNLinSolInitialize_MagmaDense;
-  S->ops->setup      = SUNLinSolSetup_MagmaDense;
-  S->ops->solve      = SUNLinSolSolve_MagmaDense;
-  S->ops->lastflag   = SUNLinSolLastFlag_MagmaDense;
-  S->ops->space      = SUNLinSolSpace_MagmaDense;
-  S->ops->free       = SUNLinSolFree_MagmaDense;
+  S->ops->gettype            = SUNLinSolGetType_MagmaDense;
+  S->ops->getid              = SUNLinSolGetID_MagmaDense;
+  S->ops->initialize         = SUNLinSolInitialize_MagmaDense;
+  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_MagmaDense;
+  S->ops->setup              = SUNLinSolSetup_MagmaDense;
+  S->ops->solve              = SUNLinSolSolve_MagmaDense;
+  S->ops->lastflag           = SUNLinSolLastFlag_MagmaDense;
+  S->ops->space              = SUNLinSolSpace_MagmaDense;
+  S->ops->free               = SUNLinSolFree_MagmaDense;
 
   /* Create content */
   content = NULL;
@@ -228,6 +231,48 @@ SUNErrCode SUNLinSolInitialize_MagmaDense(SUNLinearSolver S)
 {
   /* All solver-specific memory has already been allocated */
   LASTFLAG(S) = SUN_SUCCESS;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
+                                                  const char* LSid,
+                                                  int argc, char* argv[])
+{
+  SUNFunctionBegin(S->sunctx);
+
+  int i, j;
+  SUNErrCode retval;
+  for (i = 1; i < argc; i++)
+  {
+    sunbooleantype arg_used = SUNFALSE;
+
+    /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
+       else, skip command-line arguments that do not begin with "spbcgs." */
+    size_t offset;
+    if (strlen(LSid) > 0)
+    {
+      if (strncmp(argv[i], LSid, strlen(LSid)) != 0) { continue; }
+      offset = strlen(LSid) + 1;
+    }
+    else
+    {
+      static const char* prefix = "magmadense.";
+      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      offset = strlen(prefix);
+    }
+
+    /* control over SetAsync function */
+    if (strcmp(argv[i] + offset, "async") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval = SUNLinSol_MagmaDense_SetAsync(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+  }
   return SUN_SUCCESS;
 }
 

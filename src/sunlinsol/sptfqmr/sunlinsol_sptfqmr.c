@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
@@ -25,6 +26,7 @@
 
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
+#include "sundials_cli.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -75,21 +77,22 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  S->ops->gettype           = SUNLinSolGetType_SPTFQMR;
-  S->ops->getid             = SUNLinSolGetID_SPTFQMR;
-  S->ops->setatimes         = SUNLinSolSetATimes_SPTFQMR;
-  S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPTFQMR;
-  S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPTFQMR;
-  S->ops->setzeroguess      = SUNLinSolSetZeroGuess_SPTFQMR;
-  S->ops->initialize        = SUNLinSolInitialize_SPTFQMR;
-  S->ops->setup             = SUNLinSolSetup_SPTFQMR;
-  S->ops->solve             = SUNLinSolSolve_SPTFQMR;
-  S->ops->numiters          = SUNLinSolNumIters_SPTFQMR;
-  S->ops->resnorm           = SUNLinSolResNorm_SPTFQMR;
-  S->ops->resid             = SUNLinSolResid_SPTFQMR;
-  S->ops->lastflag          = SUNLinSolLastFlag_SPTFQMR;
-  S->ops->space             = SUNLinSolSpace_SPTFQMR;
-  S->ops->free              = SUNLinSolFree_SPTFQMR;
+  S->ops->gettype            = SUNLinSolGetType_SPTFQMR;
+  S->ops->getid              = SUNLinSolGetID_SPTFQMR;
+  S->ops->setatimes          = SUNLinSolSetATimes_SPTFQMR;
+  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_SPTFQMR;
+  S->ops->setpreconditioner  = SUNLinSolSetPreconditioner_SPTFQMR;
+  S->ops->setscalingvectors  = SUNLinSolSetScalingVectors_SPTFQMR;
+  S->ops->setzeroguess       = SUNLinSolSetZeroGuess_SPTFQMR;
+  S->ops->initialize         = SUNLinSolInitialize_SPTFQMR;
+  S->ops->setup              = SUNLinSolSetup_SPTFQMR;
+  S->ops->solve              = SUNLinSolSolve_SPTFQMR;
+  S->ops->numiters           = SUNLinSolNumIters_SPTFQMR;
+  S->ops->resnorm            = SUNLinSolResNorm_SPTFQMR;
+  S->ops->resid              = SUNLinSolResid_SPTFQMR;
+  S->ops->lastflag           = SUNLinSolLastFlag_SPTFQMR;
+  S->ops->space              = SUNLinSolSpace_SPTFQMR;
+  S->ops->free               = SUNLinSolFree_SPTFQMR;
 
   /* Create content */
   content = NULL;
@@ -147,6 +150,74 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl,
   SUNCheckLastErrNull();
 
   return (S);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
+                                               const char* LSid,
+                                               int argc, char* argv[])
+{
+  SUNFunctionBegin(S->sunctx);
+
+  int i, j;
+  SUNErrCode retval;
+  for (i = 1; i < argc; i++)
+  {
+    sunbooleantype arg_used = SUNFALSE;
+
+    /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
+       else, skip command-line arguments that do not begin with "spbcgs." */
+    size_t offset;
+    if (strlen(LSid) > 0)
+    {
+      if (strncmp(argv[i], LSid, strlen(LSid)) != 0) { continue; }
+      offset = strlen(LSid) + 1;
+    }
+    else
+    {
+      static const char* prefix = "sptfqmr.";
+      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      offset = strlen(prefix);
+    }
+
+    /* control over PrecType function */
+    if (strcmp(argv[i] + offset, "prec_type") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval = SUNLinSol_SPTFQMRSetPrecType(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    /* control over Maxl function */
+    if (strcmp(argv[i] + offset, "maxl") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval = SUNLinSol_SPTFQMRSetMaxl(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    /* control over ZeroGuess function */
+    if (strcmp(argv[i] + offset, "zero_guess") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval = SUNLinSolSetZeroGuess_SPTFQMR(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+  }
+  return SUN_SUCCESS;
 }
 
 /* ----------------------------------------------------------------------------

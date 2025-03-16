@@ -84,6 +84,9 @@ typedef struct _SUNLinearSolverContent_SPFGMR* SUNLinearSolverContent_SPFGMR;
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y, int pretype,
                                                  int maxl, SUNContext sunctx);
+SUNDIALS_EXPORT SUNErrCode SUNLinSolSetFromCommandLine_SPFGMR(SUNLinearSolver S,
+                                                              const char* LSid,
+                                                              int argc, char* argv[]);
 SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPFGMRSetPrecType(SUNLinearSolver S,
                                                        int pretype);
 SUNDIALS_EXPORT SUNErrCode SUNLinSol_SPFGMRSetGSType(SUNLinearSolver S,

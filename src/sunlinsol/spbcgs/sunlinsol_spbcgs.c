@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sundials/priv/sundials_errors_impl.h>
 #include <sundials/sundials_math.h>
@@ -27,6 +28,7 @@
 #include "sundials/sundials_errors.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
+#include "sundials_cli.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -78,21 +80,22 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  S->ops->gettype           = SUNLinSolGetType_SPBCGS;
-  S->ops->getid             = SUNLinSolGetID_SPBCGS;
-  S->ops->setatimes         = SUNLinSolSetATimes_SPBCGS;
-  S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPBCGS;
-  S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPBCGS;
-  S->ops->setzeroguess      = SUNLinSolSetZeroGuess_SPBCGS;
-  S->ops->initialize        = SUNLinSolInitialize_SPBCGS;
-  S->ops->setup             = SUNLinSolSetup_SPBCGS;
-  S->ops->solve             = SUNLinSolSolve_SPBCGS;
-  S->ops->numiters          = SUNLinSolNumIters_SPBCGS;
-  S->ops->resnorm           = SUNLinSolResNorm_SPBCGS;
-  S->ops->resid             = SUNLinSolResid_SPBCGS;
-  S->ops->lastflag          = SUNLinSolLastFlag_SPBCGS;
-  S->ops->space             = SUNLinSolSpace_SPBCGS;
-  S->ops->free              = SUNLinSolFree_SPBCGS;
+  S->ops->gettype            = SUNLinSolGetType_SPBCGS;
+  S->ops->getid              = SUNLinSolGetID_SPBCGS;
+  S->ops->setatimes          = SUNLinSolSetATimes_SPBCGS;
+  S->ops->setfromcommandline = SUNLinSolSetFromCommandLine_SPBCGS;
+  S->ops->setpreconditioner  = SUNLinSolSetPreconditioner_SPBCGS;
+  S->ops->setscalingvectors  = SUNLinSolSetScalingVectors_SPBCGS;
+  S->ops->setzeroguess       = SUNLinSolSetZeroGuess_SPBCGS;
+  S->ops->initialize         = SUNLinSolInitialize_SPBCGS;
+  S->ops->setup              = SUNLinSolSetup_SPBCGS;
+  S->ops->solve              = SUNLinSolSolve_SPBCGS;
+  S->ops->numiters           = SUNLinSolNumIters_SPBCGS;
+  S->ops->resnorm            = SUNLinSolResNorm_SPBCGS;
+  S->ops->resid              = SUNLinSolResid_SPBCGS;
+  S->ops->lastflag           = SUNLinSolLastFlag_SPBCGS;
+  S->ops->space              = SUNLinSolSpace_SPBCGS;
+  S->ops->free               = SUNLinSolFree_SPBCGS;
 
   /* Create content */
   content = NULL;
@@ -147,6 +150,74 @@ SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl,
   SUNCheckLastErrNull();
 
   return (S);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to control set routines via the command line
+ */
+
+SUNErrCode SUNLinSolSetFromCommandLine_SPBCGS(SUNLinearSolver S,
+                                              const char* LSid,
+                                              int argc, char* argv[])
+{
+  SUNFunctionBegin(S->sunctx);
+
+  int i, j;
+  SUNErrCode retval;
+  for (i = 1; i < argc; i++)
+  {
+    sunbooleantype arg_used = SUNFALSE;
+
+    /* if LSid is supplied, skip command-line arguments that do not begin with LSid;
+       else, skip command-line arguments that do not begin with "spbcgs." */
+    size_t offset;
+    if (strlen(LSid) > 0)
+    {
+      if (strncmp(argv[i], LSid, strlen(LSid)) != 0) { continue; }
+      offset = strlen(LSid) + 1;
+    }
+    else
+    {
+      static const char* prefix = "spbcgs.";
+      if (strncmp(argv[i], prefix, strlen(prefix)) != 0) { continue; }
+      offset = strlen(prefix);
+    }
+
+    /* control over PrecType function */
+    if (strcmp(argv[i] + offset, "prec_type") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval = SUNLinSol_SPBCGSSetPrecType(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    /* control over Maxl function */
+    if (strcmp(argv[i] + offset, "maxl") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval = SUNLinSol_SPBCGSSetMaxl(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+    /* control over ZeroGuess function */
+    if (strcmp(argv[i] + offset, "zero_guess") == 0)
+    {
+      i += 1;
+      int iarg = atoi(argv[i]);
+      retval = SUNLinSolSetZeroGuess_SPBCGS(S, iarg);
+      if (retval != SUN_SUCCESS) { return retval; }
+      arg_used = SUNTRUE;
+      continue;
+    }
+
+  }
+  return SUN_SUCCESS;
 }
 
 /* ----------------------------------------------------------------------------

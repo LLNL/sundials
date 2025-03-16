@@ -302,12 +302,6 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 #include "sundials/sundials_linearsolver.h"
 
 
-#include "sundials/sundials_nonlinearsolver.h"
-
-
-#include "sundials/sundials_adaptcontroller.h"
-
-
 typedef struct {
     void* cptr;
     int cmemflags;
@@ -320,6 +314,12 @@ SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
     result.cmemflags = 0;
     return result;
 }
+
+
+#include "sundials/sundials_nonlinearsolver.h"
+
+
+#include "sundials/sundials_adaptcontroller.h"
 
 
 #include "sundials/sundials_stepper.h"
@@ -2175,6 +2175,25 @@ SWIGEXPORT int _wrap_FSUNLinSolSetScalingVectors(SUNLinearSolver farg1, N_Vector
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
   result = (SUNErrCode)SUNLinSolSetScalingVectors(arg1,arg2,arg3);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNLinSolSetFromCommandLine(SUNLinearSolver farg1, SwigArrayWrapper *farg2, int const *farg3, SwigClassWrapper const *farg4) {
+  int fresult ;
+  SUNLinearSolver arg1 = (SUNLinearSolver) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char **arg4 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNLinearSolver)(farg1);
+  arg2 = (char *)(farg2->data);
+  arg3 = (int)(*farg3);
+  SWIG_check_mutable(*farg4, "char **", "SWIGTYPE_p_p_char", "SUNLinSolSetFromCommandLine(SUNLinearSolver,char const *,int,char *[])", return 0);
+  arg4 = (char **)(farg4->cptr);
+  result = (SUNErrCode)SUNLinSolSetFromCommandLine(arg1,(char const *)arg2,arg3,arg4);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
