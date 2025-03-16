@@ -122,13 +122,11 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
 {
   SUNFunctionBegin(C->sunctx);
 
-  int i, j;
+  int i;
   SUNErrCode retval;
   sunbooleantype write_parameters = SUNFALSE;
   for (i = 1; i < argc; i++)
   {
-    sunbooleantype arg_used = SUNFALSE;
-
     /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
        else, skip command-line arguments that do not begin with "sunadaptcontroller." */
     size_t SOffset, PIDOffset, PIOffset, IOffset, ExpGusOffset, ImpGusOffset;
@@ -166,7 +164,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg5 = atof(argv[i]);
       retval = SUNAdaptController_SetParams_Soderlind(C, rarg1, rarg2, rarg3, rarg4, rarg5);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -182,7 +179,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg3 = atof(argv[i]);
       retval = SUNAdaptController_SetParams_PID(C, rarg1, rarg2, rarg3);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -196,7 +192,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg2 = atof(argv[i]);
       retval = SUNAdaptController_SetParams_PI(C, rarg1, rarg2);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -208,7 +203,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg1 = atof(argv[i]);
       retval = SUNAdaptController_SetParams_I(C, rarg1);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -222,7 +216,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg2 = atof(argv[i]);
       retval = SUNAdaptController_SetParams_ExpGus(C, rarg1, rarg2);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -236,7 +229,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg2 = atof(argv[i]);
       retval = SUNAdaptController_SetParams_ImpGus(C, rarg1, rarg2);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -250,7 +242,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
     {
       retval = SUNAdaptController_SetDefaults_Soderlind(C);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -266,7 +257,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg = atof(argv[i]);
       retval = SUNAdaptController_SetErrorBias_Soderlind(C, rarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -279,7 +269,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
         (strcmp(argv[i] + ImpGusOffset, "write_parameters") == 0))
     {
       write_parameters = SUNTRUE;
-      arg_used         = SUNTRUE;
       continue;
     }
   }

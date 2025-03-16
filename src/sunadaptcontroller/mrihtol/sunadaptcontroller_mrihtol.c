@@ -118,13 +118,11 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
 {
   SUNFunctionBegin(C->sunctx);
 
-  int i, j;
+  int i;
   SUNErrCode retval;
   sunbooleantype write_parameters = SUNFALSE;
   for (i = 1; i < argc; i++)
   {
-    sunbooleantype arg_used = SUNFALSE;
-
     /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
        else, skip command-line arguments that do not begin with "sunadaptcontroller." */
     size_t offset;
@@ -151,7 +149,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
       sunrealtype rarg3 = atof(argv[i]);
       retval = SUNAdaptController_SetParams_MRIHTol(C, rarg1, rarg2, rarg3);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -160,7 +157,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
     {
       retval = SUNAdaptController_SetDefaults_MRIHTol(C);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -171,7 +167,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
       sunrealtype rarg = atof(argv[i]);
       retval = SUNAdaptController_SetErrorBias_MRIHTol(C, rarg);
       if (retval != SUN_SUCCESS) { return retval; }
-      arg_used = SUNTRUE;
       continue;
     }
 
@@ -179,7 +174,6 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
     if (strcmp(argv[i] + offset, "write_parameters") == 0)
     {
       write_parameters = SUNTRUE;
-      arg_used         = SUNTRUE;
       continue;
     }
   }
