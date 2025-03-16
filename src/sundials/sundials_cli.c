@@ -125,7 +125,7 @@ int sunCheckAndSetIntLongArg(void* mem, int* i, char* argv[],
     int iarg = atoi(argv[*i]);
     (*i) += 1;
     long int large = atol(argv[*i]);
-    int retval    = fname(mem, iarg, large);
+    int retval     = fname(mem, iarg, large);
     if (retval != SUN_SUCCESS) { return retval; }
     *arg_used = SUNTRUE;
   }

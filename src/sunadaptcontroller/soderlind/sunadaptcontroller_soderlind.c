@@ -24,8 +24,8 @@
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_errors.h>
 
-#include "sundials_macros.h"
 #include "sundials_cli.h"
+#include "sundials_macros.h"
 
 /* ---------------
  * Macro accessors
@@ -130,20 +130,26 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
     /* if Cid is supplied, skip command-line arguments that do not begin with Cid;
        else, skip command-line arguments that do not begin with "sunadaptcontroller." */
     size_t SOffset, PIDOffset, PIOffset, IOffset, ExpGusOffset, ImpGusOffset;
-    const char* SPrefix = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_soderlind.";
+    const char* SPrefix   = (strlen(Cid) > 0) ? Cid
+                                              : "sunadaptcontroller_soderlind.";
     const char* PIDPrefix = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_pid.";
-    const char* PIPrefix = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_pi.";
-    const char* IPrefix = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_i.";
-    const char* ExpGusPrefix = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_expgus.";
-    const char* ImpGusPrefix = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_impgus.";
+    const char* PIPrefix  = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_pi.";
+    const char* IPrefix   = (strlen(Cid) > 0) ? Cid : "sunadaptcontroller_i.";
+    const char* ExpGusPrefix = (strlen(Cid) > 0) ? Cid
+                                                 : "sunadaptcontroller_expgus.";
+    const char* ImpGusPrefix = (strlen(Cid) > 0) ? Cid
+                                                 : "sunadaptcontroller_impgus.";
     if (strlen(Cid) > 0)
     {
-      SOffset = PIDOffset = PIOffset = IOffset = ExpGusOffset = ImpGusOffset = strlen(Cid) + 1;
-    } else {
-      SOffset = strlen(SPrefix);
-      PIDOffset = strlen(PIDPrefix);
-      PIOffset = strlen(PIPrefix);
-      IOffset = strlen(IPrefix);
+      SOffset = PIDOffset = PIOffset = IOffset = ExpGusOffset = ImpGusOffset =
+        strlen(Cid) + 1;
+    }
+    else
+    {
+      SOffset      = strlen(SPrefix);
+      PIDOffset    = strlen(PIDPrefix);
+      PIOffset     = strlen(PIPrefix);
+      IOffset      = strlen(IPrefix);
       ExpGusOffset = strlen(ExpGusPrefix);
       ImpGusOffset = strlen(ImpGusPrefix);
     }
@@ -162,7 +168,8 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg4 = atof(argv[i]);
       i += 1;
       sunrealtype rarg5 = atof(argv[i]);
-      retval = SUNAdaptController_SetParams_Soderlind(C, rarg1, rarg2, rarg3, rarg4, rarg5);
+      retval = SUNAdaptController_SetParams_Soderlind(C, rarg1, rarg2, rarg3,
+                                                      rarg4, rarg5);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -190,7 +197,7 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg1 = atof(argv[i]);
       i += 1;
       sunrealtype rarg2 = atof(argv[i]);
-      retval = SUNAdaptController_SetParams_PI(C, rarg1, rarg2);
+      retval            = SUNAdaptController_SetParams_PI(C, rarg1, rarg2);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -201,7 +208,7 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
     {
       i += 1;
       sunrealtype rarg1 = atof(argv[i]);
-      retval = SUNAdaptController_SetParams_I(C, rarg1);
+      retval            = SUNAdaptController_SetParams_I(C, rarg1);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -214,7 +221,7 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg1 = atof(argv[i]);
       i += 1;
       sunrealtype rarg2 = atof(argv[i]);
-      retval = SUNAdaptController_SetParams_ExpGus(C, rarg1, rarg2);
+      retval            = SUNAdaptController_SetParams_ExpGus(C, rarg1, rarg2);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -227,7 +234,7 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
       sunrealtype rarg1 = atof(argv[i]);
       i += 1;
       sunrealtype rarg2 = atof(argv[i]);
-      retval = SUNAdaptController_SetParams_ImpGus(C, rarg1, rarg2);
+      retval            = SUNAdaptController_SetParams_ImpGus(C, rarg1, rarg2);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -255,7 +262,7 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
     {
       i += 1;
       sunrealtype rarg = atof(argv[i]);
-      retval = SUNAdaptController_SetErrorBias_Soderlind(C, rarg);
+      retval           = SUNAdaptController_SetErrorBias_Soderlind(C, rarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }

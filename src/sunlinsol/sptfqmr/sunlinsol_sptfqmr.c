@@ -24,9 +24,9 @@
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_sptfqmr.h>
 
+#include "sundials_cli.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
-#include "sundials_cli.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -157,8 +157,8 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl,
  */
 
 SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
-                                               const char* LSid,
-                                               int argc, char* argv[])
+                                               const char* LSid, int argc,
+                                               char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -186,7 +186,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSol_SPTFQMRSetPrecType(S, iarg);
+      retval   = SUNLinSol_SPTFQMRSetPrecType(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -196,7 +196,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSol_SPTFQMRSetMaxl(S, iarg);
+      retval   = SUNLinSol_SPTFQMRSetMaxl(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -206,11 +206,10 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPTFQMR(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSolSetZeroGuess_SPTFQMR(S, iarg);
+      retval   = SUNLinSolSetZeroGuess_SPTFQMR(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
-
   }
   return SUN_SUCCESS;
 }

@@ -170,8 +170,8 @@ SUNErrCode SUNAdaptController_Reset(SUNAdaptController C)
 }
 
 SUNErrCode SUNAdaptController_SetFromCommandLine(SUNAdaptController C,
-                                                 const char* Cid,
-                                                 int argc, char* argv[])
+                                                 const char* Cid, int argc,
+                                                 char* argv[])
 {
   SUNErrCode ier = SUN_SUCCESS;
   if (C == NULL) { return SUN_ERR_ARG_CORRUPT; }

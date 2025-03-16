@@ -56,7 +56,8 @@ SUNAdaptController SUNAdaptController_Soderlind(SUNContext sunctx);
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetFromCommandLine_Soderlind(SUNAdaptController C,
                                                            const char* Cid,
-                                                           int argc, char* argv[]);
+                                                           int argc,
+                                                           char* argv[]);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_SetParams_Soderlind(SUNAdaptController C,

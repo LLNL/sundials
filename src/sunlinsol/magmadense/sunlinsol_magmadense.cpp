@@ -235,8 +235,8 @@ SUNErrCode SUNLinSolInitialize_MagmaDense(SUNLinearSolver S)
 }
 
 SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
-                                                  const char* LSid,
-                                                  int argc, char* argv[])
+                                                  const char* LSid, int argc,
+                                                  char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -266,12 +266,11 @@ SUNErrCode SUNLinSolSetFromCommandLine_MagmaDense(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSol_MagmaDense_SetAsync(S, iarg);
+      retval   = SUNLinSol_MagmaDense_SetAsync(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       arg_used = SUNTRUE;
       continue;
     }
-
   }
   return SUN_SUCCESS;
 }

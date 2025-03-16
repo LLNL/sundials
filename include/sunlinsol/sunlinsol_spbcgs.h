@@ -85,7 +85,8 @@ SUNDIALS_EXPORT SUNLinearSolver_ID SUNLinSolGetID_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolInitialize_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolSetFromCommandLine_SPBCGS(SUNLinearSolver S,
                                                               const char* LSid,
-                                                              int argc, char* argv[]);
+                                                              int argc,
+                                                              char* argv[]);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolSetATimes_SPBCGS(SUNLinearSolver S,
                                                      void* A_data,
                                                      SUNATimesFn ATimes);

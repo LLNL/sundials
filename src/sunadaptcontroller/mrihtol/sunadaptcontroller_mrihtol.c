@@ -24,8 +24,8 @@
 #include "sundials/priv/sundials_errors_impl.h"
 #include "sundials/sundials_errors.h"
 
-#include "sundials_macros.h"
 #include "sundials_cli.h"
+#include "sundials_macros.h"
 
 /* ------------------
  * Default parameters
@@ -165,7 +165,7 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_MRIHTol(SUNAdaptController C,
     {
       i += 1;
       sunrealtype rarg = atof(argv[i]);
-      retval = SUNAdaptController_SetErrorBias_MRIHTol(C, rarg);
+      retval           = SUNAdaptController_SetErrorBias_MRIHTol(C, rarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }

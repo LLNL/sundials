@@ -25,8 +25,8 @@
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_klu.h>
 
-#include "sundials_macros.h"
 #include "sundials_cli.h"
+#include "sundials_macros.h"
 
 #define ONE       SUN_RCONST(1.0)
 #define TWOTHIRDS SUN_RCONST(0.666666666666666666666666666666667)
@@ -175,8 +175,7 @@ SUNErrCode SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz,
  * Function to control set routines via the command line
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S,
-                                           const char* LSid,
+SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S, const char* LSid,
                                            int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
@@ -205,11 +204,10 @@ SUNErrCode SUNLinSolSetFromCommandLine_KLU(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSol_KLUSetOrdering(S, iarg);
+      retval   = SUNLinSol_KLUSetOrdering(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
-
   }
   return SUN_SUCCESS;
 }

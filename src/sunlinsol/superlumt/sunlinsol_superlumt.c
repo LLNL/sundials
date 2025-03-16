@@ -26,8 +26,8 @@
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_superlumt.h>
 
-#include "sundials_macros.h"
 #include "sundials_cli.h"
+#include "sundials_macros.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -211,8 +211,8 @@ SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads,
  */
 
 SUNErrCode SUNLinSolSetFromCommandLine_SuperLUMT(SUNLinearSolver S,
-                                                 const char* LSid,
-                                                 int argc, char* argv[])
+                                                 const char* LSid, int argc,
+                                                 char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
 
@@ -240,11 +240,10 @@ SUNErrCode SUNLinSolSetFromCommandLine_SuperLUMT(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSol_SuperLUMTSetOrdering(S, iarg);
+      retval   = SUNLinSol_SuperLUMTSetOrdering(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
-
   }
   return SUN_SUCCESS;
 }

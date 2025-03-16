@@ -118,8 +118,8 @@ struct _generic_SUNLinearSolver_Ops
   SUNErrCode (*setpreconditioner)(SUNLinearSolver, void*, SUNPSetupFn,
                                   SUNPSolveFn);
   SUNErrCode (*setscalingvectors)(SUNLinearSolver, N_Vector, N_Vector);
-  SUNErrCode (*setfromcommandline)(SUNLinearSolver, const char* Cid,
-                                   int argc, char* argv[]);
+  SUNErrCode (*setfromcommandline)(SUNLinearSolver, const char* Cid, int argc,
+                                   char* argv[]);
   SUNErrCode (*setzeroguess)(SUNLinearSolver, sunbooleantype);
   SUNErrCode (*initialize)(SUNLinearSolver);
   int (*setup)(SUNLinearSolver, SUNMatrix);

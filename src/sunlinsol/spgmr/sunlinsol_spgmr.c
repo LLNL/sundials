@@ -25,9 +25,9 @@
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 
+#include "sundials_cli.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
-#include "sundials_cli.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -141,8 +141,7 @@ SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl,
  * Function to control set routines via the command line
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
-                                             const char* LSid,
+SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S, const char* LSid,
                                              int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
@@ -171,7 +170,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSol_SPGMRSetPrecType(S, iarg);
+      retval   = SUNLinSol_SPGMRSetPrecType(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -181,7 +180,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSol_SPGMRSetGSType(S, iarg);
+      retval   = SUNLinSol_SPGMRSetGSType(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -191,7 +190,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSol_SPGMRSetMaxRestarts(S, iarg);
+      retval   = SUNLinSol_SPGMRSetMaxRestarts(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -201,11 +200,10 @@ SUNErrCode SUNLinSolSetFromCommandLine_SPGMR(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSolSetZeroGuess_SPGMR(S, iarg);
+      retval   = SUNLinSolSetZeroGuess_SPGMR(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
-
   }
   return SUN_SUCCESS;
 }

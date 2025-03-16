@@ -24,9 +24,9 @@
 #include <sundials/sundials_math.h>
 #include <sunlinsol/sunlinsol_pcg.h>
 
+#include "sundials_cli.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
-#include "sundials_cli.h"
 
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
@@ -134,8 +134,7 @@ SUNLinearSolver SUNLinSol_PCG(N_Vector y, int pretype, int maxl, SUNContext sunc
  * Function to control set routines via the command line
  */
 
-SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S,
-                                           const char* LSid,
+SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S, const char* LSid,
                                            int argc, char* argv[])
 {
   SUNFunctionBegin(S->sunctx);
@@ -164,7 +163,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSol_PCGSetPrecType(S, iarg);
+      retval   = SUNLinSol_PCGSetPrecType(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -174,7 +173,7 @@ SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSol_PCGSetMaxl(S, iarg);
+      retval   = SUNLinSol_PCGSetMaxl(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -184,11 +183,10 @@ SUNErrCode SUNLinSolSetFromCommandLine_PCG(SUNLinearSolver S,
     {
       i += 1;
       int iarg = atoi(argv[i]);
-      retval = SUNLinSolSetZeroGuess_PCG(S, iarg);
+      retval   = SUNLinSolSetZeroGuess_PCG(S, iarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
-
   }
   return SUN_SUCCESS;
 }

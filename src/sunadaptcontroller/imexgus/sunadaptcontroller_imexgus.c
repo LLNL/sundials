@@ -24,8 +24,8 @@
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_errors.h>
 
-#include "sundials_macros.h"
 #include "sundials_cli.h"
+#include "sundials_macros.h"
 
 /* ---------------
  * Macro accessors
@@ -139,7 +139,8 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_ImExGus(SUNAdaptController C,
       sunrealtype rarg3 = atof(argv[i]);
       i += 1;
       sunrealtype rarg4 = atof(argv[i]);
-      retval = SUNAdaptController_SetParams_ImExGus(C, rarg1, rarg2, rarg3, rarg4);
+      retval = SUNAdaptController_SetParams_ImExGus(C, rarg1, rarg2, rarg3,
+                                                    rarg4);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
@@ -157,7 +158,7 @@ SUNErrCode SUNAdaptController_SetFromCommandLine_ImExGus(SUNAdaptController C,
     {
       i += 1;
       sunrealtype rarg = atof(argv[i]);
-      retval = SUNAdaptController_SetErrorBias_ImExGus(C, rarg);
+      retval           = SUNAdaptController_SetErrorBias_ImExGus(C, rarg);
       if (retval != SUN_SUCCESS) { return retval; }
       continue;
     }
