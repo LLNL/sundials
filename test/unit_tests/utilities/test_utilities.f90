@@ -30,8 +30,21 @@ module test_utilities
   integer, parameter :: myindextype = selected_int_kind(16)
 #endif
 
+#if defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+  complex(c_double_complex), parameter :: SUN_UNIT_ROUNDOFF = epsilon(1.0d0)
+  complex(c_double_complex) :: NEG_TWO = -2.0d0
+  complex(c_double_complex) :: NEG_ONE = -1.0d0
+  complex(c_double_complex) :: NEG_HALF = -0.50d0
+  complex(c_double_complex) :: ZERO = 0.0d0
+  complex(c_double_complex) :: HALF = 0.5d0
+  complex(c_double_complex) :: ONE = 1.0d0
+  complex(c_double_complex) :: TWO = 2.0d0
+  complex(c_double_complex) :: THREE = 3.0d0
+  complex(c_double_complex) :: FOUR = 4.0d0
+  complex(c_double_complex) :: FIVE = 5.0d0
+  complex(c_double_complex) :: SIX = 6.0d0
+#else
   real(c_double), parameter :: SUN_UNIT_ROUNDOFF = epsilon(1.0d0)
-
   real(c_double) :: NEG_TWO = -2.0d0
   real(c_double) :: NEG_ONE = -1.0d0
   real(c_double) :: NEG_HALF = -0.50d0
@@ -43,6 +56,7 @@ module test_utilities
   real(c_double) :: FOUR = 4.0d0
   real(c_double) :: FIVE = 5.0d0
   real(c_double) :: SIX = 6.0d0
+#endif
 
   type(c_ptr)    :: sunctx
 
@@ -69,6 +83,35 @@ contains
 
   end subroutine
 
+#if defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+  integer(c_int) function FNEQTOL(a, b, tol) result(nequal)
+    implicit none
+    complex(c_double_complex) :: a, b, tol
+
+    if (a /= a) then
+      nequal = 1
+    else if ((abs(real(a - b))/abs(real(b)) > real(tol)) .or. &
+             (abs(aimag(a - b))/abs(aimag(b)) > aimag(tol))) then
+      nequal = 1
+    else
+      nequal = 0
+    end if
+  end function FNEQTOL
+
+  integer(c_int) function FNEQ(a, b) result(nequal)
+    implicit none
+    complex(c_double_complex) :: a, b
+
+    if (a /= a) then
+      nequal = 1
+    else if ((abs(real(a - b))/abs(real(b)) > (10*real(SUN_UNIT_ROUNDOFF))) .or. &
+             (abs(aimag(a - b))/abs(aimag(b)) > (10*aimag(SUN_UNIT_ROUNDOFF)))) then
+      nequal = 1
+    else
+      nequal = 0
+    end if
+  end function FNEQ
+#else
   integer(c_int) function FNEQTOL(a, b, tol) result(nequal)
     implicit none
     real(c_double) :: a, b, tol
@@ -95,5 +138,6 @@ contains
       nequal = 0
     end if
   end function FNEQ
+#endif
 
 end module

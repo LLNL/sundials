@@ -38,8 +38,13 @@ contains
     type(SUNLinearSolver), pointer :: LS           ! test linear solver
     type(SUNMatrix), pointer   :: A                  ! test matrices
     type(N_Vector), pointer   :: x, y, b            ! test vectors
+#if defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+    complex(c_double_complex), pointer   :: xdata(:), Adata(:) ! data arrays
+    complex(c_double_complex)             :: tmpr               ! temporary real value
+#else
     real(c_double), pointer   :: xdata(:), Adata(:) ! data arrays
     real(c_double)             :: tmpr               ! temporary real value
+#endif
     integer(kind=myindextype) :: j, k
     integer(kind=myindextype) :: smu, kstart, kend, offset
     integer(c_int)             :: tmp
