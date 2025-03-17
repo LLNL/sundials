@@ -98,8 +98,11 @@ contains
     type(N_Vector), pointer    :: Y1, Y2, Y3
     type(c_ptr), target        :: V(3)
     type(c_ptr)                :: Vptr
+#if defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
+    complex(C_DOUBLE_COMPLEX)  :: c(3)
+#else
     real(C_DOUBLE)             :: c(3)
-
+#endif
     failure = 0
 
     ! create vectors for testing

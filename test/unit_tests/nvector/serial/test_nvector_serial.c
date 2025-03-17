@@ -250,7 +250,7 @@ int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
 {
   int failure = 0;
   sunindextype i;
-  sunrealtype* Xdata;
+  sunscalartype* Xdata;
 
   Xdata = N_VGetArrayPointer(X);
 
@@ -278,7 +278,7 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
   sunindextype i;
 
   /* set elements [is,ie] of the data array */
-  sunrealtype* xd = N_VGetArrayPointer(X);
+  sunscalartype* xd = N_VGetArrayPointer(X);
   for (i = is; i <= ie; i++) { xd[i] = val; }
 }
 

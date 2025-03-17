@@ -18,12 +18,13 @@
 # examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS serial nvector
-set(nvector_serial_examples "test_nvector_serial\;1000 0\;"
-                            "test_nvector_serial\;10000 0\;")
+set(nvector_serial_examples "test_nvector_serial\;1000 0\;\;"
+                            "test_nvector_serial\;10000 0\;\;")
 
 # If building F2003 tests
 if(BUILD_FORTRAN_MODULE_INTERFACE)
-  set(nvector_serial_fortran_examples "test_fnvector_serial_mod\;\;")
+  set(nvector_serial_fortran_examples "test_fnvector_serial_mod\;\;real")
+  set(nvector_serial_fortran_examples "test_fnvector_serial_complex_mod\;\;complex")
 endif()
 
 # Add source directory to include directories
@@ -45,21 +46,27 @@ foreach(example_tuple ${nvector_serial_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalar_type)
 
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    sundials_add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c
+      SCALAR_TYPE ${example_scalar_type})
 
-    # link vector test utilities
-    target_link_libraries(${example} PRIVATE test_nvector_obj)
+    if(TARGET ${example})
+      # link vector test utilities
+      target_link_libraries(${example} PRIVATE test_nvector_obj)
 
-    # libraries to link against
-    target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+      # libraries to link against
+      target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    else()
+      continue()
+    endif()
   endif()
 
   # check if example args are provided and set the test name
