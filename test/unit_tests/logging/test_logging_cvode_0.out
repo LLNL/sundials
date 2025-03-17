@@ -7,20 +7,20 @@ Using fixed-point nonlinear solver
  2.059720512190168e-04    1.224744864802767e+00    1.732047133691379e+00    2.258890852147033e-09    1.224500395968775e-06
  4.870435267600296e-04    1.224744841922327e+00    1.732034367982330e+00    5.258975033228808e-09    2.744234303353466e-06
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.0004870435267600296
-Steps                        = 3
-Error test fails             = 1
-NLS step fails               = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.0002810714755410129
-Current step size            = 0.0002810714755410129
-Last method order            = 2
-Current method order         = 2
-Stab. lim. order reductions  = 0
-RHS fn evals                 = 11
-NLS iters                    = 8
-NLS fails                    = 0
-NLS iters per step           = 2.666666666666667
-LS setups                    = 0
-Root fn evals                = 0
+Current time                  = 0.00048704352676003
+Steps                         = 3
+Error test fails              = 1
+NLS step fails                = 0
+Initial step size             = 0.000102986025609508
+Last step size                = 0.000281071475541013
+Current step size             = 0.000281071475541013
+Last method order             = 2
+Current method order          = 2
+Stab. lim. order reductions   = 0
+RHS fn evals                  = 11
+NLS iters                     = 8
+NLS fails                     = 0
+NLS iters per step            = 2.66666666666667
+LS setups                     = 0
+Root fn evals                 = 0
 End CVODE Logging test

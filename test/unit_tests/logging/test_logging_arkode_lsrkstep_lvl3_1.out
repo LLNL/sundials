@@ -2,58 +2,58 @@ Start LSRKStep Logging test
                       t                      y                  y err
 ---------------------------------------------------------------------
   0.000000000000000e+00  0.000000000000000e+00  0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 6.103515625000001e-12
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 1, tn = 0, h = 6.103515625e-12
 [INFO][rank 0][lsrkStep_TakeStepRKL][compute-num-stages] spectral radius = 999.9, num stages = 2, max stages = 2, max stage limit = 200
 [INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 0, tcur = 0
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 1, tcur = 2.034505208333333e-12
+[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 1, tcur = 2.03450520833333e-12
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 2, tcur = 6.103515625000001e-12
+[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 2, tcur = 6.103515625e-12
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-stage] status = success
 [INFO][rank 0][lsrkStep_TakeStepRKL][begin-compute-embedding] 
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-compute-embedding] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0
   6.103515625000001e-12  6.103515625000001e-12  0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 6.103515625000001e-12, h = 4.654267000337585e-09
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 2, tn = 6.103515625e-12, h = 4.65426700033759e-09
 [INFO][rank 0][lsrkStep_TakeStepRKL][compute-num-stages] spectral radius = 999.9, num stages = 2, max stages = 2, max stage limit = 200
-[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 0, tcur = 6.103515625000001e-12
+[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 0, tcur = 6.103515625e-12
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 1, tcur = 1.557525849070862e-09
+[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 1, tcur = 1.55752584907086e-09
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 2, tcur = 4.660370515962586e-09
+[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 2, tcur = 4.66037051596259e-09
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-stage] status = success
 [INFO][rank 0][lsrkStep_TakeStepRKL][begin-compute-embedding] 
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-compute-embedding] status = success
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 0
   4.660370515962586e-09  4.660370515962586e-09  0.000000000000000e+00
-[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 4.660370515962586e-09, h = 9.30853400067517e-08
+[INFO][rank 0][ARKodeEvolve][begin-step-attempt] step = 3, tn = 4.66037051596259e-09, h = 9.30853400067517e-08
 [INFO][rank 0][lsrkStep_TakeStepRKL][compute-num-stages] spectral radius = 999.9, num stages = 2, max stages = 2, max stage limit = 200
-[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 0, tcur = 4.660370515962586e-09
+[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 0, tcur = 4.66037051596259e-09
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 1, tcur = 3.568881718487982e-08
+[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 1, tcur = 3.56888171848798e-08
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-stage] status = success
-[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 2, tcur = 9.774571052271429e-08
+[INFO][rank 0][lsrkStep_TakeStepRKL][begin-stage] stage = 2, tcur = 9.77457105227143e-08
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-stage] status = success
 [INFO][rank 0][lsrkStep_TakeStepRKL][begin-compute-embedding] 
 [INFO][rank 0][lsrkStep_TakeStepRKL][end-compute-embedding] status = success
-[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.117483685550389e-12
+[INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.11748368555039e-12
   9.774571052271429e-08  9.774571052271410e-08  1.323488980084844e-22
 ---------------------------------------------------------------------
-Current time                 = 9.774571052271429e-08
-Steps                        = 3
-Step attempts                = 3
-Stability limited steps      = 0
-Accuracy limited steps       = 3
-Error test fails             = 0
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 6.103515625000001e-12
-Last step size               = 9.30853400067517e-08
-Current step size            = 1.861706800135034e-06
-RHS fn evals                 = 9
-Number of dom_eig updates    = 1
-Max. num. of stages used     = 2
-Max. num. of stages allowed  = 200
-Max. spectral radius         = 999.9
-Min. spectral radius         = 999.9
+Current time                  = 9.77457105227143e-08
+Steps                         = 3
+Step attempts                 = 3
+Stability limited steps       = 0
+Accuracy limited steps        = 3
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 6.103515625e-12
+Last step size                = 9.30853400067517e-08
+Current step size             = 1.86170680013503e-06
+RHS fn evals                  = 9
+Number of dom_eig updates     = 1
+Max. num. of stages used      = 2
+Max. num. of stages allowed   = 200
+Max. spectral radius          = 999.9
+Min. spectral radius          = 999.9
 End LSRKStep Logging test

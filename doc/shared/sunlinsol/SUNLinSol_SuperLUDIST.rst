@@ -2,7 +2,7 @@
    Programmer(s): Cody J. Balos @ LLNL
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -193,7 +193,7 @@ OpenMP for threading, and CUDA for GPU support. In order to use the
 SUNLinSol_SuperLUDIST interface to SuperLU_DIST, it is assumed that SuperLU_DIST
 has been installed on the system prior to installation of SUNDIALS, and
 that SUNDIALS has been configured appropriately to link with SuperLU_DIST
-(see :numref:`Installation.CMake.ExternalLibraries` for details).
+(see :numref:`Installation.Options.SuperLU_DIST` for details).
 Additionally, the wrapper only
 supports double-precision calculations, and therefore cannot be compiled if SUNDIALS
 is configured to use single or extended precision. Moreover, since the SuperLU_DIST

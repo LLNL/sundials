@@ -2,7 +2,7 @@
  * Programmer(s): Mustafa Aggul @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -147,7 +147,7 @@ int main(void)
      specify the right-hand side function in y'=f(t,y), the initial time
      T0, and the initial dependent variable vector y. */
   arkode_mem = LSRKStepCreateSTS(f, T0, y, ctx);
-  if (check_flag((void*)arkode_mem, "ARKStepCreate", 0)) { return 1; }
+  if (check_flag((void*)arkode_mem, "LSRKStepCreateSTS", 0)) { return 1; }
 
   /* Set routines */
   flag = ARKodeSetUserData(arkode_mem,
@@ -156,7 +156,7 @@ int main(void)
 
   /* Specify tolerances */
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKStepSStolerances", 1)) { return 1; }
+  if (check_flag(&flag, "ARKodeSStolerances", 1)) { return 1; }
 
   /* Specify user provided spectral radius */
   flag = LSRKStepSetDomEigFn(arkode_mem, dom_eig);
@@ -198,7 +198,7 @@ int main(void)
   while (Tf - t > SUN_RCONST(1.0e-15))
   {
     flag = ARKodeEvolve(arkode_mem, tout, y, &t, ARK_NORMAL); /* call integrator */
-    if (check_flag(&flag, "LSRKodeEvolve", 1)) { break; }
+    if (check_flag(&flag, "ARKodeEvolve", 1)) { break; }
     printf("  %10.6" FSYM "  %10.6" FSYM "\n", t,
            N_VGetArrayPointer(y)[0]); /* access/print solution */
     fprintf(UFID, " %.16" ESYM " %.16" ESYM "\n", t, N_VGetArrayPointer(y)[0]);

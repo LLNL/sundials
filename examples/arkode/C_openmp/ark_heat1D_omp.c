@@ -5,7 +5,7 @@
  * Daniel R. Reynolds @ SMU and parallelized with OpenMP
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -85,8 +85,8 @@ int main(int argc, char* argv[])
   sunrealtype T0   = SUN_RCONST(0.0); /* initial time */
   sunrealtype Tf   = SUN_RCONST(1.0); /* final time */
   int Nt           = 10;              /* total number of output times */
-  sunrealtype rtol = 1.e-6;           /* relative tolerance */
-  sunrealtype atol = 1.e-10;          /* absolute tolerance */
+  sunrealtype rtol = 1.e-4;           /* relative tolerance */
+  sunrealtype atol = 1.e-6;           /* absolute tolerance */
   UserData udata   = NULL;
   sunrealtype* data;
   sunindextype N = 201; /* spatial mesh size */

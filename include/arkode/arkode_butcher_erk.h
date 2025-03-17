@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -52,7 +52,9 @@ typedef enum
   ARKODE_FORWARD_EULER_1_1,
   ARKODE_RALSTON_EULER_2_1_2,
   ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2,
-  ARKODE_MAX_ERK_NUM = ARKODE_EXPLICIT_MIDPOINT_EULER_2_1_2
+  ARKODE_RALSTON_3_1_2,
+  ARKODE_TSITOURAS_7_4_5,
+  ARKODE_MAX_ERK_NUM = ARKODE_TSITOURAS_7_4_5
 } ARKODE_ERKTableID;
 
 /* Accessor routine to load built-in ERK table */

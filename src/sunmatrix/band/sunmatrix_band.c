@@ -6,7 +6,7 @@
  *    Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -138,17 +138,10 @@ void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile)
     for (j = 0; j < start; j++) { fprintf(outfile, "%12s  ", ""); }
     for (j = start; j <= finish; j++)
     {
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-      fprintf(outfile, "%12Lg  ", SM_ELEMENT_B(A, i, j));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-      fprintf(outfile, "%12g  ", SM_ELEMENT_B(A, i, j));
-#else
-      fprintf(outfile, "%12g  ", SM_ELEMENT_B(A, i, j));
-#endif
+      fprintf(outfile, SUN_FORMAT_E "  ", SM_ELEMENT_B(A, i, j));
     }
     fprintf(outfile, "\n");
   }
-  fprintf(outfile, "\n");
   return;
 }
 

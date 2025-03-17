@@ -3,7 +3,7 @@
 # Programmer(s): Cody Balos and David J. Gardner @ LLNL
 # -----------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -383,7 +383,7 @@ def get_history(log, key, step_status=None, time_range=None, step_range=None):
     for entry in log:
 
         step = np.longlong(entry["step"])
-        time = np.double(entry["t_n"])
+        time = np.double(entry["tn"])
 
         if time_range is not None:
             if time < time_range[0] or time > time_range[1]:

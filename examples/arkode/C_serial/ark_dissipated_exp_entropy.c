@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -39,28 +39,21 @@
 
 /* Convince macros for calling precision-specific math functions */
 #if defined(SUNDIALS_DOUBLE_PRECISION)
-#define EXP(x)  (exp((x)))
-#define SQRT(x) (sqrt((x)))
-#define LOG(x)  (log((x)))
+#define EXP(x) (exp((x)))
+#define LOG(x) (log((x)))
 #elif defined(SUNDIALS_SINGLE_PRECISION)
-#define EXP(x)  (expf((x)))
-#define SQRT(x) (sqrtf((x)))
-#define LOG(x)  (logf((x)))
+#define EXP(x) (expf((x)))
+#define LOG(x) (logf((x)))
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define EXP(x)  (expl((x)))
-#define SQRT(x) (sqrtl((x)))
-#define LOG(x)  (logl((x)))
+#define EXP(x) (expl((x)))
+#define LOG(x) (logl((x)))
 #endif
 
 /* Convince macros for using precision-specific format specifiers */
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
 #define ESYM "Le"
-#define FSYM "Lf"
 #else
-#define GSYM "g"
 #define ESYM "e"
-#define FSYM "f"
 #endif
 
 /* ----------------------- *
@@ -193,6 +186,10 @@ int main(int argc, char* argv[])
   else { arkode_mem = ARKStepCreate(f, NULL, t0, y, ctx); }
   if (check_ptr(arkode_mem, "ARKStepCreate")) { return 1; }
 
+  /* Set order */
+  flag = ARKodeSetOrder(arkode_mem, 2);
+  if (check_flag(flag, "ARKodeSetOrder")) { return 1; }
+
   /* Specify tolerances */
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(flag, "ARKodeSStolerances")) { return 1; }
@@ -220,11 +217,6 @@ int main(int argc, char* argv[])
     /* Set Jacobian routine */
     flag = ARKodeSetJacFn(arkode_mem, Jac);
     if (check_flag(flag, "ARKodeSetJacFn")) { return 1; }
-
-    /* Select a Butcher table with non-negative b values */
-    flag = ARKStepSetTableName(arkode_mem, "ARKODE_ARK2_DIRK_3_1_2",
-                               "ARKODE_ERK_NONE");
-    if (check_flag(flag, "ARKStepSetTableName")) { return 1; }
 
     /* Tighten nonlinear solver tolerance */
     flag = ARKodeSetNonlinConvCoef(arkode_mem, SUN_RCONST(0.01));
