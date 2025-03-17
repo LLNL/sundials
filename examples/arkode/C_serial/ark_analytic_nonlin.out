@@ -12,21 +12,21 @@ Analytical ODE test problem:
     5.000000    2.917771
     6.000000    3.218876
     7.000000    3.481240
-    8.000000    3.713572
-    9.000000    3.921974
+    8.000000    3.713573
+    9.000000    3.921973
    10.000000    4.110874
    ---------------------
 
 Final Statistics:
-Current time                  = 10.3913719429364
-Steps                         = 65
-Step attempts                 = 65
+Current time                  = 10.4315626428104
+Steps                         = 50
+Step attempts                 = 50
 Stability limited steps       = 0
-Accuracy limited steps        = 65
+Accuracy limited steps        = 50
 Error test fails              = 0
 NLS step fails                = 0
 Inequality constraint fails   = 0
 Initial step size             = 6.103515625e-12
-Last step size                = 0.567931550792086
-Current step size             = 0.567931550792086
-RHS fn evals                  = 263
+Last step size                = 0.676654608977506
+Current step size             = 0.676654608977506
+RHS fn evals                  = 203
