@@ -90,7 +90,7 @@ foreach(example_tuple ${IDAS_examples})
       set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
       # libraries to link against
-      target_link_libraries(${example} ${SUNDIALS_LIBS})
+      target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
     endif()
   endif()
 
