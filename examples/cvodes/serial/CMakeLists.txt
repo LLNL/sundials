@@ -105,11 +105,15 @@ foreach(example_tuple ${CVODES_examples})
     sundials_add_executable(${example} ${example}.c
       SCALAR_TYPE ${example_scalartype})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+      # libraries to link against
+      target_link_libraries(${example} PRIVATE ${SUNDIALS_LIBS})
+    else()
+      continue()
+    endif()
   endif()
 
   # check if example args are provided and set the test name
@@ -134,63 +138,6 @@ foreach(example_tuple ${CVODES_examples})
   if(EXAMPLES_INSTALL)
     install(FILES ${example}.c ${example_out}
             DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
-  endif()
-
-endforeach(example_tuple ${CVODES_examples})
-
-# Add the build and install targets for each LAPACK example (if needed)
-if(BUILD_SUNLINSOL_LAPACKBAND AND BUILD_SUNLINSOL_LAPACKDENSE)
-
-  # Sundials LAPACK linear solver modules
-  set(SUNLINSOLLAPACK_LIBS sundials_sunlinsollapackband
-                           sundials_sunlinsollapackdense)
-
-  foreach(example_tuple ${CVODES_examples_BL})
-
-    # parse the example tuple
-    list(GET example_tuple 0 example)
-    list(GET example_tuple 1 example_args)
-    list(GET example_tuple 2 example_type)
-
-    # check if this example has already been added, only need to add example
-    # source files once for testing with different inputs
-    if(NOT TARGET ${example})
-      # example source files
-      sundials_add_executable(${example} ${example}.c)
-
-    if(TARGET ${example})
-      # folder to organize targets in an IDE
-      set_target_properties(${example} PROPERTIES FOLDER "Examples")
-
-      # libraries to link against
-      target_link_libraries(${example} ${SUNDIALS_LIBS})
-    endif()
-  endif()
-
-  if(TARGET ${example})
-    # check if example args are provided and set the test name
-    if("${example_args}" STREQUAL "")
-      set(test_name ${example})
-    else()
-      string(REGEX REPLACE " " "_" test_name ${example}_${example_args})
-    endif()
-
-    # add example to regression tests
-    sundials_add_test(
-      ${test_name} ${example}
-      TEST_ARGS ${example_args}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type})
-
-    # find all .out files for this example
-    file(GLOB example_out ${example}*.out)
-
-    # install example source and .out files
-    if(EXAMPLES_INSTALL)
-      install(FILES ${example}.c ${example_out}
-              DESTINATION ${EXAMPLES_INSTALL_PATH}/cvodes/serial)
-    endif()
   endif()
 
 endforeach(example_tuple ${CVODES_examples})
