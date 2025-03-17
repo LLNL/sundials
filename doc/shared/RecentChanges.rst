@@ -2,6 +2,9 @@
 
 **New Features and Enhancements**
 
+The Soderlind time step adaptivity controller now starts with an I controller
+until there is sufficient history of past time steps and errors.
+
 Added the ``ARKODE_RALSTON_3_1_2`` and ``ARKODE_TSITOURAS_7_4_5`` explicit
 Runge-Kutta Butcher tables.
 
@@ -40,9 +43,6 @@ Improved the efficiency of default ARKODE methods with the following changes:
 Removed error floors from the :c:type:`SUNAdaptController` implementations
 which could unnecessarily limit the time size growth, particularly after the
 first step.
-
-On the first two time steps, the Soderlind controller uses an I controller
-instead of omitting unavailable terms.
 
 Fixed bug in :c:func:`ARKodeSetFixedStep` where it could return ``ARK_SUCCESS``
 despite an error occurring.
