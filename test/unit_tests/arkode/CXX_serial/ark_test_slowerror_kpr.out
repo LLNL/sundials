@@ -42,7 +42,7 @@ Slow error estimation test (Nonlinear Kvaerno-Prothero-Robinson problem):
   H 0.003125  method ARKODE_MRI_GARK_ERK33a  t 3.75312  dsm 0.637603  dsm_est 20.4096
   H 0.003125  method ARKODE_MRI_GARK_ERK33a  t 4.00312  dsm 0.50676  dsm_est 35.5067
   H 0.003125  method ARKODE_MRI_GARK_ERK33a  t 4.25312  dsm 0.0997811  dsm_est 197.159
-  H 0.003125  method ARKODE_MRI_GARK_ERK33a  t 4.50312  dsm 0.602658  dsm_est 244.1
+  H 0.003125  method ARKODE_MRI_GARK_ERK33a  t 4.50312  dsm 0.60266  dsm_est 244.1
   H 0.003125  method ARKODE_MRI_GARK_ERK33a  t 4.75312  dsm 0.3657  dsm_est 59.8484
   H 0.00078125  method ARKODE_MRI_GARK_ERK33a  t 0.00078125  dsm 0.000906789  dsm_est 0.1702
   H 0.00078125  method ARKODE_MRI_GARK_ERK33a  t 0.250781  dsm 0.00229725  dsm_est 1.09748

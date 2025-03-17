@@ -587,9 +587,9 @@ SUNDIALS_EXPORT sunbooleantype SUNCCompareTol(suncomplextype a, suncomplextype b
 
 #ifndef SUNCompareTol
 #if defined(SUNDIALS_SCALAR_TYPE_REAL)
-#define SUNCompareTol(a,b) SUNRCompareTol(a,b,tol)
+#define SUNCompareTol(a,b,tol) SUNRCompareTol(a,b,tol)
 #else
-#define SUNCompareTol(a,b) SUNCCompareTol(a,b,tol)
+#define SUNCompareTol(a,b,tol) SUNCCompareTol(a,b,tol)
 #endif
 #endif
 
