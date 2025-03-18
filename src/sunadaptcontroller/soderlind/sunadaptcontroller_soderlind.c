@@ -123,7 +123,7 @@ SUNErrCode SUNAdaptController_SetParams_Soderlind(SUNAdaptController C,
   {
     SODERLIND_HISTORYSIZE(C) = 2;
   }
-  else if (k4 != SUN_RCONST(0.0) || k5 != SUN_RCONST(0.0))
+  else if (k4 != SUN_RCONST(0.0) || k2 != SUN_RCONST(0.0))
   {
     SODERLIND_HISTORYSIZE(C) = 1;
   }
