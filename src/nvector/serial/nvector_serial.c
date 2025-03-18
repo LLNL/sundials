@@ -1579,7 +1579,7 @@ SUNErrCode N_VLinearCombinationVectorArray_Serial(int nvec, int nsum,
 
 SUNErrCode N_VBufSize_Serial(N_Vector x, sunindextype* size)
 {
-  *size = NV_LENGTH_S(x) * ((sunindextype)sizeof(sunscalartype));
+  *size = NV_LENGTH_S(x) * ((sunindextype)sizeof(*NV_DATA_S(x)));
   return SUN_SUCCESS;
 }
 
