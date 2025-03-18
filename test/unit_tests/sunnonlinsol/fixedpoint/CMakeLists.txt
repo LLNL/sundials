@@ -19,12 +19,14 @@
 
 # Example programs
 set(examples
-    "test_sunnonlinsol_fixedpoint\;\;" "test_sunnonlinsol_fixedpoint\;2\;"
-    "test_sunnonlinsol_fixedpoint\;2 0.5\;")
+    "test_sunnonlinsol_fixedpoint\;\;\;" "test_sunnonlinsol_fixedpoint\;2\;\;"
+    "test_sunnonlinsol_fixedpoint\;2 0.5\;\;")
 
 # if building F2003 tests
 if(BUILD_FORTRAN_MODULE_INTERFACE)
-  set(fortran_examples "test_fsunnonlinsol_fixedpoint_mod\;\;")
+  set(fortran_examples
+    # "test_fsunnonlinsol_fixedpoint_mod\;\;\;real"
+                       "test_fsunnonlinsol_fixedpoint_complex\;\;\;complex")
 endif()
 
 # Add source directory to include directories
@@ -48,18 +50,24 @@ foreach(example_tuple ${examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 example_args)
   list(GET example_tuple 2 example_type)
+  list(GET example_tuple 3 example_scalar_type)
 
   # check if this example has already been added, only need to add example
   # source files once for testing with different inputs
   if(NOT TARGET ${example})
     # example source files
-    sundials_add_executable(${example} ${example}.c)
+    sundials_add_executable(${example} ${example}.c
+      SCALAR_TYPE ${example_scalar_type})
 
-    # folder to organize targets in an IDE
-    set_target_properties(${example} PROPERTIES FOLDER "Examples")
+    if(TARGET ${example})
+      # folder to organize targets in an IDE
+      set_target_properties(${example} PROPERTIES FOLDER "Examples")
 
-    # libraries to link against
-    target_link_libraries(${example} ${SUNDIALS_LIBS})
+      # libraries to link against
+      target_link_libraries(${example} ${SUNDIALS_LIBS})
+    else()
+      continue()
+    endif()
   endif()
 
   # check if example args are provided and set the test name
