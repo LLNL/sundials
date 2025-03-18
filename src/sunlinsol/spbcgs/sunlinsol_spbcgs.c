@@ -709,8 +709,7 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNDIALS_MAYBE_UNUSED SUNMatrix A,
     /* Not yet converged, continue iteration */
     /* Update beta = <rnew,r_star> / <rold,r_start> * alpha / omega */
 
-    beta_num = N_VDotProd(r_star, r);
-    SUNCheckLastErr();
+    SUNCheckCall(N_VDotProdComplex(r_star, r, &beta_num));
     beta = ((beta_num / beta_denom) * (alpha / omega));
 
     /* Update p = r + beta*(p - omega*Ap) = beta*p - beta*omega*Ap + r */
