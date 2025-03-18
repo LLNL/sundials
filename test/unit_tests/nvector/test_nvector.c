@@ -374,7 +374,7 @@ int Test_N_VGetArrayPointer(N_Vector W, sunindextype local_length, int myid)
 {
   int failure = 0;
   double start_time, stop_time, maxt;
-  sunrealtype* Wdata;
+  sunscalartype* Wdata;
 
   /* check if the required operations are implemented */
   if (W->ops->nvconst == NULL)
@@ -428,7 +428,7 @@ int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid)
   int failure = 0;
   sunindextype i;
   double start_time, stop_time, maxt;
-  sunrealtype* Wdata;
+  sunscalartype* Wdata;
 
   /* check if the required operations are implemented */
   if (W->ops->nvconst == NULL)
@@ -440,7 +440,7 @@ int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid)
   }
 
   /* create vector data */
-  Wdata = (sunrealtype*)malloc(local_length * sizeof(sunrealtype));
+  Wdata = (sunscalartype*)malloc(local_length * sizeof(sunscalartype));
   for (i = 0; i < local_length; i++) { Wdata[i] = ONE; }
 
   /* attach data to vector */
@@ -2159,7 +2159,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
 
   N_Vector Y1, Y2, Y3;
   N_Vector V[3];
-  sunrealtype c[3];
+  sunscalartype c[3];
 
   /* create vectors for testing */
   Y1 = N_VClone(X);
@@ -2442,7 +2442,7 @@ int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid)
   int fails = 0, failure = 0, ierr = 0;
   double start_time, stop_time, maxt;
 
-  sunrealtype avals[3];
+  sunscalartype avals[3];
   N_Vector *V, *Z;
 
   /* create vectors for testing */
@@ -2617,7 +2617,7 @@ int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length, int myid)
 
   sunindextype global_length;
   N_Vector* V;
-  sunrealtype dotprods[3];
+  sunscalartype dotprods[3];
 
   /* get global length */
   global_length = N_VGetLength(X);
@@ -3471,7 +3471,7 @@ int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length, int myid)
   int fails = 0, failure = 0, ierr = 0;
   double start_time, stop_time, maxt;
 
-  sunrealtype c[3];
+  sunscalartype c[3];
   N_Vector *Y, *Z;
 
   /* create vectors for testing */
@@ -3957,7 +3957,7 @@ int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length,
   int fails = 0, failure = 0, ierr = 0;
   double start_time, stop_time, maxt;
 
-  sunrealtype a[3];
+  sunscalartype a[3];
   N_Vector* X;
   N_Vector* Y[3];
   N_Vector* Z[3];
@@ -4396,7 +4396,7 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length,
   int fails = 0, failure = 0, ierr = 0;
   double start_time, stop_time, maxt;
 
-  sunrealtype c[3];
+  sunscalartype c[3];
   N_Vector* Z;
   N_Vector* X[3];
 
@@ -5574,7 +5574,7 @@ int Test_N_VDotProdMultiLocal(N_Vector X, sunindextype local_length, int myid)
   double start_time, stop_time, maxt;
 
   N_Vector* V;
-  sunrealtype dotprods[3];
+  sunscalartype dotprods[3];
 
   /* create vectors for testing */
   V = N_VCloneVectorArray(3, X);
@@ -5667,7 +5667,7 @@ int Test_N_VDotProdMultiAllReduce(N_Vector X, sunindextype local_length, int myi
 
   sunindextype global_length;
   N_Vector* V;
-  sunrealtype dotprods[3];
+  sunscalartype dotprods[3];
 
   /* only test if the operation is implemented, local vectors (non-MPI) do not
      provide this function */
@@ -5839,7 +5839,7 @@ int Test_N_VBufSize(N_Vector x, sunindextype local_length, int myid)
   }
 
   /* check buffer size */
-  if (size != local_length * ((sunindextype)sizeof(sunrealtype)))
+  if (size != local_length * ((sunindextype)sizeof(sunscalartype)))
   {
     printf(">>> FAILED test -- N_VBufSize, Proc %d \n", myid);
     return (1);
@@ -5862,7 +5862,7 @@ int Test_N_VBufPack(N_Vector x, sunindextype local_length, int myid)
   int flag = 0, failure = 0;
   double start_time, stop_time, maxt;
   sunindextype i, size;
-  sunrealtype* buf;
+  sunscalartype* buf;
 
   /* get buffer size */
   flag = N_VBufSize(x, &size);
@@ -5874,7 +5874,7 @@ int Test_N_VBufPack(N_Vector x, sunindextype local_length, int myid)
 
   /* create and initialize buffer */
   buf = NULL;
-  buf = (sunrealtype*)malloc((size_t)size);
+  buf = (sunscalartype*)malloc((size_t)size);
   if (buf == NULL)
   {
     printf(">>> FAILED test -- malloc failed, Proc %d \n", myid);
@@ -5928,7 +5928,7 @@ int Test_N_VBufUnpack(N_Vector x, sunindextype local_length, int myid)
   int flag = 0, failure = 0;
   double start_time, stop_time, maxt;
   sunindextype i, size;
-  sunrealtype* buf;
+  sunscalartype* buf;
 
   /* get buffer size */
   flag = N_VBufSize(x, &size);
@@ -5940,7 +5940,7 @@ int Test_N_VBufUnpack(N_Vector x, sunindextype local_length, int myid)
 
   /* create and initialize buffer */
   buf = NULL;
-  buf = (sunrealtype*)malloc((size_t)size);
+  buf = (sunscalartype*)malloc((size_t)size);
   if (buf == NULL)
   {
     printf(">>> FAILED test -- malloc failed, Proc %d \n", myid);

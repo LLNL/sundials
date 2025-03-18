@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
   int maa                = 0;               /* no acceleration */
   sunrealtype damping    = SUN_RCONST(1.0); /* no damping      */
   long int niters        = 0;
-  sunrealtype* data      = NULL;
+  sunscalartype* data    = NULL;
   SUNContext sunctx      = NULL;
 
   /* Check if a acceleration/damping values were provided */
@@ -264,8 +264,8 @@ int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, sunrealtype tol,
 int FPFunction(N_Vector ycor, N_Vector gvec, void* mem)
 {
   IntegratorMem Imem;
-  sunrealtype* ydata = NULL;
-  sunrealtype* gdata = NULL;
+  sunscalartype* ydata = NULL;
+  sunscalartype* gdata = NULL;
   sunrealtype x, y, z;
 
   if (mem == NULL)
@@ -306,7 +306,7 @@ int FPFunction(N_Vector ycor, N_Vector gvec, void* mem)
  * ---------------------------------------------------------------------------*/
 static int check_ans(N_Vector ycur, sunrealtype tol)
 {
-  sunrealtype* data = NULL;
+  sunscalartype* data = NULL;
   sunrealtype ex, ey, ez;
 
   /* Get vector data array */
@@ -320,9 +320,9 @@ static int check_ans(N_Vector ycur, sunrealtype tol)
   printf("    y3 = %" GSYM "\n", data[2]);
 
   /* solution error */
-  ex = SUNRabs(data[0] - XTRUE);
-  ey = SUNRabs(data[1] - YTRUE);
-  ez = SUNRabs(data[2] - ZTRUE);
+  ex = SUNabs(data[0] - XTRUE);
+  ey = SUNabs(data[1] - YTRUE);
+  ez = SUNabs(data[2] - ZTRUE);
 
   /* print the solution error */
   printf("Solution error:\n");
