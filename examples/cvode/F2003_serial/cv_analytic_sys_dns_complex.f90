@@ -228,7 +228,7 @@ program main
   print *, '   '
   print *, '       t           y1           y2           y3       '
   print *, '------------------------------------------------------'
-  print '(2x,4(es12.5,1x))', tcur, yvec(1), yvec(2), yvec(3)
+  print '(2x,4(es12.5,1x))', tcur, real(yvec(1)), real(yvec(2)), real(yvec(3))
   do outstep = 1, nout
 
     ! call CVode
@@ -240,7 +240,7 @@ program main
     end if
 
     ! output current solution
-    print '(2x,4(es12.5,1x))', tcur, yvec(1), yvec(2), yvec(3)
+    print '(2x,4(es12.5,1x))', tcur, real(yvec(1)), real(yvec(2)), real(yvec(3))
 
   end do
 
