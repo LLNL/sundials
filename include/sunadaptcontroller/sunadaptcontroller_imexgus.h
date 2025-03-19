@@ -34,9 +34,11 @@ struct _SUNAdaptControllerContent_ImExGus
   sunrealtype k2i;
   sunrealtype k1e;
   sunrealtype k2e;
-  sunrealtype bias;         /* error bias factor */
-  sunrealtype ep;           /* error from previous step */
-  sunrealtype hp;           /* previous step size */
+  sunrealtype bias; /* error bias factor */
+  sunrealtype ep;   /* error from previous step */
+  sunrealtype hp;   /* previous step size */
+  /* TODO(SRB): Consider removing firststep. We can use a negative ep to
+   * indicate we are on the first step */
   sunbooleantype firststep; /* flag indicating first step */
 };
 

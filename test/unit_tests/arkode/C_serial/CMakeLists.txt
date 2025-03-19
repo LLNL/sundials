@@ -16,6 +16,7 @@
 
 # List of test tuples of the form "name\;args"
 set(ARKODE_unit_tests
+    "ark_test_adapt\;"
     "ark_test_arkstepsetforcing\;1 0"
     "ark_test_arkstepsetforcing\;1 1"
     "ark_test_arkstepsetforcing\;1 2"
