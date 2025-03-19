@@ -45,9 +45,7 @@ with the form
 
 In the above formulas, the default values of :math:`k_1^E`, :math:`k_2^E`,
 :math:`k_1^I`, and :math:`k_2^I` are 0.367, 0.268, 0.98, and 0.95, respectively,
-and :math:`p` is the global order of the time integration method.  In these
-estimates, a floor of :math:`\varepsilon_* > 10^{-10}` is enforced to avoid
-division-by-zero errors.
+and :math:`p` is the global order of the time integration method.
 
 The SUNAdaptController_ImExGus controller implements both formulas
 :eq:`expGusController` and :eq:`impGusController`, and sets its recommended step
