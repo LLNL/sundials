@@ -658,7 +658,7 @@ sunrealtype N_VMaxNorm_Serial(N_Vector x)
     if (SUNabs(xd[i]) > max) { max = SUNabs(xd[i]); }
   }
 
-  return SUN_REAL(max);
+  return max;
 }
 
 sunrealtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
@@ -673,7 +673,8 @@ sunrealtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 sunrealtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
-  sunscalartype sum, prodi, *xd, *wd;
+  sunscalartype prodi, *xd, *wd;
+  sunrealtype sum;
 
   sum = ZERO;
   xd = wd = NULL;
@@ -685,10 +686,10 @@ sunrealtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w)
   for (i = 0; i < N; i++)
   {
     prodi = xd[i] * wd[i];
-    sum += SUNSQR(prodi);
+    sum += SUNSQR(SUNabs(prodi));
   }
 
-  return SUN_REAL(sum);
+  return sum;
 }
 
 sunrealtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
@@ -703,7 +704,8 @@ sunrealtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
 sunrealtype N_VWSqrSumMaskLocal_Serial(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i, N;
-  sunscalartype sum, prodi, *xd, *wd, *idd;
+  sunscalartype prodi, *xd, *wd, *idd;
+  sunrealtype sum;
 
   sum = ZERO;
   xd = wd = idd = NULL;
@@ -718,11 +720,11 @@ sunrealtype N_VWSqrSumMaskLocal_Serial(N_Vector x, N_Vector w, N_Vector id)
     if (SUN_REAL(idd[i]) > ZERO)
     {
       prodi = xd[i] * wd[i];
-      sum += SUNSQR(prodi);
+      sum += SUNSQR(SUNabs(prodi));
     }
   }
 
-  return SUN_REAL(sum);
+  return sum;
 }
 
 sunrealtype N_VMin_Serial(N_Vector x)
@@ -749,7 +751,8 @@ sunrealtype N_VMin_Serial(N_Vector x)
 sunrealtype N_VWL2Norm_Serial(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
-  sunscalartype sum, prodi, *xd, *wd;
+  sunscalartype prodi, *xd, *wd;
+  sunrealtype sum;
 
   sum = ZERO;
   xd = wd = NULL;
@@ -761,10 +764,10 @@ sunrealtype N_VWL2Norm_Serial(N_Vector x, N_Vector w)
   for (i = 0; i < N; i++)
   {
     prodi = xd[i] * wd[i];
-    sum += SUNSQR(prodi);
+    sum += SUNSQR(SUNabs(prodi));
   }
 
-  return SUNCsqrt(sum);
+  return SUNRsqrt(sum);
 }
 
 sunrealtype N_VL1Norm_Serial(N_Vector x)
