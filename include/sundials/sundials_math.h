@@ -34,6 +34,22 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * Macro : SUN_COMPLEX
+ * -----------------------------------------------------------------
+ * Usage : suncomplextype x = SUN_COMPLEX(ONE, ONE);
+ * -----------------------------------------------------------------
+ * SUN_COMPLEX(real, imag) returns a complex number with real part
+ * real and imaginary part imag. This macro is used to initialize
+ * complex numbers.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUN_COMPLEX
+#define SUN_COMPLEX(real, imag) (real + imag*SUN_I)
+#endif
+
+/*
+ * -----------------------------------------------------------------
  * Function : SUN_CREAL, SUN_CIMAG, SUN_REAL, SUN_IMAG
  * -----------------------------------------------------------------
  * Usage : sunscalartype x;

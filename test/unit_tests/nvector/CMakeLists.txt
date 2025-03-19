@@ -27,7 +27,7 @@ endif()
 add_subdirectory(serial)
 
 # Build the nvector test utilities
-add_library(test_nvector_obj OBJECT test_nvector.c)
+add_library(test_nvector_obj OBJECT test_nvector.c test_nvector_complex.c)
 if(BUILD_SHARED_LIBS)
   # need PIC when shared libs are used since the example executables will link
   # to the shared lib
