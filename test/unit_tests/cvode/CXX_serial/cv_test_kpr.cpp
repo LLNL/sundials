@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
   flag = true_sol(ZERO, &utrue, &vtrue);
   if (check_flag(flag, "true_sol")) { return 1; }
 
-  sunrealtype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
   ydata[0]           = utrue;
   ydata[1]           = vtrue;
 
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
   flag = CVodeSetJacFn(cvode_mem, J);
   if (check_flag(flag, "CVodeSetJacFn")) { return 1; }
 
-  sunrealtype udata[4] = {-TWO, HALF, HALF, -ONE};
+  sunscalartype udata[4] = {-TWO, HALF, HALF, -ONE};
   flag                 = CVodeSetUserData(cvode_mem, udata);
   if (check_flag(flag, "CVodeSetUserData")) { return 1; }
 
@@ -174,20 +174,20 @@ int main(int argc, char* argv[])
  * ---------------------------------------------------------------------------*/
 int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunrealtype* udata  = (sunrealtype*)user_data;
-  const sunrealtype a = udata[0];
-  const sunrealtype b = udata[1];
-  const sunrealtype c = udata[2];
-  const sunrealtype d = udata[3];
+  sunscalartype* udata  = (sunscalartype*)user_data;
+  const sunscalartype a = udata[0];
+  const sunscalartype b = udata[1];
+  const sunscalartype c = udata[2];
+  const sunscalartype d = udata[3];
 
-  sunrealtype* ydata  = N_VGetArrayPointer(y);
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
+  sunscalartype* ydata  = N_VGetArrayPointer(y);
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
 
-  const sunrealtype tmp1 = (-ONE + u * u - r(t)) / (TWO * u);
-  const sunrealtype tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
+  const sunscalartype tmp1 = (-ONE + u * u - r(t)) / (TWO * u);
+  const sunscalartype tmp2 = (-TWO + v * v - s(t)) / (TWO * v);
 
-  sunrealtype* fdata = N_VGetArrayPointer(ydot);
+  sunscalartype* fdata = N_VGetArrayPointer(ydot);
   fdata[0]           = a * tmp1 + b * tmp2 + rdot(t) / (TWO * u);
   fdata[1]           = c * tmp1 + d * tmp2 + sdot(t) / (TWO * v);
 
@@ -202,17 +202,17 @@ int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 int J(sunrealtype t, N_Vector y, N_Vector fy, SUNMatrix J, void* user_data,
       N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  sunrealtype* udata  = (sunrealtype*)user_data;
-  const sunrealtype a = udata[0];
-  const sunrealtype b = udata[1];
-  const sunrealtype c = udata[2];
-  const sunrealtype d = udata[3];
+  sunscalartype* udata  = (sunscalartype*)user_data;
+  const sunscalartype a = udata[0];
+  const sunscalartype b = udata[1];
+  const sunscalartype c = udata[2];
+  const sunscalartype d = udata[3];
 
-  sunrealtype* ydata = N_VGetArrayPointer(y);
-  sunrealtype* Jdata = SUNDenseMatrix_Data(J);
+  sunscalartype* ydata = N_VGetArrayPointer(y);
+  sunscalartype* Jdata = SUNDenseMatrix_Data(J);
 
-  const sunrealtype u = ydata[0];
-  const sunrealtype v = ydata[1];
+  const sunscalartype u = ydata[0];
+  const sunscalartype v = ydata[1];
 
   Jdata[0] = a / TWO + (a * (ONE + r(t)) - rdot(t)) / (TWO * u * u);
   Jdata[1] = c / TWO + c * (ONE + r(t)) / (TWO * u * u);

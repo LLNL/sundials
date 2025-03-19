@@ -30,7 +30,9 @@ if(SUNDIALS_INDEX_SIZE MATCHES "64")
     APPEND
     FCVODE_examples
     "cv_analytic_fp_f2003\;develop\;real"
+    "cv_analytic_fp_complex\;develop\;complex"
     "cv_analytic_sys_dns_f2003\;develop\;real"
+    "cv_analytic_sys_dns_complex\;develop\;complex"
     "cv_analytic_sys_dns_jac_f2003\;develop\;real"
     "cv_brusselator_dns_f2003\;develop\;real"
     "cv_diurnal_kry_f2003\;develop\;real"
