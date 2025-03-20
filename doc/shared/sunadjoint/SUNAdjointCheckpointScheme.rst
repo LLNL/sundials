@@ -132,13 +132,14 @@ The virtual table structure is defined as
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme cs, \
-   suncountertype step_num, suncountertype stage_num, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
+   suncountertype step_num, suncountertype stage_num, sunrealtype t, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
 
    Loads the checkpointed vector for (step_num, stage_num).
 
    :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
+   :param t: the desired time of the checkpoint
    :param peek: if true, then the checkpoint will be loaded but not deleted regardless
       of other implementation-specific settings. If false, then the checkpoint may be
       deleted depending on the implementation.
@@ -162,7 +163,8 @@ The virtual table structure is defined as
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_EnableDense(SUNAdjointCheckpointScheme cs, \
    sunbooleantype on_or_off)
 
-   Enables or disables dense checkpointing (checkpointing every step/stage).
+   Enables or disables dense checkpointing (checkpointing every step/stage). When dense checkpointing
+   is disabled, the checkpointing interval that was set when the object was created is restored.
 
    :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
    :param on_or_off: if true, dense checkpointing will be turned on, if false it will be turned off.

@@ -48,7 +48,7 @@ struct SUNStlVectorTtype_s
   int64_t size;
   int64_t capacity;
   TTYPE* values;
-  void (*destroyValue)(TTYPE*);
+  SUNErrCode (*destroyValue)(TTYPE*);
 };
 
 // This constant controls how much space will be allocated when a resize is needed.
@@ -58,9 +58,16 @@ struct SUNStlVectorTtype_s
 // amortized constant time complexity.
 #define GROWTH_FACTOR 1.5L
 
+/**
+ * Creates a new SUNStlVector with the specified initial capacity.
+ *
+ * :param init_capacity: Initial capacity of the vector.
+ * :param destroyValue: Function pointer to destroy the value.
+ * :return: New vector instance or NULL on failure.
+ */
 static inline SUNStlVectorTtype MAKE_NAME(SUNStlVectorTtype,
                                           New)(int64_t init_capacity,
-                                               void (*destroyValue)(TTYPE*))
+                                               SUNErrCode (*destroyValue)(TTYPE*))
 {
   if (init_capacity < 0 || !destroyValue) { return NULL; }
   SUNStlVectorTtype self = (SUNStlVectorTtype)malloc(sizeof(*self));
@@ -71,12 +78,25 @@ static inline SUNStlVectorTtype MAKE_NAME(SUNStlVectorTtype,
   return self;
 }
 
+/**
+ * Checks if the vector is empty.
+ *
+ * :param self: Pointer to the vector.
+ * :return: True if the vector is empty, false otherwise.
+ */
 static inline sunbooleantype MAKE_NAME(SUNStlVectorTtype,
                                        IsEmpty)(SUNStlVectorTtype self)
 {
   return self->size == 0;
 }
 
+/**
+ * Allocates more memory (capacity) for the vector.
+ *
+ * :param self: Pointer to the vector.
+ * :param new_capacity: New capacity to reserve.
+ * :return: SUN_SUCCESS on success, SUN_ERR_MALLOC_FAIL on failure.
+ */
 static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
                                    Reserve)(SUNStlVectorTtype self,
                                             int64_t new_capacity)
@@ -89,6 +109,12 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
   return SUN_SUCCESS;
 }
 
+/**
+ * Grows the vector capacity if needed.
+ *
+ * :param self: Pointer to the vector.
+ * :return: SUN_SUCCESS on success, SUN_ERR_MALLOC_FAIL on failure.
+ */
 static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype self)
 {
   if (self->size == self->capacity)
@@ -97,12 +123,22 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype se
        We explicitly cast capacity to a long double to silence any implicit
        conversion compiler warning. */
     int64_t new_capacity =
-      (int64_t)(ceil(((long double)self->capacity) * GROWTH_FACTOR));
+      self->capacity == 0
+        ? 2
+        : (int64_t)(ceill(((long double)self->capacity) * GROWTH_FACTOR));
+
     return MAKE_NAME(SUNStlVectorTtype, Reserve)(self, new_capacity);
   }
   return SUN_SUCCESS;
 }
 
+/**
+ * Adds an element to the end of the vector.
+ *
+ * :param self: Pointer to the vector.
+ * :param element: Element to add.
+ * :return: SUN_SUCCESS on success, SUN_ERR_MALLOC_FAIL on failure.
+ */
 static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
                                    PushBack)(SUNStlVectorTtype self, TTYPE element)
 {
@@ -115,6 +151,13 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
   return SUN_SUCCESS;
 }
 
+/**
+ * Returns a pointer to the element at the specified index.
+ *
+ * :param self: Pointer to the vector.
+ * :param index: Index of the element.
+ * :return: Pointer to the element or NULL if out of bounds.
+ */
 static inline TTYPE* MAKE_NAME(SUNStlVectorTtype, At)(SUNStlVectorTtype self,
                                                       int64_t index)
 {
@@ -126,6 +169,14 @@ static inline TTYPE* MAKE_NAME(SUNStlVectorTtype, At)(SUNStlVectorTtype self,
   return &(self->values[index]);
 }
 
+/**
+ * Sets the element at the specified index.
+ *
+ * :param self: Pointer to the vector.
+ * :param index: Index of the element.
+ * :param element: Element to set.
+ * :return: SUN_SUCCESS on success, SUN_ERR_OUTOFRANGE if index is out of bounds.
+ */
 static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
                                    Set)(SUNStlVectorTtype self, int64_t index,
                                         TTYPE element)
@@ -139,16 +190,32 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
   return SUN_SUCCESS;
 }
 
+/**
+ * Removes the last element from the vector.
+ *
+ * :param self: Pointer to the vector.
+ * :return: SUN_SUCCESS on success.
+ */
 static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
                                    PopBack)(SUNStlVectorTtype self)
 {
   /* `static` results in implicit empty initialization in C99. */
   static TTYPE nullish;
   if (self->size == 0) return SUN_SUCCESS;
+  SUNErrCode err = MAKE_NAME(SUNStlVectorTtype, Set)(self, self->size - 1,
+                                                     nullish);
+  if (err) { return err; }
   self->size--;
-  return MAKE_NAME(SUNStlVectorTtype, Set)(self, self->size, nullish);
+  return SUN_SUCCESS;
 }
 
+/**
+ * Removes the element at the specified index and shifts all other elements.
+ *
+ * :param self: Pointer to the vector.
+ * :param index: Index of the element to erase.
+ * :return: SUN_SUCCESS on success, SUN_ERR_OUTOFRANGE if index is out of bounds.
+ */
 static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
                                    Erase)(SUNStlVectorTtype self, int64_t index)
 {
@@ -171,33 +238,54 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
   return SUN_SUCCESS;
 }
 
+/**
+ * Returns the size of the vector.
+ *
+ * :param self: Pointer to the vector.
+ * :return: Size of the vector.
+ */
 static inline int64_t MAKE_NAME(SUNStlVectorTtype, Size)(SUNStlVectorTtype self)
 {
   return self->size;
 }
 
+/**
+ * Returns the capacity of the vector.
+ *
+ * :param self: Pointer to the vector.
+ * :return: Capacity of the vector.
+ */
 static inline int64_t MAKE_NAME(SUNStlVectorTtype,
                                 Capacity)(SUNStlVectorTtype self)
 {
   return self->capacity;
 }
 
-static inline void MAKE_NAME(SUNStlVectorTtype,
-                             Destroy)(SUNStlVectorTtype* self_ptr)
+/**
+ * Destroys the vector and frees its memory.
+ *
+ * :param self_ptr: Pointer to the vector pointer.
+ * :return: SUN_SUCCESS on success.
+ */
+static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
+                                   Destroy)(SUNStlVectorTtype* self_ptr)
 {
   static TTYPE nullish;
 
-  if (!self_ptr || !(*self_ptr)) return;
+  if (!self_ptr || !(*self_ptr)) return SUN_SUCCESS;
 
   SUNStlVectorTtype self = *self_ptr;
 
   for (int64_t i = 0; i < MAKE_NAME(SUNStlVectorTtype, Size)(self); i++)
   {
-    self->destroyValue(&(self->values[i]));
+    SUNErrCode err = self->destroyValue(&(self->values[i]));
+    if (err) { return err; }
     self->values[i] = nullish;
   }
 
   free(self->values);
   free(self);
   *self_ptr = NULL;
+
+  return SUN_SUCCESS;
 }

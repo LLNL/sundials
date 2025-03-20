@@ -53,7 +53,7 @@ struct SUNHashMap_
 };
 
 SUNErrCode SUNHashMap_New(int64_t capacity,
-                          void (*destroyValue)(SUNHashMapKeyValue* value_ptr),
+                          SUNErrCode (*destroyValue)(SUNHashMapKeyValue* value_ptr),
                           SUNHashMap* map);
 
 int64_t SUNHashMap_Capacity(SUNHashMap map);

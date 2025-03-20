@@ -36,33 +36,37 @@ extern "C" {
 
 /* Default Butcher tables for each method/order */
 
+/* Ideally these defaults would be declared with types ARKODE_ERKTableID and
+ * ARKODE_DIRKTableID, but this causes swig to unnecessarily append `C_INT` to
+ * the variable names */
+
 /*    explicit */
 static const int ARKSTEP_DEFAULT_ERK_1 = ARKODE_FORWARD_EULER_1_1;
-static const int ARKSTEP_DEFAULT_ERK_2 = ARKODE_HEUN_EULER_2_1_2;
+static const int ARKSTEP_DEFAULT_ERK_2 = ARKODE_RALSTON_3_1_2;
 static const int ARKSTEP_DEFAULT_ERK_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3;
-static const int ARKSTEP_DEFAULT_ERK_4 = ARKODE_ZONNEVELD_5_3_4;
-static const int ARKSTEP_DEFAULT_ERK_5 = ARKODE_CASH_KARP_6_4_5;
-static const int ARKSTEP_DEFAULT_ERK_6 = ARKODE_VERNER_8_5_6;
+static const int ARKSTEP_DEFAULT_ERK_4 = ARKODE_SOFRONIOU_SPALETTA_5_3_4;
+static const int ARKSTEP_DEFAULT_ERK_5 = ARKODE_TSITOURAS_7_4_5;
+static const int ARKSTEP_DEFAULT_ERK_6 = ARKODE_VERNER_9_5_6;
 static const int ARKSTEP_DEFAULT_ERK_7 = ARKODE_VERNER_10_6_7;
-static const int ARKSTEP_DEFAULT_ERK_8 = ARKODE_FEHLBERG_13_7_8;
+static const int ARKSTEP_DEFAULT_ERK_8 = ARKODE_VERNER_13_7_8;
 static const int ARKSTEP_DEFAULT_ERK_9 = ARKODE_VERNER_16_8_9;
 
 /*    implicit */
 static const int ARKSTEP_DEFAULT_DIRK_1 = ARKODE_BACKWARD_EULER_1_1;
-static const int ARKSTEP_DEFAULT_DIRK_2 = ARKODE_SDIRK_2_1_2;
-static const int ARKSTEP_DEFAULT_DIRK_3 = ARKODE_ARK324L2SA_DIRK_4_2_3;
-static const int ARKSTEP_DEFAULT_DIRK_4 = ARKODE_SDIRK_5_3_4;
-static const int ARKSTEP_DEFAULT_DIRK_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
+static const int ARKSTEP_DEFAULT_DIRK_2 = ARKODE_ARK2_DIRK_3_1_2;
+static const int ARKSTEP_DEFAULT_DIRK_3 = ARKODE_ESDIRK325L2SA_5_2_3;
+static const int ARKSTEP_DEFAULT_DIRK_4 = ARKODE_ESDIRK436L2SA_6_3_4;
+static const int ARKSTEP_DEFAULT_DIRK_5 = ARKODE_ESDIRK547L2SA2_7_4_5;
 
 /*    ImEx */
 static const int ARKSTEP_DEFAULT_ARK_ETABLE_2 = ARKODE_ARK2_ERK_3_1_2;
 static const int ARKSTEP_DEFAULT_ARK_ETABLE_3 = ARKODE_ARK324L2SA_ERK_4_2_3;
-static const int ARKSTEP_DEFAULT_ARK_ETABLE_4 = ARKODE_ARK436L2SA_ERK_6_3_4;
-static const int ARKSTEP_DEFAULT_ARK_ETABLE_5 = ARKODE_ARK548L2SA_ERK_8_4_5;
+static const int ARKSTEP_DEFAULT_ARK_ETABLE_4 = ARKODE_ARK437L2SA_ERK_7_3_4;
+static const int ARKSTEP_DEFAULT_ARK_ETABLE_5 = ARKODE_ARK548L2SAb_ERK_8_4_5;
 static const int ARKSTEP_DEFAULT_ARK_ITABLE_2 = ARKODE_ARK2_DIRK_3_1_2;
 static const int ARKSTEP_DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3;
-static const int ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4;
-static const int ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5;
+static const int ARKSTEP_DEFAULT_ARK_ITABLE_4 = ARKODE_ARK437L2SA_DIRK_7_3_4;
+static const int ARKSTEP_DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SAb_DIRK_8_4_5;
 
 /* -------------------
  * Exported Functions
@@ -283,7 +287,8 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumErrTestFails instead")
 int ARKStepGetNumErrTestFails(void* arkode_mem, long int* netfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetEstLocalErrors instead")
 int ARKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ARKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumSteps instead")
 int ARKStepGetNumSteps(void* arkode_mem, long int* nsteps);
@@ -347,7 +352,8 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacTime instead")
 int ARKStepGetJacTime(void* arkode_mem, sunrealtype* t_J);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetJacNumSteps instead")
 int ARKStepGetJacNumSteps(void* arkode_mem, long int* nst_J);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLinWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ARKStepGetLinWorkSpace(void* arkode_mem, long int* lenrwLS,
                            long int* leniwLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumJacEvals instead")
@@ -369,7 +375,8 @@ int ARKStepGetNumLinRhsEvals(void* arkode_mem, long int* nfevalsLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetLastLinFlag instead")
 int ARKStepGetLastLinFlag(void* arkode_mem, long int* flag);
 
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetMassWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ARKStepGetMassWorkSpace(void* arkode_mem, long int* lenrwMLS,
                             long int* leniwMLS);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumMassSetups instead")

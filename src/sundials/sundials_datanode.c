@@ -8,6 +8,25 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
+ * -----------------------------------------------------------------*
+ * The SUNDataNode class is a hierarchical object which could be used
+ * to build something like a JSON tree. Nodes can be lists, objects,
+ * or leaves. Using the JSON analogy:
+ *  
+ *   "i_am_object": {
+ *     "i_am_list": [
+ *       "i_am_object": {...
+ *       },
+ *       "i_am_leaf"
+ *     ],
+ *     "i_am_leaf": "value"
+ *   }
+ *
+ * Object nodes hold named nodes (children), while list nodes hold 
+ * anonymous nodes (children). Leaf nodes do not have children, they 
+ * have values. The SUNDataNode can be used to build all sorts of
+ * useful things, but we primarily use it as the backbone for 
+ * checkpointing states in adjoint sensitivity analysis. 
  * -----------------------------------------------------------------*/
 
 #include <sundials/priv/sundials_errors_impl.h>
@@ -18,6 +37,11 @@
 #include "sundials/sundials_memory.h"
 #include "sundials_datanode.h"
 
+/**
+ * :param sunctx: The SUNContext.
+ * :param node_out: Pointer to the output SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
@@ -30,15 +54,15 @@ SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
   ops = (SUNDataNode_Ops)malloc(sizeof(*ops));
   SUNAssert(self, SUN_ERR_MEM_FAIL);
 
-  ops->hasChildren = NULL;
-  ops->isLeaf      = NULL;
-  ops->isList      = NULL;
-  ops->isObject    = NULL;
-  ops->addChild    = NULL;
-  ops->getChild    = NULL;
-  ops->removeChild = NULL;
-  ops->getData     = NULL;
-  ops->setData     = NULL;
+  ops->haschildren = NULL;
+  ops->isleaf      = NULL;
+  ops->islist      = NULL;
+  ops->isobject    = NULL;
+  ops->addchild    = NULL;
+  ops->getchild    = NULL;
+  ops->removechild = NULL;
+  ops->getdata     = NULL;
+  ops->setdata     = NULL;
   ops->destroy     = NULL;
 
   self->dtype   = 0;
@@ -50,6 +74,13 @@ SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
   return SUN_SUCCESS;
 }
 
+/**
+ * :param io_mode: The I/O mode used for storing the data.
+ * :param mem_helper: The memory helper.
+ * :param sunctx: The SUNContext.
+ * :param node_out: Pointer to the output SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
                                   SUNMemoryHelper mem_helper, SUNContext sunctx,
                                   SUNDataNode* node_out)
@@ -73,6 +104,13 @@ SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
   return SUN_SUCCESS;
 }
 
+/**
+ * :param io_mode: The I/O mode used for storing the data.
+ * :param num_elements: The number of elements in the list.
+ * :param sunctx: The SUNContext.
+ * :param node_out: Pointer to the output SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
                                   sundataindex num_elements, SUNContext sunctx,
                                   SUNDataNode* node_out)
@@ -92,11 +130,18 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
 
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
 
-  SUNCheck(err);
+  SUNCheck(err, err);
 
   return err;
 }
 
+/**
+ * :param io_mode: The I/O mode used for storing the data.
+ * :param num_elements: The number of elements in the object.
+ * :param sunctx: The SUNContext.
+ * :param node_out: Pointer to the output SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
                                     sundataindex num_elements,
                                     SUNContext sunctx, SUNDataNode* node_out)
@@ -116,20 +161,25 @@ SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
 
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
 
-  SUNCheck(err);
+  SUNCheck(err, err);
 
   return err;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param yes_or_no: Pointer to the output boolean result.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode self, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->isLeaf)
+  if (self->ops->isleaf)
   {
-    SUNErrCode err = self->ops->isLeaf(self, yes_or_no);
+    SUNErrCode err = self->ops->isleaf(self, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -139,15 +189,20 @@ SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode self, sunbooleantype* yes_or_no)
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param yes_or_no: Pointer to the output boolean result.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_IsList(const SUNDataNode self, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->isList)
+  if (self->ops->islist)
   {
-    SUNErrCode err = self->ops->isList(self, yes_or_no);
+    SUNErrCode err = self->ops->islist(self, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -156,6 +211,11 @@ SUNErrCode SUNDataNode_IsList(const SUNDataNode self, sunbooleantype* yes_or_no)
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param yes_or_no: Pointer to the output boolean result.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_HasChildren(const SUNDataNode self,
                                    sunbooleantype* yes_or_no)
 {
@@ -163,9 +223,9 @@ SUNErrCode SUNDataNode_HasChildren(const SUNDataNode self,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->hasChildren)
+  if (self->ops->haschildren)
   {
-    SUNErrCode err = self->ops->hasChildren(self, yes_or_no);
+    SUNErrCode err = self->ops->haschildren(self, yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -174,15 +234,20 @@ SUNErrCode SUNDataNode_HasChildren(const SUNDataNode self,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param child_node: The child SUNDataNode to add.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_AddChild(SUNDataNode self, SUNDataNode child_node)
 {
   SUNFunctionBegin(self->sunctx);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->addChild)
+  if (self->ops->addchild)
   {
-    SUNErrCode err = self->ops->addChild(self, child_node);
+    SUNErrCode err = self->ops->addchild(self, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -191,6 +256,12 @@ SUNErrCode SUNDataNode_AddChild(SUNDataNode self, SUNDataNode child_node)
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param name: The name of the child.
+ * :param child_node: The child SUNDataNode to add.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode self, const char* name,
                                      SUNDataNode child_node)
 {
@@ -198,9 +269,9 @@ SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode self, const char* name,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->addNamedChild)
+  if (self->ops->addnamedchild)
   {
-    SUNErrCode err = self->ops->addNamedChild(self, name, child_node);
+    SUNErrCode err = self->ops->addnamedchild(self, name, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -209,6 +280,12 @@ SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode self, const char* name,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param index: The index of the child.
+ * :param child_node: Pointer to the output child SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex index,
                                 SUNDataNode* child_node)
 {
@@ -216,9 +293,9 @@ SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex index,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->getChild)
+  if (self->ops->getchild)
   {
-    SUNErrCode err = self->ops->getChild(self, index, child_node);
+    SUNErrCode err = self->ops->getchild(self, index, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -227,6 +304,12 @@ SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex index,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param name: The name of the child.
+ * :param child_node: Pointer to the output child SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode self, const char* name,
                                      SUNDataNode* child_node)
 {
@@ -234,9 +317,9 @@ SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode self, const char* name,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->getNamedChild)
+  if (self->ops->getnamedchild)
   {
-    SUNErrCode err = self->ops->getNamedChild(self, name, child_node);
+    SUNErrCode err = self->ops->getnamedchild(self, name, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -245,6 +328,12 @@ SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode self, const char* name,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param name: The name of the child.
+ * :param child_node: Pointer to the output child SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode self, const char* name,
                                         SUNDataNode* child_node)
 {
@@ -252,9 +341,9 @@ SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode self, const char* name
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->removeNamedChild)
+  if (self->ops->removenamedchild)
   {
-    SUNErrCode err = self->ops->removeNamedChild(self, name, child_node);
+    SUNErrCode err = self->ops->removenamedchild(self, name, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -263,6 +352,12 @@ SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode self, const char* name
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param index: The index of the child.
+ * :param child_node: Pointer to the output child SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex index,
                                    SUNDataNode* child_node)
 {
@@ -270,9 +365,9 @@ SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex index,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->removeChild)
+  if (self->ops->removechild)
   {
-    SUNErrCode err = self->ops->removeChild(self, index, child_node);
+    SUNErrCode err = self->ops->removechild(self, index, child_node);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -281,6 +376,13 @@ SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex index,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param data: Pointer to the output data.
+ * :param data_stride: Pointer to the output data stride.
+ * :param data_bytes: Pointer to the output data bytes.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data,
                                size_t* data_stride, size_t* data_bytes)
 {
@@ -288,9 +390,9 @@ SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->getData)
+  if (self->ops->getdata)
   {
-    SUNErrCode err = self->ops->getData(self, data, data_stride, data_bytes);
+    SUNErrCode err = self->ops->getdata(self, data, data_stride, data_bytes);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -299,15 +401,21 @@ SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param v: The output state N_Vector.
+ * :param t: On output, the time associated with the output state vector.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector v, sunrealtype* t)
 {
   SUNFunctionBegin(self->sunctx);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->getDataNvector)
+  if (self->ops->getdatanvector)
   {
-    SUNErrCode err = self->ops->getDataNvector(self, v, t);
+    SUNErrCode err = self->ops->getdatanvector(self, v, t);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -316,6 +424,15 @@ SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector v, sunrealtype*
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param src_mem_type: The source memory type.
+ * :param node_mem_type: The node memory type.
+ * :param data: The data to set.
+ * :param data_stride: The data stride.
+ * :param data_bytes: The data bytes.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_SetData(SUNDataNode self, SUNMemoryType src_mem_type,
                                SUNMemoryType node_mem_type, void* data,
                                size_t data_stride, size_t data_bytes)
@@ -324,9 +441,9 @@ SUNErrCode SUNDataNode_SetData(SUNDataNode self, SUNMemoryType src_mem_type,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->setData)
+  if (self->ops->setdata)
   {
-    SUNErrCode err = self->ops->setData(self, src_mem_type, node_mem_type, data,
+    SUNErrCode err = self->ops->setdata(self, src_mem_type, node_mem_type, data,
                                         data_stride, data_bytes);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
@@ -336,15 +453,21 @@ SUNErrCode SUNDataNode_SetData(SUNDataNode self, SUNMemoryType src_mem_type,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param v: The state N_Vector.
+ * :param t: The time associated with the state vector.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_SetDataNvector(SUNDataNode self, N_Vector v, sunrealtype t)
 {
   SUNFunctionBegin(self->sunctx);
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
-  if (self->ops->setDataNvector)
+  if (self->ops->setdatanvector)
   {
-    SUNErrCode err = self->ops->setDataNvector(self, v, t);
+    SUNErrCode err = self->ops->setdatanvector(self, v, t);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -353,6 +476,10 @@ SUNErrCode SUNDataNode_SetDataNvector(SUNDataNode self, N_Vector v, sunrealtype 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param node: Pointer to the SUNDataNode to destroy.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_Destroy(SUNDataNode* node)
 {
   SUNFunctionBegin((*node)->sunctx);

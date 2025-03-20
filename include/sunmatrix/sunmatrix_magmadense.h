@@ -120,8 +120,9 @@ SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_MagmaDense(sunrealtype c, SUNMatrix A
 SUNDIALS_EXPORT SUNErrCode SUNMatMatvecSetup_MagmaDense(SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_MagmaDense(SUNMatrix A, N_Vector x,
                                                    N_Vector y);
-SUNDIALS_EXPORT SUNErrCode SUNMatSpace_MagmaDense(SUNMatrix A, long int* lenrw,
-                                                  long int* leniw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+SUNErrCode SUNMatSpace_MagmaDense(SUNMatrix A, long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus
 }

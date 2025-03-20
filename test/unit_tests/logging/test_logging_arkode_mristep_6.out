@@ -3,26 +3,26 @@ Using MERK method
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
- 1.000000000000000e-03    1.224744769278491e+00    1.731993073504249e+00    5.103006905926577e-11    3.375077994860476e-14
- 2.000000000000000e-03    1.224744463041408e+00    1.731819882857753e+00    1.019582196448710e-10    1.338928967697939e-13
- 3.000000000000000e-03    1.224743952680496e+00    1.731531270273762e+00    1.527842297122106e-10    1.914024494453770e-13
+ 1.000000000000000e-03    1.224744769278491e+00    1.731993073504352e+00    5.103006905926577e-11    1.372235658436693e-13
+ 2.000000000000000e-03    1.224744463041409e+00    1.731819882857855e+00    1.019579976002660e-10    2.362554596402333e-13
+ 3.000000000000000e-03    1.224743952680496e+00    1.731531270273867e+00    1.527842297122106e-10    2.970956813896919e-13
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.003
-Steps                        = 3
-Step attempts                = 3
-Stability limited steps      = 0
-Accuracy limited steps       = 0
-Error test fails             = 0
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 0.001
-Last step size               = 0.001
-Current step size            = 0.001
-Explicit slow RHS fn evals   = 6
-Implicit slow RHS fn evals   = 0
-Inner stepper failures       = 0
-NLS iters                    = 0
-NLS fails                    = 0
-NLS iters per step           = 0
-LS setups                    = 0
+Current time                  = 0.003
+Steps                         = 3
+Step attempts                 = 3
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.001
+Last step size                = 0.001
+Current step size             = 0.001
+Explicit slow RHS fn evals    = 6
+Implicit slow RHS fn evals    = 0
+Inner stepper failures        = 0
+NLS iters                     = 0
+NLS fails                     = 0
+NLS iters per step            = 0
+LS setups                     = 0
 End MRIStep Logging test

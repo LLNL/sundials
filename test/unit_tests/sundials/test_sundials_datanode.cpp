@@ -221,7 +221,7 @@ TEST_F(SUNDataNodeTest, RemoveChildWorks)
 TEST_F(SUNDataNodeTest, RemoveSameChildTwiceWorks)
 {
   SUNErrCode err;
-  SUNDataNode root_node, child_node;
+  SUNDataNode root_node, child_node, child_node_out;
   unsigned int num_elem = 5;
 
   err = SUNDataNode_CreateList(SUNDATAIOMODE_INMEM, num_elem, sunctx, &root_node);
@@ -240,10 +240,11 @@ TEST_F(SUNDataNodeTest, RemoveSameChildTwiceWorks)
   err = SUNDataNode_AddChild(root_node, child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  err = SUNDataNode_RemoveChild(root_node, 0, &child_node);
+  err = SUNDataNode_RemoveChild(root_node, 0, &child_node_out);
   EXPECT_EQ(err, SUN_SUCCESS);
+  EXPECT_EQ(child_node_out, child_node);
 
-  err = SUNDataNode_RemoveChild(root_node, 0, &child_node);
+  err = SUNDataNode_RemoveChild(root_node, 0, &child_node_out);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   err = SUNDataNode_Destroy(&root_node);
@@ -255,7 +256,7 @@ TEST_F(SUNDataNodeTest, RemoveSameChildTwiceWorks)
 TEST_F(SUNDataNodeTest, RemoveChildWorksWhenEmpty)
 {
   SUNErrCode err;
-  SUNDataNode root_node, child_node;
+  SUNDataNode root_node, child_node, child_node_out;
   unsigned int num_elem = 5;
 
   err = SUNDataNode_CreateList(SUNDATAIOMODE_INMEM, num_elem, sunctx, &root_node);
@@ -271,7 +272,7 @@ TEST_F(SUNDataNodeTest, RemoveChildWorksWhenEmpty)
                             sizeof(integer_value));
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  err = SUNDataNode_RemoveChild(root_node, 0, &child_node);
+  err = SUNDataNode_RemoveChild(root_node, 0, &child_node_out);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   err = SUNDataNode_Destroy(&root_node);
@@ -350,7 +351,7 @@ TEST_F(SUNDataNodeTest, GetNamedChildWorks)
 TEST_F(SUNDataNodeTest, RemoveNamedChildWorks)
 {
   SUNErrCode err;
-  SUNDataNode root_node, child_node;
+  SUNDataNode root_node, child_node, child_node_out;
   unsigned int num_elem = 5;
 
   err = SUNDataNode_CreateObject(SUNDATAIOMODE_INMEM, num_elem, sunctx,
@@ -370,10 +371,9 @@ TEST_F(SUNDataNodeTest, RemoveNamedChildWorks)
   err = SUNDataNode_AddNamedChild(root_node, "int_value", child_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  err = SUNDataNode_RemoveNamedChild(root_node, "int_value", &child_node);
+  err = SUNDataNode_RemoveNamedChild(root_node, "int_value", &child_node_out);
   EXPECT_EQ(err, SUN_SUCCESS);
-
-  EXPECT_EQ(integer_value, get_leaf_as_int(child_node));
+  EXPECT_EQ(integer_value, get_leaf_as_int(child_node_out));
 
   sunbooleantype yes_or_no = SUNTRUE;
   err                      = SUNDataNode_HasChildren(root_node, &yes_or_no);

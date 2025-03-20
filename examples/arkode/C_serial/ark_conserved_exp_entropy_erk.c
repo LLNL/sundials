@@ -197,6 +197,10 @@ int main(int argc, char* argv[])
   arkode_mem = ERKStepCreate(f, t0, y, ctx);
   if (check_ptr(arkode_mem, "ERKStepCreate")) { return 1; }
 
+  /* Set order */
+  flag = ARKodeSetOrder(arkode_mem, 2);
+  if (check_flag(flag, "ARKodeSetOrder")) { return 1; }
+
   /* Specify tolerances */
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(flag, "ARKodeSStolerances")) { return 1; }

@@ -305,6 +305,13 @@ program main
     stop 1
   end if
 
+  ! TODO(SBR): temporary fix until https://github.com/LLNL/sundials/pull/565 merged
+  ierr = FARKodeSetAdaptivityAdjustment(arkode_mem, 0)
+  if (ierr /= 0) then
+    print *, 'Error in FARKodeSetJacFn'
+    stop 1
+  end if
+
   sunls => FSUNLinSol_Dense(sunvec_y, sunmat_A, sunctx)
   if (.not. associated(sunls)) then
     print *, 'ERROR: sunls = NULL'

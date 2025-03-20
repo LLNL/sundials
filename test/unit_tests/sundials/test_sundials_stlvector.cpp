@@ -23,13 +23,14 @@
 #include "stl/sunstl_vector.h"
 #undef TTYPE
 
-static void freeIntValue(int* val_ptr) { return; }
+static SUNErrCode freeIntValue(int* val_ptr) { return SUN_SUCCESS; }
 
-static void freeNvectorValue(N_Vector* val_ptr)
+static SUNErrCode freeNvectorValue(N_Vector* val_ptr)
 {
-  if (!val_ptr || !(*val_ptr)) { return; }
+  if (!val_ptr || !(*val_ptr)) { return SUN_SUCCESS; }
   N_VDestroy(*val_ptr);
   *val_ptr = NULL;
+  return SUN_SUCCESS;
 }
 
 static N_Vector make_nvector(sunindextype length, SUNContext sunctx)

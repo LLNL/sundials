@@ -79,6 +79,10 @@ below.
 
       retval = SUNMatSpace(A, &lrw, &liw);
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: SUNErrCode SUNMatZero(SUNMatrix A)
 
@@ -172,7 +176,7 @@ below.
       retval = SUNMatMatvec(A, x, y);
 
 
-.. c:function:: SUNErrCode SUNMatMatTransposeVec(SUNMatrix A, N_Vector x, N_Vector y)
+.. c:function:: SUNErrCode SUNMatHermitianTransposeVec(SUNMatrix A, N_Vector x, N_Vector y)
 
    Performs the matrix-vector product :math:`y \gets A^Tx`.  It should
    only be called with vectors :math:`x`` and :math:`y` that are compatible with
@@ -186,4 +190,4 @@ below.
 
    .. code-block:: c
 
-      retval = SUNMatMatTransposeVec(A, x, y);
+      retval = SUNMatHermitianTransposeVec(A, x, y);

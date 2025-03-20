@@ -81,16 +81,16 @@ SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N, sunindextype NNZ,
   SUNCheckLastErrNull();
 
   /* Attach operations */
-  A->ops->getid           = SUNMatGetID_Sparse;
-  A->ops->clone           = SUNMatClone_Sparse;
-  A->ops->destroy         = SUNMatDestroy_Sparse;
-  A->ops->zero            = SUNMatZero_Sparse;
-  A->ops->copy            = SUNMatCopy_Sparse;
-  A->ops->scaleadd        = SUNMatScaleAdd_Sparse;
-  A->ops->scaleaddi       = SUNMatScaleAddI_Sparse;
-  A->ops->matvec          = SUNMatMatvec_Sparse;
-  A->ops->mattransposevec = SUNMatMatTransposeVec_Sparse;
-  A->ops->space           = SUNMatSpace_Sparse;
+  A->ops->getid                    = SUNMatGetID_Sparse;
+  A->ops->clone                    = SUNMatClone_Sparse;
+  A->ops->destroy                  = SUNMatDestroy_Sparse;
+  A->ops->zero                     = SUNMatZero_Sparse;
+  A->ops->copy                     = SUNMatCopy_Sparse;
+  A->ops->scaleadd                 = SUNMatScaleAdd_Sparse;
+  A->ops->scaleaddi                = SUNMatScaleAddI_Sparse;
+  A->ops->matvec                   = SUNMatMatvec_Sparse;
+  A->ops->mathermitiantransposevec = SUNMatHermitianTransposeVec_Sparse;
+  A->ops->space                    = SUNMatSpace_Sparse;
 
   /* Create content */
   content = NULL;
@@ -937,7 +937,7 @@ SUNErrCode SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNMatMatTransposeVec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
+SUNErrCode SUNMatHermitianTransposeVec_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
 {
   SUNFunctionBegin(A->sunctx);
   SUNAssert(SUNMatGetID(A) == SUNMATRIX_SPARSE, SUN_ERR_ARG_WRONGTYPE);

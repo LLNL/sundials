@@ -104,12 +104,13 @@ static void sunTimerStructFree(void* TS)
   }
 }
 
-static void sunProfilerDestroyKeyValue(SUNHashMapKeyValue* kv_ptr)
+static SUNErrCode sunProfilerDestroyKeyValue(SUNHashMapKeyValue* kv_ptr)
 {
-  if (!kv_ptr || !(*kv_ptr)) { return; }
+  if (!kv_ptr || !(*kv_ptr)) { return SUN_SUCCESS; }
   sunTimerStructFree((*kv_ptr)->value);
   free((*kv_ptr)->key);
   free(*kv_ptr);
+  return SUN_SUCCESS;
 }
 
 static void sunStartTiming(sunTimerStruct* entry)

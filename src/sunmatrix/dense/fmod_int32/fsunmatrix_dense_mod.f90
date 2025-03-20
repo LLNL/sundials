@@ -39,7 +39,7 @@ module fsunmatrix_dense_mod
  public :: FSUNMatScaleAdd_Dense
  public :: FSUNMatScaleAddI_Dense
  public :: FSUNMatMatvec_Dense
- public :: FSUNMatMatTransposeVec_Dense
+ public :: FSUNMatHermitianTransposeVec_Dense
  public :: FSUNMatSpace_Dense
 
  public :: FSUNDenseMatrix_Data
@@ -165,8 +165,8 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNMatMatTransposeVec_Dense(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNMatMatTransposeVec_Dense") &
+function swigc_FSUNMatHermitianTransposeVec_Dense(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNMatHermitianTransposeVec_Dense") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -413,7 +413,7 @@ fresult = swigc_FSUNMatMatvec_Dense(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNMatMatTransposeVec_Dense(a, x, y) &
+function FSUNMatHermitianTransposeVec_Dense(a, x, y) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -428,7 +428,7 @@ type(C_PTR) :: farg3
 farg1 = c_loc(a)
 farg2 = c_loc(x)
 farg3 = c_loc(y)
-fresult = swigc_FSUNMatMatTransposeVec_Dense(farg1, farg2, farg3)
+fresult = swigc_FSUNMatHermitianTransposeVec_Dense(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

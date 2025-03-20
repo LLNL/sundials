@@ -23,7 +23,6 @@ if(ENABLE_ALL_WARNINGS)
 endif()
 
 add_subdirectory(sundials)
-add_subdirectory(sunadjoint)
 
 if(BUILD_ARKODE)
   add_subdirectory(arkode)
@@ -56,6 +55,8 @@ add_subdirectory(sunmatrix)
 add_subdirectory(sunlinsol)
 
 add_subdirectory(sunnonlinsol)
+
+add_subdirectory(sunadjointcheckpointscheme)
 
 if(CXX_FOUND)
   add_subdirectory(logging)

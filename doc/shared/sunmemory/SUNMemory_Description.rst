@@ -91,6 +91,11 @@ This API consists of three new SUNDIALS types: :c:type:`SUNMemoryType`,
 
          Pointer to the implementation-specific member data
 
+      .. c:member:: void* queue;
+
+         Pointer to the implementation-specific queue (e.g., a ``cudaStream_t*``) 
+         to use by default when one is not provided for an operation
+
       .. c:member:: SUNMemoryHelper_Ops ops;
 
          A virtual method table of member functions
@@ -319,6 +324,14 @@ require a SUNMemoryHelper instance:
 
 
    :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNMemoryHelper_SetDefaultQueue(SUNMemoryHelper helper, void* queue)
+
+   Sets the default queue for the helper.
+
+   :param helper: the :c:type:`SUNMemoryHelper` object.
+   :param queue: pointer to the queue to use by default.
 
 
 .. _SUNMemory.Description.Overridable:

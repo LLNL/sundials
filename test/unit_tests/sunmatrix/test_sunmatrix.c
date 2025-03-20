@@ -573,10 +573,10 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
 }
 
 /* ----------------------------------------------------------------------
- * SUNMatMatTransposeVec Test (y should be correct A^T*x product)
+ * SUNMatHermitianTransposeVec Test (y should be correct A^T*x product)
  * --------------------------------------------------------------------*/
-int Test_SUNMatMatTransposeVec(SUNMatrix A, SUNMatrix AT, N_Vector x,
-                               N_Vector y, int myid)
+int Test_SUNMatHermitianTransposeVec(SUNMatrix A, SUNMatrix AT, N_Vector x,
+                                     N_Vector y, int myid)
 {
   int failure;
   double start_time, stop_time;
@@ -585,7 +585,8 @@ int Test_SUNMatMatTransposeVec(SUNMatrix A, SUNMatrix AT, N_Vector x,
 
   if (A->ops->matvec == NULL)
   {
-    TEST_STATUS("    PASSED test -- SUNMatMatTransposeVec not implemented\n",
+    TEST_STATUS("    PASSED test -- SUNMatHermitianTransposeVec not "
+                "implemented\n",
                 myid);
     return (0);
   }
@@ -598,7 +599,7 @@ int Test_SUNMatMatTransposeVec(SUNMatrix A, SUNMatrix AT, N_Vector x,
   sync_device(A);
   if (failure)
   {
-    TEST_STATUS2(">>> FAILED test -- SUNMatMatTransposeVec: SUNMatMatvec "
+    TEST_STATUS2(">>> FAILED test -- SUNMatHermitianTransposeVec: SUNMatMatvec "
                  "returned %d \n",
                  failure, myid);
     return (1);
@@ -606,14 +607,14 @@ int Test_SUNMatMatTransposeVec(SUNMatrix A, SUNMatrix AT, N_Vector x,
 
   /* Compute the solution with the routine we are testing */
   start_time = get_time();
-  failure    = SUNMatMatTransposeVec(A, y, z); /* z = A^Ty */
+  failure    = SUNMatHermitianTransposeVec(A, y, z); /* z = A^Ty */
   sync_device(A);
   stop_time = get_time();
 
   if (failure)
   {
-    TEST_STATUS2(">>> FAILED test -- SUNMatMatTransposeVec: "
-                 "SUNMatMatTransposeVec returned %d \n",
+    TEST_STATUS2(">>> FAILED test -- SUNMatHermitianTransposeVec: "
+                 "SUNMatHermitianTransposeVec returned %d \n",
                  failure, myid);
     return (1);
   }
@@ -622,16 +623,19 @@ int Test_SUNMatMatTransposeVec(SUNMatrix A, SUNMatrix AT, N_Vector x,
 
   if (failure)
   {
-    TEST_STATUS(">>> FAILED test -- SUNMatMatTransposeVec check \n", myid);
-    PRINT_TIME("    SUNMatMatTransposeVec Time: %22.15e \n \n",
+    TEST_STATUS(">>> FAILED test -- SUNMatHermitianTransposeVec check \n", myid);
+    PRINT_TIME("    SUNMatHermitianTransposeVec Time: %22.15e \n \n",
                stop_time - start_time);
     return (1);
   }
-  else { TEST_STATUS("    PASSED test -- SUNMatMatTransposeVec \n", myid); }
+  else
+  {
+    TEST_STATUS("    PASSED test -- SUNMatHermitianTransposeVec \n", myid);
+  }
 
   if (myid == 0)
   {
-    PRINT_TIME("    SUNMatMatTransposeVec Time: %22.15e \n \n",
+    PRINT_TIME("    SUNMatHermitianTransposeVec Time: %22.15e \n \n",
                stop_time - start_time);
   }
 

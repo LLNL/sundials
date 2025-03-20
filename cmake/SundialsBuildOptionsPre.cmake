@@ -59,7 +59,6 @@ sundials_option(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "" ADVANCED)
 set(DOCSTR "Integer type to use for counters in SUNDIALS")
 sundials_option(SUNDIALS_COUNTER_TYPE LIST "${DOCSTR}" "int64_t" ADVANCED)
 
-
 # ---------------------------------------------------------------
 # Option to enable monitoring
 # ---------------------------------------------------------------
@@ -212,6 +211,13 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
       FATAL_ERROR
         "F2003 interface is not compatible with ${SUNDIALS_PRECISION} precision"
     )
+  endif()
+
+  # F2003 interface only supports int64_t counters
+  if(NOT (SUNDIALS_COUNTER_TYPE MATCHES "int64_t"))
+    message(
+      FATAL_ERROR
+        "F2003 interface is not compatible with int64_t SUNDIALS_COUNTER_TYPE")
   endif()
 
   # Allow a user to set where the Fortran modules will be installed

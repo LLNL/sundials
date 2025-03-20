@@ -45,6 +45,7 @@ struct SUNMemoryHelper_Content_Sycl_
 typedef struct SUNMemoryHelper_Content_Sycl_ SUNMemoryHelper_Content_Sycl;
 
 #define SUNHELPER_CONTENT(h) ((SUNMemoryHelper_Content_Sycl*)h->content)
+#define GET_SYCL_QUEUE(h, q) (static_cast<::sycl::queue*>(q ? q : h->queue))
 
 SUNMemoryHelper SUNMemoryHelper_Sycl(SUNContext sunctx)
 {
@@ -104,7 +105,7 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
 
   // Check inputs
   SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
-  ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
+  ::sycl::queue* sycl_queue = GET_SYCL_QUEUE(helper, queue);
 
   // Allocate the memory struct
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
@@ -205,6 +206,21 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNMemoryHelper_AllocStrided_Sycl(SUNMemoryHelper helper,
+                                             SUNMemory* memptr, size_t mem_size,
+                                             size_t stride,
+                                             SUNMemoryType mem_type, void* queue)
+{
+  SUNFunctionBegin(helper->sunctx);
+
+  SUNCheckCall(
+    SUNMemoryHelper_Alloc_Sycl(helper, memptr, mem_size, mem_type, queue));
+
+  (*memptr)->stride = stride;
+
+  return SUN_SUCCESS;
+}
+
 SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
                                         void* queue)
 {
@@ -215,7 +231,7 @@ SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
   if (mem->ptr && mem->own)
   {
     SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
-    ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
+    ::sycl::queue* sycl_queue = GET_SYCL_QUEUE(helper, queue);
 
     if (mem->type == SUNMEMTYPE_HOST)
     {
@@ -263,7 +279,7 @@ SUNErrCode SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
 {
   SUNFunctionBegin(helper->sunctx);
   SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
-  ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
+  ::sycl::queue* sycl_queue = GET_SYCL_QUEUE(helper, queue);
 
   if (SUNMemoryHelper_CopyAsync_Sycl(helper, dst, src, memory_size, queue))
   {
@@ -279,7 +295,7 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
 {
   SUNFunctionBegin(helper->sunctx);
   SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
-  ::sycl::queue* sycl_queue = static_cast<::sycl::queue*>(queue);
+  ::sycl::queue* sycl_queue = GET_SYCL_QUEUE(helper, queue);
 
   if (src->type == SUNMEMTYPE_HOST && dst->type == SUNMEMTYPE_HOST)
   {

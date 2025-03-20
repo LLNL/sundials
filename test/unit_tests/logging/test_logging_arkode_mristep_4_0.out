@@ -4,26 +4,26 @@ Using fixed-point nonlinear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
- 1.000000000000000e-03    1.224744769293108e+00    1.731993073495728e+00    3.641287271705096e-11    8.487210934049472e-12
- 2.000000000000000e-03    1.224744463044450e+00    1.731819882840759e+00    9.891665264660787e-11    1.686029094116748e-11
- 3.000000000000000e-03    1.224743952645809e+00    1.731531270248295e+00    1.874711497151793e-10    2.527533737861631e-11
+ 1.000000000000000e-03    1.224744769293108e+00    1.731993073495865e+00    3.641287271705096e-11    8.350431457415652e-12
+ 2.000000000000000e-03    1.224744463044450e+00    1.731819882840895e+00    9.891665264660787e-11    1.672439964295336e-11
+ 3.000000000000000e-03    1.224743952645809e+00    1.731531270248434e+00    1.874711497151793e-10    2.513633745593324e-11
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.003
-Steps                        = 3
-Step attempts                = 3
-Stability limited steps      = 0
-Accuracy limited steps       = 0
-Error test fails             = 0
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 0.001
-Last step size               = 0.001
-Current step size            = 0.001
-Explicit slow RHS fn evals   = 0
-Implicit slow RHS fn evals   = 27
-Inner stepper failures       = 0
-NLS iters                    = 18
-NLS fails                    = 0
-NLS iters per step           = 6
-LS setups                    = 0
+Current time                  = 0.003
+Steps                         = 3
+Step attempts                 = 3
+Stability limited steps       = 0
+Accuracy limited steps        = 0
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 0.001
+Last step size                = 0.001
+Current step size             = 0.001
+Explicit slow RHS fn evals    = 0
+Implicit slow RHS fn evals    = 27
+Inner stepper failures        = 0
+NLS iters                     = 18
+NLS fails                     = 0
+NLS iters per step            = 6
+LS setups                     = 0
 End MRIStep Logging test

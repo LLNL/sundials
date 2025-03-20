@@ -456,7 +456,7 @@ SWIGEXPORT int _wrap_FSUNMatMatvec_Band(SUNMatrix farg1, N_Vector farg2, N_Vecto
 }
 
 
-SWIGEXPORT int _wrap_FSUNMatMatTransposeVec_Band(SUNMatrix farg1, N_Vector farg2, N_Vector farg3) {
+SWIGEXPORT int _wrap_FSUNMatHermitianTransposeVec_Band(SUNMatrix farg1, N_Vector farg2, N_Vector farg3) {
   int fresult ;
   SUNMatrix arg1 = (SUNMatrix) 0 ;
   N_Vector arg2 = (N_Vector) 0 ;
@@ -466,7 +466,7 @@ SWIGEXPORT int _wrap_FSUNMatMatTransposeVec_Band(SUNMatrix farg1, N_Vector farg2
   arg1 = (SUNMatrix)(farg1);
   arg2 = (N_Vector)(farg2);
   arg3 = (N_Vector)(farg3);
-  result = (SUNErrCode)SUNMatMatTransposeVec_Band(arg1,arg2,arg3);
+  result = (SUNErrCode)SUNMatHermitianTransposeVec_Band(arg1,arg2,arg3);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

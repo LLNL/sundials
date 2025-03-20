@@ -246,8 +246,9 @@ SUNDIALS_EXPORT int IDAComputeYpSens(void* ida_mem, N_Vector* ycor,
 SUNDIALS_EXPORT int IDAGetDky(void* ida_mem, sunrealtype t, int k, N_Vector dky);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int IDAGetWorkSpace(void* ida_mem, long int* lenrw,
-                                    long int* leniw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int IDAGetWorkSpace(void* ida_mem, long int* lenrw, long int* leniw);
 SUNDIALS_EXPORT int IDAGetNumSteps(void* ida_mem, long int* nsteps);
 SUNDIALS_EXPORT int IDAGetNumResEvals(void* ida_mem, long int* nrevals);
 SUNDIALS_EXPORT int IDAGetNumLinSolvSetups(void* ida_mem, long int* nlinsetups);

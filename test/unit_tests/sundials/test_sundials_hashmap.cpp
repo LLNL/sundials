@@ -21,12 +21,12 @@
 #include "sundials_hashmap_impl.h"
 
 // Helper function to free memory for value
-static void freeKeyValue(SUNHashMapKeyValue* ptr)
+static SUNErrCode freeKeyValue(SUNHashMapKeyValue* ptr)
 {
-  if (!ptr || !(*ptr)) { return; }
+  if (!ptr || !(*ptr)) { return SUN_SUCCESS; }
   free((*ptr)->key);
   free(*ptr);
-  return;
+  return SUN_SUCCESS;
 }
 
 class SUNHashMapTest : public testing::Test

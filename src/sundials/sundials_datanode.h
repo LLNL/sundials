@@ -42,28 +42,28 @@ typedef struct SUNDataNode_* SUNDataNode;
 
 struct SUNDataNode_Ops_
 {
-  SUNErrCode (*hasChildren)(const SUNDataNode, sunbooleantype* yes_or_no);
-  SUNErrCode (*isLeaf)(const SUNDataNode, sunbooleantype* yes_or_no);
-  SUNErrCode (*isList)(const SUNDataNode, sunbooleantype* yes_or_no);
-  SUNErrCode (*isObject)(const SUNDataNode, sunbooleantype* yes_or_no);
-  SUNErrCode (*addChild)(SUNDataNode, SUNDataNode child_node);
-  SUNErrCode (*addNamedChild)(SUNDataNode, const char* name,
+  SUNErrCode (*haschildren)(const SUNDataNode, sunbooleantype* yes_or_no);
+  SUNErrCode (*isleaf)(const SUNDataNode, sunbooleantype* yes_or_no);
+  SUNErrCode (*islist)(const SUNDataNode, sunbooleantype* yes_or_no);
+  SUNErrCode (*isobject)(const SUNDataNode, sunbooleantype* yes_or_no);
+  SUNErrCode (*addchild)(SUNDataNode, SUNDataNode child_node);
+  SUNErrCode (*addnamedchild)(SUNDataNode, const char* name,
                               SUNDataNode child_node);
-  SUNErrCode (*getChild)(const SUNDataNode, sundataindex index,
+  SUNErrCode (*getchild)(const SUNDataNode, sundataindex index,
                          SUNDataNode* child_node);
-  SUNErrCode (*getNamedChild)(const SUNDataNode, const char* name,
+  SUNErrCode (*getnamedchild)(const SUNDataNode, const char* name,
                               SUNDataNode* child_node);
-  SUNErrCode (*removeChild)(SUNDataNode, sundataindex index,
+  SUNErrCode (*removechild)(SUNDataNode, sundataindex index,
                             SUNDataNode* child_node);
-  SUNErrCode (*removeNamedChild)(const SUNDataNode, const char* name,
+  SUNErrCode (*removenamedchild)(const SUNDataNode, const char* name,
                                  SUNDataNode* child_node);
-  SUNErrCode (*getData)(const SUNDataNode, void** data, size_t* data_stride,
+  SUNErrCode (*getdata)(const SUNDataNode, void** data, size_t* data_stride,
                         size_t* data_bytes);
-  SUNErrCode (*getDataNvector)(const SUNDataNode, N_Vector v, sunrealtype* t);
-  SUNErrCode (*setData)(SUNDataNode, SUNMemoryType src_mem_type,
+  SUNErrCode (*getdatanvector)(const SUNDataNode, N_Vector v, sunrealtype* t);
+  SUNErrCode (*setdata)(SUNDataNode, SUNMemoryType src_mem_type,
                         SUNMemoryType node_mem_type, void* data,
                         size_t data_stride, size_t data_bytes);
-  SUNErrCode (*setDataNvector)(SUNDataNode, N_Vector v, sunrealtype t);
+  SUNErrCode (*setdatanvector)(SUNDataNode, N_Vector v, sunrealtype t);
   SUNErrCode (*destroy)(SUNDataNode*);
 };
 

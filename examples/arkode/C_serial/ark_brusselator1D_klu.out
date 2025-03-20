@@ -7,23 +7,23 @@
 
         t      ||u||_rms   ||v||_rms   ||w||_rms
    ----------------------------------------------
-    1.000000    0.791135    3.140510    1.999984
-    2.000000    0.960034    2.757430    1.999981
-    3.000000    0.930300    2.532867    1.999982
-    4.000000    0.681809    2.696300    1.999986
+    1.000000    0.791137    3.140508    1.999984
+    2.000000    0.960034    2.757429    1.999981
+    3.000000    0.930299    2.532868    1.999982
+    4.000000    0.681811    2.696299    1.999986
     5.000000    0.506326    3.007843    1.999990
-    6.000000    0.449425    3.275283    1.999991
-    7.000000    0.446297    3.465935    1.999991
+    6.000000    0.449423    3.275283    1.999991
+    7.000000    0.446296    3.465935    1.999991
     8.000000    0.463486    3.586729    1.999991
-    9.000000    0.491684    3.644312    1.999990
-   10.000000    0.530857    3.640396    1.999990
+    9.000000    0.491684    3.644311    1.999990
+   10.000000    0.530857    3.640395    1.999990
    ----------------------------------------------
 
 Final Solver Statistics:
-   Internal solver steps = 99 (attempted = 99)
-   Total RHS evals:  Fe = 0,  Fi = 1186
-   Total linear solver setups = 35
-   Total number of Jacobian evaluations = 14
-   Total number of nonlinear iterations = 1196
-   Total number of nonlinear solver convergence failures = 13
-   Total number of error test failures = 0
+   Internal solver steps = 61 (attempted = 65)
+   Total RHS evals:  Fe = 0,  Fi = 875
+   Total linear solver setups = 36
+   Total number of Jacobian evaluations = 18
+   Total number of nonlinear iterations = 889
+   Total number of nonlinear solver convergence failures = 17
+   Total number of error test failures = 2

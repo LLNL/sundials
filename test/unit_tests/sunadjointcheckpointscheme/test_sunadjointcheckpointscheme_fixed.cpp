@@ -39,14 +39,14 @@ static bool compare_vectors(N_Vector expected, N_Vector actual)
 }
 
 static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
-                                   int stages, bool test_load = false)
+                                   int stages, bool test_load = false,
+                                   sunrealtype dt = 0.1)
 {
   N_Vector state  = N_VNew_Serial(10, cs->sunctx);
   N_Vector loaded = N_VClone(state);
 
   sunrealtype t    = 0.0;
   sunrealtype tout = 0.0;
-  sunrealtype dt   = 0.1;
 
   // Initial condition
   SUNErrCode err = SUNAdjointCheckpointScheme_InsertVector(cs, 0, 0, t, state);
@@ -57,7 +57,7 @@ static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
     for (int stage = 1; stage <= stages; ++stage)
     {
       N_VConst(step * stage, state);
-      sunrealtype ts = t; //t + dt / stages;
+      sunrealtype ts = t;
       err = SUNAdjointCheckpointScheme_InsertVector(cs, step, stage, ts, state);
       EXPECT_EQ(err, SUN_SUCCESS);
     }
@@ -78,7 +78,7 @@ static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
     {
       int stage_idx = step == 0 ? stages + 1 : stages;
       N_VConst(step * stage_idx, state);
-      err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage_idx, 0,
+      err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage_idx, t, 0,
                                                   &loaded, &tout);
       EXPECT_EQ(err, SUN_SUCCESS);
       EXPECT_EQ(t, tout);
@@ -88,8 +88,8 @@ static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
       {
         N_VConst(step * stage, state);
         stage_idx = step == 0 ? stage : stage - 1;
-        err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage_idx, 0,
-                                                    &loaded, &tout);
+        err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage_idx, t - dt,
+                                                    0, &loaded, &tout);
         EXPECT_EQ(err, SUN_SUCCESS);
         EXPECT_EQ(t - dt, tout);
         EXPECT_TRUE(compare_vectors(state, loaded));
@@ -133,8 +133,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CreateWorks)
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs = NULL;
 
-  int64_t interval                  = 1;
-  int64_t estimate                  = 1;
+  suncountertype interval           = 1;
+  suncountertype estimate           = 1;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
@@ -151,8 +151,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, SingleStageWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  int64_t interval                  = 1;
-  int64_t estimate                  = 10;
+  suncountertype interval           = 1;
+  suncountertype estimate           = 10;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
@@ -171,8 +171,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStageWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  int64_t interval                  = 1;
-  int64_t estimate                  = 100;
+  suncountertype interval           = 1;
+  suncountertype estimate           = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
@@ -191,8 +191,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  int64_t interval                  = 1;
-  int64_t estimate                  = 100;
+  suncountertype interval           = 1;
+  suncountertype estimate           = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
@@ -211,8 +211,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsTwoStagesWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  int64_t interval                  = 1;
-  int64_t estimate                  = 100;
+  suncountertype interval           = 1;
+  suncountertype estimate           = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNTRUE;
 
@@ -231,8 +231,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, SingleStageWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  int64_t interval                  = 1;
-  int64_t estimate                  = 100;
+  suncountertype interval           = 1;
+  suncountertype estimate           = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
@@ -251,8 +251,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStagesWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  int64_t interval                  = 1;
-  int64_t estimate                  = 100;
+  suncountertype interval           = 1;
+  suncountertype estimate           = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
@@ -271,8 +271,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  int64_t interval                  = 1;
-  int64_t estimate                  = 100;
+  suncountertype interval           = 1;
+  suncountertype estimate           = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
@@ -291,8 +291,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsTwoStagesWithDeleteWorks)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  int64_t interval                  = 1;
-  int64_t estimate                  = 100;
+  suncountertype interval           = 1;
+  suncountertype estimate           = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
@@ -312,8 +312,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
   sunrealtype tout                  = 0.0;
-  int64_t interval                  = 1;
-  int64_t estimate                  = 100;
+  suncountertype interval           = 1;
+  suncountertype estimate           = 100;
   sunbooleantype save_stages        = SUNTRUE;
   sunbooleantype keep_after_loading = SUNFALSE;
 
@@ -322,13 +322,13 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  fake_mutlistage_method(cs, 2, 1, false);
+  fake_mutlistage_method(cs, 2, 1, false, /*dt=*/0.1);
 
   // Load the last step
-  int64_t step  = 1;
-  int64_t stage = 1;
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 0, &loaded_state,
-                                              &tout);
+  suncountertype step  = 1;
+  suncountertype stage = 1;
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 0.2, 0,
+                                              &loaded_state, &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Insert the step again
@@ -338,8 +338,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Load it again
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 0, &loaded_state,
-                                              &tout);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 10.0, 0,
+                                              &loaded_state, &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
   EXPECT_EQ(10.0, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));

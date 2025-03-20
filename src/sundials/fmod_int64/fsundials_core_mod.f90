@@ -89,6 +89,7 @@ module fsundials_core_mod
   enumerator :: SUN_ERR_ADJOINT_STEPPERFAILED
   enumerator :: SUN_ERR_ADJOINT_STEPPERINVALIDSTOP
   enumerator :: SUN_ERR_CHECKPOINT_NOT_FOUND
+  enumerator :: SUN_ERR_CHECKPOINT_MISMATCH
   enumerator :: SUN_ERR_SUNCTX_CORRUPT
   enumerator :: SUN_ERR_MPI_FAIL
   enumerator :: SUN_ERR_UNREACHABLE
@@ -101,8 +102,8 @@ module fsundials_core_mod
     SUN_ERR_MEM_FAIL, SUN_ERR_MALLOC_FAIL, SUN_ERR_EXT_FAIL, SUN_ERR_DESTROY_FAIL, SUN_ERR_NOT_IMPLEMENTED, &
     SUN_ERR_USER_FCN_FAIL, SUN_ERR_DATANODE_NODENOTFOUND, SUN_ERR_PROFILER_MAPFULL, SUN_ERR_PROFILER_MAPGET, &
     SUN_ERR_PROFILER_MAPINSERT, SUN_ERR_PROFILER_MAPKEYNOTFOUND, SUN_ERR_PROFILER_MAPSORT, SUN_ERR_ADJOINT_STEPPERFAILED, &
-    SUN_ERR_ADJOINT_STEPPERINVALIDSTOP, SUN_ERR_CHECKPOINT_NOT_FOUND, SUN_ERR_SUNCTX_CORRUPT, SUN_ERR_MPI_FAIL, &
-    SUN_ERR_UNREACHABLE, SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
+    SUN_ERR_ADJOINT_STEPPERINVALIDSTOP, SUN_ERR_CHECKPOINT_NOT_FOUND, SUN_ERR_CHECKPOINT_MISMATCH, SUN_ERR_SUNCTX_CORRUPT, &
+    SUN_ERR_MPI_FAIL, SUN_ERR_UNREACHABLE, SUN_ERR_UNKNOWN, SUN_ERR_MAXIMUM, SUN_SUCCESS
  type, bind(C) :: SwigArrayWrapper
   type(C_PTR), public :: data = C_NULL_PTR
   integer(C_SIZE_T), public :: size = 0
@@ -335,7 +336,7 @@ module fsundials_core_mod
   type(C_FUNPTR), public :: scaleaddi
   type(C_FUNPTR), public :: matvecsetup
   type(C_FUNPTR), public :: matvec
-  type(C_FUNPTR), public :: mattransposevec
+  type(C_FUNPTR), public :: mathermitiantransposevec
   type(C_FUNPTR), public :: space
  end type SUNMatrix_Ops
  ! struct struct _generic_SUNMatrix
@@ -356,7 +357,7 @@ module fsundials_core_mod
  public :: FSUNMatScaleAddI
  public :: FSUNMatMatvecSetup
  public :: FSUNMatMatvec
- public :: FSUNMatMatTransposeVec
+ public :: FSUNMatHermitianTransposeVec
  public :: FSUNMatSpace
  enum, bind(c)
   enumerator :: SUN_PREC_NONE
@@ -575,6 +576,7 @@ module fsundials_core_mod
  public :: FSUNStepper_OneStep
  public :: FSUNStepper_FullRhs
  public :: FSUNStepper_Reset
+ public :: FSUNStepper_ResetCheckpointIndex
  public :: FSUNStepper_SetStopTime
  public :: FSUNStepper_SetStepDirection
  public :: FSUNStepper_SetForcing
@@ -586,6 +588,7 @@ module fsundials_core_mod
  public :: FSUNStepper_SetOneStepFn
  public :: FSUNStepper_SetFullRhsFn
  public :: FSUNStepper_SetResetFn
+ public :: FSUNStepper_SetResetCheckpointIndexFn
  public :: FSUNStepper_SetStopTimeFn
  public :: FSUNStepper_SetStepDirectionFn
  public :: FSUNStepper_SetForcingFn
@@ -603,6 +606,7 @@ module fsundials_core_mod
  ! struct struct SUNMemoryHelper_
  type, bind(C), public :: SUNMemoryHelper_
   type(C_PTR), public :: content
+  type(C_PTR), public :: queue
   type(C_PTR), public :: ops
   type(C_PTR), public :: sunctx
  end type SUNMemoryHelper_
@@ -627,6 +631,7 @@ module fsundials_core_mod
  public :: FSUNMemoryHelper_GetAllocStats
  public :: FSUNMemoryHelper_Clone
  public :: FSUNMemoryHelper_Destroy
+ public :: FSUNMemoryHelper_SetDefaultQueue
  public :: FSUNMemoryHelper_NewEmpty
  public :: FSUNMemoryHelper_CopyOps
  public :: FSUNMemoryHelper_ImplementsRequiredOps
@@ -663,6 +668,14 @@ module fsundials_core_mod
  public :: FSUNAdjointStepper_SetJacTimesVecFn
  public :: FSUNAdjointStepper_SetVecTimesJacFn
  public :: FSUNAdjointStepper_SetUserData
+ public :: FSUNAdjointStepper_GetNumSteps
+ public :: FSUNAdjointStepper_GetNumJacEvals
+ public :: FSUNAdjointStepper_GetNumJacPEvals
+ public :: FSUNAdjointStepper_GetNumJacTimesVecEvals
+ public :: FSUNAdjointStepper_GetNumJacPTimesVecEvals
+ public :: FSUNAdjointStepper_GetNumVecTimesJacEvals
+ public :: FSUNAdjointStepper_GetNumVecTimesJacPEvals
+ public :: FSUNAdjointStepper_GetNumRecompute
  public :: FSUNAdjointStepper_PrintAllStats
  public :: FSUNAdjointStepper_Destroy
 
@@ -1647,8 +1660,8 @@ type(C_PTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNMatMatTransposeVec(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNMatMatTransposeVec") &
+function swigc_FSUNMatHermitianTransposeVec(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNMatHermitianTransposeVec") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2251,14 +2264,22 @@ integer(C_INT), intent(in) :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNStepper_Reset(farg1, farg2, farg3, farg4) &
+function swigc_FSUNStepper_Reset(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNStepper_Reset") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
 type(C_PTR), value :: farg3
-integer(C_INT64_T), intent(in) :: farg4
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNStepper_ResetCheckpointIndex(farg1, farg2) &
+bind(C, name="_wrap_FSUNStepper_ResetCheckpointIndex") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+integer(C_INT64_T), intent(in) :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2357,6 +2378,15 @@ end function
 
 function swigc_FSUNStepper_SetResetFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNStepper_SetResetFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNStepper_SetResetCheckpointIndexFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNStepper_SetResetCheckpointIndexFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2515,6 +2545,15 @@ type(C_PTR), value :: farg1
 integer(C_INT) :: fresult
 end function
 
+function swigc_FSUNMemoryHelper_SetDefaultQueue(farg1, farg2) &
+bind(C, name="_wrap_FSUNMemoryHelper_SetDefaultQueue") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNMemoryHelper_NewEmpty(farg1) &
 bind(C, name="_wrap_FSUNMemoryHelper_NewEmpty") &
 result(fresult)
@@ -2561,14 +2600,15 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointCheckpointScheme_NeedsDeleting(farg1, farg2, farg3, farg4) &
+function swigc_FSUNAdjointCheckpointScheme_NeedsDeleting(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_NeedsDeleting") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT64_T), intent(in) :: farg2
 integer(C_INT64_T), intent(in) :: farg3
-type(C_PTR), value :: farg4
+real(C_DOUBLE), intent(in) :: farg4
+type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
@@ -2584,16 +2624,17 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointCheckpointScheme_LoadVector(farg1, farg2, farg3, farg4, farg5, farg6) &
+function swigc_FSUNAdjointCheckpointScheme_LoadVector(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_LoadVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT64_T), intent(in) :: farg2
 integer(C_INT64_T), intent(in) :: farg3
-integer(C_INT), intent(in) :: farg4
-type(C_PTR), value :: farg5
+real(C_DOUBLE), intent(in) :: farg4
+integer(C_INT), intent(in) :: farg5
 type(C_PTR), value :: farg6
+type(C_PTR), value :: farg7
 integer(C_INT) :: fresult
 end function
 
@@ -2727,6 +2768,78 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FSUNAdjointStepper_GetNumSteps(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointStepper_GetNumSteps") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointStepper_GetNumJacEvals(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointStepper_GetNumJacPEvals(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacPEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointStepper_GetNumJacTimesVecEvals(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacTimesVecEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointStepper_GetNumJacPTimesVecEvals(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacPTimesVecEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointStepper_GetNumVecTimesJacEvals(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointStepper_GetNumVecTimesJacEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointStepper_GetNumVecTimesJacPEvals(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointStepper_GetNumVecTimesJacPEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointStepper_GetNumRecompute(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointStepper_GetNumRecompute") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNAdjointStepper_PrintAllStats(farg1, farg2, farg3) &
 bind(C, name="_wrap_FSUNAdjointStepper_PrintAllStats") &
 result(fresult)
@@ -2780,13 +2893,13 @@ character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
 integer(C_INT), intent(in) :: err_code
 type(C_PTR) :: err_user_data
 type(C_PTR) :: sunctx
-integer(C_INT) :: farg1
-type(SwigArrayWrapper) :: farg2
-type(SwigArrayWrapper) :: farg3
-type(SwigArrayWrapper) :: farg4
-integer(C_INT) :: farg5
-type(C_PTR) :: farg6
-type(C_PTR) :: farg7
+integer(C_INT) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(SwigArrayWrapper) :: farg3 
+type(SwigArrayWrapper) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
 
 farg1 = line
 call SWIG_string_to_chararray(func, farg2_chars, farg2)
@@ -2810,13 +2923,13 @@ character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
 integer(C_INT), intent(in) :: err_code
 type(C_PTR) :: err_user_data
 type(C_PTR) :: sunctx
-integer(C_INT) :: farg1
-type(SwigArrayWrapper) :: farg2
-type(SwigArrayWrapper) :: farg3
-type(SwigArrayWrapper) :: farg4
-integer(C_INT) :: farg5
-type(C_PTR) :: farg6
-type(C_PTR) :: farg7
+integer(C_INT) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(SwigArrayWrapper) :: farg3 
+type(SwigArrayWrapper) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
 
 farg1 = line
 call SWIG_string_to_chararray(func, farg2_chars, farg2)
@@ -2847,8 +2960,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 character(kind=C_CHAR, len=:), allocatable :: swig_result
 integer(C_INT), intent(in) :: code
-type(SwigArrayWrapper) :: fresult
-integer(C_INT) :: farg1
+type(SwigArrayWrapper) :: fresult 
+integer(C_INT) :: farg1 
 
 farg1 = code
 fresult = swigc_FSUNGetErrMsg(farg1)
@@ -2862,9 +2975,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer :: comm
 type(C_PTR), target, intent(inout) :: sunctx_out
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = int(comm, C_INT)
 farg2 = c_loc(sunctx_out)
@@ -2877,8 +2990,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNContext_GetLastError(farg1)
@@ -2890,8 +3003,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNContext_PeekLastError(farg1)
@@ -2905,10 +3018,10 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_FUNPTR), intent(in), value :: err_fn
 type(C_PTR) :: err_user_data
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = sunctx
 farg2 = err_fn
@@ -2922,8 +3035,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNContext_PopErrHandler(farg1)
@@ -2935,8 +3048,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNContext_ClearErrHandlers(farg1)
@@ -2949,9 +3062,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: profiler
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = sunctx
 farg2 = c_loc(profiler)
@@ -2965,9 +3078,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_PTR) :: profiler
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = sunctx
 farg2 = profiler
@@ -2981,9 +3094,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: logger
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = sunctx
 farg2 = c_loc(logger)
@@ -2997,9 +3110,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_PTR) :: logger
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = sunctx
 farg2 = logger
@@ -3012,8 +3125,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR), target, intent(inout) :: ctx
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(ctx)
 fresult = swigc_FSUNContext_Free(farg1)
@@ -3028,10 +3141,10 @@ integer :: comm
 character(kind=C_CHAR, len=*), target :: title
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
 type(C_PTR), target, intent(inout) :: p
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(SwigArrayWrapper) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = int(comm, C_INT)
 call SWIG_string_to_chararray(title, farg2_chars, farg2)
@@ -3045,8 +3158,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR), target, intent(inout) :: p
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(p)
 fresult = swigc_FSUNProfiler_Free(farg1)
@@ -3060,9 +3173,9 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: p
 character(kind=C_CHAR, len=*), target :: name
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
 
 farg1 = p
 call SWIG_string_to_chararray(name, farg2_chars, farg2)
@@ -3077,9 +3190,9 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: p
 character(kind=C_CHAR, len=*), target :: name
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
 
 farg1 = p
 call SWIG_string_to_chararray(name, farg2_chars, farg2)
@@ -3093,9 +3206,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: p
 real(C_DOUBLE), target, intent(inout) :: resolution
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = p
 farg2 = c_loc(resolution)
@@ -3111,10 +3224,10 @@ type(C_PTR) :: p
 character(kind=C_CHAR, len=*), target :: name
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
 real(C_DOUBLE), target, intent(inout) :: time
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(SwigArrayWrapper) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = p
 call SWIG_string_to_chararray(name, farg2_chars, farg2)
@@ -3129,9 +3242,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: p
 type(C_PTR) :: fp
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = p
 farg2 = fp
@@ -3144,8 +3257,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: p
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = p
 fresult = swigc_FSUNProfiler_Reset(farg1)
@@ -3159,10 +3272,10 @@ integer(C_INT) :: swig_result
 integer :: comm
 integer(C_INT), intent(in) :: output_rank
 type(C_PTR), target, intent(inout) :: logger
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-integer(C_INT) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = int(comm, C_INT)
 farg2 = output_rank
@@ -3177,9 +3290,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer :: comm
 type(C_PTR), target, intent(inout) :: logger
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = int(comm, C_INT)
 farg2 = c_loc(logger)
@@ -3194,9 +3307,9 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: logger
 character(kind=C_CHAR, len=*), target :: error_filename
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
 
 farg1 = logger
 call SWIG_string_to_chararray(error_filename, farg2_chars, farg2)
@@ -3211,9 +3324,9 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: logger
 character(kind=C_CHAR, len=*), target :: warning_filename
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
 
 farg1 = logger
 call SWIG_string_to_chararray(warning_filename, farg2_chars, farg2)
@@ -3228,9 +3341,9 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: logger
 character(kind=C_CHAR, len=*), target :: debug_filename
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
 
 farg1 = logger
 call SWIG_string_to_chararray(debug_filename, farg2_chars, farg2)
@@ -3245,9 +3358,9 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: logger
 character(kind=C_CHAR, len=*), target :: info_filename
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(SwigArrayWrapper) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(SwigArrayWrapper) :: farg2 
 
 farg1 = logger
 call SWIG_string_to_chararray(info_filename, farg2_chars, farg2)
@@ -3267,12 +3380,12 @@ character(kind=C_CHAR, len=*), target :: label
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg4_chars
 character(kind=C_CHAR, len=*), target :: msg_txt
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg5_chars
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
-type(SwigArrayWrapper) :: farg3
-type(SwigArrayWrapper) :: farg4
-type(SwigArrayWrapper) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(SwigArrayWrapper) :: farg3 
+type(SwigArrayWrapper) :: farg4 
+type(SwigArrayWrapper) :: farg5 
 
 farg1 = logger
 farg2 = lvl
@@ -3289,9 +3402,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: logger
 integer(SUNLogLevel), intent(in) :: lvl
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = logger
 farg2 = lvl
@@ -3305,9 +3418,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: logger
 integer(C_INT), dimension(*), target, intent(inout) :: output_rank
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = logger
 farg2 = c_loc(output_rank(1))
@@ -3320,8 +3433,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR), target, intent(inout) :: logger
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(logger)
 fresult = swigc_FSUNLogger_Destroy(farg1)
@@ -3337,10 +3450,10 @@ character(kind=C_CHAR), dimension(:), allocatable, target :: farg1_chars
 character(kind=C_CHAR, len=*), target :: modes
 character(kind=C_CHAR), dimension(:), allocatable, target :: farg2_chars
 type(C_PTR), target, intent(inout) :: fp
-integer(C_INT) :: fresult
-type(SwigArrayWrapper) :: farg1
-type(SwigArrayWrapper) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(SwigArrayWrapper) :: farg1 
+type(SwigArrayWrapper) :: farg2 
+type(C_PTR) :: farg3 
 
 call SWIG_string_to_chararray(filename, farg1_chars, farg1)
 call SWIG_string_to_chararray(modes, farg2_chars, farg2)
@@ -3354,8 +3467,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR), target, intent(inout) :: fp
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(fp)
 fresult = swigc_FSUNDIALSFileClose(farg1)
@@ -3367,8 +3480,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FN_VNewEmpty(farg1)
@@ -3378,7 +3491,7 @@ end function
 subroutine FN_VFreeEmpty(v)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(v)
 call swigc_FN_VFreeEmpty(farg1)
@@ -3390,9 +3503,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(N_Vector), target, intent(inout) :: w
 type(N_Vector), target, intent(inout) :: v
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(w)
 farg2 = c_loc(v)
@@ -3405,8 +3518,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(N_Vector_ID) :: swig_result
 type(N_Vector), target, intent(inout) :: w
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(w)
 fresult = swigc_FN_VGetVectorID(farg1)
@@ -3418,8 +3531,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: w
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(w)
 fresult = swigc_FN_VClone(farg1)
@@ -3431,8 +3544,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 type(N_Vector), target, intent(inout) :: w
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(w)
 fresult = swigc_FN_VCloneEmpty(farg1)
@@ -3442,7 +3555,7 @@ end function
 subroutine FN_VDestroy(v)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(v)
 call swigc_FN_VDestroy(farg1)
@@ -3453,9 +3566,9 @@ use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: v
 integer(C_INT64_T), dimension(*), target, intent(inout) :: lrw
 integer(C_INT64_T), dimension(*), target, intent(inout) :: liw
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(v)
 farg2 = c_loc(lrw(1))
@@ -3467,8 +3580,8 @@ subroutine FN_VSetArrayPointer(v_data, v)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), dimension(*), target, intent(inout) :: v_data
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(v_data(1))
 farg2 = c_loc(v)
@@ -3480,8 +3593,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer :: swig_result
 type(N_Vector), target, intent(inout) :: v
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetCommunicator(farg1)
@@ -3493,8 +3606,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T) :: swig_result
 type(N_Vector), target, intent(inout) :: v
-integer(C_INT64_T) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetLength(farg1)
@@ -3506,8 +3619,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T) :: swig_result
 type(N_Vector), target, intent(inout) :: v
-integer(C_INT64_T) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(v)
 fresult = swigc_FN_VGetLocalLength(farg1)
@@ -3521,11 +3634,11 @@ type(N_Vector), target, intent(inout) :: x
 real(C_DOUBLE), intent(in) :: b
 type(N_Vector), target, intent(inout) :: y
 type(N_Vector), target, intent(inout) :: z
-real(C_DOUBLE) :: farg1
-type(C_PTR) :: farg2
-real(C_DOUBLE) :: farg3
-type(C_PTR) :: farg4
-type(C_PTR) :: farg5
+real(C_DOUBLE) :: farg1 
+type(C_PTR) :: farg2 
+real(C_DOUBLE) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = a
 farg2 = c_loc(x)
@@ -3539,8 +3652,8 @@ subroutine FN_VConst(c, z)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), intent(in) :: c
 type(N_Vector), target, intent(inout) :: z
-real(C_DOUBLE) :: farg1
-type(C_PTR) :: farg2
+real(C_DOUBLE) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c
 farg2 = c_loc(z)
@@ -3552,9 +3665,9 @@ use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: y
 type(N_Vector), target, intent(inout) :: z
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(x)
 farg2 = c_loc(y)
@@ -3567,9 +3680,9 @@ use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: y
 type(N_Vector), target, intent(inout) :: z
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(x)
 farg2 = c_loc(y)
@@ -3582,9 +3695,9 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), intent(in) :: c
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: z
-real(C_DOUBLE) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+real(C_DOUBLE) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c
 farg2 = c_loc(x)
@@ -3596,8 +3709,8 @@ subroutine FN_VAbs(x, z)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: z
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = c_loc(z)
@@ -3608,8 +3721,8 @@ subroutine FN_VInv(x, z)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: z
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = c_loc(z)
@@ -3621,9 +3734,9 @@ use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: x
 real(C_DOUBLE), intent(in) :: b
 type(N_Vector), target, intent(inout) :: z
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-type(C_PTR) :: farg3
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(x)
 farg2 = b
@@ -3637,9 +3750,9 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: y
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = c_loc(y)
@@ -3652,8 +3765,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(x)
 fresult = swigc_FN_VMaxNorm(farg1)
@@ -3666,9 +3779,9 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: w
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = c_loc(w)
@@ -3683,10 +3796,10 @@ real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: w
 type(N_Vector), target, intent(inout) :: id
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(x)
 farg2 = c_loc(w)
@@ -3700,8 +3813,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(x)
 fresult = swigc_FN_VMin(farg1)
@@ -3714,9 +3827,9 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: w
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = c_loc(w)
@@ -3729,8 +3842,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(x)
 fresult = swigc_FN_VL1Norm(farg1)
@@ -3742,9 +3855,9 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), intent(in) :: c
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: z
-real(C_DOUBLE) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+real(C_DOUBLE) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c
 farg2 = c_loc(x)
@@ -3758,9 +3871,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: z
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = c_loc(z)
@@ -3775,10 +3888,10 @@ integer(C_INT) :: swig_result
 type(N_Vector), target, intent(inout) :: c
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: m
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = c_loc(x)
@@ -3793,9 +3906,9 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: num
 type(N_Vector), target, intent(inout) :: denom
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(num)
 farg2 = c_loc(denom)
@@ -3811,11 +3924,11 @@ integer(C_INT), intent(in) :: nvec
 real(C_DOUBLE), dimension(*), target, intent(inout) :: c
 type(C_PTR) :: x
 type(N_Vector), target, intent(inout) :: z
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = nvec
 farg2 = c_loc(c(1))
@@ -3834,12 +3947,12 @@ real(C_DOUBLE), dimension(*), target, intent(inout) :: a
 type(N_Vector), target, intent(inout) :: x
 type(C_PTR) :: y
 type(C_PTR) :: z
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = nvec
 farg2 = c_loc(a(1))
@@ -3858,11 +3971,11 @@ integer(C_INT), intent(in) :: nvec
 type(N_Vector), target, intent(inout) :: x
 type(C_PTR) :: y
 real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = nvec
 farg2 = c_loc(x)
@@ -3882,13 +3995,13 @@ type(C_PTR) :: x
 real(C_DOUBLE), intent(in) :: b
 type(C_PTR) :: y
 type(C_PTR) :: z
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-real(C_DOUBLE) :: farg2
-type(C_PTR) :: farg3
-real(C_DOUBLE) :: farg4
-type(C_PTR) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = nvec
 farg2 = a
@@ -3908,11 +4021,11 @@ integer(C_INT), intent(in) :: nvec
 real(C_DOUBLE), dimension(*), target, intent(inout) :: c
 type(C_PTR) :: x
 type(C_PTR) :: z
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = nvec
 farg2 = c_loc(c(1))
@@ -3929,10 +4042,10 @@ integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec
 real(C_DOUBLE), intent(in) :: c
 type(C_PTR) :: z
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-real(C_DOUBLE) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = nvec
 farg2 = c
@@ -3949,11 +4062,11 @@ integer(C_INT), intent(in) :: nvec
 type(C_PTR) :: x
 type(C_PTR) :: w
 real(C_DOUBLE), dimension(*), target, intent(inout) :: nrm
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = nvec
 farg2 = x
@@ -3972,12 +4085,12 @@ type(C_PTR) :: x
 type(C_PTR) :: w
 type(N_Vector), target, intent(inout) :: id
 real(C_DOUBLE), dimension(*), target, intent(inout) :: nrm
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = nvec
 farg2 = x
@@ -3994,9 +4107,9 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: y
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = c_loc(y)
@@ -4009,8 +4122,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(x)
 fresult = swigc_FN_VMaxNormLocal(farg1)
@@ -4022,8 +4135,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(x)
 fresult = swigc_FN_VMinLocal(farg1)
@@ -4035,8 +4148,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(x)
 fresult = swigc_FN_VL1NormLocal(farg1)
@@ -4049,9 +4162,9 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: w
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = c_loc(w)
@@ -4066,10 +4179,10 @@ real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: w
 type(N_Vector), target, intent(inout) :: id
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(x)
 farg2 = c_loc(w)
@@ -4084,9 +4197,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: z
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = c_loc(z)
@@ -4101,10 +4214,10 @@ integer(C_INT) :: swig_result
 type(N_Vector), target, intent(inout) :: c
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: m
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = c_loc(x)
@@ -4119,9 +4232,9 @@ use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(N_Vector), target, intent(inout) :: num
 type(N_Vector), target, intent(inout) :: denom
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(num)
 farg2 = c_loc(denom)
@@ -4137,11 +4250,11 @@ integer(C_INT), intent(in) :: nvec
 type(N_Vector), target, intent(inout) :: x
 type(C_PTR) :: y
 real(C_DOUBLE), dimension(*), target, intent(inout) :: dotprods
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = nvec
 farg2 = c_loc(x)
@@ -4158,10 +4271,10 @@ integer(C_INT) :: swig_result
 integer(C_INT), intent(in) :: nvec_total
 type(N_Vector), target, intent(inout) :: x
 real(C_DOUBLE), dimension(*), target, intent(inout) :: sum
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = nvec_total
 farg2 = c_loc(x)
@@ -4176,9 +4289,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 integer(C_INT64_T), dimension(*), target, intent(inout) :: size
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = c_loc(size(1))
@@ -4192,9 +4305,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(C_PTR) :: buf
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = buf
@@ -4208,9 +4321,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(N_Vector), target, intent(inout) :: x
 type(C_PTR) :: buf
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(x)
 farg2 = buf
@@ -4224,9 +4337,9 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: count
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = count
 farg2 = sunctx
@@ -4240,9 +4353,9 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: count
 type(N_Vector), target, intent(inout) :: w
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = count
 farg2 = c_loc(w)
@@ -4256,9 +4369,9 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 integer(C_INT), intent(in) :: count
 type(N_Vector), target, intent(inout) :: w
-type(C_PTR) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = count
 farg2 = c_loc(w)
@@ -4270,8 +4383,8 @@ subroutine FN_VDestroyVectorArray(vs, count)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: vs
 integer(C_INT), intent(in) :: count
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = vs
 farg2 = count
@@ -4284,9 +4397,9 @@ use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 type(C_PTR) :: vs
 integer(C_INT), intent(in) :: index
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = vs
 farg2 = index
@@ -4299,9 +4412,9 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: vs
 integer(C_INT), intent(in) :: index
 type(N_Vector), target, intent(inout) :: w
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
-type(C_PTR) :: farg3
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = vs
 farg2 = index
@@ -4312,7 +4425,7 @@ end subroutine
 subroutine FN_VPrint(v)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: v
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(v)
 call swigc_FN_VPrint(farg1)
@@ -4322,8 +4435,8 @@ subroutine FN_VPrintFile(v, outfile)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), target, intent(inout) :: v
 type(C_PTR) :: outfile
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(v)
 farg2 = outfile
@@ -4362,8 +4475,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNMatNewEmpty(farg1)
@@ -4373,7 +4486,7 @@ end function
 subroutine FSUNMatFreeEmpty(a)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 call swigc_FSUNMatFreeEmpty(farg1)
@@ -4385,9 +4498,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(SUNMatrix), target, intent(inout) :: b
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(a)
 farg2 = c_loc(b)
@@ -4400,8 +4513,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNMatrix_ID) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNMatGetID(farg1)
@@ -4413,8 +4526,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), pointer :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNMatClone(farg1)
@@ -4424,7 +4537,7 @@ end function
 subroutine FSUNMatDestroy(a)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMatrix), target, intent(inout) :: a
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 call swigc_FSUNMatDestroy(farg1)
@@ -4435,8 +4548,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNMatZero(farg1)
@@ -4449,9 +4562,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(SUNMatrix), target, intent(inout) :: b
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(a)
 farg2 = c_loc(b)
@@ -4466,10 +4579,10 @@ integer(C_INT) :: swig_result
 real(C_DOUBLE), intent(in) :: c
 type(SUNMatrix), target, intent(inout) :: a
 type(SUNMatrix), target, intent(inout) :: b
-integer(C_INT) :: fresult
-real(C_DOUBLE) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+real(C_DOUBLE) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c
 farg2 = c_loc(a)
@@ -4484,9 +4597,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 real(C_DOUBLE), intent(in) :: c
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-real(C_DOUBLE) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+real(C_DOUBLE) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c
 farg2 = c_loc(a)
@@ -4499,8 +4612,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(a)
 fresult = swigc_FSUNMatMatvecSetup(farg1)
@@ -4514,10 +4627,10 @@ integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: y
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(a)
 farg2 = c_loc(x)
@@ -4526,22 +4639,22 @@ fresult = swigc_FSUNMatMatvec(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNMatMatTransposeVec(a, x, y) &
+function FSUNMatHermitianTransposeVec(a, x, y) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: y
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(a)
 farg2 = c_loc(x)
 farg3 = c_loc(y)
-fresult = swigc_FSUNMatMatTransposeVec(farg1, farg2, farg3)
+fresult = swigc_FSUNMatHermitianTransposeVec(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
@@ -4552,10 +4665,10 @@ integer(C_INT) :: swig_result
 type(SUNMatrix), target, intent(inout) :: a
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(a)
 farg2 = c_loc(lenrw(1))
@@ -4573,12 +4686,12 @@ type(C_PTR), target, intent(inout) :: h
 integer(C_INT), intent(in) :: k
 integer(C_INT), intent(in) :: p
 real(C_DOUBLE), dimension(*), target, intent(inout) :: new_vk_norm
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-integer(C_INT) :: farg3
-integer(C_INT) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_INT) :: farg3 
+integer(C_INT) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = v
 farg2 = c_loc(h)
@@ -4600,14 +4713,14 @@ integer(C_INT), intent(in) :: p
 real(C_DOUBLE), dimension(*), target, intent(inout) :: new_vk_norm
 real(C_DOUBLE), dimension(*), target, intent(inout) :: stemp
 type(C_PTR) :: vtemp
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-integer(C_INT) :: farg3
-integer(C_INT) :: farg4
-type(C_PTR) :: farg5
-type(C_PTR) :: farg6
-type(C_PTR) :: farg7
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_INT) :: farg3 
+integer(C_INT) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
 
 farg1 = v
 farg2 = c_loc(h)
@@ -4628,11 +4741,11 @@ integer(C_INT), intent(in) :: n
 type(C_PTR), target, intent(inout) :: h
 real(C_DOUBLE), dimension(*), target, intent(inout) :: q
 integer(C_INT), intent(in) :: job
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-integer(C_INT) :: farg4
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+integer(C_INT) :: farg4 
 
 farg1 = n
 farg2 = c_loc(h)
@@ -4650,11 +4763,11 @@ integer(C_INT), intent(in) :: n
 type(C_PTR), target, intent(inout) :: h
 real(C_DOUBLE), dimension(*), target, intent(inout) :: q
 real(C_DOUBLE), dimension(*), target, intent(inout) :: b
-integer(C_INT) :: fresult
-integer(C_INT) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+integer(C_INT) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = n
 farg2 = c_loc(h)
@@ -4674,13 +4787,13 @@ type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
 type(C_PTR) :: qrdata
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-integer(C_INT) :: farg4
-integer(C_INT) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+integer(C_INT) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = q
 farg2 = c_loc(r(1))
@@ -4702,13 +4815,13 @@ type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
 type(C_PTR) :: qrdata
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-integer(C_INT) :: farg4
-integer(C_INT) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+integer(C_INT) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = q
 farg2 = c_loc(r(1))
@@ -4730,13 +4843,13 @@ type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
 type(C_PTR) :: qrdata
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-integer(C_INT) :: farg4
-integer(C_INT) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+integer(C_INT) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = q
 farg2 = c_loc(r(1))
@@ -4758,13 +4871,13 @@ type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
 type(C_PTR) :: qrdata
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-integer(C_INT) :: farg4
-integer(C_INT) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+integer(C_INT) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = q
 farg2 = c_loc(r(1))
@@ -4786,13 +4899,13 @@ type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
 type(C_PTR) :: qrdata
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-integer(C_INT) :: farg4
-integer(C_INT) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+integer(C_INT) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = q
 farg2 = c_loc(r(1))
@@ -4814,13 +4927,13 @@ type(N_Vector), target, intent(inout) :: df
 integer(C_INT), intent(in) :: m
 integer(C_INT), intent(in) :: mmax
 type(C_PTR) :: qrdata
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-integer(C_INT) :: farg4
-integer(C_INT) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+integer(C_INT) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = q
 farg2 = c_loc(r(1))
@@ -4837,8 +4950,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNLinearSolver), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNLinSolNewEmpty(farg1)
@@ -4848,7 +4961,7 @@ end function
 subroutine FSUNLinSolFreeEmpty(s)
 use, intrinsic :: ISO_C_BINDING
 type(SUNLinearSolver), target, intent(inout) :: s
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 call swigc_FSUNLinSolFreeEmpty(farg1)
@@ -4859,8 +4972,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNLinearSolver_Type) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolGetType(farg1)
@@ -4872,8 +4985,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNLinearSolver_ID) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolGetID(farg1)
@@ -4887,10 +5000,10 @@ integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 type(C_PTR) :: a_data
 type(C_FUNPTR), intent(in), value :: atimes
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_FUNPTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_FUNPTR) :: farg3 
 
 farg1 = c_loc(s)
 farg2 = a_data
@@ -4907,11 +5020,11 @@ type(SUNLinearSolver), target, intent(inout) :: s
 type(C_PTR) :: p_data
 type(C_FUNPTR), intent(in), value :: pset
 type(C_FUNPTR), intent(in), value :: psol
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_FUNPTR) :: farg3
-type(C_FUNPTR) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_FUNPTR) :: farg3 
+type(C_FUNPTR) :: farg4 
 
 farg1 = c_loc(s)
 farg2 = p_data
@@ -4928,10 +5041,10 @@ integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 type(N_Vector), target, intent(inout) :: s1
 type(N_Vector), target, intent(inout) :: s2
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(s)
 farg2 = c_loc(s1)
@@ -4946,9 +5059,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 integer(C_INT), intent(in) :: onoff
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = c_loc(s)
 farg2 = onoff
@@ -4961,8 +5074,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolInitialize(farg1)
@@ -4975,9 +5088,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 type(SUNMatrix), target, intent(inout) :: a
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(s)
 farg2 = c_loc(a)
@@ -4994,12 +5107,12 @@ type(SUNMatrix), target, intent(inout) :: a
 type(N_Vector), target, intent(inout) :: x
 type(N_Vector), target, intent(inout) :: b
 real(C_DOUBLE), intent(in) :: tol
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
-real(C_DOUBLE) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+real(C_DOUBLE) :: farg5 
 
 farg1 = c_loc(s)
 farg2 = c_loc(a)
@@ -5015,8 +5128,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolNumIters(farg1)
@@ -5028,8 +5141,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-real(C_DOUBLE) :: fresult
-type(C_PTR) :: farg1
+real(C_DOUBLE) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolResNorm(farg1)
@@ -5041,8 +5154,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(N_Vector), pointer :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolResid(farg1)
@@ -5054,8 +5167,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT64_T) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT64_T) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolLastFlag(farg1)
@@ -5069,10 +5182,10 @@ integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrwls
 integer(C_LONG), dimension(*), target, intent(inout) :: leniwls
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(s)
 farg2 = c_loc(lenrwls(1))
@@ -5086,8 +5199,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNLinearSolver), target, intent(inout) :: s
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(s)
 fresult = swigc_FSUNLinSolFree(farg1)
@@ -5099,8 +5212,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNNonlinearSolver), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNNonlinSolNewEmpty(farg1)
@@ -5110,7 +5223,7 @@ end function
 subroutine FSUNNonlinSolFreeEmpty(nls)
 use, intrinsic :: ISO_C_BINDING
 type(SUNNonlinearSolver), target, intent(inout) :: nls
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(nls)
 call swigc_FSUNNonlinSolFreeEmpty(farg1)
@@ -5121,8 +5234,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNNonlinearSolver_Type) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(nls)
 fresult = swigc_FSUNNonlinSolGetType(farg1)
@@ -5134,8 +5247,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(nls)
 fresult = swigc_FSUNNonlinSolInitialize(farg1)
@@ -5149,10 +5262,10 @@ integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(N_Vector), target, intent(inout) :: y
 type(C_PTR) :: mem
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(nls)
 farg2 = c_loc(y)
@@ -5172,14 +5285,14 @@ type(N_Vector), target, intent(inout) :: w
 real(C_DOUBLE), intent(in) :: tol
 integer(C_INT), intent(in) :: calllsetup
 type(C_PTR) :: mem
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
-real(C_DOUBLE) :: farg5
-integer(C_INT) :: farg6
-type(C_PTR) :: farg7
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+real(C_DOUBLE) :: farg5 
+integer(C_INT) :: farg6 
+type(C_PTR) :: farg7 
 
 farg1 = c_loc(nls)
 farg2 = c_loc(y0)
@@ -5197,8 +5310,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(nls)
 fresult = swigc_FSUNNonlinSolFree(farg1)
@@ -5211,9 +5324,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(C_FUNPTR), intent(in), value :: sysfn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = sysfn
@@ -5227,9 +5340,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(C_FUNPTR), intent(in), value :: setupfn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = setupfn
@@ -5243,9 +5356,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(C_FUNPTR), intent(in), value :: solvefn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = solvefn
@@ -5260,10 +5373,10 @@ integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 type(C_FUNPTR), intent(in), value :: ctestfn
 type(C_PTR) :: ctest_data
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(nls)
 farg2 = ctestfn
@@ -5278,9 +5391,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 integer(C_INT), intent(in) :: maxiters
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = maxiters
@@ -5294,9 +5407,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 integer(C_LONG), dimension(*), target, intent(inout) :: niters
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = c_loc(niters(1))
@@ -5310,9 +5423,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 integer(C_INT), dimension(*), target, intent(inout) :: iter
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = c_loc(iter(1))
@@ -5326,9 +5439,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNNonlinearSolver), target, intent(inout) :: nls
 integer(C_LONG), dimension(*), target, intent(inout) :: nconvfails
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(nls)
 farg2 = c_loc(nconvfails(1))
@@ -5341,8 +5454,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNAdaptController), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNAdaptController_NewEmpty(farg1)
@@ -5352,7 +5465,7 @@ end function
 subroutine FSUNAdaptController_DestroyEmpty(c)
 use, intrinsic :: ISO_C_BINDING
 type(SUNAdaptController), target, intent(inout) :: c
-type(C_PTR) :: farg1
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(c)
 call swigc_FSUNAdaptController_DestroyEmpty(farg1)
@@ -5363,8 +5476,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(SUNAdaptController_Type) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_GetType(farg1)
@@ -5376,8 +5489,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_Destroy(farg1)
@@ -5393,12 +5506,12 @@ real(C_DOUBLE), intent(in) :: h
 integer(C_INT), intent(in) :: p
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-integer(C_INT) :: farg3
-real(C_DOUBLE) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+integer(C_INT) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(c)
 farg2 = h
@@ -5421,15 +5534,15 @@ real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), intent(in) :: dsm5
 real(C_DOUBLE), dimension(*), target, intent(inout) :: hnew
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tolfacnew
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-real(C_DOUBLE) :: farg3
-integer(C_INT) :: farg4
-real(C_DOUBLE) :: farg5
-real(C_DOUBLE) :: farg6
-type(C_PTR) :: farg7
-type(C_PTR) :: farg8
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+integer(C_INT) :: farg4 
+real(C_DOUBLE) :: farg5 
+real(C_DOUBLE) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
 
 farg1 = c_loc(c)
 farg2 = h
@@ -5448,8 +5561,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_Reset(farg1)
@@ -5461,8 +5574,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(c)
 fresult = swigc_FSUNAdaptController_SetDefaults(farg1)
@@ -5475,9 +5588,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 type(C_PTR) :: fptr
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(c)
 farg2 = fptr
@@ -5491,9 +5604,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: bias
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
 
 farg1 = c_loc(c)
 farg2 = bias
@@ -5508,10 +5621,10 @@ integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: dsm
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-real(C_DOUBLE) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = h
@@ -5529,12 +5642,12 @@ real(C_DOUBLE), intent(in) :: h
 real(C_DOUBLE), intent(in) :: tolfac
 real(C_DOUBLE), intent(in) :: dsm
 real(C_DOUBLE), intent(in) :: dsm4
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-real(C_DOUBLE) :: farg3
-real(C_DOUBLE) :: farg4
-real(C_DOUBLE) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+real(C_DOUBLE) :: farg4 
+real(C_DOUBLE) :: farg5 
 
 farg1 = c_loc(c)
 farg2 = h
@@ -5552,10 +5665,10 @@ integer(C_INT) :: swig_result
 type(SUNAdaptController), target, intent(inout) :: c
 integer(C_LONG), dimension(*), target, intent(inout) :: lenrw
 integer(C_LONG), dimension(*), target, intent(inout) :: leniw
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(c)
 farg2 = c_loc(lenrw(1))
@@ -5570,9 +5683,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: stepper
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = sunctx
 farg2 = c_loc(stepper)
@@ -5585,8 +5698,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR), target, intent(inout) :: stepper
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(stepper)
 fresult = swigc_FSUNStepper_Destroy(farg1)
@@ -5601,11 +5714,11 @@ type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: tout
 type(N_Vector), target, intent(inout) :: vret
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = stepper
 farg2 = tout
@@ -5623,11 +5736,11 @@ type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: tout
 type(N_Vector), target, intent(inout) :: vret
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = stepper
 farg2 = tout
@@ -5646,12 +5759,12 @@ real(C_DOUBLE), intent(in) :: t
 type(N_Vector), target, intent(inout) :: v
 type(N_Vector), target, intent(inout) :: f
 integer(SUNFullRhsMode), intent(in) :: mode
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
-integer(C_INT) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+integer(C_INT) :: farg5 
 
 farg1 = stepper
 farg2 = t
@@ -5662,25 +5775,38 @@ fresult = swigc_FSUNStepper_FullRhs(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FSUNStepper_Reset(stepper, tr, vr, ckptidxr) &
+function FSUNStepper_Reset(stepper, tr, vr) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: tr
 type(N_Vector), target, intent(inout) :: vr
-integer(C_INT64_T), intent(in) :: ckptidxr
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-type(C_PTR) :: farg3
-integer(C_INT64_T) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = stepper
 farg2 = tr
 farg3 = c_loc(vr)
-farg4 = ckptidxr
-fresult = swigc_FSUNStepper_Reset(farg1, farg2, farg3, farg4)
+fresult = swigc_FSUNStepper_Reset(farg1, farg2, farg3)
+swig_result = fresult
+end function
+
+function FSUNStepper_ResetCheckpointIndex(stepper, ckptidxr) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+integer(C_INT64_T), intent(in) :: ckptidxr
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+
+farg1 = stepper
+farg2 = ckptidxr
+fresult = swigc_FSUNStepper_ResetCheckpointIndex(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -5690,9 +5816,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: tstop
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
 
 farg1 = stepper
 farg2 = tstop
@@ -5706,9 +5832,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 real(C_DOUBLE), intent(in) :: stepdir
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
 
 farg1 = stepper
 farg2 = stepdir
@@ -5725,12 +5851,12 @@ real(C_DOUBLE), intent(in) :: tshift
 real(C_DOUBLE), intent(in) :: tscale
 type(C_PTR) :: forcing
 integer(C_INT), intent(in) :: nforcing
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-real(C_DOUBLE) :: farg3
-type(C_PTR) :: farg4
-integer(C_INT) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+real(C_DOUBLE) :: farg3 
+type(C_PTR) :: farg4 
+integer(C_INT) :: farg5 
 
 farg1 = stepper
 farg2 = tshift
@@ -5747,9 +5873,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 type(C_PTR) :: content
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = stepper
 farg2 = content
@@ -5763,9 +5889,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 type(C_PTR), target, intent(inout) :: content
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = stepper
 farg2 = c_loc(content)
@@ -5779,9 +5905,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 integer(C_INT), intent(in) :: last_flag
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = stepper
 farg2 = last_flag
@@ -5795,9 +5921,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 integer(C_INT), dimension(*), target, intent(inout) :: last_flag
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = stepper
 farg2 = c_loc(last_flag(1))
@@ -5811,9 +5937,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = stepper
 farg2 = fn
@@ -5827,9 +5953,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = stepper
 farg2 = fn
@@ -5843,9 +5969,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = stepper
 farg2 = fn
@@ -5859,13 +5985,29 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = stepper
 farg2 = fn
 fresult = swigc_FSUNStepper_SetResetFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNStepper_SetResetCheckpointIndexFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FSUNStepper_SetResetCheckpointIndexFn(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -5875,9 +6017,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = stepper
 farg2 = fn
@@ -5891,9 +6033,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = stepper
 farg2 = fn
@@ -5907,9 +6049,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = stepper
 farg2 = fn
@@ -5923,9 +6065,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: stepper
 type(C_FUNPTR), intent(in), value :: fn
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
 
 farg1 = stepper
 farg2 = fn
@@ -5938,8 +6080,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNMemoryNewEmpty(farg1)
@@ -5952,9 +6094,9 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: swig_result
 type(SUNMemoryHelper_), target, intent(inout) :: arg0
 type(C_PTR) :: mem
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(arg0)
 farg2 = mem
@@ -5969,10 +6111,10 @@ type(C_PTR) :: swig_result
 type(SUNMemoryHelper_), target, intent(inout) :: arg0
 type(C_PTR) :: ptr
 integer(SUNMemoryType), intent(in) :: mem_type
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-integer(C_INT) :: farg3
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_INT) :: farg3 
 
 farg1 = c_loc(arg0)
 farg2 = ptr
@@ -5990,12 +6132,12 @@ type(C_PTR), target, intent(inout) :: memptr
 integer(C_SIZE_T), intent(in) :: mem_size
 integer(SUNMemoryType), intent(in) :: mem_type
 type(C_PTR) :: queue
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-integer(C_SIZE_T) :: farg3
-integer(C_INT) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_SIZE_T) :: farg3 
+integer(C_INT) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(arg0)
 farg2 = c_loc(memptr)
@@ -6016,13 +6158,13 @@ integer(C_SIZE_T), intent(in) :: mem_size
 integer(C_SIZE_T), intent(in) :: stride
 integer(SUNMemoryType), intent(in) :: mem_type
 type(C_PTR) :: queue
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-integer(C_SIZE_T) :: farg3
-integer(C_SIZE_T) :: farg4
-integer(C_INT) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_SIZE_T) :: farg3 
+integer(C_SIZE_T) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = c_loc(arg0)
 farg2 = c_loc(memptr)
@@ -6041,10 +6183,10 @@ integer(C_INT) :: swig_result
 type(SUNMemoryHelper_), target, intent(inout) :: arg0
 type(C_PTR) :: mem
 type(C_PTR) :: queue
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
 
 farg1 = c_loc(arg0)
 farg2 = mem
@@ -6062,12 +6204,12 @@ type(C_PTR) :: dst
 type(C_PTR) :: src
 integer(C_SIZE_T), intent(in) :: mem_size
 type(C_PTR) :: queue
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-integer(C_SIZE_T) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+integer(C_SIZE_T) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(arg0)
 farg2 = dst
@@ -6087,12 +6229,12 @@ type(C_PTR) :: dst
 type(C_PTR) :: src
 integer(C_SIZE_T), intent(in) :: mem_size
 type(C_PTR) :: queue
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-type(C_PTR) :: farg3
-integer(C_SIZE_T) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+type(C_PTR) :: farg3 
+integer(C_SIZE_T) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(arg0)
 farg2 = dst
@@ -6114,13 +6256,13 @@ integer(C_LONG), target, intent(inout) :: num_allocations
 integer(C_LONG), target, intent(inout) :: num_deallocations
 integer(C_SIZE_T), target, intent(inout) :: bytes_allocated
 integer(C_SIZE_T), target, intent(inout) :: bytes_high_watermark
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
-type(C_PTR) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
+type(C_PTR) :: farg5 
+type(C_PTR) :: farg6 
 
 farg1 = c_loc(arg0)
 farg2 = mem_type
@@ -6137,8 +6279,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMemoryHelper_), pointer :: swig_result
 type(SUNMemoryHelper_), target, intent(inout) :: arg0
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(arg0)
 fresult = swigc_FSUNMemoryHelper_Clone(farg1)
@@ -6150,11 +6292,27 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMemoryHelper_), target, intent(inout) :: arg0
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(arg0)
 fresult = swigc_FSUNMemoryHelper_Destroy(farg1)
+swig_result = fresult
+end function
+
+function FSUNMemoryHelper_SetDefaultQueue(arg0, queue) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SUNMemoryHelper_), target, intent(inout) :: arg0
+type(C_PTR) :: queue
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(arg0)
+farg2 = queue
+fresult = swigc_FSUNMemoryHelper_SetDefaultQueue(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -6163,8 +6321,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 type(SUNMemoryHelper_), pointer :: swig_result
 type(C_PTR) :: sunctx
-type(C_PTR) :: fresult
-type(C_PTR) :: farg1
+type(C_PTR) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = sunctx
 fresult = swigc_FSUNMemoryHelper_NewEmpty(farg1)
@@ -6177,9 +6335,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMemoryHelper_), target, intent(inout) :: src
 type(SUNMemoryHelper_), target, intent(inout) :: dst
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = c_loc(src)
 farg2 = c_loc(dst)
@@ -6192,8 +6350,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNMemoryHelper_), target, intent(inout) :: arg0
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(arg0)
 fresult = swigc_FSUNMemoryHelper_ImplementsRequiredOps(farg1)
@@ -6206,9 +6364,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: arg1
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = sunctx
 farg2 = c_loc(arg1)
@@ -6225,12 +6383,12 @@ integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-real(C_DOUBLE) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(arg0)
 farg2 = step_num
@@ -6241,25 +6399,28 @@ fresult = swigc_FSUNAdjointCheckpointScheme_NeedsSaving(farg1, farg2, farg3, far
 swig_result = fresult
 end function
 
-function FSUNAdjointCheckpointScheme_NeedsDeleting(arg0, step_num, stage_num, yes_or_no) &
+function FSUNAdjointCheckpointScheme_NeedsDeleting(arg0, step_num, stage_num, t, yes_or_no) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
 integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
+real(C_DOUBLE), intent(in) :: t
 integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(arg0)
 farg2 = step_num
 farg3 = stage_num
-farg4 = c_loc(yes_or_no(1))
-fresult = swigc_FSUNAdjointCheckpointScheme_NeedsDeleting(farg1, farg2, farg3, farg4)
+farg4 = t
+farg5 = c_loc(yes_or_no(1))
+fresult = swigc_FSUNAdjointCheckpointScheme_NeedsDeleting(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
@@ -6272,12 +6433,12 @@ integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 type(N_Vector), target, intent(inout) :: state
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-real(C_DOUBLE) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = c_loc(arg0)
 farg2 = step_num
@@ -6288,31 +6449,34 @@ fresult = swigc_FSUNAdjointCheckpointScheme_InsertVector(farg1, farg2, farg3, fa
 swig_result = fresult
 end function
 
-function FSUNAdjointCheckpointScheme_LoadVector(arg0, step_num, stage_num, peek, out, tout) &
+function FSUNAdjointCheckpointScheme_LoadVector(arg0, step_num, stage_num, t, peek, out, tout) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
 integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
+real(C_DOUBLE), intent(in) :: t
 integer(C_INT), intent(in) :: peek
 type(C_PTR) :: out
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tout
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-integer(C_INT) :: farg4
-type(C_PTR) :: farg5
-type(C_PTR) :: farg6
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+real(C_DOUBLE) :: farg4 
+integer(C_INT) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
 
 farg1 = c_loc(arg0)
 farg2 = step_num
 farg3 = stage_num
-farg4 = peek
-farg5 = out
-farg6 = c_loc(tout(1))
-fresult = swigc_FSUNAdjointCheckpointScheme_LoadVector(farg1, farg2, farg3, farg4, farg5, farg6)
+farg4 = t
+farg5 = peek
+farg6 = out
+farg7 = c_loc(tout(1))
+fresult = swigc_FSUNAdjointCheckpointScheme_LoadVector(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
 swig_result = fresult
 end function
 
@@ -6324,11 +6488,11 @@ type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
 integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
 type(C_PTR) :: out
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-integer(C_INT64_T) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = c_loc(arg0)
 farg2 = step_num
@@ -6343,8 +6507,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR), target, intent(inout) :: arg0
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(arg0)
 fresult = swigc_FSUNAdjointCheckpointScheme_Destroy(farg1)
@@ -6357,9 +6521,9 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
 integer(C_INT), intent(in) :: on_or_off
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT) :: farg2 
 
 farg1 = c_loc(arg0)
 farg2 = on_or_off
@@ -6380,15 +6544,15 @@ real(C_DOUBLE), intent(in) :: tf
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: checkpoint_scheme
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: adj_stepper
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-integer(C_INT64_T) :: farg3
-type(C_PTR) :: farg4
-real(C_DOUBLE) :: farg5
-type(C_PTR) :: farg6
-type(C_PTR) :: farg7
-type(C_PTR) :: farg8
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_INT64_T) :: farg3 
+type(C_PTR) :: farg4 
+real(C_DOUBLE) :: farg5 
+type(C_PTR) :: farg6 
+type(C_PTR) :: farg7 
+type(C_PTR) :: farg8 
 
 farg1 = fwd_sunstepper
 farg2 = adj_sunstepper
@@ -6411,12 +6575,12 @@ type(N_Vector), target, intent(inout) :: y0
 real(C_DOUBLE), intent(in) :: t0
 type(N_Vector), target, intent(inout) :: sf
 real(C_DOUBLE), intent(in) :: tf
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-real(C_DOUBLE) :: farg3
-type(C_PTR) :: farg4
-real(C_DOUBLE) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+real(C_DOUBLE) :: farg3 
+type(C_PTR) :: farg4 
+real(C_DOUBLE) :: farg5 
 
 farg1 = adj
 farg2 = c_loc(y0)
@@ -6435,11 +6599,11 @@ type(C_PTR) :: adj_stepper
 real(C_DOUBLE), intent(in) :: tout
 type(N_Vector), target, intent(inout) :: sens
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = adj_stepper
 farg2 = tout
@@ -6457,11 +6621,11 @@ type(C_PTR) :: adj_stepper
 real(C_DOUBLE), intent(in) :: tout
 type(N_Vector), target, intent(inout) :: sens
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tret
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-real(C_DOUBLE) :: farg2
-type(C_PTR) :: farg3
-type(C_PTR) :: farg4
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+real(C_DOUBLE) :: farg2 
+type(C_PTR) :: farg3 
+type(C_PTR) :: farg4 
 
 farg1 = adj_stepper
 farg2 = tout
@@ -6480,12 +6644,12 @@ integer(C_INT64_T), intent(in) :: start_idx
 real(C_DOUBLE), intent(in) :: t0
 real(C_DOUBLE), intent(in) :: tf
 type(N_Vector), target, intent(inout) :: y0
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-integer(C_INT64_T) :: farg2
-real(C_DOUBLE) :: farg3
-real(C_DOUBLE) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+integer(C_INT64_T) :: farg2 
+real(C_DOUBLE) :: farg3 
+real(C_DOUBLE) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = adj_stepper
 farg2 = start_idx
@@ -6505,12 +6669,12 @@ type(C_FUNPTR), intent(in), value :: jacfn
 type(SUNMatrix), target, intent(inout) :: jac
 type(C_FUNPTR), intent(in), value :: jacpfn
 type(SUNMatrix), target, intent(inout) :: jp
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
-type(C_PTR) :: farg3
-type(C_FUNPTR) :: farg4
-type(C_PTR) :: farg5
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+type(C_PTR) :: farg3 
+type(C_FUNPTR) :: farg4 
+type(C_PTR) :: farg5 
 
 farg1 = arg0
 farg2 = jacfn
@@ -6528,10 +6692,10 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: arg0
 type(C_FUNPTR), intent(in), value :: jvp
 type(C_FUNPTR), intent(in), value :: jpvp
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
-type(C_FUNPTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+type(C_FUNPTR) :: farg3 
 
 farg1 = arg0
 farg2 = jvp
@@ -6547,10 +6711,10 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: arg0
 type(C_FUNPTR), intent(in), value :: vjp
 type(C_FUNPTR), intent(in), value :: vjpp
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_FUNPTR) :: farg2
-type(C_FUNPTR) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+type(C_FUNPTR) :: farg3 
 
 farg1 = arg0
 farg2 = vjp
@@ -6565,13 +6729,141 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arg0
 type(C_PTR) :: user_data
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
 
 farg1 = arg0
 farg2 = user_data
 fresult = swigc_FSUNAdjointStepper_SetUserData(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointStepper_GetNumSteps(adj_stepper, num_steps) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: adj_stepper
+integer(C_INT64_T), target, intent(inout) :: num_steps
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = adj_stepper
+farg2 = c_loc(num_steps)
+fresult = swigc_FSUNAdjointStepper_GetNumSteps(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointStepper_GetNumJacEvals(adj_stepper, num_jac_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: adj_stepper
+integer(C_INT64_T), target, intent(inout) :: num_jac_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = adj_stepper
+farg2 = c_loc(num_jac_evals)
+fresult = swigc_FSUNAdjointStepper_GetNumJacEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointStepper_GetNumJacPEvals(adj_stepper, num_jac_p_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: adj_stepper
+integer(C_INT64_T), target, intent(inout) :: num_jac_p_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = adj_stepper
+farg2 = c_loc(num_jac_p_evals)
+fresult = swigc_FSUNAdjointStepper_GetNumJacPEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointStepper_GetNumJacTimesVecEvals(adj_stepper, num_jac_times_vec_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: adj_stepper
+integer(C_INT64_T), target, intent(inout) :: num_jac_times_vec_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = adj_stepper
+farg2 = c_loc(num_jac_times_vec_evals)
+fresult = swigc_FSUNAdjointStepper_GetNumJacTimesVecEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointStepper_GetNumJacPTimesVecEvals(adj_stepper, num_jac_p_times_vec_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: adj_stepper
+integer(C_INT64_T), target, intent(inout) :: num_jac_p_times_vec_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = adj_stepper
+farg2 = c_loc(num_jac_p_times_vec_evals)
+fresult = swigc_FSUNAdjointStepper_GetNumJacPTimesVecEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointStepper_GetNumVecTimesJacEvals(adj_stepper, num_vec_times_jac_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: adj_stepper
+integer(C_INT64_T), target, intent(inout) :: num_vec_times_jac_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = adj_stepper
+farg2 = c_loc(num_vec_times_jac_evals)
+fresult = swigc_FSUNAdjointStepper_GetNumVecTimesJacEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointStepper_GetNumVecTimesJacPEvals(adj_stepper, num_vec_times_jac_p_evals) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: adj_stepper
+integer(C_INT64_T), target, intent(inout) :: num_vec_times_jac_p_evals
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = adj_stepper
+farg2 = c_loc(num_vec_times_jac_p_evals)
+fresult = swigc_FSUNAdjointStepper_GetNumVecTimesJacPEvals(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointStepper_GetNumRecompute(adj_stepper, num_recompute) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: adj_stepper
+integer(C_INT64_T), target, intent(inout) :: num_recompute
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = adj_stepper
+farg2 = c_loc(num_recompute)
+fresult = swigc_FSUNAdjointStepper_GetNumRecompute(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -6582,10 +6874,10 @@ integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
 type(C_PTR) :: outfile
 integer(SUNOutputFormat), intent(in) :: fmt
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
-type(C_PTR) :: farg2
-integer(C_INT) :: farg3
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+integer(C_INT) :: farg3 
 
 farg1 = adj_stepper
 farg2 = outfile
@@ -6599,8 +6891,8 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR), target, intent(inout) :: arg0
-integer(C_INT) :: fresult
-type(C_PTR) :: farg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
 
 farg1 = c_loc(arg0)
 fresult = swigc_FSUNAdjointStepper_Destroy(farg1)

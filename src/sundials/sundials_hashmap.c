@@ -68,7 +68,7 @@ static inline int64_t sunHashMapIdxFromKey(SUNHashMap map, const char* key)
     * A SUNErrCode indicating success or a failure
  */
 SUNErrCode SUNHashMap_New(int64_t capacity,
-                          void (*destroyKeyValue)(SUNHashMapKeyValue* kv_ptr),
+                          SUNErrCode (*destroyKeyValue)(SUNHashMapKeyValue* kv_ptr),
                           SUNHashMap* map)
 {
   if (capacity <= 0) { return SUN_ERR_ARG_OUTOFRANGE; }
@@ -91,7 +91,8 @@ SUNErrCode SUNHashMap_New(int64_t capacity,
   /* Initialize all buckets to NULL */
   for (int64_t i = 0; i < capacity; i++)
   {
-    SUNStlVector_SUNHashMapKeyValue_PushBack(buckets, NULL);
+    SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_PushBack(buckets, NULL);
+    if (err) { return err; };
   }
 
   (*map)->buckets = buckets;
@@ -127,7 +128,8 @@ SUNErrCode SUNHashMap_Destroy(SUNHashMap* map)
 {
   if (map == NULL) { return SUN_SUCCESS; }
 
-  SUNStlVector_SUNHashMapKeyValue_Destroy(&(*map)->buckets);
+  SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_Destroy(&(*map)->buckets);
+  if (err) { return err; }
   free(*map);
   *map = NULL;
 
@@ -181,7 +183,7 @@ static int64_t sunHashMapLinearProbeInsert(int64_t idx, SUNHashMapKeyValue kv,
   return SUNHASHMAP_ERROR; /* keep looking */
 }
 
-static void sunHashMapResize(SUNHashMap map)
+static SUNErrCode sunHashMapResize(SUNHashMap map)
 {
   int64_t old_capacity = SUNHashMap_Capacity(map);
   int64_t new_capacity = old_capacity * 2;
@@ -193,11 +195,13 @@ static void sunHashMapResize(SUNHashMap map)
   /* Set all buckets to NULL */
   for (int64_t i = 0; i < new_capacity; i++)
   {
-    SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
+    SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_PushBack(map->buckets, NULL);
+    if (err) { return err; }
   }
 
   /* Rehash and reinsert */
-  for (int64_t i = old_capacity - 1; i >= 0; i--)
+  for (int64_t i = SUNStlVector_SUNHashMapKeyValue_Size(old_buckets) - 1;
+       i >= 0; i--)
   {
     SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(old_buckets, i);
     if (kvp)
@@ -206,10 +210,11 @@ static void sunHashMapResize(SUNHashMap map)
       free(kvp->key);
       free(kvp);
     }
-    SUNStlVector_SUNHashMapKeyValue_PopBack(old_buckets);
+    SUNErrCode err = SUNStlVector_SUNHashMapKeyValue_PopBack(old_buckets);
+    if (err) { return err; }
   }
 
-  SUNStlVector_SUNHashMapKeyValue_Destroy(&old_buckets);
+  return SUNStlVector_SUNHashMapKeyValue_Destroy(&old_buckets);
 }
 
 /*
@@ -253,7 +258,8 @@ int64_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
     else if (retval == SUNHashMap_Capacity(map))
     {
       /* the map is out of empty buckets, so we grow it */
-      sunHashMapResize(map);
+      SUNErrCode err = sunHashMapResize(map);
+      if (err) { return err; }
       return SUNHashMap_Insert(map, key, value);
     }
 
@@ -277,9 +283,7 @@ int64_t SUNHashMap_Insert(SUNHashMap map, const char* key, void* value)
   kvp->value = value;
 
   /* Insert the key-value pair */
-  SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, kvp);
-
-  return (0);
+  return SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, kvp);
 }
 
 static int64_t sunHashMapLinearProbeGet(int64_t idx, SUNHashMapKeyValue kv,
@@ -402,9 +406,7 @@ int64_t SUNHashMap_Remove(SUNHashMap map, const char* key, void** value)
   free(kvp);
 
   /* Clear the bucket by setting it to NULL */
-  SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, NULL);
-
-  return (0);
+  return SUNStlVector_SUNHashMapKeyValue_Set(map->buckets, idx, NULL);
 }
 
 /*

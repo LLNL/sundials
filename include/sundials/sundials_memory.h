@@ -64,6 +64,7 @@ typedef _SUNDIALS_STRUCT_ SUNMemoryHelper_* SUNMemoryHelper;
 struct SUNMemoryHelper_
 {
   void* content;
+  void* queue;
   SUNMemoryHelper_Ops ops;
   SUNContext sunctx;
 };
@@ -152,6 +153,10 @@ SUNMemoryHelper SUNMemoryHelper_Clone(SUNMemoryHelper);
 /* Frees the SUNMemoryHelper */
 SUNDIALS_EXPORT
 SUNErrCode SUNMemoryHelper_Destroy(SUNMemoryHelper);
+
+/* Sets the default queue to use for memory helper operations */
+SUNDIALS_EXPORT
+SUNErrCode SUNMemoryHelper_SetDefaultQueue(SUNMemoryHelper, void* queue);
 
 /*
  * Utility SUNMemoryHelper functions.
