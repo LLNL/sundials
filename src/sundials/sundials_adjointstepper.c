@@ -16,31 +16,10 @@
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_stepper.h>
 #include "sundials/sundials_types.h"
+#include "sundials_adjointstepper_impl.h"
 #include "sundials_macros.h"
 #include "sundials_stepper_impl.h"
 #include "sundials_utils.h"
-
-struct SUNAdjointStepper_
-{
-  suncountertype nst, njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp,
-    nrecompute;
-  suncountertype step_idx, final_step_idx;
-
-  SUNStepper adj_sunstepper;
-  SUNStepper fwd_sunstepper;
-  SUNAdjointCheckpointScheme checkpoint_scheme;
-
-  SUNMatrix Jac, JacP;
-  SUNRhsJacFn JacFn, JacPFn;
-  SUNRhsJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
-
-  void* user_data;
-  void* content;
-  SUNContext sunctx;
-
-  sunrealtype tf;
-  int last_flag;
-};
 
 SUNErrCode SUNAdjointStepper_Create(
   SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper,
