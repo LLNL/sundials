@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
- *                and Aaron Collier @ LLNL
+ *                Aaron Collier and Mustafa Aggul @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2025, Lawrence Livermore National Security,
@@ -16,7 +16,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the implementation file for a serial implementation
- * of the NVECTOR package.
+ * of the NVECTOR module.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -265,8 +265,12 @@ void N_VPrintFile_Serial(N_Vector x, FILE* outfile)
 
   for (i = 0; i < N; i++)
   {
+#if defined(SUNDIALS_SCALAR_TYPE_COMPLEX)
     fprintf(outfile, SUN_FORMAT_E " + i" SUN_FORMAT_E "\n", SUN_REAL(xd[i]),
             SUN_IMAG(xd[i]));
+#else
+    fprintf(outfile, SUN_FORMAT_E "\n", SUN_REAL(xd[i]));
+#endif
   }
 
   return;
@@ -344,7 +348,7 @@ void N_VDestroy_Serial(N_Vector v)
   if (v->content != NULL)
   {
     /* free data array if it's owned by the vector */
-    if (NV_OWN_DATA_S(v) && NV_DATA_S(v) != NULL)
+    if (NV_OWN_DATA_S(v) && (NV_DATA_S(v) != NULL))
     {
       free(NV_DATA_S(v));
       NV_DATA_S(v) = NULL;
@@ -400,13 +404,13 @@ void N_VLinearSum_Serial(sunscalartype a, N_Vector x, sunscalartype b,
 
   xd = yd = zd = NULL;
 
-  if ((b == ONE) && (z == y))
+  if (((SUN_REAL(b) == ONE) && (SUN_IMAG(b) == ZERO)) && (z == y))
   { /* BLAS usage: axpy y <- ax+y */
     Vaxpy_Serial(a, x, y);
     return;
   }
 
-  if ((a == ONE) && (z == x))
+  if (((SUN_REAL(a) == ONE) && (SUN_IMAG(a) == ZERO)) && (z == x))
   { /* BLAS usage: axpy x <- by+x */
     Vaxpy_Serial(b, y, x);
     return;
@@ -414,7 +418,8 @@ void N_VLinearSum_Serial(sunscalartype a, N_Vector x, sunscalartype b,
 
   /* Case: a == b == 1.0 */
 
-  if ((a == ONE) && (b == ONE))
+  if (((SUN_REAL(a) == ONE) && (SUN_IMAG(a) == ZERO)) &&
+      ((SUN_REAL(b) == ONE) && (SUN_IMAG(b) == ZERO)))
   {
     VSum_Serial(x, y, z);
     return;
@@ -422,7 +427,10 @@ void N_VLinearSum_Serial(sunscalartype a, N_Vector x, sunscalartype b,
 
   /* Cases: (1) a == 1.0, b = -1.0, (2) a == -1.0, b == 1.0 */
 
-  if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE)))
+  if ((test = (((SUN_REAL(a) == ONE) && (SUN_IMAG(a) == ZERO)) &&
+               ((SUN_REAL(b) == -ONE) && (SUN_IMAG(b) == ZERO)))) ||
+      (((SUN_REAL(a) == -ONE) && (SUN_IMAG(a) == ZERO)) &&
+       ((SUN_REAL(b) == ONE) && (SUN_IMAG(b) == ZERO))))
   {
     v1 = test ? y : x;
     v2 = test ? x : y;
@@ -433,7 +441,8 @@ void N_VLinearSum_Serial(sunscalartype a, N_Vector x, sunscalartype b,
   /* Cases: (1) a == 1.0, b == other or 0.0, (2) a == other or 0.0, b == 1.0 */
   /* if a or b is 0.0, then user should have called N_VScale */
 
-  if ((test = (a == ONE)) || (b == ONE))
+  if ((test = ((SUN_REAL(a) == ONE) && (SUN_IMAG(a) == ZERO))) ||
+      ((SUN_REAL(b) == ONE) && (SUN_IMAG(b) == ZERO)))
   {
     c  = test ? b : a;
     v1 = test ? y : x;
@@ -444,7 +453,8 @@ void N_VLinearSum_Serial(sunscalartype a, N_Vector x, sunscalartype b,
 
   /* Cases: (1) a == -1.0, b != 1.0, (2) a != 1.0, b == -1.0 */
 
-  if ((test = (a == -ONE)) || (b == -ONE))
+  if ((test = ((SUN_REAL(a) == -ONE) && (SUN_IMAG(a) == ZERO))) ||
+      ((SUN_REAL(b) == -ONE) && (SUN_IMAG(b) == ZERO)))
   {
     c  = test ? b : a;
     v1 = test ? y : x;
@@ -547,8 +557,11 @@ void N_VScale_Serial(sunscalartype c, N_Vector x, N_Vector z)
     return;
   }
 
-  if (c == ONE) { VCopy_Serial(x, z); }
-  else if (c == -ONE) { VNeg_Serial(x, z); }
+  if ((SUN_REAL(c) == ONE) && (SUN_IMAG(c) == ZERO)) { VCopy_Serial(x, z); }
+  else if ((SUN_REAL(c) == -ONE) && (SUN_IMAG(c) == ZERO))
+  {
+    VNeg_Serial(x, z);
+  }
   else
   {
     N  = NV_LENGTH_S(x);
@@ -587,7 +600,7 @@ void N_VInv_Serial(N_Vector x, N_Vector z)
   xd = NV_DATA_S(x);
   zd = NV_DATA_S(z);
 
-  for (i = 0; i < N; i++) { zd[i] = ONE / xd[i]; }
+  for (i = 0; i < N; i++) { zd[i] = (sunscalartype)ONE / xd[i]; }
 
   return;
 }
@@ -620,7 +633,7 @@ sunrealtype N_VDotProd_Serial(N_Vector x, N_Vector y)
   xd = NV_DATA_S(x);
   yd = NV_DATA_S(y);
 
-  for (i = 0; i < N; i++) { sum += xd[i] * yd[i]; }
+  for (i = 0; i < N; i++) { sum += SUNCONJ(xd[i]) * yd[i]; }
 
   return SUN_REAL(sum);
 }
@@ -637,7 +650,7 @@ SUNErrCode N_VDotProdComplex_Serial(N_Vector x, N_Vector y, sunscalartype* resul
   xd = NV_DATA_S(x);
   yd = NV_DATA_S(y);
 
-  for (i = 0; i < N; i++) { sum += xd[i] * yd[i]; }
+  for (i = 0; i < N; i++) { sum += SUNCONJ(xd[i]) * yd[i]; }
 
   *result = sum;
 
@@ -676,8 +689,8 @@ sunrealtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 sunrealtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w)
 {
   sunindextype i, N;
-  sunscalartype prodi, *xd, *wd;
   sunrealtype sum;
+  sunscalartype prodi, *xd, *wd;
 
   sum = ZERO;
   xd = wd = NULL;
@@ -776,7 +789,8 @@ sunrealtype N_VWL2Norm_Serial(N_Vector x, N_Vector w)
 sunrealtype N_VL1Norm_Serial(N_Vector x)
 {
   sunindextype i, N;
-  sunscalartype sum, *xd;
+  sunrealtype sum;
+  sunscalartype* xd;
 
   sum = ZERO;
   xd  = NULL;
@@ -786,7 +800,7 @@ sunrealtype N_VL1Norm_Serial(N_Vector x)
 
   for (i = 0; i < N; i++) { sum += SUNabs(xd[i]); }
 
-  return SUN_REAL(sum);
+  return sum;
 }
 
 void N_VCompare_Serial(sunrealtype c, N_Vector x, N_Vector z)
@@ -937,7 +951,7 @@ SUNErrCode N_VLinearCombination_Serial(int nvec, sunscalartype* c, N_Vector* X,
   /*
    * X[0] += c[i]*X[i], i = 1,...,nvec-1
    */
-  if ((X[0] == z) && (c[0] == ONE))
+  if ((X[0] == z) && ((SUN_REAL(c[0]) == ONE) && (SUN_IMAG(c[0]) == ZERO)))
   {
     for (i = 1; i < nvec; i++)
     {
@@ -990,7 +1004,7 @@ SUNErrCode N_VScaleAddMulti_Serial(int nvec, sunscalartype* a, N_Vector x,
   /* should have called N_VLinearSum */
   if (nvec == 1)
   {
-    N_VLinearSum_Serial(a[0], x, ONE, Y[0], Z[0]);
+    N_VLinearSum_Serial(a[0], x, (sunscalartype)ONE, Y[0], Z[0]);
     SUNCheckLastErr();
     return SUN_SUCCESS;
   }
@@ -1039,7 +1053,7 @@ SUNErrCode N_VDotProdMulti_Serial(int nvec, N_Vector x, N_Vector* Y,
   /* should have called N_VDotProd */
   if (nvec == 1)
   {
-    dotprods[0] = N_VDotProd_Serial(x, Y[0]);
+    dotprods[0] = N_VDotProd_Serial(Y[0], x);
     SUNCheckLastErr();
     return SUN_SUCCESS;
   }
@@ -1052,8 +1066,8 @@ SUNErrCode N_VDotProdMulti_Serial(int nvec, N_Vector x, N_Vector* Y,
   for (i = 0; i < nvec; i++)
   {
     yd          = NV_DATA_S(Y[i]);
-    dotprods[i] = ZERO;
-    for (j = 0; j < N; j++) { dotprods[i] += xd[j] * yd[j]; }
+    dotprods[i] = (sunscalartype)ZERO;
+    for (j = 0; j < N; j++) { dotprods[i] += conj(yd[j]) * xd[j]; }
   }
 
   return SUN_SUCCESS;
@@ -1070,7 +1084,6 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec, sunscalartype a,
                                           N_Vector* Y, N_Vector* Z)
 {
   SUNFunctionBegin(X[0]->sunctx);
-
   int i;
   sunindextype j, N;
   sunscalartype* xd = NULL;
@@ -1093,21 +1106,22 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec, sunscalartype a,
   }
 
   /* BLAS usage: axpy y <- ax+y */
-  if ((b == ONE) && (Z == Y))
+  if (((SUN_REAL(b) == ONE) && (SUN_IMAG(b) == ZERO)) && (Z == Y))
   {
     VaxpyVectorArray_Serial(nvec, a, X, Y);
     return SUN_SUCCESS;
   }
 
   /* BLAS usage: axpy x <- by+x */
-  if ((a == ONE) && (Z == X))
+  if (((SUN_REAL(a) == ONE) && (SUN_IMAG(a) == ZERO)) && (Z == X))
   {
     VaxpyVectorArray_Serial(nvec, b, Y, X);
     return SUN_SUCCESS;
   }
 
   /* Case: a == b == 1.0 */
-  if ((a == ONE) && (b == ONE))
+  if (((SUN_REAL(a) == ONE) && (SUN_IMAG(a) == ZERO)) &&
+      ((SUN_REAL(b) == ONE) && (SUN_IMAG(b) == ZERO)))
   {
     VSumVectorArray_Serial(nvec, X, Y, Z);
     return SUN_SUCCESS;
@@ -1116,7 +1130,10 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec, sunscalartype a,
   /* Cases:                    */
   /*   (1) a == 1.0, b = -1.0, */
   /*   (2) a == -1.0, b == 1.0 */
-  if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE)))
+  if ((test = (((SUN_REAL(a) == ONE) && (SUN_IMAG(a) == ZERO)) &&
+               ((SUN_REAL(b) == -ONE) && (SUN_IMAG(b) == ZERO)))) ||
+      (((SUN_REAL(a) == -ONE) && (SUN_IMAG(a) == ZERO)) &&
+       ((SUN_REAL(b) == ONE) && (SUN_IMAG(b) == ZERO))))
   {
     V1 = test ? Y : X;
     V2 = test ? X : Y;
@@ -1128,7 +1145,8 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec, sunscalartype a,
   /*   (1) a == 1.0, b == other or 0.0,                      */
   /*   (2) a == other or 0.0, b == 1.0                       */
   /* if a or b is 0.0, then user should have called N_VScale */
-  if ((test = (a == ONE)) || (b == ONE))
+  if ((test = ((SUN_REAL(a) == ONE) && (SUN_IMAG(a) == ZERO))) ||
+      ((SUN_REAL(b) == ONE) && (SUN_IMAG(b) == ZERO)))
   {
     c  = test ? b : a;
     V1 = test ? Y : X;
@@ -1140,7 +1158,8 @@ SUNErrCode N_VLinearSumVectorArray_Serial(int nvec, sunscalartype a,
   /* Cases:                     */
   /*   (1) a == -1.0, b != 1.0, */
   /*   (2) a != 1.0, b == -1.0  */
-  if ((test = (a == -ONE)) || (b == -ONE))
+  if ((test = ((SUN_REAL(a) == -ONE) && (SUN_IMAG(a) == ZERO))) ||
+      ((SUN_REAL(b) == -ONE) && (SUN_IMAG(b) == ZERO)))
   {
     c  = test ? b : a;
     V1 = test ? Y : X;
@@ -1245,7 +1264,7 @@ SUNErrCode N_VConstVectorArray_Serial(int nvec, sunscalartype c, N_Vector* Z)
   /* should have called N_VConst */
   if (nvec == 1)
   {
-    N_VConst_Serial(c, Z[0]);
+    N_VConst_Serial((sunscalartype)ONE, Z[0]);
     SUNCheckLastErr();
     return SUN_SUCCESS;
   }
@@ -1292,7 +1311,7 @@ SUNErrCode N_VWrmsNormVectorArray_Serial(int nvec, N_Vector* X, N_Vector* W,
     xd     = NV_DATA_S(X[i]);
     wd     = NV_DATA_S(W[i]);
     nrm[i] = ZERO;
-    for (j = 0; j < N; j++) { nrm[i] += SUNSQR(xd[j] * wd[j]); }
+    for (j = 0; j < N; j++) { nrm[i] += SUNSQR(SUNabs(xd[j] * wd[j])); }
     nrm[i] = SUNRsqrt(nrm[i] / N);
   }
 
@@ -1332,7 +1351,7 @@ SUNErrCode N_VWrmsNormMaskVectorArray_Serial(int nvec, N_Vector* X, N_Vector* W,
     nrm[i] = ZERO;
     for (j = 0; j < N; j++)
     {
-      if (SUN_REAL(idd[j]) > ZERO) { nrm[i] += SUNSQR(xd[j] * wd[j]); }
+      if (SUN_REAL(idd[j]) > ZERO) { nrm[i] += SUNSQR(SUNabs(xd[j] * wd[j])); }
     }
     nrm[i] = SUNRsqrt(nrm[i] / N);
   }
@@ -1365,7 +1384,7 @@ SUNErrCode N_VScaleAddMultiVectorArray_Serial(int nvec, int nsum,
     /* should have called N_VLinearSum */
     if (nsum == 1)
     {
-      N_VLinearSum_Serial(a[0], X[0], ONE, Y[0][0], Z[0][0]);
+      N_VLinearSum_Serial(a[0], X[0], (sunscalartype)ONE, Y[0][0], Z[0][0]);
       SUNCheckLastErr();
       return SUN_SUCCESS;
     }
@@ -1528,7 +1547,7 @@ SUNErrCode N_VLinearCombinationVectorArray_Serial(int nvec, int nsum,
   /*
    * X[0][j] += c[i]*X[i][j], i = 1,...,nvec-1
    */
-  if ((X[0] == Z) && (c[0] == ONE))
+  if ((X[0] == Z) && ((SUN_REAL(c[0]) == ONE) && SUN_IMAG(c[0]) == ZERO))
   {
     for (j = 0; j < nvec; j++)
     {
@@ -1776,13 +1795,13 @@ static void Vaxpy_Serial(sunscalartype a, N_Vector x, N_Vector y)
   xd = NV_DATA_S(x);
   yd = NV_DATA_S(y);
 
-  if (a == ONE)
+  if ((SUN_REAL(a) == ONE) && (SUN_IMAG(a) == ZERO))
   {
     for (i = 0; i < N; i++) { yd[i] += xd[i]; }
     return;
   }
 
-  if (a == -ONE)
+  if ((SUN_REAL(a) == -ONE) && (SUN_IMAG(a) == ZERO))
   {
     for (i = 0; i < N; i++) { yd[i] -= xd[i]; }
     return;
@@ -1943,7 +1962,7 @@ static void VaxpyVectorArray_Serial(int nvec, sunscalartype a, N_Vector* X,
 
   N = NV_LENGTH_S(X[0]);
 
-  if (a == ONE)
+  if ((SUN_REAL(a) == ONE) && (SUN_IMAG(a) == ZERO))
   {
     for (i = 0; i < nvec; i++)
     {
@@ -1954,7 +1973,7 @@ static void VaxpyVectorArray_Serial(int nvec, sunscalartype a, N_Vector* X,
     return;
   }
 
-  if (a == -ONE)
+  if ((SUN_REAL(a) == -ONE) && (SUN_IMAG(a) == ZERO))
   {
     for (i = 0; i < nvec; i++)
     {

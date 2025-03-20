@@ -250,74 +250,77 @@ int main(int argc, char* argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
- int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
- {
-    return check_ans_Z(ans, X, local_length);
- }
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
+{
+  return check_ans_Z(ans, X, local_length);
+}
 
 int check_ans_Z(sunscalartype ans, N_Vector X, sunindextype local_length)
 {
   int failure = 0;
   sunindextype i;
-  sunrealtype* Xdata;
+  sunscalartype* Xdata;
 
   Xdata = N_VGetArrayPointer(X);
 
   /* check vector data */
-  for (i = 0; i < local_length; i++) { failure += SUNCompare(Xdata[i], ans);
-    if (failure) fprintf(stderr, ">>>> Xdata[%d]=%g, ans=%g\n", i, SUN_REAL(Xdata[i]), ans); }
+  for (i = 0; i < local_length; i++)
+  {
+    failure += SUNCompare(Xdata[i], ans);
+    // if (failure) fprintf(stderr, ">>>> Xdata[%d]=%g, ans=%g\n", i, SUN_REAL(Xdata[i]), ans);
+  }
 
-  return (failure > ZERO) ? (1) : (0);
-}
+    return (failure > ZERO) ? (1) : (0);
+  }
 
-sunbooleantype has_data(N_Vector X)
-{
-  /* check if data array is non-null */
-  return (N_VGetArrayPointer(X) == NULL) ? SUNFALSE : SUNTRUE;
-}
+  sunbooleantype has_data(N_Vector X)
+  {
+    /* check if data array is non-null */
+    return (N_VGetArrayPointer(X) == NULL) ? SUNFALSE : SUNTRUE;
+  }
 
-void set_element(N_Vector X, sunindextype i, sunrealtype val)
-{
-  /* set i-th element of data array */
-  set_element_range(X, i, i, val);
-}
+  void set_element(N_Vector X, sunindextype i, sunrealtype val)
+  {
+    /* set i-th element of data array */
+    set_element_range(X, i, i, val);
+  }
 
-void set_element_Z(N_Vector X, sunindextype i, sunscalartype val)
-{
-  /* set i-th element of data array */
-  set_element_range_Z(X, i, i, val);
-}
+  void set_element_Z(N_Vector X, sunindextype i, sunscalartype val)
+  {
+    /* set i-th element of data array */
+    set_element_range_Z(X, i, i, val);
+  }
 
-void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-  sunrealtype val)
-{
-  return set_element_range_Z(X, is, ie, val);
-}
+  void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
+                         sunrealtype val)
+  {
+    return set_element_range_Z(X, is, ie, val);
+  }
 
-void set_element_range_Z(N_Vector X, sunindextype is, sunindextype ie,
-                         sunscalartype val)
-{
-  sunindextype i;
+  void set_element_range_Z(N_Vector X, sunindextype is, sunindextype ie,
+                           sunscalartype val)
+  {
+    sunindextype i;
 
-  /* set elements [is,ie] of the data array */
-  sunrealtype* xd = N_VGetArrayPointer(X);
-  for (i = is; i <= ie; i++) { xd[i] = val; }
-}
+    /* set elements [is,ie] of the data array */
+    sunscalartype* xd = N_VGetArrayPointer(X);
+    for (i = is; i <= ie; i++) { xd[i] = val; }
+  }
 
-sunrealtype get_element(N_Vector X, sunindextype i)
-{
-  /* get i-th element of data array */
-  return NV_Ith_S(X, i);
-}
+  sunrealtype get_element(N_Vector X, sunindextype i)
+  {
+    /* get i-th element of data array */
+    return NV_Ith_S(X, i);
+  }
 
-double max_time(N_Vector X, double time)
-{
-  /* not running in parallel, just return input time */
-  return (time);
-}
+  double max_time(N_Vector X, double time)
+  {
+    /* not running in parallel, just return input time */
+    return (time);
+  }
 
-void sync_device(N_Vector x)
-{
-  /* not running on GPU, just return */
-  return;
-}
+  void sync_device(N_Vector x)
+  {
+    /* not running on GPU, just return */
+    return;
+  }
