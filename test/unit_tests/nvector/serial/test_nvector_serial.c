@@ -247,10 +247,10 @@ int main(int argc, char* argv[])
 /* ----------------------------------------------------------------------
  * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
- int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
- {
-    return check_ans_Z(ans, X, local_length);
- }
+int check_ans(sunrealtype ans, N_Vector X, sunindextype local_length)
+{
+  return check_ans_Z(ans, X, local_length);
+}
 
 int check_ans_Z(sunscalartype ans, N_Vector X, sunindextype local_length)
 {
@@ -261,8 +261,11 @@ int check_ans_Z(sunscalartype ans, N_Vector X, sunindextype local_length)
   Xdata = N_VGetArrayPointer(X);
 
   /* check vector data */
-  for (i = 0; i < local_length; i++) { failure += SUNCompare(Xdata[i], ans);
-    if (failure) fprintf(stderr, ">>>> Xdata[%d]=%g, ans=%g\n", i, SUN_REAL(Xdata[i]), ans); }
+  for (i = 0; i < local_length; i++)
+  {
+    failure += SUNCompare(Xdata[i], ans);
+    // if (failure) fprintf(stderr, ">>>> Xdata[%d]=%g, ans=%g\n", i, SUN_REAL(Xdata[i]), ans);
+  }
 
   return (failure > ZERO) ? (1) : (0);
 }
@@ -286,7 +289,7 @@ void set_element_Z(N_Vector X, sunindextype i, sunscalartype val)
 }
 
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
-  sunrealtype val)
+                       sunrealtype val)
 {
   return set_element_range_Z(X, is, ie, val);
 }
