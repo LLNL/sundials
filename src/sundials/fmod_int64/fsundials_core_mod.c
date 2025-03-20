@@ -193,30 +193,6 @@
  { printf("In " DECL ": " MSG); assert(0); RETURNNULL; }
 
 
-enum {
-    SWIG_MEM_OWN = 0x01,
-    SWIG_MEM_RVALUE = 0x02,
-    SWIG_MEM_CONST = 0x04
-};
-
-
-#define SWIG_check_nonnull(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-  if (!(SWIG_CLASS_WRAPPER).cptr) { \
-    SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-                        "Cannot pass null " TYPENAME " (class " FNAME ") " \
-                        "as a reference", RETURNNULL); \
-  }
-
-
-#define SWIG_check_mutable(SWIG_CLASS_WRAPPER, TYPENAME, FNAME, FUNCNAME, RETURNNULL) \
-    if ((SWIG_CLASS_WRAPPER).cmemflags & SWIG_MEM_CONST) { \
-        SWIG_exception_impl(FUNCNAME, SWIG_TypeError, \
-            "Cannot pass const " TYPENAME " (class " FNAME ") " \
-            "as a mutable reference", \
-            RETURNNULL); \
-    }
-
-
 #include <stdio.h>
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(_WATCOM)
 # ifndef snprintf
@@ -324,20 +300,6 @@ SWIGINTERN SwigArrayWrapper SwigArrayWrapper_uninitialized() {
 
 #include "sundials/sundials_adjointcheckpointscheme.h"
 #include "sundials/sundials_adjointstepper.h"
-
-
-typedef struct {
-    void* cptr;
-    int cmemflags;
-} SwigClassWrapper;
-
-
-SWIGINTERN SwigClassWrapper SwigClassWrapper_uninitialized() {
-    SwigClassWrapper result;
-    result.cptr = NULL;
-    result.cmemflags = 0;
-    return result;
-}
 
 SWIGEXPORT void _wrap_FSUNLogErrHandlerFn(int const *farg1, SwigArrayWrapper *farg2, SwigArrayWrapper *farg3, SwigArrayWrapper *farg4, int const *farg5, void *farg6, void *farg7) {
   int arg1 ;
@@ -3345,7 +3307,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NewEmpty(void *farg1, void *far
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme farg1, SwigClassWrapper const *farg2, SwigClassWrapper const *farg3, double const *farg4, int *farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, int *farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -3355,10 +3317,8 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpoin
   SUNErrCode result;
   
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
-  SWIG_check_nonnull(*farg2, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme,suncountertype,suncountertype,sunrealtype,int *)", return 0);
-  arg2 = *(suncountertype *)(farg2->cptr);
-  SWIG_check_nonnull(*farg3, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme,suncountertype,suncountertype,sunrealtype,int *)", return 0);
-  arg3 = *(suncountertype *)(farg3->cptr);
+  arg2 = (suncountertype)(*farg2);
+  arg3 = (suncountertype)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (int *)(farg5);
   result = (SUNErrCode)SUNAdjointCheckpointScheme_NeedsSaving(arg1,arg2,arg3,arg4,arg5);
@@ -3367,7 +3327,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpoin
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme farg1, SwigClassWrapper const *farg2, SwigClassWrapper const *farg3, double const *farg4, int *farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, int *farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -3377,10 +3337,8 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpo
   SUNErrCode result;
   
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
-  SWIG_check_nonnull(*farg2, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme,suncountertype,suncountertype,sunrealtype,int *)", return 0);
-  arg2 = *(suncountertype *)(farg2->cptr);
-  SWIG_check_nonnull(*farg3, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme,suncountertype,suncountertype,sunrealtype,int *)", return 0);
-  arg3 = *(suncountertype *)(farg3->cptr);
+  arg2 = (suncountertype)(*farg2);
+  arg3 = (suncountertype)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (int *)(farg5);
   result = (SUNErrCode)SUNAdjointCheckpointScheme_NeedsDeleting(arg1,arg2,arg3,arg4,arg5);
@@ -3389,7 +3347,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpo
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme farg1, SwigClassWrapper const *farg2, SwigClassWrapper const *farg3, double const *farg4, N_Vector farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, N_Vector farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -3399,10 +3357,8 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpoi
   SUNErrCode result;
   
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
-  SWIG_check_nonnull(*farg2, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme,suncountertype,suncountertype,sunrealtype,N_Vector)", return 0);
-  arg2 = *(suncountertype *)(farg2->cptr);
-  SWIG_check_nonnull(*farg3, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme,suncountertype,suncountertype,sunrealtype,N_Vector)", return 0);
-  arg3 = *(suncountertype *)(farg3->cptr);
+  arg2 = (suncountertype)(*farg2);
+  arg3 = (suncountertype)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (N_Vector)(farg5);
   result = (SUNErrCode)SUNAdjointCheckpointScheme_InsertVector(arg1,arg2,arg3,arg4,arg5);
@@ -3411,7 +3367,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpoi
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme farg1, SwigClassWrapper const *farg2, SwigClassWrapper const *farg3, double const *farg4, int const *farg5, void *farg6, double *farg7) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, int const *farg5, void *farg6, double *farg7) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -3423,10 +3379,8 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpoint
   SUNErrCode result;
   
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
-  SWIG_check_nonnull(*farg2, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme,suncountertype,suncountertype,sunrealtype,int,N_Vector *,sunrealtype *)", return 0);
-  arg2 = *(suncountertype *)(farg2->cptr);
-  SWIG_check_nonnull(*farg3, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme,suncountertype,suncountertype,sunrealtype,int,N_Vector *,sunrealtype *)", return 0);
-  arg3 = *(suncountertype *)(farg3->cptr);
+  arg2 = (suncountertype)(*farg2);
+  arg3 = (suncountertype)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (int)(*farg5);
   arg6 = (N_Vector *)(farg6);
@@ -3437,7 +3391,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpoint
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme farg1, SwigClassWrapper const *farg2, SwigClassWrapper const *farg3, void *farg4) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, void *farg4) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -3446,10 +3400,8 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpoi
   SUNErrCode result;
   
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
-  SWIG_check_nonnull(*farg2, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme,suncountertype,suncountertype,N_Vector *)", return 0);
-  arg2 = *(suncountertype *)(farg2->cptr);
-  SWIG_check_nonnull(*farg3, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme,suncountertype,suncountertype,N_Vector *)", return 0);
-  arg3 = *(suncountertype *)(farg3->cptr);
+  arg2 = (suncountertype)(*farg2);
+  arg3 = (suncountertype)(*farg3);
   arg4 = (N_Vector *)(farg4);
   result = (SUNErrCode)SUNAdjointCheckpointScheme_RemoveVector(arg1,arg2,arg3,arg4);
   fresult = (SUNErrCode)(result);
@@ -3483,7 +3435,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_EnableDense(SUNAdjointCheckpoin
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_Create(void *farg1, void *farg2, SwigClassWrapper const *farg3, N_Vector farg4, double const *farg5, SUNAdjointCheckpointScheme farg6, void *farg7, void *farg8) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_Create(void *farg1, void *farg2, int64_t const *farg3, N_Vector farg4, double const *farg5, SUNAdjointCheckpointScheme farg6, void *farg7, void *farg8) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
   SUNStepper arg2 = (SUNStepper) 0 ;
@@ -3497,8 +3449,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_Create(void *farg1, void *farg2, SwigCla
   
   arg1 = (SUNStepper)(farg1);
   arg2 = (SUNStepper)(farg2);
-  SWIG_check_nonnull(*farg3, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointStepper_Create(SUNStepper,SUNStepper,suncountertype,N_Vector,sunrealtype,SUNAdjointCheckpointScheme,SUNContext,SUNAdjointStepper *)", return 0);
-  arg3 = *(suncountertype *)(farg3->cptr);
+  arg3 = (suncountertype)(*farg3);
   arg4 = (N_Vector)(farg4);
   arg5 = (sunrealtype)(*farg5);
   arg6 = (SUNAdjointCheckpointScheme)(farg6);
@@ -3566,7 +3517,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_OneStep(void *farg1, double const *farg2
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_RecomputeFwd(void *farg1, SwigClassWrapper const *farg2, double const *farg3, double const *farg4, N_Vector farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_RecomputeFwd(void *farg1, int64_t const *farg2, double const *farg3, double const *farg4, N_Vector farg5) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype arg2 ;
@@ -3576,8 +3527,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_RecomputeFwd(void *farg1, SwigClassWrapp
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
-  SWIG_check_nonnull(*farg2, "suncountertype", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper,suncountertype,sunrealtype,sunrealtype,N_Vector)", return 0);
-  arg2 = *(suncountertype *)(farg2->cptr);
+  arg2 = (suncountertype)(*farg2);
   arg3 = (sunrealtype)(*farg3);
   arg4 = (sunrealtype)(*farg4);
   arg5 = (N_Vector)(farg5);
@@ -3653,120 +3603,112 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_SetUserData(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumSteps(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumSteps(void *farg1, int64_t *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
-  SWIG_check_mutable(*farg2, "suncountertype *", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointStepper_GetNumSteps(SUNAdjointStepper,suncountertype *)", return 0);
-  arg2 = (suncountertype *)(farg2->cptr);
+  arg2 = (suncountertype *)(farg2);
   result = (SUNErrCode)SUNAdjointStepper_GetNumSteps(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacEvals(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacEvals(void *farg1, int64_t *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
-  SWIG_check_mutable(*farg2, "suncountertype *", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointStepper_GetNumJacEvals(SUNAdjointStepper,suncountertype *)", return 0);
-  arg2 = (suncountertype *)(farg2->cptr);
+  arg2 = (suncountertype *)(farg2);
   result = (SUNErrCode)SUNAdjointStepper_GetNumJacEvals(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPEvals(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPEvals(void *farg1, int64_t *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
-  SWIG_check_mutable(*farg2, "suncountertype *", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointStepper_GetNumJacPEvals(SUNAdjointStepper,suncountertype *)", return 0);
-  arg2 = (suncountertype *)(farg2->cptr);
+  arg2 = (suncountertype *)(farg2);
   result = (SUNErrCode)SUNAdjointStepper_GetNumJacPEvals(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacTimesVecEvals(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacTimesVecEvals(void *farg1, int64_t *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
-  SWIG_check_mutable(*farg2, "suncountertype *", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointStepper_GetNumJacTimesVecEvals(SUNAdjointStepper,suncountertype *)", return 0);
-  arg2 = (suncountertype *)(farg2->cptr);
+  arg2 = (suncountertype *)(farg2);
   result = (SUNErrCode)SUNAdjointStepper_GetNumJacTimesVecEvals(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPTimesVecEvals(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPTimesVecEvals(void *farg1, int64_t *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
-  SWIG_check_mutable(*farg2, "suncountertype *", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointStepper_GetNumJacPTimesVecEvals(SUNAdjointStepper,suncountertype *)", return 0);
-  arg2 = (suncountertype *)(farg2->cptr);
+  arg2 = (suncountertype *)(farg2);
   result = (SUNErrCode)SUNAdjointStepper_GetNumJacPTimesVecEvals(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacEvals(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacEvals(void *farg1, int64_t *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
-  SWIG_check_mutable(*farg2, "suncountertype *", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointStepper_GetNumVecTimesJacEvals(SUNAdjointStepper,suncountertype *)", return 0);
-  arg2 = (suncountertype *)(farg2->cptr);
+  arg2 = (suncountertype *)(farg2);
   result = (SUNErrCode)SUNAdjointStepper_GetNumVecTimesJacEvals(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacPEvals(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacPEvals(void *farg1, int64_t *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
-  SWIG_check_mutable(*farg2, "suncountertype *", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointStepper_GetNumVecTimesJacPEvals(SUNAdjointStepper,suncountertype *)", return 0);
-  arg2 = (suncountertype *)(farg2->cptr);
+  arg2 = (suncountertype *)(farg2);
   result = (SUNErrCode)SUNAdjointStepper_GetNumVecTimesJacPEvals(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumRecompute(void *farg1, SwigClassWrapper const *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumRecompute(void *farg1, int64_t *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointStepper)(farg1);
-  SWIG_check_mutable(*farg2, "suncountertype *", "SWIGTYPE_p_SUNDIALS_COUNTER_TYPE", "SUNAdjointStepper_GetNumRecompute(SUNAdjointStepper,suncountertype *)", return 0);
-  arg2 = (suncountertype *)(farg2->cptr);
+  arg2 = (suncountertype *)(farg2);
   result = (SUNErrCode)SUNAdjointStepper_GetNumRecompute(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;

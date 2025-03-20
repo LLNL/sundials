@@ -652,17 +652,6 @@ module fsundials_core_mod
   type(C_PTR), public :: sunctx
  end type SUNAdjointCheckpointScheme
  public :: FSUNAdjointCheckpointScheme_NewEmpty
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_p_SUNDIALS_COUNTER_TYPE
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNAdjointCheckpointScheme_NeedsSaving
  public :: FSUNAdjointCheckpointScheme_NeedsDeleting
  public :: FSUNAdjointCheckpointScheme_InsertVector
@@ -2603,10 +2592,9 @@ function swigc_FSUNAdjointCheckpointScheme_NeedsSaving(farg1, farg2, farg3, farg
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_NeedsSaving") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
-type(SwigClassWrapper) :: farg3
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
@@ -2616,10 +2604,9 @@ function swigc_FSUNAdjointCheckpointScheme_NeedsDeleting(farg1, farg2, farg3, fa
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_NeedsDeleting") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
-type(SwigClassWrapper) :: farg3
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
@@ -2629,10 +2616,9 @@ function swigc_FSUNAdjointCheckpointScheme_InsertVector(farg1, farg2, farg3, far
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_InsertVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
-type(SwigClassWrapper) :: farg3
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
@@ -2642,10 +2628,9 @@ function swigc_FSUNAdjointCheckpointScheme_LoadVector(farg1, farg2, farg3, farg4
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_LoadVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
-type(SwigClassWrapper) :: farg3
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 integer(C_INT), intent(in) :: farg5
 type(C_PTR), value :: farg6
@@ -2657,10 +2642,9 @@ function swigc_FSUNAdjointCheckpointScheme_RemoveVector(farg1, farg2, farg3, far
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_RemoveVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
-type(SwigClassWrapper) :: farg3
+integer(C_INT64_T), intent(in) :: farg2
+integer(C_INT64_T), intent(in) :: farg3
 type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
@@ -2686,10 +2670,9 @@ function swigc_FSUNAdjointStepper_Create(farg1, farg2, farg3, farg4, farg5, farg
 bind(C, name="_wrap_FSUNAdjointStepper_Create") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
 type(C_PTR), value :: farg2
-type(SwigClassWrapper) :: farg3
+integer(C_INT64_T), intent(in) :: farg3
 type(C_PTR), value :: farg4
 real(C_DOUBLE), intent(in) :: farg5
 type(C_PTR), value :: farg6
@@ -2736,9 +2719,8 @@ function swigc_FSUNAdjointStepper_RecomputeFwd(farg1, farg2, farg3, farg4, farg5
 bind(C, name="_wrap_FSUNAdjointStepper_RecomputeFwd") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+integer(C_INT64_T), intent(in) :: farg2
 real(C_DOUBLE), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
@@ -2790,9 +2772,8 @@ function swigc_FSUNAdjointStepper_GetNumSteps(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_GetNumSteps") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2800,9 +2781,8 @@ function swigc_FSUNAdjointStepper_GetNumJacEvals(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacEvals") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2810,9 +2790,8 @@ function swigc_FSUNAdjointStepper_GetNumJacPEvals(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacPEvals") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2820,9 +2799,8 @@ function swigc_FSUNAdjointStepper_GetNumJacTimesVecEvals(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacTimesVecEvals") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2830,9 +2808,8 @@ function swigc_FSUNAdjointStepper_GetNumJacPTimesVecEvals(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacPTimesVecEvals") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2840,9 +2817,8 @@ function swigc_FSUNAdjointStepper_GetNumVecTimesJacEvals(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_GetNumVecTimesJacEvals") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2850,9 +2826,8 @@ function swigc_FSUNAdjointStepper_GetNumVecTimesJacPEvals(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_GetNumVecTimesJacPEvals") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -2860,9 +2835,8 @@ function swigc_FSUNAdjointStepper_GetNumRecompute(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_GetNumRecompute") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
-import :: swigclasswrapper
 type(C_PTR), value :: farg1
-type(SwigClassWrapper) :: farg2
+type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -6405,20 +6379,20 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: step_num
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: stage_num
+integer(C_INT64_T), intent(in) :: step_num
+integer(C_INT64_T), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
-type(SwigClassWrapper) :: farg3 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
 farg1 = c_loc(arg0)
-farg2 = step_num%swigdata
-farg3 = stage_num%swigdata
+farg2 = step_num
+farg3 = stage_num
 farg4 = t
 farg5 = c_loc(yes_or_no(1))
 fresult = swigc_FSUNAdjointCheckpointScheme_NeedsSaving(farg1, farg2, farg3, farg4, farg5)
@@ -6430,20 +6404,20 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: step_num
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: stage_num
+integer(C_INT64_T), intent(in) :: step_num
+integer(C_INT64_T), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
-type(SwigClassWrapper) :: farg3 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
 farg1 = c_loc(arg0)
-farg2 = step_num%swigdata
-farg3 = stage_num%swigdata
+farg2 = step_num
+farg3 = stage_num
 farg4 = t
 farg5 = c_loc(yes_or_no(1))
 fresult = swigc_FSUNAdjointCheckpointScheme_NeedsDeleting(farg1, farg2, farg3, farg4, farg5)
@@ -6455,20 +6429,20 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: step_num
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: stage_num
+integer(C_INT64_T), intent(in) :: step_num
+integer(C_INT64_T), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 type(N_Vector), target, intent(inout) :: state
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
-type(SwigClassWrapper) :: farg3 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
 farg1 = c_loc(arg0)
-farg2 = step_num%swigdata
-farg3 = stage_num%swigdata
+farg2 = step_num
+farg3 = stage_num
 farg4 = t
 farg5 = c_loc(state)
 fresult = swigc_FSUNAdjointCheckpointScheme_InsertVector(farg1, farg2, farg3, farg4, farg5)
@@ -6480,24 +6454,24 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: step_num
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: stage_num
+integer(C_INT64_T), intent(in) :: step_num
+integer(C_INT64_T), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 integer(C_INT), intent(in) :: peek
 type(C_PTR) :: out
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tout
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
-type(SwigClassWrapper) :: farg3 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
 real(C_DOUBLE) :: farg4 
 integer(C_INT) :: farg5 
 type(C_PTR) :: farg6 
 type(C_PTR) :: farg7 
 
 farg1 = c_loc(arg0)
-farg2 = step_num%swigdata
-farg3 = stage_num%swigdata
+farg2 = step_num
+farg3 = stage_num
 farg4 = t
 farg5 = peek
 farg6 = out
@@ -6511,18 +6485,18 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: step_num
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: stage_num
+integer(C_INT64_T), intent(in) :: step_num
+integer(C_INT64_T), intent(in) :: stage_num
 type(C_PTR) :: out
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
-type(SwigClassWrapper) :: farg3 
+integer(C_INT64_T) :: farg2 
+integer(C_INT64_T) :: farg3 
 type(C_PTR) :: farg4 
 
 farg1 = c_loc(arg0)
-farg2 = step_num%swigdata
-farg3 = stage_num%swigdata
+farg2 = step_num
+farg3 = stage_num
 farg4 = out
 fresult = swigc_FSUNAdjointCheckpointScheme_RemoveVector(farg1, farg2, farg3, farg4)
 swig_result = fresult
@@ -6564,7 +6538,7 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: fwd_sunstepper
 type(C_PTR) :: adj_sunstepper
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: final_step_idx
+integer(C_INT64_T), intent(in) :: final_step_idx
 type(N_Vector), target, intent(inout) :: sf
 real(C_DOUBLE), intent(in) :: tf
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: checkpoint_scheme
@@ -6573,7 +6547,7 @@ type(C_PTR), target, intent(inout) :: adj_stepper
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
-type(SwigClassWrapper) :: farg3 
+integer(C_INT64_T) :: farg3 
 type(C_PTR) :: farg4 
 real(C_DOUBLE) :: farg5 
 type(C_PTR) :: farg6 
@@ -6582,7 +6556,7 @@ type(C_PTR) :: farg8
 
 farg1 = fwd_sunstepper
 farg2 = adj_sunstepper
-farg3 = final_step_idx%swigdata
+farg3 = final_step_idx
 farg4 = c_loc(sf)
 farg5 = tf
 farg6 = c_loc(checkpoint_scheme)
@@ -6666,19 +6640,19 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
-type(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: start_idx
+integer(C_INT64_T), intent(in) :: start_idx
 real(C_DOUBLE), intent(in) :: t0
 real(C_DOUBLE), intent(in) :: tf
 type(N_Vector), target, intent(inout) :: y0
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+integer(C_INT64_T) :: farg2 
 real(C_DOUBLE) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
 farg1 = adj_stepper
-farg2 = start_idx%swigdata
+farg2 = start_idx
 farg3 = t0
 farg4 = tf
 farg5 = c_loc(y0)
@@ -6770,13 +6744,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
-class(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: num_steps
+integer(C_INT64_T), target, intent(inout) :: num_steps
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = adj_stepper
-farg2 = num_steps%swigdata
+farg2 = c_loc(num_steps)
 fresult = swigc_FSUNAdjointStepper_GetNumSteps(farg1, farg2)
 swig_result = fresult
 end function
@@ -6786,13 +6760,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
-class(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: num_jac_evals
+integer(C_INT64_T), target, intent(inout) :: num_jac_evals
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = adj_stepper
-farg2 = num_jac_evals%swigdata
+farg2 = c_loc(num_jac_evals)
 fresult = swigc_FSUNAdjointStepper_GetNumJacEvals(farg1, farg2)
 swig_result = fresult
 end function
@@ -6802,13 +6776,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
-class(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: num_jac_p_evals
+integer(C_INT64_T), target, intent(inout) :: num_jac_p_evals
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = adj_stepper
-farg2 = num_jac_p_evals%swigdata
+farg2 = c_loc(num_jac_p_evals)
 fresult = swigc_FSUNAdjointStepper_GetNumJacPEvals(farg1, farg2)
 swig_result = fresult
 end function
@@ -6818,13 +6792,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
-class(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: num_jac_times_vec_evals
+integer(C_INT64_T), target, intent(inout) :: num_jac_times_vec_evals
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = adj_stepper
-farg2 = num_jac_times_vec_evals%swigdata
+farg2 = c_loc(num_jac_times_vec_evals)
 fresult = swigc_FSUNAdjointStepper_GetNumJacTimesVecEvals(farg1, farg2)
 swig_result = fresult
 end function
@@ -6834,13 +6808,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
-class(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: num_jac_p_times_vec_evals
+integer(C_INT64_T), target, intent(inout) :: num_jac_p_times_vec_evals
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = adj_stepper
-farg2 = num_jac_p_times_vec_evals%swigdata
+farg2 = c_loc(num_jac_p_times_vec_evals)
 fresult = swigc_FSUNAdjointStepper_GetNumJacPTimesVecEvals(farg1, farg2)
 swig_result = fresult
 end function
@@ -6850,13 +6824,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
-class(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: num_vec_times_jac_evals
+integer(C_INT64_T), target, intent(inout) :: num_vec_times_jac_evals
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = adj_stepper
-farg2 = num_vec_times_jac_evals%swigdata
+farg2 = c_loc(num_vec_times_jac_evals)
 fresult = swigc_FSUNAdjointStepper_GetNumVecTimesJacEvals(farg1, farg2)
 swig_result = fresult
 end function
@@ -6866,13 +6840,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
-class(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: num_vec_times_jac_p_evals
+integer(C_INT64_T), target, intent(inout) :: num_vec_times_jac_p_evals
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = adj_stepper
-farg2 = num_vec_times_jac_p_evals%swigdata
+farg2 = c_loc(num_vec_times_jac_p_evals)
 fresult = swigc_FSUNAdjointStepper_GetNumVecTimesJacPEvals(farg1, farg2)
 swig_result = fresult
 end function
@@ -6882,13 +6856,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: adj_stepper
-class(SWIGTYPE_p_SUNDIALS_COUNTER_TYPE), intent(in) :: num_recompute
+integer(C_INT64_T), target, intent(inout) :: num_recompute
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-type(SwigClassWrapper) :: farg2 
+type(C_PTR) :: farg2 
 
 farg1 = adj_stepper
-farg2 = num_recompute%swigdata
+farg2 = c_loc(num_recompute)
 fresult = swigc_FSUNAdjointStepper_GetNumRecompute(farg1, farg2)
 swig_result = fresult
 end function

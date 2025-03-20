@@ -212,8 +212,8 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Fixed(int const *farg1, 
   int fresult ;
   SUNDataIOMode arg1 ;
   SUNMemoryHelper arg2 = (SUNMemoryHelper) 0 ;
-  int64_t arg3 ;
-  int64_t arg4 ;
+  suncountertype arg3 ;
+  suncountertype arg4 ;
   int arg5 ;
   int arg6 ;
   SUNContext arg7 = (SUNContext) 0 ;
@@ -222,8 +222,8 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Fixed(int const *farg1, 
   
   arg1 = (SUNDataIOMode)(*farg1);
   arg2 = (SUNMemoryHelper)(farg2);
-  arg3 = (int64_t)(*farg3);
-  arg4 = (int64_t)(*farg4);
+  arg3 = (suncountertype)(*farg3);
+  arg4 = (suncountertype)(*farg4);
   arg5 = (int)(*farg5);
   arg6 = (int)(*farg6);
   arg7 = (SUNContext)(farg7);

@@ -214,6 +214,14 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
     )
   endif()
 
+  # F2003 interface only supports int64_t counters
+  if(NOT (SUNDIALS_COUNTER_TYPE MATCHES "int64_t"))
+    message(
+      FATAL_ERROR
+        "F2003 interface is not compatible with int64_t SUNDIALS_COUNTER_TYPE"
+    )
+  endif()
+
   # Allow a user to set where the Fortran modules will be installed
   set(DOCSTR "Directory where Fortran module files are installed")
   sundials_option(Fortran_INSTALL_MODDIR STRING "${DOCSTR}" "fortran")
