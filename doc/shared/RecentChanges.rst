@@ -56,3 +56,7 @@ Fixed bug in the ARKODE SPRKStep :c:func:`SPRKStepReInit` function and
 fault when compensated summation is not used.
 
 **Deprecation Notices**
+
+All work space functions, e.g., ``CVodeGetWorkSpace`` and
+``ARKodeGetLinWorkSpace``, have been deprecated and will be removed in version
+8.0.0.
