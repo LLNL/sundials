@@ -91,7 +91,7 @@ static inline sunbooleantype MAKE_NAME(SUNStlVectorTtype,
 }
 
 /**
- * Reserves capacity for the vector.
+ * Allocates more memory (capacity) for the vector.
  *
  * :param self: Pointer to the vector.
  * :param new_capacity: New capacity to reserve.
@@ -123,7 +123,10 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype se
        We explicitly cast capacity to a long double to silence any implicit
        conversion compiler warning. */
     int64_t new_capacity =
-      (int64_t)(ceill(((long double)self->capacity) * GROWTH_FACTOR));
+      self->capacity == 0
+        ? 2
+        : (int64_t)(ceill(((long double)self->capacity) * GROWTH_FACTOR));
+
     return MAKE_NAME(SUNStlVectorTtype, Reserve)(self, new_capacity);
   }
   return SUN_SUCCESS;
