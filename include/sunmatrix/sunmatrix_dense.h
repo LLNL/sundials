@@ -102,8 +102,9 @@ SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_Dense(SUNMatrix A, N_Vector x,
 SUNDIALS_EXPORT SUNErrCode SUNMatHermitianTransposeVec_Dense(SUNMatrix A,
                                                              N_Vector x,
                                                              N_Vector y);
-SUNDIALS_EXPORT SUNErrCode SUNMatSpace_Dense(SUNMatrix A, long int* lenrw,
-                                             long int* leniw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+SUNErrCode SUNMatSpace_Dense(SUNMatrix A, long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus
 }

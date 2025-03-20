@@ -169,6 +169,10 @@ ARKodeSPRKTable functions
    :param liw: Pointer to store the integer workspace size.
    :param lrw: Pointer to store the real workspace size.
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 .. c:function:: void ARKodeSPRKTable_Free(ARKodeSPRKTable sprk_table)
 
    Free the memory allocated for the :c:type:`ARKodeSPRKTable`.

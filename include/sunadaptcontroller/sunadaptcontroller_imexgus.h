@@ -34,9 +34,11 @@ struct _SUNAdaptControllerContent_ImExGus
   sunrealtype k2i;
   sunrealtype k1e;
   sunrealtype k2e;
-  sunrealtype bias;         /* error bias factor */
-  sunrealtype ep;           /* error from previous step */
-  sunrealtype hp;           /* previous step size */
+  sunrealtype bias; /* error bias factor */
+  sunrealtype ep;   /* error from previous step */
+  sunrealtype hp;   /* previous step size */
+  /* TODO(SRB): Consider removing firststep. We can use a negative ep to
+   * indicate we are on the first step */
   sunbooleantype firststep; /* flag indicating first step */
 };
 
@@ -77,7 +79,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_UpdateH_ImExGus(SUNAdaptController C,
                                               sunrealtype h, sunrealtype dsm);
 
-SUNDIALS_EXPORT
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 SUNErrCode SUNAdaptController_Space_ImExGus(SUNAdaptController C,
                                             long int* lenrw, long int* leniw);
 

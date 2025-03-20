@@ -49,9 +49,11 @@ SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Create(int s, int q, int p
                                                              sunrealtype* b,
                                                              sunrealtype* d);
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B);
-SUNDIALS_EXPORT void ARKodeButcherTable_Space(ARKodeButcherTable B,
-                                              sunindextype* liw,
-                                              sunindextype* lrw);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+void ARKodeButcherTable_Space(ARKodeButcherTable B, sunindextype* liw,
+                              sunindextype* lrw);
 SUNDIALS_EXPORT void ARKodeButcherTable_Free(ARKodeButcherTable B);
 SUNDIALS_EXPORT void ARKodeButcherTable_Write(ARKodeButcherTable B,
                                               FILE* outfile);
