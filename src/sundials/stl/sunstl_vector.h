@@ -207,7 +207,7 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
 }
 
 /**
- * Erases the element at the specified index.
+ * Removes the element at the specified index and shifts all other elements.
  *
  * :param self: Pointer to the vector.
  * :param index: Index of the element to erase.

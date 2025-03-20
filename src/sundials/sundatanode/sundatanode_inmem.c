@@ -289,13 +289,12 @@ SUNErrCode SUNDataNode_RemoveNamedChild_InMem(const SUNDataNode self,
     if (SUNHashMap_Remove(IMPL_MEMBER(self, named_children), name,
                           (void**)child_node))
     {
+      *child_node = NULL;
       return SUN_ERR_DATANODE_NODENOTFOUND;
     }
     IMPL_MEMBER(*child_node, parent) = NULL;
     IMPL_MEMBER(self, num_named_children)--;
   }
-
-  *child_node = NULL;
 
   return SUN_SUCCESS;
 }
