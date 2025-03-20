@@ -19,18 +19,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <sundials/sundials_context.h>
-#include <sundials/sundials_math.h>
-
+#include <nvector/nvector_manyvector.h>
 #include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_adjointstepper.h>
-
-#include <nvector/nvector_manyvector.h>
+#include <sundials/sundials_context.h>
+#include <sundials/sundials_math.h>
 
 #include "arkode/arkode_butcher.h"
 #include "arkode_erkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+
+#include "sundials_adjointstepper_impl.h"
 
 /*===============================================================
   Exported functions
@@ -773,14 +773,14 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   {
     sunbooleantype do_save;
     SUNErrCode errcode =
-      SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
-                                              ark_mem->checkpoint_step_idx, 0,
-                                              ark_mem->tcur, &do_save);
+      SUNAdjointCheckpointScheme_NeedsSaving(ark_mem->checkpoint_scheme,
+                                             ark_mem->checkpoint_step_idx, 0,
+                                             ark_mem->tcur, &do_save);
     if (errcode)
     {
       arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
                       __FILE__,
-                      "SUNAdjointCheckpointScheme_ShouldWeSave returned %d",
+                      "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                       errcode);
     }
 
@@ -877,14 +877,14 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     {
       sunbooleantype do_save;
       SUNErrCode errcode =
-        SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
-                                                ark_mem->checkpoint_step_idx,
-                                                is, ark_mem->tcur, &do_save);
+        SUNAdjointCheckpointScheme_NeedsSaving(ark_mem->checkpoint_scheme,
+                                               ark_mem->checkpoint_step_idx, is,
+                                               ark_mem->tcur, &do_save);
       if (errcode)
       {
         arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
                         __FILE__,
-                        "SUNAdjointCheckpointScheme_ShouldWeSave returned %d",
+                        "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                         errcode);
       }
 
@@ -925,10 +925,10 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (ark_mem->checkpoint_scheme)
   {
     sunbooleantype do_save;
-    SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
-                                            ark_mem->checkpoint_step_idx,
-                                            step_mem->B->stages,
-                                            ark_mem->tn + ark_mem->h, &do_save);
+    SUNAdjointCheckpointScheme_NeedsSaving(ark_mem->checkpoint_scheme,
+                                           ark_mem->checkpoint_step_idx,
+                                           step_mem->B->stages,
+                                           ark_mem->tn + ark_mem->h, &do_save);
     if (do_save)
     {
       SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
@@ -1579,7 +1579,7 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
     adj_stepper->JacFn(t, checkpoint, NULL, adj_stepper->Jac, user_data, NULL,
                        NULL, NULL);
     adj_stepper->njeval++;
-    if (SUNMatMatTransposeVec(adj_stepper->Jac, Lambda_part, Lambda))
+    if (SUNMatHermitianTransposeVec(adj_stepper->Jac, Lambda_part, Lambda))
     {
       return -1;
     };
@@ -1603,7 +1603,7 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
     adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP, user_data, NULL,
                         NULL, NULL);
     adj_stepper->njpeval++;
-    if (SUNMatMatTransposeVec(adj_stepper->JacP, Lambda_part, nu))
+    if (SUNMatHermitianTransposeVec(adj_stepper->JacP, Lambda_part, nu))
     {
       return -1;
     }

@@ -19,15 +19,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
-
+#include <nvector/nvector_manyvector.h>
 #include <sundials/sundials_adjointcheckpointscheme.h>
 #include <sundials/sundials_adjointstepper.h>
-
+#include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
 #include <sunnonlinsol/sunnonlinsol_newton.h>
-
-#include <nvector/nvector_manyvector.h>
 
 #include "arkode/arkode.h"
 #include "arkode/arkode_arkstep.h"
@@ -35,6 +32,8 @@
 #include "arkode_arkstep_impl.h"
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
+
+#include "sundials_adjointstepper_impl.h"
 
 /*===============================================================
   Exported functions
@@ -1732,14 +1731,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     {
       sunbooleantype do_save;
       SUNErrCode errcode =
-        SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
-                                                ark_mem->checkpoint_step_idx, 0,
-                                                ark_mem->tcur, &do_save);
+        SUNAdjointCheckpointScheme_NeedsSaving(ark_mem->checkpoint_scheme,
+                                               ark_mem->checkpoint_step_idx, 0,
+                                               ark_mem->tcur, &do_save);
       if (errcode)
       {
         arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
                         __FILE__,
-                        "SUNAdjointCheckpointScheme_ShouldWeSave returned %d",
+                        "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                         errcode);
       }
 
@@ -2028,14 +2027,14 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     {
       sunbooleantype do_save;
       SUNErrCode errcode =
-        SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
-                                                ark_mem->checkpoint_step_idx,
-                                                is, ark_mem->tcur, &do_save);
+        SUNAdjointCheckpointScheme_NeedsSaving(ark_mem->checkpoint_scheme,
+                                               ark_mem->checkpoint_step_idx, is,
+                                               ark_mem->tcur, &do_save);
       if (errcode)
       {
         arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
                         __FILE__,
-                        "SUNAdjointCheckpointScheme_ShouldWeSave returned %d",
+                        "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                         errcode);
       }
 
@@ -2174,10 +2173,10 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (ark_mem->checkpoint_scheme)
   {
     sunbooleantype do_save;
-    SUNAdjointCheckpointScheme_ShouldWeSave(ark_mem->checkpoint_scheme,
-                                            ark_mem->checkpoint_step_idx,
-                                            step_mem->Be->stages,
-                                            ark_mem->tn + ark_mem->h, &do_save);
+    SUNAdjointCheckpointScheme_NeedsSaving(ark_mem->checkpoint_scheme,
+                                           ark_mem->checkpoint_step_idx,
+                                           step_mem->Be->stages,
+                                           ark_mem->tn + ark_mem->h, &do_save);
     if (do_save)
     {
       SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
@@ -2297,11 +2296,12 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
         SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint",
                     "searching-for-checkpoint",
                     "start_step = %li, stop_step = %li", start_step, stop_step);
-        sunrealtype checkpoint_t;
+        sunrealtype expected_t, checkpoint_t;
         errcode =
           SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
-                                                start_step, step_mem->stages, 1,
-                                                &checkpoint, &checkpoint_t);
+                                                start_step, step_mem->stages,
+                                                /*peek=*/1, &checkpoint,
+                                                &checkpoint_t);
         if (errcode == SUN_SUCCESS)
         {
           /* OK, now we have the last checkpoint that stored as (start_step, stages).
@@ -3450,7 +3450,7 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
     adj_stepper->JacFn(t, checkpoint, NULL, adj_stepper->Jac, user_data, NULL,
                        NULL, NULL);
     adj_stepper->njeval++;
-    if (SUNMatMatTransposeVec(adj_stepper->Jac, Lambda_part, Lambda))
+    if (SUNMatHermitianTransposeVec(adj_stepper->Jac, Lambda_part, Lambda))
     {
       return -1;
     };
@@ -3474,7 +3474,7 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
     adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP, user_data, NULL,
                         NULL, NULL);
     adj_stepper->njpeval++;
-    if (SUNMatMatTransposeVec(adj_stepper->JacP, Lambda_part, nu))
+    if (SUNMatHermitianTransposeVec(adj_stepper->JacP, Lambda_part, nu))
     {
       return -1;
     }
