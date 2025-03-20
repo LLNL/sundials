@@ -522,7 +522,7 @@ int Test_N_VGetCommunicator_Z(N_Vector W, SUNComm comm, int myid)
  * N_VLinearSum Tests
  * --------------------------------------------------------------------*/
 int Test_N_VLinearSum_Z(N_Vector X, N_Vector Y, N_Vector Z,
-                      sunindextype local_length, int myid)
+                        sunindextype local_length, int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -1054,8 +1054,8 @@ int Test_N_VConst_Z(N_Vector X, sunindextype local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VProd Test
  * --------------------------------------------------------------------*/
-int Test_N_VProd_Z(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length,
-                 int myid)
+int Test_N_VProd_Z(N_Vector X, N_Vector Y, N_Vector Z,
+                   sunindextype local_length, int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -1091,7 +1091,7 @@ int Test_N_VProd_Z(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length
  * N_VDiv Test
  * --------------------------------------------------------------------*/
 int Test_N_VDiv_Z(N_Vector X, N_Vector Y, N_Vector Z, sunindextype local_length,
-                int myid)
+                  int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -1391,7 +1391,8 @@ int Test_N_VDotProd_Z(N_Vector X, N_Vector Y, sunindextype local_length, int myi
   return (fails);
 }
 
-int Test_N_VDotProdComplex_Z(N_Vector X, N_Vector Y, sunindextype local_length, int myid)
+int Test_N_VDotProdComplex_Z(N_Vector X, N_Vector Y, sunindextype local_length,
+                             int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -1406,7 +1407,7 @@ int Test_N_VDotProdComplex_Z(N_Vector X, N_Vector Y, sunindextype local_length, 
   N_VConst(HALF, Y);
 
   start_time = get_time();
-  N_VDotProdComplex(X, Y, & ans);
+  N_VDotProdComplex(X, Y, &ans);
   sync_device(X);
   stop_time = get_time();
 
@@ -1471,7 +1472,10 @@ int Test_N_VMaxNorm_Z(N_Vector X, sunindextype local_length, int myid)
 
   /* fill vector data */
   N_VConst(SUN_COMPLEX(NEG_HALF, ZERO), X);
-  if (myid == 0) { set_element_Z(X, local_length - 1, SUN_COMPLEX(NEG_TWO, ZERO)); }
+  if (myid == 0)
+  {
+    set_element_Z(X, local_length - 1, SUN_COMPLEX(NEG_TWO, ZERO));
+  }
   else { set_element_Z(X, local_length - 1, SUN_COMPLEX(ONE, ZERO)); }
 
   start_time = get_time();
@@ -1536,7 +1540,7 @@ int Test_N_VWrmsNorm_Z(N_Vector X, N_Vector W, sunindextype local_length, int my
  * N_VWrmsNormMask Test
  * --------------------------------------------------------------------*/
 int Test_N_VWrmsNormMask_Z(N_Vector X, N_Vector W, N_Vector ID,
-                         sunindextype local_length, int myid)
+                           sunindextype local_length, int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -1908,7 +1912,7 @@ int Test_N_VInvTest_Z(N_Vector X, N_Vector Z, sunindextype local_length, int myi
  * N_VConstrMask
  * --------------------------------------------------------------------*/
 int Test_N_VConstrMask_Z(N_Vector C, N_Vector X, N_Vector M,
-                       sunindextype local_length, int myid)
+                         sunindextype local_length, int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -2078,8 +2082,8 @@ int Test_N_VConstrMask_Z(N_Vector C, N_Vector X, N_Vector M,
 /* ----------------------------------------------------------------------
  * N_VMinQuotient Test
  * --------------------------------------------------------------------*/
-int Test_N_VMinQuotient_Z(N_Vector NUM, N_Vector DENOM, sunindextype local_length,
-                        int myid)
+int Test_N_VMinQuotient_Z(N_Vector NUM, N_Vector DENOM,
+                          sunindextype local_length, int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -3827,7 +3831,7 @@ int Test_N_VWrmsNormVectorArray_Z(N_Vector X, sunindextype local_length, int myi
  * N_VWrmsNormMaskVectorArray Test
  * --------------------------------------------------------------------*/
 int Test_N_VWrmsNormMaskVectorArray_Z(N_Vector X, sunindextype local_length,
-                                    int myid)
+                                      int myid)
 {
   int fails = 0, failure = 0, ierr = 0;
   double start_time, stop_time, maxt;
@@ -3952,7 +3956,7 @@ int Test_N_VWrmsNormMaskVectorArray_Z(N_Vector X, sunindextype local_length,
  * N_VScaleAddMultiVectorArray Test
  * --------------------------------------------------------------------*/
 int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
-                                     int myid)
+                                       int myid)
 {
   int fails = 0, failure = 0, ierr = 0;
   double start_time, stop_time, maxt;
@@ -4390,8 +4394,8 @@ int Test_N_VScaleAddMultiVectorArray_Z(N_Vector V, sunindextype local_length,
 /* ----------------------------------------------------------------------
  * N_VLinearCombinationVectorArray Test
  * --------------------------------------------------------------------*/
-int Test_N_VLinearCombinationVectorArray_Z(N_Vector V, sunindextype local_length,
-                                         int myid)
+int Test_N_VLinearCombinationVectorArray_Z(N_Vector V,
+                                           sunindextype local_length, int myid)
 {
   int fails = 0, failure = 0, ierr = 0;
   double start_time, stop_time, maxt;
@@ -4993,7 +4997,7 @@ int Test_N_VLinearCombinationVectorArray_Z(N_Vector V, sunindextype local_length
  * N_VDotProdLocal test
  * --------------------------------------------------------------------*/
 int Test_N_VDotProdLocal_Z(N_Vector X, N_Vector Y, sunindextype local_length,
-                         int myid)
+                           int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -5142,7 +5146,7 @@ int Test_N_VL1NormLocal_Z(N_Vector X, sunindextype local_length, int myid)
  * N_VWSqrSumLocal test
  * --------------------------------------------------------------------*/
 int Test_N_VWSqrSumLocal_Z(N_Vector X, N_Vector W, sunindextype local_length,
-                         int myid)
+                           int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -5182,7 +5186,7 @@ int Test_N_VWSqrSumLocal_Z(N_Vector X, N_Vector W, sunindextype local_length,
  * N_VWSqrSumMaskLocal test
  * --------------------------------------------------------------------*/
 int Test_N_VWSqrSumMaskLocal_Z(N_Vector X, N_Vector W, N_Vector ID,
-                             sunindextype local_length, int myid)
+                               sunindextype local_length, int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -5226,7 +5230,7 @@ int Test_N_VWSqrSumMaskLocal_Z(N_Vector X, N_Vector W, N_Vector ID,
  * N_VInvTestLocal test
  * --------------------------------------------------------------------*/
 int Test_N_VInvTestLocal_Z(N_Vector X, N_Vector Z, sunindextype local_length,
-                         int myid)
+                           int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -5321,7 +5325,7 @@ int Test_N_VInvTestLocal_Z(N_Vector X, N_Vector Z, sunindextype local_length,
  * N_VConstrMaskLocal test
  * --------------------------------------------------------------------*/
 int Test_N_VConstrMaskLocal_Z(N_Vector C, N_Vector X, N_Vector M,
-                            sunindextype local_length, int myid)
+                              sunindextype local_length, int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -5492,7 +5496,7 @@ int Test_N_VConstrMaskLocal_Z(N_Vector C, N_Vector X, N_Vector M,
  * N_VMinQuotientLocal test
  * --------------------------------------------------------------------*/
 int Test_N_VMinQuotientLocal_Z(N_Vector NUM, N_Vector DENOM,
-                             sunindextype local_length, int myid)
+                               sunindextype local_length, int myid)
 {
   int fails = 0, failure = 0;
   double start_time, stop_time, maxt;
@@ -5660,7 +5664,8 @@ int Test_N_VDotProdMultiLocal_Z(N_Vector X, sunindextype local_length, int myid)
 /* ----------------------------------------------------------------------
  * N_VDotProdMultiAllReduce Test
  * --------------------------------------------------------------------*/
-int Test_N_VDotProdMultiAllReduce_Z(N_Vector X, sunindextype local_length, int myid)
+int Test_N_VDotProdMultiAllReduce_Z(N_Vector X, sunindextype local_length,
+                                    int myid)
 {
   int fails = 0, failure = 0, ierr = 0;
   double start_time, stop_time, maxt;
@@ -5984,4 +5989,21 @@ int Test_N_VBufUnpack_Z(N_Vector x, sunindextype local_length, int myid)
   free(buf);
 
   return (0);
+}
+
+/* ----------------------------------------------------------------------
+ * Timer
+ * --------------------------------------------------------------------*/
+static double get_time(void)
+{
+  double time;
+#if defined(SUNDIALS_HAVE_POSIX_TIMERS)
+  struct timespec spec;
+  clock_gettime(CLOCK_MONOTONIC, &spec);
+  time = (double)(spec.tv_sec - base_time_tv_sec) +
+         ((double)(spec.tv_nsec) / 1E9);
+#else
+  time = 0;
+#endif
+  return time;
 }
