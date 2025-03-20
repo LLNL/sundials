@@ -327,7 +327,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
   // Load the last step
   suncountertype step  = 1;
   suncountertype stage = 1;
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 0.1, 0,
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 0.2, 0,
                                               &loaded_state, &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
 
