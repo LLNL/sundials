@@ -217,8 +217,7 @@ if(BUILD_FORTRAN_MODULE_INTERFACE)
   if(NOT (SUNDIALS_COUNTER_TYPE MATCHES "int64_t"))
     message(
       FATAL_ERROR
-        "F2003 interface is not compatible with int64_t SUNDIALS_COUNTER_TYPE"
-    )
+        "F2003 interface is not compatible with int64_t SUNDIALS_COUNTER_TYPE")
   endif()
 
   # Allow a user to set where the Fortran modules will be installed
