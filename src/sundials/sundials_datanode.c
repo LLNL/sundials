@@ -8,6 +8,25 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
+ * -----------------------------------------------------------------*
+ * The SUNDataNode class is a hierarchical object which could be used
+ * to build something like a JSON tree. Nodes can be lists, objects,
+ * or leaves. Using the JSON analogy:
+ *  
+ *   "i_am_object": {
+ *     "i_am_list": [
+ *       "i_am_object": {...
+ *       },
+ *       "i_am_leaf"
+ *     ],
+ *     "i_am_leaf": "value"
+ *   }
+ *
+ * Object nodes hold named nodes (children), while list nodes hold 
+ * anonymous nodes (children). Leaf nodes do not have children, they 
+ * have values. The SUNDataNode can be used to build all sorts of
+ * useful things, but we primarily use it as the backbone for 
+ * checkpointing states in adjoint sensitivity analysis. 
  * -----------------------------------------------------------------*/
 
 #include <sundials/priv/sundials_errors_impl.h>
@@ -18,6 +37,11 @@
 #include "sundials/sundials_memory.h"
 #include "sundials_datanode.h"
 
+/**
+ * :param sunctx: The SUNContext.
+ * :param node_out: Pointer to the output SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
 {
   SUNFunctionBegin(sunctx);
@@ -50,6 +74,13 @@ SUNErrCode SUNDataNode_CreateEmpty(SUNContext sunctx, SUNDataNode* node_out)
   return SUN_SUCCESS;
 }
 
+/**
+ * :param io_mode: The I/O mode used for storing the data.
+ * :param mem_helper: The memory helper.
+ * :param sunctx: The SUNContext.
+ * :param node_out: Pointer to the output SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
                                   SUNMemoryHelper mem_helper, SUNContext sunctx,
                                   SUNDataNode* node_out)
@@ -73,6 +104,13 @@ SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
   return SUN_SUCCESS;
 }
 
+/**
+ * :param io_mode: The I/O mode used for storing the data.
+ * :param num_elements: The number of elements in the list.
+ * :param sunctx: The SUNContext.
+ * :param node_out: Pointer to the output SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
                                   sundataindex num_elements, SUNContext sunctx,
                                   SUNDataNode* node_out)
@@ -97,6 +135,13 @@ SUNErrCode SUNDataNode_CreateList(SUNDataIOMode io_mode,
   return err;
 }
 
+/**
+ * :param io_mode: The I/O mode used for storing the data.
+ * :param num_elements: The number of elements in the object.
+ * :param sunctx: The SUNContext.
+ * :param node_out: Pointer to the output SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
                                     sundataindex num_elements,
                                     SUNContext sunctx, SUNDataNode* node_out)
@@ -121,6 +166,11 @@ SUNErrCode SUNDataNode_CreateObject(SUNDataIOMode io_mode,
   return err;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param yes_or_no: Pointer to the output boolean result.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode self, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
@@ -139,6 +189,11 @@ SUNErrCode SUNDataNode_IsLeaf(const SUNDataNode self, sunbooleantype* yes_or_no)
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param yes_or_no: Pointer to the output boolean result.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_IsList(const SUNDataNode self, sunbooleantype* yes_or_no)
 {
   SUNFunctionBegin(self->sunctx);
@@ -156,6 +211,11 @@ SUNErrCode SUNDataNode_IsList(const SUNDataNode self, sunbooleantype* yes_or_no)
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param yes_or_no: Pointer to the output boolean result.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_HasChildren(const SUNDataNode self,
                                    sunbooleantype* yes_or_no)
 {
@@ -174,6 +234,11 @@ SUNErrCode SUNDataNode_HasChildren(const SUNDataNode self,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param child_node: The child SUNDataNode to add.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_AddChild(SUNDataNode self, SUNDataNode child_node)
 {
   SUNFunctionBegin(self->sunctx);
@@ -191,6 +256,12 @@ SUNErrCode SUNDataNode_AddChild(SUNDataNode self, SUNDataNode child_node)
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param name: The name of the child.
+ * :param child_node: The child SUNDataNode to add.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode self, const char* name,
                                      SUNDataNode child_node)
 {
@@ -209,6 +280,12 @@ SUNErrCode SUNDataNode_AddNamedChild(SUNDataNode self, const char* name,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param index: The index of the child.
+ * :param child_node: Pointer to the output child SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex index,
                                 SUNDataNode* child_node)
 {
@@ -227,6 +304,12 @@ SUNErrCode SUNDataNode_GetChild(const SUNDataNode self, sundataindex index,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param name: The name of the child.
+ * :param child_node: Pointer to the output child SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode self, const char* name,
                                      SUNDataNode* child_node)
 {
@@ -245,6 +328,12 @@ SUNErrCode SUNDataNode_GetNamedChild(const SUNDataNode self, const char* name,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param name: The name of the child.
+ * :param child_node: Pointer to the output child SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode self, const char* name,
                                         SUNDataNode* child_node)
 {
@@ -263,6 +352,12 @@ SUNErrCode SUNDataNode_RemoveNamedChild(const SUNDataNode self, const char* name
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param index: The index of the child.
+ * :param child_node: Pointer to the output child SUNDataNode.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex index,
                                    SUNDataNode* child_node)
 {
@@ -281,6 +376,13 @@ SUNErrCode SUNDataNode_RemoveChild(SUNDataNode self, sundataindex index,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param data: Pointer to the output data.
+ * :param data_stride: Pointer to the output data stride.
+ * :param data_bytes: Pointer to the output data bytes.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data,
                                size_t* data_stride, size_t* data_bytes)
 {
@@ -299,6 +401,12 @@ SUNErrCode SUNDataNode_GetData(const SUNDataNode self, void** data,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param v: The output state N_Vector.
+ * :param t: On output, the time associated with the output state vector.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector v, sunrealtype* t)
 {
   SUNFunctionBegin(self->sunctx);
@@ -316,6 +424,15 @@ SUNErrCode SUNDataNode_GetDataNvector(SUNDataNode self, N_Vector v, sunrealtype*
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param src_mem_type: The source memory type.
+ * :param node_mem_type: The node memory type.
+ * :param data: The data to set.
+ * :param data_stride: The data stride.
+ * :param data_bytes: The data bytes.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_SetData(SUNDataNode self, SUNMemoryType src_mem_type,
                                SUNMemoryType node_mem_type, void* data,
                                size_t data_stride, size_t data_bytes)
@@ -336,6 +453,12 @@ SUNErrCode SUNDataNode_SetData(SUNDataNode self, SUNMemoryType src_mem_type,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param self: The SUNDataNode.
+ * :param v: The state N_Vector.
+ * :param t: The time associated with the state vector.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_SetDataNvector(SUNDataNode self, N_Vector v, sunrealtype t)
 {
   SUNFunctionBegin(self->sunctx);
@@ -353,6 +476,10 @@ SUNErrCode SUNDataNode_SetDataNvector(SUNDataNode self, N_Vector v, sunrealtype 
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+/**
+ * :param node: Pointer to the SUNDataNode to destroy.
+ * :return: SUNErrCode indicating success or failure.
+ */
 SUNErrCode SUNDataNode_Destroy(SUNDataNode* node)
 {
   SUNFunctionBegin((*node)->sunctx);
