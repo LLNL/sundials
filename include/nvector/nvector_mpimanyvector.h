@@ -107,7 +107,8 @@ N_Vector N_VClone_MPIManyVector(N_Vector w);
 SUNDIALS_EXPORT
 void N_VDestroy_MPIManyVector(N_Vector v);
 
-SUNDIALS_EXPORT
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 void N_VSpace_MPIManyVector(N_Vector v, sunindextype* lrw, sunindextype* liw);
 
 SUNDIALS_EXPORT

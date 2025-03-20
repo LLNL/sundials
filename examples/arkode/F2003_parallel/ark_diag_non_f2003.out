@@ -16,14 +16,14 @@
      0.400000      31      32     131
      0.500000      38      39     159
      0.600000      45      46     187
-     0.700000      52      53     215
-     0.800000      59      60     243
-     0.900000      66      67     271
-     1.000000      73      74     299
+     0.700000      51      52     211
+     0.800000      58      59     239
+     0.900000      65      66     267
+     1.000000      72      73     295
     -----------------------------------------
-Max. absolute error is   7.67E-09
+Max. absolute error is   7.93E-09
    
  Final Solver Statistics:
-   Internal solver steps =     73 (attempted =     74)
-   Total RHS evals =    299
+   Internal solver steps =     72 (attempted =     73)
+   Total RHS evals =    295
    Total number of error test failures =      1

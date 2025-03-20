@@ -79,6 +79,10 @@ below.
 
       retval = SUNMatSpace(A, &lrw, &liw);
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: SUNErrCode SUNMatZero(SUNMatrix A)
 

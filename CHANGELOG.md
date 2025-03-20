@@ -12,6 +12,9 @@ Improved the precision of the coefficients for `ARKODE_ARK324L2SA_ERK_4_2_3`,
 `ARKODE_VERNER_9_5_6`, `ARKODE_VERNER_10_6_7`, `ARKODE_VERNER_13_7_8`,
 `ARKODE_ARK324L2SA_DIRK_4_2_3`, and `ARKODE_ESDIRK324L2SA_4_2_3`.
 
+The Soderlind time step adaptivity controller now starts with an I controller
+until there is sufficient history of past time steps and errors.
+
 Added the `ARKODE_RALSTON_3_1_2` and `ARKODE_TSITOURAS_7_4_5` explicit
 Runge-Kutta Butcher tables.
 
@@ -33,6 +36,9 @@ Improved the efficiency of default ARKODE methods with the following changes:
 
 ### Bug Fixes
 
+Removed error floors from the `SUNAdaptController` implementations which could
+unnecessarily limit the time size growth, particularly after the first step.
+
 Fixed bug in `ARKodeSetFixedStep` where it could return `ARK_SUCCESS` despite
 an error occurring.
 
@@ -45,6 +51,9 @@ with SPRKStep that could cause a segmentation fault when compensated summation i
 used.
 
 ### Deprecation Notices
+
+All work space functions, e.g., `CVodeGetWorkSpace` and `ARKodeGetLinWorkSpace`,
+have been deprecated and will be removed in version 8.0.0.
 
 ## Changes to SUNDIALS in release 7.2.1
 
