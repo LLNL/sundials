@@ -121,8 +121,9 @@ SUNDIALS_EXPORT SUNErrCode SUNMatScaleAdd_Band(sunrealtype c, SUNMatrix A,
                                                SUNMatrix B);
 SUNDIALS_EXPORT SUNErrCode SUNMatScaleAddI_Band(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT SUNErrCode SUNMatMatvec_Band(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT SUNErrCode SUNMatSpace_Band(SUNMatrix A, long int* lenrw,
-                                            long int* leniw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+SUNErrCode SUNMatSpace_Band(SUNMatrix A, long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus
 }

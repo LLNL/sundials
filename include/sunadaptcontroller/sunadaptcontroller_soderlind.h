@@ -88,7 +88,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C,
                                                 sunrealtype h, sunrealtype dsm);
 
-SUNDIALS_EXPORT
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 SUNErrCode SUNAdaptController_Space_Soderlind(SUNAdaptController C,
                                               long int* lenrw, long int* leniw);
 

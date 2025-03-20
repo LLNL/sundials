@@ -285,6 +285,10 @@ ARKodeButcherTable functions
       * *ARK_SUCCESS* if successful.
       * *ARK_MEM_NULL* if the Butcher table memory was ``NULL``.
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 .. c:function:: void ARKodeButcherTable_Free(ARKodeButcherTable B)
 
    Deallocate the Butcher table memory.

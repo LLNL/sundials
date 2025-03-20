@@ -172,7 +172,8 @@ SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumErrTestFails instead")
 int ERKStepGetNumErrTestFails(void* arkode_mem, long int* netfails);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetEstLocalErrors instead")
 int ERKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele);
-SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetWorkSpace instead")
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 int ERKStepGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
 SUNDIALS_DEPRECATED_EXPORT_MSG("use ARKodeGetNumSteps instead")
 int ERKStepGetNumSteps(void* arkode_mem, long int* nsteps);
