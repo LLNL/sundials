@@ -133,8 +133,6 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype,
   if (index >= self->size || index < 0)
   {
     // Handle index out of bounds
-    fprintf(stderr, ">>> out of bounds: index = %lld, size=%lld\n", index,
-            self->size);
     return SUN_ERR_OUTOFRANGE;
   }
   self->values[index] = element;
