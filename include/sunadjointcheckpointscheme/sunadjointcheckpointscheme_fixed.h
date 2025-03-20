@@ -26,12 +26,11 @@ extern "C" {
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Create_Fixed(
-  SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, int64_t interval,
-  int64_t estimate, sunbooleantype save_stages, sunbooleantype keep,
+  SUNDataIOMode io_mode, SUNMemoryHelper mem_helper, suncountertype interval,
+  suncountertype estimate, sunbooleantype save_stages, sunbooleantype keep,
   SUNContext sunctx, SUNAdjointCheckpointScheme* check_scheme_ptr);
 
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving_Fixed(
+SUNDIALS_EXPORT SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving_Fixed(
   SUNAdjointCheckpointScheme check_scheme, int64_t step_num, int64_t stage_num,
   sunrealtype t, sunbooleantype* yes_or_no);
 
