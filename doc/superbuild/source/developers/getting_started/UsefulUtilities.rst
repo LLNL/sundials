@@ -23,11 +23,11 @@ for comments in the source.
 Data Structures
 ---------------
 
-We have our own implementation of a hash map, `SUNHashMap`. It is found at
-``src/sundials/sundials_hashmap_impl.h`` and ``src/sundials/sundials_hashmap.c`.
+We have our own implementation of a hash map, ``SUNHashMap``. It is found at
+``src/sundials/sundials_hashmap_impl.h`` and ``src/sundials/sundials_hashmap.c``.
 
 We have a C implementation of a ``std::vector`` in ``src/sundials/stl``. 
 
 We have an implementation of a hierarchical node object, which can be used to
-build things like a JSON tree, at ```src/sundials/sundials_datanode.{h,c}``.
+build things like a JSON tree, at ``src/sundials/sundials_datanode.{h,c}``.
 
