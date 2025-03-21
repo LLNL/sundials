@@ -3347,6 +3347,10 @@ Retrieve the accumulated temporal error estimate       :c:func:`ARKodeGetAccumul
 
    .. versionadded:: 6.1.0
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: int ARKodeGetNumSteps(void* arkode_mem, long int* nsteps)
 
@@ -4121,6 +4125,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
 
    .. versionadded:: 6.1.0
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: int ARKodeGetNumJacEvals(void* arkode_mem, long int* njevals)
 
@@ -4428,6 +4436,10 @@ Last return from a mass matrix solver function                     :c:func:`ARKo
       processors).
 
    .. versionadded:: 6.1.0
+
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 
 .. c:function:: int ARKodeGetNumMassSetups(void* arkode_mem, long int* nmsetups)

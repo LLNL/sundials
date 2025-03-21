@@ -58,7 +58,7 @@ At top right:    c1, c2 =    1.336e-09    4.163e+11
 
 Final Statistics: 
 
-lenrw   =  4118     leniw   =   290
+lenrw   =  4118     leniw   =   291
 lenrwls =  2455     leniwls =   126
 nst     =   314     nfe     =     0
 nfe     =  3841     nfels   =  7439
@@ -127,7 +127,7 @@ At top right:    c1, c2 =   -6.762e-07    4.163e+11
 
 Final Statistics: 
 
-lenrw   =  4118     leniw   =   296
+lenrw   =  4118     leniw   =   297
 lenrwls =  2455     leniwls =   126
 nst     =   328     nfe     =     0
 nfe     =  4059     nfels   =  8661

@@ -45,17 +45,17 @@ Partition 3 evolves           = 17
 
 Advection Stepper Statistics:
 Current time                  = 1
-Steps                         = 57
-Step attempts                 = 66
+Steps                         = 54
+Step attempts                 = 62
 Stability limited steps       = 0
-Accuracy limited steps        = 66
-Error test fails              = 9
+Accuracy limited steps        = 62
+Error test fails              = 8
 NLS step fails                = 0
 Inequality constraint fails   = 0
 Initial step size             = 2.0593554389295e-06
-Last step size                = 0.00226319527175156
-Current step size             = 0.00226319527175156
-RHS fn evals                  = 191
+Last step size                = 0.0145539225779249
+Current step size             = 0.0145539225779249
+RHS fn evals                  = 180
 
 Diffusion Stepper Statistics:
 Current time                  = 1
@@ -67,8 +67,8 @@ Error test fails              = 65
 NLS step fails                = 0
 Inequality constraint fails   = 0
 Initial step size             = 2.0593554389295e-06
-Last step size                = 0.0119570030665884
-Current step size             = 0.0119570030665884
+Last step size                = 0.0122445191525184
+Current step size             = 0.0122445191525184
 Explicit RHS fn evals         = 0
 Implicit RHS fn evals         = 1915
 NLS iters                     = 948
