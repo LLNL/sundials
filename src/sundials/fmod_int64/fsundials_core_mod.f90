@@ -665,8 +665,8 @@ module fsundials_core_mod
  public :: FSUNAdjointStepper_OneStep
  public :: FSUNAdjointStepper_RecomputeFwd
  public :: FSUNAdjointStepper_SetJacFn
- public :: FSUNAdjointStepper_SetJacTimesVecFn
- public :: FSUNAdjointStepper_SetVecTimesJacFn
+ public :: FSUNAdjointStepper_SetJacHermitianTransposeVecFn
+ public :: FSUNAdjointStepper_SetVecHermitianTransposeJacFn
  public :: FSUNAdjointStepper_SetUserData
  public :: FSUNAdjointStepper_GetNumSteps
  public :: FSUNAdjointStepper_GetNumJacEvals
@@ -2739,8 +2739,8 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointStepper_SetJacTimesVecFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNAdjointStepper_SetJacTimesVecFn") &
+function swigc_FSUNAdjointStepper_SetJacHermitianTransposeVecFn(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNAdjointStepper_SetJacHermitianTransposeVecFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2749,8 +2749,8 @@ type(C_FUNPTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointStepper_SetVecTimesJacFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNAdjointStepper_SetVecTimesJacFn") &
+function swigc_FSUNAdjointStepper_SetVecHermitianTransposeJacFn(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNAdjointStepper_SetVecHermitianTransposeJacFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -6685,7 +6685,7 @@ fresult = swigc_FSUNAdjointStepper_SetJacFn(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FSUNAdjointStepper_SetJacTimesVecFn(arg0, jvp, jpvp) &
+function FSUNAdjointStepper_SetJacHermitianTransposeVecFn(arg0, jvp, jpvp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -6700,11 +6700,11 @@ type(C_FUNPTR) :: farg3
 farg1 = arg0
 farg2 = jvp
 farg3 = jpvp
-fresult = swigc_FSUNAdjointStepper_SetJacTimesVecFn(farg1, farg2, farg3)
+fresult = swigc_FSUNAdjointStepper_SetJacHermitianTransposeVecFn(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNAdjointStepper_SetVecTimesJacFn(arg0, vjp, vjpp) &
+function FSUNAdjointStepper_SetVecHermitianTransposeJacFn(arg0, vjp, vjpp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -6719,7 +6719,7 @@ type(C_FUNPTR) :: farg3
 farg1 = arg0
 farg2 = vjp
 farg3 = vjpp
-fresult = swigc_FSUNAdjointStepper_SetVecTimesJacFn(farg1, farg2, farg3)
+fresult = swigc_FSUNAdjointStepper_SetVecHermitianTransposeJacFn(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

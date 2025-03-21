@@ -66,7 +66,7 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
    * :math:`v^*(\partial f/\partial p)`,
    * :math:`(\partial f/\partial p)`.
 
-   These user-supplied routines can be set with :c:func:`SUNAdjointStepper_SetJacTimesVecFn`, or
+   These user-supplied routines can be set with :c:func:`SUNAdjointStepper_SetJacHermitianTransposeVecFn`, or
    :c:func:`SUNAdjointStepper_SetJacFn`.
 
 #. Set optional ASA input

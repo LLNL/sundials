@@ -194,9 +194,9 @@ SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper self, SUNRhsJacFn JacFn,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper self,
-                                              SUNRhsJacTimesFn Jvp,
-                                              SUNRhsJacTimesFn JPvp)
+SUNErrCode SUNAdjointStepper_SetJacHermitianTransposeVecFn(SUNAdjointStepper self,
+                                                           SUNRhsJacTimesFn Jvp,
+                                                           SUNRhsJacTimesFn JPvp)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -206,15 +206,15 @@ SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper self,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper self,
-                                              SUNRhsJacTimesFn vJp,
-                                              SUNRhsJacTimesFn vJPp)
+SUNErrCode SUNAdjointStepper_SetVecHermitianTransposeJacFn(SUNAdjointStepper self,
+                                                           SUNRhsJacTimesFn vJp,
+                                                           SUNRhsJacTimesFn vJPp)
 {
   SUNFunctionBegin(self->sunctx);
   /* Since sundials does not distinguish between row and column vectors,
      it does not matter if we the user does v^*J or J^*v. We only provide 
-     this SUNAdjointStepper_SetVecTimesJacFn to indicate we support v^*J. */
-  return SUNAdjointStepper_SetJacTimesVecFn(self, vJp, vJPp);
+     this SUNAdjointStepper_SetVecHermitianTransposeJacFn to indicate we support v^*J. */
+  return SUNAdjointStepper_SetJacHermitianTransposeVecFn(self, vJp, vJPp);
 }
 
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper self, void* user_data)
