@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -220,7 +220,7 @@ Davis and collaborators (:cite:p:`KLU_site,DaPa:10`).  In order to use the
 SUNLinSol_KLU interface to KLU, it is assumed that KLU has
 been installed on the system prior to installation of SUNDIALS, and
 that SUNDIALS has been configured appropriately to link with KLU
-(see :numref:`Installation.CMake.ExternalLibraries` for details).
+(see :numref:`Installation.Options.KLU` for details).
 Additionally, this wrapper only supports double-precision
 calculations, and therefore cannot be compiled if SUNDIALS is
 configured to have :c:type:`sunrealtype` set to either ``extended`` or

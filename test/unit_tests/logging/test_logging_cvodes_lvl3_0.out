@@ -3,7 +3,7 @@ Using fixed-point nonlinear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
-[INFO][rank 0][cvStep][begin-step-attempt] step = 1, tn = 0, h = 0.0001029860256095084, q = 1
+[INFO][rank 0][cvStep][begin-step-attempt] step = 1, tn = 0, h = 0.000102986025609508, q = 1
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.2
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
@@ -13,9 +13,9 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 6.259026232096693e-05
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
-[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.2499621899552651
+[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.249962189955265
  1.029860256095084e-04    1.224744869195305e+00    1.732049582942475e+00    1.113801051388918e-09    6.122818017040288e-07
-[INFO][rank 0][cvStep][begin-step-attempt] step = 2, tn = 0.0001029860256095084, h = 0.0001029860256095084, q = 1
+[INFO][rank 0][cvStep][begin-step-attempt] step = 2, tn = 0.000102986025609508, h = 0.000102986025609508, q = 1
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.2
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
@@ -27,7 +27,7 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.249962018079078
  2.059720512190168e-04    1.224744864802767e+00    1.732047133691379e+00    2.258890852147033e-09    1.224500395968775e-06
-[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.0002059720512190168, h = 0.001029860256095084, q = 2
+[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.000205972051219017, h = 0.00102986025609508, q = 2
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.4064516129032258
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
@@ -37,8 +37,8 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.02644643520889491
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
-[INFO][rank 0][cvStep][end-step-attempt] status = failed error test, dsm = 8.198472955140451, eflag = 5
-[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.0002059720512190168, h = 0.0002810714755410129, q = 2
+[INFO][rank 0][cvStep][end-step-attempt] status = failed error test, dsm = 8.19847295514045, eflag = 5
+[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.000205972051219017, h = 0.000281071475541013, q = 2
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.4217683315129505
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-solver] solver = Fixed-Point
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][begin-nonlinear-iterate] 
@@ -48,23 +48,23 @@ Using fixed-point nonlinear solver
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][nonlinear-iterate] cur-iter = 2, update-norm = 0.0005559126276672459
 [INFO][rank 0][SUNNonlinSolSolve_FixedPoint][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
-[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.5885921138418445
+[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.588592113841845
  4.870435267600296e-04    1.224744841922327e+00    1.732034367982330e+00    5.258975033228808e-09    2.744234303353466e-06
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.0004870435267600296
-Steps                        = 3
-Error test fails             = 1
-NLS step fails               = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.0002810714755410129
-Current step size            = 0.0002810714755410129
-Last method order            = 2
-Current method order         = 2
-Stab. lim. order reductions  = 0
-RHS fn evals                 = 11
-NLS iters                    = 8
-NLS fails                    = 0
-NLS iters per step           = 2.666666666666667
-LS setups                    = 0
-Root fn evals                = 0
+Current time                  = 0.00048704352676003
+Steps                         = 3
+Error test fails              = 1
+NLS step fails                = 0
+Initial step size             = 0.000102986025609508
+Last step size                = 0.000281071475541013
+Current step size             = 0.000281071475541013
+Last method order             = 2
+Current method order          = 2
+Stab. lim. order reductions   = 0
+RHS fn evals                  = 11
+NLS iters                     = 8
+NLS fails                     = 0
+NLS iters per step            = 2.66666666666667
+LS setups                     = 0
+Root fn evals                 = 0
 End CVODES Logging test

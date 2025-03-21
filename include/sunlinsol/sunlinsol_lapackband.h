@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -60,9 +60,10 @@ SUNDIALS_EXPORT int SUNLinSolSolve_LapackBand(SUNLinearSolver S, SUNMatrix A,
                                               N_Vector x, N_Vector b,
                                               sunrealtype tol);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_LapackBand(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNErrCode SUNLinSolSpace_LapackBand(SUNLinearSolver S,
-                                                     long int* lenrwLS,
-                                                     long int* leniwLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+SUNErrCode SUNLinSolSpace_LapackBand(SUNLinearSolver S, long int* lenrwLS,
+                                     long int* leniwLS);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolFree_LapackBand(SUNLinearSolver S);
 
 #ifdef __cplusplus

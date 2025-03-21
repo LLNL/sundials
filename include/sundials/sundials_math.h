@@ -4,7 +4,7 @@
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -162,6 +162,54 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
+ * Function : SUNRcopysign
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype z;
+ *         z = SUNRcopysign(x, y);
+ * -----------------------------------------------------------------
+ * SUNRcopysign(x, y) returns x with the sign of y.
+ * -----------------------------------------------------------------
+ */
+
+#ifndef SUNRcopysign
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRcopysign(x, y) (copysign((x), (y)))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRcopysign(x, y) (copysignf((x), (y)))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRcopysign(x, y) (copysignl((x), (y)))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
+ * Function : SUNRpowerR
+ * -----------------------------------------------------------------
+ * Usage : sunrealtype base, exponent, ans;
+ *         ans = SUNRpowerR(base,exponent);
+ * -----------------------------------------------------------------
+ * SUNRpowerR returns the value of base^exponent, where both base and
+ * exponent are of type sunrealtype.
+ * -----------------------------------------------------------------
+ */
+#ifndef SUNRpowerR
+#if defined(SUNDIALS_DOUBLE_PRECISION)
+#define SUNRpowerR(base, exponent) (pow(base, exponent))
+#elif defined(SUNDIALS_SINGLE_PRECISION)
+#define SUNRpowerR(base, exponent) (powf(base, exponent))
+#elif defined(SUNDIALS_EXTENDED_PRECISION)
+#define SUNRpowerR(base, exponent) (powl(base, exponent))
+#else
+#error \
+  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
+#endif
+#endif
+
+/*
+ * -----------------------------------------------------------------
  * Function : SUNRround
  * -----------------------------------------------------------------
  * Usage : sunrealtype round_x;
@@ -212,21 +260,6 @@ SUNDIALS_EXPORT int SUNIpowerI(int base, int exponent);
  */
 
 SUNDIALS_EXPORT sunrealtype SUNRpowerI(sunrealtype base, int exponent);
-
-/*
- * -----------------------------------------------------------------
- * Function : SUNRpowerR
- * -----------------------------------------------------------------
- * Usage : sunrealtype base, exponent, ans;
- *         ans = SUNRpowerR(base,exponent);
- * -----------------------------------------------------------------
- * SUNRpowerR returns the value of base^exponent, where both base and
- * exponent are of type sunrealtype. If base < ZERO, then SUNRpowerR
- * returns ZERO.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent);
 
 /*
  * -----------------------------------------------------------------

@@ -3,7 +3,7 @@
  *                David J. Gardner, Radu Serban and Aaron Collier @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -163,20 +163,7 @@ int kinLs_AccessLMem(void* kinmem, const char* fname, KINMem* kin_mem,
   ------------------------------------------------------------------*/
 
 #define INFO_NLI "nli_inc = %d"
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-
-#define INFO_EPS "residual norm = %12.3Lg  eps = %12.3Lg"
-
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-
-#define INFO_EPS "residual norm = %12.3lg  eps = %12.3lg"
-
-#else
-
-#define INFO_EPS "residual norm = %12.3g  eps = %12.3g"
-
-#endif
+#define INFO_EPS "residual norm = " SUN_FORMAT_G "  eps = " SUN_FORMAT_G
 
 #ifdef __cplusplus
 }

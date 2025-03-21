@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -326,8 +326,10 @@ SUNDIALS_EXPORT int ARKodeGetNumRhsEvals(void* arkode_mem, int partition_index,
                                          long int* num_rhs_evals);
 SUNDIALS_EXPORT int ARKodeGetNumStepAttempts(void* arkode_mem,
                                              long int* step_attempts);
-SUNDIALS_EXPORT int ARKodeGetWorkSpace(void* arkode_mem, long int* lenrw,
-                                       long int* leniw);
+
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int ARKodeGetWorkSpace(void* arkode_mem, long int* lenrw, long int* leniw);
 SUNDIALS_EXPORT int ARKodeGetNumSteps(void* arkode_mem, long int* nsteps);
 SUNDIALS_EXPORT int ARKodeGetLastStep(void* arkode_mem, sunrealtype* hlast);
 SUNDIALS_EXPORT int ARKodeGetCurrentStep(void* arkode_mem, sunrealtype* hcur);
@@ -380,8 +382,9 @@ SUNDIALS_EXPORT int ARKodeGetNumStepSolveFails(void* arkode_mem,
 SUNDIALS_EXPORT int ARKodeGetJac(void* arkode_mem, SUNMatrix* J);
 SUNDIALS_EXPORT int ARKodeGetJacTime(void* arkode_mem, sunrealtype* t_J);
 SUNDIALS_EXPORT int ARKodeGetJacNumSteps(void* arkode_mem, long int* nst_J);
-SUNDIALS_EXPORT int ARKodeGetLinWorkSpace(void* arkode_mem, long int* lenrwLS,
-                                          long int* leniwLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int ARKodeGetLinWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS);
 SUNDIALS_EXPORT int ARKodeGetNumJacEvals(void* arkode_mem, long int* njevals);
 SUNDIALS_EXPORT int ARKodeGetNumPrecEvals(void* arkode_mem, long int* npevals);
 SUNDIALS_EXPORT int ARKodeGetNumPrecSolves(void* arkode_mem, long int* npsolves);
@@ -399,8 +402,10 @@ SUNDIALS_EXPORT char* ARKodeGetLinReturnFlagName(long int flag);
 /* Optional output functions (non-identity mass matrices) */
 SUNDIALS_EXPORT int ARKodeGetCurrentMassMatrix(void* arkode_mem, SUNMatrix* M);
 SUNDIALS_EXPORT int ARKodeGetResWeights(void* arkode_mem, N_Vector rweight);
-SUNDIALS_EXPORT int ARKodeGetMassWorkSpace(void* arkode_mem, long int* lenrwMLS,
-                                           long int* leniwMLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int ARKodeGetMassWorkSpace(void* arkode_mem, long int* lenrwMLS,
+                           long int* leniwMLS);
 SUNDIALS_EXPORT int ARKodeGetNumMassSetups(void* arkode_mem, long int* nmsetups);
 SUNDIALS_EXPORT int ARKodeGetNumMassMultSetups(void* arkode_mem,
                                                long int* nmvsetups);

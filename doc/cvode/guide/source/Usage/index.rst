@@ -1,6 +1,6 @@
 .. ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -1140,7 +1140,7 @@ Main solver optional input functions
 
    **Notes:**
     SUNDIALS must be compiled appropriately for specialized kernels to be available. The CMake option ``SUNDIALS_BUILD_PACKAGE_FUSED_KERNELS`` must be set to
-    ``ON`` when SUNDIALS is compiled. See the entry for this option in :numref:`Installation.CMake.options` for more information.
+    ``ON`` when SUNDIALS is compiled. See the entry for this option in :numref:`Installation.Options` for more information.
     Currently, the fused kernels are only supported when using CVODE with the :ref:`NVECTOR_CUDA <NVectors.CUDA>` and :ref:`NVECTOR_HIP <NVectors.Hip>` implementations of the ``N_Vector``.
 
 .. _CVODE.Usage.CC.optional_input.optin_ls:
@@ -2398,6 +2398,10 @@ described next.
 
       * For the BDF method: :math:`\texttt{lenrw} = 96 + 10N` and :math:`\texttt{leniw} = 50`
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 
 
 .. c:function:: int CVodeGetNumSteps(void* cvode_mem, long int *nsteps)
@@ -2922,6 +2926,10 @@ solver, a suffix (for Linear Solver) has been added (e.g. ``lenrwLS``).
       Replaces the deprecated functions ``CVDlsGetWorkspace`` and
       ``CVSpilsGetWorkspace``.
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: int CVodeGetNumJacEvals(void* cvode_mem, long int *njevals)
 
@@ -3152,6 +3160,9 @@ solver, a suffix (for Linear Solver) has been added here (e.g. ``lenrwLS``).
    **Notes:**
       In terms of the problem size :math:`N`, the actual size of the real workspace  is roughly :math:`3 N` ``sunrealtype`` words.
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int CVDiagGetNumRhsEvals(void* cvode_mem, long int *nfevalsLS)
 
@@ -3946,6 +3957,9 @@ the CVBANDPRE module:
 
       The workspaces referred to here exist in addition to those given by the  corresponding function ``CVodeGetLinWorkSpace``.
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int CVBandPrecGetNumRhsEvals(void* cvode_mem, long int *nfevalsBP)
 
@@ -4297,6 +4311,10 @@ the CVBBDPRE module:
 
    **Notes:**
       The workspace requirements reported by this routine correspond only  to memory allocated within the CVBBDPRE module (the banded  matrix approximation, banded ``SUNLinearSolver`` object, temporary vectors).  These values are local to each process.  The workspaces referred to here exist in addition to those given by the  corresponding function ``CVodeGetLinWorkSpace``.
+
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int CVBBDPrecGetNumGfnEvals(void* cvode_mem, long int *ngevalsBBDP)
 

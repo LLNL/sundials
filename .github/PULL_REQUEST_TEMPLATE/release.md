@@ -27,7 +27,7 @@ This is a list of tasks that need to be done before a SUNDIALS release.
    * `doc/shared/History.rst`
    * `doc/shared/sundials.bib`
    * `doc/sundials/biblio.bib`
-   * `scripts/tarscript`
+   * `scripts/tarscript.sh`
 
    The following files are no longer maintaianed:
 

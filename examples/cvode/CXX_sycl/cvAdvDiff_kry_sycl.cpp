@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * ---------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -58,22 +58,6 @@
 #define ONE  SUN_RCONST(1.0)
 #define TWO  SUN_RCONST(2.0)
 #define FIVE SUN_RCONST(5.0)
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
-
-#if defined(SUNDIALS_INT64_T)
-#define DSYM "ld"
-#else
-#define DSYM "d"
-#endif
 
 // User data sstructure contains model and discretization parameters
 struct UserData

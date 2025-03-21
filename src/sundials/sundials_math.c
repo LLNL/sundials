@@ -3,7 +3,7 @@
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -43,22 +43,6 @@ sunrealtype SUNRpowerI(sunrealtype base, int exponent)
   return (prod);
 }
 
-sunrealtype SUNRpowerR(sunrealtype base, sunrealtype exponent)
-{
-  if (base <= SUN_RCONST(0.0)) { return (SUN_RCONST(0.0)); }
-
-#if defined(SUNDIALS_DOUBLE_PRECISION)
-  return (pow(base, exponent));
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return (powf(base, exponent));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return (powl(base, exponent));
-#else
-#error \
-  "SUNDIALS precision not defined, report to github.com/LLNL/sundials/issues"
-#endif
-}
-
 sunbooleantype SUNRCompare(sunrealtype a, sunrealtype b)
 {
   return (SUNRCompareTol(a, b, 10 * SUN_UNIT_ROUNDOFF));
@@ -74,25 +58,22 @@ sunbooleantype SUNRCompareTol(sunrealtype a, sunrealtype b, sunrealtype tol)
    */
   if (a == b) { return (SUNFALSE); }
 
-  /* If a or b are NaN */
-  if (isnan(a) || isnan(b)) { return (SUNTRUE); }
-
-  /* If one of a or b are Inf (since we handled both being inf above) */
-  if (isinf(a) || isinf(b)) { return (SUNTRUE); }
-
   diff = SUNRabs(a - b);
   norm = SUNMIN(SUNRabs(a + b), SUN_BIG_REAL);
 
-  /* When |a + b| is very small (less than 10*SUN_UNIT_ROUNDOFF) or zero, we use an
-   * absolute difference:
+  /* When |a + b| is very small (less than 10*SUN_UNIT_ROUNDOFF) or zero, we use
+   * an absolute difference:
    *    |a - b| >= 10*SUN_UNIT_ROUNDOFF
    * Otherwise we use a relative difference:
    *    |a - b| < tol * |a + b|
-   * The choice to use |a + b| over max(a, b)
-   * is arbitrary, as is the choice to use
-   * 10*SUN_UNIT_ROUNDOFF.
+   * The choice to use |a + b| over max(a, b) is arbitrary, as is the choice to
+   * use 10*SUN_UNIT_ROUNDOFF.
+   * 
+   * In order to handle NANs correctly without explicit checks of isnan or
+   * isunordered (which throw warnings for some compilers and flags), we use
+   * !isless. The seemingly equivalent >= can have undefined behavior for NANs.
    */
-  return (diff >= SUNMAX(10 * SUN_UNIT_ROUNDOFF, tol * norm));
+  return !isless(diff, SUNMAX(10 * SUN_UNIT_ROUNDOFF, tol * norm));
 }
 
 sunrealtype SUNStrToReal(const char* str)

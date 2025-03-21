@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -46,6 +46,7 @@
 #include <arkode/arkode_arkstep.h>
 #include <arkode/arkode_mristep.h>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <nvector/nvector_serial.h>
 #include <stdio.h>
@@ -55,19 +56,8 @@
 #include <sunmatrix/sunmatrix_dense.h>
 #include <vector>
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
-#else
-#define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
-#endif
-
 #define ZERO SUN_RCONST(0.0)
 #define ONE  SUN_RCONST(1.0)
-#define TWO  SUN_RCONST(2.0)
 
 using namespace std;
 
@@ -304,42 +294,61 @@ static int run_test(void* mristep_mem, N_Vector y, sunrealtype T0,
     dsm[iH] = abs(ydata[0] - vdata[0]) / (abstol + reltol * abs(vdata[0]));
     if (method == "ARKODE_MRI_GARK_ERK22a")
     {
-      printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e   "
-             " dsm_est_anal  %.2e\n",
-             Hvals[iH], dsm[iH], dsm_est[iH],
-             Hvals[iH] * Hvals[iH] * Hvals[iH] * abs(udata.a / 12.0) /
-               (abstol + reltol * abs(vdata[0])),
-             Hvals[iH] * Hvals[iH] *
-               abs(udata.a * Hvals[iH] / 4.0 + udata.b / 2.0) /
-               (abstol + reltol * abs(vdata[0])));
+      cout << fixed << setprecision(5);
+      cout << setw(10) << "H  " << Hvals[iH];
+      cout << scientific << setprecision(2);
+      cout << setw(9) << "dsm  " << dsm[iH];
+      cout << setw(13) << "dsm_est  " << dsm_est[iH];
+      cout << setw(14) << "dsm_anal  "
+           << Hvals[iH] * Hvals[iH] * Hvals[iH] * abs(udata.a / 12.0) /
+                (abstol + reltol * abs(vdata[0]));
+      cout << setw(18) << "dsm_est_anal  "
+           << Hvals[iH] * Hvals[iH] *
+                abs(udata.a * Hvals[iH] / 4.0 + udata.b / 2.0) /
+                (abstol + reltol * abs(vdata[0]));
+      cout << endl;
     }
     else if (method == "ARKODE_MRI_GARK_IRK21a")
     {
-      printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e   "
-             " dsm_est_anal  %.2e\n",
-             Hvals[iH], dsm[iH], dsm_est[iH],
-             Hvals[iH] * Hvals[iH] * Hvals[iH] * abs(udata.a / 6.0) /
-               (abstol + reltol * abs(vdata[0])),
-             Hvals[iH] * Hvals[iH] *
-               abs(udata.a * Hvals[iH] / 2.0 + udata.b / 2.0) /
-               (abstol + reltol * abs(vdata[0])));
+      cout << fixed << setprecision(5);
+      cout << setw(10) << "H  " << Hvals[iH];
+      cout << scientific << setprecision(2);
+      cout << setw(9) << "dsm  " << dsm[iH];
+      cout << setw(13) << "dsm_est  " << dsm_est[iH];
+      cout << setw(14) << "dsm_anal  "
+           << Hvals[iH] * Hvals[iH] * Hvals[iH] * abs(udata.a / 6.0) /
+                (abstol + reltol * abs(vdata[0]));
+      cout << setw(18) << "dsm_est_anal  "
+           << Hvals[iH] * Hvals[iH] *
+                abs(udata.a * Hvals[iH] / 2.0 + udata.b / 2.0) /
+                (abstol + reltol * abs(vdata[0]));
+      cout << endl;
     }
     else if (method == "ARKODE_IMEX_MRI_SR21")
     {
-      printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e    dsm_anal  %.2e   "
-             " dsm_est_anal  %.2e\n",
-             Hvals[iH], dsm[iH], dsm_est[iH],
-             Hvals[iH] * Hvals[iH] * Hvals[iH] * abs(udata.a * 3137.0 / 50370.0) /
-               (abstol + reltol * abs(vdata[0])),
-             Hvals[iH] * Hvals[iH] *
-               abs(udata.a * Hvals[iH] * 20191.0 / 755550.0 -
-                   udata.b * 19.0 / 30.0) /
-               (abstol + reltol * abs(vdata[0])));
+      cout << fixed << setprecision(5);
+      cout << setw(10) << "H  " << Hvals[iH];
+      cout << scientific << setprecision(2);
+      cout << setw(9) << "dsm  " << dsm[iH];
+      cout << setw(13) << "dsm_est  " << dsm_est[iH];
+      cout << setw(14) << "dsm_anal  "
+           << Hvals[iH] * Hvals[iH] * Hvals[iH] *
+                abs(udata.a * 3137.0 / 50370.0) /
+                (abstol + reltol * abs(vdata[0]));
+      cout << setw(18) << "dsm_est_anal  "
+           << Hvals[iH] * Hvals[iH] * Hvals[iH] *
+                abs(udata.a * 3137.0 / 50370.0) /
+                (abstol + reltol * abs(vdata[0]));
+      cout << endl;
     }
     else
     {
-      printf("       H  %.5f    dsm  %.2e    dsm_est  %.2e\n", Hvals[iH],
-             dsm[iH], dsm_est[iH]);
+      cout << fixed << setprecision(5);
+      cout << setw(10) << "H  " << Hvals[iH];
+      cout << scientific << setprecision(2);
+      cout << setw(9) << "dsm  " << dsm[iH];
+      cout << setw(13) << "dsm_est  " << dsm_est[iH];
+      cout << endl;
     }
   }
 

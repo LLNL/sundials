@@ -2,7 +2,7 @@
  * Programmer(s): Slaven Peles, Cody J. Balos, Daniel McGreer @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -111,8 +111,9 @@ static inline N_Vector_ID N_VGetVectorID_Raja(N_Vector v)
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Raja(N_Vector w);
 SUNDIALS_EXPORT N_Vector N_VClone_Raja(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Raja(N_Vector v);
-SUNDIALS_EXPORT void N_VSpace_Raja(N_Vector v, sunindextype* lrw,
-                                   sunindextype* liw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+void N_VSpace_Raja(N_Vector v, sunindextype* lrw, sunindextype* liw);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Raja(sunrealtype* v_data, N_Vector v);
 
 /* standard vector operations */

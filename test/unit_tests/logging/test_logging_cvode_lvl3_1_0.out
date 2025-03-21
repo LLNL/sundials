@@ -4,7 +4,7 @@ Using GMRES iterative linear solver
            t                        u                        v                      u err                    v err            
 ------------------------------------------------------------------------------------------------------------------------------
  0.000000000000000e+00    1.224744871391589e+00    1.732050807568877e+00    0.000000000000000e+00    0.000000000000000e+00
-[INFO][rank 0][cvStep][begin-step-attempt] step = 1, tn = 0, h = 0.0001029860256095084, q = 1
+[INFO][rank 0][cvStep][begin-step-attempt] step = 1, tn = 0, h = 0.000102986025609508, q = 1
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.2
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -24,9 +24,9 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
-[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.2499621905732853
+[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.249962190573285
  1.029860256095084e-04    1.224744869258150e+00    1.732049582942250e+00    1.050956877080012e-09    6.122820268572582e-07
-[INFO][rank 0][cvStep][begin-step-attempt] step = 2, tn = 0.0001029860256095084, h = 0.0001029860256095084, q = 1
+[INFO][rank 0][cvStep][begin-step-attempt] step = 2, tn = 0.000102986025609508, h = 0.000102986025609508, q = 1
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.2
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -46,9 +46,9 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
-[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.2499620187042475
+[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.249962018704248
  2.059720512190168e-04    1.224744864928434e+00    1.732047133690926e+00    2.133223819811292e-09    1.224500849161814e-06
-[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.0002059720512190168, h = 0.001029860256095084, q = 2
+[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.000205972051219017, h = 0.00102986025609508, q = 2
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.4064516129032258
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -69,7 +69,7 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
 [INFO][rank 0][cvStep][end-step-attempt] status = failed error test, dsm = 8.19847341436515, eflag = 5
-[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.0002059720512190168, h = 0.0002810714702930874, q = 2
+[INFO][rank 0][cvStep][begin-step-attempt] step = 3, tn = 0.000205972051219017, h = 0.000281071470293087, q = 2
 [INFO][rank 0][cvNls][begin-nonlinear-solve] tol = 0.4217683318751525
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-solver] solver = Newton
 [INFO][rank 0][SUNNonlinSolSolve_Newton][begin-nonlinear-iterate] 
@@ -89,34 +89,34 @@ Using GMRES iterative linear solver
 [INFO][rank 0][SUNNonlinSolSolve_Newton][nonlinear-iterate] cur-iter = 2, total-iters = 2, update-norm = 0
 [INFO][rank 0][SUNNonlinSolSolve_Newton][end-nonlinear-iterate] status = success
 [INFO][rank 0][cvNls][end-nonlinear-solve] status = success, iters = 2
-[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.5885920933306285
+[INFO][rank 0][cvStep][end-step-attempt] status = success, dsm = 0.588592093330628
  4.870435215121043e-04    1.224744842672905e+00    1.732034367979995e+00    4.508398321334539e-09    2.744236933471811e-06
 ------------------------------------------------------------------------------------------------------------------------------
-Current time                 = 0.0004870435215121043
-Steps                        = 3
-Error test fails             = 1
-NLS step fails               = 0
-Initial step size            = 0.0001029860256095084
-Last step size               = 0.0002810714702930874
-Current step size            = 0.0002810714702930874
-Last method order            = 2
-Current method order         = 2
-Stab. lim. order reductions  = 0
-RHS fn evals                 = 11
-NLS iters                    = 8
-NLS fails                    = 0
-NLS iters per step           = 2.666666666666667
-LS setups                    = 0
-Jac fn evals                 = 0
-LS RHS fn evals              = 4
-Prec setup evals             = 0
-Prec solves                  = 0
-LS iters                     = 4
-LS fails                     = 0
-Jac-times setups             = 0
-Jac-times evals              = 4
-LS iters per NLS iter        = 0.5
-Jac evals per NLS iter       = 0
-Prec evals per NLS iter      = 0
-Root fn evals                = 0
+Current time                  = 0.000487043521512104
+Steps                         = 3
+Error test fails              = 1
+NLS step fails                = 0
+Initial step size             = 0.000102986025609508
+Last step size                = 0.000281071470293087
+Current step size             = 0.000281071470293087
+Last method order             = 2
+Current method order          = 2
+Stab. lim. order reductions   = 0
+RHS fn evals                  = 11
+NLS iters                     = 8
+NLS fails                     = 0
+NLS iters per step            = 2.66666666666667
+LS setups                     = 0
+Jac fn evals                  = 0
+LS RHS fn evals               = 4
+Prec setup evals              = 0
+Prec solves                   = 0
+LS iters                      = 4
+LS fails                      = 0
+Jac-times setups              = 0
+Jac-times evals               = 4
+LS iters per NLS iter         = 0.5
+Jac evals per NLS iter        = 0
+Prec evals per NLS iter       = 0
+Root fn evals                 = 0
 End CVODE Logging test

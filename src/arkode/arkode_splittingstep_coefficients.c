@@ -2,7 +2,7 @@
  * Programmer(s): Steven B. Roberts @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -461,7 +461,7 @@ void SplittingStepCoefficients_Write(const SplittingStepCoefficients coefficient
   fprintf(outfile, "  alpha = ");
   for (int i = 0; i < coefficients->sequential_methods; i++)
   {
-    fprintf(outfile, "%" RSYM "  ", coefficients->alpha[i]);
+    fprintf(outfile, SUN_FORMAT_E "  ", coefficients->alpha[i]);
   }
   fprintf(outfile, "\n");
 
@@ -473,7 +473,7 @@ void SplittingStepCoefficients_Write(const SplittingStepCoefficients coefficient
       fprintf(outfile, "      ");
       for (int k = 0; k < coefficients->partitions; k++)
       {
-        fprintf(outfile, "%" RSYM "  ", coefficients->beta[i][j][k]);
+        fprintf(outfile, SUN_FORMAT_E "  ", coefficients->beta[i][j][k]);
       }
       fprintf(outfile, "\n");
     }

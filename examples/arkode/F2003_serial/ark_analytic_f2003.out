@@ -6,7 +6,7 @@
    0.00000E+00  0.00000E+00
    1.00000E+00  7.85398E-01
    2.00000E+00  1.10715E+00
-   3.00000E+00  1.24905E+00
+   3.00000E+00  1.24904E+00
    4.00000E+00  1.32582E+00
    5.00000E+00  1.37340E+00
    6.00000E+00  1.40565E+00
@@ -16,15 +16,15 @@
    1.00000E+01  1.47113E+00
   
   General Solver Stats:
-    Total internal steps taken    =      419
-    Total internal steps attempts =      424
-    Total rhs function calls      =     5090
-    Num lin solver setup calls    =       43
-    Num error test failures       =        5
+    Total internal steps taken    =       65
+    Total internal steps attempts =       69
+    Total rhs function calls      =     1106
+    Num lin solver setup calls    =       25
+    Num error test failures       =        4
     First internal step size      = 6.10352E-12
-    Last internal step size       = 6.85164E-02
-    Next internal step size       = 6.85164E-02
-    Current internal time         = 1.00642E+01
-    Num nonlinear solver iters    =     2967
-    Num nonlinear solver fails    =        4
+    Last internal step size       = 7.33027E-01
+    Next internal step size       = 1.15914E+00
+    Current internal time         = 1.02732E+01
+    Num nonlinear solver iters    =      758
+    Num nonlinear solver fails    =        1
   

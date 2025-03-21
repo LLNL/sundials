@@ -2,7 +2,7 @@
    Author(s): David J. Gardner, Cody J. Balos @ LLNL
    -----------------------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -107,6 +107,83 @@ doing this type of line break is useful for readability too.
 .. See the clang-tidy documentation for more details.
 
 
+.. _Style.Output:
+
+Output
+------
+
+For consistent formatting of :c:type:`sunrealtype`, the following macros are
+available.
+
+.. c:macro:: SUN_FORMAT_E
+
+   A format specifier for scientific notation. This should be used when
+   displaying arrays, matrices, and tables where fixed width alignment aids with
+   readability.
+
+   **Example usage:**
+
+   .. code-block:: C
+
+      for (i = 0; i < N; i++) {
+         fprintf(outfile, SUN_FORMAT_E "\n", xd[i]);
+      }
+
+.. c:macro:: SUN_FORMAT_G
+
+   A format specifier for scientific or standard notation, whichever is more
+   compact. It is more reader-friendly than :c:macro:`SUN_FORMAT_E` and should
+   be used in all cases not covered by that macro.
+
+   **Example usage:**
+
+   .. code-block:: C
+
+      SUNLogInfo(sunctx->logger, "label", "x = " SUN_FORMAT_G, x);
+
+.. c:macro:: SUN_FORMAT_SG
+
+   Like :c:macro:`SUN_FORMAT_G` but with a leading plus or minus sign.
+
+
+To aid in printing statistics in functions like :c:func:`CVodePrintAllStats`,
+the following utility functions are available.
+
+.. c:function:: void sunfprintf_real(FILE* fp, SUNOutputFormat fmt, sunbooleantype start, const char* name, sunrealtype value)
+
+   Writes a :c:type:`sunrealtype` value to a file pointer using the specified
+   format.
+
+   :param fp: The output file pointer.
+   :param fmt: The output format.
+   :param start: :c:macro:`SUNTRUE` if the value is the first in a series of
+                 statistics, and :c:macro:`SUNFALSE` otherwise.
+   :param name: The name of the statistic.
+   :param value: The value of the statistic.
+
+.. c:function:: void sunfprintf_long(FILE* fp, SUNOutputFormat fmt, sunbooleantype start, const char* name, long value)
+
+   Writes a long value to a file pointer using the specified format.
+
+   :param fp: The output file pointer.
+   :param fmt: The output format.
+   :param start: :c:macro:`SUNTRUE` if the value is the first in a series of
+                 statistics, and :c:macro:`SUNFALSE` otherwise.
+   :param name: The name of the statistic.
+   :param value: The value of the statistic.
+
+.. c:function:: void sunfprintf_long_array(FILE* fp, SUNOutputFormat fmt, sunbooleantype start, const char* name, long* value, size_t count)
+
+   Writes an array of long values to a file pointer using the specified format.
+
+   :param fp: The output file pointer.
+   :param fmt: The output format.
+   :param start: :c:macro:`SUNTRUE` if the value is the first in a series of
+                 statistics, and :c:macro:`SUNFALSE` otherwise.
+   :param name: The name of the statistic.
+   :param value: Pointer to the array.
+   :param count: The number of elements in the array.
+
 .. _Style.Logging:
 
 Logging
@@ -128,10 +205,12 @@ equals sign with a space on either side e.g.,
 .. code-block:: C
 
    /* log an informational message */
-   SUNLogInfo(sunctx->logger, "begin-step", "t = %g, h = %g", t, h);
+   SUNLogInfo(sunctx->logger, "begin-step", "t = " SUN_FORMAT_G ", h = " SUN_FORMAT_G, t, h);
 
    /* log a debugging message */
-   SUNLogDebug(sunctx->logger, "error-estimates", "eqm1 = %g, eq = %g, eqp1 = %g", eqm1, eq, eqp1);
+   SUNLogDebug(sunctx->logger, "error-estimates",
+               "eqm1 = " SUN_FORMAT_G ", eq = " SUN_FORMAT_G ", eqp1 = " SUN_FORMAT_G,
+               eqm1, eq, eqp1);
 
 or the name of a vector/array followed by ``(:) =`` with each vector/array entry
 written to a separate line e.g., a vector may be logged with
