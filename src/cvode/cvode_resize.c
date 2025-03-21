@@ -189,7 +189,7 @@ static int cvPredictY(int order, N_Vector* zn, N_Vector ypred)
  * ---------------------------------------------------------------------------*/
 
 int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
-                       N_Vector* f_hist, int n_hist)
+                       N_Vector* f_hist, int num_y_hist, int num_f_hist)
 {
   int retval = 0;
 
@@ -222,13 +222,47 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
-  if (n_hist < 1)
-  {
-    cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
-                   "Invalid history size value");
-    return CV_ILL_INPUT;
-  }
+  /* Check that the input history is sufficient for the current (next) order */
+  int n_hist = SUNMIN(cv_mem->cv_q + 1, cv_mem->cv_qmax);
 
+  if (cv_mem->cv_lmm == CV_ADAMS)
+  {
+    if (num_y_hist < 2)
+    {
+      cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
+                     "Insufficient solution history");
+      return CV_ILL_INPUT;
+    }
+
+    for (int i = 0; i < n_hist; i++)
+    {
+      if (!f_hist[i])
+      {
+        cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
+                       "Insufficient right-hand side history");
+        return CV_ILL_INPUT;
+      }
+    }
+  }
+  else
+  {
+    if (num_f_hist < 2)
+    {
+      cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
+                     "Insufficient right-hand side history");
+      return CV_ILL_INPUT;
+    }
+
+    for (int i = 0; i < n_hist; i++)
+    {
+      if (!y_hist[i])
+      {
+        cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,
+                       "Insufficient solution history");
+        return CV_ILL_INPUT;
+      }
+    }
+  }
 
   /* -------------- *
    * Resize vectors *

@@ -289,7 +289,7 @@ int main(int argc, char* argv[])
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
 
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist);
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist, n_hist);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
     else if (resize == 2)
@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
 
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist);
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist, n_hist);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
 
       // "Resize" output vector and nonlinear solver
