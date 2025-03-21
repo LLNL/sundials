@@ -229,17 +229,13 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_ILL_INPUT;
   }
 
-  /* Make sure number of inputs is sufficient for the current (next) order */
-
-  N_Vector tmpl = y_hist[0];
-  int maxord    = cv_mem->cv_qmax_alloc;
 
   /* -------------- *
    * Resize vectors *
    * -------------- */
 
   N_VDestroy(cv_mem->cv_ewt);
-  cv_mem->cv_ewt = N_VClone(tmpl);
+  cv_mem->cv_ewt = N_VClone(y_hist[0]);
   if (!(cv_mem->cv_ewt))
   {
     cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -248,7 +244,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   N_VDestroy(cv_mem->cv_acor);
-  cv_mem->cv_acor = N_VClone(tmpl);
+  cv_mem->cv_acor = N_VClone(y_hist[0]);
   if (!(cv_mem->cv_acor))
   {
     cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -257,7 +253,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   N_VDestroy(cv_mem->cv_tempv);
-  cv_mem->cv_tempv = N_VClone(tmpl);
+  cv_mem->cv_tempv = N_VClone(y_hist[0]);
   if (!(cv_mem->cv_tempv))
   {
     cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -266,7 +262,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   N_VDestroy(cv_mem->cv_ftemp);
-  cv_mem->cv_ftemp = N_VClone(tmpl);
+  cv_mem->cv_ftemp = N_VClone(y_hist[0]);
   if (!(cv_mem->cv_ftemp))
   {
     cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -275,7 +271,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   N_VDestroy(cv_mem->cv_vtemp1);
-  cv_mem->cv_vtemp1 = N_VClone(tmpl);
+  cv_mem->cv_vtemp1 = N_VClone(y_hist[0]);
   if (!(cv_mem->cv_vtemp1))
   {
     cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -284,7 +280,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   N_VDestroy(cv_mem->cv_vtemp2);
-  cv_mem->cv_vtemp2 = N_VClone(tmpl);
+  cv_mem->cv_vtemp2 = N_VClone(y_hist[0]);
   if (!(cv_mem->cv_vtemp2))
   {
     cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -293,7 +289,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   }
 
   N_VDestroy(cv_mem->cv_vtemp3);
-  cv_mem->cv_vtemp3 = N_VClone(tmpl);
+  cv_mem->cv_vtemp3 = N_VClone(y_hist[0]);
   if (!(cv_mem->cv_vtemp3))
   {
     cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -305,7 +301,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   if (cv_mem->cv_VabstolMallocDone)
   {
     N_VDestroy(cv_mem->cv_Vabstol);
-    cv_mem->cv_Vabstol = N_VClone(tmpl);
+    cv_mem->cv_Vabstol = N_VClone(y_hist[0]);
   }
 
   /* User will need to set a new constraints vector */
@@ -316,10 +312,12 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     cv_mem->cv_constraintsSet        = SUNFALSE;
   }
 
+  int maxord = cv_mem->cv_qmax_alloc;
+
   for (int j = 0; j <= maxord; j++)
   {
     N_VDestroy(cv_mem->cv_zn[j]);
-    cv_mem->cv_zn[j] = N_VClone(tmpl);
+    cv_mem->cv_zn[j] = N_VClone(y_hist[0]);
     if (!(cv_mem->cv_zn[j]))
     {
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -331,7 +329,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   for (int j = 0; j <= maxord; j++)
   {
     N_VDestroy(cv_mem->resize_wrk[j]);
-    cv_mem->resize_wrk[j] = N_VClone(tmpl);
+    cv_mem->resize_wrk[j] = N_VClone(y_hist[0]);
     if (!(cv_mem->resize_wrk[j]))
     {
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
@@ -356,7 +354,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     cv_mem->NLS    = NULL;
     cv_mem->ownNLS = SUNFALSE;
 
-    SUNNonlinearSolver NLS = SUNNonlinSol_Newton(tmpl, cv_mem->cv_sunctx);
+    SUNNonlinearSolver NLS = SUNNonlinSol_Newton(y_hist[0], cv_mem->cv_sunctx);
     if (!NLS)
     {
       cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
