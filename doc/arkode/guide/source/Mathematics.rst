@@ -2704,32 +2704,14 @@ and/or :math:`\partial g(y(t_f),p)/\partial p`.  This most often arises in the f
 optimization problem such as
 
 .. math::
-   \min_{\xi} \bar{\Psi}(\xi) = g(y(t_f), p)
+   \min_{y(t_0), p} g(y(t_f), p)
    :label: ARKODE_OPTIMIZATION_PROBLEM
 
-where :math:`\xi \subset \{y(t_0), p\}`. The adjoint method is one approach to obtaining the
-gradients that is particularly efficient when there are relatively few functionals and a large
-number of parameters. While :ref:`CVODES <CVODES.Mathematics.ASA>` and
-:ref:`IDAS <IDAS.Mathematics.ASA>` *continuous* adjoint methods
+The adjoint method is one approach to obtaining the gradients that is particularly efficient when
+there are relatively few functionals and a large number of parameters. While :ref:`CVODES
+<CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` *continuous* adjoint methods
 (differentiate-then-discretize), ARKODE provides *discrete* adjoint methods
-(discretize-then-differentiate). For the continuous approach, we derive and solve the adjoint ODE
-backwards in time
-
-.. math::
-   \lambda'(t) &= -f_y^T(t, y, p) \lambda,\quad \lambda(t_F) = g_y^T(y(t_f), p), \\
-   \mu'(t) &= -f_p^T(t, y, p) \mu,\quad \mu(t_F) = g_p^T(y(t_f), p), \quad t_f \geq t \geq t_0, \\
-   :label: ARKODE_CONTINUOUS_ADJOINT_ODE
-
-where :math:`\lambda(t) \in \mathbb{R}^N`, :math:`\mu(t) \in \mathbb{R}^{N_s}`
-:math:`f_y \equiv \partial f/\partial y \in \mathbb{R}^{N \times N}` is the Jacobian with respect to the dependent variable,
-and :math:`f_p \equiv \partial f/\partial p \in \mathbb{R}^{N \times N_s}` is the Jacobian with respect to the parameters
-(:math:`N` is the size of the original ODE, :math:`N_s` is the number of parameters).
-When solved with a numerical time integration scheme, the solution to the continuous adjoint ODE
-are numerical approximations of the continuous adjoint sensitivities
-
-.. math::
-   \lambda(t_0) \approx  g_y^T(y(t_0), p),\quad \mu(t_0) \approx g_p^T(y(t_0), p)
-   :label: ARKODE_CONTINUOUS_ADJOINT_SOLUTION
+(discretize-then-differentiate). 
 
 For the discrete adjoint approach, we first numerically discretize the original ODE :eq:`ARKODE_IVP_simple_explicit`.
 In the context of ARKODE, this is done with a one-step time integration scheme :math:`\varphi` so that
@@ -2741,7 +2723,7 @@ In the context of ARKODE, this is done with a one-step time integration scheme :
 Reformulating the optimization problem for the discrete case, we have
 
 .. math::
-   \min_{\xi} \Psi(\xi) = g(y_n, p)
+   \min_{y_0, p} g(y_n, p)
    :label: ARKODE_DISCRETE_OPTIMIZATION_PROBLEM
 
 The gradients of :eq:`ARKODE_DISCRETE_OPTIMIZATION_PROBLEM` can be computed using the transposed chain
