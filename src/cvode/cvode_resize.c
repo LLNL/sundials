@@ -350,9 +350,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     cv_mem->cv_constraintsSet        = SUNFALSE;
   }
 
-  int maxord = cv_mem->cv_qmax_alloc;
-
-  for (int j = 0; j <= maxord; j++)
+  for (int j = 0; j <= cv_mem->cv_qmax_alloc; j++)
   {
     N_VDestroy(cv_mem->cv_zn[j]);
     cv_mem->cv_zn[j] = N_VClone(y_hist[0]);
