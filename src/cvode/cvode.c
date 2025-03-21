@@ -2521,7 +2521,11 @@ static void cvAdjustParams(CVodeMem cv_mem)
 {
   if (cv_mem->cv_qprime != cv_mem->cv_q)
   {
-    cvAdjustOrder(cv_mem, cv_mem->cv_qprime - cv_mem->cv_q);
+    /* History adjustments for order change were applied when resizing */
+    if (!(cv_mem->first_step_after_resize))
+    {
+      cvAdjustOrder(cv_mem, cv_mem->cv_qprime - cv_mem->cv_q);
+    }
     cv_mem->cv_q     = cv_mem->cv_qprime;
     cv_mem->cv_L     = cv_mem->cv_q + 1;
     cv_mem->cv_qwait = cv_mem->cv_L;
@@ -2561,13 +2565,6 @@ static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
 {
   int i, j;
   sunrealtype xi, hsum;
-
-  /* Order adjustment was already applied when resizing */
-  if (cv_mem->first_step_after_resize)
-  {
-    cv_mem->first_step_after_resize = SUNFALSE;
-    return;
-  }
 
   /* On an order increase, set new column of zn to zero and return */
 
@@ -2652,13 +2649,6 @@ static void cvIncreaseBDF(CVodeMem cv_mem)
   sunrealtype alpha0, alpha1, prod, xi, xiold, hsum, A1;
   int i, j;
 
-  /* Order adjustment was already applied when resizing */
-  if (cv_mem->first_step_after_resize)
-  {
-    cv_mem->first_step_after_resize = SUNFALSE;
-    return;
-  }
-
   for (i = 0; i <= cv_mem->cv_qmax; i++) { cv_mem->cv_l[i] = ZERO; }
   cv_mem->cv_l[2] = alpha1 = prod = xiold = ONE;
   alpha0                                  = -ONE;
@@ -2705,13 +2695,6 @@ static void cvDecreaseBDF(CVodeMem cv_mem)
 {
   sunrealtype hsum, xi;
   int i, j;
-
-  /* Order adjustment was already applied when resizing */
-  if (cv_mem->first_step_after_resize)
-  {
-    cv_mem->first_step_after_resize = SUNFALSE;
-    return;
-  }
 
   for (i = 0; i <= cv_mem->cv_qmax; i++) { cv_mem->cv_l[i] = ZERO; }
   cv_mem->cv_l[2] = ONE;
@@ -3504,6 +3487,8 @@ static void cvCompleteStep(CVodeMem cv_mem)
   cv_mem->cv_nscon++;
   cv_mem->cv_hu = cv_mem->cv_h;
   cv_mem->cv_qu = cv_mem->cv_q;
+
+  cv_mem->first_step_after_resize = SUNFALSE;
 
   for (i = cv_mem->cv_q; i >= 2; i--)
   {
