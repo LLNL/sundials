@@ -198,8 +198,9 @@ int main(int argc, char* argv[])
   retval = ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
   if (check_retval(&retval, "ARKStepCreateAdjointStepper", 1)) { return 1; }
 
-  retval = SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, vjp, parameter_vjp);
-  if (check_retval(&retval, "SUNAdjointStepper_SetVecTimesJacFn", 1))
+  retval = SUNAdjointStepper_SetVecHermitianTransposeJacFn(adj_stepper, vjp,
+                                                           parameter_vjp);
+  if (check_retval(&retval, "SUNAdjointStepper_SetVecHermitianTransposeJacFn", 1))
   {
     return 1;
   }

@@ -426,7 +426,8 @@ int main(int argc, char* argv[])
   dgdp(u, sensp, params, tf);
   SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
   SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
-  SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, ode_jvp, parameter_jvp);
+  SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, ode_jvp,
+                                                  parameter_jvp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
   if (check_sensitivities(sf))
   {
@@ -458,8 +459,9 @@ int main(int argc, char* argv[])
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
   SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
-  SUNAdjointStepper_SetJacTimesVecFn(adj_stepper, NULL, NULL);
-  SUNAdjointStepper_SetVecTimesJacFn(adj_stepper, ode_vjp, parameter_vjp);
+  SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, NULL, NULL);
+  SUNAdjointStepper_SetVecHermitianTransposeJacFn(adj_stepper, ode_vjp,
+                                                  parameter_vjp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
   if (check_sensitivities(sf))
   {
