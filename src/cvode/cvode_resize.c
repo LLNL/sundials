@@ -193,6 +193,10 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
 {
   int retval = 0;
 
+  /* ------------ *
+   * Check inputs *
+   * ------------ */
+
   if (!cvode_mem)
   {
     cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__,
@@ -360,18 +364,6 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     }
   }
 
-  for (int j = 0; j <= maxord; j++)
-  {
-    N_VDestroy(cv_mem->resize_wrk[j]);
-    cv_mem->resize_wrk[j] = N_VClone(y_hist[0]);
-    if (!(cv_mem->resize_wrk[j]))
-    {
-      cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
-                     "A vector allocation failed");
-      return CV_MEM_FAIL;
-    }
-  }
-
   /* ----------------------- *
    * Resize nonlinear solver *
    * ----------------------- */
@@ -407,6 +399,27 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     cv_mem->ownNLS = SUNTRUE;
   }
 
+  /* ----------------------------- *
+   * Create workspace for resizing *
+   * ----------------------------- */
+
+  N_Vector resize_wrk[L_MAX];
+
+  int wrk_space_size = SUNMAX(cv_mem->cv_q, cv_mem->cv_qprime);
+  if (cv_mem->cv_lmm == CV_BDF) { wrk_space_size++; }
+
+  for (int j = 0; j < wrk_space_size; j++)
+  {
+    resize_wrk[j] = N_VClone(y_hist[0]);
+    if (!resize_wrk[j])
+    {
+      for (int i = 0; i < j; i++) { N_VDestroy(resize_wrk[i]); }
+      cvProcessError(cv_mem, CV_MEM_FAIL, __LINE__, __func__, __FILE__,
+                     "A vector allocation failed");
+      return CV_MEM_FAIL;
+    }
+  }
+
   /* ------------------------------------------------------------------------ *
    * Construct Nordsieck array at the old time but with the new size to
    * compute correction vector at the new state size.
@@ -418,13 +431,13 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     if (cv_mem->cv_lmm == CV_ADAMS)
     {
       retval = cvBuildNordsieckArrayAdams(t_hist + 1, y_hist[1], f_hist + 1,
-                                          cv_mem->resize_wrk, cv_mem->cv_q,
+                                          resize_wrk, cv_mem->cv_q,
                                           cv_mem->cv_hscale, cv_mem->cv_zn);
     }
     else
     {
       retval = cvBuildNordsieckArrayBDF(t_hist + 1, y_hist + 1, f_hist[1],
-                                        cv_mem->resize_wrk, cv_mem->cv_q,
+                                        resize_wrk, cv_mem->cv_q,
                                         cv_mem->cv_hscale, cv_mem->cv_zn);
     }
 
@@ -457,13 +470,13 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
   if (cv_mem->cv_lmm == CV_ADAMS)
   {
     retval = cvBuildNordsieckArrayAdams(t_hist, y_hist[0], f_hist,
-                                        cv_mem->resize_wrk, cv_mem->cv_qprime,
+                                        resize_wrk, cv_mem->cv_qprime,
                                         cv_mem->cv_hscale, cv_mem->cv_zn);
   }
   else
   {
     retval = cvBuildNordsieckArrayBDF(t_hist, y_hist, f_hist[0],
-                                      cv_mem->resize_wrk, cv_mem->cv_qprime,
+                                      resize_wrk, cv_mem->cv_qprime,
                                       cv_mem->cv_hscale, cv_mem->cv_zn);
   }
 
@@ -476,6 +489,12 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
 
   /* In the next step, perform initialization needed after a resize */
   cv_mem->first_step_after_resize = SUNTRUE;
+
+  /* ------------------------------ *
+   * Destroy workspace for resizing *
+   * ------------------------------ */
+
+  for (int i = 0; i < wrk_space_size; i++) { N_VDestroy(resize_wrk[i]); }
 
   return CV_SUCCESS;
 }

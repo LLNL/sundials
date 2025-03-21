@@ -463,7 +463,6 @@ typedef struct CVodeMemRec
     Resizing History
     ----------------*/
 
-  N_Vector resize_wrk[L_MAX];             /* Workspace for resizing history   */
   sunbooleantype first_step_after_resize; /* Flag to signal a resize happened */
 
 }* CVodeMem;

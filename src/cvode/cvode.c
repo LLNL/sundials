@@ -1948,24 +1948,6 @@ static sunbooleantype cvAllocVectors(CVodeMem cv_mem, N_Vector tmpl)
     }
   }
 
-  for (j = 0; j <= cv_mem->cv_qmax; j++)
-  {
-    cv_mem->resize_wrk[j] = N_VClone(tmpl);
-    if (cv_mem->resize_wrk[j] == NULL)
-    {
-      N_VDestroy(cv_mem->cv_ewt);
-      N_VDestroy(cv_mem->cv_acor);
-      N_VDestroy(cv_mem->cv_tempv);
-      N_VDestroy(cv_mem->cv_ftemp);
-      N_VDestroy(cv_mem->cv_vtemp1);
-      N_VDestroy(cv_mem->cv_vtemp2);
-      N_VDestroy(cv_mem->cv_vtemp3);
-      for (i = 0; i <= cv_mem->cv_qmax; i++) { N_VDestroy(cv_mem->cv_zn[i]); }
-      for (i = 0; i < j; i++) { N_VDestroy(cv_mem->resize_wrk[i]); }
-      return (SUNFALSE);
-    }
-  }
-
   /* Update solver workspace lengths  */
   cv_mem->cv_lrw += (cv_mem->cv_qmax + 8) * cv_mem->cv_lrw1;
   cv_mem->cv_liw += (cv_mem->cv_qmax + 8) * cv_mem->cv_liw1;
@@ -1996,7 +1978,6 @@ static void cvFreeVectors(CVodeMem cv_mem)
   N_VDestroy(cv_mem->cv_vtemp2);
   N_VDestroy(cv_mem->cv_vtemp3);
   for (j = 0; j <= maxord; j++) { N_VDestroy(cv_mem->cv_zn[j]); }
-  for (j = 0; j <= maxord; j++) { N_VDestroy(cv_mem->resize_wrk[j]); }
 
   cv_mem->cv_lrw -= (maxord + 8) * cv_mem->cv_lrw1;
   cv_mem->cv_liw -= (maxord + 8) * cv_mem->cv_liw1;

@@ -150,9 +150,9 @@ int main(int argc, char* argv[])
   if (resize == 0) { cout << "CVODE -- NO RESIZE" << endl; }
   else { cout << "CVODE -- RESIZE" << endl; }
 
-  // --------------------
+  // -------------
   // Setup problem
-  // --------------------
+  // -------------
 
   // Set lambda
   sunrealtype lambda = -one;
@@ -192,12 +192,6 @@ int main(int argc, char* argv[])
   flag = CVodeSetUserData(cvode_mem, &lambda);
   if (check_flag(flag, "CVodeSetUserData")) { return 1; }
 
-  // Final integration time
-  sunrealtype tf = SUN_RCONST(10.0);
-
-  // CVODE return time
-  sunrealtype t_ret;
-
   // ------------------------
   // Initialize saved history
   // ------------------------
@@ -224,6 +218,7 @@ int main(int argc, char* argv[])
   // cout << setprecision(numeric_limits<sunrealtype>::digits10);
   cout << endl;
 
+  // Output initial data
   cout << "t:      " << t_hist[0] << endl;
   cout << "y:      " << N_VGetArrayPointer(y_hist[0])[0] << endl;
   cout << "y_true: " << N_VGetArrayPointer(y)[0] << endl;
@@ -233,6 +228,12 @@ int main(int argc, char* argv[])
   // ---------------
   // Advance in time
   // ---------------
+
+  // Final integration time
+  sunrealtype tf = SUN_RCONST(10.0);
+
+  // CVODE return time
+  sunrealtype t_ret;
 
   for (int i = 1; i <= max_steps; i++)
   {
