@@ -301,6 +301,21 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return CV_MEM_FAIL;
   }
 
+  /* User will need to set a new vector of absolute tolerances */
+  if (cv_mem->cv_VabstolMallocDone)
+  {
+    N_VDestroy(cv_mem->cv_Vabstol);
+    cv_mem->cv_Vabstol = N_VClone(tmpl);
+  }
+
+  /* User will need to set a new constraints vector */
+  if (cv_mem->cv_constraintsMallocDone)
+  {
+    N_VDestroy(cv_mem->cv_constraints);
+    cv_mem->cv_constraintsMallocDone = SUNFALSE;
+    cv_mem->cv_constraintsSet        = SUNFALSE;
+  }
+
   for (int j = 0; j <= maxord; j++)
   {
     N_VDestroy(cv_mem->cv_zn[j]);
@@ -427,24 +442,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return retval;
   }
 
-  /*
-   * Why are these at the end?
-   */
-
-  if (cv_mem->cv_VabstolMallocDone)
-  {
-    N_VDestroy(cv_mem->cv_Vabstol);
-    cv_mem->cv_Vabstol = N_VClone(tmpl);
-  }
-
-  /* User will need to set a new constraints vector */
-  if (cv_mem->cv_constraintsMallocDone)
-  {
-    N_VDestroy(cv_mem->cv_constraints);
-    cv_mem->cv_constraintsMallocDone = SUNFALSE;
-    cv_mem->cv_constraintsSet        = SUNFALSE;
-  }
-
+  /* In the next step, perform initialization needed after a resize */
   cv_mem->first_step_after_resize = SUNTRUE;
 
   return CV_SUCCESS;
