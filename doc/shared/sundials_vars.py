@@ -94,6 +94,7 @@ nitpick_ignore = [
     ('c:identifier', 'braid_Vector'),
     # C types referenced in C++ functions, not sure how to fix
     ('cpp:identifier', 'sunbooleantype'),
+    ('cpp:identifier', 'suncountertype'),
     ('cpp:identifier', 'sunindextype'),
     ('cpp:identifier', 'sunrealtype'),
     ('cpp:identifier', 'SUNErrCode'),

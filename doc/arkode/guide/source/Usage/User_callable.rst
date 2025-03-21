@@ -4927,9 +4927,6 @@ rescale the upcoming time step by the specified factor.  If a value
    .. versionadded:: 6.1.0
 
 
-
-<<<<<<< HEAD
-=======
 .. _ARKODE.Usage.MRIStepInterface:
 
 Using an ARKODE solver as an MRIStep "inner" solver
@@ -4981,7 +4978,7 @@ wrap the ARKODE memory block as an :c:type:`MRIStepInnerStepper`.
             functions and the initial condition */
          outer_arkode_mem = MRIStepCreate(fse, fsi, t0, y0, stepper, sunctx)
 
->>>>>>> origin/develop
+
 .. _ARKODE.Usage.SUNStepperInterface:
 
 Using an ARKODE solver as a SUNStepper

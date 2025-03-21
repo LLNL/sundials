@@ -25,6 +25,8 @@ The types that are defined are:
 
 * :c:type:`sunindextype` -- the integer type used for vector and matrix indices
 
+* :c:type:`suncountertype` -- the integer type used for counter variables
+
 * :c:type:`sunbooleantype` -- the type used for logic operations within SUNDIALS
 
 * :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
@@ -113,6 +115,15 @@ architecture. Thus, a previously existing piece of C or C++ code can use
 SUNDIALS without modifying the code to use ``sunindextype``, so long as the
 SUNDIALS libraries use the appropriate index storage type (for details see
 :numref:`Installation.Options`).
+
+Integer type used for counters
+------------------------------
+
+.. c:type:: suncountertype
+
+   The type ``suncountertype`` is used for counter variables in SUNDIALS
+   (*e.g.*, number of stpes). During configuration ``suncountertype`` may be
+   set with the default being ``int64_t`` (see :cmakeop:`SUNDIALS_COUNTER_TYPE`).
 
 Boolean type
 ------------
