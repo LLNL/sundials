@@ -27,13 +27,12 @@ Suppose we have a functional :math:`g(y(t_f),p)` for which we would like to comp
 most often arises in the form of an optimization problem such as
 
 .. math::
-   \min_{\xi} \bar{\Psi}(\xi) = g(y(t_f), p)
+   \min_{y(t_0), p} g(y(t_f), p)
    :label: SUNADJOINT_OPTIMIZATION_PROBLEM
 
-where :math:`\xi \subseteq \{y(t_0), p\}`. The adjoint method is one approach to obtaining the
-gradients that is particularly efficient when there are relatively few functionals and a large
-number of parameters. While :ref:`CVODES <CVODES.Mathematics.ASA>` and
-:ref:`IDAS <IDAS.Mathematics.ASA>` *continuous* adjoint methods
+The adjoint method is one approach to obtaining the gradients that is particularly efficient when
+there are relatively few functionals and a large number of parameters. While :ref:`CVODES
+<CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` *continuous* adjoint methods
 (differentiate-then-discretize), ARKODE provides *discrete* adjoint methods
 (discretize-then-differentiate). For the continuous approach, we derive and solve the adjoint IVP
 backwards in time
