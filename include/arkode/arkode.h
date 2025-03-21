@@ -311,8 +311,6 @@ SUNDIALS_EXPORT int ARKodeSetMaxNumConstrFails(void* arkode_mem, int maxfails);
 SUNDIALS_EXPORT
 int ARKodeSetAdjointCheckpointScheme(void* arkode_mem,
                                      SUNAdjointCheckpointScheme checkpoint_scheme);
-SUNDIALS_EXPORT
-int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, int64_t step_index);
 SUNDIALS_EXPORT int ARKodeSetAccumulatedErrorType(void* arkode_mem,
                                                   ARKAccumError accum_type);
 SUNDIALS_EXPORT int ARKodeResetAccumulatedError(void* arkode_mem);

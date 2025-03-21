@@ -902,7 +902,6 @@ Maximum no. of ARKODE error test failures          :c:func:`ARKodeSetMaxErrTestF
 Set inequality constraints on solution             :c:func:`ARKodeSetConstraints`              ``NULL``
 Set max number of constraint failures              :c:func:`ARKodeSetMaxNumConstrFails`        10
 Set the checkpointing scheme to use (for adjoint)  :c:func:`ARKodeSetAdjointCheckpointScheme`  ``NULL``
-Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointCheckpointIndex`   0
 =================================================  ==========================================  =======================
 
 
@@ -1446,20 +1445,6 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param checkpoint_scheme: the checkpoint scheme to use.
-
-   :retval ARK_SUCCESS: the function exited successfully.
-   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
-
-   .. versionadded:: x.y.z
-
-.. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, int64_t step_index)
-
-   Specifies the step index (that is step number) to insert the next checkpoint at.
-   This is incremented along with the step count, but it is useful to be able to reset
-   this index during recomputations of missing states during the backward adjoint integration.
-
-   :param arkode_mem: pointer to the ARKODE memory block.
-   :param step_idx: the step to insert the next checkpoint at.
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
