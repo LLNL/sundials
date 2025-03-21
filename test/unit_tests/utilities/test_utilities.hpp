@@ -21,7 +21,7 @@
 #include <vector>
 
 // Check function return flag
-static int check_flag(const int flag, const std::string funcname)
+inline int check_flag(const int flag, const std::string funcname)
 {
   if (!flag) return 0;
   if (flag < 0) std::cerr << "ERROR: ";
@@ -30,7 +30,7 @@ static int check_flag(const int flag, const std::string funcname)
 }
 
 // Check if a function returned a NULL pointer
-static int check_ptr(const void* ptr, const std::string funcname)
+inline int check_ptr(const void* ptr, const std::string funcname)
 {
   if (ptr) return 0;
   std::cerr << "ERROR: " << funcname << " returned NULL" << std::endl;
