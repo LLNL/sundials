@@ -463,7 +463,7 @@ This section describes the functions that users may supply.
    * **fy**: the current value of the vector :math:`f(t,y)`.
    * **Jac**: the output Jacobian matrix.
    * **user_data**: a pointer to user data, the same as the *user_data*
-                     parameter that was passed to :c:func:`SUNStepperSetUserData`.
+                     parameter that was passed to the integrator
    * **tmp***: pointers to memory allocated to variables of type :c:type:`N_Vector`
                which can be used by an as temporary storage or work space.
 
@@ -487,7 +487,7 @@ This section describes the functions that users may supply.
              the predicted value of :math:`y(t)`.
    * **fy**: the current value of the vector :math:`f(t,y)`.
    * **user_data**: a pointer to user data, the same as the *user_data*
-                     parameter that was passed to :c:func:`SUNStepperSetUserData`.
+                     parameter that was passed to the integrator
    * **tmp**: a :c:type:`N_Vector` which can be used by an as temporary storage
               or work space.
 
