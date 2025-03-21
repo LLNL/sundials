@@ -68,13 +68,13 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
    .. c:member:: SUNRhsJacTimesFn JvpFn
 
-      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial y)^T v`
-      or :math:`v^T(\partial f/\partial y)`.
+      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial y)^* v`
+      or :math:`v^*(\partial f/\partial y)`.
 
    .. c:member:: SUNRhsJacTimesFn JPvpFn
 
-      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial p)^T v`,
-      or :math:`v^T(\partial f/\partial p)`.
+      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial p)^* v`,
+      or :math:`v^*(\partial f/\partial p)`.
 
    .. c:member:: suncountertype nst
 
@@ -209,22 +209,22 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 .. c:function:: SUNErrCode SUNAdjointStepper_SetJacHermitianTransposeVecFn(SUNAdjointStepper adj_stepper, SUNRhsJacTimesFn Jvp, SUNRhsJacTimesFn JPvp)
 
 
-   Sets the function pointers to evaluate :math:`(\partial f/\partial y)^T v`  and :math:`(\partial f/\partial p)^T v`
+   Sets the function pointers to evaluate :math:`(\partial f/\partial y)^* v`  and :math:`(\partial f/\partial p)^* v`
 
    :param adj_stepper: The SUNAdjointStepper object.
-   :param Jvp: function that evaluates :math:`(\partial f/\partial y)^T v`.
-   :param JPvp: function that evaluates :math:`(\partial f/\partial p)^T v`.
+   :param Jvp: function that evaluates :math:`(\partial f/\partial y)^* v`.
+   :param JPvp: function that evaluates :math:`(\partial f/\partial p)^* v`.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 
 .. c:function:: SUNErrCode SUNAdjointStepper_SetVecHermitianTransposeJacFn(SUNAdjointStepper adj_stepper, SUNRhsJacTimesFn Jvp, SUNRhsJacTimesFn JPvp)
 
-   Sets the function pointers to evaluate :math:`v^T (\partial f/\partial y)` and :math:`v^T (\partial f/\partial p)`
+   Sets the function pointers to evaluate :math:`v^* (\partial f/\partial y)` and :math:`v^* (\partial f/\partial p)`
 
    :param adj_stepper: The SUNAdjointStepper object.
-   :param Jvp: function that evaluates :math:`v^T (\partial f/\partial y)`.
-   :param JPvp: function that evaluates :math:`v^T (\partial f/\partial p)`.
+   :param Jvp: function that evaluates :math:`v^* (\partial f/\partial y)`.
+   :param JPvp: function that evaluates :math:`v^* (\partial f/\partial p)`.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
