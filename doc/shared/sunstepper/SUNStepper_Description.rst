@@ -329,7 +329,7 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :param fn: the :c:type:`SUNStepperResetFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
-.. c:function:: SUNErrCode SUNStepper_SetResetFn(SUNStepper stepper, SUNStepperResetCheckpointIndexFn fn)
+.. c:function:: SUNErrCode SUNStepper_SetResetCheckpointIndexFn(SUNStepper stepper, SUNStepperResetCheckpointIndexFn fn)
 
    This function attaches a :c:type:`SUNStepperResetCheckpointIndexFn` function to a
    :c:type:`SUNStepper` object.
