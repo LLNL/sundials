@@ -485,6 +485,18 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
     return retval;
   }
 
+  /* ------------------- *
+   * Update time history *
+   * ------------------- */
+
+  /* Ensure internal time and step history matches the input history */
+  cv_mem->cv_tn = t_hist[0];
+
+  for (int i = 1; i < n_hist; i++)
+  {
+    cv_mem->cv_tau[i] = t_hist[i - 1] - t_hist[i];
+  }
+
   /* In the next step, perform initialization needed after a resize */
   cv_mem->first_step_after_resize = SUNTRUE;
 
