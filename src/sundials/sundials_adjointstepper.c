@@ -43,8 +43,6 @@ SUNErrCode SUNAdjointStepper_Create(
   adj_stepper->JacPFn = NULL;
   adj_stepper->JvpFn  = NULL;
   adj_stepper->JPvpFn = NULL;
-  adj_stepper->vJpFn  = NULL;
-  adj_stepper->vJPpFn = NULL;
 
   adj_stepper->tf             = tf;
   adj_stepper->step_idx       = final_step_idx;
@@ -55,8 +53,6 @@ SUNErrCode SUNAdjointStepper_Create(
   adj_stepper->njpeval    = 0;
   adj_stepper->njtimesv   = 0;
   adj_stepper->njptimesv  = 0;
-  adj_stepper->nvtimesj   = 0;
-  adj_stepper->nvtimesjp  = 0;
   adj_stepper->nrecompute = 0;
 
   adj_stepper->user_data = NULL;
@@ -77,8 +73,6 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper self, N_Vector y0,
   self->njpeval    = 0;
   self->njtimesv   = 0;
   self->njptimesv  = 0;
-  self->nvtimesj   = 0;
-  self->nvtimesjp  = 0;
   self->nrecompute = 0;
   self->nst        = 0;
   SUNStepper_Reset(self->adj_sunstepper, tf, sf);
@@ -217,11 +211,10 @@ SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper self,
                                               SUNRhsJacTimesFn vJPp)
 {
   SUNFunctionBegin(self->sunctx);
-
-  self->vJpFn  = vJp;
-  self->vJPpFn = vJPp;
-
-  return SUN_SUCCESS;
+  /* Since sundials does not distinguish between row and column vectors,
+     it does not matter if we the user does v^*J or J^*v. We only provide 
+     this SUNAdjointStepper_SetVecTimesJacFn to indicate we support v^*J. */
+  return SUNAdjointStepper_SetJacTimesVecFn(self, vJp, vJPp);
 }
 
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper self, void* user_data)
@@ -277,16 +270,15 @@ SUNErrCode SUNAdjointStepper_GetNumVecTimesJacEvals(
   SUNAdjointStepper self, suncountertype* num_vec_times_jac_evals)
 {
   SUNFunctionBegin(self->sunctx);
-  *num_vec_times_jac_evals = self->nvtimesj;
-  return SUN_SUCCESS;
+  return SUNAdjointStepper_GetNumJacTimesVecEvals(self, num_vec_times_jac_evals);
 }
 
 SUNErrCode SUNAdjointStepper_GetNumVecTimesJacPEvals(
   SUNAdjointStepper self, suncountertype* num_vec_times_jac_p_evals)
 {
   SUNFunctionBegin(self->sunctx);
-  *num_vec_times_jac_p_evals = self->nvtimesjp;
-  return SUN_SUCCESS;
+  return SUNAdjointStepper_GetNumJacPTimesVecEvals(self,
+                                                   num_vec_times_jac_p_evals);
 }
 
 SUNErrCode SUNAdjointStepper_GetNumRecompute(SUNAdjointStepper self,
@@ -320,14 +312,6 @@ SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper self,
     sunfprintf_long(outfile, fmt, SUNFALSE, "JacP-times-v evals",
                     self->njptimesv);
   }
-  if (self->vJpFn)
-  {
-    sunfprintf_long(outfile, fmt, SUNFALSE, "v-times-Jac evals", self->nvtimesj);
-  }
-  if (self->vJPpFn)
-  {
-    sunfprintf_long(outfile, fmt, SUNFALSE, "v-times-Jacp evals",
-                    self->nvtimesjp);
-  }
+
   return SUN_SUCCESS;
 }

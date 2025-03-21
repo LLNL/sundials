@@ -68,19 +68,13 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
    .. c:member:: SUNRhsJacTimesFn JvpFn
 
-      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial y)^T v`.
+      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial y)^T v`
+      or :math:`v^T(\partial f/\partial y)`.
 
    .. c:member:: SUNRhsJacTimesFn JPvpFn
 
-      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial p)^T v`.
-
-   .. c:member:: SUNRhsJacTimesFn vJpFn
-
-      Jacobian-times-vector function pointer to evaluate :math:`v^T(\partial f/\partial y)`.
-
-   .. c:member:: SUNRhsJacTimesFn vJPpFn
-
-      Jacobian-times-vector function pointer to evaluate :math:`v^T(\partial f/\partial p)`.
+      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial p)^T v`,
+      or :math:`v^T(\partial f/\partial p)`.
 
    .. c:member:: suncountertype nst
 
@@ -96,15 +90,13 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
    .. c:member:: suncountertype njtimesv
 
-      Holds the count of the number of :math:`(\partial f/\partial y)^* v` evaluations.
+      Holds the count of the number of :math:`(\partial f/\partial y)^* v`, or 
+      :math:`v^*(\partial f/\partial y)` evaluations.
 
    .. c:member:: suncountertype njptimesv
 
-      Holds the count of the number of :math:`(\partial f/\partial p)^* v` evaluations.
-
-   .. c:member:: suncountertype nvtimesj
-
-      Holds the count of the number of :math:`v^*(\partial f/\partial y)` evaluations.
+      Holds the count of the number of :math:`(\partial f/\partial p)^* v`, or
+      :math:`v^*(\partial f/\partial p)`evaluations.
 
    .. c:member:: suncountertype nvtimesjp
 
