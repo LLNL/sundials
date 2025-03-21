@@ -2296,7 +2296,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
         SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint",
                     "searching-for-checkpoint",
                     "start_step = %li, stop_step = %li", start_step, stop_step);
-        sunrealtype expected_t, checkpoint_t;
+        sunrealtype checkpoint_t;
         errcode =
           SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
                                                 start_step, step_mem->stages,

@@ -147,7 +147,7 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
 
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
   SUNAdjointCheckpointScheme self, suncountertype step_num,
-  suncountertype stage_num, sunrealtype t, sunbooleantype peek, N_Vector* yout,
+  suncountertype stage_num, sunbooleantype peek, N_Vector* yout,
   sunrealtype* tout)
 {
   SUNFunctionBegin(self->sunctx);
@@ -240,8 +240,6 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
   SUNLogExtraDebug(SUNCTX_->logger, "stage-loaded",
                    "step_num = %d, stage_num = %d, t = %g", step_num, stage_num,
                    *tout);
-
-  if (*tout != t) { return SUN_ERR_CHECKPOINT_MISMATCH; }
 
   /* Cleanup the checkpoint memory if need be */
   if (!(IMPL_MEMBER(self, keep) || peek))

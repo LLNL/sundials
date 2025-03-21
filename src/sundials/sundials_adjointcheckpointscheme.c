@@ -106,15 +106,14 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector(
 
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
   SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
-  suncountertype stage_num, sunrealtype t, sunbooleantype peek, N_Vector* out,
-  sunrealtype* tout)
+  suncountertype stage_num, sunbooleantype peek, N_Vector* out, sunrealtype* tout)
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
   if (check_scheme->ops->loadvector)
   {
     SUNErrCode err = check_scheme->ops->loadvector(check_scheme, step_num,
-                                                   stage_num, t, peek, out, tout);
+                                                   stage_num, peek, out, tout);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }

@@ -78,7 +78,7 @@ static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
     {
       int stage_idx = step == 0 ? stages + 1 : stages;
       N_VConst(step * stage_idx, state);
-      err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage_idx, t, 0,
+      err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage_idx, 0,
                                                   &loaded, &tout);
       EXPECT_EQ(err, SUN_SUCCESS);
       EXPECT_EQ(t, tout);
@@ -88,8 +88,8 @@ static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
       {
         N_VConst(step * stage, state);
         stage_idx = step == 0 ? stage : stage - 1;
-        err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage_idx, t - dt,
-                                                    0, &loaded, &tout);
+        err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage_idx, 0,
+                                                    &loaded, &tout);
         EXPECT_EQ(err, SUN_SUCCESS);
         EXPECT_EQ(t - dt, tout);
         EXPECT_TRUE(compare_vectors(state, loaded));
@@ -327,8 +327,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
   // Load the last step
   suncountertype step  = 1;
   suncountertype stage = 1;
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 0.2, 0,
-                                              &loaded_state, &tout);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 0, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Insert the step again
@@ -338,8 +338,8 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Load it again
-  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 10.0, 0,
-                                              &loaded_state, &tout);
+  err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 0, &loaded_state,
+                                              &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
   EXPECT_EQ(10.0, tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
