@@ -4763,8 +4763,6 @@ int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper, ARKVecResizeFn resiz
                                void* resize_data, sunindextype lrw_diff,
                                sunindextype liw_diff, N_Vector tmpl)
 {
-  int retval;
-
   if (stepper == NULL) { return ARK_ILL_INPUT; }
 
   if (!arkResizeVecArray(resize, resize_data, stepper->nforcing_allocated, tmpl,
