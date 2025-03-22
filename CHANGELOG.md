@@ -34,6 +34,8 @@ Improved the efficiency of default ARKODE methods with the following changes:
 
 ### Bug Fixes
 
+Fixed bug in `ARKodeResize` which caused it return an error for MRI methods.
+
 Removed error floors from the `SUNAdaptController` implementations which could
 unnecessarily limit the time size growth, particularly after the first step.
 
