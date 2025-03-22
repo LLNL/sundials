@@ -44,6 +44,9 @@ Improved the efficiency of default ARKODE methods with the following changes:
 
 **Bug Fixes**
 
+Fixed bug in :c:func:`ARKodeResize` which caused it return an error for MRI
+methods.
+
 Removed error floors from the :c:type:`SUNAdaptController` implementations
 which could unnecessarily limit the time size growth, particularly after the
 first step.
