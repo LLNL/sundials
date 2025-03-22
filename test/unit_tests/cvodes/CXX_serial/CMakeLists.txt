@@ -27,7 +27,19 @@ set(unit_tests
     "cvs_test_kpr.cpp\;--eta_cf 0.5"
     "cvs_test_kpr.cpp\;--dgmax_lsetup 0.0"
     "cvs_test_kpr.cpp\;--dgmax_jbad 1.0"
-    "cvs_test_getjac.cpp\;")
+    "cvs_test_getjac.cpp\;"
+    "cvs_test_resize_history.cpp\;0 1 0"
+    "cvs_test_resize_history.cpp\;0 2 0"
+    "cvs_test_resize_history.cpp\;1 1 0"
+    "cvs_test_resize_history.cpp\;1 2 0"
+    "cvs_test_resize_history.cpp\;2 1 0"
+    "cvs_test_resize_history.cpp\;2 2 0"
+    "cvs_test_resize_history.cpp\;0 1 1"
+    "cvs_test_resize_history.cpp\;0 2 1"
+    "cvs_test_resize_history.cpp\;1 1 1"
+    "cvs_test_resize_history.cpp\;1 2 1"
+    "cvs_test_resize_history.cpp\;2 1 1"
+    "cvs_test_resize_history.cpp\;2 2 1")
 
 # Add the build and install targets for each test
 foreach(test_tuple ${unit_tests})
@@ -53,7 +65,8 @@ foreach(test_tuple ${unit_tests})
     target_include_directories(
       ${test_target}
       PRIVATE $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-              ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
+              ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
+              ${CMAKE_SOURCE_DIR}/test/unit_tests)
 
     # Libraries to link against
     target_link_libraries(${test_target} sundials_cvodes sundials_nvecserial
