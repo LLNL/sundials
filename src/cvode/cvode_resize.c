@@ -489,7 +489,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
    * Update time history *
    * ------------------- */
 
-  /* Ensure internal time and step history matches the input history */
+  /* Ensure internal time and step history match the input history */
   cv_mem->cv_tn = t_hist[0];
 
   for (int i = 1; i < n_hist; i++)

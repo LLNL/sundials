@@ -2502,7 +2502,7 @@ static void cvAdjustParams(CVodeMem cv_mem)
 {
   if (cv_mem->cv_qprime != cv_mem->cv_q)
   {
-    /* History adjustments for order change were applied when resizing */
+    /* History adjustments for an order change were applied when resizing */
     if (!(cv_mem->first_step_after_resize))
     {
       cvAdjustOrder(cv_mem, cv_mem->cv_qprime - cv_mem->cv_q);

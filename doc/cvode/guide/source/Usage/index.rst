@@ -3294,7 +3294,7 @@ problem size.
    * Solution vectors: :math:`y(t_n)` and :math:`y(t_{n-1})`
    * Right-hand side vectors: :math:`f(t_n,y(t_n)), f(t_{n-1},y(t_{n-1})), \ldots, f(t_{n-k}, y(t_{n-k}))`
 
-   For BDF methods required history data is:
+   For BDF methods the required history data is:
 
    * Solution vectors: :math:`y(t_n), y(t_{n-1}), \ldots, y(t_{n-k})`
    * Right-hand side vectors: :math:`f(t_n, y(t_n))` and :math:`f(t_{n-1}, y(t_{n-1}))`,
@@ -3312,7 +3312,6 @@ problem size.
                   value i.e., :math:`t_n > t_{n-1} > \ldots > t_{n-k}` for
                   forward integration or :math:`t_n < t_{n-1} < \ldots <
                   t_{n-k}` for backward integration.
-                  :math:`\left[]`.
    :param y_hist: an array of solution vectors ordered to align with the
                   corresponding times given in ``t_hist``.
    :param f_hist: an array of right-hand side vectors ordered to align with the
