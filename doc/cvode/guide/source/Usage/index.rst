@@ -3308,13 +3308,16 @@ problem size.
 
    :param cvode_mem: pointer to the CVODE memory block.
    :param t_hist: an array of time values for the solution and right-hand side
-                  history. These must be ordered from newest to oldest i.e.,
-                  :math:`\left[t_n, t_{n-1}, \ldots, t_{n-k}\right]`.
-   :param y_hist: an array of solution vectors ordered from newest to oldest
-                  corresponding to the times given in ``t_hist``.
-   :param f_hist: an array of right-hand side vectors ordered from newest to
-                  oldest corresponding to the times and solutions given in
-                  ``t_hist`` and ``y_hist``, respectively.
+                  history. These must be ordered starting from the most recent
+                  value i.e., :math:`t_n > t_{n-1} > \ldots > t_{n-k}` for
+                  forward integration or :math:`t_n < t_{n-1} < \ldots <
+                  t_{n-k}` for backward integration.
+                  :math:`\left[]`.
+   :param y_hist: an array of solution vectors ordered to align with the
+                  corresponding times given in ``t_hist``.
+   :param f_hist: an array of right-hand side vectors ordered to align with the
+                  corresponding times and solutions given in ``t_hist`` and
+                  ``y_hist``, respectively.
    :param n_y_hist: number of solution vectors vectors provided in
                     ``y_hist``. For Adams methods this should be 2 and for BDF
                     methods this should be :math:`\min\{q+1,q_{\textrm{max}}\}`.

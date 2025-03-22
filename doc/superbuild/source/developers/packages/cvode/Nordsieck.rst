@@ -282,6 +282,10 @@ remaining columns of :math:`Z_n` remain the same.
    from the correction to the predicted Nordsieck array and not an evaluation of
    the right-hand side function at :math:`y_n`.
 
+   Additionally, when the method order is increased in the next step, we use the
+   provided history to directly construct :math:`Z_n` at the new order instead
+   of adjusting the order using the correction vector.
+
 Beyond building :math:`Z_n`, we also need to compute a resized correction vector
 for the just completed step, :math:`\Delta_n`, in order to test for a potential
 order increase in the next step. This calculation is achieved by computing a
