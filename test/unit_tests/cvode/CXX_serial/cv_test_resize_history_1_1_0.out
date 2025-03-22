@@ -1,4 +1,7 @@
-CVODE -- RESIZE
+CVODE Resize History Test
+Method: Adams
+Algebraic solvers: Fixed-point
+Case: Resize but do not change the problem size
 
 t:      0.0000000000000000e+00
 y:      0.0000000000000000e+00

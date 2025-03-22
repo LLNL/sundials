@@ -22,7 +22,12 @@
 #include "cvode/cvode_impl.h"
 #include "nvector/nvector_serial.h"
 #include "sundials/sundials_context.hpp"
+#include "sundials/sundials_linearsolver.h"
+#include "sundials/sundials_matrix.h"
+#include "sundials/sundials_nvector.h"
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
+#include "sunlinsol/sunlinsol_band.h"
+#include "sunmatrix/sunmatrix_band.h"
 
 #include "problems/pr.hpp"
 #include "utilities/check_return.hpp"
@@ -143,12 +148,33 @@ int main(int argc, char* argv[])
     }
   }
 
+  // Use fixed-point (0) or Newton (1) nonlinear solver
+  int nonlinear_solver = 0;
+  if (argc > 3)
+  {
+    nonlinear_solver = atoi(argv[3]);
+    if (nonlinear_solver != 0 && nonlinear_solver != 1)
+    {
+      cerr << "Invalid nonlinear solver option" << endl;
+      return 1;
+    }
+  }
+
   // Number of steps to advance
   int max_steps = 60;
-  if (argc > 3) { max_steps = atoi(argv[3]); }
+  if (argc > 4) { max_steps = atoi(argv[4]); }
 
-  if (resize == 0) { cout << "CVODE -- NO RESIZE" << endl; }
-  else { cout << "CVODE -- RESIZE" << endl; }
+  cout << "CVODE Resize History Test\n";
+  cout << "Method: ";
+  if (method == 1) { cout << "Adams\n"; }
+  else { cout << "BDF\n"; }
+  cout << "Algebraic solvers: ";
+  if (nonlinear_solver == 0) { cout << "Fixed-point\n"; }
+  else { cout << "Newton + Band\n"; }
+  cout << "Case: ";
+  if (resize == 0) { cout << "No resize\n"; }
+  else if (resize == 1) { cout << "Resize but do not change the problem size\n"; }
+  else { cout << "Resize each step with the problem size increased by one\n"; }
 
   // -------------
   // Setup problem
@@ -178,19 +204,42 @@ int main(int argc, char* argv[])
   flag = CVodeSStolerances(cvode_mem, rtol, atol);
   if (check_flag(flag, "CVodeSStolerances")) { return 1; }
 
-  // Use fixed-point nonlinear solver
-  SUNNonlinearSolver NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
-  if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) { return 1; }
-
-  flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
-  if (check_flag(flag, "CVodeSetNonlinearSolver")) { return 1; }
-
-  flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
-  if (check_flag(flag, "CVodeSetMaxNonlinIters")) { return 1; }
-
   // Attach user data
   flag = CVodeSetUserData(cvode_mem, &lambda);
   if (check_flag(flag, "CVodeSetUserData")) { return 1; }
+
+  // Attach algebraic solvers
+  SUNNonlinearSolver NLS = nullptr;
+  SUNLinearSolver LS     = nullptr;
+  SUNMatrix A            = nullptr;
+
+  if (nonlinear_solver == 0)
+  {
+    // Use fixed-point nonlinear solver
+    NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
+    if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) { return 1; }
+
+    flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
+    if (check_flag(flag, "CVodeSetNonlinearSolver")) { return 1; }
+
+    flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
+    if (check_flag(flag, "CVodeSetMaxNonlinIters")) { return 1; }
+  }
+  else
+  {
+    // Use default Newton solver, attach banded matrix and linear solver
+    A = SUNBandMatrix(1, 0, 0, sunctx);
+    if (check_ptr(A, "SUNBandMatrix")) { return 1; }
+
+    LS = SUNLinSol_Band(y, A, sunctx);
+    if (check_ptr(LS, "SUNLinSol_Band")) { return 1; }
+
+    flag = CVodeSetLinearSolver(cvode_mem, LS, A);
+    if (check_flag(flag, "CVodeSetLinearSolver")) { return 1; }
+
+    flag = CVodeSetJacFn(cvode_mem, ode_rhs_jac);
+    if (check_flag(flag, "CVodeSetJacFn")) { return 1; }
+  }
 
   // ------------------------
   // Initialize saved history
@@ -309,15 +358,38 @@ int main(int argc, char* argv[])
       N_VDestroy(y);
       y = N_VClone(y_hist[0]);
 
-      SUNNonlinSolFree(NLS);
-      NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
-      if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) { return 1; }
+      if (nonlinear_solver == 0)
+      {
+        // Use fixed-point nonlinear solver
+        SUNNonlinSolFree(NLS);
 
-      flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if (check_flag(flag, "CVodeSetNonlinearSolver")) { return 1; }
+        NLS = SUNNonlinSol_FixedPoint(y, 2, sunctx);
+        if (check_ptr(NLS, "SUNNonlinSol_FixedPoint")) { return 1; }
 
-      flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
-      if (check_flag(flag, "CVodeSetMaxNonlinIters")) { return 1; }
+        flag = CVodeSetNonlinearSolver(cvode_mem, NLS);
+        if (check_flag(flag, "CVodeSetNonlinearSolver")) { return 1; }
+
+        flag = CVodeSetMaxNonlinIters(cvode_mem, 10);
+        if (check_flag(flag, "CVodeSetMaxNonlinIters")) { return 1; }
+      }
+      else
+      {
+        SUNMatDestroy(A);
+        SUNLinSolFree(LS);
+
+        // Use default Newton solver, attach banded matrix and linear solver
+        A = SUNBandMatrix(N_VGetLength(y), 0, 0, sunctx);
+        if (check_ptr(A, "SUNBandMatrix")) { return 1; }
+
+        LS = SUNLinSol_Band(y, A, sunctx);
+        if (check_ptr(LS, "SUNLinSol_Band")) { return 1; }
+
+        flag = CVodeSetLinearSolver(cvode_mem, LS, A);
+        if (check_flag(flag, "CVodeSetLinearSolver")) { return 1; }
+
+        flag = CVodeSetJacFn(cvode_mem, ode_rhs_jac);
+        if (check_flag(flag, "CVodeSetJacFn")) { return 1; }
+      }
     }
 
     N_VDestroy(tmp);
@@ -333,6 +405,8 @@ int main(int argc, char* argv[])
   N_VDestroyVectorArray(y_hist, hist_size);
   N_VDestroyVectorArray(f_hist, hist_size);
   SUNNonlinSolFree(NLS);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
   CVodeFree(&cvode_mem);
   delete[] t_hist;
 

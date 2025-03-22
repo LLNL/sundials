@@ -1,4 +1,7 @@
-CVODE -- RESIZE
+CVODE Resize History Test
+Method: BDF
+Algebraic solvers: Fixed-point
+Case: Resize each step with the problem size increased by one
 
 t:      0.0000000000000000e+00
 y:      0.0000000000000000e+00

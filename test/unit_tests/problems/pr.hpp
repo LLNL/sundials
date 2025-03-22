@@ -29,7 +29,7 @@
 
 #include <cmath>
 #include <sundials/sundials_core.hpp>
-#include <sunmatrix/sunmatrix_dense.h>
+#include <sunmatrix/sunmatrix_band.h>
 
 namespace problems {
 namespace pr {
@@ -93,7 +93,9 @@ inline int ode_rhs(sunrealtype t, N_Vector y_vec, N_Vector f_vec, void* user_dat
 }
 
 // ODE RHS Jacobian function
-inline int ode_rhs_jac(sunrealtype t, N_Vector y_vec, SUNMatrix J_mat, void* user_data)
+inline int ode_rhs_jac(sunrealtype t, N_Vector y_vec, N_Vector fy_vec,
+                       SUNMatrix J_mat, void* user_data, N_Vector tmp1,
+                       N_Vector tmp2, N_Vector tmp3)
 {
   if (y_vec == nullptr || J_mat == nullptr || user_data == nullptr)
   {
@@ -103,12 +105,12 @@ inline int ode_rhs_jac(sunrealtype t, N_Vector y_vec, SUNMatrix J_mat, void* use
   const sunrealtype lambda  = *static_cast<sunrealtype*>(user_data);
   const sunindextype length = N_VGetLength(y_vec);
 
-  sunrealtype* J_data = SUNDenseMatrix_Data(J_mat);
+  sunrealtype* J_data = SUNBandMatrix_Data(J_mat);
   if (J_data == nullptr) { return -1; }
 
   for (sunindextype i = 0; i < length; i++)
   {
-    J_data[i + i * length] = lambda;
+    J_data[i] = lambda;
   }
 
   return 0;
