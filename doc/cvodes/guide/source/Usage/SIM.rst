@@ -3266,6 +3266,91 @@ vector.
       If an error occurred, ``CVodeReInit`` also sends an error message to the  error handler function.
 
 
+CVODES resize function
+~~~~~~~~~~~~~~~~~~~~~~
+
+For simulations involving changes to the number of equations and unknowns in the
+ODE system, CVODES maybe "resized" between steps by calling
+:c:func:`CVodeResizeHistory`. As the methods implemented in CVODES utilize
+solution or right-hand side history information, resizing the integrator
+requires providing the necessary history data (detailed below) at the new
+problem size.
+
+.. c:function:: int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist, N_Vector* f_hist, int num_y_hist, int num_f_hist)
+
+   The function :c:func:`CVodeResizeHistory` resizes CVODES using the provided
+   history data at the new problem size.
+
+   For Adams methods the required history data is
+
+   * Solution vectors: :math:`y(t_n)` and :math:`y(t_{n-1})`
+   * Right-hand side vectors: :math:`f(t_n,y(t_n)), f(t_{n-1},y(t_{n-1})), \ldots, f(t_{n-k}, y(t_{n-k}))`
+
+   For BDF methods the required history data is:
+
+   * Solution vectors: :math:`y(t_n), y(t_{n-1}), \ldots, y(t_{n-k})`
+   * Right-hand side vectors: :math:`f(t_n, y(t_n))` and :math:`f(t_{n-1}, y(t_{n-1}))`,
+
+   In both cases, :math:`k=\min\{q+1,q_{\textrm{max}}\}` where :math:`q` is the
+   order of the last step (see :c:func:`CVodeGetLastOrder`) and
+   :math:`q_{\textrm{max}}` is maximum allowed order (see
+   :c:func:`CVodeSetMaxOrd`). The additional solution/right-hand side values
+   beyond what is strictly needed for the method are used to determine if an
+   order increase should occur after the next step.
+
+   :param cvode_mem: pointer to the CVODES memory block.
+   :param t_hist: an array of time values for the solution and right-hand side
+                  history. These must be ordered starting from the most recent
+                  value i.e., :math:`t_n > t_{n-1} > \ldots > t_{n-k}` for
+                  forward integration or :math:`t_n < t_{n-1} < \ldots <
+                  t_{n-k}` for backward integration.
+   :param y_hist: an array of solution vectors ordered to align with the
+                  corresponding times given in ``t_hist``.
+   :param f_hist: an array of right-hand side vectors ordered to align with the
+                  corresponding times and solutions given in ``t_hist`` and
+                  ``y_hist``, respectively.
+   :param n_y_hist: number of solution vectors vectors provided in
+                    ``y_hist``. For Adams methods this should be 2 and for BDF
+                    methods this should be :math:`\min\{q+1,q_{\textrm{max}}\}`.
+   :param n_f_hist: number of right-hand side vectors provided in
+                    ``f_hist``. For Adams methods this should be
+                    :math:`\min\{q+1,q_{\textrm{max}}\}` and for BDF methods it
+                    should be 2.
+
+   :retval CV_SUCCESS: The call was successful.
+   :retval CV_MEM_NULL: The CVODES memory block was ``NULL``.
+   :retval CV_ILL_INPUT: An input argument was an illegal value, see the output
+                         error message for additional details.
+
+   .. versionadded:: x.y.z
+
+   .. note::
+
+      At this time resizing is supported when using CVODES for the solution of
+      initial value problems (IVPs) and is not currently compatible with forward
+      or adjoint sensitivity analysis.
+
+   .. note::
+
+      Any nonlinear or linear solvers attached to CVODE will also need to be
+      resized. At present, for SUNDIALS-provided algebraic solvers, this
+      requires be destroying, re-creating, and re-attaching the solvers
+      following each call to :c:func:`CVodeResizeHistory`. Similarly, any matrix
+      objects provided when attaching the linear solver will also need to be
+      resized.
+
+      If using a vector of absolute tolerances, the absolute tolerance vector
+      will be invalid after the call to :c:func:`CVodeResizeHistory`, so a new
+      absolute tolerance vector should be create and set following each call to
+      :c:func:`CVodeResizeHistory` through a new call to
+      :c:func:`CVodeSVtolerances`.
+
+      If inequality constraint checking is enabled, a call to
+      :c:func:`CVodeResizeHistory` will disable constraint checking. A call to
+      :c:func:`CVodeSetConstraints` is required to re-enable constraint
+      checking.
+
+
 .. _CVODES.Usage.SIM.user_supplied:
 
 User-supplied functions
