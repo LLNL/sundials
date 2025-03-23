@@ -43,68 +43,66 @@ int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc,
   ark_mem = (ARKodeMem)arkode_mem;
 
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyIntPair int_pairs[] =
-    {{"order", ARKodeSetOrder},
-     {"interpolant_degree", ARKodeSetInterpolantDegree},
-     {"linear", ARKodeSetLinear},
-     {"autonomous", ARKodeSetAutonomous},
-     {"deduce_implicit_rhs", ARKodeSetDeduceImplicitRhs},
-     {"lsetup_frequency", ARKodeSetLSetupFrequency},
-     {"predictor_method", ARKodeSetPredictorMethod},
-     {"max_nonlin_iters", ARKodeSetMaxNonlinIters},
-     {"max_hnil_warns", ARKodeSetMaxHnilWarns},
-     {"interpolate_stop_time", ARKodeSetInterpolateStopTime},
-     {"max_num_constr_fails", ARKodeSetMaxNumConstrFails},
-     {"adaptivity_adjustment", ARKodeSetAdaptivityAdjustment},
-     {"small_num_efails", ARKodeSetSmallNumEFails},
-     {"max_err_test_fails", ARKodeSetMaxErrTestFails},
-     {"max_conv_fails", ARKodeSetMaxConvFails},
-     {"linear_solution_scaling", ARKodeSetLinearSolutionScaling}};
+  static struct sunKeyIntPair int_pairs[] = {
+    {"order", ARKodeSetOrder},
+    {"interpolant_degree", ARKodeSetInterpolantDegree},
+    {"linear", ARKodeSetLinear},
+    {"autonomous", ARKodeSetAutonomous},
+    {"deduce_implicit_rhs", ARKodeSetDeduceImplicitRhs},
+    {"lsetup_frequency", ARKodeSetLSetupFrequency},
+    {"predictor_method", ARKodeSetPredictorMethod},
+    {"max_nonlin_iters", ARKodeSetMaxNonlinIters},
+    {"max_hnil_warns", ARKodeSetMaxHnilWarns},
+    {"interpolate_stop_time", ARKodeSetInterpolateStopTime},
+    {"max_num_constr_fails", ARKodeSetMaxNumConstrFails},
+    {"adaptivity_adjustment", ARKodeSetAdaptivityAdjustment},
+    {"small_num_efails", ARKodeSetSmallNumEFails},
+    {"max_err_test_fails", ARKodeSetMaxErrTestFails},
+    {"max_conv_fails", ARKodeSetMaxConvFails},
+    {"linear_solution_scaling", ARKodeSetLinearSolutionScaling}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
-  static struct sunKeyLongPair long_pairs[] = {{"max_num_steps",
-                                                ARKodeSetMaxNumSteps},
-                                               {"jac_eval_frequency",
-                                                ARKodeSetJacEvalFrequency}};
+  static struct sunKeyLongPair long_pairs[] = {
+    {"max_num_steps", ARKodeSetMaxNumSteps},
+    {"jac_eval_frequency", ARKodeSetJacEvalFrequency}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static struct sunKeyRealPair real_pairs[] =
-    {{"nonlin_crdown", ARKodeSetNonlinCRDown},
-     {"nonlin_rdiv", ARKodeSetNonlinRDiv},
-     {"delta_gamma_max", ARKodeSetDeltaGammaMax},
-     {"nonlin_conv_coef", ARKodeSetNonlinConvCoef},
-     {"init_step", ARKodeSetInitStep},
-     {"min_step", ARKodeSetMinStep},
-     {"max_step", ARKodeSetMaxStep},
-     {"stop_time", ARKodeSetStopTime},
-     {"fixed_step", ARKodeSetFixedStep},
-     {"step_direction", ARKodeSetStepDirection},
-     {"cfl_fraction", ARKodeSetCFLFraction},
-     {"safety_factor", ARKodeSetSafetyFactor},
-     {"error_bias", ARKodeSetErrorBias},
-     {"max_growth", ARKodeSetMaxGrowth},
-     {"min_reduction", ARKodeSetMinReduction},
-     {"max_first_growth", ARKodeSetMaxFirstGrowth},
-     {"max_efail_growth", ARKodeSetMaxEFailGrowth},
-     {"max_cfail_growth", ARKodeSetMaxCFailGrowth},
-     {"eps_lin", ARKodeSetEpsLin},
-     {"mass_eps_lin", ARKodeSetMassEpsLin},
-     {"ls_norm_factor", ARKodeSetLSNormFactor},
-     {"mass_ls_norm_factor", ARKodeSetMassLSNormFactor}};
+  static struct sunKeyRealPair real_pairs[] = {
+    {"nonlin_crdown", ARKodeSetNonlinCRDown},
+    {"nonlin_rdiv", ARKodeSetNonlinRDiv},
+    {"delta_gamma_max", ARKodeSetDeltaGammaMax},
+    {"nonlin_conv_coef", ARKodeSetNonlinConvCoef},
+    {"init_step", ARKodeSetInitStep},
+    {"min_step", ARKodeSetMinStep},
+    {"max_step", ARKodeSetMaxStep},
+    {"stop_time", ARKodeSetStopTime},
+    {"fixed_step", ARKodeSetFixedStep},
+    {"step_direction", ARKodeSetStepDirection},
+    {"cfl_fraction", ARKodeSetCFLFraction},
+    {"safety_factor", ARKodeSetSafetyFactor},
+    {"error_bias", ARKodeSetErrorBias},
+    {"max_growth", ARKodeSetMaxGrowth},
+    {"min_reduction", ARKodeSetMinReduction},
+    {"max_first_growth", ARKodeSetMaxFirstGrowth},
+    {"max_efail_growth", ARKodeSetMaxEFailGrowth},
+    {"max_cfail_growth", ARKodeSetMaxCFailGrowth},
+    {"eps_lin", ARKodeSetEpsLin},
+    {"mass_eps_lin", ARKodeSetMassEpsLin},
+    {"ls_norm_factor", ARKodeSetLSNormFactor},
+    {"mass_ls_norm_factor", ARKodeSetMassLSNormFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct sunKeyTwoRealPair tworeal_pairs[] = {{"scalar_tolerances",
-                                                      ARKodeSStolerances},
-                                                     {"fixed_step_bounds",
-                                                      ARKodeSetFixedStepBounds}};
-  static const int num_tworeal_keys               = sizeof(tworeal_pairs) /
+  static struct sunKeyTwoRealPair tworeal_pairs[] = {
+    {"scalar_tolerances", ARKodeSStolerances},
+    {"fixed_step_bounds", ARKodeSetFixedStepBounds}};
+  static const int num_tworeal_keys = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 
-  static struct sunKeyActionPair action_pairs[] =
-    {{"nonlinear", ARKodeSetNonlinear},
-     {"clear_stop_time", ARKodeClearStopTime},
-     {"no_inactive_root_warn", ARKodeSetNoInactiveRootWarn},
-     {"reset_accumulated_error", ARKodeResetAccumulatedError}};
+  static struct sunKeyActionPair action_pairs[] = {
+    {"nonlinear", ARKodeSetNonlinear},
+    {"clear_stop_time", ARKodeClearStopTime},
+    {"no_inactive_root_warn", ARKodeSetNoInactiveRootWarn},
+    {"reset_accumulated_error", ARKodeResetAccumulatedError}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   int i, j, retval;

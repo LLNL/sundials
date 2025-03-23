@@ -479,6 +479,11 @@ Optional inputs for IVP method selection
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument had an illegal value
 
+   .. note::
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.method_name".
+
    .. warning::
 
       This should not be used with :c:func:`ARKodeSetOrder`.
@@ -500,6 +505,11 @@ Optional inputs for IVP method selection
    :retval ARK_SUCCESS: if successful
    :retval ARK_MEM_NULL: if the SPRKStep memory is ``NULL``
    :retval ARK_ILL_INPUT: if an argument had an illegal value
+
+   .. note::
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.use_compensated_sums".
 
 
 

@@ -353,6 +353,9 @@ function is provided:
       Since sensitivity-related memory is not deallocated, sensitivities can  be
       reactivated at a later time (using :c:func:`IDASensReInit`).
 
+      This routine will be called by :c:func:`IDASetFromCommandLine`
+      when using the command-line option "idaid.sens_toggle_off".
+
 
 Forward sensitivity tolerance specification functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -742,17 +745,20 @@ time and, if successful, takes effect immediately.
 
    **Notes:**
 
-   If ``DQrhomax`` :math:`= 0.0`, then no switching is performed. The
-   approximation is done simultaneously using either centered or forward finite
-   differences, depending on the value of ``DQtype``.  For values of
-   ``DQrhomax`` :math:`\ge 1.0`, the simultaneous approximation is used whenever
-   the estimated finite difference perturbations for states and parameters are
-   within a factor of ``DQrhomax``, and the separate approximation is used
-   otherwise. Note that a value ``DQrhomax`` :math:`<1.0` will effectively
-   disable switching.  See :numref:`IDAS.Mathematics.FSA` for more details.
+      If ``DQrhomax`` :math:`= 0.0`, then no switching is performed. The
+      approximation is done simultaneously using either centered or forward finite
+      differences, depending on the value of ``DQtype``.  For values of
+      ``DQrhomax`` :math:`\ge 1.0`, the simultaneous approximation is used whenever
+      the estimated finite difference perturbations for states and parameters are
+      within a factor of ``DQrhomax``, and the separate approximation is used
+      otherwise. Note that a value ``DQrhomax`` :math:`<1.0` will effectively
+      disable switching.  See :numref:`IDAS.Mathematics.FSA` for more details.
 
-   The default value are ``DQtype == IDA_CENTERED`` and
-   ``DQrhomax``:math:`=0.0`.
+      The default value are ``DQtype == IDA_CENTERED`` and
+      ``DQrhomax``:math:`=0.0`.
+
+      This routine will be called by :c:func:`IDASetFromCommandLine`
+      when using the command-line option "idaid.sens_dq_method".
 
 
 .. c:function:: int IDASetSensErrCon(void * ida_mem, sunbooleantype errconS)
@@ -775,6 +781,9 @@ time and, if successful, takes effect immediately.
       variables are excluded from the  error tests. Note that, in any event, all
       variables are considered in the convergence  tests.
 
+      This routine will be called by :c:func:`IDASetFromCommandLine`
+      when using the command-line option "idas.sens_err_con".
+
 
 .. c:function:: int IDASetSensMaxNonlinIters(void * ida_mem, int maxcorS)
 
@@ -792,6 +801,9 @@ time and, if successful, takes effect immediately.
 
    **Notes:**
       The default value is 3.
+
+      This routine will be called by :c:func:`IDASetFromCommandLine`
+      when using the command-line option "idas.sens_max_nonlin_iters".
 
 
 .. _IDAS.Usage.FSA.user_callable.optional_output:
@@ -1428,6 +1440,9 @@ of sensitivity-dependent quadrature equations.
 
    **Notes:**
       By default, ``errconQS`` is set to ``SUNFALSE``.
+
+      This routine will be called by :c:func:`IDASetFromCommandLine`
+      when using the command-line option "idas.quad_sens_err_con".
 
       .. warning::
          It is illegal to call :c:func:`IDASetQuadSensErrCon` before a call  to :c:func:`IDAQuadSensInit`.

@@ -133,6 +133,11 @@ Alternatively, the user may supply a custom function to supply the
    :retval ARK_NO_MALLOC:  ``arkode_mem`` was not allocated.
    :retval ARK_ILL_INPUT: an argument had an illegal value (e.g. a negative tolerance).
 
+   .. note::
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.scalar_tolerances".
+
    .. versionadded:: 6.1.0
 
 
@@ -882,6 +887,7 @@ Optional inputs for ARKODE
 ================================================  =======================================  =======================
 Optional input                                    Function name                            Default
 ================================================  =======================================  =======================
+Set ARKODE options from the command line          :c:func:`ARKodeSetFromCommandLine`       internal
 Return ARKODE parameters to their defaults        :c:func:`ARKodeSetDefaults`              internal
 Set integrator method order                       :c:func:`ARKodeSetOrder`                 4
 Set dense output interpolation type (SPRKStep)    :c:func:`ARKodeSetInterpolantType`       ``ARK_INTERP_LAGRANGE``
@@ -904,6 +910,39 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 ================================================  =======================================  =======================
 
 
+
+
+.. c:function:: int ARKodeSetFromCommandLine(void* arkode_mem, const char* arkid, int argc, char* argv[])
+
+   Passes command-line arguments to ARKODE to set options.
+
+   :param arkode_mem: pointer to the ARKODE memory block.
+   :param arkid: String to use as prefix for ARKODE command-line options.
+   :param argc: Number of command-line options provided to executable.
+   :param argv: Array of strings containing command-line options provided to executable.
+
+   :retval ARK_SUCCESS: the function exited successfully.
+   :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+   :retval other: error return value from relevant ARKODE "set" routine.
+
+   .. note::
+
+      The *argc* and *argv* arguments should be those supplied to the user's ``main'' routine.  These
+      are left unchanged by :c:func:`ARKodeSetFromCommandLine`.
+
+      If the *arkid* argument is ``NULL`` then ``arkode.`` will be used for all ARKODE command-line
+      options, e.g., to set the integrator order of accuracy the default command-line option would be "arkode.order".
+      When using a combination of ARKODE integrators (e.g., via MRIStep, SplittingStep or
+      ForcingStep), it is recommended that users call :c:func:`ARKodeSetFromCommandLine` for each
+      ARKODE integrator using distinct *arkid* inputs, so that each ARKODE integrator can be controlled
+      separately.
+
+      ARKODE options set via command-line arguments to :c:func:`ARKodeSetFromCommandLine` will overwrite
+      any previously-set values.
+
+      The supported command-line options are documented within each ARKODE "set" routine.
+
+   .. versionadded:: x.y.z
 
 
 .. c:function:: int ARKodeSetDefaults(void* arkode_mem)
@@ -952,6 +991,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       ARKODE memory block, it cannot be changed after the first call to
       :c:func:`ARKodeEvolve`, unless ``*StepReInit`` is called.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.order".
+
    .. versionadded:: 6.1.0
 
 
@@ -999,6 +1041,11 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
    :retval ARK_ILL_INPUT: the *itype* argument is not recognized or the
                           interpolation module has already been initialized.
 
+   .. note::
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.interpolant_type".
+
    .. versionchanged:: 6.1.0
 
       This function replaces stepper specific versions in ARKStep, ERKStep,
@@ -1045,6 +1092,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       When :math:`q=1`, a linear interpolant is the default to ensure values
       obtained by the integrator are returned at the ends of the time
       interval.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.interpolant_degree".
 
    .. versionadded:: 6.1.0
 
@@ -1102,6 +1152,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       routines will provide no useful information to the solver, and at
       worst they may interfere with the desired fixed step size.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.fixed_step".
+
    .. versionadded:: 6.1.0
 
 
@@ -1114,7 +1167,7 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
                    selects forward integration, a negative value selects
                    backward integration, and zero leaves the current direction
                    unchanged.
-                   
+
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
@@ -1130,6 +1183,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       controller and next step size are reset. A new initial step size will be
       estimated at the next call to :c:func:`ARKodeEvolve` or can be specified
       with :c:func:`ARKodeSetInitStep`.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.step_direction".
 
    .. versionadded:: 6.2.0
 
@@ -1159,6 +1215,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
       This routine will also reset the step size and error history.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.init_step".
+
    .. versionadded:: 6.1.0
 
 
@@ -1187,6 +1246,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
       A negative value indicates that no warning messages should be issued.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_hnil_warns".
+
    .. versionadded:: 6.1.0
 
 
@@ -1211,6 +1273,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
       Passing *mxsteps* < 0 disables the test (not recommended).
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_num_steps".
+
    .. versionadded:: 6.1.0
 
 
@@ -1233,6 +1298,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
       Pass *hmax* :math:`\le 0.0` to set the default value of :math:`\infty`.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_step".
+
    .. versionadded:: 6.1.0
 
 
@@ -1254,6 +1322,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Pass *hmin* :math:`\le 0.0` to set the default value of 0.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.min_step".
 
    .. versionadded:: 6.1.0
 
@@ -1282,6 +1353,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       :c:func:`ARKodeReset` will remain active but can be disabled by calling
       :c:func:`ARKodeClearStopTime`.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.stop_time".
+
    .. versionadded:: 6.1.0
 
 
@@ -1296,6 +1370,11 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
+
+   .. note::
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.interpolate_stop_time".
 
    .. versionadded:: 6.1.0
 
@@ -1313,6 +1392,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
       The stop time can be re-enabled though a new call to
       :c:func:`ARKodeSetStopTime`.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.clear_stop_time".
 
    .. versionadded:: 6.1.0
 
@@ -1339,6 +1421,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
       this function must be made *before* any calls to
       :c:func:`ARKodeSetLinearSolver` and/or :c:func:`ARKodeSetMassLinearSolver`.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.linear".
+
    .. versionadded:: 6.1.0
 
 
@@ -1362,6 +1447,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
       The default value is 7; set *maxnef* :math:`\le 0`
       to specify this default.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_err_test_fails".
 
    .. versionadded:: 6.1.0
 
@@ -1433,6 +1521,9 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
       Passing *maxfails* <= 0 results in ARKODE using the
       default value (10).
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_num_constr_fails".
 
    .. versionadded:: 6.1.0
 
@@ -1522,6 +1613,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       This should be called prior to calling :c:func:`ARKodeEvolve`, and can only be
       reset following a call to ``*StepReInit``.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.adaptivity_adjustment".
+
    .. versionadded:: 6.1.0
 
 
@@ -1544,6 +1638,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
       Any non-positive parameter will imply a reset to the default
       value.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.cfl_fraction".
 
    .. versionadded:: 6.1.0
 
@@ -1573,6 +1670,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       :c:func:`ARKodeSetAdaptController` will be called, then this routine must be called
       *second*.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.error_bias".
+
    .. versionadded:: 6.1.0
 
 
@@ -1595,6 +1695,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Any interval *not* containing 1.0 will imply a reset to the default values.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.fixed_step_bounds".
 
    .. versionadded:: 6.1.0
 
@@ -1621,6 +1724,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_cfail_growth".
+
    .. versionadded:: 6.1.0
 
 
@@ -1643,6 +1749,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Any value outside the interval :math:`(0,1]` will imply a reset to the default value.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_efail_growth".
 
    .. versionadded:: 6.1.0
 
@@ -1668,6 +1777,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
       Any value :math:`\le 1.0` will imply a reset to the default value.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_first_growth".
+
    .. versionadded:: 6.1.0
 
 
@@ -1691,6 +1803,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
       Any value :math:`\le 1.0` will imply a reset to the default
       value.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_growth".
 
    .. versionadded:: 6.1.0
 
@@ -1718,6 +1833,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       Any value outside the interval :math:`(0,1)` will imply a reset to
       the default value.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.min_reduction".
+
    .. versionadded:: 6.1.0
 
 
@@ -1742,6 +1860,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       Any value :math:`\le 0` will imply a reset to the default
       value.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.safety_factor".
+
    .. versionadded:: 6.1.0
 
 
@@ -1765,6 +1886,9 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       This is only compatible with time-stepping modules that support temporal adaptivity.
 
       Any value :math:`\le 0` will imply a reset to the default value.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.small_num_efails".
 
    .. versionadded:: 6.1.0
 
@@ -1850,6 +1974,10 @@ tolerance.
    A non-default error accumulation strategy can be disabled by calling
    :c:func:`ARKodeSetAccumulatedErrorType` with the argument ``ARK_ACCUMERROR_NONE``.
 
+   .. note::
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.accum_error_type".
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param accum_type: accumulation strategy.
@@ -1873,6 +2001,11 @@ tolerance.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``
    :retval ARK_STEPPER_UNSUPPORTED: temporal error estimation is not supported
                                     by the current time-stepping module.
+
+   .. note::
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.reset_accumulated_error".
 
    .. versionadded:: 6.2.0
 
@@ -1967,6 +2100,9 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       :c:func:`ARKodeSetDeltaGammaMax` to reset the step size ratio
       threshold to the default value.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.nonlinear".
+
    .. versionadded:: 6.1.0
 
 
@@ -2019,6 +2155,9 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       evaluation but instead evaluate the necessary quantities within the
       preconditioner setup function using the input values.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.autonomous".
+
    .. versionadded:: 6.1.0
 
 
@@ -2053,6 +2192,9 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
 
       The default value is 0.  If *method* is set to an
       undefined value, this default predictor will be used.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.predictor_method".
 
    .. versionadded:: 6.1.0
 
@@ -2132,6 +2274,9 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       The default value is 3; set *maxcor* :math:`\le 0`
       to specify this default.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_nonlin_iters".
+
    .. versionadded:: 6.1.0
 
 
@@ -2156,6 +2301,9 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       The default value is 0.1; set *nlscoef* :math:`\le 0`
       to specify this default.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.nonlin_conv_coef".
+
    .. versionadded:: 6.1.0
 
 
@@ -2177,6 +2325,9 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       Any non-positive parameter will imply a reset to the default value.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.nonlin_crdown".
 
    .. versionadded:: 6.1.0
 
@@ -2201,6 +2352,9 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       This is only compatible with time-stepping modules that support implicit algebraic solvers.
 
       Any non-positive parameter will imply a reset to the default value.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.nonlin_rdiv".
 
    .. versionadded:: 6.1.0
 
@@ -2234,6 +2388,9 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
       convergence failure still occurs, the time step size is reduced by
       the factor *etacf* (set within :c:func:`ARKodeSetMaxCFailGrowth`).
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_conv_fails".
+
    .. versionadded:: 6.1.0
 
 
@@ -2256,6 +2413,9 @@ Specify if the implicit RHS is deduced after a nonlinear solve  :c:func:`ARKodeS
    .. note::
 
       This is only compatible with time-stepping modules that support implicit algebraic solvers.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.deduce_implicit_rhs".
 
    .. versionadded:: 6.1.0
 
@@ -2364,6 +2524,9 @@ is recomputed using the current :math:`\gamma` value.
 
       Any non-positive parameter will imply a reset to the default value.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.delta_gamma_max".
+
    .. versionadded:: 6.1.0
 
 .. index::
@@ -2391,6 +2554,9 @@ is recomputed using the current :math:`\gamma` value.
       step while an input of 2 means it will be called called every other time
       step. If **msbp** is 0, the default value of 20 will be used. A negative
       value forces a linear solver step at each implicit stage.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.lsetup_frequency".
 
    .. versionadded:: 6.1.0
 
@@ -2433,6 +2599,9 @@ is recomputed using the current :math:`\gamma` value.
 
       This function must be called *after* the ARKLS system solver interface has
       been initialized through a call to :c:func:`ARKodeSetLinearSolver`.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.jac_eval_frequency".
 
    .. versionadded:: 6.1.0
 
@@ -2620,6 +2789,9 @@ data in the program. The user data pointer may be specified through
 
       Linear solution scaling is enabled by default when a matrix-based
       linear solver is attached.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.linear_solution_scaling".
 
    .. versionadded:: 6.1.0
 
@@ -2958,6 +3130,9 @@ the user through the :c:func:`ARKodeSetEpsLin` function.
       interface has been initialized through a call to
       :c:func:`ARKodeSetLinearSolver`.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.eps_lin".
+
    .. versionadded:: 6.1.0
 
 
@@ -2987,6 +3162,9 @@ the user through the :c:func:`ARKodeSetEpsLin` function.
 
       Passing a value *eplifac* :math:`\le 0` indicates to use the default value
       of 0.05.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.mass_eps_lin".
 
    .. versionadded:: 6.1.0
 
@@ -3036,6 +3214,9 @@ allow for additional user control over these conversion factors.
       This function must be called *after* the ARKLS system solver interface has
       been initialized through a call to :c:func:`ARKodeSetLinearSolver`.
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.ls_norm_factor".
+
    .. versionadded:: 6.1.0
 
 
@@ -3068,6 +3249,9 @@ allow for additional user control over these conversion factors.
 
       This function must be called *after* the ARKLS mass matrix solver interface
       has been initialized through a call to :c:func:`ARKodeSetMassLinearSolver`.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.mass_ls_norm_factor".
 
    .. versionadded:: 6.1.0
 
@@ -3138,6 +3322,9 @@ Disable inactive root warnings          :c:func:`ARKodeSetNoInactiveRootWarn`  e
       (i.e., :math:`g_i` is zero at the initial time *and* after the
       first step), ARKODE will issue a warning which can be disabled with
       this optional input function.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.no_inactive_root_warn".
 
    .. versionadded:: 6.1.0
 
@@ -4700,6 +4887,9 @@ Output all ARKODE solver parameters   :c:func:`ARKodeWriteParameters`
       When run in parallel, only one process should set a non-NULL value
       for this pointer, since parameters for all processes would be
       identical.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.write_parameters".
 
    .. versionadded:: 6.1.0
 

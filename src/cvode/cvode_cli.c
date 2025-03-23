@@ -43,62 +43,60 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
   cv_mem = (CVodeMem)cvode_mem;
 
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyIntPair int_pairs[] =
-    {{"max_conv_fails", CVodeSetMaxConvFails},
-     {"max_err_test_fails", CVodeSetMaxErrTestFails},
-     {"max_hnil_warns", CVodeSetMaxHnilWarns},
-     {"max_nonlin_iters", CVodeSetMaxNonlinIters},
-     {"max_order", CVodeSetMaxOrd},
-     {"stab_lim_det", CVodeSetStabLimDet},
-     {"interpolate_stop_time", CVodeSetInterpolateStopTime},
-     {"use_integrator_fused_kernels", CVodeSetUseIntegratorFusedKernels},
-     {"num_efails_eta_max_err_fail", CVodeSetNumFailsEtaMaxErrFail},
-     {"linear_solution_scaling", CVodeSetLinearSolutionScaling},
-     {"proj_err_est", CVodeSetProjErrEst},
-     {"max_num_proj_fails", CVodeSetMaxNumProjFails}};
+  static struct sunKeyIntPair int_pairs[] = {
+    {"max_conv_fails", CVodeSetMaxConvFails},
+    {"max_err_test_fails", CVodeSetMaxErrTestFails},
+    {"max_hnil_warns", CVodeSetMaxHnilWarns},
+    {"max_nonlin_iters", CVodeSetMaxNonlinIters},
+    {"max_order", CVodeSetMaxOrd},
+    {"stab_lim_det", CVodeSetStabLimDet},
+    {"interpolate_stop_time", CVodeSetInterpolateStopTime},
+    {"use_integrator_fused_kernels", CVodeSetUseIntegratorFusedKernels},
+    {"num_efails_eta_max_err_fail", CVodeSetNumFailsEtaMaxErrFail},
+    {"linear_solution_scaling", CVodeSetLinearSolutionScaling},
+    {"proj_err_est", CVodeSetProjErrEst},
+    {"max_num_proj_fails", CVodeSetMaxNumProjFails}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
-  static struct sunKeyLongPair long_pairs[] =
-    {{"lsetup_frequency", CVodeSetLSetupFrequency},
-     {"max_num_steps", CVodeSetMaxNumSteps},
-     {"monitor_frequency", CVodeSetMonitorFrequency},
-     {"num_steps_eta_max_early_step", CVodeSetNumStepsEtaMaxEarlyStep},
-     {"jac_eval_frequency", CVodeSetJacEvalFrequency},
-     {"proj_frequency", CVodeSetProjFrequency}};
+  static struct sunKeyLongPair long_pairs[] = {
+    {"lsetup_frequency", CVodeSetLSetupFrequency},
+    {"max_num_steps", CVodeSetMaxNumSteps},
+    {"monitor_frequency", CVodeSetMonitorFrequency},
+    {"num_steps_eta_max_early_step", CVodeSetNumStepsEtaMaxEarlyStep},
+    {"jac_eval_frequency", CVodeSetJacEvalFrequency},
+    {"proj_frequency", CVodeSetProjFrequency}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static struct sunKeyRealPair real_pairs[] =
-    {{"dgmax_lsetup", CVodeSetDeltaGammaMaxLSetup},
-     {"init_step", CVodeSetInitStep},
-     {"max_step", CVodeSetMaxStep},
-     {"min_step", CVodeSetMinStep},
-     {"stop_time", CVodeSetStopTime},
-     {"nonlin_conv_coef", CVodeSetNonlinConvCoef},
-     {"eta_max_first_step", CVodeSetEtaMaxFirstStep},
-     {"eta_max_early_step", CVodeSetEtaMaxEarlyStep},
-     {"eta_max", CVodeSetEtaMax},
-     {"eta_min", CVodeSetEtaMin},
-     {"eta_min_err_fail", CVodeSetEtaMinErrFail},
-     {"eta_max_err_fail", CVodeSetEtaMaxErrFail},
-     {"eta_conv_fail", CVodeSetEtaConvFail},
-     {"delta_gamma_max_bad_jac", CVodeSetDeltaGammaMaxBadJac},
-     {"eps_lin", CVodeSetEpsLin},
-     {"ls_norm_factor", CVodeSetLSNormFactor},
-     {"eps_proj", CVodeSetEpsProj},
-     {"proj_fail_eta", CVodeSetProjFailEta}};
+  static struct sunKeyRealPair real_pairs[] = {
+    {"dgmax_lsetup", CVodeSetDeltaGammaMaxLSetup},
+    {"init_step", CVodeSetInitStep},
+    {"max_step", CVodeSetMaxStep},
+    {"min_step", CVodeSetMinStep},
+    {"stop_time", CVodeSetStopTime},
+    {"nonlin_conv_coef", CVodeSetNonlinConvCoef},
+    {"eta_max_first_step", CVodeSetEtaMaxFirstStep},
+    {"eta_max_early_step", CVodeSetEtaMaxEarlyStep},
+    {"eta_max", CVodeSetEtaMax},
+    {"eta_min", CVodeSetEtaMin},
+    {"eta_min_err_fail", CVodeSetEtaMinErrFail},
+    {"eta_max_err_fail", CVodeSetEtaMaxErrFail},
+    {"eta_conv_fail", CVodeSetEtaConvFail},
+    {"delta_gamma_max_bad_jac", CVodeSetDeltaGammaMaxBadJac},
+    {"eps_lin", CVodeSetEpsLin},
+    {"ls_norm_factor", CVodeSetLSNormFactor},
+    {"eps_proj", CVodeSetEpsProj},
+    {"proj_fail_eta", CVodeSetProjFailEta}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct sunKeyTwoRealPair tworeal_pairs[] = {{"eta_fixed_step_bounds",
-                                                      CVodeSetEtaFixedStepBounds},
-                                                     {"scalar_tolerances",
-                                                      CVodeSStolerances}};
-  static const int num_tworeal_keys               = sizeof(tworeal_pairs) /
+  static struct sunKeyTwoRealPair tworeal_pairs[] = {
+    {"eta_fixed_step_bounds", CVodeSetEtaFixedStepBounds},
+    {"scalar_tolerances", CVodeSStolerances}};
+  static const int num_tworeal_keys = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 
-  static struct sunKeyActionPair action_pairs[] = {{"clear_stop_time",
-                                                    CVodeClearStopTime},
-                                                   {"no_inactive_root_warn",
-                                                    CVodeSetNoInactiveRootWarn}};
+  static struct sunKeyActionPair action_pairs[] = {
+    {"clear_stop_time", CVodeClearStopTime},
+    {"no_inactive_root_warn", CVodeSetNoInactiveRootWarn}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   int i, j, retval;

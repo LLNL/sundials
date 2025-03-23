@@ -934,7 +934,10 @@ Optional inputs for IVP method selection
    **Warning:**
       This should not be used with :c:func:`ARKodeSetOrder`.
 
+   .. note::
 
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.table_name".
 
 
 .. _ARKODE.Usage.ERKStep.ERKStepAdaptivityInput:

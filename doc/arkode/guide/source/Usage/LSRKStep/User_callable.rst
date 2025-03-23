@@ -156,6 +156,10 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method name).
 
+   .. note::
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.sts_method".
 
 .. c:function:: int LSRKStepSetSSPMethodByName(void* arkode_mem, const char* emethod);
 
@@ -171,6 +175,10 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. typo in the method name).
 
+   .. note::
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.ssp_method".
 
 .. c:function:: int LSRKStepSetDomEigFn(void* arkode_mem, ARKDomEigFn dom_eig);
 
@@ -187,7 +195,9 @@ Allowable Method Families
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* ``dom_eig = NULL`` and LSRKStep does not currently estimate this internally.
 
-   .. note:: This function is currently required when either the RKC or RKL methods are used.
+   .. note::
+
+      This function is currently required when either the RKC or RKL methods are used.
 
 
 .. c:function:: int LSRKStepSetDomEigFrequency(void* arkode_mem, long int nsteps);
@@ -203,9 +213,16 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-.. note:: If LSRKStepSetDomEigFrequency routine is not called, then the default ``nsteps`` is set to :math:`25` as recommended in :cite:p:`VSH:04`.
-   Calling this function with ``nsteps < 0`` resets the default value while ``nsteps = 0`` refers to constant dominant eigenvalue.
+   .. note::
 
+      If LSRKStepSetDomEigFrequency routine is not called, then the default ``nsteps``
+      is set to :math:`25` as recommended in :cite:p:`VSH:04`.
+
+      Calling this function with ``nsteps < 0`` resets the default value while
+      ``nsteps = 0`` refers to constant dominant eigenvalue.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.dom_eig_frequency".
 
 .. c:function:: int LSRKStepSetMaxNumStages(void* arkode_mem, int stage_max_limit);
 
@@ -220,10 +237,18 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-.. note:: If LSRKStepSetMaxNumStages routine is not called, then the default ``stage_max_limit`` is
-   set to :math:`200`. Calling this function with ``stage_max_limit < 2`` resets the default value.
-   This limit should be chosen with consideration of the following proportionality: :math:`s^2 \sim - h\lambda`,
-   where :math:`s` is the number of stages used, :math:`h` is the current step size and :math:`\lambda` is the dominant eigenvalue.
+   .. note::
+
+      If LSRKStepSetMaxNumStages routine is not called, then the default ``stage_max_limit``
+      is set to :math:`200`. Calling this function with ``stage_max_limit < 2`` resets the
+      default value.
+
+      This limit should be chosen with consideration of the following proportionality:
+      :math:`s^2 \sim - h\lambda`,  where :math:`s` is the number of stages used, :math:`h`
+      is the current step size and :math:`\lambda` is the dominant eigenvalue.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.max_num_stages".
 
 
 .. c:function:: int LSRKStepSetDomEigSafetyFactor(void* arkode_mem, sunrealtype dom_eig_safety);
@@ -241,8 +266,14 @@ Allowable Method Families
       * *ARK_SUCCESS* if successful
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
 
-.. note:: If LSRKStepSetDomEigSafetyFactor routine is not called, then the default ``dom_eig_safety`` is
-   set to :math:`1.01`. Calling this function with ``dom_eig_safety < 1`` resets the default value.
+   .. note::
+
+      If LSRKStepSetDomEigSafetyFactor routine is not called, then the default
+      ``dom_eig_safety`` is set to :math:`1.01`. Calling this function with
+      ``dom_eig_safety < 1`` resets the default value.
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.dom_eig_safety_factor".
 
 
 .. c:function:: int LSRKStepSetNumSSPStages(void* arkode_mem, int num_of_stages);
@@ -262,12 +293,17 @@ Allowable Method Families
       * *ARKLS_MEM_NULL* if ``arkode_mem`` was ``NULL``.
       * *ARK_ILL_INPUT* if an argument had an illegal value (e.g. SSP method is not declared)
 
-.. note:: If LSRKStepSetNumSSPStages routine is not called, then the default ``num_of_stages`` is
-   set. Calling this function with ``num_of_stages <= 0`` resets the default values:
+   .. note::
 
-   * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_S_2`
-   * ``num_of_stages = 9`` for :c:enumerator:`ARKODE_LSRK_SSP_S_3`
-   * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_10_4`
+      If LSRKStepSetNumSSPStages routine is not called, then the default ``num_of_stages``
+      is set. Calling this function with ``num_of_stages <= 0`` resets the default values:
+
+      * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_S_2`
+      * ``num_of_stages = 9`` for :c:enumerator:`ARKODE_LSRK_SSP_S_3`
+      * ``num_of_stages = 10`` for :c:enumerator:`ARKODE_LSRK_SSP_10_4`
+
+      This routine will be called by :c:func:`ARKodeSetFromCommandLine`
+      when using the command-line option "arkid.num_ssp_stages".
 
 .. _ARKODE.Usage.LSRKStep.OptionalOutputs:
 
@@ -359,6 +395,7 @@ dependent variable vector.
       * *ARK_ILL_INPUT* if an argument had an illegal value.
 
    .. note::
+
       All previously set options are retained but may be updated by calling
       the appropriate "Set" functions.
 
@@ -386,6 +423,7 @@ dependent variable vector.
       * *ARK_ILL_INPUT* if an argument had an illegal value.
 
    .. note::
+
       All previously set options are retained but may be updated by calling
       the appropriate "Set" functions.
 

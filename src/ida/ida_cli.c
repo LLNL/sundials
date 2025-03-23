@@ -42,54 +42,52 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
   IDA_mem = (IDAMem)ida_mem;
 
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyIntPair int_pairs[] =
-    {{"max_num_steps_ic", IDASetMaxNumStepsIC},
-     {"max_num_jacs_ic", IDASetMaxNumJacsIC},
-     {"max_num_iters_ic", IDASetMaxNumItersIC},
-     {"linesearch_off_ic", IDASetLineSearchOffIC},
-     {"max_backs_ic", IDASetMaxBacksIC},
-     {"max_order", IDASetMaxOrd},
-     {"max_err_test_fails", IDASetMaxErrTestFails},
-     {"suppress_alg", IDASetSuppressAlg},
-     {"max_conv_fails", IDASetMaxConvFails},
-     {"max_nonlin_iters", IDASetMaxNonlinIters},
-     {"linear_solution_scaling", IDASetLinearSolutionScaling}};
+  static struct sunKeyIntPair int_pairs[] = {
+    {"max_num_steps_ic", IDASetMaxNumStepsIC},
+    {"max_num_jacs_ic", IDASetMaxNumJacsIC},
+    {"max_num_iters_ic", IDASetMaxNumItersIC},
+    {"linesearch_off_ic", IDASetLineSearchOffIC},
+    {"max_backs_ic", IDASetMaxBacksIC},
+    {"max_order", IDASetMaxOrd},
+    {"max_err_test_fails", IDASetMaxErrTestFails},
+    {"suppress_alg", IDASetSuppressAlg},
+    {"max_conv_fails", IDASetMaxConvFails},
+    {"max_nonlin_iters", IDASetMaxNonlinIters},
+    {"linear_solution_scaling", IDASetLinearSolutionScaling}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   static struct sunKeyLongPair long_pairs[] = {
     {"max_num_steps", IDASetMaxNumSteps}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static struct sunKeyRealPair real_pairs[] =
-    {{"nonlin_conv_coef_ic", IDASetNonlinConvCoefIC},
-     {"step_tolerance_ic", IDASetStepToleranceIC},
-     {"delta_cj_lsetup", IDASetDeltaCjLSetup},
-     {"init_step", IDASetInitStep},
-     {"max_step", IDASetMaxStep},
-     {"min_step", IDASetMinStep},
-     {"stop_time", IDASetStopTime},
-     {"eta_min", IDASetEtaMin},
-     {"eta_max", IDASetEtaMax},
-     {"eta_low", IDASetEtaLow},
-     {"eta_min_err_fail", IDASetEtaMinErrFail},
-     {"eta_conv_fail", IDASetEtaConvFail},
-     {"nonlin_conv_coef", IDASetNonlinConvCoef},
-     {"eps_lin", IDASetEpsLin},
-     {"ls_norm_factor", IDASetLSNormFactor},
-     {"increment_factor", IDASetIncrementFactor}};
+  static struct sunKeyRealPair real_pairs[] = {
+    {"nonlin_conv_coef_ic", IDASetNonlinConvCoefIC},
+    {"step_tolerance_ic", IDASetStepToleranceIC},
+    {"delta_cj_lsetup", IDASetDeltaCjLSetup},
+    {"init_step", IDASetInitStep},
+    {"max_step", IDASetMaxStep},
+    {"min_step", IDASetMinStep},
+    {"stop_time", IDASetStopTime},
+    {"eta_min", IDASetEtaMin},
+    {"eta_max", IDASetEtaMax},
+    {"eta_low", IDASetEtaLow},
+    {"eta_min_err_fail", IDASetEtaMinErrFail},
+    {"eta_conv_fail", IDASetEtaConvFail},
+    {"nonlin_conv_coef", IDASetNonlinConvCoef},
+    {"eps_lin", IDASetEpsLin},
+    {"ls_norm_factor", IDASetLSNormFactor},
+    {"increment_factor", IDASetIncrementFactor}};
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
-  static struct sunKeyTwoRealPair tworeal_pairs[] = {{"eta_fixed_step_bounds",
-                                                      IDASetEtaFixedStepBounds},
-                                                     {"scalar_tolerances",
-                                                      IDASStolerances}};
-  static const int num_tworeal_keys               = sizeof(tworeal_pairs) /
+  static struct sunKeyTwoRealPair tworeal_pairs[] = {
+    {"eta_fixed_step_bounds", IDASetEtaFixedStepBounds},
+    {"scalar_tolerances", IDASStolerances}};
+  static const int num_tworeal_keys = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 
-  static struct sunKeyActionPair action_pairs[] = {{"clear_stop_time",
-                                                    IDAClearStopTime},
-                                                   {"no_inactive_root_warn",
-                                                    IDASetNoInactiveRootWarn}};
+  static struct sunKeyActionPair action_pairs[] = {
+    {"clear_stop_time", IDAClearStopTime},
+    {"no_inactive_root_warn", IDASetNoInactiveRootWarn}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   int i, j, retval;

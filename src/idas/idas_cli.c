@@ -91,7 +91,7 @@ int IDASetFromCommandLine(void* ida_mem, const char* idaid, int argc,
                                       sizeof(*tworeal_pairs);
 
   static struct sunKeyTwoIntPair twoint_pairs[] =
-    {{"max_ord_b", IDASetMaxOrdB},
+    {{"max_order_b", IDASetMaxOrdB},
      {"suppress_alg_b", IDASetSuppressAlgB},
      {"quad_err_con_b", IDASetQuadErrConB},
      {"linear_solution_scaling_b", IDASetLinearSolutionScalingB}};

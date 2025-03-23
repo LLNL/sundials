@@ -98,7 +98,7 @@ int CVodeSetFromCommandLine(void* cvode_mem, const char* cvid, int argc,
                                       sizeof(*tworeal_pairs);
 
   static struct sunKeyTwoIntPair twoint_pairs[] =
-    {{"max_ord_b", CVodeSetMaxOrdB},
+    {{"max_order_b", CVodeSetMaxOrdB},
      {"stab_lim_det_b", CVodeSetStabLimDetB},
      {"quad_err_con_b", CVodeSetQuadErrConB},
      {"linear_solution_scaling_b", CVodeSetLinearSolutionScalingB}};
