@@ -25,9 +25,9 @@
 #include "sundials/sundials_linearsolver.h"
 #include "sundials/sundials_matrix.h"
 #include "sundials/sundials_nvector.h"
-#include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 #include "sunlinsol/sunlinsol_band.h"
 #include "sunmatrix/sunmatrix_band.h"
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 #include "problems/pr.hpp"
 #include "utilities/check_return.hpp"
@@ -95,7 +95,7 @@ static int PrintNordsieckArray(void* cvode_mem, bool print_all)
   CVodeMem cv_mem = (CVodeMem)cvode_mem;
 
   const sunindextype N = N_VGetLength(cv_mem->cv_zn[0]);
-  sunrealtype* vdata = nullptr;
+  sunrealtype* vdata   = nullptr;
 
   cout << setw(4) << "idx" << setw(25) << "zn" << endl;
 
@@ -173,7 +173,10 @@ int main(int argc, char* argv[])
   else { cout << "Newton + Band\n"; }
   cout << "Case: ";
   if (resize == 0) { cout << "No resize\n"; }
-  else if (resize == 1) { cout << "Resize but do not change the problem size\n"; }
+  else if (resize == 1)
+  {
+    cout << "Resize but do not change the problem size\n";
+  }
   else { cout << "Resize each step with the problem size increased by one\n"; }
 
   // -------------
@@ -335,23 +338,27 @@ int main(int argc, char* argv[])
     if (resize == 1)
     {
       // Save history and "resize" but do not change the problem size
-      flag = save_history(t_ret, y, t_hist, y_hist, f_hist, hist_size, i, &lambda);
+      flag = save_history(t_ret, y, t_hist, y_hist, f_hist, hist_size, i,
+                          &lambda);
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
 
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist, n_hist);
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist,
+                                n_hist);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
     }
     else if (resize == 2)
     {
       // Save history and increase the problem size
-      flag = save_history(t_ret, y, t_hist, y_hist, f_hist, hist_size, i, &lambda);
+      flag = save_history(t_ret, y, t_hist, y_hist, f_hist, hist_size, i,
+                          &lambda);
 
       flag = resize_history(t_hist, y_hist, f_hist, hist_size, sunctx, &lambda);
 
       int n_hist = (i < hist_size) ? i + 1 : hist_size;
 
-      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist, n_hist);
+      flag = CVodeResizeHistory(cvode_mem, t_hist, y_hist, f_hist, n_hist,
+                                n_hist);
       if (check_flag(flag, "CVodeResizeHistory")) { return 1; }
 
       // "Resize" output vector and nonlinear solver

@@ -3207,8 +3207,8 @@ int CVode(void* cvode_mem, sunrealtype tout, N_Vector yout, sunrealtype* tret,
     /* Check if the resized y satisfies the constraints */
     if (cv_mem->cv_constraintsSet)
     {
-      sunbooleantype conOK = N_VConstrMask(cv_mem->cv_constraints, cv_mem->cv_zn[0],
-                                           cv_mem->cv_tempv);
+      sunbooleantype conOK = N_VConstrMask(cv_mem->cv_constraints,
+                                           cv_mem->cv_zn[0], cv_mem->cv_tempv);
       if (!conOK)
       {
         cvProcessError(cv_mem, CV_ILL_INPUT, __LINE__, __func__, __FILE__,

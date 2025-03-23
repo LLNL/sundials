@@ -108,10 +108,7 @@ inline int ode_rhs_jac(sunrealtype t, N_Vector y_vec, N_Vector fy_vec,
   sunrealtype* J_data = SUNBandMatrix_Data(J_mat);
   if (J_data == nullptr) { return -1; }
 
-  for (sunindextype i = 0; i < length; i++)
-  {
-    J_data[i] = lambda;
-  }
+  for (sunindextype i = 0; i < length; i++) { J_data[i] = lambda; }
 
   return 0;
 }

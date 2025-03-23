@@ -31,8 +31,8 @@
  * ---------------------------------------------------------------------------*/
 
 static int cvBuildNordsieckArrayAdams(sunrealtype* t, N_Vector y, N_Vector* f,
-                                      N_Vector* wrk, int order, sunrealtype hscale,
-                                      N_Vector* zn)
+                                      N_Vector* wrk, int order,
+                                      sunrealtype hscale, N_Vector* zn)
 {
   /* Check for valid inputs */
   if (!t || !y || !f || !wrk || order < 1 || !zn) { return CV_ILL_INPUT; }
@@ -93,8 +93,8 @@ static int cvBuildNordsieckArrayAdams(sunrealtype* t, N_Vector y, N_Vector* f,
  * ---------------------------------------------------------------------------*/
 
 static int cvBuildNordsieckArrayBDF(sunrealtype* t, N_Vector* y, N_Vector f,
-                                    N_Vector* wrk, int order, sunrealtype hscale,
-                                    N_Vector* zn)
+                                    N_Vector* wrk, int order,
+                                    sunrealtype hscale, N_Vector* zn)
 {
   /* Check for valid inputs */
   if (!t || !y || !f || !wrk || order < 1 || !zn) { return CV_ILL_INPUT; }
@@ -199,8 +199,7 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
 
   if (!cvode_mem)
   {
-    cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__,
-                   MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, __LINE__, __func__, __FILE__, MSGCV_NO_MEM);
     return CV_MEM_NULL;
   }
   CVodeMem cv_mem = (CVodeMem)cvode_mem;
@@ -467,15 +466,15 @@ int CVodeResizeHistory(void* cvode_mem, sunrealtype* t_hist, N_Vector* y_hist,
 
   if (cv_mem->cv_lmm == CV_ADAMS)
   {
-    retval = cvBuildNordsieckArrayAdams(t_hist, y_hist[0], f_hist,
-                                        resize_wrk, cv_mem->cv_qprime,
-                                        cv_mem->cv_hscale, cv_mem->cv_zn);
+    retval = cvBuildNordsieckArrayAdams(t_hist, y_hist[0], f_hist, resize_wrk,
+                                        cv_mem->cv_qprime, cv_mem->cv_hscale,
+                                        cv_mem->cv_zn);
   }
   else
   {
-    retval = cvBuildNordsieckArrayBDF(t_hist, y_hist, f_hist[0],
-                                      resize_wrk, cv_mem->cv_qprime,
-                                      cv_mem->cv_hscale, cv_mem->cv_zn);
+    retval = cvBuildNordsieckArrayBDF(t_hist, y_hist, f_hist[0], resize_wrk,
+                                      cv_mem->cv_qprime, cv_mem->cv_hscale,
+                                      cv_mem->cv_zn);
   }
 
   if (retval)
