@@ -80,8 +80,7 @@ static SUNErrCode arkSUNStepperFullRhs(SUNStepper stepper, sunrealtype t,
 }
 
 /*------------------------------------------------------------------------------
-  Implementation of SUNStepperResetFn to reset the inner (fast) stepper
-  state.
+  Implementation of SUNStepperResetFn to reset the stepper state.
   ----------------------------------------------------------------------------*/
 
 static SUNErrCode arkSUNStepperReset(SUNStepper stepper, sunrealtype tR,
@@ -94,6 +93,25 @@ static SUNErrCode arkSUNStepperReset(SUNStepper stepper, sunrealtype tR,
   SUNCheckCall(SUNStepper_GetContent(stepper, &arkode_mem));
 
   stepper->last_flag = ARKodeReset(arkode_mem, tR, yR);
+  if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
+
+  return SUN_SUCCESS;
+}
+
+/*------------------------------------------------------------------------------
+  Implementation of SUNStepperResetCheckpointIndexFn.
+  ----------------------------------------------------------------------------*/
+
+static SUNErrCode arkSUNStepperResetCheckpointIndex(SUNStepper stepper,
+                                                    int64_t ckptIdxR)
+{
+  SUNFunctionBegin(stepper->sunctx);
+
+  /* extract the ARKODE memory struct */
+  void* arkode_mem;
+  SUNCheckCall(SUNStepper_GetContent(stepper, &arkode_mem));
+
+  stepper->last_flag = ARKodeSetAdjointCheckpointIndex(arkode_mem, ckptIdxR);
   if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
 
   return SUN_SUCCESS;
@@ -213,6 +231,15 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   }
 
   err = SUNStepper_SetResetFn(*stepper, arkSUNStepperReset);
+  if (err != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Failed to set SUNStepper reset function");
+    return ARK_SUNSTEPPER_ERR;
+  }
+
+  err = SUNStepper_SetResetCheckpointIndexFn(*stepper,
+                                             arkSUNStepperResetCheckpointIndex);
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
