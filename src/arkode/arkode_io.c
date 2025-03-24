@@ -942,33 +942,39 @@ int ARKodeSetAdaptControllerByName(void* arkode_mem, const char* cname)
   {
     C = SUNAdaptController_Soderlind(ark_mem->sunctx);
   }
-  if (strcmp(cname, "PID") == 0)
+  else if (strcmp(cname, "PID") == 0)
   {
     C = SUNAdaptController_PID(ark_mem->sunctx);
   }
-  if (strcmp(cname, "PI") == 0) { C = SUNAdaptController_PI(ark_mem->sunctx); }
-  if (strcmp(cname, "I") == 0) { C = SUNAdaptController_I(ark_mem->sunctx); }
-  if (strcmp(cname, "ExpGus") == 0)
+  else if (strcmp(cname, "PI") == 0)
+  {
+    C = SUNAdaptController_PI(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "I") == 0)
+  {
+    C = SUNAdaptController_I(ark_mem->sunctx);
+  }
+  else if (strcmp(cname, "ExpGus") == 0)
   {
     C = SUNAdaptController_ExpGus(ark_mem->sunctx);
   }
-  if (strcmp(cname, "ImpGus") == 0)
+  else if (strcmp(cname, "ImpGus") == 0)
   {
     C = SUNAdaptController_ImpGus(ark_mem->sunctx);
   }
-  if (strcmp(cname, "H0211") == 0)
+  else if (strcmp(cname, "H0211") == 0)
   {
     C = SUNAdaptController_H0211(ark_mem->sunctx);
   }
-  if (strcmp(cname, "H211") == 0)
+  else if (strcmp(cname, "H211") == 0)
   {
     C = SUNAdaptController_H211(ark_mem->sunctx);
   }
-  if (strcmp(cname, "H312") == 0)
+  else if (strcmp(cname, "H312") == 0)
   {
     C = SUNAdaptController_H312(ark_mem->sunctx);
   }
-  if (C == NULL)
+  else
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     "Unknown controller");
