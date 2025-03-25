@@ -261,8 +261,9 @@ SUNDIALS_EXPORT int CVodeGetDky(void* cvode_mem, sunrealtype t, int k,
                                 N_Vector dky);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int CVodeGetWorkSpace(void* cvode_mem, long int* lenrw,
-                                      long int* leniw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int CVodeGetWorkSpace(void* cvode_mem, long int* lenrw, long int* leniw);
 SUNDIALS_EXPORT int CVodeGetNumSteps(void* cvode_mem, long int* nsteps);
 SUNDIALS_EXPORT int CVodeGetNumRhsEvals(void* cvode_mem, long int* nfevals);
 SUNDIALS_EXPORT int CVodeGetNumLinSolvSetups(void* cvode_mem,

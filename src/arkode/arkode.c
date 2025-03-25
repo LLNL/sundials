@@ -3012,20 +3012,6 @@ int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 }
 
 /*---------------------------------------------------------------
-  arkExpStab is the default explicit stability estimation function
-  ---------------------------------------------------------------*/
-int arkExpStab(SUNDIALS_MAYBE_UNUSED N_Vector y,
-               SUNDIALS_MAYBE_UNUSED sunrealtype t, sunrealtype* hstab,
-               SUNDIALS_MAYBE_UNUSED void* data)
-{
-  /* explicit stability not used by default,
-     set to zero to disable */
-  *hstab = SUN_RCONST(0.0);
-
-  return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
   arkPredict_MaximumOrder
 
   This routine predicts the nonlinear implicit stage solution

@@ -2419,6 +2419,10 @@ described next.
       :c:func:`IDASVtolerances`, these lengths are given roughly by
       :math:`\mathtt{lenrw} = 55 + 11 * N` and :math:`\mathtt{leniw} = 49`.
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 .. c:function:: int IDAGetNumSteps(void * ida_mem, long int * nsteps)
 
    The function ``IDAGetNumSteps`` returns the cumulative number of internal
@@ -2940,6 +2944,10 @@ The following optional outputs are available from the IDALS modules:
 
       Replaces the deprecated functions ``IDADlsGetWorkspace`` and
       ``IDASpilsGetWorkspace``.
+
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int IDAGetNumJacEvals(void * ida_mem, long int * njevals)
 
@@ -4042,6 +4050,10 @@ IDABBDPRE module:
       banded ``SUNLinearSolver`` object, temporary vectors).  These values
       are local to each process.  The workspaces referred to here exist in addition
       to those given by the corresponding function :c:func:`IDAGetLinWorkSpace`.
+
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int IDABBDPrecGetNumGfnEvals(void * ida_mem, long int * ngevalsBBDP)
 

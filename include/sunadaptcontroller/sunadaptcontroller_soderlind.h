@@ -41,7 +41,10 @@ struct _SUNAdaptControllerContent_Soderlind
   sunrealtype epp;  /* error from 2 steps ago */
   sunrealtype hp;   /* previous step size */
   sunrealtype hpp;  /* step size from 2 steps ago */
-  int firststeps;   /* flag to handle first few steps */
+  /* TODO(SRB): Consider removing firststeps. We can use a negative ep to
+   * indicate we are on the first or second step */
+  int firststeps;  /* flag to handle first few steps */
+  int historysize; /* number of past step sizes or errors needed */
 };
 
 typedef struct _SUNAdaptControllerContent_Soderlind* SUNAdaptControllerContent_Soderlind;
@@ -91,7 +94,8 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdaptController_UpdateH_Soderlind(SUNAdaptController C,
                                                 sunrealtype h, sunrealtype dsm);
 
-SUNDIALS_EXPORT
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 SUNErrCode SUNAdaptController_Space_Soderlind(SUNAdaptController C,
                                               long int* lenrw, long int* leniw);
 

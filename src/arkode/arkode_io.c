@@ -90,12 +90,12 @@ int ARKodeSetDefaults(void* arkode_mem)
   ark_mem->hadapt_mem->growth = GROWTH; /* step adaptivity growth factor */
   ark_mem->hadapt_mem->lbound = HFIXED_LB; /* step adaptivity no-change lower bound */
   ark_mem->hadapt_mem->ubound = HFIXED_UB; /* step adaptivity no-change upper bound */
-  ark_mem->hadapt_mem->expstab = arkExpStab; /* internal explicit stability fn */
-  ark_mem->hadapt_mem->estab_data = NULL;    /* no explicit stability fn data */
-  ark_mem->hadapt_mem->pq         = PQ;      /* embedding order */
-  ark_mem->hadapt_mem->p          = 0;       /* no default embedding order */
-  ark_mem->hadapt_mem->q          = 0;       /* no default method order */
-  ark_mem->hadapt_mem->adjust     = ADJUST;  /* controller order adjustment */
+  ark_mem->hadapt_mem->expstab    = NULL;   /* no explicit stability fn */
+  ark_mem->hadapt_mem->estab_data = NULL;   /* no explicit stability fn data */
+  ark_mem->hadapt_mem->pq         = PQ;     /* embedding order */
+  ark_mem->hadapt_mem->p          = 0;      /* no default embedding order */
+  ark_mem->hadapt_mem->q          = 0;      /* no default method order */
+  ark_mem->hadapt_mem->adjust     = ADJUST; /* controller order adjustment */
 
   /* Set stepper defaults (if provided) */
   if (ark_mem->step_setdefaults)
@@ -1287,7 +1287,7 @@ int ARKodeSetStepDirection(void* arkode_mem, sunrealtype stepdir)
       return retval;
     }
 
-    if (h != ZERO && ((h > ZERO) != (stepdir > ZERO)))
+    if (h != SUNRcopysign(h, stepdir))
     {
       /* Reverse the sign of h. If adaptive, h will be overwritten anyway by the
        * initial step estimation since ARKodeReset must be called before this.
@@ -1958,16 +1958,8 @@ int ARKodeSetStabilityFn(void* arkode_mem, ARKExpStabFn EStab, void* estab_data)
   }
 
   /* NULL argument sets default, otherwise set inputs */
-  if (EStab == NULL)
-  {
-    hadapt_mem->expstab    = arkExpStab;
-    hadapt_mem->estab_data = ark_mem;
-  }
-  else
-  {
-    hadapt_mem->expstab    = EStab;
-    hadapt_mem->estab_data = estab_data;
-  }
+  hadapt_mem->expstab    = EStab;
+  hadapt_mem->estab_data = estab_data;
 
   return (ARK_SUCCESS);
 }
@@ -3140,9 +3132,9 @@ int ARKodeWriteParameters(void* arkode_mem, FILE* fp)
           ark_mem->hadapt_mem->lbound);
   fprintf(fp, "  Step growth upper bound = " SUN_FORMAT_G "\n",
           ark_mem->hadapt_mem->ubound);
-  if (ark_mem->hadapt_mem->expstab == arkExpStab)
+  if (ark_mem->hadapt_mem->expstab == NULL)
   {
-    fprintf(fp, "  Default explicit stability function\n");
+    fprintf(fp, "  No explicit stability function supplied\n");
   }
   else { fprintf(fp, "  User provided explicit stability function\n"); }
   if (ark_mem->hadapt_mem->hcontroller != NULL)

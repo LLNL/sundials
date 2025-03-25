@@ -1444,6 +1444,10 @@ functions are described next.
       workspace (without distinction between ``int``  and ``long int``) is
       :math:`22 + 5 N` (increased by :math:`N` if constraint checking is enabled).
 
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
+
 
 .. c:function:: int KINGetNumFuncEvals(void * kin_mem, long int * nfevals)
 
@@ -1653,6 +1657,10 @@ The following optional outputs are available from the KINLS modules:
 
       Replaces the deprecated function ``KINDlsGetWorkspace`` and
       ``KINSpilsGetWorkspace``.
+
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 
 .. c:function:: int KINGetNumJacEvals(void * kin_mem, long int * njevals)
@@ -2392,6 +2400,10 @@ KINBBDPRE module:
 
       The workspaces referred to here exist in addition
       to those given by the corresponding :c:func:`KINGetLinWorkSpace` function.
+
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 .. c:function:: int KINBBDPrecGetNumGfnEvals(void * kin_mem, long int * ngevalsBBDP)
 

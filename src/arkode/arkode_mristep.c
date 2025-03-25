@@ -4764,14 +4764,14 @@ int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper, ARKVecResizeFn resiz
                                void* resize_data, sunindextype lrw_diff,
                                sunindextype liw_diff, N_Vector tmpl)
 {
-  int retval;
-
   if (stepper == NULL) { return ARK_ILL_INPUT; }
 
-  retval = arkResizeVecArray(resize, resize_data, stepper->nforcing_allocated,
-                             tmpl, &(stepper->forcing), lrw_diff,
-                             &(stepper->lrw), liw_diff, &(stepper->liw));
-  if (retval != ARK_SUCCESS) { return (ARK_MEM_FAIL); }
+  if (!arkResizeVecArray(resize, resize_data, stepper->nforcing_allocated, tmpl,
+                         &(stepper->forcing), lrw_diff, &(stepper->lrw),
+                         liw_diff, &(stepper->liw)))
+  {
+    return (ARK_MEM_FAIL);
+  }
 
   return (ARK_SUCCESS);
 }

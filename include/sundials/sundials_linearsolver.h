@@ -203,7 +203,8 @@ N_Vector SUNLinSolResid(SUNLinearSolver S);
 SUNDIALS_EXPORT
 sunindextype SUNLinSolLastFlag(SUNLinearSolver S);
 
-SUNDIALS_EXPORT
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 SUNErrCode SUNLinSolSpace(SUNLinearSolver S, long int* lenrwLS,
                           long int* leniwLS);
 

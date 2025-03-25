@@ -175,7 +175,8 @@ SUNErrCode SUNMatScaleAddI_Sparse(sunrealtype c, SUNMatrix A);
 SUNDIALS_EXPORT
 SUNErrCode SUNMatMatvec_Sparse(SUNMatrix A, N_Vector x, N_Vector y);
 
-SUNDIALS_EXPORT
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
 SUNErrCode SUNMatSpace_Sparse(SUNMatrix A, long int* lenrw, long int* leniw);
 
 #ifdef __cplusplus

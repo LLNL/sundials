@@ -78,17 +78,17 @@ Start LSRKStep Logging test
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.01047602983307e-10
   1.281744384765625e-06  1.281744384764889e-06  3.388131789017201e-20
 ---------------------------------------------------------------------
-Current time                 = 1.28174438476563e-06
-Steps                        = 3
-Step attempts                = 3
-Stability limited steps      = 0
-Accuracy limited steps       = 3
-Error test fails             = 0
-NLS step fails               = 0
-Inequality constraint fails  = 0
-Initial step size            = 6.103515625e-12
-Last step size               = 1.220703125e-06
-Current step size            = 2.44140625e-05
-RHS fn evals                 = 32
-Number of stages used        = 10
+Current time                  = 1.28174438476563e-06
+Steps                         = 3
+Step attempts                 = 3
+Stability limited steps       = 0
+Accuracy limited steps        = 3
+Error test fails              = 0
+NLS step fails                = 0
+Inequality constraint fails   = 0
+Initial step size             = 6.103515625e-12
+Last step size                = 1.220703125e-06
+Current step size             = 1.220703125e-07
+RHS fn evals                  = 32
+Number of stages used         = 10
 End LSRKStep Logging test
