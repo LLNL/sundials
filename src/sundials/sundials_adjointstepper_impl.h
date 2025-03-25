@@ -20,7 +20,7 @@
 struct SUNAdjointStepper_
 {
   suncountertype nst, njeval, njpeval, njtimesv, njptimesv, nrecompute;
-  suncountertype step_idx, final_step_idx;
+  suncountertype final_step_idx;
 
   SUNStepper adj_sunstepper;
   SUNStepper fwd_sunstepper;

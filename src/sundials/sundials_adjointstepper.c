@@ -45,7 +45,6 @@ SUNErrCode SUNAdjointStepper_Create(
   adj_stepper->JPvpFn = NULL;
 
   adj_stepper->tf             = tf;
-  adj_stepper->step_idx       = final_step_idx;
   adj_stepper->final_step_idx = final_step_idx;
   adj_stepper->nst            = 0;
 
@@ -68,7 +67,6 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper self, N_Vector y0,
 {
   SUNFunctionBegin(self->sunctx);
   self->tf         = tf;
-  self->step_idx   = self->final_step_idx;
   self->njeval     = 0;
   self->njpeval    = 0;
   self->njtimesv   = 0;
@@ -122,7 +120,6 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper self, sunrealtype tout,
   SUNCheckCall(SUNStepper_OneStep(adj_sunstepper, tout, sens, &t));
   self->last_flag = adj_sunstepper->last_flag;
 
-  self->step_idx--;
   self->nst++;
 
   if (self->last_flag < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
@@ -212,7 +209,7 @@ SUNErrCode SUNAdjointStepper_SetVecHermitianTransposeJacFn(SUNAdjointStepper sel
 {
   SUNFunctionBegin(self->sunctx);
   /* Since sundials does not distinguish between row and column vectors,
-     it does not matter if we the user does v^*J or J^*v. We only provide 
+     it does not matter if we the user does v^*J or J^*v. We only provide
      this SUNAdjointStepper_SetVecHermitianTransposeJacFn to indicate we support v^*J. */
   return SUNAdjointStepper_SetJacHermitianTransposeVecFn(self, vJp, vJPp);
 }
