@@ -69,7 +69,7 @@ int main(void)
   sunrealtype Tf     = SUN_RCONST(10.0);   /* final time */
   sunrealtype dTout  = SUN_RCONST(1.0);    /* time between outputs */
   sunindextype NEQ   = 1;                  /* number of dependent vars. */
-  sunrealtype reltol = SUN_RCONST(1.0e-6); /* tolerances */
+  sunrealtype reltol = SUN_RCONST(1.0e-5); /* tolerances */
   sunrealtype abstol = SUN_RCONST(1.0e-10);
   sunrealtype lambda = SUN_RCONST(-100.0); /* stiffness parameter */
 
