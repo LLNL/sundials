@@ -2,6 +2,58 @@
 
 **New Features and Enhancements**
 
+The following changes have been made to the default time step adaptivity
+parameters in ARKODE:
+
++-----------------------+-----------------------+-------------+
+| Parameter             | Old Default           | New Default |
++=======================+=======================+=============+
+| Controller            | PID (PI for ERKStep)  | I           |
++-----------------------+-----------------------+-------------+
+| Safety Factor         | 0.96                  | 0.9         |
++-----------------------+-----------------------+-------------+
+| Bias                  | 1.5 (1.2 for ERKStep) | 1.0         |
++-----------------------+-----------------------+-------------+
+| Fixed Step Bounds     | [1.0, 1.5]            | [1.0, 1.0]  |
++-----------------------+-----------------------+-------------+
+| Adaptivity Adjustment | -1                    | 0           |
++-----------------------+-----------------------+-------------+
+
+The following can be used to restore the old defaults for ERKStep:
+
+.. code-block:: c
+
+  arkode_mem = ...
+  SUNAdaptController controller = SUNAdaptController_Soderlind(ctx);
+  SUNAdaptController_SetParams_PI(controller, 0.8, -0.31);
+  ARKodeSetAdaptController(arkode_mem, controller);
+  SUNAdaptController_SetErrorBias(controller, 1.2);
+  ARKodeSetSafetyFactor(arkode_mem, 0.96);
+  ARKodeSetFixedStepBounds(arkode_mem, 1, 1.5);
+  ARKodeSetAdaptivityAdjustment(arkode_mem, -1);
+  ...
+  SUNAdaptController_Destroy(controller);
+
+The following can be used to restore the old defaults for other ARKODE
+integrators:
+
+.. code-block:: c
+
+  arkode_mem = ...
+  SUNAdaptController controller = SUNAdaptController_PID(ctx);
+  ARKodeSetAdaptController(arkode_mem, controller);
+  SUNAdaptController_SetErrorBias(controller, 1.5);
+  ARKodeSetSafetyFactor(arkode_mem, 0.96);
+  ARKodeSetFixedStepBounds(arkode_mem, 1, 1.5);
+  ARKodeSetAdaptivityAdjustment(arkode_mem, -1);
+  ...
+  SUNAdaptController_Destroy(controller);
+
+Added :c:func:`ARKodeSetAdaptControllerByName` to set a time step adaptivity controller
+by a string. There are also three new controllers:
+:c:func:`SUNAdaptController_H0211`, :c:func:`SUNAdaptController_H211`, and
+:c:func:`SUNAdaptController_H312`.
+
 Improved the precision of the coefficients for ``ARKODE_ARK324L2SA_ERK_4_2_3``,
 ``ARKODE_VERNER_9_5_6``, ``ARKODE_VERNER_10_6_7``, ``ARKODE_VERNER_13_7_8``,
 ``ARKODE_ARK324L2SA_DIRK_4_2_3``, and ``ARKODE_ESDIRK324L2SA_4_2_3``.
