@@ -323,12 +323,14 @@ int main(int argc, char* argv[])
   const sunrealtype dt = args.dt;
   sunrealtype t0       = SUN_RCONST(0.0);
   sunrealtype tf       = args.tf;
-  const int nsteps     = (int)ceil(((tf - t0) / dt + 1));
+  const int nsteps     = (int)ceil(((tf - t0) / dt));
   const int order      = args.order;
 
   void* arkode_mem = ERKStepCreate(ode_rhs, t0, u, sunctx);
   ARKodeSetOrder(arkode_mem, order);
-  ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
+  // Due to roundoff in the `t` accumulation within the integrator,
+  // the integrator may actually use nsteps + 1 time steps to reach tf.
+  ARKodeSetMaxNumSteps(arkode_mem, nsteps + 1);
 
   // Enable checkpointing during the forward solution.
   // ncheck will be more than nsteps, but for testing purposes we try setting it
@@ -484,7 +486,7 @@ int main(int argc, char* argv[])
   ARKodeFree(&arkode_mem);
   arkode_mem = ERKStepCreate(ode_rhs, t0, u, sunctx);
   ARKodeSetOrder(arkode_mem, order);
-  ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
+  ARKodeSetMaxNumSteps(arkode_mem, nsteps + 1);
   SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
                                           check_interval, ncheck, save_stages,
                                           keep_check, sunctx, &checkpoint_scheme);

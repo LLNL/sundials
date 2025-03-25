@@ -110,14 +110,16 @@ int main(int argc, char* argv[])
   const sunrealtype dt = args.dt;
   sunrealtype t0       = SUN_RCONST(0.0);
   sunrealtype tf       = args.tf;
-  const int nsteps     = (int)ceil(((tf - t0) / dt + 1));
+  const int nsteps     = (int)ceil(((tf - t0) / dt));
   const int order      = args.order;
   void* arkode_mem     = ARKStepCreate(lotka_volterra, NULL, t0, u, sunctx);
 
   retval = ARKodeSetOrder(arkode_mem, order);
   if (check_retval(&retval, "ARKodeSetOrder", 1)) { return 1; }
 
-  retval = ARKodeSetMaxNumSteps(arkode_mem, nsteps * 2);
+  // Due to roundoff in the `t` accumulation within the integrator,
+  // the integrator may actually use nsteps + 1 time steps to reach tf.
+  retval = ARKodeSetMaxNumSteps(arkode_mem, nsteps + 1);
   if (check_retval(&retval, "ARKodeSetMaxNumSteps", 1)) { return 1; }
 
   // Enable checkpointing during the forward solution.
