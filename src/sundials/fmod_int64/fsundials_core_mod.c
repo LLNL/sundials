@@ -2929,6 +2929,20 @@ SWIGEXPORT int _wrap_FSUNStepper_GetLastFlag(void *farg1, int *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNStepper_GetNumSteps(void *farg1, int64_t *farg2) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  suncountertype *arg2 = (suncountertype *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (suncountertype *)(farg2);
+  result = (SUNErrCode)SUNStepper_GetNumSteps(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNStepper_SetEvolveFn(void *farg1, SUNStepperEvolveFn farg2) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
@@ -3036,6 +3050,20 @@ SWIGEXPORT int _wrap_FSUNStepper_SetForcingFn(void *farg1, SUNStepperSetForcingF
   arg1 = (SUNStepper)(farg1);
   arg2 = (SUNStepperSetForcingFn)(farg2);
   result = (SUNErrCode)SUNStepper_SetForcingFn(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNStepper_SetGetNumStepsFn(void *farg1, SUNStepperGetNumStepsFn farg2) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  SUNStepperGetNumStepsFn arg2 = (SUNStepperGetNumStepsFn) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (SUNStepperGetNumStepsFn)(farg2);
+  result = (SUNErrCode)SUNStepper_SetGetNumStepsFn(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
@@ -3367,25 +3395,23 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpoi
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, int const *farg5, void *farg6, double *farg7) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, int const *farg4, void *farg5, double *farg6) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
   suncountertype arg3 ;
-  sunrealtype arg4 ;
-  int arg5 ;
-  N_Vector *arg6 = (N_Vector *) 0 ;
-  sunrealtype *arg7 = (sunrealtype *) 0 ;
+  int arg4 ;
+  N_Vector *arg5 = (N_Vector *) 0 ;
+  sunrealtype *arg6 = (sunrealtype *) 0 ;
   SUNErrCode result;
   
   arg1 = (SUNAdjointCheckpointScheme)(farg1);
   arg2 = (suncountertype)(*farg2);
   arg3 = (suncountertype)(*farg3);
-  arg4 = (sunrealtype)(*farg4);
-  arg5 = (int)(*farg5);
-  arg6 = (N_Vector *)(farg6);
-  arg7 = (sunrealtype *)(farg7);
-  result = (SUNErrCode)SUNAdjointCheckpointScheme_LoadVector(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+  arg4 = (int)(*farg4);
+  arg5 = (N_Vector *)(farg5);
+  arg6 = (sunrealtype *)(farg6);
+  result = (SUNErrCode)SUNAdjointCheckpointScheme_LoadVector(arg1,arg2,arg3,arg4,arg5,arg6);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
@@ -3557,7 +3583,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_SetJacFn(void *farg1, SUNRhsJacFn farg2,
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_SetJacTimesVecFn(void *farg1, SUNRhsJacTimesFn farg2, SUNRhsJacTimesFn farg3) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_SetJacHermitianTransposeVecFn(void *farg1, SUNRhsJacTimesFn farg2, SUNRhsJacTimesFn farg3) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   SUNRhsJacTimesFn arg2 = (SUNRhsJacTimesFn) 0 ;
@@ -3567,13 +3593,13 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_SetJacTimesVecFn(void *farg1, SUNRhsJacT
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (SUNRhsJacTimesFn)(farg2);
   arg3 = (SUNRhsJacTimesFn)(farg3);
-  result = (SUNErrCode)SUNAdjointStepper_SetJacTimesVecFn(arg1,arg2,arg3);
+  result = (SUNErrCode)SUNAdjointStepper_SetJacHermitianTransposeVecFn(arg1,arg2,arg3);
   fresult = (SUNErrCode)(result);
   return fresult;
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_SetVecTimesJacFn(void *farg1, SUNRhsJacTimesFn farg2, SUNRhsJacTimesFn farg3) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_SetVecHermitianTransposeJacFn(void *farg1, SUNRhsJacTimesFn farg2, SUNRhsJacTimesFn farg3) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   SUNRhsJacTimesFn arg2 = (SUNRhsJacTimesFn) 0 ;
@@ -3583,7 +3609,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_SetVecTimesJacFn(void *farg1, SUNRhsJacT
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (SUNRhsJacTimesFn)(farg2);
   arg3 = (SUNRhsJacTimesFn)(farg3);
-  result = (SUNErrCode)SUNAdjointStepper_SetVecTimesJacFn(arg1,arg2,arg3);
+  result = (SUNErrCode)SUNAdjointStepper_SetVecHermitianTransposeJacFn(arg1,arg2,arg3);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

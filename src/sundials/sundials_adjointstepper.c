@@ -16,31 +16,10 @@
 #include <sundials/sundials_core.h>
 #include <sundials/sundials_stepper.h>
 #include "sundials/sundials_types.h"
+#include "sundials_adjointstepper_impl.h"
 #include "sundials_macros.h"
 #include "sundials_stepper_impl.h"
 #include "sundials_utils.h"
-
-struct SUNAdjointStepper_
-{
-  suncountertype nst, njeval, njpeval, njtimesv, njptimesv, nvtimesj, nvtimesjp,
-    nrecompute;
-  suncountertype step_idx, final_step_idx;
-
-  SUNStepper adj_sunstepper;
-  SUNStepper fwd_sunstepper;
-  SUNAdjointCheckpointScheme checkpoint_scheme;
-
-  SUNMatrix Jac, JacP;
-  SUNRhsJacFn JacFn, JacPFn;
-  SUNRhsJacTimesFn JvpFn, JPvpFn, vJpFn, vJPpFn;
-
-  void* user_data;
-  void* content;
-  SUNContext sunctx;
-
-  sunrealtype tf;
-  int last_flag;
-};
 
 SUNErrCode SUNAdjointStepper_Create(
   SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper,
@@ -64,20 +43,14 @@ SUNErrCode SUNAdjointStepper_Create(
   adj_stepper->JacPFn = NULL;
   adj_stepper->JvpFn  = NULL;
   adj_stepper->JPvpFn = NULL;
-  adj_stepper->vJpFn  = NULL;
-  adj_stepper->vJPpFn = NULL;
 
   adj_stepper->tf             = tf;
-  adj_stepper->step_idx       = final_step_idx;
   adj_stepper->final_step_idx = final_step_idx;
-  adj_stepper->nst            = 0;
 
   adj_stepper->njeval     = 0;
   adj_stepper->njpeval    = 0;
   adj_stepper->njtimesv   = 0;
   adj_stepper->njptimesv  = 0;
-  adj_stepper->nvtimesj   = 0;
-  adj_stepper->nvtimesjp  = 0;
   adj_stepper->nrecompute = 0;
 
   adj_stepper->user_data = NULL;
@@ -93,15 +66,11 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper self, N_Vector y0,
 {
   SUNFunctionBegin(self->sunctx);
   self->tf         = tf;
-  self->step_idx   = self->final_step_idx;
   self->njeval     = 0;
   self->njpeval    = 0;
   self->njtimesv   = 0;
   self->njptimesv  = 0;
-  self->nvtimesj   = 0;
-  self->nvtimesjp  = 0;
   self->nrecompute = 0;
-  self->nst        = 0;
   SUNStepper_Reset(self->adj_sunstepper, tf, sf);
   SUNStepper_ResetCheckpointIndex(self->adj_sunstepper, 0);
   SUNStepper_Reset(self->fwd_sunstepper, t0, y0);
@@ -114,27 +83,11 @@ SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper self, sunrealtype tout,
 
 {
   SUNFunctionBegin(self->sunctx);
-
-  SUNErrCode retcode     = SUN_SUCCESS;
-  const sunrealtype zero = SUN_RCONST(0.0);
-  const sunrealtype one  = SUN_RCONST(1.0);
-  sunrealtype t          = self->tf;
-  sunrealtype direction  = (t - tout) > zero ? -one : one;
-
-  self->last_flag = 0;
-
-  while ((direction == -one && t > tout) || (direction == one && t < tout))
-  {
-    SUNCheckCall(SUNAdjointStepper_OneStep(self, tout, sens, tret));
-    if (self->last_flag < 0)
-    {
-      retcode = SUN_ERR_ADJOINT_STEPPERFAILED;
-      break;
-    }
-    else { t = *tret; }
-  }
-
-  return retcode;
+  SUNStepper adj_sunstepper = self->adj_sunstepper;
+  SUNCheckCall(SUNStepper_SetStopTime(self->adj_sunstepper, tout));
+  SUNCheckCall(SUNStepper_Evolve(self->adj_sunstepper, tout, sens, tret));
+  self->last_flag = adj_sunstepper->last_flag;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper self, sunrealtype tout,
@@ -143,24 +96,9 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper self, sunrealtype tout,
 {
   SUNFunctionBegin(self->sunctx);
   SUNStepper adj_sunstepper = self->adj_sunstepper;
-
-  SUNErrCode retcode = SUN_SUCCESS;
-  sunrealtype t      = self->tf;
-  SUNCheckCall(SUNStepper_OneStep(adj_sunstepper, tout, sens, &t));
+  SUNCheckCall(SUNStepper_OneStep(adj_sunstepper, tout, sens, tret));
   self->last_flag = adj_sunstepper->last_flag;
-
-  self->step_idx--;
-  self->nst++;
-
-  if (self->last_flag < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
-  else if (self->last_flag > 0)
-  {
-    retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP;
-  }
-
-  *tret = t;
-
-  return retcode;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper self,
@@ -221,9 +159,9 @@ SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper self, SUNRhsJacFn JacFn,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper self,
-                                              SUNRhsJacTimesFn Jvp,
-                                              SUNRhsJacTimesFn JPvp)
+SUNErrCode SUNAdjointStepper_SetJacHermitianTransposeVecFn(SUNAdjointStepper self,
+                                                           SUNRhsJacTimesFn Jvp,
+                                                           SUNRhsJacTimesFn JPvp)
 {
   SUNFunctionBegin(self->sunctx);
 
@@ -233,16 +171,15 @@ SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper self,
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper self,
-                                              SUNRhsJacTimesFn vJp,
-                                              SUNRhsJacTimesFn vJPp)
+SUNErrCode SUNAdjointStepper_SetVecHermitianTransposeJacFn(SUNAdjointStepper self,
+                                                           SUNRhsJacTimesFn vJp,
+                                                           SUNRhsJacTimesFn vJPp)
 {
   SUNFunctionBegin(self->sunctx);
-
-  self->vJpFn  = vJp;
-  self->vJPpFn = vJPp;
-
-  return SUN_SUCCESS;
+  /* Since sundials does not distinguish between row and column vectors,
+     it does not matter if we the user does v^*J or J^*v. We only provide
+     this SUNAdjointStepper_SetVecHermitianTransposeJacFn to indicate we support v^*J. */
+  return SUNAdjointStepper_SetJacHermitianTransposeVecFn(self, vJp, vJPp);
 }
 
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper self, void* user_data)
@@ -258,8 +195,7 @@ SUNErrCode SUNAdjointStepper_GetNumSteps(SUNAdjointStepper self,
                                          suncountertype* num_steps)
 {
   SUNFunctionBegin(self->sunctx);
-  *num_steps = self->nst;
-  return SUN_SUCCESS;
+  return SUNStepper_GetNumSteps(self->adj_sunstepper, num_steps);
 }
 
 SUNErrCode SUNAdjointStepper_GetNumJacEvals(SUNAdjointStepper self,
@@ -298,16 +234,15 @@ SUNErrCode SUNAdjointStepper_GetNumVecTimesJacEvals(
   SUNAdjointStepper self, suncountertype* num_vec_times_jac_evals)
 {
   SUNFunctionBegin(self->sunctx);
-  *num_vec_times_jac_evals = self->nvtimesj;
-  return SUN_SUCCESS;
+  return SUNAdjointStepper_GetNumJacTimesVecEvals(self, num_vec_times_jac_evals);
 }
 
 SUNErrCode SUNAdjointStepper_GetNumVecTimesJacPEvals(
   SUNAdjointStepper self, suncountertype* num_vec_times_jac_p_evals)
 {
   SUNFunctionBegin(self->sunctx);
-  *num_vec_times_jac_p_evals = self->nvtimesjp;
-  return SUN_SUCCESS;
+  return SUNAdjointStepper_GetNumJacPTimesVecEvals(self,
+                                                   num_vec_times_jac_p_evals);
 }
 
 SUNErrCode SUNAdjointStepper_GetNumRecompute(SUNAdjointStepper self,
@@ -321,7 +256,9 @@ SUNErrCode SUNAdjointStepper_GetNumRecompute(SUNAdjointStepper self,
 SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper self,
                                            FILE* outfile, SUNOutputFormat fmt)
 {
-  sunfprintf_long(outfile, fmt, SUNTRUE, "Num backwards steps", self->nst);
+  suncountertype nst = 0;
+  SUNCheckCall(SUNStepper_GetNumSteps(self->adj_sunstepper, &nst));
+  sunfprintf_long(outfile, fmt, SUNTRUE, "Num backwards steps", nst);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Num recompute passes",
                   self->nrecompute);
   if (self->JacFn)
@@ -341,14 +278,6 @@ SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper self,
     sunfprintf_long(outfile, fmt, SUNFALSE, "JacP-times-v evals",
                     self->njptimesv);
   }
-  if (self->vJpFn)
-  {
-    sunfprintf_long(outfile, fmt, SUNFALSE, "v-times-Jac evals", self->nvtimesj);
-  }
-  if (self->vJPpFn)
-  {
-    sunfprintf_long(outfile, fmt, SUNFALSE, "v-times-Jacp evals",
-                    self->nvtimesjp);
-  }
+
   return SUN_SUCCESS;
 }

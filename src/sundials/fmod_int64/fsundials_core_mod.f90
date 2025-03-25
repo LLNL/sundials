@@ -584,6 +584,7 @@ module fsundials_core_mod
  public :: FSUNStepper_GetContent
  public :: FSUNStepper_SetLastFlag
  public :: FSUNStepper_GetLastFlag
+ public :: FSUNStepper_GetNumSteps
  public :: FSUNStepper_SetEvolveFn
  public :: FSUNStepper_SetOneStepFn
  public :: FSUNStepper_SetFullRhsFn
@@ -592,6 +593,7 @@ module fsundials_core_mod
  public :: FSUNStepper_SetStopTimeFn
  public :: FSUNStepper_SetStepDirectionFn
  public :: FSUNStepper_SetForcingFn
+ public :: FSUNStepper_SetGetNumStepsFn
  public :: FSUNStepper_SetDestroyFn
  ! typedef enum SUNMemoryType
  enum, bind(c)
@@ -665,8 +667,8 @@ module fsundials_core_mod
  public :: FSUNAdjointStepper_OneStep
  public :: FSUNAdjointStepper_RecomputeFwd
  public :: FSUNAdjointStepper_SetJacFn
- public :: FSUNAdjointStepper_SetJacTimesVecFn
- public :: FSUNAdjointStepper_SetVecTimesJacFn
+ public :: FSUNAdjointStepper_SetJacHermitianTransposeVecFn
+ public :: FSUNAdjointStepper_SetVecHermitianTransposeJacFn
  public :: FSUNAdjointStepper_SetUserData
  public :: FSUNAdjointStepper_GetNumSteps
  public :: FSUNAdjointStepper_GetNumJacEvals
@@ -2349,6 +2351,15 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FSUNStepper_GetNumSteps(farg1, farg2) &
+bind(C, name="_wrap_FSUNStepper_GetNumSteps") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNStepper_SetEvolveFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNStepper_SetEvolveFn") &
 result(fresult)
@@ -2414,6 +2425,15 @@ end function
 
 function swigc_FSUNStepper_SetForcingFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNStepper_SetForcingFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNStepper_SetGetNumStepsFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNStepper_SetGetNumStepsFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2624,17 +2644,16 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointCheckpointScheme_LoadVector(farg1, farg2, farg3, farg4, farg5, farg6, farg7) &
+function swigc_FSUNAdjointCheckpointScheme_LoadVector(farg1, farg2, farg3, farg4, farg5, farg6) &
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_LoadVector") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 integer(C_INT64_T), intent(in) :: farg2
 integer(C_INT64_T), intent(in) :: farg3
-real(C_DOUBLE), intent(in) :: farg4
-integer(C_INT), intent(in) :: farg5
+integer(C_INT), intent(in) :: farg4
+type(C_PTR), value :: farg5
 type(C_PTR), value :: farg6
-type(C_PTR), value :: farg7
 integer(C_INT) :: fresult
 end function
 
@@ -2739,8 +2758,8 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointStepper_SetJacTimesVecFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNAdjointStepper_SetJacTimesVecFn") &
+function swigc_FSUNAdjointStepper_SetJacHermitianTransposeVecFn(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNAdjointStepper_SetJacHermitianTransposeVecFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2749,8 +2768,8 @@ type(C_FUNPTR), value :: farg3
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointStepper_SetVecTimesJacFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNAdjointStepper_SetVecTimesJacFn") &
+function swigc_FSUNAdjointStepper_SetVecHermitianTransposeJacFn(farg1, farg2, farg3) &
+bind(C, name="_wrap_FSUNAdjointStepper_SetVecHermitianTransposeJacFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -5931,6 +5950,22 @@ fresult = swigc_FSUNStepper_GetLastFlag(farg1, farg2)
 swig_result = fresult
 end function
 
+function FSUNStepper_GetNumSteps(stepper, nst) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+integer(C_INT64_T), target, intent(inout) :: nst
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = stepper
+farg2 = c_loc(nst)
+fresult = swigc_FSUNStepper_GetNumSteps(farg1, farg2)
+swig_result = fresult
+end function
+
 function FSUNStepper_SetEvolveFn(stepper, fn) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -6056,6 +6091,22 @@ type(C_FUNPTR) :: farg2
 farg1 = stepper
 farg2 = fn
 fresult = swigc_FSUNStepper_SetForcingFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNStepper_SetGetNumStepsFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FSUNStepper_SetGetNumStepsFn(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -6449,14 +6500,13 @@ fresult = swigc_FSUNAdjointCheckpointScheme_InsertVector(farg1, farg2, farg3, fa
 swig_result = fresult
 end function
 
-function FSUNAdjointCheckpointScheme_LoadVector(arg0, step_num, stage_num, t, peek, out, tout) &
+function FSUNAdjointCheckpointScheme_LoadVector(arg0, step_num, stage_num, peek, out, tout) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
 integer(C_INT64_T), intent(in) :: step_num
 integer(C_INT64_T), intent(in) :: stage_num
-real(C_DOUBLE), intent(in) :: t
 integer(C_INT), intent(in) :: peek
 type(C_PTR) :: out
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tout
@@ -6464,19 +6514,17 @@ integer(C_INT) :: fresult
 type(C_PTR) :: farg1 
 integer(C_INT64_T) :: farg2 
 integer(C_INT64_T) :: farg3 
-real(C_DOUBLE) :: farg4 
-integer(C_INT) :: farg5 
+integer(C_INT) :: farg4 
+type(C_PTR) :: farg5 
 type(C_PTR) :: farg6 
-type(C_PTR) :: farg7 
 
 farg1 = c_loc(arg0)
 farg2 = step_num
 farg3 = stage_num
-farg4 = t
-farg5 = peek
-farg6 = out
-farg7 = c_loc(tout(1))
-fresult = swigc_FSUNAdjointCheckpointScheme_LoadVector(farg1, farg2, farg3, farg4, farg5, farg6, farg7)
+farg4 = peek
+farg5 = out
+farg6 = c_loc(tout(1))
+fresult = swigc_FSUNAdjointCheckpointScheme_LoadVector(farg1, farg2, farg3, farg4, farg5, farg6)
 swig_result = fresult
 end function
 
@@ -6685,7 +6733,7 @@ fresult = swigc_FSUNAdjointStepper_SetJacFn(farg1, farg2, farg3, farg4, farg5)
 swig_result = fresult
 end function
 
-function FSUNAdjointStepper_SetJacTimesVecFn(arg0, jvp, jpvp) &
+function FSUNAdjointStepper_SetJacHermitianTransposeVecFn(arg0, jvp, jpvp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -6700,11 +6748,11 @@ type(C_FUNPTR) :: farg3
 farg1 = arg0
 farg2 = jvp
 farg3 = jpvp
-fresult = swigc_FSUNAdjointStepper_SetJacTimesVecFn(farg1, farg2, farg3)
+fresult = swigc_FSUNAdjointStepper_SetJacHermitianTransposeVecFn(farg1, farg2, farg3)
 swig_result = fresult
 end function
 
-function FSUNAdjointStepper_SetVecTimesJacFn(arg0, vjp, vjpp) &
+function FSUNAdjointStepper_SetVecHermitianTransposeJacFn(arg0, vjp, vjpp) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
@@ -6719,7 +6767,7 @@ type(C_FUNPTR) :: farg3
 farg1 = arg0
 farg2 = vjp
 farg3 = vjpp
-fresult = swigc_FSUNAdjointStepper_SetVecTimesJacFn(farg1, farg2, farg3)
+fresult = swigc_FSUNAdjointStepper_SetVecHermitianTransposeJacFn(farg1, farg2, farg3)
 swig_result = fresult
 end function
 

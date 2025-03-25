@@ -32,6 +32,7 @@ struct SUNStepper_Ops_
   SUNStepperSetStopTimeFn setstoptime;
   SUNStepperSetStepDirectionFn setstepdirection;
   SUNStepperSetForcingFn setforcing;
+  SUNStepperGetNumStepsFn getnumsteps;
   SUNStepperDestroyFn destroy;
 };
 

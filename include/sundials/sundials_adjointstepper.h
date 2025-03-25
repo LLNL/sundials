@@ -64,14 +64,14 @@ SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper, SUNRhsJacFn JacFn,
                                       SUNMatrix JP);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_SetJacTimesVecFn(SUNAdjointStepper,
-                                              SUNRhsJacTimesFn Jvp,
-                                              SUNRhsJacTimesFn JPvp);
+SUNErrCode SUNAdjointStepper_SetJacHermitianTransposeVecFn(SUNAdjointStepper,
+                                                           SUNRhsJacTimesFn Jvp,
+                                                           SUNRhsJacTimesFn JPvp);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_SetVecTimesJacFn(SUNAdjointStepper,
-                                              SUNRhsJacTimesFn vJp,
-                                              SUNRhsJacTimesFn vJPp);
+SUNErrCode SUNAdjointStepper_SetVecHermitianTransposeJacFn(SUNAdjointStepper,
+                                                           SUNRhsJacTimesFn vJp,
+                                                           SUNRhsJacTimesFn vJPp);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper, void* user_data);
