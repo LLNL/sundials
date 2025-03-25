@@ -241,7 +241,8 @@ SUNErrCode SUNStepper_SetForcingFn(SUNStepper stepper, SUNStepperSetForcingFn fn
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNStepper_SetGetNumStepsFn(SUNStepper stepper, SUNStepperGetNumStepsFn fn)
+SUNErrCode SUNStepper_SetGetNumStepsFn(SUNStepper stepper,
+                                       SUNStepperGetNumStepsFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
   stepper->ops->getnumsteps = fn;

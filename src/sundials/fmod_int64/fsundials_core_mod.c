@@ -2929,6 +2929,20 @@ SWIGEXPORT int _wrap_FSUNStepper_GetLastFlag(void *farg1, int *farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FSUNStepper_GetNumSteps(void *farg1, int64_t *farg2) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  suncountertype *arg2 = (suncountertype *) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (suncountertype *)(farg2);
+  result = (SUNErrCode)SUNStepper_GetNumSteps(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FSUNStepper_SetEvolveFn(void *farg1, SUNStepperEvolveFn farg2) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
@@ -3036,6 +3050,20 @@ SWIGEXPORT int _wrap_FSUNStepper_SetForcingFn(void *farg1, SUNStepperSetForcingF
   arg1 = (SUNStepper)(farg1);
   arg2 = (SUNStepperSetForcingFn)(farg2);
   result = (SUNErrCode)SUNStepper_SetForcingFn(arg1,arg2);
+  fresult = (SUNErrCode)(result);
+  return fresult;
+}
+
+
+SWIGEXPORT int _wrap_FSUNStepper_SetGetNumStepsFn(void *farg1, SUNStepperGetNumStepsFn farg2) {
+  int fresult ;
+  SUNStepper arg1 = (SUNStepper) 0 ;
+  SUNStepperGetNumStepsFn arg2 = (SUNStepperGetNumStepsFn) 0 ;
+  SUNErrCode result;
+  
+  arg1 = (SUNStepper)(farg1);
+  arg2 = (SUNStepperGetNumStepsFn)(farg2);
+  result = (SUNErrCode)SUNStepper_SetGetNumStepsFn(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

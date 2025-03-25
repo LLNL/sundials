@@ -584,6 +584,7 @@ module fsundials_core_mod
  public :: FSUNStepper_GetContent
  public :: FSUNStepper_SetLastFlag
  public :: FSUNStepper_GetLastFlag
+ public :: FSUNStepper_GetNumSteps
  public :: FSUNStepper_SetEvolveFn
  public :: FSUNStepper_SetOneStepFn
  public :: FSUNStepper_SetFullRhsFn
@@ -592,6 +593,7 @@ module fsundials_core_mod
  public :: FSUNStepper_SetStopTimeFn
  public :: FSUNStepper_SetStepDirectionFn
  public :: FSUNStepper_SetForcingFn
+ public :: FSUNStepper_SetGetNumStepsFn
  public :: FSUNStepper_SetDestroyFn
  ! typedef enum SUNMemoryType
  enum, bind(c)
@@ -2349,6 +2351,15 @@ type(C_PTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
+function swigc_FSUNStepper_GetNumSteps(farg1, farg2) &
+bind(C, name="_wrap_FSUNStepper_GetNumSteps") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
 function swigc_FSUNStepper_SetEvolveFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNStepper_SetEvolveFn") &
 result(fresult)
@@ -2414,6 +2425,15 @@ end function
 
 function swigc_FSUNStepper_SetForcingFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNStepper_SetForcingFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNStepper_SetGetNumStepsFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNStepper_SetGetNumStepsFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -5930,6 +5950,22 @@ fresult = swigc_FSUNStepper_GetLastFlag(farg1, farg2)
 swig_result = fresult
 end function
 
+function FSUNStepper_GetNumSteps(stepper, nst) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+integer(C_INT64_T), target, intent(inout) :: nst
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = stepper
+farg2 = c_loc(nst)
+fresult = swigc_FSUNStepper_GetNumSteps(farg1, farg2)
+swig_result = fresult
+end function
+
 function FSUNStepper_SetEvolveFn(stepper, fn) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -6055,6 +6091,22 @@ type(C_FUNPTR) :: farg2
 farg1 = stepper
 farg2 = fn
 fresult = swigc_FSUNStepper_SetForcingFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNStepper_SetGetNumStepsFn(stepper, fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: stepper
+type(C_FUNPTR), intent(in), value :: fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = stepper
+farg2 = fn
+fresult = swigc_FSUNStepper_SetGetNumStepsFn(farg1, farg2)
 swig_result = fresult
 end function
 
