@@ -358,7 +358,8 @@ int main(int argc, char* argv[])
   {
     fprintf(stderr,
             ">>> FAILURE: forward solution does not match correct answer\n");
-  } else { printf(">>> PASS\n"); }
+  }
+  else { printf(">>> PASS\n"); }
 
   //
   // Create the adjoint stepper
@@ -397,7 +398,8 @@ int main(int argc, char* argv[])
   {
     fprintf(stderr,
             ">>> FAILURE: adjoint solution does not match correct answer\n");
-  } else { printf("\n>>> PASS\n"); }
+  }
+  else { printf("\n>>> PASS\n"); }
 
   //
   // Now compute the adjoint solution using Jvp
@@ -428,7 +430,8 @@ int main(int argc, char* argv[])
   {
     fprintf(stderr,
             ">>> FAILURE: adjoint solution does not match correct answer\n");
-  } else { printf("\n>>> PASS\n"); }
+  }
+  else { printf("\n>>> PASS\n"); }
 
   //
   // Now compute the adjoint solution using vJp
@@ -459,7 +462,8 @@ int main(int argc, char* argv[])
   {
     fprintf(stderr,
             ">>> FAILURE: adjoint solution does not match correct answer\n");
-  } else { printf(">>> PASS\n"); }
+  }
+  else { printf(">>> PASS\n"); }
 
   //
   // Now compute the adjoint solution but for when forward problem done backwards
