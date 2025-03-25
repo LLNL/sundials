@@ -406,6 +406,7 @@ static int SetDefaults(UserOpt* uopt)
   (*uopt)->orth_aa    = 0;               /* MGS             */
   (*uopt)->damping_fp = SUN_RCONST(1.0); /* no FP dampig    */
   (*uopt)->damping_aa = SUN_RCONST(1.0); /* no AA damping   */
+  (*uopt)->damping_fn = NULL;            /* no damping      */
 
   return (0);
 }
