@@ -46,7 +46,6 @@ SUNErrCode SUNAdjointStepper_Create(
 
   adj_stepper->tf             = tf;
   adj_stepper->final_step_idx = final_step_idx;
-  adj_stepper->nst            = 0;
 
   adj_stepper->njeval     = 0;
   adj_stepper->njpeval    = 0;
@@ -72,7 +71,6 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper self, N_Vector y0,
   self->njtimesv   = 0;
   self->njptimesv  = 0;
   self->nrecompute = 0;
-  self->nst        = 0;
   SUNStepper_Reset(self->adj_sunstepper, tf, sf);
   SUNStepper_ResetCheckpointIndex(self->adj_sunstepper, 0);
   SUNStepper_Reset(self->fwd_sunstepper, t0, y0);
@@ -197,8 +195,7 @@ SUNErrCode SUNAdjointStepper_GetNumSteps(SUNAdjointStepper self,
                                          suncountertype* num_steps)
 {
   SUNFunctionBegin(self->sunctx);
-  *num_steps = self->nst;
-  return SUN_SUCCESS;
+  return SUNStepper_GetNumSteps(self->adj_sunstepper, num_steps);
 }
 
 SUNErrCode SUNAdjointStepper_GetNumJacEvals(SUNAdjointStepper self,
@@ -259,7 +256,9 @@ SUNErrCode SUNAdjointStepper_GetNumRecompute(SUNAdjointStepper self,
 SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper self,
                                            FILE* outfile, SUNOutputFormat fmt)
 {
-  sunfprintf_long(outfile, fmt, SUNTRUE, "Num backwards steps", self->nst);
+  suncountertype nst = 0;
+  SUNCheckCall(SUNStepper_GetNumSteps(self->adj_sunstepper, &nst));
+  sunfprintf_long(outfile, fmt, SUNTRUE, "Num backwards steps", nst);
   sunfprintf_long(outfile, fmt, SUNFALSE, "Num recompute passes",
                   self->nrecompute);
   if (self->JacFn)

@@ -159,6 +159,16 @@ SUNErrCode SUNStepper_GetContent(SUNStepper stepper, void** content)
   return SUN_SUCCESS;
 }
 
+SUNErrCode SUNStepper_GetNumSteps(SUNStepper stepper, suncountertype* nst)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->getnumsteps)
+  {
+    return stepper->ops->getnumsteps(stepper, nst);
+  }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
 SUNErrCode SUNStepper_SetLastFlag(SUNStepper stepper, int last_flag)
 {
   SUNFunctionBegin(stepper->sunctx);
@@ -228,6 +238,13 @@ SUNErrCode SUNStepper_SetForcingFn(SUNStepper stepper, SUNStepperSetForcingFn fn
 {
   SUNFunctionBegin(stepper->sunctx);
   stepper->ops->setforcing = fn;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNStepper_SetGetNumStepsFn(SUNStepper stepper, SUNStepperGetNumStepsFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->getnumsteps = fn;
   return SUN_SUCCESS;
 }
 
