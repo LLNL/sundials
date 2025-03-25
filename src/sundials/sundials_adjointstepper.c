@@ -256,6 +256,7 @@ SUNErrCode SUNAdjointStepper_GetNumRecompute(SUNAdjointStepper self,
 SUNErrCode SUNAdjointStepper_PrintAllStats(SUNAdjointStepper self,
                                            FILE* outfile, SUNOutputFormat fmt)
 {
+  SUNFunctionBegin(self->sunctx);
   suncountertype nst = 0;
   SUNCheckCall(SUNStepper_GetNumSteps(self->adj_sunstepper, &nst));
   sunfprintf_long(outfile, fmt, SUNTRUE, "Num backwards steps", nst);
