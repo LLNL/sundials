@@ -527,7 +527,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   step_mem->is_SSP             = SUNFALSE;
 
   /* Remove current SUNAdaptController object if exists,
-  and replace with the ARKODE-default "PID" */
+  and replace with the ARKODE-default "I" */
   if (ark_mem->hadapt_mem->owncontroller)
   {
     retval = SUNAdaptController_Destroy(ark_mem->hadapt_mem->hcontroller);
@@ -544,7 +544,7 @@ int lsrkStep_SetDefaults(ARKodeMem ark_mem)
   if (ark_mem->hadapt_mem->hcontroller == NULL)
   {
     arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                    "SUNAdaptControllerPID allocation failure");
+                    "SUNAdaptController_I allocation failure");
     return (ARK_MEM_FAIL);
   }
   ark_mem->hadapt_mem->owncontroller = SUNTRUE;

@@ -1455,12 +1455,12 @@ Optional inputs for time step adaptivity
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.Soderlind`).
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the I controller will be created (see :numref:`SUNAdaptController.Soderlind`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the PID controller could not be allocated.
+      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the I controller could not be allocated.
 
    .. versionadded:: 5.7.0
 

@@ -1454,8 +1454,8 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 =========================================================   ==========================================  ========
 Optional input                                              Function name                               Default
 =========================================================   ==========================================  ========
-Provide a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptController`          PID
-Specify a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptControllerByName`    PID
+Provide a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptController`          I
+Specify a :c:type:`SUNAdaptController` for ARKODE to use    :c:func:`ARKodeSetAdaptControllerByName`    I
 Adjust the method order used in the controller              :c:func:`ARKodeSetAdaptivityAdjustment`     -1
 Explicit stability safety factor                            :c:func:`ARKodeSetCFLFraction`              0.5
 Time step error bias factor                                 :c:func:`ARKodeSetErrorBias`                1.5
@@ -1483,13 +1483,13 @@ Reset accumulated error                                     :c:func:`ARKodeReset
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
-   :retval ARK_MEM_FAIL: *C* was ``NULL`` and the PID controller could not be allocated.
+   :retval ARK_MEM_FAIL: *C* was ``NULL`` and the I controller could not be allocated.
    :retval ARK_STEPPER_UNSUPPORTED: adaptive step sizes are not supported
                                     by the current time-stepping module.
 
    .. note::
 
-      If *C* is ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.Soderlind`).
+      If *C* is ``NULL`` then the I controller will be created (see :numref:`SUNAdaptController.Soderlind`).
 
       This is only compatible with time-stepping modules that support temporal adaptivity.
 

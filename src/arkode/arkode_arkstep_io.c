@@ -734,7 +734,7 @@ int arkStep_SetDefaults(ARKodeMem ark_mem)
   if (step_mem->NLS && step_mem->ownNLS) { SUNNonlinSolFree(step_mem->NLS); }
   step_mem->NLS = NULL;
 
-  /* Remove pre-existing SUNAdaptController object, and replace with "PID" */
+  /* Remove pre-existing SUNAdaptController object, and replace with "I" */
   if (ark_mem->hadapt_mem->owncontroller)
   {
     retval = SUNAdaptController_Space(ark_mem->hadapt_mem->hcontroller, &lenrw,

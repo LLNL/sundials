@@ -3279,7 +3279,7 @@ int arkReplaceAdaptController(ARKodeMem ark_mem, SUNAdaptController C,
     if (C == NULL)
     {
       arkProcessError(ark_mem, ARK_MEM_FAIL, __LINE__, __func__, __FILE__,
-                      "SUNAdaptControllerPID allocation failure");
+                      "SUNAdaptController_I allocation failure");
       return (ARK_MEM_FAIL);
     }
     ark_mem->hadapt_mem->owncontroller = SUNTRUE;
@@ -3566,7 +3566,7 @@ int arkSetAdaptivityMethod(void* arkode_mem, int imethod, int idefault, int pq,
   arkSetAdaptivityFn:
 
   Specifies the user-provided time step adaptivity function to use.
-  If 'hfun' is NULL-valued, then the default PID controller will
+  If 'hfun' is NULL-valued, then the default I controller will
   be used instead.
 
   Users should transition to constructing a custom SUNAdaptController

@@ -953,17 +953,12 @@ the code, is provided in :numref:`ARKODE.Mathematics.Adaptivity`.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the PID controller will be created (see :numref:`SUNAdaptController.Soderlind`).
+      * *C* -- user-supplied time adaptivity controller.  If ``NULL`` then the I controller will be created (see :numref:`SUNAdaptController.Soderlind`).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
-      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the PID controller could not be allocated.
-
-   **Notes:**
-      When *C* is ``NULL``, the PID controller that is created is not the same as the ERKStep default (PI).
-      To reset ERKStep to its default behavior after a non-default controller has been used, users should either
-      specifically create the PI controller *C* and attach it here, or call :c:func:`ERKStepSetDefaults()`.
+      * *ARK_MEM_FAIL* if *C* was ``NULL`` and the I controller could not be allocated.
 
    .. versionadded:: 5.7.0
 
