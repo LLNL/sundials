@@ -343,12 +343,12 @@ The basic fixed-point iteration scheme implemented in KINSOL is given by:
 
 #. For :math:`n = 0, 1, 2,...` until convergence do:
 
-   -  Set :math:`u_{n+1} = (1 - \beta) u_n + \beta G(u_n)`.
+   -  Set :math:`u_{n+1} = (1 - \beta_n) u_n + \beta_n G(u_n)`.
 
    -  Test for convergence.
 
 Here, :math:`u_n` is the :math:`n`-th iterate to :math:`u`. At each stage in the iteration process, the function
-:math:`G` is applied to the current iterate with the damping parameter :math:`\beta` to produce a new iterate,
+:math:`G` is applied to the current iterate with the damping parameter :math:`\beta_n` to produce a new iterate,
 :math:`u_{n+1}`. A test for convergence is made before the iteration continues.
 
 For Picard iteration, as implemented in KINSOL, we consider a special form of the nonlinear function :math:`F`,
@@ -360,12 +360,12 @@ given by:
 
 #. For :math:`n = 0, 1, 2,...` until convergence do:
 
-   -  Set :math:`u_{n+1} = (1 - \beta) u_n + \beta G(u_n)` where :math:`G(u_n) \equiv u_n - L^{-1}F(u_n)`.
+   -  Set :math:`u_{n+1} = (1 - \beta_n) u_n + \beta_n G(u_n)` where :math:`G(u_n) \equiv u_n - L^{-1}F(u_n)`.
 
    -  Test :math:`F(u_{n+1})` for convergence.
 
 Here, :math:`u_n` is the :math:`n`-th iterate to :math:`u`. Within each iteration, the Picard step is computed then
-added to :math:`u_n` with the damping parameter :math:`\beta` to produce the new iterate. Next, the nonlinear residual
+added to :math:`u_n` with the damping parameter :math:`\beta_n` to produce the new iterate. Next, the nonlinear residual
 function is evaluated at the new iterate, and convergence is checked. Noting that :math:`L^{-1}N(u) = u - L^{-1}F(u)`,
 the above iteration can be written in the same form as a Newton iteration except that here, :math:`L` is in the role of
 the Jacobian. Within KINSOL, however, we leave this in a fixed-point form as above. For more information,
@@ -390,7 +390,7 @@ The Picard and fixed point methods can be significantly accelerated using Anders
    c.  Determine :math:`\alpha^{(n)} = (\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})` that solves
        :math:`\displaystyle\min_\alpha  \| F_n \alpha^T \|_2` such that :math:`\displaystyle\sum_{i=0}^{m_n} \alpha_i = 1`
 
-   d.  Set :math:`\displaystyle u_{n+1} = \beta \sum_{i=0}^{m_n} \alpha_i^{(n)} G(u_{n-m_n+i}) + (1-\beta) \sum_{i=0}^{m_n} \alpha_i^{(n)} u_{n-m_{n}+i}`
+   d.  Set :math:`\displaystyle u_{n+1} = \beta_n \sum_{i=0}^{m_n} \alpha_i^{(n)} G(u_{n-m_n+i}) + (1-\beta_n) \sum_{i=0}^{m_n} \alpha_i^{(n)} u_{n-m_{n}+i}`
 
    e.  Test for convergence
 
@@ -411,13 +411,13 @@ unconstrained one leading to the algorithm given below:
    c. Determine :math:`\gamma^{(n)} = (\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})` that solves
       :math:`\displaystyle\min_\gamma  \| f_n - \Delta F_n \gamma^T \|_2`
 
-   d. Set :math:`\displaystyle u_{n+1} = G(u_n)-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i} - (1-\beta)(f(u_n) - \sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta f_{n-m_n+i})` with
+   d. Set :math:`\displaystyle u_{n+1} = G(u_n)-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i} - (1-\beta_n)(f(u_n) - \sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta f_{n-m_n+i})` with
       :math:`\Delta g_i = G(u_{i+1}) - G(u_i)`
 
    e. Test for convergence
 
 The least-squares problem in 3c is solved by applying a QR factorization to :math:`\Delta F_n = Q_n R_n` and solving
-:math:`R_n \gamma = Q_n^T f_n`. By default the damping is disabled i.e., :math:`\beta = 1.0`.
+:math:`R_n \gamma = Q_n^T f_n`. By default the damping is disabled i.e., :math:`\beta_n = 1.0`.
 
 The Anderson acceleration implementation includes an option to delay the start of acceleration until after a given
 number of initial fixed-point or Picard iterations have been completed. This delay can be beneficial when the underlying

@@ -50,14 +50,12 @@ extern "C" {
 #define KIN_LINIT_FAIL          -10
 #define KIN_LSETUP_FAIL         -11
 #define KIN_LSOLVE_FAIL         -12
-
-#define KIN_SYSFUNC_FAIL      -13
-#define KIN_FIRST_SYSFUNC_ERR -14
-#define KIN_REPTD_SYSFUNC_ERR -15
-
-#define KIN_VECTOROP_ERR -16
-
-#define KIN_CONTEXT_ERR -17
+#define KIN_SYSFUNC_FAIL        -13
+#define KIN_FIRST_SYSFUNC_ERR   -14
+#define KIN_REPTD_SYSFUNC_ERR   -15
+#define KIN_VECTOROP_ERR        -16
+#define KIN_CONTEXT_ERR         -17
+#define KIN_DAMPING_FN_ERR      -18
 
 /* Anderson Acceleration Orthogonalization Choice */
 #define KIN_ORTH_MGS   0
@@ -85,6 +83,10 @@ typedef int (*KINSysFn)(N_Vector uu, N_Vector fval, void* user_data);
 typedef void (*KINInfoHandlerFn)(const char* module, const char* function,
                                  char* msg, void* user_data);
 
+typedef int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val,
+                            long int depth, sunrealtype gain, void* user_data,
+                            sunrealtype* damping_factor);
+
 /* -------------------
  * Exported Functions
  * ------------------- */
@@ -106,6 +108,7 @@ SUNDIALS_EXPORT int KINSetMAA(void* kinmem, long int maa);
 SUNDIALS_EXPORT int KINSetOrthAA(void* kinmem, int orthaa);
 SUNDIALS_EXPORT int KINSetDelayAA(void* kinmem, long int delay);
 SUNDIALS_EXPORT int KINSetDampingAA(void* kinmem, sunrealtype beta);
+SUNDIALS_EXPORT int KINSetDampingFn(void* kinmem, KINDampingFn damping_fn);
 SUNDIALS_EXPORT int KINSetReturnNewest(void* kinmem, sunbooleantype ret_newest);
 SUNDIALS_EXPORT int KINSetNumMaxIters(void* kinmem, long int mxiter);
 SUNDIALS_EXPORT int KINSetNoInitSetup(void* kinmem, sunbooleantype noInitSetup);

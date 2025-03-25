@@ -87,17 +87,22 @@
 /* problem options */
 typedef struct
 {
-  sunrealtype tol;        /* solve tolerance                  */
-  long int maxiter;       /* max number of iterations         */
-  long int m_aa;          /* number of acceleration vectors   */
-  long int delay_aa;      /* number of iterations to delay AA */
-  int orth_aa;            /* orthogonalization method         */
-  sunrealtype damping_fp; /* damping parameter for FP         */
-  sunrealtype damping_aa; /* damping parameter for AA         */
+  sunrealtype tol;         /* solve tolerance                  */
+  long int maxiter;        /* max number of iterations         */
+  long int m_aa;           /* number of acceleration vectors   */
+  long int delay_aa;       /* number of iterations to delay AA */
+  int orth_aa;             /* orthogonalization method         */
+  sunrealtype damping_fp;  /* damping parameter for FP         */
+  sunrealtype damping_aa;  /* damping parameter for AA         */
+  KINDampingFn damping_fn; /* damping function                 */
 }* UserOpt;
 
 /* Nonlinear fixed point function */
 static int FPFunction(N_Vector u, N_Vector f, void* user_data);
+
+static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
+                     long int depth, sunrealtype gain, void* user_data,
+                     sunrealtype* damping_factor);
 
 /* Check the system solution */
 static int check_ans(N_Vector u, sunrealtype tol);
@@ -159,6 +164,8 @@ int main(int argc, char* argv[])
   printf("    delay_aa     = %ld\n", uopt->delay_aa);
   printf("    damping_aa   = %" GSYM "\n", uopt->damping_aa);
   printf("    damping_fp   = %" GSYM "\n", uopt->damping_fp);
+  if (uopt->damping_fn) { printf("    damping_fn   = ON\n"); }
+  else { printf("    damping_fn   = OFF\n"); }
   printf("    orth routine = %d\n", uopt->orth_aa);
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
@@ -217,6 +224,13 @@ int main(int argc, char* argv[])
     /* Set acceleration delay */
     retval = KINSetDelayAA(kmem, uopt->delay_aa);
     if (check_retval(&retval, "KINSetDelayAA", 1)) { return (1); }
+  }
+
+  if (uopt->damping_fn)
+  {
+    /* Attach user defined damping function */
+    retval = KINSetDampingFn(kmem, DampingFn);
+    if (check_retval(&retval, "KINSetDampingFn", 1)) { return (1); }
   }
 
   /* Set info log file and print level */
@@ -324,6 +338,16 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
   return (0);
 }
 
+static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
+                     long int depth, sunrealtype gain, void* user_data,
+                     sunrealtype* damping_factor)
+{
+  if (depth == 0) { *damping_factor = 0.5; }
+  else { *damping_factor = 0.9 - 0.5 * gain; }
+
+  return 0;
+}
+
 /* -----------------------------------------------------------------------------
  * Check the solution of the nonlinear system and return PASS or FAIL
  * ---------------------------------------------------------------------------*/
@@ -425,6 +449,11 @@ static int ReadInputs(int* argc, char*** argv, UserOpt uopt)
       arg_index++;
       uopt->damping_aa = atof((*argv)[arg_index++]);
     }
+    else if (strcmp((*argv)[arg_index], "--damping_fn") == 0)
+    {
+      arg_index++;
+      uopt->damping_fn = DampingFn;
+    }
     else if (strcmp((*argv)[arg_index], "--orth_aa") == 0)
     {
       arg_index++;
@@ -460,6 +489,7 @@ static void InputHelp(void)
   printf("   --damping_fp : fixed point damping parameter\n");
   printf("   --damping_aa : Anderson acceleration damping parameter\n");
   printf("   --orth_aa    : Anderson acceleration orthogonalization method\n");
+  printf("   --damping_fn : user defined damping function\n");
 
   return;
 }

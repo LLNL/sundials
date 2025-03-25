@@ -507,6 +507,8 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Anderson Acceleration orthogonalization routine        | :c:func:`KINSetOrthAA`           | ``KIN_ORTH_MGS``             |
   +--------------------------------------------------------+----------------------------------+------------------------------+
+  | Fixed-point/Picard damping function                    | :c:func:`KINSetDampingFn`        | ``NULL``                     |
+  +--------------------------------------------------------+----------------------------------+------------------------------+
   | **KINLS linear solver interface**                      |                                  |                              |
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Jacobian function                                      | :c:func:`KINSetJacFn`            | DQ                           |
@@ -1101,6 +1103,22 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
       An example of how to use this function can be found in
       ``examples/kinsol/serial/kinAnalytic_fp.c``
 
+
+.. c:function:: int KINSetDampingFn(void* kin_mem, KINDampingFn damping_fn)
+
+   Sets the function used to compute the damping factor, :math:`\beta_n`, in
+   fixed-point or Picard iterations.
+
+   :param kin_mem: pointer to the KINSOL memory block.
+   :param damping_fn: the function to compute the damping parameter.
+
+   :retval KIN_SUCCESS: The damping function has been successfully set.
+   :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
+
+   .. note::
+
+      The function provided to :c:func:`KINSetDampingFn` will override any
+      values set with :c:func:`KINSetDamping` or :c:func:`KINSetDampingAA`.
 
 .. _KINSOL.Usage.CC.optional_inputs.optin_ls:
 
@@ -1778,12 +1796,13 @@ The following optional outputs are available from the KINLS modules:
 User-supplied functions
 -----------------------
 
-The user-supplied functions consist of one function defining the nonlinear system,
-(optionally) a function that handles error and warning messages,
-(optionally) a function that handles informational messages,
-(optionally) one or two functions that provides Jacobian-related information for the linear
-solver, and (optionally) one or two functions that define the preconditioner for use in
-any of the Krylov iterative algorithms.
+The user-supplied functions consist of one function defining the nonlinear
+system, (optionally) a function that handles error and warning messages,
+(optionally) a function that handles informational messages, (optionally) one or
+two functions that provides Jacobian-related information for the linear solver,
+(optionally) one or two functions that define the preconditioner for use in
+any of the Krylov iterative algorithms, and (optionally) a function to compute
+the damping parameter in fixed-point or Picard iterations.
 
 .. _KINSOL.Usage.CC.user_fct_sim.resFn:
 
@@ -1807,8 +1826,7 @@ The user must provide a function of type :c:type:`KINSysFn` defined as follows:
       An :c:type:`KINSysFn` function type should return a value of :math:`0` if
       successful, a positive value if a recoverable error occurred (in which
       case KINSOL will attempt to correct), or a negative value if a nonrecoverable
-      error occurred. In the last case, the integrator halts. If a recoverable error
-      occurred, the integrator will attempt to correct and retry.
+      error occurred.
 
    **Notes:**
       Allocation of memory for ``fval`` is handled within KINSOL.
@@ -2075,6 +2093,37 @@ function of type :c:type:`KINLsPrecSetupFn`, defined as follows:
 
       If the preconditioner solve routine requires no preparation, then a
       preconditioner setup function need not be given.
+
+.. _KINSOL.Usage.CC.user_fct_sim.dampingFn:
+
+Damping function
+~~~~~~~~~~~~~~~~
+
+When using the fixed-point or Picard iterations, the user may provide a function
+of type :c:type:`KINDampingFn` to computing the damping factor, :math:`\beta_n`.
+
+.. c:type:: int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val, long int depth, sunrealtype gain, void* user_data, sunrealtype* damping_factor)
+
+   This function computes the damping factor, :math:`\beta_n > 0`, for
+   fixed-point and Picard iterations.
+
+   **Parameters:**
+
+   * **iter** -- the iteration being computed, :math:`n + 1`.
+   * **u_val** -- the current iterate, :math:`u_n`.
+   * **g_val** -- the fixed-point function evaluated at the current iterate, :math:`G(u_n)`.
+   * **depth** -- the size of the Anderson acceleration space, :math:`m_n`, or
+     zero if acceleration is not applied to this iteration.
+   * **gain** -- the Anderson acceleration gain, :math:`\sqrt{1 - \|Q_n^T
+     f_n\|/\|f_n\|}`, or :math:`-1` if acceleration is not applied to this
+     iteration.
+   * **user_data** -- the user data pointer passed to :c:func:`KINSetUserData`.
+   * **damping_factor** -- the computed damping factor, :math:`\beta_n`.
+
+   **Returns:**
+
+     A :c:type:`KINDampingFn` function should return :math:`0` if successful or
+     a non-zero value if an error occurred.
 
 
 .. _KINSOL.Usage.CC.kin_bbdpre:

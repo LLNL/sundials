@@ -22,9 +22,11 @@
 set(KINSOL_examples
     "kinAnalytic_fp\;\;"
     "kinAnalytic_fp\;--damping_fp 0.5\;develop"
+    "kinAnalytic_fp\;--damping_fn\;develop" # should match --damping_fp 0.5
     "kinAnalytic_fp\;--m_aa 2\;"
     "kinAnalytic_fp\;--m_aa 2 --delay_aa 2\;"
     "kinAnalytic_fp\;--m_aa 2 --damping_aa 0.5\;develop"
+    "kinAnalytic_fp\;--m_aa 2 --damping_fn\;develop" # will differ form --damping_aa
     "kinAnalytic_fp\;--m_aa 2 --orth_aa 1\;"
     "kinAnalytic_fp\;--m_aa 2 --orth_aa 2\;"
     "kinAnalytic_fp\;--m_aa 2 --orth_aa 3\;"

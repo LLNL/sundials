@@ -13,6 +13,7 @@ Solution method: Anderson accelerated fixed point iteration.
     delay_aa     = 0
     damping_aa   = 1
     damping_fp   = 1
+    damping_fn   = OFF
     orth routine = 3
 
 Final Statistics:
