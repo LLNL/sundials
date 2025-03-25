@@ -643,10 +643,11 @@ int arkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
   static const int num_twochar_keys = sizeof(twochar_pairs) /
                                       sizeof(*twochar_pairs);
 
-  static struct sunKeyActionPair action_pairs[] = {
-    {"set_explicit", ARKStepSetExplicit},
-    {"set_implicit", ARKStepSetImplicit},
-    {"set_imex", ARKStepSetImEx}};
+  static struct sunKeyActionPair action_pairs[] = {{"set_explicit",
+                                                    ARKStepSetExplicit},
+                                                   {"set_implicit",
+                                                    ARKStepSetImplicit},
+                                                   {"set_imex", ARKStepSetImEx}};
   static const int num_action_keys = sizeof(action_pairs) / sizeof(*action_pairs);
 
   /* check all "twochar" command-line options */

@@ -41,13 +41,12 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
   kin_mem = (KINMem)kinmem;
 
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyIntPair int_pairs[] =
-    {{"orth_aa", KINSetOrthAA},
-     {"return_newest", KINSetReturnNewest},
-     {"no_init_setup", KINSetNoInitSetup},
-     {"no_res_mon", KINSetNoResMon},
-     {"eta_form", KINSetEtaForm},
-     {"no_min_eps", KINSetNoMinEps}};
+  static struct sunKeyIntPair int_pairs[] = {{"orth_aa", KINSetOrthAA},
+                                             {"return_newest", KINSetReturnNewest},
+                                             {"no_init_setup", KINSetNoInitSetup},
+                                             {"no_res_mon", KINSetNoResMon},
+                                             {"eta_form", KINSetEtaForm},
+                                             {"no_min_eps", KINSetNoMinEps}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   static struct sunKeyLongPair long_pairs[] =
@@ -71,8 +70,7 @@ int KINSetFromCommandLine(void* kinmem, const char* kinid, int argc, char* argv[
   static const int num_real_keys = sizeof(real_pairs) / sizeof(*real_pairs);
 
   static struct sunKeyTwoRealPair tworeal_pairs[] =
-    {{"eta_params", KINSetEtaParams},
-     {"res_mon_params", KINSetResMonParams}};
+    {{"eta_params", KINSetEtaParams}, {"res_mon_params", KINSetResMonParams}};
   static const int num_tworeal_keys = sizeof(tworeal_pairs) /
                                       sizeof(*tworeal_pairs);
 

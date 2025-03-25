@@ -501,18 +501,20 @@ int lsrkStep_SetFromCommandLine(ARKodeMem ark_mem, int* i, char* argv[],
                                 const size_t offset, sunbooleantype* arg_used)
 {
   /* Set lists of command-line arguments, and the corresponding set routines */
-  static struct sunKeyCharPair char_pairs[] = {
-    {"sts_method", LSRKStepSetSTSMethodByName},
-    {"ssp_method", LSRKStepSetSSPMethodByName}};
+  static struct sunKeyCharPair char_pairs[] = {{"sts_method",
+                                                LSRKStepSetSTSMethodByName},
+                                               {"ssp_method",
+                                                LSRKStepSetSSPMethodByName}};
   static const int num_char_keys = sizeof(char_pairs) / sizeof(*char_pairs);
 
   static struct sunKeyLongPair long_pairs[] = {
     {"dom_eig_frequency", LSRKStepSetDomEigFrequency}};
   static const int num_long_keys = sizeof(long_pairs) / sizeof(*long_pairs);
 
-  static struct sunKeyIntPair int_pairs[] = {
-    {"max_num_stages", LSRKStepSetMaxNumStages},
-    {"num_ssp_stages", LSRKStepSetNumSSPStages}};
+  static struct sunKeyIntPair int_pairs[] = {{"max_num_stages",
+                                              LSRKStepSetMaxNumStages},
+                                             {"num_ssp_stages",
+                                              LSRKStepSetNumSSPStages}};
   static const int num_int_keys = sizeof(int_pairs) / sizeof(*int_pairs);
 
   static struct sunKeyRealPair real_pairs[] = {
