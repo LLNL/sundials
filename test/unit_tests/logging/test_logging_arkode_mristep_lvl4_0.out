@@ -21,7 +21,7 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0233751917480648
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.000684232821674337
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.000114408635496083
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 10000
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 7.81663103431959e-20
@@ -38,7 +38,7 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0741838255802575
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162693212800236
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00228817270992167
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 2.44544264770262e-09
@@ -55,7 +55,7 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00621741390094489
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162624929099858
 [DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.004378265139474
 [DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 3.2835207774456e-08
@@ -76,9 +76,9 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0038531938118493
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00369906605937533
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.8777585425008
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.016249898196684
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00833333333333333
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 4.32267371275195e-07
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
@@ -97,9 +97,9 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00376807638513467
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00361735332972928
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 14.4694133189171
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162414372114837
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.005
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 5.61386810222308e-08
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
@@ -123,9 +123,9 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00319795294105543
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00307003482341321
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 9.21010447023964
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162318165797592
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00666666666666666
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.77846971899371e-07
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
@@ -144,9 +144,9 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00390124994659785
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00374519994873393
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.98847987696144
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162202632453612
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00833333333333333
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 4.3543510588853e-07
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
@@ -165,9 +165,9 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00355873748907613
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00341638798951309
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 13.6655519580524
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162129875004671
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.005
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 5.65337563928649e-08
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
@@ -191,9 +191,9 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00319459597325291
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.0030668121343228
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 9.20043640296839
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0162045995221856
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00666666666666666
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 1.79044824379909e-07
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
@@ -212,9 +212,9 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00389739554541479
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00374149972359819
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 8.97959933663568
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0161945980453625
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00833333333333332
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 4.38201984966595e-07
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
@@ -233,9 +233,9 @@ Using Ex-MRI-GARK method
 [INFO][rank 0][arkStep_TakeStep_Z][end-stage] status = success
 [INFO][rank 0][arkStep_TakeStep_Z][begin-compute-solution] mass type = 0
 [INFO][rank 0][arkStep_TakeStep_Z][end-compute-solution] status = success
-[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.00355535799405456
-[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.00341314367429237
-[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 13.6525746971695
+[DEBUG][rank 0][arkAdapt][new-step-before-bounds] h_acc = 0.0161884827797336
+[DEBUG][rank 0][arkAdapt][new-step-after-max-min-bounds] h_acc = 0.005
+[DEBUG][rank 0][arkAdapt][new-step-eta] eta = 20
 [INFO][rank 0][ARKodeEvolve][end-step-attempt] status = success, dsm = 5.6876837984125e-08
 [INFO][rank 0][mriStep_StageERKFast][end-fast-steps] status = success
 [INFO][rank 0][mriStep_TakeStepMRIGARK][end-stage] status = success
