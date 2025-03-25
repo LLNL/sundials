@@ -958,7 +958,7 @@ Main solver optional input functions
 
    .. note::
 
-      The *argc* and *argv* arguments should be those supplied to the user's ``main'' routine.
+      The *argc* and *argv* arguments should be those supplied to the user's ``main`` routine.
       These are left unchanged by :c:func:`IDASetFromCommandLine`.
 
       If the *idaid* argument is ``NULL`` then ``idas.`` will be used for all IDAS command-line

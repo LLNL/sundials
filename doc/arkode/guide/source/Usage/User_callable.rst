@@ -927,7 +927,7 @@ Set max number of constraint failures             :c:func:`ARKodeSetMaxNumConstr
 
    .. note::
 
-      The *argc* and *argv* arguments should be those supplied to the user's ``main'' routine.  These
+      The *argc* and *argv* arguments should be those supplied to the user's ``main`` routine.  These
       are left unchanged by :c:func:`ARKodeSetFromCommandLine`.
 
       If the *arkid* argument is ``NULL`` then ``arkode.`` will be used for all ARKODE command-line

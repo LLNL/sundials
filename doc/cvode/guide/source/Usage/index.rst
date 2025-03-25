@@ -887,7 +887,7 @@ Main solver optional input functions
 
    .. note::
 
-      The *argc* and *argv* arguments should be those supplied to the user's ``main'' routine.
+      The *argc* and *argv* arguments should be those supplied to the user's ``main`` routine.
       These are left unchanged by :c:func:`CVodeSetFromCommandLine`.
 
       If the *cvid* argument is ``NULL`` then ``cvode.`` will be used for all CVODE command-line
