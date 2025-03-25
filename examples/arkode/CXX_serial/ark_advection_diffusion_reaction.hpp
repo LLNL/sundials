@@ -675,7 +675,7 @@ inline void find_arg(vector<string>& args, const string key, string& dest)
   auto it = find(args.cbegin(), args.cend(), key);
   if (it != args.end())
   {
-    dest = move(*(it + 1));
+    dest = std::move(*(it + 1));
     args.erase(it, it + 2);
   }
 }
