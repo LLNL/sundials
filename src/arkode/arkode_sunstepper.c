@@ -179,6 +179,18 @@ SUNErrCode arkSUNStepperSelfDestruct(SUNStepper stepper)
   return SUN_SUCCESS;
 }
 
+SUNErrCode arkSUNStepperGetNumSteps(SUNStepper stepper, suncountertype* nst)
+{
+  ARKodeMem ark_mem;
+
+  SUNErrCode errcode = SUNStepper_GetContent(stepper, (void**)&ark_mem);
+  if (errcode) { return errcode; }
+
+  *nst = ark_mem->nst;
+
+  return SUN_SUCCESS;
+}
+
 int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
 {
   /* unpack ark_mem */
@@ -267,6 +279,14 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
                       "Failed to set SUNStepper forcing function");
       return ARK_SUNSTEPPER_ERR;
     }
+  }
+
+  err = SUNStepper_SetGetNumStepsFn(*stepper, arkSUNStepperGetNumSteps);
+  if (err != SUN_SUCCESS)
+  {
+    arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
+                    "Failed to set SUNStepper getnumsteps function");
+    return ARK_SUNSTEPPER_ERR;
   }
 
   return ARK_SUCCESS;
