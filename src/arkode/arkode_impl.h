@@ -571,6 +571,7 @@ struct ARKodeMemRec
   /* Adjoint solver data */
   sunbooleantype do_adjoint;
   long int adj_stage_idx; /* current stage index (only valid in adjoint context)*/
+  long int adj_step_idx; /* current step index (only valid in adjoint context)*/
 
   /* Checkpointing data */
   SUNAdjointCheckpointScheme checkpoint_scheme;

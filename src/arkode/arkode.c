@@ -1847,6 +1847,9 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     ark_mem->initialized = SUNFALSE;
   }
 
+  // TODO(CJB): instead of this, need to add a SUNStepper_ReInit function.
+  ark_mem->nst = 0;
+
   /* Indicate initialization is needed */
   ark_mem->initsetup  = SUNTRUE;
   ark_mem->init_type  = init_type;

@@ -2238,6 +2238,9 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   N_Vector lambda_np1           = N_VGetSubvector_ManyVector(sens_np1, 0);
   N_Vector* stage_values        = step_mem->Fe;
 
+  /* which adjoint step is being processed */
+  ark_mem->adj_step_idx = adj_stepper->final_step_idx - ark_mem->nst;
+
   /* determine if method has fsal property */
   sunbooleantype fsal = (SUNRabs(step_mem->Be->A[0][0]) <= TINY) &&
                         ARKodeButcherTable_IsStifflyAccurate(step_mem->Be);
@@ -2287,12 +2290,13 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     if (retval > 0)
     {
       N_Vector checkpoint = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
-      int64_t start_step  = adj_stepper->step_idx;
+      int64_t curr_step, start_step;
+      curr_step = start_step = ark_mem->adj_step_idx;
 
       SUNErrCode errcode = SUN_ERR_CHECKPOINT_NOT_FOUND;
-      for (int64_t i = 0; i <= adj_stepper->step_idx; ++i, --start_step)
+      for (int64_t i = 0; i <= curr_step; ++i, --start_step)
       {
-        SUNDIALS_MAYBE_UNUSED int64_t stop_step = adj_stepper->step_idx + 1;
+        SUNDIALS_MAYBE_UNUSED int64_t stop_step = curr_step + 1;
         SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint",
                     "searching-for-checkpoint",
                     "start_step = %li, stop_step = %li", start_step, stop_step);
@@ -2336,9 +2340,10 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   /* Throw away the step solution */
   sunrealtype checkpoint_t = 0.0;
   N_Vector checkpoint      = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
+
   SUNErrCode errcode =
     SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
-                                          adj_stepper->step_idx, 0, 0,
+                                          ark_mem->adj_step_idx, 0, 0,
                                           &checkpoint, &checkpoint_t);
   if (errcode)
   {
@@ -3438,7 +3443,7 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   sunrealtype checkpoint_t = SUN_RCONST(0.0);
 
   errcode = SUNAdjointCheckpointScheme_LoadVector(check_scheme,
-                                                  adj_stepper->step_idx,
+                                                  ark_mem->adj_step_idx,
                                                   ark_mem->adj_stage_idx, 0,
                                                   &checkpoint, &checkpoint_t);
 
