@@ -85,27 +85,11 @@ SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper self, sunrealtype tout,
 
 {
   SUNFunctionBegin(self->sunctx);
-
-  SUNErrCode retcode     = SUN_SUCCESS;
-  const sunrealtype zero = SUN_RCONST(0.0);
-  const sunrealtype one  = SUN_RCONST(1.0);
-  sunrealtype t          = self->tf;
-  sunrealtype direction  = (t - tout) > zero ? -one : one;
-
-  self->last_flag = 0;
-
-  while ((direction == -one && t > tout) || (direction == one && t < tout))
-  {
-    SUNCheckCall(SUNAdjointStepper_OneStep(self, tout, sens, tret));
-    if (self->last_flag < 0)
-    {
-      retcode = SUN_ERR_ADJOINT_STEPPERFAILED;
-      break;
-    }
-    else { t = *tret; }
-  }
-
-  return retcode;
+  SUNStepper adj_sunstepper = self->adj_sunstepper;
+  SUNCheckCall(SUNStepper_SetStopTime(self->adj_sunstepper, tout));
+  SUNCheckCall(SUNStepper_Evolve(self->adj_sunstepper, tout, sens, tret));
+  self->last_flag = adj_sunstepper->last_flag;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper self, sunrealtype tout,
@@ -114,23 +98,9 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper self, sunrealtype tout,
 {
   SUNFunctionBegin(self->sunctx);
   SUNStepper adj_sunstepper = self->adj_sunstepper;
-
-  SUNErrCode retcode = SUN_SUCCESS;
-  sunrealtype t      = self->tf;
-  SUNCheckCall(SUNStepper_OneStep(adj_sunstepper, tout, sens, &t));
+  SUNCheckCall(SUNStepper_OneStep(adj_sunstepper, tout, sens, tret));
   self->last_flag = adj_sunstepper->last_flag;
-
-  self->nst++;
-
-  if (self->last_flag < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
-  else if (self->last_flag > 0)
-  {
-    retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP;
-  }
-
-  *tret = t;
-
-  return retcode;
+  return SUN_SUCCESS;
 }
 
 SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper self,
