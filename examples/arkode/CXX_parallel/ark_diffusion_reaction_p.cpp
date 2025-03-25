@@ -283,7 +283,7 @@ struct UserData
   // Shared IMEX and MRI settings
   // ----------------------------
 
-  string controller = "PID"; // step size adaptivity method
+  string controller = "I";   // step size adaptivity method
   int maxsteps      = 0;     // max steps between outputs (0 = use default)
   bool linear       = true;  // enable/disable linearly implicit option
   bool diagnostics  = false; // output diagnostics

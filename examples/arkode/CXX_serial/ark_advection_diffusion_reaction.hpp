@@ -146,13 +146,13 @@ struct UserOptions
   sunrealtype etamx1_fast = ZERO;
 
   int maxsteps      = 10000; // max steps between outputs
-  string controller = "PID"; // step size adaptivity method
+  string controller = "I";   // step size adaptivity method
   int predictor     = 0;     // predictor for nonlinear systems
   int ls_setup_freq = 0;     // linear solver setup frequency
 
-  string controller_fast = "PID"; // fast step size adaptivity method
-  int predictor_fast     = 0;     // predictor for fast nonlinear systems
-  int ls_setup_freq_fast = 0;     // fast linear solver setup frequency
+  string controller_fast = "I"; // fast step size adaptivity method
+  int predictor_fast     = 0;   // predictor for fast nonlinear systems
+  int ls_setup_freq_fast = 0;   // fast linear solver setup frequency
 
   bool linear = false; // signal that the problem is linearly implicit
 

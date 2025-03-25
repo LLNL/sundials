@@ -1609,7 +1609,7 @@ static int InitUserData(UserData* udata)
   udata->atol       = SUN_RCONST(1.e-10); // absolute tolerance
   udata->hfixed     = ZERO;               // using adaptive step sizes
   udata->order      = 3;                  // method order
-  udata->controller = "PID";              // controller
+  udata->controller = "I";                // controller
   udata->maxsteps   = 0;                  // use default
   udata->linear     = true;               // linearly implicit problem
 

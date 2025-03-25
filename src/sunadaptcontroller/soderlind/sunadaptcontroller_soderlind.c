@@ -63,7 +63,6 @@
 #define DEFAULT_IMPGUS_K1 SUN_RCONST(0.98) /* Implicit Gustafsson parameters */
 #define DEFAULT_IMPGUS_K2 SUN_RCONST(0.95)
 #define DEFAULT_BIAS      SUN_RCONST(1.0)
-#define DEFAULT_BIAS      SUN_RCONST(1.5)
 
 /* -----------------------------------------------------------------
  * exported functions

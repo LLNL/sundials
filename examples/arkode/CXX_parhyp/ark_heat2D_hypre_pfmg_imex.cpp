@@ -2284,9 +2284,9 @@ static int InitUserData(UserData* udata)
   udata->linear = false;              // linearly implicit problem
   udata->order  = 3;                  // method order
 
-  udata->hf         = ZERO;  // using adaptive step sizes at fast
-  udata->controller = "PID"; // PID controller
-  udata->maxsteps   = 0;     // use ARKode default
+  udata->hf         = ZERO; // using adaptive step sizes at fast
+  udata->controller = "I";  // PID controller
+  udata->maxsteps   = 0;    // use ARKode default
 
   // Linear solver and preconditioner options
   udata->liniters = 10;            // max linear iterations

@@ -2239,7 +2239,7 @@ static int InitUserData(UserData* udata)
 
   udata->hf         = ZERO;  // using adaptive step sizes at fast
   udata->hs         = 0.001; // slow step size
-  udata->controller = "PID"; // PID controller
+  udata->controller = "I";   // PID controller
   udata->maxsteps   = 0;     // use ARKode default
 
   // Linear solver and preconditioner options
