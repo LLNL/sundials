@@ -46,6 +46,7 @@ module fkinsol_mod
  integer(C_INT), parameter, public :: KIN_REPTD_SYSFUNC_ERR = -15_C_INT
  integer(C_INT), parameter, public :: KIN_VECTOROP_ERR = -16_C_INT
  integer(C_INT), parameter, public :: KIN_CONTEXT_ERR = -17_C_INT
+ integer(C_INT), parameter, public :: KIN_DAMPING_FN_ERR = -18_C_INT
  integer(C_INT), parameter, public :: KIN_ORTH_MGS = 0_C_INT
  integer(C_INT), parameter, public :: KIN_ORTH_ICWY = 1_C_INT
  integer(C_INT), parameter, public :: KIN_ORTH_CGS2 = 2_C_INT
@@ -66,6 +67,7 @@ module fkinsol_mod
  public :: FKINSetOrthAA
  public :: FKINSetDelayAA
  public :: FKINSetDampingAA
+ public :: FKINSetDampingFn
  public :: FKINSetReturnNewest
  public :: FKINSetNumMaxIters
  public :: FKINSetNoInitSetup
@@ -216,6 +218,15 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
 real(C_DOUBLE), intent(in) :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FKINSetDampingFn(farg1, farg2) &
+bind(C, name="_wrap_FKINSetDampingFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
@@ -841,6 +852,22 @@ real(C_DOUBLE) :: farg2
 farg1 = kinmem
 farg2 = beta
 fresult = swigc_FKINSetDampingAA(farg1, farg2)
+swig_result = fresult
+end function
+
+function FKINSetDampingFn(kinmem, damping_fn) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(C_PTR) :: kinmem
+type(C_FUNPTR), intent(in), value :: damping_fn
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = kinmem
+farg2 = damping_fn
+fresult = swigc_FKINSetDampingFn(farg1, farg2)
 swig_result = fresult
 end function
 

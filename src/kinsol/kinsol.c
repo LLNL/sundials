@@ -2694,8 +2694,8 @@ static int KINPicardAA(KINMem kin_mem)
           }
           if (kin_mem->kin_beta <= ZERO)
           {
-            KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__,
-                            __FILE__, "The damping parameter is negative or zero.");
+            KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
+                            "The damping parameter is negative or zero.");
             ret = KIN_ILL_INPUT;
             break;
           }
@@ -2910,8 +2910,8 @@ static int KINFP(KINMem kin_mem)
           }
           if (kin_mem->kin_beta <= ZERO)
           {
-            KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__,
-                            __FILE__, "The damping parameter is negative or zero.");
+            KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
+                            "The damping parameter is negative or zero.");
             ret = KIN_ILL_INPUT;
             break;
           }
@@ -3060,8 +3060,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       if (kin_mem->kin_damping_fn)
       {
         retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, 0,
-                                         SUN_RCONST(-1.0),
-                                         kin_mem->kin_user_data,
+                                         SUN_RCONST(-1.0), kin_mem->kin_user_data,
                                          &(kin_mem->kin_beta));
         if (retval)
         {
@@ -3071,8 +3070,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
         }
         if (kin_mem->kin_beta <= ZERO)
         {
-          KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__,
-                          __FILE__, "The damping parameter is negative or zero.");
+          KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
+                          "The damping parameter is negative or zero.");
           return KIN_ILL_INPUT;
         }
       }
@@ -3214,7 +3213,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
     qt_fv_norm = SUNRsqrt(qt_fv_norm);
 
     sunrealtype fv_norm = SUNRsqrt(N_VDotProd(fv, fv));
-    gain = SUNRsqrt(ONE - SUNSQR(qt_fv_norm / fv_norm));
+    gain                = SUNRsqrt(ONE - SUNSQR(qt_fv_norm / fv_norm));
   }
 
   /* set arrays for fused vector operation */
@@ -3251,8 +3250,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       }
       if (kin_mem->kin_beta_aa <= ZERO)
       {
-        KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__,
-                        __FILE__, "The damping parameter is negative or zero.");
+        KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
+                        "The damping parameter is negative or zero.");
         return KIN_ILL_INPUT;
       }
     }
