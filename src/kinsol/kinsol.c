@@ -262,7 +262,6 @@ void* KINCreate(SUNContext sunctx)
   kin_mem->kin_T_aa             = NULL;
   kin_mem->kin_gamma_aa         = NULL;
   kin_mem->kin_R_aa             = NULL;
-  kin_mem->kin_ipt_map          = NULL;
   kin_mem->kin_cv               = NULL;
   kin_mem->kin_Xv               = NULL;
   kin_mem->kin_lmem             = NULL;
@@ -270,6 +269,7 @@ void* KINCreate(SUNContext sunctx)
   kin_mem->kin_damping          = SUNFALSE;
   kin_mem->kin_m_aa             = 0;
   kin_mem->kin_delay_aa         = 0;
+  kin_mem->kin_current_depth    = 0;
   kin_mem->kin_damping_fn       = NULL;
   kin_mem->kin_orth_aa          = KIN_ORTH_MGS;
   kin_mem->kin_qr_func          = NULL;
@@ -961,26 +961,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       }
     }
 
-    if (kin_mem->kin_ipt_map == NULL)
-    {
-      kin_mem->kin_ipt_map =
-        (long int*)malloc(kin_mem->kin_m_aa * sizeof(long int));
-      if (kin_mem->kin_ipt_map == NULL)
-      {
-        KINProcessError(kin_mem, 0, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
-        N_VDestroy(kin_mem->kin_unew);
-        N_VDestroy(kin_mem->kin_fval);
-        N_VDestroy(kin_mem->kin_pp);
-        N_VDestroy(kin_mem->kin_vtemp1);
-        N_VDestroy(kin_mem->kin_vtemp2);
-        free(kin_mem->kin_R_aa);
-        free(kin_mem->kin_gamma_aa);
-        kin_mem->kin_liw -= 5 * kin_mem->kin_liw1;
-        kin_mem->kin_lrw -= 5 * kin_mem->kin_lrw1;
-        return (KIN_MEM_FAIL);
-      }
-    }
-
     if (kin_mem->kin_cv == NULL)
     {
       kin_mem->kin_cv =
@@ -995,7 +975,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         N_VDestroy(kin_mem->kin_vtemp2);
         free(kin_mem->kin_R_aa);
         free(kin_mem->kin_gamma_aa);
-        free(kin_mem->kin_ipt_map);
         kin_mem->kin_liw -= 5 * kin_mem->kin_liw1;
         kin_mem->kin_lrw -= 5 * kin_mem->kin_lrw1;
         return (KIN_MEM_FAIL);
@@ -1016,7 +995,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         N_VDestroy(kin_mem->kin_vtemp2);
         free(kin_mem->kin_R_aa);
         free(kin_mem->kin_gamma_aa);
-        free(kin_mem->kin_ipt_map);
         free(kin_mem->kin_cv);
         kin_mem->kin_liw -= 5 * kin_mem->kin_liw1;
         kin_mem->kin_lrw -= 5 * kin_mem->kin_lrw1;
@@ -1036,7 +1014,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         N_VDestroy(kin_mem->kin_vtemp2);
         free(kin_mem->kin_R_aa);
         free(kin_mem->kin_gamma_aa);
-        free(kin_mem->kin_ipt_map);
         free(kin_mem->kin_cv);
         free(kin_mem->kin_Xv);
         kin_mem->kin_liw -= 5 * kin_mem->kin_liw1;
@@ -1059,7 +1036,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         N_VDestroy(kin_mem->kin_vtemp2);
         free(kin_mem->kin_R_aa);
         free(kin_mem->kin_gamma_aa);
-        free(kin_mem->kin_ipt_map);
         free(kin_mem->kin_cv);
         free(kin_mem->kin_Xv);
         N_VDestroy(kin_mem->kin_fold_aa);
@@ -1083,7 +1059,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         N_VDestroy(kin_mem->kin_vtemp2);
         free(kin_mem->kin_R_aa);
         free(kin_mem->kin_gamma_aa);
-        free(kin_mem->kin_ipt_map);
         free(kin_mem->kin_cv);
         free(kin_mem->kin_Xv);
         N_VDestroy(kin_mem->kin_fold_aa);
@@ -1108,7 +1083,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         N_VDestroy(kin_mem->kin_vtemp2);
         free(kin_mem->kin_R_aa);
         free(kin_mem->kin_gamma_aa);
-        free(kin_mem->kin_ipt_map);
         free(kin_mem->kin_cv);
         free(kin_mem->kin_Xv);
         N_VDestroy(kin_mem->kin_fold_aa);
@@ -1134,7 +1108,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         N_VDestroy(kin_mem->kin_vtemp2);
         free(kin_mem->kin_R_aa);
         free(kin_mem->kin_gamma_aa);
-        free(kin_mem->kin_ipt_map);
         free(kin_mem->kin_cv);
         free(kin_mem->kin_Xv);
         N_VDestroy(kin_mem->kin_fold_aa);
@@ -1161,7 +1134,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
         N_VDestroy(kin_mem->kin_vtemp2);
         free(kin_mem->kin_R_aa);
         free(kin_mem->kin_gamma_aa);
-        free(kin_mem->kin_ipt_map);
         free(kin_mem->kin_cv);
         free(kin_mem->kin_Xv);
         N_VDestroy(kin_mem->kin_fold_aa);
@@ -1191,7 +1163,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
           N_VDestroy(kin_mem->kin_vtemp2);
           free(kin_mem->kin_R_aa);
           free(kin_mem->kin_gamma_aa);
-          free(kin_mem->kin_ipt_map);
           free(kin_mem->kin_cv);
           free(kin_mem->kin_Xv);
           N_VDestroy(kin_mem->kin_fold_aa);
@@ -1225,7 +1196,6 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
             N_VDestroy(kin_mem->kin_vtemp2);
             free(kin_mem->kin_R_aa);
             free(kin_mem->kin_gamma_aa);
-            free(kin_mem->kin_ipt_map);
             free(kin_mem->kin_cv);
             free(kin_mem->kin_Xv);
             N_VDestroy(kin_mem->kin_fold_aa);
@@ -1322,12 +1292,6 @@ static void KINFreeVectors(KINMem kin_mem)
   {
     free(kin_mem->kin_gamma_aa);
     kin_mem->kin_gamma_aa = NULL;
-  }
-
-  if (kin_mem->kin_ipt_map != NULL)
-  {
-    free(kin_mem->kin_ipt_map);
-    kin_mem->kin_ipt_map = NULL;
   }
 
   if (kin_mem->kin_cv != NULL)
@@ -3101,8 +3065,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                        sunrealtype* gamma)
 {
   int retval;
-  long int i_pt, i, j, lAA;
-  long int* ipt_map;
+  long int lAA;
   sunrealtype alfa;
   sunrealtype onembeta;
 
@@ -3111,25 +3074,50 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   sunrealtype* cv = kin_mem->kin_cv;
   N_Vector* Xv    = kin_mem->kin_Xv;
 
-  ipt_map = kin_mem->kin_ipt_map;
-  i_pt    = iter - 1 - ((iter - 1) / kin_mem->kin_m_aa) * kin_mem->kin_m_aa;
-
   /* Compute residual F(x) = G(x_old) - x_old */
   N_VLinearSum(ONE, gval, -ONE, xold, fv);
 
   if (iter > 0)
   {
+    /* If we've filled the acceleration subspace, start recycling */
+    if (kin_mem->kin_current_depth == kin_mem->kin_m_aa)
+    {
+      /* Move the left-most column vector (oldest value) to the end so it gets
+         overwritten with the newest value below. */
+      N_Vector tmp_dg = kin_mem->kin_dg_aa[0];
+      N_Vector tmp_df = kin_mem->kin_df_aa[0];
+      for (long int i = 1; i < kin_mem->kin_m_aa; i++)
+      {
+        kin_mem->kin_dg_aa[i - 1] = kin_mem->kin_dg_aa[i];
+        kin_mem->kin_df_aa[i - 1] = kin_mem->kin_df_aa[i];
+      }
+      kin_mem->kin_dg_aa[kin_mem->kin_m_aa - 1] = tmp_dg;
+      kin_mem->kin_df_aa[kin_mem->kin_m_aa - 1] = tmp_df;
+
+      /* Delete left-most column vector from QR factorization */
+      retval = AndersonAccQRDelete(kin_mem, kin_mem->kin_q_aa, R,
+                                   (int)kin_mem->kin_m_aa);
+      if (retval) { return retval; }
+
+      kin_mem->kin_current_depth--;
+    }
+
     /* compute dg_new = gval - gval_old */
-    N_VLinearSum(ONE, gval, -ONE, kin_mem->kin_gold_aa, kin_mem->kin_dg_aa[i_pt]);
+    N_VLinearSum(ONE, gval, -ONE, kin_mem->kin_gold_aa,
+                 kin_mem->kin_dg_aa[kin_mem->kin_current_depth]);
+
     /* compute df_new = fval - fval_old */
-    N_VLinearSum(ONE, fv, -ONE, kin_mem->kin_fold_aa, kin_mem->kin_df_aa[i_pt]);
+    N_VLinearSum(ONE, fv, -ONE, kin_mem->kin_fold_aa,
+                 kin_mem->kin_df_aa[kin_mem->kin_current_depth]);
+
+    kin_mem->kin_current_depth++;
   }
 
   N_VScale(ONE, gval, kin_mem->kin_gold_aa);
   N_VScale(ONE, fv, kin_mem->kin_fold_aa);
 
   /* on first iteration, do fixed point update */
-  if (iter == 0)
+  if (kin_mem->kin_current_depth == 0)
   {
     if (kin_mem->kin_damping_aa || kin_mem->kin_damping_fn)
     {
@@ -3161,52 +3149,30 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       /* standard fixed point */
       N_VScale(ONE, gval, x);
     }
+
     return KIN_SUCCESS;
   }
 
-  /* update data structures based on current iteration index */
+  /* Add a column to the QR factorization */
 
-  if (iter == 1)
+  if (kin_mem->kin_current_depth == 1)
   {
-    /* second iteration */
     R[0] =
-      SUNRsqrt(N_VDotProd(kin_mem->kin_df_aa[i_pt], kin_mem->kin_df_aa[i_pt]));
+      SUNRsqrt(N_VDotProd(kin_mem->kin_df_aa[0], kin_mem->kin_df_aa[0]));
     alfa = ONE / R[0];
-    N_VScale(alfa, kin_mem->kin_df_aa[i_pt], kin_mem->kin_q_aa[i_pt]);
-    ipt_map[0] = 0;
-  }
-  else if (iter <= kin_mem->kin_m_aa)
-  {
-    /* another iteration before we've reached maa */
-
-    kin_mem->kin_qr_func(kin_mem->kin_q_aa, R, kin_mem->kin_df_aa[i_pt],
-                         (int)iter - 1, (int)kin_mem->kin_m_aa,
-                         (void*)kin_mem->kin_qr_data);
-
-    /* update iteration map */
-    for (j = 0; j < iter; j++) { ipt_map[j] = j; }
+    N_VScale(alfa, kin_mem->kin_df_aa[0], kin_mem->kin_q_aa[0]);
   }
   else
   {
-    /* we've filled the acceleration subspace, so start recycling */
-    retval = AndersonAccQRDelete(kin_mem, kin_mem->kin_q_aa, R,
-                                 (int)kin_mem->kin_m_aa);
-    if (retval) { return retval; }
-
-    /* Add the new df vector */
-    kin_mem->kin_qr_func(kin_mem->kin_q_aa, R, kin_mem->kin_df_aa[i_pt],
-                         (int)kin_mem->kin_m_aa - 1, (int)kin_mem->kin_m_aa,
+    kin_mem->kin_qr_func(kin_mem->kin_q_aa, R,
+                         kin_mem->kin_df_aa[kin_mem->kin_current_depth - 1],
+                         (int)kin_mem->kin_current_depth - 1,
+                         (int)kin_mem->kin_m_aa,
                          (void*)kin_mem->kin_qr_data);
-
-    /* Update the iteration map */
-    j = 0;
-    for (i = i_pt + 1; i < kin_mem->kin_m_aa; i++) { ipt_map[j++] = i; }
-    for (i = 0; i < (i_pt + 1); i++) { ipt_map[j++] = i; }
   }
 
   /* Solve least squares problem and update solution */
-  lAA = iter;
-  if (kin_mem->kin_m_aa < iter) { lAA = kin_mem->kin_m_aa; }
+  lAA = kin_mem->kin_current_depth;
 
   retval = N_VDotProdMulti((int)lAA, fv, kin_mem->kin_q_aa, gamma);
   if (retval != KIN_SUCCESS) { return (KIN_VECTOROP_ERR); }
@@ -3217,7 +3183,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   if (kin_mem->kin_damping_fn)
   {
     sunrealtype qt_fv_norm = ZERO;
-    for (i = 0; i < lAA; i++) { qt_fv_norm += gamma[i] * gamma[i]; }
+    for (long int i = 0; i < lAA; i++) { qt_fv_norm += gamma[i] * gamma[i]; }
     qt_fv_norm = SUNRsqrt(qt_fv_norm);
 
     sunrealtype fv_norm = SUNRsqrt(N_VDotProd(fv, fv));
@@ -3229,16 +3195,16 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   Xv[0] = gval;
   nvec  = 1;
 
-  for (i = lAA - 1; i > -1; i--)
+  for (long int i = lAA - 1; i > -1; i--)
   {
-    for (j = i + 1; j < lAA; j++)
+    for (long int j = i + 1; j < lAA; j++)
     {
       gamma[i] = gamma[i] - R[j * kin_mem->kin_m_aa + i] * gamma[j];
     }
     gamma[i] = gamma[i] / R[i * kin_mem->kin_m_aa + i];
 
     cv[nvec] = -gamma[i];
-    Xv[nvec] = kin_mem->kin_dg_aa[ipt_map[i]];
+    Xv[nvec] = kin_mem->kin_dg_aa[i];
     nvec += 1;
   }
 
@@ -3268,10 +3234,10 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
     cv[nvec] = -onembeta;
     Xv[nvec] = fv;
     nvec += 1;
-    for (i = lAA - 1; i > -1; i--)
+    for (long int i = lAA - 1; i > -1; i--)
     {
       cv[nvec] = onembeta * gamma[i];
-      Xv[nvec] = kin_mem->kin_df_aa[ipt_map[i]];
+      Xv[nvec] = kin_mem->kin_df_aa[i];
       nvec += 1;
     }
   }
