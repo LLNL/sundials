@@ -1110,7 +1110,8 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
    fixed-point or Picard iterations.
 
    :param kin_mem: pointer to the KINSOL memory block.
-   :param damping_fn: the function to compute the damping parameter.
+   :param damping_fn: the function to compute the damping parameter or ``NULL`
+                      to disable using a damping factor function.
 
    :retval KIN_SUCCESS: The damping function has been successfully set.
    :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
