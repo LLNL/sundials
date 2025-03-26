@@ -261,6 +261,26 @@ int KINSetDampingFn(void* kinmem, KINDampingFn damping_fn)
 
 /*
  * -----------------------------------------------------------------
+ * Function : KINSetDepthFn
+ * -----------------------------------------------------------------
+ */
+
+int KINSetDepthFn(void* kinmem, KINDepthFn depth_fn)
+{
+  if (kinmem == NULL)
+  {
+    KINProcessError(NULL, KIN_MEM_NULL, __LINE__, __func__, __FILE__, MSG_NO_MEM);
+    return KIN_MEM_NULL;
+  }
+  KINMem kin_mem = (KINMem)kinmem;
+
+  kin_mem->kin_depth_fn = depth_fn;
+
+  return KIN_SUCCESS;
+}
+
+/*
+ * -----------------------------------------------------------------
  * Function : KINSetReturnNewest
  * -----------------------------------------------------------------
  */

@@ -271,6 +271,7 @@ void* KINCreate(SUNContext sunctx)
   kin_mem->kin_delay_aa         = 0;
   kin_mem->kin_current_depth    = 0;
   kin_mem->kin_damping_fn       = NULL;
+  kin_mem->kin_depth_fn         = NULL;
   kin_mem->kin_orth_aa          = KIN_ORTH_MGS;
   kin_mem->kin_qr_func          = NULL;
   kin_mem->kin_qr_data          = NULL;
@@ -3169,6 +3170,93 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                          (int)kin_mem->kin_current_depth - 1,
                          (int)kin_mem->kin_m_aa,
                          (void*)kin_mem->kin_qr_data);
+  }
+
+  /* Adjust the depth */
+  if (kin_mem->kin_depth_fn)
+  {
+    long int new_depth = 0;
+
+    retval = kin_mem->kin_depth_fn(kin_mem->kin_nni, xold, gval, fv,
+                                   kin_mem->kin_df_aa, R,
+                                   kin_mem->kin_current_depth,
+                                   kin_mem->kin_user_data, &new_depth, NULL);
+    if (retval)
+    {
+      KINProcessError(kin_mem, KIN_DEPTH_FN_ERR, __LINE__, __func__,
+                      __FILE__, "The depth function failed.");
+      return KIN_DEPTH_FN_ERR;
+    }
+
+    new_depth = SUNMIN(new_depth, kin_mem->kin_m_aa);
+    new_depth = SUNMAX(new_depth, 0);
+
+    if (new_depth == 0)
+    {
+      kin_mem->kin_current_depth = new_depth;
+
+      /* do fixed point update */
+      if (kin_mem->kin_damping_aa || kin_mem->kin_damping_fn)
+      {
+        if (kin_mem->kin_damping_fn)
+        {
+          retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, 0,
+                                           SUN_RCONST(-1.0), kin_mem->kin_user_data,
+                                           &(kin_mem->kin_beta_aa));
+          if (retval)
+          {
+            KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
+                            __FILE__, "The damping function failed.");
+            return KIN_DAMPING_FN_ERR;
+          }
+          if (kin_mem->kin_beta_aa <= ZERO)
+          {
+            KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
+                            "The damping parameter is negative or zero.");
+            return KIN_ILL_INPUT;
+          }
+        }
+
+        /* damped fixed point */
+        N_VLinearSum((ONE - kin_mem->kin_beta_aa), xold, kin_mem->kin_beta_aa, gval,
+                     x);
+      }
+      else
+      {
+        /* standard fixed point */
+        N_VScale(ONE, gval, x);
+      }
+
+      return KIN_SUCCESS;
+    }
+
+    /* TODO(DJG): In the future, update QRDelete to support removing arbitrary
+       columns from the factorization */
+    if (new_depth < kin_mem->kin_current_depth)
+    {
+      /* Remove columns from the left one at a time */
+      N_Vector tmp_dg = NULL;
+      N_Vector tmp_df = NULL;
+
+      for (int j = 0; j < kin_mem->kin_current_depth - new_depth; j++)
+      {
+        tmp_dg = kin_mem->kin_dg_aa[0];
+        tmp_df = kin_mem->kin_df_aa[0];
+        for (long int i = 1; i < kin_mem->kin_current_depth; i++)
+        {
+          kin_mem->kin_dg_aa[i - 1] = kin_mem->kin_dg_aa[i];
+          kin_mem->kin_df_aa[i - 1] = kin_mem->kin_df_aa[i];
+        }
+        kin_mem->kin_dg_aa[kin_mem->kin_m_aa - 1] = tmp_dg;
+        kin_mem->kin_df_aa[kin_mem->kin_m_aa - 1] = tmp_df;
+
+        retval = AndersonAccQRDelete(kin_mem, kin_mem->kin_q_aa, R,
+                                     (int)kin_mem->kin_current_depth);
+        if (retval) { return retval; }
+
+        kin_mem->kin_current_depth--;
+      }
+    }
   }
 
   /* Solve least squares problem and update solution */

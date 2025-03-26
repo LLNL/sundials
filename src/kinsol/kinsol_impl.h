@@ -182,6 +182,7 @@ typedef struct KINMemRec
   long int kin_delay_aa; /* number of iterations to delay AA */
   long int kin_current_depth; /* current Anderson acceleration space size */
   KINDampingFn kin_damping_fn; /* function to determine the damping factor */
+  KINDepthFn kin_depth_fn;     /* function to determine the depth with AA */
   int kin_orth_aa;             /* parameter for AA determining orthogonalization
                                  routine
                                  0 - Modified Gram Schmidt (standard)
