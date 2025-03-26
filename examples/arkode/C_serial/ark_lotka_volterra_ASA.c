@@ -160,15 +160,9 @@ int main(int argc, char* argv[])
   if (check_retval(&retval, "ARKodeSetFixedStep", 1)) { return 1; }
 
   sunrealtype tret = t0;
-  while (tret < tf)
-  {
-    retval = ARKodeEvolve(arkode_mem, tf, u, &tret, ARK_NORMAL);
-    if (retval < 0)
-    {
-      fprintf(stderr, ">>> ERROR: ARKodeEvolve returned %d\n", retval);
-      return -1;
-    }
-  }
+
+  retval = ARKodeEvolve(arkode_mem, tf, u, &tret, ARK_NORMAL);
+  if (check_retval(&retval, "ARKodeEvolve", 1)) { return 1; }
 
   printf("Forward Solution:\n");
   N_VPrint(u);
