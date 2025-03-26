@@ -2682,7 +2682,7 @@ static int KINPicardAA(KINMem kin_mem)
         if (kin_mem->kin_damping_fn)
         {
           retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, kin_mem->kin_uu,
-                                           kin_mem->kin_fval, 0, SUN_RCONST(-1.0),
+                                           kin_mem->kin_fval, NULL, 0,
                                            kin_mem->kin_user_data,
                                            &(kin_mem->kin_beta));
           if (retval)
@@ -2899,7 +2899,7 @@ static int KINFP(KINMem kin_mem)
         if (kin_mem->kin_damping_fn)
         {
           retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, kin_mem->kin_uu,
-                                           kin_mem->kin_fval, 0, SUN_RCONST(-1.0),
+                                           kin_mem->kin_fval, NULL, 0,
                                            kin_mem->kin_user_data,
                                            &(kin_mem->kin_beta));
           if (retval)
@@ -3061,8 +3061,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
     {
       if (kin_mem->kin_damping_fn)
       {
-        retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, 0,
-                                         SUN_RCONST(-1.0), kin_mem->kin_user_data,
+        retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, NULL, 0,
+                                         kin_mem->kin_user_data,
                                          &(kin_mem->kin_beta_aa));
         if (retval)
         {
@@ -3205,17 +3205,26 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   retval = N_VDotProdMulti((int)lAA, fv, kin_mem->kin_q_aa, gamma);
   if (retval != KIN_SUCCESS) { return (KIN_VECTOROP_ERR); }
 
-  /* if using adaptive damping, compute the gain factor */
-  sunrealtype gain = SUN_RCONST(-1.0);
-
+  /* Compute the damping factor before overwriting gamma below so we can pass
+     gamma = Q^T fv (just computed above) to the damping function as it can be
+     used to compute the acceleration gain = sqrt(1 - ||Q^T fv||/||fv||). */
   if (kin_mem->kin_damping_fn)
   {
-    sunrealtype qt_fv_norm = ZERO;
-    for (i = 0; i < lAA; i++) { qt_fv_norm += gamma[i] * gamma[i]; }
-    qt_fv_norm = SUNRsqrt(qt_fv_norm);
-
-    sunrealtype fv_norm = SUNRsqrt(N_VDotProd(fv, fv));
-    gain                = SUNRsqrt(ONE - SUNSQR(qt_fv_norm / fv_norm));
+    retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, gamma, lAA,
+                                     kin_mem->kin_user_data,
+                                     &(kin_mem->kin_beta_aa));
+    if (retval)
+    {
+      KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
+                      __FILE__, "The damping function failed.");
+      return KIN_DAMPING_FN_ERR;
+    }
+    if (kin_mem->kin_beta_aa <= ZERO)
+    {
+      KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
+                      __FILE__, "The damping parameter is negative or zero.");
+      return KIN_DAMPING_FN_ERR;
+    }
   }
 
   /* set arrays for fused vector operation */
@@ -3239,25 +3248,6 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   /* if enabled, apply damping */
   if (kin_mem->kin_damping_aa || kin_mem->kin_damping_fn)
   {
-    if (kin_mem->kin_damping_fn)
-    {
-      retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, lAA, gain,
-                                       kin_mem->kin_user_data,
-                                       &(kin_mem->kin_beta_aa));
-      if (retval)
-      {
-        KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
-                        __FILE__, "The damping function failed.");
-        return KIN_DAMPING_FN_ERR;
-      }
-      if (kin_mem->kin_beta_aa <= ZERO)
-      {
-        KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
-                        __FILE__, "The damping parameter is negative or zero.");
-        return KIN_DAMPING_FN_ERR;
-      }
-    }
-
     onembeta = (ONE - kin_mem->kin_beta_aa);
     cv[nvec] = -onembeta;
     Xv[nvec] = fv;

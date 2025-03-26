@@ -334,6 +334,8 @@ inverses of the scale factors given for :math:`u` as described below). This form
 (optionally) be replaced by a user-specified value, ``relfunc``. Convergence of the Newton method is maintained as long
 as the value of :math:`\sigma` remains appropriately small, as shown in :cite:p:`Bro:87`.
 
+.. _KINSOL.Mathematics.FixedPoint:
+
 Basic Fixed Point iteration
 ---------------------------
 
@@ -370,6 +372,8 @@ function is evaluated at the new iterate, and convergence is checked. Noting tha
 the above iteration can be written in the same form as a Newton iteration except that here, :math:`L` is in the role of
 the Jacobian. Within KINSOL, however, we leave this in a fixed-point form as above. For more information,
 see page 182 of :cite:p:`Ortega-Rheinbolt00`.
+
+.. _KINSOL.Mathematics.AndersonAcceleration:
 
 Anderson Acceleration
 ---------------------

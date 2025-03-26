@@ -1111,7 +1111,8 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
    :param kin_mem: pointer to the KINSOL memory block.
    :param damping_fn: the function to compute the damping parameter or ``NULL``
-                      to disable using a damping factor function.
+                      to disable using a damping factor function. See
+                      :c:type:`KINDampingFn` for more information.
 
    :retval KIN_SUCCESS: The damping function has been successfully set.
    :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
@@ -2101,7 +2102,9 @@ Damping function
 ~~~~~~~~~~~~~~~~
 
 When using the fixed-point or Picard iterations, the user may provide a function
-of type :c:type:`KINDampingFn` to computing the damping factor, :math:`\beta_n`.
+of type :c:type:`KINDampingFn` to computing the damping factor, :math:`\beta_n`,
+from :numref:`KINSOL.Mathematics.FixedPoint` and
+:numref:`KINSOL.Mathematics.AndersonAcceleration`.
 
 .. c:type:: int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val, long int depth, sunrealtype gain, void* user_data, sunrealtype* damping_factor)
 
