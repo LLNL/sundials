@@ -3077,8 +3077,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       }
 
       /* damped fixed point */
-      N_VLinearSum((ONE - kin_mem->kin_beta_aa), xold, kin_mem->kin_beta_aa, gval,
-                   x);
+      N_VLinearSum((ONE - kin_mem->kin_beta_aa), xold, kin_mem->kin_beta_aa,
+                   gval, x);
     }
     else
     {
