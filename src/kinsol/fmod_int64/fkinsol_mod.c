@@ -381,6 +381,20 @@ SWIGEXPORT int _wrap_FKINSetDampingFn(void *farg1, KINDampingFn farg2) {
 }
 
 
+SWIGEXPORT int _wrap_FKINSetDepthFn(void *farg1, KINDepthFn farg2) {
+  int fresult ;
+  void *arg1 = (void *) 0 ;
+  KINDepthFn arg2 = (KINDepthFn) 0 ;
+  int result;
+  
+  arg1 = (void *)(farg1);
+  arg2 = (KINDepthFn)(farg2);
+  result = (int)KINSetDepthFn(arg1,arg2);
+  fresult = (int)(result);
+  return fresult;
+}
+
+
 SWIGEXPORT int _wrap_FKINSetReturnNewest(void *farg1, int const *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
