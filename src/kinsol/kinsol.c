@@ -3215,14 +3215,14 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                                      &(kin_mem->kin_beta_aa));
     if (retval)
     {
-      KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
-                      __FILE__, "The damping function failed.");
+      KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__, __FILE__,
+                      "The damping function failed.");
       return KIN_DAMPING_FN_ERR;
     }
     if (kin_mem->kin_beta_aa <= ZERO)
     {
-      KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
-                      __FILE__, "The damping parameter is negative or zero.");
+      KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__, __FILE__,
+                      "The damping parameter is negative or zero.");
       return KIN_DAMPING_FN_ERR;
     }
   }
