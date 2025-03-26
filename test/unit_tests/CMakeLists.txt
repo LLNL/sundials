@@ -48,13 +48,13 @@ if(BUILD_KINSOL)
   add_subdirectory(kinsol)
 endif()
 
-# add_subdirectory(nvector)
+add_subdirectory(nvector)
 
-# add_subdirectory(sunmatrix)
+add_subdirectory(sunmatrix)
 
-# add_subdirectory(sunlinsol)
+add_subdirectory(sunlinsol)
 
-# add_subdirectory(sunnonlinsol)
+add_subdirectory(sunnonlinsol)
 
 if(CXX_FOUND)
   add_subdirectory(logging)
