@@ -67,6 +67,11 @@ Fixed bug in the ARKODE SPRKStep :c:func:`SPRKStepReInit` function and
 :c:func:`ARKodeReset` function with SPRKStep that could cause a segmentation
 fault when compensated summation is not used.
 
+Fixed a bug in KINSOL where an incorrect damping parameter is applied on the
+initial iteration with Anderson acceleration unless :c:func:`KINSetDamping` and
+:c:func:`KINSetDampingAA` are both called with the same value when enabling
+damping.
+
 Fixed a bug in KINSOL where errors that occurred when computing Anderson
 acceleration were not captured.
 

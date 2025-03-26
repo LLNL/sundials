@@ -1202,7 +1202,7 @@ char* KINGetReturnFlagName(long int flag)
   case KIN_LINIT_FAIL: sprintf(name, "KIN_LINIT_FAIL"); break;
   case KIN_LSETUP_FAIL: sprintf(name, "KIN_LSETUP_FAIL"); break;
   case KIN_LSOLVE_FAIL: sprintf(name, "KIN_LSOLVE_FAIL"); break;
-  case KIN_SYSFUNC_FAIL: sprintf(name, "KIN_SYSFUNC_FAIL_FAIL"); break;
+  case KIN_SYSFUNC_FAIL: sprintf(name, "KIN_SYSFUNC_FAIL"); break;
   case KIN_FIRST_SYSFUNC_ERR: sprintf(name, "KIN_FIRST_SYSFUNC_ERR"); break;
   case KIN_REPTD_SYSFUNC_ERR: sprintf(name, "KIN_REPTD_SYSFUNC_ERR"); break;
   case KIN_VECTOROP_ERR: sprintf(name, "KIN_VECTOROP_ERR"); break;

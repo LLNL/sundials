@@ -1112,7 +1112,9 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
    fixed-point or Picard iterations.
 
    :param kin_mem: pointer to the KINSOL memory block.
-   :param damping_fn: the function to compute the damping parameter.
+   :param damping_fn: the function to compute the damping parameter or ``NULL``
+                      to disable using a damping factor function. See
+                      :c:type:`KINDampingFn` for more information.
 
    :retval KIN_SUCCESS: The damping function has been successfully set.
    :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
@@ -2113,9 +2115,11 @@ Damping function
 ~~~~~~~~~~~~~~~~
 
 When using the fixed-point or Picard iterations, the user may provide a function
-of type :c:type:`KINDampingFn` to computing the damping factor, :math:`\beta_n`.
+of type :c:type:`KINDampingFn` to computing the damping factor, :math:`\beta_n`,
+from :numref:`KINSOL.Mathematics.FixedPoint` and
+:numref:`KINSOL.Mathematics.AndersonAcceleration`.
 
-.. c:type:: int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val, long int depth, sunrealtype gain, void* user_data, sunrealtype* damping_factor)
+.. c:type:: int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val, sunrealtype* qt_fn, long int depth, void* user_data, sunrealtype* damping_factor)
 
    This function computes the damping factor, :math:`\beta_n > 0`, for
    fixed-point and Picard iterations.
@@ -2125,11 +2129,13 @@ of type :c:type:`KINDampingFn` to computing the damping factor, :math:`\beta_n`.
    * **iter** -- the iteration being computed, :math:`n + 1`.
    * **u_val** -- the current iterate, :math:`u_n`.
    * **g_val** -- the fixed-point function evaluated at the current iterate, :math:`G(u_n)`.
+   * **qt_fn** -- the array :math:`Q^T f_n` of length ``depth`` from
+     :numref:`KINSOL.Mathematics.AndersonAcceleration` which can be used to
+     compute the acceleration gain, :math:`\sqrt{1 - \|Q_n^T f_n\|/\|f_n\|}`, from
+     :cite:p:`evans2020proof` or ``NULL`` if acceleration is not applied to this
+     iteration.
    * **depth** -- the size of the Anderson acceleration space, :math:`m_n`, or
      zero if acceleration is not applied to this iteration.
-   * **gain** -- the Anderson acceleration gain, :math:`\sqrt{1 - \|Q_n^T
-     f_n\|/\|f_n\|}`, or :math:`-1` if acceleration is not applied to this
-     iteration.
    * **user_data** -- the user data pointer passed to :c:func:`KINSetUserData`.
    * **damping_factor** -- the computed damping factor, :math:`\beta_n`.
 

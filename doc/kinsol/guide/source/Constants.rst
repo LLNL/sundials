@@ -164,7 +164,7 @@ KINSOL output constants
   | ``KIN_CONTEXT_ERR``          | -17   | An error occurred in the SUNDIALS   |
   |                              |       | context object.                     |
   +------------------------------+-------+-------------------------------------+
-  | ``KIN_DAMPING_FN_ERR``       | -18   | The damping function returns a      |
+  | ``KIN_DAMPING_FN_ERR``       | -18   | The damping function returned a     |
   |                              |       | non-zero value.                     |
   +------------------------------+-------+-------------------------------------+
   | ``KIN_DEPTH_FN_ERR``         | -19   | The depth function returned a       |

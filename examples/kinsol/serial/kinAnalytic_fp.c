@@ -66,6 +66,7 @@
 /* problem constants */
 #define NEQ 3 /* number of equations */
 
+#define ZERO         SUN_RCONST(0.0)             /* real 0.0  */
 #define PTONE        SUN_RCONST(0.1)             /* real 0.1  */
 #define HALF         SUN_RCONST(0.5)             /* real 0.5  */
 #define PTNINE       SUN_RCONST(0.9)             /* real 0.9  */
@@ -102,7 +103,7 @@ typedef struct
 static int FPFunction(N_Vector u, N_Vector f, void* user_data);
 
 static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
-                     long int depth, sunrealtype gain, void* user_data,
+                     sunrealtype* qt_fn, long int depth, void* user_data,
                      sunrealtype* damping_factor);
 
 static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
@@ -354,11 +355,31 @@ int FPFunction(N_Vector u, N_Vector g, void* user_data)
 }
 
 static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
-                     long int depth, sunrealtype gain, void* user_data,
+                     sunrealtype* qt_fn, long int depth, void* user_data,
                      sunrealtype* damping_factor)
 {
   if (depth == 0) { *damping_factor = 0.5; }
-  else { *damping_factor = 0.9 - 0.5 * gain; }
+  else
+  {
+    /* Compute ||Q^T fn|| */
+    sunrealtype qt_fn_norm = ZERO;
+    for (long int i = 0; i < depth; i++) { qt_fn_norm += qt_fn[i] * qt_fn[i]; }
+    qt_fn_norm = SQRT(qt_fn_norm);
+
+    /* Compute the fixed-point residual norm ||fn|| = ||G(u_n) - u_n|| */
+    sunrealtype* g_data = N_VGetArrayPointer(g_val);
+    sunrealtype* u_data = N_VGetArrayPointer(u_val);
+    sunrealtype fn[3];
+    for (int i = 0; i < 3; i++) { fn[i] = g_data[i] - u_data[i]; }
+    sunrealtype fn_norm = ZERO;
+    for (int i = 0; i < 3; i++) { fn_norm += fn[i] * fn[i]; }
+    fn_norm = SQRT(fn_norm);
+
+    /* Compute the gain = sqrt(1 - ||Q^T fn|| / ||fn||) */
+    sunrealtype gain = SUNRsqrt(ONE - qt_fn_norm / fn_norm);
+
+    *damping_factor = 0.9 - 0.5 * gain;
+  }
 
   return 0;
 }
