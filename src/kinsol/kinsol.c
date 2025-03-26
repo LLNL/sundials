@@ -3061,14 +3061,14 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       {
         retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, 0,
                                          SUN_RCONST(-1.0), kin_mem->kin_user_data,
-                                         &(kin_mem->kin_beta));
+                                         &(kin_mem->kin_beta_aa));
         if (retval)
         {
           KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
                           __FILE__, "The damping function failed.");
           return KIN_DAMPING_FN_ERR;
         }
-        if (kin_mem->kin_beta <= ZERO)
+        if (kin_mem->kin_beta_aa <= ZERO)
         {
           KINProcessError(kin_mem, KIN_ILL_INPUT, __LINE__, __func__, __FILE__,
                           "The damping parameter is negative or zero.");
@@ -3077,7 +3077,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       }
 
       /* damped fixed point */
-      N_VLinearSum((ONE - kin_mem->kin_beta), xold, kin_mem->kin_beta_aa, gval,
+      N_VLinearSum((ONE - kin_mem->kin_beta_aa), xold, kin_mem->kin_beta_aa, gval,
                    x);
     }
     else
