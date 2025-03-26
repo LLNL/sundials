@@ -95,6 +95,7 @@ typedef struct
   sunrealtype damping_fp;  /* damping parameter for FP         */
   sunrealtype damping_aa;  /* damping parameter for AA         */
   KINDampingFn damping_fn; /* damping function                 */
+  KINDepthFn depth_fn;     /* depth function                   */
 }* UserOpt;
 
 /* Nonlinear fixed point function */
@@ -103,6 +104,11 @@ static int FPFunction(N_Vector u, N_Vector f, void* user_data);
 static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
                      long int depth, sunrealtype gain, void* user_data,
                      sunrealtype* damping_factor);
+
+static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
+                   N_Vector f_val, N_Vector* df, sunrealtype* R_mat,
+                   long int depth, void* user_data, long int* new_depth,
+                   long int* remove_indices);
 
 /* Check the system solution */
 static int check_ans(N_Vector u, sunrealtype tol);
@@ -166,6 +172,8 @@ int main(int argc, char* argv[])
   printf("    damping_fp   = %" GSYM "\n", uopt->damping_fp);
   if (uopt->damping_fn) { printf("    damping_fn   = ON\n"); }
   else { printf("    damping_fn   = OFF\n"); }
+  if (uopt->depth_fn) { printf("    depth_fn     = ON\n"); }
+  else { printf("    depth_fn     = OFF\n"); }
   printf("    orth routine = %d\n", uopt->orth_aa);
 
   /* Create the SUNDIALS context that all SUNDIALS objects require */
@@ -231,6 +239,13 @@ int main(int argc, char* argv[])
     /* Attach user defined damping function */
     retval = KINSetDampingFn(kmem, DampingFn);
     if (check_retval(&retval, "KINSetDampingFn", 1)) { return (1); }
+  }
+
+  if (uopt->depth_fn)
+  {
+    /* Attach user defined depth function */
+    retval = KINSetDepthFn(kmem, DepthFn);
+    if (check_retval(&retval, "KINSetDepthFn", 1)) { return (1); }
   }
 
   /* Set info log file and print level */
@@ -348,6 +363,16 @@ static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
   return 0;
 }
 
+static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val, N_Vector f_val,
+                   N_Vector* df, sunrealtype* R_mat, long int depth,
+                   void* user_data, long int* new_depth, long int* remove_indices)
+{
+  if (iter < 4) { *new_depth = 1; }
+  else { *new_depth = depth; };
+
+  return 0;
+}
+
 /* -----------------------------------------------------------------------------
  * Check the solution of the nonlinear system and return PASS or FAIL
  * ---------------------------------------------------------------------------*/
@@ -407,6 +432,7 @@ static int SetDefaults(UserOpt* uopt)
   (*uopt)->damping_fp = SUN_RCONST(1.0); /* no FP dampig    */
   (*uopt)->damping_aa = SUN_RCONST(1.0); /* no AA damping   */
   (*uopt)->damping_fn = NULL;            /* no damping      */
+  (*uopt)->depth_fn   = NULL;            /* no depth        */
 
   return (0);
 }
@@ -455,6 +481,11 @@ static int ReadInputs(int* argc, char*** argv, UserOpt uopt)
       arg_index++;
       uopt->damping_fn = DampingFn;
     }
+    else if (strcmp((*argv)[arg_index], "--depth_fn") == 0)
+    {
+      arg_index++;
+      uopt->depth_fn = DepthFn;
+    }
     else if (strcmp((*argv)[arg_index], "--orth_aa") == 0)
     {
       arg_index++;
@@ -491,6 +522,7 @@ static void InputHelp(void)
   printf("   --damping_aa : Anderson acceleration damping parameter\n");
   printf("   --orth_aa    : Anderson acceleration orthogonalization method\n");
   printf("   --damping_fn : user defined damping function\n");
+  printf("   --depth_fn   : user defined depth function\n");
 
   return;
 }
