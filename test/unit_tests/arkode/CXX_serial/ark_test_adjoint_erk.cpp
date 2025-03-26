@@ -149,45 +149,45 @@ static int check_sensitivities(N_Vector answer)
   return 0;
 }
 
-// static inline int check_sensitivities_backward(N_Vector answer)
-// {
-//   // The correct answer was generated with the Julia ForwardDiff.jl
-//   // automatic differentiation package.
+static inline int check_sensitivities_backward(N_Vector answer)
+{
+  // The correct answer was generated with the Julia ForwardDiff.jl
+  // automatic differentiation package.
 
-//   const sunrealtype lambda[2] = {
-//     SUN_RCONST(1.772850901841113),
-//     -SUN_RCONST(0.7412891218574361),
-//   };
+  const sunrealtype lambda[2] = {
+    SUN_RCONST(1.772850901841113),
+    -SUN_RCONST(0.7412891218574361),
+  };
 
-//   const sunrealtype mu[4] = {SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0),
-//                              SUN_RCONST(0.0)};
+  const sunrealtype mu[4] = {SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0),
+                             SUN_RCONST(0.0)};
 
-//   sunrealtype* ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 0);
+  sunrealtype* ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 0);
 
-//   for (sunindextype i = 0; i < 2; ++i)
-//   {
-//     if (SUNRCompareTol(ans[i], lambda[i], ADJ_TOL))
-//     {
-//       fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
-//               ans[i], lambda[i]);
-//       return -1;
-//     };
-//   }
+  for (sunindextype i = 0; i < 2; ++i)
+  {
+    if (SUNRCompareTol(ans[i], lambda[i], ADJ_TOL))
+    {
+      fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
+              ans[i], lambda[i]);
+      return -1;
+    };
+  }
 
-//   ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 1);
+  ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 1);
 
-//   for (sunindextype i = 0; i < 4; ++i)
-//   {
-//     if (SUNRCompareTol(ans[i], mu[i], ADJ_TOL))
-//     {
-//       fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
-//               ans[i], mu[i]);
-//       return -1;
-//     };
-//   }
+  for (sunindextype i = 0; i < 4; ++i)
+  {
+    if (SUNRCompareTol(ans[i], mu[i], ADJ_TOL))
+    {
+      fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
+              ans[i], mu[i]);
+      return -1;
+    };
+  }
 
-//   return 0;
-// }
+  return 0;
+}
 
 static void dgdu(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
                  sunrealtype t)
@@ -517,14 +517,13 @@ int main(int argc, char* argv[])
 
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
   // TODO(CJB): figure out why ForwardDiff, CVODES, and ERK adjoint all differ
-  // if (check_sensitivities_backward(sf))
-  // {
-  //   ++failcount;
-  //   fprintf(stderr,
-  //           ">>> FAILURE: adjoint solution does not match correct answer\n");
-  //   return -1;
-  // };
-  // printf(">>> PASS\n");
+  if (check_sensitivities_backward(sf))
+  {
+    ++failcount;
+    fprintf(stderr,
+            ">>> FAILURE: adjoint solution does not match correct answer\n");
+  }
+  else { printf(">>> PASS\n"); }
 
   //
   // Cleanup
@@ -546,5 +545,5 @@ int main(int argc, char* argv[])
 
   if (failcount) { fprintf(stderr, ">>> %d TESTS FAILED\n", failcount); }
 
-  return 0;
+  return failcount;
 }

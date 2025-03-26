@@ -67,12 +67,6 @@ set(unit_tests
     "ark_test_adjoint_ark.cpp\;--check-freq 1 --dont-keep\;"
     "ark_test_adjoint_ark.cpp\;--check-freq 2 --dont-keep\;"
     "ark_test_adjoint_ark.cpp\;--check-freq 5 --dont-keep\;"
-    # "ark_test_adjoint_erk.cpp\;--check-freq 1 --no-stages\;"
-    # "ark_test_adjoint_erk.cpp\;--check-freq 2 --no-stages\;"
-    # "ark_test_adjoint_erk.cpp\;--check-freq 5 --no-stages\;"
-    # "ark_test_adjoint_erk.cpp\;--check-freq 1 --dont-keep --no-stages\;"
-    # "ark_test_adjoint_erk.cpp\;--check-freq 2 --dont-keep --no-stages\;"
-    # "ark_test_adjoint_erk.cpp\;--check-freq 5 --dont-keep --no-stages\;"
 )
 
 # Add the build and install targets for each test

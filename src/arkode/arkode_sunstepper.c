@@ -179,7 +179,7 @@ SUNErrCode arkSUNStepperSelfDestruct(SUNStepper stepper)
   return SUN_SUCCESS;
 }
 
-SUNErrCode arkSUNStepperGetNumSteps(SUNStepper stepper, suncountertype* nst)
+static SUNErrCode arkSUNStepperGetNumSteps(SUNStepper stepper, suncountertype* nst)
 {
   ARKodeMem ark_mem;
 
