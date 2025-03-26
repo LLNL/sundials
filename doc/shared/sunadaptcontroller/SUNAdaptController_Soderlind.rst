@@ -100,6 +100,12 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_Soderlind(sunctx);
 
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_soderlind".
+
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_Soderlind(SUNAdaptController C, sunrealtype k1, sunrealtype k2, sunrealtype k3, sunrealtype k4, sunrealtype k5)
 
    This user-callable function provides control over the relevant parameters
@@ -121,6 +127,11 @@ also provides the following additional user-callable routines:
       /* Specify parameters for Soderlind's H_{0}312 controller */
       retval = SUNAdaptController_SetParams_Soderlind(C, 0.25, 0.5, 0.25, -0.75, -0.25);
 
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.params".
+
 
 .. c:function:: SUNAdaptController SUNAdaptController_PID(SUNContext sunctx)
 
@@ -137,6 +148,12 @@ also provides the following additional user-callable routines:
    .. code-block:: c
 
       SUNAdaptController C = SUNAdaptController_PID(sunctx);
+
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_pid".
 
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_PID(SUNAdaptController C, sunrealtype k1, sunrealtype k2, sunrealtype k3)
 
@@ -156,6 +173,11 @@ also provides the following additional user-callable routines:
 
       retval = SUNAdaptController_SetParams_PID(C, 0.58, -0.21, 0.1);
 
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.params".
+
 
 .. c:function:: SUNAdaptController SUNAdaptController_PI(SUNContext sunctx)
 
@@ -172,6 +194,13 @@ also provides the following additional user-callable routines:
    .. code-block:: c
 
       SUNAdaptController C = SUNAdaptController_PI(sunctx);
+
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_pi".
+
 
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_PI(SUNAdaptController C, sunrealtype k1, sunrealtype k2)
 
@@ -190,6 +219,11 @@ also provides the following additional user-callable routines:
 
       retval = SUNAdaptController_SetParams_PI(C, 0.8, -0.31);
 
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.params".
+
 
 .. c:function:: SUNAdaptController SUNAdaptController_I(SUNContext sunctx)
 
@@ -207,6 +241,13 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_I(sunctx);
 
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_i".
+
+
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_I(SUNAdaptController C, sunrealtype k1)
 
    This user-callable function provides control over the relevant parameters
@@ -222,6 +263,11 @@ also provides the following additional user-callable routines:
    .. code-block:: c
 
       retval = SUNAdaptController_SetParams_I(C, 1.0);
+
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.params".
 
 
 .. c:function:: SUNAdaptController SUNAdaptController_ExpGus(SUNContext sunctx)
@@ -241,10 +287,17 @@ also provides the following additional user-callable routines:
 
       SUNAdaptController C = SUNAdaptController_ExpGus(sunctx);
 
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_expgus".
+
+
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_ExpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
 
    This user-callable function provides control over the relevant parameters
-   above for the explicit Gustafsson controller, setting :math:`k_3 = k_4 = k_5 = 0`. 
+   above for the explicit Gustafsson controller, setting :math:`k_3 = k_4 = k_5 = 0`.
    This should be called *before* the time integrator is called to evolve the problem.
 
    .. note::
@@ -269,6 +322,11 @@ also provides the following additional user-callable routines:
 
       retval = SUNAdaptController_SetParams_ExpGus(C, 0.367, 0.268);
 
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.params".
+
 
 .. c:function:: SUNAdaptController SUNAdaptController_ImpGus(SUNContext sunctx)
 
@@ -286,6 +344,13 @@ also provides the following additional user-callable routines:
    .. code-block:: c
 
       SUNAdaptController C = SUNAdaptController_ImpGus(sunctx);
+
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_impgus".
+
 
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_ImpGus(SUNAdaptController C, sunrealtype k1_hat, sunrealtype k2_hat)
 
@@ -314,3 +379,8 @@ also provides the following additional user-callable routines:
    .. code-block:: c
 
       retval = SUNAdaptController_SetParams_ImpGus(C, 0.98, 0.95);
+
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.params".

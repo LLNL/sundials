@@ -106,6 +106,12 @@ routines:
 
       SUNAdaptController C = SUNAdaptController_ImExGus(sunctx);
 
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_imexgus".
+
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_ImExGus(SUNAdaptController C, sunrealtype k1e, sunrealtype k2e, sunrealtype k1i, sunrealtype k2i)
 
    This user-callable function provides control over the relevant parameters
@@ -124,3 +130,8 @@ routines:
    .. code-block:: c
 
       retval = SUNAdaptController_SetParams_ImExGus(C, 0.4, 0.3, -1.0, 1.0);
+
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.params".

@@ -60,6 +60,10 @@ user-callable routines:
       SUNDIALS, these will be included within this compatibility
       check.
 
+      This SUNLinearSolver implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNLinSolSetFromCommandLine`
+      to be "klu".
+
 
 .. c:function:: SUNErrCode SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A, sunindextype nnz, int reinit_type)
 
@@ -113,6 +117,11 @@ user-callable routines:
 
    **Return value:**
       * A :c:type:`SUNErrCode`
+
+   **Notes:**
+
+      This routine will be called by :c:func:`SUNLinSolSetFromCommandLine`
+      when using the command-line option "LSid.ordering".
 
 
 .. c:function:: sun_klu_symbolic* SUNLinSol_KLUGetSymbolic(SUNLinearSolver S)

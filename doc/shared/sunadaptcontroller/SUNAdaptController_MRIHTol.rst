@@ -142,6 +142,12 @@ also provides the following additional user-callable routines:
    :returns: if successful, a usable :c:type:`SUNAdaptController` object;
              otherwise it will return ``NULL``.
 
+   .. note::
+
+      This SUNAdaptController implementation sets the default prefix for command-line
+      arguments processed by :c:func:`SUNAdaptController_SetFromCommandLine`
+      to be "sunadaptcontroller_mrihtol".
+
 
 .. c:function:: SUNErrCode SUNAdaptController_SetParams_MRIHTol(SUNAdaptController C, sunrealtype inner_max_relch, sunrealtype inner_min_tolfac, sunrealtype inner_max_tolfac)
 
@@ -156,6 +162,11 @@ also provides the following additional user-callable routines:
    :param inner_max_tolfac: the parameter :math:`\text{tolfac}_{max}` (must be :math:`> 0` and :math:`\le 1`).
 
    :returns: :c:type:`SUNErrCode` indicating success or failure.
+
+   .. note::
+
+      This routine will be called by :c:func:`SUNAdaptController_SetFromCommandLine`
+      when using the command-line option "Cid.params".
 
 
 Usage

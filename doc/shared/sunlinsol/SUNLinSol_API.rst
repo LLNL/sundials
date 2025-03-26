@@ -240,6 +240,35 @@ the functionality for any optional routine should leave the corresponding
 function pointer ``NULL`` instead of supplying a dummy routine.
 
 
+.. c:function:: SUNErrCode SUNLinSolSetFromCommandLine(SUNLinearSolver S, const char* LSid, int argc, char* argv[])
+
+   This *optional* routine allows command-line control over various options within a SUNLinearSolver implementation.
+
+   :param S: the :c:type:`SUNLinearSolver` object.
+   :param LSid: String to use as prefix for command-line options.
+   :param argc: Number of command-line options provided to executable.
+   :param argv: Array of strings containing command-line options provided to executable.
+
+   :return: :c:type:`SUNErrCode` indicating success or failure.
+
+   .. note::
+
+      The *argc* and *argv* arguments should be those supplied to the user's ``main`` routine.  These
+      are left unchanged by :c:func:`SUNLinSolSetFromCommandLine`.
+
+      If the *LSid* argument is ``NULL`` then an implementation-specific prefix will be used for the
+      relevant command-line options -- see each implementation for its default prefix value.
+      When using a combination of SUNLinearSolver objects (e.g., for system and mass matrices within
+      ARKStep), it is recommended that users call :c:func:`SUNLinSolSetFromCommandLine`
+      for each controller using distinct *LSid* inputs, so that each solver can be configured
+      separately.
+
+      SUNLinearSolver options set via command-line arguments to
+      :c:func:`SUNLinSolSetFromCommandLine` will overwrite any previously-set values.
+
+   .. versionadded:: x.y.z
+
+
 .. c:function:: SUNErrCode SUNLinSolSetATimes(SUNLinearSolver LS, void* A_data, SUNATimesFn ATimes)
 
    *Required for matrix-free linear solvers* (otherwise optional).
@@ -326,6 +355,11 @@ function pointer ``NULL`` instead of supplying a dummy routine.
       calls to :c:func:`SUNLinSolSolve`. As such, the linear solver interfaces in
       each of the SUNDIALS packages call :c:func:`SUNLinSolSetZeroGuess` prior to
       each call to :c:func:`SUNLinSolSolve`.
+
+
+      If supported by the SUNLinearSolver implementation, this routine will be called
+      by :c:func:`SUNLinSolSetFromCommandLine` when using the command-line option
+      "LSid.zero_guess".
 
 
 .. _SUNLinSol.GetFn:
