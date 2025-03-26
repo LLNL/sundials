@@ -1145,7 +1145,23 @@ int arkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
-  if (ark_mem->do_adjoint) { ark_mem->step = arkStep_TakeStep_ERK_Adjoint; }
+  if (ark_mem->do_adjoint)
+  {
+    SUNAdjointStepper adj_stepper = (SUNAdjointStepper)ark_mem->user_data;
+    if (adj_stepper->JacPFn && N_VGetNumSubvectors_ManyVector(ark_mem->yn) != 2)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_ARK_ADJOINT_BAD_VECTOR);
+      return ARK_ILL_INPUT;
+    }
+    if (adj_stepper->JPvpFn && N_VGetNumSubvectors_ManyVector(ark_mem->yn) != 2)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_ARK_ADJOINT_BAD_VECTOR);
+      return ARK_ILL_INPUT;
+    }
+    ark_mem->step = arkStep_TakeStep_ERK_Adjoint;
+  }
   else { ark_mem->step = arkStep_TakeStep_Z; }
 
   /* Check for consistency between mass system and system linear system modules
@@ -3465,7 +3481,6 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   if (adj_stepper->JacPFn)
   {
-    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2) { return -1; }
     N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
     adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP, user_data, NULL,
                         NULL, NULL);
@@ -3477,7 +3492,6 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   }
   else if (adj_stepper->JPvpFn)
   {
-    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2) { return -1; }
     N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
     adj_stepper->JPvpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
     adj_stepper->njptimesv++;
@@ -3559,6 +3573,12 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
 
   if (arkStepCompatibleWithAdjointSolver(ark_mem, step_mem, __LINE__, __func__,
                                          __FILE__))
+  {
+    return ARK_ILL_INPUT;
+  }
+
+  if (N_VGetVectorID(sf) != SUNDIALS_NVEC_MPIMANYVECTOR &&
+      N_VGetVectorID(sf) != SUNDIALS_NVEC_MANYVECTOR)
   {
     return ARK_ILL_INPUT;
   }

@@ -519,7 +519,23 @@ int erkStep_Init(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tout,
   }
 
   /* set appropriate TakeStep routine based on problem configuration */
-  if (ark_mem->do_adjoint) { ark_mem->step = erkStep_TakeStep_Adjoint; }
+  if (ark_mem->do_adjoint)
+  {
+    SUNAdjointStepper adj_stepper = (SUNAdjointStepper)ark_mem->user_data;
+    if (adj_stepper->JacPFn && N_VGetNumSubvectors_ManyVector(ark_mem->yn) != 2)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_ARK_ADJOINT_BAD_VECTOR);
+      return ARK_ILL_INPUT;
+    }
+    if (adj_stepper->JPvpFn && N_VGetNumSubvectors_ManyVector(ark_mem->yn) != 2)
+    {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                      MSG_ARK_ADJOINT_BAD_VECTOR);
+      return ARK_ILL_INPUT;
+    }
+    ark_mem->step = erkStep_TakeStep_Adjoint;
+  }
   else { ark_mem->step = erkStep_TakeStep; }
 
   /* Signal to shared arkode module that full RHS evaluations are required */
@@ -1666,6 +1682,12 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
 
   if (erkStepCompatibleWithAdjointSolver(ark_mem, step_mem, __LINE__, __func__,
                                          __FILE__))
+  {
+    return ARK_ILL_INPUT;
+  }
+
+  if (N_VGetVectorID(sf) != SUNDIALS_NVEC_MPIMANYVECTOR &&
+      N_VGetVectorID(sf) != SUNDIALS_NVEC_MANYVECTOR)
   {
     return ARK_ILL_INPUT;
   }
