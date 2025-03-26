@@ -2106,7 +2106,7 @@ of type :c:type:`KINDampingFn` to computing the damping factor, :math:`\beta_n`,
 from :numref:`KINSOL.Mathematics.FixedPoint` and
 :numref:`KINSOL.Mathematics.AndersonAcceleration`.
 
-.. c:type:: int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val, long int depth, sunrealtype gain, void* user_data, sunrealtype* damping_factor)
+.. c:type:: int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val, sunrealtype* qt_fn, long int depth, void* user_data, sunrealtype* damping_factor)
 
    This function computes the damping factor, :math:`\beta_n > 0`, for
    fixed-point and Picard iterations.
@@ -2116,7 +2116,7 @@ from :numref:`KINSOL.Mathematics.FixedPoint` and
    * **iter** -- the iteration being computed, :math:`n + 1`.
    * **u_val** -- the current iterate, :math:`u_n`.
    * **g_val** -- the fixed-point function evaluated at the current iterate, :math:`G(u_n)`.
-   * **qt_fn** -- the vector :math:`Q^T f_n` of length ``depth`` from
+   * **qt_fn** -- the array :math:`Q^T f_n` of length ``depth`` from
      :numref:`KINSOL.Mathematics.AndersonAcceleration` which can be used to
      compute the acceleration gain, :math:`\sqrt{1 - \|Q_n^T f_n\|/\|f_n\|}`, from
      :cite:p:`evans2020proof` or ``NULL`` if acceleration is not applied to this
