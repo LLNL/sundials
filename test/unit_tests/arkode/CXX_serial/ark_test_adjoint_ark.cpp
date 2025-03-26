@@ -294,6 +294,7 @@ static void parse_args(int argc, char* argv[], ProgramArgs* args)
 int main(int argc, char* argv[])
 {
   SUNContext sunctx = NULL;
+  int failcount     = 0;
   SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
   // Since this a unit test, we want to abort immediately on any internal error
@@ -358,6 +359,7 @@ int main(int argc, char* argv[])
   forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
   if (check_forward_answer(u))
   {
+    ++failcount;
     fprintf(stderr,
             ">>> FAILURE: forward solution does not match correct answer\n");
   }
@@ -398,6 +400,7 @@ int main(int argc, char* argv[])
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
   if (check_sensitivities(sf))
   {
+    ++failcount;
     fprintf(stderr,
             ">>> FAILURE: adjoint solution does not match correct answer\n");
   }
@@ -417,6 +420,7 @@ int main(int argc, char* argv[])
     forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
     if (check_forward_answer(u))
     {
+      ++failcount;
       fprintf(stderr,
               ">>> FAILURE: forward solution does not match correct answer\n");
     }
@@ -430,6 +434,7 @@ int main(int argc, char* argv[])
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
   if (check_sensitivities(sf))
   {
+    ++failcount;
     fprintf(stderr,
             ">>> FAILURE: adjoint solution does not match correct answer\n");
   }
@@ -449,6 +454,7 @@ int main(int argc, char* argv[])
     forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
     if (check_forward_answer(u))
     {
+      ++failcount;
       fprintf(stderr,
               ">>> FAILURE: forward solution does not match correct answer\n");
     };
@@ -462,6 +468,7 @@ int main(int argc, char* argv[])
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
   if (check_sensitivities(sf))
   {
+    ++failcount;
     fprintf(stderr,
             ">>> FAILURE: adjoint solution does not match correct answer\n");
   }
@@ -498,6 +505,7 @@ int main(int argc, char* argv[])
   forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, -dt, u);
   if (check_forward_backward_answer(u))
   {
+    ++failcount;
     fprintf(stderr,
             ">>> FAILURE: forward solution does not match correct answer\n");
   };
@@ -535,5 +543,7 @@ int main(int argc, char* argv[])
   ARKodeFree(&arkode_mem);
   SUNContext_Free(&sunctx);
 
-  return 0;
+  if (failcount) { fprintf(stderr, ">>> %d TESTS FAILED\n", failcount); }
+
+  return failcount;
 }
