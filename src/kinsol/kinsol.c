@@ -2993,11 +2993,11 @@ static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
 
   for (int i = 0; i < depth - 1; i++)
   {
-    a    = R[(i + 1) * depth + i];
-    b    = R[(i + 1) * depth + i + 1];
-    temp = SUNRsqrt(a * a + b * b);
-    c    = a / temp;
-    s    = b / temp;
+    a                          = R[(i + 1) * depth + i];
+    b                          = R[(i + 1) * depth + i + 1];
+    temp                       = SUNRsqrt(a * a + b * b);
+    c                          = a / temp;
+    s                          = b / temp;
     R[(i + 1) * depth + i]     = temp;
     R[(i + 1) * depth + i + 1] = ZERO;
     /* OK to reuse temp */
@@ -3050,8 +3050,7 @@ static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
       kin_mem->kin_T_aa[0] = ONE;
       for (int i = 2; i < depth; i++)
       {
-        N_VDotProdMulti(i - 1, Q[i - 1], Q,
-                        kin_mem->kin_T_aa + (i - 1) * depth);
+        N_VDotProdMulti(i - 1, Q[i - 1], Q, kin_mem->kin_T_aa + (i - 1) * depth);
         kin_mem->kin_T_aa[(i - 1) * depth + (i - 1)] = ONE;
       }
     }
@@ -3059,7 +3058,6 @@ static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
 
   return KIN_SUCCESS;
 }
-
 
 static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                        N_Vector xold, long int iter, sunrealtype* R,
@@ -3158,8 +3156,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
 
   if (kin_mem->kin_current_depth == 1)
   {
-    R[0] =
-      SUNRsqrt(N_VDotProd(kin_mem->kin_df_aa[0], kin_mem->kin_df_aa[0]));
+    R[0] = SUNRsqrt(N_VDotProd(kin_mem->kin_df_aa[0], kin_mem->kin_df_aa[0]));
     alfa = ONE / R[0];
     N_VScale(alfa, kin_mem->kin_df_aa[0], kin_mem->kin_q_aa[0]);
   }
@@ -3168,8 +3165,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
     kin_mem->kin_qr_func(kin_mem->kin_q_aa, R,
                          kin_mem->kin_df_aa[kin_mem->kin_current_depth - 1],
                          (int)kin_mem->kin_current_depth - 1,
-                         (int)kin_mem->kin_m_aa,
-                         (void*)kin_mem->kin_qr_data);
+                         (int)kin_mem->kin_m_aa, (void*)kin_mem->kin_qr_data);
   }
 
   /* Adjust the depth */
@@ -3183,8 +3179,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                                    kin_mem->kin_user_data, &new_depth, NULL);
     if (retval)
     {
-      KINProcessError(kin_mem, KIN_DEPTH_FN_ERR, __LINE__, __func__,
-                      __FILE__, "The depth function failed.");
+      KINProcessError(kin_mem, KIN_DEPTH_FN_ERR, __LINE__, __func__, __FILE__,
+                      "The depth function failed.");
       return KIN_DEPTH_FN_ERR;
     }
 
@@ -3201,7 +3197,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
         if (kin_mem->kin_damping_fn)
         {
           retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, 0,
-                                           SUN_RCONST(-1.0), kin_mem->kin_user_data,
+                                           SUN_RCONST(-1.0),
+                                           kin_mem->kin_user_data,
                                            &(kin_mem->kin_beta_aa));
           if (retval)
           {
@@ -3218,8 +3215,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
         }
 
         /* damped fixed point */
-        N_VLinearSum((ONE - kin_mem->kin_beta_aa), xold, kin_mem->kin_beta_aa, gval,
-                     x);
+        N_VLinearSum((ONE - kin_mem->kin_beta_aa), xold, kin_mem->kin_beta_aa,
+                     gval, x);
       }
       else
       {
