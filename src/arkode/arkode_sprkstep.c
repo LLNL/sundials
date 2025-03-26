@@ -2,7 +2,7 @@
  * Programmer(s): Cody J. Balos @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -38,7 +38,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
 {
   ARKodeMem ark_mem          = NULL;
   ARKodeSPRKStepMem step_mem = NULL;
-  sunbooleantype nvectorOK   = 0;
   int retval                 = 0;
 
   /* Check that f1 and f2 are supplied */
@@ -68,15 +67,6 @@ void* SPRKStepCreate(ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0, N_Vector y0,
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_SUNCTX);
-    return (NULL);
-  }
-
-  /* Test if all required vector operations are implemented */
-  nvectorOK = sprkStep_CheckNVector(y0);
-  if (!nvectorOK)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
     return (NULL);
   }
 
@@ -232,7 +222,7 @@ int SPRKStepReInit(void* arkode_mem, ARKRhsFn f1, ARKRhsFn f2, sunrealtype t0,
   step_mem->istage = 0;
 
   /* Zero yerr for compensated summation */
-  N_VConst(ZERO, step_mem->yerr);
+  if (ark_mem->use_compensated_sums) { N_VConst(ZERO, step_mem->yerr); }
 
   return (ARK_SUCCESS);
 }
@@ -309,7 +299,10 @@ int sprkStep_Reset(ARKodeMem ark_mem, SUNDIALS_MAYBE_UNUSED sunrealtype tR,
   retval = sprkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  N_VConst(SUN_RCONST(0.0), step_mem->yerr);
+  if (ark_mem->use_compensated_sums)
+  {
+    N_VConst(SUN_RCONST(0.0), step_mem->yerr);
+  }
   return (ARK_SUCCESS);
 }
 
@@ -558,7 +551,7 @@ int sprkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     step_mem->istage = is;
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, t = %" RSYM ", that = %" RSYM, is,
+               "stage = %i, t = " SUN_FORMAT_G ", that = " SUN_FORMAT_G, is,
                ark_mem->tn + ci * ark_mem->h, ark_mem->tn + chati * ark_mem->h);
     SUNLogExtraDebugVec(ARK_LOGGER, "stage", prev_stage, "z2_%i(:) =", is);
 
@@ -677,7 +670,7 @@ int sprkStep_TakeStep_Compensated(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     step_mem->istage = is;
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, t = %" RSYM ", that = %" RSYM, is,
+               "stage = %i, t = " SUN_FORMAT_G ", that = " SUN_FORMAT_G, is,
                ark_mem->tn + ci * ark_mem->h, ark_mem->tn + chati * ark_mem->h);
 
     /* [     ] + [            ]
@@ -821,23 +814,6 @@ int sprkStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
   }
   *step_mem = (ARKodeSPRKStepMem)ark_mem->step_mem;
   return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  sprkStep_CheckNVector:
-
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
-  ---------------------------------------------------------------*/
-sunbooleantype sprkStep_CheckNVector(N_Vector tmpl)
-{
-  if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
-      (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
-      (tmpl->ops->nvscale == NULL) || (tmpl->ops->nvwrmsnorm == NULL))
-  {
-    return (SUNFALSE);
-  }
-  return (SUNTRUE);
 }
 
 /*===============================================================

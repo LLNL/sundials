@@ -3,7 +3,7 @@
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -32,8 +32,9 @@ SUNDIALS_EXPORT int CVBandPrecInit(void* cvode_mem, sunindextype N,
 
 /* Optional output functions */
 
-SUNDIALS_EXPORT int CVBandPrecGetWorkSpace(void* cvode_mem, long int* lenrwLS,
-                                           long int* leniwLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int CVBandPrecGetWorkSpace(void* cvode_mem, long int* lenrwLS, long int* leniwLS);
 SUNDIALS_EXPORT int CVBandPrecGetNumRhsEvals(void* cvode_mem,
                                              long int* nfevalsBP);
 

@@ -3,7 +3,7 @@
 #                 Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -33,7 +33,7 @@ if(BUILD_ARKODE
   # MPI only
   # ----------------------------------------------------------------------------
 
-  add_executable(
+  sundials_add_executable(
     advection_reaction_3D_raja
     advection_reaction_3D.cpp
     arkode_driver.cpp
@@ -94,7 +94,7 @@ if(BUILD_ARKODE
     set_source_files_properties(cvode_driver.cpp PROPERTIES LANGUAGE CUDA)
     set_source_files_properties(ida_driver.cpp PROPERTIES LANGUAGE CUDA)
 
-    add_executable(
+    sundials_add_executable(
       advection_reaction_3D_raja_mpicuda
       advection_reaction_3D.cpp
       arkode_driver.cpp
@@ -149,7 +149,7 @@ if(BUILD_ARKODE
 
   if(BUILD_NVECTOR_HIP)
 
-    add_executable(
+    sundials_add_executable(
       advection_reaction_3D_raja_mpihip
       advection_reaction_3D.cpp
       advection_reaction_3D.hpp

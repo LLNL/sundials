@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -85,7 +85,8 @@ if(ENABLE_ALL_WARNINGS)
   set(WARNING_FLAGS
       "-Wno-unknown-warning-option -Wall -Wpedantic -Wextra -Wshadow \
 -Wwrite-strings -Wcast-align -Wdisabled-optimization -Wvla -Walloca \
--Wduplicated-cond -Wduplicated-branches")
+-Wduplicated-cond -Wduplicated-branches -Wunused-macros \
+-Wunused-local-typedefs")
   # TODO(SBR): Try to add -Wredundant-decls once SuperLU version is updated in
   # CI tests
 

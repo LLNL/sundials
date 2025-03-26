@@ -3,7 +3,7 @@
  * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -29,12 +29,8 @@
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
-#define ESYM "Le"
-#define FSYM "Lf"
 #else
 #define GSYM "g"
-#define ESYM "e"
-#define FSYM "f"
 #endif
 
 /* ----------------------------------------------------------------------

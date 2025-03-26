@@ -3,7 +3,7 @@
  *                Aaron Collier, Shelby Lockhart @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -129,8 +129,9 @@ SUNDIALS_EXPORT int KINSetConstraints(void* kinmem, N_Vector constraints);
 SUNDIALS_EXPORT int KINSetSysFunc(void* kinmem, KINSysFn func);
 
 /* Optional output functions */
-SUNDIALS_EXPORT int KINGetWorkSpace(void* kinmem, long int* lenrw,
-                                    long int* leniw);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+int KINGetWorkSpace(void* kinmem, long int* lenrw, long int* leniw);
 SUNDIALS_EXPORT int KINGetNumNonlinSolvIters(void* kinmem, long int* nniters);
 SUNDIALS_EXPORT int KINGetNumFuncEvals(void* kinmem, long int* nfevals);
 SUNDIALS_EXPORT int KINGetNumBetaCondFails(void* kinmem, long int* nbcfails);

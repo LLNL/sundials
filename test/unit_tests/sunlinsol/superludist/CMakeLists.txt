@@ -2,7 +2,7 @@
 # Programmer(s): Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -55,7 +55,7 @@ foreach(example_tuple ${sunlinsol_superludist_examples})
   if(NOT TARGET ${example_target})
 
     # example source files
-    add_executable(${example_target} ${example} ../test_sunlinsol.c)
+    sundials_add_executable(${example_target} ${example} ../test_sunlinsol.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example_target} PROPERTIES FOLDER "Examples")

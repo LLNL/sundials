@@ -5,7 +5,7 @@
  *      Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -112,9 +112,10 @@ SUNDIALS_EXPORT int SUNLinSolNumIters_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT sunrealtype SUNLinSolResNorm_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT N_Vector SUNLinSolResid_SPGMR(SUNLinearSolver S);
 SUNDIALS_EXPORT sunindextype SUNLinSolLastFlag_SPGMR(SUNLinearSolver S);
-SUNDIALS_EXPORT SUNErrCode SUNLinSolSpace_SPGMR(SUNLinearSolver S,
-                                                long int* lenrwLS,
-                                                long int* leniwLS);
+SUNDIALS_DEPRECATED_EXPORT_MSG(
+  "Work space functions will be removed in version 8.0.0")
+SUNErrCode SUNLinSolSpace_SPGMR(SUNLinearSolver S, long int* lenrwLS,
+                                long int* leniwLS);
 SUNDIALS_EXPORT SUNErrCode SUNLinSolFree_SPGMR(SUNLinearSolver S);
 
 #ifdef __cplusplus

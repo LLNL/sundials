@@ -3,7 +3,7 @@
 # Programmer(s): Radu Serban, David J. Gardner, Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -12,7 +12,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# Script to add CVODES files to a SUNDIALS tar-file.
+# Script to add IDA files to a SUNDIALS tar-file.
 # ------------------------------------------------------------------------------
 
 set -e
@@ -26,23 +26,23 @@ doc=$3
 shift 3
 tar=$*
 
-echo "   --- Add cvodes module to $tarfile"
+echo "   --- Add ida module to $tarfile"
 
 if [ $doc = "T" ]; then
-    $tar $tarfile $distrobase/doc/cvodes/cvs_guide.pdf
-    $tar $tarfile $distrobase/doc/cvodes/cvs_examples.pdf
+    $tar $tarfile $distrobase/doc/ida/ida_guide.pdf
+    $tar $tarfile $distrobase/doc/ida/ida_examples.pdf
 fi
-$tar $tarfile $distrobase/doc/cvodes/guide/Makefile
-$tar $tarfile $distrobase/doc/cvodes/guide/source
+$tar $tarfile $distrobase/doc/ida/guide/Makefile
+$tar $tarfile $distrobase/doc/ida/guide/source
 
-echo "   --- Add cvodes include files to $tarfile"
-$tar $tarfile $distrobase/include/cvodes
+echo "   --- Add ida include files to $tarfile"
+$tar $tarfile $distrobase/include/ida
 
-echo "   --- Add cvodes source files to $tarfile"
-$tar $tarfile $distrobase/src/cvodes
+echo "   --- Add ida source files to $tarfile"
+$tar $tarfile $distrobase/src/ida
 
-echo "   --- Add cvodes examples to $tarfile"
-$tar $tarfile $distrobase/examples/cvodes
+echo "   --- Add ida examples to $tarfile"
+$tar $tarfile $distrobase/examples/ida
 
-echo "   --- Add cvodes unit tests to $tarfile"
-$tar $tarfile $distrobase/test/unit_tests/cvodes
+echo "   --- Add ida unit tests to $tarfile"
+$tar $tarfile $distrobase/test/unit_tests/ida

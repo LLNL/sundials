@@ -2,7 +2,7 @@
  * Programmer: Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -38,7 +38,6 @@
 #define NOUT 41
 
 #define ZERO SUN_RCONST(0.0)
-#define HALF SUN_RCONST(0.5)
 #define ONE  SUN_RCONST(1.0)
 #define TWO  SUN_RCONST(2.0)
 #define FOUR SUN_RCONST(4.0)

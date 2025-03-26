@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -78,6 +78,10 @@ below.
    .. code-block:: c
 
       retval = SUNMatSpace(A, &lrw, &liw);
+
+   .. deprecated:: X.Y.Z
+
+      Work space functions will be removed in version 8.0.0.
 
 
 .. c:function:: SUNErrCode SUNMatZero(SUNMatrix A)

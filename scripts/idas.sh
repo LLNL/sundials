@@ -3,7 +3,7 @@
 # Programmer(s): Radu Serban, David J. Gardner, Cody J. Balos @ LLNL
 # ------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -12,7 +12,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ------------------------------------------------------------------------------
-# Script to add KINSOL files to a SUNDIALS tar-file.
+# Script to add IDAS files to a SUNDIALS tar-file.
 # ------------------------------------------------------------------------------
 
 set -e
@@ -26,23 +26,23 @@ doc=$3
 shift 3
 tar=$*
 
-echo "   --- Add kinsol module to $tarfile"
+echo "   --- Add idas module to $tarfile"
 
 if [ $doc = "T" ]; then
-    $tar $tarfile $distrobase/doc/kinsol/kin_guide.pdf
-    $tar $tarfile $distrobase/doc/kinsol/kin_examples.pdf
+    $tar $tarfile $distrobase/doc/idas/idas_guide.pdf
+    $tar $tarfile $distrobase/doc/idas/idas_examples.pdf
 fi
-$tar $tarfile $distrobase/doc/kinsol/guide/Makefile
-$tar $tarfile $distrobase/doc/kinsol/guide/source
+$tar $tarfile $distrobase/doc/idas/guide/Makefile
+$tar $tarfile $distrobase/doc/idas/guide/source
 
-echo "   --- Add kinsol include files to $tarfile"
-$tar $tarfile $distrobase/include/kinsol
+echo "   --- Add idas include files to $tarfile"
+$tar $tarfile $distrobase/include/idas
 
-echo "   --- Add kinsol source files to $tarfile"
-$tar $tarfile $distrobase/src/kinsol
+echo "   --- Add idas source files to $tarfile"
+$tar $tarfile $distrobase/src/idas
 
-echo "   --- Add kinsol examples to $tarfile"
-$tar $tarfile $distrobase/examples/kinsol
+echo "   --- Add idas examples to $tarfile"
+$tar $tarfile $distrobase/examples/idas
 
-echo "   --- Add kinsol unit tests to $tarfile"
-$tar $tarfile $distrobase/test/unit_tests/kinsol
+echo "   --- Add idas unit tests to $tarfile"
+$tar $tarfile $distrobase/test/unit_tests/idas

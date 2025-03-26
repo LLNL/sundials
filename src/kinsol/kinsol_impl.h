@@ -4,7 +4,7 @@
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -31,14 +31,6 @@
 
 #ifdef __cplusplus /* wrapper to enable C++ usage */
 extern "C" {
-#endif
-
-#if defined(SUNDIALS_EXTENDED_PRECISION)
-#define RSYM  ".32Lg"
-#define RSYMW "19.32Lg"
-#else
-#define RSYM  ".16g"
-#define RSYMW "23.16g"
 #endif
 
 /*

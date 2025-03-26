@@ -2,7 +2,7 @@
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -408,13 +408,9 @@ In this scenario, the coefficients :math:`A^I=0`, :math:`c^I=0`,
 methods reduce to classical :index:`explicit Runge--Kutta methods`
 (ERK).  For these classes of methods, ARKODE provides coefficients
 with orders of accuracy :math:`q = \{2,3,4,5,6,7,8,9\}`, with embeddings
-of orders :math:`p = \{1,2,3,4,5,6,7,8\}`.  These default to the methods in
-sections
-:numref:`Butcher.Heun_Euler`,
-:numref:`Butcher.Bogacki_Shampine`, :numref:`Butcher.Zonneveld`,
-:numref:`Butcher.Cash-Karp`, :numref:`Butcher.Verner-6-5`, and
-:numref:`Butcher.Fehlberg-8-7`, respectively.  As with ARK
-methods, user-defined ERK tables are supported.
+of orders :math:`p = \{1,2,3,4,5,6,7,8\}`; the tables for these methods are
+given in section :numref:`Butcher.explicit`. As with ARK methods, user-defined
+ERK tables are supported.
 
 Alternately, for stiff problems the user may specify that :math:`f^E = 0`,
 so the equation :eq:`ARKODE_IMEX_IVP` reduces to the non-split IVP
@@ -429,11 +425,8 @@ in :eq:`ARKODE_ARK`, and the ARK methods reduce to classical
 :index:`diagonally-implicit Runge--Kutta methods` (DIRK).  For these
 classes of methods, ARKODE provides tables with orders of accuracy
 :math:`q = \{2,3,4,5\}`, with embeddings of orders
-:math:`p = \{1,2,3,4\}`. These default to the methods
-:numref:`Butcher.SDIRK-2-1`, :numref:`Butcher.ARK_4_2_3_I`,
-:numref:`Butcher.SDIRK-5-4`, and :numref:`Butcher.ARK_8_4_5_I`,
-respectively.  Again, user-defined DIRK tables are supported.
-
+:math:`p = \{1,2,3,4\}`; the tables for these methods are given in section
+:numref:`Butcher.implicit`. Again, user-defined DIRK tables are supported.
 
 
 .. _ARKODE.Mathematics.ERK:
@@ -837,7 +830,7 @@ form
 with :math:`P > 1` additive partitions. Operator splitting methods, such as
 those implemented in SplittingStep, allow each partition to be integrated
 separately, possibly with different numerical integrators or exact solution
-procedures. Coupling is only performed though initial conditions which are
+procedures. Coupling is only performed through initial conditions which are
 passed from the flow of one partition to the next.
 
 The following algorithmic procedure is used in the Splitting-Step module:
@@ -978,7 +971,7 @@ arise from the **separable** Hamiltonian system
 where
 
 .. math::
-   f_1(t, q) \equiv \frac{\partial V(t, q)}{\partial q}, \qquad
+   f_1(t, q) \equiv -\frac{\partial V(t, q)}{\partial q}, \qquad
    f_2(t, p) \equiv \frac{\partial T(t, p)}{\partial p}.
 
 When *H* is autonomous, then *H* is a conserved quantity. Often this corresponds

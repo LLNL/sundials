@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------
 # SUNDIALS Copyright Start
-# Copyright (c) 2002-2024, Lawrence Livermore National Security
+# Copyright (c) 2002-2025, Lawrence Livermore National Security
 # and Southern Methodist University.
 # All rights reserved.
 #
@@ -9,7 +9,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ----------------------------------------------------------------
-doc_version = 'v7.2.1'
+doc_version = 'develop'
 sundials_version = 'v7.2.1'
 arkode_version = 'v6.2.1'
 cvode_version = 'v7.2.1'

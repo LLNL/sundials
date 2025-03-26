@@ -1,7 +1,7 @@
 ..
    ----------------------------------------------------------------
    SUNDIALS Copyright Start
-   Copyright (c) 2002-2024, Lawrence Livermore National Security
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
    and Southern Methodist University.
    All rights reserved.
 
@@ -24,7 +24,7 @@ variety of backends including serial, OpenMP, CUDA, HIP, and SYCL. Since Kokkos 
 a modern C++ library, the module is also written in modern C++ (it requires
 C++14) as a header only library. To utilize this ``N_Vector`` users will need to
 include ``nvector/nvector_kokkos.hpp``. More instructions on building SUNDIALS
-with Kokkos enabled are given in :numref:`Installation.CMake.ExternalLibraries`.
+with Kokkos enabled are given in :numref:`Installation.Options.Kokkos`.
 For instructions on building and using Kokkos, refer to the `Kokkos
 <https://kokkos.github.io/kokkos-core-wiki/index.html>`_ documentation.
 

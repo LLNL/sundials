@@ -2,7 +2,7 @@
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -123,8 +123,9 @@ static int arkRelaxNewtonSolve(ARKodeMem ark_mem)
     if (retval) { return retval; }
 
     SUNLogExtraDebug(ARK_LOGGER, "residual",
-                     "iter = %i, relax_param = %" RSYM ", residual = %" RSYM, i,
-                     relax_mem->relax_param, relax_mem->res);
+                     "iter = %i, relax_param = " SUN_FORMAT_G
+                     ", residual = " SUN_FORMAT_G,
+                     i, relax_mem->relax_param, relax_mem->res);
 
     /* Check for convergence */
     if (SUNRabs(relax_mem->res) < relax_mem->res_tol) { return ARK_SUCCESS; }
@@ -344,7 +345,7 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
                                  &(relax_mem->delta_e));
   if (retval) { return retval; }
 
-  SUNLogExtraDebug(ARK_LOGGER, "compute delta e", "delta_e = %" RSYM,
+  SUNLogExtraDebug(ARK_LOGGER, "compute delta e", "delta_e = " SUN_FORMAT_G,
                    relax_mem->delta_e);
 
   /* Get the change in state (delta_y = tempv2) */
@@ -360,7 +361,7 @@ static int arkRelaxSolve(ARKodeMem ark_mem, ARKodeRelaxMem relax_mem,
   if (retval < 0) { return ARK_RELAX_FUNC_FAIL; }
   if (retval > 0) { return ARK_RELAX_FUNC_RECV; }
 
-  SUNLogExtraDebug(ARK_LOGGER, "compute old e", "e_old = %" RSYM,
+  SUNLogExtraDebug(ARK_LOGGER, "compute old e", "e_old = " SUN_FORMAT_G,
                    relax_mem->e_old);
 
   /* Initial guess for relaxation parameter */
@@ -415,6 +416,14 @@ int ARKodeSetRelaxFn(void* arkode_mem, ARKRelaxFn rfn, ARKRelaxJacFn rjac)
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem)arkode_mem;
+
+  /* Ensure that the current N_Vector supports N_VDotProd */
+  if (ark_mem->tempv1->ops->nvdotprod == NULL)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "N_VDotProd unimplemented (required for relaxation)");
+    return (ARK_ILL_INPUT);
+  }
 
   /* Call stepper-specific routine (if it exists) */
   if (ark_mem->step_setrelaxfn)
@@ -897,8 +906,8 @@ int arkRelax(ARKodeMem ark_mem, int* relax_fails, sunrealtype* dsm_inout)
                ark_mem->ycur);
 
   SUNLogDebug(ARK_LOGGER, "relaxation",
-              "relaxation parameter = %" RSYM ", relaxed h = %" RSYM
-              ", relaxed error = %" RSYM,
+              "relaxation parameter = " SUN_FORMAT_G
+              ", relaxed h = " SUN_FORMAT_G ", relaxed error = " SUN_FORMAT_G,
               relax_val, ark_mem->h, *dsm_inout);
 
   return ARK_SUCCESS;
@@ -914,35 +923,17 @@ int arkRelaxPrintAllStats(void* arkode_mem, FILE* outfile, SUNOutputFormat fmt)
   retval = arkRelaxAccessMem(arkode_mem, __func__, &ark_mem, &relax_mem);
   if (retval) { return retval; }
 
-  switch (fmt)
-  {
-  case SUN_OUTPUTFORMAT_TABLE:
-    fprintf(outfile, "Relax fn evals               = %ld\n",
-            relax_mem->num_relax_fn_evals);
-    fprintf(outfile, "Relax Jac evals              = %ld\n",
-            relax_mem->num_relax_jac_evals);
-    fprintf(outfile, "Relax fails                  = %ld\n",
-            relax_mem->num_fails);
-    fprintf(outfile, "Relax bound fails            = %ld\n",
-            relax_mem->bound_fails);
-    fprintf(outfile, "Relax NLS iters              = %ld\n",
-            relax_mem->nls_iters);
-    fprintf(outfile, "Relax NLS fails              = %ld\n",
-            relax_mem->nls_fails);
-    break;
-  case SUN_OUTPUTFORMAT_CSV:
-    fprintf(outfile, ",Relax fn evals,%ld", relax_mem->num_relax_fn_evals);
-    fprintf(outfile, ",Relax Jac evals,%ld", relax_mem->num_relax_jac_evals);
-    fprintf(outfile, ",Relax fails,%ld", relax_mem->num_fails);
-    fprintf(outfile, ",Relax bound fails,%ld", relax_mem->bound_fails);
-    fprintf(outfile, ",Relax NLS iters,%ld", relax_mem->nls_iters);
-    fprintf(outfile, ",Relax NLS fails,%ld", relax_mem->nls_fails);
-    break;
-  default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    "Invalid formatting option.");
-    return ARK_ILL_INPUT;
-  }
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax fn evals",
+                  relax_mem->num_relax_fn_evals);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax Jac evals",
+                  relax_mem->num_relax_jac_evals);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax fails", relax_mem->num_fails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax bound fails",
+                  relax_mem->bound_fails);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax NLS iters",
+                  relax_mem->nls_iters);
+  sunfprintf_long(outfile, fmt, SUNFALSE, "Relax NLS fails",
+                  relax_mem->nls_fails);
 
   return ARK_SUCCESS;
 }

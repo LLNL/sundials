@@ -3,7 +3,7 @@
  *                David J. Gardner, Radu Serban and Aaron Collier @ LLNL
  *-----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -28,10 +28,8 @@
 #include "kinsol_ls_impl.h"
 
 /* constants */
-#define MIN_INC_MULT SUN_RCONST(1000.0)
-#define ZERO         SUN_RCONST(0.0)
-#define ONE          SUN_RCONST(1.0)
-#define TWO          SUN_RCONST(2.0)
+#define ZERO SUN_RCONST(0.0)
+#define ONE  SUN_RCONST(1.0)
 
 /*==================================================================
   KINLS Exported functions -- Required

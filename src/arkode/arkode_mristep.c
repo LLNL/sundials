@@ -4,7 +4,7 @@
  *                Rujeko Chinomona @ SMU
  * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -39,7 +39,6 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   ARKodeMem ark_mem;         /* outer ARKODE memory   */
   ARKodeMRIStepMem step_mem; /* outer stepper memory  */
   SUNNonlinearSolver NLS;    /* default nonlin solver */
-  sunbooleantype nvectorOK;
   int retval;
 
   /* Check that at least one of fse, fsi is supplied and is to be used*/
@@ -71,15 +70,6 @@ void* MRIStepCreate(ARKRhsFn fse, ARKRhsFn fsi, sunrealtype t0, N_Vector y0,
   {
     arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
                     MSG_ARK_NULL_SUNCTX);
-    return (NULL);
-  }
-
-  /* Test if all required vector operations are implemented */
-  nvectorOK = mriStep_CheckNVector(y0);
-  if (!nvectorOK)
-  {
-    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
-                    MSG_ARK_BAD_NVECTOR);
     return (NULL);
   }
 
@@ -744,26 +734,26 @@ void mriStep_PrintMem(ARKodeMem ark_mem, FILE* outfile)
   fprintf(outfile, "MRIStep: Coupling structure:\n");
   MRIStepCoupling_Write(step_mem->MRIC, outfile);
 
-  fprintf(outfile, "MRIStep: gamma = %" RSYM "\n", step_mem->gamma);
-  fprintf(outfile, "MRIStep: gammap = %" RSYM "\n", step_mem->gammap);
-  fprintf(outfile, "MRIStep: gamrat = %" RSYM "\n", step_mem->gamrat);
-  fprintf(outfile, "MRIStep: crate = %" RSYM "\n", step_mem->crate);
-  fprintf(outfile, "MRIStep: delp = %" RSYM "\n", step_mem->delp);
-  fprintf(outfile, "MRIStep: eRNrm = %" RSYM "\n", step_mem->eRNrm);
-  fprintf(outfile, "MRIStep: nlscoef = %" RSYM "\n", step_mem->nlscoef);
-  fprintf(outfile, "MRIStep: crdown = %" RSYM "\n", step_mem->crdown);
-  fprintf(outfile, "MRIStep: rdiv = %" RSYM "\n", step_mem->rdiv);
-  fprintf(outfile, "MRIStep: dgmax = %" RSYM "\n", step_mem->dgmax);
+  fprintf(outfile, "MRIStep: gamma = " SUN_FORMAT_G "\n", step_mem->gamma);
+  fprintf(outfile, "MRIStep: gammap = " SUN_FORMAT_G "\n", step_mem->gammap);
+  fprintf(outfile, "MRIStep: gamrat = " SUN_FORMAT_G "\n", step_mem->gamrat);
+  fprintf(outfile, "MRIStep: crate = " SUN_FORMAT_G "\n", step_mem->crate);
+  fprintf(outfile, "MRIStep: delp = " SUN_FORMAT_G "\n", step_mem->delp);
+  fprintf(outfile, "MRIStep: eRNrm = " SUN_FORMAT_G "\n", step_mem->eRNrm);
+  fprintf(outfile, "MRIStep: nlscoef = " SUN_FORMAT_G "\n", step_mem->nlscoef);
+  fprintf(outfile, "MRIStep: crdown = " SUN_FORMAT_G "\n", step_mem->crdown);
+  fprintf(outfile, "MRIStep: rdiv = " SUN_FORMAT_G "\n", step_mem->rdiv);
+  fprintf(outfile, "MRIStep: dgmax = " SUN_FORMAT_G "\n", step_mem->dgmax);
   fprintf(outfile, "MRIStep: Ae_row =");
   for (i = 0; i < step_mem->nstages_active; i++)
   {
-    fprintf(outfile, " %" RSYM, step_mem->Ae_row[i]);
+    fprintf(outfile, " " SUN_FORMAT_G, step_mem->Ae_row[i]);
   }
   fprintf(outfile, "\n");
   fprintf(outfile, "MRIStep: Ai_row =");
   for (i = 0; i < step_mem->nstages_active; i++)
   {
-    fprintf(outfile, " %" RSYM, step_mem->Ai_row[i]);
+    fprintf(outfile, " " SUN_FORMAT_G, step_mem->Ai_row[i]);
   }
   fprintf(outfile, "\n");
 
@@ -1833,7 +1823,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
   }
 
   SUNLogInfo(ARK_LOGGER, "begin-stage",
-             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_FIRST,
+             "stage = 0, stage type = %d, tcur = " SUN_FORMAT_G, MRISTAGE_FIRST,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "slow stage", ark_mem->ycur, "z_0(:) =");
 
@@ -1897,7 +1887,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     tf = ark_mem->tcur = ark_mem->tn + step_mem->MRIC->c[is] * ark_mem->h;
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, stage type = %d, tcur = %" RSYM, is,
+               "stage = %i, stage type = %d, tcur = " SUN_FORMAT_G, is,
                step_mem->stagetypes[is], ark_mem->tcur);
 
     /* Determine current stage type, and call corresponding routine; the
@@ -2084,7 +2074,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     tf = ark_mem->tcur = ark_mem->tn + ark_mem->h;
 
     SUNLogInfo(ARK_LOGGER, "begin-compute-embedding",
-               "stage = %i, stage type = %d, tcur = %" RSYM, is,
+               "stage = %i, stage type = %d, tcur = " SUN_FORMAT_G, is,
                step_mem->stagetypes[is], ark_mem->tcur);
 
     /* Determine embedding stage type, and call corresponding routine; the
@@ -2156,7 +2146,7 @@ int mriStep_TakeStepMRIGARK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPt
     tf = ark_mem->tcur = ark_mem->tn + ark_mem->h;
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, stage type = %d, tcur = %" RSYM, is,
+               "stage = %i, stage type = %d, tcur = " SUN_FORMAT_G, is,
                step_mem->stagetypes[is], ark_mem->tcur);
 
     /* Determine final stage type, and call corresponding routine; the
@@ -2358,7 +2348,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   SUNLogInfo(ARK_LOGGER, "begin-stage",
-             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_FIRST,
+             "stage = 0, stage type = %d, tcur = " SUN_FORMAT_G, MRISTAGE_FIRST,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "slow stage", ark_mem->ycur, "z_0(:) =");
 
@@ -2441,7 +2431,7 @@ int mriStep_TakeStepMRISR(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
     cstage = (embedding) ? ONE : step_mem->MRIC->c[stage];
 
     SUNLogInfo(ARK_LOGGER, "begin-stage",
-               "stage = %i, stage type = %d, tcur = %" RSYM, stage,
+               "stage = %i, stage type = %d, tcur = " SUN_FORMAT_G, stage,
                MRISTAGE_ERK_FAST, ark_mem->tn + cstage * ark_mem->h);
 
     /* Compute forcing function for inner solver */
@@ -2823,7 +2813,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   }
 
   SUNLogInfo(ARK_LOGGER, "begin-stage",
-             "stage = 0, stage type = %d, tcur = %" RSYM, MRISTAGE_FIRST,
+             "stage = 0, stage type = %d, tcur = " SUN_FORMAT_G, MRISTAGE_FIRST,
              ark_mem->tcur);
   SUNLogExtraDebugVec(ARK_LOGGER, "slow stage", ark_mem->ycur, "z_0(:) =");
 
@@ -2923,7 +2913,7 @@ int mriStep_TakeStepMERK(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
       tf = ark_mem->tn + cstage * ark_mem->h;
 
       SUNLogInfo(ARK_LOGGER, "begin-stage",
-                 "stage = %i, stage type = %i, tcur = %" RSYM, stage,
+                 "stage = %i, stage type = %i, tcur = " SUN_FORMAT_G, stage,
                  step_mem->stagetypes[stage], tf);
 
       /* Reset the inner stepper on the first stage within all but the
@@ -3100,23 +3090,6 @@ int mriStep_AccessStepMem(ARKodeMem ark_mem, const char* fname,
   }
   *step_mem = (ARKodeMRIStepMem)ark_mem->step_mem;
   return (ARK_SUCCESS);
-}
-
-/*---------------------------------------------------------------
-  mriStep_CheckNVector:
-
-  This routine checks if all required vector operations are
-  present.  If any of them is missing it returns SUNFALSE.
-  ---------------------------------------------------------------*/
-sunbooleantype mriStep_CheckNVector(N_Vector tmpl)
-{
-  if ((tmpl->ops->nvclone == NULL) || (tmpl->ops->nvdestroy == NULL) ||
-      (tmpl->ops->nvlinearsum == NULL) || (tmpl->ops->nvconst == NULL) ||
-      (tmpl->ops->nvscale == NULL) || (tmpl->ops->nvwrmsnorm == NULL))
-  {
-    return (SUNFALSE);
-  }
-  return (SUNTRUE);
 }
 
 /*---------------------------------------------------------------
@@ -4646,7 +4619,8 @@ int mriStepInnerStepper_Reset(MRIStepInnerStepper stepper, sunrealtype tR,
   if (stepper == NULL) { return ARK_ILL_INPUT; }
   if (stepper->ops == NULL) { return ARK_ILL_INPUT; }
 
-  SUNLogDebug(stepper->sunctx->logger, "reset-inner-state", "tR = %" RSYM, tR);
+  SUNLogDebug(stepper->sunctx->logger, "reset-inner-state",
+              "tR = " SUN_FORMAT_G, tR);
 
   if (stepper->ops->reset)
   {
@@ -4789,14 +4763,14 @@ int mriStepInnerStepper_Resize(MRIStepInnerStepper stepper, ARKVecResizeFn resiz
                                void* resize_data, sunindextype lrw_diff,
                                sunindextype liw_diff, N_Vector tmpl)
 {
-  int retval;
-
   if (stepper == NULL) { return ARK_ILL_INPUT; }
 
-  retval = arkResizeVecArray(resize, resize_data, stepper->nforcing_allocated,
-                             tmpl, &(stepper->forcing), lrw_diff,
-                             &(stepper->lrw), liw_diff, &(stepper->liw));
-  if (retval != ARK_SUCCESS) { return (ARK_MEM_FAIL); }
+  if (!arkResizeVecArray(resize, resize_data, stepper->nforcing_allocated, tmpl,
+                         &(stepper->forcing), lrw_diff, &(stepper->lrw),
+                         liw_diff, &(stepper->liw)))
+  {
+    return (ARK_MEM_FAIL);
+  }
 
   return (ARK_SUCCESS);
 }
