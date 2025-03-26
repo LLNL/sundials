@@ -17,14 +17,14 @@ Solution method: Anderson accelerated fixed point iteration.
     orth routine = 0
 
 Final Statistics:
-Number of nonlinear iterations:      7
-Number of function evaluations:      7
+Number of nonlinear iterations:      8
+Number of function evaluations:      8
 Computed solution:
-    x = 0.500001
-    y = 1
+    x = 0.499999
+    y = 0.999999
     z = -0.523599
 Solution error:
-    ex = 6.83498e-07
-    ey = 1.30179e-06
-    ez = 5.29336e-07
+    ex = 1.26172e-06
+    ey = 1.17178e-06
+    ez = 7.05037e-07
 PASS
