@@ -55,7 +55,8 @@ with SPRKStep that could cause a segmentation fault when compensated summation i
 used.
 
 Fixed a bug in KINSOL where an incorrect damping parameter is applied on the
-initial iteration with Anderson acceleration.
+initial iteration with Anderson acceleration unless `KINSetDamping` and
+`KINSetDampingAA` are both called with the same value when enabling damping.
 
 Fixed a bug in KINSOL where errors that occurred when computing Anderson
 acceleration were not captured.
