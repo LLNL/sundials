@@ -3529,6 +3529,20 @@ int arkStepCompatibleWithAdjointSolver(ARKodeMem ark_mem,
     return ARK_ILL_INPUT;
   }
 
+  if (ark_mem->constraintsSet)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname, filename,
+                    "SUNAdjointStepper is not compatible with constraints");
+    return ARK_ILL_INPUT;
+  }
+
+  if (ark_mem->root_mem)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, lineno, fname, filename,
+                    "SUNAdjointStepper is not compatible with rootfinding");
+    return ARK_ILL_INPUT;
+  }
+
   return ARK_SUCCESS;
 }
 
