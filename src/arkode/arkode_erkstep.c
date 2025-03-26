@@ -1010,12 +1010,8 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
     int nvec = 0;
     for (int js = is + 1; js < step_mem->stages; ++js)
     {
-      /* h sum_{j=i}^{s} A_{ji}/b_i \Lambda_{j} */
-      if (step_mem->B->b[is] > SUN_UNIT_ROUNDOFF)
-      {
-        cvals[nvec] = -ark_mem->h * step_mem->B->A[js][is] / step_mem->B->b[is];
-      }
-      else { cvals[nvec] = -ark_mem->h * step_mem->B->A[js][is]; }
+      /* h sum_{j=i}^{s} A_{ji} \Lambda_{j} */
+      cvals[nvec] = -ark_mem->h * step_mem->B->A[js][is];
       Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_values[js], 0);
       nvec++;
     }
