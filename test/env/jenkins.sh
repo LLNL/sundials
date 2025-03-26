@@ -155,7 +155,7 @@ export SUNDIALS_OPENMP_OFFLOAD=OFF
 
 if [ "$SUNDIALS_PRECISION" != "extended" ]; then
     export SUNDIALS_CUDA=ON
-    export SUNDIALS_FUSED_KERNELS=ON
+    export SUNDIALS_FUSED_KERNELS=OFF
 else
     export SUNDIALS_CUDA=OFF
     export SUNDIALS_FUSED_KERNELS=OFF
@@ -401,3 +401,10 @@ else
     export SUNDIALS_XBRAID=OFF
     unset XBRAID_ROOT
 fi
+
+# Temporarily disable some packages
+export SUNDIALS_ARKODE=OFF
+export SUNDIALS_CVODE=OFF
+export SUNDIALS_CVODES=OFF
+export SUNDIALS_IDA=OFF
+export SUNDIALS_IDAS=OFF
