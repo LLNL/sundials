@@ -167,6 +167,9 @@ KINSOL output constants
   | ``KIN_DAMPING_FN_ERR``       | -18   | The damping function returns a      |
   |                              |       | non-zero value.                     |
   +------------------------------+-------+-------------------------------------+
+  | ``KIN_DEPTH_FN_ERR``         | -19   | The depth function returned a       |
+  |                              |       | non-zero value.                     |
+  +------------------------------+-------+-------------------------------------+
 
 .. tabularcolumns:: |\Y{0.3}|\Y{0.1}|\Y{0.6}|
 

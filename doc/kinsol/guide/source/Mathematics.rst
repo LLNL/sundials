@@ -377,44 +377,50 @@ Anderson Acceleration
 The Picard and fixed point methods can be significantly accelerated using Anderson’s method
 :cite:p:`Anderson65, Walker-Ni09, Fang-Saad09, LWWY11`. Anderson acceleration can be formulated as follows:
 
-1. Set :math:`u_0 =` an initial guess and :math:`m \ge 1`
+1. Set :math:`u_0 =` an initial guess, :math:`m \ge 1`, and :math:`m_0 = 0`
 
 2. Set :math:`u_1 = G(u_0)`
 
 3. For :math:`n = 1, 2,...` until convergence do:
 
-   a.  Set :math:`m_n = \min\{m,n\}`
+   a.  Set :math:`m_n = \min\{m,n,m_{n-1} + 1\}`
 
    b.  Set :math:`F_{n} = (f_{n-m_n}, \ldots, f_n)`, where :math:`f_i=G(u_i)-u_i`
 
-   c.  Determine :math:`\alpha^{(n)} = (\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})` that solves
+   c.  Optionally, update :math:`m_n` to remove some number of the left-most
+       columns from :math:`F_{n}`
+
+   d.  Determine :math:`\alpha^{(n)} = (\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})` that solves
        :math:`\displaystyle\min_\alpha  \| F_n \alpha^T \|_2` such that :math:`\displaystyle\sum_{i=0}^{m_n} \alpha_i = 1`
 
-   d.  Set :math:`\displaystyle u_{n+1} = \beta_n \sum_{i=0}^{m_n} \alpha_i^{(n)} G(u_{n-m_n+i}) + (1-\beta_n) \sum_{i=0}^{m_n} \alpha_i^{(n)} u_{n-m_{n}+i}`
+   e.  Set :math:`\displaystyle u_{n+1} = \beta_n \sum_{i=0}^{m_n} \alpha_i^{(n)} G(u_{n-m_n+i}) + (1-\beta_n) \sum_{i=0}^{m_n} \alpha_i^{(n)} u_{n-m_{n}+i}`
 
-   e.  Test for convergence
+   f.  Test for convergence
 
 It has been implemented in KINSOL by turning the constrained linear least-squares problem in step 3c into an
 unconstrained one leading to the algorithm given below:
 
-1. Set :math:`u_0 =` an initial guess and :math:`m \ge 1`
+1. Set :math:`u_0 =` an initial guess, :math:`m \ge 1`, and :math:`m_0 = 0`
 
 2. Set :math:`u_1 = G(u_0)`
 
 3. For :math:`n = 1, 2,...` until convergence do:
 
-   a. Set :math:`m_n = \min\{m,n\}`
+   a. Set :math:`m_n = \min\{m,n,m_{n-1} + 1\}`
 
    b. Set :math:`\Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1})`, where :math:`\Delta f_i = f_{i+1} - f_i`
       and :math:`f_i=G(u_i)-u_i`
 
-   c. Determine :math:`\gamma^{(n)} = (\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})` that solves
+   c. Optionally, update :math:`m_n` to remove some number of the left-most
+      columns from :math:`\Delta F_{n}`
+
+   d. Determine :math:`\gamma^{(n)} = (\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})` that solves
       :math:`\displaystyle\min_\gamma  \| f_n - \Delta F_n \gamma^T \|_2`
 
-   d. Set :math:`\displaystyle u_{n+1} = G(u_n)-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i} - (1-\beta_n)(f(u_n) - \sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta f_{n-m_n+i})` with
+   e. Set :math:`\displaystyle u_{n+1} = G(u_n)-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i} - (1-\beta_n)(f(u_n) - \sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta f_{n-m_n+i})` with
       :math:`\Delta g_i = G(u_{i+1}) - G(u_i)`
 
-   e. Test for convergence
+   f. Test for convergence
 
 The least-squares problem in 3c is solved by applying a QR factorization to :math:`\Delta F_n = Q_n R_n` and solving
 :math:`R_n \gamma = Q_n^T f_n`. By default the damping is disabled i.e., :math:`\beta_n = 1.0`.

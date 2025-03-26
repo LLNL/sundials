@@ -509,6 +509,8 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Fixed-point/Picard damping function                    | :c:func:`KINSetDampingFn`        | ``NULL``                     |
   +--------------------------------------------------------+----------------------------------+------------------------------+
+  | Fixed-point/Picard depth function                      | :c:func:`KINSetDepthFn`          | ``NULL``                     |
+  +--------------------------------------------------------+----------------------------------+------------------------------+
   | **KINLS linear solver interface**                      |                                  |                              |
   +--------------------------------------------------------+----------------------------------+------------------------------+
   | Jacobian function                                      | :c:func:`KINSetJacFn`            | DQ                           |
@@ -1119,6 +1121,17 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
       The function provided to :c:func:`KINSetDampingFn` will override any
       values set with :c:func:`KINSetDamping` or :c:func:`KINSetDampingAA`.
+
+.. c:function:: int KINSetDepthFn(void* kin_mem, KINDepthFn depth_fn)
+
+   Sets the function used to compute the update the depth, :math:`m_n`, in
+   fixed-point or Picard iterations.
+
+   :param kin_mem: pointer to the KINSOL memory block.
+   :param damping_fn: the function to compute the depth parameter.
+
+   :retval KIN_SUCCESS: The depth function has been successfully set.
+   :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
 
 .. _KINSOL.Usage.CC.optional_inputs.optin_ls:
 
@@ -2123,6 +2136,45 @@ of type :c:type:`KINDampingFn` to computing the damping factor, :math:`\beta_n`.
    **Returns:**
 
      A :c:type:`KINDampingFn` function should return :math:`0` if successful or
+     a non-zero value if an error occurred.
+
+
+.. _KINSOL.Usage.CC.user_fct_sim.depthFn:
+
+Depth function
+~~~~~~~~~~~~~~
+
+When using the fixed-point or Picard iterations, the user may provide a function
+of type :c:type:`KINDepthFn` to modify the depth, :math:`m_n`.
+
+.. c:type:: int (*KINDepthFn)(long int iter, N_Vector u_val, N_Vector g_val, N_Vector f_val, N_Vector* df, sunrealtype* R_mat, long int depth, void* user_data, long int* new_depth, long int* remove_indices);
+
+   This function computes the depth parameter, :math:`m_{\textrm{max}} \leq m_n
+   \geq 0`, for fixed-point and Picard iterations.
+
+   If the new depth, :math:`\hat{m}_n`, is less than the current depth,
+   math:`m_n`, the :math:`m_n - \hat{m}_n` left-most columns of :math:`\Delta
+   F_n` will be removed and the QR factorization updated accordingly. Otherwise,
+   the current depth and factorization will be retained.
+
+   **Parameters:**
+
+   * **iter** -- the iteration being computed, :math:`n + 1`.
+   * **u_val** -- the current iterate, :math:`u_n`.
+   * **g_val** -- the fixed-point function evaluated at the current iterate, :math:`G(u_n)`.
+   * **f_val** -- the fixed-point residual function evaluated at the current iterate, :math:`f_n = G(u_n) - u_n`.
+   * **df** -- the history of fixed-point residual function difference, :math:`\Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1})`, where :math:`\Delta f_i = f_{i+1} - f_i`.
+   * **R_mat** -- the matrix :math:`R_n` in the QR factorization :math:`\Delta F_n = Q_n R_n`.
+   * **depth** -- the current size of the Anderson acceleration space, :math:`m_n`.
+   * **user_data** -- the user data pointer passed to :c:func:`KINSetUserData`.
+   * **new_depth** -- the computed depth :math:`\hat{m}_n`.
+   * **remove_indices** -- this parameter is currently unused (``NULL``) and
+     will be used to provide support for removing specific columns of
+     :math:`\Delta F_n` in the future.
+
+   **Returns:**
+
+     A :c:type:`KINDepthFn` function should return :math:`0` if successful or
      a non-zero value if an error occurred.
 
 
