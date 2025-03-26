@@ -3247,8 +3247,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
           kin_mem->kin_dg_aa[i - 1] = kin_mem->kin_dg_aa[i];
           kin_mem->kin_df_aa[i - 1] = kin_mem->kin_df_aa[i];
         }
-        kin_mem->kin_dg_aa[kin_mem->kin_m_aa - 1] = tmp_dg;
-        kin_mem->kin_df_aa[kin_mem->kin_m_aa - 1] = tmp_df;
+        kin_mem->kin_dg_aa[kin_mem->kin_current_depth - 1] = tmp_dg;
+        kin_mem->kin_df_aa[kin_mem->kin_current_depth - 1] = tmp_df;
 
         retval = AndersonAccQRDelete(kin_mem, kin_mem->kin_q_aa, R,
                                      (int)kin_mem->kin_current_depth);
