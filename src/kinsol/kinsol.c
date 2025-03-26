@@ -3010,6 +3010,92 @@ static int KINFP(KINMem kin_mem)
  * ========================================================================
  */
 
+static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
+                               int depth)
+{
+  /* local dot product flag for single buffer reductions */
+  sunbooleantype dotprodSB = SUNFALSE;
+
+  if ((kin_mem->kin_vtemp2->ops->nvdotprodlocal ||
+       kin_mem->kin_vtemp2->ops->nvdotprodmultilocal) &&
+      kin_mem->kin_vtemp2->ops->nvdotprodmultiallreduce)
+  {
+    dotprodSB = SUNTRUE;
+  }
+
+  /* Delete left-most column vector from QR factorization */
+  sunrealtype a, b, temp, c, s;
+
+  for (int i = 0; i < depth - 1; i++)
+  {
+    a    = R[(i + 1) * depth + i];
+    b    = R[(i + 1) * depth + i + 1];
+    temp = SUNRsqrt(a * a + b * b);
+    c    = a / temp;
+    s    = b / temp;
+    R[(i + 1) * depth + i]     = temp;
+    R[(i + 1) * depth + i + 1] = ZERO;
+    /* OK to reuse temp */
+    if (i < depth - 1)
+    {
+      for (int j = i + 2; j < depth; j++)
+      {
+        a                    = R[j * depth + i];
+        b                    = R[j * depth + i + 1];
+        temp                 = c * a + s * b;
+        R[j * depth + i + 1] = -s * a + c * b;
+        R[j * depth + i]     = temp;
+      }
+    }
+    N_VLinearSum(c, Q[i], s, Q[i + 1], kin_mem->kin_vtemp2);
+    N_VLinearSum(-s, Q[i], c, Q[i + 1], Q[i + 1]);
+    N_VScale(ONE, kin_mem->kin_vtemp2, Q[i]);
+  }
+
+  /* Shift R to the left by one. */
+  for (int i = 1; i < depth; i++)
+  {
+    for (int j = 0; j < depth - 1; j++)
+    {
+      R[(i - 1) * depth + j] = R[i * depth + j];
+    }
+  }
+
+  /* If ICWY orthogonalization, then update T */
+  if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY)
+  {
+    if (dotprodSB)
+    {
+      if (depth > 1)
+      {
+        for (int i = 2; i < depth; i++)
+        {
+          N_VDotProdMultiLocal(i, Q[i - 1], Q,
+                               kin_mem->kin_T_aa + (i - 1) * depth);
+        }
+        N_VDotProdMultiAllReduce(depth * depth, Q[depth - 1], kin_mem->kin_T_aa);
+      }
+      for (int i = 1; i < depth; i++)
+      {
+        kin_mem->kin_T_aa[(i - 1) * depth + (i - 1)] = ONE;
+      }
+    }
+    else
+    {
+      kin_mem->kin_T_aa[0] = ONE;
+      for (int i = 2; i < depth; i++)
+      {
+        N_VDotProdMulti(i - 1, Q[i - 1], Q,
+                        kin_mem->kin_T_aa + (i - 1) * depth);
+        kin_mem->kin_T_aa[(i - 1) * depth + (i - 1)] = ONE;
+      }
+    }
+  }
+
+  return KIN_SUCCESS;
+}
+
+
 static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                        N_Vector xold, long int iter, sunrealtype* R,
                        sunrealtype* gamma)
@@ -3019,21 +3105,11 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   long int* ipt_map;
   sunrealtype alfa;
   sunrealtype onembeta;
-  sunrealtype a, b, temp, c, s;
-  sunbooleantype dotprodSB = SUNFALSE;
 
   /* local shortcuts for fused vector operation */
   int nvec        = 0;
   sunrealtype* cv = kin_mem->kin_cv;
   N_Vector* Xv    = kin_mem->kin_Xv;
-
-  /* local dot product flag for single buffer reductions */
-  if ((kin_mem->kin_vtemp2->ops->nvdotprodlocal ||
-       kin_mem->kin_vtemp2->ops->nvdotprodmultilocal) &&
-      kin_mem->kin_vtemp2->ops->nvdotprodmultiallreduce)
-  {
-    dotprodSB = SUNTRUE;
-  }
 
   ipt_map = kin_mem->kin_ipt_map;
   i_pt    = iter - 1 - ((iter - 1) / kin_mem->kin_m_aa) * kin_mem->kin_m_aa;
@@ -3113,77 +3189,9 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   else
   {
     /* we've filled the acceleration subspace, so start recycling */
-
-    /* Delete left-most column vector from QR factorization */
-    for (i = 0; i < kin_mem->kin_m_aa - 1; i++)
-    {
-      a    = R[(i + 1) * kin_mem->kin_m_aa + i];
-      b    = R[(i + 1) * kin_mem->kin_m_aa + i + 1];
-      temp = SUNRsqrt(a * a + b * b);
-      c    = a / temp;
-      s    = b / temp;
-      R[(i + 1) * kin_mem->kin_m_aa + i]     = temp;
-      R[(i + 1) * kin_mem->kin_m_aa + i + 1] = ZERO;
-      /* OK to reuse temp */
-      if (i < kin_mem->kin_m_aa - 1)
-      {
-        for (j = i + 2; j < kin_mem->kin_m_aa; j++)
-        {
-          a                                = R[j * kin_mem->kin_m_aa + i];
-          b                                = R[j * kin_mem->kin_m_aa + i + 1];
-          temp                             = c * a + s * b;
-          R[j * kin_mem->kin_m_aa + i + 1] = -s * a + c * b;
-          R[j * kin_mem->kin_m_aa + i]     = temp;
-        }
-      }
-      N_VLinearSum(c, kin_mem->kin_q_aa[i], s, kin_mem->kin_q_aa[i + 1],
-                   kin_mem->kin_vtemp2);
-      N_VLinearSum(-s, kin_mem->kin_q_aa[i], c, kin_mem->kin_q_aa[i + 1],
-                   kin_mem->kin_q_aa[i + 1]);
-      N_VScale(ONE, kin_mem->kin_vtemp2, kin_mem->kin_q_aa[i]);
-    }
-
-    /* Shift R to the left by one. */
-    for (i = 1; i < kin_mem->kin_m_aa; i++)
-    {
-      for (j = 0; j < kin_mem->kin_m_aa - 1; j++)
-      {
-        R[(i - 1) * kin_mem->kin_m_aa + j] = R[i * kin_mem->kin_m_aa + j];
-      }
-    }
-
-    /* If ICWY orthogonalization, then update T */
-    if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY)
-    {
-      if (dotprodSB)
-      {
-        if (i > 1)
-        {
-          for (i = 2; i < kin_mem->kin_m_aa; i++)
-          {
-            N_VDotProdMultiLocal((int)i, kin_mem->kin_q_aa[i - 1],
-                                 kin_mem->kin_q_aa,
-                                 kin_mem->kin_T_aa + (i - 1) * kin_mem->kin_m_aa);
-          }
-          N_VDotProdMultiAllReduce((int)(kin_mem->kin_m_aa * kin_mem->kin_m_aa),
-                                   kin_mem->kin_q_aa[i - 1], kin_mem->kin_T_aa);
-        }
-        for (i = 1; i < kin_mem->kin_m_aa; i++)
-        {
-          kin_mem->kin_T_aa[(i - 1) * kin_mem->kin_m_aa + (i - 1)] = ONE;
-        }
-      }
-      else
-      {
-        kin_mem->kin_T_aa[0] = ONE;
-        for (i = 2; i < kin_mem->kin_m_aa; i++)
-        {
-          N_VDotProdMulti((int)i - 1, kin_mem->kin_q_aa[i - 1], kin_mem->kin_q_aa,
-                          kin_mem->kin_T_aa + (i - 1) * kin_mem->kin_m_aa);
-          kin_mem->kin_T_aa[(i - 1) * kin_mem->kin_m_aa + (i - 1)] = ONE;
-        }
-      }
-    }
+    retval = AndersonAccQRDelete(kin_mem, kin_mem->kin_q_aa, R,
+                                 (int)kin_mem->kin_m_aa);
+    if (retval) { return retval; }
 
     /* Add the new df vector */
     kin_mem->kin_qr_func(kin_mem->kin_q_aa, R, kin_mem->kin_df_aa[i_pt],
