@@ -1126,11 +1126,13 @@ negative, so a test ``retval`` :math:`<0` will catch any error.
 
 .. c:function:: int KINSetDepthFn(void* kin_mem, KINDepthFn depth_fn)
 
-   Sets the function used to compute the update the depth, :math:`m_n`, in
+   Sets the function used to compute the updated depth, :math:`m_n`, in
    fixed-point or Picard iterations.
 
    :param kin_mem: pointer to the KINSOL memory block.
-   :param damping_fn: the function to compute the depth parameter.
+   :param damping_fn: the function to compute the depth parameter or ``NULL``
+                      to disable using a depth function. See
+                      :c:type:`KINDepthFn` for more information.
 
    :retval KIN_SUCCESS: The depth function has been successfully set.
    :retval KIN_MEM_NULL: The ``kin_mem`` pointer is ``NULL``.
@@ -2151,29 +2153,43 @@ Depth function
 ~~~~~~~~~~~~~~
 
 When using the fixed-point or Picard iterations, the user may provide a function
-of type :c:type:`KINDepthFn` to modify the depth, :math:`m_n`.
+of type :c:type:`KINDepthFn` to modify the Anderson acceleration depth,
+:math:`m_n`, from :numref:`KINSOL.Mathematics.AndersonAcceleration`.
 
 .. c:type:: int (*KINDepthFn)(long int iter, N_Vector u_val, N_Vector g_val, N_Vector f_val, N_Vector* df, sunrealtype* R_mat, long int depth, void* user_data, long int* new_depth, long int* remove_indices);
 
-   This function computes the depth parameter, :math:`m_{\textrm{max}} \leq m_n
-   \geq 0`, for fixed-point and Picard iterations.
+   This function computes an Anderson acceleration depth parameter, :math:`0
+   \leq \hat{m}_n \leq \min\{m_n, m_\textrm{max}\}` to replace the current
+   depth, :math:`m_n`, where :math:`m_\textrm{max}` is the maximum
+   acceleration space size (see :c:func:`KINSetMAA`).
 
-   If the new depth, :math:`\hat{m}_n`, is less than the current depth,
-   math:`m_n`, the :math:`m_n - \hat{m}_n` left-most columns of :math:`\Delta
-   F_n` will be removed and the QR factorization updated accordingly. Otherwise,
-   the current depth and factorization will be retained.
+   If the new depth computed by this function, :math:`\hat{m}_n`, is less than
+   the current depth, :math:`m_n`, then the :math:`m_n - \hat{m}_n` left-most
+   columns of :math:`\Delta F_n` will be removed and the QR factorization
+   updated accordingly. Otherwise, the current depth and factorization will be
+   retained.
 
    **Parameters:**
 
    * **iter** -- the iteration being computed, :math:`n + 1`.
    * **u_val** -- the current iterate, :math:`u_n`.
-   * **g_val** -- the fixed-point function evaluated at the current iterate, :math:`G(u_n)`.
-   * **f_val** -- the fixed-point residual function evaluated at the current iterate, :math:`f_n = G(u_n) - u_n`.
-   * **df** -- the history of fixed-point residual function difference, :math:`\Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1})`, where :math:`\Delta f_i = f_{i+1} - f_i`.
-   * **R_mat** -- the matrix :math:`R_n` in the QR factorization :math:`\Delta F_n = Q_n R_n`.
-   * **depth** -- the current size of the Anderson acceleration space, :math:`m_n`.
+   * **g_val** -- the fixed-point function evaluated at the current iterate,
+     :math:`G(u_n)`.
+   * **f_val** -- the fixed-point residual function evaluated at the current
+     iterate, :math:`f_n = G(u_n) - u_n`.
+   * **df** -- the history of fixed-point residual function differences,
+     :math:`\Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1})`, where
+     :math:`\Delta f_i = f_{i+1} - f_i`.
+   * **R_mat** -- the upper triangular matrix, :math:`R_n`, in the QR
+     factorization :math:`\Delta F_n = Q_n R_n`. ``R_mat`` is allocated with
+     space for a dense :math:`m_{\textrm{max}} \times m_{\textrm{max}}` matrix
+     and elements are stored column-wise. On input, ``R_mat`` contains the
+     entries for an :math:`m_n \times m_n` matrix.
+   * **depth** -- the current size of the Anderson acceleration space,
+     :math:`m_n`.
    * **user_data** -- the user data pointer passed to :c:func:`KINSetUserData`.
-   * **new_depth** -- the computed depth :math:`\hat{m}_n`.
+   * **new_depth** -- the computed depth, :math:`\hat{m}_n`, to replace
+     the current depth, :math:`m_n`.
    * **remove_indices** -- this parameter is currently unused (``NULL``) and
      will be used to provide support for removing specific columns of
      :math:`\Delta F_n` in the future.
