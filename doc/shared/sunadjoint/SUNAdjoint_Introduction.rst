@@ -69,17 +69,9 @@ Reformulating the optimization problem for the discrete case, we have
 
 The gradients of :eq:`SUNADJOINT_DISCRETE_OPTIMIZATION_PROBLEM` can be computed using the transposed chain
 rule backwards in time to obtain the discrete adjoint variables :math:`\lambda_n, \lambda_{n-1}, \cdots, \lambda_0`
-and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`,
-
-.. math::
-   \lambda_n &= g_y^T(y_n, p), \quad \lambda_k = 0, \quad \mu_n = g_y^T(y_n, p), \quad \mu_k = 0, \quad k = n - 1, \cdots, 0, \\
-   \lambda_{\ell} &= \lambda_{\ell} + \left(\frac{\partial \varphi}{\partial y_{\ell}}(y_0, \cdots, y_{k-1}, p)\right)^T \lambda_{k},
-   \quad \mu_{\ell} = \mu_{\ell} + \left(\frac{\partial \varphi}{\partial p}(y_0, \cdots, y_{k-1}, p)\right)^T \lambda_{k}, \\
-   \quad & \quad \ell = k - 1, \cdots, 0, \quad k = n, \cdots, 0.
-   :label: SUNADJOINT_DISCRETE_ADJOINT
-
-The solution of the discrete adjoint equations :eq:`SUNADJOINT_DISCRETE_ADJOINT` is the sensitivities of the discrete cost function
-:eq:`SUNADJOINT_DISCRETE_OPTIMIZATION_PROBLEM` with respect to changes in the discretized IVP :eq:`SUNADJOINT_DISCRETE_IVP`.
+and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`. The solution of the discrete adjoint equations 
+is the sensitivities of the discrete cost function :eq:`SUNADJOINT_DISCRETE_OPTIMIZATION_PROBLEM` with respect to
+changes in the discretized IVP :eq:`SUNADJOINT_DISCRETE_IVP`.
 
 .. math::
    \lambda_0 = g_y^T(y_0, p), \quad \mu_0 = g_p^T(y_0, p).
