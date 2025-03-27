@@ -348,7 +348,10 @@ static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
   {
     /* Compute ||Q^T fn||^2 */
     sunrealtype qt_fn_norm_sqr = ZERO;
-    for (long int i = 0; i < depth; i++) { qt_fn_norm_sqr += qt_fn[i] * qt_fn[i]; }
+    for (long int i = 0; i < depth; i++)
+    {
+      qt_fn_norm_sqr += qt_fn[i] * qt_fn[i];
+    }
 
     /* Compute ||fn||^2 = ||G(u_n) - u_n||^2 */
     sunrealtype* g_data = N_VGetArrayPointer(g_val);
