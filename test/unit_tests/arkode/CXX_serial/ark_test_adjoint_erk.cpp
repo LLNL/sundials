@@ -483,7 +483,6 @@ int main(int argc, char* argv[])
   dgdp(u, sensp, params, tf);
 
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
-  // TODO(CJB): figure out why ForwardDiff, CVODES, and ERK adjoint all differ
   if (check_sensitivities_backward(sf))
   {
     ++failcount;

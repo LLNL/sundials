@@ -407,39 +407,39 @@ int main(int argc, char* argv[])
   }
   else { printf("\n>>> PASS\n"); }
 
-  // //
-  // // Now compute the adjoint solution using vjp
-  // //
+  //
+  // Now compute the adjoint solution using vjp
+  //
 
-  // printf("\n-- Redo adjoint problem using VJP --\n\n");
-  // if (!keep_check)
-  // {
-  //   N_VConst(SUN_RCONST(1.0), u);
-  //   printf("Initial condition:\n");
-  //   N_VPrint(u);
-  //   ARKStepReInit(arkode_mem, ode_rhs, NULL, t0, u);
-  //   forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
-  //   if (check_forward_answer(u))
-  //   {
-  //     ++failcount;
-  //     fprintf(stderr,
-  //             ">>> FAILURE: forward solution does not match correct answer\n");
-  //   };
-  // }
-  // dgdu(u, sensu0, params, tf);
-  // dgdp(u, sensp, params, tf);
-  // SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
-  // SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
-  // SUNAdjointStepper_SetVecHermitianTransposeJacFn(adj_stepper, ode_vjp,
-  //                                                 parameter_vjp);
-  // adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
-  // if (check_sensitivities(sf))
-  // {
-  //   ++failcount;
-  //   fprintf(stderr,
-  //           ">>> FAILURE: adjoint solution does not match correct answer\n");
-  // }
-  // else { printf(">>> PASS\n"); }
+  printf("\n-- Redo adjoint problem using VJP --\n\n");
+  if (!keep_check)
+  {
+    N_VConst(SUN_RCONST(1.0), u);
+    printf("Initial condition:\n");
+    N_VPrint(u);
+    ARKStepReInit(arkode_mem, ode_rhs, NULL, t0, u);
+    forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+    if (check_forward_answer(u))
+    {
+      ++failcount;
+      fprintf(stderr,
+              ">>> FAILURE: forward solution does not match correct answer\n");
+    };
+  }
+  dgdu(u, sensu0, params, tf);
+  dgdp(u, sensp, params, tf);
+  SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
+  SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
+  SUNAdjointStepper_SetVecHermitianTransposeJacFn(adj_stepper, ode_vjp,
+                                                  parameter_vjp);
+  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+  if (check_sensitivities(sf))
+  {
+    ++failcount;
+    fprintf(stderr,
+            ">>> FAILURE: adjoint solution does not match correct answer\n");
+  }
+  else { printf(">>> PASS\n"); }
 
   //
   // Now compute the adjoint solution but for when forward problem done backwards
@@ -483,7 +483,6 @@ int main(int argc, char* argv[])
   dgdp(u, sensp, params, tf);
 
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
-  // TODO(CJB): figure out why ForwardDiff, CVODES, and ERK adjoint all differ
   if (check_sensitivities_backward(sf))
   {
     ++failcount;
