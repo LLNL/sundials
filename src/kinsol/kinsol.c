@@ -3171,7 +3171,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   /* Adjust the depth */
   if (kin_mem->kin_depth_fn)
   {
-    long int new_depth = 0;
+    long int new_depth = kin_mem->kin_current_depth;
 
     retval = kin_mem->kin_depth_fn(kin_mem->kin_nni, xold, gval, fv,
                                    kin_mem->kin_df_aa, R,
