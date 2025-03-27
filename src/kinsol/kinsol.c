@@ -3208,7 +3208,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
 
   /* Compute the damping factor before overwriting gamma below so we can pass
      gamma = Q^T fv (just computed above) to the damping function as it can be
-     used to compute the acceleration gain = sqrt(1 - ||Q^T fv||/||fv||). */
+     used to compute the acceleration gain = sqrt(1 - ||Q^T fv||^2/||fv||^2). */
   if (kin_mem->kin_damping_fn)
   {
     retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, gamma, lAA,
