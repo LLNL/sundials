@@ -2108,7 +2108,7 @@ from :numref:`KINSOL.Mathematics.FixedPoint` and
 
 .. c:type:: int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val, sunrealtype* qt_fn, long int depth, void* user_data, sunrealtype* damping_factor)
 
-   This function computes the damping factor, :math:`\beta_n > 0`, for
+   This function computes the damping factor, :math:`0 < \beta_n \leq 1`, for
    fixed-point and Picard iterations.
 
    **Parameters:**
