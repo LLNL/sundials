@@ -22,8 +22,8 @@ struct SUNAdjointStepper_
   suncountertype njeval, njpeval, njtimesv, njptimesv, nrecompute;
   suncountertype final_step_idx;
 
-  SUNStepper adj_sunstepper;
-  SUNStepper fwd_sunstepper;
+  SUNStepper adj_sunstepper, fwd_sunstepper;
+  sunbooleantype own_adj_sunstepper, own_fwd_sunstepper;
   SUNAdjointCheckpointScheme checkpoint_scheme;
 
   SUNMatrix Jac, JacP;
