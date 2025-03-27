@@ -3259,6 +3259,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   /* Solve least squares problem and update solution */
   lAA = kin_mem->kin_current_depth;
 
+  /* Compute Q^T fv */
   retval = N_VDotProdMulti((int)lAA, fv, kin_mem->kin_q_aa, gamma);
   if (retval != KIN_SUCCESS) { return (KIN_VECTOROP_ERR); }
 
@@ -3289,6 +3290,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
   Xv[0] = gval;
   nvec  = 1;
 
+  /* Solve the upper triangular system R gamma = Q^T fv */
   for (long int i = lAA - 1; i > -1; i--)
   {
     for (long int j = i + 1; j < lAA; j++)
