@@ -33,8 +33,9 @@ Improved the efficiency of default ARKODE methods with the following changes:
 | 5th Order ARK      | `ARKODE_ARK548L2SA_ERK_8_4_5` and `ARKODE_ARK548L2SA_DIRK_8_4_5` | `ARKODE_ARK548L2SAb_ERK_8_4_5` and `ARKODE_ARK548L2SAb_DIRK_8_4_5` |
 
 Added support in KINSOL for setting user-supplied functions to compute the
-damping factor and depth in fixed-point or Picard iterations. See
-`KINSetDampingFn` and `KINSetDepthFn`, respectively, for more information.
+damping factor and, when using Anderson acceleration, the depth in fixed-point
+or Picard iterations. See `KINSetDampingFn` and `KINSetDepthFn`, respectively,
+for more information.
 
 ### Bug Fixes
 

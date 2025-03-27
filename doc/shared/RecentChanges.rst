@@ -43,9 +43,9 @@ Improved the efficiency of default ARKODE methods with the following changes:
 +--------------------+-------------------------------------+--------------------------------------+
 
 Added support in KINSOL for setting user-supplied functions to compute the
-damping factor and depth in fixed-point or Picard iterations. See
-:c:func:`KINSetDampingFn` and :c:func:`KINSetDepthFn`, respectively, for more
-information.
+damping factor and, when using Anderson acceleration, the depth in fixed-point
+or Picard iterations. See :c:func:`KINSetDampingFn` and :c:func:`KINSetDepthFn`,
+respectively, for more information.
 
 **Bug Fixes**
 
