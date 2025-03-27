@@ -3184,7 +3184,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       return KIN_DEPTH_FN_ERR;
     }
 
-    new_depth = SUNMIN(new_depth, kin_mem->kin_m_aa);
+    new_depth = SUNMIN(new_depth, kin_mem->kin_current_depth);
     new_depth = SUNMAX(new_depth, 0);
 
     if (new_depth == 0)
