@@ -178,7 +178,8 @@ static inline int check_sensitivities_backward(N_Vector answer)
 
   for (sunindextype i = 0; i < 4; ++i)
   {
-    if (SUNRCompareTol(ans[i], mu[i], ADJ_TOL))
+    /* use absolute tolerance since we comparing with zero */
+    if (SUNRabs(mu[i] - ans[i]) > ADJ_TOL)
     {
       fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
               ans[i], mu[i]);
