@@ -68,7 +68,7 @@ Reformulating the optimization problem for the discrete case, we have
    :label: SUNADJOINT_DISCRETE_OPTIMIZATION_PROBLEM
 
 The gradients of :eq:`SUNADJOINT_DISCRETE_OPTIMIZATION_PROBLEM` can be computed using the transposed chain
-rule backwards in time to obtain the discete adjoint variables :math:`\lambda_n, \lambda_{n-1}, \cdots, \lambda_0`
+rule backwards in time to obtain the discrete adjoint variables :math:`\lambda_n, \lambda_{n-1}, \cdots, \lambda_0`
 and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`,
 
 .. math::
