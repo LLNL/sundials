@@ -3073,6 +3073,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
         if (kin_mem->kin_beta_aa <= ZERO || kin_mem->kin_beta_aa > ONE)
         {
           KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
+                          __FILE__,
                           "The damping parameter is outside of the range (0, 1].");
           return KIN_DAMPING_FN_ERR;
         }
