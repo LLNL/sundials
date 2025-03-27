@@ -26,18 +26,15 @@
   * -----------------------------------------------------------------------------
   */
 
-#include <cvodes/cvodes.h>
-#include <nvector/nvector_serial.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <cvodes/cvodes.h>
+#include <cvodes/cvodes_ls.h>
+
+#include <nvector/nvector_serial.h>
 #include <sundials/sundials_core.h>
-#include "cvodes/cvodes_ls.h"
-#include "sundials/sundials_context.h"
-#include "sundials/sundials_iterative.h"
-#include "sundials/sundials_nvector.h"
-#include "sundials/sundials_types.h"
-#include "sunlinsol/sunlinsol_dense.h"
-#include "sunlinsol/sunlinsol_spgmr.h"
+#include <sunlinsol/sunlinsol_spgmr.h>
 
 /* Problem Constants */
 #define NEQ 2               /* number of equations  */
