@@ -27,6 +27,7 @@
 set(ARKODE_examples
     # tests that are always run
     "ark_analytic.c\;\;\;real"
+    "ark_complex.c\;\;\;complex"
     # develop tests
     "ark_analytic.c\;arkode.scalar_tolerances 1e-6 1e-8 arkode.table_names ARKODE_ESDIRK547L2SA_7_4_5 ARKODE_ERK_NONE\;\;real"
     "ark_advection_diffusion_reaction_splitting.c\;\;develop\;real"
