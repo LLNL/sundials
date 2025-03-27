@@ -38,6 +38,14 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
       The :c:type:`SUNStepper` object used for forward time stepping of the original ODE system if any recomputation of missing
       state data is required during the backwards integration.
 
+   .. c:member:: sunbooleantype own_adj_sunstepper
+
+      If true, then the :c:type:`SUNAdjointStepper` will be responsible for destroying the ``adj_sunstepper``.
+
+   .. c:member:: sunbooleantype own_fwd_sunstepper
+
+      If true, then the :c:type:`SUNAdjointStepper` will be responsible for destroying the ``fwd_sunstepper``.
+
    .. c:member:: sunrealtype tf
 
       The terminal time of the backwards adjoint ODE.
@@ -97,10 +105,6 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
       Holds the count of the number of :math:`(\partial f/\partial p)^* v`, or
       :math:`v^*(\partial f/\partial p)`evaluations.
-
-   .. c:member:: suncountertype nvtimesjp
-
-      Holds the count of the number of :math:`v^*(\partial f/\partial p)` evaluations.
 
    .. c:member:: suncountertype nrecompute
 
