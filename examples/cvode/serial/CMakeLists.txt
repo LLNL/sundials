@@ -22,6 +22,7 @@
 
 # Examples using SUNDIALS linear solvers
 set(CVODE_examples
+    "cvComplex\;\;develop\;complex"
     "cvAdvDiff_bnd\;\;develop\;real"
     "cvAnalytic_mels\;\;develop\;real"
     "cvDirectDemo_ls\;\;develop\;real"

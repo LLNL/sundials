@@ -24,6 +24,7 @@
 set(ARKODE_examples
     # tests that are always run
     "ark_analytic\;\;\;real"
+    "ark_complex\;\;\;complex"
     # develop tests
     "ark_advection_diffusion_reaction_splitting\;\;develop\;real"
     "ark_analytic_lsrk\;\;develop\;real"
