@@ -346,22 +346,20 @@ static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
   if (depth == 0) { *damping_factor = 0.5; }
   else
   {
-    /* Compute ||Q^T fn|| */
-    sunrealtype qt_fn_norm = ZERO;
-    for (long int i = 0; i < depth; i++) { qt_fn_norm += qt_fn[i] * qt_fn[i]; }
-    qt_fn_norm = SQRT(qt_fn_norm);
+    /* Compute ||Q^T fn||^2 */
+    sunrealtype qt_fn_norm_sqr = ZERO;
+    for (long int i = 0; i < depth; i++) { qt_fn_norm_sqr += qt_fn[i] * qt_fn[i]; }
 
-    /* Compute the fixed-point residual norm ||fn|| = ||G(u_n) - u_n|| */
+    /* Compute ||fn||^2 = ||G(u_n) - u_n||^2 */
     sunrealtype* g_data = N_VGetArrayPointer(g_val);
     sunrealtype* u_data = N_VGetArrayPointer(u_val);
     sunrealtype fn[3];
     for (int i = 0; i < 3; i++) { fn[i] = g_data[i] - u_data[i]; }
-    sunrealtype fn_norm = ZERO;
-    for (int i = 0; i < 3; i++) { fn_norm += fn[i] * fn[i]; }
-    fn_norm = SQRT(fn_norm);
+    sunrealtype fn_norm_sqr = ZERO;
+    for (int i = 0; i < 3; i++) { fn_norm_sqr += fn[i] * fn[i]; }
 
-    /* Compute the gain = sqrt(1 - ||Q^T fn|| / ||fn||) */
-    sunrealtype gain = SUNRsqrt(ONE - qt_fn_norm / fn_norm);
+    /* Compute the gain = sqrt(1 - ||Q^T fn||^2 / ||fn||^2) */
+    sunrealtype gain = SUNRsqrt(ONE - qt_fn_norm_sqr / fn_norm_sqr);
 
     *damping_factor = 0.9 - 0.5 * gain;
   }
