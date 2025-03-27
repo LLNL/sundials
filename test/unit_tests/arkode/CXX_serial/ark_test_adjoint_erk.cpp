@@ -482,6 +482,9 @@ int main(int argc, char* argv[])
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
 
+  printf("Adjoint terminal condition:\n");
+  N_VPrint(sf);
+
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
   if (check_sensitivities_backward(sf))
   {
