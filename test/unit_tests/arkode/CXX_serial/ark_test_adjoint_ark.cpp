@@ -67,30 +67,37 @@ typedef struct
 static sunrealtype params[4] = {SUN_RCONST(1.5), SUN_RCONST(1.0),
                                 SUN_RCONST(3.0), SUN_RCONST(1.0)};
 
+static int neg_rhs(sunrealtype t, N_Vector uvec, N_Vector udotvec, void* user_data)
+{
+  int err = ode_rhs(t, uvec, udotvec, user_data);
+  if (err) { return err; }
+  else { N_VScale(SUN_RCONST(-1.0), udotvec, udotvec); }
+  return 0;
+}
+
+static int neg_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t, N_Vector uvec,
+                   N_Vector udotvec, void* user_data, N_Vector tmp)
+{
+  int err = ode_vjp(vvec, Jvvec, t, uvec, udotvec, user_data, tmp);
+  if (err) { return err; }
+  else { N_VScale(SUN_RCONST(-1.0), Jvvec, Jvvec); }
+  return 0;
+}
+
+static int neg_parameter_vjp(N_Vector vvec, N_Vector Jvvec, sunrealtype t,
+                             N_Vector uvec, N_Vector udotvec, void* user_data,
+                             N_Vector tmp)
+{
+  int err = parameter_vjp(vvec, Jvvec, t, uvec, udotvec, user_data, tmp);
+  if (err) { return err; }
+  else { N_VScale(SUN_RCONST(-1.0), Jvvec, Jvvec); }
+  return 0;
+}
+
 static int check_forward_answer(N_Vector answer)
 {
   const sunrealtype u1 = SUN_RCONST(2.77266836);
   const sunrealtype u2 = SUN_RCONST(0.258714765);
-  sunrealtype* ans     = N_VGetArrayPointer(answer);
-
-  if (SUNRCompareTol(ans[0], u1, FWD_TOL))
-  {
-    fprintf(stdout, "\n>>> ans[0] = %g, should be %g\n", ans[0], u1);
-    return -1;
-  };
-  if (SUNRCompareTol(ans[1], u2, FWD_TOL))
-  {
-    fprintf(stdout, "\n>>> ans[1] = %g, should be %g\n", ans[1], u2);
-    return -1;
-  };
-
-  return 0;
-}
-
-static int check_forward_backward_answer(N_Vector answer)
-{
-  const sunrealtype u1 = SUN_RCONST(1.0);
-  const sunrealtype u2 = SUN_RCONST(1.0);
   sunrealtype* ans     = N_VGetArrayPointer(answer);
 
   if (SUNRCompareTol(ans[0], u1, FWD_TOL))
@@ -139,47 +146,6 @@ static int check_sensitivities(N_Vector answer)
   for (sunindextype i = 0; i < 4; ++i)
   {
     if (SUNRCompareTol(ans[i], mu[i], ADJ_TOL))
-    {
-      fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
-              ans[i], mu[i]);
-      return -1;
-    };
-  }
-
-  return 0;
-}
-
-static inline int check_sensitivities_backward(N_Vector answer)
-{
-  // The correct answer was generated with the Julia ForwardDiff.jl
-  // automatic differentiation package.
-
-  const sunrealtype lambda[2] = {
-    SUN_RCONST(1.772850901841113),
-    -SUN_RCONST(0.7412891218574361),
-  };
-
-  const sunrealtype mu[4] = {SUN_RCONST(0.0), SUN_RCONST(0.0), SUN_RCONST(0.0),
-                             SUN_RCONST(0.0)};
-
-  sunrealtype* ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 0);
-
-  for (sunindextype i = 0; i < 2; ++i)
-  {
-    if (SUNRCompareTol(ans[i], lambda[i], ADJ_TOL))
-    {
-      fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
-              ans[i], lambda[i]);
-      return -1;
-    };
-  }
-
-  ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 1);
-
-  for (sunindextype i = 0; i < 4; ++i)
-  {
-    /* use absolute tolerance since we comparing with zero */
-    if (SUNRabs(mu[i] - ans[i]) > ADJ_TOL)
     {
       fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
               ans[i], mu[i]);
@@ -389,9 +355,9 @@ int main(int argc, char* argv[])
   SUNAdjointStepper adj_stepper;
   ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
 
-  // //
-  // // Now compute the adjoint solution
-  // //
+  //
+  // Now compute the adjoint solution
+  //
 
   SUNMatrix jac  = SUNDenseMatrix(neq, neq, sunctx);
   SUNMatrix jacp = SUNDenseMatrix(neq, num_params, sunctx);
@@ -442,23 +408,28 @@ int main(int argc, char* argv[])
   else { printf(">>> PASS\n"); }
 
   //
-  // Now compute the adjoint solution but for when forward problem done backwards
-  // starting with the forward solution.
+  // Now compute the adjoint solution but using tau = -t so we can test
+  // the backwards-in-time code paths.
   //
 
-  printf("\n-- Redo adjoint problem of forward problem done backwards  --\n\n");
+  printf("\n-- Redo adjoint problem with change of variables tau = -t  --\n\n");
 
   // Swap the start and end times
-  sunrealtype tmp = t0;
-  t0              = tf;
-  tf              = tmp;
+  sunrealtype tau0 = tf;
+  sunrealtype tauf = t0;
 
-  // Cleanup from the original forward problem and then recreate the integrator
-  // for the forward problem done backwards.
+  // Cleanup from the original forward problem
   SUNAdjointCheckpointScheme_Destroy(&checkpoint_scheme);
   SUNAdjointStepper_Destroy(&adj_stepper);
   ARKodeFree(&arkode_mem);
-  arkode_mem = ARKStepCreate(ode_rhs, NULL, t0, u, sunctx);
+
+  // Reset the initial condition
+  N_VConst(SUN_RCONST(1.0), u);
+  printf("Initial condition:\n");
+  N_VPrint(u);
+
+  // Recreate the integrator
+  arkode_mem = ARKStepCreate(neg_rhs, NULL, tau0, u, sunctx);
   ARKodeSetOrder(arkode_mem, order);
   ARKodeSetMaxNumSteps(arkode_mem, nsteps + 1);
   SUNAdjointCheckpointScheme_Create_Fixed(SUNDATAIOMODE_INMEM, mem_helper,
@@ -466,27 +437,25 @@ int main(int argc, char* argv[])
                                           keep_check, sunctx, &checkpoint_scheme);
   ARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme);
 
-  printf("Initial condition:\n");
-  N_VPrint(u);
-
-  forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, -dt, u);
-  if (check_forward_backward_answer(u))
+  forward_solution(sunctx, arkode_mem, checkpoint_scheme, tau0, tauf, -dt, u);
+  if (check_forward_answer(u))
   {
     ++failcount;
     fprintf(stderr,
             ">>> FAILURE: forward solution does not match correct answer\n");
   };
 
-  ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
-  SUNAdjointStepper_SetJacFn(adj_stepper, ode_jac, jac, parameter_jacobian, jacp);
-  dgdu(u, sensu0, params, tf);
-  dgdp(u, sensp, params, tf);
-
+  dgdu(u, sensu0, params, tauf);
+  dgdp(u, sensp, params, tauf);
   printf("Adjoint terminal condition:\n");
   N_VPrint(sf);
 
-  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
-  if (check_sensitivities_backward(sf))
+  ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
+  SUNAdjointStepper_SetVecHermitianTransposeJacFn(adj_stepper, neg_vjp,
+                                                  neg_parameter_vjp);
+
+  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tauf, tau0, sf);
+  if (check_sensitivities(sf))
   {
     ++failcount;
     fprintf(stderr,

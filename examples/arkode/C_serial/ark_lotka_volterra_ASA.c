@@ -51,7 +51,6 @@
 
 #include <arkode/arkode.h>
 #include <arkode/arkode_arkstep.h>
-#include "sundials/sundials_nvector.h"
 
 typedef struct
 {
