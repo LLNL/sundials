@@ -96,6 +96,13 @@ SUNErrCode SUNStepper_FullRhs(SUNStepper stepper, sunrealtype t, N_Vector v,
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
+SUNErrCode SUNStepper_ReInit(SUNStepper stepper, sunrealtype t0, N_Vector y0)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  if (stepper->ops->reinit) { return stepper->ops->reinit(stepper, t0, y0); }
+  return SUN_ERR_NOT_IMPLEMENTED;
+}
+
 SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
 {
   SUNFunctionBegin(stepper->sunctx);
@@ -201,6 +208,13 @@ SUNErrCode SUNStepper_SetFullRhsFn(SUNStepper stepper, SUNStepperFullRhsFn fn)
 {
   SUNFunctionBegin(stepper->sunctx);
   stepper->ops->fullrhs = fn;
+  return SUN_SUCCESS;
+}
+
+SUNErrCode SUNStepper_SetReInitFn(SUNStepper stepper, SUNStepperReInitFn fn)
+{
+  SUNFunctionBegin(stepper->sunctx);
+  stepper->ops->reinit = fn;
   return SUN_SUCCESS;
 }
 

@@ -137,6 +137,17 @@ Stepping Functions
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
+.. c:function:: SUNErrCode SUNStepper_ReInit(SUNStepper stepper, sunrealtype t0, N_Vector v0)
+
+   This function reinitalizes the stepper to solve a new problem, typically defined by a
+   different right hand side, and clears all counters.
+
+   :param stepper: the stepper object.
+   :param t0: the value of the independent variable :math:`t_0`.
+   :param v0: the value of the dependent variable vector :math:`v(t_0)`.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
 .. c:function:: SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector vR)
 
    This function resets the stepper state to the provided independent variable
@@ -330,6 +341,14 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :param fn: the :c:type:`SUNStepperFullRhsFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
+.. c:function:: SUNErrCode SUNStepper_SetReInitFn(SUNStepper stepper, SUNStepperResetFn fn)
+
+   This function attaches a :c:type:`SUNStepperReInitFn` function to a
+   :c:type:`SUNStepper` object.
+
+   :param stepper: a stepper object.
+   :param fn: the :c:type:`SUNStepperReInitFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 .. c:function:: SUNErrCode SUNStepper_SetResetFn(SUNStepper stepper, SUNStepperResetFn fn)
 
@@ -433,10 +452,18 @@ abstract base class.
    This type represents a function with the signature of
    :c:func:`SUNStepper_Reset`.
 
+
+.. c:type:: SUNErrCode (*SUNStepperReInitFn)(SUNStepper stepper, sunrealtype tR, N_Vector vR)
+
+   This type represents a function with the signature of
+   :c:func:`SUNStepper_ReInit`.
+
+
 .. c:type:: SUNErrCode (*SUNStepperResetCheckpointIndexFn)(SUNStepper stepper, int64_t ckptIdxR)
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_ResetCheckpointIndex`.
+
 
 .. c:type:: SUNErrCode (*SUNStepperSetStopTimeFn)(SUNStepper stepper, sunrealtype tstop)
 
