@@ -382,11 +382,11 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
 
 .. c:function:: SUNErrCode SUNStepper_SetGetNumStepsFn(SUNStepper stepper, SUNStepperSetGetNumStepsFn fn)
 
-   This function attaches a :c:type:`SUNStepperSetGetNumStepsFn` function to a
+   This function attaches a :c:type:`SUNStepperGetNumStepsFn` function to a
    :c:type:`SUNStepper` object.
 
    :param stepper: a stepper object.
-   :param fn: the :c:type:`SUNStepperSetGetNumStepsFn` function to attach.
+   :param fn: the :c:type:`SUNStepperGetNumStepsFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
@@ -455,18 +455,16 @@ abstract base class.
    This type represents a function with the signature of
    :c:func:`SUNStepper_SetForcing`.
 
-
 .. c:type:: SUNErrCode (*SUNStepperDestroyFn)(SUNStepper stepper)
 
    This type represents a function with the signature similar to
    :c:func:`SUNStepper_Destroy` for freeing the content associated with a
    :c:type:`SUNStepper`.
 
-.. c:type:: SUNErrCode (*SUNStepperGetNumStepsFn)(SUNStepper stepper, suncountertype nst)
+.. c:type:: SUNErrCode (*SUNStepperGetNumStepsFn)(SUNStepper stepper, suncountertype* nst)
 
-   This type represents a function with the signature of :c:func:`SUNStepper_GetNumSteps`.
-
-
+   This type represents a function with the signature of
+   :c:func:`SUNStepper_GetNumSteps`.
 
 .. _SUNStepper.Description.UserSupplied:
 
