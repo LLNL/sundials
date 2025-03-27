@@ -38,12 +38,12 @@ Adjoint terminal condition:
  0.000000000000000e+00
  0.000000000000000e+00
 Adjoint Solution:
- 3.520783147301914e+00
--2.193263775128638e+00
- 4.342704017915250e+00
--2.001518524407019e+00
- 1.010486440622636e+00
--1.396206777712409e+00
+ 3.520550418956852e+00
+-2.193097020595186e+00
+ 4.341685917744071e+00
+-2.000883243765114e+00
+ 1.010121298084231e+00
+-1.395734974499640e+00
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
@@ -54,34 +54,15 @@ JacP fn evals                 = 40004
 
 >>> PASS
 
--- Redo adjoint problem using JVP --
-
-Adjoint Solution:
- 3.520783147301914e+00
--2.193263775128638e+00
- 4.342704017915250e+00
--2.001518524407019e+00
- 1.010486440622636e+00
--1.396206777712409e+00
-
-SUNAdjointStepper Stats:
-Num backwards steps           = 10001
-Num recompute passes          = 0
-Jac-times-v evals             = 40004
-JacP-times-v evals            = 40004
-
-
->>> PASS
-
 -- Redo adjoint problem using VJP --
 
 Adjoint Solution:
- 3.520783147301914e+00
--2.193263775128638e+00
- 4.342704017915250e+00
--2.001518524407019e+00
- 1.010486440622636e+00
--1.396206777712409e+00
+ 3.520550418956852e+00
+-2.193097020595186e+00
+ 4.341685917744071e+00
+-2.000883243765114e+00
+ 1.010121298084231e+00
+-1.395734974499640e+00
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
@@ -91,14 +72,14 @@ JacP-times-v evals            = 40004
 
 >>> PASS
 
--- Redo adjoint problem of forward problem done backwards  --
+-- Redo adjoint problem with change of variables tau = -t  --
 
 Initial condition:
- 2.772850901841442e+00
- 2.587108781425562e-01
+ 1.000000000000000e+00
+ 1.000000000000000e+00
 Forward Solution:
- 9.999999999999859e-01
- 9.999999999999999e-01
+ 2.772850901841443e+00
+ 2.587108781425562e-01
 ARKODE Stats for Forward Solution:
 Current time                  = -9.99999999061824e-05
 Steps                         = 10001
@@ -118,17 +99,25 @@ NLS fails                     = 0
 NLS iters per step            = 0
 LS setups                     = 0
 
+Adjoint terminal condition:
+ 1.772850901841443e+00
+-7.412891218574438e-01
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+ 0.000000000000000e+00
+ 0.000000000000000e+00
 Adjoint Solution:
- 1.773469492739849e+00
--7.425544078655699e-01
- 5.954975925305103e-04
- 4.720279645295452e-05
--2.824185642671932e-04
- 2.241757541928842e-04
+ 3.520550418956855e+00
+-2.193097020595188e+00
+ 4.341685917744074e+00
+-2.000883243765115e+00
+ 1.010121298084232e+00
+-1.395734974499641e+00
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
 Num recompute passes          = 0
-Jac fn evals                  = 40004
-JacP fn evals                 = 40004
+Jac-times-v evals             = 40004
+JacP-times-v evals            = 40004
 
+>>> PASS
