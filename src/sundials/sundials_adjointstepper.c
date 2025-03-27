@@ -22,10 +22,11 @@
 #include "sundials_utils.h"
 
 SUNErrCode SUNAdjointStepper_Create(
-  SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper,
-  suncountertype final_step_idx, SUNDIALS_MAYBE_UNUSED N_Vector sf,
-  sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme,
-  SUNContext sunctx, SUNAdjointStepper* adj_stepper_ptr)
+  SUNStepper fwd_sunstepper, sunbooleantype own_fwd, SUNStepper adj_sunstepper,
+  sunbooleantype own_adj, suncountertype final_step_idx,
+  SUNDIALS_MAYBE_UNUSED N_Vector sf, sunrealtype tf,
+  SUNAdjointCheckpointScheme checkpoint_scheme, SUNContext sunctx,
+  SUNAdjointStepper* adj_stepper_ptr)
 {
   SUNFunctionBegin(sunctx);
 
@@ -33,11 +34,13 @@ SUNErrCode SUNAdjointStepper_Create(
   adj_stepper = (SUNAdjointStepper)malloc(sizeof(*adj_stepper));
   SUNAssert(adj_stepper, SUN_ERR_MALLOC_FAIL);
 
-  adj_stepper->fwd_sunstepper    = fwd_sunstepper;
-  adj_stepper->adj_sunstepper    = adj_sunstepper;
-  adj_stepper->checkpoint_scheme = checkpoint_scheme;
-  adj_stepper->Jac               = NULL;
-  adj_stepper->JacP              = NULL;
+  adj_stepper->fwd_sunstepper     = fwd_sunstepper;
+  adj_stepper->own_fwd_sunstepper = own_fwd;
+  adj_stepper->adj_sunstepper     = adj_sunstepper;
+  adj_stepper->own_adj_sunstepper = own_adj;
+  adj_stepper->checkpoint_scheme  = checkpoint_scheme;
+  adj_stepper->Jac                = NULL;
+  adj_stepper->JacP               = NULL;
 
   adj_stepper->JacFn  = NULL;
   adj_stepper->JacPFn = NULL;
@@ -138,8 +141,8 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper self,
 SUNErrCode SUNAdjointStepper_Destroy(SUNAdjointStepper* self_ptr)
 {
   SUNAdjointStepper self = *self_ptr;
-  SUNStepper_Destroy(&self->fwd_sunstepper);
-  SUNStepper_Destroy(&self->adj_sunstepper);
+  if (self->own_fwd_sunstepper) { SUNStepper_Destroy(&self->fwd_sunstepper); }
+  if (self->own_adj_sunstepper) { SUNStepper_Destroy(&self->adj_sunstepper); }
   free(self);
   *self_ptr = NULL;
   return SUN_SUCCESS;

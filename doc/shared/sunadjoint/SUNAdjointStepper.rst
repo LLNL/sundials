@@ -90,7 +90,7 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
    .. c:member:: suncountertype njtimesv
 
-      Holds the count of the number of :math:`(\partial f/\partial y)^* v`, or 
+      Holds the count of the number of :math:`(\partial f/\partial y)^* v`, or
       :math:`v^*(\partial f/\partial y)` evaluations.
 
    .. c:member:: suncountertype njptimesv
@@ -121,14 +121,16 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
 The :c:type:`SUNAdjointStepper` class has the following functions:
 
-.. c:function:: SUNErrCode SUNAdjointStepper_Create(SUNStepper fwd_sunstepper, SUNStepper adj_sunstepper, \
-   suncountertype final_step_idx, N_Vector sf, sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme, \
-   SUNContext sunctx, SUNAdjointStepper* adj_stepper)
+.. c:function:: SUNErrCode SUNAdjointStepper_Create(SUNStepper fwd_sunstepper, sunbooleantype own_fwd \
+   SUNStepper adj_sunstepper, sunbooleantype own_adj, suncountertype final_step_idx, N_Vector sf, \
+   sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme, SUNContext sunctx, SUNAdjointStepper* adj_stepper)
 
    Creates the ``SUNAdjointStepper`` object needed to solve the adjoint problem.
 
    :param fwd_sunstepper: The :c:type:`SUNStepper` to be used for forward computations of the original ODE.
+   :param own_fwd: Should `fwd_sunstepper` be owned (and destroyed) by the `SUNAdjointStepper` or not.
    :param adj_sunstepper: The :c:type:`SUNStepper` to be used for the backward integration of the adjoint ODE.
+   :param own_adj: Should `adj_sunstepper` be owned (and destroyed) by the `SUNAdjointStepper` or not.
    :param final_step_idx: The index (step number) of the step corresponding to ``t_f`` for the forward ODE.
    :param sf: The terminal condition for the adjoint ODE.
    :param tf: The terminal time for the forward ODE (the initial time for the adjoint ODE).
