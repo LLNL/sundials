@@ -3667,8 +3667,8 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
     return retval;
   }
 
-  errcode = SUNAdjointStepper_Create(fwd_stepper, adj_stepper, nst - 1, sf,
-                                     ark_mem->tretlast,
+  errcode = SUNAdjointStepper_Create(fwd_stepper, SUNTRUE, adj_stepper, SUNTRUE,
+                                     nst - 1, sf, ark_mem->tretlast,
                                      ark_mem->checkpoint_scheme,
                                      ark_mem->sunctx, adj_stepper_ptr);
   if (errcode)
