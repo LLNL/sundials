@@ -74,10 +74,8 @@ SUNErrCode SUNAdjointStepper_ReInit(SUNAdjointStepper self, N_Vector y0,
   self->njtimesv   = 0;
   self->njptimesv  = 0;
   self->nrecompute = 0;
-  SUNStepper_Reset(self->adj_sunstepper, tf, sf);
-  SUNStepper_ResetCheckpointIndex(self->adj_sunstepper, 0);
-  SUNStepper_Reset(self->fwd_sunstepper, t0, y0);
-  SUNStepper_ResetCheckpointIndex(self->fwd_sunstepper, 0);
+  SUNStepper_ReInit(self->adj_sunstepper, tf, sf);
+  SUNStepper_ReInit(self->fwd_sunstepper, t0, y0);
   return SUN_SUCCESS;
 }
 
