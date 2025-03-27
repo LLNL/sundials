@@ -64,7 +64,7 @@ For linear multistep methods :math:`k \geq 1` and for one step methods :math:`k 
 Reformulating the optimization problem for the discrete case, we have
 
 .. math::
-   \min_{\xi} \Psi(\xi) = g(y_n, p)
+   \min_{y_0, p} g(y_n, p)
    :label: SUNADJOINT_DISCRETE_OPTIMIZATION_PROBLEM
 
 The gradients of :eq:`SUNADJOINT_DISCRETE_OPTIMIZATION_PROBLEM` can be computed using the transposed chain
