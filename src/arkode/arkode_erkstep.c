@@ -30,6 +30,7 @@
 #include "arkode_impl.h"
 #include "arkode_interp_impl.h"
 
+#include "sundials/sundials_errors.h"
 #include "sundials_adjointstepper_impl.h"
 
 /*===============================================================
@@ -988,7 +989,8 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
   if (retval != ARK_SUCCESS) { return (retval); }
 
   SUNLogDebug(ARK_LOGGER, "ARKODE::erkStep_TakeStep_ERK_Adjoint", "start-step",
-              "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
+              "step = %li, h = %" SUN_FORMAT_G ", dsm = %" SUN_FORMAT_G
+              ", nflag = %d",
               ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
 
   /* local shortcuts for readability */
@@ -1075,8 +1077,8 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
           sunrealtype tf = ark_mem->tn;
           SUNLogDebug(ARK_LOGGER, "ARKODE::erkStep_TakeStep_ERK_Adjoint",
                       "start-recompute",
-                      "start_step = %li, stop_step = %li, t0 = %" RSYM
-                      ", tf = %" RSYM "",
+                      "start_step = %li, stop_step = %li, t0 = %" SUN_FORMAT_G
+                      ", tf = %" SUN_FORMAT_G "",
                       start_step, stop_step, t0, tf);
           if (SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, t0, tf,
                                              checkpoint))
@@ -1085,8 +1087,8 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
           }
           SUNLogDebug(ARK_LOGGER, "ARKODE::erkStep_TakeStep_ERK_Adjoint",
                       "end-recompute",
-                      "start_step = %li, stop_step = %li, t0 = %" RSYM
-                      ", tf = %" RSYM "",
+                      "start_step = %li, stop_step = %li, t0 = %" SUN_FORMAT_G
+                      ", tf = %" SUN_FORMAT_G "",
                       start_step, stop_step, t0, tf);
           return erkStep_TakeStep_Adjoint(ark_mem, dsmPtr, nflagPtr);
         }
@@ -1134,7 +1136,8 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
   *nflagPtr = 0;
 
   SUNLogDebug(ARK_LOGGER, "ARKODE::erkStep_TakeStep_ERK_Adjoint", "end-step",
-              "step = %li, h = %" RSYM ", dsm = %" RSYM ", nflag = %d",
+              "step = %li, h = %" SUN_FORMAT_G ", dsm = %" SUN_FORMAT_G
+              ", nflag = %d",
               ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
 
   return (ARK_SUCCESS);
@@ -1665,6 +1668,31 @@ int erkStepCompatibleWithAdjointSolver(
   return ARK_SUCCESS;
 }
 
+static SUNErrCode erkStep_SUNStepperReInit(SUNStepper stepper, sunrealtype t0,
+                                           N_Vector y0)
+{
+  SUNFunctionBegin(stepper->sunctx);
+
+  void* arkode_mem;
+  SUNCheckCall(SUNStepper_GetContent(stepper, &arkode_mem));
+
+  ARKodeMem ark_mem;
+  ARKodeERKStepMem step_mem;
+  int retval = erkStep_AccessARKODEStepMem(arkode_mem, "erkStepSUNStepperReInit",
+                                           &ark_mem, &step_mem);
+  if (retval)
+  {
+    arkProcessError(NULL, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "The ARKStep memory pointer is NULL");
+    return ARK_ILL_INPUT;
+  }
+
+  stepper->last_flag = ERKStepReInit(arkode_mem, step_mem->f, t0, y0);
+  if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
+
+  return SUN_SUCCESS;
+}
+
 int ERKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
                                 SUNAdjointStepper* adj_stepper_ptr)
 {
@@ -1743,13 +1771,23 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
     return retval;
   }
 
-  /* SUNAdjointStepper will own the SUNSteppers and destroy them */
+  SUNErrCode errcode = SUN_SUCCESS;
+
   SUNStepper fwd_stepper;
   retval = ARKodeCreateSUNStepper(arkode_mem, &fwd_stepper);
   if (retval)
   {
     arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
                     "ARKodeCreateSUNStepper failed");
+    return retval;
+  }
+
+  errcode = SUNStepper_SetReInitFn(fwd_stepper, erkStep_SUNStepperReInit);
+  if (errcode)
+  {
+    retval = ARK_UNRECOGNIZED_ERROR;
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "SUNStepper_SetReInitFn failed");
     return retval;
   }
 
@@ -1762,7 +1800,14 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
     return retval;
   }
 
-  SUNErrCode errcode = SUN_SUCCESS;
+  errcode = SUNStepper_SetReInitFn(adj_stepper, erkStep_SUNStepperReInit);
+  if (errcode)
+  {
+    retval = ARK_UNRECOGNIZED_ERROR;
+    arkProcessError(ark_mem, retval, __LINE__, __func__, __FILE__,
+                    "SUNStepper_SetReInitFn failed");
+    return retval;
+  }
 
   /* Setting this ensures that the ARKodeMem underneath the adj_stepper
      is destroyed with the SUNStepper_Destroy call. */
@@ -1775,6 +1820,7 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
     return retval;
   }
 
+  /* SUNAdjointStepper will own the SUNSteppers and destroy them */
   errcode = SUNAdjointStepper_Create(fwd_stepper, SUNTRUE, adj_stepper, SUNTRUE,
                                      nst - 1, sf, ark_mem->tretlast,
                                      ark_mem->checkpoint_scheme,

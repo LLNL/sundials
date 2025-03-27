@@ -1847,9 +1847,6 @@ int arkInit(ARKodeMem ark_mem, sunrealtype t0, N_Vector y0, int init_type)
     ark_mem->initialized = SUNFALSE;
   }
 
-  // TODO(CJB): instead of this, need to add a SUNStepper_ReInit function.
-  ark_mem->nst = 0;
-
   /* Indicate initialization is needed */
   ark_mem->initsetup  = SUNTRUE;
   ark_mem->init_type  = init_type;
@@ -2002,8 +1999,8 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
 #if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
     SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
                        "ARKODE::arkInitialSetup", "test-tstop",
-                       "h = %" RSYM ", tcur = %" RSYM ", tout = %" RSYM
-                       ", tstop = %" RSYM,
+                       "h = %" SUN_FORMAT_G ", tcur = %" SUN_FORMAT_G
+                       ", tout = %" SUN_FORMAT_G ", tstop = %" SUN_FORMAT_G,
                        ark_mem->h, ark_mem->tcur, tout, ark_mem->tstop);
 #endif
 

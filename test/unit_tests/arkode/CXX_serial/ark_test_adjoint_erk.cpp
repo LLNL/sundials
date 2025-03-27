@@ -407,41 +407,7 @@ int main(int argc, char* argv[])
   else { printf("\n>>> PASS\n"); }
 
   //
-  // Now compute the adjoint solution using Jvp
-  //
-
-  printf("\n-- Redo adjoint problem using JVP --\n\n");
-  if (!keep_check)
-  {
-    N_VConst(SUN_RCONST(1.0), u);
-    printf("Initial condition:\n");
-    N_VPrint(u);
-    ERKStepReInit(arkode_mem, ode_rhs, t0, u);
-    forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
-    if (check_forward_answer(u))
-    {
-      ++failcount;
-      fprintf(stderr,
-              ">>> FAILURE: forward solution does not match correct answer\n");
-    }
-  }
-  dgdu(u, sensu0, params, tf);
-  dgdp(u, sensp, params, tf);
-  SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
-  SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
-  SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, ode_jvp,
-                                                  parameter_jvp);
-  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
-  if (check_sensitivities(sf))
-  {
-    ++failcount;
-    fprintf(stderr,
-            ">>> FAILURE: adjoint solution does not match correct answer\n");
-  }
-  else { printf("\n>>> PASS\n"); }
-
-  //
-  // Now compute the adjoint solution using vJp
+  // Now compute the adjoint solution using vjp
   //
 
   printf("\n-- Redo adjoint problem using VJP --\n\n");
@@ -462,7 +428,7 @@ int main(int argc, char* argv[])
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
   SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
-  SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, NULL, NULL);
+  SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
   SUNAdjointStepper_SetVecHermitianTransposeJacFn(adj_stepper, ode_vjp,
                                                   parameter_vjp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
