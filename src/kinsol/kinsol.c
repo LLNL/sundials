@@ -3196,8 +3196,8 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
       {
         if (kin_mem->kin_damping_fn)
         {
-          retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, NULL, 0,
-                                           kin_mem->kin_user_data,
+          retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, NULL,
+                                           0, kin_mem->kin_user_data,
                                            &(kin_mem->kin_beta_aa));
           if (retval)
           {
