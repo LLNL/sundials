@@ -2121,7 +2121,7 @@ from :numref:`KINSOL.Mathematics.FixedPoint` and
 
 .. c:type:: int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val, sunrealtype* qt_fn, long int depth, void* user_data, sunrealtype* damping_factor)
 
-   This function computes the damping factor, :math:`\beta_n > 0`, for
+   This function computes the damping factor, :math:`0 < \beta_n \leq 1`, for
    fixed-point and Picard iterations.
 
    **Parameters:**
@@ -2131,9 +2131,9 @@ from :numref:`KINSOL.Mathematics.FixedPoint` and
    * **g_val** -- the fixed-point function evaluated at the current iterate, :math:`G(u_n)`.
    * **qt_fn** -- the array :math:`Q^T f_n` of length ``depth`` from
      :numref:`KINSOL.Mathematics.AndersonAcceleration` which can be used to
-     compute the acceleration gain, :math:`\sqrt{1 - \|Q_n^T f_n\|/\|f_n\|}`, from
-     :cite:p:`evans2020proof` or ``NULL`` if acceleration is not applied to this
-     iteration.
+     compute the acceleration gain, :math:`\sqrt{1 - \|Q_n^T f_n\|^2/\|f_n\|^2}`,
+     from :cite:p:`evans2020proof` or ``NULL`` if acceleration is not applied to
+     this iteration.
    * **depth** -- the size of the Anderson acceleration space, :math:`m_n`, or
      zero if acceleration is not applied to this iteration.
    * **user_data** -- the user data pointer passed to :c:func:`KINSetUserData`.

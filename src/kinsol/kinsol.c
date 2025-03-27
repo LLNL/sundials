@@ -2657,11 +2657,10 @@ static int KINPicardAA(KINMem kin_mem)
             ret = KIN_DAMPING_FN_ERR;
             break;
           }
-          if (kin_mem->kin_beta <= ZERO)
+          if (kin_mem->kin_beta <= ZERO || kin_mem->kin_beta > ONE)
           {
             KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
-                            __FILE__,
-                            "The damping parameter is negative or zero.");
+                            __FILE__, "The damping parameter is outside of the range (0, 1].");
             ret = KIN_DAMPING_FN_ERR;
             break;
           }
@@ -2874,11 +2873,10 @@ static int KINFP(KINMem kin_mem)
             ret = KIN_DAMPING_FN_ERR;
             break;
           }
-          if (kin_mem->kin_beta <= ZERO)
+          if (kin_mem->kin_beta <= ZERO || kin_mem->kin_beta > ONE)
           {
             KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
-                            __FILE__,
-                            "The damping parameter is negative or zero.");
+                            __FILE__, "The damping parameter is outside of the range (0, 1].");
             ret = KIN_DAMPING_FN_ERR;
             break;
           }
@@ -3133,10 +3131,10 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                           __FILE__, "The damping function failed.");
           return KIN_DAMPING_FN_ERR;
         }
-        if (kin_mem->kin_beta_aa <= ZERO)
+        if (kin_mem->kin_beta_aa <= ZERO || kin_mem->kin_beta_aa > ONE)
         {
           KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__,
-                          __FILE__, "The damping parameter is negative or zero.");
+                          __FILE__, "The damping parameter is outside of the range (0, 1].");
           return KIN_DAMPING_FN_ERR;
         }
       }
@@ -3266,7 +3264,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
 
   /* Compute the damping factor before overwriting gamma below so we can pass
      gamma = Q^T fv (just computed above) to the damping function as it can be
-     used to compute the acceleration gain = sqrt(1 - ||Q^T fv||/||fv||). */
+     used to compute the acceleration gain = sqrt(1 - ||Q^T fv||^2/||fv||^2). */
   if (kin_mem->kin_damping_fn)
   {
     retval = kin_mem->kin_damping_fn(kin_mem->kin_nni, xold, gval, gamma, lAA,
@@ -3278,10 +3276,10 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
                       "The damping function failed.");
       return KIN_DAMPING_FN_ERR;
     }
-    if (kin_mem->kin_beta_aa <= ZERO)
+    if (kin_mem->kin_beta_aa <= ZERO || kin_mem->kin_beta_aa > ONE)
     {
       KINProcessError(kin_mem, KIN_DAMPING_FN_ERR, __LINE__, __func__, __FILE__,
-                      "The damping parameter is negative or zero.");
+                      "The damping parameter is outside of the range (0, 1].");
       return KIN_DAMPING_FN_ERR;
     }
   }
