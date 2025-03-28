@@ -47,7 +47,7 @@ typedef struct SUNHashMap_* SUNHashMap;
 
 struct SUNHashMap_
 {
-  void (*destroyKeyValue)(SUNHashMapKeyValue*);
+  SUNErrCode (*destroyKeyValue)(SUNHashMapKeyValue*);
   SUNStlVector_SUNHashMapKeyValue buckets;
 };
 
