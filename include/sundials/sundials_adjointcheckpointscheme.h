@@ -25,41 +25,87 @@ extern "C" {
 typedef _SUNDIALS_STRUCT_ SUNAdjointCheckpointScheme_Ops_* SUNAdjointCheckpointScheme_Ops;
 typedef _SUNDIALS_STRUCT_ SUNAdjointCheckpointScheme_* SUNAdjointCheckpointScheme;
 
-struct SUNAdjointCheckpointScheme_Ops_
-{
-  SUNErrCode (*needssaving)(SUNAdjointCheckpointScheme, suncountertype step_num,
-                            suncountertype stage_num, sunrealtype t,
-                            sunbooleantype* yes_or_no);
+typedef SUNErrCode (*SUNAdjointCheckpointSchemeNeedsSavingFn)(
+  SUNAdjointCheckpointScheme, suncountertype step_num, suncountertype stage_num,
+  sunrealtype t, sunbooleantype* yes_or_no);
 
-  SUNErrCode (*needsdeleting)(SUNAdjointCheckpointScheme,
-                              suncountertype step_num, suncountertype stage_num,
-                              sunrealtype t, sunbooleantype* yes_or_no);
+typedef SUNErrCode (*SUNAdjointCheckpointSchemeNeedsDeletingFn)(
+  SUNAdjointCheckpointScheme, suncountertype step_num, suncountertype stage_num,
+  sunrealtype t, sunbooleantype* yes_or_no);
 
-  SUNErrCode (*insertvector)(SUNAdjointCheckpointScheme, suncountertype step_num,
-                             suncountertype stage_num, sunrealtype t, N_Vector y);
+typedef SUNErrCode (*SUNAdjointCheckpointSchemeInsertVectorFn)(
+  SUNAdjointCheckpointScheme, suncountertype step_num, suncountertype stage_num,
+  sunrealtype t, N_Vector y);
 
-  SUNErrCode (*loadvector)(SUNAdjointCheckpointScheme, suncountertype step_num,
-                           suncountertype stage_num, sunbooleantype peek,
-                           N_Vector* yout, sunrealtype* tout);
+typedef SUNErrCode (*SUNAdjointCheckpointSchemeLoadVectorFn)(
+  SUNAdjointCheckpointScheme, suncountertype step_num, suncountertype stage_num,
+  sunbooleantype peek, N_Vector* yout, sunrealtype* tout);
 
-  SUNErrCode (*removeVector)(SUNAdjointCheckpointScheme, suncountertype step_num,
-                             suncountertype stage_num, N_Vector* out);
+typedef SUNErrCode (*SUNAdjointCheckpointSchemeRemoveVectorFn)(
+  SUNAdjointCheckpointScheme, suncountertype step_num, suncountertype stage_num,
+  N_Vector* out);
 
-  SUNErrCode (*destroy)(SUNAdjointCheckpointScheme*);
+typedef SUNErrCode (*SUNAdjointCheckpointSchemeDestroyFn)(
+  SUNAdjointCheckpointScheme* scheme);
 
-  SUNErrCode (*enableDense)(SUNAdjointCheckpointScheme, sunbooleantype on_or_off);
-};
+typedef SUNErrCode (*SUNAdjointCheckpointSchemeEnableDenseFn)(
+  SUNAdjointCheckpointScheme, sunbooleantype on_or_off);
 
-struct SUNAdjointCheckpointScheme_
-{
-  SUNAdjointCheckpointScheme_Ops ops;
-  void* content;
-  SUNContext sunctx;
-};
+struct SUNAdjointCheckpointScheme_Ops_;
+
+struct SUNAdjointCheckpointScheme_;
+
+/*
+ * "static" base class methods
+ */
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(SUNContext sunctx,
                                                SUNAdjointCheckpointScheme*);
+
+/*
+ * Base class methods
+ */
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_SetNeedsSavingFn(
+  SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeNeedsSavingFn);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_SetNeedsDeletingFn(
+  SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeNeedsDeletingFn);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_SetInsertVectorFn(
+  SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeInsertVectorFn);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_SetLoadVectorFn(
+  SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeLoadVectorFn);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_SetRemoveVectorFn(
+  SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeRemoveVectorFn);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_SetDestroyFn(
+  SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeDestroyFn);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_SetEnableDenseFn(
+  SUNAdjointCheckpointScheme, SUNAdjointCheckpointSchemeEnableDenseFn);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_SetContent(SUNAdjointCheckpointScheme,
+                                                 void* content);
+
+SUNDIALS_EXPORT
+SUNErrCode SUNAdjointCheckpointScheme_GetContent(SUNAdjointCheckpointScheme,
+                                                 void** content);
+
+/*
+ * Virtual (overridable) base class methods
+ */
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme,

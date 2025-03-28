@@ -38,11 +38,12 @@ static bool compare_vectors(N_Vector expected, N_Vector actual)
   return true;
 }
 
-static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
+static void fake_mutlistage_method(SUNContext sunctx,
+                                   SUNAdjointCheckpointScheme cs, int steps,
                                    int stages, bool test_load = false,
                                    sunrealtype dt = SUN_RCONST(0.1))
 {
-  N_Vector state  = N_VNew_Serial(10, cs->sunctx);
+  N_Vector state  = N_VNew_Serial(10, sunctx);
   N_Vector loaded = N_VClone(state);
 
   sunrealtype t    = SUN_RCONST(0.0);
@@ -161,7 +162,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, SingleStageWorks)
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  fake_mutlistage_method(cs, 1, 1, true);
+  fake_mutlistage_method(sunctx, cs, 1, 1, true);
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -181,7 +182,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStageWorks)
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  fake_mutlistage_method(cs, 1, 2, true);
+  fake_mutlistage_method(sunctx, cs, 1, 2, true);
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -201,7 +202,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsWorks)
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  fake_mutlistage_method(cs, 2, 1, true);
+  fake_mutlistage_method(sunctx, cs, 2, 1, true);
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -221,7 +222,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsTwoStagesWorks)
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  fake_mutlistage_method(cs, 2, 2, true);
+  fake_mutlistage_method(sunctx, cs, 2, 2, true);
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -241,7 +242,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, SingleStageWithDeleteWorks)
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  fake_mutlistage_method(cs, 1, 1, true);
+  fake_mutlistage_method(sunctx, cs, 1, 1, true);
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -261,7 +262,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStagesWithDeleteWorks)
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  fake_mutlistage_method(cs, 1, 2, true);
+  fake_mutlistage_method(sunctx, cs, 1, 2, true);
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -281,7 +282,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsWithDeleteWorks)
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  fake_mutlistage_method(cs, 2, 1, true);
+  fake_mutlistage_method(sunctx, cs, 2, 1, true);
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -301,7 +302,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, TwoStepsTwoStagesWithDeleteWorks)
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  fake_mutlistage_method(cs, 2, 2, true);
+  fake_mutlistage_method(sunctx, cs, 2, 2, true);
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -322,7 +323,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
                                                 keep_after_loading, sunctx, &cs);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  fake_mutlistage_method(cs, 2, 1, false, /*dt=*/0.1);
+  fake_mutlistage_method(sunctx, cs, 2, 1, false, /*dt=*/0.1);
 
   // Load the last step
   suncountertype step  = 1;

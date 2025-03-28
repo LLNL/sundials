@@ -1,4 +1,6 @@
 /* -----------------------------------------------------------------
+ * Programmer(s): Cody J. Balos @ LLNL
+ * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -17,6 +19,7 @@
 #include <sundials/sundials_core.h>
 
 #include "sundatanode/sundatanode_inmem.h"
+#include "sundials_adjointcheckpointscheme_impl.h"
 #include "sundials_datanode.h"
 #include "sundials_logger_impl.h"
 #include "sundials_macros.h"
