@@ -184,7 +184,7 @@ static int64_t sunHashMapLinearProbeInsert(int64_t idx, SUNHashMapKeyValue kv,
 static SUNErrCode sunHashMapResize(SUNHashMap map)
 {
   int64_t old_capacity = SUNHashMap_Capacity(map);
-  int64_t new_capacity = old_capacity * 2;
+  int64_t new_capacity = old_capacity * SUNSTLVECTOR_GROWTH_FACTOR;
 
   SUNStlVector_SUNHashMapKeyValue old_buckets = map->buckets;
   map->buckets = SUNStlVector_SUNHashMapKeyValue_New(new_capacity,

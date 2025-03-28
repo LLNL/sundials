@@ -83,16 +83,16 @@ TEST_F(SUNHashMapTest, InsertRequiringResizeWorks)
 
   err = SUNHashMap_Insert(map, key1, &value1);
   ASSERT_EQ(err, 0);
+  ASSERT_EQ(SUNHashMap_Capacity(map), 2); // Ensure no resize happened
 
   err = SUNHashMap_Insert(map, key2, &value2);
   ASSERT_EQ(err, 0);
+  ASSERT_EQ(SUNHashMap_Capacity(map), 2); // Ensure no resize happened
 
   // This should trigger a resize since init_capacity is 2
   err = SUNHashMap_Insert(map, key3, &value3);
   ASSERT_EQ(err, 0);
-
-  // Ensure resize happened
-  ASSERT_EQ(SUNHashMap_Capacity(map), 4);
+  ASSERT_EQ(SUNHashMap_Capacity(map), 3); // Ensure resize happened
 
   void* retrieved_value;
   err = SUNHashMap_GetValue(map, key1, &retrieved_value);
