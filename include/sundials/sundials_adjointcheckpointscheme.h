@@ -42,7 +42,7 @@ struct SUNAdjointCheckpointScheme_Ops_
                            suncountertype stage_num, sunbooleantype peek,
                            N_Vector* yout, sunrealtype* tout);
 
-  SUNErrCode (*deleteVector)(SUNAdjointCheckpointScheme, suncountertype step_num,
+  SUNErrCode (*removeVector)(SUNAdjointCheckpointScheme, suncountertype step_num,
                              suncountertype stage_num, N_Vector* out);
 
   SUNErrCode (*destroy)(SUNAdjointCheckpointScheme*);

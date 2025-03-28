@@ -41,7 +41,7 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
   ops->needsdeleting = NULL;
   ops->insertvector  = NULL;
   ops->loadvector    = NULL;
-  ops->deleteVector  = NULL;
+  ops->removeVector  = NULL;
   ops->enableDense   = NULL;
   ops->destroy       = NULL;
 
@@ -127,9 +127,9 @@ SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(
 {
   SUNFunctionBegin(check_scheme->sunctx);
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
-  if (check_scheme->ops->deleteVector)
+  if (check_scheme->ops->removeVector)
   {
-    SUNErrCode err = check_scheme->ops->deleteVector(check_scheme, step_num,
+    SUNErrCode err = check_scheme->ops->removeVector(check_scheme, step_num,
                                                      stage_num, out);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;

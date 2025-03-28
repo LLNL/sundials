@@ -72,7 +72,7 @@ The virtual table structure is defined as
 
       Function pointer to load a checkpoint state represented as a :c:type:`N_Vector`.
 
-   .. c:member:: SUNErrCode (*deleteVector)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, N_Vector* out)
+   .. c:member:: SUNErrCode (*removeVector)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, N_Vector* out)
 
       Function pointer to remove a checkpoint state represented as a :c:type:`N_Vector`.
 
