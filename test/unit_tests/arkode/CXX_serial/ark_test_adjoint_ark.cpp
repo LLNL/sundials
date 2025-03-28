@@ -396,7 +396,7 @@ int main(int argc, char* argv[])
   dgdp(u, sensp, params, tf);
   SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
   SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
-  SUNAdjointStepper_SetVecHermitianTransposeJacFn(adj_stepper, ode_vjp,
+  SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, ode_vjp,
                                                   parameter_vjp);
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
   if (check_sensitivities(sf))
@@ -451,7 +451,7 @@ int main(int argc, char* argv[])
   N_VPrint(sf);
 
   ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
-  SUNAdjointStepper_SetVecHermitianTransposeJacFn(adj_stepper, neg_vjp,
+  SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, neg_vjp,
                                                   neg_parameter_vjp);
 
   adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tauf, tau0, sf);
