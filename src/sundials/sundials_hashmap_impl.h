@@ -47,8 +47,7 @@ typedef struct SUNHashMap_* SUNHashMap;
 
 struct SUNHashMap_
 {
-  int64_t capacity; /* max number of entries */
-  void (*destroyKeyValue)(SUNHashMapKeyValue*);
+  SUNErrCode (*destroyKeyValue)(SUNHashMapKeyValue*);
   SUNStlVector_SUNHashMapKeyValue buckets;
 };
 

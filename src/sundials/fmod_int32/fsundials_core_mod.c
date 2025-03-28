@@ -2945,7 +2945,7 @@ SWIGEXPORT int _wrap_FSUNStepper_GetLastFlag(void *farg1, int *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNStepper_GetNumSteps(void *farg1, int64_t *farg2) {
+SWIGEXPORT int _wrap_FSUNStepper_GetNumSteps(void *farg1, long *farg2) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
@@ -3365,7 +3365,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NewEmpty(void *farg1, void *far
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, int *farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme farg1, long const *farg2, long const *farg3, double const *farg4, int *farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -3385,7 +3385,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpoin
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, int *farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme farg1, long const *farg2, long const *farg3, double const *farg4, int *farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -3405,7 +3405,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpo
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, N_Vector farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme farg1, long const *farg2, long const *farg3, double const *farg4, N_Vector farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -3425,7 +3425,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpoi
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, int const *farg4, void *farg5, double *farg6) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme farg1, long const *farg2, long const *farg3, int const *farg4, void *farg5, double *farg6) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -3447,7 +3447,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpoint
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, void *farg4) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme farg1, long const *farg2, long const *farg3, void *farg4) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -3491,7 +3491,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_EnableDense(SUNAdjointCheckpoin
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_Create(void *farg1, int const *farg2, void *farg3, int const *farg4, int64_t const *farg5, N_Vector farg6, double const *farg7, SUNAdjointCheckpointScheme farg8, void *farg9, void *farg10) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_Create(void *farg1, int const *farg2, void *farg3, int const *farg4, long const *farg5, N_Vector farg6, double const *farg7, SUNAdjointCheckpointScheme farg8, void *farg9, void *farg10) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
   int arg2 ;
@@ -3577,7 +3577,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_OneStep(void *farg1, double const *farg2
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_RecomputeFwd(void *farg1, int64_t const *farg2, double const *farg3, double const *farg4, N_Vector farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_RecomputeFwd(void *farg1, long const *farg2, double const *farg3, double const *farg4, N_Vector farg5) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype arg2 ;
@@ -3633,22 +3633,6 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_SetJacHermitianTransposeVecFn(void *farg
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_SetVecHermitianTransposeJacFn(void *farg1, SUNRhsJacTimesFn farg2, SUNRhsJacTimesFn farg3) {
-  int fresult ;
-  SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
-  SUNRhsJacTimesFn arg2 = (SUNRhsJacTimesFn) 0 ;
-  SUNRhsJacTimesFn arg3 = (SUNRhsJacTimesFn) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNAdjointStepper)(farg1);
-  arg2 = (SUNRhsJacTimesFn)(farg2);
-  arg3 = (SUNRhsJacTimesFn)(farg3);
-  result = (SUNErrCode)SUNAdjointStepper_SetVecHermitianTransposeJacFn(arg1,arg2,arg3);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSUNAdjointStepper_SetUserData(void *farg1, void *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
@@ -3663,7 +3647,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_SetUserData(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumSteps(void *farg1, int64_t *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumSteps(void *farg1, long *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
@@ -3677,7 +3661,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumSteps(void *farg1, int64_t *farg2)
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacEvals(void *farg1, int64_t *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacEvals(void *farg1, long *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
@@ -3691,7 +3675,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacEvals(void *farg1, int64_t *far
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPEvals(void *farg1, int64_t *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPEvals(void *farg1, long *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
@@ -3705,7 +3689,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPEvals(void *farg1, int64_t *fa
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacTimesVecEvals(void *farg1, int64_t *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacTimesVecEvals(void *farg1, long *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
@@ -3719,7 +3703,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacTimesVecEvals(void *farg1, int6
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPTimesVecEvals(void *farg1, int64_t *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPTimesVecEvals(void *farg1, long *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
@@ -3733,7 +3717,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPTimesVecEvals(void *farg1, int
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacEvals(void *farg1, int64_t *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacEvals(void *farg1, long *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
@@ -3747,7 +3731,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacEvals(void *farg1, int6
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacPEvals(void *farg1, int64_t *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacPEvals(void *farg1, long *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;
@@ -3761,7 +3745,7 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacPEvals(void *farg1, int
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumRecompute(void *farg1, int64_t *farg2) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumRecompute(void *farg1, long *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
   suncountertype *arg2 = (suncountertype *) 0 ;

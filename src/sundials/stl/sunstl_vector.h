@@ -52,11 +52,11 @@ struct SUNStlVectorTtype_s
 };
 
 // This constant controls how much space will be allocated when a resize is needed.
-// The new capacity is GROWTH_FACTOR*current_capacity.
+// The new capacity is SUNSTLVECTOR_GROWTH_FACTOR*current_capacity.
 // Some std::vector implementations use 2, but 1.5 will be more conservative in terms
 // of the memory usage but yields a larger constant factor in terms of the
 // amortized constant time complexity.
-#define GROWTH_FACTOR 1.5L
+#define SUNSTLVECTOR_GROWTH_FACTOR 1.5L
 
 /**
  * Creates a new SUNStlVector with the specified initial capacity.
@@ -124,10 +124,10 @@ static inline SUNErrCode MAKE_NAME(SUNStlVectorTtype, Grow)(SUNStlVectorTtype se
     /* It is possible, although unlikely, that new_capacity overflows a long double.
        We explicitly cast capacity to a long double to silence any implicit
        conversion compiler warning. */
-    int64_t new_capacity =
-      self->capacity == 0
-        ? 2
-        : (int64_t)(ceill(((long double)self->capacity) * GROWTH_FACTOR));
+    int64_t new_capacity = self->capacity == 0
+                             ? 2
+                             : (int64_t)(ceill(((long double)self->capacity) *
+                                               SUNSTLVECTOR_GROWTH_FACTOR));
 
     return MAKE_NAME(SUNStlVectorTtype, Reserve)(self, new_capacity);
   }

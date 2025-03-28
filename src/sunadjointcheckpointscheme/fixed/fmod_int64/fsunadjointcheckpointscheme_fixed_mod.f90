@@ -42,8 +42,8 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), intent(in) :: farg1
 type(C_PTR), value :: farg2
-integer(C_INT64_T), intent(in) :: farg3
-integer(C_INT64_T), intent(in) :: farg4
+integer(C_LONG), intent(in) :: farg3
+integer(C_LONG), intent(in) :: farg4
 integer(C_INT), intent(in) :: farg5
 integer(C_INT), intent(in) :: farg6
 type(C_PTR), value :: farg7
@@ -56,8 +56,8 @@ bind(C, name="_wrap_FSUNAdjointCheckpointScheme_NeedsSaving_Fixed") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT64_T), intent(in) :: farg2
-integer(C_INT64_T), intent(in) :: farg3
+integer(C_LONG), intent(in) :: farg2
+integer(C_LONG), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
@@ -68,8 +68,8 @@ bind(C, name="_wrap_FSUNAdjointCheckpointScheme_InsertVector_Fixed") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT64_T), intent(in) :: farg2
-integer(C_INT64_T), intent(in) :: farg3
+integer(C_LONG), intent(in) :: farg2
+integer(C_LONG), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
@@ -80,8 +80,8 @@ bind(C, name="_wrap_FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT64_T), intent(in) :: farg2
-integer(C_INT64_T), intent(in) :: farg3
+integer(C_LONG), intent(in) :: farg2
+integer(C_LONG), intent(in) :: farg3
 real(C_DOUBLE), intent(in) :: farg4
 type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
@@ -92,8 +92,8 @@ bind(C, name="_wrap_FSUNAdjointCheckpointScheme_RemoveVector_Fixed") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT64_T), intent(in) :: farg2
-integer(C_INT64_T), intent(in) :: farg3
+integer(C_LONG), intent(in) :: farg2
+integer(C_LONG), intent(in) :: farg3
 type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
@@ -103,8 +103,8 @@ bind(C, name="_wrap_FSUNAdjointCheckpointScheme_LoadVector_Fixed") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
-integer(C_INT64_T), intent(in) :: farg2
-integer(C_INT64_T), intent(in) :: farg3
+integer(C_LONG), intent(in) :: farg2
+integer(C_LONG), intent(in) :: farg3
 integer(C_INT), intent(in) :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR), value :: farg6
@@ -140,8 +140,8 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 integer(SUNDataIOMode), intent(in) :: io_mode
 type(SUNMemoryHelper_), target, intent(inout) :: mem_helper
-integer(C_INT64_T), intent(in) :: interval
-integer(C_INT64_T), intent(in) :: estimate
+integer(C_LONG), intent(in) :: interval
+integer(C_LONG), intent(in) :: estimate
 integer(C_INT), intent(in) :: save_stages
 integer(C_INT), intent(in) :: keep
 type(C_PTR) :: sunctx
@@ -149,8 +149,8 @@ type(C_PTR), target, intent(inout) :: check_scheme_ptr
 integer(C_INT) :: fresult 
 integer(C_INT) :: farg1 
 type(C_PTR) :: farg2 
-integer(C_INT64_T) :: farg3 
-integer(C_INT64_T) :: farg4 
+integer(C_LONG) :: farg3 
+integer(C_LONG) :: farg4 
 integer(C_INT) :: farg5 
 integer(C_INT) :: farg6 
 type(C_PTR) :: farg7 
@@ -173,14 +173,14 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: check_scheme
-integer(C_INT64_T), intent(in) :: step_num
-integer(C_INT64_T), intent(in) :: stage_num
+integer(C_LONG), intent(in) :: step_num
+integer(C_LONG), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
-integer(C_INT64_T) :: farg3 
+integer(C_LONG) :: farg2 
+integer(C_LONG) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
@@ -198,14 +198,14 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: check_scheme
-integer(C_INT64_T), intent(in) :: step_num
-integer(C_INT64_T), intent(in) :: stage_num
+integer(C_LONG), intent(in) :: step_num
+integer(C_LONG), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 type(N_Vector), target, intent(inout) :: state
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
-integer(C_INT64_T) :: farg3 
+integer(C_LONG) :: farg2 
+integer(C_LONG) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
@@ -223,14 +223,14 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: check_scheme
-integer(C_INT64_T), intent(in) :: step_num
-integer(C_INT64_T), intent(in) :: stage_num
+integer(C_LONG), intent(in) :: step_num
+integer(C_LONG), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
 integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
-integer(C_INT64_T) :: farg3 
+integer(C_LONG) :: farg2 
+integer(C_LONG) :: farg3 
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
@@ -248,13 +248,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: check_scheme
-integer(C_INT64_T), intent(in) :: step_num
-integer(C_INT64_T), intent(in) :: stage_num
+integer(C_LONG), intent(in) :: step_num
+integer(C_LONG), intent(in) :: stage_num
 type(C_PTR) :: out
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
-integer(C_INT64_T) :: farg3 
+integer(C_LONG) :: farg2 
+integer(C_LONG) :: farg3 
 type(C_PTR) :: farg4 
 
 farg1 = c_loc(check_scheme)
@@ -270,15 +270,15 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(SUNAdjointCheckpointScheme), target, intent(inout) :: check_scheme
-integer(C_INT64_T), intent(in) :: step_num
-integer(C_INT64_T), intent(in) :: stage_num
+integer(C_LONG), intent(in) :: step_num
+integer(C_LONG), intent(in) :: stage_num
 integer(C_INT), intent(in) :: peek
 type(C_PTR) :: out
 real(C_DOUBLE), dimension(*), target, intent(inout) :: tout
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
-integer(C_INT64_T) :: farg2 
-integer(C_INT64_T) :: farg3 
+integer(C_LONG) :: farg2 
+integer(C_LONG) :: farg3 
 integer(C_INT) :: farg4 
 type(C_PTR) :: farg5 
 type(C_PTR) :: farg6 

@@ -84,10 +84,8 @@ SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper self, sunrealtype tout,
 
 {
   SUNFunctionBegin(self->sunctx);
-  SUNStepper adj_sunstepper = self->adj_sunstepper;
   SUNCheckCall(SUNStepper_SetStopTime(self->adj_sunstepper, tout));
   SUNCheckCall(SUNStepper_Evolve(self->adj_sunstepper, tout, sens, tret));
-  self->last_flag = adj_sunstepper->last_flag;
   return SUN_SUCCESS;
 }
 
@@ -96,9 +94,7 @@ SUNErrCode SUNAdjointStepper_OneStep(SUNAdjointStepper self, sunrealtype tout,
 
 {
   SUNFunctionBegin(self->sunctx);
-  SUNStepper adj_sunstepper = self->adj_sunstepper;
-  SUNCheckCall(SUNStepper_OneStep(adj_sunstepper, tout, sens, tret));
-  self->last_flag = adj_sunstepper->last_flag;
+  SUNCheckCall(SUNStepper_OneStep(self->adj_sunstepper, tout, sens, tret));
   return SUN_SUCCESS;
 }
 
@@ -122,14 +118,6 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper self,
 
   SUNCheckCall(SUNStepper_Evolve(fwd_stepper, tf, y0, &fwd_t));
   self->nrecompute++;
-
-  if (fwd_stepper->last_flag < 0) { retcode = SUN_ERR_ADJOINT_STEPPERFAILED; }
-  else if (fwd_stepper->last_flag > 1)
-  {
-    /* if last_flags is not a successful (0) or tstop (1) return,
-        we do not have a way to handle it */
-    retcode = SUN_ERR_ADJOINT_STEPPERINVALIDSTOP;
-  }
 
   SUNCheckCall(SUNAdjointCheckpointScheme_EnableDense(self->checkpoint_scheme, 0));
 
@@ -170,17 +158,6 @@ SUNErrCode SUNAdjointStepper_SetJacHermitianTransposeVecFn(SUNAdjointStepper sel
   self->JPvpFn = JPvp;
 
   return SUN_SUCCESS;
-}
-
-SUNErrCode SUNAdjointStepper_SetVecHermitianTransposeJacFn(SUNAdjointStepper self,
-                                                           SUNRhsJacTimesFn vJp,
-                                                           SUNRhsJacTimesFn vJPp)
-{
-  SUNFunctionBegin(self->sunctx);
-  /* Since sundials does not distinguish between row and column vectors,
-     it does not matter if we the user does v^*J or J^*v. We only provide
-     this SUNAdjointStepper_SetVecHermitianTransposeJacFn to indicate we support v^*J. */
-  return SUNAdjointStepper_SetJacHermitianTransposeVecFn(self, vJp, vJPp);
 }
 
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper self, void* user_data)

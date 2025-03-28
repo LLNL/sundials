@@ -12,7 +12,7 @@
  * The SUNDataNode class is a hierarchical object which could be used
  * to build something like a JSON tree. Nodes can be lists, objects,
  * or leaves. Using the JSON analogy:
- *  
+ *
  *   "i_am_object": {
  *     "i_am_list": [
  *       "i_am_object": {...
@@ -22,11 +22,11 @@
  *     "i_am_leaf": "value"
  *   }
  *
- * Object nodes hold named nodes (children), while list nodes hold 
- * anonymous nodes (children). Leaf nodes do not have children, they 
+ * Object nodes hold named nodes (children), while list nodes hold
+ * anonymous nodes (children). Leaf nodes do not have children, they
  * have values. The SUNDataNode can be used to build all sorts of
- * useful things, but we primarily use it as the backbone for 
- * checkpointing states in adjoint sensitivity analysis. 
+ * useful things, but we primarily use it as the backbone for
+ * checkpointing states in adjoint sensitivity analysis.
  * -----------------------------------------------------------------*/
 
 #include <sundials/priv/sundials_errors_impl.h>
@@ -89,19 +89,20 @@ SUNErrCode SUNDataNode_CreateLeaf(SUNDataIOMode io_mode,
 
   SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
 
+  SUNErrCode err = SUN_SUCCESS;
   switch (io_mode)
   {
   case (SUNDATAIOMODE_INMEM):
-    SUNCheckCall(SUNDataNode_CreateLeaf_InMem(mem_helper, sunctx, node_out));
+    err = SUNDataNode_CreateLeaf_InMem(mem_helper, sunctx, node_out);
     break;
-  default:
-    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
-    return SUN_ERR_ARG_OUTOFRANGE;
+  default: err = SUN_ERR_ARG_OUTOFRANGE;
   }
 
   SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
 
-  return SUN_SUCCESS;
+  SUNCheck(err, err);
+
+  return err;
 }
 
 /**

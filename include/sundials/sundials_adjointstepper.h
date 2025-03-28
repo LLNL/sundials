@@ -65,11 +65,6 @@ SUNErrCode SUNAdjointStepper_SetJacHermitianTransposeVecFn(SUNAdjointStepper,
                                                            SUNRhsJacTimesFn JPvp);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_SetVecHermitianTransposeJacFn(SUNAdjointStepper,
-                                                           SUNRhsJacTimesFn vJp,
-                                                           SUNRhsJacTimesFn vJPp);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper, void* user_data);
 
 SUNDIALS_EXPORT

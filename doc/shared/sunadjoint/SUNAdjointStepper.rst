@@ -212,6 +212,7 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
+
 .. c:function:: SUNErrCode SUNAdjointStepper_SetJacHermitianTransposeVecFn(SUNAdjointStepper adj_stepper, SUNRhsJacTimesFn Jvp, SUNRhsJacTimesFn JPvp)
 
 
@@ -220,17 +221,6 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    :param adj_stepper: The SUNAdjointStepper object.
    :param Jvp: function that evaluates :math:`(\partial f/\partial y)^* v`.
    :param JPvp: function that evaluates :math:`(\partial f/\partial p)^* v`.
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-
-.. c:function:: SUNErrCode SUNAdjointStepper_SetVecHermitianTransposeJacFn(SUNAdjointStepper adj_stepper, SUNRhsJacTimesFn Jvp, SUNRhsJacTimesFn JPvp)
-
-   Sets the function pointers to evaluate :math:`v^* (\partial f/\partial y)` and :math:`v^* (\partial f/\partial p)`
-
-   :param adj_stepper: The SUNAdjointStepper object.
-   :param Jvp: function that evaluates :math:`v^* (\partial f/\partial y)`.
-   :param JPvp: function that evaluates :math:`v^* (\partial f/\partial p)`.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 

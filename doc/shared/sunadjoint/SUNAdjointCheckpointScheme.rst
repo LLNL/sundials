@@ -17,9 +17,15 @@ The SUNAdjointCheckpointScheme API
 
 .. versionadded:: x.y.z
 
-The :c:type:`SUNAdjointCheckpointScheme` base class provides an interface for checkpointing
-states during forward integration and accessing them as needed during the backwards integration
-of the adjoint model.
+As with other SUNDIALS classes, the :c:type:`SUNAdjointCheckpointScheme` abstract base class is
+implemented using a C structure containing a ``content`` pointer to the derived class member data
+and a structure of function pointers to the derived class implementations of the virtual methods.
+
+.. c:type:: SUNAdjointCheckpointScheme
+
+   A class that provides an interface for checkpointing states during forward
+   integration and accessing them as needed during the backwards integration
+   of the adjoint model.
 
 .. c:enum:: SUNDataIOMode
 
@@ -29,61 +35,10 @@ of the adjoint model.
       The location of the memory (e.g., CPU or GPU) is not specified by this mode.
 
 
-A :c:type:`SUNAdjointCheckpointScheme` is a pointer to the
-:c:struct:`SUNAdjointCheckpointScheme_` structure:
+.. _SUNAdjoint.CheckpointScheme.BaseClassMethods:
 
-.. c:type:: struct SUNAdjointCheckpointScheme_ *SUNAdjointCheckpointScheme
-
-.. c:struct:: SUNAdjointCheckpointScheme_
-
-   .. c:member:: SUNAdjointCheckpointScheme_Ops ops
-
-      The ops structure holds the vtable of function pointers for the base class.
-
-   .. c:member:: void* content
-
-      Pointer to derived class specific member data.
-
-   .. c:member:: SUNContext sunctx
-
-      The SUNDIALS simulation context.
-
-
-The virtual table structure is defined as
-
-.. c:type:: struct SUNAdjointCheckpointScheme_Ops_ *SUNAdjointCheckpointScheme_Ops
-
-
-.. c:struct:: SUNAdjointCheckpointScheme_Ops_
-
-   .. c:member:: SUNErrCode (*needssaving)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
-
-      Function pointer to determine if a checkpoint should be saved at the current time step.
-
-   .. c:member:: SUNErrCode (*needsdeleting)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
-
-      Function pointer to determine if a checkpoint should be deleted at the current time step.
-
-   .. c:member:: SUNErrCode (*insertvector)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, sunrealtype t, N_Vector y)
-
-      Function pointer to insert a checkpoint state represented as a :c:type:`N_Vector`.
-
-   .. c:member:: SUNErrCode (*loadvector)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, sunrealtype t, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
-
-      Function pointer to load a checkpoint state represented as a :c:type:`N_Vector`.
-
-   .. c:member:: SUNErrCode (*removeVector)(SUNAdjointCheckpointScheme cs, suncountertype step_num, suncountertype stage_num, N_Vector* out)
-
-      Function pointer to remove a checkpoint state represented as a :c:type:`N_Vector`.
-
-   .. c:member:: SUNErrCode (*destroy)(SUNAdjointCheckpointScheme*)
-
-      Function pointer to destroy and free the memory for the :c:type:`SUNAdjointCheckpointScheme` object.
-
-   .. c:member:: SUNErrCode (*enableDense)(SUNAdjointCheckpointScheme cs, sunbooleantype on_or_off)
-
-      Function pointer to enable or disable dense checkpointing, saving all steps.
-
+Base Class Methods
+------------------
 
 .. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(SUNContext sunctx, \
    SUNAdjointCheckpointScheme* cs_ptr)
@@ -93,12 +48,12 @@ The virtual table structure is defined as
 
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme cs, \
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme self, \
    suncountertype step_num, suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
 
    Determines if the (step_num, stage_num) should be checkpointed or not.
 
-   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
+   :param self: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param t: the time of the checkpoint
@@ -106,24 +61,24 @@ The virtual table structure is defined as
 
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme cs, \
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(SUNAdjointCheckpointScheme self, \
    suncountertype step_num, suncountertype stage_num, sunbooleantype* yes_or_no)
 
    Determines if the (step_num, stage_num) checkpoint should be deleted or not.
 
-   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
+   :param self: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param yes_or_no: boolean indicating if the checkpoint should be deleted or not
 
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme cs, \
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_InsertVector(SUNAdjointCheckpointScheme self, \
    suncountertype step_num, suncountertype stage_num, sunrealtype t, N_Vector y)
 
    Inserts the vector as the checkpoint for (step_num, stage_num).
 
-   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
+   :param self: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param t: the time of the checkpoint
@@ -131,12 +86,12 @@ The virtual table structure is defined as
 
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme cs, \
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme self, \
    suncountertype step_num, suncountertype stage_num, sunrealtype t, sunbooleantype peek, N_Vector* yout, sunrealtype* tout)
 
    Loads the checkpointed vector for (step_num, stage_num).
 
-   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
+   :param self: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param t: the desired time of the checkpoint
@@ -148,25 +103,25 @@ The virtual table structure is defined as
 
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme cs, \
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme self, \
    suncountertype step_num, suncountertype stage_num, N_Vector* out)
 
    Removes the checkpointed vector for (step_num, stage_num).
 
-   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
+   :param self: the :c:type:`SUNAdjointCheckpointScheme` object
    :param step_num: the step number of the checkpoint
    :param stage_num: the stage number of the checkpoint
    :param out: the loaded state vector
 
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 
-.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_EnableDense(SUNAdjointCheckpointScheme cs, \
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_EnableDense(SUNAdjointCheckpointScheme self, \
    sunbooleantype on_or_off)
 
    Enables or disables dense checkpointing (checkpointing every step/stage). When dense checkpointing
    is disabled, the checkpointing interval that was set when the object was created is restored.
 
-   :param cs: the :c:type:`SUNAdjointCheckpointScheme` object
+   :param self: the :c:type:`SUNAdjointCheckpointScheme` object
    :param on_or_off: if true, dense checkpointing will be turned on, if false it will be turned off.
 
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
@@ -178,6 +133,171 @@ The virtual table structure is defined as
    :param cs_ptr: pointer to a :c:type:`SUNAdjointCheckpointScheme` object
 
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
+
+
+.. _SUNAdjoint.CheckpointScheme.ImplMethods:
+
+Implementation Specific Methods
+-------------------------------
+
+This section describes the virtual methods defined by the :c:type:`SUNAdjointCheckpointScheme`
+abstract base class.
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetNeedsSavingFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeNeedsSavingFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeNeedsSavingFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeNeedsSavingFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetNeedsDeletingFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeNeedsDeletingFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeNeedsDeletingFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeNeedsDeletingFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetInsertVectorFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeInsertVectorFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeInsertVectorFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeInsertVectorFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetLoadVectorFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeLoadVectorFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeLoadVectorFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeLoadVectorFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetRemoveVectorFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeRemoveVectorFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeRemoveVectorFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeRemoveVectorFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetDestroyFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeDestroyFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeDestroyFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeDestroyFn`
+
+
+.. _SUNAdjoint.CheckpointScheme.SetContentMembers:
+
+Setting Content and Member Functions
+------------------------------------
+
+These functions can be used to set the content pointer or virtual method pointers
+as needed when implementing the abstract base class.
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetNeedsSavingFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeNeedsSavingFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeNeedsSavingFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeNeedsSavingFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetNeedsDeletingFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeNeedsDeletingFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeNeedsDeletingFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeNeedsDeletingFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetInsertVectorFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeInsertVectorFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeInsertVectorFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeInsertVectorFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetLoadVectorFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeLoadVectorFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeLoadVectorFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeLoadVectorFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetRemoveVectorFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeRemoveVectorFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeRemoveVectorFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeRemoveVectorFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetDestroyFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeDestroyFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeDestroyFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeDestroyFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetEnableDenseFn(SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeEnableDenseFn fn)
+
+   This function attaches a :c:type:`SUNAdjointCheckpointSchemeEnableDenseFn` function to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param fn: the :c:type:`SUNAdjointCheckpointSchemeEnableDenseFn` function to attach.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_SetContent(SUNAdjointCheckpointScheme self, void* content)
+
+   This function attaches a member data (content) pointer to a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param content: a pointer to the checkpoint scheme member data.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
+
+
+.. c:function:: SUNErrCode SUNAdjointCheckpointScheme_GetContent(SUNAdjointCheckpointScheme self, void** content)
+
+   This function retrieves the member data (content) pointer from a
+   :c:type:`SUNAdjointCheckpointScheme` object.
+
+   :param self: a checkpoint scheme object.
+   :param content: a pointer to set to the checkpoint scheme member data pointer.
+   :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
 .. _SUNAdjoint.CheckpointScheme.Fixed:
