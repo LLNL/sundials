@@ -208,7 +208,7 @@
 
 #include "sunadjointcheckpointscheme/sunadjointcheckpointscheme_fixed.h"
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Fixed(int const *farg1, SUNMemoryHelper farg2, int64_t const *farg3, int64_t const *farg4, int const *farg5, int const *farg6, void *farg7, void *farg8) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Fixed(int const *farg1, SUNMemoryHelper farg2, long const *farg3, long const *farg4, int const *farg5, int const *farg6, void *farg7, void *farg8) {
   int fresult ;
   SUNDataIOMode arg1 ;
   SUNMemoryHelper arg2 = (SUNMemoryHelper) 0 ;
@@ -234,7 +234,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_Create_Fixed(int const *farg1, 
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsSaving_Fixed(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, int *farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsSaving_Fixed(SUNAdjointCheckpointScheme farg1, long const *farg2, long const *farg3, double const *farg4, int *farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -254,7 +254,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsSaving_Fixed(SUNAdjointChe
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector_Fixed(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, N_Vector farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector_Fixed(SUNAdjointCheckpointScheme farg1, long const *farg2, long const *farg3, double const *farg4, N_Vector farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -274,7 +274,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_InsertVector_Fixed(SUNAdjointCh
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, double const *farg4, int *farg5) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed(SUNAdjointCheckpointScheme farg1, long const *farg2, long const *farg3, double const *farg4, int *farg5) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -294,7 +294,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed(SUNAdjointC
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_RemoveVector_Fixed(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, void *farg4) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_RemoveVector_Fixed(SUNAdjointCheckpointScheme farg1, long const *farg2, long const *farg3, void *farg4) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;
@@ -312,7 +312,7 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_RemoveVector_Fixed(SUNAdjointCh
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector_Fixed(SUNAdjointCheckpointScheme farg1, int64_t const *farg2, int64_t const *farg3, int const *farg4, void *farg5, double *farg6) {
+SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_LoadVector_Fixed(SUNAdjointCheckpointScheme farg1, long const *farg2, long const *farg3, int const *farg4, void *farg5, double *farg6) {
   int fresult ;
   SUNAdjointCheckpointScheme arg1 = (SUNAdjointCheckpointScheme) 0 ;
   suncountertype arg2 ;

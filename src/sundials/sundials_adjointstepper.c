@@ -160,17 +160,6 @@ SUNErrCode SUNAdjointStepper_SetJacHermitianTransposeVecFn(SUNAdjointStepper sel
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointStepper_SetVecHermitianTransposeJacFn(SUNAdjointStepper self,
-                                                           SUNRhsJacTimesFn vJp,
-                                                           SUNRhsJacTimesFn vJPp)
-{
-  SUNFunctionBegin(self->sunctx);
-  /* Since sundials does not distinguish between row and column vectors,
-     it does not matter if we the user does v^*J or J^*v. We only provide
-     this SUNAdjointStepper_SetVecHermitianTransposeJacFn to indicate we support v^*J. */
-  return SUNAdjointStepper_SetJacHermitianTransposeVecFn(self, vJp, vJPp);
-}
-
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper self, void* user_data)
 {
   SUNFunctionBegin(self->sunctx);
