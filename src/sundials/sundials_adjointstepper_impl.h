@@ -35,7 +35,6 @@ struct SUNAdjointStepper_
   SUNContext sunctx;
 
   sunrealtype tf;
-  int last_flag;
 };
 
 #endif
