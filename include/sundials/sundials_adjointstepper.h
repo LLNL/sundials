@@ -25,8 +25,6 @@
 extern "C" {
 #endif
 
-struct SUNAdjointStepper_;
-
 typedef _SUNDIALS_STRUCT_ SUNAdjointStepper_* SUNAdjointStepper;
 
 SUNDIALS_EXPORT
