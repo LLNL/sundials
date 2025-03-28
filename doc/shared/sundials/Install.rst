@@ -590,13 +590,13 @@ Index Size
       :cmakeop:`SUNDIALS_INDEX_SIZE` option in most cases.
 
 
-.. cmakeoption:: SUNDIALS_COUNTER_TYPE
+.. .. cmakeoption:: SUNDIALS_COUNTER_TYPE
 
-   The integer type used for SUNDIALS counters.
+..    The integer type used for SUNDIALS counters.
 
-   Default: `int64_t`
+..    Default: `int64_t`
 
-   .. versionadded:: x.y.z
+..    .. versionadded:: x.y.z
 
 
 .. _Installation.Options.Precision:
@@ -2452,7 +2452,7 @@ with SUNDIALS objects. These can be accessed by including the C++ core header
 file.
 
 .. table:: The SUNDIALS C++ core header file
-   :align: center   
+   :align: center
 
    +--------------+----------------------------------------------+
    | Headers      | ``sundials/sundials_core.hpp``               |
@@ -3884,20 +3884,8 @@ access the SYCL execution policy C++ classes.
    +--------------+----------------------------------------------+
 
 
-Adjoint Sensitivity
-^^^^^^^^^^^^^^^^^^^
-
-.. table:: SUNDIALS adjoint sensitivity module header files
-   :align: center
-
-   +--------------+-------------------------------------------------+
-   | Headers      | ``sundials/sundials_adjointstepper.h``          |
-   +--------------+-------------------------------------------------+
-   |              | ``sundials/sundials_adjointcheckpointscheme.h`` | 
-   +--------------+-------------------------------------------------+
-
-Fixed checkpointing
-""""""""""""""""""""
+Fixed ASA checkpointing
+"""""""""""""""""""""""
 
 For fixed-interval adjoint checkpointing, include the header file below:
 

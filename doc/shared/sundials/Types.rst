@@ -16,7 +16,7 @@ Data Types
 ==========
 
 SUNDIALS defines several data types in the header file ``sundials_types.h``.
-These types are used in the SUNDIALS API and internally in SUNDIALS. It is 
+These types are used in the SUNDIALS API and internally in SUNDIALS. It is
 not necessary to use these types in your application, but the type must
 be compatible with the SUNDIALS types in the API when calling SUNDIALS functions.
 The types that are defined are:
@@ -31,7 +31,7 @@ The types that are defined are:
 
 * :c:type:`SUNOutputFormat` -- an enumerated type for SUNDIALS output formats
 
-* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI. 
+* :c:type:`SUNComm` -- a simple typedef to an `int` when SUNDIALS is built without MPI, or a ``MPI_Comm`` when built with MPI.
 
 
 Floating point types
@@ -122,8 +122,9 @@ Integer type used for counters
 .. c:type:: suncountertype
 
    The type ``suncountertype`` is used for counter variables in SUNDIALS
-   (*e.g.*, number of stpes). During configuration ``suncountertype`` may be
-   set with the default being ``int64_t`` (see :cmakeop:`SUNDIALS_COUNTER_TYPE`).
+   (*e.g.*, number of stpes) and is the same as ``long int``.
+
+   .. versionadded:: x.y.z
 
 Boolean type
 ------------

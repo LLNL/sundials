@@ -67,4 +67,4 @@ SUNErrCode SUNAdjointCheckpointScheme_EnableDense_Fixed(
 }
 #endif
 
-#endif /* _sunadjointcheckpointscheme_fixed_H */
+#endif /* _SUNADJOINTCHECKPOINTSCHEME_FIXED_H */

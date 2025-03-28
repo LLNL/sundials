@@ -29,7 +29,7 @@
 #define SUNDIALS_INDEX_TYPE int64_t
 #endif
 #define SUNDIALS_DOUBLE_PRECISION
-#define SUNDIALS_COUNTER_TYPE int64_t
+#define SUNDIALS_COUNTER_TYPE long int
 
 %ignore SUN_FORMAT_E;
 %ignore SUN_FORMAT_G;

@@ -71,10 +71,12 @@ static inline SUNStlVectorTtype MAKE_NAME(SUNStlVectorTtype,
 {
   if (init_capacity < 0 || !destroyValue) { return NULL; }
   SUNStlVectorTtype self = (SUNStlVectorTtype)malloc(sizeof(*self));
-  self->size             = 0;
-  self->capacity         = init_capacity;
-  self->values           = (TTYPE*)malloc(sizeof(TTYPE) * self->capacity);
-  self->destroyValue     = destroyValue;
+  if (!self) { return NULL; }
+  self->values = (TTYPE*)malloc(sizeof(TTYPE) * init_capacity);
+  if (!(self->values)) { return NULL; }
+  self->size         = 0;
+  self->capacity     = init_capacity;
+  self->destroyValue = destroyValue;
   return self;
 }
 

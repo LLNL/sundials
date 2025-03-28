@@ -142,9 +142,6 @@ typedef SUNDIALS_INDEX_TYPE sunindextype;
  * Type : suncountertype
  *------------------------------------------------------------------
  * Defines integer type to be used for counters within sundials.
- * User can build sundials to use 32- or 64-bit signed integers.
- * If compiler does not support portable data types, the SUNDIALS
- * CMake build system tries to find a type of the desired size.
  *------------------------------------------------------------------
  */
 
