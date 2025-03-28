@@ -884,8 +884,7 @@ Optional input                                     Function name                
 =================================================  ==========================================  =======================
 Return ARKODE parameters to their defaults         :c:func:`ARKodeSetDefaults`                 internal
 Set integrator method order                        :c:func:`ARKodeSetOrder`                    4
-Set dense output interpolation type (SPRKStep)     :c:func:`ARKodeSetInterpolantType`          ``ARK_INTERP_LAGRANGE``
-Set dense output interpolation type (others)       :c:func:`ARKodeSetInterpolantType`          ``ARK_INTERP_HERMITE``
+Set dense output interpolation type                :c:func:`ARKodeSetInterpolantType`          stepper-specific
 Set dense output polynomial degree                 :c:func:`ARKodeSetInterpolantDegree`        5
 Disable time step adaptivity (fixed-step mode)     :c:func:`ARKodeSetFixedStep`                disabled
 Set forward or backward integration direction      :c:func:`ARKodeSetStepDirection`            0.0

@@ -7,8 +7,8 @@ The previous sections discuss using ARKODE for the integration of forward ODE mo
 discusses how to use ARKODE for adjoint sensitivity analysis as introduced in
 :numref:`ARKODE.Mathematics.ASA`. To use ARKStep for adjoint sensitivity analysis (ASA), users
 simply setup the forward integration as usual (following :numref:`ARKODE.Usage.Skeleton`) with a few
-differences. Below we provide an updated version of the ARKode usage in section
-:numref:`ARKODE.Usage.Skeleton` where steps that are unchanged from are *italicized*. The example
+differences. Below we provide an updated version of the ARKODE usage in section
+:numref:`ARKODE.Usage.Skeleton` where steps that are unchanged are *italicized*. The example
 code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these steps in detail.
 
 .. index:: Adjoint Sensitivity Analysis user main program
@@ -56,14 +56,14 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
 
    Users must supply one of:
    
-   * :math:`(\partial f/\partial y)^*v`,
-   * :math:`v^*(\partial f/\partial y)`,
+   * :math:`(\partial f/\partial y)^Tv`,
+   * :math:`v^T(\partial f/\partial y)`,
    * :math:`(\partial f/\partial y)`,
 
    and, if sensitivities with respect to the parameters is desired, one of
 
-   * :math:`(\partial f/\partial p)^*v`,
-   * :math:`v^*(\partial f/\partial p)`,
+   * :math:`(\partial f/\partial p)^Tv`,
+   * :math:`v^T(\partial f/\partial p)`,
    * :math:`(\partial f/\partial p)`.
 
    These user-supplied routines can be set with :c:func:`SUNAdjointStepper_SetJacHermitianTransposeVecFn`, or
@@ -90,16 +90,8 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
 
 #. Free solver memory
 
-   * If an ARKODE stepper module was used as a partition IVP integrator, call
-     :c:func:`SUNStepper_Destroy` and :c:func:`ARKodeFree` to free the memory
-     allocated for that integrator.
-
-   * If a user-defined partition integrator was supplied, free the integrator
-     content and call :c:func:`SUNStepper_Destroy` to free the :c:type:`SUNStepper`
-     object.
-
-   * Call :c:func:`ARKodeFree` to free the memory allocated for the
-     SplittingStep integration object.
+   * Call :c:func:`SUNStepper_Destroy` and :c:func:`ARKodeFree` to free the memory
+     allocated for the SUNStepper and ARKODE integrator objects.
 
 #. *Free the SUNContext object*
 
@@ -110,15 +102,15 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
 User Callable Functions
 -----------------------
 
-This section describes ERKStep-specific user-callable functions for performing
-adjoint sensitivity analysis with methods with ERKStep.
+This section describes user-callable functions for performing
+adjoint sensitivity analysis with methods with ERKStep and ARKStep.
 
 .. c:function:: int ERKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
 
-   Creates a :c:type:`SUNAdjointStepper` object compatible with the provided ARKStep instance for
+   Creates a :c:type:`SUNAdjointStepper` object compatible with the provided ERKStep instance for
    integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
 
-   :param arkode_mem: a pointer to the ARKStep memory block.
+   :param arkode_mem: a pointer to the ERKStep memory block.
    :param sf: the sensitivity vector holding the adjoint system terminal condition.
       This must be an instance of the ManyVector ``N_Vector`` implementation with at
       least one subvector (depending on if sensitivities to parameters should be computed).
