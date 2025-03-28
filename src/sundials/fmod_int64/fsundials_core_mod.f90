@@ -639,23 +639,27 @@ module fsundials_core_mod
  public :: FSUNMemoryHelper_NewEmpty
  public :: FSUNMemoryHelper_CopyOps
  public :: FSUNMemoryHelper_ImplementsRequiredOps
- ! struct struct SUNAdjointCheckpointScheme_Ops_
- type, bind(C), public :: SUNAdjointCheckpointScheme_Ops
-  type(C_FUNPTR), public :: needssaving
-  type(C_FUNPTR), public :: needsdeleting
-  type(C_FUNPTR), public :: insertvector
-  type(C_FUNPTR), public :: loadvector
-  type(C_FUNPTR), public :: removeVector
-  type(C_FUNPTR), public :: destroy
-  type(C_FUNPTR), public :: enableDense
- end type SUNAdjointCheckpointScheme_Ops
- ! struct struct SUNAdjointCheckpointScheme_
- type, bind(C), public :: SUNAdjointCheckpointScheme
-  type(C_PTR), public :: ops
-  type(C_PTR), public :: content
-  type(C_PTR), public :: sunctx
- end type SUNAdjointCheckpointScheme
  public :: FSUNAdjointCheckpointScheme_NewEmpty
+
+ integer, parameter :: swig_cmem_own_bit = 0
+ integer, parameter :: swig_cmem_rvalue_bit = 1
+ integer, parameter :: swig_cmem_const_bit = 2
+ type, bind(C) :: SwigClassWrapper
+  type(C_PTR), public :: cptr = C_NULL_PTR
+  integer(C_INT), public :: cmemflags = 0
+ end type
+ type, public :: SWIGTYPE_SUNAdjointCheckpointScheme_
+  type(SwigClassWrapper), public :: swigdata
+ end type
+ public :: FSUNAdjointCheckpointScheme_SetNeedsSavingFn
+ public :: FSUNAdjointCheckpointScheme_SetNeedsDeletingFn
+ public :: FSUNAdjointCheckpointScheme_SetInsertVectorFn
+ public :: FSUNAdjointCheckpointScheme_SetLoadVectorFn
+ public :: FSUNAdjointCheckpointScheme_SetRemoveVectorFn
+ public :: FSUNAdjointCheckpointScheme_SetDestroyFn
+ public :: FSUNAdjointCheckpointScheme_SetEnableDenseFn
+ public :: FSUNAdjointCheckpointScheme_SetContent
+ public :: FSUNAdjointCheckpointScheme_GetContent
  public :: FSUNAdjointCheckpointScheme_NeedsSaving
  public :: FSUNAdjointCheckpointScheme_NeedsDeleting
  public :: FSUNAdjointCheckpointScheme_InsertVector
@@ -2621,6 +2625,87 @@ end function
 
 function swigc_FSUNAdjointCheckpointScheme_NewEmpty(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_NewEmpty") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointCheckpointScheme_SetNeedsSavingFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetNeedsSavingFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointCheckpointScheme_SetNeedsDeletingFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetNeedsDeletingFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointCheckpointScheme_SetInsertVectorFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetInsertVectorFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointCheckpointScheme_SetLoadVectorFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetLoadVectorFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointCheckpointScheme_SetRemoveVectorFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetRemoveVectorFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointCheckpointScheme_SetDestroyFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetDestroyFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointCheckpointScheme_SetEnableDenseFn(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetEnableDenseFn") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_FUNPTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointCheckpointScheme_SetContent(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetContent") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: farg1
+type(C_PTR), value :: farg2
+integer(C_INT) :: fresult
+end function
+
+function swigc_FSUNAdjointCheckpointScheme_GetContent(farg1, farg2) &
+bind(C, name="_wrap_FSUNAdjointCheckpointScheme_GetContent") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -6472,11 +6557,155 @@ fresult = swigc_FSUNAdjointCheckpointScheme_NewEmpty(farg1, farg2)
 swig_result = fresult
 end function
 
+function FSUNAdjointCheckpointScheme_SetNeedsSavingFn(arg0, arg1) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
+type(C_FUNPTR), intent(in), value :: arg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = c_loc(arg0)
+farg2 = arg1
+fresult = swigc_FSUNAdjointCheckpointScheme_SetNeedsSavingFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointCheckpointScheme_SetNeedsDeletingFn(arg0, arg1) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
+type(C_FUNPTR), intent(in), value :: arg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = c_loc(arg0)
+farg2 = arg1
+fresult = swigc_FSUNAdjointCheckpointScheme_SetNeedsDeletingFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointCheckpointScheme_SetInsertVectorFn(arg0, arg1) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
+type(C_FUNPTR), intent(in), value :: arg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = c_loc(arg0)
+farg2 = arg1
+fresult = swigc_FSUNAdjointCheckpointScheme_SetInsertVectorFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointCheckpointScheme_SetLoadVectorFn(arg0, arg1) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
+type(C_FUNPTR), intent(in), value :: arg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = c_loc(arg0)
+farg2 = arg1
+fresult = swigc_FSUNAdjointCheckpointScheme_SetLoadVectorFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointCheckpointScheme_SetRemoveVectorFn(arg0, arg1) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
+type(C_FUNPTR), intent(in), value :: arg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = c_loc(arg0)
+farg2 = arg1
+fresult = swigc_FSUNAdjointCheckpointScheme_SetRemoveVectorFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointCheckpointScheme_SetDestroyFn(arg0, arg1) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
+type(C_FUNPTR), intent(in), value :: arg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = c_loc(arg0)
+farg2 = arg1
+fresult = swigc_FSUNAdjointCheckpointScheme_SetDestroyFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointCheckpointScheme_SetEnableDenseFn(arg0, arg1) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
+type(C_FUNPTR), intent(in), value :: arg1
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_FUNPTR) :: farg2 
+
+farg1 = c_loc(arg0)
+farg2 = arg1
+fresult = swigc_FSUNAdjointCheckpointScheme_SetEnableDenseFn(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointCheckpointScheme_SetContent(arg0, content) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
+type(C_PTR) :: content
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(arg0)
+farg2 = content
+fresult = swigc_FSUNAdjointCheckpointScheme_SetContent(farg1, farg2)
+swig_result = fresult
+end function
+
+function FSUNAdjointCheckpointScheme_GetContent(arg0, content) &
+result(swig_result)
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: swig_result
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
+type(C_PTR), target, intent(inout) :: content
+integer(C_INT) :: fresult 
+type(C_PTR) :: farg1 
+type(C_PTR) :: farg2 
+
+farg1 = c_loc(arg0)
+farg2 = c_loc(content)
+fresult = swigc_FSUNAdjointCheckpointScheme_GetContent(farg1, farg2)
+swig_result = fresult
+end function
+
 function FSUNAdjointCheckpointScheme_NeedsSaving(arg0, step_num, stage_num, t, yes_or_no) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
 integer(C_LONG), intent(in) :: step_num
 integer(C_LONG), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
@@ -6501,7 +6730,7 @@ function FSUNAdjointCheckpointScheme_NeedsDeleting(arg0, step_num, stage_num, t,
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
 integer(C_LONG), intent(in) :: step_num
 integer(C_LONG), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
@@ -6526,7 +6755,7 @@ function FSUNAdjointCheckpointScheme_InsertVector(arg0, step_num, stage_num, t, 
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
 integer(C_LONG), intent(in) :: step_num
 integer(C_LONG), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
@@ -6551,7 +6780,7 @@ function FSUNAdjointCheckpointScheme_LoadVector(arg0, step_num, stage_num, peek,
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
 integer(C_LONG), intent(in) :: step_num
 integer(C_LONG), intent(in) :: stage_num
 integer(C_INT), intent(in) :: peek
@@ -6579,7 +6808,7 @@ function FSUNAdjointCheckpointScheme_RemoveVector(arg0, step_num, stage_num, out
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
 integer(C_LONG), intent(in) :: step_num
 integer(C_LONG), intent(in) :: stage_num
 type(C_PTR) :: out
@@ -6614,7 +6843,7 @@ function FSUNAdjointCheckpointScheme_EnableDense(arg0, on_or_off) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SUNAdjointCheckpointScheme), target, intent(inout) :: arg0
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: arg0
 integer(C_INT), intent(in) :: on_or_off
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
@@ -6638,7 +6867,7 @@ integer(C_INT), intent(in) :: own_adj
 integer(C_LONG), intent(in) :: final_step_idx
 type(N_Vector), target, intent(inout) :: sf
 real(C_DOUBLE), intent(in) :: tf
-type(SUNAdjointCheckpointScheme), target, intent(inout) :: checkpoint_scheme
+type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: checkpoint_scheme
 type(C_PTR) :: sunctx
 type(C_PTR), target, intent(inout) :: adj_stepper
 integer(C_INT) :: fresult 
