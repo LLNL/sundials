@@ -78,7 +78,6 @@ SUNErrCode SUNHashMap_New(int64_t capacity,
 
   if (!map) { return SUN_ERR_MALLOC_FAIL; }
 
-
   SUNStlVector_SUNHashMapKeyValue buckets =
     SUNStlVector_SUNHashMapKeyValue_New(capacity, destroyKeyValue);
   if (!buckets)
@@ -199,8 +198,7 @@ static SUNErrCode sunHashMapResize(SUNHashMap map)
   }
 
   /* Rehash and reinsert */
-  for (int64_t i = SUNStlVector_SUNHashMapKeyValue_Size(old_buckets) - 1;
-       i >= 0; i--)
+  for (int64_t i = old_capacity - 1; i >= 0; i--)
   {
     SUNHashMapKeyValue kvp = *SUNStlVector_SUNHashMapKeyValue_At(old_buckets, i);
     if (kvp)
