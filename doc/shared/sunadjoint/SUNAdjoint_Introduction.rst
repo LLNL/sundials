@@ -54,7 +54,7 @@ are numerical approximations of the continuous adjoint sensitivities
    :label: SUNADJOINT_CONTINUOUS_ADJOINT_SOLUTION
 
 For the discrete adjoint approach, we first numerically discretize the original IVP :eq:`SUNADJOINT_IVP`
-using either a time integration scheme, :math:`\varphi`, so that
+using a time integration scheme, :math:`\varphi`, so that
 
 .. math::
    y_0 = y(t_0),\quad y_n = \varphi(y_{n-k}, \cdots, y_{n-1}, p), \quad k = n, \cdots, 1.

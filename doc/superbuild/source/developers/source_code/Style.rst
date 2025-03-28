@@ -398,7 +398,7 @@ To log extra debugging messages use the following macros:
 Struct Accessor Macros
 ----------------------
 
-Since many SUNDIALS struct's use a type-erased (i.e., `void*`) "content" pointer, 
+Since many SUNDIALS structs use a type-erased (i.e., `void*`) "content" pointer, 
 a common idiom occurring in SUNDIALS code is extracting the content, casting it to its original
 type, and then accessing the struct member of interest. To ensure readability, it is 
 recommended to use locally (to the source file in question) defined macros `GET_CONTENT`

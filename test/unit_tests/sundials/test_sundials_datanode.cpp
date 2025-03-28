@@ -448,22 +448,22 @@ TEST_F(SUNDataNodeTest, SetAndGetDataNvectorWhenLeaf)
 {
   SUNErrCode err;
   SUNDataNode root_node;
-  sunrealtype real_value = 3.0;
+  sunrealtype real_value = SUN_RCONST(3.0);
   N_Vector v             = N_VNew_Serial(2, sunctx);
   N_Vector vec_we_got    = N_VClone(v);
 
   N_VConst(real_value, v);
-  N_VConst(0.0, vec_we_got);
+  N_VConst(SUN_RCONST(0.0), vec_we_got);
 
   err = SUNDataNode_CreateLeaf(SUNDATAIOMODE_INMEM, mem_helper, sunctx,
                                &root_node);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  sunrealtype t = 1.0;
+  sunrealtype t = SUN_RCONST(1.0);
   err           = SUNDataNode_SetDataNvector(root_node, v, t);
   EXPECT_EQ(err, SUN_SUCCESS);
 
-  sunrealtype tout = 0.0;
+  sunrealtype tout = SUN_RCONST(0.0);
   err              = SUNDataNode_GetDataNvector(root_node, vec_we_got, &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
 

@@ -89,7 +89,7 @@ The virtual table structure is defined as
    SUNAdjointCheckpointScheme* cs_ptr)
 
    :param sunctx: The SUNDIALS simulation context
-   :param cs_ptr: on output, the pointer to the new :c:type:`SUNAdjointCheckpointScheme` object
+   :param cs_ptr: on output, a pointer to a new :c:type:`SUNAdjointCheckpointScheme` object
 
    :returns: A :c:type:`SUNErrCode` indicating failure or success.
 

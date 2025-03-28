@@ -104,8 +104,8 @@ SUNErrCode SUNMemoryHelper_Alloc_Sycl(SUNMemoryHelper helper, SUNMemory* memptr,
   SUNFunctionBegin(helper->sunctx);
 
   // Check inputs
-  SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
   ::sycl::queue* sycl_queue = GET_SYCL_QUEUE(helper, queue);
+  SUNAssert(sycl_queue, SUN_ERR_ARG_CORRUPT);
 
   // Allocate the memory struct
   SUNMemory mem = SUNMemoryNewEmpty(helper->sunctx);
@@ -230,8 +230,8 @@ SUNErrCode SUNMemoryHelper_Dealloc_Sycl(SUNMemoryHelper helper, SUNMemory mem,
 
   if (mem->ptr && mem->own)
   {
-    SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
     ::sycl::queue* sycl_queue = GET_SYCL_QUEUE(helper, queue);
+    SUNAssert(sycl_queue, SUN_ERR_ARG_CORRUPT);
 
     if (mem->type == SUNMEMTYPE_HOST)
     {
@@ -278,8 +278,8 @@ SUNErrCode SUNMemoryHelper_Copy_Sycl(SUNMemoryHelper helper, SUNMemory dst,
                                      void* queue)
 {
   SUNFunctionBegin(helper->sunctx);
-  SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
   ::sycl::queue* sycl_queue = GET_SYCL_QUEUE(helper, queue);
+  SUNAssert(sycl_queue, SUN_ERR_ARG_CORRUPT);
 
   if (SUNMemoryHelper_CopyAsync_Sycl(helper, dst, src, memory_size, queue))
   {
@@ -294,8 +294,8 @@ SUNErrCode SUNMemoryHelper_CopyAsync_Sycl(SUNMemoryHelper helper, SUNMemory dst,
                                           void* queue)
 {
   SUNFunctionBegin(helper->sunctx);
-  SUNAssert(queue, SUN_ERR_ARG_CORRUPT);
   ::sycl::queue* sycl_queue = GET_SYCL_QUEUE(helper, queue);
+  SUNAssert(sycl_queue, SUN_ERR_ARG_CORRUPT);
 
   if (src->type == SUNMEMTYPE_HOST && dst->type == SUNMEMTYPE_HOST)
   {

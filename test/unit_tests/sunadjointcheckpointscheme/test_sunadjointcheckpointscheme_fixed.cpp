@@ -40,13 +40,13 @@ static bool compare_vectors(N_Vector expected, N_Vector actual)
 
 static void fake_mutlistage_method(SUNAdjointCheckpointScheme cs, int steps,
                                    int stages, bool test_load = false,
-                                   sunrealtype dt = 0.1)
+                                   sunrealtype dt = SUN_RCONST(0.1))
 {
   N_Vector state  = N_VNew_Serial(10, cs->sunctx);
   N_Vector loaded = N_VClone(state);
 
-  sunrealtype t    = 0.0;
-  sunrealtype tout = 0.0;
+  sunrealtype t    = SUN_RCONST(0.0);
+  sunrealtype tout = SUN_RCONST(0.0);
 
   // Initial condition
   SUNErrCode err = SUNAdjointCheckpointScheme_InsertVector(cs, 0, 0, t, state);
@@ -311,7 +311,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
 {
   SUNErrCode err;
   SUNAdjointCheckpointScheme cs     = NULL;
-  sunrealtype tout                  = 0.0;
+  sunrealtype tout                  = SUN_RCONST(0.0);
   suncountertype interval           = 1;
   suncountertype estimate           = 100;
   sunbooleantype save_stages        = SUNTRUE;
@@ -332,7 +332,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
   EXPECT_EQ(err, SUN_SUCCESS);
 
   // Insert the step again
-  tout = 10.0;
+  tout = SUN_RCONST(10.0);
   N_VConst(sunrealtype{10.0}, state);
   err = SUNAdjointCheckpointScheme_InsertVector(cs, step, stage, tout, state);
   EXPECT_EQ(err, SUN_SUCCESS);
@@ -341,7 +341,7 @@ TEST_F(SUNAdjointCheckpointSchemeFixed, CanStillInsertAfterDeleting)
   err = SUNAdjointCheckpointScheme_LoadVector(cs, step, stage, 0, &loaded_state,
                                               &tout);
   EXPECT_EQ(err, SUN_SUCCESS);
-  EXPECT_EQ(10.0, tout);
+  EXPECT_EQ(SUN_RCONST(10.0), tout);
   EXPECT_TRUE(compare_vectors(state, loaded_state));
 
   err = SUNAdjointCheckpointScheme_Destroy(&cs);

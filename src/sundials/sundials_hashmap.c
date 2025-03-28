@@ -78,7 +78,6 @@ SUNErrCode SUNHashMap_New(int64_t capacity,
 
   if (!map) { return SUN_ERR_MALLOC_FAIL; }
 
-  (*map)->capacity = capacity;
 
   SUNStlVector_SUNHashMapKeyValue buckets =
     SUNStlVector_SUNHashMapKeyValue_New(capacity, destroyKeyValue);
