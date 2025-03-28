@@ -2709,7 +2709,7 @@ optimization problem such as
 
 The adjoint method is one approach to obtaining the gradients that is particularly efficient when
 there are relatively few functionals and a large number of parameters. While :ref:`CVODES
-<CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` *continuous* adjoint methods
+<CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` provide *continuous* adjoint methods
 (differentiate-then-discretize), ARKODE provides *discrete* adjoint methods
 (discretize-then-differentiate). 
 

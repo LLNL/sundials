@@ -814,7 +814,7 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
 #define MSG_ARK_INTERPOLATION_FAIL \
   "At " MSG_TIME ", interpolating the solution failed."
 #define MSG_ARK_ADJOINT_BAD_VECTOR                                            \
-  "JacPFn or JPvpFn was provided, but the  number of subvectors in y is not " \
+  "JacPFn or JPvpFn was provided, but the number of subvectors in y is not " \
   "2. To perform ASA w.r.t. parameters, one subvector should be the state "   \
   "vector, and the other should be the parameter vector."
 
