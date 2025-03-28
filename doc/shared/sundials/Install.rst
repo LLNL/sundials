@@ -3884,20 +3884,8 @@ access the SYCL execution policy C++ classes.
    +--------------+----------------------------------------------+
 
 
-Adjoint Sensitivity
-^^^^^^^^^^^^^^^^^^^
-
-.. table:: SUNDIALS adjoint sensitivity module header files
-   :align: center
-
-   +--------------+-------------------------------------------------+
-   | Headers      | ``sundials/sundials_adjointstepper.h``          |
-   +--------------+-------------------------------------------------+
-   |              | ``sundials/sundials_adjointcheckpointscheme.h`` |
-   +--------------+-------------------------------------------------+
-
-Fixed checkpointing
-""""""""""""""""""""
+Fixed ASA checkpointing
+"""""""""""""""""""""""
 
 For fixed-interval adjoint checkpointing, include the header file below:
 
