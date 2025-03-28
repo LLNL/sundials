@@ -139,14 +139,14 @@ Stepping Functions
 
 .. c:function:: SUNErrCode SUNStepper_ReInit(SUNStepper stepper, sunrealtype t0, N_Vector v0)
 
-   This function reinitalizes the stepper to solve a new problem, typically defined by a
-   different right hand side, and clears all counters.
+   This function reinitalizes the stepper to solve a new problem with the given initial
+   condition and clears all counters.
 
    :param stepper: the stepper object.
    :param t0: the value of the independent variable :math:`t_0`.
    :param v0: the value of the dependent variable vector :math:`v(t_0)`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
-   
+
    .. versionadded:: x.y.z
 
 
@@ -168,7 +168,7 @@ Stepping Functions
    :param stepper: the stepper object.
    :param ckptIdxR: the step index to begin checkpointing from
    :return: A :c:type:`SUNErrCode` indicating success or failure.
-   
+
    .. versionadded:: x.y.z
 
 
@@ -353,7 +353,7 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :param stepper: a stepper object.
    :param fn: the :c:type:`SUNStepperReInitFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
-   
+
    .. versionadded:: x.y.z
 
 .. c:function:: SUNErrCode SUNStepper_SetResetFn(SUNStepper stepper, SUNStepperResetFn fn)
@@ -373,7 +373,7 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :param stepper: a stepper object.
    :param fn: the :c:type:`SUNStepperResetCheckpointIndexFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
-   
+
    .. versionadded:: x.y.z
 
 
@@ -415,7 +415,7 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :param stepper: a stepper object.
    :param fn: the :c:type:`SUNStepperGetNumStepsFn` function to attach.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
-   
+
    .. versionadded:: x.y.z
 
 
@@ -467,7 +467,7 @@ abstract base class.
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_ReInit`.
-   
+
    .. versionadded:: x.y.z
 
 
@@ -475,7 +475,7 @@ abstract base class.
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_ResetCheckpointIndex`.
-   
+
    .. versionadded:: x.y.z
 
 
@@ -506,7 +506,7 @@ abstract base class.
 
    This type represents a function with the signature of
    :c:func:`SUNStepper_GetNumSteps`.
-   
+
    .. versionadded:: x.y.z
 
 .. _SUNStepper.Description.UserSupplied:
@@ -539,7 +539,7 @@ This section describes the functions that users may supply.
       A :c:type:`SUNRhsJacFn` function should return 0 if successful, a positive
       value if a recoverable error occurred, or a negative value if an
       unrecoverable error occurred.
-      
+
       .. versionadded:: x.y.z
 
 .. c:type:: int (*SUNRhsJacTimesFn)(N_Vector v, N_Vector Jv, sunrealtype t, N_Vector y, \
@@ -565,5 +565,5 @@ This section describes the functions that users may supply.
       A :c:type:`SUNRhsJacTimesFn` function should return 0 if successful, a positive
       value if a recoverable error occurred, or a negative value if an
       unrecoverable error occurred.
-      
+
       .. versionadded:: x.y.z
