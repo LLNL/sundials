@@ -66,7 +66,7 @@ satisfies the conditions
    \dot{\pi}_{c,n}(t_n) &= \dot{y}_n = f_{n}, \\
    \pi_{c,n}(t_{n} - j h_n) &= \pi_{p,n-1}(t_n - j h_n), \quad j = 1,\ldots,q
 
-Thus, the FLC corrector interpolates the predictor at evenly spaces past points
+Thus, the FLC corrector interpolates the predictor at evenly spaced past points
 rather than interpolating the computed values as with the VC corrector.
 
 With either Adams or BDF methods the solution history is represented using the
@@ -115,7 +115,7 @@ After completing a step from time :math:`t_{n-1}` to :math:`t_n` using a method
 of order :math:`q` and before starting the next step from :math:`t_{n}` to
 :math:`t_{n+1}` with a method of order :math:`q'`, the size of the state vector
 may change. To "resize" the integrator without restarting from first order, we
-require, the user supply, depending on the method, either the recent solution or
+require that the user supply, depending on the method type, either the recent solution or
 right-hand side history for the new state size.
 
 Continuing the integration with the updated state size requires constructing a

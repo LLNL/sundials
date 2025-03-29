@@ -3301,7 +3301,7 @@ problem size.
 
    In both cases, :math:`k=\min\{q+1,q_{\textrm{max}}\}` where :math:`q` is the
    order of the last step (see :c:func:`CVodeGetLastOrder`) and
-   :math:`q_{\textrm{max}}` is maximum allowed order (see
+   :math:`q_{\textrm{max}}` is the maximum allowed order (see
    :c:func:`CVodeSetMaxOrd`). The additional solution/right-hand side values
    beyond what is strictly needed for the method are used to determine if an
    order increase should occur after the next step.
@@ -3317,7 +3317,7 @@ problem size.
    :param f_hist: an array of right-hand side vectors ordered to align with the
                   corresponding times and solutions given in ``t_hist`` and
                   ``y_hist``, respectively.
-   :param n_y_hist: number of solution vectors vectors provided in
+   :param n_y_hist: number of solution vectors provided in
                     ``y_hist``. For Adams methods this should be 2 and for BDF
                     methods this should be :math:`\min\{q+1,q_{\textrm{max}}\}`.
    :param n_f_hist: number of right-hand side vectors provided in
@@ -3327,7 +3327,7 @@ problem size.
 
    :retval CV_SUCCESS: The call was successful.
    :retval CV_MEM_NULL: The CVODE memory block was ``NULL``.
-   :retval CV_ILL_INPUT: An input argument was an illegal value, see the output
+   :retval CV_ILL_INPUT: An input argument had an illegal value, see the output
                          error message for additional details.
 
    .. versionadded:: x.y.z
@@ -3336,14 +3336,14 @@ problem size.
 
       Any nonlinear or linear solvers attached to CVODE will also need to be
       resized. At present, for SUNDIALS-provided algebraic solvers, this
-      requires be destroying, re-creating, and re-attaching the solvers
+      requires destroying, re-creating, and re-attaching the solvers
       following each call to :c:func:`CVodeResizeHistory`. Similarly, any matrix
       objects provided when attaching the linear solver will also need to be
       resized.
 
       If using a vector of absolute tolerances, the absolute tolerance vector
       will be invalid after the call to :c:func:`CVodeResizeHistory`, so a new
-      absolute tolerance vector should be create and set following each call to
+      absolute tolerance vector should be created and set following each call to
       :c:func:`CVodeResizeHistory` through a new call to
       :c:func:`CVodeSVtolerances`.
 
