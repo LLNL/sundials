@@ -418,7 +418,10 @@ int KINInit(void* kinmem, KINSysFn func, N_Vector tmpl)
     }
     else if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY)
     {
-      if (kin_mem->kin_dot_prod_sb) { kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_ICWY_SB; }
+      if (kin_mem->kin_dot_prod_sb)
+      {
+        kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_ICWY_SB;
+      }
       else { kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_ICWY; }
       kin_mem->kin_qr_data->vtemp      = kin_mem->kin_vtemp2;
       kin_mem->kin_qr_data->vtemp2     = kin_mem->kin_vtemp3;
@@ -433,7 +436,10 @@ int KINInit(void* kinmem, KINSysFn func, N_Vector tmpl)
     }
     else if (kin_mem->kin_orth_aa == KIN_ORTH_DCGS2)
     {
-      if (kin_mem->kin_dot_prod_sb) { kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_DCGS2_SB; }
+      if (kin_mem->kin_dot_prod_sb)
+      {
+        kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_DCGS2_SB;
+      }
       else { kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_DCGS2; }
       kin_mem->kin_qr_data->vtemp      = kin_mem->kin_vtemp2;
       kin_mem->kin_qr_data->vtemp2     = kin_mem->kin_vtemp3;
