@@ -1813,13 +1813,20 @@ The following optional outputs are available from the KINLS modules:
 User-supplied functions
 -----------------------
 
-The user-supplied functions consist of one function defining the nonlinear
-system, (optionally) a function that handles error and warning messages,
-(optionally) a function that handles informational messages, (optionally) one or
-two functions that provides Jacobian-related information for the linear solver,
-(optionally) one or two functions that define the preconditioner for use in
-any of the Krylov iterative algorithms, and (optionally) a function to compute
-the damping parameter in fixed-point or Picard iterations.
+With KINSOL, users are required to supply a function of type :c:type:`KINSysFn`
+that defines the nonlinear system to solve. Additionally, users may *optionally*
+supply the any of following functions when relevant:
+
+* Functions that provide Jacobian-related information to linear solvers, see
+  :c:type:`KINLsJacFn` and :c:type:`KINLsJacTimesVecFn`.
+
+* Functions that define the preconditioner setup and solve routines for
+  iterative linear solvers. See :c:type:`KINLsPrecSetupFn` and
+  :c:type:`KINLsPrecSolveFn`, respectively.
+
+* A function to compute the damping parameter in fixed-point or Picard
+  iterations, see :c:type:`KINDampingFn`.
+
 
 .. _KINSOL.Usage.CC.user_fct_sim.resFn:
 
