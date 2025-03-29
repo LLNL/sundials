@@ -235,19 +235,13 @@ int main(int argc, char* argv[])
     if (check_retval(&retval, "KINSetDelayAA", 1)) { return (1); }
   }
 
-  if (uopt->damping_fn)
-  {
-    /* Attach user defined damping function */
-    retval = KINSetDampingFn(kmem, DampingFn);
-    if (check_retval(&retval, "KINSetDampingFn", 1)) { return (1); }
-  }
+  /* Attach user defined damping function (NULL input disables damping fn) */
+  retval = KINSetDampingFn(kmem, DampingFn);
+  if (check_retval(&retval, "KINSetDampingFn", 1)) { return (1); }
 
-  if (uopt->depth_fn)
-  {
-    /* Attach user defined depth function */
-    retval = KINSetDepthFn(kmem, DepthFn);
-    if (check_retval(&retval, "KINSetDepthFn", 1)) { return (1); }
-  }
+  /* Attach user defined depth function (NULL input disables depth fn) */
+  retval = KINSetDepthFn(kmem, DepthFn);
+  if (check_retval(&retval, "KINSetDepthFn", 1)) { return (1); }
 
   /* Set info log file and print level */
   infofp = fopen("kinsol.log", "w");
