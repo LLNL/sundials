@@ -109,7 +109,7 @@ static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
 static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
                    N_Vector f_val, N_Vector* df, sunrealtype* R_mat,
                    long int depth, void* user_data, long int* new_depth,
-                   long int* remove_indices);
+                   sunbooleantype* remove_index);
 
 /* Check the system solution */
 static int check_ans(N_Vector u, sunrealtype tol);
@@ -379,9 +379,10 @@ static int DampingFn(long int iter, N_Vector u_val, N_Vector g_val,
   return 0;
 }
 
-static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val, N_Vector f_val,
-                   N_Vector* df, sunrealtype* R_mat, long int depth,
-                   void* user_data, long int* new_depth, long int* remove_indices)
+static int DepthFn(long int iter, N_Vector u_val, N_Vector g_val,
+                   N_Vector f_val, N_Vector* df, sunrealtype* R_mat,
+                   long int depth, void* user_data, long int* new_depth,
+                   sunbooleantype* remove_index)
 {
   if (iter < 4) { *new_depth = 1; }
   else { *new_depth = depth; };

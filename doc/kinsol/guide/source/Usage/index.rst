@@ -2163,7 +2163,7 @@ When using the fixed-point or Picard iterations, the user may provide a function
 of type :c:type:`KINDepthFn` to modify the Anderson acceleration depth,
 :math:`m_n`, from :numref:`KINSOL.Mathematics.AndersonAcceleration`.
 
-.. c:type:: int (*KINDepthFn)(long int iter, N_Vector u_val, N_Vector g_val, N_Vector f_val, N_Vector* df, sunrealtype* R_mat, long int depth, void* user_data, long int* new_depth, long int* remove_indices);
+.. c:type:: int (*KINDepthFn)(long int iter, N_Vector u_val, N_Vector g_val, N_Vector f_val, N_Vector* df, sunrealtype* R_mat, long int depth, void* user_data, long int* new_depth, sunbooleantype* remove_index);
 
    This function computes an Anderson acceleration depth parameter, :math:`0
    \leq \hat{m}_n \leq \min\{m_n, m_\textrm{max}\}` to replace the current
@@ -2197,9 +2197,9 @@ of type :c:type:`KINDepthFn` to modify the Anderson acceleration depth,
    * **user_data** -- the user data pointer passed to :c:func:`KINSetUserData`.
    * **new_depth** -- the computed depth, :math:`\hat{m}_n`, to replace
      the current depth, :math:`m_n`.
-   * **remove_indices** -- this parameter is currently unused (``NULL``) and
-     will be used to provide support for removing specific columns of
-     :math:`\Delta F_n` in the future.
+   * **remove_index** -- this parameter is currently unused (``NULL``) and
+     will be used to provide future support for indicating which columns of
+     :math:`\Delta F_n` to remove.
 
    **Returns:**
 

@@ -91,7 +91,7 @@ typedef int (*KINDampingFn)(long int iter, N_Vector u_val, N_Vector g_val,
 typedef int (*KINDepthFn)(long int iter, N_Vector u_val, N_Vector g_val,
                           N_Vector f_val, N_Vector* df, sunrealtype* R_mat,
                           long int depth, void* user_data, long int* new_depth,
-                          long int* remove_indices);
+                          sunbooleantype* remove_indices);
 
 /* -------------------
  * Exported Functions
