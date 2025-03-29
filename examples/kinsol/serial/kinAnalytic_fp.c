@@ -88,15 +88,15 @@
 /* problem options */
 typedef struct
 {
-  sunrealtype tol;         /* solve tolerance                  */
-  long int maxiter;        /* max number of iterations         */
-  long int m_aa;           /* number of acceleration vectors   */
-  long int delay_aa;       /* number of iterations to delay AA */
-  int orth_aa;             /* orthogonalization method         */
-  sunrealtype damping_fp;  /* damping parameter for FP         */
-  sunrealtype damping_aa;  /* damping parameter for AA         */
-  KINDampingFn damping_fn; /* damping function                 */
-  KINDepthFn depth_fn;     /* depth function                   */
+  sunrealtype tol;               /* solve tolerance                  */
+  long int maxiter;              /* max number of iterations         */
+  long int m_aa;                 /* number of acceleration vectors   */
+  long int delay_aa;             /* number of iterations to delay AA */
+  int orth_aa;                   /* orthogonalization method         */
+  sunrealtype damping_fp;        /* damping parameter for FP         */
+  sunrealtype damping_aa;        /* damping parameter for AA         */
+  sunbooleantype use_damping_fn; /* damping function                 */
+  sunbooleantype use_depth_fn;   /* depth function                   */
 }* UserOpt;
 
 /* Nonlinear fixed point function */
@@ -171,9 +171,9 @@ int main(int argc, char* argv[])
   printf("    delay_aa     = %ld\n", uopt->delay_aa);
   printf("    damping_aa   = %" GSYM "\n", uopt->damping_aa);
   printf("    damping_fp   = %" GSYM "\n", uopt->damping_fp);
-  if (uopt->damping_fn) { printf("    damping_fn   = ON\n"); }
+  if (uopt->use_damping_fn) { printf("    damping_fn   = ON\n"); }
   else { printf("    damping_fn   = OFF\n"); }
-  if (uopt->depth_fn) { printf("    depth_fn     = ON\n"); }
+  if (uopt->use_depth_fn) { printf("    depth_fn     = ON\n"); }
   else { printf("    depth_fn     = OFF\n"); }
   printf("    orth routine = %d\n", uopt->orth_aa);
 
@@ -235,14 +235,14 @@ int main(int argc, char* argv[])
     if (check_retval(&retval, "KINSetDelayAA", 1)) { return (1); }
   }
 
-  if (uopt->damping_fn)
+  if (uopt->use_damping_fn)
   {
     /* Attach user defined damping function */
     retval = KINSetDampingFn(kmem, DampingFn);
     if (check_retval(&retval, "KINSetDampingFn", 1)) { return (1); }
   }
 
-  if (uopt->depth_fn)
+  if (uopt->use_depth_fn)
   {
     /* Attach user defined depth function */
     retval = KINSetDepthFn(kmem, DepthFn);
@@ -447,15 +447,15 @@ static int SetDefaults(UserOpt* uopt)
   if (*uopt == NULL) { return (-1); }
 
   /* Set default options values */
-  (*uopt)->tol        = 100 * SQRT(SUN_UNIT_ROUNDOFF);
-  (*uopt)->maxiter    = 30;
-  (*uopt)->m_aa       = 0;               /* no acceleration */
-  (*uopt)->delay_aa   = 0;               /* no delay        */
-  (*uopt)->orth_aa    = 0;               /* MGS             */
-  (*uopt)->damping_fp = SUN_RCONST(1.0); /* no FP dampig    */
-  (*uopt)->damping_aa = SUN_RCONST(1.0); /* no AA damping   */
-  (*uopt)->damping_fn = NULL;            /* no damping      */
-  (*uopt)->depth_fn   = NULL;            /* no depth        */
+  (*uopt)->tol            = 100 * SQRT(SUN_UNIT_ROUNDOFF);
+  (*uopt)->maxiter        = 30;
+  (*uopt)->m_aa           = 0;               /* no acceleration */
+  (*uopt)->delay_aa       = 0;               /* no delay        */
+  (*uopt)->orth_aa        = 0;               /* MGS             */
+  (*uopt)->damping_fp     = SUN_RCONST(1.0); /* no FP dampig    */
+  (*uopt)->damping_aa     = SUN_RCONST(1.0); /* no AA damping   */
+  (*uopt)->use_damping_fn = SUNFALSE;        /* no damping fn   */
+  (*uopt)->use_depth_fn   = SUNFALSE;        /* no depth fn     */
 
   return (0);
 }
@@ -502,12 +502,12 @@ static int ReadInputs(int* argc, char*** argv, UserOpt uopt)
     else if (strcmp((*argv)[arg_index], "--damping_fn") == 0)
     {
       arg_index++;
-      uopt->damping_fn = DampingFn;
+      uopt->use_damping_fn = SUNTRUE;
     }
     else if (strcmp((*argv)[arg_index], "--depth_fn") == 0)
     {
       arg_index++;
-      uopt->depth_fn = DepthFn;
+      uopt->use_depth_fn = SUNTRUE;
     }
     else if (strcmp((*argv)[arg_index], "--orth_aa") == 0)
     {
