@@ -193,6 +193,7 @@ typedef struct KINMemRec
   SUNQRData kin_qr_data;  /* Additional parameters required for QRAdd routine
                                  set for AA                                      */
   sunbooleantype kin_damping_aa; /* flag to apply damping in AA                     */
+  sunbooleantype kin_dot_prod_sb; /* use single buffer dot product */
   sunrealtype* kin_cv; /* scalar array for fused vector operations        */
   N_Vector* kin_Xv;    /* vector array for fused vector operations        */
 

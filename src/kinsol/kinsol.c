@@ -277,6 +277,7 @@ void* KINCreate(SUNContext sunctx)
   kin_mem->kin_qr_data          = NULL;
   kin_mem->kin_beta_aa          = ONE;
   kin_mem->kin_damping_aa       = SUNFALSE;
+  kin_mem->kin_dot_prod_sb      = SUNFALSE;
   kin_mem->kin_constraintsSet   = SUNFALSE;
   kin_mem->kin_ret_newest       = SUNFALSE;
   kin_mem->kin_mxiter           = MXITER_DEFAULT;
@@ -328,7 +329,7 @@ int KINInit(void* kinmem, KINSysFn func, N_Vector tmpl)
 {
   sunindextype liw1, lrw1;
   KINMem kin_mem;
-  sunbooleantype allocOK, nvectorOK, dotprodSB;
+  sunbooleantype allocOK, nvectorOK;
 
   /* check kinmem */
 
@@ -402,12 +403,12 @@ int KINInit(void* kinmem, KINSysFn func, N_Vector tmpl)
   /* initialize the QRData and set the QRAdd function if Anderson Acceleration is being used */
   if (kin_mem->kin_m_aa != 0)
   {
-    dotprodSB = SUNFALSE;
+    /* Check if vector supports single buffer reductions for dot product */
     if ((kin_mem->kin_vtemp2->ops->nvdotprodlocal ||
          kin_mem->kin_vtemp2->ops->nvdotprodmultilocal) &&
         kin_mem->kin_vtemp2->ops->nvdotprodmultiallreduce)
     {
-      dotprodSB = SUNTRUE;
+      kin_mem->kin_dot_prod_sb = SUNTRUE;
     }
 
     if (kin_mem->kin_orth_aa == KIN_ORTH_MGS)
@@ -417,7 +418,7 @@ int KINInit(void* kinmem, KINSysFn func, N_Vector tmpl)
     }
     else if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY)
     {
-      if (dotprodSB) { kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_ICWY_SB; }
+      if (kin_mem->kin_dot_prod_sb) { kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_ICWY_SB; }
       else { kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_ICWY; }
       kin_mem->kin_qr_data->vtemp      = kin_mem->kin_vtemp2;
       kin_mem->kin_qr_data->vtemp2     = kin_mem->kin_vtemp3;
@@ -432,7 +433,7 @@ int KINInit(void* kinmem, KINSysFn func, N_Vector tmpl)
     }
     else if (kin_mem->kin_orth_aa == KIN_ORTH_DCGS2)
     {
-      if (dotprodSB) { kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_DCGS2_SB; }
+      if (kin_mem->kin_dot_prod_sb) { kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_DCGS2_SB; }
       else { kin_mem->kin_qr_func = (SUNQRAddFn)SUNQRAdd_DCGS2; }
       kin_mem->kin_qr_data->vtemp      = kin_mem->kin_vtemp2;
       kin_mem->kin_qr_data->vtemp2     = kin_mem->kin_vtemp3;
@@ -2978,16 +2979,6 @@ static int KINFP(KINMem kin_mem)
 static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
                                int depth)
 {
-  /* local dot product flag for single buffer reductions */
-  sunbooleantype dotprodSB = SUNFALSE;
-
-  if ((kin_mem->kin_vtemp2->ops->nvdotprodlocal ||
-       kin_mem->kin_vtemp2->ops->nvdotprodmultilocal) &&
-      kin_mem->kin_vtemp2->ops->nvdotprodmultiallreduce)
-  {
-    dotprodSB = SUNTRUE;
-  }
-
   /* Delete left-most column vector from QR factorization */
   sunrealtype a, b, temp, c, s;
 
@@ -3029,7 +3020,7 @@ static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
   /* If ICWY orthogonalization, then update T */
   if (kin_mem->kin_orth_aa == KIN_ORTH_ICWY)
   {
-    if (dotprodSB)
+    if (kin_mem->kin_dot_prod_sb)
     {
       if (depth > 1)
       {
