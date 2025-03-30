@@ -2427,17 +2427,19 @@ SWIGEXPORT void _wrap_FARKStepPrintMem(void *farg1, void *farg2) {
 }
 
 
-SWIGEXPORT int _wrap_FARKStepCreateAdjointStepper(void *farg1, N_Vector farg2, void *farg3) {
+SWIGEXPORT int _wrap_FARKStepCreateAdjointStepper(void *farg1, double const *farg2, N_Vector farg3, void *farg4) {
   int fresult ;
   void *arg1 = (void *) 0 ;
-  N_Vector arg2 = (N_Vector) 0 ;
-  SUNAdjointStepper *arg3 = (SUNAdjointStepper *) 0 ;
+  sunrealtype arg2 ;
+  N_Vector arg3 = (N_Vector) 0 ;
+  SUNAdjointStepper *arg4 = (SUNAdjointStepper *) 0 ;
   int result;
   
   arg1 = (void *)(farg1);
-  arg2 = (N_Vector)(farg2);
-  arg3 = (SUNAdjointStepper *)(farg3);
-  result = (int)ARKStepCreateAdjointStepper(arg1,arg2,arg3);
+  arg2 = (sunrealtype)(*farg2);
+  arg3 = (N_Vector)(farg3);
+  arg4 = (SUNAdjointStepper *)(farg4);
+  result = (int)ARKStepCreateAdjointStepper(arg1,arg2,arg3,arg4);
   fresult = (int)(result);
   return fresult;
 }

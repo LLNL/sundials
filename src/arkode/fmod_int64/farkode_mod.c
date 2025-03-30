@@ -1167,7 +1167,7 @@ SWIGEXPORT int _wrap_FARKodeSetMaxNumConstrFails(void *farg1, int const *farg2) 
 }
 
 
-SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointScheme(void *farg1, SUNAdjointCheckpointScheme farg2) {
+SWIGEXPORT int _wrap_FARKodeSetAdjointCheckpointScheme(void *farg1, void *farg2) {
   int fresult ;
   void *arg1 = (void *) 0 ;
   SUNAdjointCheckpointScheme arg2 = (SUNAdjointCheckpointScheme) 0 ;

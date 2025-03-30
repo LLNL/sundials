@@ -3470,13 +3470,13 @@ result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
 type(C_PTR) :: arkode_mem
-type(SUNAdjointCheckpointScheme), target, intent(inout) :: checkpoint_scheme
+type(C_PTR) :: checkpoint_scheme
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 type(C_PTR) :: farg2 
 
 farg1 = arkode_mem
-farg2 = c_loc(checkpoint_scheme)
+farg2 = checkpoint_scheme
 fresult = swigc_FARKodeSetAdjointCheckpointScheme(farg1, farg2)
 swig_result = fresult
 end function
