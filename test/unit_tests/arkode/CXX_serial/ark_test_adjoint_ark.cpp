@@ -178,7 +178,6 @@ static void dgdp(N_Vector uvec, N_Vector dgvec, const sunrealtype* p,
 }
 
 static int forward_solution(SUNContext sunctx, void* arkode_mem,
-                            SUNAdjointCheckpointScheme checkpoint_scheme,
                             const sunrealtype t0, const sunrealtype tf,
                             const sunrealtype dt, N_Vector u)
 {
@@ -206,7 +205,6 @@ static int forward_solution(SUNContext sunctx, void* arkode_mem,
 }
 
 static int adjoint_solution(SUNContext sunctx, SUNAdjointStepper adj_stepper,
-                            SUNAdjointCheckpointScheme checkpoint_scheme,
                             const sunrealtype tf, const sunrealtype tout,
                             N_Vector sf)
 {
@@ -323,7 +321,7 @@ int main(int argc, char* argv[])
   printf("Initial condition:\n");
   N_VPrint(u);
 
-  forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+  forward_solution(sunctx, arkode_mem, t0, tf, dt, u);
   if (check_forward_answer(u))
   {
     ++failcount;
@@ -364,7 +362,7 @@ int main(int argc, char* argv[])
 
   SUNAdjointStepper_SetJacFn(adj_stepper, ode_jac, jac, parameter_jacobian, jacp);
 
-  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+  adjoint_solution(sunctx, adj_stepper, tf, t0, sf);
   if (check_sensitivities(sf))
   {
     ++failcount;
@@ -384,7 +382,7 @@ int main(int argc, char* argv[])
     printf("Initial condition:\n");
     N_VPrint(u);
     ARKStepReInit(arkode_mem, ode_rhs, NULL, t0, u);
-    forward_solution(sunctx, arkode_mem, checkpoint_scheme, t0, tf, dt, u);
+    forward_solution(sunctx, arkode_mem, t0, tf, dt, u);
     if (check_forward_answer(u))
     {
       ++failcount;
@@ -398,7 +396,7 @@ int main(int argc, char* argv[])
   SUNAdjointStepper_SetJacFn(adj_stepper, NULL, NULL, NULL, NULL);
   SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, ode_vjp,
                                                   parameter_vjp);
-  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tf, t0, sf);
+  adjoint_solution(sunctx, adj_stepper, tf, t0, sf);
   if (check_sensitivities(sf))
   {
     ++failcount;
@@ -437,7 +435,7 @@ int main(int argc, char* argv[])
                                           keep_check, sunctx, &checkpoint_scheme);
   ARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme);
 
-  forward_solution(sunctx, arkode_mem, checkpoint_scheme, tau0, tauf, -dt, u);
+  forward_solution(sunctx, arkode_mem, tau0, tauf, -dt, u);
   if (check_forward_answer(u))
   {
     ++failcount;
@@ -454,7 +452,7 @@ int main(int argc, char* argv[])
   SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, neg_vjp,
                                                   neg_parameter_vjp);
 
-  adjoint_solution(sunctx, adj_stepper, checkpoint_scheme, tauf, tau0, sf);
+  adjoint_solution(sunctx, adj_stepper, tauf, tau0, sf);
   if (check_sensitivities(sf))
   {
     ++failcount;
