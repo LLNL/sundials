@@ -280,17 +280,17 @@ int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec, N_Vector ldotvec,
 {
   vjp(lvec, ldotvec, t, uvec, user_data);
   N_VScale(-1.0, ldotvec, ldotvec);
-
   return 0;
 }
 
 /* Function to compute the quadrature right-hand side:
-    mu^T (df/dp)
+    -mu^T (df/dp)
  */
 int quad_rhs(sunrealtype t, N_Vector uvec, N_Vector muvec, N_Vector qBdotvec,
              void* user_dataB)
 {
   parameter_vjp(muvec, qBdotvec, t, uvec, user_dataB);
+  N_VScale(-1.0, qBdotvec, qBdotvec);
   return 0;
 }
 
