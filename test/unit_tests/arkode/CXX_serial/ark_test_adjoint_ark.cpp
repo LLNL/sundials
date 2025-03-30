@@ -353,7 +353,7 @@ int main(int argc, char* argv[])
   N_VPrint(sf);
 
   SUNAdjointStepper adj_stepper;
-  ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
+  ARKStepCreateAdjointStepper(arkode_mem, tf, sf, &adj_stepper);
 
   //
   // Now compute the adjoint solution
@@ -450,7 +450,7 @@ int main(int argc, char* argv[])
   printf("Adjoint terminal condition:\n");
   N_VPrint(sf);
 
-  ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
+  ARKStepCreateAdjointStepper(arkode_mem, tf, sf, &adj_stepper);
   SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, neg_vjp,
                                                   neg_parameter_vjp);
 

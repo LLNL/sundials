@@ -3585,7 +3585,7 @@ static SUNErrCode arkStep_SUNStepperReInit(SUNStepper stepper, sunrealtype t0,
   return SUN_SUCCESS;
 }
 
-int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
+int ARKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
                                 SUNAdjointStepper* adj_stepper_ptr)
 {
   ARKodeMem ark_mem;
@@ -3603,12 +3603,15 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
   if (arkStepCompatibleWithAdjointSolver(ark_mem, step_mem, __LINE__, __func__,
                                          __FILE__))
   {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "ark_mem provided is not compatible with adjoint calculation");
     return ARK_ILL_INPUT;
   }
 
-  if (N_VGetVectorID(sf) != SUNDIALS_NVEC_MPIMANYVECTOR &&
-      N_VGetVectorID(sf) != SUNDIALS_NVEC_MANYVECTOR)
+  if (N_VGetVectorID(sf) != SUNDIALS_NVEC_MANYVECTOR)
   {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Incompatible vector type provided for adjoint calculation");
     return ARK_ILL_INPUT;
   }
 
@@ -3624,8 +3627,8 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
     return retval;
   }
 
-  void* arkode_mem_adj  = ARKStepCreate(arkStep_fe_Adj, NULL, ark_mem->tretlast,
-                                        sf, ark_mem->sunctx);
+  void* arkode_mem_adj  = ARKStepCreate(arkStep_fe_Adj, NULL, tf, sf,
+                                        ark_mem->sunctx);
   ARKodeMem ark_mem_adj = (ARKodeMem)arkode_mem_adj;
 
   ark_mem_adj->do_adjoint = SUNTRUE;

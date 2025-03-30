@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
   N_VPrint(sf);
 
   SUNAdjointStepper adj_stepper;
-  retval = ARKStepCreateAdjointStepper(arkode_mem, sf, &adj_stepper);
+  retval = ARKStepCreateAdjointStepper(arkode_mem, tf, sf, &adj_stepper);
   if (check_retval(&retval, "ARKStepCreateAdjointStepper", 1)) { return 1; }
 
   retval = SUNAdjointStepper_SetJacHermitianTransposeVecFn(adj_stepper, vjp,

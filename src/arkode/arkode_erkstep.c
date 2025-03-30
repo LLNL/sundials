@@ -1693,7 +1693,7 @@ static SUNErrCode erkStep_SUNStepperReInit(SUNStepper stepper, sunrealtype t0,
   return SUN_SUCCESS;
 }
 
-int ERKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
+int ERKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
                                 SUNAdjointStepper* adj_stepper_ptr)
 {
   ARKodeMem ark_mem;
@@ -1822,8 +1822,7 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf,
 
   /* SUNAdjointStepper will own the SUNSteppers and destroy them */
   errcode = SUNAdjointStepper_Create(fwd_stepper, SUNTRUE, adj_stepper, SUNTRUE,
-                                     nst - 1, sf, ark_mem->tretlast,
-                                     ark_mem->checkpoint_scheme,
+                                     nst - 1, sf, tf, ark_mem->checkpoint_scheme,
                                      ark_mem->sunctx, adj_stepper_ptr);
   if (errcode)
   {

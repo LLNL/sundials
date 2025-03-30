@@ -3,6 +3,8 @@
 Adjoint Sensitivity Analysis
 ============================
 
+.. versionadded:: x.y.z
+
 The previous sections discuss using ARKODE for the integration of forward ODE models. This section
 discusses how to use ARKODE for adjoint sensitivity analysis as introduced in
 :numref:`ARKODE.Mathematics.ASA`. To use ARKStep for adjoint sensitivity analysis (ASA), users
@@ -21,7 +23,12 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
 
 #. *Set vector of initial values*
 
-#. *Create a stepper object*
+#. *Create ARKODE object*
+
+#. Specify a fixed time step size.
+
+   Currently the discrete ASA capability only allows a fixed time step size
+   to be used. Call :c:func:`ARKodeSetFixedStep` to set the time step.
 
 #. *Set optional inputs*
 
@@ -35,7 +42,7 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
    
 #. Attach the checkpoint scheme object to ARKODE 
    
-   Call :c:func:`ARKodeSetAdjointCheckpointScheme()`.
+   Call :c:func:`ARKodeSetAdjointCheckpointScheme`.
 
 #. *Advance solution in time*
 
@@ -44,9 +51,25 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
 #. Create the sensitivities vector with the terminal condition
 
    The sensitivities vector must be an instance of the :ref:`ManyVector N_Vector implementation <NVectors.ManyVector>`.
-   You will have one subvector for the initial condition sensitivities and an additional subvector if you
-   want sensitivities with respect to parameters.
-   The vector should contain the terminal condition from the forward problem.
+   You will have one subvector for the initial condition sensitivities and
+   an additional subvector if you want sensitivities with respect to parameters. The vectors should
+   contain the terminal conditions for the adjoint problem. I.e, the first subvector should contain
+   :math:`dg(t_f,y(t_f),p)/dy(t_f)` and the second subvector should contain
+   :math:`dg(t_f,y(t_f),p)/dp`.
+   The subvectors can be any implementation of the :ref:`N_Vector class <NVectors>`.
+
+   .. code-block:: C
+
+      sunindextype num_equations = 10;
+      sunindextype num_params    = 4;
+      N_Vector sensu0            = N_VNew_Serial(num_equations, sunctx);
+      N_Vector sensp             = N_VNew_Serial(num_params, sunctx);
+      N_Vector sens[2]           = {sensu0, sensp};
+      N_Vector sf                = N_VNew_ManyVector(2, sens, sunctx);
+      // Set the terminal condition for the adjoint system, which
+      // should be the the gradient of our cost function at tf.
+      dgdu(u, sensu0, params);
+      dgdp(u, sensp, params);
 
 #. Create the :c:type:`SUNAdjointStepper` object
 
@@ -56,14 +79,14 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
 
    Users must supply one of:
    
-   * :math:`(\partial f/\partial y)^Tv`,
-   * :math:`v^T(\partial f/\partial y)`,
+   * :math:`(\partial f/\partial y)^*v`,
+   * :math:`v^*(\partial f/\partial y)`,
    * :math:`(\partial f/\partial y)`,
 
    and, if sensitivities with respect to the parameters is desired, one of
 
-   * :math:`(\partial f/\partial p)^Tv`,
-   * :math:`v^T(\partial f/\partial p)`,
+   * :math:`(\partial f/\partial p)^*v`,
+   * :math:`v^*(\partial f/\partial p)`,
    * :math:`(\partial f/\partial p)`.
 
    These user-supplied routines can be set with :c:func:`SUNAdjointStepper_SetJacHermitianTransposeVecFn`, or
@@ -75,7 +98,7 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
 
 #. Advance the adjoint sensitivity analysis ODE
 
-   Call :c:func:`SUNAdjointStepper_Evolve`.
+   Call :c:func:`SUNAdjointStepper_Evolve` or :c:func:`SUNAdjointStepper_OneStep`.
 
 #. Get optional ASA outputs
 
@@ -105,12 +128,13 @@ User Callable Functions
 This section describes user-callable functions for performing
 adjoint sensitivity analysis with methods with ERKStep and ARKStep.
 
-.. c:function:: int ERKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
+.. c:function:: int ERKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
 
    Creates a :c:type:`SUNAdjointStepper` object compatible with the provided ERKStep instance for
    integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
 
    :param arkode_mem: a pointer to the ERKStep memory block.
+   :param tf: the terminal time for the adjoint sensitivity system.
    :param sf: the sensitivity vector holding the adjoint system terminal condition.
       This must be an instance of the ManyVector ``N_Vector`` implementation with at
       least one subvector (depending on if sensitivities to parameters should be computed).
@@ -118,34 +142,44 @@ adjoint sensitivity analysis with methods with ERKStep and ARKStep.
       otherwise only one subvector should be provided.
    :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
 
-   :return:
-      * ``ARK_SUCCESS`` if successful
-      * ``ARK_MEM_FAIL`` if a memory allocation failed
-      * ``ARK_ILL_INPUT`` if an argument has an illegal value.
-
-   .. versionadded:: x.y.z
-
-.. c:function:: int ARKStepCreateAdjointStepper(void* arkode_mem, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
-
-   Creates a :c:type:`SUNAdjointStepper` object compatible with the provided ARKStep instance for
-   integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
-
-   :param arkode_mem: a pointer to the ARKStep memory block.
-   :param sf: the sensitivity vector holding the adjoint system terminal condition.
-      This must be an instance of the ManyVector ``N_Vector`` implementation with at
-      least one subvector (depending on if sensitivities to parameters should be computed).
-      The first subvector must be :math:`\partial g_y(y(t_f)) \in \mathbb{R}^N`. If sensitivities to parameters should be computed, then the second subvector must be :math:`g_p(y(t_f), p) \in \mathbb{R}^{N_s}`,
-      otherwise only one subvector should be provided.
-   :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
-
-   :return:
-      * ``ARK_SUCCESS`` if successful
-      * ``ARK_MEM_FAIL`` if a memory allocation failed
-      * ``ARK_ILL_INPUT`` if an argument has an illegal value.
+   :retval ARK_SUCCESS: if successful.  
+   :retval ARK_MEM_FAIL: if a memory allocation failed.  
+   :retval ARK_ILL_INPUT: if an argument has an illegal value. 
 
    .. versionadded:: x.y.z
 
    .. note:: 
 
-      Currently only explicit methods are supported for ASA.
+      Currently fixed time steps must be used.
+      Furthermore, the explicit stability function, inequality constraints, and relaxation
+      features are not yet compatible as they require adaptive time steps.
+      
+
+.. c:function:: int ARKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf, SUNAdjointStepper* adj_stepper_ptr)
+
+   Creates a :c:type:`SUNAdjointStepper` object compatible with the provided ARKStep instance for
+   integrating the adjoint sensitivity system :eq:`ARKODE_DISCRETE_ADJOINT`.
+
+   :param arkode_mem: a pointer to the ARKStep memory block.
+   :param tf: the terminal time for the adjoint sensitivity system.
+   :param sf: the sensitivity vector holding the adjoint system terminal condition.
+      This must be an instance of the ManyVector ``N_Vector`` implementation with at
+      least one subvector (depending on if sensitivities to parameters should be computed).
+      The first subvector must be :math:`dg(t_f, y(t_f), p)/dy(t_f) \in \mathbb{R}^N`. If sensitivities to 
+      parameters should be computed, then the second subvector must be 
+      :math:`dg(t_f, y(t_f), p)/dp \in \mathbb{R}^{N_s}`, otherwise only one subvector should be provided.
+   :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
+
+   :retval ARK_SUCCESS: if successful.  
+   :retval ARK_MEM_FAIL: if a memory allocation failed.  
+   :retval ARK_ILL_INPUT: if an argument has an illegal value. 
+
+   .. versionadded:: x.y.z
+
+   .. note:: 
+
+      Currently only explicit methods with identity mass matrices are supported for ASA,
+      and fixed time steps must be used.
+      Furthermore, the explicit stability function, inequality constraints, and relaxation
+      features are not yet compatible as they require adaptive time steps.
       
