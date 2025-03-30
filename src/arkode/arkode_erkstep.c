@@ -1015,11 +1015,6 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
   retval = erkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  SUNLogDebug(ARK_LOGGER, "ARKODE::erkStep_TakeStep_ERK_Adjoint", "start-step",
-              "step = %li, h = %" SUN_FORMAT_G ", dsm = %" SUN_FORMAT_G
-              ", nflag = %d",
-              ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
-
   /* local shortcuts for readability */
   SUNAdjointStepper adj_stepper = (SUNAdjointStepper)ark_mem->user_data;
   sunrealtype* cvals            = step_mem->cvals;
@@ -1027,8 +1022,8 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
   N_Vector sens_np1             = ark_mem->yn;
   N_Vector sens_n               = ark_mem->ycur;
   N_Vector sens_tmp             = ark_mem->tempv2;
-  N_Vector Lambda_tmp           = N_VGetSubvector_ManyVector(sens_tmp, 0);
-  N_Vector lambda_np1           = N_VGetSubvector_ManyVector(sens_np1, 0);
+  N_Vector sens_tmp_Lambda      = N_VGetSubvector_ManyVector(sens_tmp, 0);
+  N_Vector sens_np1_lambda      = N_VGetSubvector_ManyVector(sens_np1, 0);
   N_Vector* stage_values        = step_mem->F;
 
   /* which adjoint step is being processed */
@@ -1038,8 +1033,10 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
   sunbooleantype fsal = (SUNRabs(step_mem->B->A[0][0]) <= TINY) &&
                         ARKodeButcherTable_IsStifflyAccurate(step_mem->B);
 
-  /* Loop over stages */
+  /* For FSAL ERK methods, A[s-1][s-1] == b[s-1] = 0 so F[s-1] is always zero */
   if (fsal) { N_VConst(SUN_RCONST(0.0), stage_values[step_mem->stages - 1]); }
+
+  /* Loop over stages */
   for (int is = step_mem->stages - (fsal ? 2 : 1); is >= 0; --is)
   {
     /* which stage is being processed -- needed for loading checkpoints */
@@ -1061,14 +1058,16 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
       nvec++;
     }
     cvals[nvec] = -ark_mem->h * step_mem->B->b[is];
-    Xvecs[nvec] = lambda_np1;
+    Xvecs[nvec] = sens_np1_lambda;
     nvec++;
 
     /* h b_i \lambda_{n+1} + h sum_{j=i}^{s} A_{ji} \Lambda_{j} */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, Lambda_tmp);
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, sens_tmp_Lambda);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-    /* Compute stage values \Lambda_i, \nu_i by applying f_{y,p}^T (which is what fe does in this case)  */
+    /* Compute the stages \Lambda_i and \nu_i by evaluating f_{y}^*(t_i, z_i, p) and  
+       f_{p}^*(t_i, z_i, p) and applying them to sens_tmp_Lambda (in sens_tmp). This is  
+       done in fe which retrieves z_i from the checkpoint data */
     retval = step_mem->f(ark_mem->tcur, sens_tmp, stage_values[is],
                          ark_mem->user_data);
     step_mem->nfe++;
@@ -1106,13 +1105,17 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
                       "start_step = %li, stop_step = %li, t0 = %" SUN_FORMAT_G
                       ", tf = %" SUN_FORMAT_G "",
                       start_step, stop_step, t0, tf);
-          if (SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, t0, tf,
-                                             checkpoint))
+          errcode = SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, t0,
+                                                   tf, checkpoint);
+          if (errcode)
           {
+            arkProcessError(ark_mem, ARK_ADJ_RECOMPUTE_FAIL, __LINE__, __func__,
+                            __FILE__,
+                            "SUNAdjointStepper_RecomputeFwd returned %d",
+                            errcode);
             return (ARK_ADJ_RECOMPUTE_FAIL);
           }
-          SUNLogDebug(ARK_LOGGER, "ARKODE::erkStep_TakeStep_ERK_Adjoint",
-                      "end-recompute",
+          SUNLogDebug(ARK_LOGGER, "end-recompute",
                       "start_step = %li, stop_step = %li, t0 = %" SUN_FORMAT_G
                       ", tf = %" SUN_FORMAT_G "",
                       start_step, stop_step, t0, tf);
@@ -1129,13 +1132,15 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
   N_Vector checkpoint      = N_VGetSubvector_ManyVector(ark_mem->tempv2, 0);
   SUNErrCode errcode =
     SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
-                                          ark_mem->adj_step_idx, 0, 0,
-                                          &checkpoint, &checkpoint_t);
+                                          ark_mem->adj_step_idx, 0,
+                                          /*peek=*/SUNFALSE, &checkpoint,
+                                          &checkpoint_t);
   if (errcode)
   {
     arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
                     __FILE__,
                     "SUNAdjointCheckpointScheme_LoadVector returned %d", errcode);
+    return errcode;
   }
 
   /* Now compute the time step solution. We cannot use erkStep_ComputeSolutions because the
@@ -1160,11 +1165,6 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
 
   *dsmPtr   = ZERO;
   *nflagPtr = 0;
-
-  SUNLogDebug(ARK_LOGGER, "ARKODE::erkStep_TakeStep_ERK_Adjoint", "end-step",
-              "step = %li, h = %" SUN_FORMAT_G ", dsm = %" SUN_FORMAT_G
-              ", nflag = %d",
-              ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
 
   return (ARK_SUCCESS);
 }
@@ -1621,9 +1621,11 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   if (adj_stepper->JacFn)
   {
-    adj_stepper->JacFn(t, checkpoint, NULL, adj_stepper->Jac, user_data, NULL,
-                       NULL, NULL);
+    int ierr = adj_stepper->JacFn(t, checkpoint, NULL, adj_stepper->Jac,
+                                  user_data, ark_mem->tempv3, ark_mem->tempv4,
+                                  ark_mem->tempv5);
     adj_stepper->njeval++;
+    if (ierr) { return ierr; }
     if (SUNMatHermitianTransposeVec(adj_stepper->Jac, Lambda_part, Lambda))
     {
       return -1;
@@ -1631,18 +1633,20 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   }
   else if (adj_stepper->JvpFn)
   {
-    adj_stepper->JvpFn(Lambda_part, Lambda, t, checkpoint, NULL, user_data, NULL);
-
+    int ierr = adj_stepper->JvpFn(Lambda_part, Lambda, t, checkpoint, NULL,
+                                  user_data, ark_mem->tempv3);
     adj_stepper->njtimesv++;
+    if (ierr) { return ierr; }
   }
 
   if (adj_stepper->JacPFn)
   {
-    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2) { return -1; }
     N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
-    adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP, user_data, NULL,
-                        NULL, NULL);
+    int ierr    = adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP,
+                                      user_data, ark_mem->tempv3, ark_mem->tempv4,
+                                      ark_mem->tempv5);
     adj_stepper->njpeval++;
+    if (ierr) { return ierr; }
     if (SUNMatHermitianTransposeVec(adj_stepper->JacP, Lambda_part, nu))
     {
       return -1;
@@ -1650,10 +1654,11 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   }
   else if (adj_stepper->JPvpFn)
   {
-    if (N_VGetNumSubvectors_ManyVector(sens_complete_stage) < 2) { return -1; }
     N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
-    adj_stepper->JPvpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
+    int ierr    = adj_stepper->JPvpFn(Lambda_part, nu, t, checkpoint, NULL,
+                                      user_data, ark_mem->tempv3);
     adj_stepper->njptimesv++;
+    if (ierr) { return ierr; }
   }
 
   return 0;
@@ -1714,7 +1719,12 @@ static SUNErrCode erkStep_SUNStepperReInit(SUNStepper stepper, sunrealtype t0,
   }
 
   stepper->last_flag = ERKStepReInit(arkode_mem, step_mem->f, t0, y0);
-  if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
+  if (stepper->last_flag != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, stepper->last_flag, __LINE__, __func__, __FILE__,
+                    "ERKStepReInit return an error\n");
+    return SUN_ERR_OP_FAIL;
+  }
 
   return SUN_SUCCESS;
 }
@@ -1737,12 +1747,15 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
   if (erkStepCompatibleWithAdjointSolver(ark_mem, step_mem, __LINE__, __func__,
                                          __FILE__))
   {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "ark_mem provided is not compatible with adjoint calculation");
     return ARK_ILL_INPUT;
   }
 
-  if (N_VGetVectorID(sf) != SUNDIALS_NVEC_MPIMANYVECTOR &&
-      N_VGetVectorID(sf) != SUNDIALS_NVEC_MANYVECTOR)
+  if (N_VGetVectorID(sf) != SUNDIALS_NVEC_MANYVECTOR)
   {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__,
+                    __FILE__, "Incompatible vector type provided for adjoint calculation");
     return ARK_ILL_INPUT;
   }
 
