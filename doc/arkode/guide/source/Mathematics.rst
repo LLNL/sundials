@@ -2697,24 +2697,39 @@ For more information on utilizing relaxation Runge--Kutta methods, see
 Adjoint Sensitivity Analysis
 ============================
 
-Consider :eq:`ARKODE_IVP_simple_explicit`, but where the ODE also depends on some parameters
-:math:`p` (that is, we have :math:`f(t,y,p)`). Now, suppose we have a functional :math:`g(y(t_f),p)`
-for which we would like to compute the gradients :math:`\partial g(y(t_f),p)/\partial y(t_0)`
-and/or :math:`\partial g(y(t_f),p)/\partial p`.  This most often arises in the form of an
-optimization problem such as
+Consider :eq:`ARKODE_IVP_simple_explicit`, but where the ODE also depends on some
+parameters, :math:`p`, leading to the system
 
 .. math::
-   \min_{y(t_0), p} g(y(t_f), p)
+   \dot{y} = f(t,y,p), \qquad y(t_0) = y_0.
+   :label: ARKODE_IVP_simple_explicit_with_parameters
+
+Now, suppose we have a functional :math:`g(y(t_f), t_f, p)` for which we would like to compute the
+gradients
+
+.. math::
+   \frac{dg(t_f,y(t_n),p)}{dy}, \quad \text{and optionally}, \quad \frac{dg(t_f,y(t_n),p)}{dp}.
+   
+This most often arises in the form of an optimization problem such as
+
+.. math::
+   \min_{y(t_0), p} g(t_f, y(t_n), p).
    :label: ARKODE_OPTIMIZATION_PROBLEM
 
 The adjoint method is one approach to obtaining the gradients that is particularly efficient when
 there are relatively few functionals and a large number of parameters. While :ref:`CVODES
-<CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` provide *continuous* adjoint methods
-(differentiate-then-discretize), ARKODE provides *discrete* adjoint methods
-(discretize-then-differentiate). 
+<CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` provide *continuous* adjoint
+methods (differentiate-then-discretize), ARKODE provides *discrete* adjoint methods
+(discretize-then-differentiate). For the discrete adjoint approach, we first numerically discretize
+the original ODE :eq:`ARKODE_IVP_simple_explicit_with_parameters`. In the context of ARKODE, this is
+done with a one-step time integration scheme :math:`\varphi` so that
 
-For the discrete adjoint approach, we first numerically discretize the original ODE :eq:`ARKODE_IVP_simple_explicit`.
-In the context of ARKODE, this is done with a one-step time integration scheme :math:`\varphi` so that
+.. warning:: 
+   The CVODES and IDAS documentation use :math:`\lambda` to represent the adjoint variables needed
+   to obtain the gradient :math:`dG/dp` where :math:`G` is an integral of :math:`g`.
+   Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES and
+   IDAS docs.
+
 
 .. math::
    y_0 = y(t_0),\quad y_n = \varphi(y_{n-1}).
@@ -2723,60 +2738,40 @@ In the context of ARKODE, this is done with a one-step time integration scheme :
 Reformulating the optimization problem for the discrete case, we have
 
 .. math::
-   \min_{y_0, p} g(y_n, p)
+   \min_{y_0, p} g(t_f, y_n, p).
    :label: ARKODE_DISCRETE_OPTIMIZATION_PROBLEM
 
 The gradients of :eq:`ARKODE_DISCRETE_OPTIMIZATION_PROBLEM` can be computed using the transposed chain
 rule backwards in time to obtain the discete adjoint variables :math:`\lambda_n, \lambda_{n-1}, \cdots, \lambda_0`
-and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`,
+and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`, where
 
 .. math::
-   \lambda_n &= g_y^T(y_n, p), \quad \lambda_k = \left(\frac{\partial \varphi}{\partial y_k}(y_k, p)\right)^T \lambda_{k+1} \\
-   \mu_n     &= g_p^T(y_n, p), \quad \mu_k     = \left(\frac{\partial \varphi}{\partial p}(y_k, p)\right)^T \lambda_{k+1},
+   \lambda_n &= g_y^*(t_f, y_n, p), \quad \lambda_k = \left(\frac{\partial \varphi}{\partial y_k}(y_k, p)\right)^* \lambda_{k+1} \\
+   \mu_n     &= g_p^*(t_f, y_n, p), \quad \mu_k     = \left(\frac{\partial \varphi}{\partial p}(y_k, p)\right)^* \lambda_{k+1},
     \quad k = n - 1, \cdots, 0.
    :label: ARKODE_DISCRETE_ADJOINT
 
-The solution of the discrete adjoint equations :eq:`ARKODE_DISCRETE_ADJOINT` is the sensitivities of the discrete cost function
-:eq:`ARKODE_DISCRETE_OPTIMIZATION_PROBLEM` with respect to changes in the discretized ODE :eq:`ARKODE_DISCRETE_ODE`.
+The discrete adjoint variables represent the gradients of the discrete cost function
 
 .. math::
-   \lambda_0 = g_y^T(y_0, p), \quad \mu_0 = g_p^T(y_0, p).
-   :label: ARKODE_DISCRETE_ADJOINT_SOLUTION
+   \frac{dg}{dy_n} = \lambda_n , \quad \frac{dg}{dp} = \mu_n + \lambda_n^* \left(\frac{\partial y_0}{\partial p} \right).
+   :label: ARKODE_DISCRETE_ADJOINT_GRADIENTS
+
 
 Given an s-stage explicit Runge--Kutta method (as in :eq:`ARKODE_ERK`, but without the embedding), the discrete adjoint
 to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1}` and
 :math:`\mu_{n+1}` is given by
 
 .. math::
-   \Lambda_i &= h_n f_y^T(t_{n,i}, z_i) \left(b_i \lambda_{n+1} + \sum_{j=i+1}^s a_{j,i}
+   \Lambda_i &= h_n f_y^*(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i+1}^s a_{j,i}
    \Lambda_j \right), \quad \quad i = s, \dots, 1,\\
-   \nu_i     &= h_n f_p^T(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{ji} \Lambda_j \right), \\
+   \nu_i     &= h_n f_p^*(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{ji} \Lambda_j \right), \\
    \lambda_n &= \lambda_{n+1} + \sum_{j=1}^{s} \Lambda_j, \\
    \mu_n     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
    :label: ARKODE_ERK_ADJOINT
 
 For more information on performing discrete adjoint sensitivity analysis using ARKODE see,
-:numref:`ARKODE.Usage.ARKStep.ASA`.
-
-For a detailed derivation of the discrete adjoint methods see :cite:p:`hager2000runge,sanduDiscrete2006`.
-For a detailed derivation of the continuous adjoint method see :ref:`CVODES <CVODES.Mathematics.ASA>`,
-or :cite:p:`CLPS:03`.
-
-
-Discrete vs. Continuous Adjoint Method
---------------------------------------
-
-It is understood that the continuous adjoint method can be problematic in the context of
-optimization problems because the continuous adjoint method provides an approximation to the
-gradient of a continuous cost function while the optimizer is expecting the gradient of the discrete
-cost function. The discrepancy means that the optimizer can fail to converge further once it is near
-a local minimum :cite:p:`giles2000introduction`. On the other hand, the discrete adjoint method
-provides the exact gradient of the discrete cost function allowing the optimizer to fully converge.
-Consequently, the discrete adjoint method is often preferable in optimization despite its own
-drawbacks -- such as its (relatively) increased memory usage and the possible introduction of
-unphysical computational modes :cite:p:`sirkes1997finite`. This is not to say that the discrete
-adjoint approach is always the better choice over the continuous adjoint approach in optimization.
-Computational efficiency and stability of one approach over the other can be both problem and method
-dependent. Section 8 in the paper :cite:p:`rackauckas2020universal` discusses the tradeoffs further
-and provides numerous references that may help inform users in choosing between the discrete and
-continuous adjoint approaches.
+:numref:`ARKODE.Usage.ASA`. For a detailed derivation of the discrete adjoint methods see
+:cite:p:`hager2000runge,sanduDiscrete2006`. :numref:`SUNAdjoint.DiscreteContinuous` provides a brief
+discussion about the differences between the contninuous and discrete adjoint methods, and why one
+would choose one over the other.
