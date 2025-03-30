@@ -26,17 +26,6 @@ module fsunadjointcheckpointscheme_fixed_mod
 
  ! DECLARATION CONSTRUCTS
  public :: FSUNAdjointCheckpointScheme_Create_Fixed
-
- integer, parameter :: swig_cmem_own_bit = 0
- integer, parameter :: swig_cmem_rvalue_bit = 1
- integer, parameter :: swig_cmem_const_bit = 2
- type, bind(C) :: SwigClassWrapper
-  type(C_PTR), public :: cptr = C_NULL_PTR
-  integer(C_INT), public :: cmemflags = 0
- end type
- type, public :: SWIGTYPE_SUNAdjointCheckpointScheme_
-  type(SwigClassWrapper), public :: swigdata
- end type
  public :: FSUNAdjointCheckpointScheme_NeedsSaving_Fixed
  public :: FSUNAdjointCheckpointScheme_InsertVector_Fixed
  public :: FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed
@@ -183,7 +172,7 @@ function FSUNAdjointCheckpointScheme_NeedsSaving_Fixed(check_scheme, step_num, s
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: check_scheme
+type(C_PTR) :: check_scheme
 integer(C_LONG), intent(in) :: step_num
 integer(C_LONG), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
@@ -195,7 +184,7 @@ integer(C_LONG) :: farg3
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = c_loc(check_scheme)
+farg1 = check_scheme
 farg2 = step_num
 farg3 = stage_num
 farg4 = t
@@ -208,7 +197,7 @@ function FSUNAdjointCheckpointScheme_InsertVector_Fixed(check_scheme, step_num, 
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: check_scheme
+type(C_PTR) :: check_scheme
 integer(C_LONG), intent(in) :: step_num
 integer(C_LONG), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
@@ -220,7 +209,7 @@ integer(C_LONG) :: farg3
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = c_loc(check_scheme)
+farg1 = check_scheme
 farg2 = step_num
 farg3 = stage_num
 farg4 = t
@@ -233,7 +222,7 @@ function FSUNAdjointCheckpointScheme_NeedsDeleting_Fixed(check_scheme, step_num,
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: check_scheme
+type(C_PTR) :: check_scheme
 integer(C_LONG), intent(in) :: step_num
 integer(C_LONG), intent(in) :: stage_num
 real(C_DOUBLE), intent(in) :: t
@@ -245,7 +234,7 @@ integer(C_LONG) :: farg3
 real(C_DOUBLE) :: farg4 
 type(C_PTR) :: farg5 
 
-farg1 = c_loc(check_scheme)
+farg1 = check_scheme
 farg2 = step_num
 farg3 = stage_num
 farg4 = t
@@ -258,7 +247,7 @@ function FSUNAdjointCheckpointScheme_RemoveVector_Fixed(check_scheme, step_num, 
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: check_scheme
+type(C_PTR) :: check_scheme
 integer(C_LONG), intent(in) :: step_num
 integer(C_LONG), intent(in) :: stage_num
 type(C_PTR) :: out
@@ -268,7 +257,7 @@ integer(C_LONG) :: farg2
 integer(C_LONG) :: farg3 
 type(C_PTR) :: farg4 
 
-farg1 = c_loc(check_scheme)
+farg1 = check_scheme
 farg2 = step_num
 farg3 = stage_num
 farg4 = out
@@ -280,7 +269,7 @@ function FSUNAdjointCheckpointScheme_LoadVector_Fixed(check_scheme, step_num, st
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: check_scheme
+type(C_PTR) :: check_scheme
 integer(C_LONG), intent(in) :: step_num
 integer(C_LONG), intent(in) :: stage_num
 integer(C_INT), intent(in) :: peek
@@ -294,7 +283,7 @@ integer(C_INT) :: farg4
 type(C_PTR) :: farg5 
 type(C_PTR) :: farg6 
 
-farg1 = c_loc(check_scheme)
+farg1 = check_scheme
 farg2 = step_num
 farg3 = stage_num
 farg4 = peek
@@ -321,13 +310,13 @@ function FSUNAdjointCheckpointScheme_EnableDense_Fixed(check_scheme, on_or_off) 
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: swig_result
-type(SWIGTYPE_SUNAdjointCheckpointScheme_), target, intent(inout) :: check_scheme
+type(C_PTR) :: check_scheme
 integer(C_INT), intent(in) :: on_or_off
 integer(C_INT) :: fresult 
 type(C_PTR) :: farg1 
 integer(C_INT) :: farg2 
 
-farg1 = c_loc(check_scheme)
+farg1 = check_scheme
 farg2 = on_or_off
 fresult = swigc_FSUNAdjointCheckpointScheme_EnableDense_Fixed(farg1, farg2)
 swig_result = fresult

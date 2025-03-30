@@ -24,16 +24,14 @@
 %apply void* { SUNAdjointStepper };
 %apply void** { SUNAdjointStepper* };
 
-%fortran_struct(SUNAdjointCheckpointScheme_Ops_);
-%typemap(ctype) SUNAdjointCheckpointScheme_Ops_* "SUNAdjointCheckpointScheme_Ops";
-%rename(SUNAdjointCheckpointScheme_Ops) SUNAdjointCheckpointScheme_Ops_;
+%ignore SUNAdjointCheckpointScheme_Ops_;
+%apply void* { SUNAdjointCheckpointScheme_Ops };
+%apply void** { SUNAdjointCheckpointScheme_Ops* };
 
-%fortran_struct(SUNAdjointCheckpointScheme_);
-%typemap(ctype) SUNAdjointCheckpointScheme_* "SUNAdjointCheckpointScheme";
-%rename(SUNAdjointCheckpointScheme) SUNAdjointCheckpointScheme_;
-
+%ignore SUNAdjointCheckpointScheme_;
+%apply void* { SUNAdjointCheckpointScheme };
+%apply void** { SUNAdjointCheckpointScheme* };
 
 // Process and wrap functions in the following files
 %include "sundials/sundials_adjointcheckpointscheme.h"
 %include "sundials/sundials_adjointstepper.h"
-
