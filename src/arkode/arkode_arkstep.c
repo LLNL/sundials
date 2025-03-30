@@ -1757,6 +1757,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                         __FILE__,
                         "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                         errcode);
+        return ARK_ADJ_CHECKPOINT_FAIL;
       }
 
       if (do_save)
@@ -1772,6 +1773,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           __FILE__,
                           "SUNAdjointCheckpointScheme_InsertVector returned %d",
                           errcode);
+          return ARK_ADJ_CHECKPOINT_FAIL;
         }
       }
     }
@@ -2053,13 +2055,16 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                         __FILE__,
                         "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                         errcode);
+        return ARK_ADJ_CHECKPOINT_FAIL;
       }
 
       if (do_save)
       {
-        SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
-                                                ark_mem->checkpoint_step_idx, is,
-                                                ark_mem->tcur, ark_mem->ycur);
+        errcode =
+          SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
+                                                  ark_mem->checkpoint_step_idx,
+                                                  is, ark_mem->tcur,
+                                                  ark_mem->ycur);
 
         if (errcode)
         {
@@ -2067,6 +2072,7 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           __FILE__,
                           "SUNAdjointCheckpointScheme_InsertVector returned %d",
                           errcode);
+          return ARK_ADJ_CHECKPOINT_FAIL;
         }
       }
     }
@@ -2190,17 +2196,35 @@ int arkStep_TakeStep_Z(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (ark_mem->checkpoint_scheme)
   {
     sunbooleantype do_save;
-    SUNAdjointCheckpointScheme_NeedsSaving(ark_mem->checkpoint_scheme,
-                                           ark_mem->checkpoint_step_idx,
-                                           step_mem->Be->stages,
-                                           ark_mem->tn + ark_mem->h, &do_save);
+    SUNErrCode errcode =
+      SUNAdjointCheckpointScheme_NeedsSaving(ark_mem->checkpoint_scheme,
+                                             ark_mem->checkpoint_step_idx,
+                                             step_mem->Be->stages,
+                                             ark_mem->tn + ark_mem->h, &do_save);
+    if (errcode)
+    {
+      arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
+                      __FILE__,
+                      "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
+                      errcode);
+      return ARK_ADJ_CHECKPOINT_FAIL;
+    }
     if (do_save)
     {
-      SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
-                                              ark_mem->checkpoint_step_idx,
-                                              step_mem->Be->stages,
-                                              ark_mem->tn + ark_mem->h,
-                                              ark_mem->ycur);
+      errcode =
+        SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
+                                                ark_mem->checkpoint_step_idx,
+                                                step_mem->Be->stages,
+                                                ark_mem->tn + ark_mem->h,
+                                                ark_mem->ycur);
+      if (errcode)
+      {
+        arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
+                        __FILE__,
+                        "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
+                        errcode);
+        return ARK_ADJ_CHECKPOINT_FAIL;
+      }
     }
   }
 
@@ -2240,11 +2264,6 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   retval = arkStep_AccessStepMem(ark_mem, __func__, &step_mem);
   if (retval != ARK_SUCCESS) { return (retval); }
 
-  SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint", "start-step",
-              "step = %li, h = %" SUN_FORMAT_G ", dsm = %" SUN_FORMAT_G
-              ", nflag = %d",
-              ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
-
   /* local shortcuts for readability */
   SUNAdjointStepper adj_stepper = (SUNAdjointStepper)ark_mem->user_data;
   sunrealtype* cvals            = step_mem->cvals;
@@ -2252,8 +2271,8 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   N_Vector sens_np1             = ark_mem->yn;
   N_Vector sens_n               = ark_mem->ycur;
   N_Vector sens_tmp             = step_mem->sdata;
-  N_Vector Lambda_tmp           = N_VGetSubvector_ManyVector(sens_tmp, 0);
-  N_Vector lambda_np1           = N_VGetSubvector_ManyVector(sens_np1, 0);
+  N_Vector sens_tmp_Lambda      = N_VGetSubvector_ManyVector(sens_tmp, 0);
+  N_Vector sens_np1_lambda      = N_VGetSubvector_ManyVector(sens_np1, 0);
   N_Vector* stage_values        = step_mem->Fe;
 
   /* which adjoint step is being processed */
@@ -2263,8 +2282,10 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
   sunbooleantype fsal = (SUNRabs(step_mem->Be->A[0][0]) <= TINY) &&
                         ARKodeButcherTable_IsStifflyAccurate(step_mem->Be);
 
-  /* Loop over stages */
+  /* For FSAL ERK methods, Ae[s-1][s-1] == b[s-1] = 0 so F[s-1] is always zero */
   if (fsal) { N_VConst(SUN_RCONST(0.0), stage_values[step_mem->stages - 1]); }
+
+  /* Loop over stages */
   for (int is = step_mem->stages - (fsal ? 2 : 1); is >= 0; --is)
   {
     /* which stage is being processed -- needed for loading checkpoints */
@@ -2280,20 +2301,22 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     int nvec = 0;
     for (int js = is + 1; js < step_mem->stages; ++js)
     {
-      /* h sum_{j=i}^{s} A_{ji} \Lambda_{j} */
+      /* h sum_{j=i}^{s} Ae_{ji} \Lambda_{j} */
       cvals[nvec] = -ark_mem->h * step_mem->Be->A[js][is];
       Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_values[js], 0);
       nvec++;
     }
     cvals[nvec] = -ark_mem->h * step_mem->Be->b[is];
-    Xvecs[nvec] = lambda_np1;
+    Xvecs[nvec] = sens_np1_lambda;
     nvec++;
 
-    /* h b_i \lambda_{n+1} + h sum_{j=i}^{s} A_{ji} \Lambda_{j} */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, Lambda_tmp);
+    /* h be_i \lambda_{n+1} + h sum_{j=i}^{s} Ae_{ji} \Lambda_{j} */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, sens_tmp_Lambda);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-    /* Compute stage values \Lambda_i, \nu_i by applying f_{y,p}^T (which is what fe does in this case)  */
+    /* Compute the stages \Lambda_i and \nu_i by evaluating f_{y}^*(t_i, z_i, p) and  
+       f_{p}^*(t_i, z_i, p) and applying them to sens_tmp_Lambda (in sens_tmp). This is  
+       done in fe which retrieves z_i from the checkpoint data */
     retval = step_mem->fe(ark_mem->tcur, sens_tmp, stage_values[is],
                           ark_mem->user_data);
     step_mem->nfe++;
@@ -2363,6 +2386,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
                     __FILE__,
                     "SUNAdjointCheckpointScheme_LoadVector returned %d", errcode);
+    return ARK_ADJ_CHECKPOINT_FAIL;
   }
 
   /* Now compute the time step solution. We cannot use arkStep_ComputeSolutions because the
