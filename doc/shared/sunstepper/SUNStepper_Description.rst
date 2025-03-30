@@ -407,7 +407,7 @@ determined by the "consumer" of the :c:type:`SUNStepper`.
    :return: A :c:type:`SUNErrCode` indicating success or failure.
 
 
-.. c:function:: SUNErrCode SUNStepper_SetGetNumStepsFn(SUNStepper stepper, SUNStepperSetGetNumStepsFn fn)
+.. c:function:: SUNErrCode SUNStepper_SetGetNumStepsFn(SUNStepper stepper, SUNStepperGetNumStepsFn fn)
 
    This function attaches a :c:type:`SUNStepperGetNumStepsFn` function to a
    :c:type:`SUNStepper` object.
