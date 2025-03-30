@@ -19,6 +19,7 @@
 #include <arkode/arkode.h>
 #include <sundials/sundials_stepper.h>
 #include "arkode_impl.h"
+#include "sundials/sundials_types.h"
 #include "sundials_macros.h"
 
 static SUNErrCode arkSUNStepperEvolveHelper(SUNStepper stepper,
@@ -103,7 +104,7 @@ static SUNErrCode arkSUNStepperReset(SUNStepper stepper, sunrealtype tR,
   ----------------------------------------------------------------------------*/
 
 static SUNErrCode arkSUNStepperResetCheckpointIndex(SUNStepper stepper,
-                                                    int64_t ckptIdxR)
+                                                    suncountertype ckptIdxR)
 {
   SUNFunctionBegin(stepper->sunctx);
 

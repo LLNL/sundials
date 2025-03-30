@@ -570,12 +570,12 @@ struct ARKodeMemRec
 
   /* Adjoint solver data */
   sunbooleantype do_adjoint;
-  long int adj_stage_idx; /* current stage index (only valid in adjoint context)*/
-  long int adj_step_idx; /* current step index (only valid in adjoint context)*/
+  suncountertype adj_stage_idx; /* current stage index (only valid in adjoint context)*/
+  suncountertype adj_step_idx; /* current step index (only valid in adjoint context)*/
 
   /* Checkpointing data */
   SUNAdjointCheckpointScheme checkpoint_scheme;
-  int64_t checkpoint_step_idx; /* the step number for checkpointing */
+  suncountertype checkpoint_step_idx; /* the step number for checkpointing */
 
   /* XBraid interface variables */
   sunbooleantype force_pass; /* when true the step attempt loop will ignore the
@@ -813,9 +813,9 @@ int arkGetLastKFlag(void* arkode_mem, int* last_kflag);
   "solver configuration)."
 #define MSG_ARK_INTERPOLATION_FAIL \
   "At " MSG_TIME ", interpolating the solution failed."
-#define MSG_ARK_ADJOINT_BAD_VECTOR                                            \
+#define MSG_ARK_ADJOINT_BAD_VECTOR                                           \
   "JacPFn or JPvpFn was provided, but the number of subvectors in y is not " \
-  "2. To perform ASA w.r.t. parameters, one subvector should be the state "   \
+  "2. To perform ASA w.r.t. parameters, one subvector should be the state "  \
   "vector, and the other should be the parameter vector."
 
 /*===============================================================

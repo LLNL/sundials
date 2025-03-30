@@ -110,7 +110,8 @@ SUNErrCode SUNStepper_Reset(SUNStepper stepper, sunrealtype tR, N_Vector yR)
   return SUN_ERR_NOT_IMPLEMENTED;
 }
 
-SUNErrCode SUNStepper_ResetCheckpointIndex(SUNStepper stepper, int64_t ckptIdxR)
+SUNErrCode SUNStepper_ResetCheckpointIndex(SUNStepper stepper,
+                                           suncountertype ckptIdxR)
 {
   SUNFunctionBegin(stepper->sunctx);
   if (stepper->ops->reset)

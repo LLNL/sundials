@@ -885,7 +885,7 @@ Optional input                                     Function name                
 Return ARKODE parameters to their defaults         :c:func:`ARKodeSetDefaults`                 internal
 Set integrator method order                        :c:func:`ARKodeSetOrder`                    4
 Set dense output interpolation type                :c:func:`ARKodeSetInterpolantType`          stepper-specific
-Set dense output polynomial degree                 :c:func:`ARKodeSetInterpolantDegree`        5
+Set dense output polynomial degree                 :c:func:`ARKodeSetInterpolantDegree`        method-dependent
 Disable time step adaptivity (fixed-step mode)     :c:func:`ARKodeSetFixedStep`                disabled
 Set forward or backward integration direction      :c:func:`ARKodeSetStepDirection`            0.0
 Supply an initial step size to attempt             :c:func:`ARKodeSetInitStep`                 estimated
@@ -1451,7 +1451,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
 
    .. versionadded:: x.y.z
 
-.. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, int64_t step_index)
+.. c:function:: int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index)
 
    Specifies the step index (that is step number) to insert the next checkpoint at.
    This is incremented along with the step count, but it is useful to be able to reset

@@ -31,6 +31,7 @@
 #include "arkode_interp_impl.h"
 
 #include "sundials/sundials_errors.h"
+#include "sundials/sundials_types.h"
 #include "sundials_adjointstepper_impl.h"
 
 /*===============================================================
@@ -1052,21 +1053,21 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
     if (retval > 0)
     {
       N_Vector checkpoint = N_VGetSubvector_ManyVector(ark_mem->tempv3, 0);
-      int64_t curr_step, start_step;
+      suncountertype curr_step, start_step;
       curr_step = start_step = ark_mem->adj_step_idx;
 
       SUNErrCode errcode = SUN_ERR_CHECKPOINT_NOT_FOUND;
-      for (int64_t i = 0; i <= curr_step; ++i, --start_step)
+      for (suncountertype i = 0; i <= curr_step; ++i, --start_step)
       {
-        SUNDIALS_MAYBE_UNUSED int64_t stop_step = curr_step + 1;
-        SUNLogDebug(ARK_LOGGER, "ARKODE::erkStep_TakeStep_Adjoint",
-                    "searching-for-checkpoint",
+        SUNDIALS_MAYBE_UNUSED suncountertype stop_step = curr_step + 1;
+        SUNLogDebug(ARK_LOGGER, "searching-for-checkpoint",
                     "start_step = %li, stop_step = %li", start_step, stop_step);
         sunrealtype checkpoint_t;
         errcode =
           SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
-                                                start_step, step_mem->stages, 1,
-                                                &checkpoint, &checkpoint_t);
+                                                start_step, step_mem->stages,
+                                                /*peek=*/SUNTRUE, &checkpoint,
+                                                &checkpoint_t);
         if (errcode == SUN_SUCCESS)
         {
           /* OK, now we have the last checkpoint that stored as (start_step, stages).
@@ -1075,8 +1076,7 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
           start_step++;
           sunrealtype t0 = checkpoint_t;
           sunrealtype tf = ark_mem->tn;
-          SUNLogDebug(ARK_LOGGER, "ARKODE::erkStep_TakeStep_ERK_Adjoint",
-                      "start-recompute",
+          SUNLogDebug(ARK_LOGGER, "start-recompute",
                       "start_step = %li, stop_step = %li, t0 = %" SUN_FORMAT_G
                       ", tf = %" SUN_FORMAT_G "",
                       start_step, stop_step, t0, tf);
