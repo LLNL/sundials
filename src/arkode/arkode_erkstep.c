@@ -800,6 +800,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                       __FILE__,
                       "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                       errcode);
+      return errcode;
     }
 
     if (do_save)
@@ -815,6 +816,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                         __FILE__,
                         "SUNAdjointCheckpointScheme_InsertVector returned %d",
                         errcode);
+        return errcode;
       }
     }
   }
@@ -904,13 +906,16 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                         __FILE__,
                         "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
                         errcode);
+        return errcode;
       }
 
       if (do_save)
       {
-        SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
-                                                ark_mem->checkpoint_step_idx, is,
-                                                ark_mem->tcur, ark_mem->ycur);
+        errcode =
+          SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
+                                                  ark_mem->checkpoint_step_idx,
+                                                  is, ark_mem->tcur,
+                                                  ark_mem->ycur);
 
         if (errcode)
         {
@@ -918,6 +923,7 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
                           __FILE__,
                           "SUNAdjointCheckpointScheme_InsertVector returned %d",
                           errcode);
+          return errcode;
         }
       }
     }
@@ -943,17 +949,37 @@ int erkStep_TakeStep(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagPtr)
   if (ark_mem->checkpoint_scheme)
   {
     sunbooleantype do_save;
-    SUNAdjointCheckpointScheme_NeedsSaving(ark_mem->checkpoint_scheme,
-                                           ark_mem->checkpoint_step_idx,
-                                           step_mem->B->stages,
-                                           ark_mem->tn + ark_mem->h, &do_save);
+    SUNErrCode errcode =
+      SUNAdjointCheckpointScheme_NeedsSaving(ark_mem->checkpoint_scheme,
+                                             ark_mem->checkpoint_step_idx,
+                                             step_mem->B->stages,
+                                             ark_mem->tn + ark_mem->h, &do_save);
+    if (errcode)
+    {
+      arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
+                      __FILE__,
+                      "SUNAdjointCheckpointScheme_NeedsSaving returned %d",
+                      errcode);
+      return errcode;
+    }
+
     if (do_save)
     {
-      SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
-                                              ark_mem->checkpoint_step_idx,
-                                              step_mem->B->stages,
-                                              ark_mem->tn + ark_mem->h,
-                                              ark_mem->ycur);
+      errcode =
+        SUNAdjointCheckpointScheme_InsertVector(ark_mem->checkpoint_scheme,
+                                                ark_mem->checkpoint_step_idx,
+                                                step_mem->B->stages,
+                                                ark_mem->tn + ark_mem->h,
+                                                ark_mem->ycur);
+
+      if (errcode)
+      {
+        arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
+                        __FILE__,
+                        "SUNAdjointCheckpointScheme_InsertVector returned %d",
+                        errcode);
+        return errcode;
+      }
     }
   }
 
