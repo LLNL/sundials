@@ -1996,14 +1996,6 @@ int arkInitialSetup(ARKodeMem ark_mem, sunrealtype tout)
   /* Test input tstop for legality (correct direction of integration) */
   if (ark_mem->tstopset)
   {
-#if SUNDIALS_LOGGING_LEVEL >= SUNDIALS_LOGGING_DEBUG
-    SUNLogger_QueueMsg(ARK_LOGGER, SUN_LOGLEVEL_DEBUG,
-                       "ARKODE::arkInitialSetup", "test-tstop",
-                       "h = %" SUN_FORMAT_G ", tcur = %" SUN_FORMAT_G
-                       ", tout = %" SUN_FORMAT_G ", tstop = %" SUN_FORMAT_G,
-                       ark_mem->h, ark_mem->tcur, tout, ark_mem->tstop);
-#endif
-
     htmp = (ark_mem->h == ZERO) ? tout - ark_mem->tcur : ark_mem->h;
     if ((ark_mem->tstop - ark_mem->tcur) * htmp <= ZERO)
     {
