@@ -189,8 +189,8 @@ static sunrealtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale);
 static sunrealtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u);
 static int KINStop(KINMem kin_mem, sunbooleantype maxStepTaken, int sflag);
 static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
-                       N_Vector x_old, long int iter, sunrealtype* R,
-                       sunrealtype* gamma);
+                       N_Vector x_old, long int iter, sunscalartype* R,
+                       sunscalartype* gamma);
 
 /*
  * =================================================================
@@ -2602,7 +2602,7 @@ static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
                                int depth)
 {
   /* Delete left-most column vector from QR factorization */
-  sunrealtype a, b, temp, c, s;
+  sunscalartype a, b, temp, c, s;
 
   for (int i = 0; i < depth - 1; i++)
   {
@@ -2673,12 +2673,12 @@ static int AndersonAccQRDelete(KINMem kin_mem, N_Vector* Q, sunrealtype* R,
 }
 
 static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
-                       N_Vector xold, long int iter, sunrealtype* R,
-                       sunrealtype* gamma)
+                       N_Vector xold, long int iter, sunscalartype* R,
+                       sunscalartype* gamma)
 {
   int retval;
   long int lAA;
-  sunrealtype alfa;
+  sunscalartype alfa;
   sunrealtype onembeta;
 
   /* local shortcuts for fused vector operation */
