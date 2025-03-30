@@ -2105,6 +2105,13 @@ int ARKodeSetAdjointCheckpointIndex(void* arkode_mem, suncountertype step_index)
   }
   ark_mem = (ARKodeMem)arkode_mem;
 
+  if (step_index < 0)
+  {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, __LINE__, __func__, __FILE__,
+                    "step_index must be >= 0");
+    return ARK_ILL_INPUT;
+  }
+
   ark_mem->checkpoint_step_idx = step_index;
 
   return (ARK_SUCCESS);
