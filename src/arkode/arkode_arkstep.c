@@ -2350,18 +2350,21 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
           start_step++;
           sunrealtype t0 = checkpoint_t;
           sunrealtype tf = ark_mem->tn;
-          SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint",
-                      "start-recompute",
+          SUNLogDebug(ARK_LOGGER, "begin-recompute",
                       "start_step = %li, stop_step = %li, t0 = %" SUN_FORMAT_G
                       ", tf = %" SUN_FORMAT_G "",
                       start_step, stop_step, t0, tf);
-          if (SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, t0, tf,
-                                             checkpoint))
+          errcode = SUNAdjointStepper_RecomputeFwd(adj_stepper, start_step, t0,
+                                                   tf, checkpoint);
+          if (errcode)
           {
+            arkProcessError(ark_mem, ARK_ADJ_RECOMPUTE_FAIL, __LINE__, __func__,
+                            __FILE__,
+                            "SUNAdjointStepper_RecomputeFwd returned %d",
+                            errcode);
             return (ARK_ADJ_RECOMPUTE_FAIL);
           }
-          SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint",
-                      "end-recompute",
+          SUNLogDebug(ARK_LOGGER, "end-recompute",
                       "start_step = %li, stop_step = %li, t0 = %" SUN_FORMAT_G
                       ", tf = %" SUN_FORMAT_G "",
                       start_step, stop_step, t0, tf);
@@ -2379,8 +2382,9 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   SUNErrCode errcode =
     SUNAdjointCheckpointScheme_LoadVector(ark_mem->checkpoint_scheme,
-                                          ark_mem->adj_step_idx, 0, 0,
-                                          &checkpoint, &checkpoint_t);
+                                          ark_mem->adj_step_idx, 0,
+                                          /*peek=*/SUNFALSE, &checkpoint,
+                                          &checkpoint_t);
   if (errcode)
   {
     arkProcessError(ark_mem, ARK_ADJ_CHECKPOINT_FAIL, __LINE__, __func__,
@@ -2411,11 +2415,6 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
 
   *dsmPtr   = ZERO;
   *nflagPtr = 0;
-
-  SUNLogDebug(ARK_LOGGER, "ARKODE::arkStep_TakeStep_ERK_Adjoint", "end-step",
-              "step = %li, h = %" SUN_FORMAT_G ", dsm = %" SUN_FORMAT_G
-              ", nflag = %d",
-              ark_mem->nst, ark_mem->h, *dsmPtr, *nflagPtr);
 
   return (ARK_SUCCESS);
 }
@@ -3490,9 +3489,11 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
 
   if (adj_stepper->JacFn)
   {
-    adj_stepper->JacFn(t, checkpoint, NULL, adj_stepper->Jac, user_data, NULL,
-                       NULL, NULL);
+    int ierr = adj_stepper->JacFn(t, checkpoint, NULL, adj_stepper->Jac,
+                                  user_data, ark_mem->tempv3, ark_mem->tempv4,
+                                  ark_mem->tempv5);
     adj_stepper->njeval++;
+    if (ierr) { return ierr; }
     if (SUNMatHermitianTransposeVec(adj_stepper->Jac, Lambda_part, Lambda))
     {
       return -1;
@@ -3500,16 +3501,20 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   }
   else if (adj_stepper->JvpFn)
   {
-    adj_stepper->JvpFn(Lambda_part, Lambda, t, checkpoint, NULL, user_data, NULL);
+    int ierr = adj_stepper->JvpFn(Lambda_part, Lambda, t, checkpoint, NULL,
+                                  user_data, ark_mem->tempv3);
     adj_stepper->njtimesv++;
+    if (ierr) { return ierr; }
   }
 
   if (adj_stepper->JacPFn)
   {
     N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
-    adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP, user_data, NULL,
-                        NULL, NULL);
+    int ierr    = adj_stepper->JacPFn(t, checkpoint, NULL, adj_stepper->JacP,
+                                      user_data, ark_mem->tempv3, ark_mem->tempv4,
+                                      ark_mem->tempv5);
     adj_stepper->njpeval++;
+    if (ierr) { return ierr; }
     if (SUNMatHermitianTransposeVec(adj_stepper->JacP, Lambda_part, nu))
     {
       return -1;
@@ -3518,8 +3523,10 @@ int arkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   else if (adj_stepper->JPvpFn)
   {
     N_Vector nu = N_VGetSubvector_ManyVector(sens_complete_stage, 1);
-    adj_stepper->JPvpFn(Lambda_part, nu, t, checkpoint, NULL, user_data, NULL);
+    int ierr    = adj_stepper->JPvpFn(Lambda_part, nu, t, checkpoint, NULL,
+                                      user_data, ark_mem->tempv3);
     adj_stepper->njptimesv++;
+    if (ierr) { return ierr; }
   }
 
   return 0;
@@ -3603,7 +3610,12 @@ static SUNErrCode arkStep_SUNStepperReInit(SUNStepper stepper, sunrealtype t0,
 
   stepper->last_flag = ARKStepReInit(arkode_mem, step_mem->fe, step_mem->fi, t0,
                                      y0);
-  if (stepper->last_flag != ARK_SUCCESS) { return SUN_ERR_OP_FAIL; }
+  if (stepper->last_flag != ARK_SUCCESS)
+  {
+    arkProcessError(ark_mem, stepper->last_flag, __LINE__, __func__, __FILE__,
+                    "ARKStepReInit return an error\n");
+    return SUN_ERR_OP_FAIL;
+  }
 
   return SUN_SUCCESS;
 }
@@ -3650,8 +3662,14 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
     return retval;
   }
 
-  void* arkode_mem_adj  = ARKStepCreate(arkStep_fe_Adj, NULL, tf, sf,
-                                        ark_mem->sunctx);
+  void* arkode_mem_adj = ARKStepCreate(arkStep_fe_Adj, NULL, tf, sf,
+                                       ark_mem->sunctx);
+  if (!arkode_mem_adj)
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    "ARKStepCreate returned NULL\n");
+    return ARK_MEM_NULL;
+  }
   ARKodeMem ark_mem_adj = (ARKodeMem)arkode_mem_adj;
 
   ark_mem_adj->do_adjoint = SUNTRUE;
@@ -3663,6 +3681,8 @@ int ARKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
                     "ARKodeSetFixedStep failed");
     return retval;
   }
+
+  /* TODO(CJB): when we add support for implicit methods, we should call ARKodeSetLinear here. */
 
   retval = ARKStepSetTables(arkode_mem_adj, step_mem->Be->q, step_mem->Be->p,
                             step_mem->Bi, step_mem->Be);

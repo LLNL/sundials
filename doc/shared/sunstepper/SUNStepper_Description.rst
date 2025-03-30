@@ -527,7 +527,8 @@ This section describes the functions that users may supply.
    * **t** -- the current value of the independent variable.
    * **y** -- the current value of the dependent variable vector, namely
              the predicted value of :math:`y(t)`.
-   * **fy** -- the current value of the vector :math:`f(t,y)`.
+   * **fy** -- the current value of the vector :math:`f(t,y)`, except when
+      this is the function used with the :c:type:`SUNAdjointStepper`, then it is `NULL`.
    * **Jac** -- the output Jacobian matrix.
    * **user_data** -- a pointer to user data, the same as the *user_data*
                      parameter that was passed to the integrator
@@ -554,7 +555,8 @@ This section describes the functions that users may supply.
    * **t** -- the current value of the independent variable.
    * **y** -- the current value of the dependent variable vector, namely
              the predicted value of :math:`y(t)`.
-   * **fy** -- the current value of the vector :math:`f(t,y)`.
+   * **fy** -- the current value of the vector :math:`f(t,y)`, except when
+      this is the function used with the :c:type:`SUNAdjointStepper`, then it is `NULL`.
    * **user_data** -- a pointer to user data, the same as the *user_data*
                      parameter that was passed to the integrator
    * **tmp** -- a :c:type:`N_Vector` which can be used by an as temporary storage
