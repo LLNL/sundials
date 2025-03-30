@@ -1,30 +1,30 @@
 /* -----------------------------------------------------------------------------
-  * SUNDIALS Copyright Start
-  * Copyright (c) 2002-2025, Lawrence Livermore National Security
-  * and Southern Methodist University.
-  * All rights reserved.
-  *
-  * See the top-level LICENSE and NOTICE files for details.
-  *
-  * SPDX-License-Identifier: BSD-3-Clause
-  * SUNDIALS Copyright End
-  * -----------------------------------------------------------------------------
-  * This example solves the Lotka-Volterra ODE with four parameters,
-  *
-  *    u' = [dx/dt] = [  p_0*x - p_1*x*y  ]
-  *         [dy/dt]   [ -p_2*y + p_3*x*y ].
-  *
-  * The initial condition is u(t_0) = 1.0 and we use the parameters
-  * p  = [1.5, 1.0, 3.0, 1.0]. The integration interval is t \in [0, 10.].
-  * The implicit BDF method from CVODES is used to solve the forward problem.
-  * Afterwards, the continuous adjoint sensitivity analysis capabilities of CVODES
-  * are used to obtain the gradient of the cost function,
-  *
-  *    g(u(t_f), p) = || 1 - u(t_f, p) ||^2 / 2
-  *
-  * with respect to the initial condition and the parameters.
-  * -----------------------------------------------------------------------------
-  */
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------------------
+ * This example solves the Lotka-Volterra ODE with four parameters,
+ *
+ *    u' = [dx/dt] = [  p_0*x - p_1*x*y  ]
+ *         [dy/dt]   [ -p_2*y + p_3*x*y ].
+ *
+ * The initial condition is u(t_0) = 1.0 and we use the parameters
+ * p  = [1.5, 1.0, 3.0, 1.0]. The integration interval is t \in [0, 10.].
+ * The implicit BDF method from CVODES is used to solve the forward problem.
+ * Afterwards, the continuous adjoint sensitivity analysis capabilities of CVODES
+ * are used to obtain the gradient of the cost function,
+ *
+ *    g(u(t_f), p) = || 1 - u(t_f, p) ||^2 / 2
+ *
+ * with respect to the initial condition and the parameters.
+ * -----------------------------------------------------------------------------
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -108,7 +108,6 @@ int main(int argc, char* argv[])
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1)) { return 1; }
 
-  // SUNLinearSolver LS = SUNLinSol_Dense(y, NULL, sunctx);
   SUNLinearSolver LS = SUNLinSol_SPGMR(u, SUN_PREC_NONE, 3, sunctx);
 
   retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);

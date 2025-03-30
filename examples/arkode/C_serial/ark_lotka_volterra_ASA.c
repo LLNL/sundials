@@ -1,40 +1,42 @@
-/* -----------------------------------------------------------------------------
-  * SUNDIALS Copyright Start
-  * Copyright (c) 2002-2025, Lawrence Livermore National Security
-  * and Southern Methodist University.
-  * All rights reserved.
-  *
-  * See the top-level LICENSE and NOTICE files for details.
-  *
-  * SPDX-License-Identifier: BSD-3-Clause
-  * SUNDIALS Copyright End
-  * -----------------------------------------------------------------------------
-  * This example solves the Lotka-Volterra ODE with four parameters,
-  *
-  *     u = [dx/dt] = [ p_0*x - p_1*x*y  ]
-  *         [dy/dt]   [ -p_2*y + p_3*x*y ].
-  *
-  * The initial condition is u(t_0) = 1.0 and we use the parameters
-  *  p  = [1.5, 1.0, 3.0, 1.0]. The integration interval can be controlled via
-  * the --tf command line argument, but by default it is t \in [0, 10.].
-  * An explicit Runge--Kutta method is employed via the ARKStep time stepper
-  * provided by ARKODE. After solving the forward problem, adjoint sensitivity
-  * analysis (ASA) is performed using the discrete adjoint method available with
-  * with ARKStep in order to obtain the gradient of the scalar cost function,
-  *
-  *    g(u(t_f), p) = || 1 - u(t_f, p) ||^2 / 2
-  *
-  * with respect to the initial condition and the parameters.
-  *
-  * ./ark_lotka_volterra_adj options:
-  * --tf <real>         the final simulation time
-  * --dt <real>         the timestep size
-  * --order <int>       the order of the RK method
-  * --check-freq <int>  how often to checkpoint (in steps)
-  * --no-stages         don't checkpoint stages
-  * --dont-keep         don't keep checkpoints around after loading
-  * --help              print these options
-  * ---------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------
+ * Programmer(s): Cody J. Balos @ LLNL
+ * ------------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -----------------------------------------------------------------------------
+ * This example solves the Lotka-Volterra ODE with four parameters,
+ *
+ *     u = [dx/dt] = [ p_0*x - p_1*x*y  ]
+ *         [dy/dt]   [ -p_2*y + p_3*x*y ].
+ *
+ * The initial condition is u(t_0) = 1.0 and we use the parameters
+ * p  = [1.5, 1.0, 3.0, 1.0]. The integration interval can be controlled via
+ * the --tf command line argument, but by default it is t \in [0, 10.].
+ * An explicit Runge--Kutta method is employed via the ARKStep time stepper
+ * provided by ARKODE. After solving the forward problem, adjoint sensitivity
+ * analysis (ASA) is performed using the discrete adjoint method available with
+ * with ARKStep in order to obtain the gradient of the scalar cost function,
+ *
+ *    g(u(t_f), p) = || 1 - u(t_f, p) ||^2 / 2
+ *
+ * with respect to the initial condition and the parameters.
+ *
+ * ./ark_lotka_volterra_adj options:
+ * --tf <real>         the final simulation time
+ * --dt <real>         the timestep size
+ * --order <int>       the order of the RK method
+ * --check-freq <int>  how often to checkpoint (in steps)
+ * --no-stages         don't checkpoint stages
+ * --dont-keep         don't keep checkpoints around after loading
+ * --help              print these options
+ * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
