@@ -319,7 +319,7 @@ The diagram below illustrates how checkpoints are stored with this scheme:
 
 
 Base-class Method Overrides
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+---------------------------
 
 The ``SUNAdjointCheckpointScheme_Fixed`` module implements the following :c:type:`SUNAdjointCheckpointScheme` functions:
 
@@ -333,7 +333,7 @@ The ``SUNAdjointCheckpointScheme_Fixed`` module implements the following :c:type
 
 
 Implementation Specific Methods
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------------
 
 The ``SUNAdjointCheckpointScheme_Fixed`` module also implements the following module-specific functions:
 

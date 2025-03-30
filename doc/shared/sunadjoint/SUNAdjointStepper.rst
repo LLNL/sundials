@@ -125,7 +125,7 @@ A :c:type:`SUNAdjointStepper` is a pointer to the
 
 The :c:type:`SUNAdjointStepper` class has the following functions:
 
-.. c:function:: SUNErrCode SUNAdjointStepper_Create(SUNStepper fwd_sunstepper, sunbooleantype own_fwd \
+.. c:function:: SUNErrCode SUNAdjointStepper_Create(SUNStepper fwd_sunstepper, sunbooleantype own_fwd, \
    SUNStepper adj_sunstepper, sunbooleantype own_adj, suncountertype final_step_idx, N_Vector sf, \
    sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme, SUNContext sunctx, SUNAdjointStepper* adj_stepper)
 
@@ -325,4 +325,3 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    :param fmt: the format to write in (:c:type:`SUN_OUTPUTFORMAT_TABLE` or :c:type:`SUN_OUTPUTFORMAT_CSV`).
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
-

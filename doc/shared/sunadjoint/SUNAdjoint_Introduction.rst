@@ -1,9 +1,19 @@
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
 
-.. _SUNAdjoint:
+   See the top-level LICENSE and NOTICE files for details.
 
-############################
-Adjoint Sensitivity Analysis
-############################
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _SUNAdjoint.Introduction:
+
+Introduction to Adjoint Sensitivity Analysis
+============================================
 
 This section presents the :c:type:`SUNAdjointStepper` and
 :c:type:`SUNAdjointCheckpointScheme` classes. The :c:type:`SUNAdjointStepper`
@@ -31,7 +41,7 @@ This most often arises in the form of an optimization problem such as
    :label: SUNADJOINT_OPTIMIZATION_PROBLEM
 
 
-.. warning:: 
+.. warning::
    The CVODES and IDAS documentation use :math:`\lambda` to represent the adjoint variables needed
    to obtain the gradient :math:`dG/dp` where :math:`G` is an integral of :math:`g`.
    Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES and
@@ -107,4 +117,4 @@ adjoint approach is always the better choice over the continuous adjoint approac
 Computational efficiency and stability of one approach over the other can be both problem and method
 dependent. Section 8 in the paper :cite:p:`rackauckas2020universal` discusses the tradeoffs further
 and provides numerous references that may help inform users in choosing between the discrete and
-continuous adjoint approaches. 
+continuous adjoint approaches.
