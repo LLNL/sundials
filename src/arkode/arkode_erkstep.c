@@ -1732,8 +1732,7 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
     return retval;
   }
 
-  void* arkode_mem_adj  = ERKStepCreate(erkStep_fe_Adj, ark_mem->tretlast, sf,
-                                        ark_mem->sunctx);
+  void* arkode_mem_adj = ERKStepCreate(erkStep_fe_Adj, tf, sf, ark_mem->sunctx);
   ARKodeMem ark_mem_adj = (ARKodeMem)arkode_mem_adj;
 
   ark_mem_adj->do_adjoint = SUNTRUE;
