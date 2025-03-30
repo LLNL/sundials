@@ -185,8 +185,8 @@ static sunrealtype KINScFNorm(KINMem kin_mem, N_Vector v, N_Vector scale);
 static sunrealtype KINScSNorm(KINMem kin_mem, N_Vector v, N_Vector u);
 static int KINStop(KINMem kin_mem, sunbooleantype maxStepTaken, int sflag);
 static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
-                       N_Vector x_old, long int iter, sunrealtype* R,
-                       sunrealtype* gamma);
+                       N_Vector x_old, long int iter, sunscalartype* R,
+                       sunscalartype* gamma);
 
 /*
  * =================================================================
@@ -925,8 +925,8 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
   {
     if (kin_mem->kin_R_aa == NULL)
     {
-      kin_mem->kin_R_aa = (sunrealtype*)malloc(
-        (kin_mem->kin_m_aa * kin_mem->kin_m_aa) * sizeof(sunrealtype));
+      kin_mem->kin_R_aa = (sunscalartype*)malloc(
+        (kin_mem->kin_m_aa * kin_mem->kin_m_aa) * sizeof(sunscalartype));
       if (kin_mem->kin_R_aa == NULL)
       {
         KINProcessError(kin_mem, 0, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
@@ -944,7 +944,7 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
     if (kin_mem->kin_gamma_aa == NULL)
     {
       kin_mem->kin_gamma_aa =
-        (sunrealtype*)malloc(kin_mem->kin_m_aa * sizeof(sunrealtype));
+        (sunscalartype*)malloc(kin_mem->kin_m_aa * sizeof(sunscalartype));
       if (kin_mem->kin_gamma_aa == NULL)
       {
         KINProcessError(kin_mem, 0, __LINE__, __func__, __FILE__, MSG_MEM_FAIL);
@@ -1211,8 +1211,8 @@ static sunbooleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       {
         if (kin_mem->kin_T_aa == NULL)
         {
-          kin_mem->kin_T_aa = (sunrealtype*)malloc(
-            ((kin_mem->kin_m_aa * kin_mem->kin_m_aa)) * sizeof(sunrealtype));
+          kin_mem->kin_T_aa = (sunscalartype*)malloc(
+            ((kin_mem->kin_m_aa * kin_mem->kin_m_aa)) * sizeof(sunscalartype));
           if (kin_mem->kin_T_aa == NULL)
           {
             KINProcessError(kin_mem, 0, __LINE__, __func__, __FILE__,
@@ -2956,15 +2956,15 @@ static int KINFP(KINMem kin_mem)
  */
 
 static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
-                       N_Vector xold, long int iter, sunrealtype* R,
-                       sunrealtype* gamma)
+                       N_Vector xold, long int iter, sunscalartype* R,
+                       sunscalartype* gamma)
 {
   int retval;
   long int i_pt, i, j, lAA;
   long int* ipt_map;
-  sunrealtype alfa;
+  sunscalartype alfa;
   sunrealtype onembeta;
-  sunrealtype a, b, temp, c, s;
+  sunscalartype a, b, c, s, temp;
   sunbooleantype dotprodSB = SUNFALSE;
 
   /* local shortcuts for fused vector operation */
@@ -3044,7 +3044,7 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv, N_Vector x,
     {
       a    = R[(i + 1) * kin_mem->kin_m_aa + i];
       b    = R[(i + 1) * kin_mem->kin_m_aa + i + 1];
-      temp = SUNRsqrt(a * a + b * b);
+      temp = SUNRsqrt(SUNSQR(a) + SUNSQR(b));
       c    = a / temp;
       s    = b / temp;
       R[(i + 1) * kin_mem->kin_m_aa + i]     = temp;
