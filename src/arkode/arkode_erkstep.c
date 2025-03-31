@@ -1040,6 +1040,12 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
   /* Loop over stages */
   for (int is = step_mem->stages - (fsal ? 2 : 1); is >= 0; --is)
   {
+    /* Consider solving a forward IVP from t0 to tf, tf > t0. 
+       The adjoint ODE is solved backwards in time with step size h' = -h 
+       where h is the forward time step used. So at this point in the 
+       code ark_mem->h is h', however, the adjoint formulae need h. */
+    sunrealtype adj_h = -ark_mem->h;
+
     /* which stage is being processed -- needed for loading checkpoints */
     ark_mem->adj_stage_idx = is;
 
@@ -1054,11 +1060,11 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
     for (int js = is + 1; js < step_mem->stages; ++js)
     {
       /* h sum_{j=i}^{s} A_{ji} \Lambda_{j} */
-      cvals[nvec] = -ark_mem->h * step_mem->B->A[js][is];
+      cvals[nvec] = adj_h * step_mem->B->A[js][is];
       Xvecs[nvec] = N_VGetSubvector_ManyVector(stage_values[js], 0);
       nvec++;
     }
-    cvals[nvec] = -ark_mem->h * step_mem->B->b[is];
+    cvals[nvec] = adj_h * step_mem->B->b[is];
     Xvecs[nvec] = sens_np1_lambda;
     nvec++;
 
