@@ -25,6 +25,7 @@
 #include <sundials/sundials_context.h>
 #include <sundials/sundials_math.h>
 
+#include "arkode/arkode.h"
 #include "arkode/arkode_butcher.h"
 #include "arkode_erkstep_impl.h"
 #include "arkode_impl.h"
@@ -1122,9 +1123,19 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
           return erkStep_TakeStep_Adjoint(ark_mem, dsmPtr, nflagPtr);
         }
       }
-      if (errcode != SUN_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+      if (errcode != SUN_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_ADJ_RECOMPUTE_FAIL, __LINE__, __func__,
+                        __FILE__, "Could not load or recompute missing step");
+        return (ARK_ADJ_RECOMPUTE_FAIL);
+      }
     }
-    else if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
+    else if (retval < 0)
+    {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      "The right hand side function failed returned %d", retval);
+      return (ARK_RHSFUNC_FAIL);
+    }
   }
 
   /* Throw away the step solution */

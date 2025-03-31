@@ -2346,7 +2346,7 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
         {
           /* OK, now we have the last checkpoint that stored as (start_step, stages).
              This represents the last step solution that was checkpointed. As such, we
-             want to recompute from start_step+1 to stop_step. */
+             want to recompute start_step+1 to stop_step. */
           start_step++;
           sunrealtype t0 = checkpoint_t;
           sunrealtype tf = ark_mem->tn;
@@ -2371,9 +2371,19 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
           return arkStep_TakeStep_ERK_Adjoint(ark_mem, dsmPtr, nflagPtr);
         }
       }
-      if (errcode != SUN_SUCCESS) { return (ARK_RHSFUNC_FAIL); }
+      if (errcode != SUN_SUCCESS)
+      {
+        arkProcessError(ark_mem, ARK_ADJ_RECOMPUTE_FAIL, __LINE__, __func__,
+                        __FILE__, "Could not load or recompute missing step");
+        return (ARK_ADJ_RECOMPUTE_FAIL);
+      }
     }
-    else if (retval < 0) { return (ARK_RHSFUNC_FAIL); }
+    else if (retval < 0)
+    {
+      arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, __LINE__, __func__, __FILE__,
+                      "The right hand side function failed returned %d", retval);
+      return (ARK_RHSFUNC_FAIL);
+    }
   }
 
   /* Throw away the step solution */
