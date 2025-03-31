@@ -641,19 +641,15 @@ module fsundials_core_mod
  public :: FSUNMemoryHelper_ImplementsRequiredOps
  public :: FSUNAdjointCheckpointScheme_NewEmpty
  public :: FSUNAdjointCheckpointScheme_SetNeedsSavingFn
- public :: FSUNAdjointCheckpointScheme_SetNeedsDeletingFn
  public :: FSUNAdjointCheckpointScheme_SetInsertVectorFn
  public :: FSUNAdjointCheckpointScheme_SetLoadVectorFn
- public :: FSUNAdjointCheckpointScheme_SetRemoveVectorFn
  public :: FSUNAdjointCheckpointScheme_SetDestroyFn
  public :: FSUNAdjointCheckpointScheme_SetEnableDenseFn
  public :: FSUNAdjointCheckpointScheme_SetContent
  public :: FSUNAdjointCheckpointScheme_GetContent
  public :: FSUNAdjointCheckpointScheme_NeedsSaving
- public :: FSUNAdjointCheckpointScheme_NeedsDeleting
  public :: FSUNAdjointCheckpointScheme_InsertVector
  public :: FSUNAdjointCheckpointScheme_LoadVector
- public :: FSUNAdjointCheckpointScheme_RemoveVector
  public :: FSUNAdjointCheckpointScheme_Destroy
  public :: FSUNAdjointCheckpointScheme_EnableDense
  public :: FSUNAdjointStepper_Create
@@ -2630,15 +2626,6 @@ type(C_FUNPTR), value :: farg2
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointCheckpointScheme_SetNeedsDeletingFn(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetNeedsDeletingFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
 function swigc_FSUNAdjointCheckpointScheme_SetInsertVectorFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetInsertVectorFn") &
 result(fresult)
@@ -2650,15 +2637,6 @@ end function
 
 function swigc_FSUNAdjointCheckpointScheme_SetLoadVectorFn(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetLoadVectorFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdjointCheckpointScheme_SetRemoveVectorFn(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdjointCheckpointScheme_SetRemoveVectorFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -2714,18 +2692,6 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointCheckpointScheme_NeedsDeleting(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FSUNAdjointCheckpointScheme_NeedsDeleting") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_LONG), intent(in) :: farg2
-integer(C_LONG), intent(in) :: farg3
-real(C_DOUBLE), intent(in) :: farg4
-type(C_PTR), value :: farg5
-integer(C_INT) :: fresult
-end function
-
 function swigc_FSUNAdjointCheckpointScheme_InsertVector(farg1, farg2, farg3, farg4, farg5) &
 bind(C, name="_wrap_FSUNAdjointCheckpointScheme_InsertVector") &
 result(fresult)
@@ -2748,17 +2714,6 @@ integer(C_LONG), intent(in) :: farg3
 integer(C_INT), intent(in) :: farg4
 type(C_PTR), value :: farg5
 type(C_PTR), value :: farg6
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdjointCheckpointScheme_RemoveVector(farg1, farg2, farg3, farg4) &
-bind(C, name="_wrap_FSUNAdjointCheckpointScheme_RemoveVector") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-integer(C_LONG), intent(in) :: farg2
-integer(C_LONG), intent(in) :: farg3
-type(C_PTR), value :: farg4
 integer(C_INT) :: fresult
 end function
 
@@ -6562,22 +6517,6 @@ fresult = swigc_FSUNAdjointCheckpointScheme_SetNeedsSavingFn(farg1, farg2)
 swig_result = fresult
 end function
 
-function FSUNAdjointCheckpointScheme_SetNeedsDeletingFn(check_scheme, arg1) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: check_scheme
-type(C_FUNPTR), intent(in), value :: arg1
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = check_scheme
-farg2 = arg1
-fresult = swigc_FSUNAdjointCheckpointScheme_SetNeedsDeletingFn(farg1, farg2)
-swig_result = fresult
-end function
-
 function FSUNAdjointCheckpointScheme_SetInsertVectorFn(check_scheme, arg1) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -6607,22 +6546,6 @@ type(C_FUNPTR) :: farg2
 farg1 = check_scheme
 farg2 = arg1
 fresult = swigc_FSUNAdjointCheckpointScheme_SetLoadVectorFn(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNAdjointCheckpointScheme_SetRemoveVectorFn(check_scheme, arg1) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: check_scheme
-type(C_FUNPTR), intent(in), value :: arg1
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-
-farg1 = check_scheme
-farg2 = arg1
-fresult = swigc_FSUNAdjointCheckpointScheme_SetRemoveVectorFn(farg1, farg2)
 swig_result = fresult
 end function
 
@@ -6715,31 +6638,6 @@ fresult = swigc_FSUNAdjointCheckpointScheme_NeedsSaving(farg1, farg2, farg3, far
 swig_result = fresult
 end function
 
-function FSUNAdjointCheckpointScheme_NeedsDeleting(check_scheme, step_num, stage_num, t, yes_or_no) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: check_scheme
-integer(C_LONG), intent(in) :: step_num
-integer(C_LONG), intent(in) :: stage_num
-real(C_DOUBLE), intent(in) :: t
-integer(C_INT), dimension(*), target, intent(inout) :: yes_or_no
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_LONG) :: farg2 
-integer(C_LONG) :: farg3 
-real(C_DOUBLE) :: farg4 
-type(C_PTR) :: farg5 
-
-farg1 = check_scheme
-farg2 = step_num
-farg3 = stage_num
-farg4 = t
-farg5 = c_loc(yes_or_no(1))
-fresult = swigc_FSUNAdjointCheckpointScheme_NeedsDeleting(farg1, farg2, farg3, farg4, farg5)
-swig_result = fresult
-end function
-
 function FSUNAdjointCheckpointScheme_InsertVector(check_scheme, step_num, stage_num, t, state) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -6790,28 +6688,6 @@ farg4 = peek
 farg5 = out
 farg6 = c_loc(tout(1))
 fresult = swigc_FSUNAdjointCheckpointScheme_LoadVector(farg1, farg2, farg3, farg4, farg5, farg6)
-swig_result = fresult
-end function
-
-function FSUNAdjointCheckpointScheme_RemoveVector(check_scheme, step_num, stage_num, out) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: check_scheme
-integer(C_LONG), intent(in) :: step_num
-integer(C_LONG), intent(in) :: stage_num
-type(C_PTR) :: out
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-integer(C_LONG) :: farg2 
-integer(C_LONG) :: farg3 
-type(C_PTR) :: farg4 
-
-farg1 = check_scheme
-farg2 = step_num
-farg3 = stage_num
-farg4 = out
-fresult = swigc_FSUNAdjointCheckpointScheme_RemoveVector(farg1, farg2, farg3, farg4)
 swig_result = fresult
 end function
 

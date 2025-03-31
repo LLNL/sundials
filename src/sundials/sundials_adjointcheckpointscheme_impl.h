@@ -24,10 +24,8 @@ typedef struct SUNAdjointCheckpointScheme_Ops_* SUNAdjointCheckpointScheme_Ops;
 struct SUNAdjointCheckpointScheme_Ops_
 {
   SUNAdjointCheckpointSchemeNeedsSavingFn needssaving;
-  SUNAdjointCheckpointSchemeNeedsDeletingFn needsdeleting;
   SUNAdjointCheckpointSchemeInsertVectorFn insertvector;
   SUNAdjointCheckpointSchemeLoadVectorFn loadvector;
-  SUNAdjointCheckpointSchemeRemoveVectorFn removeVector;
   SUNAdjointCheckpointSchemeDestroyFn destroy;
   SUNAdjointCheckpointSchemeEnableDenseFn enableDense;
 };

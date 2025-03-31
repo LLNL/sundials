@@ -40,13 +40,11 @@ SUNErrCode SUNAdjointCheckpointScheme_NewEmpty(
   ops                                = malloc(sizeof(*ops));
   SUNAssert(ops, SUN_ERR_MALLOC_FAIL);
 
-  ops->needssaving   = NULL;
-  ops->needsdeleting = NULL;
-  ops->insertvector  = NULL;
-  ops->loadvector    = NULL;
-  ops->removeVector  = NULL;
-  ops->enableDense   = NULL;
-  ops->destroy       = NULL;
+  ops->needssaving  = NULL;
+  ops->insertvector = NULL;
+  ops->loadvector   = NULL;
+  ops->enableDense  = NULL;
+  ops->destroy      = NULL;
 
   self->ops         = ops;
   *check_scheme_ptr = self;
@@ -67,24 +65,6 @@ SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(SUNAdjointCheckpointScheme sel
   {
     SUNErrCode err = self->ops->needssaving(self, step_num, stage_num, t,
                                             yes_or_no);
-    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
-    return err;
-  }
-  SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
-  return SUN_ERR_NOT_IMPLEMENTED;
-}
-
-SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(
-  SUNAdjointCheckpointScheme self, suncountertype step_num,
-  suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no)
-{
-  SUNFunctionBegin(self->sunctx);
-  SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
-
-  if (self->ops->needsdeleting)
-  {
-    SUNErrCode err = self->ops->needsdeleting(self, step_num, stage_num, t,
-                                              yes_or_no);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -121,23 +101,6 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector(SUNAdjointCheckpointScheme self
   {
     SUNErrCode err = self->ops->loadvector(self, step_num, stage_num, peek, out,
                                            tout);
-    SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
-    return err;
-  }
-  SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
-  return SUN_ERR_NOT_IMPLEMENTED;
-}
-
-SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(SUNAdjointCheckpointScheme self,
-                                                   suncountertype step_num,
-                                                   suncountertype stage_num,
-                                                   N_Vector* out)
-{
-  SUNFunctionBegin(self->sunctx);
-  SUNDIALS_MARK_FUNCTION_BEGIN(SUNCTX_->profiler);
-  if (self->ops->removeVector)
-  {
-    SUNErrCode err = self->ops->removeVector(self, step_num, stage_num, out);
     SUNDIALS_MARK_FUNCTION_END(SUNCTX_->profiler);
     return err;
   }
@@ -204,14 +167,6 @@ SUNErrCode SUNAdjointCheckpointScheme_SetNeedsSavingFn(
   return SUN_SUCCESS;
 }
 
-SUNErrCode SUNAdjointCheckpointScheme_SetNeedsDeletingFn(
-  SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeNeedsDeletingFn fn)
-{
-  SUNFunctionBegin(self->sunctx);
-  self->ops->needsdeleting = fn;
-  return SUN_SUCCESS;
-}
-
 SUNErrCode SUNAdjointCheckpointScheme_SetInsertVectorFn(
   SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeInsertVectorFn fn)
 {
@@ -225,14 +180,6 @@ SUNErrCode SUNAdjointCheckpointScheme_SetLoadVectorFn(
 {
   SUNFunctionBegin(self->sunctx);
   self->ops->loadvector = fn;
-  return SUN_SUCCESS;
-}
-
-SUNErrCode SUNAdjointCheckpointScheme_SetRemoveVectorFn(
-  SUNAdjointCheckpointScheme self, SUNAdjointCheckpointSchemeRemoveVectorFn fn)
-{
-  SUNFunctionBegin(self->sunctx);
-  self->ops->removeVector = fn;
   return SUN_SUCCESS;
 }
 
