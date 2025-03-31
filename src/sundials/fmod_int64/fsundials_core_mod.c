@@ -2827,14 +2827,14 @@ SWIGEXPORT int _wrap_FSUNStepper_Reset(void *farg1, double const *farg2, N_Vecto
 }
 
 
-SWIGEXPORT int _wrap_FSUNStepper_ResetCheckpointIndex(void *farg1, int64_t const *farg2) {
+SWIGEXPORT int _wrap_FSUNStepper_ResetCheckpointIndex(void *farg1, long const *farg2) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
-  int64_t arg2 ;
+  suncountertype arg2 ;
   SUNErrCode result;
   
   arg1 = (SUNStepper)(farg1);
-  arg2 = (int64_t)(*farg2);
+  arg2 = (suncountertype)(*farg2);
   result = (SUNErrCode)SUNStepper_ResetCheckpointIndex(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
