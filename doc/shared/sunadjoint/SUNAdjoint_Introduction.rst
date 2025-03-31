@@ -28,9 +28,11 @@ where :math:`p` is some set of :math:`N_s` problem parameters.
 
 .. note::
   The API itself does not implement ASA, but it provides a common
-  interface for ASA capabilities implemented in the SUNDIALS packages. Right now it supports :ref:`the
-  ASA capabilities in ARKODE <ARKODE.Mathematics.ASA>`, while the ASA capabilities in :ref:`CVODES
-  <CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` must be used directly.
+  interface for ASA capabilities implemented in the SUNDIALS packages.
+
+..   Right now it supports :ref:`the ASA capabilities in ARKODE <ARKODE.Mathematics.ASA>`,
+  while the ASA capabilities in :ref:`CVODES <CVODES.Mathematics.ASA>` and
+  :ref:`IDAS <IDAS.Mathematics.ASA>` must be used directly.
 
 Suppose we have a functional :math:`g(t_f, y(t_f), p)` for which we would like to compute the gradients
 :math:`dg(t_f, y(t_f), p)/dy(t_0)` and/or :math:`dg(t_f, y(t_f), p)/dp`.
@@ -42,10 +44,9 @@ This most often arises in the form of an optimization problem such as
 
 
 .. warning::
-   The CVODES and IDAS documentation use :math:`\lambda` to represent the adjoint variables needed
+   The CVODES documentation uses :math:`\lambda` to represent the adjoint variables needed
    to obtain the gradient :math:`dG/dp` where :math:`G` is an integral of :math:`g`.
-   Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES and
-   IDAS docs.
+   Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES docs.
 
 The adjoint method is one approach to obtaining the gradients that is particularly efficient when
 there are relatively few functionals and a large number of parameters. While :ref:`CVODES
