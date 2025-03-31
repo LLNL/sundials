@@ -20,7 +20,6 @@ Adjoint Sensitivity Analysis
 This section presents the :c:type:`SUNAdjointStepper` and
 :c:type:`SUNAdjointCheckpointScheme` classes that provide a common interface for
 adjoint sensitivity analysis (ASA) capabilities.
-.. Currently it supports :ref:`the ASA capabilities in ARKODE <ARKODE.Mathematics.ASA>`, while the ASA capabilities in :ref:`CVODES <CVODES.Mathematics.ASA>` and :ref:`IDAS <IDAS.Mathematics.ASA>` must be used directly.
 
 .. toctree::
    :maxdepth: 1
