@@ -3883,6 +3883,8 @@ access the SYCL execution policy C++ classes.
    | Headers      | ``sundials/sundials_sycl_policies.hpp``      |
    +--------------+----------------------------------------------+
 
+Adjoint Sensitivty Checkpointing
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Fixed ASA checkpointing
 """""""""""""""""""""""
