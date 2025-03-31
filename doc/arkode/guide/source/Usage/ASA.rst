@@ -53,10 +53,13 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
    The sensitivities vector must be an instance of the :ref:`ManyVector N_Vector implementation <NVectors.ManyVector>`.
    You will have one subvector for the initial condition sensitivities and
    an additional subvector if you want sensitivities with respect to parameters. The vectors should
-   contain the terminal conditions for the adjoint problem. I.e, the first subvector should contain
+   contain the terminal conditions for the adjoint problem. The first subvector should contain
    :math:`dg(t_f,y(t_f),p)/dy(t_f)` and the second subvector should contain
    :math:`dg(t_f,y(t_f),p)/dp`.
    The subvectors can be any implementation of the :ref:`N_Vector class <NVectors>`.
+
+   For example, in a problem with 10 state variables and 4 parameters using serial
+   computations, the ManyVector can constructed as follows:
 
    .. code-block:: C
 
@@ -80,13 +83,11 @@ code ``examples/arkode/C_serial/ark_lotka_volterra_asa.c`` demonstrates these st
    Users must supply one of:
    
    * :math:`(\partial f/\partial y)^*v`,
-   * :math:`v^*(\partial f/\partial y)`,
    * :math:`(\partial f/\partial y)`,
 
    and, if sensitivities with respect to the parameters is desired, one of
 
    * :math:`(\partial f/\partial p)^*v`,
-   * :math:`v^*(\partial f/\partial p)`,
    * :math:`(\partial f/\partial p)`.
 
    These user-supplied routines can be set with :c:func:`SUNAdjointStepper_SetJacHermitianTransposeVecFn`, or
@@ -135,11 +136,11 @@ adjoint sensitivity analysis with methods with ERKStep and ARKStep.
 
    :param arkode_mem: a pointer to the ERKStep memory block.
    :param tf: the terminal time for the adjoint sensitivity system.
-   :param sf: the sensitivity vector holding the adjoint system terminal condition.
-      This must be an instance of the ManyVector ``N_Vector`` implementation with at
-      least one subvector (depending on if sensitivities to parameters should be computed).
-      The first subvector must be :math:`\partial g_y(y(t_f)) \in \mathbb{R}^N`. If sensitivities to parameters should be computed, then the second subvector must be :math:`g_p(y(t_f), p) \in \mathbb{R}^{N_s}`,
-      otherwise only one subvector should be provided.
+   :param sf: the sensitivity vector holding the adjoint system terminal condition. This must be an
+      instance of the ManyVector ``N_Vector`` implementation with at The first subvector must be
+      :math:`\partial g_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities to parameters should
+      be computed, then the second subvector must be :math:`g_p(t_f, y(t_f), p) \in
+      \mathbb{R}^{N_s}`, otherwise only one subvector should be provided..
    :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
 
    :retval ARK_SUCCESS: if successful.  
@@ -162,12 +163,11 @@ adjoint sensitivity analysis with methods with ERKStep and ARKStep.
 
    :param arkode_mem: a pointer to the ARKStep memory block.
    :param tf: the terminal time for the adjoint sensitivity system.
-   :param sf: the sensitivity vector holding the adjoint system terminal condition.
-      This must be an instance of the ManyVector ``N_Vector`` implementation with at
-      least one subvector (depending on if sensitivities to parameters should be computed).
-      The first subvector must be :math:`dg(t_f, y(t_f), p)/dy(t_f) \in \mathbb{R}^N`. If sensitivities to 
-      parameters should be computed, then the second subvector must be 
-      :math:`dg(t_f, y(t_f), p)/dp \in \mathbb{R}^{N_s}`, otherwise only one subvector should be provided.
+   :param sf: the sensitivity vector holding the adjoint system terminal condition. This must be an
+      instance of the ManyVector ``N_Vector`` implementation with at The first subvector must be
+      :math:`\partial g_y(t_f, y(t_f), p) \in \mathbb{R}^N`. If sensitivities to parameters should
+      be computed, then the second subvector must be :math:`g_p(t_f, y(t_f), p) \in
+      \mathbb{R}^{N_s}`, otherwise only one subvector should be provided.
    :param adj_stepper_ptr: the newly created :c:type:`SUNAdjointStepper` object.
 
    :retval ARK_SUCCESS: if successful.  
