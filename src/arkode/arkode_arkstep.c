@@ -3598,8 +3598,7 @@ static SUNErrCode arkStep_SUNStepperReInit(SUNStepper stepper, sunrealtype t0,
 
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int retval = arkStep_AccessARKODEStepMem(arkode_mem,
-                                           "ARKStepCreateAdjointStepper",
+  int retval = arkStep_AccessARKODEStepMem(arkode_mem, "arkStep_SUNStepperReInit",
                                            &ark_mem, &step_mem);
   if (retval)
   {
