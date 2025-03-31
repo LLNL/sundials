@@ -286,7 +286,7 @@ int ARKodeCreateSUNStepper(void* arkode_mem, SUNStepper* stepper)
   if (err != SUN_SUCCESS)
   {
     arkProcessError(ark_mem, ARK_SUNSTEPPER_ERR, __LINE__, __func__, __FILE__,
-                    "Failed to set SUNStepper getnumsteps function");
+                    "Failed to set SUNStepper get number of steps function");
     return ARK_SUNSTEPPER_ERR;
   }
 
