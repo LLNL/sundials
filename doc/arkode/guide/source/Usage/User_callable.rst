@@ -4816,6 +4816,11 @@ vector.
       If an error occurred, :c:func:`ARKodeReset` also sends an error message to
       the error handler function.
 
+   .. warning::
+
+      Calling :c:func:`ARKodeReset` during forward integration of an IVP with
+      checkpointing for adjoint senstivity analysis is not supported.
+
    .. versionadded:: 6.1.0
 
 
