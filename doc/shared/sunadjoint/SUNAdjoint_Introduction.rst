@@ -1,9 +1,19 @@
+.. ----------------------------------------------------------------
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2025, Lawrence Livermore National Security
+   and Southern Methodist University.
+   All rights reserved.
 
-.. _SUNAdjoint:
+   See the top-level LICENSE and NOTICE files for details.
 
-############################
-Adjoint Sensitivity Analysis
-############################
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
+   ----------------------------------------------------------------
+
+.. _SUNAdjoint.Introduction:
+
+Introduction to Adjoint Sensitivity Analysis
+============================================
 
 This section presents the :c:type:`SUNAdjointStepper` and
 :c:type:`SUNAdjointCheckpointScheme` classes. The :c:type:`SUNAdjointStepper`
@@ -11,7 +21,7 @@ represents a generic adjoint sensitivity analysis (ASA) procedure to obtain the 
 sensitivities of an IVP of the form
 
 .. math::
-   \dot{y}(t) = f(t, y, p), \qquad y(t_0) = y_0, \qquad y \in \mathbb{R}^N,
+   \dot{y}(t) = f(t, y, p), \qquad y(t_0) = y_0(p), \qquad y \in \mathbb{R}^N,
    :label: SUNADJOINT_IVP
 
 where :math:`p` is some set of :math:`N_s` problem parameters.
@@ -31,7 +41,7 @@ This most often arises in the form of an optimization problem such as
    :label: SUNADJOINT_OPTIMIZATION_PROBLEM
 
 
-.. warning:: 
+.. warning::
    The CVODES and IDAS documentation use :math:`\lambda` to represent the adjoint variables needed
    to obtain the gradient :math:`dG/dp` where :math:`G` is an integral of :math:`g`.
    Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES and
@@ -48,10 +58,14 @@ backwards in time
    \dot{\lambda}(t) = -f_y^*(t, y, p) \lambda,\quad \lambda(t_F) = g_y^*(t_f, y(t_f), p)
    :label: SUNADJOINT_CONTINUOUS_ADJOINT_IVP
 
-where :math:`\lambda(t) \in \mathbb{R}^{N_s}`, :math:`f_y \equiv \partial f/\partial y \in \mathbb{R}^{N \times N}`
-is the Jacobian with respect to the dependent variable, :math:`N` is the size of the original IVP, and
-:math:`N_s` is the number of parameters. When solved with a numerical time integration scheme, the solution
-to the continuous adjoint IVP is a numerical approximation of the continuous adjoint sensitivities,
+where :math:`\lambda(t) \in \mathbb{R}^{N_s}`,
+:math:`f_y \equiv \partial f/\partial y \in \mathbb{R}^{N \times N}` and
+:math:`g_y \equiv \partial g/\partial y \in \mathbb{R}^{N \times N}`,
+are the Jacobians with respect to the dependent variable, :math:`*` denotes the
+Hermitian (conjugate) transpose, :math:`N` is the size of the original IVP, and
+:math:`N_s` is the number of parameters. When solved with a numerical time
+integration scheme, the solution to the continuous adjoint IVP is a numerical
+approximation of the continuous adjoint sensitivities,
 
 .. math::
    \lambda(t_n) \approx g_y(t_f, y(t_n), p), \quad \lambda(t_0) \approx g_y(t_f, y(t_0), p).
@@ -60,8 +74,13 @@ to the continuous adjoint IVP is a numerical approximation of the continuous adj
 The gradients with respect to the parameters can then be obtained as
 
 .. math::
-   \frac{d g(t_f, y(t_n), p)}{dp} = \lambda^*(t_n) y_p(t_n) + g_p(t_f, y(t_n), p) + \int_{t_n}^{t_f} \lambda^*(t) f_p~ dt
+   \frac{d g(t_f, y(t_n), p)}{dp} = \lambda^*(t_n) y_p(t_n) + g_p(t_f, y(t_n), p) + \int_{t_n}^{t_f} \lambda^*(t) f_p(t, y(t_n), p)~ dt,
    :label: SUNADJOINT_CONTINUOUS_PARAMETER_GRADIENT
+
+where `y_p(t) \equiv \partial y(t)/\partial p \in \mathbb{R}^{N \times N_s}`, and
+:math:`g_p \equiv \partial g/\partial p \in \mathbb{R}^{N \times N_s}` and
+:math:`f_p \equiv \partial f/\partial p \in \mathbb{R}^{N \times N_s}` are the
+Jacobians with respect to the parameters.
 
 For the discrete adjoint approach, we first numerically discretize the original IVP :eq:`SUNADJOINT_IVP`
 using a time integration scheme, :math:`\varphi`, so that
@@ -85,7 +104,7 @@ The discrete adjoint variables represent the gradients of the discrete cost func
 changes in the discretized IVP :eq:`SUNADJOINT_DISCRETE_IVP`,
 
 .. math::
-   \frac{dg}{dy_n} = \lambda_n , \quad \frac{dg}{dp} = \mu_n + \lambda_n^* \left(\frac{\partial y_0}{\partial p} \right)
+   \frac{dg}{dy_n} = \lambda_n , \quad \frac{dg}{dp} = \mu_n + \lambda_n^* \left(\frac{\partial y_0}{\partial p} \right).
    :label: SUNADJOINT_DISCRETE_ADJOINT_GRADIENTS
 
 
@@ -107,4 +126,4 @@ adjoint approach is always the better choice over the continuous adjoint approac
 Computational efficiency and stability of one approach over the other can be both problem and method
 dependent. Section 8 in the paper :cite:p:`rackauckas2020universal` discusses the tradeoffs further
 and provides numerous references that may help inform users in choosing between the discrete and
-continuous adjoint approaches. 
+continuous adjoint approaches.

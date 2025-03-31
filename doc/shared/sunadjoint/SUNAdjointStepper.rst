@@ -13,119 +13,24 @@
 
 .. _SUNAdjoint.Stepper:
 
-The SUNAdjointStepper API
-=========================
+The SUNAdjointStepper Class
+===========================
 
 .. versionadded:: x.y.z
 
-The :c:type:`SUNAdjointStepper` API provides a package-agnostic interface to SUNDIALS ASA
-capabilities. It currently only supports the discrete ASA capabilities in the ARKODE
-package, but in the future this support may be expanded.
+.. c:type:: SUNAdjointStepper
 
-A :c:type:`SUNAdjointStepper` is a pointer to the
-:c:struct:`SUNAdjointStepper_` structure:
+   The :c:type:`SUNAdjointStepper` class provides a package-agnostic interface to
+   SUNDIALS ASA capabilities. It currently only supports the discrete ASA
+   capabilities in the ARKODE package, but in the future this support may be
+   expanded.
 
-.. c:type:: struct SUNAdjointStepper_ *SUNAdjointStepper
+Class Methods
+-------------
 
-.. c:struct:: SUNAdjointStepper_
+The :c:type:`SUNAdjointStepper` class has the following methods:
 
-   .. c:member:: SUNStepper adj_sunstepper
-
-      The :c:type:`SUNStepper` object used for backwards time stepping of the adjoint ODE system.
-
-   .. c:member:: SUNStepper fwd_sunstepper
-
-      The :c:type:`SUNStepper` object used for forward time stepping of the original ODE system if any recomputation of missing
-      state data is required during the backwards integration.
-
-   .. c:member:: sunbooleantype own_adj_sunstepper
-
-      If true, then the :c:type:`SUNAdjointStepper` will be responsible for destroying the ``adj_sunstepper``.
-
-   .. c:member:: sunbooleantype own_fwd_sunstepper
-
-      If true, then the :c:type:`SUNAdjointStepper` will be responsible for destroying the ``fwd_sunstepper``.
-
-   .. c:member:: sunrealtype tf
-
-      The terminal time of the backwards adjoint ODE.
-
-   .. c:member:: suncountertype step_idx
-
-      The index of the current backward integration step with respect to the forward integration.
-
-   .. c:member:: suncountertype final_step_idx
-
-      The index of the final step in the forward integration (corresponds to ``tf``).
-
-   .. c:member:: SUNMatrix Jac
-
-      Matrix data for the Jacobian :math:`\partial f / \partial y`.
-
-   .. c:member:: SUNMatrix JacP
-
-      Matrix data for the Jacobian :math:`\partial f / \partial p`.
-
-   .. c:member:: SUNRhsJacFn JacFn
-
-      Jacobian function pointer to evaluate :math:`\partial f / \partial y`.
-
-   .. c:member:: SUNRhsJacFn JacPFn
-
-      Jacobian function pointer to evaluate :math:`\partial f / \partial p`.
-
-   .. c:member:: SUNRhsJacTimesFn JvpFn
-
-      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial y)^* v`
-      or :math:`v^*(\partial f/\partial y)`.
-
-   .. c:member:: SUNRhsJacTimesFn JPvpFn
-
-      Jacobian-times-vector function pointer to evaluate :math:`(\partial f/\partial p)^* v`,
-      or :math:`v^*(\partial f/\partial p)`.
-
-   .. c:member:: suncountertype nst
-
-      Holds the count of the number of backwards steps taken.
-
-   .. c:member:: suncountertype njeval
-
-      Holds the count of the number of :math:`\partial f / \partial y` evaluations.
-
-   .. c:member:: suncountertype njpeval
-
-      Holds the count of the number of :math:`\partial f / \partial p` evaluations.
-
-   .. c:member:: suncountertype njtimesv
-
-      Holds the count of the number of :math:`(\partial f/\partial y)^* v`, or
-      :math:`v^*(\partial f/\partial y)` evaluations.
-
-   .. c:member:: suncountertype njptimesv
-
-      Holds the count of the number of :math:`(\partial f/\partial p)^* v`, or
-      :math:`v^*(\partial f/\partial p)`evaluations.
-
-   .. c:member:: suncountertype nrecompute
-
-      Holds the count of the number of partial recomputations of the forward problem.
-
-   .. c:member:: void* user_data
-
-      A pointer that is passed back to user-supplied functions
-
-   .. c:member:: void* content
-
-      Pointer to derived class specific member data
-
-   .. c:member:: SUNContext sunctx
-
-      The SUNDIALS simulation context
-
-
-The :c:type:`SUNAdjointStepper` class has the following functions:
-
-.. c:function:: SUNErrCode SUNAdjointStepper_Create(SUNStepper fwd_sunstepper, sunbooleantype own_fwd \
+.. c:function:: SUNErrCode SUNAdjointStepper_Create(SUNStepper fwd_sunstepper, sunbooleantype own_fwd, \
    SUNStepper adj_sunstepper, sunbooleantype own_adj, suncountertype final_step_idx, N_Vector sf, \
    sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme, SUNContext sunctx, SUNAdjointStepper* adj_stepper)
 
@@ -325,4 +230,3 @@ The :c:type:`SUNAdjointStepper` class has the following functions:
    :param fmt: the format to write in (:c:type:`SUN_OUTPUTFORMAT_TABLE` or :c:type:`SUN_OUTPUTFORMAT_CSV`).
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
-
