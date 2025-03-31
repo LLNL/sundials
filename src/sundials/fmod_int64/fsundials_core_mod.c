@@ -3657,42 +3657,6 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_RecomputeFwd(void *farg1, long const *fa
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_SetJacFn(void *farg1, SUNRhsJacFn farg2, SUNMatrix farg3, SUNRhsJacFn farg4, SUNMatrix farg5) {
-  int fresult ;
-  SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
-  SUNRhsJacFn arg2 = (SUNRhsJacFn) 0 ;
-  SUNMatrix arg3 = (SUNMatrix) 0 ;
-  SUNRhsJacFn arg4 = (SUNRhsJacFn) 0 ;
-  SUNMatrix arg5 = (SUNMatrix) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNAdjointStepper)(farg1);
-  arg2 = (SUNRhsJacFn)(farg2);
-  arg3 = (SUNMatrix)(farg3);
-  arg4 = (SUNRhsJacFn)(farg4);
-  arg5 = (SUNMatrix)(farg5);
-  result = (SUNErrCode)SUNAdjointStepper_SetJacFn(arg1,arg2,arg3,arg4,arg5);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNAdjointStepper_SetJacHermitianTransposeVecFn(void *farg1, SUNRhsJacTimesFn farg2, SUNRhsJacTimesFn farg3) {
-  int fresult ;
-  SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
-  SUNRhsJacTimesFn arg2 = (SUNRhsJacTimesFn) 0 ;
-  SUNRhsJacTimesFn arg3 = (SUNRhsJacTimesFn) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNAdjointStepper)(farg1);
-  arg2 = (SUNRhsJacTimesFn)(farg2);
-  arg3 = (SUNRhsJacTimesFn)(farg3);
-  result = (SUNErrCode)SUNAdjointStepper_SetJacHermitianTransposeVecFn(arg1,arg2,arg3);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
 SWIGEXPORT int _wrap_FSUNAdjointStepper_SetUserData(void *farg1, void *farg2) {
   int fresult ;
   SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
@@ -3716,90 +3680,6 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumSteps(void *farg1, long *farg2) {
   arg1 = (SUNAdjointStepper)(farg1);
   arg2 = (suncountertype *)(farg2);
   result = (SUNErrCode)SUNAdjointStepper_GetNumSteps(arg1,arg2);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacEvals(void *farg1, long *farg2) {
-  int fresult ;
-  SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
-  suncountertype *arg2 = (suncountertype *) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNAdjointStepper)(farg1);
-  arg2 = (suncountertype *)(farg2);
-  result = (SUNErrCode)SUNAdjointStepper_GetNumJacEvals(arg1,arg2);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPEvals(void *farg1, long *farg2) {
-  int fresult ;
-  SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
-  suncountertype *arg2 = (suncountertype *) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNAdjointStepper)(farg1);
-  arg2 = (suncountertype *)(farg2);
-  result = (SUNErrCode)SUNAdjointStepper_GetNumJacPEvals(arg1,arg2);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacTimesVecEvals(void *farg1, long *farg2) {
-  int fresult ;
-  SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
-  suncountertype *arg2 = (suncountertype *) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNAdjointStepper)(farg1);
-  arg2 = (suncountertype *)(farg2);
-  result = (SUNErrCode)SUNAdjointStepper_GetNumJacTimesVecEvals(arg1,arg2);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumJacPTimesVecEvals(void *farg1, long *farg2) {
-  int fresult ;
-  SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
-  suncountertype *arg2 = (suncountertype *) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNAdjointStepper)(farg1);
-  arg2 = (suncountertype *)(farg2);
-  result = (SUNErrCode)SUNAdjointStepper_GetNumJacPTimesVecEvals(arg1,arg2);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacEvals(void *farg1, long *farg2) {
-  int fresult ;
-  SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
-  suncountertype *arg2 = (suncountertype *) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNAdjointStepper)(farg1);
-  arg2 = (suncountertype *)(farg2);
-  result = (SUNErrCode)SUNAdjointStepper_GetNumVecTimesJacEvals(arg1,arg2);
-  fresult = (SUNErrCode)(result);
-  return fresult;
-}
-
-
-SWIGEXPORT int _wrap_FSUNAdjointStepper_GetNumVecTimesJacPEvals(void *farg1, long *farg2) {
-  int fresult ;
-  SUNAdjointStepper arg1 = (SUNAdjointStepper) 0 ;
-  suncountertype *arg2 = (suncountertype *) 0 ;
-  SUNErrCode result;
-  
-  arg1 = (SUNAdjointStepper)(farg1);
-  arg2 = (suncountertype *)(farg2);
-  result = (SUNErrCode)SUNAdjointStepper_GetNumVecTimesJacPEvals(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
 }

@@ -657,16 +657,8 @@ module fsundials_core_mod
  public :: FSUNAdjointStepper_Evolve
  public :: FSUNAdjointStepper_OneStep
  public :: FSUNAdjointStepper_RecomputeFwd
- public :: FSUNAdjointStepper_SetJacFn
- public :: FSUNAdjointStepper_SetJacHermitianTransposeVecFn
  public :: FSUNAdjointStepper_SetUserData
  public :: FSUNAdjointStepper_GetNumSteps
- public :: FSUNAdjointStepper_GetNumJacEvals
- public :: FSUNAdjointStepper_GetNumJacPEvals
- public :: FSUNAdjointStepper_GetNumJacTimesVecEvals
- public :: FSUNAdjointStepper_GetNumJacPTimesVecEvals
- public :: FSUNAdjointStepper_GetNumVecTimesJacEvals
- public :: FSUNAdjointStepper_GetNumVecTimesJacPEvals
  public :: FSUNAdjointStepper_GetNumRecompute
  public :: FSUNAdjointStepper_PrintAllStats
  public :: FSUNAdjointStepper_Destroy
@@ -2797,28 +2789,6 @@ type(C_PTR), value :: farg5
 integer(C_INT) :: fresult
 end function
 
-function swigc_FSUNAdjointStepper_SetJacFn(farg1, farg2, farg3, farg4, farg5) &
-bind(C, name="_wrap_FSUNAdjointStepper_SetJacFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-type(C_PTR), value :: farg3
-type(C_FUNPTR), value :: farg4
-type(C_PTR), value :: farg5
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdjointStepper_SetJacHermitianTransposeVecFn(farg1, farg2, farg3) &
-bind(C, name="_wrap_FSUNAdjointStepper_SetJacHermitianTransposeVecFn") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_FUNPTR), value :: farg2
-type(C_FUNPTR), value :: farg3
-integer(C_INT) :: fresult
-end function
-
 function swigc_FSUNAdjointStepper_SetUserData(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_SetUserData") &
 result(fresult)
@@ -2830,60 +2800,6 @@ end function
 
 function swigc_FSUNAdjointStepper_GetNumSteps(farg1, farg2) &
 bind(C, name="_wrap_FSUNAdjointStepper_GetNumSteps") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdjointStepper_GetNumJacEvals(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdjointStepper_GetNumJacPEvals(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacPEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdjointStepper_GetNumJacTimesVecEvals(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacTimesVecEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdjointStepper_GetNumJacPTimesVecEvals(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdjointStepper_GetNumJacPTimesVecEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdjointStepper_GetNumVecTimesJacEvals(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdjointStepper_GetNumVecTimesJacEvals") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: farg1
-type(C_PTR), value :: farg2
-integer(C_INT) :: fresult
-end function
-
-function swigc_FSUNAdjointStepper_GetNumVecTimesJacPEvals(farg1, farg2) &
-bind(C, name="_wrap_FSUNAdjointStepper_GetNumVecTimesJacPEvals") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: farg1
@@ -6855,50 +6771,6 @@ fresult = swigc_FSUNAdjointStepper_RecomputeFwd(farg1, farg2, farg3, farg4, farg
 swig_result = fresult
 end function
 
-function FSUNAdjointStepper_SetJacFn(arg0, jacfn, jac, jacpfn, jp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arg0
-type(C_FUNPTR), intent(in), value :: jacfn
-type(SUNMatrix), target, intent(inout) :: jac
-type(C_FUNPTR), intent(in), value :: jacpfn
-type(SUNMatrix), target, intent(inout) :: jp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-type(C_PTR) :: farg3 
-type(C_FUNPTR) :: farg4 
-type(C_PTR) :: farg5 
-
-farg1 = arg0
-farg2 = jacfn
-farg3 = c_loc(jac)
-farg4 = jacpfn
-farg5 = c_loc(jp)
-fresult = swigc_FSUNAdjointStepper_SetJacFn(farg1, farg2, farg3, farg4, farg5)
-swig_result = fresult
-end function
-
-function FSUNAdjointStepper_SetJacHermitianTransposeVecFn(arg0, jvp, jpvp) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: arg0
-type(C_FUNPTR), intent(in), value :: jvp
-type(C_FUNPTR), intent(in), value :: jpvp
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_FUNPTR) :: farg2 
-type(C_FUNPTR) :: farg3 
-
-farg1 = arg0
-farg2 = jvp
-farg3 = jpvp
-fresult = swigc_FSUNAdjointStepper_SetJacHermitianTransposeVecFn(farg1, farg2, farg3)
-swig_result = fresult
-end function
-
 function FSUNAdjointStepper_SetUserData(arg0, user_data) &
 result(swig_result)
 use, intrinsic :: ISO_C_BINDING
@@ -6928,102 +6800,6 @@ type(C_PTR) :: farg2
 farg1 = adj_stepper
 farg2 = c_loc(num_steps(1))
 fresult = swigc_FSUNAdjointStepper_GetNumSteps(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNAdjointStepper_GetNumJacEvals(adj_stepper, num_jac_evals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: adj_stepper
-integer(C_LONG), dimension(*), target, intent(inout) :: num_jac_evals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = adj_stepper
-farg2 = c_loc(num_jac_evals(1))
-fresult = swigc_FSUNAdjointStepper_GetNumJacEvals(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNAdjointStepper_GetNumJacPEvals(adj_stepper, num_jac_p_evals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: adj_stepper
-integer(C_LONG), dimension(*), target, intent(inout) :: num_jac_p_evals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = adj_stepper
-farg2 = c_loc(num_jac_p_evals(1))
-fresult = swigc_FSUNAdjointStepper_GetNumJacPEvals(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNAdjointStepper_GetNumJacTimesVecEvals(adj_stepper, num_jac_times_vec_evals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: adj_stepper
-integer(C_LONG), dimension(*), target, intent(inout) :: num_jac_times_vec_evals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = adj_stepper
-farg2 = c_loc(num_jac_times_vec_evals(1))
-fresult = swigc_FSUNAdjointStepper_GetNumJacTimesVecEvals(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNAdjointStepper_GetNumJacPTimesVecEvals(adj_stepper, num_jac_p_times_vec_evals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: adj_stepper
-integer(C_LONG), dimension(*), target, intent(inout) :: num_jac_p_times_vec_evals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = adj_stepper
-farg2 = c_loc(num_jac_p_times_vec_evals(1))
-fresult = swigc_FSUNAdjointStepper_GetNumJacPTimesVecEvals(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNAdjointStepper_GetNumVecTimesJacEvals(adj_stepper, num_vec_times_jac_evals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: adj_stepper
-integer(C_LONG), dimension(*), target, intent(inout) :: num_vec_times_jac_evals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = adj_stepper
-farg2 = c_loc(num_vec_times_jac_evals(1))
-fresult = swigc_FSUNAdjointStepper_GetNumVecTimesJacEvals(farg1, farg2)
-swig_result = fresult
-end function
-
-function FSUNAdjointStepper_GetNumVecTimesJacPEvals(adj_stepper, num_vec_times_jac_p_evals) &
-result(swig_result)
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: swig_result
-type(C_PTR) :: adj_stepper
-integer(C_LONG), dimension(*), target, intent(inout) :: num_vec_times_jac_p_evals
-integer(C_INT) :: fresult 
-type(C_PTR) :: farg1 
-type(C_PTR) :: farg2 
-
-farg1 = adj_stepper
-farg2 = c_loc(num_vec_times_jac_p_evals(1))
-fresult = swigc_FSUNAdjointStepper_GetNumVecTimesJacPEvals(farg1, farg2)
 swig_result = fresult
 end function
 
