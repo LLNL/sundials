@@ -47,6 +47,11 @@ Improved the efficiency of default ARKODE methods with the following changes:
 |                    | ``ARKODE_ARK548L2SA_DIRK_8_4_5``    | ``ARKODE_ARK548L2SAb_DIRK_8_4_5``    |
 +--------------------+-------------------------------------+--------------------------------------+
 
+Added support in KINSOL for setting user-supplied functions to compute the
+damping factor and, when using Anderson acceleration, the depth in fixed-point
+or Picard iterations. See :c:func:`KINSetDampingFn` and :c:func:`KINSetDepthFn`,
+respectively, for more information.
+
 **Bug Fixes**
 
 Fixed bug in :c:func:`ARKodeResize` which caused it return an error for MRI
@@ -66,6 +71,16 @@ Previously, ``MinSizeRel`` builds enabled additional error checking by default.
 Fixed bug in the ARKODE SPRKStep :c:func:`SPRKStepReInit` function and
 :c:func:`ARKodeReset` function with SPRKStep that could cause a segmentation
 fault when compensated summation is not used.
+
+Fixed a bug in KINSOL where an incorrect damping parameter is applied on the
+initial iteration with Anderson acceleration unless :c:func:`KINSetDamping` and
+:c:func:`KINSetDampingAA` are both called with the same value when enabling
+damping.
+
+Fixed a bug in KINSOL where errors that occurred when computing Anderson
+acceleration were not captured.
+
+Added missing return values to :c:func:`KINGetReturnFlagName`.
 
 **Deprecation Notices**
 

@@ -37,6 +37,11 @@ Improved the efficiency of default ARKODE methods with the following changes:
 | 4th Order ARK      | `ARKODE_ARK436L2SA_ERK_6_3_4` and `ARKODE_ARK436L2SA_DIRK_6_3_4` | `ARKODE_ARK437L2SA_ERK_7_3_4` and `ARKODE_ARK437L2SA_DIRK_7_3_4`   |
 | 5th Order ARK      | `ARKODE_ARK548L2SA_ERK_8_4_5` and `ARKODE_ARK548L2SA_DIRK_8_4_5` | `ARKODE_ARK548L2SAb_ERK_8_4_5` and `ARKODE_ARK548L2SAb_DIRK_8_4_5` |
 
+Added support in KINSOL for setting user-supplied functions to compute the
+damping factor and, when using Anderson acceleration, the depth in fixed-point
+or Picard iterations. See `KINSetDampingFn` and `KINSetDepthFn`, respectively,
+for more information.
+
 ### Bug Fixes
 
 Fixed bug in `ARKodeResize` which caused it return an error for MRI methods.
@@ -54,6 +59,15 @@ checks are disabled by default with all release build types. Previously,
 Fixed bug in the ARKODE SPRKStep `SPRKStepReInit` function and `ARKodeReset` function
 with SPRKStep that could cause a segmentation fault when compensated summation is not
 used.
+
+Fixed a bug in KINSOL where an incorrect damping parameter is applied on the
+initial iteration with Anderson acceleration unless `KINSetDamping` and
+`KINSetDampingAA` are both called with the same value when enabling damping.
+
+Fixed a bug in KINSOL where errors that occurred when computing Anderson
+acceleration were not captured.
+
+Added missing return values to `KINGetReturnFlagName`.
 
 ### Deprecation Notices
 
