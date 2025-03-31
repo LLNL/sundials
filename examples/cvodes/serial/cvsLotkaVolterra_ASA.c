@@ -196,6 +196,9 @@ int main(int argc, char* argv[])
   retval = CVodeGetQuadB(cvode_mem, which, &t, qB);
   if (check_retval(&retval, "CVodeGetQuadB", 1)) { return (1); }
 
+  /* dg/dp = -qB */
+  N_VScale(SUN_RCONST(-1.0), qB, qB);
+
   /* Print the final adjoint solution */
   printf("Adjoint Solution at t = %g:\n", t);
   N_VPrint(uB);
@@ -283,13 +286,12 @@ int adjoint_rhs(sunrealtype t, N_Vector uvec, N_Vector lvec, N_Vector ldotvec,
 }
 
 /* Function to compute the quadrature right-hand side:
-    -mu^T (df/dp)
+    mu^T (df/dp)
  */
 int quad_rhs(sunrealtype t, N_Vector uvec, N_Vector muvec, N_Vector qBdotvec,
              void* user_dataB)
 {
   parameter_vjp(muvec, qBdotvec, t, uvec, user_dataB);
-  N_VScale(-1.0, qBdotvec, qBdotvec);
   return 0;
 }
 
