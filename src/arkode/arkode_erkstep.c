@@ -1065,8 +1065,8 @@ int erkStep_TakeStep_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr, int* nflagP
     retval = N_VLinearCombination(nvec, cvals, Xvecs, sens_tmp_Lambda);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-    /* Compute the stages \Lambda_i and \nu_i by evaluating f_{y}^*(t_i, z_i, p) and  
-       f_{p}^*(t_i, z_i, p) and applying them to sens_tmp_Lambda (in sens_tmp). This is  
+    /* Compute the stages \Lambda_i and \nu_i by evaluating f_{y}^*(t_i, z_i, p) and
+       f_{p}^*(t_i, z_i, p) and applying them to sens_tmp_Lambda (in sens_tmp). This is
        done in fe which retrieves z_i from the checkpoint data */
     retval = step_mem->f(ark_mem->tcur, sens_tmp, stage_values[is],
                          ark_mem->user_data);
@@ -1772,6 +1772,12 @@ int ERKStepCreateAdjointStepper(void* arkode_mem, sunrealtype tf, N_Vector sf,
   }
 
   void* arkode_mem_adj = ERKStepCreate(erkStep_fe_Adj, tf, sf, ark_mem->sunctx);
+  if (!arkode_mem_adj)
+  {
+    arkProcessError(ark_mem, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
+                    "ERKStepCreate returned NULL\n");
+    return ARK_MEM_NULL;
+  }
   ARKodeMem ark_mem_adj = (ARKodeMem)arkode_mem_adj;
 
   ark_mem_adj->do_adjoint = SUNTRUE;
