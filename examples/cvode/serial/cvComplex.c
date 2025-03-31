@@ -210,36 +210,11 @@ int main(void)
   SolutionError(Tf, y, Error, (void*)rdata);
 
   printf("   --------------------------------------------------------------------------------------\n");
-  /* Print some final statistics */
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumStepSolveFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumStepSolveFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &nnf);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
-  flag = CVodeGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVodeGetNumJacEvals", 1);
-  flag = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVodeGetNumLinRhsEvals", 1);
 
+  /* Print all final statistics */
   printf("\nFinal Solver Statistics:\n");
-  printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-  printf("   Total RHS evals:  nfe = %li\n", nfe);
-  printf("   Total linear solver setups = %li\n", nsetups);
-  printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
-  printf("   Total number of Jacobian evaluations = %li\n", nje);
-  printf("   Total number of Newton iterations = %li\n", nni);
-  printf("   Total number of nonlinear solver convergence failures = %li\n", nnf);
-  printf("   Total number of error test failures = %li\n", netf);
-  printf("   Total number of failed steps from solver failure = %li\n", ncfn);
+  flag = CVodePrintAllStats(cvode_mem, stdout, SUN_OUTPUTFORMAT_TABLE);
+  if (check_flag(&flag, "CVodePrintAllStats", 1)) { return 1; }
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);            /* Free y vector */
