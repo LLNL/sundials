@@ -84,7 +84,7 @@ int main(void)
   N_Vector True_Sol  = NULL; // vector for storing true solution
   N_Vector Error     = NULL; // vector for storing the error */
   SUNLinearSolver LS = NULL; /* empty linear solver object */
-  void* cvode_mem   = NULL; /* empty CVode memory structure */
+  void* cvode_mem    = NULL; /* empty CVode memory structure */
   sunscalartype rdata[3];
   sunrealtype t, tout;
   int iout;
@@ -147,17 +147,19 @@ int main(void)
      prints results.  Stops when the final time has been reached */
   t    = T0;
   tout = T0 + dTout;
-  printf("      t                  u                         v                          w\n");
-  printf("   --------------------------------------------------------------------------------------\n");
-  printf(" %10.3"FSYM" | " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  \n", t,
-    SUN_REAL(yvals[0]), SUN_IMAG(yvals[0]), SUN_REAL(yvals[1]), SUN_IMAG(yvals[1]), SUN_REAL(yvals[2]), SUN_IMAG(yvals[2]));
+  printf("     t               u                      v                      w\n");
+  printf("   ----------------------------------------------------------------------------\n");
+  printf(" %8.3"FSYM" | " "%8.5"FSYM " + " "%8.5" FSYM "i | " "%8.5"FSYM " + " "%8.5" FSYM "i | "
+         "%8.5"FSYM " + " "%8.5" FSYM "i\n", t, SUN_REAL(yvals[0]), SUN_IMAG(yvals[0]),
+         SUN_REAL(yvals[1]), SUN_IMAG(yvals[1]), SUN_REAL(yvals[2]), SUN_IMAG(yvals[2]));
 
   for (iout = 0; iout < Nt; iout++)
   {
     flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL); /* call integrator */
     if (check_flag(&flag, "CVode", 1)) { break; }
-    printf(" %10.3"FSYM" | " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  \n", t,
-      SUN_REAL(yvals[0]), SUN_IMAG(yvals[0]), SUN_REAL(yvals[1]), SUN_IMAG(yvals[1]), SUN_REAL(yvals[2]), SUN_IMAG(yvals[2]));
+    printf(" %8.3"FSYM" | " "%8.5"FSYM " + " "%8.5" FSYM "i | " "%8.5"FSYM " + " "%8.5" FSYM "i | "
+           "%8.5"FSYM " + " "%8.5" FSYM "i\n", t, SUN_REAL(yvals[0]), SUN_IMAG(yvals[0]),
+           SUN_REAL(yvals[1]), SUN_IMAG(yvals[1]), SUN_REAL(yvals[2]), SUN_IMAG(yvals[2]));
 
     if (flag >= 0)
     { /* successful solve: update time */
@@ -170,11 +172,9 @@ int main(void)
       break;
     }
   }
-  printf("   --------------------------------------------------------------------------------------\n");
-
+  printf("   ----------------------------------------------------------------------------\n");
   SolutionError(Tf, y, Error, (void*)rdata);
-
-  printf("   --------------------------------------------------------------------------------------\n");
+  printf("   ----------------------------------------------------------------------------\n");
 
   /* Print all final statistics */
   printf("\nFinal Solver Statistics:\n");
@@ -291,7 +291,7 @@ static int SolutionError(sunrealtype t, N_Vector u, N_Vector e, void* user_data)
   /* Compute max-norm of the error */
   N_VLinearSum(1.0, u, -1.0, e, e);
   sunrealtype error_norm = N_VMaxNorm(e);
-  printf("     Max-norm of the error is %.5"ESYM"\n", error_norm);
+  printf("    Max-norm of the error is %.5"ESYM"\n", error_norm);
   return 0;
 }
 
