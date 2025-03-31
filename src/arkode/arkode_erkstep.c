@@ -1606,7 +1606,7 @@ int erkStep_fe_Adj(sunrealtype t, N_Vector sens_partial_stage,
   SUNAdjointCheckpointScheme check_scheme = adj_stepper->checkpoint_scheme;
   ARKodeMem ark_mem = (ARKodeMem)adj_stepper->adj_sunstepper->content;
 
-  /* access ARKodeARKStepMem structure */
+  /* access ARKodeERKStepMem structure */
   if (ark_mem->step_mem == NULL)
   {
     arkProcessError(NULL, ARK_MEM_NULL, __LINE__, __func__, __FILE__,
