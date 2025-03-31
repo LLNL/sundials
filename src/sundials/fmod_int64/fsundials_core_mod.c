@@ -2827,14 +2827,14 @@ SWIGEXPORT int _wrap_FSUNStepper_Reset(void *farg1, double const *farg2, N_Vecto
 }
 
 
-SWIGEXPORT int _wrap_FSUNStepper_ResetCheckpointIndex(void *farg1, int64_t const *farg2) {
+SWIGEXPORT int _wrap_FSUNStepper_ResetCheckpointIndex(void *farg1, long const *farg2) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
-  int64_t arg2 ;
+  suncountertype arg2 ;
   SUNErrCode result;
   
   arg1 = (SUNStepper)(farg1);
-  arg2 = (int64_t)(*farg2);
+  arg2 = (suncountertype)(*farg2);
   result = (SUNErrCode)SUNStepper_ResetCheckpointIndex(arg1,arg2);
   fresult = (SUNErrCode)(result);
   return fresult;
@@ -3551,15 +3551,15 @@ SWIGEXPORT int _wrap_FSUNAdjointCheckpointScheme_EnableDense(void *farg1, int co
 }
 
 
-SWIGEXPORT int _wrap_FSUNAdjointStepper_Create(void *farg1, int const *farg2, void *farg3, int const *farg4, long const *farg5, N_Vector farg6, double const *farg7, void *farg8, void *farg9, void *farg10) {
+SWIGEXPORT int _wrap_FSUNAdjointStepper_Create(void *farg1, int const *farg2, void *farg3, int const *farg4, long const *farg5, double const *farg6, N_Vector farg7, void *farg8, void *farg9, void *farg10) {
   int fresult ;
   SUNStepper arg1 = (SUNStepper) 0 ;
   int arg2 ;
   SUNStepper arg3 = (SUNStepper) 0 ;
   int arg4 ;
   suncountertype arg5 ;
-  N_Vector arg6 = (N_Vector) 0 ;
-  sunrealtype arg7 ;
+  sunrealtype arg6 ;
+  N_Vector arg7 = (N_Vector) 0 ;
   SUNAdjointCheckpointScheme arg8 = (SUNAdjointCheckpointScheme) 0 ;
   SUNContext arg9 = (SUNContext) 0 ;
   SUNAdjointStepper *arg10 = (SUNAdjointStepper *) 0 ;
@@ -3570,8 +3570,8 @@ SWIGEXPORT int _wrap_FSUNAdjointStepper_Create(void *farg1, int const *farg2, vo
   arg3 = (SUNStepper)(farg3);
   arg4 = (int)(*farg4);
   arg5 = (suncountertype)(*farg5);
-  arg6 = (N_Vector)(farg6);
-  arg7 = (sunrealtype)(*farg7);
+  arg6 = (sunrealtype)(*farg6);
+  arg7 = (N_Vector)(farg7);
   arg8 = (SUNAdjointCheckpointScheme)(farg8);
   arg9 = (SUNContext)(farg9);
   arg10 = (SUNAdjointStepper *)(farg10);

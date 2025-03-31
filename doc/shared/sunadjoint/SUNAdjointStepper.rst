@@ -31,8 +31,8 @@ Class Methods
 The :c:type:`SUNAdjointStepper` class has the following methods:
 
 .. c:function:: SUNErrCode SUNAdjointStepper_Create(SUNStepper fwd_sunstepper, sunbooleantype own_fwd, \
-   SUNStepper adj_sunstepper, sunbooleantype own_adj, suncountertype final_step_idx, N_Vector sf, \
-   sunrealtype tf, SUNAdjointCheckpointScheme checkpoint_scheme, SUNContext sunctx, SUNAdjointStepper* adj_stepper)
+   SUNStepper adj_sunstepper, sunbooleantype own_adj, suncountertype final_step_idx, sunrealtype tf, N_Vector sf, \
+   SUNAdjointCheckpointScheme checkpoint_scheme, SUNContext sunctx, SUNAdjointStepper* adj_stepper)
 
    Creates the ``SUNAdjointStepper`` object needed to solve the adjoint problem.
 
@@ -41,8 +41,8 @@ The :c:type:`SUNAdjointStepper` class has the following methods:
    :param adj_sunstepper: The :c:type:`SUNStepper` to be used for the backward integration of the adjoint ODE.
    :param own_adj: Should `adj_sunstepper` be owned (and destroyed) by the `SUNAdjointStepper` or not.
    :param final_step_idx: The index (step number) of the step corresponding to ``t_f`` for the forward ODE.
-   :param sf: The terminal condition for the adjoint ODE.
    :param tf: The terminal time for the forward ODE (the initial time for the adjoint ODE).
+   :param sf: The terminal condition for the adjoint ODE.
    :param checkpoint_scheme: The :c:type:`SUNAdjointCheckpointScheme` object that determines the checkpointing strategy to use. This should be the same object provided to the forward integrator/stepper.
    :param sunctx: The :c:type:`SUNContext` for the simulation.
    :param adj_stepper: The :c:type:`SUNAdjointStepper` to construct (will be ``NULL`` on failure).
