@@ -25,6 +25,9 @@
 extern "C" {
 #endif
 
+typedef int (*SUNAdjRhsFn)(sunrealtype t, N_Vector y, N_Vector sens,
+                           N_Vector sens_dot, void* user_data);
+
 typedef struct SUNAdjointStepper_* SUNAdjointStepper;
 
 SUNDIALS_EXPORT
@@ -55,45 +58,11 @@ SUNErrCode SUNAdjointStepper_RecomputeFwd(SUNAdjointStepper adj_stepper,
                                           N_Vector y0);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper, SUNRhsJacFn JacFn,
-                                      SUNMatrix Jac, SUNRhsJacFn JacPFn,
-                                      SUNMatrix JP);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_SetJacHermitianTransposeVecFn(SUNAdjointStepper,
-                                                           SUNRhsJacTimesFn Jvp,
-                                                           SUNRhsJacTimesFn JPvp);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper, void* user_data);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_GetNumSteps(SUNAdjointStepper adj_stepper,
                                          suncountertype* num_steps);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_GetNumJacEvals(SUNAdjointStepper adj_stepper,
-                                            suncountertype* num_jac_evals);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_GetNumJacPEvals(SUNAdjointStepper adj_stepper,
-                                             suncountertype* num_jac_p_evals);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_GetNumJacTimesVecEvals(
-  SUNAdjointStepper adj_stepper, suncountertype* num_jac_times_vec_evals);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_GetNumJacPTimesVecEvals(
-  SUNAdjointStepper adj_stepper, suncountertype* num_jac_p_times_vec_evals);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_GetNumVecTimesJacEvals(
-  SUNAdjointStepper adj_stepper, suncountertype* num_vec_times_jac_evals);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointStepper_GetNumVecTimesJacPEvals(
-  SUNAdjointStepper adj_stepper, suncountertype* num_vec_times_jac_p_evals);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointStepper_GetNumRecompute(SUNAdjointStepper adj_stepper,

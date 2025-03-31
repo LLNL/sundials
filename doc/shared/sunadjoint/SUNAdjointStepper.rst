@@ -101,35 +101,6 @@ The :c:type:`SUNAdjointStepper` class has the following methods:
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
 
-.. c:function:: SUNErrCode SUNAdjointStepper_SetJacFn(SUNAdjointStepper adj_stepper, SUNRhsJacFn JacFn, \
-      SUNMatrix Jac, SUNRhsJacFn JacPFn, SUNMatrix JacP)
-
-   Sets the function pointers and matrices needed to evaluate and store :math:`\partial f / \partial y` and
-   :math:`\partial f / \partial p`. ``Jac`` should have dimensions ``neq x neq`` where ``neq`` is the number of states
-   in the forward problem. ``JacP`` should have dimensions ``nparams x neq`` where ``nparams`` is the
-   number of parameters in the model to get sensitivities for.
-
-   :param adj_stepper: The SUNAdjointStepper object.
-   :param JacFn: the function that evaluates :math:`\partial f / \partial y`.
-   :param Jac: a :c:type:`SUNMatrix` that will hold :math:`\partial f / \partial y`.
-   :param JacPFn: the function that evaluates :math:`\partial f / \partial p`.
-   :param JacP: a :c:type:`SUNMatrix` that will hold :math:`\partial f / \partial p`.
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-
-.. c:function:: SUNErrCode SUNAdjointStepper_SetJacHermitianTransposeVecFn(SUNAdjointStepper adj_stepper, SUNRhsJacTimesFn Jvp, SUNRhsJacTimesFn JPvp)
-
-
-   Sets the function pointers to evaluate :math:`(\partial f/\partial y)^* v`  and :math:`(\partial f/\partial p)^* v`
-
-   :param adj_stepper: The SUNAdjointStepper object.
-   :param Jvp: function that evaluates :math:`(\partial f/\partial y)^* v`.
-   :param JPvp: function that evaluates :math:`(\partial f/\partial p)^* v`.
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-
 .. c:function:: SUNErrCode SUNAdjointStepper_SetUserData(SUNAdjointStepper adj_stepper, void* user_data)
 
    Sets the user data pointer.
@@ -156,56 +127,6 @@ The :c:type:`SUNAdjointStepper` class has the following methods:
 
    :param adj_stepper: The SUNAdjointStepper object.
    :param num_jac_evals: Pointer to store the number of Jacobian evaluations.
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-
-.. c:function:: SUNErrCode SUNAdjointStepper_GetNumJacPEvals(SUNAdjointStepper adj_stepper, suncountertype* num_jac_p_evals)
-
-   Retrieves the number of Jacobian parameter evaluations performed by the adjoint stepper.
-
-   :param adj_stepper: The SUNAdjointStepper object.
-   :param num_jac_p_evals: Pointer to store the number of Jacobian parameter evaluations.
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-
-.. c:function:: SUNErrCode SUNAdjointStepper_GetNumJacTimesVecEvals(SUNAdjointStepper adj_stepper, suncountertype* num_jac_times_vec_evals)
-
-   Retrieves the number of Jacobian-times-vector evaluations performed by the adjoint stepper.
-
-   :param adj_stepper: The SUNAdjointStepper object.
-   :param num_jac_times_vec_evals: Pointer to store the number of Jacobian-times-vector evaluations.
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-
-.. c:function:: SUNErrCode SUNAdjointStepper_GetNumJacPTimesVecEvals(SUNAdjointStepper adj_stepper, suncountertype* num_jac_p_times_vec_evals)
-
-   Retrieves the number of parameter Jacobian-times-vector evaluations performed by the adjoint stepper.
-
-   :param adj_stepper: The SUNAdjointStepper object.
-   :param num_jac_p_times_vec_evals: Pointer to store the number of parameter Jacobian-times-vector evaluations.
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-
-.. c:function:: SUNErrCode SUNAdjointStepper_GetNumVecTimesJacEvals(SUNAdjointStepper adj_stepper, suncountertype* num_vec_times_jac_evals)
-
-   Retrieves the number of vector-times-Jacobian evaluations performed by the adjoint stepper.
-
-   :param adj_stepper: The SUNAdjointStepper object.
-   :param num_vec_times_jac_evals: Pointer to store the number of vector-times-Jacobian evaluations.
-
-   :return: A :c:type:`SUNErrCode` indicating failure or success.
-
-
-.. c:function:: SUNErrCode SUNAdjointStepper_GetNumVecTimesJacPEvals(SUNAdjointStepper adj_stepper, suncountertype* num_vec_times_jac_p_evals)
-
-   Retrieves the number of vector-times-Jacobian parameter evaluations performed by the adjoint stepper.
-
-   :param adj_stepper: The SUNAdjointStepper object.
-   :param num_vec_times_jac_p_evals: Pointer to store the number of vector-times-Jacobian parameter evaluations.
 
    :return: A :c:type:`SUNErrCode` indicating failure or success.
 
