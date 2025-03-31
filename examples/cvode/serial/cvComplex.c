@@ -2,7 +2,7 @@
  * Programmer(s): Mustafa Aggul @ SMU
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2024, Lawrence Livermore National Security
+ * Copyright (c) 2002-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
  * All rights reserved.
  *
@@ -36,12 +36,12 @@
  *-----------------------------------------------------------------*/
 
 /* Header files */
-#include <cvode/cvode.h> /* prototypes for CVODE fcts., consts.  */
+#include <cvode/cvode.h> /* prototypes for CVODE fcts., consts. */
 #include <math.h>
 #include <stdio.h>
-#include <sundials/sundials_types.h>   /* def. of type 'sunrealtype' */
+#include <sundials/sundials_types.h>   /* def. of type sunscalartype */
 #include <nvector/nvector_serial.h> /* serial N_Vector types, fcts., macros */
-#include <sunlinsol/sunlinsol_sptfqmr.h> /* access to sptfqmr SUNLinearSolver       */
+#include <sunlinsol/sunlinsol_sptfqmr.h> /* access to sptfqmr SUNLinearSolver */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -76,9 +76,7 @@ int main(void)
   int Nt             = (int)ceil(Tf / dTout); /* number of output times */
   sunrealtype reltol = 1.0e-6;                /* tolerances */
   sunrealtype abstol = 1.0e-10;
-  sunscalartype a, b, c; // some constants to pass as problem data if needed
-  int pretype = 0; // 1 for left and 2 for right preconditioners
-  int maxl = 100; // Set the maximum number of linear solver iterations
+  int maxl = 10;                              /* max linear solver iterations */
 
   /* general problem variables */
   int flag;                  /* reusable error-checking flag */
@@ -88,10 +86,8 @@ int main(void)
   SUNLinearSolver LS = NULL; /* empty linear solver object */
   void* cvode_mem   = NULL; /* empty CVode memory structure */
   sunscalartype rdata[3];
-  FILE* UFID;
   sunrealtype t, tout;
   int iout;
-  long int nst, nst_a, nfe, nsetups, nje, nfeLS, nni, nnf, ncfn, netf;
 
   /* Create the SUNDIALS context object for this testing */
   SUNContext ctx;
@@ -100,35 +96,26 @@ int main(void)
 
   y = N_VNew_Serial(NEQ, ctx); /* Create serial vector for solution */
   if (check_flag((void*)y, "N_VNew_Serial", 0)) { return 1; }
+  sunscalartype* yvals = N_VGetArrayPointer(y);
+  if (check_flag(yvals, "N_VGetArrayPointer", 0)) { return 1; }
 
   True_Sol = N_VClone(y);
   Error = N_VClone(y);
 
   // set up the problem data (unused in this case)
-  rdata[0] = a = 1.0;
-  rdata[1] = b = 1.0;
-  rdata[2] = c = 1.0;
+  rdata[0] = SUN_CCONST(1.0, 0.0);
+  rdata[1] = SUN_CCONST(1.0, 0.0);
+  rdata[2] = SUN_CCONST(1.0, 0.0);
 
   // Set initial condition
   flag = Solution(0.0, True_Sol, (void*)rdata);
   if (check_flag(&flag, "Solution", 1)) { return 1; }
-
-  NV_Ith_S(y, 0) = NV_Ith_S(True_Sol, 0); /* Set initial conditions */
-  NV_Ith_S(y, 1) = NV_Ith_S(True_Sol, 1);
-  NV_Ith_S(y, 2) = NV_Ith_S(True_Sol, 2);
+  N_VScale(1.0, True_Sol, y); /* Set initial conditions */
 
   /* Initial problem output */
   printf("\nAnalytic ODE test problem:\n");
-  printf("    initial conditions:  u0 = %10.5"FSYM " + " "%.5" FSYM "i  | v0 = " "%10.5"FSYM " + " "%.5" FSYM "i  | w0 = " "%10.5"FSYM " + " "%.5" FSYM "i  \n",
-  creal(NV_Ith_S(True_Sol, 0)), cimag(NV_Ith_S(True_Sol, 0)),
-  creal(NV_Ith_S(True_Sol, 1)), cimag(NV_Ith_S(True_Sol, 1)),
-  creal(NV_Ith_S(True_Sol, 2)), cimag(NV_Ith_S(True_Sol, 2)));
-
-  printf("    problem parameters:  a = %" GSYM " + %" GSYM "i,  b = %" GSYM " + %" GSYM "i,  c = %" GSYM
-         " + %" GSYM "i\n",
-  creal(a), cimag(a),
-  creal(b), cimag(b),
-  creal(c), cimag(c));
+  printf("    problem parameters:  a = %" GSYM " + %" GSYM "i,  b = %" GSYM " + %" GSYM "i,  c = %" GSYM " + %" GSYM "i\n",
+         SUN_REAL(rdata[0]), SUN_IMAG(rdata[0]), SUN_REAL(rdata[1]), SUN_IMAG(rdata[2]), SUN_REAL(rdata[2]), SUN_IMAG(rdata[2]));
   printf("    reltol = %.1" ESYM ",  abstol = %.1" ESYM "\n\n", reltol, abstol);
 
   /* Call CVodeCreate to create the solver memory and specify the
@@ -142,8 +129,6 @@ int main(void)
   flag = CVodeInit(cvode_mem, f, T0, y);
   if (check_flag(&flag, "CVodeInit", 1)) { return (1); }
 
-
-
   /* Set routines */
   flag = CVodeSetUserData(cvode_mem, (void*)rdata); /* Pass rdata to user functions */
   if (check_flag(&flag, "CVodeSetUserData", 1)) { return 1; }
@@ -151,22 +136,12 @@ int main(void)
   flag = CVodeSStolerances(cvode_mem, reltol, abstol); /* Specify tolerances */
   if (check_flag(&flag, "CVodeSStolerances", 1)) { return 1; }
 
-  LS = SUNLinSol_SPTFQMR(y, pretype, maxl, ctx);
+  LS = SUNLinSol_SPTFQMR(y, 0, maxl, ctx);
   if (check_flag((void*)LS, "SUNLinSol_SPTFQMR", 0)) { return 1; }
 
   /* Linear solver interface */
   flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
   if (check_flag(&flag, "CVodeSetLinearSolver", 1)) { return 1; }
-
-  /* Open output stream for results, output comment line */
-  UFID = fopen("solution.txt", "w");
-  fprintf(UFID, "#     t                  u                         v                          w\n");
-
-  /* output initial condition to disk */
-  fprintf(UFID," %10.3"FSYM" | " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  \n", T0,
-  creal(NV_Ith_S(y, 0)), cimag(NV_Ith_S(y, 0)),
-  creal(NV_Ith_S(y, 1)), cimag(NV_Ith_S(y, 1)),
-  creal(NV_Ith_S(y, 2)), cimag(NV_Ith_S(y, 2)));
 
   /* Main time-stepping loop: calls CVode to perform the integration, then
      prints results.  Stops when the final time has been reached */
@@ -175,23 +150,14 @@ int main(void)
   printf("      t                  u                         v                          w\n");
   printf("   --------------------------------------------------------------------------------------\n");
   printf(" %10.3"FSYM" | " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  \n", t,
-  creal(NV_Ith_S(y, 0)), cimag(NV_Ith_S(y, 0)),
-  creal(NV_Ith_S(y, 1)), cimag(NV_Ith_S(y, 1)),
-  creal(NV_Ith_S(y, 2)), cimag(NV_Ith_S(y, 2)));
+    SUN_REAL(yvals[0]), SUN_IMAG(yvals[0]), SUN_REAL(yvals[1]), SUN_IMAG(yvals[1]), SUN_REAL(yvals[2]), SUN_IMAG(yvals[2]));
 
   for (iout = 0; iout < Nt; iout++)
   {
     flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL); /* call integrator */
     if (check_flag(&flag, "CVode", 1)) { break; }
     printf(" %10.3"FSYM" | " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  \n", t,
-    creal(NV_Ith_S(y, 0)), cimag(NV_Ith_S(y, 0)),
-    creal(NV_Ith_S(y, 1)), cimag(NV_Ith_S(y, 1)),
-    creal(NV_Ith_S(y, 2)), cimag(NV_Ith_S(y, 2)));
-
-    fprintf(UFID, " %10.3"FSYM" | " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  |  " "%10.5"FSYM " + " "%.5" FSYM "i  \n", t,
-    creal(NV_Ith_S(y, 0)), cimag(NV_Ith_S(y, 0)),
-    creal(NV_Ith_S(y, 1)), cimag(NV_Ith_S(y, 1)),
-    creal(NV_Ith_S(y, 2)), cimag(NV_Ith_S(y, 2)));
+      SUN_REAL(yvals[0]), SUN_IMAG(yvals[0]), SUN_REAL(yvals[1]), SUN_IMAG(yvals[1]), SUN_REAL(yvals[2]), SUN_IMAG(yvals[2]));
 
     if (flag >= 0)
     { /* successful solve: update time */
@@ -205,7 +171,6 @@ int main(void)
     }
   }
   printf("   --------------------------------------------------------------------------------------\n");
-  fclose(UFID);
 
   SolutionError(Tf, y, Error, (void*)rdata);
 
@@ -217,7 +182,9 @@ int main(void)
   if (check_flag(&flag, "CVodePrintAllStats", 1)) { return 1; }
 
   /* Clean up and return with successful completion */
-  N_VDestroy(y);            /* Free y vector */
+  N_VDestroy(y);            /* Free vectors */
+  N_VDestroy(True_Sol);
+  N_VDestroy(Error);
   CVodeFree(&cvode_mem);    /* Free integrator memory */
   SUNLinSolFree(LS);        /* Free linear solver */
   SUNContext_Free(&ctx);    /* Free context */
@@ -232,18 +199,20 @@ int main(void)
 /* f routine to compute the ODE RHS function f(t,y). */
 static int f(sunrealtype t, N_Vector y, N_Vector ydot, void* user_data)
 {
-  sunscalartype* rdata = (sunscalartype*)user_data; /* cast user_data to sunscalartype */
+  sunscalartype* rdata  = (sunscalartype*)user_data; /* cast user_data to sunscalartype */
+  sunscalartype* yvals  = N_VGetArrayPointer(y);
+  sunscalartype* dyvals = N_VGetArrayPointer(ydot);
   sunscalartype a = rdata[0]; /* access data entries (unused) */
   sunscalartype b = rdata[1];
   sunscalartype c = rdata[2];
-  sunscalartype u  = NV_Ith_S(y, 0); /* access solution values */
-  sunscalartype v  = NV_Ith_S(y, 1);
-  sunscalartype w  = NV_Ith_S(y, 2);
+  sunscalartype u = yvals[0]; /* access solution values */
+  sunscalartype v = yvals[1];
+  sunscalartype w = yvals[2];
 
   /* fill in the RHS function */
-  NV_Ith_S(ydot, 0) = (t - 1.0)*(t - w)*I;
-  NV_Ith_S(ydot, 1) = 2.0*u*I - v + 4.0;
-  NV_Ith_S(ydot, 2) = v + t*t*exp(-t)*I -exp(-t)*I + 1.0;
+  dyvals[0] = (t - 1.0)*(t - w)*SUN_I;
+  dyvals[1] = SUN_RCONST(2.0)*u*SUN_I - v + SUN_RCONST(4.0);
+  dyvals[2] = v + t*t*SUNRexp(-t)*SUN_I - SUNRexp(-t)*SUN_I + SUN_RCONST(1.0);
 
   return 0; /* Return with success */
 }
@@ -295,45 +264,34 @@ static int check_flag(void* flagvalue, const char* funcname, int opt)
   return 0;
 }
 
-
-// -----------------------------------------------------------------------------
-// Output and utility functions
-// -----------------------------------------------------------------------------
-
-// Compute the exact solution
+/* Compute the exact solution */
 static int Solution(sunrealtype t, N_Vector u, void* user_data)
 {
   sunscalartype* rdata = (sunscalartype*)user_data; /* cast user_data to sunscalartype */
-  sunscalartype a = rdata[0];                    /* access data entries */
+  sunscalartype a = rdata[0];                       /* access data entries */
   sunscalartype b = rdata[1];
   sunscalartype c = rdata[2];
-  // Initialize u to zero (handles boundary conditions)
-  N_VConst(0.0, u);
-
   sunscalartype* uarray = N_VGetArrayPointer(u);
   if (check_flag((void*)uarray, "N_VGetArrayPointer", 0)) { return -1; }
 
-  uarray[0] = -t*exp(-t) + 2.0*I;
-  uarray[1] = -t*t*exp(-t)*I;
-  uarray[2] = exp(-t)*I + t;
+  uarray[0] = -t*SUNRexp(-t) + SUN_RCONST(2.0)*SUN_I;
+  uarray[1] = -t*t*SUNRexp(-t)*SUN_I;
+  uarray[2] = SUNRexp(-t)*SUN_I + t;
 
   return 0;
 }
 
-// Compute the solution error
+/* Compute the solution error */
 static int SolutionError(sunrealtype t, N_Vector u, N_Vector e, void* user_data)
 {
-  // Compute true solution
+  /* Compute true solution */
   int flag = Solution(t, e, (void*)user_data);
   if (flag != 0) { return -1; }
 
-  // Compute absolute error
+  /* Compute max-norm of the error */
   N_VLinearSum(1.0, u, -1.0, e, e);
-
-  sunrealtype error_norm = SUNSQR(N_VDotProd(e, e));
-
-  printf("     Norm of the error is %10.15"ESYM"\n", error_norm);
-
+  sunrealtype error_norm = N_VMaxNorm(e);
+  printf("     Max-norm of the error is %.5"ESYM"\n", error_norm);
   return 0;
 }
 

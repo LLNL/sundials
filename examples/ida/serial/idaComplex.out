@@ -1,0 +1,45 @@
+
+Analytic ODE test problem:
+    problem parameters:  a = 1 + 0i,  b = 1 + 0i,  c = 1 + 0i
+    reltol = 1.0e-06,  abstol = 1.0e-10
+
+      t              u                        u'                       v                        v'                       w                        w'
+   -----------------------------------------------------------------------------------------------------------------------------------------------------------
+    0.000 |  0.00000 +  2.00000i  |   0.00000 +  0.00000i  |  -0.00000 + -0.00000i  |   0.00000 +  0.00000i  |   0.00000 +  1.00000i  |   0.00000 +  0.00000i  
+    1.000 | -0.36788 +  2.00000i  |   0.00000 + -0.00000i  |  -0.00000 + -0.36788i  |  -0.00000 + -0.36788i  |   1.00000 +  0.36788i  |   1.00000 + -0.36788i  
+    2.000 | -0.27067 +  2.00000i  |   0.13533 +  0.00000i  |  -0.00000 + -0.54134i  |  -0.00000 +  0.00000i  |   2.00000 +  0.13533i  |   1.00000 + -0.13534i  
+    3.000 | -0.14936 +  2.00000i  |   0.09957 +  0.00000i  |  -0.00000 + -0.44808i  |  -0.00000 +  0.14936i  |   3.00000 +  0.04979i  |   1.00000 + -0.04979i  
+    4.000 | -0.07326 +  2.00000i  |   0.05494 +  0.00000i  |  -0.00000 + -0.29305i  |  -0.00000 +  0.14652i  |   4.00000 +  0.01831i  |   1.00000 + -0.01832i  
+    5.000 | -0.03370 +  2.00000i  |   0.02693 +  0.00000i  |  -0.00000 + -0.16846i  |  -0.00000 +  0.10105i  |   5.00000 +  0.00673i  |   1.00000 + -0.00675i  
+   -----------------------------------------------------------------------------------------------------------------------------------------------------------
+    Max-norm of the error is 1.16679e-05
+    Max-norm of the derivative error is 2.07444e-05
+
+Final Solver Statistics:
+Current time                  = 5.13043791131417
+Steps                         = 109
+Error test fails              = 8
+NLS step fails                = 0
+Initial step size             = 0.001
+Last step size                = 0.145551581467724
+Current step size             = 0.145551581467724
+Last method order             = 5
+Current method order          = 5
+Residual fn evals             = 123
+IC linesearch backtrack ops   = 0
+NLS iters                     = 123
+NLS fails                     = 0
+NLS iters per step            = 1.12844036697248
+LS setups                     = 0
+Jac fn evals                  = 0
+LS residual fn evals          = 288
+Prec setup evals              = 0
+Prec solves                   = 0
+LS iters                      = 144
+LS fails                      = 0
+Jac-times setups              = 0
+Jac-times evals               = 288
+LS iters per NLS iter         = 1.17073170731707
+Jac evals per NLS iter        = 0
+Prec evals per NLS iter       = 0
+Root fn evals                 = 0

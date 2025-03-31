@@ -23,6 +23,7 @@
 # Examples using SUNDIALS linear solvers
 set(IDA_examples
     "idaAnalytic_mels\;\;exclude-single\;real"
+    "idaComplex\;\;develop\;complex"
     "idaFoodWeb_bnd\;\;develop\;real"
     "idaFoodWeb_kry\;\;develop\;real"
     "idaHeat2D_bnd\;\;develop\;real"
