@@ -40,16 +40,6 @@ SUNErrCode SUNAdjointCheckpointScheme_InsertVector_Fixed(
   suncountertype stage_num, sunrealtype t, N_Vector state);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting_Fixed(
-  SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
-  suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_RemoveVector_Fixed(
-  SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
-  suncountertype stage_num, N_Vector* out);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_LoadVector_Fixed(
   SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
   suncountertype stage_num, sunbooleantype peek, N_Vector* out,

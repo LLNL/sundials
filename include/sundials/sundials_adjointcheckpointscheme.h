@@ -28,10 +28,6 @@ typedef SUNErrCode (*SUNAdjointCheckpointSchemeNeedsSavingFn)(
   SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
   suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no);
 
-typedef SUNErrCode (*SUNAdjointCheckpointSchemeNeedsDeletingFn)(
-  SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
-  suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no);
-
 typedef SUNErrCode (*SUNAdjointCheckpointSchemeInsertVectorFn)(
   SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
   suncountertype stage_num, sunrealtype t, N_Vector y);
@@ -40,10 +36,6 @@ typedef SUNErrCode (*SUNAdjointCheckpointSchemeLoadVectorFn)(
   SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
   suncountertype stage_num, sunbooleantype peek, N_Vector* yout,
   sunrealtype* tout);
-
-typedef SUNErrCode (*SUNAdjointCheckpointSchemeRemoveVectorFn)(
-  SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
-  suncountertype stage_num, N_Vector* out);
 
 typedef SUNErrCode (*SUNAdjointCheckpointSchemeDestroyFn)(
   SUNAdjointCheckpointScheme* check_scheme);
@@ -69,11 +61,6 @@ SUNErrCode SUNAdjointCheckpointScheme_SetNeedsSavingFn(
   SUNAdjointCheckpointSchemeNeedsSavingFn);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_SetNeedsDeletingFn(
-  SUNAdjointCheckpointScheme check_scheme,
-  SUNAdjointCheckpointSchemeNeedsDeletingFn);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_SetInsertVectorFn(
   SUNAdjointCheckpointScheme check_scheme,
   SUNAdjointCheckpointSchemeInsertVectorFn);
@@ -82,11 +69,6 @@ SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_SetLoadVectorFn(
   SUNAdjointCheckpointScheme check_scheme,
   SUNAdjointCheckpointSchemeLoadVectorFn);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_SetRemoveVectorFn(
-  SUNAdjointCheckpointScheme check_scheme,
-  SUNAdjointCheckpointSchemeRemoveVectorFn);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_SetDestroyFn(
@@ -115,11 +97,6 @@ SUNErrCode SUNAdjointCheckpointScheme_NeedsSaving(
   suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no);
 
 SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_NeedsDeleting(
-  SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
-  suncountertype stage_num, sunrealtype t, sunbooleantype* yes_or_no);
-
-SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_InsertVector(
   SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
   suncountertype stage_num, sunrealtype t, N_Vector state);
@@ -129,11 +106,6 @@ SUNErrCode SUNAdjointCheckpointScheme_LoadVector(
   SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
   suncountertype stage_num, sunbooleantype peek, N_Vector* out,
   sunrealtype* tout);
-
-SUNDIALS_EXPORT
-SUNErrCode SUNAdjointCheckpointScheme_RemoveVector(
-  SUNAdjointCheckpointScheme check_scheme, suncountertype step_num,
-  suncountertype stage_num, N_Vector* out);
 
 SUNDIALS_EXPORT
 SUNErrCode SUNAdjointCheckpointScheme_Destroy(SUNAdjointCheckpointScheme*);
