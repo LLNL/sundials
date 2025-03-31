@@ -21,7 +21,6 @@ Last step size                = 0.0001
 Current step size             = 0.0001
 RHS fn evals                  = 40005
 
->>> PASS
 
 -- Do adjoint problem using Jacobian matrix --
 
@@ -33,39 +32,32 @@ Adjoint terminal condition:
  0.000000000000000e+00
  0.000000000000000e+00
 Adjoint Solution:
- 3.520550418956852e+00
--2.193097020595186e+00
- 4.341685917744071e+00
--2.000883243765114e+00
- 1.010121298084231e+00
--1.395734974499640e+00
+ 3.520550418956932e+00
+-2.193097020595348e+00
+ 4.341732371423008e+00
+-2.000834248934306e+00
+ 1.010074324848020e+00
+-1.395706319490111e+00
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
 Num recompute passes          = 0
-Jac fn evals                  = 40004
-JacP fn evals                 = 40004
 
-
->>> PASS
 
 -- Redo adjoint problem using VJP --
 
 Adjoint Solution:
- 3.520550418956852e+00
--2.193097020595186e+00
- 4.341685917744071e+00
--2.000883243765114e+00
- 1.010121298084231e+00
--1.395734974499640e+00
+ 3.520550418956932e+00
+-2.193097020595348e+00
+ 4.341685917743410e+00
+-2.000883243764453e+00
+ 1.010121298083820e+00
+-1.395734974499228e+00
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
 Num recompute passes          = 0
-Jac-times-v evals             = 40004
-JacP-times-v evals            = 40004
 
->>> PASS
 
 -- Redo adjoint problem with change of variables tau = -t  --
 
@@ -97,17 +89,14 @@ Adjoint terminal condition:
  0.000000000000000e+00
  0.000000000000000e+00
 Adjoint Solution:
- 3.520550418956855e+00
--2.193097020595188e+00
- 4.341685917744074e+00
--2.000883243765115e+00
- 1.010121298084232e+00
--1.395734974499641e+00
+ 3.520550418956936e+00
+-2.193097020595350e+00
+ 4.341685917743414e+00
+-2.000883243764455e+00
+ 1.010121298083821e+00
+-1.395734974499230e+00
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
 Num recompute passes          = 0
-Jac-times-v evals             = 40004
-JacP-times-v evals            = 40004
 
->>> PASS

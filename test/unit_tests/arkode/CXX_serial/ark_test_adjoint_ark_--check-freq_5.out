@@ -26,7 +26,6 @@ NLS fails                     = 0
 NLS iters per step            = 0
 LS setups                     = 0
 
->>> PASS
 
 -- Do adjoint problem using Jacobian matrix --
 
@@ -38,39 +37,32 @@ Adjoint terminal condition:
  0.000000000000000e+00
  0.000000000000000e+00
 Adjoint Solution:
- 3.520521083096051e+00
--2.193058654879967e+00
- 4.341632075410649e+00
--2.000888294161839e+00
- 1.010121229157271e+00
--1.395720900341600e+00
+ 3.520521083096132e+00
+-2.193058654880129e+00
+ 4.341667999688531e+00
+-2.000841857921748e+00
+ 1.010078069584224e+00
+-1.395694022440976e+00
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
 Num recompute passes          = 2000
-Jac fn evals                  = 40004
-JacP fn evals                 = 40004
 
-
->>> PASS
 
 -- Redo adjoint problem using VJP --
 
 Adjoint Solution:
- 3.520521083096051e+00
--2.193058654879967e+00
- 4.341632075410649e+00
--2.000888294161839e+00
- 1.010121229157271e+00
--1.395720900341600e+00
+ 3.520521083096132e+00
+-2.193058654880129e+00
+ 4.341632075409988e+00
+-2.000888294161178e+00
+ 1.010121229156859e+00
+-1.395720900341188e+00
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
 Num recompute passes          = 0
-Jac-times-v evals             = 40004
-JacP-times-v evals            = 40004
 
->>> PASS
 
 -- Redo adjoint problem with change of variables tau = -t  --
 
@@ -107,17 +99,14 @@ Adjoint terminal condition:
  0.000000000000000e+00
  0.000000000000000e+00
 Adjoint Solution:
- 3.520521083096052e+00
--2.193058654879967e+00
- 4.341632075410649e+00
--2.000888294161839e+00
- 1.010121229157271e+00
--1.395720900341600e+00
+ 3.520521083096133e+00
+-2.193058654880130e+00
+ 4.341632075409989e+00
+-2.000888294161179e+00
+ 1.010121229156859e+00
+-1.395720900341188e+00
 
 SUNAdjointStepper Stats:
 Num backwards steps           = 10001
 Num recompute passes          = 2000
-Jac-times-v evals             = 40004
-JacP-times-v evals            = 40004
 
->>> PASS

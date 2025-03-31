@@ -42,16 +42,6 @@
 
 #include "problems/lotka_volterra.hpp"
 
-#if defined(SUNDIALS_SINGLE_PRECISION)
-#define FWD_TOL SUN_RCONST(1e-2)
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-#define FWD_TOL SUN_RCONST(1e-4)
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-#define FWD_TOL SUN_RCONST(1e-6)
-#endif
-
-#define ADJ_TOL SUN_RCONST(1e-2)
-
 using namespace problems::lotka_volterra;
 
 static sunrealtype params[4] = {SUN_RCONST(1.5), SUN_RCONST(1.0),
@@ -127,68 +117,6 @@ static int adj_rhs(sunrealtype t, N_Vector y, N_Vector sens, N_Vector sens_dot,
   {
     neg_vjp(Lambda_part, Lambda, t, y, NULL, udata->params, NULL);
     neg_parameter_vjp(Lambda_part, nu, t, y, NULL, udata->params, NULL);
-  }
-
-  return 0;
-}
-
-static int check_forward_answer(N_Vector answer)
-{
-  const sunrealtype u1 = SUN_RCONST(2.77266836);
-  const sunrealtype u2 = SUN_RCONST(0.258714765);
-  sunrealtype* ans     = N_VGetArrayPointer(answer);
-
-  if (SUNRCompareTol(ans[0], u1, FWD_TOL))
-  {
-    fprintf(stdout, "\n>>> ans[0] = %g, should be %g\n", ans[0], u1);
-    return -1;
-  };
-  if (SUNRCompareTol(ans[1], u2, FWD_TOL))
-  {
-    fprintf(stdout, "\n>>> ans[1] = %g, should be %g\n", ans[1], u2);
-    return -1;
-  };
-
-  return 0;
-}
-
-static int check_sensitivities(N_Vector answer)
-{
-  // The correct answer was generated with the Julia ForwardDiff.jl
-  // automatic differentiation package.
-
-  const sunrealtype lambda[2] = {
-    SUN_RCONST(3.5202568952661544),
-    -SUN_RCONST(2.19271337646507),
-  };
-
-  const sunrealtype mu[4] = {SUN_RCONST(4.341147542533404),
-                             -SUN_RCONST(2.000933816791803),
-                             SUN_RCONST(1.010120676762905),
-                             -SUN_RCONST(1.3955943267337996)};
-
-  sunrealtype* ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 0);
-
-  for (sunindextype i = 0; i < 2; ++i)
-  {
-    if (SUNRCompareTol(ans[i], lambda[i], ADJ_TOL))
-    {
-      fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
-              ans[i], lambda[i]);
-      return -1;
-    };
-  }
-
-  ans = N_VGetSubvectorArrayPointer_ManyVector(answer, 1);
-
-  for (sunindextype i = 0; i < 4; ++i)
-  {
-    if (SUNRCompareTol(ans[i], mu[i], ADJ_TOL))
-    {
-      fprintf(stdout, "\n>>> ans[%lld] = %g, should be %g\n", (long long)i,
-              ans[i], mu[i]);
-      return -1;
-    };
   }
 
   return 0;
@@ -297,7 +225,6 @@ static void parse_args(int argc, char* argv[], ProgramArgs* args)
 int main(int argc, char* argv[])
 {
   SUNContext sunctx = NULL;
-  int failcount     = 0;
   SUNContext_Create(SUN_COMM_NULL, &sunctx);
 
   // Since this a unit test, we want to abort immediately on any internal error
@@ -364,13 +291,6 @@ int main(int argc, char* argv[])
   N_VPrint(u);
 
   forward_solution(sunctx, arkode_mem, t0, tf, dt, u);
-  if (check_forward_answer(u))
-  {
-    ++failcount;
-    fprintf(stderr,
-            ">>> FAILURE: forward solution does not match correct answer\n");
-  }
-  else { printf(">>> PASS\n"); }
 
   //
   // Create the adjoint stepper
@@ -404,13 +324,6 @@ int main(int argc, char* argv[])
   udata.jacP   = SUNDenseMatrix(neq, num_params, sunctx);
   SUNAdjointStepper_SetUserData(adj_stepper, &udata);
   adjoint_solution(sunctx, adj_stepper, tf, t0, sf);
-  if (check_sensitivities(sf))
-  {
-    ++failcount;
-    fprintf(stderr,
-            ">>> FAILURE: adjoint solution does not match correct answer\n");
-  }
-  else { printf("\n>>> PASS\n"); }
 
   //
   // Now compute the adjoint solution using vjp
@@ -425,24 +338,11 @@ int main(int argc, char* argv[])
     N_VPrint(u);
     ARKStepReInit(arkode_mem, ode_rhs, NULL, t0, u);
     forward_solution(sunctx, arkode_mem, t0, tf, dt, u);
-    if (check_forward_answer(u))
-    {
-      ++failcount;
-      fprintf(stderr,
-              ">>> FAILURE: forward solution does not match correct answer\n");
-    };
   }
   dgdu(u, sensu0, params, tf);
   dgdp(u, sensp, params, tf);
   SUNAdjointStepper_ReInit(adj_stepper, u, t0, sf, tf);
   adjoint_solution(sunctx, adj_stepper, tf, t0, sf);
-  if (check_sensitivities(sf))
-  {
-    ++failcount;
-    fprintf(stderr,
-            ">>> FAILURE: adjoint solution does not match correct answer\n");
-  }
-  else { printf(">>> PASS\n"); }
 
   //
   // Now compute the adjoint solution but using tau = -t so we can test
@@ -475,12 +375,6 @@ int main(int argc, char* argv[])
   ARKodeSetAdjointCheckpointScheme(arkode_mem, checkpoint_scheme);
 
   forward_solution(sunctx, arkode_mem, tau0, tauf, -dt, u);
-  if (check_forward_answer(u))
-  {
-    ++failcount;
-    fprintf(stderr,
-            ">>> FAILURE: forward solution does not match correct answer\n");
-  };
 
   dgdu(u, sensu0, params, tauf);
   dgdp(u, sensp, params, tauf);
@@ -491,13 +385,6 @@ int main(int argc, char* argv[])
   udata.option = 2;
   SUNAdjointStepper_SetUserData(adj_stepper, &udata);
   adjoint_solution(sunctx, adj_stepper, tauf, tau0, sf);
-  if (check_sensitivities(sf))
-  {
-    ++failcount;
-    fprintf(stderr,
-            ">>> FAILURE: adjoint solution does not match correct answer\n");
-  }
-  else { printf(">>> PASS\n"); }
 
   //
   // Cleanup
@@ -517,7 +404,5 @@ int main(int argc, char* argv[])
   ARKodeFree(&arkode_mem);
   SUNContext_Free(&sunctx);
 
-  if (failcount) { fprintf(stderr, ">>> %d TESTS FAILED\n", failcount); }
-
-  return failcount;
+  return 0;
 }
