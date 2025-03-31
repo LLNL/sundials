@@ -1444,7 +1444,7 @@ Set the checkpointing step index (for adjoint)     :c:func:`ARKodeSetAdjointChec
    of an adjoint system.
 
    :param arkode_mem: pointer to the ARKODE memory block.
-   :param checkpoint_scheme: the checkpoint scheme to use.
+   :param checkpoint_scheme: the checkpoint scheme to use, or ``NULL`` to disable checkpointing
 
    :retval ARK_SUCCESS: the function exited successfully.
    :retval ARK_MEM_NULL: ``arkode_mem`` was ``NULL``.
