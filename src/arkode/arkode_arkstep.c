@@ -2314,8 +2314,8 @@ int arkStep_TakeStep_ERK_Adjoint(ARKodeMem ark_mem, sunrealtype* dsmPtr,
     retval = N_VLinearCombination(nvec, cvals, Xvecs, sens_tmp_Lambda);
     if (retval != 0) { return (ARK_VECTOROP_ERR); }
 
-    /* Compute the stages \Lambda_i and \nu_i by evaluating f_{y}^*(t_i, z_i, p) and  
-       f_{p}^*(t_i, z_i, p) and applying them to sens_tmp_Lambda (in sens_tmp). This is  
+    /* Compute the stages \Lambda_i and \nu_i by evaluating f_{y}^*(t_i, z_i, p) and
+       f_{p}^*(t_i, z_i, p) and applying them to sens_tmp_Lambda (in sens_tmp). This is
        done in fe which retrieves z_i from the checkpoint data */
     retval = step_mem->fe(ark_mem->tcur, sens_tmp, stage_values[is],
                           ark_mem->user_data);
