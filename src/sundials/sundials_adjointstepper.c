@@ -84,7 +84,6 @@ SUNErrCode SUNAdjointStepper_Evolve(SUNAdjointStepper self, sunrealtype tout,
 
 {
   SUNFunctionBegin(self->sunctx);
-  SUNCheckCall(SUNStepper_SetStopTime(self->adj_sunstepper, tout));
   SUNCheckCall(SUNStepper_Evolve(self->adj_sunstepper, tout, sens, tret));
   return SUN_SUCCESS;
 }
