@@ -1499,11 +1499,17 @@ Reset accumulated error                                     :c:func:`ARKodeReset
       inputs with type ``SUN_ADAPTCONTROLLER_MRI_H_TOL``.
 
    .. versionadded:: 6.1.0
+   
+   .. versionchanged:: x.y.z
+   
+      The default controller was changed from PID to I.
+   
+      
 
 
 .. c:function:: int ARKodeSetAdaptControllerByName(void* arkode_mem, const char* cname)
 
-   Sets a user-supplied time-step controller object by name.
+   Sets a user-supplied time step controller object by name.
 
    :param arkode_mem: pointer to the ARKODE memory block.
    :param cname: name of the time adaptivity controller to use.  Allowable values

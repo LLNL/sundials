@@ -17,7 +17,7 @@ parameters in ARKODE:
 | Fixed Step Bounds     | [1.0, 1.5]            | [1.0, 1.0]  |
 | Adaptivity Adjustment | -1                    | 0           |
 
-The following can be used to restore the old defaults for ERKStep:
+The following calls can be used to restore the old defaults for ERKStep:
 ```
 arkode_mem = ...
 SUNAdaptController controller = SUNAdaptController_Soderlind(ctx);
@@ -30,7 +30,7 @@ ARKodeSetAdaptivityAdjustment(arkode_mem, -1);
 ...
 SUNAdaptController_Destroy(controller);
 ```
-The following can be used to restore the old defaults for other ARKODE
+The following calls can be used to restore the old defaults for other ARKODE
 integrators:
 ```
 arkode_mem = ...
@@ -45,7 +45,7 @@ SUNAdaptController_Destroy(controller);
 ```
 
 Added `ARKodeSetAdaptControllerByName` to set a time step adaptivity controller
-by a string. There are also three new controllers: `SUNAdaptController_H0211`,
+with a string. There are also three new controllers: `SUNAdaptController_H0211`,
 `SUNAdaptController_H211`, and `SUNAdaptController_H312`.
 
 Improved the precision of the coefficients for `ARKODE_ARK324L2SA_ERK_4_2_3`,

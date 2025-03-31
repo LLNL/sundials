@@ -318,13 +318,13 @@ also provides the following additional user-callable routines:
 .. c:function:: SUNAdaptController SUNAdaptController_H0211(SUNContext sunctx)
 
    This constructor creates and allocates memory for a
-   SUNAdaptController_Soderlind object, set up to replicate the :math:`H_{0}211`
+   :c:type:`SUNAdaptController_Soderlind` object, set up to replicate the :math:`H_{0}211`
    controller from :cite:p:`Sod:03`, corresponding with the parameters :math:`k_1=0.5`,
    :math:`k_2=0.5`, :math:`k_4=-0.5`, and :math:`k_3=k_5=0`.
 
    :param sunctx: the current :c:type:`SUNContext` object.
-   :return: if successful, a usable :c:type:`SUNAdaptController` object;
-            otherwise it will return ``NULL``.
+   :returns: if successful, a usable :c:type:`SUNAdaptController` object;
+             otherwise it will return ``NULL``.
 
    Usage:
 
@@ -335,13 +335,13 @@ also provides the following additional user-callable routines:
 .. c:function:: SUNAdaptController SUNAdaptController_H211(SUNContext sunctx)
 
    This constructor creates and allocates memory for a
-   SUNAdaptController_Soderlind object, set up to replicate the :math:`H211`
+   :c:type:`SUNAdaptController_Soderlind` object, set up to replicate the :math:`H211`
    controller from :cite:p:`Sod:03`, corresponding with the parameters :math:`k_1=0.25`,
    :math:`k_2=0.25`, :math:`k_4=-0.25`, and :math:`k_3=k_5=0`.
 
    :param sunctx: the current :c:type:`SUNContext` object.
-   :return: if successful, a usable :c:type:`SUNAdaptController` object;
-            otherwise it will return ``NULL``.
+   :returns: if successful, a usable :c:type:`SUNAdaptController` object;
+             otherwise it will return ``NULL``.
 
    Usage:
 
@@ -357,8 +357,8 @@ also provides the following additional user-callable routines:
    :math:`k_2=0.25`, :math:`k_3=0.125`, :math:`k_4=-0.375`, and :math:`k_5=-0.125`.
 
    :param sunctx: the current :c:type:`SUNContext` object.
-   :return: if successful, a usable :c:type:`SUNAdaptController` object;
-            otherwise it will return ``NULL``.
+   :returns: if successful, a usable :c:type:`SUNAdaptController` object;
+             otherwise it will return ``NULL``.
 
    Usage:
 

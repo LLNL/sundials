@@ -19,38 +19,38 @@ parameters in ARKODE:
 | Adaptivity Adjustment | -1                    | 0           |
 +-----------------------+-----------------------+-------------+
 
-The following can be used to restore the old defaults for ERKStep:
+The following calls can be used to restore the old defaults for ERKStep:
 
 .. code-block:: c
 
-  arkode_mem = ...
-  SUNAdaptController controller = SUNAdaptController_Soderlind(ctx);
-  SUNAdaptController_SetParams_PI(controller, 0.8, -0.31);
-  ARKodeSetAdaptController(arkode_mem, controller);
-  SUNAdaptController_SetErrorBias(controller, 1.2);
-  ARKodeSetSafetyFactor(arkode_mem, 0.96);
-  ARKodeSetFixedStepBounds(arkode_mem, 1, 1.5);
-  ARKodeSetAdaptivityAdjustment(arkode_mem, -1);
-  ...
-  SUNAdaptController_Destroy(controller);
+   arkode_mem = ...
+   SUNAdaptController controller = SUNAdaptController_Soderlind(ctx);
+   SUNAdaptController_SetParams_PI(controller, 0.8, -0.31);
+   ARKodeSetAdaptController(arkode_mem, controller);
+   SUNAdaptController_SetErrorBias(controller, 1.2);
+   ARKodeSetSafetyFactor(arkode_mem, 0.96);
+   ARKodeSetFixedStepBounds(arkode_mem, 1, 1.5);
+   ARKodeSetAdaptivityAdjustment(arkode_mem, -1);
+   ...
+   SUNAdaptController_Destroy(controller);
 
-The following can be used to restore the old defaults for other ARKODE
+The following calls can be used to restore the old defaults for other ARKODE
 integrators:
 
 .. code-block:: c
 
-  arkode_mem = ...
-  SUNAdaptController controller = SUNAdaptController_PID(ctx);
-  ARKodeSetAdaptController(arkode_mem, controller);
-  SUNAdaptController_SetErrorBias(controller, 1.5);
-  ARKodeSetSafetyFactor(arkode_mem, 0.96);
-  ARKodeSetFixedStepBounds(arkode_mem, 1, 1.5);
-  ARKodeSetAdaptivityAdjustment(arkode_mem, -1);
-  ...
-  SUNAdaptController_Destroy(controller);
+   arkode_mem = ...
+   SUNAdaptController controller = SUNAdaptController_PID(ctx);
+   ARKodeSetAdaptController(arkode_mem, controller);
+   SUNAdaptController_SetErrorBias(controller, 1.5);
+   ARKodeSetSafetyFactor(arkode_mem, 0.96);
+   ARKodeSetFixedStepBounds(arkode_mem, 1, 1.5);
+   ARKodeSetAdaptivityAdjustment(arkode_mem, -1);
+   ...
+   SUNAdaptController_Destroy(controller);
 
 Added :c:func:`ARKodeSetAdaptControllerByName` to set a time step adaptivity controller
-by a string. There are also three new controllers:
+with a string. There are also three new controllers:
 :c:func:`SUNAdaptController_H0211`, :c:func:`SUNAdaptController_H211`, and
 :c:func:`SUNAdaptController_H312`.
 
