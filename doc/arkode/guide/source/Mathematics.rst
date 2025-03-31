@@ -971,7 +971,7 @@ arise from the **separable** Hamiltonian system
 where
 
 .. math::
-   f_1(t, q) \equiv \frac{\partial V(t, q)}{\partial q}, \qquad
+   f_1(t, q) \equiv -\frac{\partial V(t, q)}{\partial q}, \qquad
    f_2(t, p) \equiv \frac{\partial T(t, p)}{\partial p}.
 
 When *H* is autonomous, then *H* is a conserved quantity. Often this corresponds
@@ -2701,7 +2701,7 @@ Consider :eq:`ARKODE_IVP_simple_explicit`, but where the ODE also depends on som
 parameters, :math:`p`, leading to the system
 
 .. math::
-   \dot{y} = f(t,y,p), \qquad y(t_0) = y_0.
+   \dot{y} = f(t,y,p), \qquad y(t_0) = y_0(p).
    :label: ARKODE_IVP_simple_explicit_with_parameters
 
 Now, suppose we have a functional :math:`g(y(t_f), t_f, p)` for which we would like to compute the
@@ -2709,7 +2709,7 @@ gradients
 
 .. math::
    \frac{dg(t_f,y(t_n),p)}{dy}, \quad \text{and optionally}, \quad \frac{dg(t_f,y(t_n),p)}{dp}.
-   
+
 This most often arises in the form of an optimization problem such as
 
 .. math::
@@ -2723,13 +2723,6 @@ methods (differentiate-then-discretize), ARKODE provides *discrete* adjoint meth
 (discretize-then-differentiate). For the discrete adjoint approach, we first numerically discretize
 the original ODE :eq:`ARKODE_IVP_simple_explicit_with_parameters`. In the context of ARKODE, this is
 done with a one-step time integration scheme :math:`\varphi` so that
-
-.. warning:: 
-   The CVODES and IDAS documentation use :math:`\lambda` to represent the adjoint variables needed
-   to obtain the gradient :math:`dG/dp` where :math:`G` is an integral of :math:`g`.
-   Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES and
-   IDAS docs.
-
 
 .. math::
    y_0 = y(t_0),\quad y_n = \varphi(y_{n-1}).
@@ -2751,6 +2744,12 @@ and :math:`\mu_n, \mu_{n-1}, \cdots, \mu_0`, where
     \quad k = n - 1, \cdots, 0.
    :label: ARKODE_DISCRETE_ADJOINT
 
+.. warning::
+   The CVODES and IDAS documentation use :math:`\lambda` to represent the adjoint variables needed
+   to obtain the gradient :math:`dG/dp` where :math:`G` is an integral of :math:`g`.
+   Our use of :math:`\lambda` in the following is akin to the use of :math:`\mu` in the CVODES and
+   IDAS docs.
+
 The discrete adjoint variables represent the gradients of the discrete cost function
 
 .. math::
@@ -2765,13 +2764,12 @@ to compute :math:`\lambda_n` and :math:`\mu_n` starting from :math:`\lambda_{n+1
 .. math::
    \Lambda_i &= h_n f_y^*(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i+1}^s a_{j,i}
    \Lambda_j \right), \quad \quad i = s, \dots, 1,\\
-   \nu_i     &= h_n f_p^*(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{ji} \Lambda_j \right), \\
-   \lambda_n &= \lambda_{n+1} + \sum_{j=1}^{s} \Lambda_j, \\
+   \nu_i     &= h_n f_p^*(t_{n,i}, z_i, p) \left(b_i \lambda_{n+1} + \sum_{j=i}^{s} a_{j,i} \Lambda_j \right), \\
    \mu_n     &= \mu_{n+1} + \sum_{j=1}^{s} \nu_j.
    :label: ARKODE_ERK_ADJOINT
 
 For more information on performing discrete adjoint sensitivity analysis using ARKODE see,
 :numref:`ARKODE.Usage.ASA`. For a detailed derivation of the discrete adjoint methods see
-:cite:p:`hager2000runge,sanduDiscrete2006`. :numref:`SUNAdjoint.DiscreteContinuous` provides a brief
+:cite:p:`hager2000runge,sanduDiscrete2006`. See :numref:`SUNAdjoint.DiscreteContinuous` for a brief
 discussion about the differences between the contninuous and discrete adjoint methods, and why one
 would choose one over the other.
